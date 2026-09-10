@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh selector coverage: seed 730642 was selected by scanning 730000-731000 for a teleport trap beside a debug-created giant rat; the y-u-k route makes the rat step onto TELEP_TRAP and exercises trapeffect_telep_trap() through postmov().",
+  "segments": [
+    {
+      "seed": 730642,
+      "datetime": "20260724120000",
+      "nethackrc": "OPTIONS=name:TeleScan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " #wizgenesis\ngiant rat\nyuk"
+    }
+  ]
+}

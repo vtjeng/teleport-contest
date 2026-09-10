@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh trap.c coverage: seed 720649 was selected by scanning 720000-721000 for a D:1 trapdoor with no teleport trap and a short walk around it; the debug-created giant rat follows the hero onto the trapdoor, reaching trapeffect_hole() through postmov().",
+  "segments": [
+    {
+      "seed": 720649,
+      "datetime": "20260724120000",
+      "nethackrc": "OPTIONS=name:TrapScan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " #wizgenesis\ngiant rat\nhbh"
+    }
+  ]
+}

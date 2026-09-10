@@ -71,6 +71,7 @@ import {
     Trap_Effect_Finished,
     Trap_Is_Gone,
     Trap_Killed_Mon,
+    Trap_Moved_Mon,
     Upolyd,
     VIASITTING,
     VIBRATING_SQUARE,
@@ -85,7 +86,7 @@ import { stop_occupation } from './allmain.js';
 import { exercise, poisoned } from './attrib.js';
 import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { set_wounded_legs } from './do.js';
-import { at_dgn_entrance, on_level } from './dungeon.js';
+import { at_dgn_entrance, Can_fall_thru, on_level } from './dungeon.js';
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { game } from './gstate.js';
 import { setmangry } from './mon.js';
@@ -99,6 +100,7 @@ import {
 } from './hack.js';
 import { done } from './end.js';
 import { obj_extract_self, obfree, stackobj } from './invent.js';
+import { count_wsegs } from './makemon_create.js';
 import { maybe_unhide_at, monkilled, wake_nearto } from './mon.js';
 import {
     amorphous,
@@ -120,6 +122,7 @@ import {
 import {
     AD_PHYS,
     AD_RBRE,
+    MZ_HUGE,
     MZ_SMALL,
     PM_BUGBEAR,
     PM_OWLBEAR,
@@ -155,7 +158,7 @@ import {
     t_at,
     trapname,
 } from './trap.js';
-import { tele_trap } from './teleport.js';
+import { mlevel_tele_trap, mtele_trap, tele_trap } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { dmgval } from './weapon.js';
 import {
@@ -1050,24 +1053,144 @@ async function domagictrap(env) {
     }
 }
 
-// C ref: trap.c trapeffect_telep_trap() (2069-2085), hero arm only.
-//
-// The monster arm forwards to teleport.c mtele_trap(), which needs the
-// seeTrap, newsym and setApparxy owners that mintrap()'s callers do not bind
-// and set_apparxy(), which is not ported. It refuses here rather than from
-// UNPORTED_TRAP_EFFECTS, the way trapeffect_magic_trap() and trapeffect_pit()
-// each own the refusal for the arm they do not cover.
-async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
-    const state = env.state;
+// C ref: trap.c trapeffect_hole() (2013-2069), including both the hero and
+// monster arms. A hero cannot currently enter this arm: preflight_dotrap()
+// rejects HOLE and TRAPDOOR before dotrap() changes state. The monster arm is
+// live through postmov() and sends ordinary grounded creatures to the
+// level-teleport helper below.
+async function trapeffect_hole(mtmp, trap, trflags, env) {
+    const { state } = env;
     const unsupported = requireTrapOperation(env, 'unsupported');
 
+    if (mtmp === state.youmonst) {
+        if (!Can_fall_thru(state.u?.uz, state)) {
+            // C reports this through impossible(), which has no terminal or
+            // game-state effect. seetrap() still records the trap before that
+            // diagnostic, as fall_through() normally would.
+            seetrap(trap, env);
+            return Trap_Effect_Finished;
+        }
+        // fall_through() owns the level transition and its arrival screen;
+        // that source unit is not ported yet and this hero arm is unreachable
+        // through the current movement preflight.
+        unsupported('fall_through() from a hole or trap door');
+        return Trap_Effect_Finished; // unreachable
+    }
+
+    const tt = trap.ttyp;
+    const species = mtmp.data;
+    const inSight = canSeeMonster(mtmp, state)
+        || mtmp === state.u?.usteed;
+    const forceTrap = (trflags & FORCETRAP) !== 0;
+    const inescapable = forceTrap
+        || (state.level?.flags?.sokoban_rules && !trap.madeby_u);
+
+    if (!Can_fall_thru(state.u?.uz, state)) {
+        // C's impossible() is diagnostic only; no visible output is emitted.
+        return Trap_Effect_Finished;
+    }
+
+    const tooLargeOrAirborne = !grounded(species, state)
+        || (mtmp.wormno && count_wsegs(mtmp) > 5)
+        || species.msize >= MZ_HUGE;
+    if (tooLargeOrAirborne) {
+        if (forceTrap && !state.level?.flags?.sokoban_rules) {
+            if (inSight) {
+                seetrap(trap, env);
+                await requireTrapOperation(env, 'message')(
+                    messageAt(
+                        tt === TRAPDOOR
+                            ? `A trap door opens, but ${monsterCommonName(mtmp, state)}`
+                                + " doesn't fall through."
+                            : `${capitalizedMonsterName(mtmp, state)}`
+                                + " doesn't fall through the hole.",
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+            }
+            return Trap_Effect_Finished;
+        }
+        if (inescapable) {
+            if (inSight) {
+                await requireTrapOperation(env, 'message')(
+                    messageAt(
+                        `${capitalizedMonsterName(mtmp, state)}`
+                            + ' seems to be yanked down!',
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+                seetrap(trap, env);
+            }
+        } else {
+            return Trap_Effect_Finished;
+        }
+    }
+
+    return trapeffect_level_telep(mtmp, trap, trflags, env);
+}
+
+// C ref: trap.c trapeffect_telep_trap() (2070-2087). The hero arm is
+// reachable through dotrap() when its preflight admits a teleport trap. The
+// monster arm always reports Trap_Moved_Mon, even when mtele_trap() declines
+// to move a pet because teleportation is restricted.
+async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
+    const { state } = env;
     if (mtmp === state.youmonst) {
         seetrap(trap, env);
         await tele_trap(trap, state);
         return Trap_Effect_Finished;
     }
-    unsupported('a monster on a teleport trap');
-    return Trap_Effect_Finished; // unreachable
+
+    await mtele_trap(mtmp, trap, canSeeMonster(mtmp, state)
+        || mtmp === state.u?.usteed, {
+        ...env,
+        seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
+            seetrap(candidate, {
+                ...operationEnv,
+                redraw: env.redraw ?? (() => {}),
+            })),
+        newsym: env.newsym ?? env.redraw,
+    });
+    return Trap_Moved_Mon;
+}
+
+// C ref: trap.c trapeffect_level_telep() (2088-2105). The monster arm's
+// mlevel_tele_trap() return is retained as the string API used by the existing
+// teleport helper tests, then translated to trap.c's numeric result code for
+// mintrap() and postmov().
+async function trapeffect_level_telep(mtmp, trap, trflags, env) {
+    const { state } = env;
+    if (mtmp === state.youmonst) {
+        const unsupported = requireTrapOperation(env, 'unsupported');
+        seetrap(trap, env);
+        unsupported('level_tele_trap() for the hero');
+        return Trap_Effect_Finished; // unreachable
+    }
+
+    const result = await mlevel_tele_trap(
+        mtmp,
+        trap,
+        (trflags & FORCETRAP) !== 0,
+        canSeeMonster(mtmp, state) || mtmp === state.u?.usteed,
+        {
+            ...env,
+            seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
+                seetrap(candidate, {
+                    ...operationEnv,
+                    redraw: env.redraw ?? (() => {}),
+                })),
+            newsym: env.newsym ?? env.redraw,
+        },
+    );
+    return result === 'moved' ? Trap_Moved_Mon : Trap_Effect_Finished;
 }
 
 // C ref: trap.c trapeffect_magic_trap() (2293-2320), hero arm only.
@@ -1405,9 +1528,6 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     RUST_TRAP,
     FIRE_TRAP,
     SPIKED_PIT,
-    HOLE,
-    TRAPDOOR,
-    LEVEL_TELEP,
     MAGIC_PORTAL,
     WEB,
     STATUE_TRAP,
@@ -1435,6 +1555,10 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_pit(monster, trap, trflags, env);
     if (trap.ttyp === MAGIC_TRAP)
         return trapeffect_magic_trap(monster, trap, trflags, env);
+    if (trap.ttyp === HOLE || trap.ttyp === TRAPDOOR)
+        return trapeffect_hole(monster, trap, trflags, env);
+    if (trap.ttyp === LEVEL_TELEP)
+        return trapeffect_level_telep(monster, trap, trflags, env);
     if (trap.ttyp === TELEP_TRAP)
         return trapeffect_telep_trap(monster, trap, trflags, env);
     if (trap.ttyp === ROLLING_BOULDER_TRAP)

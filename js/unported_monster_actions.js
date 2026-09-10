@@ -53,6 +53,7 @@ import {
     finish_meating,
     pet_ranged_attk,
 } from './dogmove.js';
+import { migrate_to_level } from './dog.js';
 import { capitalizedMonsterName } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
@@ -121,6 +122,8 @@ import {
     m_everyturn_effect,
     m_in_air,
     m_move,
+    onscary,
+    set_apparxy,
 } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -956,6 +959,26 @@ function doorVisionOperations(env) {
         : {};
 }
 
+// trap.c trapeffect_level_telep() reaches dog.c migrate_to_level() after a
+// monster falls through a hole or trap door. The clone must redraw nothing;
+// the live replay redraws the vacated square through the ordinary display
+// owner. Keeping this adapter at the production action boundary gives both
+// passes the same migration bookkeeping and destination fields.
+function monsterMigrationOperation(env) {
+    return (monster, destinationLedger, destinationCode, coordinate,
+        migrationEnv = {}) => migrate_to_level(
+        monster,
+        destinationLedger,
+        destinationCode,
+        coordinate,
+        {
+            ...migrationEnv,
+            newsym: migrationEnv.planning ? () => {}
+                : (migrationEnv.newsym ?? newsym),
+        },
+    );
+}
+
 // weapon.c mon_wield_item()'s two presentation operations, as
 // m_digweapon_check() reaches it. The planning pass mutates its cloned monster
 // and inventory but writes no line; the live replay of the same turn writes
@@ -987,6 +1010,9 @@ async function moveSimpleOrdinary(monster, env) {
         ...env,
         ...doorVisionOperations(env),
         ...monsterWieldOperations(env),
+        migrateToLevel: monsterMigrationOperation(env),
+        setApparxy: (subject, operationEnv) =>
+            set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
         resistsTrapEffect,
@@ -1008,6 +1034,9 @@ async function moveSimpleOrdinary(monster, env) {
 async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
+        migrateToLevel: monsterMigrationOperation(env),
+        setApparxy: (subject, operationEnv) =>
+            set_apparxy(subject, operationEnv),
         // dogmove.c:1280-1287 hands an ALLOW_U landing directly to
         // mattacku().  Starting pets are constrained by assertSimpleActionState
         // above; mattacku() itself keeps every attack family outside this
@@ -1363,7 +1392,18 @@ export async function wieldMonsterItemAgainstMonster(
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = actionRandom(rawEnv);
-    const env = { ...rawEnv, state, random };
+    const env = {
+        ...rawEnv,
+        state,
+        random,
+        migrateToLevel: rawEnv.migrateToLevel
+            ?? monsterMigrationOperation({ ...rawEnv, state, random }),
+        setApparxy: rawEnv.setApparxy
+            ?? ((subject, operationEnv) => set_apparxy(subject, operationEnv)),
+        onscary: rawEnv.onscary
+            ?? ((x, y, subject, operationEnv) =>
+                onscary(x, y, subject, operationEnv.state)),
+    };
     assertSimpleActionState(monster, state);
     return dochugw(monster, true, {
         ...env,

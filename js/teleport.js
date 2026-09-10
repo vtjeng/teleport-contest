@@ -166,6 +166,7 @@ import { rn2, rnd, rnl } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
+    messageAt,
     sensesMonster,
 } from './startup_a11y.js';
 import { getpos } from './getpos.js';
@@ -738,9 +739,10 @@ export async function mtele_trap(
     }
 }
 
-// C ref: teleport.c mlevel_tele_trap(), bounded to an ordinary D:1 monster
-// falling through a hole or trap door. Portal, level-teleport, leash, steed,
-// stronghold, bottom-level, and forced-off-level branches are future work.
+// C ref: teleport.c mlevel_tele_trap() (2006-2086). The ordinary monster
+// hole/trapdoor path is complete; leash handling and the portal, level-
+// teleporter, and forced-off-level callers remain explicit boundaries because
+// their source owners are not yet wired into monster movement.
 export async function mlevel_tele_trap(
     monster,
     trap,
@@ -777,7 +779,12 @@ export async function mlevel_tele_trap(
         'migrateToLevel',
     );
     const seeTrap = inSight
-        ? monsterTeleportOperation(env, 'seeTrap')
+        ? (env.seeTrap ?? ((candidate, operationEnv) => {
+            candidate.tseen = true;
+            if (typeof operationEnv.newsym === 'function') {
+                operationEnv.newsym(candidate.tx, candidate.ty, operationEnv);
+            }
+        }))
         : null;
     const message = env.message ?? ttyPline;
     if (inSight && typeof message !== 'function') {
@@ -786,19 +793,54 @@ export async function mlevel_tele_trap(
         );
     }
 
-    if (inSight) {
-        await message(
-            `Suddenly, ${monsterCommonName(monster, state)} `
-            + `${trapType === HOLE
-                ? 'falls into a hole'
-                : 'falls through a trap door'}.`,
-            state,
+    // trap.c passes the clamped destination by value to migrate_to_level();
+    // never rewrite trap->dst because the trap remains in the source level's
+    // data until that level is saved.
+    const destination = { ...trap.dst };
+    if (state.stronghold_level
+        && on_level(state.u?.uz, state.stronghold_level)) {
+        destination.dnum = state.valley_level?.dnum;
+        destination.dlevel = state.valley_level?.dlevel;
+    } else {
+        const dungeon = state.dungeons?.[state.u?.uz?.dnum];
+        if (state.u?.uz && dungeon
+            && state.u.uz.dlevel === dungeon.num_dunlevs) {
+            if (inSight && trap.tseen) {
+                await message(messageAt(
+                    `${capitalizedMonsterName(monster, state)} avoids the `
+                        + `${trapType === HOLE ? 'hole' : 'trap'}.`,
+                    monster.mx,
+                    monster.my,
+                    state,
+                ), state);
+            }
+            return 'finished';
+        }
+        const bottom = dungeon?.num_dunlevs;
+        if (Number.isInteger(bottom))
+            destination.dlevel = Math.min(destination.dlevel, bottom);
+    }
+    if (!Number.isInteger(destination.dnum)
+        || !Number.isInteger(destination.dlevel)) {
+        throw new TypeError(
+            'monster level teleport requires a destination level',
         );
+    }
+    if (inSight) {
+        await message(messageAt(
+            `Suddenly, ${monsterCommonName(monster, state)} `
+                + `${trapType === HOLE
+                    ? 'falls into a hole'
+                    : 'falls through a trap door'}.`,
+            monster.mx,
+            monster.my,
+            state,
+        ), state);
         seeTrap(trap, env);
     }
     migrateToLevel(
         monster,
-        ledger_no(trap.dst, state),
+        ledger_no(destination, state),
         MIGR_RANDOM,
         null,
         env,
