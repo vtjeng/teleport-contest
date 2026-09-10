@@ -18970,7 +18970,7 @@
     {
       "id": "port-sfbase",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port sfbase.c save-format serialization helpers",
       "cFile": "sfbase.c",
       "sessions": [],
@@ -19060,8 +19060,8 @@
         },
         {
           "name": "norm_ptrs_s_level..norm_ptrs_you",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6cd5ab41d84ec9f4a8e70ada8d42868b1ffdfa54",
           "functions": [
             "norm_ptrs_s_level",
             "norm_ptrs_skills",
@@ -19086,8 +19086,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6cd5ab41d84ec9f4a8e70ada8d42868b1ffdfa54",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "SF_X",
@@ -19543,85 +19546,85 @@
           "name": "norm_ptrs_s_level",
           "line": 1042,
           "endLine": 1046,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_skills",
           "line": 1047,
           "endLine": 1051,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_spell",
           "line": 1052,
           "endLine": 1056,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_stairway",
           "line": 1057,
           "endLine": 1061,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_trap",
           "line": 1062,
           "endLine": 1066,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_u_conduct",
           "line": 1067,
           "endLine": 1071,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_u_event",
           "line": 1072,
           "endLine": 1076,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_u_have",
           "line": 1077,
           "endLine": 1081,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_u_realtime",
           "line": 1082,
           "endLine": 1086,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_u_roleplay",
           "line": 1087,
           "endLine": 1091,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_version_info",
           "line": 1092,
           "endLine": 1096,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_vlaunchinfo",
           "line": 1097,
           "endLine": 1101,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_vptrs",
           "line": 1102,
           "endLine": 1106,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_you",
           "line": 1107,
           "endLine": 1118,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
