@@ -21292,7 +21292,16 @@
       ],
       "selectionReason": "Highest mismatch queue candidate is seed0030-ten-diverse-deaths at cumulative step 633: source trace identifies missing fountain.c drinkfountain() fate default and dryup tail, so queue the responsible C function as a file-port.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "drinkfountain",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "drinkfountain"
+          ]
+        }
+      ],
       "openedAt": "7fe12d7dca49a4d08a6db1296aaba59928492fc6",
       "openStanding": {
         "sha": "e6be6c76f5397d62ecbf93e3b15b8c92d80f97ce",
