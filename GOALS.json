@@ -19817,7 +19817,7 @@
     {
       "id": "port-options-disclosure-menu-handlers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port options.c disclosure and menu-display handlers",
       "cFile": "options.c",
       "sessions": [],
@@ -19825,8 +19825,8 @@
       "spans": [
         {
           "name": "handler_disclose..handler_menu_objsyms",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e38dd143390b0ed479ac3cb587c15eb961a76770",
           "functions": [
             "handler_disclose",
             "handler_menu_objsyms"
@@ -19839,14 +19839,17 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e38dd143390b0ed479ac3cb587c15eb961a76770",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "handler_disclose",
           "line": 5675,
           "endLine": 5779,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_menu_headings",
@@ -19858,7 +19861,7 @@
           "name": "handler_menu_objsyms",
           "line": 5795,
           "endLine": 5831,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
