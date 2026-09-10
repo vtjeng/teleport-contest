@@ -20718,7 +20718,7 @@
     {
       "id": "port-mon-setmangry-wakeup",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete mon.c setmangry(), wake_msg(), and wakeup() monster reaction family and wire its production callers.",
       "cFile": "mon.c",
       "sessions": [
@@ -20744,8 +20744,11 @@
         "screens": 5417,
         "rng": 390090
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3e836f501bc0f7fdff71ba4a399f26cd2d32d9f3",
+      "delivered": {
+        "screens": 0,
+        "rng": 29
+      },
       "functions": [
         {
           "name": "setmangry",
@@ -20958,7 +20961,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 576,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1377
+        }
+      ]
     }
   ]
 }
