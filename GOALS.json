@@ -21280,6 +21280,62 @@
           "remainingScreensUpperBound": 1371
         }
       ]
+    },
+    {
+      "id": "port-fountain-drinkfountain-tepid-water",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port drinkfountain() tepid-water default fate and common dryup continuation",
+      "cFile": "fountain.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "Highest mismatch queue candidate is seed0030-ten-diverse-deaths at cumulative step 633: source trace identifies missing fountain.c drinkfountain() fate default and dryup tail, so queue the responsible C function as a file-port.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "7fe12d7dca49a4d08a6db1296aaba59928492fc6",
+      "openStanding": {
+        "sha": "e6be6c76f5397d62ecbf93e3b15b8c92d80f97ce",
+        "screens": 5474,
+        "rng": 396679
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "drinkfountain",
+          "line": 243,
+          "endLine": 393,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 393
+      },
+      "activeStanding": {
+        "sha": "e6be6c76f5397d62ecbf93e3b15b8c92d80f97ce",
+        "screens": 5474,
+        "rng": 396679
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 633,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: fountain requires tepid-water fountain effect (default)",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1320
+        }
+      ]
     }
   ]
 }
