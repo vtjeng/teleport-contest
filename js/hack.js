@@ -2479,6 +2479,10 @@ export async function test_move(
     const passesWalls = propertyPresent(state, PASSES_WALLS);
     const run = state.context.run ?? 0;
     const message = env.message ?? ttyPline;
+    const chewBoulder = env.stillChewing
+        ?? ((targetX, targetY) => still_chewing(targetX, targetY, state));
+    const pushBoulder = env.moverock
+        ?? (() => moverock(state, env));
 
     // hack.c:1011-1072, physical obstacles. The feel happens before every
     // branch, and the pass-wall and tunnelling forms deliberately fall through
@@ -2612,6 +2616,15 @@ export async function test_move(
             } else if (mode !== TEST_TRAV && mode !== TEST_TRAP) {
                 return false;
             }
+            // C: the TEST_TRAV/TEST_TRAP arms jump to testdiag from the
+            // closed-door branch.  That label still rejects a diagonal move
+            // through the intact doorway; it is not only the non-closed-door
+            // arm below.
+            if ((mode === TEST_TRAV || mode === TEST_TRAP)
+                && dx && dy && !passesWalls
+                && !doorless_door(location, state)) {
+                return false;
+            }
             if (mode === DO_MOVE) return false;
         }
     } else if (IS_DOOR(location.typ)) {
@@ -2740,10 +2753,9 @@ export async function test_move(
         }
         if (mode === DO_MOVE) {
             if (tunnels(species) && !needspick(species)
-                && !In_sokoban(state.u?.uz)
-                && await still_chewing(x, y, state)) {
-                return false;
-            } else if (await moverock(state, env) < 0) {
+                && !In_sokoban(state.u?.uz)) {
+                if (await chewBoulder(x, y)) return false;
+            } else if (await pushBoulder() < 0) {
                 return false;
             }
         }

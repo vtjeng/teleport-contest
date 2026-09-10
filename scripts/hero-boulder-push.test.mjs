@@ -7,6 +7,7 @@ import {
     DEAF,
     DETECT_MONSTERS,
     DOOR,
+    DO_MOVE,
     D_ISOPEN,
     D_NODOOR,
     OBJ_FLOOR,
@@ -19,11 +20,13 @@ import {
     preflightDomoveDestination,
     revive_nasty,
     requireSimpleHeroDestination,
+    test_move,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { mksobj, place_object, sobj_at } from '../js/obj.js';
 import { BOULDER, CORPSE } from '../js/objects.js';
 import {
+    M1_TUNNEL,
     PM_DEATH,
     PM_SEWER_RAT,
     PM_WIZARD_OF_YENDOR,
@@ -385,6 +388,45 @@ test('a doorway behind the boulder refuses a diagonal push alone', async () => {
     // diagonal push.
     diagonal.flags = D_NODOOR;
     assert.equal(refusalReason(sx, sy), null);
+});
+
+// hack.c:1225-1228. A tunnelling, pick-free form owns the still_chewing()
+// result. When chewing finishes, C leaves the boulder arm without calling
+// moverock(); the two calls are not independent fall-through tests.
+test('a completed tunnel chew does not fall through to moverock', async () => {
+    const { sx, sy } = await heroBesideBoulder();
+    const originalSpecies = game.youmonst.data;
+    game.youmonst.data = {
+        ...originalSpecies,
+        mflags1: ((originalSpecies.mflags1 ?? 0) | M1_TUNNEL),
+    };
+    const events = [];
+    try {
+        assert.equal(
+            await test_move(
+                game.u.ux,
+                game.u.uy,
+                1,
+                0,
+                DO_MOVE,
+                game,
+                {
+                    stillChewing: async (x, y) => {
+                        events.push(`chew(${x},${y})`);
+                        return false;
+                    },
+                    moverock: async () => {
+                        events.push('moverock');
+                        return -1;
+                    },
+                },
+            ),
+            true,
+        );
+        assert.deepEqual(events, [`chew(${sx},${sy})`]);
+    } finally {
+        game.youmonst.data = originalSpecies;
+    }
 });
 
 // test_move():1217-1223. The run arm answers before moverock() is reached, so

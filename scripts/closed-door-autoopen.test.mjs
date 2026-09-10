@@ -23,6 +23,8 @@ import {
     D_LOCKED,
     D_TRAPPED,
     DO_MOVE,
+    TEST_TRAP,
+    TEST_TRAV,
 } from '../js/const.js';
 import {
     PICK_AXE,
@@ -212,6 +214,27 @@ test('the closed-door arm reads the current run value', async () => {
     );
     assert.equal(runResult, false, 'run bumps the door');
     assert.equal(runDoor.flags, D_CLOSED, 'run leaves the door shut');
+});
+
+// hack.c:1134-1151. TEST_TRAV and TEST_TRAP jump to testdiag even when the
+// destination is a closed door. A diagonal travel probe must therefore reject
+// an intact doorway instead of falling through to the common travel checks.
+test('travel and trap probes apply testdiag to a closed diagonal doorway', async () => {
+    const base = loadAutoopenSuppressedRecipe().segments[0];
+    await runSegment({ ...base, moves: '' });
+    const { ux, uy } = game.u;
+    const diagonal = game.level.at(ux - 1, uy - 1);
+    diagonal.typ = DOOR;
+    diagonal.flags = diagonal.doormask = D_CLOSED;
+    game.context.run = 8;
+
+    for (const mode of [TEST_TRAV, TEST_TRAP]) {
+        assert.equal(
+            await test_move(ux, uy, -1, -1, mode, game),
+            false,
+            `mode ${mode} refuses a closed diagonal doorway`,
+        );
+    }
 });
 
 // lock.c:826 diverts a door into the drawbridge messages only when
