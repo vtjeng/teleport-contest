@@ -85,6 +85,7 @@ import {
     PICK_ONE,
     ECMD_FAIL,
     ECMD_OK,
+    PREFIX_COUNT,
     PRIMARYSET,
     QBUFSZ,
     ROGUESET,
@@ -140,13 +141,16 @@ import {
     NO_COLOR,
 } from './terminal.js';
 import {
+    choose_random_part,
     cnf_line_BOULDER,
     cnf_line_MENUCOLOR,
     cnf_line_WARNINGS,
     config_error_add,
     config_error_init,
     config_error_nextline,
+    free_config_sections,
     get_configfile,
+    handle_config_section,
 } from './cfgfiles.js';
 import {
     count_menucolors,
@@ -614,6 +618,11 @@ function defaultResult() {
             crash_email: null,
             crash_name: null,
             crash_urlmax: -1,
+            // cfgfiles.c handle_config_section() owns these parser pointers
+            // in instance_globals_c.  They are reset by
+            // free_config_sections() when one configuration read ends.
+            config_section_chosen: null,
+            config_section_current: null,
             // decl.c instance_globals_c zeroes this fixed buffer. During the
             // Unix startup configuration pass, optfn_windowtype() is its sole
             // writer and jsmain.js installs this same value on the game.
@@ -621,6 +630,11 @@ function defaultResult() {
             // sounds.c assign_soundlib() writes the requested interface here;
             // allmain.c activates it after configuration and name parsing.
             chosen_soundlib: soundlib_nosound,
+        },
+        // decl.c instance_globals_f starts every configured full-path prefix
+        // as NULL. cfgfiles.c adjust_prefix() is the source-owned writer.
+        gf: {
+            fqn_prefix: Array(PREFIX_COUNT).fill(null),
         },
         ga: {
             // decl.c instance_globals_a starts on the built-in interface.
@@ -6569,44 +6583,6 @@ export function msgtype_type(message, norepeat, state = game) {
     return norepeat ? MSGTYP_NOREP : MSGTYP_NORMAL;
 }
 
-function configSection(line) {
-    if (!line.startsWith('[')) return null;
-    const close = line.indexOf(']', 1);
-    if (close < 0) return null;
-    let suffixIndex = close + 1;
-    while (line[suffixIndex] === ' ') ++suffixIndex;
-    if (suffixIndex < line.length && line[suffixIndex] !== '#') return null;
-    return { name: trimspaces(line.slice(1, close)) };
-}
-
-// C ref: cfgfiles.c:choose_random_part().  Keep its separator walk (including
-// empty-part quirks) rather than using split(), and consume rn2(1) for a
-// single candidate just as the source does. For ",a", draw 0 returns "a"
-// while draw 1 returns null.
-function chooseRandomPart(value, random) {
-    let choices = 1;
-    for (const character of value) {
-        if (character === ',') ++choices;
-    }
-    let choice = random(choices);
-    if (!Number.isInteger(choice) || choice < 0 || choice >= choices) {
-        throw new RangeError(`random(${choices}) returned ${choice}`);
-    }
-
-    let index = 0;
-    while (choice > 0 && index < value.length) {
-        ++index;
-        if (value[index] === ',') --choice;
-    }
-    if (index < value.length) {
-        if (value[index] === ',') ++index;
-        const begin = index;
-        while (index < value.length && value[index] !== ',') ++index;
-        if (index > begin) return value.slice(begin, index);
-    }
-    return null;
-}
-
 export function parseNethackrc(rc, random = rn2) {
     const result = defaultResult();
     if (!rc) return result;
@@ -6620,11 +6596,10 @@ export function parseNethackrc(rc, random = rn2) {
         },
     };
 
-    // chosenSection is CHOOSE's active target; null disables filtering.
-    // currentSection names the section being gated; null means that no named
-    // section gate is active. An empty [] header clears both.
-    let chosenSection = null;
-    let currentSection = null;
+    // cfgfiles.c keeps section selection in instance_globals_c.  The parser
+    // result carries that same state through the source-owned helpers rather
+    // than keeping a second local representation here.
+    free_config_sections(result);
     const lines = logicalConfigLines(rc, result.configErrorFrame);
     for (const configLine of lines) {
         const { lineNumber } = configLine;
@@ -6636,26 +6611,10 @@ export function parseNethackrc(rc, random = rn2) {
         const mungedLine = mungspaces(paddingTrimmedLine);
         if (!mungedLine || mungedLine.startsWith('#')) continue;
 
-        const section = configSection(paddingTrimmedLine);
-        if (section) {
-            currentSection = null;
-            // cfgfiles.c handle_config_section():560-563.  A section header
-            // read before any CHOOSE is reported and then skipped like any
-            // other; the file keeps being read.
-            if (chosenSection == null) {
-                configErrorAdd(
-                    result, `Section "[${section.name}]" without CHOOSE`,
-                );
-                continue;
-            }
-            if (section.name) currentSection = section.name;
-            else chosenSection = null;
-            continue;
-        }
-        if (currentSection != null
-            && (chosenSection == null || currentSection !== chosenSection)) {
-            continue;
-        }
+        // parse_conf_buf() calls handle_config_section() before CHOOSE and
+        // before the regular config statement handler.  It returns true for a
+        // header and for every statement gated out by a non-selected section.
+        if (handle_config_section(paddingTrimmedLine, result)) continue;
 
         const delimiter = configDelimiter(mungedLine);
         const statementNameText = delimiter >= 0
@@ -6671,12 +6630,12 @@ export function parseNethackrc(rc, random = rn2) {
                 );
                 continue;
             }
-            chosenSection = null;
+            result.gc.config_section_chosen = null;
             const rawDelimiter = configDelimiter(paddingTrimmedLine);
-            chosenSection = chooseRandomPart(
-                paddingTrimmedLine.slice(rawDelimiter + 1), random,
+            result.gc.config_section_chosen = choose_random_part(
+                paddingTrimmedLine.slice(rawDelimiter + 1), ',', random,
             );
-            if (chosenSection == null)
+            if (result.gc.config_section_chosen == null)
                 configErrorAdd(result, 'No config section to choose');
             continue;
         }
@@ -6806,6 +6765,7 @@ export function parseNethackrc(rc, random = rn2) {
         applyDirectOption(result, statement.directName, normalizedValue);
     }
 
+    free_config_sections(result);
     return result;
 }
 
