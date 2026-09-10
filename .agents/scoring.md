@@ -13,7 +13,7 @@ score evidence in its report. The holdout rules in `AGENTS.md` always apply.
 | --- | --- |
 | `utc` | ISO 8601 date and time the script appended the row. `--append` rejects a caller-supplied value. |
 | `sha` | The commit the figures were measured at. |
-| `event` | What prompted the row: `span` (span closure), `goal` (goal closure, of either kind), `holdout` (an authorized evaluation outside a goal close), or `divergence` (a divergence fix committed outside a goal). Rows before 2026-09-05 use `slice` for what is now a span, and rows before 2026-08-27 also use the retired `window` and `candidate` labels; the script no longer appends any of those. |
+| `event` | What prompted the row: `span` (span closure), `goal` (goal closure, of any kind), `holdout` (an authorized evaluation outside a goal close), or `divergence` (a divergence fix committed outside a goal). Rows before 2026-09-05 use `slice` for what is now a span, and rows before 2026-08-27 also use the retired `window` and `candidate` labels; the script no longer appends any of those. |
 | `sessions_passed`, `sessions_total` | Development sessions matching completely, out of the development set. |
 | `screens_matched`, `screens_total` | Development screens matched, out of the screens the C reference recorded. |
 | `rng_matched`, `rng_total` | Development random-number values matched, out of those recorded. `frozen/ps_test_runner.mjs` compares the two logs position by position over their whole length, so a segment that stops early scores its next segment's startup calls against C's continuing log, and this count can fall while correctness rises. |
@@ -56,6 +56,16 @@ Two facts affect how figures compare across rows and against the leaderboard:
 - A development figure is a lower bound for the 44-session public score and
   does not scale from 33 to 44 sessions. The official held-out sessions are
   separate from the local holdout, and only the leaderboard states that score.
+
+## Reporting broader coverage
+
+A flat development score can accompany useful behavior beyond the fixed
+sessions. Report newly matching recordings and movement of the relevant
+first mismatch as `.agents/loop.md`, "Reports", specifies. Keep these
+measurements separate from the development totals. Declaration counts are
+inventory, and the mismatch queue's remaining screens are upper bounds.
+A gain that restores an earlier regression is recovery, not an additional
+net gain. Preserve that distinction in event notes and progress reports.
 
 ## What the holdout measures
 

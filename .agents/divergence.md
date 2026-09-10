@@ -1,10 +1,9 @@
 # Resolving a divergence inside ported code
 
-A divergence fix is the goal kind that `.agents/selection.md`, "Choosing a
-goal", rule 2 opens: a development session's first mismatch falls inside a C
-function that is already ported whole, so a difference inside ported code
-causes it rather than a gap. This document defines that workflow. A file port
-covers a recorded gap or an unported function, and both stay outside it.
+A divergence fix addresses a source-traced defect in implemented behavior,
+as `.agents/selection.md`, "Choosing a goal", specifies. This document defines
+that workflow. Missing or partial behavior needs a C or Lua source port;
+an existing JavaScript declaration alone does not establish completion.
 
 A divergence fix is complete when the session's first mismatch has moved past
 the function the goal named, or the record is classified `machine-local` or
@@ -54,8 +53,9 @@ read, and write `.cache/span-context.json` with the same fields
 ### 3. Investigate and implement
 
 Verify the divergence against the upstream C source before changing
-JavaScript. Confirm the exact C call site, its preconditions, and the last
-call the port got right.
+JavaScript. Confirm the exact C call site and its preconditions. Trace earlier
+deterministic state changes as well as RNG calls: a matching RNG prefix does
+not prove that the caller's state is correct.
 
 For suspected shared state, trace initialization, cloning, saving, restoring,
 and reset behavior before changing the caller.
@@ -106,7 +106,7 @@ Each divergence record has exactly one current state:
 - `blocked`: the cause is verified, but progress requires a user decision or
   external change;
 - `excluded`: evidence shows that the mismatch is a gap or an unported
-  function, which a file port covers.
+  function, which a C or Lua source port covers.
 
 The normal transitions are:
 
@@ -134,8 +134,8 @@ machine-local value. Document the source of that value and do not hardcode a
 recorded path, banner, or environment-specific value.
 
 Mark a divergence `excluded` when fresh replay or source verification shows
-that a gap or an unported function causes it. Record the reason and the file
-port that covers it.
+that missing or partial behavior causes it. Record the reason and the C or
+Lua source port that covers it.
 
 ## Process safeguards
 

@@ -26,10 +26,11 @@ recordings under `recordings/` replay on every checkpoint, and a mismatch they
 find goes to the mismatch queue, not to a review. A review reads code the
 oracle does not reach. Run one in these three cases:
 
-- A file port is closing and an entry point of its file has no recipe that
+- A C or Lua source port is closing and an entry point in scope has no recipe that
   reaches it (`AGENTS.md`, "Validate completed work"). Scope the review to
   the functions no recording executes, and compare each against its C
-  source.
+  or Lua source. A review does not replace the matching recording required
+  to close that entry point.
 - A divergence fix took more than one span. Scope the review to the functions
   the fix touched.
 - The user asks for one.
@@ -64,7 +65,7 @@ required:
   `note_unported()` call and every remaining `Unsupported*Error` throw in
   scope was listed.
 - **completeness**: confirm that no `note_unported()` call in scope stands in
-  for a value the C uses (`AGENTS.md`, "Port whole files in C order").
+  for a value the C uses (`AGENTS.md`, "Port whole source units and wire their callers").
 
 A missing attestation or a red prepared command is `NOT READY`: launch no
 reviewers.

@@ -13,13 +13,13 @@ const data = execSync('node scripts/dashboard-data.mjs', { encoding: 'utf8', max
 
 // The mismatch queue replays the development sessions, which takes about
 // a quarter of a minute when the scan cache misses.
-let queueData = '{"sessions":[],"files":[]}';
+let queueData = 'null';
 try {
   queueData = execSync('node scripts/mismatch-queue.mjs --json', {
     encoding: 'utf8', timeout: 600000, maxBuffer: 10 * 1024 * 1024,
   });
 } catch {
-  console.error('Warning: mismatch queue unavailable, using an empty queue');
+  console.error('Warning: mismatch queue unavailable; completion is unknown');
 }
 
 const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');

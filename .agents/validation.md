@@ -18,8 +18,8 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   matching.
 - For an entry point the span completes, write a recipe with a newly chosen
   seed, datetime, options, character, and inputs, and record it:
-  `node scripts/record-session.mjs recipes/<c-file>/<name>.session.json
-  recordings/<c-file>/<name>.session.json`. Then run `npm run checkpoint`,
+  `node scripts/record-session.mjs recipes/<source-file>/<name>.session.json
+  recordings/<source-file>/<name>.session.json`. Then run `npm run checkpoint`,
   which compares the PRNG log, the complete 24x80 screens with their
   attributes, and the cursor positions of every recording. Commit the
   recording only when it matches completely, as `AGENTS.md`, "Validate
@@ -28,6 +28,63 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   input/storage, or browser-only presentation. Shared engine or glyph-output
   changes do not need it when focused tests cover the renderer's input
   contract.
+
+## Source completion evidence
+
+A declaration establishes that code exists. Completion also requires a
+whole-source comparison, production wiring, and appropriate execution
+coverage. `goal-log.mjs next-span` skips only units with this evidence; old
+`ported` flags and old goal closures remain historical name counts.
+
+The worker writes `.cache/span-evidence.json`. The orchestrator reads the
+source and artifacts, verifies the assertions, then records the evidence:
+
+```
+node scripts/goal-log.mjs record-evidence --goal <id> \
+  --evidence .cache/span-evidence.json
+```
+
+The JSON object has a `functions` array. Each record describes one C function
+or one whole Lua program:
+
+| Field | Required evidence |
+| --- | --- |
+| `name` | C function name, or the Lua source basename including `.lua`. |
+| `implementation`, `symbol` | JavaScript file under `js/` and its implementation symbol. A C symbol defaults to `name`; a Lua program names its function or constant explicitly. |
+| `sourceReview` | The complete source range read, branches and evaluation/RNG order checked, and each allowed unported callee. Confirm that obsolete guards, injected substitutes, and swallowed refusals were removed. |
+| `callers` | Array of `{ "path", "symbol", "source" }`: each JavaScript caller or dispatcher and the corresponding C/Lua call site. Trace the running game through that call, including registry or command dispatch. A test calling the function directly is not a production caller. |
+| `pure` | Boolean established by reading the source: no RNG, output, or game-state mutation. |
+| `tests` | Source-pinned `scripts/*.test.mjs` references; required for pure functions. |
+| `recordings` | Matching `recordings/**/*.session.json` references that execute the impure function through its caller; required for impure functions. The same recording may cover multiple functions. |
+| `inactiveReason` | Only for source excluded by the reference build: identify the build condition and source evidence. This permits an empty `callers` array only for a pure, source-tested implementation. Do not invent a JavaScript function for a C macro invocation. |
+
+The object also records `entryPointReview`, the source-based enumeration of
+all entry points in the selected range, and an `entryPoints` array. Each
+entry is `{ "name", "functions", "recordings" }`. A helper-only range uses
+an empty array and explains its production callers in `entryPointReview`.
+A planned entry point may have an empty recording array while blocked; the
+goal cannot close until every listed entry point has a matching recording.
+
+`record-evidence` checks the schema, source and implementation declarations,
+and that caller, test, and recording references exist. These checks do not
+prove the written assertions: the orchestrator verifies complete behavior,
+runtime reachability, and that the cited recordings execute the claimed
+functions. References are regular files within this worktree; absolute paths,
+traversal, symlinks, and holdout references are rejected. Evidence is stored
+in `GOALS.json`; do not retain a separate report.
+
+`close-span` requires evidence for every planned source unit. `close-goal`
+also requires all spans closed and complete entry-point coverage. Both
+require a passing checkpoint at HEAD, including the recordings corpus.
+When a function or its wiring changes, refresh its evidence in the same span.
+Existing declarations that lack evidence remain eligible for implementation
+or verification; do not reimplement correct code merely to change a count.
+
+For C-to-JavaScript and Lua-to-JavaScript translations, verify evaluation
+order explicitly. Lua numeric-for bounds are evaluated once before the loop.
+When a test uses mocked randomness, assert the draw sequence or call count
+as well as the result; constant random values alone can hide extra draws.
+Keep blocked recipes and revisit their named dependencies when those land.
 
 ## Fresh differentials
 
@@ -42,8 +99,8 @@ path under `sessions/holdout/`.
   `node scripts/diff-fresh.mjs <recipe.session.json>`. Exit status 0 is strict
   parity, 1 a mismatch, 2 invalid input or a recorder or runner failure.
   `--help` lists the options.
-- A reusable case: commit its recipe under `recipes/<c-file>/` and its
-  recording under `recordings/<c-file>/`. Add a `scripts/run-<name>.mjs`
+- A reusable case: commit its recipe under `recipes/<source-file>/` and its
+  recording under `recordings/<source-file>/`. Add a `scripts/run-<name>.mjs`
   matrix as well, but only when the case needs state read from the port after
   replay. The matrix builds its recipes, passes them with a `verifySegment`
   function to `runFreshMatrix()` in `scripts/fresh-matrix.mjs`, ends with one
@@ -77,7 +134,7 @@ message.
 - When the range yields nothing, do not widen it. Pin the branch with a
   constructed test that names the C function, and state in the test's comment
   why no C case reaches it.
-- Before closing a file port, run its recipes and any matrix for the file,
+- Before closing a C or Lua source port, run its recipes and any matrix for the file,
   covering the ordinary cases and the rare branches the source identifies.
   Exhaustive combinations are unnecessary.
 

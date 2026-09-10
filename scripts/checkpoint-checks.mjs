@@ -132,7 +132,7 @@ export function checkpointCommands() {
         capture: true,
         summarize: (result) => ({
             passed: result.status === 0,
-            body: result.stdout.trim().split('\n').at(-1) ?? '',
+            detail: result.stdout.trim().split('\n').at(-1) ?? '',
         }),
     });
     commands.push({
@@ -347,12 +347,15 @@ export function writeCheckpointSummary(results) {
     const testEntry = results.find(({ label }) => label === 'full test suite');
     const scoreEntry = results.find(
         ({ label }) => label === 'development score');
+    const recordingsEntry = results.find(({ label }) => label === 'recordings corpus');
     const summary = {
         commit,
         timestamp: new Date().toISOString(),
         allPassed: results.every(({ passed, informational, skipped }) =>
             passed || informational || skipped),
         tests: { passed: testEntry?.passed ?? false },
+        recordings: { passed: recordingsEntry?.passed ?? false,
+            summary: recordingsEntry?.detail ?? '' },
         score: scoreEntry?.stdout
             ? developmentTotals(scoreEntry.stdout)
             : null,

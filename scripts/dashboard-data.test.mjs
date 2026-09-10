@@ -55,7 +55,7 @@ function scoreRow({ utc, sha, event, screens, note }) {
     return cells.join('\t');
 }
 
-function renderDashboard(data) {
+function renderDashboard(data, queue = null) {
     const elements = new Map();
     // Every canvas call lands in canvasOps, and also in the drawn element's
     // own ops, so a test can ask what one canvas drew.
@@ -104,7 +104,8 @@ function renderDashboard(data) {
     };
     const template = readFileSync(TEMPLATE, 'utf8');
     const source = template.match(/<script>([\s\S]*?)<\/script>/u)[1]
-        .replace('/*DATA_PLACEHOLDER*/null', JSON.stringify(data));
+        .replace('/*DATA_PLACEHOLDER*/null', JSON.stringify(data))
+        .replace('/*QUEUE_PLACEHOLDER*/null', JSON.stringify(queue));
     const document = {
         documentElement: {},
         getElementById: element,
@@ -149,6 +150,93 @@ function assertTimelineSegmentsBounded(row) {
         assert.ok(left + width <= 100);
     }
 }
+
+function sourceDashboardData(filePorts = []) {
+    // No score or timing history is needed to render the queue and source
+    // tables. Unit totals keep the unrelated percentage tiles well-defined.
+    return {
+        summary: {
+            generatedAt: '2026-01-01T00:00:00Z',
+            screens: 0, screensTotal: 1, rng: 0, rngTotal: 1,
+            sessions: 0, sessionsTotal: 1, totalGoals: 0,
+            medianTotalMin: null, medianGoalSelectionMin: null,
+        },
+        goals: [], progress: [], filePorts,
+    };
+}
+
+test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
+    // Synthetic remaining counts order a C blocker, Lua loader, and unknown
+    // owner. The unknown step must remain unknown rather than becoming zero.
+    const queue = {
+        roadmapFallbackAllowed: false,
+        sessions: [
+            { session: 'movement', step: 2, kind: 'stop', sourceFile: 'hack.c',
+                function: 'test_move', line: 42, recordedSteps: 10,
+                remainingScreensUpperBound: 8 },
+            { session: 'quest', step: 3, kind: 'stop', sourceFile: 'Arc-loca.lua',
+                function: null, line: null, recordedSteps: 9,
+                remainingScreensUpperBound: 6 },
+            { session: 'unknown-owner', step: null, kind: 'unresolved', sourceFile: null,
+                message: 'Find <source> & "caller"', recordedSteps: 4,
+                remainingScreensUpperBound: 4 },
+        ],
+        candidates: [
+            { sourceFile: 'hack.c', remainingScreensUpperBound: 8 },
+            { sourceFile: 'Arc-loca.lua', remainingScreensUpperBound: 6 },
+            { sourceFile: null, sessions: ['unknown-owner'], remainingScreensUpperBound: 4 },
+        ],
+    };
+    const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').innerHTML;
+    assert.match(table, /title="hack\.c:42">test_move\(\) in hack\.c</u);
+    assert.match(table, /title="Arc-loca\.lua">Arc-loca\.lua</u);
+    assert.match(table, /step unknown/u);
+    assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">source investigation</u);
+    assert.match(table, /<th>Remaining, at most<\/th>/u);
+    assert.match(table, /<td>8 \/ 10<\/td>/u);
+    assert.match(table, /Goal order: hack\.c.*Arc-loca\.lua.*investigate unknown-owner/u);
+    assert.match(table, /Roadmap fallback is blocked while mismatches remain/u);
+    assert.doesNotMatch(table, /Every development session matches/u);
+});
+
+test('an unavailable mismatch queue differs from a confirmed empty queue', () => {
+    // Null is the builder's failure value; absent sessions and an empty scan
+    // without fallback permission also provide no evidence of completion.
+    for (const queue of [null, {}, { sessions: [], roadmapFallbackAllowed: false }]) {
+        const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').innerHTML;
+        assert.match(table, /Mismatch queue unavailable; completion is unknown/u);
+        assert.doesNotMatch(table, /Every development session matches/u);
+    }
+    const table = renderDashboard(sourceDashboardData(), {
+        sessions: [], candidates: [], roadmapFallbackAllowed: true,
+    }).get('queueTable').innerHTML;
+    assert.match(table, /Every development session matches/u);
+    assert.doesNotMatch(table, /unavailable|unknown/u);
+});
+
+test('source ports deduplicate overlapping C units and include whole Lua programs', () => {
+    // The two C goals overlap on test_move. Its older verified evidence must
+    // remain counted when the later goal lists it without new verification.
+    const ports = [
+        { id: 'movement-first', sourceFile: 'hack.c', status: 'closed',
+            units: [{ name: 'test_move', verified: true }, { name: 'moverock', verified: true }],
+            spansClosed: 1, spansTotal: 1, screensDelivered: 0 },
+        { id: 'movement-rest', sourceFile: 'hack.c', status: 'open',
+            units: [{ name: 'test_move', verified: false }, { name: 'domove', verified: false }],
+            spansClosed: 0, spansTotal: 1, screensDelivered: null },
+        // Lua uses its source basename as one program, not a C function count.
+        { id: 'quest-level', sourceFile: 'Arc-loca.lua', status: 'closed',
+            units: [{ name: 'Arc-loca.lua', verified: true }],
+            spansClosed: 1, spansTotal: 1, screensDelivered: 0 },
+    ];
+    const table = renderDashboard(sourceDashboardData(ports)).get('filePortTable').innerHTML;
+    // Three distinct C units, two verified, across two goals; summing the
+    // goals' unit counts would incorrectly report four units.
+    assert.match(table, /hack\.c<\/td><td>1 \/ 2<\/td><td>2 \/ 3<\/td>/u);
+    assert.match(table, /Arc-loca\.lua<\/td><td>1 \/ 1<\/td><td>1 \/ 1<\/td>/u);
+    assert.match(table, /movement-first \(closed\)\nmovement-rest \(open\)/u);
+    assert.match(table, /<th>Verified units<\/th>/u);
+});
 
 test('dashboard separates closed goals and labels inferred timing', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-data-'));
@@ -256,8 +344,9 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.equal(legacy.kind, 'boundary');
     assert.equal(alpha.kind, 'file-port');
     assert.equal(alpha.cFile, 'alpha.c');
-    assert.equal(alpha.functionsPorted, 1);
+    assert.equal(alpha.functionsDeclared, 1);
     assert.equal(alpha.functionsTotal, 2);
+    assert.equal(alpha.functionsVerified, 0); // Historical declarations are not completion evidence.
     assert.equal(orphan.kind, 'divergence-fix');
     assert.equal(beta.kind, 'file-port');
     assert.deepEqual(data.filePorts.map((port) => port.id), ['alpha', 'beta']);
@@ -305,16 +394,16 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
     // The kind badges come from GOALS.json: alpha is a file port, orphan a
     // divergence fix, legacy neither.
-    assert.match(alphaRow, /class="file-badge"[^>]*>file port</u);
+    assert.match(alphaRow, /class="file-badge"[^>]*>source port</u);
     assert.match(orphanRow, /class="div-badge"[^>]*>div fix</u);
     // `empty` has no GOALS.json record, so it carries neither badge. (The
     // legacy goal is hidden from this table: its inferred timing is zero.)
     const emptyRow = table.split('</tr>').find((row) => row.includes('empty'));
-    assert.doesNotMatch(emptyRow, /-badge"[^>]*>(file port|div fix)</u);
+    assert.doesNotMatch(emptyRow, /-badge"[^>]*>(source port|div fix)</u);
     // The file-port table lists both records with their function counts.
     const filePortTable = rendered.get('filePortTable').innerHTML;
-    assert.match(filePortTable, /alpha\.c<\/td><td>closed<\/td><td>1 \/ 2</u);
-    assert.match(filePortTable, /beta\.c<\/td><td>open<\/td><td>0 \/ 1</u);
+    assert.match(filePortTable, /alpha\.c<\/td><td>1 \/ 1<\/td><td>0 \/ 2</u);
+    assert.match(filePortTable, /beta\.c<\/td><td>0 \/ 1<\/td><td>0 \/ 1</u);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);

@@ -1,41 +1,50 @@
 # Glossary
 
 A **goal** is one tracked unit of work in `GOALS.json`, written through
-`node scripts/goal-log.mjs`. It is either a file port or a divergence fix.
+`node scripts/goal-log.mjs`. It is a C file port, a Lua port, or a divergence fix.
 `.agents/selection.md` states how the mismatch queue orders goals, and
-`node scripts/goal-log.mjs roadmap` lists the C files with their ported and
-unported function counts.
+`node scripts/goal-log.mjs roadmap` lists C declarations separately from
+verified functions, and every Lua program with its completion evidence.
 Goals recorded before 2026-09-05 were boundary ports with a forecast and
 slices; `GOALS.json` keeps them as history.
 
 A **file port** is a goal that ports one C file, or one named group of
-functions in a large C file, every function in C order. It closes when every
-function in its range has a same-named JavaScript function and its recipes
-reach each entry point of the file (`AGENTS.md`, "Validate completed work").
+functions in a C file, every function in the selected range in C order. It
+closes when every function has recorded whole-source, caller, and validation
+evidence and its recordings reach every entry point in scope (`AGENTS.md`,
+"Validate completed work").
 
-A **divergence fix** is a goal that repairs one development session's first
-mismatch when the C function the mismatch names is already ported whole.
+A **Lua port** implements one whole `dat/*.lua` program, including its
+helper functions, top-level statements, and production dispatch. It uses the
+same completion evidence as a C file port; loader registration is inventory.
+
+A **declaration** is a matching JavaScript name. A **verified source unit**
+has the explicit completion evidence defined in `.agents/validation.md`.
+Historical `ported` flags count declarations only.
+
+A **divergence fix** is a goal that repairs a source-traced defect in
+implemented behavior at one development session's first mismatch.
 `.agents/divergence.md` defines its workflow.
 
 A **span** is the unit of work one worker run ports, wires, and lands: for a
-file port, its unported functions in C order up to the planner's line cap,
-passing over functions that are already ported; for a divergence fix, the
-functions the fix touches. `node scripts/goal-log.mjs next-span` plans a
-file port's span and writes `.cache/span-context.json`; `.agents/divergence.md`
+file port, its unverified functions in C order up to the planner's line cap;
+for a Lua port, its whole program; for a divergence fix, the functions the
+fix touches. Existing partial functions stay in scope.
+`node scripts/goal-log.mjs next-span` plans a source port's span and writes
+`.cache/span-context.json`; `.agents/divergence.md`
 states how a divergence fix queues one. A span closes when its commits pass
 `npm run checkpoint` without the development sessions or the recordings losing
 a match.
 
 A **gap** is a call to an unported C function that the port records with
-`note_unported()` and skips. `AGENTS.md`, "Port whole files in C order",
+`note_unported()` and skips. `AGENTS.md`, "Port whole source units and wire their callers",
 states when a call may be skipped.
 
 A **mismatch** is the first step at which a session's replay stops matching
 its recording: on the random-number log, on the screen, or at a refusal the
-port raised. When the mismatch falls inside a function that is already ported,
-it is a **divergence** and a divergence fix covers it; otherwise a file port
-covers it. The **mismatch queue** lists each development session's first
-mismatch and the C function it names;
+port raised. A defect in implemented behavior is a **divergence**; missing or
+partial behavior needs a C or Lua source port. The **mismatch queue** lists
+each development session's first mismatch and its source owner when known;
 `node scripts/mismatch-queue.mjs` prints it.
 
 A **recipe** is a session file holding replay inputs only: seed, date and
@@ -49,8 +58,10 @@ A **coherent implementation chunk** is one reviewable production change with
 its focused tests, and may be one of several commits inside a span.
 
 A goal or a span is **in progress** from the moment work starts on it until
-it **closes**. Work written down but not begun is **queued**. A goal closes
-when its last span does.
+it **closes**. Work written down but not begun is **queued**. A source port
+closes after its spans close and entry-point coverage is verified. A
+**parked** goal preserves unfinished work while a higher-priority blocker is
+addressed.
 
 A **check** is routine diff inspection, testing, source comparison, or
 `npm run quality`. `.agents/review.md` defines the review vocabulary: a

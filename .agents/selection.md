@@ -1,122 +1,111 @@
 # Choosing what to implement next
 
-Read this file when deciding which goal to open. `.agents/glossary.md` defines
-"goal", "file port", "divergence fix", "span", "gap", and "mismatch queue".
-`.agents/loop.md` states when the orchestrator opens a goal and how it divides
-a file port into spans.
+Read this file when selecting or resuming a goal. `.agents/glossary.md`
+defines the goal kinds; `.agents/loop.md` describes their execution.
 
 ## Choosing a goal
 
-A file port covers one C file, or one named group of functions in a C file of
-more than about 3,000 lines. Split a large file at the banners or function
-families the C file itself uses, and name the goal after the file and the
-group's first and last function.
+Run `node scripts/mismatch-queue.mjs`. Its single priority list includes C
+and Lua sources, partially implemented functions, defects in existing code,
+screen and cursor mismatches, and refusals whose source owner is unresolved.
+A JavaScript declaration is inventory information, never completion evidence.
 
-The mismatch queue orders goals. `node scripts/mismatch-queue.mjs` prints
-one entry for each development session that does not match its recording
-completely: the step and kind of the session's first mismatch, the C function
-that mismatch names, and, for information, the screens the session still has
-to earn.
+Take the highest-ranked candidate. Candidates are grouped by source owner
+when known, then ranked by the upper bound on remaining screens and the
+first mismatch step. A later blocker can consume the entire apparent gain;
+these counts are not predicted gains or measured unmatched-screen counts.
 
-The kind is `rng` when C's random-number log first differs, `screen` when a
-screen differs while the log still matches, and `stop` when the port refused an
-unported path. An `rng` entry takes its function name from the
-`@ caller(file.c:line)` annotation on C's call; a `stop` entry takes its name
-from the refusal message, when a C file defines that name. When the queue
-prints a `stop` entry as unresolved, name the C function the refusal stands
-in for in that throw site's message, written as `name()`, and rerun the
-queue before choosing. Appendix A states how to read an entry.
+Trace that candidate to the source before choosing the goal kind:
 
-Take goals in this order:
+- Missing or partial C behavior: open a `file-port` for the responsible whole
+  function or self-contained function family. Use `--from-function` and
+  `--to-function` for a group, in C definition order. Include required callees
+  and the production caller changes in the same span. Existing declarations
+  do not justify skipping incomplete branches.
+- Missing or partial Lua behavior: open a `lua-port` for the responsible
+  `dat/*.lua` program. Include its top-level statements, helper functions,
+  random-call order, and dispatch wiring. An existing `load_special()` or
+  registered loader does not establish that the program is complete.
+- A defect in implemented behavior: open a `divergence-fix` and follow
+  `.agents/divergence.md`. Trace deterministic state changes as well as RNG
+  and drawing; a screen mismatch need not be a rendering defect.
+- An unresolved source owner: investigate the named session, identify its
+  C or Lua owner, then queue one of the above. Do not skip the candidate
+  because it lacks a C function annotation.
 
-1. Open a file port for the C file whose mismatches forfeit the most screens.
-   Break a tie by the earliest mismatch step.
-2. When a session's first mismatch falls inside a function that is already
-   ported whole, open a divergence fix for that session instead of a file
-   port, and follow `.agents/divergence.md`.
-3. When the queue names no C file, open a file port for the file with the
-   most unported functions, as `node scripts/goal-log.mjs roadmap` reports.
+A lower-ranked candidate or a different owner requires `--selection-reason`
+explaining the source-traced dependency or the condition blocking the higher
+candidate. For a different or unresolved owner, also name the affected
+session with `--sessions` (or `--session` for a divergence fix). This is an
+implementation decision, not a request for user approval.
 
-A `screen` entry names no function. Read it as Appendix A states, and open a
-divergence fix for the display owner it identifies.
+`queue-goal`, `open-goal`, `next-span`, and a divergence fix's `queue-span`
+enforce selection against the current development queue. Reconsider priority
+between spans. When an open
+goal no longer addresses the highest candidate, preserve its work with
+`park-goal --goal <id> --reason "<source-based reason>"` and select again.
+Resume it with `open-goal --id <id>` when its priority permits.
+
+Use `node scripts/goal-log.mjs roadmap` for fallback work only when the
+mismatch queue is empty. Complete unverified C function groups and Lua
+programs with reachable callers and useful validation before reference-build
+inactive helpers. The port is complete only when all development sessions
+match and all C functions and Lua programs have completion evidence.
 
 ## Opening the goal
 
-Queue a file port with
-`node scripts/goal-log.mjs queue-goal --kind file-port --id <id> --c-file <file.c> --summary "<one line>"`.
-Add `--from-function` and `--to-function` for a group inside a large file,
-and `--sessions` for the sessions whose first mismatch names the file. The command reads the C file and
-records every function in the range, marking whether `js/` already defines a
-function of that name. Queue a divergence fix with
-`node scripts/goal-log.mjs queue-goal --kind divergence-fix --id <id> --summary "<one line>" --c-file <file.c> --function <name> --session <name>`,
-adding `--step <n>` for the mismatch step.
+Queue a C source port with:
 
-`open-goal --id <id>` captures the development standing, and `close-goal`
-records the delivered figures beside it. Plan each span with
-`node scripts/goal-log.mjs next-span --goal <id>`. A goal takes as many spans
-as its functions need; size never justifies refusing, deferring, or narrowing
-a goal.
+```
+node scripts/goal-log.mjs queue-goal --kind file-port --id <id> \
+  --c-file <file.c> --from-function <first> --to-function <last> \
+  --summary "<whole source behavior>" --sessions <development-session>
+```
 
-The agent selecting work chooses the goal. Do not ask the user which goal to
-take.
+Omit the function bounds to cover the whole C file. A function family may be
+selected in any file; it need not wait for a file-size threshold.
 
-## Where goal state lives
+Queue a Lua program with:
 
-`GOALS.json` holds every goal, written only through `node scripts/goal-log.mjs`.
-`node scripts/goal-log.mjs roadmap` lists every C file with its ported and
-unported function counts. `docs/goal-history.md`
-holds notes and findings that outlived the goals that produced them. Every task
-starts with `node scripts/goal-log.mjs --current`, so goal entries stay terse:
-the file, the function range, and any traced findings in `detail`.
+```
+node scripts/goal-log.mjs queue-goal --kind lua-port --id <id> \
+  --lua-file <program.lua> --summary "<whole source behavior>" \
+  --sessions <development-session>
+```
 
--------------------------------------------------------------------------------
+Queue a divergence fix with `--kind divergence-fix`, `--c-file`, `--function`,
+`--session`, and optionally `--step`; put the source trace in `--detail`.
+A Lua program correction uses `lua-port` so its top-level behavior remains in
+scope. The same source-tracing and replay requirements apply.
 
-## Appendix A: Reading a mismatch-queue entry
+Open with `open-goal --id <id>`, then plan with `next-span --goal <id>`.
+A source port plans every unit without recorded completion evidence,
+including previously declared functions. Record the evidence as
+`.agents/validation.md`, "Source completion evidence", specifies. Do not
+rewrite historical goal or score rows to make their old name counts verified.
 
-`node scripts/mismatch-queue.mjs` reads `node scripts/scan-sessions.mjs
---json`, which replays the 33 development sessions. The scanned directory is
-fixed and the scan accepts no path argument, so neither command can be aimed at
-`sessions/holdout/`. Emitted screens are not matched screens:
-`scripts/score-development.mjs` is the authority on how many of them match C.
+## Reading a mismatch
 
-### An `rng` entry
+An RNG annotation identifies a call site, not necessarily the cause. Compare
+its preconditions and the state established by earlier calls against the
+upstream source. The last matching RNG call proves only that draw matched;
+it does not prove that its caller or earlier deterministic behavior was right.
+Lua annotations can identify both a helper and the program that called it.
 
-The annotation on C's call names the function that made it. Read that function
-in `nethack-c/upstream/`, then read the annotation on the last matching call:
-that function is the last one the port got right, so the difference sits
-between the two. The mismatch has one of three causes:
+For a screen or cursor mismatch, use `frozen/screen-decode.mjs` and the scan's
+cell and cursor fields to locate the difference. Investigate messages, input
+boundaries, game state, and drawing. Matching RNG does not imply matching game
+state. A mismatch without a known step stays in the queue until investigated.
 
-1. The function is unported, or ported in part, and the port recorded a gap
-   or threw a refusal in or before it: a file port under rule 1.
-2. The function is ported whole, and one of its branches differs from the C:
-   a divergence fix under rule 2.
-3. An earlier ported function left different state, and this call is only
-   where the streams separate: a divergence fix under rule 2, opened on the
-   function the trace identifies.
+For a refusal, inspect the actual throw and the C or Lua branch it replaces.
+Name the source function in the refusal message when it is missing, so later
+scans can attribute it. Remove obsolete guards and injected placeholders when
+their behavior lands; do not rename a refusal into a completed implementation.
 
-### A `screen` entry
+A session can have multiple segments. The scorer concatenates their screens
+and RNG logs positionally, so an early segment's output count can shift later
+segments. Compare first mismatches and complete recordings as well as totals.
+`score-development.mjs` is the authority on measured matching screens.
 
-The random-number log still matches, so the game state matches and the
-drawing differs: a `--More--` the port emitted or omitted, a cursor position, a
-status-line field, or a glyph attribute. `frozen/screen-decode.mjs` decodes
-both frames, and the scan's `divergence.screen` field states the row, column,
-and both cells.
-
-### A `stop` entry
-
-The port threw an `Unsupported*Error` at that step. Its message names the C
-function or command it refused. The file that owns that function is the file
-port to open; `AGENTS.md`, "Keep each source file's port in one place", states
-how the span that ports it retires the throw.
-
-**A later segment's screen positions depend on the earlier segments' screen
-counts.** A segment is one run of the game with its own seed and keystrokes,
-replayed by a separate `runSegment()` call; a session is one or more segments
-in order. The runner concatenates every segment's output and compares it
-positionally, so a segment that emits fewer screens than C recorded shifts
-every later segment out of alignment, scoring zero regardless of replay
-accuracy. Within a segment, partial progress scores normally.
-
-**Rank on the development sessions.** The sealed holdout guards against a large
-inadvertent regression. Do not rank, re-rank, or reopen a goal on a holdout
-figure, and do not read an unmoved holdout as a failed goal.
+The scan and queue read only the fixed development set. Rank only on that
+set; holdout results never select or reorder goals.

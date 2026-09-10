@@ -13,7 +13,8 @@ import { cFunctions, parseCFunctions } from './c-functions.mjs';
 import {
     SPAN_LINE_CAP, assertStandingIsCurrent, deliveredSince, formatGoal,
     formatRoadmap, lineRanges, nextSpan, readGoals, roadmapRows,
-    selectFunctionRange, spanContext, validateGoals,
+    selectFunctionRange, spanContext, validateGoals, refreshCompletion,
+    assertPortComplete, recordEvidence, luaRoadmapRows,
 } from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
@@ -38,8 +39,8 @@ const store = {
             cFile: 'options.c',
             // Line numbers are fixture values: two short functions.
             functions: [
-                { name: 'optfn_align', line: 10, endLine: 30, ported: true },
-                { name: 'optfn_boulder', line: 31, endLine: 60, ported: false },
+                { name: 'optfn_align', line: 10, endLine: 30, declared: true, complete: false },
+                { name: 'optfn_boulder', line: 31, endLine: 60, declared: false, complete: false },
             ],
             sessions: [],
             spans: [],
@@ -104,14 +105,14 @@ test('the goal store validates both goal kinds and the legacy shape', () => {
     assert.throws(() => validateGoals(badSpan), /unknown status done/u);
 });
 
-test('formatGoal states the kind, the ported count, and the spans', () => {
+test('formatGoal states the kind, declarations and verified count, and the spans', () => {
     const filePort = structuredClone(store.goals[1]);
     filePort.spans = [{ name: 'optfn_boulder', status: 'queued', closedBy: null,
         functions: ['optfn_boulder'] }];
     filePort.detail = 'line one\nline two';
     const brief = formatGoal(filePort);
     assert.ok(brief.includes('QUEUED options-c: Port options.c'));
-    assert.ok(brief.includes('file port of options.c: 1 of 2 functions ported'));
+    assert.ok(brief.includes('file-port of options.c: 0 of 2 source units verified; 1 declarations found'));
     assert.ok(brief.includes('[queued] optfn_boulder'));
     // The default stays terse because --current opens every task; detail
     // must not leak into it.
@@ -153,6 +154,82 @@ test('parseCFunctions reads column-0 definitions and their extents', () => {
     ]);
 });
 
+test('source inventory excludes macro invocations and commented declarations', () => {
+    // sfbase.c uses this macro form to generate serializers. It is not a
+    // source function named SF_X and must not prompt a fake JavaScript port.
+    const source = 'SF_X(uint8_t, bitfield)\n'
+        + '/*\ncommented(void)\n{ }\n*/\n'
+        + 'int\nreal(\n    int value\n)\n{ return value; }\n';
+    assert.deepEqual(parseCFunctions(source).map((entry) => entry.name), ['real']);
+});
+
+test('source inventory retains old-style and conditional function signatures', () => {
+    // region.c and tty/wintty.c still contain these source forms. The two
+    // conditional signatures own one body, so they form one source unit.
+    const source = 'void\nold(mon)\nstruct monst *mon;\n{ }\n'
+        + 'int\n#ifdef FEATURE\nconditional(int x)\n#else\n'
+        + 'conditional(int x UNUSED)\n#endif\n{ return x; }\n';
+    assert.deepEqual(parseCFunctions(source).map((entry) => entry.name), ['old', 'conditional']);
+});
+
+test('historical name matches remain in the next span until verified', () => {
+    // A pre-methodology partial implementation had ported:true, but no source
+    // review, caller or replay evidence. Its name must not hide it again.
+    const goal = { kind: 'file-port', cFile: 'partial.c', functions: [
+        { name: 'partial', line: 1, endLine: 10, ported: true },
+    ] };
+    refreshCompletion(goal, new Set(['partial']));
+    assert.equal(goal.functions[0].declared, true);
+    assert.equal(goal.functions[0].complete, false);
+    assert.deepEqual(nextSpan(goal.functions, []).functions, ['partial']);
+    assert.throws(() => assertPortComplete(goal), /unverified source units: partial/u);
+});
+
+test('completion evidence is scoped by source and survives later span evidence', () => {
+    // Two short pure helpers exercise merging evidence from separate spans.
+    // These references are structural fixtures; disk validation has its own
+    // integration tests in port-evidence.test.mjs.
+    const evidenceFor = (name) => ({ name, symbol: name,
+        implementation: 'js/helpers.js', sourceReview: 'Whole source reviewed.',
+        callers: [{ path: 'js/caller.js', symbol: 'caller', source: 'helpers.c caller' }],
+        pure: true, tests: ['scripts/helpers.test.mjs'], recordings: [] });
+    const goal = { kind: 'file-port', cFile: 'helpers.c', functions: [
+        { name: 'first', line: 1, endLine: 10 },
+        { name: 'second', line: 11, endLine: 20 },
+    ], spans: [] };
+    const head = 'a'.repeat(40); // Fixed commit-shaped evidence identity.
+    recordEvidence(goal, { functions: [evidenceFor('first')] }, head);
+    recordEvidence(goal, { functions: [evidenceFor('second')],
+        entryPointReview: 'Helper-only range; tested through its callers.', entryPoints: [] }, head);
+    refreshCompletion(goal, new Set(['first', 'second']));
+    assert.equal(nextSpan(goal.functions, []), null);
+    assert.doesNotThrow(() => assertPortComplete(goal));
+    assert.equal(goal.evidence.functions[0].checkedAt, head);
+
+    const unrelated = { kind: 'file-port', cFile: 'unrelated.c', functions: goal.functions };
+    refreshCompletion(unrelated, new Set(['first', 'second']), [goal]);
+    assert.equal(unrelated.functions[0].complete, false);
+
+    goal.evidence.entryPoints = [{ name: 'command', functions: ['first'], recordings: [] }];
+    assert.throws(() => assertPortComplete(goal), /entry point command has no matching recording/u);
+});
+
+test('Lua source programs remain visible without loader or completion evidence', () => {
+    // A library and a level both need source evidence; C names cannot certify
+    // either, and top-level Lua statements form one indivisible source unit.
+    const rows = luaRoadmapRows([{ name: 'nhlib.lua' }, { name: 'map.lua' }], []);
+    assert.deepEqual(rows, [
+        { luaFile: 'nhlib.lua', complete: false },
+        { luaFile: 'map.lua', complete: false },
+    ]);
+    const luaGoal = { kind: 'lua-port', luaFile: 'map.lua', functions: [
+        { name: 'map.lua', line: 1, endLine: 900 },
+    ] };
+    const span = nextSpan(luaGoal.functions, []);
+    assert.deepEqual(span.functions, ['map.lua']);
+    assert.equal(spanContext(luaGoal, span).luaFile, 'map.lua');
+});
+
 test('the real options.c defines more than 200 functions', () => {
     // Source-pinned: options.c is the largest C file, and this pins the reader
     // to the checked-out tree rather than to a fixture.
@@ -176,14 +253,14 @@ test('selectFunctionRange keeps the functions between two names, inclusive', () 
         /no function named zz/u);
 });
 
-test('nextSpan collects unported functions in C order up to the line cap', () => {
+test('nextSpan collects unverified functions in C order up to the line cap', () => {
     // Six functions of 100 lines each; b and e are ported. With a 250-line
     // cap a span holds at most two of them.
     const functions = ['a', 'b', 'c', 'd', 'e', 'f'].map((name, index) => ({
         name,
         line: index * 100 + 1,
         endLine: index * 100 + 100,
-        ported: name === 'b' || name === 'e',
+        complete: name === 'b' || name === 'e',
     }));
     const cap = 250;
 
@@ -210,16 +287,16 @@ test('nextSpan collects unported functions in C order up to the line cap', () =>
 
     // The cap splits a long run: b and c fit in 250 lines, a third would not.
     // Adjacent functions merge into one range.
-    const longRun = functions.map((entry) => ({ ...entry, ported: entry.name === 'a' }));
+    const longRun = functions.map((entry) => ({ ...entry, complete: entry.name === 'a' }));
     assert.deepEqual(nextSpan(longRun, [], cap),
         { functions: ['b', 'c'], lineRanges: ['101-300'], cLines: 200 });
 
     // A single function larger than the cap still forms a span.
-    const huge = [{ name: 'x', line: 1, endLine: 1000, ported: false }];
+    const huge = [{ name: 'x', line: 1, endLine: 1000, complete: false }];
     assert.deepEqual(nextSpan(huge, [], cap).functions, ['x']);
 
     // Nothing left: the goal closes.
-    const done = functions.map((entry) => ({ ...entry, ported: true }));
+    const done = functions.map((entry) => ({ ...entry, complete: true }));
     assert.equal(nextSpan(done, [], cap), null);
 
     // The default cap is the value the comment above it calibrates.
@@ -245,12 +322,16 @@ test('spanContext hands the worker the ranges, size, and JavaScript file', () =>
     const context = spanContext(goal, { functions: ['optfn_align', 'optfn_boulder'] });
     assert.deepEqual(context, {
         goal: 'options-c',
+        kind: 'file-port',
+        sourceFile: 'options.c',
         cFile: 'options.c',
         functions: ['optfn_align', 'optfn_boulder'],
         lineRanges: ['10-60'],
         cLines: 51,
         jsFile: 'js/options.js',
         sessions: ['seed0108-wizard-extcmd-wishlist'],
+        evidenceRequired: 'whole source, production callers, tests for pure '
+            + 'functions, matching recordings for impure functions and entry points',
     });
 
     // A span that passed over a ported function lists one range per
@@ -261,7 +342,7 @@ test('spanContext hands the worker the ranges, size, and JavaScript file', () =>
     assert.equal(apart.cLines, 42);
 });
 
-test('the roadmap orders files by unported functions and names their goal', () => {
+test('the roadmap separates declarations from unverified functions and names their goal', () => {
     const files = [
         { name: 'small.c', text: 'void\nonly(void)\n{\n}\n' },
         { name: 'big.c', text: 'void\none(void)\n{\n}\nvoid\ntwo(void)\n{\n}\n' },
@@ -270,12 +351,12 @@ test('the roadmap orders files by unported functions and names their goal', () =
         { id: 'big-c', kind: 'file-port', status: 'open', cFile: 'big.c' },
     ]);
     assert.deepEqual(rows, [
-        { cFile: 'big.c', total: 2, ported: 1, unported: 1, goal: 'big-c (open)' },
-        { cFile: 'small.c', total: 1, ported: 1, unported: 0, goal: '' },
+        { cFile: 'big.c', total: 2, declared: 1, complete: 0, pending: 2, goal: 'big-c (open)' },
+        { cFile: 'small.c', total: 1, declared: 1, complete: 0, pending: 1, goal: '' },
     ]);
     const markdown = formatRoadmap(rows, 'f'.repeat(40));
-    assert.ok(markdown.startsWith('Ported functions: 2 of 3, at ffffffff.\n'));
-    assert.ok(markdown.includes('| big.c | 2 | 1 | 1 | big-c (open) |'));
+    assert.ok(markdown.startsWith('Verified C functions: 0 of 3, at ffffffff.\n'));
+    assert.ok(markdown.includes('| big.c | 2 | 1 | 0 | 2 | big-c (open) |'));
 });
 
 test('delivered figures are the closing standing minus the opening one', () => {
@@ -350,7 +431,8 @@ function scoreRow(sha, screens, rng) {
 function closeGoalFixture(standingSha) {
     const root = mkdtempSync(join(tmpdir(), 'goal-log-close-'));
     mkdirSync(join(root, 'scripts'));
-    for (const name of ['goal-log.mjs', 'score-log.mjs', 'c-functions.mjs']) {
+    for (const name of ['goal-log.mjs', 'score-log.mjs', 'c-functions.mjs',
+        'lua-sources.mjs', 'port-evidence.mjs', 'check-namespace-members.mjs']) {
         copyFileSync(join(SCRIPT_DIR, name), join(root, 'scripts', name));
     }
     const git = (...args) => spawnSync('git', args, { cwd: root });

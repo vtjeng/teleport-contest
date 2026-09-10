@@ -8,22 +8,24 @@ model: opus
 
 Read these sources:
 
-- `.cache/span-context.json`: the current span's goal, C file, functions,
-  C line ranges, C line count, JavaScript file, and the sessions whose
+- `.cache/span-context.json`: the current span's goal, C or Lua source file, source units,
+  source line ranges, line count, JavaScript file, and the sessions whose
   first mismatch the goal addresses, written by `goal-log.mjs next-span`
 - `node scripts/goal-log.mjs --current --detail`: the goal in progress,
-  its functions with their ported marks, and its spans
+  its source units with declarations and completion evidence, and its spans
 - `.agents/validation.md`: what validating this span requires
 - `.agents/glossary.md`: the work vocabulary
 
-Before you write anything, read the C source for every function in the span,
-starting from the file and line ranges in the span context; a span can pass
-over ported functions, so the ranges need not be adjacent. List all symbols
-those functions directly call, then batch-grep for each in `js/` to separate
-the ported from the missing, and read C source only for the missing ones. Port
+Before writing, read the complete C functions or Lua program in the span,
+including Lua top-level statements. A span can pass over verified functions,
+so C ranges need not be adjacent. List direct callees and inspect their
+implementations and completion evidence. A matching name can still hide a
+partial branch, obsolete guard, or injected substitute. Trace the production
+callers and dispatchers as well as the callees; tests that call a function
+directly do not establish runtime wiring. Port
 a missing callee in this span when the C uses its return value; when the C
 discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
-"Port whole files in C order", states.
+"Port whole source units and wire their callers", states.
 
 Do not open `.agents/review.md` or `.agents/selection.md`.
 Those belong to the orchestrator defined in `.agents/loop.md`. This
@@ -74,14 +76,19 @@ Pass every restriction in this document to each subagent you spawn.
 
 ## Completion conditions
 
-- Every function in the span's run has a same-named JavaScript function in
-  the file's port, in C order, wired where the C calls it, per "Port whole
-  files in C order" in `AGENTS.md`. Every `Unsupported*Error` throw those
-  functions raised is gone.
+- Every source unit in the span is complete and wired where the C or Lua
+  source calls it. Read existing implementations instead of assuming that
+  their declarations establish completion. Remove their obsolete guards,
+  injected substitutes, and swallowed refusals in the same span.
+- For a C or Lua source port, write `.cache/span-evidence.json` in the schema defined by
+  `.agents/validation.md`, "Source completion evidence". Identify source
+  coverage, production callers, pure-function tests, impure-function
+  recordings, and the entry-point coverage plan. The orchestrator verifies
+  and records it; do not edit `GOALS.json` yourself.
 - `npm run checkpoint` shows the development score and the recordings
   corpus unchanged or improved, screen for screen and call for call.
 - When the span completed an entry point of the file, its recipe is committed
-  under `recipes/<c-file>/`, and its recording under `recordings/<c-file>/`
+  under `recipes/<source-file>/`, and its recording under `recordings/<source-file>/`
   once that recording matches completely, per "Validate completed work" in
   `AGENTS.md`.
 - The work is committed, `npm run checkpoint` passes on the committed state,
@@ -99,11 +106,13 @@ done, and commit integration artifacts once they stabilize.
 
 Report to the orchestrator in one brief message. Cover:
 
-- What you ported, from which C functions, and every gap you recorded with
+- What you ported, from which C functions or Lua program, and every gap you recorded with
   the C callee it stands for.
 - Every bug and surprise you hit, and what you did about it.
 - Each decision the C source did not settle immediately, and the evidence
   you used to resolve it.
+- Each new matching recording and the caller path it exercises; identify
+  blocked recipes and their source dependencies separately.
 - What you expect the next span to encounter as a problem.
 - Whether the span matched its plan. Say so when landing it meant tracing far
   more C source, or touching more files, than the span context implied.

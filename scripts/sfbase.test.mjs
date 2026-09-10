@@ -41,9 +41,10 @@ import {
 const C_SOURCE = readFileSync('nethack-c/upstream/src/sfbase.c', 'utf8');
 
 test('sfbase source contains the planned source-order functions', () => {
-    // These names are the exact source-order list represented in js/sfbase.js.
+    // These are the explicit definitions in source order. SF_X above them is
+    // a macro invocation generating serializers, not a function named SF_X.
     const names = [
-        'SF_X', 'sfo_char', 'sfi_char', 'sfo_genericptr',
+        'sfo_char', 'sfi_char', 'sfo_genericptr',
         'sfi_genericptr', 'sfo_version_info', 'sfi_version_info', 'sf_log',
         'sfvalue_any', 'sfvalue_genericptr', 'sfvalue_bitfield',
         'bitfield_dump', 'complex_dump', 'sf_init', 'sf_setprocs',

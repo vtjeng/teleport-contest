@@ -11,7 +11,7 @@ retires it.
 
 **What it changes.** A check would list every function exported from `js/` that
 no other `js/` module calls, and flag those that also appear as injected
-operations. `AGENTS.md`, "Port whole files in C order", requires deleting an
+operations. `AGENTS.md`, "Port whole source units and wire their callers", requires deleting an
 injection when a ported function replaces it, but no check detects a span that
 skipped the deletion.
 

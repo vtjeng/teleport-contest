@@ -6,6 +6,8 @@
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 
+import { completedFunctionNames } from './port-evidence.mjs';
+
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).trim();
 }
@@ -372,11 +374,14 @@ if (existsSync('GOALS.json')) {
   }
 }
 
-function portedCounts(record) {
+function completionCounts(record) {
   const functions = record?.functions ?? [];
+  const verified = completedFunctionNames(record);
   return {
-    functionsPorted: functions.filter((entry) => entry.ported).length,
+    functionsDeclared: functions.filter((entry) => entry.declared ?? entry.ported).length,
+    functionsVerified: verified.size,
     functionsTotal: functions.length,
+    units: functions.map((entry) => ({ name: entry.name, verified: verified.has(entry.name) })),
   };
 }
 
@@ -385,17 +390,18 @@ for (const goal of goals) {
   goal.kind = record?.kind
     ?? (goal.eventType === 'divergence' ? 'divergence-fix' : 'boundary');
   goal.cFile = record?.cFile ?? null;
-  Object.assign(goal, portedCounts(record));
+  goal.sourceFile = record?.luaFile ?? record?.cFile ?? null;
+  Object.assign(goal, completionCounts(record));
 }
 
 const filePorts = [...goalRecords.values()]
-  .filter((record) => record.kind === 'file-port')
+  .filter((record) => record.kind === 'file-port' || record.kind === 'lua-port')
   .map((record) => ({
     id: record.id,
     status: record.status,
-    cFile: record.cFile,
+    sourceFile: record.luaFile ?? record.cFile,
     summary: record.summary,
-    ...portedCounts(record),
+    ...completionCounts(record),
     spansClosed: (record.spans ?? []).filter((span) => span.status === 'closed').length,
     spansTotal: (record.spans ?? []).length,
     screensDelivered: record.delivered?.screens ?? null,

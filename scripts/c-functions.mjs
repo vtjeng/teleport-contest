@@ -6,6 +6,8 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { blankCommentsAndStrings } from './check-namespace-members.mjs';
+
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
 
@@ -13,9 +15,9 @@ export const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
 // JavaScript file of the same name, so the basename identifies a file.
 const C_DIRECTORIES = ['src', join('win', 'tty')];
 
-// NetHack writes a function's name at column 0, on the line after its return
-// type, so a definition is the only line in a C file that starts with an
-// identifier immediately followed by an opening parenthesis.
+// NetHack writes a function's name at column 0, after its return type.
+// A macro invocation can have the same shape; the signature must lead to a
+// body before it counts as a definition.
 const DEFINITION = /^([A-Za-z_][A-Za-z0-9_]*)\(/u;
 
 const JS_DEFINITION = /\bfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/gu;
@@ -47,6 +49,8 @@ export function listCFiles(root = UPSTREAM_ROOT) {
 
 /** The path of one C file named by its basename, such as `options.c`. */
 export function cFilePath(name, root = UPSTREAM_ROOT) {
+    if (!/^[A-Za-z0-9_-]+\.c$/u.test(name))
+        throw new Error('C source must be a .c basename');
     for (const directory of C_DIRECTORIES) {
         const path = join(root, directory, name);
         try {
@@ -67,11 +71,39 @@ export function cFilePath(name, root = UPSTREAM_ROOT) {
  * between functions; it is a size for planning spans, not an exact body.
  */
 export function parseCFunctions(text) {
-    const lines = text.split('\n');
+    const source = blankCommentsAndStrings(text).replace(/^\s*#[^\n]*/gmu,
+        (directive) => directive.replace(/[^\n]/gu, ' '));
+    const lines = source.split('\n');
     const functions = [];
+    const bodies = new Set();
+    let offset = 0;
     lines.forEach((content, index) => {
         const match = DEFINITION.exec(content);
-        if (match) functions.push({ name: match[1], line: index + 1 });
+        if (match) {
+            let cursor = offset + match[0].length;
+            let parentheses = 1;
+            while (cursor < source.length && parentheses) {
+                const ch = source[cursor++];
+                if (ch === '(') parentheses++;
+                else if (ch === ')') parentheses--;
+            }
+            const body = source.indexOf('{', cursor);
+            const between = source.slice(cursor, body).trim();
+            const parameters = source.slice(offset + match[0].length, cursor - 1);
+            // Old-style definitions put parameter declarations after ')'.
+            // Conditional signatures can share one body (topologize and
+            // tty_nh_poskey); count that body once, from the first signature.
+            const oldStyle = /^[\w\s,]+$/u.test(parameters)
+                && /^[\w\s*,;]+;$/u.test(between);
+            const alternate = new RegExp(`^${match[1]}\\([^(){};]*\\)\\s*$`, 'u')
+                .test(between);
+            if (body >= 0 && !bodies.has(body)
+                && (between === '' || oldStyle || alternate)) {
+                functions.push({ name: match[1], line: index + 1 });
+                bodies.add(body);
+            }
+        }
+        offset += content.length + 1;
     });
     functions.forEach((entry, index) => {
         const next = functions[index + 1];
@@ -98,14 +130,17 @@ export function jsFunctionNames(jsRoot = join(PROJECT_ROOT, 'js')) {
     const names = new Set();
     for (const path of walkJs(jsRoot, [])) {
         const text = readFileSync(path, 'utf8');
-        for (const match of text.matchAll(JS_DEFINITION)) names.add(match[1]);
+        for (const match of blankCommentsAndStrings(text).matchAll(JS_DEFINITION))
+            names.add(match[1]);
     }
     return names;
 }
 
-/** Copies of `functions` with `ported` set from the JavaScript names. */
-export function markPorted(functions, names) {
-    return functions.map((entry) => ({ ...entry, ported: names.has(entry.name) }));
+/** Declaration inventory only; completion requires recorded source evidence. */
+export function markDeclared(functions, names) {
+    return functions.map(({ ported: _historicalNameMatch, ...entry }) => ({
+        ...entry, declared: names.has(entry.name),
+    }));
 }
 
 /** A map from C function name to the first C file that defines it. */

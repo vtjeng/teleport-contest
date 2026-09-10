@@ -1,28 +1,30 @@
 #!/usr/bin/env node
 
-// Owns GOALS.json, the record of queued, open, and closed goals and their
-// spans. A goal is a file port or a divergence fix (.agents/glossary.md); the
+// Owns GOALS.json, the record of queued, open, parked, and closed goals and
+// spans. A goal is a C/Lua source port or divergence fix (.agents/glossary.md); the
 // orchestrator writes it through the subcommands below. Goals recorded before
 // 2026-09-05 carry the retired boundary, forecast, and slices fields. The
 // reader accepts them as history; the writer never produces them.
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { readRows, standing } from './score-log.mjs';
 import {
-    PROJECT_ROOT, cFunctions, jsFunctionNames, listCFiles, markPorted,
+    PROJECT_ROOT, cFunctions, jsFunctionNames, listCFiles, markDeclared,
     parseCFunctions,
 } from './c-functions.mjs';
+import { listLuaFiles, luaProgram } from './lua-sources.mjs';
+import { completedFunctionNames, validatePortEvidence } from './port-evidence.mjs';
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
     import.meta.url));
 export const SPAN_CONTEXT_PATH = join(PROJECT_ROOT, '.cache', 'span-context.json');
 
-export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'closed']);
-export const GOAL_KINDS = Object.freeze(['file-port', 'divergence-fix']);
+export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'parked', 'closed']);
+export const GOAL_KINDS = Object.freeze(['file-port', 'lua-port', 'divergence-fix']);
 
 // A span stops growing at this many C lines. The cap was 400 from 2026-09-05
 // until the 34 spans that closed under it were measured on 2026-09-06: 29
@@ -73,10 +75,10 @@ export function validateGoals(store) {
             if (!GOAL_KINDS.includes(goal.kind)) {
                 throw new Error(`goal ${goal.id} has unknown kind ${goal.kind}`);
             }
-            if (!nonempty(goal.cFile)) {
-                throw new Error(`goal ${goal.id} needs a cFile`);
+            if (!nonempty(goal.kind === 'lua-port' ? goal.luaFile : goal.cFile)) {
+                throw new Error(`goal ${goal.id} needs a source file`);
             }
-            if (goal.kind === 'file-port' && !Array.isArray(goal.functions)) {
+            if (isSourcePort(goal) && !Array.isArray(goal.functions)) {
                 throw new Error(`goal ${goal.id} needs a functions array`);
             }
             if (goal.kind === 'divergence-fix'
@@ -168,6 +170,14 @@ export function deliveredSince(openStanding, closeStanding) {
     };
 }
 
+export function addDelivered(previous, current) {
+    if (previous === null || current === null) return null;
+    return {
+        screens: (previous?.screens ?? 0) + current.screens,
+        rng: (previous?.rng ?? 0) + current.rng,
+    };
+}
+
 function findGoal(store, id) {
     const goal = store.goals.find((entry) => entry.id === id);
     if (!goal) throw new Error(`no goal has id: ${id}`);
@@ -180,19 +190,44 @@ function commaSeparated(value) {
         : [];
 }
 
-/** How many of a file port's functions have a same-named JavaScript function. */
-export function portedCount(goal) {
+export function isSourcePort(goal) {
+    return goal.kind === 'file-port' || goal.kind === 'lua-port';
+}
+
+function sourceFile(goal) {
+    return goal.luaFile ?? goal.cFile;
+}
+
+/** Keep name inventory and evidence-backed completion separate. */
+export function completionCount(goal) {
     const functions = goal.functions ?? [];
     return {
-        ported: functions.filter((entry) => entry.ported).length,
+        declared: functions.filter((entry) => entry.declared).length,
+        complete: functions.filter((entry) => entry.complete).length,
         total: functions.length,
     };
 }
 
-/** Re-read js/ and update a file port's `ported` marks in place. */
-export function refreshPorted(goal, names = null) {
-    if (goal.kind !== 'file-port') return goal;
-    goal.functions = markPorted(goal.functions, names ?? jsFunctionNames());
+/** Evidence belongs to its source file, not to a globally matching name. */
+export function verifiedNames(file, goals) {
+    const names = new Set();
+    for (const goal of goals) {
+        if (sourceFile(goal) !== file) continue;
+        for (const name of completedFunctionNames(goal)) names.add(name);
+    }
+    return names;
+}
+
+/** Historical `ported` booleans are name matches, never completion evidence. */
+export function refreshCompletion(goal, names = null, goals = [goal]) {
+    if (!isSourcePort(goal)) return goal;
+    const complete = verifiedNames(sourceFile(goal), goals);
+    const declared = names ?? jsFunctionNames();
+    goal.functions = markDeclared(goal.functions, declared).map((entry) => ({
+        ...entry,
+        complete: complete.has(entry.name)
+            && (goal.kind === 'lua-port' || entry.declared),
+    }));
     return goal;
 }
 
@@ -213,38 +248,38 @@ export function selectFunctionRange(functions, from, to) {
 }
 
 /**
- * The next span of a file port: the unported functions, in C order, that
+ * The next span of a source port: the unverified units, in source order, that
  * follow the last closed span, up to `cap` C lines.
  *
- * The first span starts at the file's first unported function. Every later
- * span starts at the first unported function after the last closed span,
- * wrapping to the top of the file. From there the span passes over ported
- * functions and collects unported ones until the next would exceed the cap
+ * The first span starts at the file's first unverified unit. Every later
+ * span starts at the first unverified unit after the last closed span,
+ * wrapping to the top of the file. From there the span passes over verified
+ * units and collects unverified ones until the next would exceed the cap
  * or the file ends; it always holds at least one function. Returns null
- * when every function is ported.
+ * when every unit has completion evidence.
  */
 export function nextSpan(functions, closedSpans, cap = SPAN_LINE_CAP) {
-    if (!functions.some((entry) => !entry.ported)) return null;
-    const firstUnportedFrom = (index) => {
+    if (!functions.some((entry) => !entry.complete)) return null;
+    const firstUnverifiedFrom = (index) => {
         const after = functions.findIndex(
-            (entry, position) => position >= index && !entry.ported,
+            (entry, position) => position >= index && !entry.complete,
         );
-        return after >= 0 ? after : functions.findIndex((entry) => !entry.ported);
+        return after >= 0 ? after : functions.findIndex((entry) => !entry.complete);
     };
     let startIndex;
     const lastClosed = closedSpans.at(-1);
     if (lastClosed?.functions?.length) {
         const lastName = lastClosed.functions.at(-1);
         const lastIndex = functions.findIndex((entry) => entry.name === lastName);
-        startIndex = firstUnportedFrom(lastIndex + 1);
+        startIndex = firstUnverifiedFrom(lastIndex + 1);
     } else {
-        startIndex = firstUnportedFrom(0);
+        startIndex = firstUnverifiedFrom(0);
     }
     const run = [];
     let cLines = 0;
     for (let index = startIndex; index < functions.length; index += 1) {
         const entry = functions[index];
-        if (entry.ported) continue;
+        if (entry.complete) continue;
         const size = entry.endLine - entry.line + 1;
         if (run.length > 0 && cLines + size > cap) break;
         run.push(entry);
@@ -275,11 +310,17 @@ export function lineRanges(entries) {
     return ranges.map((range) => `${range.line}-${range.endLine}`);
 }
 
-function spanName(span) {
+function spanName(span, previous) {
     const { functions } = span;
-    return functions.length === 1
+    const base = functions.length === 1
         ? functions[0]
         : `${functions[0]}..${functions.at(-1)}`;
+    // An old span can be closed without completion evidence. Rechecking its
+    // source units needs a distinct name so close-span addresses the new work.
+    const names = new Set(previous.map((entry) => entry.name));
+    let name = base;
+    for (let attempt = 2; names.has(name); attempt += 1) name = `${base} (${attempt})`;
+    return name;
 }
 
 function jsFileFor(cFile) {
@@ -293,14 +334,18 @@ export function spanContext(goal, span) {
     );
     return {
         goal: goal.id,
-        cFile: goal.cFile,
+        kind: goal.kind,
+        sourceFile: sourceFile(goal),
+        ...(goal.luaFile ? { luaFile: goal.luaFile } : { cFile: goal.cFile }),
         functions: span.functions,
         lineRanges: lineRanges(entries),
         cLines: entries.reduce(
             (sum, entry) => sum + (entry.endLine - entry.line + 1), 0,
         ),
-        jsFile: jsFileFor(goal.cFile),
+        jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
         sessions: goal.sessions ?? [],
+        evidenceRequired: 'whole source, production callers, tests for pure '
+            + 'functions, matching recordings for impure functions and entry points',
     };
 }
 
@@ -314,10 +359,11 @@ export function formatGoal(goal, { detail = false } = {}) {
     const lines = [
         `${goal.status.toUpperCase()} ${goal.id}: ${goalSummary(goal)}`,
     ];
-    if (goal.kind === 'file-port') {
-        const { ported, total } = portedCount(goal);
-        lines.push(`  file port of ${goal.cFile}: ${ported} of ${total} `
-            + 'functions ported');
+    if (isSourcePort(goal)) {
+        const { declared, complete, total } = completionCount(goal);
+        lines.push(`  ${goal.kind} of ${sourceFile(goal)}: ${complete} of ${total} `
+            + 'source units verified'
+            + (goal.kind === 'file-port' ? `; ${declared} declarations found` : ''));
     } else if (goal.kind === 'divergence-fix') {
         lines.push(`  divergence fix in ${goal.cFile} ${goal.function}() `
             + `for ${goal.session}`
@@ -344,8 +390,7 @@ export function formatGoal(goal, { detail = false } = {}) {
 }
 
 /**
- * The roadmap table: one row per C file with its function counts and the
- * goal that covers it, ordered by the number of unported functions.
+ * The C roadmap counts declarations separately from completion evidence.
  */
 export function roadmapRows(files, names, goals) {
     const latestGoal = new Map();
@@ -354,34 +399,53 @@ export function roadmapRows(files, names, goals) {
     }
     return files.map(({ name, text }) => {
         const functions = parseCFunctions(text);
-        const ported = functions.filter((entry) => names.has(entry.name)).length;
+        const declared = functions.filter((entry) => names.has(entry.name)).length;
+        const evidence = verifiedNames(name, goals);
+        const complete = functions.filter((entry) => names.has(entry.name)
+            && evidence.has(entry.name)).length;
         const goal = latestGoal.get(name);
         return {
             cFile: name,
             total: functions.length,
-            ported,
-            unported: functions.length - ported,
+            declared,
+            complete,
+            pending: functions.length - complete,
             goal: goal ? `${goal.id} (${goal.status})` : '',
         };
-    }).sort((a, b) => b.unported - a.unported || a.cFile.localeCompare(b.cFile));
+    }).sort((a, b) => b.pending - a.pending || a.cFile.localeCompare(b.cFile));
 }
 
-export function formatRoadmap(rows, head) {
+export function luaRoadmapRows(files, goals) {
+    return files.map(({ name }) => ({
+        luaFile: name,
+        complete: verifiedNames(name, goals).has(name),
+    }));
+}
+
+export function formatRoadmap(rows, head, luaRows = []) {
     const total = rows.reduce((sum, row) => sum + row.total, 0);
-    const ported = rows.reduce((sum, row) => sum + row.ported, 0);
+    const complete = rows.reduce((sum, row) => sum + row.complete, 0);
     const lines = [
-        `Ported functions: ${ported} of ${total}, at ${head.slice(0, 8)}.`,
+        `Verified C functions: ${complete} of ${total}, at ${head.slice(0, 8)}.`,
         '',
-        'Rows ordered by unported functions. A name match says a port exists,',
-        'not that it is complete or correct.',
+        'Declarations are inventory only. Historical name matches carry no',
+        'completion evidence. Resolve the mismatch queue before roadmap work.',
         '',
-        '| C file | Functions | Ported | Unported | Goal |',
-        '| --- | ---: | ---: | ---: | --- |',
+        '| C file | Functions | Declared | Verified | Unverified | Goal |',
+        '| --- | ---: | ---: | ---: | ---: | --- |',
     ];
     for (const row of rows) {
-        lines.push(`| ${row.cFile} | ${row.total} | ${row.ported} | ${row.unported} `
+        lines.push(`| ${row.cFile} | ${row.total} | ${row.declared} | ${row.complete} `
+            + `| ${row.pending} `
             + `| ${row.goal} |`);
     }
+    lines.push('', `Verified Lua programs: ${luaRows.filter((row) => row.complete).length}`
+        + ` of ${luaRows.length}.`, '',
+    'Each Lua file includes its top-level program. Loader registration alone',
+    'does not establish completion.', '', '| Lua source | Completion evidence |',
+    '| --- | --- |');
+    for (const row of luaRows)
+        lines.push(`| ${row.luaFile} | ${row.complete ? 'verified' : 'unverified'} |`);
     return `${lines.join('\n')}\n`;
 }
 
@@ -406,17 +470,20 @@ function parseOptions(args) {
 }
 
 function newGoal(options) {
-    required(options, ['id', 'kind', 'summary', 'c-file']);
+    required(options, ['id', 'kind', 'summary']);
     if (!GOAL_KINDS.includes(options.kind)) {
         throw new Error(`--kind must be one of ${GOAL_KINDS.join(', ')}`);
     }
+    required(options, [options.kind === 'lua-port' ? 'lua-file' : 'c-file']);
     const goal = {
         id: options.id,
         kind: options.kind,
         status: 'queued',
         summary: options.summary,
-        cFile: options['c-file'],
+        ...(options.kind === 'lua-port'
+            ? { luaFile: options['lua-file'] } : { cFile: options['c-file'] }),
         sessions: commaSeparated(options.sessions),
+        selectionReason: options['selection-reason'] ?? '',
         detail: options.detail ?? '',
         spans: [],
         openedAt: null,
@@ -430,8 +497,11 @@ function newGoal(options) {
             options['from-function'],
             options['to-function'],
         );
-        goal.functions = markPorted(functions, jsFunctionNames());
+        if (!functions.length) throw new Error(`${goal.cFile} has no function definitions`);
+        goal.functions = markDeclared(functions, jsFunctionNames());
         goal.range = { from: functions[0].line, to: functions.at(-1).endLine };
+    } else if (goal.kind === 'lua-port') {
+        goal.functions = [luaProgram(goal.luaFile)];
     } else {
         required(options, ['function', 'session']);
         goal.function = options.function;
@@ -441,7 +511,76 @@ function newGoal(options) {
     return goal;
 }
 
-function main(args) {
+/** A name inventory, an empty span list, or a unit test alone cannot close a port. */
+export function assertPortComplete(goal) {
+    if (!isSourcePort(goal)) return;
+    const pending = goal.functions.filter((entry) => !entry.complete);
+    if (pending.length) throw new Error(`unverified source units: ${pending.map((entry) => entry.name).join(', ')}`);
+    if (goalSpans(goal).some((span) => span.status !== 'closed'))
+        throw new Error('close every span before closing the goal');
+    if (!nonempty(goal.evidence?.entryPointReview))
+        throw new Error('record an entryPointReview covering every source entry point');
+    if (!Array.isArray(goal.evidence?.entryPoints))
+        throw new Error('record the entryPoints list, including an empty list for a helper-only range');
+    for (const entry of goal.evidence.entryPoints) {
+        if (!entry.recordings?.length)
+            throw new Error(`entry point ${entry.name} has no matching recording`);
+    }
+}
+
+/** Merge one span's evidence without discarding evidence for earlier spans. */
+export function recordEvidence(goal, evidence, head) {
+    const previous = goal.evidence ?? {};
+    const functions = new Map((previous.functions ?? []).map((entry) => [entry.name, entry]));
+    for (const entry of evidence.functions ?? [])
+        functions.set(entry.name, { ...entry, checkedAt: head });
+    goal.evidence = { ...previous, ...evidence, functions: [...functions.values()] };
+    return goal;
+}
+
+function readEvidence(path) {
+    // Worker evidence is an ephemeral JSON file in this worktree's cache.
+    // Restrict the input before reading it; no session path is accepted.
+    if (!/^\.cache\/[A-Za-z0-9_.-]+\.json$/u.test(path))
+        throw new Error('--evidence must name a JSON file directly under .cache/');
+    if (lstatSync(join(PROJECT_ROOT, '.cache')).isSymbolicLink()
+        || !lstatSync(join(PROJECT_ROOT, path)).isFile()
+        || lstatSync(join(PROJECT_ROOT, path)).isSymbolicLink())
+        throw new Error('evidence must be a regular file in this worktree');
+    return JSON.parse(readFileSync(join(PROJECT_ROOT, path), 'utf8'));
+}
+
+async function checkSelection(goal) {
+    const { assertGoalSelection, loadMismatchQueue } = await import('./mismatch-queue.mjs');
+    const queue = loadMismatchQueue();
+    const candidate = assertGoalSelection(queue, goal);
+    if (isSourcePort(goal) && !goal.sessions.length && candidate)
+        goal.sessions = [...candidate.sessions];
+    return queue;
+}
+
+function scopedMismatches(goal, queue) {
+    const sessions = new Set([goal.session, ...(goal.sessions ?? [])]);
+    return queue.sessions.filter((entry) => sessions.has(entry.session));
+}
+
+export function assertCheckpointCurrent(summary, head) {
+    if (summary?.commit !== head || summary?.allPassed !== true
+        || summary?.recordings?.passed !== true)
+        throw new Error('run a passing npm run checkpoint at HEAD before closing source work');
+}
+
+function requireCheckpoint(head) {
+    let summary;
+    try {
+        summary = JSON.parse(readFileSync(join(PROJECT_ROOT, '.cache', 'checkpoint-summary.json'), 'utf8'));
+    } catch {
+        // The same actionable error covers a missing or malformed summary.
+    }
+    assertCheckpointCurrent(summary, head);
+}
+
+async function main(args) {
     const mode = args[0];
     if (mode === '--current' || mode === undefined) {
         const rest = args.slice(1);
@@ -454,7 +593,9 @@ function main(args) {
             console.log('No open or queued goal.');
             return;
         }
-        for (const goal of visible) console.log(formatGoal(goal, { detail }));
+        const names = jsFunctionNames();
+        for (const goal of visible)
+            console.log(formatGoal(refreshCompletion(goal, names, store.goals), { detail }));
         return;
     }
     if (mode === 'roadmap') {
@@ -463,8 +604,10 @@ function main(args) {
             name: file.name,
             text: readFileSync(file.path, 'utf8'),
         }));
-        const rows = roadmapRows(files, jsFunctionNames(), readGoals().goals);
-        process.stdout.write(formatRoadmap(rows, repositoryHead()));
+        const goals = readGoals().goals;
+        const rows = roadmapRows(files, jsFunctionNames(), goals);
+        process.stdout.write(formatRoadmap(rows, repositoryHead(),
+            luaRoadmapRows(listLuaFiles(), goals)));
         return;
     }
     const options = parseOptions(args.slice(1));
@@ -474,6 +617,8 @@ function main(args) {
             throw new Error(`goal already exists: ${options.id}`);
         }
         const goal = newGoal(options);
+        await checkSelection(goal);
+        refreshCompletion(goal, null, store.goals);
         store.goals.push(goal);
         writeGoals(store);
         console.log(formatGoal(goal));
@@ -483,12 +628,17 @@ function main(args) {
         required(options, ['id']);
         const store = readGoals();
         const goal = findGoal(store, options.id);
-        if (goal.status !== 'queued') {
-            throw new Error(`goal ${goal.id} is ${goal.status}, not queued`);
+        if (goal.status !== 'queued' && goal.status !== 'parked') {
+            throw new Error(`goal ${goal.id} is ${goal.status}, not queued or parked`);
         }
+        if (options['selection-reason']) goal.selectionReason = options['selection-reason'];
+        const queue = await checkSelection(goal);
+        const opening = developmentStanding();
+        if (goal.openedAt == null) goal.openedAt = repositoryHead();
+        if (goal.openStanding == null) goal.openStanding = opening;
         goal.status = 'open';
-        goal.openedAt = repositoryHead();
-        goal.openStanding = developmentStanding();
+        goal.activeStanding = opening;
+        goal.openMismatches ??= scopedMismatches(goal, queue);
         writeGoals(store);
         console.log(formatGoal(goal));
         return;
@@ -497,8 +647,8 @@ function main(args) {
         required(options, ['goal']);
         const store = readGoals();
         const goal = findGoal(store, options.goal);
-        if (goal.kind !== 'file-port') {
-            throw new Error(`goal ${goal.id} is not a file port; queue its span `
+        if (!isSourcePort(goal)) {
+            throw new Error(`goal ${goal.id} is not a source port; queue its span `
                 + 'with queue-span');
         }
         if (goal.status !== 'open') {
@@ -506,19 +656,24 @@ function main(args) {
         }
         let span = goal.spans.find((entry) => entry.status === 'queued');
         if (!span) {
-            refreshPorted(goal);
+            refreshCompletion(goal, null, store.goals);
             const closed = goal.spans.filter((entry) => entry.status === 'closed');
             const next = nextSpan(goal.functions, closed);
             if (!next) {
-                console.log(`every function of ${goal.cFile} in ${goal.id} is `
-                    + 'ported; close the goal');
+                console.log(`every source unit of ${sourceFile(goal)} in ${goal.id} `
+                    + 'has completion evidence; verify entry-point coverage before closing');
                 writeGoals(store);
                 return;
             }
-            span = { name: spanName(next), status: 'queued', closedBy: null,
+            // Reconsider priorities between spans. A queued or open helper
+            // goal must not bypass new gameplay blockers merely by existing.
+            await checkSelection(goal);
+            span = { name: spanName(next, goal.spans), status: 'queued', closedBy: null,
                 functions: next.functions };
             goal.spans.push(span);
             writeGoals(store);
+        } else {
+            await checkSelection(goal);
         }
         const context = spanContext(goal, span);
         mkdirSync(join(PROJECT_ROOT, '.cache'), { recursive: true });
@@ -530,6 +685,9 @@ function main(args) {
         required(options, ['goal', 'name']);
         const store = readGoals();
         const goal = findGoal(store, options.goal);
+        if (isSourcePort(goal)) throw new Error('plan source-port spans with next-span');
+        if (goal.status !== 'open') throw new Error('queue-span requires an open goal');
+        await checkSelection(goal);
         const spans = goalSpans(goal);
         if (spans.some((entry) => entry.name === options.name)) {
             throw new Error(`span already exists: ${options.name}`);
@@ -547,9 +705,45 @@ function main(args) {
         const goal = findGoal(store, options.goal);
         const span = goalSpans(goal).find((entry) => entry.name === options.name);
         if (!span) throw new Error(`no span named: ${options.name}`);
+        if (goal.status !== 'open' || span.status !== 'queued')
+            throw new Error('close-span requires an open goal and a queued span');
+        refreshCompletion(goal, null, store.goals);
+        if (isSourcePort(goal)) {
+            const complete = new Set(goal.functions.filter((entry) => entry.complete)
+                .map((entry) => entry.name));
+            const missing = span.functions.filter((name) => !complete.has(name));
+            if (missing.length)
+                throw new Error(`record completion evidence before closing: ${missing.join(', ')}`);
+            requireCheckpoint(repositoryHead());
+        }
         span.status = 'closed';
         span.closedBy = repositoryHead();
-        refreshPorted(goal);
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
+    if (mode === 'record-evidence') {
+        required(options, ['goal', 'evidence']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        if (goal.status !== 'open' || !isSourcePort(goal))
+            throw new Error('record-evidence requires an open C or Lua source port');
+        const evidence = validatePortEvidence(goal, readEvidence(options.evidence));
+        recordEvidence(goal, evidence, repositoryHead());
+        refreshCompletion(goal, null, store.goals);
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
+    if (mode === 'park-goal') {
+        required(options, ['goal', 'reason']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        if (goal.status !== 'open') throw new Error('only an open goal can be parked');
+        goal.progressBeforePark = addDelivered(goal.progressBeforePark,
+            deliveredSince(goal.activeStanding ?? goal.openStanding, developmentStanding()));
+        goal.status = 'parked';
+        goal.parkedReason = options.reason;
         writeGoals(store);
         console.log(formatGoal(goal));
         return;
@@ -581,23 +775,30 @@ function main(args) {
         const head = repositoryHead();
         const closeStanding = developmentStanding();
         assertStandingIsCurrent(closeStanding, head);
-        refreshPorted(goal);
+        refreshCompletion(goal, null, store.goals);
+        assertPortComplete(goal);
+        if (isSourcePort(goal)) {
+            validatePortEvidence(goal, goal.evidence);
+            requireCheckpoint(head);
+            const { loadMismatchQueue } = await import('./mismatch-queue.mjs');
+            goal.closeMismatches = scopedMismatches(goal, loadMismatchQueue());
+        }
         goal.status = 'closed';
         goal.closedAt = head;
-        goal.delivered = deliveredSince(goal.openStanding, closeStanding);
+        goal.delivered = addDelivered(goal.progressBeforePark,
+            deliveredSince(goal.activeStanding ?? goal.openStanding, closeStanding));
         writeGoals(store);
         console.log(formatGoal(goal));
         return;
     }
     throw new Error('modes: --current [--detail], queue-goal, open-goal, '
-        + 'next-span, queue-span, close-span, discard-goal, close-goal, roadmap');
+        + 'next-span, queue-span, record-evidence, close-span, park-goal, '
+        + 'discard-goal, close-goal, roadmap');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-    try {
-        main(process.argv.slice(2));
-    } catch (error) {
+    main(process.argv.slice(2)).catch((error) => {
         console.error(`goal-log: ${error.message}`);
         process.exitCode = 1;
-    }
+    });
 }

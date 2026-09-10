@@ -14,8 +14,8 @@ every valid seed, date and time, set of options, and input sequence.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal in progress and the goals queued after it
   (`node scripts/goal-log.mjs --current`).
-  `node scripts/goal-log.mjs roadmap` lists every C file with its ported and
-  unported function counts.
+  `node scripts/goal-log.mjs roadmap` lists C declarations separately from
+  verified functions, and every Lua program with its completion evidence.
 
 ## Recorded test sessions
 
@@ -71,13 +71,14 @@ All other access to `sessions/holdout/` is prohibited:
 ## Read the instructions for your task
 
 Before starting work, find every matching row below and read every listed file.
-Follow all instructions in those files. A **goal** is one of two kinds. A
-**file port** ports one C file, or a named group of its functions. A
-**divergence fix** repairs one session's first mismatch inside code that is
-already ported. A **span** is the unit of work one worker run lands: for a
-file port, its unported functions in C order up to a line cap; for a
-divergence fix, the functions the fix touches. The span worker
-(`.claude/agents/span-worker.md`) completes one span per run.
+Follow all instructions in those files. A **goal** is a C **file port**, a
+**Lua port**, or a **divergence fix**. A file port implements whole C functions,
+a Lua port implements a whole `dat/*.lua` program, and a divergence fix repairs
+a source-traced defect in implemented behavior. A **span** is the unit of work
+one worker run lands: for a file port, its unverified functions in C order up
+to a line cap; for a Lua port, the whole program; for a divergence fix, the
+functions the fix touches. The span worker (`.claude/agents/span-worker.md`)
+completes one span per run.
 
 | Before you... | Read... |
 | --- | --- |
@@ -110,16 +111,18 @@ divergence fix, the functions the fix touches. The span worker
   or recorded trace can help locate the upstream function but does not define
   its behavior.
 
-### Port whole files in C order
+### Port whole source units and wire their callers
 
-1. A file port covers every function of its C file, in the file's definition
-   order, whether or not a recorded session reaches it. Do not wait for a
-   caller in the running game, and do not defer a branch because no session
-   exercises it. `.agents/selection.md`, "Choosing a goal", states which
-   function the first span starts from.
-2. Wire each ported function where the C calls it, in the same span. A
-   function that exists only in JavaScript, or a caller the C does not have,
-   is a defect.
+1. A C file port covers every function in its selected source range, in
+   definition order, including existing partial implementations. Select the
+   whole function or self-contained family responsible for the current
+   mismatch as `.agents/selection.md` specifies. A Lua port covers the whole
+   program, including top-level statements. A declaration is not evidence of
+   complete behavior; skip a unit only when recorded source, caller, and
+   validation evidence establishes completion.
+2. Wire each ported function or Lua program where the source calls it, in
+   the same span. A function that exists only in JavaScript, or a caller the
+   source does not have, is a defect.
 3. When a ported function calls a C function that is not ported yet, port the
    callee in the same span if the C uses its return value. If the C discards
    the result, record the gap and skip the call:
@@ -204,21 +207,27 @@ play: the 33 development sessions, and the recordings corpus under
 `recipes/`. `npm run checkpoint` replays both and fails when a recording stops
 matching.
 
-Every file port adds recipes. Before the goal closes, its recipes must reach
-each entry point of the ported file at least once, and their recordings must
-match. An entry point is a command, monster action, level feature, or startup
-path the file implements. Commit a recording only when it matches completely.
-When a recipe's recording diverges inside another C file, leave the recipe
-under `recipes/<c-file>/` with a comment naming the blocking function, and
+Every C or Lua source port identifies its entry points and their recipes.
+Before the goal closes, its recipes must reach each entry point in the
+selected source range at least once, and their recordings must match. An
+entry point is a command, monster action, level feature, or startup path the
+range implements. Commit a recording only when it matches completely.
+When a recipe's recording diverges inside another source file, leave the recipe
+under `recipes/<source-file>/` with a comment naming the blocking function, and
 record it once that function lands. A span that completes an entry point
 records its recipe before closing; a span closes without a new recording when
 neither the development sessions nor the recordings lost a match.
 
+Before closing a source port or one of its spans, record completion evidence with
+`goal-log.mjs record-evidence` as `.agents/validation.md`, "Source completion
+evidence", specifies. An isolated test does not establish production wiring.
+A blocked recipe does not establish entry-point completion.
+
 When choosing new cases:
 
 - Choose the smallest repeatable set of recipes that reaches each entry point
-  of the goal's file. Commit each recipe under `recipes/<c-file>/` and its
-  recording under `recordings/<c-file>/`.
+  in the goal's source range. Commit each recipe under `recipes/<source-file>/` and its
+  recording under `recordings/<source-file>/`.
 - Give each recipe a cheap variation, such as a different role, option, or
   object class, and cover the branches those variations reach. The
   source-pinned tests and the file's later divergences cover the branches no
@@ -227,7 +236,7 @@ When choosing new cases:
   that limit. If the current goal specifies the result, add a passing test. If
   the case belongs to a later span or file port and does not yet match the C
   reference, keep it out of the passing test suite and commit its recipe under
-  `recipes/<c-file>/` with a comment naming the function that blocks it.
+  `recipes/<source-file>/` with a comment naming the function that blocks it.
 - Choose inputs independently rather than copying values from an existing
   recorded session, and change the seed, date and time, options, character
   choices, or input sequence only when that input can affect the behavior being
@@ -282,7 +291,8 @@ without returning to the user. Stop and ask only for:
 - a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;
 - a complete port: every development session matches and
-  `node scripts/goal-log.mjs roadmap` lists no unported function;
+  `node scripts/goal-log.mjs roadmap` lists no unverified C function or Lua
+  program;
 - a decision not covered by this file or any file it references.
 
 Report progress when the user asks and when the loop stops. Do not stop merely
