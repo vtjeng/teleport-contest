@@ -607,10 +607,16 @@ export function monsterCommonName(
     }
     // mon_nam() always passes ARTICLE_THE, so the article term is constantly
     // true here and SUPPRESS_IT is the only term a wrapper can move.
-    if (x_monnam_do_it(monster, ARTICLE_THE, suppress, state))
+    if (x_monnam_do_it(monster, ARTICLE_THE, suppress, state, env))
         return x_monnam_it(suppress, monster, state, env);
     const hallucinating = namingPropertyActive(state, HALLUC)
         && !namingPropertyActive(state, HALLUC_RES);
+    // do_name.c x_monnam():876-885.  The ordinary visible shopkeeper name
+    // comes from shkname(), including its stored-name marker handling.  Keep
+    // this common-name helper aligned with mon_nam() because attack messages
+    // use it directly in several already ported callers.
+    if (monster.isshk && !hallucinating)
+        return shkname(monster, state, env);
     if (hallucinating) {
         // do_name.c:950-955. mon_nam() does not suppress hallucination, so
         // the species is replaced after the "it" decision and before given

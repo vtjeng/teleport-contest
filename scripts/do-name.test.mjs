@@ -193,6 +193,32 @@ test('monsterCommonName names a gendered species by the monster\'s own gender',
         assert.equal(monsterCommonName(newt, state), 'the newt');
     });
 
+test('monsterCommonName uses a shopkeeper\'s stored name', () => {
+    const state = {
+        u: { uprops: [], uroleplay: { blind: false } },
+    };
+    monst_globals_init(state);
+    const shopkeeper = {
+        data: state.mons[PM_SHOPKEEPER],
+        isshk: true,
+        mextra: { eshk: { shknam: '-Akranes' } },
+        mx: 1,
+        my: 1,
+    };
+    assert.equal(
+        monsterCommonName(shopkeeper, state, 0, {
+            canSpotMonster: () => true,
+        }),
+        'Akranes',
+    );
+    assert.equal(
+        capitalizedMonsterName(shopkeeper, state, {
+            canSpotMonster: () => true,
+        }),
+        'Akranes',
+    );
+});
+
 test('monsterCommonName uses C hallucinated names and display RNG', () => {
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },

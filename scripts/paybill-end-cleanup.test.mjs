@@ -179,19 +179,15 @@ test('setpaid always clears no_charge inside a container', () => {
     assert.equal(box.cobj.no_charge, false);
 });
 
-test('paybill riles an angry shopkeeper before refusing it', () => {
+test('paybill riles and clears an angry shopkeeper', () => {
     // C ref: shk.c next_shkp():224-228 calls rile_shk() on an angry keeper
     // that has no surcharge yet, before paybill() has classified anyone. The
-    // hostile arm of inherits() is unported, so the refusal follows -- but the
-    // surcharge flag the scan set is already visible.
+    // The hostile inherits() arm clears the keeper after the scan has applied
+    // its surcharge, even when this silent fixture has no inventory to take.
     const state = makeState();
     const shkp = makeShopkeeper(state, { mpeaceful: false });
 
-    assert.throws(
-        () => paybill(1, true, state),
-        (err) => err instanceof UnsupportedShopError
-            && err.message.includes('hostile or pursuing'),
-    );
+    assert.equal(paybill(1, true, state), false);
     assert.equal(shkp.mextra.eshk.surcharge, true);
 });
 

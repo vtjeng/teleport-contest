@@ -889,6 +889,33 @@ test('done_in_by sets the killer for a plain monster', async () => {
     assert.equal(game.killer.format, KILLED_BY_AN);
 });
 
+test('done_in_by names a shopkeeper with C honorific and format rules',
+     async () => {
+    // end.c:263-270 calls shkname() before shkname_is_pname(). A stored
+    // personal-name marker suppresses the honorific; an ordinary stored name
+    // uses the monster's female field, and both forms force KILLED_BY.
+    for (const [storedName, female, expected] of [
+        // '-' marks a personal name, so C strips it and adds no title.
+        ['-Lucrezia', true, 'Lucrezia, the shopkeeper'],
+        // No marker means the female shopkeeper receives "Ms. ".
+        ['Adjama', true, 'Ms. Adjama, the shopkeeper'],
+    ]) {
+        await dyingGame();
+        const shopkeeper = killerMonster(PM_SHOPKEEPER, {
+            female,
+            isshk: true,
+            mextra: { eshk: { shknam: storedName } },
+        });
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await assert.rejects(
+            done_in_by(shopkeeper, DIED, game),
+            UnsupportedEndOfGameError,
+        );
+        assert.equal(game.killer.name, expected);
+        assert.equal(game.killer.format, KILLED_BY);
+    }
+});
+
 test('done_in_by sets ugrave_arise for a wraith', async () => {
     // end.c:326-327. A wraith's mlet is S_WRAITH, so ugrave_arise receives
     // PM_WRAITH.
@@ -1031,7 +1058,7 @@ function assertLethalTurnBoundary(error, arm) {
     assert.equal(game.u.umortality, 1);
 }
 
-test('a pursuing shopkeeper stops a monster kill at the turn boundary',
+test('a pursuing shopkeeper takes the inventory before disclosure',
      async () => {
     await gameBeforeLethalMonsterTurn();
     appendBystander(PM_SHOPKEEPER, {
@@ -1059,10 +1086,13 @@ test('a pursuing shopkeeper stops a monster kill at the turn boundary',
             },
         },
     });
-    assertLethalTurnBoundary(
-        await lethalTurnRefusal(),
-        /inherits\(\) for a hostile or pursuing shopkeeper/u,
-    );
+    const error = await lethalTurnRefusal();
+    assert.match(error?.message ?? '', /Input queue empty/u);
+    assert.deepEqual(game.killer, {
+        name: MONSTER_DEATH_CASE.killer,
+        format: MONSTER_DEATH_CASE.format,
+    });
+    assert.equal(game.program_state.gameover, 1);
 });
 
 test('a vault guard owed gold stops a monster kill at the turn boundary',

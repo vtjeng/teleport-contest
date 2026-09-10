@@ -100,6 +100,14 @@ export function shkname(shopkeeper, state = game, env = {}) {
     return /^[A-Za-z]/u.test(name) ? name : name.slice(1);
 }
 
+// C ref: shknam.c shkname_is_pname() (900-905). The first character in a
+// stored shopkeeper name marks a personal name when it is one of '-', '+' or
+// '='; shkname() strips that marker before returning the display name.
+export function shkname_is_pname(shopkeeper) {
+    const name = shopkeeper.mextra?.eshk?.shknam ?? '';
+    return name.length > 0 && '-+='.includes(name[0]);
+}
+
 // C ref: shknam.c Shknam() (843-851), the sentence-initial spelling.
 export function Shknam(shopkeeper, state = game, env = {}) {
     const name = shkname(shopkeeper, state, env);

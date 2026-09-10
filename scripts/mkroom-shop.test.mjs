@@ -118,7 +118,9 @@ import {
 } from '../js/shtypes_data.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { timeout_globals_init } from '../js/timeout.js';
-import { nameshk, shkveg, stock_room, veggy_item } from '../js/shknam.js';
+import {
+    nameshk, shkname_is_pname, shkveg, stock_room, veggy_item,
+} from '../js/shknam.js';
 import {
     loadLevelTeleportArrivalRecipe,
     verifyLevelTeleportArrival,
@@ -1124,6 +1126,22 @@ function name_wanted(shk) {
     // C's `if (name_wanted < 0) name_wanted += (13 + 5)`.
     return wanted < 0 ? wanted + 18 : wanted;
 }
+
+test('shkname_is_pname recognizes stored personal-name prefixes', () => {
+    // shknam.c:900-905 returns true only for '-', '+' and '='. These are the
+    // three prefixes nameshk() stores for personal names; an ordinary name
+    // and an empty extension value must remain false.
+    for (const [storedName, expected] of [
+        ['-Lucrezia', true],
+        ['+Dirk', true],
+        ['=Izchak', true],
+        ['Adjama', false],
+        ['', false],
+    ]) {
+        const shopkeeper = { mextra: { eshk: { shknam: storedName } } };
+        assert.equal(shkname_is_pname(shopkeeper), expected, storedName);
+    }
+});
 
 test("a general store's keeper spends shkinit()'s rn2(5) on a charging scroll",
     async () => {

@@ -58,6 +58,7 @@ import {
     count_unpaid,
     currency,
     freeinv,
+    money_cnt,
     INVLET_BASIC,
     merge_choice,
     obj_extract_self,
@@ -101,6 +102,7 @@ import {
 import {
     haseyes,
     is_demon,
+    mhim,
     pronoun_gender,
     resist_conflict,
 } from './mondata.js';
@@ -1824,14 +1826,63 @@ export function setpaid(shopkeeper, state = game) {
     }
 }
 
-// C ref: shk.c inherits() (2570-2676). Covers the arms that leave the hero's
-// possessions alone and fall through to the `clear` label: a lone shopkeeper
-// who is owed nothing, is not following and is not angry. Every arm that takes
-// something -- a second shopkeeper looking at the corpse, the in-shop
-// "gratefully inherits", and the bill/debit/robbed and following/angry
-// handling -- needs addupbill(), money2mon(), pacify_shk(), rouse_shk(),
-// home_shk() and set_repo_loc(), none of which are ported, so each stops here.
-function inherits(shopkeeper, numsk, _croaked, _silently, state) {
+// C ref: shk.c set_repo_loc() (2682-2720). Save the square where a
+// shopkeeper's takings will be deposited after disclosure. The current death
+// path has one shopkeeper, so the first repository location wins as in C.
+function set_repo_loc(shopkeeper, state) {
+    state.gr ??= {};
+    state.gr.repo ??= { location: { x: 0, y: 0 }, shopkeeper: null };
+    if (state.gr.repo.shopkeeper) return;
+
+    const eshkp = shopkeeper.mextra.eshk;
+    let x = state.u.ux || state.u.ux0;
+    let y = state.u.uy || state.u.uy0;
+    if (!(state.u.ushops ?? []).includes(eshkp.shoproom)
+        || costly_adjacent(shopkeeper, x, y, state)) {
+        const shk = eshkp.shk ?? { x, y };
+        const shd = eshkp.shd ?? shk;
+        x = shk.x;
+        y = shk.y;
+        x += sgn(x - shd.x);
+        y += sgn(y - shd.y);
+    }
+    state.gr.repo.location = { x, y };
+    state.gr.repo.shopkeeper = shopkeeper;
+}
+
+// C ref: shk.c rouse_shk() (1381-1401). The verbose wake-up message is not
+// reached by inherits(), which uses FALSE; preserve the state transition.
+function rouse_shk(shopkeeper) {
+    if (helpless(shopkeeper)) {
+        shopkeeper.msleeping = 0;
+        shopkeeper.mfrozen = 0;
+        shopkeeper.mcanmove = 1;
+    }
+}
+
+function shopMessage(text, state) {
+    // paybill() retains its source-shaped synchronous API. really_done()
+    // awaits this one deferred tty write before it resumes disclosure.
+    state._paybill_message = ttyPline(text, state);
+}
+
+// C ref: shk.c home_shk() (1317-1330). Return a keeper to the square at its
+// shop door; the no-message relocation flag is the only observable work on
+// this death path.
+function home_shk(shopkeeper, _killkops, state) {
+    // The movement helper's extended rloc_to() bookkeeping is not ported;
+    // home_shk() discards mnearto()'s result, so preserve the reached gap and
+    // keep the shop bookkeeping below source control.
+    note_unported('mon.c mnearto');
+    state.level.flags ??= {};
+    state.level.flags.has_shop = true;
+    after_shk_move(shopkeeper, state);
+}
+
+// C ref: shk.c inherits() (2570-2676). The ordinary death path below ports
+// the hostile/following arm as well as the clear arm. Inventory stays in the
+// hero's list until finish_paybill(), after disclosure, just as in C.
+function inherits(shopkeeper, numsk, croaked, silently, state) {
     const eshkp = shopkeeper.mextra.eshk;
     const uinshop = (state.u.ushops ?? []).includes(eshkp.shoproom);
 
@@ -1858,16 +1909,65 @@ function inherits(shopkeeper, numsk, _croaked, _silently, state) {
             'inherits() settling an unpaid bill after death',
         );
     }
-    if (eshkp.following || !NOTANGRY(shopkeeper)) {
-        throw new UnsupportedShopError(
-            'inherits() for a hostile or pursuing shopkeeper',
-        );
+    let taken = false;
+    let loss = 0;
+    let take = false;
+    if (eshkp.billct || eshkp.debit || eshkp.robbed) {
+        if (uinshop && inhishop(shopkeeper, state))
+            loss = addupbill(shopkeeper) + eshkp.debit;
+        if (loss < eshkp.robbed) loss = eshkp.robbed;
+        take = true;
+    }
+
+    if (eshkp.following || !NOTANGRY(shopkeeper) || take) {
+        if (!state.invent) {
+            rouse_shk(shopkeeper);
+            if (!inhishop(shopkeeper, state)) home_shk(shopkeeper, false, state);
+        } else {
+            const umoney = money_cnt(state.invent);
+            let takes = '';
+            if (helpless(shopkeeper)) takes += 'wakes up and ';
+            // C's m_next2u() is dist2() <= 2. dist2 is already the squared
+            // coordinate distance used by this module's shop logic.
+            if (dist2(shopkeeper.mx, shopkeeper.my, state.u.ux, state.u.uy) > 2)
+                takes += 'comes and ';
+            takes += 'takes';
+
+            if (loss > umoney || !loss || uinshop) {
+                eshkp.robbed = Math.max(0, eshkp.robbed - umoney);
+                if (umoney > 0) {
+                    money2mon(shopkeeper, umoney, state);
+                    state.disp ??= {};
+                    state.disp.botl = true;
+                }
+                if (!silently)
+                    shopMessage(`${Shknam(shopkeeper, state)} ${takes} all your possessions.`, state);
+                taken = true;
+            } else {
+                money2mon(shopkeeper, loss, state);
+                state.disp ??= {};
+                state.disp.botl = true;
+                if (!silently) {
+                    const customer = eshkp.customer ?? '';
+                    const owesYou = customer.startsWith(state.plname ?? '');
+                    shopMessage(
+                        `${Shknam(shopkeeper, state)} ${takes} the ${loss} ${currency(loss, state)} ${owesYou ? 'you ' : ''}owed ${mhim(shopkeeper)}.`,
+                        state,
+                    );
+                }
+                pacify_shk(shopkeeper, false);
+                eshkp.following = 0;
+                eshkp.robbed = 0;
+            }
+            rouse_shk(shopkeeper);
+            if (!inhishop(shopkeeper, state)) home_shk(shopkeeper, false, state);
+        }
     }
 
     /* clear: */
     setpaid(shopkeeper, state); /* clear this shk's bill */
-    /* taken is FALSE here, so set_repo_loc() is not called */
-    return false;
+    if (taken) set_repo_loc(shopkeeper, state);
+    return taken;
 }
 
 // C ref: shk.c paybill() (2483-2566). Called from end.c really_done() after

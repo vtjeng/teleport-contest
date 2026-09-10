@@ -107,7 +107,7 @@ import {
     is_pit,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { losehp, nomul } from './hack.js';
+import { end_running, losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import {
     cls, display_self, docrt, flush_screen, map_invisible,
@@ -390,7 +390,12 @@ async function precheck(mon, obj, state, env = {}) {
 
 // C ref: muse.c mzapwand() (165-192). Message, charge deduction, and charge
 // concealment when a monster zaps a wand.
-async function mzapwand(mtmp, otmp, self, state) {
+async function mzapwand(mtmp, otmp, self, state, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const stopOccupation = rawEnv.stopOccupation
+        ?? ((subject) => stop_occupation(subject, {
+            message,
+        }));
     if (otmp.spe < 1) {
         // impossible("Mon zapping wand with %d charges?", otmp->spe)
         return;
@@ -409,10 +414,16 @@ async function mzapwand(mtmp, otmp, self, state) {
             `${monverbself(mtmp, capitalizedMonsterName(mtmp, state), 'zap', null, state)} with ${donameFresh(otmp, state)}!`,
             state);
     } else {
-        await pline_mon(mtmp,
-            `${capitalizedMonsterName(mtmp, state)} zaps ${an(xnameFresh(otmp, state))}!`,
-            state);
-        await stop_occupation(state);
+        await message(
+            messageAt(
+                `${capitalizedMonsterName(mtmp, state)} zaps ${an(xnameFresh(otmp, state))}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+        );
+        await stopOccupation(state);
     }
     otmp.spe -= 1;
 }
@@ -2110,6 +2121,7 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     // by this callback on that stream; direct callers retain the live RNG.
     const random = { d, rnd, ...(rawEnv.random ?? {}) };
     const discoveryEnv = { ...rawEnv, random };
+    const message = rawEnv.message ?? ttyPline;
     let reveal_invis = false;
     let learnit = false;
     const hits_you = (mtmp === state.youmonst);
@@ -2132,13 +2144,13 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                 monstseesu(M_SEEN_MAGR, state);
                 note_unported('display.c shieldeff');
                 // Soundeffect is a no-op in the tty build.
-                await ttyPline('Boing!', state);
+                await message('Boing!', state);
                 learnit = true;
             } else if (random.rnd(20) < 10 + (state.u?.uac ?? 10)
                        && !(state.gb?.buzzer
                             && !state.gb.buzzer.mwandexp)) {
                 monstunseesu(M_SEEN_MAGR, state);
-                await ttyPline('The wand hits you!', state);
+                await message('The wand hits you!', state);
                 let tmp = random.d(2, 12);
                 // Half_spell_damage: youprop.h:293-295.
                 const halfSpellDam = Boolean(
@@ -2147,17 +2159,28 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                 );
                 if (halfSpellDam)
                     tmp = Math.trunc((tmp + 1) / 2);
-                await losehp(tmp, 'wand', KILLED_BY_AN, state);
+                if (rawEnv.planning && state.u.uhp - tmp < 1
+                    && typeof rawEnv.planningDeath === 'function') {
+                    end_running(true, state);
+                    state.disp ??= {};
+                    state.disp.botl = true;
+                    state.u.uhp -= tmp;
+                    throw rawEnv.planningDeath(mtmp);
+                }
+                await losehp(tmp, 'wand', KILLED_BY_AN, state, {
+                    ...rawEnv,
+                    fromMonster: true,
+                });
                 learnit = true;
             } else {
-                await ttyPline('The wand misses you.', state);
+                await message('The wand misses you.', state);
             }
             await stop_occupation(state);
             nomul(0, state);
         } else if (resists_magm(mtmp, state)) {
             note_unported('display.c shieldeff');
             // Soundeffect is a no-op in the tty build.
-            await ttyPline('Boing!', state);
+            await message('Boing!', state);
             learnit = true;
         } else if (random.rnd(20) < 10 + find_mac(mtmp, state)) {
             const tmp = random.d(2, 12);
@@ -2559,7 +2582,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     case MUSE_WAN_STRIKING: {
         state.gz ??= {};
         state.gz.zap_oseen = oseen;
-        await mzapwand(mtmp, otmp, false, state);
+        await mzapwand(mtmp, otmp, false, state, env);
         state.m_using = true;
         state.gb ??= {};
         state.gb.buzzer = mtmp;

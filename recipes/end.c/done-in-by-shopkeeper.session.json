@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7331075,
+      "datetime": "20330607081011",
+      "nethackrc": "OPTIONS=name:Shopper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": "hhjjjnjjjj> kkolllljllllolllkllllllllllolllllllllllllllllollljlllllllllllllolllklkkkllkollljjlojjjlljjjjllljjFh Fh Fh Fh ",
+      "comment": "An independently selected D:2 general-store route reaches its shopkeeper through mhitu.c mdamageu() after the hero attacks with Fh."
+    }
+  ]
+}

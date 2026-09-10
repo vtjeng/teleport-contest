@@ -1215,7 +1215,7 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
         // function return while that prompt is still unanswered, and the
         // caller would spend the rest of its turn behind the query C stops
         // at.
-        await done(DIED, state);
+        await done(DIED, state, env.fromMonster ? { fromMonster: true } : {});
     } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
         await maybe_wail(state, env);
     }

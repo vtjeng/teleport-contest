@@ -584,8 +584,8 @@ export async function mattacku(monster, rawEnv = {}) {
         : (rawEnv.markInvisible ?? map_invisible);
     const env = {
         ...rawEnv, state, message, redraw, statusRefresh, markInvisible,
+        planningDeath: (subject) => new MonsterDeathPlanningError(subject),
     };
-
     const mdat = monster.data;
     const initial = calc_mattacku_vars(monster, env);
     let { range2, foundyou } = initial;

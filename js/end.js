@@ -137,6 +137,7 @@ import { reset_utrap } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
+import { shkname, shkname_is_pname } from './shknam.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -286,10 +287,10 @@ async function savelife(how, state = game) {
 // #if 0 in C (pager.c:140) and returns the empty string; skipped here.
 // mark_synch() is tty_mark_synch(), an fflush() with no JS counterpart.
 //
-// Unported branches that throw UnsupportedEndOfGameError: shopkeepers (need
-// shkname from shk.c) and priests/minions (need m_monnam from do_name.c).
-// Every other branch is ported, including the imitator/shapechanger path,
-// ghosts with given names, the multi_reason fixup, and ugrave_arise.
+// The priest/minion branch still throws UnsupportedEndOfGameError because it
+// needs m_monnam from do_name.c. Every other branch is ported, including the
+// shopkeeper naming path, imitator/shapechanger path, ghosts with given names,
+// the multi_reason fixup, and ugrave_arise.
 export async function done_in_by(mtmp, how, state = game) {
     const mons = state.mons;
     const mptr = mtmp.data;
@@ -374,11 +375,12 @@ export async function done_in_by(mtmp, how, state = game) {
         if (has_mgivenname(mtmp))
             buf += ` of ${MGIVENNAME(mtmp)}`;
     } else if (mtmp.isshk) {
-        // shkname() and shkname_is_pname() live in shk.c, which is not
-        // ported. No ported monster-creation path sets isshk.
-        throw new UnsupportedEndOfGameError(
-            'done_in_by() for a shopkeeper (needs shkname from shk.c)',
-        );
+        // C evaluates shkname() before shkname_is_pname() in this declaration.
+        const shknm = shkname(mtmp, state);
+        const honorific = shkname_is_pname(mtmp)
+            ? '' : mtmp.female ? 'Ms. ' : 'Mr. ';
+        buf += `${honorific}${shknm}, the shopkeeper`;
+        state.killer.format = KILLED_BY;
     } else if (mtmp.ispriest || mtmp.isminion) {
         // m_monnam() lives in do_name.c and handles "invisible" and
         // Hallucination overrides for priests and minions. Not ported.
@@ -888,14 +890,12 @@ async function show_overview(how, state) {
 // C ref: end.c disclose() (619-699). Walks each disclosure category in order.
 async function disclose(how, taken, state) {
     if (state.invent && !disclosureStopprint(state)) {
-        if (taken) {
-            throw new UnsupportedEndOfGameError(
-                'disclose() after a shopkeeper takes the inventory',
-            );
-        }
         const { ask, defquery } = should_query_disclose_option('i', state);
+        const query = taken
+            ? `Do you want to see what you had when you ${how === QUIT ? 'quit' : 'died'}?`
+            : 'Do you want your possessions identified?';
         const c = ask ? await yn_function(
-            'Do you want your possessions identified?',
+            query,
             'ynq',
             defquery,
             true,
@@ -1056,6 +1056,10 @@ async function really_done(how, state) {
     // holds levels in memory and writes no files, so it has no counterpart.
     const silently = disclosureStopprint(state);
     const taken = paybill(1, silently, state);
+    if (state._paybill_message) {
+        await state._paybill_message;
+        delete state._paybill_message;
+    }
     paygd(silently, state);
     clearpriests(state);
 
