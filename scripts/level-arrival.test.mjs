@@ -502,7 +502,7 @@ test('do_mkroom takes the room the level would gain', () => {
     assert.equal(state.level.rooms[0].rtype, SHOPBASE);
 });
 
-test('check_special_room handles Court and stops on later room families',
+test('check_special_room handles Court and Morgue and stops later families',
     async () => {
     const state = dungeonState();
     roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
@@ -517,10 +517,9 @@ test('check_special_room handles Court and stops on later room families',
     // An ordinary room takes the switch's default arm and says nothing.
     await check_special_room(false, state);
 
-    // Every room type whose arm in hack.c's switch does something. C's
-    // `default` arm answers for the rest, so THEMEROOM and VAULT stay silent
-    // beside them.
-    for (const rt of [ZOO, SWAMP, LEPREHALL, MORGUE, BEEHIVE,
+    // Every room type whose arm remains unported here. C's `default` arm
+    // answers for the rest, so THEMEROOM and VAULT stay silent beside them.
+    for (const rt of [ZOO, SWAMP, LEPREHALL, BEEHIVE,
         COCKNEST, ANTHOLE]) {
         state.u.urooms = [0, 0, 0, 0, 0];
         state.u.urooms0 = [0, 0, 0, 0, 0];
@@ -531,6 +530,29 @@ test('check_special_room handles Court and stops on later room families',
             `room type ${rt}`,
         );
     }
+    // hack.c:3685-3692 uses the calendar's local hour for the MORGUE entry
+    // message. The fixed daytime value selects the non-midnight arm without
+    // needing a hero form for u_locomotion("Run").
+    const morgueMapseen = init_mapseen(state.u.uz, state);
+    state.fixedDatetime = '20000110090000';
+    state.recorderIsDst = false;
+    state.level.rooms[0].rtype = MORGUE;
+    state.level.flags.has_morgue = true;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    const morgueMessages = [];
+    const morgueRandom = () => {
+        throw new Error('MORGUE fixture has no resident monsters');
+    };
+    await check_special_room(false, state, {
+        message: async (line) => morgueMessages.push(line),
+        random: morgueRandom,
+    });
+    assert.deepEqual(morgueMessages, ['You have an uncanny feeling...']);
+    assert.equal(state.level.rooms[0].rtype, OROOM);
+    assert.equal(state.level.flags.has_morgue, false);
+    assert.equal(morgueMapseen.msrooms[0].seen, 1);
+
     state.u.urooms = [0, 0, 0, 0, 0];
     state.u.urooms0 = [0, 0, 0, 0, 0];
     // Put the Court at rooms[3].  hack.c subtracts ROOMOFFSET before its
@@ -548,7 +570,9 @@ test('check_special_room handles Court and stops on later room families',
     );
     state.level.rooms[0].rtype = OROOM;
     state.level.flags.has_court = true;
-    const courtMapseen = init_mapseen(state.u.uz, state);
+    // Reuse the level's existing mapseen entry; room_discovered() resolves
+    // by level identity, so a duplicate entry would remain untouched.
+    const courtMapseen = morgueMapseen;
     // furniture_present() scans both inclusive bounds. Put the only throne at
     // the far corner so either `<` mutation loses the "throne" adjective.
     state.level.at(14, 9).typ = THRONE;

@@ -75,7 +75,9 @@ function ttyNameCharacter(code, length) {
 // C ref: win/tty/wintty.c tty_askname(). This is deliberately a tty input
 // loop rather than a generic text field: each nhgetch() is a judge-visible
 // boundary, and the Unix character filtering and echo order are observable.
-export async function ttyAskname(state = game) {
+// wintty.js owns the source-shaped entry point; this implementation remains
+// here so the startup helpers keep their existing single input-loop owner.
+export async function ttyAsknameImpl(state = game) {
     const display = state.nhDisplay;
     if (!display) throw new Error('tty_askname requires an initialized display');
 
@@ -156,11 +158,17 @@ export async function ensureTtyPlayerName(state = game) {
         if (state.gp) state.gp.plnamelen = 0;
     }
     if (!state.plname) {
-        await ttyAskname(state);
+        const { tty_askname } = await import('./wintty.js');
+        await tty_askname(state);
         if (state.gp) state.gp.plnamelen = 0;
     }
     return state.plname;
 }
+
+// Compatibility re-export for callers that used the pre-port camel-case
+// name. The implementation and source-shaped entry point remain single-owned
+// by wintty.js.
+export { tty_askname as ttyAskname } from './wintty.js';
 
 // C ref: role.c plnamesuffix(). A name can consist only of suffix tokens
 // (for example, "-Wizard"); stripping those leaves an empty base and C loops

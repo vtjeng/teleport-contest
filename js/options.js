@@ -197,6 +197,7 @@ import {
 } from './display.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
+import { tty_preference_update } from './wintty.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
 import { allopt, optionParserMetadata } from './optlist_data.js';
@@ -8071,18 +8072,11 @@ function adjust_menu_promptstyle(state) {
     state.go.opt_need_promptstyle = false;
 }
 
-// C ref: win/tty/wintty.c tty_preference_update().  Its one compiled arm tests
-// for "statuslines"; genl_preference_update() below it returns at once and the
-// TTY_PERM_INVENT block is not compiled, so every other preference is a no-op.
+// C ref: options.c's caller of win/tty/wintty.c tty_preference_update(). Keep
+// this adapter in options.c's source-shaped flow while the window-port
+// implementation remains owned by js/wintty.js.
 function preference_update(state, pref) {
-    if (pref === 'statuslines') {
-        // Unreachable from either menu: 'statuslines' is a CompOpt with no
-        // handler, so applyOptionMenuPick() refuses at its getlin() arm before
-        // reaching this call.
-        throw new UnsupportedOptionMenuError(
-            'tty_preference_update("statuslines")',
-        );
-    }
+    return tty_preference_update(pref, state);
 }
 
 // C ref: options.c optfn_boolean()'s `*(allopt[optidx].addr) = !negated`

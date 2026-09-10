@@ -9,6 +9,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
+    OBJ_ONBILL,
     ROOMOFFSET,
     SHOPBASE,
 } from '../js/const.js';
@@ -33,10 +34,14 @@ import {
     addupbill,
     contained_gold,
     clear_no_charge_pets,
+    costly_adjacent,
     get_cost,
     get_pricing_units,
     getprice,
+    find_objowner,
+    is_unpaid,
     oid_price_adjustment,
+    onshopbill,
     pick_pick,
     record_price_quote,
     same_price,
@@ -102,6 +107,82 @@ function billShopkeeper(roomno, bill, next = null) {
         },
     };
 }
+
+function ownershipShopkeeper(roomno, bill, next = null) {
+    const shopkeeper = billShopkeeper(roomno, bill, next);
+    shopkeeper.mx = 5;
+    shopkeeper.my = 6;
+    return shopkeeper;
+}
+
+test('find_objowner checks every bill and falls back to the first room keeper', () => {
+    const billed = { o_id: 111, unpaid: true, where: OBJ_ONBILL };
+    const roomObject = { o_id: 112, unpaid: true, where: OBJ_FLOOR };
+    const first = ownershipShopkeeper(ROOMOFFSET, []);
+    const second = ownershipShopkeeper(ROOMOFFSET + 1, [
+        { bo_id: billed.o_id, price: 12, bquan: 1 },
+    ]);
+    first.nmon = second;
+    const state = {
+        u: { uz: { dnum: 0, dlevel: 1 } },
+        level: {
+            monlist: first,
+            rooms: [
+                { rtype: SHOPBASE, resident: first },
+                { rtype: SHOPBASE, resident: second },
+            ],
+            at: () => ({ roomno: ROOMOFFSET, edge: false }),
+        },
+    };
+
+    // Used-up objects ignore their stale coordinates and search all bills.
+    assert.equal(find_objowner(billed, 99, 99, state), second);
+    // A floor object uses the room walk and retains the first keeper when no
+    // bill matches it.
+    assert.equal(find_objowner(roomObject, 4, 5, state), first);
+});
+
+test('onshopbill preserves the silent onbill boolean contract', () => {
+    const object = { o_id: 113, unpaid: true };
+    const shopkeeper = ownershipShopkeeper(ROOMOFFSET, [
+        { bo_id: object.o_id, price: 8, bquan: 1 },
+    ]);
+    assert.equal(onshopbill(object, shopkeeper, true), true);
+    assert.equal(
+        onshopbill({ o_id: 114, unpaid: false }, shopkeeper, true), false,
+    );
+});
+
+test('costly_adjacent keeps only tended shop edges and the free spot', () => {
+    const shopkeeper = ownershipShopkeeper(ROOMOFFSET, []);
+    shopkeeper.mextra.eshk.shk = { x: 5, y: 6 };
+    const state = {
+        u: { uz: { dnum: 0, dlevel: 1 } },
+        level: {
+            rooms: [{ rtype: SHOPBASE, resident: shopkeeper }],
+            at: (x, y) => ({
+                roomno: ROOMOFFSET,
+                edge: x === 4 && y === 5,
+            }),
+        },
+    };
+
+    assert.equal(costly_adjacent(shopkeeper, 4, 5, state), true);
+    assert.equal(costly_adjacent(shopkeeper, 5, 6, state), true);
+    assert.equal(costly_adjacent(shopkeeper, 7, 8, state), false);
+    assert.equal(costly_adjacent(null, 4, 5, state), false);
+});
+
+test('is_unpaid includes unpaid objects nested inside containers', () => {
+    const paid = { unpaid: false, cobj: null };
+    const unpaid = { unpaid: true, cobj: null };
+    const inner = { unpaid: false, cobj: unpaid, nobj: null };
+    const outer = { unpaid: false, cobj: inner };
+
+    assert.equal(is_unpaid(paid), false);
+    assert.equal(is_unpaid(unpaid), true);
+    assert.equal(is_unpaid(outer), true);
+});
 
 test('same_price requires one shopkeeper and one quoted price', () => {
     const first = { o_id: 101, unpaid: true };

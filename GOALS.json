@@ -19998,7 +19998,7 @@
     {
       "id": "port-options-confirmation-inventory-handlers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port options confirmation and permanent-inventory handlers",
       "cFile": "options.c",
       "sessions": [],
@@ -20006,8 +20006,8 @@
       "spans": [
         {
           "name": "handler_paranoid_confirmation..handler_pickup_burden",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d6891caf12c017a68413ae4d090eb66edd818431",
           "functions": [
             "handler_paranoid_confirmation",
             "handler_perminv_mode",
@@ -20021,32 +20021,335 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8161b07b129fdecffb0479d795dbc9f8b88176b1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "handler_paranoid_confirmation",
           "line": 5953,
           "endLine": 6010,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_perminv_mode",
           "line": 6011,
           "endLine": 6085,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_pickup_burden",
           "line": 6086,
           "endLine": 6113,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
         "from": 5953,
         "to": 6113
       }
+    },
+    {
+      "id": "port-nhlua-core-lifecycle",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port nhlua core lifecycle and Lua error helpers",
+      "cFile": "nhlua.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "l_nhcore_done..nhl_error",
+          "status": "closed",
+          "closedBy": "51711be0d02fed849fc731accb06962239bc0a54",
+          "functions": [
+            "l_nhcore_done",
+            "l_nhcore_call",
+            "nhl_error"
+          ]
+        }
+      ],
+      "openedAt": "2729cc2902e8c5bb903d0f2efd38b16de5d08ec0",
+      "openStanding": {
+        "sha": "8161b07b",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": "315dc8012207936ed3a514273f98f264b6a8946c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "l_nhcore_done",
+          "line": 159,
+          "endLine": 168,
+          "ported": true
+        },
+        {
+          "name": "l_nhcore_call",
+          "line": 169,
+          "endLine": 198,
+          "ported": true
+        },
+        {
+          "name": "nhl_error",
+          "line": 199,
+          "endLine": 224,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 159,
+        "to": 224
+      }
+    },
+    {
+      "id": "port-nhlua-table-helpers",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port nhlua timer and Lua table entry helpers",
+      "cFile": "nhlua.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "nhl_get_timertype..nhl_add_table_entry_region",
+          "status": "closed",
+          "closedBy": "e1cf9f9699430bd85722cf361ecd403d13e82e36",
+          "functions": [
+            "nhl_get_timertype",
+            "nhl_add_table_entry_int",
+            "nhl_add_table_entry_char",
+            "nhl_add_table_entry_str",
+            "nhl_add_table_entry_bool",
+            "nhl_add_table_entry_region"
+          ]
+        }
+      ],
+      "openedAt": "87d3acb704d2358d8ff1263c32061224d7e7dd3d",
+      "openStanding": {
+        "sha": "315dc801",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": "aaadb5c98057f73a09d73990643b19a47d4beea2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "nhl_get_timertype",
+          "line": 274,
+          "endLine": 292,
+          "ported": true
+        },
+        {
+          "name": "nhl_add_table_entry_int",
+          "line": 293,
+          "endLine": 300,
+          "ported": true
+        },
+        {
+          "name": "nhl_add_table_entry_char",
+          "line": 301,
+          "endLine": 310,
+          "ported": true
+        },
+        {
+          "name": "nhl_add_table_entry_str",
+          "line": 311,
+          "endLine": 317,
+          "ported": true
+        },
+        {
+          "name": "nhl_add_table_entry_bool",
+          "line": 318,
+          "endLine": 325,
+          "ported": true
+        },
+        {
+          "name": "nhl_add_table_entry_region",
+          "line": 326,
+          "endLine": 381,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 274,
+        "to": 381
+      }
+    },
+    {
+      "id": "port-shk-ownership-helpers",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port shop ownership and unpaid-object helpers",
+      "cFile": "shk.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "find_objowner..is_unpaid",
+          "status": "closed",
+          "closedBy": "c4334ca213f3da518a870e46716c46ee50630f3d",
+          "functions": [
+            "find_objowner",
+            "onshopbill",
+            "is_unpaid"
+          ]
+        }
+      ],
+      "openedAt": "a5c6ca5ee9410ea1c50b9587d97748a0aa1238d7",
+      "openStanding": {
+        "sha": "aaadb5c9",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": "ac7ba2499083fedd992df6e961d4729e28d74c26",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "find_objowner",
+          "line": 1084,
+          "endLine": 1117,
+          "ported": true
+        },
+        {
+          "name": "tended_shop",
+          "line": 1118,
+          "endLine": 1125,
+          "ported": true
+        },
+        {
+          "name": "noisy_shop",
+          "line": 1126,
+          "endLine": 1135,
+          "ported": true
+        },
+        {
+          "name": "onbill",
+          "line": 1136,
+          "endLine": 1159,
+          "ported": true
+        },
+        {
+          "name": "onshopbill",
+          "line": 1160,
+          "endLine": 1166,
+          "ported": true
+        },
+        {
+          "name": "is_unpaid",
+          "line": 1167,
+          "endLine": 1174,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 1084,
+        "to": 1174
+      }
+    },
+    {
+      "id": "port-wintty-startup",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wintty startup and player-name handlers",
+      "cFile": "wintty.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "tty_init_nhwindows..tty_askname",
+          "status": "closed",
+          "closedBy": "428e2f442db113179050e0bfd89dd39ca6aae9c1",
+          "functions": [
+            "tty_init_nhwindows",
+            "tty_preference_update",
+            "tty_player_selection",
+            "tty_askname"
+          ]
+        }
+      ],
+      "openedAt": "c608394c40b210fba92e26cb73e6da00c988bba1",
+      "openStanding": {
+        "sha": "ac7ba249",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": "8f3478eef9fe3f73a16a52cca7964103d36220b3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "tty_init_nhwindows",
+          "line": 511,
+          "endLine": 595,
+          "ported": true
+        },
+        {
+          "name": "tty_preference_update",
+          "line": 596,
+          "endLine": 633,
+          "ported": true
+        },
+        {
+          "name": "tty_player_selection",
+          "line": 634,
+          "endLine": 650,
+          "ported": true
+        },
+        {
+          "name": "tty_askname",
+          "line": 651,
+          "endLine": 757,
+          "ported": true
+        }
+      ],
+      "range": {
+        "from": 511,
+        "to": 757
+      }
+    },
+    {
+      "id": "div-hack-special-room-seed0367",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix seed0367 stop at step 284 in check_special_room() (hack.c)",
+      "cFile": "hack.c",
+      "sessions": [],
+      "detail": "Development session seed0367-priest-quest-tour, segment 0, input step 284 (key space): first mismatch is a stop after the prior screen. The C branch is nethack-c/upstream/src/hack.c check_special_room() at lines 3626-3777, where u.uentered contains a newly entered room with room type 6 (SWAMP); C emits the Blind-dependent swamp-entry message, discovers the room, updates its special-room state, and may wake occupants. The JavaScript owner is js/rooms.js check_special_room() at line 214; its switch currently throws UnsupportedHeroMoveBoundaryError for SWAMP and other special-room types before producing the C result. Fresh replay reproduces the stop in a new process.",
+      "spans": [
+        {
+          "name": "check_special_room",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "check_special_room"
+          ]
+        }
+      ],
+      "openedAt": "fe442c22964a766b6e25a630879e67adb90ecfae",
+      "openStanding": {
+        "sha": "8f3478eef9fe3f73a16a52cca7964103d36220b3",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "check_special_room",
+      "session": "seed0367-priest-quest-tour",
+      "step": 284
     }
   ]
 }

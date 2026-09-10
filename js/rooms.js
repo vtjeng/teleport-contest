@@ -8,6 +8,7 @@ import {
     furniture_present,
     in_town,
     monstinroom,
+    u_locomotion,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import {
@@ -44,6 +45,8 @@ import {
 import { record_achievement } from './insight.js';
 import { wake_msg } from './mon.js';
 import { room_discovered } from './dungeon.js';
+import { midnight } from './calendar.js';
+import { search_special } from './mkroom.js';
 import { rn2 } from './rng.js';
 import { Hello } from './role_init.js';
 import { u_entered_shop, u_left_shop } from './shk.js';
@@ -203,9 +206,9 @@ export function move_update(newlev, state = game) {
 }
 
 // C ref: hack.c check_special_room() (3624-3777). Covered here: move_update(),
-// the leaving/town guards, generated-shop entry, the complete COURT entry
-// message/reset/wake arm, and the no-effect default. Later special-room types
-// remain named boundaries at their switch arm.
+// the leaving/town guards, generated-shop entry, the complete COURT and MORGUE
+// entry message/reset/wake arms, and the no-effect default. Later special-room
+// types remain named boundaries at their switch arm.
 //
 // do.c goto_level() calls this twice.  The call at 1615 passes newlev TRUE, for
 // which the early return is unconditional because move_update(TRUE) has just
@@ -284,6 +287,43 @@ export async function check_special_room(
                 // still includes ROOMOFFSET.  It normally skips the Court's
                 // own monsters, and can instead select monsters in an earlier
                 // room whose encoded number happens to equal this index.
+                if (!location || location.roomno !== roomIndex) continue;
+                if (!stealthy && !random(3)) {
+                    await wake_msg(monster, false, {
+                        state,
+                        message,
+                        canSeeMonster,
+                    });
+                    monster.msleeping = false;
+                }
+            }
+            continue;
+        }
+        if (rt === MORGUE) {
+            // C: hack.c:3685-3692. midnight() is evaluated before the
+            // locomotion formatter, so the ordinary daytime path has no
+            // dependency on the hero's monster form.
+            if (midnight(state)) {
+                const run = u_locomotion('Run', state);
+                await message(`${run} away!  ${run} away!`, state);
+            } else {
+                await message('You have an uncanny feeling...', state);
+            }
+            room_discovered(roomIndex, state);
+            state.level.rooms[roomIndex].rtype = OROOM;
+            if (!search_special(MORGUE, state))
+                state.level.flags.has_morgue = false;
+
+            const stealth = state.u?.uprops?.[STEALTH];
+            const stealthy = Boolean(
+                (stealth?.intrinsic || stealth?.extrinsic)
+                && !stealth?.blocked,
+            );
+            for (let monster = state.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                if ((monster.mhp ?? 0) <= 0) continue;
+                const location = state.level.at(monster.mx, monster.my);
                 if (!location || location.roomno !== roomIndex) continue;
                 if (!stealthy && !random(3)) {
                     await wake_msg(monster, false, {

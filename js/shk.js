@@ -31,6 +31,7 @@ import {
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_MINVENT,
+    OBJ_ONBILL,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
     PL_NSIZ,
@@ -48,6 +49,7 @@ import {
     add_to_minv,
     addinv,
     carrying,
+    count_unpaid,
     currency,
     freeinv,
     INVLET_BASIC,
@@ -356,6 +358,33 @@ export function shop_keeper(roomno, state = game) {
     const resident = state.level?.rooms?.[roomno - ROOMOFFSET]?.resident;
     return resident?.isshk
         && resident.mextra?.eshk?.shoproom === roomno ? resident : null;
+}
+
+// C ref: shk.c find_objowner() (1084-1114). The caller supplies the object's
+// current location because the object's stored coordinates may be stale while
+// sanity checking. Used-up objects have no useful coordinates, so search every
+// shopkeeper whose bill still contains them; other objects check every shop
+// room at the location and retain the first keeper as a fallback owner.
+export function find_objowner(obj, x, y, state = game) {
+    let defaultShopkeeper = null;
+    if (obj.where === OBJ_ONBILL) {
+        for (let shopkeeper = next_shkp(
+            shopkeeperList(state), true, state,
+        ); shopkeeper; shopkeeper = next_shkp(
+            shopkeeper.nmon, true, state,
+        )) {
+            if (onshopbill(obj, shopkeeper, true)) return shopkeeper;
+        }
+    } else {
+        const rooms = in_rooms(x, y, SHOPBASE, state);
+        for (const roomno of rooms) {
+            const shopkeeper = shop_keeper(roomno, state);
+            if (!shopkeeper) continue;
+            if (onshopbill(obj, shopkeeper, true)) return shopkeeper;
+            if (!defaultShopkeeper) defaultShopkeeper = shopkeeper;
+        }
+    }
+    return defaultShopkeeper;
 }
 
 // The generated-shop subset of shk.c:u_entered_shop(). The source performs
@@ -1074,6 +1103,17 @@ export function costly_spot(x, y, state = game) {
         && !(x === extension.shk.x && y === extension.shk.y);
 }
 
+// C ref: shk.c costly_adjacent() (5369-5381). Boundary squares and the free
+// spot immediately inside a shop door retain shop ownership for sanity checks.
+export function costly_adjacent(shopkeeper, x, y, state = game) {
+    if (!shopkeeper || !inhishop(shopkeeper, state) || !isok(x, y))
+        return false;
+    const extension = shopkeeper.mextra.eshk;
+    const location = state.level?.at(x, y);
+    return Boolean(location?.edge
+        || (x === extension.shk.x && y === extension.shk.y));
+}
+
 // C ref: shk.c NOTANGRY() (54). Peacefulness is the whole test; shk.c also
 // assigns through this macro, which is why it is written as a field read.
 function NOTANGRY(monster) {
@@ -1404,6 +1444,20 @@ function onbill(obj, shopkeeper, silent) {
         throw new UnsupportedShopError('onbill() reporting a stray unpaid item');
     }
     return null;
+}
+
+// C ref: shk.c onshopbill() (1160-1163). Expose only the boolean answer; the
+// bill entry itself remains private to this file, as it is in the C split
+// between onbill() and this wrapper.
+export function onshopbill(obj, shopkeeper, silent) {
+    return Boolean(onbill(obj, shopkeeper, silent));
+}
+
+// C ref: shk.c is_unpaid() (1167-1171). A container is unpaid when it is
+// marked unpaid itself or when any recursively nested object is unpaid.
+export function is_unpaid(obj) {
+    return Boolean(obj.unpaid
+        || (hasContents(obj) && count_unpaid(obj.cobj)));
 }
 
 // C ref: shk.c clear_unpaid_obj() (307-315) and clear_unpaid() (317-323).

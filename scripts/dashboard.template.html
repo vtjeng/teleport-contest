@@ -1,6 +1,5 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="1800">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzJhNzhkNiIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyNC41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIyNiIgZmlsbD0iI2ZmZiI+QDwvdGV4dD4KPC9zdmc+Cg==">
 <title>NetHack Port</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap">
@@ -27,6 +26,8 @@
   --progress-area: rgba(42,120,214,0.1);
   --rate-7d: #8b5cf6;
   --rate-24h: #10b981;
+
+  --goal-boundary: #e0762a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -52,6 +53,8 @@
     --progress-area: rgba(57,135,229,0.12);
     --rate-7d: #a78bfa;
     --rate-24h: #34d399;
+
+    --goal-boundary: #d97025;
   }
 }
 :root[data-theme="dark"] {
@@ -75,6 +78,8 @@
   --progress-area: rgba(57,135,229,0.12);
   --rate-7d: #a78bfa;
   --rate-24h: #34d399;
+
+  --goal-boundary: #d97025;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -241,23 +246,22 @@ canvas {
   .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .stat { padding: 8px 10px; }
   .stat-value { font-size: 16px; }
-  .stat-detail { font-size: 10px; }
-  .section-title { font-size: 12px; }
+  .stat-detail { font-size: 11px; }
   .chart-wrap { padding: 8px; }
   .goal-table { font-size: 11px; }
   .goal-table th, .goal-table td { padding: 4px 6px; }
   .legend { font-size: 11px; gap: 8px; }
+  /* A fade at the right edge shows that the row continues. The left edge
+     needs none: the first column is sticky and opaque. */
   .goal-table-wrap {
     -webkit-overflow-scrolling: touch;
     background:
-      linear-gradient(to right, var(--surface-card) 30%, transparent),
       linear-gradient(to left, var(--surface-card) 30%, transparent),
-      linear-gradient(to right, rgba(0,0,0,0.15), transparent 20px),
       linear-gradient(to left, rgba(0,0,0,0.15), transparent 20px);
-    background-position: left, right, left, right;
-    background-size: 40px 100%, 40px 100%, 20px 100%, 20px 100%;
+    background-position: right, right;
+    background-size: 40px 100%, 20px 100%;
     background-repeat: no-repeat;
-    background-attachment: local, local, scroll, scroll;
+    background-attachment: local, scroll;
   }
   #queueTable:has(thead) { min-width: 600px; }
 }
@@ -284,9 +288,11 @@ canvas {
   color: var(--ink-primary);
 }
 
+/* pan-y leaves a vertical swipe to the page; a horizontal drag pans the chart
+   or slides the minimap window. */
 #progressChart {
   cursor: grab;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 #progressChart.is-panning {
@@ -302,56 +308,96 @@ canvas {
    above shows. */
 #progressMinimap {
   margin-top: 6px;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 #progressMinimap.is-sliding {
   cursor: grabbing;
 }
 
-/* --- Timeline --- */
-.timeline-row {
+/* --- Goal timeline: one row per local day --- */
+.day-row {
   display: flex;
   align-items: center;
-  height: 28px;
-  gap: 0;
+  height: 30px;
   border-bottom: 1px solid var(--border);
-  position: relative;
 }
 
-.timeline-label {
-  width: min(180px, 30vw);
-  min-width: min(180px, 30vw);
+.day-label {
+  width: 64px;
+  min-width: 64px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
   padding-right: 8px;
   text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.timeline-bar-area {
+.day-bars {
   flex: 1;
   position: relative;
   height: 100%;
 }
 
-.timeline-segment {
+/* One bar per goal, coloured by kind; a goal of no recorded kind stays grey.
+   --bar is the kind's colour, and the legend swatches set it inline. A lighter
+   bar has an inferred open time, so it may include idle time before the goal. */
+.day-bar {
   position: absolute;
+  top: 7px;
   height: 16px;
-  top: 6px;
-  border-radius: 2px;
   min-width: 2px;
+  border-radius: 2px;
+  --bar: var(--ink-muted);
+  background: var(--bar);
+  opacity: 0.85;
 }
 
-.timeline-segment:first-child {
-  border-radius: 4px 2px 2px 4px;
+.day-bar.file-port, .day-bar.lua-port { --bar: var(--progress-fill); }
+.day-bar.divergence-fix { --bar: var(--phase-div); }
+.day-bar.boundary { --bar: var(--goal-boundary); }
+.day-bar.inferred { opacity: 0.4; }
+
+.day-bar.in-progress {
+  background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, transparent 3px, transparent 6px);
 }
 
-.timeline-segment:last-child {
-  border-radius: 2px 4px 4px 2px;
+/* Goals that share time stack in lanes; the script sets each stacked bar's
+   top and height inline. The legend shows the stack in two greys so that it
+   names no kind. */
+.legend-swatch.stacked {
+  background: linear-gradient(to bottom,
+    var(--ink-secondary) 0 5px, transparent 5px 7px, var(--ink-muted) 7px 12px);
+}
+
+/* Two reserved lines under the rows name the bar under the pointer, so a
+   touch reader gets the detail a hover would. */
+.day-readout {
+  min-height: 34px;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 17px;
+  color: var(--ink-secondary);
+}
+
+.day-readout div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A kind's legend swatch: observed open time in the upper-left half, inferred
+   in the lower-right. */
+.legend-swatch.split {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--bar) 85%, transparent) 50%,
+    color-mix(in srgb, var(--bar) 40%, transparent) 50%);
+}
+
+.legend-swatch.hatched {
+  background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 3px, transparent 3px, transparent 6px);
 }
 
 /* --- Tooltip --- */
@@ -437,8 +483,23 @@ canvas {
 /* --- Table --- */
 .goal-table-wrap {
   overflow-x: auto;
+}
+
+/* The goal history runs to hundreds of rows; the other tables hold one row
+   per session or per C file and show whole. */
+#goalTableWrap {
   max-height: 500px;
   overflow-y: auto;
+}
+
+/* Prose that stands in for a table, or follows one, wraps at the card. */
+.table-note {
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
+
+.goal-table-wrap + .table-note {
+  margin-top: 10px;
 }
 
 .goal-table {
@@ -461,11 +522,24 @@ canvas {
   border-bottom: 2px solid var(--baseline);
   position: sticky;
   top: 0;
+  z-index: 1;
   background: var(--surface-card);
 }
 
-.goal-table th:nth-child(3) {
+/* The first column names the row (session, C file, or goal) and stays put
+   while the rest scrolls sideways, so it is opaque; the row tints below are
+   image layers that show over it as well as over the other cells. */
+.goal-table th:first-child,
+.goal-table td:first-child {
   text-align: left;
+  position: sticky;
+  left: 0;
+  background-color: var(--surface-card);
+  border-right: 1px solid var(--border);
+}
+
+.goal-table th:first-child {
+  z-index: 2;
 }
 
 .goal-table td {
@@ -475,18 +549,47 @@ canvas {
   white-space: nowrap;
 }
 
-.goal-table td:nth-child(3) {
-  text-align: left;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+/* One fixed width, at most two fifths of the viewport so that on a phone the
+   pinned name leaves room for the columns that scroll. Auto table layout
+   needs all three: width pins the column while the table has room, min-width
+   holds it once the other columns overflow, and max-width stops a long name
+   from widening it. A tap on a cut name lets that cell wrap. */
+.goal-table td:first-child {
+  --width: min(320px, 40vw);
   color: var(--ink-secondary);
-  max-width: 320px;
+  width: var(--width);
+  min-width: var(--width);
+  max-width: var(--width);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.goal-table td:first-child.expanded {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* C file names are short, so that column takes its content's width. */
+#filePortTable td:first-child {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+/* A goal's kind is a stripe on the row's left edge, in the timeline's kind
+   colours; the in-progress rule below overrides it for the running goal. */
+.goal-table tr.kind-file-port td:first-child,
+.goal-table tr.kind-lua-port td:first-child { box-shadow: inset 3px 0 0 var(--progress-fill); }
+.goal-table tr.kind-divergence-fix td:first-child { box-shadow: inset 3px 0 0 var(--phase-div); }
+.goal-table tr.kind-boundary td:first-child { box-shadow: inset 3px 0 0 var(--goal-boundary); }
+
+.legend-swatch.stripe {
+  width: 4px;
+  border-radius: 1px;
+}
+
 .goal-table tr:hover td {
-  background: var(--border);
+  background-image: linear-gradient(var(--border), var(--border));
 }
 
 .phase-bar {
@@ -505,29 +608,16 @@ canvas {
   border-radius: 1px;
 }
 
-.audit-badge, .div-badge, .file-badge {
+.audit-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   border-radius: 3px;
   padding: 0 4px;
   line-height: 1.5;
   vertical-align: middle;
-}
-
-.audit-badge {
   color: var(--phase-audit);
   border: 1px solid var(--phase-audit);
-}
-
-.div-badge {
-  color: var(--phase-div);
-  border: 1px solid var(--phase-div);
-}
-
-.file-badge {
-  color: var(--phase-goal-sel);
-  border: 1px solid var(--phase-goal-sel);
 }
 
 #queueTable {
@@ -539,18 +629,9 @@ canvas {
 #queueTable col:nth-child(2) { width: 14%; }
 #queueTable col:nth-child(3) { width: 12%; }
 
-/* Keep the unknown-step label and the priority explanation readable. */
+/* Keep an unavailable step readable without changing the pinned name column. */
 #queueTable td:nth-child(2),
 #queueTable th:nth-child(2) { white-space: normal; }
-
-#queueTable td:nth-child(1),
-#queueTable th:nth-child(1) {
-  text-align: left;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 #queueTable td:nth-child(4),
 #queueTable th:nth-child(4) {
@@ -560,13 +641,9 @@ canvas {
   white-space: nowrap;
 }
 
-#queueTable tfoot td:nth-child(1) {
-  white-space: normal;
-  overflow: visible;
-}
-
 .goal-table tr.in-progress td {
-  background: color-mix(in srgb, var(--phase-slice-sel) 6%, transparent);
+  --tint: color-mix(in srgb, var(--phase-slice-sel) 6%, transparent);
+  background-image: linear-gradient(var(--tint), var(--tint));
 }
 
 .goal-table tr.in-progress td:first-child {
@@ -575,34 +652,19 @@ canvas {
 
 /* --- Time axis --- */
 .time-axis {
-  display: flex;
   height: 20px;
   position: relative;
-  margin-left: min(180px, 30vw);
+  margin-left: 64px;
   border-bottom: 1px solid var(--baseline);
-  overflow: hidden;
 }
 
 .time-tick {
   position: absolute;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--ink-muted);
   top: 4px;
   transform: translateX(-50%);
-}
-
-.timeline-scroll {
-  max-height: 620px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.timeline-scroll .time-axis {
-  position: sticky;
-  top: 0;
-  background: var(--surface-card);
-  z-index: 1;
 }
 </style>
 
@@ -653,9 +715,11 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Goal timeline</h2>
+  <p class="subtitle">One row per local day. Each bar is a goal from open to close; a lighter bar has an open time inferred from the previous goal's close, so it may include idle time. Goals that share time stack within the row. Blank space is time with no goal running.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
+    <div class="day-readout" id="timelineReadout"></div>
   </div>
 </div>
 
@@ -664,7 +728,7 @@ canvas {
   <p class="subtitle" id="tableSubtitle"></p>
   <div class="legend" id="tableLegend"></div>
   <div class="chart-wrap">
-    <div class="goal-table-wrap">
+    <div class="goal-table-wrap" id="goalTableWrap">
       <table class="goal-table" id="goalTable"></table>
     </div>
   </div>
@@ -722,14 +786,14 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
   : 'All plotted times come from commit timestamps.';
 
-// --- Divergence queue ---
+// --- Mismatch queue ---
 (function() {
   const table = document.getElementById('queueTable');
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
     const message = QUEUE?.roadmapFallbackAllowed === true
       ? 'Every development session matches.' : 'Mismatch queue unavailable; completion is unknown.';
-    table.innerHTML = '<tbody><tr><td style="text-align:left;white-space:normal">' + message + '</td></tr></tbody>';
+    table.outerHTML = '<p class="table-note">' + message + '</p>';
     return;
   }
   let html = '<colgroup><col><col><col><col><col></colgroup>'
@@ -740,7 +804,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
         + esc(entry.function ? entry.function + '() in ' : '') + esc(entry.sourceFile) + '</span>'
       : '<span style="color:var(--ink-muted)" title="' + esc(entry.message || '') + '">source investigation</span>';
     html += '<tr>'
-      + '<td>' + esc(entry.session) + '</td>'
+      + '<td title="' + esc(entry.session) + '">' + esc(entry.session.replace(/^seed/, '')) + '</td>'
       + '<td>step ' + (entry.step ?? 'unknown') + '</td>'
       + '<td>' + esc(entry.kind) + '</td>'
       + '<td>' + where + '</td>'
@@ -748,23 +812,23 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       + '</tr>';
   });
   html += '</tbody>';
+  table.innerHTML = html;
   if (QUEUE.candidates && QUEUE.candidates.length) {
-    html += '<tfoot><tr><td colspan="5">Goal order: ' + QUEUE.candidates.map(candidate =>
+    table.parentElement.insertAdjacentHTML('afterend', '<p class="table-note">Goal order: ' + QUEUE.candidates.map(candidate =>
       esc(candidate.sourceFile || 'investigate ' + candidate.sessions.join(', '))
       + ' (at most ' + candidate.remainingScreensUpperBound + ' remaining screens)').join('; ')
-      + '. Roadmap fallback is blocked while mismatches remain.</td></tr></tfoot>';
+      + '. Roadmap fallback is blocked while mismatches remain.</p>');
   }
-  table.innerHTML = html;
 })();
 
-// --- File ports ---
+// --- Source ports ---
 // GOALS.json records one source-port goal per C function group or Lua
-// program. Each row groups a source file's goals and lists them in the title.
+// program. Each row groups a source file's goals and distinct verified units.
 (function() {
   const table = document.getElementById('filePortTable');
   const ports = DATA.filePorts || [];
   if (ports.length === 0) {
-    table.innerHTML = '<tbody><tr><td style="text-align:left">No source port recorded yet.</td></tr></tbody>';
+    table.outerHTML = '<p class="table-note">No source port recorded yet.</p>';
     return;
   }
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -791,9 +855,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   let html = '<thead><tr><th>Source file</th><th>Goals closed</th><th>Verified units</th><th>Spans closed</th><th>Screens delivered</th></tr></thead><tbody>';
   files.forEach(file => {
     const open = file.goals.some(goal => goal.status === 'open');
-    const title = file.goals.map(goal => (goal.summary || goal.id) + ' (' + goal.status + ')').join('\n');
     html += '<tr' + (open ? ' class="in-progress"' : '') + '>'
-      + '<td title="' + esc(title) + '">' + esc(file.sourceFile) + '</td>'
+      + '<td>' + esc(file.sourceFile) + '</td>'
       + '<td>' + file.goalsClosed + ' / ' + file.goals.length + '</td>'
       + '<td>' + [...file.units.values()].filter(Boolean).length + ' / ' + file.units.size + '</td>'
       + '<td>' + file.spansClosed + ' / ' + file.spansTotal + '</td>'
@@ -1027,7 +1090,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
 
     // Y grid
     ctx.lineWidth = 1;
-    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.font = '11px "JetBrains Mono", monospace';
     for (let v = 0; v <= yMax; v = v + yStep > yMax ? yMax : v + yStep) {
       const y = Math.round(yScale(v)) + 0.5;
       ctx.strokeStyle = v === 0 ? ink.baseline : ink.grid;
@@ -1110,7 +1173,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     ctx.restore();
 
     // Right y-axis labels
-    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.font = '11px "JetBrains Mono", monospace';
     ctx.textAlign = 'left';
     ctx.fillStyle = ink.muted;
     for (let v = rateStep; v <= rateYMax; v += rateStep) {
@@ -1148,12 +1211,12 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       ctx.stroke();
       ctx.fillStyle = ink.primary;
       ctx.font = '600 12px "JetBrains Mono", monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(
-        endPoint.screens.toLocaleString(),
-        x + 8,
-        Math.max(pad.t + 10, y - 8),
-      );
+      // Right of the point, or left of it when the right would run into the
+      // right-axis labels.
+      const label = endPoint.screens.toLocaleString();
+      const fits = x + 8 + ctx.measureText(label).width <= W - pad.r;
+      ctx.textAlign = fits ? 'left' : 'right';
+      ctx.fillText(label, fits ? x + 8 : x - 8, Math.max(pad.t + 10, y - 8));
     }
 
     // Crosshair on the selected goal
@@ -1444,11 +1507,13 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   // --- Minimap events ---
 
   // Which part of the minimap is under x: an edge handle, the window itself,
-  // or the track outside it.
-  function minimapTarget(x, W) {
+  // or the track outside it. A finger or pen lands less precisely than a
+  // mouse, so the handles reach further for them.
+  function minimapTarget(x, W, pointerType) {
     const { left, right } = windowRect(W);
-    if (Math.abs(x - left) <= 6) return 'start';
-    if (Math.abs(x - right) <= 6) return 'end';
+    const reach = pointerType === 'mouse' ? 6 : 22;
+    if (Math.abs(x - left) <= reach) return 'start';
+    if (Math.abs(x - right) <= reach) return 'end';
     return x > left && x < right ? 'window' : 'track';
   }
 
@@ -1462,7 +1527,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     if (e.button !== 0) return;
     const rect = minimap.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const mode = minimapTarget(x, rect.width);
+    const mode = minimapTarget(x, rect.width, e.pointerType);
     // Pressing the track starts a fresh selection from that instant.
     const anchor = minimapTime(x, rect.width);
     sliding = { mode, anchor, t0: view.t0, t1: view.t1, clientX: e.clientX };
@@ -1476,7 +1541,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     const rect = minimap.getBoundingClientRect();
     const x = e.clientX - rect.left;
     if (!sliding) {
-      const mode = minimapTarget(x, rect.width);
+      const mode = minimapTarget(x, rect.width, e.pointerType);
       minimap.style.cursor = mode === 'window' ? 'grab'
         : mode === 'track' ? 'crosshair' : 'ew-resize';
       return;
@@ -1516,6 +1581,25 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   // Under a week of recorded goals leaves nothing to trim, and setView clamps
   // the opening window back to the whole range.
   setView(domain.t1 - DEFAULT_SPAN_MS, domain.t1);
+  const opening = view;
+
+  // The page reloads itself every 30 minutes to pick up new goals. The
+  // browser restores the scroll position; a window the reader has changed is
+  // carried across in sessionStorage, while the opening window follows the
+  // newest goal.
+  const WINDOW_KEY = 'progressWindow';
+  const saved = sessionStorage.getItem(WINDOW_KEY);
+  if (saved) {
+    sessionStorage.removeItem(WINDOW_KEY);
+    const [t0, t1] = JSON.parse(saved);
+    setView(t0, t1);
+  }
+  setTimeout(() => {
+    if (view.t0 !== opening.t0 || view.t1 !== opening.t1) {
+      sessionStorage.setItem(WINDOW_KEY, JSON.stringify([view.t0, view.t1]));
+    }
+    location.reload();
+  }, 30 * 60 * 1000);
   render();
 
   document.getElementById('progressLegend').innerHTML = [
@@ -1527,94 +1611,118 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ).join('');
 })();
 
-// --- Timeline ---
+// --- Goal timeline: one row per local day ---
 (function() {
   const container = document.getElementById('timeline');
-  const goals = [...DATA.goals].slice(-50).reverse();
-  if (!goals.length) return;
-
-  // Legend
-  document.getElementById('timelineLegend').innerHTML = [
-    { cssVar: '--phase-impl', label: 'Goal selection' },
-    { cssVar: '--phase-verif', label: 'Working time' },
-  ].map(p =>
-    '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('');
-
-  const earliest = new Date(Math.min(...goals.map(g => {
-    const prevClose = g.goalSelectionMin != null ? new Date(g.openTime).getTime() - g.goalSelectionMin * 60000 : new Date(g.openTime).getTime();
-    return prevClose;
-  })));
-  const latest = new Date(Math.max(...goals.flatMap(g => [
-    g.openTime,
-    g.closeTime,
-    ...g.slices.flatMap(sl => [sl.queueTime, sl.closeTime]),
-  ].filter(Boolean).map(t => new Date(t).getTime()))));
-  const rangeMs = latest - earliest || 1;
-
-  function toX(t) {
-    return ((new Date(t) - earliest) / rangeMs) * 100;
-  }
-
-  // Nice time axis ticks aligned to local midnight
-  const hrMs = 3600000;
+  const readout = document.getElementById('timelineReadout');
+  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const DAYS = 7;
   const dayMs = 86400000;
-  const barAreaPx = container.getBoundingClientRect().width - Math.min(180, window.innerWidth * 0.3);
-  const minTickGapPx = 90;
-  const maxTicks = Math.max(2, Math.floor(barAreaPx / minTickGapPx));
-  const niceIntervals = [6 * hrMs, 12 * hrMs, dayMs, 2 * dayMs, 7 * dayMs];
-  let tickInterval = niceIntervals[niceIntervals.length - 1];
-  for (const iv of niceIntervals) {
-    if (rangeMs / iv <= maxTicks) { tickInterval = iv; break; }
+  // The strip shows the state at build time: the in-progress goal's bar ends
+  // there rather than at the viewing time.
+  const builtAt = new Date(DATA.summary.generatedAt).getTime();
+  const KINDS = [
+    { kind: 'file-port', cssVar: '--progress-fill', label: 'source port (C or Lua)' },
+    { kind: 'divergence-fix', cssVar: '--phase-div', label: 'divergence fix' },
+    { kind: 'boundary', cssVar: '--goal-boundary', label: 'boundary stop' },
+  ];
+
+  document.getElementById('timelineLegend').innerHTML = KINDS.map(k =>
+    '<div class="legend-item"><div class="legend-swatch split" style="--bar:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
+  ).join('')
+    + '<div class="legend-item"><div class="legend-swatch hatched"></div>in progress</div>'
+    + '<div class="legend-item"><div class="legend-swatch stacked"></div>goals overlapping, stacked</div>';
+
+  function dayStart(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function span(g) {
+    return {
+      open: new Date(g.openTime).getTime(),
+      close: g.status === 'in-progress' ? builtAt : new Date(g.closeTime).getTime(),
+    };
   }
 
-  // Start from local midnight before earliest
-  const firstDay = new Date(earliest);
-  firstDay.setHours(0, 0, 0, 0);
-  let axisHtml = '';
-  for (let t = firstDay.getTime(); t <= latest.getTime() + tickInterval; t += tickInterval) {
-    const left = toX(t);
-    if (left < 2 || left > 98) continue;
-    const d = new Date(t);
-    let label;
-    if (tickInterval >= dayMs) {
-      label = (d.getMonth() + 1) + '/' + d.getDate();
-    } else {
-      label = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const today = dayStart(builtAt);
+  const rows = [];
+  for (let i = 0; i < DAYS; i++) rows.push({ start: today - i * dayMs, bars: [] });
+  DATA.goals.forEach((g, index) => {
+    const { open, close } = span(g);
+    if (!(close > open)) return;
+    // A goal that crosses midnight gets one bar in each day's row.
+    for (let d = dayStart(open); d <= close; d += dayMs) {
+      const row = rows.find(r => r.start === d);
+      if (row) row.bars.push({ a: Math.max(open, d), b: Math.min(close, d + dayMs), index });
     }
-    axisHtml += '<div class="time-tick" style="left:' + left + '%">' + label + '</div>';
-  }
-
-  let rowsHtml = '';
-
-  goals.forEach(g => {
-    const openT = new Date(g.openTime).getTime();
-    const closeT = new Date(g.closeTime).getTime();
-    const selStart = g.goalSelectionMin != null ? openT - g.goalSelectionMin * 60000 : openT;
-
-    let segments = '';
-
-    // Goal selection
-    if (g.goalSelectionMin != null && g.goalSelectionMin > 0) {
-      const left = toX(selStart);
-      const width = toX(openT) - left;
-      const timingNote = g.goalSelectionObserved ? '' : ' †';
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Goal selection: ' + fmt(g.goalSelectionMin) + timingNote + '"></div>';
-    }
-
-    // Working time (open → close)
-    if (closeT > openT) {
-      const left = toX(openT);
-      const width = toX(closeT) - left;
-      const mins = (closeT - openT) / 60000;
-      const timingNote = g.openTimeSource === 'open-commit' ? '' : ' †';
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-verif)" title="Working time: ' + fmt(mins) + timingNote + '"></div>';
-    }
-
-    rowsHtml += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
   });
 
-  container.innerHTML = '<div class="timeline-scroll"><div class="time-axis">' + axisHtml + '</div>' + rowsHtml + '</div>';
+  let axisHtml = '';
+  for (let h = 0; h <= 24; h += 6) {
+    axisHtml += '<div class="time-tick" style="left:' + (h / 24 * 100) + '%">' + String(h).padStart(2, '0') + '</div>';
+  }
+  let html = '<div class="time-axis">' + axisHtml + '</div>';
+  for (const r of rows) {
+    const d = new Date(r.start);
+    const label = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate();
+    const pct = t => (t - r.start) / dayMs * 100;
+    // Bars that share time stack in lanes. A cluster of chained overlaps
+    // splits the bar height between its lanes; every other bar keeps it all.
+    r.bars.sort((x, y) => x.a - y.a);
+    let cluster = [];
+    let laneEnds = [];
+    let clusterEnd = -Infinity;
+    const closeCluster = () => {
+      for (const bar of cluster) bar.lanes = laneEnds.length;
+      cluster = [];
+      laneEnds = [];
+    };
+    for (const bar of r.bars) {
+      if (bar.a >= clusterEnd) closeCluster();
+      let lane = laneEnds.findIndex(end => end <= bar.a);
+      if (lane < 0) lane = laneEnds.length;
+      laneEnds[lane] = bar.b;
+      bar.lane = lane;
+      cluster.push(bar);
+      clusterEnd = Math.max(clusterEnd, bar.b);
+    }
+    closeCluster();
+    let bars = '';
+    for (const bar of r.bars) {
+      const g = DATA.goals[bar.index];
+      const cls = 'day-bar ' + g.kind
+        + (g.status === 'in-progress' ? ' in-progress' : '')
+        + (g.openTimeSource === 'open-commit' ? '' : ' inferred');
+      let box = 'left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%';
+      if (bar.lanes > 1) {
+        const height = (16 - 2 * (bar.lanes - 1)) / bar.lanes;
+        box += ';top:' + (7 + bar.lane * (height + 2)) + 'px;height:' + height + 'px';
+      }
+      bars += '<div class="' + cls + '" data-goal="' + bar.index + '" style="' + box + '"></div>';
+    }
+    html += '<div class="day-row"><div class="day-label">' + label + '</div><div class="day-bars">' + bars + '</div></div>';
+  }
+  container.innerHTML = html;
+
+  // Name the bar under the pointer: hover with a mouse, tap on touch.
+  function stamp(t) {
+    const d = new Date(t);
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+  function describe(el) {
+    const g = DATA.goals[Number(el.dataset.goal)];
+    const { open, close } = span(g);
+    const inferred = g.openTimeSource !== 'open-commit';
+    const overlapping = DATA.goals.filter(other => {
+      if (other === g) return false;
+      const o = span(other);
+      return o.open < close && open < o.close;
+    });
+    readout.innerHTML = '<div>' + esc(g.name) + '</div><div>'
+      + stamp(open) + (inferred ? '\u2020' : '') + ' \u2013 ' + (g.status === 'in-progress' ? 'in progress' : stamp(close))
+      + ' \u00b7 ' + fmt((close - open) / 60000) + (inferred ? ' \u00b7 \u2020 open time inferred' : '')
+      + (overlapping.length ? ' \u00b7 overlaps ' + esc(overlapping.map(other => other.name).join(', ')) : '') + '</div>';
+  }
+  for (const type of ['pointerover', 'pointerdown']) {
+    container.addEventListener(type, e => { if (e.target.classList.contains('day-bar')) describe(e.target); });
+  }
 })();
 
 // --- Phase breakdown table ---
@@ -1624,7 +1732,13 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     { cssVar: '--phase-verif', label: 'Working time' },
   ].map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('') + '<div class="legend-item"><span class="file-badge">source port</span> C function group or Lua program</div>' + '<div class="legend-item"><span class="div-badge">div fix</span> divergence fix</div>' + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
+  ).join('') + [
+    { cssVar: '--progress-fill', label: 'source port (C or Lua)' },
+    { cssVar: '--phase-div', label: 'divergence fix' },
+    { cssVar: '--goal-boundary', label: 'boundary stop' },
+  ].map(k =>
+    '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
+  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
@@ -1638,18 +1752,19 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  let html = '<thead><tr><th>Screens</th><th>Δ</th><th>Goal</th><th>Start</th><th>Spans</th><th>Total</th><th>Goal sel</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Goal</th><th>Δ</th><th>Start</th><th>Spans</th><th>Total</th><th>Goal sel</th><th></th></tr></thead><tbody>';
 
   goals.forEach((g, i) => {
-    const screensCell = g.screens !== null ? g.screens : '-';
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
-    const divBadge = g.kind === 'divergence-fix' || g.eventType === 'divergence' ? ' <span class="div-badge">div fix</span>' : '';
-    const fileBadge = (g.kind === 'file-port' || g.kind === 'lua-port')
-      ? ' <span class="file-badge" title="' + (g.sourceFile || '') + ': ' + g.functionsVerified + ' / ' + g.functionsTotal + ' units verified">source port</span>'
-      : '';
+    // The stripe states the kind, so a name's kind prefix is redundant here.
+    const kind = g.kind === 'divergence-fix' || g.eventType === 'divergence' ? 'divergence-fix' : g.kind;
+    const shownName = kind === 'file-port' || kind === 'lua-port' ? g.name.replace(/^port-/, '')
+      : kind === 'divergence-fix' ? g.name.replace(/^div-/, '')
+        : g.name;
 
     const deltaCell = fmtDelta(g.screensDelta);
-    const trClass = g.status === 'in-progress' ? ' class="in-progress"' : '';
+    const trClasses = [kind ? 'kind-' + kind : '', g.status === 'in-progress' ? 'in-progress' : ''].filter(Boolean);
+    const trClass = trClasses.length ? ' class="' + trClasses.join(' ') + '"' : '';
 
     const selMin = g.goalSelectionMin || 0;
     const workMin = g.totalMin - selMin;
@@ -1660,28 +1775,22 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       + '</div>';
 
     const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' †');
-    html += '<tr' + trClass + '><td>' + screensCell + '</td><td>' + deltaCell + '</td><td title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + fileBadge + divBadge + auditBadge + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
+    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
   });
 
   html += '</tbody>';
   table.innerHTML = html;
 })();
 
-// --- Tooltip for timeline segments ---
-(function() {
-  const tooltip = document.getElementById('tooltip');
-  document.querySelectorAll('.timeline-segment').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      const text = el.getAttribute('title');
-      if (!text) return;
-      tooltip.innerHTML = '<div class="tooltip-title">' + text.replace(/</g, '&lt;') + '</div>';
-      tooltip.style.display = 'block';
-    });
-    el.addEventListener('mousemove', (e) => {
-      tooltip.style.left = Math.min(e.clientX + 12, window.innerWidth - 340) + 'px';
-      tooltip.style.top = (e.clientY - 40) + 'px';
-    });
-    el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+// --- Cut names expand on tap ---
+// The first column truncates long names with an ellipsis and a hover title,
+// which touch cannot reach; a tap lets that one cell wrap, and another
+// restores it.
+document.querySelectorAll('.goal-table').forEach(table => {
+  table.addEventListener('click', e => {
+    const cell = e.target.closest('td:first-child');
+    if (!cell || !table.contains(cell)) return;
+    if (cell.classList.contains('expanded') || cell.scrollWidth > cell.clientWidth) cell.classList.toggle('expanded');
   });
-})();
+});
 </script>

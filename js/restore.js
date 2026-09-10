@@ -44,9 +44,59 @@ import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
 import { set_residency, restshk } from './shk.js';
-import { vfsReadFile, vfsDeleteFile } from './storage.js';
+import { vfsReadFile, vfsDeleteFile, vfsListFiles } from './storage.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
+import { select_menu } from './windows.js';
+import { TTY_STARTUP_BANNER } from './tty_startup.js';
+
+// C ref: files.c get_saved_games(). The browser save layer has one stable
+// `nhsave` path rather than C's uid-and-name-derived files, so the one JSON
+// snapshot is the complete saved-game list for this game instance.
+export function get_saved_games(_state = game) {
+    if (!vfsListFiles('').includes(SAVE_FILE_PATH)) return [];
+    const raw = vfsReadFile(SAVE_FILE_PATH);
+    if (raw == null) return [];
+    try {
+        const snapshot = JSON.parse(raw);
+        return snapshot.plname ? [String(snapshot.plname)] : [];
+    } catch {
+        return [];
+    }
+}
+
+// C ref: restore.c restore_menu() (1536-1619). The menu is asynchronous in
+// the browser because the TTY input port is asynchronous; its return values
+// retain C's contract: 1 selects the saved character, 0 starts a new game,
+// and -1 quits or cancels.
+export async function restore_menu(_bannerwin = null, state = game) {
+    // restore.c clears svp.plname before inspecting the save directory, so a
+    // failed or declined selection falls through to a fresh name prompt.
+    state.plname = '';
+    const saved = get_saved_games(state);
+    if (!saved.length) return 0;
+
+    const items = saved.map((name, index) => ({
+        selector: String.fromCharCode('a'.charCodeAt(0) + index),
+        label: name,
+        value: index + 1,
+    }));
+    items.push({ selector: 'n', label: 'Start a new character', value: 0 });
+    items.push({ selector: 'q', label: 'Never mind (quit)', value: -1 });
+    const choice = await select_menu(state, {
+        title: 'Select one of your saved games',
+        lines: [...TTY_STARTUP_BANNER, ''],
+        items,
+        cancelValue: null,
+    });
+    if (choice === null || choice === undefined) return -1;
+    if (choice > 0) {
+        const name = saved[choice - 1];
+        state.plname = name;
+        return 1;
+    }
+    return choice < 0 ? -1 : 0;
+}
 
 // The worn-slot table mirrors js/worn.js WORN_SLOTS so that restore can
 // rebuild game-level equipment pointers from each object's owornmask

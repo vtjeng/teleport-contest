@@ -63,6 +63,10 @@ function renderDashboard(data, queue = null) {
     const context = (ops) => new Proxy({}, {
         get(target, key) {
             if (key in target) return target[key];
+            // measureText answers a query rather than drawing: the end label
+            // asks whether it fits right of its point. 7 px per character
+            // approximates the 12 px monospace label.
+            if (key === 'measureText') return (text) => ({ width: text.length * 7 });
             return (...args) => {
                 canvasOps.push([String(key), ...args]);
                 ops.push([String(key), ...args]);
@@ -83,6 +87,7 @@ function renderDashboard(data, queue = null) {
         return {
             id,
             innerHTML: '',
+            outerHTML: '',
             textContent: '',
             className: '',
             disabled: false,
@@ -90,7 +95,14 @@ function renderDashboard(data, queue = null) {
             classList: { add() {}, remove() {} },
             children: [],
             ops,
-            parentElement: { getBoundingClientRect: () => ({ width: 1000 }) },
+            parentElement: {
+                getBoundingClientRect: () => ({ width: 1000 }),
+                afterHTML: '',
+                insertAdjacentHTML(position, html) {
+                    assert.equal(position, 'afterend');
+                    this.afterHTML += html;
+                },
+            },
             getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
             getContext: () => context(ops),
             addEventListener() {},
@@ -123,31 +135,50 @@ function renderDashboard(data, queue = null) {
         getComputedStyle: () => ({
             getPropertyValue: (property) => property,
         }),
+        // The template schedules its own reload and carries the chart window
+        // across it; neither happens here.
+        setTimeout() {},
+        sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     });
     elements.canvasOps = canvasOps;
     return elements;
 }
 
-function timelineRow(timeline, goalName) {
-    return timeline.split('<div class="timeline-row">')
-        .find((row) => row.includes(`title="${goalName}"`));
+// The goal timeline draws one row per local day for the week ending at the
+// build time, so a fixture pins summary.generatedAt near its goals to see
+// them.
+function renderTimeline(data, generatedAt) {
+    return renderDashboard({
+        ...data,
+        summary: { ...data.summary, generatedAt },
+    }).get('timeline').innerHTML;
 }
 
-function timelineSegments(row) {
-    return [...row.matchAll(
-        /class="timeline-segment" style="left:([\d.-]+)%;width:([\d.-]+)%/gu,
+function timelineBars(timeline) {
+    return [...timeline.matchAll(
+        /<div class="(day-bar[^"]*)" data-goal="(\d+)" style="left:([\d.e+-]+)%;width:([\d.e+-]+)%(?:;top:([\d.]+)px;height:([\d.]+)px)?"/gu,
     )].map((match) => ({
-        left: Number(match[1]),
-        width: Number(match[2]),
+        classes: match[1].split(' '),
+        goal: Number(match[2]),
+        left: Number(match[3]),
+        width: Number(match[4]),
+        // Only a bar stacked in a lane carries its own top and height.
+        top: match[5] === undefined ? null : Number(match[5]),
+        height: match[6] === undefined ? null : Number(match[6]),
     }));
 }
 
-function assertTimelineSegmentsBounded(row) {
-    const segments = timelineSegments(row);
-    assert.ok(segments.length > 0);
-    for (const { left, width } of segments) {
+function timelineBar(data, generatedAt, goalName) {
+    return timelineBars(renderTimeline(data, generatedAt))
+        .find((bar) => data.goals[bar.goal].name === goalName);
+}
+
+function assertBarsBounded(bars) {
+    assert.ok(bars.length > 0);
+    for (const { left, width } of bars) {
         assert.ok(left >= 0);
-        assert.ok(left + width <= 100);
+        // A bar clipped at midnight ends at 100%, up to rounding.
+        assert.ok(left + width <= 100 + 1e-9);
     }
 }
 
@@ -187,15 +218,17 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
             { sourceFile: null, sessions: ['unknown-owner'], remainingScreensUpperBound: 4 },
         ],
     };
-    const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').innerHTML;
+    const element = renderDashboard(sourceDashboardData(), queue).get('queueTable');
+    const table = element.innerHTML;
     assert.match(table, /title="hack\.c:42">test_move\(\) in hack\.c</u);
     assert.match(table, /title="Arc-loca\.lua">Arc-loca\.lua</u);
     assert.match(table, /step unknown/u);
     assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">source investigation</u);
     assert.match(table, /<th>Remaining, at most<\/th>/u);
     assert.match(table, /<td>8 \/ 10<\/td>/u);
-    assert.match(table, /Goal order: hack\.c.*Arc-loca\.lua.*investigate unknown-owner/u);
-    assert.match(table, /Roadmap fallback is blocked while mismatches remain/u);
+    // Prose follows the scrollable table so it wraps at the card.
+    assert.match(element.parentElement.afterHTML, /Goal order: hack\.c.*Arc-loca\.lua.*investigate unknown-owner/u);
+    assert.match(element.parentElement.afterHTML, /Roadmap fallback is blocked while mismatches remain/u);
     assert.doesNotMatch(table, /Every development session matches/u);
 });
 
@@ -203,13 +236,13 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     // Null is the builder's failure value; absent sessions and an empty scan
     // without fallback permission also provide no evidence of completion.
     for (const queue of [null, {}, { sessions: [], roadmapFallbackAllowed: false }]) {
-        const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').innerHTML;
+        const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').outerHTML;
         assert.match(table, /Mismatch queue unavailable; completion is unknown/u);
         assert.doesNotMatch(table, /Every development session matches/u);
     }
     const table = renderDashboard(sourceDashboardData(), {
         sessions: [], candidates: [], roadmapFallbackAllowed: true,
-    }).get('queueTable').innerHTML;
+    }).get('queueTable').outerHTML;
     assert.match(table, /Every development session matches/u);
     assert.doesNotMatch(table, /unavailable|unknown/u);
 });
@@ -228,14 +261,48 @@ test('source ports deduplicate overlapping C units and include whole Lua program
         { id: 'quest-level', sourceFile: 'Arc-loca.lua', status: 'closed',
             units: [{ name: 'Arc-loca.lua', verified: true }],
             spansClosed: 1, spansTotal: 1, screensDelivered: 0 },
+        // A parked source goal remains inventory without appearing closed or
+        // in progress. Its declaration has no verified evidence.
+        { id: 'parked-options', sourceFile: 'options.c', status: 'parked',
+            units: [{ name: 'parseoptions', verified: false }],
+            spansClosed: 0, spansTotal: 0, screensDelivered: null },
     ];
     const table = renderDashboard(sourceDashboardData(ports)).get('filePortTable').innerHTML;
     // Three distinct C units, two verified, across two goals; summing the
     // goals' unit counts would incorrectly report four units.
     assert.match(table, /hack\.c<\/td><td>1 \/ 2<\/td><td>2 \/ 3<\/td>/u);
     assert.match(table, /Arc-loca\.lua<\/td><td>1 \/ 1<\/td><td>1 \/ 1<\/td>/u);
-    assert.match(table, /movement-first \(closed\)\nmovement-rest \(open\)/u);
+    assert.match(table, /<tr><td>options\.c<\/td><td>0 \/ 1<\/td><td>0 \/ 1<\/td>/u);
     assert.match(table, /<th>Verified units<\/th>/u);
+});
+
+test('Lua source goals retain their kind in timeline lanes and history stripes', () => {
+    // Two overlapping source goals exercise main's lanes with the Lua kind
+    // introduced by the methodology work. Both finish before the build time.
+    const goal = {
+        status: 'closed', eventType: 'goal', openTimeSource: 'open-commit',
+        openTime: '2026-01-01T01:00:00Z', closeTime: '2026-01-01T02:00:00Z',
+        totalMin: 60, totalObserved: true, goalSelectionMin: 0,
+        goalSelectionObserved: true, sliceCount: 1, audits: [], screensDelta: 0,
+    };
+    const data = {
+        ...sourceDashboardData(),
+        goals: [
+            { ...goal, kind: 'file-port', name: 'port-hack' },
+            { ...goal, kind: 'lua-port', name: 'port-Arc-loca' },
+        ],
+    };
+    const rendered = renderDashboard({
+        ...data, summary: { ...data.summary, generatedAt: '2026-01-01T03:00:00Z' },
+    });
+    const bars = timelineBars(rendered.get('timeline').innerHTML);
+    assert.equal(bars.length, 2); // Both source goals have a bar in their shared day.
+    assert.ok(bars[1].classes.includes('lua-port'));
+    assert.ok(bars[1].top > bars[0].top); // Overlap places Lua in a separate lane.
+    assert.match(rendered.get('goalTable').innerHTML,
+        /class="kind-lua-port"><td title="port-Arc-loca">Arc-loca<\/td>/u);
+    assert.match(rendered.get('timelineLegend').innerHTML, /source port \(C or Lua\)/u);
+    assert.match(rendered.get('tableLegend').innerHTML, /source port \(C or Lua\)/u);
 });
 
 test('dashboard separates closed goals and labels inferred timing', () => {
@@ -392,15 +459,16 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
     const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
     const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
-    // The kind badges come from GOALS.json: alpha is a file port, orphan a
-    // divergence fix, legacy neither.
-    assert.match(alphaRow, /class="file-badge"[^>]*>source port</u);
-    assert.match(orphanRow, /class="div-badge"[^>]*>div fix</u);
-    // `empty` has no GOALS.json record, so it carries neither badge. (The
+    // The row's kind class draws its stripe; the kinds come from GOALS.json:
+    // alpha is a file port, orphan a divergence fix.
+    assert.match(alphaRow, /<tr class="kind-file-port/u);
+    assert.match(orphanRow, /<tr class="kind-divergence-fix/u);
+    // `empty` has no GOALS.json record, so it counts as a boundary stop. (The
     // legacy goal is hidden from this table: its inferred timing is zero.)
     const emptyRow = table.split('</tr>').find((row) => row.includes('empty'));
-    assert.doesNotMatch(emptyRow, /-badge"[^>]*>(source port|div fix)</u);
-    // The file-port table lists both records with their function counts.
+    assert.match(emptyRow, /<tr class="kind-boundary/u);
+    // Alpha's historical declaration has no completion evidence. Its one
+    // goal is closed, but neither of its two units counts as verified.
     const filePortTable = rendered.get('filePortTable').innerHTML;
     assert.match(filePortTable, /alpha\.c<\/td><td>1 \/ 1<\/td><td>0 \/ 2</u);
     assert.match(filePortTable, /beta\.c<\/td><td>0 \/ 1<\/td><td>0 \/ 1</u);
@@ -412,18 +480,26 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.match(betaRow, /<td>10m<\/td>/u);
     assert.match(betaRow, /Goal selection: 10/u);
 
-    const timeline = rendered.get('timeline').innerHTML;
-    // Alpha's goal selection is observed (previous goal has commit time)
-    assert.match(timeline, /Goal selection: 5m"/u);
-    assert.match(timeline, /Goal selection: 10m"/u);
-    // Orphan has inferred working time (†); alpha does not
-    assert.match(
-        timelineRow(timeline, 'orphan'),
-        /Working time: 20m †/u,
-    );
-    assert.match(
-        timelineRow(timeline, 'alpha'),
-        /Working time: 20m"/u,
+    // 03:00 on the fixture's day keeps every goal, including the one still
+    // open, inside the timeline's window.
+    const builtAt = '2026-01-01T03:00:00Z';
+    assertBarsBounded(timelineBars(renderTimeline(data, builtAt)));
+    // Orphan's open time is inferred, so its bar takes the lighter fill;
+    // alpha's open commit is recorded, so its bar is solid.
+    assert.ok(timelineBar(data, builtAt, 'orphan').classes.includes('inferred'));
+    assert.ok(!timelineBar(data, builtAt, 'alpha').classes.includes('inferred'));
+    // Alpha ran from :10 to :30, 20 minutes, one 72nd of its day's row, and
+    // shares its time with no other goal, so the stylesheet sizes its bar.
+    assert.ok(Math.abs(timelineBar(data, builtAt, 'alpha').width - 100 / 72) < 1e-9);
+    assert.equal(timelineBar(data, builtAt, 'alpha').top, null);
+    // A goal that shares alpha's time stacks with it: the two split the 16 px
+    // bar height into two 7 px lanes with a 2 px gap, the earlier bar on top.
+    const shift = (iso, minutes) => new Date(new Date(iso).getTime() + minutes * 60000).toISOString();
+    const twin = { ...alpha, name: 'twin', openTime: shift(alpha.openTime, 5), closeTime: shift(alpha.closeTime, 5) };
+    assert.deepEqual(
+        timelineBars(renderTimeline({ ...data, goals: [alpha, twin] }, builtAt))
+            .map((bar) => [bar.goal, bar.top, bar.height]),
+        [[0, 7, 7], [1, 16, 7]],
     );
     // All SHAs resolve, so no hollow markers
     assert.equal(
@@ -445,17 +521,12 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         sliceSelectionMin: 0,
         implementationMin: 0,
     };
-    let endpointTimeline = renderDashboard({
-        ...data,
-        goals: [queueLessBeta],
-    }).get('timeline').innerHTML;
-    assertTimelineSegmentsBounded(timelineRow(endpointTimeline, 'beta'));
-
-    endpointTimeline = renderDashboard({
-        ...data,
-        goals: [alpha],
-    }).get('timeline').innerHTML;
-    assertTimelineSegmentsBounded(timelineRow(endpointTimeline, 'alpha'));
+    assertBarsBounded(timelineBars(
+        renderTimeline({ ...data, goals: [queueLessBeta] }, builtAt),
+    ));
+    assertBarsBounded(timelineBars(
+        renderTimeline({ ...data, goals: [alpha] }, builtAt),
+    ));
 });
 
 test('in-progress phase provenance follows each recorded boundary', () => {
@@ -502,10 +573,14 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     assert.equal(active.sliceSelectionMin, 20);
     assert.equal(active.sliceSelectionObserved, true);
     assert.equal(active.implementationObserved, false);
-    let timeline = renderDashboard(activeData).get('timeline').innerHTML;
-    assert.match(timeline, /Goal selection: 5m"/u);
-    const activeRow = timelineRow(timeline, 'running');
-    assertTimelineSegmentsBounded(activeRow);
+    // The running goal opened at :10 and is still open at the pinned build
+    // time of :45, so its bar is hatched, solid, and 35 minutes wide.
+    const builtAt = '2026-01-01T00:45:00Z';
+    const activeBar = timelineBar(activeData, builtAt, 'running');
+    assert.ok(activeBar.classes.includes('in-progress'));
+    assert.ok(!activeBar.classes.includes('inferred'));
+    assert.ok(Math.abs(activeBar.width - 35 / 1440 * 100) < 1e-9);
+    assertBarsBounded([activeBar]);
 
     // Date-only UTC in prior goal: its SHA still resolves, so utcSource is
     // 'commit' and goalSelectionObserved is true.
@@ -517,11 +592,8 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const inferredGoal = runData();
     assert.equal(inferredGoal.goals.at(-1).goalSelectionObserved, true);
     assert.equal(inferredGoal.goals.at(-1).sliceSelectionObserved, true);
-    let mixedRow = timelineRow(
-        renderDashboard(inferredGoal).get('timeline').innerHTML,
-        'running',
-    );
-    assert.match(mixedRow, /Goal selection: 5m"/u);
+    // The running goal's open commit still resolves, so its bar stays solid.
+    assert.ok(!timelineBar(inferredGoal, builtAt, 'running').classes.includes('inferred'));
     let mixedTableRow = renderDashboard(inferredGoal).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
@@ -548,11 +620,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const inferredSlice = runData();
     assert.equal(inferredSlice.goals.at(-1).goalSelectionObserved, true);
     assert.equal(inferredSlice.goals.at(-1).sliceSelectionObserved, true);
-    mixedRow = timelineRow(
-        renderDashboard(inferredSlice).get('timeline').innerHTML,
-        'running',
-    );
-    assert.match(mixedRow, /Goal selection: 5m"/u);
+    assert.ok(!timelineBar(inferredSlice, builtAt, 'running').classes.includes('inferred'));
     mixedTableRow = renderDashboard(inferredSlice).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
@@ -582,8 +650,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const row = rendered.get('goalTable').innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
     assert.match(row, /5m<\/td>/u);
-    timeline = rendered.get('timeline').innerHTML;
-    assert.match(timeline, /Goal selection: 5m"/u);
+    assert.ok(!timelineBar(inferredData, builtAt, 'running').classes.includes('inferred'));
 });
 
 test('verification requires a recorded final slice closure', () => {
