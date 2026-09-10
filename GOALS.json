@@ -20192,7 +20192,18 @@
       "cFile": "shk.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "find_objowner..is_unpaid",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "find_objowner",
+            "onshopbill",
+            "is_unpaid"
+          ]
+        }
+      ],
       "openedAt": "a5c6ca5ee9410ea1c50b9587d97748a0aa1238d7",
       "openStanding": {
         "sha": "aaadb5c9",
