@@ -20106,6 +20106,66 @@
         "from": 159,
         "to": 224
       }
+    },
+    {
+      "id": "port-nhlua-table-helpers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port nhlua timer and Lua table entry helpers",
+      "cFile": "nhlua.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "87d3acb704d2358d8ff1263c32061224d7e7dd3d",
+      "openStanding": {
+        "sha": "315dc801",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "nhl_get_timertype",
+          "line": 274,
+          "endLine": 292,
+          "ported": false
+        },
+        {
+          "name": "nhl_add_table_entry_int",
+          "line": 293,
+          "endLine": 300,
+          "ported": false
+        },
+        {
+          "name": "nhl_add_table_entry_char",
+          "line": 301,
+          "endLine": 310,
+          "ported": false
+        },
+        {
+          "name": "nhl_add_table_entry_str",
+          "line": 311,
+          "endLine": 317,
+          "ported": false
+        },
+        {
+          "name": "nhl_add_table_entry_bool",
+          "line": 318,
+          "endLine": 325,
+          "ported": false
+        },
+        {
+          "name": "nhl_add_table_entry_region",
+          "line": 326,
+          "endLine": 381,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 274,
+        "to": 381
+      }
     }
   ]
 }
