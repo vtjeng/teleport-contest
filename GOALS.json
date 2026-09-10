@@ -21545,7 +21545,7 @@
     {
       "id": "trapeffect-hole-trapdoor-monster-arm",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster HOLE/TRAPDOOR activation through level teleport and wire trap selector",
       "cFile": "trap.c",
       "sessions": [
@@ -21556,8 +21556,8 @@
       "spans": [
         {
           "name": "trapeffect_hole..trapeffect_level_telep",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "12d9d5093e9c1a84c8cd24383726680c51d8e85a",
           "functions": [
             "trapeffect_hole",
             "trapeffect_telep_trap",
@@ -21571,29 +21571,32 @@
         "screens": 5986,
         "rng": 421752
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "12d9d5093e9c1a84c8cd24383726680c51d8e85a",
+      "delivered": {
+        "screens": 56,
+        "rng": 3458
+      },
       "functions": [
         {
           "name": "trapeffect_hole",
           "line": 2013,
           "endLine": 2069,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "trapeffect_telep_trap",
           "line": 2070,
           "endLine": 2087,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "trapeffect_level_telep",
           "line": 2088,
           "endLine": 2105,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -21620,6 +21623,146 @@
           "unlocatedKinds": [],
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 814
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_hole",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_hole",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c trapeffect_hole() lines 2013-2069 in full. The translation preserves the hero Can_fall_thru() guard and seetrap-before-diagnostic order; for monsters it evaluates trap type, visibility, FORCETRAP and Sokoban in source order, checks Can_fall_thru() before grounded(), count_wsegs() and MZ_HUGE, preserves the forced openfallingtrap messages and the inescapable yanked-down message, and then returns trapeffect_level_telep(). count_wsegs() was read in makemon_create.js and is used only in the same short-circuit position. The hero fall_through() callee remains an explicit UnsupportedHeroMoveBoundaryError because preflight_dotrap() excludes HOLE and TRAPDOOR from hero activation; the monster production arm is complete.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches HOLE and TRAPDOOR to trapeffect_hole(); js/trap_effects.js keeps that type dispatch in selector order."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() calls trapeffect_selector() after the monster reaches a trap; js/trap_effects.js mintrap() performs the same production dispatch."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c postmov() calls mintrap() on the square a moving monster reaches; js/monmove.js postmov() carries the live message, redraw, migration, scary-square and apparent-position owners."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "allmain.c movemon() reaches the ordinary monster action adapter; js/unported_monster_actions.js runSimpleMonsterAction() binds m_move()'s production trap owners and is the path exercised by the trapdoor recording."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ],
+            "checkedAt": "12d9d5093e9c1a84c8cd24383726680c51d8e85a"
+          },
+          {
+            "name": "trapeffect_telep_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_telep_trap",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c trapeffect_telep_trap() lines 2070-2087 in full. The hero arm marks the trap seen and calls tele_trap(); the monster arm computes canseemon() || (mtmp == u.usteed), calls mtele_trap() with that visibility and the production redraw/scary/apparent-position owners, and returns Trap_Moved_Mon regardless of mtele_trap()'s internal no-move result. The direct teleport.c mtele_trap() helper and rloc() callback requirements were read; leashed pets, steeds, one-shot vault traps, and extended relocation tails remain the explicit boundaries already owned by that helper. No random call is added by this trap.c arm.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches TELEP_TRAP to trapeffect_telep_trap(); js/trap_effects.js preserves that dispatch."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() calls trapeffect_selector() for a monster entering a teleport trap; js/trap_effects.js mintrap() is the production caller."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c postmov() is the ordinary monster movement entry into mintrap(); js/monmove.js passes the live teleport operations through this call."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/monster-telep-trap.session.json"
+            ],
+            "checkedAt": "12d9d5093e9c1a84c8cd24383726680c51d8e85a"
+          },
+          {
+            "name": "trapeffect_level_telep",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_level_telep",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c trapeffect_level_telep() lines 2088-2105 in full. The hero arm calls seetrap() before the level_tele_trap() boundary; the monster arm computes visibility and FORCETRAP in source order, calls mlevel_tele_trap(), and maps its existing moved/finished helper result to Trap_Moved_Mon/Trap_Effect_Finished. The direct teleport.c mlevel_tele_trap() ordinary HOLE/TRAPDOOR migration path was read in full for destination clamping, stronghold and bottom-level behavior, trap visibility, and dog.c migration bookkeeping. The helper still records explicit boundaries for leashed or mounted pets and non-hole level-teleport/portal callers, whose owners are outside this span; the selected monster hole/trapdoor path is complete. The hero level_tele_trap() callee remains an explicit UnsupportedHeroMoveBoundaryError because preflight_dotrap() excludes LEVEL_TELEP from hero activation.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches LEVEL_TELEP to trapeffect_level_telep(); js/trap_effects.js keeps the selector branch."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_hole",
+                "source": "trap.c trapeffect_hole() returns trapeffect_level_telep() after a grounded monster passes its hole/trapdoor checks; js/trap_effects.js preserves that direct call."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() reaches the selector for a monster standing on a level teleport trap; js/trap_effects.js mintrap() is the production dispatcher."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "migrate_to_level",
+                "source": "teleport.c mlevel_tele_trap() calls dog.c migrate_to_level() after its destination and visibility logic; the production action adapter supplies this migration hook."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ],
+            "checkedAt": "12d9d5093e9c1a84c8cd24383726680c51d8e85a"
+          }
+        ],
+        "entryPointReview": "The selected source range has one live entry point in this span: an ordinary monster moved by monmove.c postmov() onto a HOLE or TRAPDOOR, which calls trap.c mintrap(), trap.c trapeffect_selector(), trapeffect_hole(), trap.c trapeffect_level_telep(), teleport.c mlevel_tele_trap(), and dog.c migrate_to_level(). A second selector entry point for TELEP_TRAP is wired through the same postmov()/mintrap() chain and retains the complete mtele_trap() call contract. A fresh recipe selected from seed range 720000-721000 reaches the trapdoor branch with a debug-created giant rat and a three-key route around the trap; its C recording matches the JavaScript replay including the migration message and all random calls. Hero hole and level-teleport arms are excluded by the existing trap activation preflight and retain their named source callee boundaries.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster trapdoor migration",
+            "functions": [
+              "trapeffect_hole",
+              "trapeffect_level_telep"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-trapdoor-migration.session.json"
+            ]
+          },
+          {
+            "name": "ordinary monster teleport trap dispatch",
+            "functions": [
+              "trapeffect_telep_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-telep-trap.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1195,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires monster multishot",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 758
         }
       ]
     }
