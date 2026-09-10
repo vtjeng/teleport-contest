@@ -20729,8 +20729,8 @@
       "spans": [
         {
           "name": "setmangry..wakeup",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "052d286f84a4332aba1244ce08d54602201d39d2",
           "functions": [
             "setmangry",
             "wake_msg",
@@ -20752,21 +20752,21 @@
           "line": 4265,
           "endLine": 4321,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "wake_msg",
           "line": 4322,
           "endLine": 4332,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "wakeup",
           "line": 4333,
           "endLine": 4366,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -20794,7 +20794,171 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1377
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "setmangry",
+            "implementation": "js/mon.js",
+            "symbol": "setmangry",
+            "sourceReview": "Read the complete mon.c setmangry() definition at lines 4265-4318. The port preserves the Elbereth exact engraving and onscary/peaceful guard, message then alignment-rnd(5) then blindness-dependent fade then deletion order, wait-strategy clearing, hostile and tame early returns, peaceful state change and priest/non-priest alignment adjustments, humanoid/shopkeeper/guard visibility message versus growl, quest-leader guardian response, and the mon_moving peaceful-bystander branch. Verified the direct callees sengr_at(), onscary(), adjalign(), del_engr_at(), p_coaligned(), couldsee(), Monnam(), growl(), quest_info(), qst_guardians_respond(), and peacefuls_respond() against their complete C implementations and production ports. Removed the injected unsupported refusal and made every asynchronous production caller await the result. No result-valued unported callee remains in this function.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "wakeup",
+                "source": "mon.c:4355 calls setmangry(mtmp, TRUE) after wakeup's sleep, disguise, hiding, and meal work; js/mon.js wakeup awaits the same call."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "anger_quest_guardians",
+                "source": "mon.c:3075 calls setmangry(mtmp, TRUE) while xkilled() iterates quest guardians; js/mon.js anger_quest_guardians awaits it from xkilled()."
+              },
+              {
+                "path": "js/quest.js",
+                "symbol": "quest_chat",
+                "source": "quest.c:479 calls setmangry(mtmp, FALSE) after a quest leader chat makes the leader angry; js/quest.js quest_chat wires and awaits that post-chat reaction."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c:3823 calls setmangry(mtmp, FALSE) for a hero-made trap; js/trap_effects.js mintrap wires and awaits it after the source rnl(5)."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "dothrow.c:869 calls setmangry(mon, FALSE) after a thrown object hits; js/mthrowu.js ohitmon awaits the port."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dogaze",
+                "source": "polyself.c:1698 calls setmangry(mtmp, TRUE) when a gaze attack angers its target; js/polyself.js dogaze awaits the port."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-wakeup.test.mjs",
+              "scripts/mon.test.mjs",
+              "scripts/mon-stone-migration.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/setmangry-wakeup-newt.session.json"
+            ],
+            "checkedAt": "052d286f84a4332aba1244ce08d54602201d39d2"
+          },
+          {
+            "name": "wake_msg",
+            "implementation": "js/mon.js",
+            "symbol": "wake_msg",
+            "sourceReview": "Read the complete mon.c wake_msg() definition at lines 4322-4330. The port checks sleeping and canseemon before output, uses pline_mon-equivalent coordinate message placement, preserves the interesting punctuation and PM_FLESH_GOLEM It's alive suffix, and awaits the message before its callers clear sleep. Monnam() now follows the source x_monnam() special branches and the injected visibility owner used by production room and disturbance callers. No random call or state write is introduced before the source guard.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "wakeup",
+                "source": "mon.c:4337 calls wake_msg(mtmp, via_attack); js/mon.js wakeup awaits wake_msg before clearing msleeping."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "wake_nearto_core",
+                "source": "mon.c wake_nearto_core calls wake_msg for each visible nearby monster; js/mon.js wake_nearto_core awaits wake_msg before the per-monster sleep and whistle updates."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "disturb",
+                "source": "monmove.c disturb() delegates the wake message owner for an awakened monster; js/monmove.js disturbance wiring awaits wake_msg through wakeMessage."
+              },
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "hack.c special-room Court and Morgue wake loops call wake_msg; js/rooms.js check_special_room awaits it with the room message and visibility owners."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-wakeup.test.mjs",
+              "scripts/mon.test.mjs",
+              "scripts/level-arrival.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/setmangry-wakeup-newt.session.json"
+            ],
+            "checkedAt": "052d286f84a4332aba1244ce08d54602201d39d2"
+          },
+          {
+            "name": "wakeup",
+            "implementation": "js/mon.js",
+            "symbol": "wakeup",
+            "sourceReview": "Read the complete mon.c wakeup() definition at lines 4333-4366. The port preserves wake_msg first, sleep clearing, mimic reveal while retaining a disguised Wizard, force-fight undetected reveal and newsym, finish_meating, saved prior peacefulness, sleeping-caused growl, attack-caused setmangry, and the final temple-priest and outside-shopkeeper conditions. ghod_hitsu() and hot_pursuit() are recorded with note_unported() because C discards both return values and those source functions remain outside this span. Every production caller that can reach wakeup now awaits it, including melee, ranged/zap, trap, monster movement, muse, and polymorph paths; obsolete injected refusals were removed.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "missum",
+                "source": "uhitm.c:5209 calls wakeup(mdef, TRUE) after a missed melee swing; js/uhitm.js missum awaits wakeup."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon",
+                "source": "uhitm.c:1926 calls wakeup(mon, TRUE) after a surviving hero hit; js/uhitm.js hmon_hitmon awaits wakeup."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "attack_checks",
+                "source": "uhitm.c:305 calls wakeup(mtmp, TRUE) for a sensed hidden or disguised target; js/uhitm.js attack_checks awaits it."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_over_floor",
+                "source": "zap.c:4948 and 5495 call wakeup() for monsters under a bolt; js/zap.js zap_over_floor awaits wakeup on the passed-over monster."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:6284 calls wakeup(mon, TRUE) after a trap effect; js/trap_effects.js dotrap awaits wakeup."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:637 calls wakeup(m2, FALSE) during monster displacement; js/monmove.js m_move awaits the wakeup path."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "use_offensive",
+                "source": "muse.c:1688 calls wakeup(mtmp, FALSE) after a monster item action; js/muse.js use_offensive awaits wakeup."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dogaze",
+                "source": "polyself.c:1927 calls wakeup(mtmp, damage > mhp); js/polyself.js dogaze awaits wakeup after gaze damage."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-wakeup.test.mjs",
+              "scripts/mon.test.mjs",
+              "scripts/uhitm-hmon.test.mjs",
+              "scripts/level-arrival.test.mjs",
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/setmangry-wakeup-newt.session.json"
+            ],
+            "checkedAt": "052d286f84a4332aba1244ce08d54602201d39d2"
+          }
+        ],
+        "entryPointReview": "The selected mon.c range contains reaction helpers reached from existing command and monster-action entry points rather than a new top-level command. The newly selected recipe recordings/mon.c/setmangry-wakeup-newt.session.json reaches the production uhitm.c hmon() path: wizard-mode ^G creates a newt, the southward force-fight Fj invokes the surviving melee reaction, and the subsequent keys complete the segment. That path invokes wakeup(), wake_msg(), and setmangry() in source order. Source-pinned tests additionally cover sleeping output, flesh-golem suffix, mimic and force-fight reveal, Elbereth ordering, peaceful alignment and witness reactions, and the discarded ghod_hitsu/hot_pursuit call sites.",
+        "entryPoints": [
+          {
+            "name": "hero melee wake and anger reaction",
+            "functions": [
+              "wakeup",
+              "wake_msg",
+              "setmangry"
+            ],
+            "recordings": [
+              "recordings/mon.c/setmangry-wakeup-newt.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
