@@ -19998,7 +19998,7 @@
     {
       "id": "port-options-confirmation-inventory-handlers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port options confirmation and permanent-inventory handlers",
       "cFile": "options.c",
       "sessions": [],
@@ -20021,8 +20021,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8161b07b129fdecffb0479d795dbc9f8b88176b1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "handler_paranoid_confirmation",
