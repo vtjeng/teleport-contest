@@ -465,3 +465,19 @@ export function norm_ptrs_oextra(_d_oextra) {}
 export function norm_ptrs_prop(_d_prop) {}
 export function norm_ptrs_q_score(_d_q_score) {}
 export function norm_ptrs_rm(_d_rm) {}
+// sfbase.c:1042-1118. These save-format structures also contain no pointers
+// that need normalization in the JavaScript object representation.
+export function norm_ptrs_s_level(_d_s_level) {}
+export function norm_ptrs_skills(_d_skills) {}
+export function norm_ptrs_spell(_d_spell) {}
+export function norm_ptrs_stairway(_d_stairway) {}
+export function norm_ptrs_trap(_d_trap) {}
+export function norm_ptrs_u_conduct(_d_u_conduct) {}
+export function norm_ptrs_u_event(_d_u_event) {}
+export function norm_ptrs_u_have(_d_u_have) {}
+export function norm_ptrs_u_realtime(_d_u_realtime) {}
+export function norm_ptrs_u_roleplay(_d_u_roleplay) {}
+export function norm_ptrs_version_info(_d_version_info) {}
+export function norm_ptrs_vlaunchinfo(_d_vlaunchinfo) {}
+export function norm_ptrs_vptrs(_d_vptrs) {}
+export function norm_ptrs_you(_d_you) {}

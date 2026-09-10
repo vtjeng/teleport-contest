@@ -12,6 +12,20 @@ import {
     complex_dump,
     norm_ptrs_any,
     norm_ptrs_rm,
+    norm_ptrs_s_level,
+    norm_ptrs_skills,
+    norm_ptrs_spell,
+    norm_ptrs_stairway,
+    norm_ptrs_trap,
+    norm_ptrs_u_conduct,
+    norm_ptrs_u_event,
+    norm_ptrs_u_have,
+    norm_ptrs_u_realtime,
+    norm_ptrs_u_roleplay,
+    norm_ptrs_version_info,
+    norm_ptrs_vlaunchinfo,
+    norm_ptrs_vptrs,
+    norm_ptrs_you,
     sf_init,
     sf_log,
     sf_setprocs,
@@ -27,7 +41,7 @@ import {
 const C_SOURCE = readFileSync('nethack-c/upstream/src/sfbase.c', 'utf8');
 
 test('sfbase source contains the planned source-order functions', () => {
-    // These names are the exact first-span list from .cache/span-context.json.
+    // These names are the exact source-order list represented in js/sfbase.js.
     const names = [
         'SF_X', 'sfo_char', 'sfi_char', 'sfo_genericptr',
         'sfi_genericptr', 'sfo_version_info', 'sfi_version_info', 'sf_log',
@@ -54,6 +68,11 @@ test('sfbase source contains the planned source-order functions', () => {
         'norm_ptrs_nhcoord', 'norm_ptrs_nhrect', 'norm_ptrs_novel_tracking',
         'norm_ptrs_obj', 'norm_ptrs_objclass', 'norm_ptrs_oextra',
         'norm_ptrs_prop', 'norm_ptrs_q_score', 'norm_ptrs_rm',
+        'norm_ptrs_s_level', 'norm_ptrs_skills', 'norm_ptrs_spell',
+        'norm_ptrs_stairway', 'norm_ptrs_trap', 'norm_ptrs_u_conduct',
+        'norm_ptrs_u_event', 'norm_ptrs_u_have', 'norm_ptrs_u_realtime',
+        'norm_ptrs_u_roleplay', 'norm_ptrs_version_info',
+        'norm_ptrs_vlaunchinfo', 'norm_ptrs_vptrs', 'norm_ptrs_you',
     ];
     assert.deepEqual(
         parseCFunctions(C_SOURCE).slice(0, names.length).map(({ name }) => name),
@@ -101,6 +120,38 @@ test('norm_ptrs_any and norm_ptrs_rm preserve their source no-op behavior', () =
     assert.deepEqual(value, before);
     assert.match(C_SOURCE, /norm_ptrs_any[\s\S]*?\{\s*\}/u);
     assert.match(C_SOURCE, /norm_ptrs_rm[\s\S]*?\{\s*\}/u);
+});
+
+test('final norm_ptrs functions preserve their source no-op behavior', () => {
+    // This object stands for each saved structure; C ignores every argument
+    // and returns without changing it in all 14 final normalizers.
+    const value = { pointer: { id: 7 }, nested: [1, 2, 3] };
+    const before = structuredClone(value);
+    const normalizers = [
+        ['norm_ptrs_s_level', norm_ptrs_s_level],
+        ['norm_ptrs_skills', norm_ptrs_skills],
+        ['norm_ptrs_spell', norm_ptrs_spell],
+        ['norm_ptrs_stairway', norm_ptrs_stairway],
+        ['norm_ptrs_trap', norm_ptrs_trap],
+        ['norm_ptrs_u_conduct', norm_ptrs_u_conduct],
+        ['norm_ptrs_u_event', norm_ptrs_u_event],
+        ['norm_ptrs_u_have', norm_ptrs_u_have],
+        ['norm_ptrs_u_realtime', norm_ptrs_u_realtime],
+        ['norm_ptrs_u_roleplay', norm_ptrs_u_roleplay],
+        ['norm_ptrs_version_info', norm_ptrs_version_info],
+        ['norm_ptrs_vlaunchinfo', norm_ptrs_vlaunchinfo],
+        ['norm_ptrs_vptrs', norm_ptrs_vptrs],
+        ['norm_ptrs_you', norm_ptrs_you],
+    ];
+
+    for (const [name, normalizer] of normalizers) {
+        assert.equal(normalizer(value), undefined, `${name} return value`);
+        assert.deepEqual(value, before, `${name} leaves its argument unchanged`);
+        assert.match(
+            C_SOURCE,
+            new RegExp(`void\\s+${name}\\([^)]*\\)\\s*\\{\\s*\\}`),
+        );
+    }
 });
 
 test('sf_init and sf_setprocs preserve C procedure-table copy order', () => {
