@@ -24,6 +24,11 @@ jobs:
         with:
           # dashboard-data.mjs derives timings from the complete Git history.
           fetch-depth: 0
+      # The mismatch queue reads the C function index from the NetHack
+      # submodule; without it the page shows the queue as unavailable. One
+      # commit at depth 1 is enough, since nothing reads that history.
+      - name: Check out the C source
+        run: git submodule update --init --depth 1 -- nethack-c/upstream
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
