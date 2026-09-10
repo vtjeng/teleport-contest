@@ -22358,8 +22358,8 @@
       "spans": [
         {
           "name": "trapeffect_magic_trap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3826c07488c9eaf2dbb49dd6271f7c456d517091",
           "functions": [
             "trapeffect_magic_trap"
           ]
@@ -22379,7 +22379,7 @@
           "line": 2293,
           "endLine": 2322,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -22407,7 +22407,55 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 755
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_magic_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_magic_trap",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c trapeffect_magic_trap() lines 2293-2322 in full. The hero branch still preserves seetrap(), rn2(30), and the existing deltrap/domagictrap boundary. The monster branch now consumes rn2(21), returns Trap_Effect_Finished for a nonzero roll, and returns trapeffect_fire_trap() for zero. Read trap.c trapeffect_fire_trap() lines 1729-1821 and burnarmor() lines 87-160 in full to port the return-valued fire path and its monster which_armor() dependency, preserving message, d/rn2 order, golem damage alternatives, destroy_items(), ignite_items(), floor effects, ice handling, trap reveal, and result status. The remaining allowed gaps are dofiretrap() for a direct hero FIRE_TRAP dispatch, pager.c shieldeff(), zap.c melt_ice(), and apply.c dry_a_towel() for wet towels; no gap substitutes for a value consumed by trapeffect_magic_trap(). The old monster UnsupportedErosionError and MAGIC_TRAP dispatch refusal were removed, and FIRE_TRAP is wired through the selector.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches MAGIC_TRAP and FIRE_TRAP at the switch cases around 2937-2992; the JavaScript selector dispatches both trap types to their source-named effects."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() calls trapeffect_selector(mtmp, trap, mintrapflags) at 3825; JavaScript mintrap() reaches the same selector after its monster trap gates and passes the random, message, redraw, and monster-operation owners."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c postmov() calls mintrap(mtmp, 0) at 1509; JavaScript postmov() makes that call for a monster completing a move, which is the production chain exercised by the fresh searches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monster-magic-trap.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-trap.session.json"
+            ],
+            "checkedAt": "3826c07488c9eaf2dbb49dd6271f7c456d517091"
+          }
+        ],
+        "entryPointReview": "The selected range has one live entry point: a monster stepping on MAGIC_TRAP through monmove.c postmov(), trap.c mintrap(), and trapeffect_selector(). The checked-in fresh recipe reaches both source branches: seed 6200285 records rn2(21) nonzero and no fire work; seed 6207530 records rn2(21)=0 followed by d(2,4) in trapeffect_fire_trap(). The same production selector also reaches a direct FIRE_TRAP monster effect, covered by the focused test. The fire implementation records only the source gaps listed in sourceReview, and its burnarmor() monster path is exercised with an empty monster inventory plus the existing zap caller is wired to the same dependency.",
+        "entryPoints": [
+          {
+            "name": "monster magic trap activation and fire fallback",
+            "functions": [
+              "trapeffect_magic_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-trap.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
