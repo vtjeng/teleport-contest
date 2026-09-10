@@ -1230,6 +1230,56 @@ test('use_offensive refuses every arm outside the hurled potion',
         (error) => error.reason === 'monster offensive item use');
 });
 
+test('use_offensive keeps wand beam draws on the caller random stream',
+    async () => {
+    const state = await offensiveHero();
+    state.nhDisplay.onEmptyQueue = () => 13;
+    const wand = carried(state, WAN_STRIKING, { spe: 2 });
+    const gnome = offensiveMonster(state, PM_GNOME, wand, {
+        mwandexp: true,
+    });
+    state.m_offense = {
+        has_offense: 7 /* muse.c MUSE_WAN_STRIKING */,
+        offensive: wand,
+    };
+    const draws = [];
+    const random = {
+        rn1: (bound, base) => {
+            draws.push(['rn1', bound, base]);
+            return 1;
+        },
+        rnd: (bound) => {
+            draws.push(['rnd', bound]);
+            return 1;
+        },
+        d: (count, sides) => {
+            draws.push(['d', count, sides]);
+            return count;
+        },
+        rn2: (bound) => {
+            draws.push(['rn2', bound]);
+            return 0;
+        },
+    };
+    const env = {
+        state,
+        random,
+        unsupported: (reason) => {
+            throw new UnsupportedSimpleMonsterActionError(reason);
+        },
+    };
+
+    assert.equal(await use_offensive(gnome, env), 2);
+    // muse.c:1884's rn1 chooses the beam range; mbhitm() then uses rnd/d for
+    // the striking hit.  The explicit sequence catches a fallback to the
+    // module RNG as well as a missing callback propagation.
+    assert.deepEqual(draws.slice(0, 3), [
+        ['rn1', 8, 6],
+        ['rnd', 20],
+        ['d', 2, 12],
+    ]);
+});
+
 test('find_offensive declines for a nurse beside an unarmed, unarmored hero',
     async () => {
     // muse.c:1434-1438. AD_HEAL plus a hero with nothing wielded and nothing

@@ -2105,7 +2105,11 @@ export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
 // another monster (or the hero). Called by mbhit() for each monster in the
 // beam's path. Returns 0 in all cases; the return value tells mbhit whether
 // to stop, but C always returns 0 here.
-async function mbhitm(mtmp, otmp, state) {
+async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
+    // mattacku() can be dry-run against a cloned PRNG.  Keep every draw made
+    // by this callback on that stream; direct callers retain the live RNG.
+    const random = { d, rnd, ...(rawEnv.random ?? {}) };
+    const discoveryEnv = { ...rawEnv, random };
     let reveal_invis = false;
     let learnit = false;
     const hits_you = (mtmp === state.youmonst);
@@ -2130,12 +2134,12 @@ async function mbhitm(mtmp, otmp, state) {
                 // Soundeffect is a no-op in the tty build.
                 await ttyPline('Boing!', state);
                 learnit = true;
-            } else if (rnd(20) < 10 + (state.u?.uac ?? 10)
+            } else if (random.rnd(20) < 10 + (state.u?.uac ?? 10)
                        && !(state.gb?.buzzer
                             && !state.gb.buzzer.mwandexp)) {
                 monstunseesu(M_SEEN_MAGR, state);
                 await ttyPline('The wand hits you!', state);
-                let tmp = d(2, 12);
+                let tmp = random.d(2, 12);
                 // Half_spell_damage: youprop.h:293-295.
                 const halfSpellDam = Boolean(
                     state.u?.uprops?.[HALF_SPDAM]?.intrinsic
@@ -2155,8 +2159,8 @@ async function mbhitm(mtmp, otmp, state) {
             // Soundeffect is a no-op in the tty build.
             await ttyPline('Boing!', state);
             learnit = true;
-        } else if (rnd(20) < 10 + find_mac(mtmp, state)) {
-            const tmp = d(2, 12);
+        } else if (random.rnd(20) < 10 + find_mac(mtmp, state)) {
+            const tmp = random.d(2, 12);
             await hit('wand', mtmp, exclam(tmp), state);
             await resist(mtmp, otmp.oclass, tmp, TELL, state);
             learnit = true;
@@ -2167,13 +2171,15 @@ async function mbhitm(mtmp, otmp, state) {
            target is hit; don't have to see the target itself though */
         if (learnit && state.gz?.zap_oseen
             && (hits_you || cansee(mtmp.mx, mtmp.my, state)))
-            discover_object(O.WAN_STRIKING, true, true, true, state);
+            discover_object(O.WAN_STRIKING, true, true, true, state,
+                discoveryEnv);
         break;
     case O.WAN_TELEPORTATION:
         if (hits_you) {
             await tele(state);
             if (state.gz?.zap_oseen)
-                discover_object(O.WAN_TELEPORTATION, true, true, true, state);
+                discover_object(O.WAN_TELEPORTATION, true, true, true, state,
+                    discoveryEnv);
         } else {
             /* for consistency with zap.c, don't identify */
             if (mtmp.ispriest
@@ -2209,7 +2215,7 @@ async function mbhitm(mtmp, otmp, state) {
                    so that mbhito() will skip it instead of reviving it */
                 state.context ??= {};
                 state.context.bypasses = true;
-                await resist(mtmp, O.WAND_CLASS, rnd(8), NOTELL, state);
+                await resist(mtmp, O.WAND_CLASS, random.rnd(8), NOTELL, state);
             }
             if (wake) {
                 if (mtmp.mhp >= 1) /* !DEADMONSTER */
@@ -2218,7 +2224,8 @@ async function mbhitm(mtmp, otmp, state) {
             }
         }
         if (learnit)
-            discover_object(O.WAN_UNDEAD_TURNING, true, true, true, state);
+            discover_object(O.WAN_UNDEAD_TURNING, true, true, true, state,
+                discoveryEnv);
         break;
     default:
         break;
@@ -2258,7 +2265,7 @@ function fhito_loc(obj, tx, ty, fhito, state) {
 // a line from the monster towards its target, calling fhitm on each monster
 // (or the hero) hit and fhito_fn on objects at each location. Handles door
 // and drawbridge interactions for WAN_STRIKING.
-async function mbhit(mon, range, fhitm, fhito_fn, obj, state) {
+async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
     const otyp = obj.otyp;
 
     state.gb ??= {};
@@ -2278,7 +2285,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state) {
             break;
         }
         if (u_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
-            await fhitm(state.youmonst, obj, state);
+            await fhitm(state.youmonst, obj, state, rawEnv);
             range -= 3;
         } else {
             const mtmp = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
@@ -2287,7 +2294,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state) {
                     && !canSpotMonster(mtmp, state))
                     map_invisible(
                         state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-                await fhitm(mtmp, obj, state);
+                await fhitm(mtmp, obj, state, rawEnv);
                 range -= 3;
             }
         }
@@ -2474,6 +2481,7 @@ export function find_offensive(mtmp, rawEnv = {}) {
 export async function use_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
+    const random = { rn1, ...(env.random ?? {}) };
     const unsupported = env.unsupported;
     if (typeof unsupported !== 'function')
         throw new TypeError('use_offensive requires an unsupported operation');
@@ -2557,7 +2565,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         state.gb.buzzer = mtmp;
         // bhito (zap.c) is unported; pass null so fhito_loc skips objects.
         note_unported('zap.c bhito');
-        await mbhit(mtmp, rn1(8, 6), mbhitm, null, otmp, state);
+        await mbhit(mtmp, random.rn1(8, 6), mbhitm, null, otmp, state, env);
         state.gb.buzzer = 0;
         /* note: 'otmp' might have been destroyed (drawbridge destruction) */
         state.m_using = false;
