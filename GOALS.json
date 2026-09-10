@@ -20062,8 +20062,8 @@
       "spans": [
         {
           "name": "l_nhcore_done..nhl_error",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "51711be0d02fed849fc731accb06962239bc0a54",
           "functions": [
             "l_nhcore_done",
             "l_nhcore_call",
@@ -20084,19 +20084,19 @@
           "name": "l_nhcore_done",
           "line": 159,
           "endLine": 168,
-          "ported": false
+          "ported": true
         },
         {
           "name": "l_nhcore_call",
           "line": 169,
           "endLine": 198,
-          "ported": false
+          "ported": true
         },
         {
           "name": "nhl_error",
           "line": 199,
           "endLine": 224,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
