@@ -20324,7 +20324,7 @@
     {
       "id": "div-hack-special-room-seed0367",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix seed0367 stop at step 284 in check_special_room() (hack.c)",
       "cFile": "hack.c",
       "sessions": [],
@@ -20332,8 +20332,8 @@
       "spans": [
         {
           "name": "check_special_room",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "650546e67c11eafa89ae794c582f46369549b010",
           "functions": [
             "check_special_room"
           ]
@@ -20345,8 +20345,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2c9af5b74f6145f194b25c40b9f5cae560ef1f40",
+      "delivered": {
+        "screens": 34,
+        "rng": 11520
+      },
       "function": "check_special_room",
       "session": "seed0367-priest-quest-tour",
       "step": 284
