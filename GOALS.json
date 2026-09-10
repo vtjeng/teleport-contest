@@ -20392,7 +20392,7 @@
     {
       "id": "port-hack-test-move",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete hack.c test_move() movement contract and wire its production callers",
       "cFile": "hack.c",
       "sessions": [
@@ -20452,7 +20452,12 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1416
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedReason": "Fresh queue now ranks monmove.c:distfleeck() first at seed0030 step 569 (upper bound 1384). test_move source span commit 8da36b8a remains unfinished because return-valued doopen_indir() and moverock() dependencies are incomplete; preserve the queued dependency work with no span evidence or close."
     }
   ]
 }
