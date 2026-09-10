@@ -19928,7 +19928,7 @@
     {
       "id": "port-cfgfiles-parser-helpers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cfgfiles section-selection and parser helpers",
       "cFile": "cfgfiles.c",
       "sessions": [],
@@ -19953,8 +19953,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e3b2d51e4e0aed4dbac22178c47f51f51afede4d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "adjust_prefix",
