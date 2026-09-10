@@ -20457,6 +20457,11 @@
         "screens": 71,
         "rng": 1539
       },
+      "parkedStanding": {
+        "sha": "0c281503f47c40bdb17f1f5b6237e3a73b8d088b",
+        "screens": 5410,
+        "rng": 390016
+      },
       "parkedReason": "Fresh queue now ranks monmove.c:distfleeck() first at seed0030 step 569 (upper bound 1384). test_move source span commit 8da36b8a remains unfinished because return-valued doopen_indir() and moverock() dependencies are incomplete; preserve the queued dependency work with no span evidence or close."
     },
     {
