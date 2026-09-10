@@ -29,7 +29,7 @@
 // value initializer while the cycle remains.
 import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
-import { can_make_bones, savebones } from './bones.js';
+import { can_make_bones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
 import { paranoid_query, yn_function } from './cmd.js';
 import {
@@ -1191,7 +1191,13 @@ async function really_done(how, state) {
                 'Save bones?',
                 state,
             )) {
-            await savebones(how, endtime, corpse, state);
+            // savebones() and the post-bones path remain outside this port.
+            // Refuse exactly where C would enter savebones(), after the
+            // can_make_bones() draw and optional Save bones? query, so the
+            // supported prefix keeps its source RNG and screen order.
+            throw new UnsupportedEndOfGameError(
+                'really_done() savebones()',
+            );
         }
         corpse = null;
     }
