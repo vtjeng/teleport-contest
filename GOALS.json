@@ -18769,7 +18769,7 @@
     {
       "id": "port-shk-clear-no-charge-pets",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shk.c pet inventory no-charge cleanup",
       "cFile": "shk.c",
       "sessions": [],
@@ -18790,8 +18790,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "01c32aafd24000a7d4673a32e91c5d5ed2f1a73c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "clear_no_charge_pets",
