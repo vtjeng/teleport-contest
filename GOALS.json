@@ -20003,7 +20003,18 @@
       "cFile": "options.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "handler_paranoid_confirmation..handler_pickup_burden",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "handler_paranoid_confirmation",
+            "handler_perminv_mode",
+            "handler_pickup_burden"
+          ]
+        }
+      ],
       "openedAt": "581b736031e8525d5bd347cd769a813519202860",
       "openStanding": {
         "sha": "e3b2d51e",
