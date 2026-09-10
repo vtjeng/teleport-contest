@@ -15,19 +15,24 @@
   --gridline: #e1e0d9;
   --baseline: #c3c2b7;
 
-  --phase-goal-sel: #2a78d6;
+  /* Phases of a goal, drawn only in the goal history's bar. */
   --phase-impl: #dc4c4c;
-  --phase-slice-sel: #1baf7a;
   --phase-verif: #c99000;
   --phase-audit: #e87ba4;
-  --phase-div: #0d9488;
 
-  --progress-fill: #2a78d6;
-  --progress-area: rgba(42,120,214,0.1);
-  --rate-7d: #8b5cf6;
-  --rate-24h: #10b981;
-
+  /* Kinds of goal and the running state, shared by the timeline and the
+     tables. Divergence fix is a magenta rather than a teal so that it stays
+     apart from the in-progress green. */
+  --goal-file-port: #2a78d6;
+  --goal-divergence: #9b2f8f;
   --goal-boundary: #e0762a;
+  --goal-in-progress: #1baf7a;
+
+  /* The progress chart plots measures, so its screens line is ink and both
+     rates share one hue and differ by dash. */
+  --progress-fill: #1a1917;
+  --progress-area: rgba(26,25,23,0.07);
+  --rate: #8b5cf6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,19 +47,18 @@
     --gridline: #2c2c2a;
     --baseline: #383835;
 
-    --phase-goal-sel: #3987e5;
     --phase-impl: #e06060;
-    --phase-slice-sel: #199e70;
     --phase-verif: #d4a012;
     --phase-audit: #d55181;
-    --phase-div: #14b8a6;
 
-    --progress-fill: #3987e5;
-    --progress-area: rgba(57,135,229,0.12);
-    --rate-7d: #a78bfa;
-    --rate-24h: #34d399;
-
+    --goal-file-port: #3987e5;
+    --goal-divergence: #b451a8;
     --goal-boundary: #d97025;
+    --goal-in-progress: #199e70;
+
+    --progress-fill: #e6e4df;
+    --progress-area: rgba(230,228,223,0.08);
+    --rate: #a78bfa;
   }
 }
 :root[data-theme="dark"] {
@@ -68,18 +72,18 @@
   --gridline: #2c2c2a;
   --baseline: #383835;
 
-  --phase-goal-sel: #3987e5;
   --phase-impl: #e06060;
-  --phase-slice-sel: #199e70;
   --phase-verif: #d4a012;
   --phase-audit: #d55181;
 
-  --progress-fill: #3987e5;
-  --progress-area: rgba(57,135,229,0.12);
-  --rate-7d: #a78bfa;
-  --rate-24h: #34d399;
-
+  --goal-file-port: #3987e5;
+  --goal-divergence: #b451a8;
   --goal-boundary: #d97025;
+  --goal-in-progress: #199e70;
+
+  --progress-fill: #e6e4df;
+  --progress-area: rgba(230,228,223,0.08);
+  --rate: #a78bfa;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -354,13 +358,15 @@ canvas {
   opacity: 0.85;
 }
 
-.day-bar.file-port, .day-bar.lua-port { --bar: var(--progress-fill); }
-.day-bar.divergence-fix { --bar: var(--phase-div); }
+.day-bar.file-port, .day-bar.lua-port { --bar: var(--goal-file-port); }
+.day-bar.divergence-fix { --bar: var(--goal-divergence); }
 .day-bar.boundary { --bar: var(--goal-boundary); }
 .day-bar.inferred { opacity: 0.4; }
 
+/* The running goal keeps its kind colour under green hatching, the same
+   green as the tables' in-progress tab. */
 .day-bar.in-progress {
-  background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, transparent 3px, transparent 6px);
+  background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, var(--goal-in-progress) 3px, var(--goal-in-progress) 6px);
 }
 
 /* Goals that share time stack in lanes; the script sets each stacked bar's
@@ -397,7 +403,12 @@ canvas {
 }
 
 .legend-swatch.hatched {
-  background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 3px, transparent 3px, transparent 6px);
+  background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 3px, var(--goal-in-progress) 3px, var(--goal-in-progress) 6px);
+}
+
+/* A short line sample for a chart series, carrying its dash pattern. */
+.legend-line {
+  flex-shrink: 0;
 }
 
 /* --- Tooltip --- */
@@ -579,8 +590,8 @@ canvas {
 /* A goal's kind is a stripe on the row's left edge, in the timeline's kind
    colours; the in-progress rule below overrides it for the running goal. */
 .goal-table tr.kind-file-port td:first-child,
-.goal-table tr.kind-lua-port td:first-child { box-shadow: inset 3px 0 0 var(--progress-fill); }
-.goal-table tr.kind-divergence-fix td:first-child { box-shadow: inset 3px 0 0 var(--phase-div); }
+.goal-table tr.kind-lua-port td:first-child { box-shadow: inset 3px 0 0 var(--goal-file-port); }
+.goal-table tr.kind-divergence-fix td:first-child { box-shadow: inset 3px 0 0 var(--goal-divergence); }
 .goal-table tr.kind-boundary td:first-child { box-shadow: inset 3px 0 0 var(--goal-boundary); }
 
 .legend-swatch.stripe {
@@ -642,12 +653,12 @@ canvas {
 }
 
 .goal-table tr.in-progress td {
-  --tint: color-mix(in srgb, var(--phase-slice-sel) 6%, transparent);
+  --tint: color-mix(in srgb, var(--goal-in-progress) 6%, transparent);
   background-image: linear-gradient(var(--tint), var(--tint));
 }
 
 .goal-table tr.in-progress td:first-child {
-  box-shadow: inset 3px 0 0 var(--phase-slice-sel);
+  box-shadow: inset 3px 0 0 var(--goal-in-progress);
 }
 
 /* --- Time axis --- */
@@ -1013,8 +1024,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       primary: read('--ink-primary'),
       fill: read('--progress-fill'),
       area: read('--progress-area'),
-      rate7d: read('--rate-7d'),
-      rate24h: read('--rate-24h'),
+      rate: read('--rate'),
       surface: read('--surface-chart'),
       card: read('--surface-card'),
     };
@@ -1167,8 +1177,10 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       if (dash) ctx.setLineDash([]);
     }
 
-    drawRateSteps(rate7dSteps, ink.rate7d, [6, 3]);
-    drawRateSteps(rate24hSteps, ink.rate24h, [6, 3]);
+    // Both rates share a hue; the 7-day average is a long dash and the last
+    // 24 hours a dotted line.
+    drawRateSteps(rate7dSteps, ink.rate, [8, 4]);
+    drawRateSteps(rate24hSteps, ink.rate, [1, 4]);
 
     ctx.restore();
 
@@ -1603,11 +1615,11 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   render();
 
   document.getElementById('progressLegend').innerHTML = [
-    { color: 'var(--progress-fill)', label: 'Screens matched (left axis)' },
-    { color: 'var(--rate-7d)', label: '7-day avg screens/day (right axis)' },
-    { color: 'var(--rate-24h)', label: 'Last 24h screens (right axis)' },
+    { stroke: 'var(--progress-fill)', dash: '', label: 'Screens matched (left axis)' },
+    { stroke: 'var(--rate)', dash: '8 4', label: '7-day avg screens/day (right axis)' },
+    { stroke: 'var(--rate)', dash: '1 4', label: 'Last 24h screens (right axis)' },
   ].map(item =>
-    '<div class="legend-item"><div class="legend-swatch" style="background:' + item.color + '"></div>' + item.label + '</div>'
+    '<div class="legend-item"><svg class="legend-line" width="24" height="8" aria-hidden="true"><line x1="2" y1="4" x2="22" y2="4" stroke="' + item.stroke + '" stroke-width="2" stroke-linecap="round"' + (item.dash ? ' stroke-dasharray="' + item.dash + '"' : '') + '/></svg>' + item.label + '</div>'
   ).join('');
 })();
 
@@ -1622,8 +1634,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   // there rather than at the viewing time.
   const builtAt = new Date(DATA.summary.generatedAt).getTime();
   const KINDS = [
-    { kind: 'file-port', cssVar: '--progress-fill', label: 'source port (C or Lua)' },
-    { kind: 'divergence-fix', cssVar: '--phase-div', label: 'divergence fix' },
+    { kind: 'file-port', cssVar: '--goal-file-port', label: 'source port (C or Lua)' },
+    { kind: 'divergence-fix', cssVar: '--goal-divergence', label: 'divergence fix' },
     { kind: 'boundary', cssVar: '--goal-boundary', label: 'boundary stop' },
   ];
 
@@ -1733,8 +1745,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ].map(p =>
     '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
   ).join('') + [
-    { cssVar: '--progress-fill', label: 'source port (C or Lua)' },
-    { cssVar: '--phase-div', label: 'divergence fix' },
+    { cssVar: '--goal-file-port', label: 'source port (C or Lua)' },
+    { cssVar: '--goal-divergence', label: 'divergence fix' },
     { cssVar: '--goal-boundary', label: 'boundary stop' },
   ].map(k =>
     '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
