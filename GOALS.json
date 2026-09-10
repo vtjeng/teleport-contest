@@ -22480,7 +22480,7 @@
     {
       "id": "port-mthrowu-thitu-fatal-missile",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete mthrowu.c thitu() for fatal ordinary monster missiles and preserve its source ordered hit/death handoff",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -22504,8 +22504,11 @@
         "screens": 6108,
         "rng": 426254
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a8af36afc32f1b34b02e0c92e0c022accd60b6eb",
+      "delivered": {
+        "screens": 5,
+        "rng": 174
+      },
       "functions": [
         {
           "name": "thitu",
@@ -22588,7 +22591,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1265,
+          "kind": "stop",
+          "function": "done_object_cleanup",
+          "functionDeclared": true,
+          "sourceFile": "end.c",
+          "cFile": "end.c",
+          "luaFile": null,
+          "line": null,
+          "message": "done_object_cleanup() with an object in transit or punishment",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 688
+        }
+      ]
     }
   ]
 }
