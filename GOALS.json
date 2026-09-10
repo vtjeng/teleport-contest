@@ -19631,6 +19631,52 @@
         "from": 246,
         "to": 1118
       }
+    },
+    {
+      "id": "port-wintty-vt-output",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port wintty.c VT tile and sound escape helpers",
+      "cFile": "wintty.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "print_vt_code..print_vt_soundcode_idx",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "print_vt_code",
+            "print_vt_soundcode_idx"
+          ]
+        }
+      ],
+      "openedAt": "b1e405d849616c094fb8e9046dfc51e31469b404",
+      "openStanding": {
+        "sha": "6cd5ab41d84ec9f4a8e70ada8d42868b1ffdfa54",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "print_vt_code",
+          "line": 298,
+          "endLine": 325,
+          "ported": false
+        },
+        {
+          "name": "print_vt_soundcode_idx",
+          "line": 326,
+          "endLine": 343,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 298,
+        "to": 343
+      }
     }
   ]
 }
