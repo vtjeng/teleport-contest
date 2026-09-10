@@ -20458,6 +20458,62 @@
         "rng": 0
       },
       "parkedReason": "Fresh queue now ranks monmove.c:distfleeck() first at seed0030 step 569 (upper bound 1384). test_move source span commit 8da36b8a remains unfinished because return-valued doopen_indir() and moverock() dependencies are incomplete; preserve the queued dependency work with no span evidence or close."
+    },
+    {
+      "id": "port-worn-mon-adjust-speed",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port worn.c mon_adjust_speed() and wire its production speed-wand and speed-potion callers so monster intrinsic speed, active speed, worn speed boots, messages, and object learning follow C.",
+      "cFile": "worn.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The top queue annotation names downstream monmove.c distfleeck(), but the pinned call-stack and source trace identify the preceding missing muse.c speed-wand state mutation in worn.c mon_adjust_speed().",
+      "detail": "",
+      "spans": [],
+      "openedAt": "b6264d28f2738f40cb216ca847ccb135749279d2",
+      "openStanding": {
+        "sha": "2c9af5b7",
+        "screens": 5339,
+        "rng": 388477
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_adjust_speed",
+          "line": 488,
+          "endLine": 578,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 488,
+        "to": 578
+      },
+      "activeStanding": {
+        "sha": "2c9af5b7",
+        "screens": 5339,
+        "rng": 388477
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 569,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1384
+        }
+      ]
     }
   ]
 }
