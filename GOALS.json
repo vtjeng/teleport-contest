@@ -20726,7 +20726,18 @@
       ],
       "selectionReason": "The highest-ranked unresolved stop is seed0030 at step 576; fresh reduced replay traces missum() through wakeup() to mon.c setmangry(), which refuses the peaceful non-pet branch. This is missing source behavior, including the neighboring wakeup branch, so port the whole setmangry..wakeup family.",
       "detail": "Fresh development scan and reduced segment replay reproduce seed0030-ten-diverse-deaths global step 576 (segment 3 local step 280, Fh). Hero at (10,9) misses peaceful, untamed, awake shopkeeper Maganasipi at (9,9), with u.ushops=[3,0,0,0,0]. js/uhitm.js missum() calls js/mon.js wakeup(), whose setmangry() throws 'angering a peaceful monster'. C mon.c setmangry() lines 4265-4318 clears STRAT_WAITMASK, makes an untamed peaceful monster hostile, adjusts alignment, prints or growls, and invokes quest-guardian and peaceful-bystander responses. Its preceding Elbereth branch is also missing. C wakeup() lines 4333-4364 preserves its sleep/reveal/meal order and checks temple occupancy and hero shop occupancy before ghod_hitsu()/hot_pursuit(); JavaScript currently has a broader refusal. Select the whole contiguous setmangry..wakeup family, including wake_msg and required return-valued callees. Make async reactions awaited through production callers, including anger_quest_guardians and its callers; quest_info() currently lacks a declaration. Do not treat existing qst_guardians_respond, peacefuls_respond, growl or p_coaligned declarations as completion without reading their C implementations.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "setmangry..wakeup",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "setmangry",
+            "wake_msg",
+            "wakeup"
+          ]
+        }
+      ],
       "openedAt": "ff8258e3246be4db2167943ca68253f679abdd77",
       "openStanding": {
         "sha": "5ca7bae7fa4aa8fa60372b091b7e591495364a41",
