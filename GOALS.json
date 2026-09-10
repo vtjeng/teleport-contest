@@ -21409,7 +21409,7 @@
     {
       "id": "port-tower2-special-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the tower2 special-level Lua program and wire its level loader",
       "luaFile": "tower2.lua",
       "sessions": [
@@ -21420,8 +21420,8 @@
       "spans": [
         {
           "name": "tower2.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8c784d2031503834067e42c53643321885815961",
           "functions": [
             "tower2.lua"
           ]
@@ -21433,15 +21433,18 @@
         "screens": 5980,
         "rng": 421522
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8c784d2031503834067e42c53643321885815961",
+      "delivered": {
+        "screens": 6,
+        "rng": 230
+      },
       "functions": [
         {
           "name": "tower2.lua",
           "line": 1,
           "endLine": 62,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -21464,6 +21467,78 @@
           "unlocatedKinds": [],
           "recordedSteps": 833,
           "remainingScreensUpperBound": 565
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tower2.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "tower2",
+            "sourceReview": "Read nethack-c/upstream/dat/tower2.lua lines 1-62 in full and compared every top-level statement with js/quest_levels.js tower2(): solidfill level initialization; mazelevel, noteleport, hardfloor, and solidify flags; the half-left/center 15x11 map; the ten niche coordinates and one Fisher-Yates shuffle; fixed up/down ladders; both locked doors; the two ampersand class monsters, two hell hound pups, and winter wolf in source order; two chest descriptors and their nested amulet callbacks; water walking boots and crystal plate mail; the seven-entry spellbook list, second shuffle, and first selected book; and the full 00,00,14,10 non-diggable selection. Checked Lua one-based indexing against the JS zero-based place[9], place[0], place[1] through place[8] references. The production des.* API supplies the corresponding sp_lev.c lspo_* handlers, and both shuffle calls use the loader's injected rn2 stream in source order. No unported callee or obsolete guard remains in this program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() calls makemaz(slev->proto) for a special non-rogue level; js/mklev.js makelevel() identifies the current special level through Is_special(), verifies a registered loader, and dispatches makemaz() at lines 632-654."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() chooses the protofile and calls load_special(); js/mklev.js makemaz() resolves tower2 directly, calls load_special(protofile, state), and returns after dmonsfree() at lines 1744-1767."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() loads the level program through the registered Lua des.* table and runs post-processing; js/mklev.js load_special() finds SPECIAL_LEVEL_LOADERS.tower2, shuffles nhlib alignment state, invokes tower2(specialLevelApi, state), and finishes the special-level API at lines 1716-1742."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The production registry imports QUEST_LEVEL_LOADERS into SPECIAL_LEVEL_LOADERS; js/mklev.js ensureSpecialLevelLoaders() spreads the quest-level registry at lines 1685-1713, where js/quest_levels.js exports the tower2 entry."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The source-appropriate JS registry exports tower2 under the exact proto name 'tower2' at the QUEST_LEVEL_LOADERS declaration, wiring the Lua program to load_special()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/tower2.lua/middle-tower-teleport.session.json"
+            ],
+            "checkedAt": "8c784d2031503834067e42c53643321885815961"
+          }
+        ],
+        "entryPointReview": "The selected source is a whole Lua program with one production entry point: a wizard level teleport to Vlad's Tower level 2 makes mklev.js makelevel() dispatch makemaz('tower2'), which calls load_special('tower2') and the QUEST_LEVEL_LOADERS tower2 function. The independently chosen middle-tower-teleport recipe reaches that dispatch through the live level-teleport command, and its C recording matches all PRNG calls, screens, cursor positions, and animation frames.",
+        "entryPoints": [
+          {
+            "name": "tower2 special-level generation",
+            "functions": [
+              "tower2.lua"
+            ],
+            "recordings": [
+              "recordings/tower2.lua/middle-tower-teleport.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 274,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "tower3.lua",
+          "cFile": null,
+          "luaFile": "tower3.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"tower3\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 559
         }
       ]
     }
