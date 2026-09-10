@@ -224,8 +224,8 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     assert.match(table, /title="Arc-loca\.lua">Arc-loca\.lua</u);
     assert.match(table, /step unknown/u);
     assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">source investigation</u);
-    assert.match(table, /<th>Remaining, at most<\/th>/u);
-    assert.match(table, /<td>8 \/ 10<\/td>/u);
+    assert.match(table, /<th>Screens after mismatch<\/th>/u);
+    assert.match(table, /<td>8 of 10<\/td>/u);
     // Prose follows the scrollable table so it wraps at the card.
     assert.match(element.parentElement.afterHTML, /Goal order: hack\.c.*Arc-loca\.lua.*investigate unknown-owner/u);
     assert.match(element.parentElement.afterHTML, /Roadmap fallback is blocked while mismatches remain/u);
