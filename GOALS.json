@@ -20054,7 +20054,7 @@
     {
       "id": "port-nhlua-core-lifecycle",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port nhlua core lifecycle and Lua error helpers",
       "cFile": "nhlua.c",
       "sessions": [],
@@ -20077,8 +20077,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "315dc8012207936ed3a514273f98f264b6a8946c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "l_nhcore_done",
