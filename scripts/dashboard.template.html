@@ -26,6 +26,9 @@
   --progress-area: rgba(42,120,214,0.1);
   --rate-7d: #8b5cf6;
   --rate-24h: #10b981;
+
+  --goal-boundary: #e0762a;
+  --goal-overlap: #c026d3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -51,6 +54,9 @@
     --progress-area: rgba(57,135,229,0.12);
     --rate-7d: #a78bfa;
     --rate-24h: #34d399;
+
+    --goal-boundary: #d97025;
+    --goal-overlap: #ad36c4;
   }
 }
 :root[data-theme="dark"] {
@@ -74,6 +80,9 @@
   --progress-area: rgba(57,135,229,0.12);
   --rate-7d: #a78bfa;
   --rate-24h: #34d399;
+
+  --goal-boundary: #d97025;
+  --goal-overlap: #ad36c4;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -336,9 +345,9 @@ canvas {
   height: 100%;
 }
 
-/* One bar per goal, coloured by kind. --bar is the kind's colour; the legend
-   swatches set it inline. A lighter bar has an inferred open time, so it may
-   include idle time before the goal. */
+/* One bar per goal, coloured by kind; a goal of no recorded kind stays grey.
+   --bar is the kind's colour, and the legend swatches set it inline. A lighter
+   bar has an inferred open time, so it may include idle time before the goal. */
 .day-bar {
   position: absolute;
   top: 7px;
@@ -352,6 +361,7 @@ canvas {
 
 .day-bar.file-port { --bar: var(--progress-fill); }
 .day-bar.divergence-fix { --bar: var(--phase-div); }
+.day-bar.boundary { --bar: var(--goal-boundary); }
 .day-bar.inferred { opacity: 0.4; }
 
 .day-bar.in-progress {
@@ -366,7 +376,7 @@ canvas {
   height: 22px;
   min-width: 2px;
   border-radius: 2px;
-  background: var(--phase-impl);
+  background: var(--goal-overlap);
   pointer-events: none;
 }
 
@@ -1619,14 +1629,14 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const KINDS = [
     { kind: 'file-port', cssVar: '--progress-fill', label: 'file port' },
     { kind: 'divergence-fix', cssVar: '--phase-div', label: 'divergence fix' },
-    { kind: 'boundary', cssVar: '--ink-muted', label: 'boundary stop' },
+    { kind: 'boundary', cssVar: '--goal-boundary', label: 'boundary stop' },
   ];
 
   document.getElementById('timelineLegend').innerHTML = KINDS.map(k =>
     '<div class="legend-item"><div class="legend-swatch split" style="--bar:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
   ).join('')
     + '<div class="legend-item"><div class="legend-swatch hatched"></div>in progress</div>'
-    + '<div class="legend-item"><div class="legend-swatch" style="background:var(--phase-impl)"></div>two goals overlapping</div>';
+    + '<div class="legend-item"><div class="legend-swatch" style="background:var(--goal-overlap)"></div>two goals overlapping</div>';
 
   function dayStart(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
   function span(g) {
