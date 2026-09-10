@@ -13,6 +13,8 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import {
+    can_set_perm_invent,
+    check_perm_invent_again,
     doset,
     doset_simple,
     dosetMenuItems,
@@ -23,10 +25,17 @@ import {
     UnsupportedOptionMenuError,
 } from '../js/options.js';
 import {
+    ALIGN_BOTTOM,
+    ALIGN_LEFT,
+    ALIGN_RIGHT,
+    ALIGN_TOP,
+    AUTOUNLOCK_KICK,
+    AUTOUNLOCK_UNTRAP,
     ECMD_OK,
     H_DEC,
     H_IBM,
     H_UNK,
+    MENU_PARTIAL,
     PICK_ANY,
     PICK_ONE,
     PRIMARYSET,
@@ -719,6 +728,92 @@ test('the autocompletions row counts AUTOCOMP_ADJ command flags',
         );
     });
 
+test('perm_invent handlers follow the TTY capability and pending retry rules',
+    () => {
+        const state = parseNethackrc('');
+        state.iflags.perm_invent = false;
+        state.iflags.perm_invent_pending = false;
+        // win/tty/wintty.c leaves WC_PERM_INVENT unset in this build, so the
+        // capability guard returns FALSE before it changes perminv_mode.
+        assert.equal(can_set_perm_invent(state), false);
+        assert.equal(state.iflags.perminv_mode, 0);
+
+        state.iflags.perm_invent = true;
+        state.iflags.perm_invent_pending = true;
+        check_perm_invent_again(state);
+        assert.equal(state.iflags.perm_invent, false);
+        assert.equal(state.iflags.perm_invent_pending, false);
+    });
+
+test('special option handlers preserve C choice order and state fields',
+    async () => {
+        async function runHandler(name, selected) {
+            const state = await startConfiguredGame(STOCK);
+            const optionIndex = allopt.findIndex(
+                (option) => option.name === name,
+            );
+            const handlerMenus = [];
+            let firstMenu = true;
+            await doset_simple(state, menuHelpers({
+                menu: (_items, _prompt, how) => {
+                    if (firstMenu) {
+                        firstMenu = false;
+                        assert.equal(how, PICK_ONE);
+                        // doset_simple_menu() assigns allopt[] index + 1.
+                        return optionIndex + 1;
+                    }
+                    return null;
+                },
+                selectMenu: (spec) => {
+                    handlerMenus.push(spec);
+                    return selected;
+                },
+            }));
+            assert.equal(handlerMenus.length, 1, name);
+            return { state, spec: handlerMenus[0] };
+        }
+
+        // The fourth source row is MENU_PARTIAL, and handler values are
+        // one-based because C stores i + 1 in anything.a_int.
+        const menustyle = await runHandler('menustyle', MENU_PARTIAL + 1);
+        assert.equal(menustyle.state.flags.menu_style, MENU_PARTIAL);
+        assert.equal(menustyle.spec.title, 'Select menustyle:');
+        assert.deepEqual(
+            menustyle.spec.items.filter((item) => item.value).map((item) => (
+                [item.selector, item.value, item.selected]
+            )),
+            // C's four menu rows are traditional, combination, full and
+            // partial, with only full preselected in the stock game.
+            [
+                ['t', 1, false], ['c', 2, false],
+                ['f', 3, true], ['p', 4, false],
+            ],
+        );
+
+        const alignMessage = await runHandler('align_message', ALIGN_LEFT);
+        assert.equal(alignMessage.state.iflags.wc_align_message, ALIGN_LEFT);
+        assert.equal(
+            alignMessage.spec.title,
+            'Select message window placement relative to the map:',
+        );
+        assert.deepEqual(
+            alignMessage.spec.items.map(({ selector, text, value }) => (
+                [selector, text, value]
+            )),
+            [
+                ['t', 'top', ALIGN_TOP], ['b', 'bottom', ALIGN_BOTTOM],
+                ['l', 'left', ALIGN_LEFT], ['r', 'right', ALIGN_RIGHT],
+            ],
+        );
+
+        const alignStatus = await runHandler('align_status', ALIGN_RIGHT);
+        assert.equal(alignStatus.state.iflags.wc_align_status, ALIGN_RIGHT);
+        assert.equal(
+            alignStatus.spec.title,
+            'Select status window placement relative to the map:',
+        );
+    });
+
 test('the m prefix routes doset_simple() to doset() exactly once',
     async () => {
         const state = await startConfiguredGame(STOCK);
@@ -757,16 +852,40 @@ test('the m prefix routes doset_simple() to doset() exactly once',
             ECMD_OK,
         );
         // 24 is the a_int doset_add_menu() gave allopt[22], the compound
-        // option 'autounlock', whose has_handler sends it to the do_handler
-        // request rather than to a "Set %s to what?" prompt.
+        // option 'autounlock'. Its do_handler menu returns selected values
+        // directly to the option state.
         assert.equal(allopt[22].name, 'autounlock');
+        const handlerMenus = [];
+        state.give_opt_msg = false;
         state.iflags.menu_requested = true;
-        await assert.rejects(
-            doset_simple(state, menuHelpers({
-                menu: () => [{ value: 24, count: -1 }],
-            })),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === "optfn_autounlock()'s do_handler request",
+        assert.equal(await doset_simple(state, menuHelpers({
+            menu: () => [{ value: 24, count: -1 }],
+            selectMenu: (spec) => {
+                handlerMenus.push(spec);
+                return [
+                    { value: 1, count: -1 },
+                    { value: 3, count: -1 },
+                ];
+            },
+        })), ECMD_OK);
+        assert.equal(state.flags.autounlock, AUTOUNLOCK_UNTRAP
+            | AUTOUNLOCK_KICK);
+        assert.equal(handlerMenus.length, 1);
+        assert.equal(handlerMenus[0].title, "Select 'autounlock' actions:");
+        assert.deepEqual(
+            handlerMenus[0].items.map(({ text, value, selected }) => (
+                { text, value, selected }
+            )),
+            [
+                { text: 'untrap     (might fail)', value: 1, selected: false },
+                { text: 'apply-key  ', value: 2, selected: true },
+                { text: 'kick       (doors only)', value: 3, selected: false },
+                {
+                    text: 'force      (chests/boxes only)',
+                    value: 4,
+                    selected: false,
+                },
+            ],
         );
         // doset() reached directly with the prefix still set delegates the
         // other way, to the simple menu.

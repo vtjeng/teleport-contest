@@ -41,6 +41,7 @@ import {
     Is_rogue_level,
     INVOPT_IN_USE,
     INVOPT_NONE,
+    INVOPT_ON,
     INV_SPARSE,
     LARGEST_INT,
     MENU_COMBINATION,
@@ -4090,6 +4091,169 @@ async function handler_number_pad(state, helpers) {
     return optn_ok;
 }
 
+// C ref: options.c can_set_perm_invent() (5488-5530).  This TTY build does
+// not advertise WC_PERM_INVENT, and TTY_PERM_INVENT is not compiled, so the
+// capability check is the only reachable arm.  Keep the mode update for a
+// window port that does advertise the capability; the compiled-out C arm that
+// creates WIN_INVEN has no JavaScript callee to invoke.
+export function can_set_perm_invent(state) {
+    state.iflags ??= {};
+    const old_perminv_mode = state.iflags.perminv_mode;
+    if (!wc_supported('perm_invent')) return false;
+    if (state.iflags.perminv_mode === INVOPT_NONE)
+        state.iflags.perminv_mode = INVOPT_ON;
+    // options.c:5527's nhUse(old_perminv_mode); the non-TTY-PERM-INVENT
+    // build deliberately leaves this saved value unused.
+    void old_perminv_mode;
+    return true;
+}
+
+// C ref: options.c check_perm_invent_again() (5532-5543).  The source places
+// this function behind TTY_PERM_INVENT, but keeping its state transition here
+// preserves the exported allmain.c entry point for a later persistent-window
+// port.
+export function check_perm_invent_again(state) {
+    state.iflags ??= {};
+    if (!state.iflags.perm_invent_pending) return;
+    state.iflags.perm_invent = false;
+    if (can_set_perm_invent(state)) state.iflags.perm_invent = true;
+    state.iflags.perm_invent_pending = false;
+}
+
+function menuSelectionValues(selection) {
+    if (selection === null || selection === undefined) return [];
+    const values = Array.isArray(selection) ? selection : [selection];
+    return values
+        .map((entry) => typeof entry === 'object' ? entry?.value : entry)
+        .filter((value) => value !== null && value !== undefined);
+}
+
+// C ref: options.c handler_menustyle() (5544-5585).  select_menu() returns a
+// scalar in the TTY port; accepting an array as well preserves C's PICK_ONE
+// handling when a test double supplies both the preselected and new item.
+async function handler_menustyle(state, helpers) {
+    const old_menu_style = state.flags.menu_style;
+    const separator = state.iflags.menu_tab_sep ? '\t' : ' ';
+    const items = [];
+    for (let index = 0; index < menutype.length; ++index) {
+        const [name, first, second] = menutype[index];
+        items.push({
+            text: `${name.padEnd(12)}${separator}${first}`,
+            value: index + 1,
+            selector: name[0],
+            selected: index === old_menu_style,
+        });
+        items.push({ text: `${' '.repeat(16)}${separator}${second}` });
+    }
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: 'Select menustyle:',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        let style = values[0] - 1;
+        if (values.length > 1 && style === old_menu_style)
+            style = values[1] - 1;
+        state.flags.menu_style = style;
+    }
+    const changed = state.flags.menu_style !== old_menu_style;
+    if (changed || state.flags.verbose) {
+        await ttyPline(
+            `'menustyle' ${changed ? 'changed to' : 'is still'} `
+                + `"${menutype[state.flags.menu_style][0]}".`,
+            state,
+        );
+    }
+    return optn_ok;
+}
+
+// C ref: options.c handler_align_misc() (5586-5623).  The item values are
+// the alignment constants themselves, so the selected value can update the
+// corresponding field without another enum conversion.
+async function handler_align_misc(state, optidx, helpers) {
+    const items = [
+        ['t', 'top', ALIGN_TOP],
+        ['b', 'bottom', ALIGN_BOTTOM],
+        ['l', 'left', ALIGN_LEFT],
+        ['r', 'right', ALIGN_RIGHT],
+    ].map(([selector, text, value]) => ({
+        selector,
+        text,
+        value,
+    }));
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ONE,
+        title: `Select ${optidx === allopt.findIndex(
+            ({ name }) => name === 'align_message',
+        ) ? 'message' : 'status'} window placement relative to the map:`,
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        if (optidx === allopt.findIndex(
+            ({ name }) => name === 'align_message',
+        )) {
+            state.iflags.wc_align_message = values[0];
+        } else {
+            state.iflags.wc_align_status = values[0];
+        }
+    }
+    return optn_ok;
+}
+
+function autounlockHandlerValue(state) {
+    const bits = state.flags.autounlock;
+    if (!bits) return 'none';
+    return unlocktypes
+        .filter((_name, index) => (bits & (1 << index)) !== 0)
+        .map((name) => name[0])
+        .join(' + ');
+}
+
+// C ref: options.c handler_autounlock() (5624-5674).  PICK_ANY returns an
+// ordered array of selected values in the TTY port, with [] representing C's
+// n == 0 commit and null representing cancellation.
+async function handler_autounlock(state, optidx, helpers) {
+    const oldflags = state.flags.autounlock;
+    const optname = allopt[optidx]?.name ?? 'autounlock';
+    const separator = state.iflags.menu_tab_sep ? '\t' : ' ';
+    const descriptions = [
+        '(might fail)', '', '(doors only)', '(chests/boxes only)',
+    ];
+    const items = unlocktypes.map((name, index) => ({
+        text: `${name.padEnd(10)}${separator}${descriptions[index]}`,
+        value: index + 1,
+        selector: name[0],
+        selected: (state.flags.autounlock & (1 << index)) !== 0,
+    }));
+    const selected = await optionMenuSelect(state, {
+        items,
+        how: PICK_ANY,
+        title: `Select '${optname}' actions:`,
+        cancelValue: null,
+    }, helpers);
+    if (selected !== null && selected !== undefined) {
+        const values = menuSelectionValues(selected);
+        let newflags = 0;
+        for (const value of values)
+            newflags |= 1 << (value - 1);
+        state.flags.autounlock = newflags;
+    }
+    const changed = state.flags.autounlock !== oldflags;
+    if ((changed || state.flags.verbose)
+        && state.give_opt_msg !== false) {
+        await ttyPline(
+            `'${optname}' ${changed ? 'changed to' : 'is still'} `
+                + `'${autounlockHandlerValue(state)}'.`,
+            state,
+        );
+    }
+    return optn_ok;
+}
+
 // C ref: options.c optfn_runmode() (3626-3670). Its four names are matched
 // with str_start_is(name, value, TRUE), so any nonempty prefix of a name
 // selects it and the first match in this order wins.
@@ -7768,10 +7932,11 @@ async function optfn_boolean(state, optidx, negated, opts, helpers) {
         );
     case 'perm_invent':
         // options.c:5267-5270 asks can_set_perm_invent() whether the
-        // interface can show a persistent inventory window.  The port's
-        // TTY_WINCAP carries no WC_PERM_INVENT, so unsupportedWindowOption()
-        // keeps 'perm_invent' out of the menu entirely.
-        throw new UnsupportedOptionMenuError('can_set_perm_invent()');
+        // interface can show a persistent inventory window.
+        if (!negated && !state.go.opt_initial
+            && !can_set_perm_invent(state))
+            return optn_silenterr;
+        break;
     default:
         break;
     }
@@ -8138,6 +8303,18 @@ async function handler_pickup_types(state, helpers) {
 // interactive editor doset()'s pick loop opens for a compound option.  Keyed
 // on the handler's own option, as OPTION_SET_HANDLERS is.
 const OPTION_HANDLERS = Object.freeze({
+    align_message: (state, helpers) => handler_align_misc(
+        state, allopt.findIndex(({ name }) => name === 'align_message'),
+        helpers,
+    ),
+    align_status: (state, helpers) => handler_align_misc(
+        state, allopt.findIndex(({ name }) => name === 'align_status'),
+        helpers,
+    ),
+    autounlock: (state, helpers) => handler_autounlock(
+        state, allopt.findIndex(({ name }) => name === 'autounlock'), helpers,
+    ),
+    menustyle: (state, helpers) => handler_menustyle(state, helpers),
     msg_window: (state, helpers) => optfn_msg_window(
         state, allopt.findIndex(({ name }) => name === 'msg_window'),
         DO_HANDLER, false, '', '', helpers,
