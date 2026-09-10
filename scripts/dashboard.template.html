@@ -1731,7 +1731,9 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     });
     readout.innerHTML = '<div>' + esc(g.name) + '</div><div>'
       + stamp(open) + (inferred ? '\u2020' : '') + ' \u2013 ' + (g.status === 'in-progress' ? 'in progress' : stamp(close))
-      + ' \u00b7 ' + fmt((close - open) / 60000) + (inferred ? ' \u00b7 \u2020 open time inferred' : '')
+      + ' \u00b7 ' + fmt((close - open) / 60000)
+      + (g.screensDelta == null ? '' : ' \u00b7 ' + fmtDelta(g.screensDelta) + ' screens')
+      + (inferred ? ' \u00b7 \u2020 open time inferred' : '')
       + (overlapping.length ? ' \u00b7 overlaps ' + esc(overlapping.map(other => other.name).join(', ')) : '') + '</div>';
   }
   for (const type of ['pointerover', 'pointerdown']) {
