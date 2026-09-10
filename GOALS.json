@@ -19813,6 +19813,58 @@
         "from": 344,
         "to": 510
       }
+    },
+    {
+      "id": "port-options-disclosure-menu-handlers",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port options.c disclosure and menu-display handlers",
+      "cFile": "options.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [
+        {
+          "name": "handler_disclose..handler_menu_objsyms",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "handler_disclose",
+            "handler_menu_objsyms"
+          ]
+        }
+      ],
+      "openedAt": "842045ff45dc7f8ecd064b099a1d10816bd83608",
+      "openStanding": {
+        "sha": "b45bf5a8",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "handler_disclose",
+          "line": 5675,
+          "endLine": 5779,
+          "ported": false
+        },
+        {
+          "name": "handler_menu_headings",
+          "line": 5780,
+          "endLine": 5794,
+          "ported": true
+        },
+        {
+          "name": "handler_menu_objsyms",
+          "line": 5795,
+          "endLine": 5831,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 5675,
+        "to": 5831
+      }
     }
   ]
 }
