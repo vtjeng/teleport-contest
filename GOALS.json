@@ -21417,7 +21417,16 @@
       ],
       "selectionReason": "The highest queue candidate seed2200-wizard-quaff-zap-read is already closed as machine-local: options.c option_help() renders an absolute HOME-derived path absent from the replay contract, and existing wintty classification covers the pagination consequence. Select the next implementable source owner tower2.lua for seed0360-wizard-world-tour.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "tower2.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "tower2.lua"
+          ]
+        }
+      ],
       "openedAt": "64995a3e50e1fa50b4155a8a6dc1dcc4bf3bfd1e",
       "openStanding": {
         "sha": "76b101cf23acc0eba35c7a326b38d6d428608e49",
