@@ -1,10 +1,10 @@
 // Exercise the real goal-log CLI against disposable Git repositories. Queue
-// loading alone is replaced with fixture data; the selection guard, source
-// inventory, completion validator, and all persistent state changes are real.
+// loading and game replay use fixture data; the selection guard, source
+// inventory, completion validator, scoring cache, and persistent changes are real.
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync }
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync }
     from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -18,13 +18,15 @@ const QUEUE_MODULE = new URL('./mismatch-queue.mjs', import.meta.url).href;
 const CORE_SCRIPTS = [
     'goal-log.mjs', 'c-functions.mjs', 'score-log.mjs', 'lua-sources.mjs',
     'port-evidence.mjs', 'check-namespace-members.mjs',
+    'score-development.mjs', 'scoring-workspace.mjs', 'local-tmpdir.mjs',
+    'development-standing.mjs',
 ];
 // These standings distinguish progress before parking, during another goal,
 // and after resumption without depending on real development-session totals.
 const BASELINE = { screens: 10, rng: 100 };
-const BEFORE_PARK = { screens: 13, rng: 106 };
-const OTHER_GOAL_END = { screens: 50, rng: 150 };
-const AFTER_RESUME = { screens: 54, rng: 159 };
+const BEFORE_PARK = { screens: 81, rng: 1639 }; // An unfinished span adds 71 screens and 1539 RNG matches.
+const OTHER_GOAL_END = { screens: 85, rng: 1647 }; // The following goal adds only four screens and eight RNG matches.
+const AFTER_RESUME = { screens: 89, rng: 1656 }; // Resumed work adds four screens and nine RNG matches.
 // Top-level statements surround a Lua helper so planning only declarations
 // would omit observable work at both ends of this five-line program.
 const LUA_SOURCE = 'des.level_init({});\nfunction helper()\nend\nhelper();\ndes.room({});\n';
@@ -49,6 +51,32 @@ function fixture(t) {
         "    return JSON.parse(readFileSync(new URL('../.cache/queue.json', import.meta.url), 'utf8'));",
         '}',
     ].join('\n'));
+    write('.gitignore', '.cache/\n');
+    json('js/score-fixture.json', BASELINE);
+    // The production scorer wrapper runs this tiny runner in its real isolated
+    // workspace. Its result changes only when a committed game input changes.
+    write('frozen/ps_test_runner.mjs', `
+import { appendFileSync, readFileSync, readdirSync } from 'node:fs';
+const score = JSON.parse(readFileSync('js/score-fixture.json', 'utf8'));
+appendFileSync(process.env.GOAL_SCORE_RUN_LOG, 'replay\\n');
+if (process.env.GOAL_SCORE_EDIT_PATH)
+    appendFileSync(process.env.GOAL_SCORE_EDIT_PATH, '\\n');
+const results = readdirSync('sessions').map((session, index) => ({
+    session,
+    metrics: {
+        screens: { matched: index === 0 ? score.screens : 0 },
+        rngCalls: { matched: index === 0 ? score.rng : 0 },
+    },
+}));
+console.log('__RESULTS_JSON__');
+console.log(JSON.stringify({ results }));
+`);
+    for (const file of ['isaac64.js', 'terminal.js', 'storage.js'])
+        write(`frozen/${file}`, '// Scorer overlay fixture.\n');
+    // Match the fixed direct development set without any real session data.
+    const sessionPaths = Array.from({ length: 33 }, (_, index) =>
+        `sessions/fixture-${index}.session.json`);
+    for (const file of sessionPaths) json(file, {});
     json('GOALS.json', { goals: [] });
     write('SCORE.tsv', `${COLUMNS.join('\t')}\n`);
     // Same-name JavaScript is deliberately present before evidence exists.
@@ -76,12 +104,12 @@ function fixture(t) {
     };
     git('init', '--quiet');
     let revision = 0;
-    const commit = () => {
+    const commit = (...paths) => {
         // A numbered text revision produces a distinct HEAD for stale-summary
         // checks without changing any implementation under test.
         revision += 1;
         write('fixture-history.txt', `${revision}\n`);
-        git('add', 'fixture-history.txt');
+        git('add', 'fixture-history.txt', ...paths);
         git('commit', '--quiet', '-m', 'Advance disposable fixture history');
         return git('rev-parse', 'HEAD');
     };
@@ -100,9 +128,24 @@ function fixture(t) {
             roadmapFallbackAllowed: candidates.length === 0,
         });
     };
+    const env = { ...process.env, GOAL_SCORE_RUN_LOG: join(root, '.cache', 'replays') };
     const run = (...args) => spawnSync(process.execPath, ['scripts/goal-log.mjs', ...args], {
-        cwd: root, encoding: 'utf8',
+        cwd: root, encoding: 'utf8', env,
     });
+    const measuredScore = (value) => {
+        json('js/score-fixture.json', value);
+        return commit('js/score-fixture.json');
+    };
+    const development = () => {
+        const result = spawnSync(process.execPath, ['scripts/score-development.mjs'], {
+            cwd: root, encoding: 'utf8', env,
+        });
+        assert.equal(result.status, 0, result.stderr);
+    };
+    const replays = () => {
+        try { return readFileSync(env.GOAL_SCORE_RUN_LOG, 'utf8').trim().split('\n').length; }
+        catch (error) { if (error.code === 'ENOENT') return 0; throw error; }
+    };
     const cli = (...args) => {
         const result = run(...args);
         assert.equal(result.status, 0, result.stderr || result.error?.message);
@@ -131,11 +174,11 @@ function fixture(t) {
         json('.cache/evidence.json', value);
         return cli('record-evidence', '--goal', goal, '--evidence', '.cache/evidence.json');
     };
-    commit();
+    commit('package.json', '.gitignore', 'scripts', 'js', 'frozen', ...sessionPaths);
     score(BASELINE);
     queue('widget.c');
     return { root, write, json, cli, refuses, goals, checkpoint, evidence, record,
-        head, commit, score, queue };
+        head, commit, score, queue, git, measuredScore, development, replays, env };
 }
 
 function queueC(f, id = 'widget', file = 'widget.c') {
@@ -154,6 +197,7 @@ test('C CLI plans a same-name partial function and closes only with evidence and
     // This initial stub omits C's return value. A declaration must not make
     // the planner skip it before the review and implementation are complete.
     f.write('js/widget.js', 'export function helper() {}\n');
+    f.commit('js/widget.js');
     const span = openC(f);
     assert.deepEqual(span.functions, ['helper']);
     assert.equal(f.goals()[0].functions[0].declared, true);
@@ -364,4 +408,138 @@ test('parking preserves spans, rechecks priorities on resume, and excludes other
             + (AFTER_RESUME.rng - OTHER_GOAL_END.rng),
     });
     assert.equal(goal.status, 'closed');
+});
+
+
+test('an unfinished parked span owns its gain even when no SCORE event was allowed', (t) => {
+    const f = fixture(t);
+    openC(f);
+    const scoreLog = readFileSync(join(f.root, 'SCORE.tsv'), 'utf8');
+    const measuredAt = f.measuredScore(BEFORE_PARK);
+    f.cli('park-goal', '--goal', 'widget', '--reason', 'The span has an unfinished caller.');
+    const parked = f.goals()[0];
+    assert.equal(parked.spans[0].status, 'queued');
+    assert.deepEqual(parked.progressBeforePark, {
+        screens: BEFORE_PARK.screens - BASELINE.screens,
+        rng: BEFORE_PARK.rng - BASELINE.rng,
+    });
+    assert.deepEqual(parked.parkedStanding, { sha: measuredAt, ...BEFORE_PARK });
+    assert.equal(readFileSync(join(f.root, 'SCORE.tsv'), 'utf8'), scoreLog);
+    assert.equal(f.replays(), 1); // Parking had no current measurement to reuse.
+
+    f.commit(); // Goal metadata advances HEAD while the scored inputs stay identical.
+    f.queue('unrelated.c');
+    f.cli('queue-goal', '--id', 'other-fix', '--kind', 'divergence-fix',
+        '--c-file', 'unrelated.c', '--function', 'other', '--session', 'fixture-unrelated.c',
+        '--summary', 'Fix the following blocker');
+    f.cli('open-goal', '--id', 'other-fix');
+    assert.deepEqual(f.goals()[1].openStanding, parked.parkedStanding);
+    assert.equal(f.replays(), 1); // Opening reuses the proven equivalent park measurement.
+    f.measuredScore(OTHER_GOAL_END);
+    f.score(OTHER_GOAL_END);
+    f.cli('close-goal', '--goal', 'other-fix');
+    assert.deepEqual(f.goals()[1].delivered, {
+        screens: OTHER_GOAL_END.screens - BEFORE_PARK.screens,
+        rng: OTHER_GOAL_END.rng - BEFORE_PARK.rng,
+    });
+});
+
+test('a successful development run survives an unrelated checkpoint failure and metadata commits', (t) => {
+    const f = fixture(t);
+    const measuredAt = f.measuredScore(BEFORE_PARK);
+    f.development();
+    f.checkpoint({ allPassed: false }); // A failing non-score check cannot erase score evidence.
+    f.commit();
+    openC(f);
+    assert.deepEqual(f.goals()[0].openStanding, { sha: measuredAt, ...BEFORE_PARK });
+    assert.equal(f.replays(), 1); // The scorer already measured these exact inputs.
+});
+
+test('metadata-only commits reuse an equivalent SCORE event without scoring', (t) => {
+    const f = fixture(t);
+    const measuredAt = f.head();
+    f.commit();
+    openC(f);
+    assert.deepEqual(f.goals()[0].openStanding, { sha: measuredAt, ...BASELINE });
+    assert.equal(f.replays(), 0); // No scored input changed after the event row.
+});
+
+test('committed scoring inputs invalidate a cached measurement and an earlier SCORE row', async (t) => {
+    // Each path belongs to a different dependency copied or executed by the scorer.
+    for (const path of ['js/widget.js', 'frozen/terminal.js',
+        'scripts/scoring-workspace.mjs', 'scripts/score-development.mjs',
+        'scripts/local-tmpdir.mjs', 'package.json', 'sessions/fixture-0.session.json']) {
+        await t.test(path, (subtest) => {
+            const f = fixture(subtest);
+            f.development();
+            f.write(path, `${readFileSync(join(f.root, path), 'utf8')}\n`);
+            const measuredAt = f.commit(path);
+            openC(f);
+            assert.deepEqual(f.goals()[0].openStanding, { sha: measuredAt, ...BASELINE });
+            assert.equal(f.replays(), 2); // The earlier cache and event both predate this input.
+        });
+    }
+});
+
+test('dirty scoring inputs leave queued and open goals unchanged', async (t) => {
+    for (const change of ['tracked', 'staged', 'untracked', 'ignored']) {
+        await t.test(change, (subtest) => {
+            const f = fixture(subtest);
+            openC(f);
+            const original = f.goals();
+            const path = change === 'tracked' || change === 'staged'
+                ? 'js/widget.js' : 'js/new.js';
+            f.write(path, '// An uncommitted replay input.\n');
+            if (change === 'staged') f.git('add', path);
+            if (change === 'ignored') f.write('.gitignore', '.cache/\njs/new.js\n');
+            f.refuses(/commit scoring inputs/u, 'park-goal', '--goal', 'widget',
+                '--reason', 'Exercise the dirty-input guard.');
+            assert.deepEqual(f.goals(), original);
+            original[0].status = 'queued';
+            f.json('GOALS.json', { goals: original });
+            f.refuses(/commit scoring inputs/u, 'open-goal', '--id', 'widget');
+            assert.deepEqual(f.goals(), original);
+            assert.equal(f.replays(), 0); // Dirty work must not be attributed to HEAD.
+        });
+    }
+});
+
+test('a changed direct session count prevents boundary mutation even with a cached score', (t) => {
+    const f = fixture(t);
+    f.development();
+    queueC(f);
+    rmSync(join(f.root, 'sessions/fixture-0.session.json')); // One missing direct recording breaks the fixed set.
+    const original = f.goals();
+    f.refuses(/development count changed/u, 'open-goal', '--id', 'widget');
+    assert.deepEqual(f.goals(), original);
+});
+
+test('legacy checkpoint totals cannot substitute for a verified current measurement', (t) => {
+    const f = fixture(t);
+    const measuredAt = f.measuredScore(BEFORE_PARK);
+    f.checkpoint({ score: { screensMatched: BASELINE.screens, rngMatched: BASELINE.rng } });
+    openC(f);
+    assert.deepEqual(f.goals()[0].openStanding, { sha: measuredAt, ...BEFORE_PARK });
+    assert.equal(f.replays(), 1); // A summary without scorer provenance needs replay.
+});
+
+test('failed replay and mid-replay edits publish no measurement or goal boundary', async (t) => {
+    for (const failure of ['runner failure', 'input edit']) {
+        await t.test(failure, (subtest) => {
+            const f = fixture(subtest);
+            f.measuredScore(BEFORE_PARK);
+            if (failure === 'runner failure') {
+                const path = 'frozen/ps_test_runner.mjs';
+                f.write(path, `${readFileSync(join(f.root, path), 'utf8')}\nprocess.exitCode = 1;\n`);
+                f.commit(path); // Failure after emitting results must still invalidate them.
+            } else {
+                f.env.GOAL_SCORE_EDIT_PATH = join(f.root, 'js/widget.js');
+            }
+            queueC(f);
+            const original = f.goals();
+            f.refuses(/Development scoring failed|inputs changed/u, 'open-goal', '--id', 'widget');
+            assert.deepEqual(f.goals(), original);
+            assert.equal(existsSync(join(f.root, '.cache/development-standing.json')), false);
+        });
+    }
 });

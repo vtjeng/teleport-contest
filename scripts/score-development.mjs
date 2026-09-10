@@ -7,24 +7,20 @@ import { fileURLToPath } from 'node:url';
 import {
     PROJECT_ROOT,
     createScoringWorkspace,
-    listSessionFiles,
     removeScoringWorkspace,
     runScorer,
+    parseRunnerBundle,
 } from './scoring-workspace.mjs';
+import { developmentInputs, cacheDevelopmentStanding } from './development-standing.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DEVELOPMENT_DIR = join(PROJECT_ROOT, 'sessions');
 
-// Keep routine scoring on the reviewed side of the fixed 33/11 split.
-const EXPECTED_DEVELOPMENT_COUNT = 33;
-
 async function main(args) {
     if (args.length !== 0) throw new Error('arguments are not accepted');
 
-    const files = listSessionFiles(DEVELOPMENT_DIR);
-    if (files.length !== EXPECTED_DEVELOPMENT_COUNT) {
-        throw new Error('development count changed');
-    }
+    const inputs = developmentInputs();
+    const { files } = inputs;
 
     const tempRoot = createScoringWorkspace(DEVELOPMENT_DIR, files);
     try {
@@ -34,6 +30,7 @@ async function main(args) {
         if (stderr) process.stderr.write(stderr);
         if (child.stdout) process.stdout.write(child.stdout);
         if (child.error || child.status !== 0) throw new Error('runner failed');
+        cacheDevelopmentStanding(inputs, parseRunnerBundle(child.stdout));
 
         const cacheSource = join(tempRoot, '.cache', 'session-results.json');
         if (existsSync(cacheSource)) {

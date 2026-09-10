@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { readRows, standing } from './score-log.mjs';
+import { currentDevelopmentStanding } from './development-standing.mjs';
 import {
     PROJECT_ROOT, cFunctions, jsFunctionNames, listCFiles, markDeclared,
     parseCFunctions,
@@ -633,7 +634,7 @@ async function main(args) {
         }
         if (options['selection-reason']) goal.selectionReason = options['selection-reason'];
         const queue = await checkSelection(goal);
-        const opening = developmentStanding();
+        const opening = currentDevelopmentStanding();
         if (goal.openedAt == null) goal.openedAt = repositoryHead();
         if (goal.openStanding == null) goal.openStanding = opening;
         goal.status = 'open';
@@ -740,8 +741,10 @@ async function main(args) {
         const store = readGoals();
         const goal = findGoal(store, options.goal);
         if (goal.status !== 'open') throw new Error('only an open goal can be parked');
+        const parking = currentDevelopmentStanding();
         goal.progressBeforePark = addDelivered(goal.progressBeforePark,
-            deliveredSince(goal.activeStanding ?? goal.openStanding, developmentStanding()));
+            deliveredSince(goal.activeStanding ?? goal.openStanding, parking));
+        goal.parkedStanding = parking;
         goal.status = 'parked';
         goal.parkedReason = options.reason;
         writeGoals(store);
