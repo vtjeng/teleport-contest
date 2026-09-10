@@ -1136,7 +1136,7 @@ async function moveSimplePet(monster, after, env) {
 // `message` and `throwMissile` are one pair: during planning the announcement
 // is not printed but is measured, and a --More-- there means C stops for input
 // before the missile moves, so the clone leaves the flight to the live pass.
-function monsterMissileEnv(env) {
+function monsterMissileEnv(monster, env) {
     let plannedAnnouncementWaits = false;
     return {
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
@@ -1174,7 +1174,11 @@ function monsterMissileEnv(env) {
                     },
                 ),
                 losehp,
-                requireHit: true,
+                fromMonster: true,
+                planningDeath: env.planning
+                    && typeof env.planningDeath === 'function'
+                    ? () => env.planningDeath(monster)
+                    : undefined,
             });
         },
         message: env.planning
@@ -1242,7 +1246,7 @@ function monsterMissileEnv(env) {
 async function useOffensiveItem(monster, env) {
     return use_offensive(monster, {
         ...env,
-        ...monsterMissileEnv(env),
+        ...monsterMissileEnv(monster, env),
         potionHit: (target, obj, how, actionEnv) => potionhit(
             target,
             obj,
@@ -1303,7 +1307,7 @@ async function throwRangedWeapon(monster, env) {
     }
     return thrwmu(monster, {
         ...selectionEnv,
-        ...monsterMissileEnv(env),
+        ...monsterMissileEnv(monster, env),
     });
 }
 

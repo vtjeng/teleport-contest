@@ -81,8 +81,8 @@ function thituEnv(rolls) {
         },
         rndArgs,
         message: async (text) => messages.push(text),
-        losehp: async (n, knam, k_format) => {
-            hpLosses.push({ n, knam, k_format });
+        losehp: async (n, knam, k_format, _state, options) => {
+            hpLosses.push({ n, knam, k_format, options });
             // Actually reduce HP so the caller can observe it.
             game.u.uhp -= n;
         },
@@ -149,6 +149,61 @@ test('thitu hit: AC + tlev > dieroll produces hit message and deals damage',
         assert.equal(env.exercises.length, 1);
         assert.equal(env.exercises[0].index, A_STR);
         assert.equal(env.exercises[0].increase, false);
+    });
+
+test('thitu planning handoff preserves a lethal monster missile hit',
+    async () => {
+        const state = await heroState();
+        state.u.uac = 3;
+        // Three hit points makes the fixed three-point dart damage lethal;
+        // this selects mthrowu.c thitu()'s generic hit tail without relying
+        // on a recorded game state.
+        state.u.uhp = 3;
+        const obj = { otyp: DART, oclass: WEAPON_CLASS, opoisoned: false };
+        const env = thituEnv([1]); // rnd(20)=1 is a hit at AC + tlev = 10.
+        const planningErrors = [];
+        env.planning = true;
+        env.planningDeath = () => {
+            const error = new Error('planned monster missile death');
+            planningErrors.push(error);
+            return error;
+        };
+
+        await assert.rejects(
+            () => thitu(7, 3, obj, 'little dart', state, env),
+            /planned monster missile death/u,
+        );
+        // The clone must carry losehp()'s HP and status writes before the
+        // live pass replays the same missile and enters the death boundary.
+        assert.equal(state.u.uhp, 0);
+        assert.equal(planningErrors.length, 1);
+        assert.equal(env.hpLosses.length, 0);
+        assert.deepEqual(env.messages, ['You are hit by a little dart.']);
+        assert.equal(env.exercises.length, 0);
+    });
+
+test('thitu live lethal hit still calls losehp before strength exercise',
+    async () => {
+        const state = await heroState();
+        state.u.uac = 3;
+        state.u.uhp = 2;
+        state.u.uhpmax = 2;
+        const obj = { otyp: DART, oclass: WEAPON_CLASS, opoisoned: false };
+        const env = thituEnv([1]);
+        env.fromMonster = true;
+
+        const result = await thitu(7, 3, obj, 'little dart', state, env);
+        assert.equal(result, 1);
+        // mthrowu.c calls losehp() even when dam is lethal; the death
+        // boundary belongs to losehp(), after this call returns to thitu().
+        assert.equal(state.u.uhp, -1);
+        assert.equal(env.hpLosses.length, 1);
+        assert.equal(env.hpLosses[0].n, 3);
+        assert.equal(env.hpLosses[0].options.fromMonster, true);
+        assert.deepEqual(
+            env.exercises.map(({ index, increase }) => ({ index, increase })),
+            [{ index: A_STR, increase: false }],
+        );
     });
 
 test('thitu hit with high damage uses "!" and low damage uses "."',
