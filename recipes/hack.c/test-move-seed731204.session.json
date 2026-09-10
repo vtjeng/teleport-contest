@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731204,
+      "datetime": "20310517112233",
+      "nethackrc": "OPTIONS=name:MoveProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\n",
+      "comment": "Independently selected development case for test_move() through the ordinary movement command path. The one-step input exercises the production domove_core() admission call without using any value from an existing session.",
+      "moves": "h"
+    }
+  ]
+}

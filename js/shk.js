@@ -16,11 +16,13 @@ import {
     CONFLICT,
     DETECT_MONSTERS,
     DEAF,
+    D_BROKEN,
     FAST,
     G_GONE,
     helpless,
     HUNGRY,
     INVIS,
+    IS_DOOR,
     isok,
     LOW_PM,
     M_AP_MONSTER,
@@ -524,6 +526,56 @@ function shkname(shopkeeper) {
 function Shknam(shopkeeper) {
     const name = shkname(shopkeeper);
     return name ? name[0].toUpperCase() + name.slice(1) : name;
+}
+
+// C ref: shk.c block_door() (5791-5821). The caller supplies the message
+// operation because the C helper prints before returning TRUE.
+export async function block_door(x, y, state = game, { message = ttyPline } = {}) {
+    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    if (roomno < ROOMOFFSET || !IS_DOOR(state.level?.at(x, y)?.typ)
+        || roomno !== state.u?.ushops?.[0]) return false;
+    const shopkeeper = shop_keeper(roomno, state);
+    const extension = shopkeeper?.mextra?.eshk;
+    if (!shopkeeper || !inhishop(shopkeeper, state) || !extension
+        || shopkeeper.mx !== extension.shk.x
+        || shopkeeper.my !== extension.shk.y
+        || extension.shd.x !== x || extension.shd.y !== y
+        || helpless(shopkeeper)
+        || !(extension.debit || extension.billct || extension.robbed)) {
+        return false;
+    }
+    await message(
+        `${Shknam(shopkeeper)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
+        state,
+    );
+    return true;
+}
+
+// C ref: shk.c block_entry() (5823-5858). This is the matching shop-entry
+// guard for a broken door at the hero's current square.
+export async function block_entry(x, y, state = game, { message = ttyPline } = {}) {
+    const source = state.level?.at(state.u?.ux, state.u?.uy);
+    const sourceMask = source?.flags || source?.doormask || 0;
+    if (!IS_DOOR(source?.typ) || sourceMask !== D_BROKEN) return false;
+    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    const shopkeeper = shop_keeper(roomno, state);
+    const extension = shopkeeper?.mextra?.eshk;
+    if (!shopkeeper || !inhishop(shopkeeper, state) || !extension
+        || extension.shd.x !== state.u.ux || extension.shd.y !== state.u.uy
+        || shopkeeper.mx !== extension.shk.x
+        || shopkeeper.my !== extension.shk.y
+        || helpless(shopkeeper)
+        || !(x === extension.shk.x - 1 || x === extension.shk.x + 1
+            || y === extension.shk.y - 1 || y === extension.shk.y + 1)
+        || !(heroIsInvisible(state)
+            || carrying(PICK_AXE, state)
+            || carrying(DWARVISH_MATTOCK, state)
+            || state.u.usteed)) return false;
+    await message(
+        `${Shknam(shopkeeper)}${heroIsInvisible(state) ? ' senses your motion and' : ''} blocks your way!`,
+        state,
+    );
+    return true;
 }
 
 // C ref: shk.c cad() (5908-5934). pick_pick() uses only the ordinary,

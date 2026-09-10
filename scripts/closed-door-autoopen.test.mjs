@@ -22,6 +22,7 @@ import {
     D_ISOPEN,
     D_LOCKED,
     D_TRAPPED,
+    DO_MOVE,
 } from '../js/const.js';
 import {
     PICK_AXE,
@@ -35,6 +36,8 @@ import { S_FELINE } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { acurr } from '../js/attrib.js';
+import { test_move } from '../js/hack.js';
+import { UnsupportedLockError } from '../js/lock.js';
 import {
     loadAutoopenSuppressedRecipe,
     loadClosedDoorAutoopenRecipe,
@@ -177,55 +180,38 @@ test('pulling at the door spends no game time', async () => {
 });
 
 // hack.c:1097 reads svc.context.run to choose between the pull and the bump
-// arm, and the two arms refuse different states, so which one the seam picks
-// decides whether a walk is admitted at all. requireAutoopenClosedDoor() takes
-// `run` as a parameter rather than reading state.context.run, because
-// executeMovement() assigns that field only after the preflight has run, so at
-// seam time it still holds the previous command's value.
+// arm. The command commits that value before domove() calls test_move(), so
+// the source function itself, rather than an admission seam, selects the arm.
 //
-// A trapped closed door separates the two. The pull would reach lock.c:907's
-// b_trapped() tail and is refused; the bump arm never touches the door, so the
-// same square is served. Reading the stale field would refuse the rush too.
-test('the seam reads this command\'s run value, not the last one\'s', async () => {
+// A trapped closed door separates the two. The pull reaches lock.c:907's
+// unported b_trapped() tail; the bump arm never touches the door, so the same
+// square is served for a rush. Reading a stale run value would choose the
+// wrong source arm.
+test('the closed-door arm reads the current run value', async () => {
     const { segments } = loadClosedDoorAutoopenRecipe();
     const base = segments.find(s => s.moves[0] === 'h');
     assert.ok(base, 'a westward walking segment supplies the door fixture');
 
-    for (const [label, key, refused] of [
-        ['walk', 'h', true],
-        ['rush', 'H', false],
-        ['run', '\x08', false],
-    ]) {
-        await runSegment({ ...base, moves: '' });
-        const [dx, dy] = DIRECTIONS.h;
-        const door = game.level.at(game.u.ux + dx, game.u.uy + dy);
-        assert.equal(door.flags, D_CLOSED, label);
-        door.flags = door.doormask = D_CLOSED | D_TRAPPED;
-        // This Valkyrie's Dexterity decides which line the admitted arm
-        // prints; the trap is what the assertion is about either way.
-        const clumsy = acurr(game, A_DEX) < 10;
+    await runSegment({ ...base, moves: '' });
+    const [dx, dy] = DIRECTIONS.h;
+    const door = game.level.at(game.u.ux + dx, game.u.uy + dy);
+    assert.equal(door.flags, D_CLOSED, 'walk');
+    const walkResult = await test_move(
+        game.u.ux, game.u.uy, dx, dy, DO_MOVE, game,
+        { message: async () => {}, random: { rnl: () => 0 } },
+    );
+    assert.equal(walkResult, false, 'walk pulls at the door');
+    assert.equal(door.flags, D_ISOPEN, 'walk opens the door');
 
-        game.nhDisplay.pushKey(commandKeyCode(key));
-        if (refused) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => error.reason === 'trapped or unusual door',
-                label,
-            );
-        } else {
-            await moveloop_core();
-            assert.equal(
-                game.nhDisplay.topMessage,
-                clumsy
-                    ? 'Ouch!  You bump into a door.'
-                    : 'That door is closed.',
-                label,
-            );
-        }
-        // Neither outcome disarms or fires the trap.
-        assert.equal(game.level.at(game.u.ux + dx, game.u.uy + dy).flags,
-            D_CLOSED | D_TRAPPED, label);
-    }
+    await runSegment({ ...base, moves: '' });
+    const runDoor = game.level.at(game.u.ux + dx, game.u.uy + dy);
+    game.context.run = 1;
+    const runResult = await test_move(
+        game.u.ux, game.u.uy, dx, dy, DO_MOVE, game,
+        { message: async () => {} },
+    );
+    assert.equal(runResult, false, 'run bumps the door');
+    assert.equal(runDoor.flags, D_CLOSED, 'run leaves the door shut');
 });
 
 // lock.c:826 diverts a door into the drawbridge messages only when
@@ -261,17 +247,14 @@ test('a drawbridge facing away from the door is not a portcullis', async () => {
         bridge.flags = mask;
 
         game.nhDisplay.pushKey(walkWest);
+        await moveloop_core();
         if (refused) {
-            await assert.rejects(
-                moveloop_core(),
-                (error) => /portcullis/.test(error.message),
-                label,
-            );
+            // is_drawbridge_wall() diverts doopen_indir() to its own message;
+            // it is not a preflight refusal and leaves the door shut.
             assert.equal(game.level.at(door.x, door.y).flags, D_CLOSED, label);
         } else {
-            await moveloop_core();
-            // The pull ran: the door either opened or resisted, but no
-            // portcullis refusal intervened.
+            // A bridge facing away is an ordinary closed door: the pull either
+            // opens it or prints the resistance message.
             assert.ok(
                 [D_CLOSED, D_ISOPEN].includes(
                     game.level.at(door.x, door.y).flags,
@@ -307,64 +290,62 @@ test('door_opened tracks whether the pull succeeded', async () => {
     }
 });
 
-// requireAutoopenClosedDoor() has six refusal terms and the committed matrix
-// covered one, so each of the others was individually deletable with the whole
-// suite green. Each case below installs the plain D_CLOSED door the recipe
-// already provides and adds the single state that diverges, so it fails if and
-// only if its own term is removed. These do not join the refusal matrix in
-// scripts/cmd.test.mjs, whose contract is that a refusal changes no state:
-// blinding or confusing the hero legitimately repaints the status line.
-test('every autoopen refusal term is reachable and individually pinned', async () => {
+// hack.c:1074-1137. Capability and impairment terms belong to
+// test_move()'s closed-door arm. The production admission path now admits this
+// square and lets the source function choose whether it falls through, bumps,
+// or calls doopen_indir(); only the latter's documented unsupported branches
+// remain command boundaries.
+test('the closed-door arm owns its capability and impairment branches', async () => {
     const { segments } = loadClosedDoorAutoopenRecipe();
     const base = segments.find(seg => seg.moves[0] === 'h');
-    const walkWest = commandKeyCode('h');
 
     const cases = [
-        ['blind hero', 'blind door opening',
+        ['blind hero', false,
             (st) => { st.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 }; }],
-        ['walls-passing hero', 'door bypassed rather than opened',
+        ['walls-passing hero', true,
             (st) => {
                 st.u.uprops[PASSES_WALLS] = { intrinsic: 1, extrinsic: 0 };
             }],
-        // Confusion and Stunned suppress autoopen like `!autoopen` does, but
-        // the hero never reaches test_move(): domove_core() reroutes the step
-        // through impaired_movement() first. Fumbling is read through
-        // propertyPresent(), which has no blocked term, so an extrinsic source
-        // is enough.
-        ['confused hero', 'impaired movement',
+        ['confused hero', false,
             (st) => {
                 st.u.uprops[CONFUSION] = { intrinsic: 1, extrinsic: 0 };
             }],
-        ['stunned hero', 'impaired movement',
+        ['stunned hero', false,
             (st) => {
                 st.u.uprops[STUNNED] = { intrinsic: 1, extrinsic: 0 };
             }],
-        ['fumbling hero', 'fumbling movement',
+        ['fumbling hero', false,
             (st) => {
                 st.u.uprops[FUMBLING] = { intrinsic: 0, extrinsic: 1 };
             }],
-        // hack.c:1115-1117 prints a different line for a mounted hero, inside
-        // the Dexterity gate; the guard is wider than that to own the case.
-        ['mounted hero', 'closed door on a steed',
+        ['mounted hero', false,
             (st) => { st.u.usteed = { m_id: 1 }; }],
-        ['trapped hero', 'held hero movement',
+        ['trapped hero', false,
             (st) => { st.u.utrap = 3; }],
     ];
 
-    for (const [label, reason, apply] of cases) {
+    for (const [label, expected, apply] of cases) {
         await runSegment({ ...base, moves: '' });
         const door = { x: game.u.ux - 1, y: game.u.uy };
         assert.equal(game.level.at(door.x, door.y).flags, D_CLOSED, label);
         apply(game);
 
-        game.nhDisplay.pushKey(walkWest);
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === reason,
+        const result = await test_move(
+            game.u.ux,
+            game.u.uy,
+            -1,
+            0,
+            DO_MOVE,
+            game,
+            { message: async () => {} },
+        );
+        assert.equal(result, expected, label);
+        assert.ok(
+            [D_CLOSED, D_ISOPEN].includes(
+                game.level.at(door.x, door.y).flags,
+            ),
             label,
         );
-        // Refused before the pull, so no draw and no mask change.
-        assert.equal(game.level.at(door.x, door.y).flags, D_CLOSED, label);
     }
 });
 
@@ -505,7 +486,7 @@ test('every locked segment stops at a door that stays locked', async () => {
 // and the port agree on. Each case below installs the locked door the recipe
 // already provides and adds the single state that diverges, so it fails if and
 // only if its own term is removed.
-test('the locked arm refuses what doopen_indir cannot answer for', async () => {
+test('the locked arm exposes what doopen_indir cannot answer for', async () => {
     const base = loadLockedDoorRecipe().segments[0];
     const walkNorth = commandKeyCode(base.moves[0]);
     // A tool needs only the fields inventory_weight() reads; nothing on a
@@ -517,10 +498,13 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
         // only from the "known to be CLOSED" arm, so D_CLOSED is what makes it
         // reachable. D_LOCKED | D_TRAPPED returns at lock.c:895 instead and is
         // served, which the sibling test below pins.
-        ['trapped closed door', 'trapped or unusual door',
-            (state, door) => { door.flags = D_CLOSED | D_TRAPPED; }],
+        ['trapped closed door', 'D_TRAPPED door trap in doopen_indir()',
+            (state, door) => {
+                door.flags = door.doormask = D_CLOSED | D_TRAPPED;
+            }],
         // lock.c:884-893 needs AUTOUNLOCK_KICK and a live ynq() prompt.
-        ['autounlock kick', 'autounlock kick prompt',
+        ['autounlock kick',
+            'AUTOUNLOCK_KICK in doopen_indir()',
             (state) => { state.flags.autounlock = AUTOUNLOCK_KICK; }],
     ];
 
@@ -530,10 +514,18 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
         assert.equal(door.flags, D_LOCKED, label);
         apply(game, door);
 
-        game.nhDisplay.pushKey(walkNorth);
         await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === reason,
+            test_move(
+                game.u.ux,
+                game.u.uy,
+                0,
+                -1,
+                DO_MOVE,
+                game,
+                { message: async () => {}, random: { rnl: () => 0 } },
+            ),
+            (error) => error instanceof UnsupportedLockError
+                && error.branch === reason,
             label,
         );
     }
@@ -566,14 +558,15 @@ test('combined autounlock bits keep apply-key before kick', async () => {
         `expected autounlock prompt, got "${game._ttyPreviousMessage}"`,
     );
 
-    // Without a recognized tool, apply-key finds nothing and the kick arm
-    // fires, which is still refused.
+    // C uses an else-if: with APPLY_KEY set, a missing tool does not fall
+    // through to AUTOUNLOCK_KICK. The locked door remains untouched.
     await runSegment({ ...base, moves: '' });
     game.flags.autounlock = combined;
     game.nhDisplay.pushKey(walkNorth);
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error.reason === 'autounlock kick prompt',
+    await moveloop_core();
+    assert.equal(
+        game.level.at(game.u.ux, game.u.uy - 1).flags,
+        D_LOCKED,
         'no recognized tool',
     );
 });
@@ -907,20 +900,17 @@ test('a suppressed pull drops the refusals doopen_indir owns', async () => {
     }
 });
 
-// The mirror of `a suppressed pull drops the refusals doopen_indir owns`, and
-// the pin for this slice's central placement decision. u.usteed, m_at() and
-// u.utrap sit ABOVE `if (autoopenSuppressed(state, run)) return;` because
-// domove_core() would have routed the step elsewhere before test_move() ran:
-// a mounted hero diverges whichever arm the autoopen test picks, a monster on
-// the destination is attacked at 2786-2796, and a held hero goes to
-// trapmove() at 2830. Move any of them below the return and the suppressed arm
-// walks into the bump instead of refusing, which is what these cases catch.
-test('a suppressed pull keeps the refusals that precede doopen_indir', async () => {
+// These cases exercise caller branches that precede test_move(): a mounted
+// hero reaches steed.c, a held hero reaches trapmove(), and an undetected
+// monster is rejected by domove_attackmon_at(). They must not be mistaken for
+// closed-door behavior merely because the destination is a closed door.
+test('caller branches precede the closed-door test_move arm', async () => {
     const base = loadAutoopenSuppressedRecipe().segments[0];
     const walkWest = commandKeyCode(base.moves[0]);
 
     const refusals = [
-        ['steed', 'closed door on a steed',
+        ['steed',
+            "an unported branch of this command: unsupported steed action: stucksteed() reporting a steed that won't move",
             (state) => { state.u.usteed = { mx: 1, my: 1 }; }],
         ['held hero', 'held hero movement',
             (state) => { state.u.utrap = 3; }],

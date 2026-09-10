@@ -1182,7 +1182,7 @@ export function m_harmless_trap(monster, trap, env = {}) {
     }
 }
 
-function wormCross(x1, y1, x2, y2, state) {
+export function wormCross(x1, y1, x2, y2, state) {
     if (Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) !== 1
         || x1 === x2 || y1 === y2) {
         return false;

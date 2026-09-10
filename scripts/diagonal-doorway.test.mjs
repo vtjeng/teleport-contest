@@ -303,8 +303,8 @@ test('cant_squeeze_thru answers for the hero and for a monster', async () => {
     }
 });
 
-// hack.c:1153-1171. The tight-diagonal switch's three refusals are deferred,
-// so test_move() stops instead of squeezing a hero through in silence.
+// hack.c:1153-1171. The tight-diagonal switch's three refusals are source
+// behavior, including its messages and FALSE return.
 test('test_move stops a tight diagonal the hero cannot squeeze through',
     async () => {
         await runSegment({
@@ -332,9 +332,11 @@ test('test_move stops a tight diagonal the hero cannot squeeze through',
         // 601 crosses WT_TOOMUCH_DIAGONAL, so C would print "You are carrying
         // too much to get through." and this port stops.
         game.invent = { otyp: 0, oclass: 0, owt: 601, quan: 1, nobj: null };
-        await assert.rejects(
-            test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
-            /tight diagonal move/u,
+        assert.equal(
+            await test_move(ux, uy, 1, 1, DO_MOVE, game, {
+                message: async () => {},
+            }),
+            false,
         );
 
         // hack.c:1153 tests both corners, so one open corner leaves the switch
@@ -386,17 +388,14 @@ test('an obstructed destination outranks the diagonal doorway rules',
             ["You can't move diagonally out of an intact doorway."],
         );
 
-        // SDOOR is IS_OBSTRUCTED and this port does not own it, so the same
-        // step stops at the terrain boundary instead.
+        // SDOOR is IS_OBSTRUCTED and the obstacle arm returns FALSE before
+        // consulting the source doorway.
         game.level.at(ux + 1, uy + 1).typ = SDOOR;
-        await assert.rejects(
-            test_move(ux, uy, 1, 1, DO_MOVE, game, env),
-            /door or special terrain movement/u,
-        );
+        assert.equal(await test_move(ux, uy, 1, 1, DO_MOVE, game, env), false);
     });
 
-// hack.c:1172-1176. The port carries worm_cross()'s first two tests and stops
-// where its wtails[] walk would decide.
+// hack.c:1172-1176 and worm.c:895-942. The complete consecutive-segment
+// check determines whether the diagonal crosses a worm.
 test('test_move stops a diagonal between two segments of one monster',
     async () => {
         await runSegment({
@@ -421,10 +420,21 @@ test('test_move stops a diagonal between two segments of one monster',
             true,
         );
         game.level.monsters[ux + 1][uy] = worm;
-        await assert.rejects(
-            test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
-            /long worm body crossing/u,
+        worm.wormno = 1;
+        game.level.worms = {
+            1: { segments: [
+                { x: ux, y: uy + 1 },
+                { x: ux + 1, y: uy },
+            ] },
+        };
+        const lines = [];
+        assert.equal(
+            await test_move(ux, uy, 1, 1, DO_MOVE, game, {
+                message: async (line) => { lines.push(line); },
+            }),
+            false,
         );
+        assert.deepEqual(lines, ['The garter snake is in your way.']);
     });
 
 // preflightDomoveDestination()'s answer for a step with no monster on the
@@ -482,12 +492,7 @@ test('the seam consults its destination checks only where the rules allow',
             here.typ = source;
             here.flags = here.doormask = source === DOOR ? D_ISOPEN : 0;
             destination.typ = IRONBARS;
-            assert.throws(
-                () => preflightDomoveDestination(ux + 1, uy + 1, game),
-                (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'test_move() door or special terrain movement',
-                `${IRONBARS} from ${source}`,
-            );
+            preflightDomoveDestination(ux + 1, uy + 1, game);
             destination.typ = TREE;
             preflightDomoveDestination(ux + 1, uy + 1, game);
         }

@@ -41,7 +41,6 @@ import {
     DO_MOVE,
     DOMOVE_WALK,
     D_BROKEN,
-    D_CLOSED,
     D_ISOPEN,
     D_NODOOR,
     D_TRAPPED,
@@ -321,7 +320,8 @@ test('a raised drawbridge answers for itself rather than as a wall',
 
 // C ref: hack.c:1014-1045. Before its closing "It's solid stone." else, the
 // obstacle arm asks four questions about the hero. Passes_walls, Underwater,
-// and a tunneller now follow their C branches; autodig remains in dig.c.
+// and a tunneller follow their C branches; autodig records its discarded
+// dig.c use_pick_axe2() dependency and returns FALSE.
 test('the obstacle arm handles special movement before ordinary refusal',
     async () => {
         // Interior coordinate and an eastward step, as in the wall case above:
@@ -362,8 +362,14 @@ test('the obstacle arm handles special movement before ordinary refusal',
         // hack.c:1016. Underwater obstruction prints its own line.
         const underwater = obstacleState();
         underwater.u.uinwater = 1;
-        assert.equal(await step(underwater), false);
-        assert.equal(underwater._ttyToplines, 'There is an obstacle there.');
+        const underwaterLines = [];
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, underwater, {
+                message: (line) => underwaterLines.push(line),
+            }),
+            false,
+        );
+        assert.deepEqual(underwaterLines, ['There is an obstacle there.']);
 
         // hack.c:1037 starts chewing for a tunneller which needs no pick.
         const tunneller = obstacleState();
@@ -390,10 +396,9 @@ test('the obstacle arm handles special movement before ordinary refusal',
         const digger = obstacleState();
         digger.flags.autodig = true;
         digger.uwep = { oclass: TOOL_CLASS, otyp: PICK_AXE };
-        await assert.rejects(() => step(digger), {
-            name: 'UnsupportedHeroMoveBoundaryError',
-            reason: 'automatic digging',
-        });
+        game.unported = new Set();
+        assert.equal(await step(digger), false);
+        assert.ok(game.unported.has('dig.c use_pick_axe2'));
 
         // Each of the other three terms alone returns the arm to its ordinary
         // refusal, which is what keeps the guard from being wider than C.
@@ -1417,10 +1422,9 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         // (hack.c test_move() reaches only its testdiag arm for those), and so
         // are the two masks closed_door() answers TRUE for: autoopen pulls at
         // a plain D_CLOSED door and names a plain D_LOCKED one. The masks
-        // below are the ones left. The two carrying D_TRAPPED alongside
-        // D_CLOSED or D_LOCKED reach doopen_indir(), whose D_TRAPPED tail
-        // fires the door trap and bills a shop; D_ISOPEN | D_TRAPPED reaches
-        // the ordinary destination checks but remains outside this boundary.
+        // below are the ones left. The D_TRAPPED closed-door success tail
+        // belongs to doopen_indir() and is covered at its direct test_move()
+        // dependency boundary, not by this retry snapshot.
         ...[
             [
                 'trapped broken door',
@@ -1432,16 +1436,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 D_ISOPEN | D_TRAPPED,
                 'test_move() door or special terrain movement',
             ],
-            [
-                'trapped closed door',
-                D_CLOSED | D_TRAPPED,
-                'trapped or unusual door',
-            ],
             // D_LOCKED | D_TRAPPED is deliberately absent: lock.c:855 tests
             // only D_CLOSED, so 0x18 takes the message switch and returns
             // before the b_trapped() tail, and the port serves it. The
-            // 'trapped closed door' row above is the mask that stays refused,
-            // because its roll can reach that tail.
+            // The omitted D_CLOSED | D_TRAPPED mask reaches that same partial
+            // doopen_indir() tail only when its success roll fires.
         ].map(([name, mask, reason]) => ({
             name,
             reason,
@@ -1538,10 +1537,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         for (let attempt = 0; attempt < 2; ++attempt) {
             await assert.rejects(
                 moveloop_core(),
-                (error) => (
-                    error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === refusal.reason
-                ),
+                (error) => error.reason === refusal.reason
+                    && (
+                        error instanceof UnsupportedHeroMoveBoundaryError
+                        || error instanceof UnsupportedHeroCommandBoundaryError
+                    ),
                 `${refusal.name}, attempt ${attempt + 1}`,
             );
             const actual = heroCommandRetrySnapshot(replay);

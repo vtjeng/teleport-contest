@@ -6,8 +6,6 @@ import {
     A_DEX,
     A_STR,
     ALTAR,
-    AUTOUNLOCK_APPLY_KEY,
-    AUTOUNLOCK_KICK,
     BLINDED,
     COLD_RES,
     CONFUSION,
@@ -31,6 +29,7 @@ import {
     D_NODOOR,
     D_TRAPPED,
     CQ_CANNED,
+    CMDQ_EXTCMD,
     DIGTYP_UNDIGGABLE,
     ECMD_OK,
     ECMD_TIME,
@@ -167,18 +166,24 @@ import {
     glyph_is_invisible,
     glyph_is_warning,
     glyph_to_cmap,
+    glyph_to_obj,
     map_invisible,
+    map_object,
     newsym,
     back_to_glyph,
     unmap_invisible,
     unmap_object,
-    wall_angle,
 } from './display.js';
 // cmd.c owns the command queue and js/cmd.js already imports this file, so
 // this pair of modules forms an import cycle. Only the hoisted function
 // declaration is used, and only at call time, so neither module reads the
 // other during evaluation.
-import { cmdq_clear, confdir, paranoid_query } from './cmd.js';
+import {
+    cmdq_clear,
+    cmdq_peek,
+    confdir,
+    paranoid_query,
+} from './cmd.js';
 import {
     createCommandBindingModel,
     keyForCommand,
@@ -187,7 +192,6 @@ import { clear_kickedloc } from './dokick.js';
 import { dig_typ } from './dig.js';
 import {
     a_monnam,
-    a_monnam_unsupported,
     alwaysVisibleMonsterName,
     hliquid,
     m_monnam,
@@ -198,6 +202,7 @@ import {
     assign_level,
     Invocation_lev,
     on_level,
+    surface,
     u_on_newpos,
 } from './dungeon.js';
 import { gethungry } from './eat.js';
@@ -225,7 +230,6 @@ import {
     needspick,
     locomotion,
     noattacks,
-    nohands,
     noncorporeal,
     grounded,
     amphibious,
@@ -233,6 +237,8 @@ import {
     is_swimmer,
     metallivorous,
     monster_resists_element,
+    dmgtype,
+    passes_bars,
     passes_walls,
     slithy,
     sticks,
@@ -255,6 +261,7 @@ import {
     assertObjectNameable,
     assertPricedObjectNameable,
     simple_typename,
+    The,
     the,
     donameFresh,
     UnsupportedObjectNameError,
@@ -264,14 +271,11 @@ import {
     BOULDER,
     COIN_CLASS,
     CORPSE,
-    CREDIT_CARD,
     DWARVISH_MATTOCK,
     LEVITATION_BOOTS,
-    LOCK_PICK,
     NUM_OBJECTS,
     PICK_AXE,
     RIN_LEVITATION,
-    SKELETON_KEY,
     SLIME_MOLD,
     STATUE,
     WATER_WALKING_BOOTS,
@@ -279,6 +283,8 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import {
+    AD_CORR,
+    AD_RUST,
     AT_EXPL,
     G_UNIQ,
     NUMMONS,
@@ -301,9 +307,11 @@ import { m_next2u } from './mhitu.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     accessible,
+    can_ooze,
     can_fog,
     closed_door,
     onscary,
+    wormCross,
     youHear,
 } from './monmove.js';
 import {
@@ -327,8 +335,11 @@ import { enexto, goodpos, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
+    block_door,
+    block_entry,
     costly_spot,
     preflight_shop_transition,
+    shop_keeper,
     UnsupportedShopError,
 } from './shk.js';
 import {
@@ -336,7 +347,6 @@ import {
     collectMonsterNoticeMessage,
     collectMonsterNoticeMessages,
     is_db_wall,
-    is_drawbridge_wall,
     messageAt,
     monsterVisible,
     sensesMonster,
@@ -346,7 +356,6 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     S_hcdoor,
     S_stone,
-    S_tree,
     S_vcdoor,
     trap_to_defsym,
 } from './symbols.js';
@@ -1253,23 +1262,17 @@ function heroIsDeaf(state) {
 // blocksMove()'s TRUE answer for a missing location.
 function blocksMove(x, y, state) {
     const loc = state.level?.at(x, y);
-    return !loc || loc.typ === STONE || IS_WALL(loc.typ)
-        || IS_TREE(loc.typ, state);
+    return !loc || IS_OBSTRUCTED(loc.typ) || loc.typ === IRONBARS;
 }
 
 // C ref: hack.c:1140-1141, the condition on test_move()'s testdiag arm. A
 // doorway that still has its door refuses a diagonal entry.
 //
-// block_door() is omitted, and the reason has moved. It used to be that
-// mklev.c:1349 gates every randomly placed shop on `u_depth > 1` and this
-// boundary reached no such level; the ported descent now does generate D:2
-// shops. What is left is shk.c:5815's final term, `debit || billct ||
+// block_door() and block_entry() own the shopkeeper refusal now. Their
+// remaining dependency is inside shk.c:5815's final term, `debit || billct ||
 // robbed`: js/shknam.js:319-326 and js/makemon_create.js:468-480 initialize
-// all three to zero and nothing in this port writes any of them, so a
-// shopkeeper is never owed and the predicate stays FALSE.
-// blocksDiagonalDoorwayExit()'s block_entry() (shk.c:5826) is absent for the
-// same reason, and additionally needs a D_BROKEN hero square, which neither
-// admission seam allows.
+// all three to zero and nothing in this port writes any of them, so an unpaid
+// shopkeeper case still cannot be source-backed by this admission helper.
 function blocksDiagonalDoorwayEntry(ux, uy, x, y, state) {
     return Boolean((x - ux) && (y - uy)
         && !propertyPresent(state, PASSES_WALLS)
@@ -1403,19 +1406,10 @@ export function requireSimpleHeroDestination(
     const noPickMove = Boolean(
         state.context?.nopick || state.iflags?.menu_requested,
     );
-    // C ref: hack.c test_move():1216-1231. moverock() runs inside test_move(),
-    // above everything spoteffects() and pickup() do after the move, so the
-    // boulder question is asked before them here too.
-    const boulder = pushesBoulder ? sobj_at(BOULDER, x, y, state) : null;
-    if (boulder) preflight_moverock(x, y, noPickMove, state);
-    else if (sobj_at(BOULDER, x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError('boulder movement');
-    // preflight_moverock() admits only a square whose whole pile is that one
-    // boulder, and moverock() clears it off <x,y> before domove_core() commits
-    // the step, so every question below reads the square as empty.
-    const floorObject = boulder
-        ? null
-        : (state.level?.objects?.[x]?.[y] ?? null);
+    // moverock() runs inside test_move(), above everything spoteffects() and
+    // pickup() do after the move, so a pushed boulder has already cleared its
+    // square by the time this post-move seam reads objects.
+    const floorObject = state.level?.objects?.[x]?.[y] ?? null;
     if (state.flags?.mention_decor && noPickMove) {
         throw new UnsupportedHeroMoveBoundaryError(
             'reqmenu with decor description',
@@ -1556,178 +1550,6 @@ export function doorless_door(location, state = game) {
     return location?.typ === DOOR
         && !on_level(state.u?.uz, state.rogue_level)
         && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
-}
-
-// C ref: hack.c:1097, the autoopen test. TRUE where test_move() falls through
-// to the bump arm and its "That door is closed." sibling instead of pulling at
-// the door. Only the two terms this port admits are here; the three it refuses
-// are named in requireAutoopenClosedDoor(), which rejects them before any
-// caller asks this.
-function autoopenSuppressed(state, run) {
-    return !state.flags?.autoopen || Boolean(run);
-}
-
-// This seam owns the two routes through hack.c test_move()'s closed-door arm
-// (1074-1137) that the port covers: a walking hero in ordinary form with
-// `autoopen` set, pulling at a door lock.c doopen_indir() (780-923) can answer
-// for, and the same hero with the pull suppressed, who bumps into the door or
-// is told it is closed. Every other state those two functions branch on stops
-// here, named for the C condition that diverges. Both the command admission
-// seam and test_move() call it, as they do requireSimpleHeroDestination().
-// `run` is a parameter rather than a read of `state.context.run` because the
-// admission seam runs before `executeMovement()` commits the intent: at
-// `js/cmd.js` the preflight is called first and `state.context.run = run` only
-// afterwards, so the field still holds the previous command's value there.
-// `runStopsBeforeMonster()` takes `run` for the same reason.
-function requireAutoopenClosedDoor(x, y, state, run) {
-    const data = state.youmonst?.data;
-    const u = state.u;
-    // hack.c:1076 feels the square before the branch, feel_newsym() at
-    // lock.c:914 takes its blind arm, and Blind is the first of the four
-    // terms hack.c:1113-1114 gates the bump on. All three stay refused.
-    // Blindness cannot decide this arm on its own, but the reason is narrower
-    // than it looks: of the gate's other three terms, Stunned and Fumbling are
-    // refused below in this same function, so `ACURR(A_DEX) < 10` is the only
-    // live one and is what keeps the bump arm reachable at all. If a later
-    // slice narrows or moves the Dexterity test, the arm goes dark. Blindness's
-    // only start-of-game source is optlist.h:211's `permablind`, which sets
-    // u.uroleplay.blind at u_init.c:1027 and changes what every square of the
-    // level draws from turn one, well outside this arm.
-    if (heroIsBlind(state)) {
-        throw new UnsupportedHeroMoveBoundaryError('blind door opening');
-    }
-    // hack.c:1078-1090, the four forms that pass a closed door instead of
-    // opening it. can_ooze() and the "can't squeeze your possessions through"
-    // notice both start at amorphous(), so refusing that covers them; a dwarf
-    // tunnels() but also needspick(), which is why both are read.
-    if (propertyPresent(state, PASSES_WALLS)
-        || amorphous(data)
-        || u.uinwater
-        || (tunnels(data) && !needspick(data))) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'door bypassed rather than opened',
-        );
-    }
-    // hack.c:1097's three remaining suppression terms. Each of them lands in
-    // the same bump arm that `!flags.autoopen` and a nonzero svc.context.run
-    // reach, but the hero carrying one diverges before test_move() is called
-    // at all: domove_core() runs impaired_movement() (hack.c:2425) first,
-    // which rerolls the step through confdir() for a stunned or confused hero
-    // and draws u_maybe_impaired()'s rn2(5) for the confused one. Neither is
-    // ported. Fumbling joins them because nothing in this port creates it:
-    // `grep -rn FUMBLING js/` finds readers only, so admitting it would port a
-    // branch against a state the game cannot reach.
-    if (propertyIntrinsic(state, CONFUSION)
-        || propertyIntrinsic(state, STUNNED)) {
-        throw new UnsupportedHeroMoveBoundaryError('impaired movement');
-    }
-    if (propertyPresent(state, FUMBLING)) {
-        throw new UnsupportedHeroMoveBoundaryError('fumbling movement');
-    }
-    // hack.c:1115-1117's "You can't lead <steed> through that closed door."
-    // needs y_monnam(). That is the whole live basis: it sits inside the
-    // Dexterity gate, so a mounted hero with ACURR(A_DEX) >= 10 takes
-    // hack.c:1132's "That door is closed." exactly as an unmounted one does,
-    // and lock.c:884's kick guard cannot decide the pull either while the
-    // autounlock refusal below stands. The guard is therefore deliberately
-    // wider than C, refusing every mounted case to own the one that diverges.
-    if (u.usteed) {
-        throw new UnsupportedHeroMoveBoundaryError('closed door on a steed');
-    }
-    // A monster on the closed door has already been offered to
-    // domove_attackmon_at() by the time test_move() runs, both in C
-    // (hack.c:2798 against 2843) and in domove(). C attacks it, or -- for a pet
-    // do_attack() declines -- opens the door under it; this arm would open the
-    // door either way. lock.c:826 stumble_on_door_mimic() is that square seen
-    // from doopen_indir().
-    //
-    // The guard stays defensive. requireOrdinaryStartingPetSwap() admits only a
-    // ROOM, CORR, IS_FURNITURE or D_NODOOR destination, and both
-    // preflightDomoveDestination() and domove() call it above do_attack(), so a
-    // monster on a closed door stops as 'door or special terrain movement'
-    // first. This is what keeps that closed now that test_move() runs with the
-    // destination monster still standing there.
-    if (m_at(x, y, state)) {
-        throw new UnsupportedHeroMoveBoundaryError('monster on a closed door');
-    }
-    // A held hero never gets as far as test_move(): domove_core():2830 hands
-    // the step to trapmove() and returns unless it escapes, and no arm this
-    // port reaches escapes. So only the admission seam asks this, and only for
-    // the trap types heldStepIgnoresDestination() leaves to it -- every one of
-    // which trapmove() stops on in turn, one call later. lock.c:815 refuses
-    // the pull for a hero in a pit from the other side.
-    if (u.utrap) {
-        throw new UnsupportedHeroMoveBoundaryError('held hero movement');
-    }
-    // hack.c:1097. The remaining refusals belong to doopen_indir(), which only
-    // the pull reaches; the bump arm and its "That door is closed." sibling
-    // leave the door alone, so none of them applies there.
-    if (autoopenSuppressed(state, run)) return;
-    // lock.c:790 nohands() and :898 verysmall().
-    if (nohands(data) || verysmall(data)) {
-        throw new UnsupportedHeroMoveBoundaryError('door opening interrupted');
-    }
-    // lock.c:826. is_drawbridge_wall() makes the door a portcullis and diverts
-    // the whole function into its drawbridge messages. Call the ported
-    // predicate rather than an adjacency test: dbridge.c:148-159 requires the
-    // neighbour's DB_DIR to point back at this square, so a bare adjacency
-    // check refuses a superset, including a DOOR whose neighbouring bridge
-    // faces away from it.
-    if (is_drawbridge_wall(x, y, state)) {
-        throw new UnsupportedHeroMoveBoundaryError('portcullis');
-    }
-    // monmove.c closed_door() is a bit test, not an equality test: it answers
-    // TRUE for any mask carrying D_LOCKED or D_CLOSED, D_TRAPPED included. So
-    // this guard is what selects the masks js/lock.js answers for, rather than
-    // a restatement of closed_door(); deleting it as redundant would let a
-    // trapped door reach the pull.
-    //
-    // D_CLOSED takes lock.c:904's roll and D_LOCKED takes the lock.c:855
-    // message switch. D_LOCKED | D_TRAPPED joins them because lock.c:855 tests
-    // only D_CLOSED, so 0x18 enters the same switch, prints the same line and
-    // returns at :895 -- the b_trapped() and add_damage() tail at :907-911 is
-    // inside the "known to be CLOSED" arm and needs D_CLOSED to run.
-    // D_CLOSED | D_TRAPPED stays refused, because its roll really does reach
-    // that tail on success.
-    const mask = doorMask(state.level?.at(x, y));
-    if (mask !== D_CLOSED && mask !== D_LOCKED
-        && mask !== (D_LOCKED | D_TRAPPED)) {
-        throw new UnsupportedHeroMoveBoundaryError('trapped or unusual door');
-    }
-    if (mask !== D_CLOSED) {
-        // lock.c:876-894. doopen_indir() now handles the autounlock apply-key
-        // path by calling autokey() and pick_lock() itself. The kick arm is
-        // an `else if` in C: it fires only when apply-key did not handle the
-        // door (no APPLY_KEY flag, or no tool in inventory).
-        const autounlock = state.flags?.autounlock
-            ?? AUTOUNLOCK_APPLY_KEY;
-        // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" through ynq() and
-        // queues dokick. Refuse it only when apply-key will not handle the
-        // door first: either APPLY_KEY is not set, or it is set but
-        // carriesUnlockingTool() finds no tool. When APPLY_KEY is set and a
-        // tool exists, doopen_indir handles the door and C's `else if` means
-        // kick never runs.
-        const applyKeyHandles = (autounlock & AUTOUNLOCK_APPLY_KEY)
-            && carriesUnlockingTool(state);
-        if ((autounlock & AUTOUNLOCK_KICK) && !applyKeyHandles) {
-            throw new UnsupportedHeroMoveBoundaryError('autounlock kick prompt');
-        }
-    }
-}
-
-// The inventory test behind lock.c autokey(TRUE) != 0, without picking the
-// tool. Every branch of that function starts from one of these three object
-// types, so carrying any of them is what routes a locked door into
-// pick_lock().
-function carriesUnlockingTool(state) {
-    for (let object = state.invent; object; object = object.nobj) {
-        if (object.otyp === SKELETON_KEY
-            || object.otyp === LOCK_PICK
-            || object.otyp === CREDIT_CARD) {
-            return true;
-        }
-    }
-    return false;
 }
 
 // C ref: hack.c domove_attackmon_at() (1954-1992). What the hero has to know
@@ -1981,10 +1803,8 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // no monster on it is answered by domove_fight_ironbars(),
         // domove_fight_web() and domove_fight_empty(), all three of them above
         // the u.utrap block at 2830 and above test_move() at 2843, so none of
-        // the arms below can decide it. A closed door is the clearest case:
-        // requireAutoopenClosedDoor() would ask whether the door opens for a
-        // step that never touches the door. The three fight functions carry
-        // their own refusals inside domove(); this arm is here to let them.
+        // the arms below can decide it. The three fight functions carry their
+        // own refusals inside domove(); this arm is here to let them.
     } else if (heldStepIgnoresDestination(state)) {
         // The step never reaches the terrain rules at all, so this seam must
         // not consult them either. See heldStepIgnoresDestination() above.
@@ -1994,68 +1814,13 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {
-        // test_move()'s closed-door arm (1074) runs before its testdiag
-        // label (1134-1135), so a diagonal walk into a closed door reaches
-        // the autoopen route rather than the diagonal doorway rules. The
-        // diagonal case is not silent by accident either: hack.c:1112 gates
-        // the bump and its sibling on `x == ux || y == uy`, so a diagonal
-        // step whose autoopen test fails prints nothing and falls through.
-        requireAutoopenClosedDoor(x, y, state, run);
-    } else if (boulderStopsRun(x, y, run, state)) {
-        // C ref: test_move():1217-1223. A run stops in front of a boulder the
-        // hero can neither push past nor squeeze onto, without pushing it and
-        // without spending the move. That arm is ported inside test_move(), so
-        // admit the command and let domove() run it, exactly as the
-        // runStopsBeforeMonster() arm above does.
+        // test_move() owns the complete closed-door arm, including its
+        // pass-wall, ooze, tunnel, autoopen, bump, and TEST_TRAV/TEST_TRAP
+        // branches. Admit the command so it can make the source-order choice.
+    } else if (sobj_at(BOULDER, x, y, state)) {
+        // test_move() owns the boulder run, travel, chew, and push branches.
     } else if (!blocksMove(x, y, state)) {
         requireSimpleHeroDestination(x, y, state, true);
-    }
-}
-
-// This seam owns the four hero states hack.c:1014-1045 answers for before its
-// closing else, the arm this port covers. A STONE or wall destination reaches
-// test_move() unexamined -- preflightDomoveDestination() has no arm for it --
-// so unlike requireAutoopenClosedDoor() this one has a single caller, the
-// obstacle arm itself. It runs after that arm's terrain refusal, because for
-// the two types left by then, STONE and IS_WALL, C's chain asks these four
-// questions in this order and nothing else stands between them.
-//
-// Every refusal here is unconditional in `mode`, which the tight-diagonal
-// switch below deliberately is not: `3f9be36` gated that switch because
-// landing_spot() probes eight neighbours with TEST_MOVE and one loud refusal
-// ended the dismount. The same gating is available to two of these four and
-// not to the other two. C's Underwater and autodig arms return FALSE in every
-// mode and print or dig only under DO_MOVE, so a probe could be answered
-// FALSE; its Passes_walls and tunnels arms fall through the chain and can
-// answer TRUE, so a probe answered FALSE would diverge. None of the four
-// states is reachable in this port, so nothing probes them and the plain
-// refusal costs nothing; whoever makes one reachable reads this first.
-function requireOrdinaryObstacleRefusal(state) {
-    const data = state.youmonst?.data;
-    // hack.c:1014 `Passes_walls && may_passwall(x, y)` falls through the whole
-    // arm and can answer TRUE, hack.c:1016 Underwater prints "There is an
-    // obstacle there." instead of the wall line, and hack.c:1037 a tunneller
-    // that needs no pick eats the rock through still_chewing(), which changes
-    // the map and draws. The refusal is wider than C for the first: it does
-    // not ask may_passwall(), so a Sokoban or nondiggable wall stops here too
-    // rather than reaching the "Sokoban walls resist your ability." line that
-    // shares this arm's closing else. Nothing in this port grants either
-    // property, so the width costs no reachable behavior.
-    if (propertyPresent(state, PASSES_WALLS)
-        || state.u?.uinwater
-        || (tunnels(data) && !needspick(data))) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'obstacle passed rather than blocking',
-        );
-    }
-    // hack.c:1042. use_pick_axe2() changes the map and draws, so the arm has
-    // to stop even though `flags.autodig` has no writer yet: js/options.js
-    // carries the name in its catalog and nothing reads it back into
-    // state.flags. svc.context.nopick has no writer either, which is why the
-    // read is `state.context?.nopick` rather than a ported field.
-    if (state.flags?.autodig && !state.context?.run && !state.context?.nopick
-        && state.uwep && is_pick(state.uwep, state)) {
-        throw new UnsupportedHeroMoveBoundaryError('automatic digging');
     }
 }
 
@@ -2094,23 +1859,6 @@ function could_move_onto_boulder(sx, sy, dx, dy, state) {
     return !state.invent || inv_weight(state) <= WT_SQUEEZABLE_INV * -1;
 }
 
-// C ref: hack.c test_move():1217-1223, the run arm of its boulder block. A run
-// stops in front of a boulder the hero can neither push past nor squeeze onto,
-// before moverock() is reached, so it costs no time and no randomness.
-//
-// The command admission seam consults this too, which is why `run` is a
-// parameter rather than a read of svc.context.run: cmd.c executeMovement()
-// calls the seam before set_move_cmd() copies the command's run value there.
-function boulderStopsRun(x, y, run, state) {
-    return Boolean(sobj_at(BOULDER, x, y, state))
-        && (In_sokoban(state.u.uz) || !propertyPresent(state, PASSES_WALLS))
-        && run >= 2
-        && !(heroIsBlind(state) || heroHallucinating(state))
-        && !could_move_onto_boulder(
-            x, y, x - state.u.ux, y - state.u.uy, state,
-        );
-}
-
 // remove_object() and place_object() reach vision.c recalc_block_point() and
 // block_point() through the object lifecycle's hook table rather than by
 // importing them, so that js/obj.js needs no import from js/vision.js. A
@@ -2129,166 +1877,9 @@ function boulderVisionEnv(state) {
     };
 }
 
-// C ref: hack.c moverock_core() (347-638), every arm of it except the push at
-// 626-637, plus the parts of dopush() (165-241) that no ported hero reaches.
-//
-// Two callers ask them, and both are needed. test_move()'s DO_MOVE arm asks
-// immediately before moverock(), which is what covers every entry into the
-// push: cmd.c executeMovement()'s admission seam runs once per keystroke, so
-// the second and later steps of a run arrive through allmain.c
-// moveloop_core()'s own re-entry with no seam between them. The seam asks as
-// well, so a keystroke refuses before set_move_cmd() commits movement intent.
-// Either way the refusal lands ahead of nomul(0) and of the boulder's
-// next_boulder bookkeeping, so it never leaves the move half made.
-//
-// The questions follow C's order. Four of them are deliberately wider than the
-// branch they stand for, and each says why.
-function preflight_moverock(sx, sy, noPickMove, state) {
-    const u = state.u;
-    const otmp = sobj_at(BOULDER, sx, sy, state);
-    // sx = u.ux + u.dx, so the direction is the offset of the square itself.
-    // Reading u.dx here would be wrong: cmd.c executeMovement() runs this seam
-    // before set_move_cmd() writes it, so it still holds the previous step's.
-    const dx = sx - u.ux;
-    const dy = sy - u.uy;
-    const rx = sx + dx; /* boulder destination position */
-    const ry = sy + dy;
-    const refuse = (reason) => {
-        throw new UnsupportedHeroMoveBoundaryError(reason);
-    };
-    const species = state.youmonst?.data;
-
-    // test_move():1225-1229, which runs before moverock() is called at all:
-    // a tunneller that needs no pick chews the boulder through still_chewing()
-    // instead.
-    // 355-363, and wider than C's arm. C refuses only a boulder the hero has
-    // not already felt -- `Blind && glyph_to_obj(glyph_at(sx, sy)) != BOULDER`
-    // -- and pushes one he has, so a blind hero pushing a mapped boulder is a
-    // case this refuses and C runs. The narrower test needs display.c
-    // glyph_at(), which has no port; C's own arm also calls map_object() to
-    // draw the boulder into map memory. Restoring the push must restore the
-    // glyph_to_obj() guard with it.
-    if (heroIsBlind(state)) refuse('a boulder felt in the dark');
-
-    // The while loop at 353, the `otmp != svl.level.objects[sx][sy]` reorder at
-    // 375-376 and moverock_done() (326-333) all exist for a square holding more
-    // than one boulder, and xname()'s "next boulder" naming is what they carry
-    // between them. This slice pushes one boulder off an otherwise empty
-    // square, which is also what lets requireSimpleHeroDestination() treat the
-    // square as empty once the push has happened.
-    if (otmp.nexthere || state.level.objects[sx][sy] !== otmp)
-        refuse('a boulder sharing its square');
-
-    // 384-410. 'm<dir>' steps over the boulder or squeezes past it instead of
-    // pushing, through could_move_onto_boulder() and sokoban_guilt().
-    if (noPickMove) refuse('a boulder step without a push');
-
-    // 412-421. "You don't have enough leverage to push %s."
-    if (propertyActiveUnblocked(state, LEVITATION) || Is_airlevel(u.uz))
-        refuse('a boulder push without leverage');
-
-    // 422-427. "You're too small to push that %s."
-    if (verysmall(species) && !u.usteed)
-        refuse('a boulder push by a tiny hero');
-
-    // dopush():198-202 reports a steed's push through do_name.c YMonnam() and
-    // skips exercise() altogether, and cannot_push():388-391 needs
-    // P_SKILL(P_RIDING). C reaches both from inside the conjunction below.
-    if (u.usteed) refuse('a mounted boulder push');
-
-    // 428-435, the conjunction that separates a push from a refusal. Its FALSE
-    // arm is ported for an ordinary obstructed destination below. The other
-    // FALSE arms still stop here because their later cannot_push() outcomes
-    // are outside this slice.
-    const destination = isok(rx, ry) ? state.level?.at(rx, ry) : null;
-    if (destination && (IS_OBSTRUCTED(destination.typ)
-        || destination.typ === IRONBARS)
-        && !throws_rocks(species)
-        && !could_move_onto_boulder(sx, sy, dx, dy, state)) {
-        // The selected ordinary, normal-sized hero has no way to squeeze onto
-        // the boulder square. moverock_core() owns the source-ordered message
-        // and -1 result, so admit that path instead of ending the command here.
-        return;
-    }
-    if (!destination
-        || IS_OBSTRUCTED(destination.typ)
-        || destination.typ === IRONBARS
-        || (IS_DOOR(destination.typ) && dx && dy
-            && !doorless_door(destination, state))
-        || sobj_at(BOULDER, rx, ry, state)) {
-        refuse('a boulder that will not move');
-    }
-
-    // 441-448, KMH's rule that Sokoban boulders do not roll diagonally. The
-    // refusal covers the whole branch rather than the diagonal alone, because
-    // sokoban_guilt() and Sokoban's own hole-plugging in flooreffects() are
-    // both unported and an orthogonal Sokoban push reaches them.
-    if (In_sokoban(u.uz)) refuse('a boulder push in Sokoban');
-
-    // 455-483. The monster arm itself is ported in moverock_core(); it reports
-    // the monster and returns cannot_push() ahead of every test below, so an
-    // admitted monster arm returns from here rather than falling through them.
-    const mtmp = m_at(rx, ry, state);
-    if (mtmp) {
-        const ttmp = t_at(rx, ry, state);
-        // The two conjuncts that skip the arm. C pushes the boulder onto a
-        // noncorporeal monster, and onto one already trapped in the pit under
-        // it; both leave a boulder standing on a monster, in the still
-        // unported push logic at 626-637.
-        if (noncorporeal(mtmp.data)
-            || (mtmp.mtrapped && ttmp && is_pit(ttmp.ttyp))) {
-            refuse('a boulder pushed onto a monster');
-        }
-        // The spotted arm names the monster with a_monnam(), whose priest,
-        // minion, shopkeeper and player-monster cases have separate owners.
-        // Asking here rather than letting a_monnam() throw keeps a
-        // hallucinating hero's naming draw off the display RNG on the way out.
-        if (canSpotMonster(mtmp, state) && a_monnam_unsupported(mtmp))
-            refuse('a titled monster behind the boulder');
-        return;
-    }
-
-    // 485-488. cannot_push_msg() again, for a boulder against a closed door.
-    if (closed_door(rx, ry, state)) refuse('a closed door behind the boulder');
-
-    // 496-618, the trap switch. C acts on six types -- LANDMINE, PIT and
-    // SPIKED_PIT, HOLE and TRAPDOOR, LEVEL_TELEP, TELEP_TRAP and
-    // ROLLING_BOULDER_TRAP -- and lets every other type fall through its
-    // `default: break` to the push below. This refuses all of them: the six
-    // need blow_up_landmine(), flooreffects(), bury_objs(), rloco(),
-    // add_to_migration() and launch_obj(), and the rest would leave a boulder
-    // resting on a trap, which nothing here has traced.
-    if (t_at(rx, ry, state)) refuse('a boulder pushed onto a trap');
-
-    // 620-621. do.c boulder_hits_pool() (49-118) is the other unconditional
-    // call on this path. Everything above its `is_pool_or_lava(rx, ry)` test
-    // only rejects a non-boulder, so that test alone is its FALSE arm -- the
-    // one that lets the push happen. js/do.js flooreffects() already records
-    // the TRUE arm as unported.
-    if (is_pool_or_lava(rx, ry, state))
-        refuse('a boulder pushed into water or lava');
-
-    // dopush():217-240, the shop bill, and the `costly` computed for it at
-    // 438-439. addtobill(), subfrombill() and stolen_value() are all live once
-    // a boulder crosses a shop boundary. C's `costly` conjoins costly_spot()
-    // with shop_keeper(*in_rooms(sx, sy, SHOPBASE)); js/shk.js costly_spot()
-    // (491-499) already requires that shopkeeper, so the first term carries it.
-    if (costly_spot(sx, sy, state) || costly_spot(rx, ry, state)
-        || otmp.unpaid) {
-        refuse('a boulder pushed across a shop boundary');
-    }
-
-    // dopush():206-207. unmap_object() forgets a remembered invisible monster
-    // standing where the boulder is about to land, and js/display.js refuses a
-    // square that also shows an engraving. Asking here keeps that refusal from
-    // landing between the message and the move.
-    if (glyph_is_invisible(destination.remembered_glyph?.glyph))
-        refuse('a remembered invisible monster behind the boulder');
-}
-
 // C ref: hack.c cannot_push_msg() (247-256). This is the ordinary unmounted
 // arm: name the boulder, report the failed push, and feel its square only when
-// blind. The mounted and blind branches remain behind preflight_moverock().
+// blind. The mounted result-producing arm remains an explicit boundary.
 async function cannot_push_msg(otmp, sx, sy, state, env) {
     const what = the(xnameFresh(otmp, state), state);
     if (state.u.usteed) {
@@ -2578,6 +2169,7 @@ export async function dosinkfall(state = game) {
 // against the same boulder says nothing after the first while still exercising
 // Strength and moving the rock. decl.c:224-225 starts both at 0.
 async function dopush(sx, sy, rx, ry, otmp, state, env) {
+    env ??= {};
     state.gb ??= {};
     const moves = Math.trunc(state.moves ?? 0);
     /* give boulder pushing feedback if this is a different
@@ -2596,31 +2188,58 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     // next_boulder (objnam.c:814-823, js/objnam.js:437-438), so naming a
     // boulder whose push says nothing would diverge.
     const what = givemesg ? the(xnameFresh(otmp, state), state) : null;
-    // 190-202. The steed arm is refused by preflight_moverock().
     const easypush = throws_rocks(state.youmonst?.data);
-    if (givemesg) {
-        const message = requiredMessageOperation(env, 'boulder push');
-        await message(
-            `With ${easypush ? 'little' : 'great'} effort you move ${what}.`,
-            state,
-        );
-    }
-    if (!easypush) {
-        await exercise(A_STR, true, state, env.random ?? { rn2 }, {
-            encumberMessage: env.encumberMessage ?? encumber_msg,
-        });
+    const message = requiredMessageOperation(env, 'boulder push');
+    if (state.u.usteed) {
+        if (givemesg) {
+            await message(
+                `${upstart(y_monnam(state.u.usteed, state))} moves ${what}.`,
+                state,
+            );
+        }
+    } else {
+        if (givemesg) {
+            await message(
+                `With ${easypush ? 'little' : 'great'} effort you move ${what}.`,
+                state,
+            );
+        }
+        if (!easypush) {
+            await exercise(A_STR, true, state, env.random ?? { rn2 }, {
+                encumberMessage: env.encumberMessage ?? encumber_msg,
+            });
+        }
     }
     state.gb.bldrpushtime = moves;
 
     /* Move the boulder *after* the message. */
-    // 206-207, the glyph_is_invisible() unmap_object(), is refused by
-    // preflight_moverock().
+    // 206-207. unmap_object() has its own explicit map-memory boundary when
+    // the remembered square also contains an unsupported engraving/sensed
+    // monster; the call itself remains in source order.
+    if (glyph_is_invisible(glyph_at(rx, ry, state)))
+        unmap_object(rx, ry, state);
     otmp.next_boulder = 0;
     movobj(otmp, rx, ry, state); /* does newsym(rx,ry) */
-    // 210-215. The Blind pair of feel_location() calls is refused by
-    // preflight_moverock() along with every other Blind arm of this group.
-    newsym(sx, sy);
-    // 217-240, the shop bill, is refused by preflight_moverock().
+    // 210-215.
+    if (heroIsBlind(state)) {
+        // The local display port currently exposes feel_location() only for
+        // adjacent squares; C also asks it to feel the boulder's two-step
+        // destination here. Keep the source call's gap explicit while still
+        // preserving the adjacent-square memory update.
+        note_unported('display.c feel_location boulder destination');
+        feel_location(sx, sy, state);
+    } else {
+        newsym(sx, sy);
+    }
+    // 217-240. These calls have no return value, so they are recorded as
+    // allowed gaps until the shop billing owner lands.
+    if (env.costly && !costly_spot(rx, ry, state)) {
+        note_unported('shk.c addtobill');
+    } else if (!env.costly && costly_spot(rx, ry, state) && otmp.unpaid) {
+        note_unported('shk.c onshopbill/subfrombill');
+    } else if (otmp.unpaid) {
+        note_unported('shk.c find_objowner/stolen_value');
+    }
 }
 
 // C ref: hack.c moverock_done() (326-333). xname() formats the second and
@@ -2645,8 +2264,9 @@ async function moverock(state, env) {
 }
 
 // C ref: hack.c moverock_core() (347-638). Its while loop walks every boulder
-// on <sx,sy>; preflight_moverock() admits only a square holding exactly one,
-// so the body runs once and the second test finds the square empty.
+// on <sx,sy>. The source-order trap, pool/lava, shop, and several special
+// mobility branches remain partial; their return-valued result is therefore
+// not completion evidence for test_move().
 //
 // The return value is C's: 0 lets the hero advance onto <sx,sy>, -1 refuses
 // the step. The selected failed-destination arm returns -1 after its message.
@@ -2656,7 +2276,18 @@ async function moverock_core(sx, sy, state, env) {
     let otmp;
 
     while ((otmp = sobj_at(BOULDER, sx, sy, state)) !== null) {
-        // 355-363, the Blind arm, is refused by preflight_moverock().
+        // 355-363. C identifies an unseen boulder by its remembered glyph,
+        // then maps the live object before refusing the push.
+        if (heroIsBlind(state)
+            && glyph_to_obj(glyph_at(sx, sy, state)) !== BOULDER) {
+            const message = requiredMessageOperation(
+                env, 'unseen boulder feedback',
+            );
+            await message('That feels like a boulder.', state);
+            map_object(otmp, true, state);
+            nomul(0, state);
+            return -1;
+        }
 
         /* when otmp->next_boulder is 1, xname() will format it as
            "next boulder" instead of just "boulder" */
@@ -2670,8 +2301,29 @@ async function moverock_core(sx, sy, state, env) {
         const ry = u.uy + 2 * u.dy;
         nomul(0, state);
 
-        // 384-427 -- the 'm' prefix, Levitation and the air level, and a tiny
-        // hero -- remain refused by preflight_moverock().
+        // 384-410. The 'm' prefix steps onto or squeezes past a boulder;
+        // moverock_core() has not ported sokoban_guilt() and its companion
+        // state writes, so keep this return-valued branch explicit.
+        if (state.context?.nopick) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'a boulder step without a push',
+            );
+        }
+        // 412-421. Levitation and the air level have distinct source feedback
+        // and are not interchangeable with the ordinary push transaction.
+        if (propertyActiveUnblocked(state, LEVITATION)
+            || Is_airlevel(state.u?.uz)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'a boulder push without leverage',
+            );
+        }
+        // 422-427. The tiny-hero message and return are owned by this C
+        // function, but their successful squeeze path is not yet ported.
+        if (verysmall(state.youmonst?.data) && !u.usteed) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'a boulder push by a tiny hero',
+            );
+        }
         const destination = isok(rx, ry) ? state.level?.at(rx, ry) : null;
         if (!destination
             || IS_OBSTRUCTED(destination.typ)
@@ -2688,7 +2340,20 @@ async function moverock_core(sx, sy, state, env) {
 
         const ttmp = t_at(rx, ry, state);
 
-        // Sokoban's diagonal rule remains behind preflight_moverock().
+        // 437-443. Sokoban's diagonal rule is local to moverock_core(); the
+        // result of cannot_push() remains the source return value.
+        if (In_sokoban(state.u?.uz) && u.dx && u.dy) {
+            if (heroIsBlind(state)) feel_location(sx, sy, state);
+            const message = requiredMessageOperation(
+                env, 'diagonal Sokoban boulder push',
+            );
+            await message(
+                `${The(xnameFresh(otmp, state), state)} won't roll diagonally `
+                + `on this ${surface(sx, sy, state)}.`,
+                state,
+            );
+            return cannot_push(otmp, sx, sy, state);
+        }
         if (await revive_nasty(
             rx, ry, 'You sense movement on the other side.', state,
         )) return -1;
@@ -2704,7 +2369,7 @@ async function moverock_core(sx, sy, state, env) {
                 env, 'monster behind the boulder',
             );
 
-            // 459-460, the Blind arm, is refused by preflight_moverock().
+            // 459-460, the Blind arm, remains a source-backed map-memory gap.
             if (canSpotMonster(mtmp, state)) {
                 await message(
                     `There's ${a_monnam(mtmp, { state })} on the other side.`,
@@ -2725,9 +2390,10 @@ async function moverock_core(sx, sy, state, env) {
                 map_invisible(rx, ry, state);
             }
             if (state.flags?.verbose) {
-                // 474-475. u.usteed is refused by preflight_moverock(), so
-                // you_or_steed is always C's "you" literal, never y_monnam().
-                const you_or_steed = 'you';
+                // 474-475. C names the steed when mounted; dopush() below
+                // carries the same distinction for a successful push.
+                const you_or_steed = state.u.usteed
+                    ? upstart(y_monnam(state.u.usteed, state)) : 'you';
                 const who = deliver_part1
                     ? you_or_steed : upstart(you_or_steed);
                 const what = deliver_part1
@@ -2741,9 +2407,27 @@ async function moverock_core(sx, sy, state, env) {
             return cannot_push(otmp, sx, sy, state);
         }
 
-        // The remaining valid-destination branches stay behind
-        // preflight_moverock(): closed_door() at 485-488, the trap switch at
-        // 496-618 and boulder_hits_pool() at 620-621.
+        // 485-488. A closed destination door blocks the push after the
+        // monster check, including the orthogonal case omitted by the
+        // destination-shape conjunction above.
+        if (closed_door(rx, ry, state)) {
+            await cannot_push_msg(otmp, sx, sy, state, env);
+            return cannot_push(otmp, sx, sy, state);
+        }
+
+        // 496-618 and 620-621 are return-valued effects. The local trap and
+        // liquid owners are not complete, so do not silently move a boulder
+        // through them or claim test_move() completion.
+        if (ttmp) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'hack.c moverock_core boulder trap effect',
+            );
+        }
+        if (is_pool_or_lava(rx, ry, state)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'do.c boulder_hits_pool',
+            );
+        }
 
         /* rumbling disturbs buried zombies */
         disturb_buried_zombies(sx, sy, state);
@@ -2756,34 +2440,24 @@ async function moverock_core(sx, sy, state, env) {
             remove_object(otmp, boulderVisionEnv(state));
             place_object(otmp, otmp.ox, otmp.oy, boulderVisionEnv(state));
         }
-        await dopush(sx, sy, rx, ry, otmp, state, env);
+        const costly = Boolean(
+            costly_spot(sx, sy, state)
+            && shop_keeper(in_rooms(sx, sy, SHOPBASE, state)[0] ?? 0, state),
+        );
+        await dopush(sx, sy, rx, ry, otmp, state, {
+            ...env,
+            costly,
+        });
     }
     return 0;
 }
 
-// C ref: hack.c test_move(). Five of its branches are ported: the
-// physical-obstacle refusal for ordinary wall and rock, which consumes no time
-// or randomness, the IS_DOOR/closed_door() arm's autoopen route into lock.c
-// doopen_indir(), the bump arm that a suppressed autoopen falls into, and its
-// two diagonal doorway rules, which also spend no time. Its remaining terrain
-// branches remain at the command admission boundary, which refuses every
-// destination type this function does not own before domove() is reached.
-//
-// The ability branches are different, and the difference is easy to miss.
-// preflightDomoveDestination()'s else-if chain has no arm at all for a STONE
-// or wall destination -- blocksMove() answers TRUE there, so the chain falls
-// off its end without a throw -- so the hero states hack.c:1014-1045 branches
-// on inside the obstacle arm have no owner at the seam. They are refused here
-// instead, by requireOrdinaryObstacleRefusal(), the way
-// requireAutoopenClosedDoor() refuses the closed-door arm's equivalents.
-//
-// `mode` is C's fourth argument. Two of its four values have a ported caller:
-// domove_core() asks DO_MOVE, which is the only value that prints, opens a
-// door or spends a move, and steed.c mount_steed() asks TEST_MOVE, which only
-// wants the boolean. TEST_TRAV and TEST_TRAP belong to findtravelpath(), which
-// is unported; the two places C treats them differently from TEST_MOVE, the
-// closed-door `goto testdiag` and the `svc.context.run == 8` filter, therefore
-// have no caller that can reach them and are marked where they would sit.
+// C ref: hack.c test_move() (991-1265). This is the complete movement
+// admission function. Its callers are domove_core() for DO_MOVE, the steed
+// landing checks and monster knockback for TEST_MOVE, and the travel/trap
+// probes for TEST_TRAV and TEST_TRAP. Calls whose return values C discards
+// are recorded at the call site; return-valued dependencies remain explicit
+// boundaries in their owning source files.
 export async function test_move(
     ux,
     uy,
@@ -2798,279 +2472,244 @@ export async function test_move(
     const x = ux + dx;
     const y = uy + dy;
     if (!isok(x, y)) return false;
-    const location = state.level?.at?.(x, y);
 
-    // C ref: hack.c:1011. The obstacle arm returns before the entry rule can
-    // look at the square, since testdiag (1139) sits inside the IS_DOOR arm --
-    // and, for every hero state this port admits, before the exit rule at 1208
-    // as well. That second half is narrower than it looks: C's Passes_walls
-    // (1015), passes_bars (1030) and tunnels (1036) branches fall out of the
-    // arm rather than returning, and reach 1208, whose only property test is
-    // !Passes_walls. requireOrdinaryObstacleRefusal() refuses all three below,
-    // which is what makes the port's unconditional return safe.
-    //
-    // The four types this port does not own are refused here with the reason
-    // requireSimpleHeroDestination() gives them, so a walk and a pet swap onto
-    // one report the same boundary: requireOrdinaryStartingPetSwap() throws it
-    // for the same four.
+    const location = state.level?.at?.(x, y);
+    if (!location) return false;
+    const species = state.youmonst?.data;
+    const passesWalls = propertyPresent(state, PASSES_WALLS);
+    const run = state.context.run ?? 0;
+    const message = env.message ?? ttyPline;
+
+    // hack.c:1011-1072, physical obstacles. The feel happens before every
+    // branch, and the pass-wall and tunnelling forms deliberately fall through
+    // instead of being treated as ordinary refusals.
     if (IS_OBSTRUCTED(location.typ) || location.typ === IRONBARS) {
-        if (location.typ !== STONE && !IS_WALL(location.typ)
-            && !IS_TREE(location.typ, state)) {
-            // C's physical-obstacle arm returns FALSE for every non-DO_MOVE
-            // probe before it reaches any of the ordinary movement branches.
-            // Secret doors and corridors are common in a travel search: they
-            // are not an unsupported movement effect when merely tested.
-            if (mode !== DO_MOVE
-                && (location.typ === SDOOR || location.typ === SCORR)) {
-                return false;
-            }
-            throw new UnsupportedHeroMoveBoundaryError(
-                'test_move() door or special terrain movement',
-            );
-        }
-        // C runs feel_location() before its branch chain, so refusing here
-        // skips a tactile update C performs. The terrain refusal above sits on
-        // the same side for the same reason: a refusal ends the port's run, and
-        // a half-updated map would only make the stop harder to read.
-        if (heroIsBlind(state) && mode === DO_MOVE) feel_location(x, y, state);
-        if (propertyPresent(state, PASSES_WALLS)
-            && may_passwall(x, y, state)) {
-            // pass through
+        if (heroIsBlind(state) && mode === DO_MOVE)
+            feel_location(x, y, state);
+        if (passesWalls && may_passwall(x, y, state)) {
+            // The source intentionally continues into the common checks.
         } else if (state.u?.uinwater) {
             if (mode === DO_MOVE)
-                await ttyPline('There is an obstacle there.', state);
+                await message('There is an obstacle there.', state);
             return false;
         } else if (location.typ === IRONBARS) {
-            if (mode === DO_MOVE && metallivorous(state.youmonst.data)
-                && await still_chewing(x, y, state)) return false;
-            throw new UnsupportedHeroMoveBoundaryError(
-                'test_move() iron bars movement',
-            );
-        } else if (tunnels(state.youmonst?.data)
-            && !needspick(state.youmonst?.data)) {
+            if (mode === DO_MOVE
+                && (dmgtype(species, AD_RUST)
+                    || dmgtype(species, AD_CORR)
+                    || metallivorous(species))
+                && await still_chewing(x, y, state)) {
+                return false;
+            }
+            if (!(passesWalls || passes_bars(species))) {
+                if (mode === DO_MOVE && state.flags?.mention_walls)
+                    await message('You cannot pass through the bars.', state);
+                return false;
+            }
+        } else if (tunnels(species) && !needspick(species)) {
+            if (mode === DO_MOVE && await still_chewing(x, y, state))
+                return false;
+        } else if (state.flags?.autodig && !run
+            && !state.context?.nopick && state.uwep
+            && is_pick(state.uwep, state)) {
+            if (mode === DO_MOVE) note_unported('dig.c use_pick_axe2');
+            return false;
+        } else {
+            if (mode === DO_MOVE) {
+                if (is_db_wall(x, y, state)) {
+                    await message('That drawbridge is up!', state);
+                } else if (passesWalls && !may_passwall(x, y, state)
+                    && In_sokoban(state.u?.uz)) {
+                    await message('The Sokoban walls resist your ability.', state);
+                } else if (state.flags?.mention_walls) {
+                    const glyph = back_to_glyph(x, y, state);
+                    const symbol = glyph_is_cmap(glyph)
+                        ? glyph_to_cmap(glyph) : -1;
+                    const description = symbol === S_stone
+                        ? 'solid stone'
+                        : symbol >= 0
+                            ? an(CMAP_EXPLANATIONS[symbol])
+                            : 'impossible [background glyph=' + glyph + ']';
+                    await message(
+                        messageAt("It's " + description + '.', x, y, state),
+                        state,
+                    );
+                }
+            }
+            return false;
+        }
+    } else if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
+        // hack.c:1074-1137. TEST_TRAV and TEST_TRAP jump to testdiag;
+        // TEST_MOVE and DO_MOVE return after this closed-door arm.
+        if (heroIsBlind(state) && mode === DO_MOVE)
+            feel_location(x, y, state);
+        if (passesWalls) {
+            // The source falls through to the common checks.
+        } else if (can_ooze(state.youmonst, state)) {
+            if (mode === DO_MOVE)
+                await message('You ooze under the door.', state);
+        } else if (state.u?.uinwater) {
+            if (mode === DO_MOVE)
+                await message('There is an obstacle there.', state);
+            return false;
+        } else if (tunnels(species) && !needspick(species)) {
             if (mode === DO_MOVE && await still_chewing(x, y, state))
                 return false;
         } else {
-            requireOrdinaryObstacleRefusal(state);
+            if (mode === DO_MOVE) {
+                if (amorphous(species)) {
+                    await message(
+                        "You try to ooze under the door, but can't squeeze your possessions through.",
+                        state,
+                    );
+                }
+                if (state.flags?.autoopen && !run
+                    && !propertyIntrinsic(state, CONFUSION)
+                    && !propertyIntrinsic(state, STUNNED)
+                    && !propertyPresent(state, FUMBLING)) {
+                    const openEnv = { message };
+                    if (env.random) openEnv.random = env.random;
+                    const result = await doopen_indir(x, y, state, openEnv);
+                    // cmdq_peek(CQ_CANNED) can contain a queued kick after
+                    // doopen_indir(). That lock.c AUTOUNLOCK_KICK arm remains
+                    // an owning-file dependency and throws there when reached;
+                    // ordinary open/locked-door results use this source arm.
+                    const queued = cmdq_peek(CQ_CANNED, state);
+                    const queuedKick = result === ECMD_OK
+                        && queued?.typ === CMDQ_EXTCMD
+                        && queued.ec_entry?.ef_funct === 'dokick';
+                    state.context.door_opened = queuedKick
+                        || !closed_door(x, y, state);
+                    state.context.move = (ux !== state.u.ux || uy !== state.u.uy)
+                        ? 1 : 0;
+                } else if (x === ux || y === uy) {
+                    if (heroIsBlind(state)
+                        || propertyIntrinsic(state, STUNNED)
+                        || acurr(state, A_DEX) < 10
+                        || propertyPresent(state, FUMBLING)) {
+                        if (state.u.usteed) {
+                            await message(
+                                "You can't lead "
+                                + upstart(y_monnam(state.u.usteed, state))
+                                + ' through that closed door.',
+                                state,
+                            );
+                        } else {
+                            await message('Ouch!  You bump into a door.', state);
+                            await exercise(
+                                A_DEX,
+                                false,
+                                state,
+                                env.random ?? { rn2 },
+                            );
+                        }
+                        state.context.door_opened = true;
+                        state.context.move = 1;
+                        nomul(0, state);
+                    } else {
+                        await message('That door is closed.', state);
+                    }
+                }
+            } else if (mode !== TEST_TRAV && mode !== TEST_TRAP) {
+                return false;
+            }
+            if (mode === DO_MOVE) return false;
+        }
+    } else if (IS_DOOR(location.typ)) {
+        // hack.c:1138-1151, the testdiag label for a non-closed door.
+        if (dx && dy && !passesWalls
+            && (!doorless_door(location, state)
+                || await block_door(x, y, state, { message }))) {
+            if (mode === DO_MOVE) {
+                if (heroIsBlind(state)) feel_location(x, y, state);
+                if (state.u?.uinwater || state.flags?.mention_walls) {
+                    await message(
+                        "You can't move diagonally into an intact doorway.",
+                        state,
+                    );
+                }
+            }
+            return false;
+        }
+    }
 
-        // C ref: hack.c:1048-1069, the three-arm chain inside the closing
-        // else's `if (mode == DO_MOVE)`. Only the drawbridge arm and the
-        // mention_walls arm are here: the Sokoban arm between them (1052-1055)
-        // needs Passes_walls, which requireOrdinaryObstacleRefusal() has
-        // already refused above.
+    // hack.c:1153-1177, tight diagonal passage and worm crossing.
+    if (dx && dy && bad_rock(species, ux, y, state)
+        && bad_rock(species, x, uy, state)) {
+        switch (cant_squeeze_thru(state.youmonst, state)) {
+        case 3:
+            if (mode === DO_MOVE)
+                await message('You cannot pass that way.', state);
+            return false;
+        case 2:
+            if (mode === DO_MOVE)
+                await message('You are carrying too much to get through.', state);
+            return false;
+        case 1:
+            if (mode === DO_MOVE)
+                await message('Your body is too large to fit through.', state);
+            return false;
+        default:
+            break;
+        }
+    } else if (dx && dy && await wormCross(ux, uy, x, y, state)) {
         if (mode === DO_MOVE) {
-            if (is_db_wall(x, y, state)) {
-                // hack.c:1050. A raised drawbridge's wall is DBWALL, which
-                // IS_WALL() admits (rm.h:117, `typ <= DBWALL`), so before this
-                // arm existed the square fell through to the line below, where
-                // display.c wall_angle() has no DBWALL case and answers
-                // S_stone: the port said "It's solid stone." with
-                // mention_walls set and nothing at all without it. C reaches
-                // neither, and gates this line on no flag. Its own
-                // back_to_glyph() would have said S_vcdbridge (display.c:2394),
-                // which is a third answer again.
-                //
-                // C's line is a plain pline(), not the pline_dir() below, so it
-                // carries no accessiblemsg location prefix; pline.c:114-123 is
-                // what separates the two.
-                const message = requiredMessageOperation(env, 'drawbridge wall');
-                await message('That drawbridge is up!', state);
-            } else if (state.flags?.mention_walls) {
-                const symbol = location.typ === STONE
-                    ? S_stone
-                    : IS_TREE(location.typ, state)
-                        ? S_tree : wall_angle(location);
-                const description = symbol === S_stone ? 'solid stone'
-                    : symbol === S_tree ? 'a tree' : 'a wall';
-                const message = requiredMessageOperation(env, 'wall refusal');
-                await message(
-                    messageAt(`It's ${description}.`, x, y, state),
-                    state,
-                );
-            }
-        }
-        return false;
-        }
-    }
-
-    if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
-        // hack.c:1093-1136. Everything below the `if (mode == DO_MOVE)` there
-        // is skipped for the other three modes, which answer FALSE without
-        // opening the door, printing, or spending a move. TEST_TRAV and
-        // TEST_TRAP take `goto testdiag` first; neither has a ported caller.
-        if (mode !== DO_MOVE) return false;
-        const run = state.context.run ?? 0;
-        requireAutoopenClosedDoor(x, y, state, run);
-        if (!autoopenSuppressed(state, run)) {
-            // doopen_indir() accepts only `message` and `random` from this env
-            // and rejects any other key, so test_move()'s wider injection
-            // contract narrows here rather than being forwarded whole.
-            await doopen_indir(x, y, state, env);
-            // hack.c:1110-1111. door_opened suppresses domove_core()'s
-            // `move = 0; nomul(0)` when the pull succeeded; move itself is
-            // FALSE either way, because domove_core()'s only DO_MOVE call
-            // passes the hero's own square as <ux,uy>.
-            state.context.door_opened = !closed_door(x, y, state);
-            state.context.move
-                = (ux !== state.u.ux || uy !== state.u.uy) ? 1 : 0;
-        } else if (x === ux || y === uy) {
-            // hack.c:1099-1128, the arm a suppressed autoopen falls into. It
-            // is orthogonal-only: a diagonal step at a closed door prints
-            // nothing and just returns FALSE.
-            //
-            // C gates the bump on `Blind || Stunned || ACURR(A_DEX) < 10
-            // || Fumbling`. Three of those four stop at the seam above, so
-            // Dexterity is the whole live test; the C order still puts it
-            // third. Neither line goes through set_msg_xy(), and pline.c
-            // vpline() clears a11y.msg_loc after every message, so neither
-            // carries a direction prefix under `accessiblemsg`.
-            const message = requiredMessageOperation(env, 'closed door');
-            if (acurr(state, A_DEX) < 10) {
-                await message('Ouch!  You bump into a door.', state);
-                await exercise(A_DEX, false, state, env.random ?? { rn2 });
-                // hack.c:1122-1127, the inverse of the pull's bookkeeping.
-                // C has just claimed a move it did not make, so the caller's
-                // `move = 0; nomul(0)` has to be suppressed by door_opened
-                // and the run stopped here by hand instead. The turn really
-                // does elapse: this is the one closed-door outcome that costs
-                // the hero time.
-                //
-                // door_opened is what does that work. The `move` half of C's
-                // combined assignment cannot be observed at this call site,
-                // because domove_core() is test_move()'s only DO_MOVE caller
-                // and rhack() has already set svc.context.move for the step;
-                // it is kept because it is half of one C statement, and no
-                // test can pin it.
-                state.context.door_opened = true;
-                state.context.move = 1;
-                nomul(0, state);
-            } else {
-                await message('That door is closed.', state);
-            }
-        }
-        return false;
-    }
-
-    if (IS_DOOR(location.typ)
-        && blocksDiagonalDoorwayEntry(ux, uy, x, y, state)) {
-        // C ref: hack.c:1139-1150, the testdiag arm, which the closed-door arm
-        // above returns before. Underwater joins mention_walls on this line
-        // and not on the exit rule's below. Both lines are You_cant(), which
-        // reaches plain pline(), not the pline_dir() the wall line above uses,
-        // and pline.c:162-164 clears a11y.msg_loc on every call, so neither
-        // carries a direction prefix under `accessiblemsg`.
-        if (mode === DO_MOVE && heroIsBlind(state)) feel_location(x, y, state);
-        if (mode === DO_MOVE
-            && (state.u.uinwater || state.flags?.mention_walls)) {
-            const message = requiredMessageOperation(env, 'doorway entry');
+            const worm = m_at(ux, y, state);
             await message(
-                "You can't move diagonally into an intact doorway.",
-                state,
+                upstart(y_monnam(worm, state)) + ' is in your way.', state,
             );
         }
         return false;
     }
 
-    // C ref: hack.c:1153-1177. Every refusal the tight-diagonal switch can
-    // print is dormant at this boundary and stays deferred: case 1 needs a
-    // bigmonst polyform, case 3 needs Sokoban, and case 2 needs an inventory
-    // heavier than WT_TOOMUCH_DIAGONAL, which no ported pickup path can build.
-    // The live outcome is the fall-through, which is what lets the hero walk a
-    // diagonal in a corridor, so cant_squeeze_thru() is called rather than
-    // assumed: without it a hero who did cross the weight threshold would
-    // squeeze through in silence where C stops him.
-    const species = state.youmonst?.data;
-    if (dx && dy && bad_rock(species, ux, y, state)
-        && bad_rock(species, x, uy, state)) {
-        if (cant_squeeze_thru(state.youmonst, state)) {
-            // Each of C's three cases wraps its line in `if (mode == DO_MOVE)`
-            // and then returns FALSE for every mode, so a TEST_MOVE or
-            // TEST_TRAV probe drops the candidate square in silence. Only
-            // DO_MOVE owes the message this port has not ported, and
-            // landing_spot() probes all eight neighbours of a hero who may be
-            // standing in a corridor, where both corner squares are STONE and
-            // this switch is entered every time.
-            if (mode !== DO_MOVE) return false;
-            throw new UnsupportedHeroMoveBoundaryError('tight diagonal move');
-        }
-    } else if (dx && dy && m_at(ux, y, state)
-        && m_at(ux, y, state) === m_at(x, uy, state)) {
-        // C ref: hack.c:1172-1176 and worm.c worm_cross(), whose first two
-        // tests are these. One monster on both corner squares can only be a
-        // long worm; the consecutive-segment test that decides the refusal
-        // reads wtails[], which has no ported counterpart, and neither does
-        // the YMonnam() in the message.
-        //
-        // This arm therefore refuses in every mode, unlike the switch above.
-        // Returning FALSE for a TEST_MOVE probe would be a guess: when the two
-        // segments are not consecutive C's worm_cross() answers FALSE and
-        // test_move() carries on to return TRUE, and this port cannot tell the
-        // two apart.
-        throw new UnsupportedHeroMoveBoundaryError('long worm body crossing');
-    }
-
-    // C ref: hack.c:1181-1205. Travel probes avoid remembered traps and
-    // known liquid hazards when running with run == 8. TEST_TRAP reports the
-    // hazard to findtravelpath(); TEST_TRAV falls through to the ordinary
-    // movement checks below.
-    if (state.context.run === 8 && mode !== DO_MOVE && !u_at(x, y, state)) {
+    // hack.c:1181-1203, travel's remembered-trap and known-liquid filter.
+    if (run === 8 && mode !== DO_MOVE && !u_at(x, y, state)) {
         const trap = t_at(x, y, state);
         if (trap && trap.tseen && trap.ttyp !== VIBRATING_SQUARE)
             return mode === TEST_TRAP;
-
-        const locationSeen = Boolean(location.seenv);
-        const knownLiquid = locationSeen && is_pool_or_lava(x, y, state);
+        const seen = Boolean(location.seenv);
+        const knownLiquid = seen && is_pool_or_lava(x, y, state);
         const inAir = propertyActiveUnblocked(state, LEVITATION)
             || heroIsFlying(state);
         const safeLiquid = is_pool(x, y, state)
             ? known_wwalking(state)
-            : (known_lwalking(state)
-                && is_lava(state.u.ux, state.u.uy, state));
+            : known_lwalking(state)
+                && is_lava(state.u.ux, state.u.uy, state);
         if (knownLiquid
             && ((IS_WATERWALL(location.typ) || location.typ === LAVAWALL)
                 || !(inAir || safeLiquid))) {
             return mode === TEST_TRAP;
         }
     }
+    if (mode === TEST_TRAP) return false;
 
-    // C's TEST_TRAP path never proceeds to the source-square or boulder
-    // checks. A non-hazardous candidate is therefore rejected here.
-    if (mode === TEST_TRAP)
-        return false;
-
-    // C ref: hack.c:1207-1209. The source doorway restriction remains below.
-    if (blocksDiagonalDoorwayExit(ux, uy, x, y, state)) {
-        // C ref: hack.c:1208-1214. No feel_location() here, and mention_walls
-        // is the whole gate.
+    // hack.c:1205-1214, the intact doorway at the square being left.
+    const source = state.level?.at(ux, uy);
+    if (dx && dy && !passesWalls && IS_DOOR(source?.typ)
+        && (!doorless_door(source, state)
+            || await block_entry(x, y, state, { message }))) {
         if (mode === DO_MOVE && state.flags?.mention_walls) {
-            const message = requiredMessageOperation(env, 'doorway exit');
             await message(
-                "You can't move diagonally out of an intact doorway.",
-                state,
+                "You can't move diagonally out of an intact doorway.", state,
             );
         }
         return false;
     }
 
-    // C ref: hack.c:1216-1252, the boulder block. The run arm stops in front
-    // of a boulder the hero cannot get past, the DO_MOVE arm pushes one, and
-    // the TEST_TRAV arm rejects Sokoban and consecutive boulders that cannot
-    // be bypassed. A tunnelling form reaches still_chewing() first.
-    //
-    // A Passes_walls hero walks onto the square without touching the boulder,
-    // outside Sokoban. No ported path grants the property, so the guard is
-    // here for its shape rather than for a reachable branch.
+    // hack.c:1216-1252, boulders. moverock() is the source owner of the
+    // return-valued push transaction; its unsupported trap/liquid/pile arms
+    // remain named in hack.js rather than being replaced with a guessed result.
     if (sobj_at(BOULDER, x, y, state)
-        && (In_sokoban(state.u.uz) || !propertyPresent(state, PASSES_WALLS))) {
-        if (mode !== TEST_TRAV
-            && (state.context.run ?? 0) >= 2
+        && (In_sokoban(state.u?.uz) || !passesWalls)) {
+        if (mode !== TEST_TRAV && run >= 2
             && !(heroIsBlind(state) || heroHallucinating(state))
-            && !could_move_onto_boulder(x, y, dx, dy, state)) {
-            // C's line is pline_dir(), which carries the accessiblemsg
-            // location prefix that messageAt() adds; the doorway lines above
-            // are plain pline() and carry none.
+            && !could_move_onto_boulder(
+                x,
+                y,
+                state.u.dx ?? dx,
+                state.u.dy ?? dy,
+                state,
+            )) {
             if (mode === DO_MOVE && state.flags?.mention_walls) {
-                const message = requiredMessageOperation(env, 'blocked boulder');
                 await message(
                     messageAt('A boulder blocks your path.', x, y, state),
                     state,
@@ -3079,18 +2718,17 @@ export async function test_move(
             return false;
         }
         if (mode === TEST_TRAV) {
-            // hack.c:1231-1248. Travel never crosses a Sokoban boulder. On
-            // ordinary levels, a second boulder is allowed only when the
-            // hero can get through the current one, tunnel through it, or
-            // carries one of C's digging tools.
-            if (In_sokoban(state.u.uz)) return false;
+            if (In_sokoban(state.u?.uz)) return false;
             if (sobj_at(BOULDER, ux, uy, state)
-                && !propertyPresent(state, PASSES_WALLS)
+                && !passesWalls
                 && !could_move_onto_boulder(
-                    ux, uy, state.u.dx ?? 0, state.u.dy ?? 0, state,
+                    ux,
+                    uy,
+                    state.u.dx ?? dx,
+                    state.u.dy ?? dy,
+                    state,
                 )
-                && !(tunnels(state.youmonst?.data)
-                    && !needspick(state.youmonst?.data))
+                && !(tunnels(species) && !needspick(species))
                 && !carrying(PICK_AXE, state)
                 && !carrying(DWARVISH_MATTOCK, state)) {
                 const diggingWand = carrying(WAN_DIGGING, state);
@@ -3101,25 +2739,14 @@ export async function test_move(
             }
         }
         if (mode === DO_MOVE) {
-            if (tunnels(state.youmonst?.data)
-                && !needspick(state.youmonst?.data)
-                && !In_sokoban(state.u.uz)
-                && await still_chewing(x, y, state)) return false;
-            // Every unported arm of moverock_core() is refused here rather
-            // than only in the command-admission seam. cmd.c
-            // executeMovement()'s seam runs once per keystroke, so the second
-            // and later steps of a run reach test_move() through
-            // allmain.c moveloop_core()'s own re-entry with no seam between
-            // them; so does a bear-trapped hero who struggles free. Screening
-            // at the call covers all three, and it lands ahead of
-            // moverock_core()'s nomul(0) and its next_boulder bookkeeping, so
-            // the refusal still precedes every state change.
-            preflight_moverock(
-                x, y, Boolean(state.context?.nopick), state,
-            );
-            if (await moverock(state, env) < 0) return false;
+            if (tunnels(species) && !needspick(species)
+                && !In_sokoban(state.u?.uz)
+                && await still_chewing(x, y, state)) {
+                return false;
+            } else if (await moverock(state, env) < 0) {
+                return false;
+            }
         }
-        /* assume you'll be able to push it when you get there... */
     }
     return true;
 }
@@ -4315,7 +3942,10 @@ async function domove_core(state = game) {
         }
         // test_move() has already run moverock() by now, so a boulder that was
         // on the destination has moved on and this reads the square it left.
-        if (!destinationMonster)
+        const movedDestination = state.level?.at(newx, newy);
+        if (!destinationMonster
+            && !IS_OBSTRUCTED(movedDestination?.typ)
+            && movedDestination?.typ !== IRONBARS)
             requireSimpleHeroDestination(newx, newy, state, true);
 
         if (await swim_move_danger(newx, newy, state)) {

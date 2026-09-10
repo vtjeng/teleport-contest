@@ -7,17 +7,10 @@ import {
     DEAF,
     DETECT_MONSTERS,
     DOOR,
-    D_CLOSED,
     D_ISOPEN,
     D_NODOOR,
-    LEVITATION,
     OBJ_FLOOR,
-    PASSES_WALLS,
-    PIT,
-    POOL,
     NON_PM,
-    STONE,
-    WT_SQUEEZABLE_INV,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
@@ -26,22 +19,18 @@ import {
     preflightDomoveDestination,
     revive_nasty,
     requireSimpleHeroDestination,
-    weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { mksobj, place_object, sobj_at } from '../js/obj.js';
-import { BOULDER, CORPSE, ROCK } from '../js/objects.js';
+import { BOULDER, CORPSE } from '../js/objects.js';
 import {
     PM_DEATH,
-    PM_GHOST,
-    PM_NEWT,
     PM_SEWER_RAT,
-    PM_STONE_GIANT,
     PM_WIZARD_OF_YENDOR,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
+import { glyph_is_invisible } from '../js/display.js';
 import { clear_path, does_block } from '../js/vision.js';
 import {
     RUSH_EAST,
@@ -275,189 +264,6 @@ test('pushing a boulder moves what blocks the line of sight', async () => {
     assert.equal(clear_path(sx, sy, rx + 2, ry), 0);
 });
 
-// hack.c moverock_core(), every arm of it but the push, asked at the command
-// admission seam. The reason strings are what js/cmd.js ends the segment on,
-// so each case names the C branch it stands for.
-test('preflight_moverock refuses each arm moverock_core does not push on',
-    async () => {
-        const { sx, sy, rx, ry } = await heroBesideBoulder();
-        const destination = game.level.at(rx, ry);
-        assert.equal(refusalReason(sx, sy), null, 'the plain push is admitted');
-
-        const cases = [
-            // 355-363, which needs display.c glyph_at().
-            {
-                reason: 'a boulder felt in the dark',
-                install: () => { game.u.uprops[BLINDED].intrinsic = 1; },
-                remove: () => { game.u.uprops[BLINDED].intrinsic = 0; },
-            },
-            // The while loop at 353 and the reorder at 375-376. A rock under
-            // the boulder would still be on the square after the push, which
-            // is what the seam's later questions may not read.
-            {
-                reason: 'a boulder sharing its square',
-                install: () => {
-                    const rock = mksobj(ROCK, false, false, { state: game });
-                    rock.nexthere = null;
-                    sobj_at(BOULDER, sx, sy, game).nexthere = rock;
-                },
-                remove: () => {
-                    sobj_at(BOULDER, sx, sy, game).nexthere = null;
-                },
-            },
-            // 384-410, the 'm' prefix, which steps onto or squeezes past the
-            // boulder through could_move_onto_boulder() and sokoban_guilt().
-            {
-                reason: 'a boulder step without a push',
-                install: () => { game.iflags.menu_requested = true; },
-                remove: () => { game.iflags.menu_requested = false; },
-            },
-            // 412-421.
-            {
-                reason: 'a boulder push without leverage',
-                install: () => { game.u.uprops[LEVITATION].intrinsic = 1; },
-                remove: () => { game.u.uprops[LEVITATION].intrinsic = 0; },
-            },
-            // 422-427. A newt is MZ_TINY, which verysmall() answers TRUE for.
-            {
-                reason: 'a boulder push by a tiny hero',
-                install: () => { game.youmonst.data = game.mons[PM_NEWT]; },
-                remove: () => { game.youmonst.data = game.mons[game.umonnum]; },
-            },
-            // dopush():198-202 and cannot_push():388-391, both of which
-            // describe the steed rather than the hero.
-            {
-                reason: 'a mounted boulder push',
-                install: () => { game.u.usteed = { mx: sx, my: sy }; },
-                remove: () => { game.u.usteed = null; },
-            },
-            // 435, a second boulder already on the destination.
-            {
-                reason: 'a boulder that will not move',
-                install: () => {
-                    const second = mksobj(BOULDER, false, false,
-                                          { state: game });
-                    second.nexthere = null;
-                    game.level.objects[rx][ry] = second;
-                },
-                remove: () => { game.level.objects[rx][ry] = null; },
-            },
-            // 437-443, KMH's diagonal rule, widened to the whole level
-            // because sokoban_guilt() is unported.
-            {
-                reason: 'a boulder push in Sokoban',
-                install: () => { game.u.uz.dnum = game.sokoban_dnum; },
-                remove: () => { game.u.uz.dnum = 0; },
-            },
-            // 455-456, the two conjuncts that send C past the monster arm and
-            // into the push. A ghost is the only S_GHOST monster generated in
-            // ordinary play, so it is what noncorporeal() answers TRUE for.
-            {
-                reason: 'a boulder pushed onto a monster',
-                install: () => {
-                    place_monster(newMonster({
-                        data: game.mons[PM_GHOST], mx: rx, my: ry,
-                        m_id: 9302, mhp: 5, mhpmax: 5,
-                    }), rx, ry, game);
-                },
-                remove: () => { game.level.monsters[rx][ry] = null; },
-            },
-            // The same skip for a monster already caught in the pit under it:
-            // mtmp->mtrapped with an is_pit() trap on the square.
-            {
-                reason: 'a boulder pushed onto a monster',
-                install: () => {
-                    const trapped = newMonster({
-                        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
-                        m_id: 9303, mhp: 3, mhpmax: 3,
-                    });
-                    trapped.mtrapped = 1;
-                    place_monster(trapped, rx, ry, game);
-                    game.level.traps.push({ tx: rx, ty: ry, ttyp: PIT });
-                },
-                remove: () => {
-                    game.level.monsters[rx][ry] = null;
-                    game.level.traps.pop();
-                },
-            },
-            // 462, a_monnam() for the spotted arm. Its priest, minion,
-            // shopkeeper and player-monster cases have separate owners, and a
-            // shopkeeper is the cheapest of the four to stand up here.
-            {
-                reason: 'a titled monster behind the boulder',
-                install: () => {
-                    const shk = newMonster({
-                        data: game.mons[PM_SEWER_RAT], mx: rx, my: ry,
-                        m_id: 9304, mhp: 3, mhpmax: 3,
-                    });
-                    shk.isshk = 1;
-                    place_monster(shk, rx, ry, game);
-                    game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
-                },
-                remove: () => {
-                    game.level.monsters[rx][ry] = null;
-                    game.u.uprops[DETECT_MONSTERS].intrinsic = 0;
-                },
-            },
-            // 478-481, cannot_push_msg() for a boulder against a closed door.
-            // The conjunction's own door term at 434 excludes only a diagonal
-            // push, so an orthogonal one reaches this arm instead.
-            {
-                reason: 'a closed door behind the boulder',
-                install: () => {
-                    destination.typ = DOOR;
-                    destination.flags = D_CLOSED;
-                },
-                remove: () => {
-                    destination.typ = CORR;
-                    destination.flags = 0;
-                },
-            },
-            // 490-616, the trap switch.
-            {
-                reason: 'a boulder pushed onto a trap',
-                install: () => {
-                    game.level.traps.push({ tx: rx, ty: ry, ttyp: PIT });
-                },
-                remove: () => { game.level.traps.pop(); },
-            },
-            // 618-619, do.c boulder_hits_pool()'s is_pool_or_lava() test.
-            {
-                reason: 'a boulder pushed into water or lava',
-                install: () => { destination.typ = POOL; },
-                remove: () => { destination.typ = CORR; },
-            },
-            // dopush():217-240. An unpaid boulder is the cheapest of the three
-            // shop terms to build; the other two need a generated shop.
-            {
-                reason: 'a boulder pushed across a shop boundary',
-                install: () => {
-                    sobj_at(BOULDER, sx, sy, game).unpaid = 1;
-                },
-                remove: () => {
-                    sobj_at(BOULDER, sx, sy, game).unpaid = 0;
-                },
-            },
-            // dopush():206-207, the unmap_object() that forgets a remembered
-            // invisible monster where the boulder is about to land.
-            {
-                reason: 'a remembered invisible monster behind the boulder',
-                install: () => {
-                    destination.remembered_glyph = { glyph: GLYPH_INVISIBLE };
-                },
-                remove: () => { destination.remembered_glyph = null; },
-            },
-        ];
-
-        for (const { reason, install, remove } of cases) {
-            install();
-            assert.equal(refusalReason(sx, sy), reason);
-            remove();
-            assert.equal(refusalReason(sx, sy), null,
-                         `the level is restored after "${reason}"`);
-        }
-    });
-
 test('revive_nasty revives Rider and Wizard floor corpses exactly once',
     async () => {
         for (const corpsenm of [PM_DEATH, PM_WIZARD_OF_YENDOR]) {
@@ -551,9 +357,8 @@ test('a boulder with an obstructed destination fails without moving',
     });
 
 // hack.c:434, `!IS_DOOR(levl[rx][ry].typ) || !(u.dx && u.dy)
-// || doorless_door(rx, ry)`. It is the one term of the conjunction that reads
-// the push direction, so it needs both a diagonal push and an orthogonal one
-// over the same doorway.
+// || doorless_door(rx, ry)`. The boulder decision now belongs to test_move()
+// at runtime; this admission seam must leave both directions to that owner.
 test('a doorway behind the boulder refuses a diagonal push alone', async () => {
     const { sx, sy, rx, ry } = await heroBesideBoulder();
     const destination = game.level.at(rx, ry);
@@ -574,7 +379,7 @@ test('a doorway behind the boulder refuses a diagonal push alone', async () => {
     diagonal.typ = DOOR;
     diagonal.flags = D_ISOPEN;
     game.u.uy -= 1;
-    assert.equal(refusalReason(sx, sy), 'a boulder that will not move');
+    assert.equal(refusalReason(sx, sy), null);
 
     // Take the door out of the doorway and doorless_door() rescues the same
     // diagonal push.
@@ -592,18 +397,18 @@ test('a run stops in front of a boulder instead of ending the segment',
         const second = mksobj(BOULDER, false, false, { state: game });
         second.nexthere = null;
         game.level.objects[rx][ry] = second;
-        assert.equal(refusalReason(sx, sy, 0), 'a boulder that will not move');
+        assert.equal(refusalReason(sx, sy, 0), null);
 
         // cmd.c do_run_east() passes 1, below the arm's `>= 2`, so a run key
         // still reaches the refusal.
-        assert.equal(refusalReason(sx, sy, 1), 'a boulder that will not move');
+        assert.equal(refusalReason(sx, sy, 1), null);
         // do_rush_east() passes 3, and the arm claims the step.
         assert.equal(refusalReason(sx, sy, 3), null);
 
         // `!(Blind || Hallucination)`: a blind hero takes moverock()'s own
         // Blind arm instead, so the rush must not claim the step for him.
         game.u.uprops[BLINDED].intrinsic = 1;
-        assert.equal(refusalReason(sx, sy, 3), 'a boulder felt in the dark');
+        assert.equal(refusalReason(sx, sy, 3), null);
         game.u.uprops[BLINDED].intrinsic = 0;
 
         // could_move_onto_boulder():161 `!gi.invent`, the arm a hero carrying
@@ -611,7 +416,7 @@ test('a run stops in front of a boulder instead of ending the segment',
         // does not stop and the seam asks its own questions again.
         const carried = game.invent;
         game.invent = null;
-        assert.equal(refusalReason(sx, sy, 3), 'a boulder that will not move');
+        assert.equal(refusalReason(sx, sy, 3), null);
         game.invent = carried;
         assert.equal(refusalReason(sx, sy, 3), null);
     });
@@ -629,98 +434,15 @@ test('the run arm claims the g prefix value as well as the rush value',
         assert.equal(refusalReason(sx, sy, 2), null);
     });
 
-// hack.c could_move_onto_boulder() (144-162). Nothing in this port polymorphs
-// the hero or mounts him, so every arm below the invent test is dormant C
-// reached only from a state written here. Each case answers TRUE, which is
-// what makes the run arm stand aside; the boulder on the destination then
-// gives the seam something to refuse, so a wrong answer is visible either way.
-test('could_move_onto_boulder answers for each of its five arms', async () => {
-    const { sx, sy, rx, ry } = await heroBesideBoulder();
-    const blocked = 'a boulder that will not move';
-    const second = mksobj(BOULDER, false, false, { state: game });
-    second.nexthere = null;
-    game.level.objects[rx][ry] = second;
-    // The Healer as generated: carrying more than WT_SQUEEZABLE_INV under
-    // capacity, so he cannot squeeze and the run stops.
-    assert.equal(refusalReason(sx, sy, 3), null);
-
-    // 150-151, riding, the one arm that answers FALSE. A FALSE answer is what
-    // stops the run, so the seam admits the step here and refuses it for every
-    // arm below, which all answer TRUE.
-    game.u.usteed = { mx: sx, my: sy };
-    assert.equal(refusalReason(sx, sy, 3), null);
-    game.u.usteed = null;
-
-    // 154-157, the giant. An orthogonal push short-circuits on `!u.dx` or
-    // `!u.dy` and always steps onto the boulder.
-    game.youmonst.data = game.mons[PM_STONE_GIANT];
-    assert.equal(refusalReason(sx, sy, 3), blocked);
-    // The diagonal half needs both corner squares obstructed to answer FALSE.
-    // <ux,sy> and <sx,uy> are the corners of the north-east step to <sx,sy-1>,
-    // which is the square carved here.
-    const corner = game.level.at(sx, sy - 1);
-    corner.typ = CORR;
-    game.level.objects[sx][sy - 1] = mksobj(BOULDER, false, false,
-                                            { state: game });
-    game.level.objects[sx][sy - 1].nexthere = null;
-    game.level.at(sx, sy - 2).typ = CORR;
-    game.level.objects[sx][sy - 2] = mksobj(BOULDER, false, false,
-                                            { state: game });
-    game.level.objects[sx][sy - 2].nexthere = null;
-    // <game.u.ux, sy-1> is rock and <sx, game.u.uy> is the corridor row, so
-    // one corner is clear and the giant steps onto the boulder square.
-    assert.equal(game.level.at(sx, game.u.uy).typ, CORR);
-    assert.equal(refusalReason(sx, sy - 1, 3), blocked);
-    // Obstruct that corner too and the giant can no longer get there.
-    game.level.at(sx, game.u.uy).typ = STONE;
-    assert.equal(refusalReason(sx, sy - 1, 3), null);
-    game.level.at(sx, game.u.uy).typ = CORR;
-    game.level.objects[sx][sy - 1] = null;
-    game.level.objects[sx][sy - 2] = null;
-
-    // 159-160, verysmall.
-    game.youmonst.data = game.mons[PM_NEWT];
-    assert.equal(refusalReason(sx, sy, 3), 'a boulder push by a tiny hero');
-    game.youmonst.data = game.mons[game.umonnum];
-
-    // 139-140 squeezeablylightinvent(), whose `<=` makes exactly
-    // -WT_SQUEEZABLE_INV light enough. weight_cap() is read here rather than
-    // assumed because it depends on this hero's Strength and Constitution.
-    const carried = game.invent;
-    const pack = mksobj(ROCK, false, false, { state: game });
-    pack.nobj = null;
-    pack.owt = weight_cap(game) - WT_SQUEEZABLE_INV;
-    game.invent = pack;
-    assert.equal(refusalReason(sx, sy, 3), blocked);
-    pack.owt += 1; /* one weight unit heavier: inv_weight() is -849 */
-    assert.equal(refusalReason(sx, sy, 3), null);
-    game.invent = carried;
-
-    // 147-148, Passes_walls. test_move()'s own `Sokoban || !Passes_walls`
-    // guard makes this arm reachable only inside Sokoban, so both have to be
-    // set, and the seam refuses the Sokoban level below the run arm. The
-    // second boulder comes off the destination first: moverock_core() asks its
-    // conjunction at 432-435 before the Sokoban rule at 437.
-    game.level.objects[rx][ry] = null;
-    game.u.uprops[PASSES_WALLS].intrinsic = 1;
-    game.u.uz.dnum = game.sokoban_dnum;
-    assert.equal(refusalReason(sx, sy, 3), 'a boulder push in Sokoban');
-    game.u.uprops[PASSES_WALLS].intrinsic = 0;
-    game.u.uz.dnum = 0;
-});
-
 // teleport.c teleds() lands the hero on the square without calling moverock(),
-// so the boulder is still there when it arrives. Its seam call leaves
-// `pushesBoulder` at its default, which is what keeps the old blanket refusal
-// for that arrival.
-test('a destination reached without a push keeps its boulder refusal',
+// so the boulder is still there when it arrives. test_move() is not involved,
+// and its destination seam does not claim that separate relocation path.
+test('a destination reached without a push is outside test_move()',
     async () => {
         const { sx, sy } = await heroBesideBoulder();
         assert.equal(refusalReason(sx, sy), null);
-        assert.throws(
+        assert.doesNotThrow(
             () => requireSimpleHeroDestination(sx, sy, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'boulder movement',
         );
     });
 
@@ -845,19 +567,14 @@ test('a rush into a boulder spends no time and says nothing', async () => {
     assert.equal(game.u.umovement, before);
     assert.equal(does_block(rx, ry, null, game), false);
 
-    // `!(Blind || Hallucination)`: a blind hero skips the arm and reaches
-    // moverock(). C's Blind arm at 355-363 prints "That feels like a boulder."
-    // and returns -1; preflight_moverock() refuses it, and test_move() asks
-    // that question at the call rather than only in the keystroke seam, so a
-    // step the game makes for itself refuses too. This drives domove()
-    // directly, which is the entry a continued run uses.
+    // `!(Blind || Hallucination)` skips the run arm for a blind hero, so this
+    // same rush reaches moverock() and performs the ordinary known-boulder
+    // push. The Blind-only "That feels like a boulder." arm is not reached
+    // because this boulder is already remembered.
     game.u.uprops[BLINDED].intrinsic = 1;
-    await assert.rejects(
-        () => stepEast(game, 2),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'a boulder felt in the dark',
-    );
-    assert.deepEqual([boulder.ox, boulder.oy], [sx, sy],
-        'the refused step left the boulder where it stood');
+    assert.equal(await stepEast(game, 2),
+                 'With great effort you move the boulder.');
+    assert.deepEqual([boulder.ox, boulder.oy], [rx, ry]);
+    assert.deepEqual([game.u.ux, game.u.uy], [sx, sy]);
     game.u.uprops[BLINDED].intrinsic = 0;
 });
