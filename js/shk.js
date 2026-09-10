@@ -10,6 +10,7 @@
 
 import {
     A_CHA,
+    ANY_SHOP,
     ACH_SHOP,
     BUFSZ,
     CONFLICT,
@@ -30,17 +31,28 @@ import {
     SHOPBASE,
 } from './const.js';
 import { acurr } from './attrib.js';
-import { on_level } from './dungeon.js';
+import { assign_level, on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2, online2, s_suffix } from './hacklib.js';
-import { carrying } from './invent.js';
+import { dist2, online2, s_suffix, strncmpi } from './hacklib.js';
+import { inv_cnt } from './hack.js';
+import {
+    add_to_minv,
+    addinv,
+    carrying,
+    freeinv,
+    INVLET_BASIC,
+    merge_choice,
+    obj_extract_self,
+} from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
 import { mongone } from './makemon_create.js';
 import { wake_nearto } from './mon.js';
+import { search_special } from './mkroom.js';
 import {
     carried, hasContents, isCandle, isContainer, objectType, sobj_at,
+    splitobj,
 } from './obj.js';
 import {
     ARMOR_CLASS,
@@ -67,6 +79,152 @@ import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
+import { findgold, remove_worn_item } from './steal.js';
+
+// C ref: shk.c money2mon() (157-184). Transfer an exact gold stack from the
+// hero's inventory to a monster. The diagnostic branches are impossible in a
+// valid payment, so their discarded pline.c result is recorded as a gap.
+export function money2mon(monster, amount, state = game) {
+    const gold = findgold(state.invent);
+    const payment = Math.trunc(amount);
+    if (payment <= 0) {
+        note_unported('pline.c impossible');
+        return 0;
+    }
+    if (!gold || gold.quan < payment) {
+        note_unported('pline.c impossible');
+        return 0;
+    }
+
+    let paid = gold;
+    if (gold.quan > payment)
+        paid = splitobj(gold, payment, { state });
+    else if (gold.owornmask)
+        remove_worn_item(gold, false, state);
+    freeinv(paid, { state });
+    add_to_minv(monster, paid, { state });
+    state.disp ??= {};
+    state.disp.botl = true;
+    return payment;
+}
+
+// C ref: shk.c money2u() (186-212). Transfer gold from a monster's inventory
+// to the hero, merging it when possible and dropping it when all ordinary
+// inventory letters are occupied.
+export async function money2u(monster, amount, state = game) {
+    const gold = findgold(monster.minvent);
+    const payment = Math.trunc(amount);
+    if (payment <= 0) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    if (!gold || gold.quan < payment) {
+        // C formats a_monnam(monster) while building an impossible() message;
+        // the diagnostic is discarded here because this path is invalid.
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    let paid = gold;
+    if (gold.quan > payment)
+        paid = splitobj(gold, payment, { state });
+    obj_extract_self(paid, { state });
+
+    if (!merge_choice(state.invent, paid, state)
+        && inv_cnt(false, state) >= INVLET_BASIC) {
+        await ttyPline('You have no room for the gold!', state);
+        const { dropy } = await import('./do.js');
+        await dropy(paid, { state });
+    } else {
+        addinv(paid, { state });
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+}
+
+// C ref: shk.c shkgone() (235-270). Remove the keeper from the shop-room
+// record, clear floor charges, settle its bill when the hero is in that shop,
+// and remove the room from u.ushops. Damage-owned records are not modelled;
+// C discards that helper's return value, so record the gap at its call site.
+export function shkgone(monster, state = game) {
+    const eshk = monster.mextra.eshk;
+    const room = state.level.rooms[eshk.shoproom - ROOMOFFSET];
+
+    if (on_level(eshk.shoplevel, state.u.uz)) {
+        note_unported('shk.c discard_damage_owned_by');
+        room.resident = null;
+        if (!search_special(ANY_SHOP, state)) {
+            state.level.flags ??= {};
+            state.level.flags.has_shop = false;
+        }
+
+        for (let x = room.lx; x <= room.hx; ++x) {
+            for (let y = room.ly; y <= room.hy; ++y) {
+                for (let obj = state.level.objects[x][y]; obj;
+                    obj = obj.nexthere) {
+                    obj.no_charge = false;
+                }
+            }
+        }
+
+        const shops = state.u.ushops ?? [];
+        const index = shops.findIndex(
+            (roomno) => Math.trunc(roomno ?? 0) === eshk.shoproom,
+        );
+        if (index >= 0) {
+            setpaid(monster, state);
+            eshk.bill_p = null;
+            for (let i = index; i + 1 < shops.length; ++i)
+                shops[i] = shops[i + 1] ?? 0;
+            if (shops.length) shops[shops.length - 1] = 0;
+        }
+    }
+}
+
+// C ref: shk.c set_residency() (272-278). Update the resident pointer only
+// when the shopkeeper's home level is the current level.
+export function set_residency(shopkeeper, zero_out, state = game) {
+    const eshk = shopkeeper.mextra.eshk;
+    if (on_level(eshk.shoplevel, state.u.uz)) {
+        state.level.rooms[eshk.shoproom - ROOMOFFSET].resident = zero_out
+            ? null : shopkeeper;
+    }
+}
+
+// C ref: shk.c replshk() (280-288). Replace a shopkeeper's monster record
+// while keeping the room resident and any active bill pointer aligned.
+export function replshk(oldShopkeeper, newShopkeeper, state = game) {
+    const oldEshk = oldShopkeeper.mextra.eshk;
+    const newEshk = newShopkeeper.mextra.eshk;
+    state.level.rooms[newEshk.shoproom - ROOMOFFSET].resident = newShopkeeper;
+    if (inhishop(oldShopkeeper, state)
+        && state.u.ushops?.[0] === oldEshk.shoproom) {
+        newEshk.bill_p = newEshk.bill ?? [];
+    }
+}
+
+// C ref: shk.c restshk() (290-308). Restore the bill-array pointer and, for a
+// ghostly shopkeeper, move its home level and pacify it when it is not the
+// same player recorded as its customer.
+export function restshk(shopkeeper, ghostly, state = game) {
+    if (state.u.uz.dlevel) {
+        const eshk = shopkeeper.mextra.eshk;
+        if (eshk.bill_p !== -1000)
+            eshk.bill_p = eshk.bill ?? [];
+        if (ghostly) {
+            assign_level(eshk.shoplevel, state.u.uz);
+            if (!shopkeeper.mpeaceful
+                && strncmpi(
+                    eshk.customer ?? '',
+                    state.plname ?? '',
+                    PL_NSIZ,
+                ) !== 0) {
+                note_unported('shk.c pacify_shk');
+            }
+        }
+    }
+}
 
 // C ref: shk.c inhishop().
 export function inhishop(shopkeeper, state) {

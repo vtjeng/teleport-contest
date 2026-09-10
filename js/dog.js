@@ -87,6 +87,7 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { donameFresh } from './objnam.js';
+import { set_residency } from './shk.js';
 import { mksobj, unknow_object } from './obj.js';
 import {
     BOULDER,
@@ -612,7 +613,7 @@ function mon_leave(monster, state) {
     }
     if (monster.isshk) {
         // set_residency(mtmp, TRUE) clears the shop's resident field.
-        throw new RangeError('shopkeeper level departure is future work');
+        set_residency(monster, true, state);
     }
     if (monster.wormno)
         throw new RangeError('long-worm level departure is future work');
@@ -809,13 +810,6 @@ function mon_arrive(monster, when, env) {
             `mon_arrive(${when}) for a monster arriving on its own`,
         );
     }
-    if (monster.isshk) {
-        // set_residency(mtmp, FALSE) reclaims the shop for a returning
-        // shopkeeper; keepdogs() refuses one before it reaches this list.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'mon_arrive() with a shopkeeper',
-        );
-    }
     if (monster.data?.pmidx === PM_LONG_WORM) {
         // get_wormno()/initworm() rebuild the tail keepdogs() stored in
         // wormno; js/dog.js mon_leave() refuses a long worm on the way out.
@@ -826,6 +820,8 @@ function mon_arrive(monster, when, env) {
     monster.mstate |= MON_STILL_ARRIVING;
     monster.nmon = state.level.monlist;
     state.level.monlist = monster;
+    if (monster.isshk)
+        set_residency(monster, false, state);
     monster.wormno = 0;
     monster.mstrategy |= STRAT_ARRIVE;
     monster.mstate &= ~(MON_MIGRATING | MON_LIMBO);

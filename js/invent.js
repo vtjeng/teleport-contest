@@ -157,6 +157,7 @@ import {
     ROCK,
     SCR_BLANK_PAPER,
     SCR_MAIL,
+    SCR_SCARE_MONSTER,
     SCROLL_CLASS,
     SLIME_MOLD,
     SPE_BOOK_OF_THE_DEAD,
@@ -201,7 +202,13 @@ import {
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
-import { UnsupportedShopError, costly_spot } from './shk.js';
+import {
+    inhishop,
+    inside_shop,
+    shop_keeper,
+    UnsupportedShopError,
+    costly_spot,
+} from './shk.js';
 import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
 
@@ -2153,6 +2160,37 @@ export function mergable(otmp, obj, env = {}) {
         return false;
     }
     return true;
+}
+
+// C ref: invent.c merge_choice() (775-807). Find an inventory object that
+// can merge with `obj`, accounting for the attributes a shop-floor object
+// will have after pickup. The temporary no_charge write is restored on every
+// path that reaches the scan; the early billable-shop return leaves it alone,
+// matching the source's branch order.
+export function merge_choice(objlist, obj, state = game) {
+    if (!objlist) return null;
+    if (obj.otyp === SCR_SCARE_MONSTER) return null;
+
+    const saveNoCharge = obj.no_charge;
+    if (objlist === state.invent && obj.where === OBJ_FLOOR) {
+        const shopkeeper = shop_keeper(
+            inside_shop(obj.ox, obj.oy, state),
+            state,
+        );
+        if (shopkeeper) {
+            if (obj.no_charge) {
+                obj.no_charge = false;
+            } else if (inhishop(shopkeeper, state)) {
+                return null;
+            }
+        }
+    }
+
+    let current = objlist;
+    while (current && !mergable(current, obj, { state }))
+        current = current.nobj;
+    obj.no_charge = saveNoCharge;
+    return current ?? null;
 }
 
 function stopObjectTimers(obj, env) {

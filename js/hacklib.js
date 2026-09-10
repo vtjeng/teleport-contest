@@ -509,6 +509,24 @@ export function online2(x0, y0, x1, y1) {
     return !dy || !dx || dy === dx || dy === -dx;
 }
 
+// C ref: hacklib.c strncmpi(). Compare at most `n` source characters,
+// stopping at either NUL terminator, with lowc()'s ASCII-only case fold.
+export function strncmpi(s1, s2, n) {
+    let remaining = Math.trunc(n);
+    let index = 0;
+    while (remaining-- > 0) {
+        const c1 = s1?.[index] ?? '\0';
+        const c2 = s2?.[index] ?? '\0';
+        if (c2 === '\0') return c1 === '\0' ? 0 : 1;
+        if (c1 === '\0') return -1;
+        const t1 = lowc(c1);
+        const t2 = lowc(c2);
+        if (t1 !== t2) return t1 > t2 ? 1 : -1;
+        index++;
+    }
+    return 0;
+}
+
 // C ref: hacklib.c swapbits(). Swaps bit a with bit b in val.
 export function swapbits(val, bita, bitb) {
     const tmp = ((val >> bita) & 1) ^ ((val >> bitb) & 1);

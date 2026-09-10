@@ -565,6 +565,7 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { mpickobj, relobj } from './steal.js';
+import { replshk, shkgone } from './shk.js';
 import { enexto, goodpos, noteleport_level, rloc_to } from './teleport.js';
 import {
     fill_pit,
@@ -3628,7 +3629,7 @@ export function replmon(mtmp, mtmp2, state = game) {
     if (state.u?.ustuck === mtmp) set_ustuck(mtmp2, state);
     if (state.u?.usteed === mtmp) state.u.usteed = mtmp2;
     if (mtmp2.isshk)
-        note_unported('shk.c replshk');
+        replshk(mtmp, mtmp2, state);
     dealloc_monst(mtmp);
     return mtmp2;
 }
@@ -3833,7 +3834,7 @@ export async function m_detach(
        keeps an unset stealmid from matching a monster with no identity. */
     if (state.gs?.stealmid && mtmp.m_id === state.gs.stealmid)
         unsupported('the death of a monster in mid-theft');
-    if (mtmp.isshk) unsupported("a shopkeeper's death");
+    if (mtmp.isshk) shkgone(mtmp, state);
     if (mtmp.wormno) wormgone(mtmp, state);
     if (In_endgame(state.u.uz)) unsupported('a monster death in the endgame');
 

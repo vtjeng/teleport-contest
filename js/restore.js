@@ -43,6 +43,7 @@ import { defineObjclassAliases } from './objects.js';
 import { getnow } from './calendar.js';
 import { rnd } from './rng.js';
 import { SAVE_FILE_PATH } from './save.js';
+import { set_residency, restshk } from './shk.js';
 import { vfsReadFile, vfsDeleteFile } from './storage.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
@@ -231,6 +232,14 @@ export function dorestore(state = game) {
     // safeStringify() severs the monlist chain; the grid is the single
     // source of truth for which monsters exist on this level.
     rebuildMonsterList(state);
+
+    // C ref: restore.c restmonchn() calls restshk() while rebuilding each
+    // shopkeeper's extension. The JSON restore has already rebuilt the chain,
+    // so apply the same shopkeeper-specific pointer fix now.
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.isshk)
+            restshk(mtmp, false, state);
+    }
 
     // Rebuild floor-object linked list from the level.objects grid.
     rebuildObjectList(state);
@@ -473,9 +482,12 @@ export function getlev(ledger, state = game) {
         // Skip dead monsters (C does the same by purging them first).
         if (mtmp.mhp <= 0) continue;
 
-        // C ref: restore.c:1182-1184. set_residency(mtmp, FALSE) reclaims the
-        // shop. Shopkeeper handling is deferred.
-        // if (mtmp.isshk) set_residency(mtmp, false);
+        // C ref: restore.c:1182-1184. Reclaim a shopkeeper's room resident
+        // before restore's elapsed-time and shape-change passes.
+        if (mtmp.isshk) {
+            set_residency(mtmp, false, state);
+            restshk(mtmp, false, state);
+        }
 
         // C ref: restore.c:1200-1201. Skip catch-up if dlevel is 0 or
         // restoring == REST_LEVELS (neither applies here).

@@ -68,6 +68,7 @@ import {
     INVLET_BASIC,
     initializeInventory,
     inventoryObjects,
+    merge_choice,
     mergable,
     merged,
     money_cnt,
@@ -91,7 +92,7 @@ import { oname } from '../js/do_name.js';
 import {
     ART_EXCALIBUR, ART_EYE_OF_THE_AETHIOPICA, ART_GRAYSWANDIR,
     ART_MAGIC_MIRROR_OF_MERLIN,
-    UnsupportedArtifactDisplayError, init_artifacts,
+    init_artifacts,
 } from '../js/artifacts.js';
 import {
     newObject,
@@ -132,6 +133,7 @@ import {
     OIL_LAMP,
     ROCK,
     SACK,
+    SCR_SCARE_MONSTER,
     SILVER_SABER,
     SPE_BOOK_OF_THE_DEAD,
     TALLOW_CANDLE,
@@ -778,6 +780,23 @@ test('timed eggs never merge', () => {
         timed: 0,
     });
     assert.equal(mergable(first, second, { state }), false);
+});
+
+// C ref: invent.c merge_choice() (775-807). It rejects an empty candidate
+// list and scare-monster scrolls, otherwise returns the first source object
+// accepted by mergable().
+test('merge_choice preserves the source candidate gates', () => {
+    const state = initializedState();
+    const first = instance(FOOD_RATION, state);
+    const second = instance(FOOD_RATION, state);
+    first.nobj = second;
+    const incoming = instance(FOOD_RATION, state);
+    const scareMonster = instance(SCR_SCARE_MONSTER, state);
+
+    assert.equal(merge_choice(null, incoming, state), null);
+    assert.equal(merge_choice(first, scareMonster, state), null);
+    assert.equal(merge_choice(first, incoming, state), first);
+    assert.equal(incoming.no_charge, false);
 });
 
 test('corpse reviver decisions require the monster predicate seam', () => {

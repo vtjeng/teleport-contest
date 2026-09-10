@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { isqrt } from '../js/hacklib.js';
+import { isqrt, strncmpi } from '../js/hacklib.js';
 
 test('isqrt truncates the square root toward zero', () => {
     // hacklib.c isqrt() subtracts 1, 3, 5, ... while the remainder allows it,
@@ -25,4 +25,23 @@ test('isqrt answers zero for a value below one', () => {
     // The loop condition `val >= odd` is false immediately, so C returns 0
     // rather than looping forever on a negative argument.
     assert.deepEqual([-1, -900].map(isqrt), [0, 0]);
+});
+
+// C ref: hacklib.c strncmpi() (717-734). It folds ASCII letters with lowc(),
+// returns early when either string ends, and treats an equal prefix as equal
+// when the count reaches zero.
+test('strncmpi preserves counted ASCII case-insensitive comparison', () => {
+    assert.deepEqual(
+        [
+            strncmpi('Shopkeeper', 'shopkeeper', 32),
+            strncmpi('shop', 'shopkeeper', 4),
+            strncmpi('shop', 'shopkeeper', 5),
+            strncmpi('shopkeeper', 'shop', 32),
+            strncmpi('shopkeeper', 'shopkeepz', 32),
+            strncmpi('Shop', 'shop', 0),
+            strncmpi('aX', 'A\0', 32),
+            strncmpi('a\0z', 'A\0q', 32),
+        ],
+        [0, 0, -1, 1, -1, 0, 1, 0],
+    );
 });

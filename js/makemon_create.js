@@ -173,6 +173,7 @@ import {
     validspecmon,
     wiz_force_cham_form,
 } from './mon.js';
+import { shkgone } from './shk.js';
 import {
     m_at,
     newMonster,
@@ -2921,6 +2922,7 @@ export function mongone(monster, env = {}) {
         }
         redrawSquare(monster.mx, monster.my, normalized);
     }
+    if (monster.isshk) shkgone(monster, state);
     if (monster.wormno) wormgone(monster, state);
     monster.mstate |= MON_DETACH;
     state.iflags ??= {};
