@@ -181,6 +181,15 @@ import { ttyPline } from './tty_message.js';
 // bodies.
 import { maybe_reset_pick } from './lock.js';
 import { note_unported } from './unported.js';
+// mkobj.c shop_obj_sanity() calls these shk.c ownership predicates. The
+// modules already form a runtime cycle through invent.js; all of these reads
+// occur inside functions, after both modules have initialized.
+import {
+    costly_adjacent,
+    costly_spot,
+    find_objowner,
+    onshopbill,
+} from './shk.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
 // exports only inside function bodies.
@@ -3477,26 +3486,55 @@ export function objlist_sanity(objlist, wheretype, mesg, state = game) {
 // obj->no_charge for shop sanity. Diagnostic output goes through
 // insane_object(). The unpaid/no_charge sub-conditions call
 // find_objowner(), costly_spot(), costly_adjacent(), and onshopbill()
-// from shk.c, none of which are ported.
+// from shk.c.
 export function shop_obj_sanity(obj, mesg, state = game) {
     // C: get top-most container for location (3140-3143)
     let otop = obj;
     while (otop.where === OBJ_CONTAINED)
         otop = otop.ocontainer;
     const mon = (otop.where === OBJ_MINVENT) ? otop.ocarry : null;
+    const location = get_obj_location(otop, BURIED_TOO, state);
+    let x = location?.x ?? 0;
+    let y = location?.y ?? 0;
+    const shopkeeper = find_objowner(obj, x, y, state);
+    if (shopkeeper && obj.where === OBJ_ONBILL) {
+        x = shopkeeper.mx;
+        y = shopkeeper.my;
+    }
+    const costly = costly_spot(x, y, state);
+    const costlyToo = costly_adjacent(shopkeeper, x, y, state);
+    let why = null;
 
     if (obj.no_charge && obj.unpaid) {
         // C: why = "%s obj both unpaid and no_charge! %s %s: %s"
-        insane_object(obj,
-                      '%s obj both unpaid and no_charge! %s %s: %s',
-                      mesg, mon, state);
+        why = '%s obj both unpaid and no_charge! %s %s: %s';
     } else if (obj.unpaid) {
-        // Remaining checks depend on find_objowner, costly_spot,
-        // costly_adjacent, onshopbill from shk.c (not yet ported).
-        note_unported('shk.c find_objowner');
+        // C: unpaid is valid for carried objects, used-up bill objects, and
+        // floor/buried objects at a costly or adjacent shop location.
+        if (otop.where !== OBJ_INVENT && obj.where !== OBJ_ONBILL
+            && ((otop.where !== OBJ_FLOOR && otop.where !== OBJ_BURIED)
+                || !(costly || costlyToo))) {
+            why = '%s unpaid obj not carried! %s %s: %s';
+        } else if (!costly && !costlyToo) {
+            why = '%s unpaid obj not inside tended shop! %s %s: %s';
+        } else if (!shopkeeper) {
+            why = '%s unpaid obj inside untended shop! %s %s: %s';
+        } else if (!onshopbill(obj, shopkeeper, true)) {
+            why = '%s unpaid obj not on shop bill! %s %s: %s';
+        }
     } else if (obj.no_charge) {
-        note_unported('shk.c find_objowner');
+        if (otop.where !== OBJ_FLOOR && otop.where !== OBJ_BURIED
+            && otop.where !== OBJ_MINVENT) {
+            why = '%s no_charge obj not on floor! %s %s: %s';
+        } else if (!costly && !costlyToo) {
+            why = '%s no_charge obj not inside tended shop! %s %s: %s';
+        } else if (!shopkeeper) {
+            why = '%s no_charge obj inside untended shop! %s %s: %s';
+        } else if (onshopbill(obj, shopkeeper, true)) {
+            why = '%s no_charge obj on shop bill! %s %s: %s';
+        }
     }
+    if (why) insane_object(obj, why, mesg, mon, state);
 }
 
 // C ref: mkobj.c mon_obj_sanity() (3204-3246). Iterates monster inventories
