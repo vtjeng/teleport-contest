@@ -384,7 +384,7 @@ export async function mon_adjust_speed(
     state = game,
     rawEnv = {},
 ) {
-    let giveMsg = !state.in_mklev;
+    let giveMsg = !state.in_mklev && !rawEnv.silent;
     let petrify = false;
     const oldSpeed = monster.mspeed;
 

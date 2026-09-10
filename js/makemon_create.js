@@ -587,7 +587,7 @@ import {
 import { begin_burn, stop_timer } from './timeout.js';
 import { is_pool, t_at } from './trap.js';
 import { pick_nasty } from './wizard.js';
-import { which_armor } from './worn.js';
+import { mon_adjust_speed, which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
@@ -2621,15 +2621,12 @@ function updateMonsterArmorEffects(monster, obj, on, state) {
         monster.minvis = on ? false : Boolean(monster.perminvis);
     }
     if (obj.otyp === SPEED_BOOTS) {
-        let hasSpeedBoots = false;
-        for (let current = monster.minvent; current; current = current.nobj) {
-            if ((current.owornmask & W_ARMF)
-                && current.otyp === SPEED_BOOTS) {
-                hasSpeedBoots = true;
-                break;
-            }
-        }
-        monster.mspeed = hasSpeedBoots ? MFAST : monster.permspeed;
+        // C update_mon_extrinsics() calls mon_adjust_speed(0, obj) for FAST
+        // on and off.  This creation/discard path is synchronous and silent;
+        // mon_adjust_speed changes state before returning its resolved
+        // promise, so void preserves C's ordering without inventing an async
+        // parent for m_dowear() and discard_minvent().
+        void mon_adjust_speed(monster, 0, obj, state, { silent: true });
     }
 }
 
@@ -2732,6 +2729,12 @@ function m_dowear_type(
             if (monster.mfrozen) monster.mcanmove = false;
             monster.misc_worn_check |= mask;
             best.owornmask |= mask;
+            // C worn.c m_dowear_type() calls update_mon_extrinsics() after
+            // these two mask writes. Speed boots have positive oc_delay, and
+            // mon_adjust_speed() mutates mspeed before its resolved promise,
+            // so this synchronous caller preserves that ordering. The
+            // remaining equipment-effect tail is still caller-owned.
+            updateMonsterArmorEffects(monster, best, true, state);
             return;
         }
         wearArmorOperation(env)(monster, best, old, env);

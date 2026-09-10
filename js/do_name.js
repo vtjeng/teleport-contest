@@ -972,11 +972,15 @@ export function capitalizedAlwaysVisibleMonsterName(
 //
 // C's `case 2` shares its body with `default`, so any row of role.c genders[]
 // other than male, female and "they" reads as neuter. pronoun_gender() spends
-// an rn2(4) for a hallucinating hero and needs canspotmon() otherwise, so the
-// caller's env is forwarded whole.
+// an rn2(4) for a hallucinating hero and needs canspotmon() otherwise. The
+// normal owner is supplied here; an explicit caller override remains intact.
 export function mon_nam_too(mon, other_mon, state = game, env = {}) {
     if (mon !== other_mon) return monsterCommonName(mon, state);
-    switch (pronoun_gender(mon, PRONOUN_HALLU, { ...env, state })) {
+    switch (pronoun_gender(mon, PRONOUN_HALLU, {
+        canSpotMonster,
+        ...env,
+        state,
+    })) {
     case 0: return 'himself';
     case 1: return 'herself';
     case 3: /* "could happen when hallucinating" */

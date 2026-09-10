@@ -1,0 +1,12 @@
+{
+  "_comment": "Independently selected seed 841014 from the fixed range 841001-841300; ordinary debug gameplay reaches muse.c use_misc()'s speed-potion branch and worn.c mon_adjust_speed(+1), with strict parity of 2134 RNG calls, 16 screens, and 16 cursors.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 841014,
+      "datetime": "20370718110319",
+      "nethackrc": "OPTIONS=name:QuickWitness,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,!debug_mongen,playmode:debug\n",
+      "moves": ".\u0007captain\nm.m. "
+    }
+  ]
+}

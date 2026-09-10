@@ -22,6 +22,8 @@ import {
     MM_NOGRP,
     MM_NOMSG,
     MON_DETACH,
+    MFAST,
+    MSLOW,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     NO_MINVENT,
@@ -229,6 +231,7 @@ import {
     SMALL_SHIELD,
     SPEAR,
     SPETUM,
+    SPEED_BOOTS,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     T_SHIRT,
@@ -1380,6 +1383,67 @@ test('m_dowear fills every eligible creation-time armor slot', () => {
     const allMasks = equipment.reduce((result, item) => result | item.mask, 0);
     assert.equal(monster.misc_worn_check, allMasks);
     for (const { mask, obj } of equipment) assert.equal(obj.owornmask, mask);
+});
+
+test('creation and discard gear paths delegate FAST recalculation', () => {
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_GNOME],
+        mnum: PM_GNOME,
+        m_id: 9003,
+        mhp: 10,
+        mcanmove: true,
+        permspeed: MSLOW,
+        mspeed: MSLOW,
+    });
+    const boots = mksobj(SPEED_BOOTS, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, boots, { state });
+
+    // C worn.c m_dowear_type() -> update_mon_extrinsics() calls
+    // mon_adjust_speed(0, obj) after setting W_ARMF.
+    m_dowear(monster, true, { state });
+    assert.equal(boots.owornmask, W_ARMF);
+    assert.equal(monster.permspeed, MSLOW);
+    assert.equal(monster.mspeed, MFAST);
+
+    // C worn.c extract_from_minvent() clears the mask before the same FAST
+    // recalculation, restoring the permanent slow state.
+    discard_minvent(monster, false, { state });
+    assert.equal(monster.mspeed, MSLOW);
+});
+
+test('runtime speed boots update FAST before the admitted wear return', () => {
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_GNOME],
+        mnum: PM_GNOME,
+        m_id: 9004,
+        mhp: 10,
+        mcanmove: true,
+        permspeed: MSLOW,
+        mspeed: MSLOW,
+    });
+    const boots = mksobj(SPEED_BOOTS, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, boots, { state });
+
+    // C m_dowear_type():951-992 sets W_ARMF and then calls
+    // update_mon_extrinsics(), whose FAST arm calls mon_adjust_speed(0, obj).
+    m_dowear(monster, false, {
+        state,
+        wearArmor: () => assert.fail('speed boots use the admitted W_ARMF arm'),
+    });
+
+    assert.equal(boots.owornmask, W_ARMF);
+    assert.equal(monster.misc_worn_check, W_ARMF);
+    assert.equal(monster.mfrozen, state.objects[SPEED_BOOTS].oc_delay);
+    assert.equal(monster.mcanmove, false);
+    assert.equal(monster.mspeed, MFAST);
 });
 
 test('large humanoids can wear only mummy wrapping from generated body armor', () => {

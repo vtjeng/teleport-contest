@@ -894,6 +894,13 @@ test('mon_nam_too swaps a second reference for a reflexive pronoun', () => {
     // Two different monsters read as an ordinary name.
     assert.equal(mon_nam_too(mon, other, state, env), 'the gnome lord');
 
+    // The production caller normally supplies only its state and random
+    // owner. mon_nam_too() supplies do_name.js's canspotmon owner to
+    // pronoun_gender(), so this path must not require a test-only override.
+    assert.equal(mon_nam_too(mon, mon, state, {
+        random: { rn2: () => 3 },
+    }), 'himself');
+
     // The same monster twice reads as a pronoun chosen by gender.
     assert.equal(mon_nam_too(mon, mon, state, env), 'himself');
     mon.female = true;
