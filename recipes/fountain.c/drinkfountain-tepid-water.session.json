@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1000006,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:ScanTepid,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": " kllllllllllllll>  llllnllllllllllllllllllllqy"
+    }
+  ]
+}

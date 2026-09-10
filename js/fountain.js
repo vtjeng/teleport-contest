@@ -584,8 +584,12 @@ export async function drinkfountain(state = game, env = {}) {
             throw new UnsupportedFountainError(
                 'gushing-forth fountain effect (fate 30)');
         default: // Tepid water
-            throw new UnsupportedFountainError(
-                'tepid-water fountain effect (default)');
+            // C ref: fountain.c:383-386. hliquid() uses the display RNG only
+            // for a hallucinatory liquid name; ordinary water consumes no
+            // additional core draw before dryup() below.
+            await message(
+                `This tepid ${hliquid('water', env)} is tasteless.`, state);
+            break;
         }
     }
 
