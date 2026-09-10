@@ -22609,6 +22609,62 @@
           "remainingScreensUpperBound": 688
         }
       ]
+    },
+    {
+      "id": "port-end-done-object-cleanup",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete end.c done_object_cleanup() cleanup for in-use, in-transit, punishment, and persistent-inventory objects",
+      "cFile": "end.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "",
+      "detail": "Witness: seed0030-ten-diverse-deaths, segment 6, local step 244, global step 1265, Space. C places/stacks the free thrown arrow at the valid destination, then reaches bones.c can_make_bones() and emits rn2(2)=1. JS currently throws at js/end.js:982-987. Port source order from end.c:851-903, including inven_inuse(TRUE), coordinate fallback, free-object guards for gt.thrownobj/gk.kickedobj, uchain handling, and perm_invent cleanup.",
+      "spans": [],
+      "openedAt": "f4f25ed83735e6dea278084bade4cd0dd91c8e19",
+      "openStanding": {
+        "sha": "a8af36afc32f1b34b02e0c92e0c022accd60b6eb",
+        "screens": 6113,
+        "rng": 426428
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "done_object_cleanup",
+          "line": 851,
+          "endLine": 906,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 851,
+        "to": 906
+      },
+      "activeStanding": {
+        "sha": "a8af36afc32f1b34b02e0c92e0c022accd60b6eb",
+        "screens": 6113,
+        "rng": 426428
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1265,
+          "kind": "stop",
+          "function": "done_object_cleanup",
+          "functionDeclared": true,
+          "sourceFile": "end.c",
+          "cFile": "end.c",
+          "luaFile": null,
+          "line": null,
+          "message": "done_object_cleanup() with an object in transit or punishment",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 688
+        }
+      ]
     }
   ]
 }
