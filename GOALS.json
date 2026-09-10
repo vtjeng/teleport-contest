@@ -21769,7 +21769,7 @@
     {
       "id": "port-mthrowu-monmulti",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete mthrowu.c monmulti() stacked missile calculation and wire its existing monshoot/thrwmu callers",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -21778,8 +21778,12 @@
       "selectionReason": "The next implementable development mismatch is seed0030's ordinary gnome bow attack with stacked arrows; source tracing assigns the refusal to mthrowu.c monmulti() in the existing monshoot/thrwmu path.",
       "detail": "",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e87b269a21029ffd0720dffb66833904bace3b34",
+      "openStanding": {
+        "sha": "12d9d5093e9c1a84c8cd24383726680c51d8e85a",
+        "screens": 6042,
+        "rng": 425210
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -21794,7 +21798,29 @@
       "range": {
         "from": 201,
         "to": 261
-      }
+      },
+      "activeStanding": {
+        "sha": "12d9d5093e9c1a84c8cd24383726680c51d8e85a",
+        "screens": 6042,
+        "rng": 425210
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1195,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires monster multishot",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 758
+        }
+      ]
     }
   ]
 }
