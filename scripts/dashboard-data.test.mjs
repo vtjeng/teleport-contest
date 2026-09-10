@@ -135,26 +135,38 @@ function renderDashboard(data) {
     return elements;
 }
 
-function timelineRow(timeline, goalName) {
-    return timeline.split('<div class="timeline-row">')
-        .find((row) => row.includes(`title="${goalName}"`));
+// The goal timeline draws one row per local day for the week ending at the
+// build time, so a fixture pins summary.generatedAt near its goals to see
+// them.
+function renderTimeline(data, generatedAt) {
+    return renderDashboard({
+        ...data,
+        summary: { ...data.summary, generatedAt },
+    }).get('timeline').innerHTML;
 }
 
-function timelineSegments(row) {
-    return [...row.matchAll(
-        /class="timeline-segment" style="left:([\d.-]+)%;width:([\d.-]+)%/gu,
+function timelineBars(timeline) {
+    return [...timeline.matchAll(
+        /<div class="(day-bar[^"]*)" data-goal="(\d+)" style="left:([\d.e+-]+)%;width:([\d.e+-]+)%"/gu,
     )].map((match) => ({
-        left: Number(match[1]),
-        width: Number(match[2]),
+        classes: match[1].split(' '),
+        goal: Number(match[2]),
+        left: Number(match[3]),
+        width: Number(match[4]),
     }));
 }
 
-function assertTimelineSegmentsBounded(row) {
-    const segments = timelineSegments(row);
-    assert.ok(segments.length > 0);
-    for (const { left, width } of segments) {
+function timelineBar(data, generatedAt, goalName) {
+    return timelineBars(renderTimeline(data, generatedAt))
+        .find((bar) => data.goals[bar.goal].name === goalName);
+}
+
+function assertBarsBounded(bars) {
+    assert.ok(bars.length > 0);
+    for (const { left, width } of bars) {
         assert.ok(left >= 0);
-        assert.ok(left + width <= 100);
+        // A bar clipped at midnight ends at 100%, up to rounding.
+        assert.ok(left + width <= 100 + 1e-9);
     }
 }
 
@@ -319,10 +331,11 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     // legacy goal is hidden from this table: its inferred timing is zero.)
     const emptyRow = table.split('</tr>').find((row) => row.includes('empty'));
     assert.doesNotMatch(emptyRow, /-badge"[^>]*>(file port|div fix)</u);
-    // The file-port table lists both records with their function counts.
+    // The file-port table lists both records with their goal and function
+    // counts: alpha's one goal is closed, beta's is open.
     const filePortTable = rendered.get('filePortTable').innerHTML;
-    assert.match(filePortTable, /alpha\.c<\/td><td>closed<\/td><td>1 \/ 2</u);
-    assert.match(filePortTable, /beta\.c<\/td><td>open<\/td><td>0 \/ 1</u);
+    assert.match(filePortTable, /alpha\.c<\/td><td>1 \/ 1<\/td><td>1 \/ 2</u);
+    assert.match(filePortTable, /beta\.c<\/td><td>0 \/ 1<\/td><td>0 \/ 1</u);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);
@@ -331,19 +344,16 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.match(betaRow, /<td>10m<\/td>/u);
     assert.match(betaRow, /Goal selection: 10/u);
 
-    const timeline = rendered.get('timeline').innerHTML;
-    // Alpha's goal selection is observed (previous goal has commit time)
-    assert.match(timeline, /Goal selection: 5m"/u);
-    assert.match(timeline, /Goal selection: 10m"/u);
-    // Orphan has inferred working time (†); alpha does not
-    assert.match(
-        timelineRow(timeline, 'orphan'),
-        /Working time: 20m †/u,
-    );
-    assert.match(
-        timelineRow(timeline, 'alpha'),
-        /Working time: 20m"/u,
-    );
+    // 03:00 on the fixture's day keeps every goal, including the one still
+    // open, inside the timeline's window.
+    const builtAt = '2026-01-01T03:00:00Z';
+    assertBarsBounded(timelineBars(renderTimeline(data, builtAt)));
+    // Orphan's open time is inferred, so its bar takes the lighter fill;
+    // alpha's open commit is recorded, so its bar is solid.
+    assert.ok(timelineBar(data, builtAt, 'orphan').classes.includes('inferred'));
+    assert.ok(!timelineBar(data, builtAt, 'alpha').classes.includes('inferred'));
+    // Alpha ran from :10 to :30, 20 minutes, one 72nd of its day's row.
+    assert.ok(Math.abs(timelineBar(data, builtAt, 'alpha').width - 100 / 72) < 1e-9);
     // All SHAs resolve, so no hollow markers
     assert.equal(
         rendered.get('progressProvenance').textContent,
@@ -364,17 +374,12 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         sliceSelectionMin: 0,
         implementationMin: 0,
     };
-    let endpointTimeline = renderDashboard({
-        ...data,
-        goals: [queueLessBeta],
-    }).get('timeline').innerHTML;
-    assertTimelineSegmentsBounded(timelineRow(endpointTimeline, 'beta'));
-
-    endpointTimeline = renderDashboard({
-        ...data,
-        goals: [alpha],
-    }).get('timeline').innerHTML;
-    assertTimelineSegmentsBounded(timelineRow(endpointTimeline, 'alpha'));
+    assertBarsBounded(timelineBars(
+        renderTimeline({ ...data, goals: [queueLessBeta] }, builtAt),
+    ));
+    assertBarsBounded(timelineBars(
+        renderTimeline({ ...data, goals: [alpha] }, builtAt),
+    ));
 });
 
 test('in-progress phase provenance follows each recorded boundary', () => {
@@ -421,10 +426,14 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     assert.equal(active.sliceSelectionMin, 20);
     assert.equal(active.sliceSelectionObserved, true);
     assert.equal(active.implementationObserved, false);
-    let timeline = renderDashboard(activeData).get('timeline').innerHTML;
-    assert.match(timeline, /Goal selection: 5m"/u);
-    const activeRow = timelineRow(timeline, 'running');
-    assertTimelineSegmentsBounded(activeRow);
+    // The running goal opened at :10 and is still open at the pinned build
+    // time of :45, so its bar is hatched, solid, and 35 minutes wide.
+    const builtAt = '2026-01-01T00:45:00Z';
+    const activeBar = timelineBar(activeData, builtAt, 'running');
+    assert.ok(activeBar.classes.includes('in-progress'));
+    assert.ok(!activeBar.classes.includes('inferred'));
+    assert.ok(Math.abs(activeBar.width - 35 / 1440 * 100) < 1e-9);
+    assertBarsBounded([activeBar]);
 
     // Date-only UTC in prior goal: its SHA still resolves, so utcSource is
     // 'commit' and goalSelectionObserved is true.
@@ -436,11 +445,8 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const inferredGoal = runData();
     assert.equal(inferredGoal.goals.at(-1).goalSelectionObserved, true);
     assert.equal(inferredGoal.goals.at(-1).sliceSelectionObserved, true);
-    let mixedRow = timelineRow(
-        renderDashboard(inferredGoal).get('timeline').innerHTML,
-        'running',
-    );
-    assert.match(mixedRow, /Goal selection: 5m"/u);
+    // The running goal's open commit still resolves, so its bar stays solid.
+    assert.ok(!timelineBar(inferredGoal, builtAt, 'running').classes.includes('inferred'));
     let mixedTableRow = renderDashboard(inferredGoal).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
@@ -467,11 +473,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const inferredSlice = runData();
     assert.equal(inferredSlice.goals.at(-1).goalSelectionObserved, true);
     assert.equal(inferredSlice.goals.at(-1).sliceSelectionObserved, true);
-    mixedRow = timelineRow(
-        renderDashboard(inferredSlice).get('timeline').innerHTML,
-        'running',
-    );
-    assert.match(mixedRow, /Goal selection: 5m"/u);
+    assert.ok(!timelineBar(inferredSlice, builtAt, 'running').classes.includes('inferred'));
     mixedTableRow = renderDashboard(inferredSlice).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
@@ -501,8 +503,7 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const row = rendered.get('goalTable').innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
     assert.match(row, /5m<\/td>/u);
-    timeline = rendered.get('timeline').innerHTML;
-    assert.match(timeline, /Goal selection: 5m"/u);
+    assert.ok(!timelineBar(inferredData, builtAt, 'running').classes.includes('inferred'));
 });
 
 test('verification requires a recorded final slice closure', () => {

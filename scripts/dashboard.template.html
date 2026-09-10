@@ -311,49 +311,92 @@ canvas {
   cursor: grabbing;
 }
 
-/* --- Timeline --- */
-.timeline-row {
+/* --- Goal timeline: one row per local day --- */
+.day-row {
   display: flex;
   align-items: center;
-  height: 28px;
-  gap: 0;
+  height: 30px;
   border-bottom: 1px solid var(--border);
-  position: relative;
 }
 
-.timeline-label {
-  width: min(180px, 30vw);
-  min-width: min(180px, 30vw);
+.day-label {
+  width: 64px;
+  min-width: 64px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
   padding-right: 8px;
   text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.timeline-bar-area {
+.day-bars {
   flex: 1;
   position: relative;
   height: 100%;
 }
 
-.timeline-segment {
+/* One bar per goal, coloured by kind. --bar is the kind's colour; the legend
+   swatches set it inline. A lighter bar has an inferred open time, so it may
+   include idle time before the goal. */
+.day-bar {
   position: absolute;
+  top: 7px;
   height: 16px;
-  top: 6px;
-  border-radius: 2px;
   min-width: 2px;
+  border-radius: 2px;
+  --bar: var(--ink-muted);
+  background: var(--bar);
+  opacity: 0.85;
 }
 
-.timeline-segment:first-child {
-  border-radius: 4px 2px 2px 4px;
+.day-bar.file-port { --bar: var(--progress-fill); }
+.day-bar.divergence-fix { --bar: var(--phase-div); }
+.day-bar.inferred { opacity: 0.4; }
+
+.day-bar.in-progress {
+  background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, transparent 3px, transparent 6px);
 }
 
-.timeline-segment:last-child {
-  border-radius: 2px 4px 4px 2px;
+/* Two goals running at once is rare, so their common span gets a band of its
+   own, taller than the bars it covers. */
+.day-overlap {
+  position: absolute;
+  top: 4px;
+  height: 22px;
+  min-width: 2px;
+  border-radius: 2px;
+  background: var(--phase-impl);
+  pointer-events: none;
+}
+
+/* Two reserved lines under the rows name the bar under the pointer, so a
+   touch reader gets the detail a hover would. */
+.day-readout {
+  min-height: 34px;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 17px;
+  color: var(--ink-secondary);
+}
+
+.day-readout div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A kind's legend swatch: observed open time in the upper-left half, inferred
+   in the lower-right. */
+.legend-swatch.split {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--bar) 85%, transparent) 50%,
+    color-mix(in srgb, var(--bar) 40%, transparent) 50%);
+}
+
+.legend-swatch.hatched {
+  background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 3px, transparent 3px, transparent 6px);
 }
 
 /* --- Tooltip --- */
@@ -601,12 +644,10 @@ canvas {
 
 /* --- Time axis --- */
 .time-axis {
-  display: flex;
   height: 20px;
   position: relative;
-  margin-left: min(180px, 30vw);
+  margin-left: 64px;
   border-bottom: 1px solid var(--baseline);
-  overflow: hidden;
 }
 
 .time-tick {
@@ -616,19 +657,6 @@ canvas {
   color: var(--ink-muted);
   top: 4px;
   transform: translateX(-50%);
-}
-
-.timeline-scroll {
-  max-height: 620px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.timeline-scroll .time-axis {
-  position: sticky;
-  top: 0;
-  background: var(--surface-card);
-  z-index: 1;
 }
 </style>
 
@@ -679,9 +707,11 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Goal timeline</h2>
+  <p class="subtitle">One row per local day. Each bar is a goal from open to close; a lighter bar has an open time inferred from the previous goal's close, so it may include idle time. Blank space is time with no goal running.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
+    <div class="day-readout" id="timelineReadout"></div>
   </div>
 </div>
 
@@ -1576,94 +1606,94 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   ).join('');
 })();
 
-// --- Timeline ---
+// --- Goal timeline: one row per local day ---
 (function() {
   const container = document.getElementById('timeline');
-  const goals = [...DATA.goals].slice(-50).reverse();
-  if (!goals.length) return;
-
-  // Legend
-  document.getElementById('timelineLegend').innerHTML = [
-    { cssVar: '--phase-impl', label: 'Goal selection' },
-    { cssVar: '--phase-verif', label: 'Working time' },
-  ].map(p =>
-    '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('');
-
-  const earliest = new Date(Math.min(...goals.map(g => {
-    const prevClose = g.goalSelectionMin != null ? new Date(g.openTime).getTime() - g.goalSelectionMin * 60000 : new Date(g.openTime).getTime();
-    return prevClose;
-  })));
-  const latest = new Date(Math.max(...goals.flatMap(g => [
-    g.openTime,
-    g.closeTime,
-    ...g.slices.flatMap(sl => [sl.queueTime, sl.closeTime]),
-  ].filter(Boolean).map(t => new Date(t).getTime()))));
-  const rangeMs = latest - earliest || 1;
-
-  function toX(t) {
-    return ((new Date(t) - earliest) / rangeMs) * 100;
-  }
-
-  // Nice time axis ticks aligned to local midnight
-  const hrMs = 3600000;
+  const readout = document.getElementById('timelineReadout');
+  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const DAYS = 7;
   const dayMs = 86400000;
-  const barAreaPx = container.getBoundingClientRect().width - Math.min(180, window.innerWidth * 0.3);
-  const minTickGapPx = 90;
-  const maxTicks = Math.max(2, Math.floor(barAreaPx / minTickGapPx));
-  const niceIntervals = [6 * hrMs, 12 * hrMs, dayMs, 2 * dayMs, 7 * dayMs];
-  let tickInterval = niceIntervals[niceIntervals.length - 1];
-  for (const iv of niceIntervals) {
-    if (rangeMs / iv <= maxTicks) { tickInterval = iv; break; }
+  // The strip shows the state at build time: the in-progress goal's bar ends
+  // there rather than at the viewing time.
+  const builtAt = new Date(DATA.summary.generatedAt).getTime();
+  const KINDS = [
+    { kind: 'file-port', cssVar: '--progress-fill', label: 'file port' },
+    { kind: 'divergence-fix', cssVar: '--phase-div', label: 'divergence fix' },
+    { kind: 'boundary', cssVar: '--ink-muted', label: 'boundary stop' },
+  ];
+
+  document.getElementById('timelineLegend').innerHTML = KINDS.map(k =>
+    '<div class="legend-item"><div class="legend-swatch split" style="--bar:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
+  ).join('')
+    + '<div class="legend-item"><div class="legend-swatch hatched"></div>in progress</div>'
+    + '<div class="legend-item"><div class="legend-swatch" style="background:var(--phase-impl)"></div>two goals overlapping</div>';
+
+  function dayStart(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function span(g) {
+    return {
+      open: new Date(g.openTime).getTime(),
+      close: g.status === 'in-progress' ? builtAt : new Date(g.closeTime).getTime(),
+    };
   }
 
-  // Start from local midnight before earliest
-  const firstDay = new Date(earliest);
-  firstDay.setHours(0, 0, 0, 0);
-  let axisHtml = '';
-  for (let t = firstDay.getTime(); t <= latest.getTime() + tickInterval; t += tickInterval) {
-    const left = toX(t);
-    if (left < 2 || left > 98) continue;
-    const d = new Date(t);
-    let label;
-    if (tickInterval >= dayMs) {
-      label = (d.getMonth() + 1) + '/' + d.getDate();
-    } else {
-      label = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const today = dayStart(builtAt);
+  const rows = [];
+  for (let i = 0; i < DAYS; i++) rows.push({ start: today - i * dayMs, bars: [] });
+  DATA.goals.forEach((g, index) => {
+    const { open, close } = span(g);
+    if (!(close > open)) return;
+    // A goal that crosses midnight gets one bar in each day's row.
+    for (let d = dayStart(open); d <= close; d += dayMs) {
+      const row = rows.find(r => r.start === d);
+      if (row) row.bars.push({ a: Math.max(open, d), b: Math.min(close, d + dayMs), index });
     }
-    axisHtml += '<div class="time-tick" style="left:' + left + '%">' + label + '</div>';
-  }
-
-  let rowsHtml = '';
-
-  goals.forEach(g => {
-    const openT = new Date(g.openTime).getTime();
-    const closeT = new Date(g.closeTime).getTime();
-    const selStart = g.goalSelectionMin != null ? openT - g.goalSelectionMin * 60000 : openT;
-
-    let segments = '';
-
-    // Goal selection
-    if (g.goalSelectionMin != null && g.goalSelectionMin > 0) {
-      const left = toX(selStart);
-      const width = toX(openT) - left;
-      const timingNote = g.goalSelectionObserved ? '' : ' †';
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-impl)" title="Goal selection: ' + fmt(g.goalSelectionMin) + timingNote + '"></div>';
-    }
-
-    // Working time (open → close)
-    if (closeT > openT) {
-      const left = toX(openT);
-      const width = toX(closeT) - left;
-      const mins = (closeT - openT) / 60000;
-      const timingNote = g.openTimeSource === 'open-commit' ? '' : ' †';
-      segments += '<div class="timeline-segment" style="left:' + left + '%;width:' + Math.max(width, 0.3) + '%;background:var(--phase-verif)" title="Working time: ' + fmt(mins) + timingNote + '"></div>';
-    }
-
-    rowsHtml += '<div class="timeline-row"><div class="timeline-label" title="' + g.name + '">' + g.name + '</div><div class="timeline-bar-area">' + segments + '</div></div>';
   });
 
-  container.innerHTML = '<div class="timeline-scroll"><div class="time-axis">' + axisHtml + '</div>' + rowsHtml + '</div>';
+  let axisHtml = '';
+  for (let h = 0; h <= 24; h += 6) {
+    axisHtml += '<div class="time-tick" style="left:' + (h / 24 * 100) + '%">' + String(h).padStart(2, '0') + '</div>';
+  }
+  let html = '<div class="time-axis">' + axisHtml + '</div>';
+  for (const r of rows) {
+    const d = new Date(r.start);
+    const label = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate();
+    const pct = t => (t - r.start) / dayMs * 100;
+    let bars = '';
+    for (const bar of r.bars) {
+      const g = DATA.goals[bar.index];
+      const cls = 'day-bar ' + g.kind
+        + (g.status === 'in-progress' ? ' in-progress' : '')
+        + (g.openTimeSource === 'open-commit' ? '' : ' inferred');
+      bars += '<div class="' + cls + '" data-goal="' + bar.index + '" style="left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%"></div>';
+    }
+    // Each pair of bars that share time gets its own highlight.
+    for (let i = 0; i < r.bars.length; i++) {
+      for (let j = i + 1; j < r.bars.length; j++) {
+        const a = Math.max(r.bars[i].a, r.bars[j].a);
+        const b = Math.min(r.bars[i].b, r.bars[j].b);
+        if (b > a) bars += '<div class="day-overlap" style="left:' + pct(a) + '%;width:' + (pct(b) - pct(a)) + '%"></div>';
+      }
+    }
+    html += '<div class="day-row"><div class="day-label">' + label + '</div><div class="day-bars">' + bars + '</div></div>';
+  }
+  container.innerHTML = html;
+
+  // Name the bar under the pointer: hover with a mouse, tap on touch.
+  function stamp(t) {
+    const d = new Date(t);
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+  function describe(el) {
+    const g = DATA.goals[Number(el.dataset.goal)];
+    const { open, close } = span(g);
+    const inferred = g.openTimeSource !== 'open-commit';
+    readout.innerHTML = '<div>' + esc(g.name) + '</div><div>'
+      + stamp(open) + (inferred ? '\u2020' : '') + ' \u2013 ' + (g.status === 'in-progress' ? 'in progress' : stamp(close))
+      + ' \u00b7 ' + fmt((close - open) / 60000) + (inferred ? ' \u00b7 \u2020 open time inferred' : '') + '</div>';
+  }
+  for (const type of ['pointerover', 'pointerdown']) {
+    container.addEventListener(type, e => { if (e.target.classList.contains('day-bar')) describe(e.target); });
+  }
 })();
 
 // --- Phase breakdown table ---
@@ -1713,23 +1743,5 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
 
   html += '</tbody>';
   table.innerHTML = html;
-})();
-
-// --- Tooltip for timeline segments ---
-(function() {
-  const tooltip = document.getElementById('tooltip');
-  document.querySelectorAll('.timeline-segment').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      const text = el.getAttribute('title');
-      if (!text) return;
-      tooltip.innerHTML = '<div class="tooltip-title">' + text.replace(/</g, '&lt;') + '</div>';
-      tooltip.style.display = 'block';
-    });
-    el.addEventListener('mousemove', (e) => {
-      tooltip.style.left = Math.min(e.clientX + 12, window.innerWidth - 340) + 'px';
-      tooltip.style.top = (e.clientY - 40) + 'px';
-    });
-    el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
-  });
 })();
 </script>
