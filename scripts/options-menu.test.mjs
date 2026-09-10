@@ -15,10 +15,12 @@ import { allopt } from '../js/optlist_data.js';
 import {
     can_set_perm_invent,
     check_perm_invent_again,
+    disclosureCategoryItems,
     doset,
     doset_simple,
     dosetMenuItems,
     longest_option_name,
+    menuObjsymItems,
     parseNethackrc,
     term_for_boolean,
     UNPARSED_COMPOUND_OPTIONS,
@@ -812,6 +814,176 @@ test('special option handlers preserve C choice order and state fields',
             alignStatus.spec.title,
             'Select status window placement relative to the map:',
         );
+    });
+
+test('disclosure and object-symbol menu builders preserve C rows', () => {
+    // options.c handler_disclose() omits the two sort-order rows for ordinary
+    // categories, but includes them for vanquished and genocides.
+    assert.deepEqual(
+        disclosureCategoryItems('inventory', 'n').map((item) => ({
+            text: item.text,
+            value: item.value,
+            groupSelector: item.groupSelector,
+            selected: item.selected,
+        })),
+        [
+            { text: 'Never disclose, without prompting', value: '-',
+                groupSelector: undefined, selected: false },
+            { text: 'Always disclose, without prompting', value: '+',
+                groupSelector: '+', selected: false },
+            { text: 'Prompt, with default answer of "No"', value: 'n',
+                groupSelector: 'n', selected: true },
+            { text: 'Prompt, with default answer of "Yes"', value: 'y',
+                groupSelector: 'y', selected: false },
+        ],
+    );
+    assert.deepEqual(
+        disclosureCategoryItems('vanquished', '?').map((item) => [
+            item.value, item.groupSelector, item.selected,
+        ]),
+        [
+            ['-', undefined, false], ['+', '+', false],
+            ['#', '#', false], ['n', 'n', false],
+            ['y', 'y', false], ['?', '?', true],
+        ],
+    );
+
+    // options.c objsymvals[] contains six rows. The fourth mode is the
+    // compiled-in default, so it is the only preselected row here.
+    assert.deepEqual(
+        menuObjsymItems(4).map((item) => ({
+            text: item.text,
+            value: item.value,
+            selector: item.selector,
+            groupSelector: item.groupSelector,
+            selected: item.selected,
+        })),
+        [
+            { text: "none         don't show object symbols in menus",
+                value: 1, selector: '0', groupSelector: 'n', selected: false },
+            { text: 'headers      show object symbols in menu header lines',
+                value: 2, selector: '1', groupSelector: 'h', selected: false },
+            { text: 'entries      show object symbols in individual menu entries',
+                value: 3, selector: '2', groupSelector: 'e', selected: false },
+            { text: 'both         show object symbols in headers and menu entries',
+                value: 4, selector: '3', groupSelector: 'b', selected: false },
+            { text: 'conditional  show objsyms in entries if no headers are shown',
+                value: 5, selector: '4', groupSelector: 'c', selected: true },
+            { text: 'one-or-other show objsyms in header, in entries if no header',
+                value: 6, selector: '5', groupSelector: 'o', selected: false },
+        ],
+    );
+});
+
+test('disclosure and object-symbol handlers preserve choices and cancellation',
+    async () => {
+        const disclosureState = await startConfiguredGame(STOCK);
+        const disclosureIndex = allopt.findIndex(
+            (option) => option.name === 'disclose',
+        );
+        const disclosureMenus = [];
+        let firstDisclosureMenu = true;
+        await doset_simple(disclosureState, menuHelpers({
+            menu: (_items, _prompt, how) => {
+                if (firstDisclosureMenu) {
+                    firstDisclosureMenu = false;
+                    assert.equal(how, PICK_ONE);
+                    return disclosureIndex + 1;
+                }
+                return null;
+            },
+            selectMenu: (spec) => {
+                disclosureMenus.push(spec);
+                if (disclosureMenus.length === 1) {
+                    // C's PICK_ANY result is ordered by menu row order; this
+                    // selects inventory, vanquished and genocides.
+                    return [{ value: 1 }, { value: 3 }, { value: 4 }];
+                }
+                if (spec.title.endsWith('inventory:')) {
+                    // C ignores the preselected first pick when a second pick
+                    // is present, so this changes inventory from 'n' to '+'.
+                    return [{ value: 'n' }, { value: '+' }];
+                }
+                return spec.title.endsWith('vanquished:') ? '#' : '?';
+            },
+        }));
+        assert.deepEqual(disclosureState.flags.end_disclose, [
+            '+', 'n', '#', '?', 'n', 'n',
+        ]);
+        assert.equal(disclosureMenus[0].title,
+            'Change which disclosure options categories:');
+        assert.deepEqual(
+            disclosureMenus[0].items.map(({ text, selector, value }) => (
+                [text, selector, value]
+            )),
+            [
+                ['inventory   [ni]', 'i', 1],
+                ['attributes  [na]', 'a', 2],
+                ['vanquished  [nv]', 'v', 3],
+                ['genocides   [ng]', 'g', 4],
+                ['conduct     [nc]', 'c', 5],
+                ['overview    [no]', 'o', 6],
+            ],
+        );
+        assert.deepEqual(
+            disclosureMenus[1].items.map(({ text, groupSelector, selected }) => (
+                [text, groupSelector, selected]
+            )),
+            [
+                ['Never disclose, without prompting', undefined, false],
+                ['Always disclose, without prompting', '+', false],
+                ['Prompt, with default answer of "No"', 'n', true],
+                ['Prompt, with default answer of "Yes"', 'y', false],
+            ],
+        );
+        assert.equal(disclosureMenus.length, 4);
+
+        const cancelledDisclosure = await startConfiguredGame(STOCK);
+        let firstCancelledMenu = true;
+        let disclosureMenuCalls = 0;
+        await doset_simple(cancelledDisclosure, menuHelpers({
+            menu: (_items, _prompt, how) => {
+                if (firstCancelledMenu) {
+                    firstCancelledMenu = false;
+                    assert.equal(how, PICK_ONE);
+                    return disclosureIndex + 1;
+                }
+                return null;
+            },
+            selectMenu: () => {
+                disclosureMenuCalls += 1;
+                return disclosureMenuCalls === 1 ? [{ value: 1 }] : null;
+            },
+        }));
+        assert.deepEqual(cancelledDisclosure.flags.end_disclose, [
+            'n', 'n', 'n', 'n', 'n', 'n',
+        ]);
+        assert.equal(disclosureMenuCalls, 2);
+
+        const cancelled = await startConfiguredGame(STOCK);
+        const menuIndex = allopt.findIndex(
+            (option) => option.name === 'menu_objsyms',
+        );
+        let firstMenu = true;
+        const cancelledMenus = [];
+        await doset_simple(cancelled, menuHelpers({
+            menu: (_items, _prompt, how) => {
+                if (firstMenu) {
+                    firstMenu = false;
+                    assert.equal(how, PICK_ONE);
+                    return menuIndex + 1;
+                }
+                return null;
+            },
+            selectMenu: (spec) => {
+                cancelledMenus.push(spec);
+                return null;
+            },
+        }));
+        assert.equal(cancelled.iflags.menuobjsyms, 4);
+        assert.deepEqual(cancelledMenus[0].items.map((item) => item.selected), [
+            false, false, false, false, true, false,
+        ]);
     });
 
 test('the m prefix routes doset_simple() to doset() exactly once',

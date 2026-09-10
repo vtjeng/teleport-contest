@@ -3082,6 +3082,49 @@ function optfn_menu_objsyms(result, statement, value, negated) {
     set_menuobjsyms_flags(result, osyms);
 }
 
+// C ref: options.c objsymvals[] (273-279) and handler_menu_objsyms()
+// (5795-5831).  The descriptions stay beside objsymvals[] so the option
+// parser and its menu use the same source order.
+const objsym_descriptions = Object.freeze([
+    "don't show object symbols in menus",
+    'show object symbols in menu header lines',
+    'show object symbols in individual menu entries',
+    'show object symbols in headers and menu entries',
+    'show objsyms in entries if no headers are shown',
+    'show objsyms in header, in entries if no header',
+]);
+
+export function menuObjsymItems(menuobjsyms, separator = ' ') {
+    return objsymvals.map((name, index) => ({
+        text: `${name.slice(0, 12).padEnd(12)}${separator}`
+            + objsym_descriptions[index].slice(0, 60),
+        value: index + 1,
+        selector: String.fromCharCode('0'.charCodeAt(0) + index),
+        groupSelector: name[0],
+        selected: index === menuobjsyms,
+    }));
+}
+
+async function handler_menu_objsyms(state, helpers) {
+    const separator = state.iflags.menu_tab_sep ? '\t' : ' ';
+    const picked = await optionMenuSelect(state, {
+        items: menuObjsymItems(state.iflags.menuobjsyms, separator),
+        how: PICK_ONE,
+        title: 'Set object symbols in menus to what?',
+        cancelValue: null,
+    }, helpers);
+    const values = menuSelectionValues(picked);
+    if (values.length > 0) {
+        let index = values[0] - 1;
+        // If a test or window port returns both the preselected row and the
+        // newly chosen row, C uses the row that was not preselected.
+        if (values.length > 1 && index === state.iflags.menuobjsyms)
+            index = values[1] - 1;
+        set_menuobjsyms_flags(state, index);
+    }
+    return optn_ok;
+}
+
 // C ref: options.c optfn_menuinvertmode() (2290-2317), its startup do_set
 // arm.  The do_init request is a no-op; initoptions_init() has already stored
 // the default 1 in defaultResult().  string_for_opt(opts, TRUE) makes a bare
@@ -4250,6 +4293,97 @@ async function handler_autounlock(state, optidx, helpers) {
                 + `'${autounlockHandlerValue(state)}'.`,
             state,
         );
+    }
+    return optn_ok;
+}
+
+// C ref: options.c handler_disclose() (5675-5779).  The category menu uses
+// disclosure_options[] as explicit accelerators.  Its per-category menus pass
+// zero as the explicit accelerator, so the TTY assigns letters and the
+// meaningful alternate selectors arrive as group accelerators.
+const disclosure_names = Object.freeze([
+    'inventory', 'attributes', 'vanquished',
+    'genocides', 'conduct', 'overview',
+]);
+
+export function disclosureCategoryItems(disclosureName, current) {
+    const items = [
+        [
+            DISCLOSE_NO_WITHOUT_PROMPT,
+            'Never disclose, without prompting',
+        ],
+        [
+            DISCLOSE_YES_WITHOUT_PROMPT,
+            'Always disclose, without prompting',
+        ],
+    ];
+    if (disclosureName[0] === 'v' || disclosureName[0] === 'g') {
+        items.push([
+            DISCLOSE_SPECIAL_WITHOUT_PROMPT,
+            'Always disclose, pick sort order from menu',
+        ]);
+    }
+    items.push(
+        [
+            DISCLOSE_PROMPT_DEFAULT_NO,
+            'Prompt, with default answer of "No"',
+        ],
+        [
+            DISCLOSE_PROMPT_DEFAULT_YES,
+            'Prompt, with default answer of "Yes"',
+        ],
+    );
+    if (disclosureName[0] === 'v' || disclosureName[0] === 'g') {
+        items.push([
+            DISCLOSE_PROMPT_DEFAULT_SPECIAL,
+            'Prompt, with default answer of "Ask" to request sort menu',
+        ]);
+    }
+    return items.map(([value, text]) => ({
+        text,
+        value,
+        // options.c passes `any.a_char` as gch.  '-' is handled by the
+        // menu's unselect-page command before group accelerators are tested.
+        ...(value === DISCLOSE_NO_WITHOUT_PROMPT
+            ? {} : { groupSelector: value }),
+        selected: value === current,
+    }));
+}
+
+async function handler_disclose(state, helpers) {
+    const categoryItems = disclosure_names.map((name, index) => ({
+        text: `${name.padEnd(12)}[${state.flags.end_disclose[index]}`
+            + `${disclosure_options[index]}]`,
+        value: index + 1,
+        selector: disclosure_options[index],
+    }));
+    const selectedCategories = await optionMenuSelect(state, {
+        items: categoryItems,
+        how: PICK_ANY,
+        title: 'Change which disclosure options categories:',
+        cancelValue: null,
+    }, helpers);
+    const selected = new Set(menuSelectionValues(selectedCategories));
+
+    for (let index = 0; index < disclosure_names.length; ++index) {
+        if (!selected.has(index + 1)) continue;
+        const current = state.flags.end_disclose[index];
+        const picked = await optionMenuSelect(state, {
+            items: disclosureCategoryItems(disclosure_names[index], current),
+            how: PICK_ONE,
+            title: `Disclosure options for ${disclosure_names[index]}:`,
+            cancelValue: null,
+        }, helpers);
+        const values = menuSelectionValues(picked);
+        if (values.length > 0) {
+            let setting = values[0];
+            // C's TTY PICK_ONE normally returns one item.  The second value
+            // covers the source's preselected-item tie-break when a window
+            // port supplies both entries.
+            if (values.length > 1 && setting === current)
+                setting = values[1];
+            state.flags.end_disclose[index] = setting;
+        }
     }
     return optn_ok;
 }
@@ -8314,7 +8448,9 @@ const OPTION_HANDLERS = Object.freeze({
     autounlock: (state, helpers) => handler_autounlock(
         state, allopt.findIndex(({ name }) => name === 'autounlock'), helpers,
     ),
+    disclose: handler_disclose,
     menustyle: (state, helpers) => handler_menustyle(state, helpers),
+    menu_objsyms: handler_menu_objsyms,
     msg_window: (state, helpers) => optfn_msg_window(
         state, allopt.findIndex(({ name }) => name === 'msg_window'),
         DO_HANDLER, false, '', '', helpers,
