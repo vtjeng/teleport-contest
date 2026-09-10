@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh ordinary mountain centaur ranged attack; its stacked crossbow bolts exercise monmulti and m_throw through one bolt's miss settlement.",
+  "segments": [
+    {
+      "seed": 9200059,
+      "datetime": "20260827130000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\nOPTIONS=pettype:none,rest_on_space,!safe_wait\n",
+      "moves": " \u0007mountain centaur\nhhjjjjjjjjjjjjjjjjjjjj..."
+    }
+  ]
+}

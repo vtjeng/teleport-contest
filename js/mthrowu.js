@@ -72,10 +72,10 @@ import {
 import { acurr, acurrstr } from './attrib.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { calc_capacity, nomul } from './hack.js';
+import { calc_capacity, nomul, rounddiv } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import { hands_obj, hold_another_object, obfree, obj_extract_self, stackobj, add_to_minv } from './invent.js';
-import { omon_adj } from './dothrow.js';
+import { multishot_class_bonus, omon_adj } from './dothrow.js';
 import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
 import {
     amorphous,
@@ -93,6 +93,12 @@ import {
     passes_rocks,
     throws_rocks,
     touch_petrifies,
+    is_gnome,
+    is_lord,
+    is_mplayer,
+    is_orc,
+    is_prince,
+    monsndx,
 } from './mondata.js';
 import { AD_ACID, AD_BLND, AD_DRST, AD_SLEE, AT_SPIT, AT_WEAP, MZ_TINY, PM_MONK, PM_ROGUE } from './monsters.js';
 // closed_door() belongs to monmove.c, and js/monmove.js imports lined_up()
@@ -104,11 +110,14 @@ import {
     ammo_and_launcher,
     is_flammable,
     is_flimsy,
+    is_ammo,
     is_launcher,
+    matching_launcher,
     mksobj,
     objectType,
     place_object,
     sobj_at,
+    splitobj,
     stone_missile,
     weight,
 } from './obj.js';
@@ -126,6 +135,8 @@ import {
     CREAM_PIE,
     CREDIT_CARD,
     EGG,
+    ELVEN_ARROW,
+    ELVEN_BOW,
     ENORMOUS_MEATBALL,
     FIRST_GLASS_GEM,
     FOOD_CLASS,
@@ -154,6 +165,10 @@ import {
     WAR_HAMMER,
     WAX_CANDLE,
     WEAPON_CLASS,
+    CROSSBOW,
+    CROSSBOW_BOLT,
+    ORCISH_ARROW,
+    ORCISH_BOW,
 } from './objects.js';
 import {
     an,
@@ -475,12 +490,62 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
     return false;
 }
 
-// C ref: mthrowu.c monmulti() (201-259), quantity-one arm. The source skips
-// every skill, race, launcher and random adjustment when quan is one.
+// C ref: mthrowu.c monmulti() (201-259). Compute the number of missiles in a
+// monster's volley in the source order, including the one gameplay RNG draw.
 export function monmulti(monster, missile, launcher, env = {}) {
-    if (Math.trunc(missile.quan ?? 1) !== 1)
-        return refuseRanged(env, 'monster multishot');
-    return 1;
+    const state = env.state ?? game;
+    const random = { rnd, ...(env.random ?? {}) };
+    let multishot = 1;
+
+    if (missile.quan > 1
+        && (is_ammo(missile, state)
+            ? matching_launcher(missile, launcher, state)
+            : missile.oclass === WEAPON_CLASS)
+        && !monster.mconf) {
+        /* Assumes lords are skilled, princes are expert. */
+        if (is_prince(monster.data))
+            multishot += 2;
+        else if (is_lord(monster.data))
+            multishot++;
+        /* Fake players are treated as skilled regardless of role limits. */
+        else if (is_mplayer(monster.data))
+            multishot++;
+
+        /* Elven craftsmanship makes for light, quick bows. */
+        if (missile.otyp === ELVEN_ARROW && !missile.cursed)
+            multishot++;
+        /* A wielded elven bow gives its bonus only to matching ammunition. */
+        if (launcher && launcher.otyp === ELVEN_BOW
+            && ammo_and_launcher(missile, launcher, state)
+            && !launcher.cursed)
+            multishot++;
+        /* One third of launcher enchantment. */
+        if (ammo_and_launcher(missile, launcher, state) && launcher.spe > 1)
+            multishot += rounddiv(launcher.spe, 3);
+
+        /* Some randomness. */
+        multishot = random.rnd(multishot);
+
+        /* Role-specific class bonus. */
+        multishot += multishot_class_bonus(
+            monsndx(monster.data), missile, launcher, state,
+        );
+
+        /* Racial bonus. */
+        if ((is_elf(monster.data) && missile.otyp === ELVEN_ARROW
+             && launcher && launcher.otyp === ELVEN_BOW)
+            || (is_orc(monster.data) && missile.otyp === ORCISH_ARROW
+                && launcher && launcher.otyp === ORCISH_BOW)
+            || (is_gnome(monster.data) && missile.otyp === CROSSBOW_BOLT
+                && launcher && launcher.otyp === CROSSBOW))
+            multishot++;
+    }
+
+    if (missile.quan < multishot)
+        multishot = Math.trunc(missile.quan);
+    if (multishot < 1)
+        multishot = 1;
+    return multishot;
 }
 
 // C ref: mthrowu.c ohitmon() (321-502). Object hits a monster from a throw.
@@ -684,14 +749,14 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
     return false;
 }
 
-// C ref: mthrowu.c m_throw() (572-844), quantity-one, ordinary untethered
-// weapon hit and miss. A miss lets the missile continue flying and drop at
-// range expiry or terrain. Alternate flight, interception, catch,
-// special-object, death, floor-effect, and return paths retain named
-// refusals.
+// C ref: mthrowu.c m_throw() (572-844), ordinary untethered weapon hit and
+// miss. A stack is split before flight so one missile leaves per call.
+// A miss lets the missile continue flying and drop at range expiry or terrain.
+// Alternate flight, interception, catch, special-object, death, floor-effect,
+// and return paths retain named refusals.
 export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, rnd };
+    const random = { rn2, rnd, ...(rawEnv.random ?? {}) };
     const env = { ...rawEnv, state, random };
 
     // Resolve every injected owner before the source-ordered inventory
@@ -724,8 +789,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     requireRangedOperation(env, 'passiveObject');
     requireRangedOperation(env, 'stackObject');
 
-    if (Math.trunc(obj.quan ?? 1) !== 1)
-        return refuseRanged(env, 'monster multishot');
     // C ref: muse.c use_offensive()'s MUSE_POT_* case is the other live
     // caller; it hands over a potion, whose hero-hit arm at 698-701 calls
     // potionhit(). Every other object class still refuses.
@@ -735,8 +798,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         return refuseRanged(env, 'cursed or greased monster missile flight');
     if (obj.oartifact)
         return refuseRanged(env, 'monster returning or artifact missile');
-    if (obj.opoisoned)
-        return refuseRanged(env, 'poisoned monster missile');
 
     state.gb ??= {};
     state.gb.bhitpos ??= {};
@@ -745,10 +806,18 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     state.gn ??= {};
     state.gn.notonhead = false;
 
-    if (monster.mw === obj)
-        await setMonsterNotWielded(monster, obj, env);
-    extractObject(obj, env);
-    const singleobj = obj;
+    let singleobj;
+    if (Math.trunc(obj.quan ?? 1) === 1) {
+        if (monster.mw === obj)
+            await setMonsterNotWielded(monster, obj, env);
+        extractObject(obj, env);
+        singleobj = obj;
+    } else {
+        // C splitobj(obj, 1L) keeps the parent stack in monster inventory;
+        // obj_extract_self() moves the one missile into OBJ_FREE.
+        singleobj = splitobj(obj, 1, env);
+        extractObject(singleobj, env);
+    }
     state.gt ??= {};
     state.gt.thrownobj = singleobj;
     singleobj.owornmask = 0;

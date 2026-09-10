@@ -21801,7 +21801,7 @@
           "line": 201,
           "endLine": 261,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -21829,7 +21829,52 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 758
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "monmulti",
+            "implementation": "js/mthrowu.js",
+            "symbol": "monmulti",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c monmulti() lines 201-261 in full. The JavaScript translation preserves the quantity and matching-launcher gate, confusion guard, prince/lord/fake-player bonuses, elven ammunition and bow bonuses, launcher enchantment rounddiv, the single rnd() draw, multishot_class_bonus() call, racial bonus, and quantity/minimum clamps in source order. The source helper calls only is_ammo(), matching_launcher(), ammo_and_launcher(), rounddiv(), rnd(), multishot_class_bonus(), monsndx(), and the monster predicates; each is implemented or imported from its source-aligned module. The obsolete quantity-one-only refusal is removed. Stacked m_throw() callers split one missile with splitobj() before flight, matching the source's monmulti/monshoot contract.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "monshoot",
+                "source": "mthrowu.c monshoot() calls monmulti() before setting gm.m_shot.n and entering its m_throw() loop; js/mthrowu.js monshoot() makes the same production call and uses the returned volley count for the loop."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thrwmu",
+                "source": "mthrowu.c thrwmu() selects a ranged weapon and calls monshoot(); js/mthrowu.js thrwmu() follows that source path and passes the selected missile and launcher to monshoot()."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "throwRangedWeapon",
+                "source": "The live monster-action adapter reaches mthrowu.c thrwmu() through its throwRangedWeapon hook; js/unported_monster_actions.js throwRangedWeapon() invokes thrwmu() with the production state and operation owners."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/mthrowu.c/mountain-centaur-stacked-bolts.session.json"
+            ],
+            "checkedAt": "ff0413429285a006b2a5bd2831086609a01e6fab"
+          }
+        ],
+        "entryPointReview": "The selected range contains the helper monmulti(), whose live entry point is an ordinary monster ranged weapon attack. The production chain is the monster-action adapter's throwRangedWeapon hook, mthrowu.c thrwmu(), mthrowu.c monshoot(), monmulti(), and the repeated m_throw() calls. The fresh mountain-centaur recipe equips a crossbow with a stacked bolt inventory and reaches the stacked-volley branch through this chain; its C recording matches the JavaScript replay through the bolt flight. The selected range has no separate command or level entry point beyond this existing ranged-attack dispatch.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster stacked ranged attack",
+            "functions": [
+              "monmulti"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/mountain-centaur-stacked-bolts.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

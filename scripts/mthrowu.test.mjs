@@ -25,7 +25,7 @@ import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GIANT_RAT, PM_STONE_GIANT } from '../js/monsters.js';
+import { PM_GIANT_RAT, PM_STONE_GIANT, PM_URUK_HAI } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
     from '../js/obj.js';
@@ -36,6 +36,8 @@ import {
     BOULDER,
     BOW,
     ORCISH_DAGGER,
+    ORCISH_ARROW,
+    ORCISH_BOW,
     POT_HEALING,
     POT_SLEEPING,
     STRANGE_OBJECT,
@@ -44,7 +46,7 @@ import {
 import {
     blocking_terrain, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
-    m_useup, monshoot, m_throw, thitu, thrwmu,
+    m_useup, monmulti, monshoot, m_throw, thitu, thrwmu,
 } from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
@@ -79,6 +81,35 @@ function attacker(state, mx, my, mux, muy, data = state.mons[PM_GIANT_RAT]) {
 function noDraw() {
     return { rn2: (bound) => assert.fail(`unexpected rn2(${bound})`) };
 }
+
+test('monmulti draws once and adds the orcish racial volley bonus', async () => {
+    const state = await hero();
+    const subject = attacker(
+        state,
+        state.u.ux + 5,
+        state.u.uy,
+        state.u.ux,
+        state.u.uy,
+        state.mons[PM_URUK_HAI],
+    );
+    const arrows = mksobj(ORCISH_ARROW, false, false, { state });
+    const bow = mksobj(ORCISH_BOW, false, false, { state });
+    arrows.quan = 8; // C's Uruk-hai loadout supplies a stack of eight arrows.
+    const draws = [];
+
+    assert.equal(monmulti(subject, arrows, bow, {
+        state,
+        // The source reaches rnd(1) before adding the matching orc bonus.
+        random: { rnd: (bound) => { draws.push(bound); return 1; } },
+    }), 2);
+    assert.deepEqual(draws, [1]);
+
+    // A partial adapter receives the module's default rnd implementation.
+    assert.doesNotThrow(() => monmulti(subject, arrows, bow, {
+        state,
+        random: {},
+    }));
+});
 
 // Straight open floor along one row, and unlit so that no vision rebuild is
 // needed to keep cansee() out of the answer.
