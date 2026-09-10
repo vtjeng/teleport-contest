@@ -20266,7 +20266,19 @@
       "cFile": "wintty.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "tty_init_nhwindows..tty_askname",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "tty_init_nhwindows",
+            "tty_preference_update",
+            "tty_player_selection",
+            "tty_askname"
+          ]
+        }
+      ],
       "openedAt": "c608394c40b210fba92e26cb73e6da00c988bba1",
       "openStanding": {
         "sha": "ac7ba249",
