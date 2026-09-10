@@ -20983,7 +20983,7 @@
     {
       "id": "port-monmove-distfleeck",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monmove.c distfleeck() so scared monsters preserve source fear predicates, sanctuary and light checks, and random flee duration.",
       "cFile": "monmove.c",
       "sessions": [
@@ -21007,8 +21007,11 @@
         "screens": 5417,
         "rng": 390119
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6b871e128d215b0bf86149803cee4739dfceadac",
+      "delivered": {
+        "screens": 0,
+        "rng": -17
+      },
       "functions": [
         {
           "name": "distfleeck",
@@ -21083,7 +21086,24 @@
         ],
         "entryPointReview": "This helper-only source range has no standalone command or entry point. It is reached by the existing monster-turn entry point through mon.c movemon_singlemon() -> dochugw() -> monmove.c dochug() at each of its three distance-and-fear checks. The cited monmove.c recordings execute those production turns and contain distfleeck(monmove.c:538) calls; the source-pinned tests cover the branch predicates, draw order, asynchronous flee owner, and caller random propagation.",
         "entryPoints": []
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 576,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1377
+        }
+      ]
     }
   ]
 }
