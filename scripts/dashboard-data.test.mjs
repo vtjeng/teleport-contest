@@ -63,6 +63,10 @@ function renderDashboard(data) {
     const context = (ops) => new Proxy({}, {
         get(target, key) {
             if (key in target) return target[key];
+            // measureText answers a query rather than drawing: the end label
+            // asks whether it fits right of its point. 7 px per character
+            // approximates the 12 px monospace label.
+            if (key === 'measureText') return (text) => ({ width: text.length * 7 });
             return (...args) => {
                 canvasOps.push([String(key), ...args]);
                 ops.push([String(key), ...args]);
@@ -122,6 +126,10 @@ function renderDashboard(data) {
         getComputedStyle: () => ({
             getPropertyValue: (property) => property,
         }),
+        // The template schedules its own reload and carries the chart window
+        // across it; neither happens here.
+        setTimeout() {},
+        sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     });
     elements.canvasOps = canvasOps;
     return elements;
