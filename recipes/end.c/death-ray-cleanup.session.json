@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7831000,
+      "datetime": "20340922101500",
+      "nethackrc": "OPTIONS=name:CleanupFresh,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017wand of death\nze.  y"
+    }
+  ]
+}
