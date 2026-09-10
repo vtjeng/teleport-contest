@@ -20269,8 +20269,8 @@
       "spans": [
         {
           "name": "tty_init_nhwindows..tty_askname",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "428e2f442db113179050e0bfd89dd39ca6aae9c1",
           "functions": [
             "tty_init_nhwindows",
             "tty_preference_update",
@@ -20292,25 +20292,25 @@
           "name": "tty_init_nhwindows",
           "line": 511,
           "endLine": 595,
-          "ported": false
+          "ported": true
         },
         {
           "name": "tty_preference_update",
           "line": 596,
           "endLine": 633,
-          "ported": false
+          "ported": true
         },
         {
           "name": "tty_player_selection",
           "line": 634,
           "endLine": 650,
-          "ported": false
+          "ported": true
         },
         {
           "name": "tty_askname",
           "line": 651,
           "endLine": 757,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
