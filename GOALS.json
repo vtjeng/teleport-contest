@@ -18908,8 +18908,8 @@
       "spans": [
         {
           "name": "can_set_perm_invent..handler_autounlock",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1510bba1da2828b68137b88020757eca0a7b21cd",
           "functions": [
             "can_set_perm_invent",
             "check_perm_invent_again",
@@ -18932,31 +18932,31 @@
           "name": "can_set_perm_invent",
           "line": 5488,
           "endLine": 5531,
-          "ported": false
+          "ported": true
         },
         {
           "name": "check_perm_invent_again",
           "line": 5532,
           "endLine": 5543,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_menustyle",
           "line": 5544,
           "endLine": 5585,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_align_misc",
           "line": 5586,
           "endLine": 5623,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_autounlock",
           "line": 5624,
           "endLine": 5674,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
