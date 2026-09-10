@@ -20006,8 +20006,8 @@
       "spans": [
         {
           "name": "handler_paranoid_confirmation..handler_pickup_burden",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d6891caf12c017a68413ae4d090eb66edd818431",
           "functions": [
             "handler_paranoid_confirmation",
             "handler_perminv_mode",
@@ -20028,19 +20028,19 @@
           "name": "handler_paranoid_confirmation",
           "line": 5953,
           "endLine": 6010,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_perminv_mode",
           "line": 6011,
           "endLine": 6085,
-          "ported": false
+          "ported": true
         },
         {
           "name": "handler_pickup_burden",
           "line": 6086,
           "endLine": 6113,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
