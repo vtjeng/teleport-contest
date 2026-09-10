@@ -21237,8 +21237,8 @@
       "spans": [
         {
           "name": "done",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e6be6c76f5397d62ecbf93e3b15b8c92d80f97ce",
           "functions": [
             "done"
           ]
