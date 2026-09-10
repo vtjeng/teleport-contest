@@ -21405,6 +21405,58 @@
           "remainingScreensUpperBound": 814
         }
       ]
+    },
+    {
+      "id": "port-tower2-special-level",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the tower2 special-level Lua program and wire its level loader",
+      "luaFile": "tower2.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest queue candidate seed2200-wizard-quaff-zap-read is already closed as machine-local: options.c option_help() renders an absolute HOME-derived path absent from the replay contract, and existing wintty classification covers the pagination consequence. Select the next implementable source owner tower2.lua for seed0360-wizard-world-tour.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "64995a3e50e1fa50b4155a8a6dc1dcc4bf3bfd1e",
+      "openStanding": {
+        "sha": "76b101cf23acc0eba35c7a326b38d6d428608e49",
+        "screens": 5980,
+        "rng": 421522
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tower2.lua",
+          "line": 1,
+          "endLine": 62,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "76b101cf23acc0eba35c7a326b38d6d428608e49",
+        "screens": 5980,
+        "rng": 421522
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 268,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "tower2.lua",
+          "cFile": null,
+          "luaFile": "tower2.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"tower2\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 565
+        }
+      ]
     }
   ]
 }
