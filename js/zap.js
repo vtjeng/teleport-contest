@@ -891,9 +891,13 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
             const orig_dmg = tmp;
             if (monster_resists_element(mon, COLD_RES, state))
                 tmp += 7;
-            /* burnarmor(mon) for a monster victim is not ported yet;
-               skip the burnarmor/destroy_items/ignite_items block */
-            note_unported('trap_erode_obj.c burnarmor monster arm');
+            if (await burnarmor(mon, { state, random })) {
+                if (!random.rn2(3)) {
+                    tmp += await destroy_items(mon, AD_FIRE, orig_dmg,
+                        { state, random });
+                    await ignite_items(mon.minvent, { state, random });
+                }
+            }
         }
         break;
     case ZT_COLD:

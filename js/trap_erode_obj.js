@@ -10,10 +10,9 @@
 // which reads gb.bhitpos, and no ported caller passes an object that is
 // neither carried nor mcarried.
 //
-// burnarmor() covers the hero half. which_armor() picks the same five slots
-// for a monster, but trap.c dofiretrap() and explode.c explode() are its
-// monster-victim callers and neither is ported, so that half stops at the top
-// of the function.
+// burnarmor() covers both hero and monster victims. which_armor() picks the
+// same five slots for a monster; trap.c trapeffect_fire_trap() is its live
+// monster-victim caller, while explode.c explode() remains unported.
 
 import {
     EF_DESTROY,
@@ -35,10 +34,17 @@ import {
     ER_NOTHING,
     MAX_ERODE,
     OBJ_MINVENT,
+    W_ARMC,
+    W_ARM,
+    W_ARMF,
+    W_ARMG,
+    W_ARMH,
+    W_ARMS,
+    W_ARMU,
     materialnm,
 } from './const.js';
 import { monsterPossessive } from './do_name.js';
-import { carrying, update_inventory } from './invent.js';
+import { update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
 import {
     carried,
@@ -60,6 +66,7 @@ import {
 import { canSeeMonster, heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
+import { which_armor } from './worn.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -332,28 +339,26 @@ function burn_dmg(obj, description, env) {
 export async function burnarmor(victim, env) {
     if (!victim) return false;
     const { state } = env;
-    if (victim !== state.youmonst) {
-        throw new UnsupportedErosionError(
-            "burnarmor()'s monster victim, over which_armor()",
-        );
-    }
     const random = env.random;
 
     /* burning damage may dry wet towel */
-    for (let item = carrying(TOWEL, state); item; item = item.nobj) {
-        // obj.h:256 is_wet_towel(). apply.c dry_a_towel() is unported and
-        // nothing that reaches it is ported either, so a wet towel stops here;
-        // a dry one leaves the scan to walk on as C's does.
+    const inventory = victim === state.youmonst ? state.invent : victim.minvent;
+    for (let item = inventory; item; item = item.nobj) {
+        // obj.h:256 is_wet_towel(). apply.c dry_a_towel() remains outside
+        // this span, so keep the existing fail-closed boundary before the
+        // armor slot draw. A dry towel leaves the scan walking as C's does.
         if (item.otyp === TOWEL && (item.spe ?? 0) > 0) {
             throw new UnsupportedErosionError('dry_a_towel() for a wet towel');
         }
     }
 
+    const monsterVictim = victim !== state.youmonst;
     for (;;) {
         let item;
         switch (random.rn2(5)) {
         case 0: {
-            item = state.uarmh;
+            item = monsterVictim
+                ? which_armor(victim, W_ARMH, state) : state.uarmh;
             let description = 'helmet';
             if (item) {
                 const material = objectType(item, state).oc_material;
@@ -364,28 +369,37 @@ export async function burnarmor(victim, env) {
             break;
         }
         case 1:
-            item = state.uarmc;
+            item = monsterVictim
+                ? which_armor(victim, W_ARMC, state) : state.uarmc;
             if (item) {
                 await burn_dmg(item, cloak_simple_name(item, state), env);
                 return true;
             }
-            item = state.uarm;
+            item = monsterVictim
+                ? which_armor(victim, W_ARM, state) : state.uarm;
             if (item) {
                 await burn_dmg(item, xnameFresh(item, state), env);
                 return true;
             }
-            item = state.uarmu;
+            item = monsterVictim
+                ? which_armor(victim, W_ARMU, state) : state.uarmu;
             if (item)
                 await burn_dmg(item, 'shirt', env);
             return true;
         case 2:
-            if (!await burn_dmg(state.uarms, 'wooden shield', env)) continue;
+            item = monsterVictim
+                ? which_armor(victim, W_ARMS, state) : state.uarms;
+            if (!await burn_dmg(item, 'wooden shield', env)) continue;
             break;
         case 3:
-            if (!await burn_dmg(state.uarmg, 'gloves', env)) continue;
+            item = monsterVictim
+                ? which_armor(victim, W_ARMG, state) : state.uarmg;
+            if (!await burn_dmg(item, 'gloves', env)) continue;
             break;
         case 4:
-            if (!await burn_dmg(state.uarmf, 'boots', env)) continue;
+            item = monsterVictim
+                ? which_armor(victim, W_ARMF, state) : state.uarmf;
+            if (!await burn_dmg(item, 'boots', env)) continue;
             break;
         default:
             throw new RangeError('burnarmor() slot selection out of range');

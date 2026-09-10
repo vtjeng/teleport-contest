@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "Fresh trap.c coverage: seeds 6200285 and 6207530 were selected by scanning 6203000-6213000 for a generated MAGIC_TRAP reached by a monster; the first takes rn2(21) nonzero and the second takes zero into trapeffect_fire_trap().",
+  "segments": [
+    {
+      "seed": 6200285,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:TrapMage,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "sss"
+    },
+    {
+      "seed": 6207530,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:TrapMage,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "ssss"
+    }
+  ]
+}

@@ -824,7 +824,7 @@ test('burnarmor rolls again for a slot the hero has nothing in', async () => {
     assert.deepEqual(drawn, [5, 5, 5, 5]);
 });
 
-test('burnarmor stops for a monster victim and for a wet towel', async () => {
+test('burnarmor supports monster victims and stops for a wet towel', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
@@ -833,12 +833,10 @@ test('burnarmor stops for a monster victim and for a wet towel', async () => {
         message: async () => {},
         random: { rn2: () => 1, rnl: () => 1 },
     };
-    // which_armor() picks a monster's five slots; no ported caller hands
-    // burnarmor() a monster, so the port stops before the towel scan.
-    await assert.rejects(
-        () => burnarmor({ mx: 1, my: 1 }, env),
-        /burnarmor\(\)'s monster victim/u,
-    );
+    // trap.c:87-160. which_armor() picks a monster's five slots, and the
+    // empty torso slot answers TRUE after trying the monster's cloak, suit,
+    // and shirt.
+    assert.equal(await burnarmor({ minvent: null }, env), true);
     // trap.c:99-109. A dry towel leaves the scan walking; a wet one reaches
     // apply.c dry_a_towel(), which is unported.
     const towel = { otyp: TOWEL, spe: 0, nobj: game.invent };
