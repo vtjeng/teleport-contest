@@ -21541,6 +21541,50 @@
           "remainingScreensUpperBound": 559
         }
       ]
+    },
+    {
+      "id": "trapeffect-hole-trapdoor-monster-arm",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster HOLE/TRAPDOOR activation through level teleport and wire trap selector",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The next implementable development mismatch is seed0030's giant-rat trapdoor activation; source tracing assigns it to trap.c trapeffect_hole through trapeffect_level_telep.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_hole",
+          "line": 2013,
+          "endLine": 2069,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_telep_trap",
+          "line": 2070,
+          "endLine": 2087,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "trapeffect_level_telep",
+          "line": 2088,
+          "endLine": 2105,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2013,
+        "to": 2105
+      }
     }
   ]
 }
