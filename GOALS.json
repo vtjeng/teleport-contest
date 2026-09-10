@@ -20604,8 +20604,8 @@
       "spans": [
         {
           "name": "u_entered_shop",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "909230e113760a32baedc1c7be8c9d87bf3c0a88",
           "functions": [
             "u_entered_shop"
           ]
@@ -20625,7 +20625,7 @@
           "line": 751,
           "endLine": 920,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -20653,7 +20653,47 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 1380
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "u_entered_shop",
+            "implementation": "js/shk.js",
+            "symbol": "u_entered_shop",
+            "sourceReview": "Read the complete upstream shk.c u_entered_shop() definition at lines 751-917: empty/untended shops and bill sentinel, achievement and bill-pointer writes, customer reset, mute/following return, invisibility, angry/surcharge/robbed/ordinary dialogue, visit count, and pick/mattock/steed/FAST-floor blocking. Compared direct callees and removed the generated-shop refusal wall. Completed shop_keeper() anger lookup and rile_shk() active-bill surcharge, and wired the now-ported pacify_shk() into restshk(). Moved shkname()/Shknam() from local partial helpers to shknam.js and preserved the preliminary noit_mon_nam() display draws, subsequent shop-type/name gameplay draws, hallucination resistance, and gameover suppression. Removed eager owner/steed name evaluation, retained clang left-to-right message-argument order documented in nethack-c/README.md, and tested differing RNG answers and exact call bounds for deaf angry hallucination. Matched both surcharge warning periods and Hello() species checks. Ported pline.c verbalize() to preserve speech flags around message dispatch. u_entered_shop() empty_shops and pick_pick() pickmovetime are C process statics, reset by shk_globals_init() before either startup or restore because record-session.mjs starts a new process per segment; the regression checks suppression within a segment and reset across runSegment() calls. Read inhishop(), deserted_shop(), record_achievement(), muteshk(), set_voice(), Hello(), s_suffix(), mbodypart(), y_monnam(), carrying(), sobj_at(), makeknown()/discover_object(), plur(), and the source call to dochug(). Soundeffect() is compiled out in the recorder build. The unused dochug() return permits note_unported('monmove.c dochug'); invalid-resident/name diagnostics use note_unported for pline.c impossible and end.c panic. No obsolete entry guard or swallowed refusal remains in the selected function.",
+            "callers": [
+              {
+                "path": "js/rooms.js",
+                "symbol": "check_special_room",
+                "source": "hack.c:3657-3659 calls u_entered_shop(u.ushops_entered) after move_update(); js/rooms.js:247-249 passes the entered shop list, message sink, and gameplay RNG from the production room-entry dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-teleport-arrival.test.mjs",
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/u-entered-shop.session.json",
+              "recordings/shk.c/u-entered-shop-deaf.session.json"
+            ],
+            "checkedAt": "909230e113760a32baedc1c7be8c9d87bf3c0a88"
+          }
+        ],
+        "entryPointReview": "One source entry point is in scope: hack.c check_special_room():3657-3659 dispatches nonempty u.ushops_entered to u_entered_shop(). The two matching recordings reach it through do.c goto_level() and js/rooms.js check_special_room(), with a newly selected D:5 second-hand bookstore. The hearing recording prints the welcome at step 5; the same recipe with OPTIONS=deaf prints the visual entry line there, providing the cheap option variation. Fresh run-level-teleport-arrival.mjs (34 segments) and run-shop-floor-pricing.mjs (1 segment) matched C. Source-pinned focused tests cover empty-shop process lifetime, customer reset, billing, hallucinated name/draw order, dialogue, and edge-square blockers. recipes/shk.c/u-entered-shop-hallucinated.session.json is retained without a recording: invent.c currency() blocks the D:5 arrival before entry. That dialogue branch is tested from source and is not a separate production entry point.",
+        "entryPoints": [
+          {
+            "name": "shop entry transition",
+            "functions": [
+              "u_entered_shop"
+            ],
+            "recordings": [
+              "recordings/shk.c/u-entered-shop.session.json",
+              "recordings/shk.c/u-entered-shop-deaf.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
