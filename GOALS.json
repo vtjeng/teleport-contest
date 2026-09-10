@@ -19872,7 +19872,7 @@
     {
       "id": "port-shk-bill-helpers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shk.c pick and bill-debt helpers",
       "cFile": "shk.c",
       "sessions": [],
@@ -19880,8 +19880,8 @@
       "spans": [
         {
           "name": "pick_pick..shop_debt",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3b84f0b3be32c14a51382dff41a7020f89d7d551",
           "functions": [
             "pick_pick",
             "same_price",
@@ -19895,26 +19895,29 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3b84f0b3be32c14a51382dff41a7020f89d7d551",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pick_pick",
           "line": 921,
           "endLine": 954,
-          "ported": false
+          "ported": true
         },
         {
           "name": "same_price",
           "line": 955,
           "endLine": 989,
-          "ported": false
+          "ported": true
         },
         {
           "name": "shop_debt",
           "line": 990,
           "endLine": 1002,
-          "ported": false
+          "ported": true
         }
       ],
       "range": {
