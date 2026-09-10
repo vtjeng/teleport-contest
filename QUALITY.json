@@ -329,7 +329,9 @@
         "js/nhlua.js",
         "js/restore.js",
         "js/rng.js",
+        "js/sfbase.js",
         "js/timeout.js",
+        "js/unported.js",
         "js/version.js"
       ]
     },
