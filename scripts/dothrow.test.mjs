@@ -65,6 +65,7 @@ import {
     find_launcher,
     impact_disturbs_zombies,
     multishot_class_bonus,
+    should_mulch_missile,
     throw_obj,
     throw_ok,
     throwit,
@@ -122,6 +123,7 @@ import {
     LANCE,
     MINERAL,
     LENSES,
+    LUCKSTONE,
     ORCISH_ARROW,
     ORCISH_BOW,
     POT_WATER,
@@ -254,6 +256,87 @@ test('multishot_class_bonus() falls the Ninja through to the Samurai', () => {
         multishot_class_bonus(PM_SAMURAI, object(state, ARROW), yumi, state),
         0,
     );
+});
+
+test('should_mulch_missile follows source predicates and draw order', () => {
+    // dothrow.c:1982-1985. These four inputs take the immediate FALSE arm:
+    // NULL, a dagger outside both missile predicates, a boomerang excluded by
+    // type, and a magic luckstone despite its GEM_CLASS ammunition skill.
+    const local = makeState();
+    const noDraw = () => assert.fail('predicate arm drew random numbers');
+    const noRandom = { random: { rn2: noDraw, rnl: noDraw } };
+    assert.equal(should_mulch_missile(null, local, noRandom), false);
+    assert.equal(
+        should_mulch_missile(object(local, DAGGER), local, noRandom), false,
+    );
+    assert.equal(
+        should_mulch_missile(object(local, BOOMERANG), local, noRandom), false,
+    );
+    assert.equal(
+        should_mulch_missile(object(local, LUCKSTONE), local, noRandom), false,
+    );
+
+    // dothrow.c:1990-1991. A +0 arrow with no erosion has chance 3 and uses
+    // rn2(3), while +2 makes chance 1 and selects the rn2(4) fallback.
+    const draws = [];
+    let answers = [];
+    const random = {
+        rn2: (bound) => {
+            draws.push(['rn2', bound]);
+            return answers.shift() ?? 1;
+        },
+        rnl: (bound) => { draws.push(['rnl', bound]); return 1; },
+    };
+    answers = [1];
+    assert.equal(
+        should_mulch_missile(object(local, ARROW), local, { random }), true,
+    );
+    assert.deepEqual(draws, [['rn2', 3]]);
+    draws.length = 0;
+    answers = [0];
+    assert.equal(
+        should_mulch_missile(object(local, ARROW, { spe: 2 }), local,
+            { random }),
+        true,
+    );
+    assert.deepEqual(draws, [['rn2', 4]]);
+
+    // dothrow.c:1992. Blessing uses rn2(3) while monsters are moving and
+    // rnl(4) on the hero's turn; a zero draw clears an otherwise broken item.
+    draws.length = 0;
+    answers = [1, 0];
+    local.context = { mon_moving: true };
+    assert.equal(
+        should_mulch_missile(object(local, ARROW, { blessed: true }), local,
+            { random }),
+        false,
+    );
+    assert.deepEqual(draws, [['rn2', 3], ['rn2', 3]]);
+    draws.length = 0;
+    answers = [1];
+    local.context = { mon_moving: false };
+    random.rnl = (bound) => { draws.push(['rnl', bound]); return 0; };
+    assert.equal(
+        should_mulch_missile(object(local, ARROW, { blessed: true }), local,
+            { random }),
+        false,
+    );
+    assert.deepEqual(draws, [['rn2', 3], ['rnl', 4]]);
+
+    // dothrow.c:1996-2000. Tough gems and FLINT each get the final rn2(2)
+    // check, which preserves either item when it answers zero.
+    draws.length = 0;
+    answers = [1, 0];
+    assert.equal(
+        should_mulch_missile(object(local, DIAMOND), local, { random }), false,
+    );
+    assert.deepEqual(draws, [['rn2', 3], ['rn2', 2]]);
+    draws.length = 0;
+    answers = [1, 0];
+    assert.equal(
+        should_mulch_missile(object(local, FLINT), local, { random }), false,
+    );
+    assert.deepEqual(draws, [['rn2', 3], ['rn2', 2]]);
 });
 
 test('breaktest() asks obj_resists() before anything else', () => {

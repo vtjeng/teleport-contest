@@ -146,6 +146,7 @@ import {
     ELVEN_BOW,
     EUCALYPTUS_LEAF,
     EXPENSIVE_CAMERA,
+    FLINT,
     FORTUNE_COOKIE,
     GEM_CLASS,
     GLASS,
@@ -172,7 +173,7 @@ import {
 import { an, helm_simple_name, singular, the, xnameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
-import { rn2, rnd } from './rng.js';
+import { rn2, rnl, rnd } from './rng.js';
 import { hitval } from './weapon.js';
 import { stairway_at } from './stairs.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
@@ -212,24 +213,33 @@ export class UnsupportedThrowError extends Error {
     }
 }
 
-// C ref: dothrow.c should_mulch_missile() (1974-2002), leading immediate-false
-// arm. Ordinary weapons such as daggers are neither ammo nor missiles, so they
-// survive a hit without a random draw. Breakable ammunition and missiles stay
-// behind the caller's named boundary until their erosion, blessing, and tough-
-// gem draws are part of a selected behavior slice.
+// C ref: dothrow.c should_mulch_missile() (1976-2010). Only ammunition and
+// missiles can mulch. The chance, blessed-item override, and tough-material
+// override keep the source's random draw order.
 export function should_mulch_missile(obj, state = game, env = {}) {
     if (!obj || (!(is_ammo(obj, state) || is_missile(obj, state))
         || obj.otyp === BOOMERANG
         || objectType(obj, state).oc_magic)) {
         return false;
     }
-    // Resolve this read before refusing so callers and tests pin the complete
-    // source predicate rather than a type-specific dagger exception.
-    greatest_erosion(obj);
-    const unsupported = env.unsupported;
-    if (typeof unsupported !== 'function')
-        throw new TypeError('should_mulch_missile requires unsupported');
-    return unsupported('missile mulching');
+    const random = { rn2, rnl, ...(env.random ?? {}) };
+    const chance = 3 + greatest_erosion(obj) - Math.trunc(obj.spe ?? 0);
+    let broken = chance > 1
+        ? random.rn2(chance) !== 0
+        : random.rn2(4) === 0;
+    if (obj.blessed
+        && (state.context?.mon_moving
+            ? random.rn2(3) === 0
+            : random.rnl(4) === 0)) {
+        broken = false;
+    }
+    const type = objectType(obj, state);
+    if (((obj.oclass === GEM_CLASS && type.oc_tough)
+         || obj.otyp === FLINT)
+        && random.rn2(2) === 0) {
+        broken = false;
+    }
+    return broken;
 }
 
 // C ref: dothrow.c:30-34 AutoReturn(). A weapon that comes back to the hand

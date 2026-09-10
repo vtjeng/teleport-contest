@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh debug recipe for a kobold's ordinary missile drop through mthrowu.c m_throw() and drop_throw(); the new seed, date, character, and inputs reach should_mulch_missile() on the hit path.",
+  "segments": [
+    {
+      "seed": 7780101,
+      "datetime": "20261110100000",
+      "nethackrc": "OPTIONS=name:MulchProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "  qh               \u0007kobold\nkyhhhhhhhhhh...................."
+    }
+  ]
+}

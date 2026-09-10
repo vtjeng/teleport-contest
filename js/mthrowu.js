@@ -75,7 +75,11 @@ import { game } from './gstate.js';
 import { calc_capacity, nomul, rounddiv } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import { hands_obj, hold_another_object, obfree, obj_extract_self, stackobj, add_to_minv } from './invent.js';
-import { multishot_class_bonus, omon_adj } from './dothrow.js';
+import {
+    multishot_class_bonus,
+    omon_adj,
+    should_mulch_missile,
+} from './dothrow.js';
 import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
 import {
     amorphous,
@@ -461,7 +465,12 @@ function u_catch_thrown_obj(obj, env) {
 export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
-    const shouldMulch = requireRangedOperation(env, 'shouldMulch');
+    const shouldMulch = env.shouldMulch
+        ?? ((missile, actionEnv) => should_mulch_missile(
+            missile,
+            state,
+            actionEnv,
+        ));
     const shipsAway = requireRangedOperation(env, 'shipsAway');
     const monsterAt = requireRangedOperation(env, 'monsterAt');
     const floorEffects = requireRangedOperation(env, 'floorEffects');

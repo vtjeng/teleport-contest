@@ -21931,7 +21931,7 @@
           "line": 1976,
           "endLine": 2010,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -21959,7 +21959,49 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 758
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "should_mulch_missile",
+            "implementation": "js/dothrow.js",
+            "symbol": "should_mulch_missile",
+            "sourceReview": "Read nethack-c/upstream/src/dothrow.c should_mulch_missile() lines 1976-2010 in full. The translation preserves the immediate non-ammunition, boomerang, and magic-object return; computes chance from greatest_erosion() and spe; chooses rn2(chance) or rn2(4) in source order; applies the blessed monster-moving rn2(3) versus hero-turn rnl(4) protection; and applies the final rn2(2) Flint or tough-gem protection. The old unsupported missile-mulching refusal is removed. The dothrow.c thitmonst() caller remains outside the selected production path because its JavaScript thitmonst() arm is still an explicit source boundary; the monster mthrowu.c drop_throw() caller is wired to this implementation.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "drop_throw",
+                "source": "mthrowu.c drop_throw() calls should_mulch_missile() when a thrown monster missile hits; js/mthrowu.js drop_throw() invokes should_mulch_missile() through its default helper and keeps the destruction branch before shipping, floor effects, and stacking."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "monsterMissileEnv",
+                "source": "The live monster ranged-action adapter binds mthrowu.c drop_throw()'s should_mulch_missile() dependency; js/unported_monster_actions.js monsterMissileEnv() passes state and the replay random adapter to should_mulch_missile()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/monster-missile-drop-mulching.session.json"
+            ],
+            "checkedAt": "069058d8ea13e419f39a5a6023f636e77f602c1a"
+          }
+        ],
+        "entryPointReview": "The selected source range has one live entry point: an ordinary monster missile that reaches mthrowu.c drop_throw() after a hit and asks should_mulch_missile() whether the projectile is destroyed. The production chain is the monster-action adapter, mattacku(), throwRangedWeapon(), thrwmu(), monshoot(), m_throw(), and drop_throw(). The fresh kobold recipe reaches this path with an ordinary missile and its C recording matches the JavaScript replay, including the mulching random calls and resulting drop behavior. The separate dothrow.c thitmonst() caller remains blocked by the existing unported hero ranged-hit boundary and is outside this selected monster path.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster missile drop and mulching",
+            "functions": [
+              "should_mulch_missile"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/monster-missile-drop-mulching.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
