@@ -21769,7 +21769,7 @@
     {
       "id": "port-mthrowu-monmulti",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete mthrowu.c monmulti() stacked missile calculation and wire its existing monshoot/thrwmu callers",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -21780,8 +21780,8 @@
       "spans": [
         {
           "name": "monmulti",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2dc99aec7b7d815698635ed89f15e706d1e87230",
           "functions": [
             "monmulti"
           ]
@@ -21793,8 +21793,11 @@
         "screens": 6042,
         "rng": 425210
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2dc99aec7b7d815698635ed89f15e706d1e87230",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "monmulti",
@@ -21874,7 +21877,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1195,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires missile mulching",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 758
+        }
+      ]
     }
   ]
 }
