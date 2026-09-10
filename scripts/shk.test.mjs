@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BUFSZ,
     HUNGRY,
+    MS_SELL,
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
@@ -20,6 +21,7 @@ import {
     CHAIN_MAIL,
     FOOD_RATION,
     POT_HEALING,
+    PICK_AXE,
     TALLOW_CANDLE,
     WAN_SLEEP,
     SACK,
@@ -35,7 +37,10 @@ import {
     get_pricing_units,
     getprice,
     oid_price_adjustment,
+    pick_pick,
     record_price_quote,
+    same_price,
+    shop_debt,
     shk_your,
     UnsupportedShopError,
 } from '../js/shk.js';
@@ -61,6 +66,118 @@ test('addupbill sums exactly the active bill entries', () => {
     assert.equal(addupbill(shopkeeper), 40);
     shopkeeper.mextra.eshk.billct = 0;
     assert.equal(addupbill(shopkeeper), 0);
+});
+
+test('shop_debt includes only the active bill entries', () => {
+    const eshk = {
+        debit: 5,
+        billct: 2,
+        bill_p: [
+            // The first bill line costs 7 and covers two objects.
+            { price: 7, bquan: 2 },
+            // The second active line costs 11 for one object.
+            { price: 11, bquan: 1 },
+            // This inactive line must not contribute to the debt.
+            { price: 99, bquan: 9 },
+        ],
+    };
+    assert.equal(shop_debt(eshk), 30);
+});
+
+function billShopkeeper(roomno, bill, next = null) {
+    return {
+        mhp: 10,
+        mcanmove: true,
+        isshk: true,
+        mpeaceful: true,
+        nmon: next,
+        mextra: {
+            eshk: {
+                shoproom: roomno,
+                shoplevel: { dnum: 0, dlevel: 1 },
+                billct: bill.length,
+                bill_p: bill,
+                surcharge: false,
+            },
+        },
+    };
+}
+
+test('same_price requires one shopkeeper and one quoted price', () => {
+    const first = { o_id: 101, unpaid: true };
+    const second = { o_id: 102, unpaid: true };
+    const other = { o_id: 103, unpaid: true };
+    const firstShopkeeper = billShopkeeper(ROOMOFFSET, [
+        // Both first objects quote 12, the same price required for merging.
+        { bo_id: first.o_id, price: 12, bquan: 1 },
+        { bo_id: second.o_id, price: 12, bquan: 1 },
+    ]);
+    const secondShopkeeper = billShopkeeper(ROOMOFFSET + 1, [
+        // This object belongs to a different shopkeeper despite its price.
+        { bo_id: other.o_id, price: 12, bquan: 1 },
+    ]);
+    firstShopkeeper.nmon = secondShopkeeper;
+    const state = {
+        level: { monlist: firstShopkeeper },
+    };
+
+    assert.equal(same_price(first, second, state), true);
+    assert.equal(same_price(first, other, state), false);
+    firstShopkeeper.mextra.eshk.bill_p[1].price = 13;
+    assert.equal(same_price(first, second, state), false);
+});
+
+function pickState(shopkeeper) {
+    const state = {};
+    objects_globals_init(state);
+    // A zero-valued initializer keeps this source-pinned test deterministic.
+    init_objects(state, () => 0);
+    state.flags = { female: false };
+    state.moves = 100001;
+    state.gp = { pline_flags: 0 };
+    state.u = {
+        ushops: [ROOMOFFSET],
+        uz: { dnum: 0, dlevel: 1 },
+        uprops: {},
+        uroleplay: {},
+    };
+    state.youmonst = { data: {} };
+    state.level = {
+        rooms: [{ rtype: SHOPBASE, resident: shopkeeper }],
+        at: () => ({ roomno: ROOMOFFSET, edge: false }),
+    };
+    shopkeeper.mx = 2;
+    shopkeeper.my = 2;
+    return state;
+}
+
+test('pick_pick warns once per move and preserves speech formatting', async () => {
+    const shopkeeper = billShopkeeper(ROOMOFFSET, []);
+    shopkeeper.data = { msound: MS_SELL };
+    const state = pickState(shopkeeper);
+    const pick = newObject({
+        otyp: PICK_AXE,
+        oclass: WEAPON_CLASS,
+        unpaid: false,
+    });
+    const messages = [];
+
+    await pick_pick(pick, state, {
+        message: async (text) => messages.push(text),
+    });
+    await pick_pick(pick, state, {
+        message: async (text) => messages.push(text),
+    });
+    state.moves = 100002;
+    await pick_pick(pick, state, {
+        message: async (text) => messages.push(text),
+    });
+
+    assert.deepEqual(messages, [
+        '"You sneaky beast!  Get out of here with that pick!"',
+        '"You sneaky beast!  Get out of here with that pick!"',
+    ]);
+    assert.equal(state.gp.pline_flags, 0);
 });
 
 // The four seen-price fields carry init_objects()'s sentinel until

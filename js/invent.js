@@ -205,7 +205,9 @@ import { is_quest_artifact } from './questpgr.js';
 import {
     inhishop,
     inside_shop,
+    same_price,
     shop_keeper,
+    shop_debt,
     UnsupportedShopError,
     costly_spot,
 } from './shk.js';
@@ -2127,7 +2129,8 @@ export function mergable(otmp, obj, env = {}) {
     }
     if (obj.otyp === POT_OIL && obj.lamplit) return false;
     if (obj.unpaid) {
-        const samePrice = requiredHook(normalized, 'samePrice', obj);
+        const samePrice = normalized.hooks?.samePrice
+            ?? ((first, second, env) => same_price(first, second, env.state));
         if (!samePrice(obj, otmp, normalized)) return false;
     }
     if (obj.oextra?.omonst
@@ -3546,16 +3549,17 @@ export async function doprgold(state = game) {
 async function shopper_financial_report(state) {
     const { inside_shop, shop_keeper } = await import('./shk.js');
     const thisShkp = shop_keeper(inside_shop(state.u.ux, state.u.uy, state), state);
-    if (thisShkp && !thisShkp.eshk?.credit && !thisShkp.eshk?.debit
-        && !thisShkp.eshk?.robbed) {
+    if (thisShkp && !thisShkp.mextra?.eshk?.credit
+        && !shop_debt(thisShkp.mextra.eshk)) {
         await ttyPline('You have no credit or debt in here.', state);
         return;
     }
     if (!thisShkp) {
-        for (let mtmp = state.fmon; mtmp; mtmp = mtmp.nmon) {
-            if (mtmp.deadMonster) continue;
-            if (!mtmp.isshk) continue;
-            const eshk = mtmp.eshk;
+        for (let mtmp = state.level?.monlist ?? state.fmon;
+            mtmp;
+            mtmp = mtmp.nmon) {
+            if ((mtmp.mhp ?? 0) < 1 || !mtmp.isshk) continue;
+            const eshk = mtmp.mextra?.eshk;
             if (!eshk) continue;
             if (eshk.credit) {
                 await ttyPline(
@@ -3565,10 +3569,11 @@ async function shopper_financial_report(state) {
                     state,
                 );
             }
-            if (eshk.debit) {
+            const debt = shop_debt(eshk);
+            if (debt) {
                 await ttyPline(
                     `You owe ${mtmp.mname || 'the shopkeeper'} `
-                    + `${eshk.debit} ${currency(eshk.debit, state)}.`,
+                    + `${debt} ${currency(debt, state)}.`,
                     state,
                 );
             }

@@ -31,6 +31,8 @@ import {
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_MINVENT,
+    PLINE_SPEECH,
+    PLINE_VERBALIZE,
     PL_NSIZ,
     ROOMOFFSET,
     SHOPBASE,
@@ -59,8 +61,8 @@ import { mongone } from './makemon_create.js';
 import { angry_guards, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
-    carried, hasContents, isCandle, isContainer, objectType, sobj_at,
-    splitobj,
+    carried, hasContents, isCandle, isContainer, is_pick, objectType,
+    sobj_at, splitobj,
 } from './obj.js';
 import {
     ARMOR_CLASS,
@@ -88,17 +90,19 @@ import {
     PM_ROGUE,
     PM_TOURIST,
 } from './monsters.js';
-import { resist_conflict } from './mondata.js';
+import { haseyes, is_demon, resist_conflict } from './mondata.js';
 import { Hello } from './role_init.js';
 import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { m_at } from './monst.js';
+import { poly_gender } from './polyself.js';
 import {
     canSeeMonster,
     heroIsBlind,
     sensesMonster,
 } from './startup_a11y.js';
+import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, remove_worn_item } from './steal.js';
@@ -476,6 +480,134 @@ export async function u_left_shop(
             { message },
         );
     }
+}
+
+// C ref: shknam.c shkname() and Shknam(). The shopkeeper name is stored with
+// a leading marker for gender or proper-name metadata; the marker is not part
+// of the name shown in ordinary messages.
+function shkname(shopkeeper) {
+    const stored = shopkeeper.mextra?.eshk?.shknam;
+    if (typeof stored === 'string' && stored.length)
+        return /^[A-Za-z]/u.test(stored) ? stored : stored.slice(1);
+    return 'shopkeeper';
+}
+
+function Shknam(shopkeeper) {
+    const name = shkname(shopkeeper);
+    return name ? name[0].toUpperCase() + name.slice(1) : name;
+}
+
+// C ref: shk.c cad() (5908-5934). pick_pick() uses only the ordinary,
+// unquoted result, but keep the alternate formatting arm in source order.
+function cad(altusage, state = game) {
+    let result;
+    switch (is_demon(state.youmonst?.data) ? 3 : poly_gender(state)) {
+    case 0:
+        result = 'cad';
+        break;
+    case 1:
+        result = 'minx';
+        break;
+    case 2:
+        result = 'beast';
+        break;
+    case 3:
+        result = 'fiend';
+        break;
+    default:
+        note_unported('pline.c impossible');
+        result = 'thing';
+        break;
+    }
+    return altusage ? `"${result[0].toUpperCase()}${result.slice(1)}!  `
+        : result;
+}
+
+// C ref: shk.c pick_pick() (921-949). Removing a pick from a container is
+// one turn's shopkeeper feedback at most, even when a sack contains many.
+let pickmovetime = 0;
+
+export async function pick_pick(
+    obj,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    if (obj.unpaid || !is_pick(obj, state)) return;
+
+    const shopkeeper = shop_keeper(state.u?.ushops?.[0] ?? 0, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return;
+
+    const moves = Math.trunc(state.moves ?? state.svm?.moves ?? 0);
+    if (moves !== pickmovetime) {
+        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            set_voice(shopkeeper, 0, 80, 0, state);
+            state.gp.pline_flags |= PLINE_VERBALIZE;
+            try {
+                await message(
+                    `"You sneaky ${cad(false, state)}!  Get out of here with that pick!"`,
+                    state,
+                );
+            } finally {
+                state.gp.pline_flags &= ~(PLINE_SPEECH | PLINE_VERBALIZE);
+            }
+        } else {
+            await message(
+                `${Shknam(shopkeeper)} ${haseyes(shopkeeper.data)
+                    ? 'glares at' : 'is dismayed because of'} your pick!`,
+                state,
+            );
+        }
+    }
+    pickmovetime = moves;
+}
+
+function shopkeeperList(state) {
+    return state.level?.monlist ?? state.fmon ?? null;
+}
+
+// C ref: shk.c same_price() (955-987). The bill entries must belong to the
+// same keeper and quote the same price before inventory.c can merge them.
+export function same_price(obj1, obj2, state = game) {
+    let shkp1;
+    let shkp2;
+    let bp1 = null;
+    let bp2 = null;
+
+    for (shkp1 = next_shkp(shopkeeperList(state), true, state);
+        shkp1;
+        shkp1 = next_shkp(shkp1.nmon, true, state)) {
+        bp1 = onbill(obj1, shkp1, true);
+        if (bp1) break;
+    }
+
+    if (shkp1 && (bp2 = onbill(obj2, shkp1, true))) {
+        shkp2 = shkp1;
+    } else {
+        for (shkp2 = next_shkp(shopkeeperList(state), true, state);
+            shkp2;
+            shkp2 = next_shkp(shkp2.nmon, true, state)) {
+            bp2 = onbill(obj2, shkp2, true);
+            if (bp2) break;
+        }
+    }
+
+    if (!bp1 || !bp2) {
+        note_unported('pline.c impossible');
+        return false;
+    }
+    return shkp1 === shkp2 && bp1.price === bp2.price;
+}
+
+// C ref: shk.c shop_debt() (990-998). The report includes every active bill
+// entry and the keeper's debit, but deliberately ignores robbed merchandise.
+export function shop_debt(eshkp) {
+    let debt = eshkp.debit;
+    const bill = eshkp.bill_p ?? [];
+    for (let index = 0; index < Math.trunc(eshkp.billct); ++index) {
+        const entry = bill[index];
+        debt += entry.price * entry.bquan;
+    }
+    return debt;
 }
 
 // C ref: shk.c credit_report() (627-661).  These snapshots are static in C,

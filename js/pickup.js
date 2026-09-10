@@ -156,7 +156,7 @@ import {
     ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
-import { costly_spot, sellobj_state } from './shk.js';
+import { costly_spot, pick_pick, sellobj_state } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at, chest_trap } from './trap.js';
@@ -2435,7 +2435,7 @@ async function out_container(obj, state) {
 
     // Icebox removal is not ported (age_is_relative, removed_from_icebox).
     // Shop billing for floor containers is not ported (addtobill).
-    // pick_pick() shopkeeper feedback is not ported.
+    await pick_pick(otmp, state);
 
     const result = await addinv_runtime(otmp, { state });
     await pickup_prinv(result, count, 'removing', state);
