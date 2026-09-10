@@ -700,6 +700,7 @@ canvas {
 <div class="section">
   <h2 class="section-title">Source ports</h2>
   <p class="subtitle">C functions and Lua programs listed in GOALS.json, grouped by source file. Verified units have source, caller, and validation evidence. Historical declarations and closed goals do not establish verification.</p>
+  <div class="legend" id="filePortLegend"></div>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="filePortTable"></table>
@@ -837,6 +838,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
 // program. Each row groups a source file's goals and distinct verified units.
 (function() {
   const table = document.getElementById('filePortTable');
+  document.getElementById('filePortLegend').innerHTML = '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(--goal-in-progress)"></div>a goal of the file is in progress</div>';
   const ports = DATA.filePorts || [];
   if (ports.length === 0) {
     table.outerHTML = '<p class="table-note">No source port recorded yet.</p>';
@@ -1750,7 +1752,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     { cssVar: '--goal-boundary', label: 'boundary stop' },
   ].map(k =>
     '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
-  ).join('') + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
+  ).join('') + '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(--goal-in-progress)"></div>in progress</div>'
+    + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
