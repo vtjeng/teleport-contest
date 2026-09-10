@@ -20257,6 +20257,54 @@
         "from": 1084,
         "to": 1174
       }
+    },
+    {
+      "id": "port-wintty-startup",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port wintty startup and player-name handlers",
+      "cFile": "wintty.c",
+      "sessions": [],
+      "detail": "",
+      "spans": [],
+      "openedAt": "c608394c40b210fba92e26cb73e6da00c988bba1",
+      "openStanding": {
+        "sha": "ac7ba249",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tty_init_nhwindows",
+          "line": 511,
+          "endLine": 595,
+          "ported": false
+        },
+        {
+          "name": "tty_preference_update",
+          "line": 596,
+          "endLine": 633,
+          "ported": false
+        },
+        {
+          "name": "tty_player_selection",
+          "line": 634,
+          "endLine": 650,
+          "ported": false
+        },
+        {
+          "name": "tty_askname",
+          "line": 651,
+          "endLine": 757,
+          "ported": false
+        }
+      ],
+      "range": {
+        "from": 511,
+        "to": 757
+      }
     }
   ]
 }
