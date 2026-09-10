@@ -18978,8 +18978,8 @@
       "spans": [
         {
           "name": "SF_X..norm_ptrs_rm",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "49a4e216c8613d0951a6e3c96a40b61e0554587c",
           "functions": [
             "SF_X",
             "sfo_char",
@@ -19072,451 +19072,451 @@
           "name": "SF_X",
           "line": 246,
           "endLine": 248,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfo_char",
           "line": 249,
           "endLine": 264,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfi_char",
           "line": 265,
           "endLine": 289,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfo_genericptr",
           "line": 290,
           "endLine": 305,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfi_genericptr",
           "line": 306,
           "endLine": 329,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfo_version_info",
           "line": 330,
           "endLine": 347,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfi_version_info",
           "line": 348,
           "endLine": 376,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sf_log",
           "line": 377,
           "endLine": 448,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfvalue_any",
           "line": 449,
           "endLine": 459,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfvalue_genericptr",
           "line": 460,
           "endLine": 607,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sfvalue_bitfield",
           "line": 608,
           "endLine": 616,
-          "ported": false
+          "ported": true
         },
         {
           "name": "bitfield_dump",
           "line": 617,
           "endLine": 624,
-          "ported": false
+          "ported": true
         },
         {
           "name": "complex_dump",
           "line": 625,
           "endLine": 646,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sf_init",
           "line": 647,
           "endLine": 657,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sf_setprocs",
           "line": 658,
           "endLine": 663,
-          "ported": false
+          "ported": true
         },
         {
           "name": "sf_setflprocs",
           "line": 664,
           "endLine": 747,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_any",
           "line": 748,
           "endLine": 751,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_align",
           "line": 752,
           "endLine": 756,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_arti_info",
           "line": 757,
           "endLine": 761,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_attribs",
           "line": 762,
           "endLine": 766,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_bill_x",
           "line": 767,
           "endLine": 771,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_branch",
           "line": 772,
           "endLine": 776,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_bubble",
           "line": 777,
           "endLine": 781,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_cemetery",
           "line": 782,
           "endLine": 786,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_context_info",
           "line": 787,
           "endLine": 791,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_achievement_tracking",
           "line": 792,
           "endLine": 796,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_book_info",
           "line": 797,
           "endLine": 801,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_dig_info",
           "line": 802,
           "endLine": 806,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_engrave_info",
           "line": 807,
           "endLine": 811,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_obj_split",
           "line": 812,
           "endLine": 816,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_polearm_info",
           "line": 817,
           "endLine": 821,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_takeoff_info",
           "line": 822,
           "endLine": 826,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_tin_info",
           "line": 827,
           "endLine": 831,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_tribute_info",
           "line": 832,
           "endLine": 836,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_victual_info",
           "line": 837,
           "endLine": 841,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_warntype_info",
           "line": 842,
           "endLine": 846,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_d_flags",
           "line": 847,
           "endLine": 851,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_d_level",
           "line": 852,
           "endLine": 856,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_damage",
           "line": 857,
           "endLine": 861,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_dest_area",
           "line": 862,
           "endLine": 866,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_dgn_topology",
           "line": 867,
           "endLine": 871,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_dungeon",
           "line": 872,
           "endLine": 876,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_ebones",
           "line": 877,
           "endLine": 881,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_edog",
           "line": 882,
           "endLine": 886,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_egd",
           "line": 887,
           "endLine": 891,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_emin",
           "line": 892,
           "endLine": 896,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_engr",
           "line": 897,
           "endLine": 901,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_epri",
           "line": 902,
           "endLine": 906,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_eshk",
           "line": 907,
           "endLine": 911,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_fakecorridor",
           "line": 912,
           "endLine": 916,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_fe",
           "line": 917,
           "endLine": 921,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_flag",
           "line": 922,
           "endLine": 926,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_fruit",
           "line": 927,
           "endLine": 931,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_gamelog_line",
           "line": 932,
           "endLine": 936,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_kinfo",
           "line": 937,
           "endLine": 941,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_levelflags",
           "line": 942,
           "endLine": 946,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_linfo",
           "line": 947,
           "endLine": 951,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_ls_t",
           "line": 952,
           "endLine": 956,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mapseen_feat",
           "line": 957,
           "endLine": 961,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mapseen_flags",
           "line": 962,
           "endLine": 966,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mapseen_rooms",
           "line": 967,
           "endLine": 971,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mapseen",
           "line": 972,
           "endLine": 976,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mextra",
           "line": 977,
           "endLine": 981,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mkroom",
           "line": 982,
           "endLine": 986,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_monst",
           "line": 987,
           "endLine": 991,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_mvitals",
           "line": 992,
           "endLine": 996,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_nhcoord",
           "line": 997,
           "endLine": 1001,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_nhrect",
           "line": 1002,
           "endLine": 1006,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_novel_tracking",
           "line": 1007,
           "endLine": 1011,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_obj",
           "line": 1012,
           "endLine": 1016,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_objclass",
           "line": 1017,
           "endLine": 1021,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_oextra",
           "line": 1022,
           "endLine": 1026,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_prop",
           "line": 1027,
           "endLine": 1031,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_q_score",
           "line": 1032,
           "endLine": 1036,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_rm",
           "line": 1037,
           "endLine": 1041,
-          "ported": false
+          "ported": true
         },
         {
           "name": "norm_ptrs_s_level",
