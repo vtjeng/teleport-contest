@@ -854,7 +854,6 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         // C uses goto redo_menu when the player picks '?' or '*' inside the
         // menu; here a for(;;) loop replaces the goto.
         if (ilet === '?' || ilet === '*') {
-            // eslint-disable-next-line no-constant-condition
             for (;;) {
                 let allowed_choices = (ilet === '?') ? lets : null;
                 let handsbuf = null;

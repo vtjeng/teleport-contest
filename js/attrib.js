@@ -16,7 +16,6 @@ import {
     A_CURRENT,
     A_DEX,
     A_INT,
-    A_NEUTRAL,
     A_STR,
     A_WIS,
     BLINDED,

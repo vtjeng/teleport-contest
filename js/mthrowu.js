@@ -19,7 +19,6 @@ import {
     ACID_RES,
     BLINDED,
     BOLT_LIM,
-    BZ_M_BREATH,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
     CONFUSION,
@@ -86,14 +85,11 @@ import {
     get_atkdam_type,
     is_elf,
     is_unicorn,
-    is_vampshifter,
     mhim,
-    mhis,
     mon_hates_silver,
     monster_resists_element,
     nohands,
     noncorporeal,
-    nonliving,
     passes_rocks,
     throws_rocks,
     touch_petrifies,
@@ -160,7 +156,6 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import {
-    Tobjnam,
     an,
     distant_name,
     isPoisonable,
@@ -184,13 +179,10 @@ import { observe_object, discover_object } from './o_init.js';
 import { potionhit } from './potion.js';
 import { munstone } from './muse.js';
 import { dropy, flooreffects } from './do.js';
-import { canSpotMonster } from './startup_a11y.js';
 import { shade_miss } from './uhitm.js';
 import { is_lava, is_pool } from './trap.js';
 import { obj_sheds_light } from './light.js';
-import { capitalizedMonsterName, monsterCommonName, some_mon_nam } from './do_name.js';
-import { makeplural } from './fruit.js';
-import { body_part, mbodypart } from './polyself.js';
+import { monsterCommonName, some_mon_nam } from './do_name.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */

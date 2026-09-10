@@ -22,9 +22,6 @@ import {
     INVIS,
     ROOM,
     ROWNO,
-    STONE,
-    W_NONDIGGABLE,
-    W_NONPASSWALL,
 } from '../js/const.js';
 import { m_move } from '../js/monmove.js';
 import {

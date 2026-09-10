@@ -15,17 +15,7 @@ import {
     ARTILIST_TEMPLATE,
     HEALING,
     TAMING,
-    ENERGY_BOOST,
-    UNTRAP,
-    CHARGE_OBJ,
-    LEV_TELE,
-    CREATE_PORTAL,
-    ENLIGHTENING,
-    CREATE_AMMO,
-    BANISH,
     FLING_POISON,
-    FIRESTORM,
-    SNOWSTORM,
     BLINDING_RAY,
     artifact_has_invprop,
     arti_cost,
@@ -44,8 +34,6 @@ import {
     objects_globals_init,
     LONG_SWORD,
     ORCISH_DAGGER,
-    QUARTERSTAFF,
-    SILVER_SABER,
 } from '../js/objects.js';
 import { aligns, roles, races } from '../js/roles.js';
 

@@ -39,7 +39,7 @@ import {
 import { newsym } from './display.js';
 import { christen_monst } from './do_name.js';
 import { tamedog } from './dog.js';
-import { level_difficulty, Is_special, on_level } from './dungeon.js';
+import { level_difficulty, on_level } from './dungeon.js';
 import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import { new_light_source } from './light.js';
@@ -56,7 +56,7 @@ import {
     monsndx,
     pm_resistance,
 } from './mondata.js';
-import { newMonster, mon_track_clear, place_monster } from './monst.js';
+import { mon_track_clear, place_monster } from './monst.js';
 import { next_ident } from './obj.js';
 import { discover_object } from './o_init.js';
 import { BAG_OF_TRICKS } from './objects.js';
@@ -115,7 +115,6 @@ import {
     S_GOLEM,
     S_LICH,
     S_LIGHT,
-    S_MIMIC_DEF,
     S_TRAPPER,
     S_VORTEX,
     SPECIAL_PM,

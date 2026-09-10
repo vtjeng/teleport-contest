@@ -64,7 +64,7 @@ import {
     S_EEL,
     monst_globals_init,
 } from '../js/monsters.js';
-import { m_at, newMonster, place_monster, remove_monster } from '../js/monst.js';
+import { newMonster, place_monster, remove_monster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { messageAt } from '../js/startup_a11y.js';
 import {

@@ -11,7 +11,6 @@ import {
     BLINDED,
     BLND_RES,
     COLD_RES,
-    CONFUSION,
     CONFLICT,
     DISINT_RES,
     DRAIN_RES,
@@ -54,11 +53,9 @@ import {
     SEARCHING,
     SHOCK_RES,
     SICK,
-    SICK_ALL,
     SLIMED,
     STEALTH,
     STONE_RES,
-    STUNNED,
     TELEPORT_CONTROL,
     TIMEOUT,
     Upolyd,
@@ -210,7 +207,7 @@ import {
 import { In_hell, Invocation_lev, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { glyph_at, glyph_is_trap, map_invisible, newsym } from './display.js';
+import { glyph_at, glyph_is_trap, newsym } from './display.js';
 import { losehp, nomul, spoteffects } from './hack.js';
 import { float_down, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
@@ -222,7 +219,7 @@ import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
 import { throwit } from './dothrow.js';
-import { P_SKILL, spell_skilltype } from './startup_skills.js';
+import { spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok } from './read.js';

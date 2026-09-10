@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    A_CHAOTIC,
     A_LAWFUL,
     A_NONE,
     AGGRAVATE_MONSTER,
@@ -86,8 +85,6 @@ import {
     PM_WATER_ELEMENTAL,
     PM_WIZARD_OF_YENDOR,
     M2_ORC,
-    MR_COLD,
-    MR_FIRE,
     NON_PM,
     S_ANT,
     S_DEMON,

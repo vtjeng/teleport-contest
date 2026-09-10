@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DIR_ERR,
     PIT,
     SPIKED_PIT,
     BEAR_TRAP,
@@ -10,7 +9,7 @@ import {
 } from '../js/const.js';
 import { conjoined_pits, adj_nonconjoined_pit } from '../js/trap.js';
 import {
-    noit_Monnam, y_monnam, rndcolor,
+    noit_Monnam, y_monnam,
 } from '../js/do_name.js';
 
 // ---------- conjoined_pits tests ----------

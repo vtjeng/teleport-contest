@@ -21,14 +21,7 @@ import {
     newomid,
     new_omailcmd,
 } from '../js/obj.js';
-import { objects_globals_init, WEAPON_CLASS, FOOD_CLASS } from '../js/objects.js';
-import {
-    LONG_SWORD,   // 54, IRON weapon -- erosion_matters and is_damageable
-    WORM_TOOTH,   // 42, weapon exempted from erosion generation
-    UNICORN_HORN, // 261, weapon exempted from erosion generation
-    APPLE,        // 277, food -- erosion_matters returns false
-    DART,         // 24, IRON weapon -- erosion_matters and is_damageable
-} from '../js/objects.js';
+import { objects_globals_init } from '../js/objects.js';
 
 const state = {};
 objects_globals_init(state);

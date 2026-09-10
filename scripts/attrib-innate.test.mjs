@@ -18,18 +18,12 @@ import {
     FROMOUTSIDE,
     FROM_RACE,
     INFRAVISION,
-    INTRINSIC,
     INVIS,
     JUMPING,
     POISON_RES,
     SEARCHING,
     SLEEP_RES,
     STEALTH,
-    STRANGLED,
-    TIMEOUT,
-    W_ARMC,
-    W_ARMF,
-    W_ARMH,
 } from '../js/const.js';
 import {
     PM_BARBARIAN,
@@ -41,7 +35,6 @@ import {
     PM_ORC,
     PM_VALKYRIE,
 } from '../js/monsters.js';
-import { ART_EYES_OF_THE_OVERWORLD } from '../js/artifacts.js';
 
 // ---- helpers ----
 

@@ -96,7 +96,7 @@ import { noveltitle, x_monnam } from './do_name.js';
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
 import { dropy } from './do.js';
-import { depth, level_difficulty, on_level, surface } from './dungeon.js';
+import { depth, level_difficulty, on_level } from './dungeon.js';
 // can_reach_floor() is imported for hornoplenty()'s tipping path. engrave.js
 // imports nothing from this file; the edge is acyclic.
 import { can_reach_floor } from './engrave.js';
@@ -151,7 +151,7 @@ import { youHear, youSee } from './monmove.js';
 // shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
 // objnam.js imports from this file; both sides use the other's exports only
 // inside function bodies.
-import { The, Yname2, aobjnam, donameFresh, obj_typename, otense, simpleonames, vtense } from './objnam.js';
+import { The, Yname2, aobjnam, donameFresh, obj_typename, otense, vtense } from './objnam.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,

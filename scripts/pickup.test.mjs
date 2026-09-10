@@ -76,7 +76,6 @@ import {
     FIGURINE,
     LEATHER_GLOVES,
     GOLD_PIECE,
-    LUCKSTONE,
     SACK,
     SCR_IDENTIFY,
     SCR_SCARE_MONSTER,

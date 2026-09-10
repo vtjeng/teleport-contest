@@ -30,7 +30,6 @@ import {
     BOULDER, DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK,
     objects_globals_init,
 } from '../js/objects.js';
-import { readobjnam } from '../js/objnam_readobjnam.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
 import {
     CASES as CONTAINER_CASES, loadWishedContainerRecipe,
