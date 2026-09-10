@@ -20115,7 +20115,21 @@
       "cFile": "nhlua.c",
       "sessions": [],
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "nhl_get_timertype..nhl_add_table_entry_region",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nhl_get_timertype",
+            "nhl_add_table_entry_int",
+            "nhl_add_table_entry_char",
+            "nhl_add_table_entry_str",
+            "nhl_add_table_entry_bool",
+            "nhl_add_table_entry_region"
+          ]
+        }
+      ],
       "openedAt": "87d3acb704d2358d8ff1263c32061224d7e7dd3d",
       "openStanding": {
         "sha": "315dc801",
