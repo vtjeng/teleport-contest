@@ -20187,7 +20187,7 @@
     {
       "id": "port-shk-ownership-helpers",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port shop ownership and unpaid-object helpers",
       "cFile": "shk.c",
       "sessions": [],
@@ -20210,8 +20210,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac7ba2499083fedd992df6e961d4729e28d74c26",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "find_objowner",
