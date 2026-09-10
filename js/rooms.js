@@ -245,7 +245,7 @@ export async function check_special_room(
         return state; /* no entrance messages necessary */
 
     if (enteredShops.length) {
-        await u_entered_shop(enteredShops, state, { message });
+        await u_entered_shop(enteredShops, state, { message, random });
     }
 
     for (const roomno of entered) {

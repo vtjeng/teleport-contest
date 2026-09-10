@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9700006,
+      "datetime": "20390927141723",
+      "nethackrc": "OPTIONS=name:FreshShop,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n .",
+      "comment": "Wizard-mode level teleport to a newly selected D:5 used armor dealership; the arrival runs hack.c check_special_room() into shk.c u_entered_shop()."
+    }
+  ]
+}

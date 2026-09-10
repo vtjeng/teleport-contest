@@ -747,20 +747,19 @@ test('check_special_room handles Court and Morgue and stops later families',
         await check_special_room(false, state);
     }
 
-    // The switch's `rt >= SHOPBASE` arm cannot be reached from the loop:
     // move_update() puts a shop into u.ushops_entered as well as u.uentered,
-    // and u_entered_shop() answers for it above.
+    // and u_entered_shop() handles the generated-shop transition before the
+    // ordinary room switch sees it. A room with no resident keeper takes the
+    // source's empty-shop path and clears the active shop list.
     for (const rt of [SHOPBASE, SHOPBASE + 4]) {
         state.u.urooms = [0, 0, 0, 0, 0];
         state.u.urooms0 = [0, 0, 0, 0, 0];
         state.u.ushops = [0, 0, 0, 0, 0];
         state.u.ushops0 = [0, 0, 0, 0, 0];
         state.level.rooms[0].rtype = rt;
-        await assert.rejects(
-            () => check_special_room(false, state),
-            /untended shop/u,
-            `shop type ${rt}`,
-        );
+        await assert.doesNotReject(() => check_special_room(false, state),
+            `shop type ${rt}`);
+        assert.equal(state.u.ushops[0], 0, `shop type ${rt}`);
     }
     });
 

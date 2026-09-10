@@ -170,7 +170,7 @@ import { getlev } from './restore.js';
 import { cloneIsaacContext, createCoreRandom, rn2 } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
-import { costly_spot, preflight_shop_arrival } from './shk.js';
+import { costly_spot } from './shk.js';
 import {
     stairway_at,
     stairway_find_from,
@@ -353,14 +353,12 @@ export async function place_random_arrival(
 ) {
     const earthSenseMessages = [];
     const preflightArrival = (x, y, liveState) => {
-        preflight_shop_arrival(x, y, liveState);
         // This is a write-set clone, not a general deep clone. move_update()
         // writes u and its room buffers, and projected pickup writes gw.wc;
-        // the admission helpers currently only read context, gp, and iflags.
-        // The shared level, inventory, and object graph stays read-only. Extend
-        // this list before an operation on the projection gains another nested
-        // write owner. preflight_shop_arrival() runs on liveState before this
-        // clone and must remain mutation-free.
+        // the pickup admission helper currently only reads context, gp, and
+        // iflags. The shared level, inventory, and object graph stays
+        // read-only. Extend this list before an operation on the projection
+        // gains another nested write owner.
         const projected = {
             ...liveState,
             context: { ...(liveState.context ?? {}) },

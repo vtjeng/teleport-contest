@@ -303,33 +303,6 @@ test('bill and debit shop debt each refuse departure before movement',
         }
     });
 
-test('ordinary movement refuses entry onto a shop edge atomically',
-    async () => {
-        const { keeper, start, state, target } = await generatedShopPile();
-        state.level.objects[target.x][target.y] = null;
-        Object.assign(state.level.at(start.x, start.y), {
-            roomno: 0,
-            edge: false,
-        });
-        state.level.at(target.x, target.y).edge = true;
-        for (const rooms of [
-            state.u.urooms,
-            state.u.ushops,
-            state.u.ushops0,
-            state.u.ushops_entered,
-            state.u.ushops_left,
-        ]) rooms.fill(0);
-        state.u.uachieved[0] = 99;
-        const before = movementSnapshot(state, target, keeper);
-
-        await assert.rejects(
-            () => domove(state),
-            /outside the shop interior/u,
-        );
-
-        assertMovementSnapshot(state, target, before, keeper);
-    });
-
 test('ordinary movement refuses a debtor reaching the shop edge atomically',
     async () => {
         const { keeper, state, target } = await generatedShopPile();

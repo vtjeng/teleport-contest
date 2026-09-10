@@ -17,6 +17,7 @@ import {
     DETECT_MONSTERS,
     DEAF,
     D_BROKEN,
+    EYE,
     FAST,
     G_GONE,
     helpless,
@@ -37,9 +38,12 @@ import {
     PLINE_SPEECH,
     PLINE_VERBALIZE,
     PL_NSIZ,
+    PRONOUN_HALLU,
+    PRONOUN_NO_IT,
     ROOMOFFSET,
     SHOPBASE,
     TELEPAT,
+    plur,
     u_at,
 } from './const.js';
 import { acurr, adjalign } from './attrib.js';
@@ -60,7 +64,6 @@ import {
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
-import { set_malign } from './makemon.js';
 import { mongone } from './makemon_create.js';
 import { angry_guards, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
@@ -94,13 +97,19 @@ import {
     PM_ROGUE,
     PM_TOURIST,
 } from './monsters.js';
-import { haseyes, is_demon, resist_conflict } from './mondata.js';
+import {
+    haseyes,
+    is_demon,
+    pronoun_gender,
+    resist_conflict,
+} from './mondata.js';
 import { Hello } from './role_init.js';
+import { genders } from './roles.js';
 import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
 import { m_at } from './monst.js';
-import { poly_gender } from './polyself.js';
+import { mbodypart, poly_gender } from './polyself.js';
 import {
     canSeeMonster,
     heroIsBlind,
@@ -110,6 +119,14 @@ import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, remove_worn_item } from './steal.js';
+import { discover_object } from './o_init.js';
+import { y_monnam } from './do_name.js';
+import { rn2 } from './rng.js';
+
+// C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives
+// calls, including calls made by later game segments, just as the C static
+// storage does. Only the NUL-terminated prefix is significant.
+const emptyShops = new Array(5).fill(0);
 
 // C ref: shk.c money2mon() (157-184). Transfer an exact gold stack from the
 // hero's inventory to a monster. The diagnostic branches are impossible in a
@@ -389,53 +406,10 @@ export function find_objowner(obj, x, y, state = game) {
     return defaultShopkeeper;
 }
 
-// The generated-shop subset of shk.c:u_entered_shop(). The source performs
-// its boundary handling after achievement and greeting effects because it can
-// continue into block_door(). This port cannot continue there, so callers use
-// this admission check before changing the hero's position or shop state.
-export function assert_shop_entry_supported(x, y, roomno, state = game) {
-    if (inside_shop(x, y, state) !== roomno) {
-        throw new UnsupportedShopError(
-            'u_entered_shop() arriving outside the shop interior',
-        );
-    }
-    const shopkeeper = shop_keeper(roomno, state);
-    if (!shopkeeper) {
-        throw new UnsupportedShopError('u_entered_shop() in an untended shop');
-    }
-    if (!inhishop(shopkeeper, state)) {
-        throw new UnsupportedShopError('u_entered_shop() in an untended shop');
-    }
-    const extension = shopkeeper.mextra.eshk;
-    const unsupportedGreeting = [
-        !shopkeeper.mcanmove,
-        shopkeeper.msleeping,
-        extension.following,
-        !shopkeeper.mpeaceful,
-        extension.surcharge,
-        extension.robbed,
-        heroIsInvisible(state),
-    ].some(Boolean);
-    if (unsupportedGreeting) {
-        throw new UnsupportedShopError(
-            'u_entered_shop() outside the peaceful visible greeting',
-        );
-    }
-    const room = state.level.rooms[roomno - ROOMOFFSET];
-    if (!SHTYPES[room.rtype - SHOPBASE]?.name)
-        throw new UnsupportedShopError('u_entered_shop() shop type');
-    return { extension, room, shopkeeper };
-}
-
-export function preflight_shop_arrival(x, y, state = game) {
-    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
-    if (roomno) assert_shop_entry_supported(x, y, roomno, state);
-}
-
-// Admission seam for the parts of shk.c:u_left_shop() and u_entered_shop()
-// which movement can reach. Settled departures and absent/displaced keepers
-// have no effect. Debt handling and boundary-entry blocking remain named
-// refusals, raised before hack.c:domove_core() changes u.ux/u.uy.
+// Admission seam for the parts of shk.c:u_left_shop() which movement can
+// reach. Settled departures and absent/displaced keepers have no effect. Debt
+// handling and boundary-entry blocking remain named refusals, raised before
+// hack.c:domove_core() changes u.ux/u.uy.
 export function preflight_shop_transition(
     fromX,
     fromY,
@@ -445,9 +419,6 @@ export function preflight_shop_transition(
 ) {
     const oldShops = in_rooms(fromX, fromY, SHOPBASE, state);
     const newShops = in_rooms(toX, toY, SHOPBASE, state);
-    const entered = newShops.find((roomno) => !oldShops.includes(roomno));
-    if (entered)
-        assert_shop_entry_supported(toX, toY, entered, state);
 
     const left = oldShops.filter((roomno) => !newShops.includes(roomno));
     const from = state.level?.at(fromX, fromY);
@@ -1259,46 +1230,285 @@ function heroIsDeaf(state) {
     );
 }
 
-// C ref: shk.c u_entered_shop(), through the generated, present, peaceful
-// shopkeeper branch reached by random level-teleport arrival.
+function roomNumbers(buffer) {
+    const result = [];
+    for (let index = 0; index < 5; ++index) {
+        const roomno = Math.trunc(buffer?.[index] ?? 0);
+        if (!roomno) break;
+        result.push(roomno);
+    }
+    return result;
+}
+
+function copyRoomNumbers(target, source) {
+    const rooms = roomNumbers(source);
+    target.fill(0);
+    for (let index = 0; index < rooms.length && index < target.length; ++index)
+        target[index] = rooms[index];
+}
+
+function randomRoll(random) {
+    return typeof random === 'function' ? random : random?.rn2 ?? rn2;
+}
+
+// C ref: shk.c pacify_shk() (1344-1360). This direct callee is small but its
+// bill-price adjustment is part of u_entered_shop()'s customer-reset state.
+function pacify_shk(shopkeeper, clearSurcharge) {
+    const eshk = shopkeeper.mextra.eshk;
+    shopkeeper.mpeaceful = true;
+    if (clearSurcharge && eshk.surcharge) {
+        const bill = eshk.bill_p ?? [];
+        const count = Math.trunc(eshk.billct ?? 0);
+        eshk.surcharge = false;
+        for (let index = 0; index < count; ++index) {
+            const entry = bill[index];
+            const reduction = Math.trunc((entry.price + 3) / 4);
+            entry.price -= reduction;
+        }
+    }
+}
+
+function noitPronoun(shopkeeper, field, state, random) {
+    const gender = genders[pronoun_gender(
+        shopkeeper,
+        PRONOUN_NO_IT | PRONOUN_HALLU,
+        { state, random: { rn2: random } },
+    )];
+    return gender[field];
+}
+
+// C ref: youprop.h:376 Fast = (HFast || EFast).
+function heroIsFast(state) {
+    const value = state.u?.uprops?.[FAST];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+// C ref: shk.c u_entered_shop() (751-917). The source's void helper is
+// exposed as a boolean for the existing JavaScript callers; every non-empty
+// source path answers true after applying the same state and message order.
 export async function u_entered_shop(
     enterstring,
     state = game,
-    { message = ttyPline } = {},
+    { message = ttyPline, random = rn2 } = {},
 ) {
     const roomno = Math.trunc(enterstring?.[0] ?? 0);
     if (!roomno) return false;
-    const { extension, room, shopkeeper } = assert_shop_entry_supported(
-        state.u.ux,
-        state.u.uy,
-        roomno,
-        state,
-    );
+
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper) {
+        const currentRooms = in_rooms(
+            state.u.ux,
+            state.u.uy,
+            SHOPBASE,
+            state,
+        );
+        const previousRooms = in_rooms(
+            state.u.ux0,
+            state.u.uy0,
+            SHOPBASE,
+            state,
+        );
+        // C compares the pointers returned by in_rooms(), whose offset in its
+        // static buffer is determined by the number of matching rooms.
+        if (!emptyShops.includes(roomno)
+            && currentRooms.length !== previousRooms.length) {
+            await deserted_shop(enterstring, state, { message });
+        }
+        copyRoomNumbers(emptyShops, state.u.ushops);
+        state.u.ushops[0] = 0;
+        return true;
+    }
+
+    const extension = shopkeeper.mextra.eshk;
+    if (!inhishop(shopkeeper, state)) {
+        // C installs the same diagnostic sentinel used by restshk() before
+        // announcing a displaced keeper; no valid follow-up bill operation
+        // consumes this sentinel in the supported path.
+        extension.bill_p = -1000;
+        if (!emptyShops.includes(roomno))
+            await deserted_shop(enterstring, state, { message });
+        copyRoomNumbers(emptyShops, state.u.ushops);
+        state.u.ushops[0] = 0;
+        return true;
+    }
 
     record_achievement(ACH_SHOP, state);
-    extension.bill_p = extension.bill;
+    extension.bill_p = extension.bill ?? [];
     const playerName = String(state.plname ?? '').slice(0, PL_NSIZ - 1);
     if ((!extension.visitct || extension.customer)
-        && extension.customer.toLowerCase() !== playerName.toLowerCase()) {
+        && strncmpi(extension.customer ?? '', playerName, PL_NSIZ) !== 0) {
         extension.visitct = 0;
         extension.following = false;
         extension.customer = playerName;
-        shopkeeper.mpeaceful = true;
-        extension.surcharge = false;
-        set_malign(shopkeeper, state);
+        pacify_shk(shopkeeper, true);
     }
 
-    const again = extension.visitct++ ? ' again' : '';
-    const shopName = SHTYPES[room.rtype - SHOPBASE]?.name;
-    const owner = s_suffix(extension.shknam);
-    if (!heroIsDeaf(state)) {
+    if (muteshk(shopkeeper) || extension.following)
+        return true;
+
+    const roll = randomRoll(random);
+    if (heroIsInvisible(state)) {
+        await message(`${Shknam(shopkeeper)} senses your presence.`, state);
+        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await message('"Invisible customers are not welcome!"', state);
+        } else {
+            await message(
+                `${Shknam(shopkeeper)} stands firm as if ${noitPronoun(
+                    shopkeeper, 'he', state, roll,
+                )} knows you are there.`,
+                state,
+            );
+        }
+        return true;
+    }
+
+    const room = state.level.rooms[roomno - ROOMOFFSET];
+    const shopName = SHTYPES[room.rtype - SHOPBASE].name;
+    const owner = s_suffix(shkname(shopkeeper));
+    if (!NOTANGRY(shopkeeper)) {
+        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await message(
+                `"So, ${playerName}, you dare return to ${owner} ${shopName}?!"`,
+                state,
+            );
+        } else {
+            await message(
+                `${Shknam(shopkeeper)} seems ${[
+                    'quite upset', 'ticked off', 'furious',
+                ][roll(3)]} over your return to ${noitPronoun(
+                    shopkeeper, 'his', state, roll,
+                )} ${shopName}!`,
+                state,
+            );
+        }
+    } else if (extension.surcharge) {
+        if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await message(
+                `"Back again, ${playerName}?  I've got my ${mbodypart(
+                    shopkeeper, EYE,
+                )} on you."`,
+                state,
+            );
+        } else {
+            await message(
+                `The atmosphere at ${owner} ${shopName} seems unwelcoming.`,
+                state,
+            );
+        }
+    } else if (extension.robbed) {
+        if (!heroIsDeaf(state)) {
+            // Soundeffect(se_mutter_imprecations, 50) is compiled out by the
+            // recorder's no-sound backend, so only the pline remains.
+            await message(
+                `${Shknam(shopkeeper)} mutters imprecations against shoplifters.`,
+                state,
+            );
+        } else {
+            await message(
+                `${Shknam(shopkeeper)} is combing through ${noitPronoun(
+                    shopkeeper, 'his', state, roll,
+                )} inventory list.`,
+                state,
+            );
+        }
+    } else if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+        set_voice(shopkeeper, 0, 80, 0, state);
         await message(
             `"${Hello(state.urole, { shopkeeper: true })}, ${playerName}!  `
-            + `Welcome${again} to ${owner} ${shopName}!"`,
+            + `Welcome${extension.visitct++ ? ' again' : ''} to ${owner} ${shopName}!"`,
             state,
         );
     } else {
-        await message(`You enter ${owner} ${shopName}${again}!`, state);
+        await message(
+            `You enter ${owner} ${shopName}${extension.visitct++ ? ' again' : ''}!`,
+            state,
+        );
+    }
+
+    // Teleporting into a shop skips the block_door path. A walking arrival
+    // can still be outside the strict interior, where C gives the keeper an
+    // extra turn to block entry; dochug()'s void result is discarded here and
+    // remains an explicitly recorded gap until monmove.c is complete.
+    if (!inside_shop(state.u.ux, state.u.uy, state)) {
+        let shouldBlock = false;
+        let count = 0;
+        let tool;
+        let pick = carrying(PICK_AXE, state);
+        let mattock = carrying(DWARVISH_MATTOCK, state);
+        const notUpset = !extension.surcharge;
+
+        if (pick || mattock) {
+            count = 1;
+            if (pick && mattock) {
+                tool = 'digging tool';
+                count = 2;
+            } else if (pick) {
+                tool = 'pick-axe';
+                for (pick = pick.nobj; pick; pick = pick.nobj)
+                    if (pick.otyp === PICK_AXE) ++count;
+            } else {
+                tool = 'mattock';
+                for (mattock = mattock.nobj; mattock; mattock = mattock.nobj)
+                    if (mattock.otyp === DWARVISH_MATTOCK) ++count;
+                if (!heroIsBlind(state)) {
+                    discover_object(
+                        DWARVISH_MATTOCK,
+                        true,
+                        true,
+                        true,
+                        state,
+                        { random: { rn2: roll } },
+                    );
+                }
+            }
+            if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+                set_voice(shopkeeper, 0, 80, 0, state);
+                await message(
+                    `"${notUpset ? 'Will you please leave your' : 'Leave the'} `
+                    + `${tool}${plur(count)} outside?"`,
+                    state,
+                );
+            } else {
+                await message(
+                    `${Shknam(shopkeeper)} ${notUpset ? 'is hesitant' : 'refuses'} `
+                    + `to let you in with your ${tool}${plur(count)}.`,
+                    state,
+                );
+            }
+            shouldBlock = true;
+        } else if (state.u.usteed) {
+            const steed = y_monnam(state.u.usteed, state);
+            if (!heroIsDeaf(state) && !muteshk(shopkeeper)) {
+                set_voice(shopkeeper, 0, 80, 0, state);
+                await message(
+                    `"${notUpset ? 'Will you please leave' : 'Leave'} `
+                    + `${steed} outside?"`,
+                    state,
+                );
+            } else {
+                await message(
+                    `${Shknam(shopkeeper)} ${notUpset ? "doesn't want" : 'refuses'} `
+                    + `to let you in while you're riding ${steed}.`,
+                    state,
+                );
+            }
+            shouldBlock = true;
+        } else {
+            shouldBlock = heroIsFast(state)
+                && Boolean(
+                    sobj_at(PICK_AXE, state.u.ux, state.u.uy, state)
+                    || sobj_at(
+                        DWARVISH_MATTOCK,
+                        state.u.ux,
+                        state.u.uy,
+                        state,
+                    ),
+                );
+        }
+        if (shouldBlock) note_unported('monmove.c dochug');
     }
     return true;
 }

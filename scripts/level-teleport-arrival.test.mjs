@@ -10,6 +10,7 @@ import {
     ARROW_TRAP,
     CORR,
     DEAF,
+    FAST,
     INVIS,
     LAST_PROP,
     LEVITATION,
@@ -55,13 +56,14 @@ import {
     M1_NOTAKE,
     PM_COCKATRICE,
     PM_DWARF,
+    PM_LITTLE_DOG,
     monst_globals_init,
 } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
-    APPLE, CORPSE, ELVEN_DAGGER, TIN,
+    APPLE, CORPSE, DWARVISH_MATTOCK, ELVEN_DAGGER, PICK_AXE, TIN,
 } from '../js/objects.js';
 import {
     pickup,
@@ -555,166 +557,6 @@ test('random arrival refuses a helpless hero before RNG or placement',
         assert.deepEqual([state.u.ux, state.u.uy], before.position);
         assert.deepEqual(game.coreCtx, before.rng);
         assert.deepEqual(getRngLog(), before.log);
-    });
-
-test('random shop-boundary arrival refuses before relocating the hero',
-    async () => {
-        const state = placementState();
-        initRng(9450612);
-        enableRngLog();
-        // A one-square destination makes <10,8> the first and only candidate;
-        // room zero is represented by ROOMOFFSET in map room-number storage.
-        const destination = { x: 10, y: 8 };
-        state.dndest = {
-            lx: destination.x,
-            ly: destination.y,
-            hx: destination.x,
-            hy: destination.y,
-        };
-        state.level.rooms[0] = { rtype: SHOPBASE };
-        Object.assign(state.level.at(destination.x, destination.y), {
-            typ: ROOM,
-            roomno: ROOMOFFSET,
-            edge: true,
-        });
-        state.u.uundetected = true;
-        state.u.usteed = { mx: state.u.ux, my: state.u.uy };
-        const before = {
-            hero: structuredClone(state.u),
-            rng: structuredClone(game.coreCtx),
-            log: [...getRngLog()],
-            lastSeen: state.level.lastseentyp,
-            terrainType: state.iflags.terrain_typ,
-        };
-
-        await assert.rejects(
-            () => place_random_arrival(0, state),
-            /outside the shop interior/u,
-        );
-
-        assert.deepEqual(state.u, before.hero);
-        assert.deepEqual(game.coreCtx, before.rng);
-        assert.deepEqual(getRngLog(), before.log);
-        assert.equal(state.level.lastseentyp, before.lastSeen);
-        assert.equal(state.iflags.terrain_typ, before.terrainType);
-    });
-
-test('multi-square shop arrival refuses without committing planned RNG',
-    async () => {
-        const state = placementState();
-        initRng(9450613);
-        enableRngLog();
-        state.dndest = { lx: 10, ly: 8, hx: 11, hy: 8 };
-        state.level.rooms[0] = { rtype: SHOPBASE };
-        for (const x of [10, 11]) {
-            Object.assign(state.level.at(x, 8), {
-                typ: ROOM,
-                roomno: ROOMOFFSET,
-                edge: true,
-            });
-        }
-        const before = {
-            position: [state.u.ux, state.u.uy],
-            rng: structuredClone(game.coreCtx),
-            log: [...getRngLog()],
-        };
-
-        await assert.rejects(
-            () => place_random_arrival(0, state),
-            /outside the shop interior/u,
-        );
-
-        assert.deepEqual([state.u.ux, state.u.uy], before.position);
-        assert.deepEqual(game.coreCtx, before.rng);
-        assert.deepEqual(getRngLog(), before.log);
-    });
-
-test('wrapped random placement retains atomic dry-run refusal', async () => {
-    const state = placementState();
-    initRng(9450613);
-    enableRngLog();
-    state.dndest = { lx: 10, ly: 8, hx: 11, hy: 8 };
-    state.level.rooms[0] = { rtype: SHOPBASE };
-    for (const x of [10, 11]) {
-        Object.assign(state.level.at(x, 8), {
-            typ: ROOM,
-            roomno: ROOMOFFSET,
-            edge: true,
-        });
-    }
-    const before = {
-        position: [state.u.ux, state.u.uy],
-        rng: structuredClone(game.coreCtx),
-        log: [...getRngLog()],
-    };
-    let calls = 0;
-    const wrappedPlacement = (...args) => {
-        calls += 1;
-        return u_on_rndspot(...args);
-    };
-
-    await assert.rejects(
-        () => place_random_arrival(0, state, { place: wrappedPlacement }),
-        /outside the shop interior/u,
-    );
-
-    assert.equal(calls, 1);
-    assert.deepEqual([state.u.ux, state.u.uy], before.position);
-    assert.deepEqual(game.coreCtx, before.rng);
-    assert.deepEqual(getRngLog(), before.log);
-});
-
-test('multi-square dry run and replay select the same heterogeneous square',
-    async () => {
-        const makeState = (excludedX) => {
-            const state = placementState();
-            state.dndest = { lx: 10, ly: 8, hx: 11, hy: 8 };
-            state.level.rooms[0] = { rtype: SHOPBASE };
-            for (const x of [10, 11]) {
-                Object.assign(state.level.at(x, 8), {
-                    typ: ROOM,
-                    roomno: x === excludedX ? ROOMOFFSET : 0,
-                    edge: x === excludedX,
-                });
-            }
-            return state;
-        };
-
-        const refused = makeState(10);
-        initRng(9450613);
-        enableRngLog();
-        const refusedBefore = {
-            position: [refused.u.ux, refused.u.uy],
-            rng: structuredClone(game.coreCtx),
-            log: [...getRngLog()],
-        };
-        await assert.rejects(
-            () => place_random_arrival(0, refused),
-            /outside the shop interior/u,
-        );
-        assert.deepEqual([refused.u.ux, refused.u.uy],
-            refusedBefore.position);
-        assert.deepEqual(game.coreCtx, refusedBefore.rng);
-        assert.deepEqual(getRngLog(), refusedBefore.log);
-
-        const admitted = makeState(11);
-        initRng(9450613);
-        enableRngLog();
-        const admittedRng = structuredClone(game.coreCtx);
-        await place_random_arrival(0, admitted);
-        assert.deepEqual([admitted.u.ux, admitted.u.uy], [10, 8]);
-        assert.notDeepEqual(game.coreCtx, admittedRng);
-        assert.deepEqual(getRngLog(), [
-            'rn2(2)=0',
-            'rn2(1)=0',
-        ]);
-        const admittedFinalRng = structuredClone(game.coreCtx);
-        const expected = makeState(11);
-        initRng(9450613);
-        enableRngLog();
-        u_on_rndspot(0, expected, { deferSwitchTerrain: true });
-        assert.deepEqual(game.coreCtx, admittedFinalRng);
-        assert.deepEqual([expected.u.ux, expected.u.uy], [10, 8]);
     });
 
 test('random arrival preflights the complete ordinary pickup transaction',
@@ -1423,8 +1265,11 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         room.rtype = originalRoomType;
 
         const extension = room.resident.mextra.eshk;
-        const owner = extension.shknam.endsWith('s')
-            ? `${extension.shknam}'` : `${extension.shknam}'s`;
+        const keeperName = extension.shknam[0].toUpperCase()
+            + extension.shknam.slice(1);
+        const ownerName = extension.shknam;
+        const owner = ownerName.endsWith('s')
+            ? `${ownerName}'` : `${ownerName}'s`;
         const shopName = SHTYPES[room.rtype - SHOPBASE].name;
         const wizardRole = roles.find((role) => role.filecode === 'Wiz');
         const samuraiRole = roles.find((role) => role.filecode === 'Sam');
@@ -1481,73 +1326,11 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         });
         await enterWith({ role: wizardRole, roleplay: true, expected: deafGreeting });
 
-        // A shop boundary belongs to the room but is not strictly inside it.
-        // The port does not yet own C's blocking dialogue, so refusal must
-        // precede every achievement, billing, customer, visit, and UI write.
-        game.level.at(interior.x, interior.y).edge = true;
-        game.u.uachieved = game.u.uachieved.filter(
-            (achievement) => achievement !== ACH_SHOP,
-        );
-        extension.visitct = 0;
-        extension.customer = '';
-        extension.bill_p = null;
-        const edgeLines = [];
-        await assert.rejects(
-            () => u_entered_shop([roomno], game, {
-                message: async (line) => edgeLines.push(line),
-            }),
-            /outside the shop interior/u,
-        );
-        assert.equal(game.u.uachieved.includes(ACH_SHOP), false);
-        assert.equal(extension.bill_p, null);
-        assert.equal(extension.customer, '');
-        assert.equal(extension.visitct, 0);
-        assert.deepEqual(edgeLines, []);
-        game.level.at(interior.x, interior.y).edge = false;
-
-        const exceptionalGreetings = [
-            {
-                name: 'immobile shopkeeper',
-                apply: () => { room.resident.mcanmove = false; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'sleeping shopkeeper',
-                apply: () => { room.resident.msleeping = true; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'following shopkeeper',
-                apply: () => { extension.following = true; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'angry shopkeeper',
-                apply: () => { room.resident.mpeaceful = false; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'surcharging shopkeeper',
-                apply: () => { extension.surcharge = true; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'robbed shopkeeper',
-                apply: () => { extension.robbed = 1; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'invisible hero',
-                apply: () => { game.u.uprops[INVIS].intrinsic = 1; },
-                pattern: /outside the peaceful visible greeting/u,
-            },
-            {
-                name: 'invalid shop type',
-                apply: () => { room.rtype = SHOPBASE + SHTYPES.length; },
-                pattern: /shop type/u,
-            },
-        ];
-        for (const exceptional of exceptionalGreetings) {
+        // C's source handles every shopkeeper state after recording the
+        // achievement, active bill, and customer. Keep one deterministic
+        // callback for the branch-specific messages below.
+        async function enterState({ setup = () => {}, expected, random = () => 0,
+            visitct = 1, customer = game.plname }) {
             room.rtype = originalRoomType;
             room.resident.mcanmove = true;
             room.resident.msleeping = false;
@@ -1555,80 +1338,242 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             extension.following = false;
             extension.surcharge = false;
             extension.robbed = 0;
-            extension.visitct = 0;
-            extension.customer = '';
+            extension.visitct = visitct;
+            extension.customer = customer;
             extension.bill_p = null;
+            game.u.uprops[DEAF].intrinsic = 0;
+            game.u.uprops[DEAF].extrinsic = 0;
+            game.u.uroleplay.deaf = false;
             game.u.uprops[INVIS].intrinsic = 0;
             game.u.uprops[INVIS].extrinsic = 0;
             game.u.uprops[INVIS].blocked = 0;
-            game.u.uachieved = game.u.uachieved.filter(
-                (achievement) => achievement !== ACH_SHOP,
-            );
-            exceptional.apply();
-            const before = {
-                achieved: [...game.u.uachieved],
-                roomType: room.rtype,
-                keeper: {
-                    mcanmove: room.resident.mcanmove,
-                    msleeping: room.resident.msleeping,
-                    mpeaceful: room.resident.mpeaceful,
-                },
-                shop: {
-                    following: extension.following,
-                    surcharge: extension.surcharge,
-                    robbed: extension.robbed,
-                    visitct: extension.visitct,
-                    customer: extension.customer,
-                    bill_p: extension.bill_p,
-                },
-                invisibility: structuredClone(game.u.uprops[INVIS]),
-                toplines: game._ttyToplines,
-                grid: structuredClone(game.nhDisplay.grid),
-                cursor: [
-                    game.nhDisplay.cursorCol,
-                    game.nhDisplay.cursorRow,
-                    game.nhDisplay.cursorVisible,
-                ],
-            };
+            setup();
             const lines = [];
-
-            await assert.rejects(
-                () => u_entered_shop([roomno], game, {
-                    message: async (line) => lines.push(line),
-                }),
-                exceptional.pattern,
-                exceptional.name,
-            );
-
-            assert.deepEqual(game.u.uachieved, before.achieved,
-                exceptional.name);
-            assert.equal(room.rtype, before.roomType, exceptional.name);
-            assert.deepEqual({
-                mcanmove: room.resident.mcanmove,
-                msleeping: room.resident.msleeping,
-                mpeaceful: room.resident.mpeaceful,
-            }, before.keeper, exceptional.name);
-            assert.deepEqual({
-                following: extension.following,
-                surcharge: extension.surcharge,
-                robbed: extension.robbed,
-                visitct: extension.visitct,
-                customer: extension.customer,
-                bill_p: extension.bill_p,
-            }, before.shop, exceptional.name);
-            assert.deepEqual(game.u.uprops[INVIS], before.invisibility,
-                exceptional.name);
-            assert.equal(game._ttyToplines, before.toplines,
-                exceptional.name);
-            assert.deepEqual(game.nhDisplay.grid, before.grid,
-                exceptional.name);
-            assert.deepEqual([
-                game.nhDisplay.cursorCol,
-                game.nhDisplay.cursorRow,
-                game.nhDisplay.cursorVisible,
-            ], before.cursor, exceptional.name);
-            assert.deepEqual(lines, [], exceptional.name);
+            await u_entered_shop([roomno], game, {
+                random,
+                message: async (line) => lines.push(line),
+            });
+            assert.equal(lines.length, expected.length);
+            for (let index = 0; index < expected.length; ++index) {
+                if (expected[index] instanceof RegExp)
+                    assert.match(lines[index], expected[index]);
+                else assert.equal(lines[index], expected[index]);
+            }
+            assert.equal(extension.bill_p, extension.bill);
         }
+
+        await enterState({
+            setup: () => { extension.following = true; },
+            expected: [],
+        });
+        await enterState({
+            setup: () => { game.u.uprops[INVIS].intrinsic = 1; },
+            expected: [
+                `${keeperName} senses your presence.`,
+                '"Invisible customers are not welcome!"',
+            ],
+        });
+        await enterState({
+            setup: () => {
+                game.u.uprops[INVIS].intrinsic = 1;
+                game.u.uprops[DEAF].intrinsic = 1;
+            },
+            expected: [
+                `${keeperName} senses your presence.`,
+                /stands firm as if (?:he|she|they) knows you are there/u,
+            ],
+        });
+
+        const angryLines = [];
+        await enterState({
+            setup: () => { room.resident.mpeaceful = false; },
+            expected: [
+                `"So, ${game.plname}, you dare return to ${owner} ${shopName}?!"`,
+            ],
+        });
+        await enterState({
+            setup: () => {
+                room.resident.mpeaceful = false;
+                game.u.uprops[DEAF].intrinsic = 1;
+            },
+            random: (bound) => {
+                angryLines.push(bound);
+                return 0;
+            },
+            expected: [
+                new RegExp(
+                    `${keeperName} seems quite upset `
+                    + `over your return to (?:his|her|their) ${shopName}!`,
+                    'u',
+                ),
+            ],
+        });
+        assert.deepEqual(angryLines, [3]);
+        await enterState({
+            setup: () => { extension.surcharge = true; },
+            expected: [
+                `"Back again, ${game.plname}?  I've got my eye on you."`,
+            ],
+        });
+        await enterState({
+            setup: () => {
+                extension.surcharge = true;
+                game.u.uprops[DEAF].intrinsic = 1;
+            },
+            expected: [
+                `The atmosphere at ${owner} ${shopName} seems unwelcoming.`,
+            ],
+        });
+        await enterState({
+            setup: () => { extension.robbed = 1; },
+            expected: [
+                `${keeperName} mutters imprecations against shoplifters.`,
+            ],
+        });
+        await enterState({
+            setup: () => {
+                extension.robbed = 1;
+                game.u.uprops[DEAF].intrinsic = 1;
+            },
+            expected: [
+                new RegExp(
+                    `${keeperName} is combing through `
+                    + `(?:his|her|their) inventory list.`,
+                    'u',
+                ),
+            ],
+        });
+
+        // A customer change pacifies the keeper and removes the surcharge at
+        // the C-specified one-quarter reduction from each active bill entry.
+        extension.visitct = 2;
+        extension.customer = 'Former';
+        extension.surcharge = true;
+        extension.bill = [{ price: 100, bquan: 1 }];
+        extension.billct = 1;
+        room.resident.mpeaceful = false;
+        await enterState({
+            visitct: 2,
+            customer: 'Former',
+            setup: () => {
+                extension.surcharge = true;
+                room.resident.mpeaceful = false;
+            },
+            expected: [
+                `"Hello, ${game.plname}!  `
+                + `Welcome to ${owner} ${shopName}!"`,
+            ],
+        });
+        assert.equal(room.resident.mpeaceful, true);
+        assert.equal(extension.surcharge, false);
+        assert.equal(extension.bill[0].price, 75);
+
+        // An edge square is processed after the greeting. Carrying a pick
+        // reaches dochug()'s discarded-return gap instead of refusing entry.
+        game.level.at(interior.x, interior.y).edge = true;
+        game.u.ux = interior.x;
+        game.u.uy = interior.y;
+        extension.visitct = 1;
+        extension.customer = game.plname;
+        extension.bill_p = null;
+        const pick = { otyp: PICK_AXE, nobj: game.invent };
+        const oldInventory = game.invent;
+        game.invent = pick;
+        game.unported?.clear();
+        const edgeLines = [];
+        await u_entered_shop([roomno], game, {
+            message: async (line) => edgeLines.push(line),
+        });
+        assert.equal(edgeLines.length, 2);
+        assert.match(edgeLines[1], /leave your pick-axe/u);
+        assert.ok(game.unported.has('monmove.c dochug'));
+        game.invent = oldInventory;
+        game.level.at(interior.x, interior.y).edge = false;
+
+        game.level.at(interior.x, interior.y).edge = true;
+        const mattock = { otyp: DWARVISH_MATTOCK, nobj: game.invent };
+        game.invent = mattock;
+        game.unported.clear();
+        await enterState({
+            expected: [
+                `"Hello, ${game.plname}!  Welcome again to ${owner} ${shopName}!"`,
+                '"Will you please leave your mattock outside?"',
+            ],
+        });
+        assert.ok(game.unported.has('monmove.c dochug'));
+        game.invent = oldInventory;
+
+        const steed = {
+            data: game.mons[PM_LITTLE_DOG],
+            female: false,
+            misc_worn_check: 0,
+            mtame: 1,
+        };
+        game.u.usteed = steed;
+        game.unported.clear();
+        await enterState({
+            expected: [
+                `"Hello, ${game.plname}!  Welcome again to ${owner} ${shopName}!"`,
+                /Will you please leave your (?:little dog|dog) outside\?/u,
+            ],
+        });
+        assert.ok(game.unported.has('monmove.c dochug'));
+        game.u.usteed = null;
+
+        const oldFloor = game.level.objects[interior.x][interior.y];
+        const oldObjList = game.level.objlist;
+        const floorPick = mksobj_at(
+            PICK_AXE,
+            interior.x,
+            interior.y,
+            false,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        game.u.uprops[FAST].intrinsic = 1;
+        game.unported.clear();
+        await enterState({
+            expected: [
+                `"Hello, ${game.plname}!  Welcome again to ${owner} ${shopName}!"`,
+            ],
+        });
+        assert.ok(game.unported.has('monmove.c dochug'));
+        assert.equal(floorPick.otyp, PICK_AXE);
+        game.u.uprops[FAST].intrinsic = 0;
+        game.level.objects[interior.x][interior.y] = oldFloor;
+        game.level.objlist = oldObjList;
+        game.level.at(interior.x, interior.y).edge = false;
+
+        // With no resident pointer C treats the room as empty/untended,
+        // announces it only on the first changed shop membership, and clears
+        // u.ushops after preserving the static empty-shop set.
+        const oldResident = room.resident;
+        const oldUx0 = game.u.ux0;
+        const oldUy0 = game.u.uy0;
+        let outside = null;
+        for (let x = 1; x < 80 && !outside; ++x) {
+            for (let y = 0; y < 21; ++y) {
+                if (game.level.at(x, y)?.roomno !== roomno) {
+                    outside = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(outside);
+        room.resident = null;
+        game.u.ux0 = outside.x;
+        game.u.uy0 = outside.y;
+        game.u.ushops.fill(0);
+        game.u.ushops[0] = roomno;
+        const untendedLines = [];
+        await u_entered_shop([roomno], game, {
+            message: async (line) => untendedLines.push(line),
+        });
+        assert.match(untendedLines[0], /^This shop (?:is|seems to be) /u);
+        assert.equal(game.u.ushops[0], 0);
+        room.resident = oldResident;
+        game.u.ux0 = oldUx0;
+        game.u.uy0 = oldUy0;
         room.rtype = originalRoomType;
         room.resident.mcanmove = true;
         room.resident.msleeping = false;
