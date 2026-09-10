@@ -19057,6 +19057,27 @@
             "norm_ptrs_q_score",
             "norm_ptrs_rm"
           ]
+        },
+        {
+          "name": "norm_ptrs_s_level..norm_ptrs_you",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "norm_ptrs_s_level",
+            "norm_ptrs_skills",
+            "norm_ptrs_spell",
+            "norm_ptrs_stairway",
+            "norm_ptrs_trap",
+            "norm_ptrs_u_conduct",
+            "norm_ptrs_u_event",
+            "norm_ptrs_u_have",
+            "norm_ptrs_u_realtime",
+            "norm_ptrs_u_roleplay",
+            "norm_ptrs_version_info",
+            "norm_ptrs_vlaunchinfo",
+            "norm_ptrs_vptrs",
+            "norm_ptrs_you"
+          ]
         }
       ],
       "openedAt": "79f02cf42126b03d9289e5f5fb50fb9229ec621c",
