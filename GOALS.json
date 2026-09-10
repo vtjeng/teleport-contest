@@ -20320,6 +20320,36 @@
         "from": 511,
         "to": 757
       }
+    },
+    {
+      "id": "div-hack-special-room-seed0367",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix seed0367 stop at step 284 in check_special_room() (hack.c)",
+      "cFile": "hack.c",
+      "sessions": [],
+      "detail": "Development session seed0367-priest-quest-tour, segment 0, input step 284 (key space): first mismatch is a stop after the prior screen. The C branch is nethack-c/upstream/src/hack.c check_special_room() at lines 3626-3777, where u.uentered contains a newly entered room with room type 6 (SWAMP); C emits the Blind-dependent swamp-entry message, discovers the room, updates its special-room state, and may wake occupants. The JavaScript owner is js/rooms.js check_special_room() at line 214; its switch currently throws UnsupportedHeroMoveBoundaryError for SWAMP and other special-room types before producing the C result. Fresh replay reproduces the stop in a new process.",
+      "spans": [
+        {
+          "name": "check_special_room",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "check_special_room"
+          ]
+        }
+      ],
+      "openedAt": "fe442c22964a766b6e25a630879e67adb90ecfae",
+      "openStanding": {
+        "sha": "8f3478eef9fe3f73a16a52cca7964103d36220b3",
+        "screens": 5305,
+        "rng": 376957
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "check_special_room",
+      "session": "seed0367-priest-quest-tour",
+      "step": 284
     }
   ]
 }
