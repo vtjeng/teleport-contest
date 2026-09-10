@@ -12,15 +12,21 @@ import {
     A_CHA,
     ANY_SHOP,
     ACH_SHOP,
+    BLINDED,
     BUFSZ,
     CONFLICT,
+    DETECT_MONSTERS,
     DEAF,
     FAST,
+    G_GONE,
     helpless,
     HUNGRY,
     INVIS,
     isok,
     LOW_PM,
+    M_AP_MONSTER,
+    M_AP_NOTHING,
+    M_AP_TYPE,
     MS_ANIMAL,
     OBJ_BURIED,
     OBJ_CONTAINED,
@@ -29,16 +35,19 @@ import {
     PL_NSIZ,
     ROOMOFFSET,
     SHOPBASE,
+    TELEPAT,
+    u_at,
 } from './const.js';
-import { acurr } from './attrib.js';
+import { acurr, adjalign } from './attrib.js';
 import { assign_level, on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2, online2, s_suffix, strncmpi } from './hacklib.js';
+import { dist2, online2, sgn, s_suffix, strncmpi } from './hacklib.js';
 import { inv_cnt } from './hack.js';
 import {
     add_to_minv,
     addinv,
     carrying,
+    currency,
     freeinv,
     INVLET_BASIC,
     merge_choice,
@@ -48,7 +57,7 @@ import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
 import { mongone } from './makemon_create.js';
-import { wake_nearto } from './mon.js';
+import { angry_guards, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried, hasContents, isCandle, isContainer, objectType, sobj_at,
@@ -72,12 +81,25 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { PM_TOURIST } from './monsters.js';
+import {
+    PM_KEYSTONE_KOP,
+    PM_KOP_KAPTAIN,
+    PM_KOP_LIEUTENANT,
+    PM_KOP_SERGEANT,
+    PM_ROGUE,
+    PM_TOURIST,
+} from './monsters.js';
 import { resist_conflict } from './mondata.js';
 import { Hello } from './role_init.js';
 import { in_rooms } from './rooms.js';
 import { move_special } from './priest.js';
 import { SHTYPES } from './shtypes_data.js';
+import { m_at } from './monst.js';
+import {
+    canSeeMonster,
+    heroIsBlind,
+    sensesMonster,
+} from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, remove_worn_item } from './steal.js';
@@ -254,6 +276,65 @@ export async function noisy_shop(sroom, rawEnv = {}) {
     }
 }
 
+// C ref: shk.c addupbill() (496-507).  bill_p is the active C bill array;
+// billct, rather than the array length, determines which entries contribute.
+export function addupbill(shopkeeper) {
+    const eshk = shopkeeper.mextra.eshk;
+    const bill = eshk.bill_p ?? [];
+    let total = 0;
+    for (let index = 0; index < Math.trunc(eshk.billct); ++index) {
+        const entry = bill[index];
+        total += entry.price * entry.bquan;
+    }
+    return total;
+}
+
+// C ref: shk.c call_kops() (509-564).  Soundeffect() is a no-op with the
+// recorder's nosound backend.  The Kops creation helpers are not ported and
+// have discarded return values, so each reached call is recorded as a gap.
+async function call_kops(
+    shopkeeper,
+    nearshop,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    if (!shopkeeper) return;
+
+    const deaf = heroIsDeaf(state);
+    if (!deaf) await message('An alarm sounds!', state);
+
+    const mvitals = state.mvitals ?? state.svm?.mvitals ?? [];
+    const gone = (mnum) => Boolean((mvitals[mnum]?.mvflags ?? 0) & G_GONE);
+    const nokops = gone(PM_KEYSTONE_KOP)
+        && gone(PM_KOP_SERGEANT)
+        && gone(PM_KOP_LIEUTENANT)
+        && gone(PM_KOP_KAPTAIN);
+
+    if (!await angry_guards(deaf, { state, message }) && nokops) {
+        if (state.flags?.verbose && !deaf)
+            await message('But no one seems to respond to it.', state);
+        return;
+    }
+    if (nokops) return;
+
+    // choose_stairs() writes only output coordinates; its result is not used
+    // when the unported makekops() calls below are skipped.
+    note_unported('wizard.c choose_stairs');
+    const sx = 0;
+    const sy = 0;
+
+    if (nearshop) {
+        if (state.flags?.verbose)
+            await message('The Keystone Kops appear!', state);
+        note_unported('shk.c makekops');
+        return;
+    }
+    if (state.flags?.verbose)
+        await message('The Keystone Kops are after you!', state);
+    if (isok(sx, sy)) note_unported('shk.c makekops');
+    note_unported('shk.c makekops');
+}
+
 // C ref: shk.c inside_shop(). A wall, boundary square, or non-shop room is
 // not strictly inside even when in_rooms() associates it with a shop.
 export function inside_shop(x, y, state = game) {
@@ -357,10 +438,14 @@ export function preflight_shop_transition(
     );
 }
 
-// C ref: shk.c u_left_shop(). Only its three no-effect returns are ported;
-// preflight_shop_transition() prevents the remaining branches from reaching
-// this post-move check in ordinary movement.
-export function u_left_shop(leavestring, _newlev, state = game) {
+// C ref: shk.c u_left_shop() (578-625).  The boundary speech remains in the
+// preflight seam; this post-move function handles robbery and the Kops call.
+export async function u_left_shop(
+    leavestring,
+    newlev,
+    state = game,
+    { message = ttyPline } = {},
+) {
     const left = Array.from(leavestring ?? []).filter(Boolean);
     const from = state.level?.at(state.u?.ux0, state.u?.uy0);
     const to = state.level?.at(state.u?.ux, state.u?.uy);
@@ -377,10 +462,161 @@ export function u_left_shop(leavestring, _newlev, state = game) {
     if (!extension.billct) {
         if (!extension.debit) return;
     }
-    throw new UnsupportedShopError(
-        left.length
-            ? 'u_left_shop() leaving a shop with debt'
-            : 'u_left_shop() reaching a shop boundary with debt',
+    // C's no-leavestring branch tries to make the hero pay at the shop
+    // boundary.  The movement preflight owns that still-unported speech and
+    // refusal, so do not turn a boundary arrival into a robbery here.
+    if (!left.length)
+        throw new UnsupportedShopError(
+            'u_left_shop() reaching a shop boundary with debt',
+        );
+    if (await rob_shop(shopkeeper, state, { message })) {
+        await call_kops(
+            shopkeeper,
+            !newlev && Boolean(from?.edge),
+            state,
+            { message },
+        );
+    }
+}
+
+// C ref: shk.c credit_report() (627-661).  These snapshots are static in C,
+// so they intentionally belong to the module rather than to a game state.
+const credit_snap = [[0, 0, 0], [0, 0, 0]];
+
+export async function credit_report(
+    shopkeeper,
+    idx,
+    silent,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    const eshk = shopkeeper.mextra.eshk;
+    if (!idx) {
+        credit_snap[0].fill(0);
+        credit_snap[1].fill(0);
+    } else {
+        idx = 1;
+    }
+
+    credit_snap[idx][0] = eshk.credit;
+    credit_snap[idx][1] = eshk.debit;
+    credit_snap[idx][2] = eshk.loan;
+
+    if (idx && !silent) {
+        let amount = 0;
+        let text = 'debt has increased';
+        if (credit_snap[1][0] < credit_snap[0][0]) {
+            amount = credit_snap[0][0] - credit_snap[1][0];
+            text = 'credit has been reduced';
+        } else if (credit_snap[1][1] > credit_snap[0][1]) {
+            amount = credit_snap[1][1] - credit_snap[0][1];
+        } else if (credit_snap[1][2] > credit_snap[0][2]) {
+            amount = credit_snap[1][2] - credit_snap[0][2];
+        }
+        if (amount) {
+            await message(
+                `Your ${text} by ${amount} ${currency(amount, state)}.`,
+                state,
+            );
+        }
+    }
+}
+
+// C ref: shk.c remote_burglary() (663-682).  The robbery path is shared with
+// u_left_shop(), including its Kops response and credit settlement.
+export async function remote_burglary(
+    x,
+    y,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return;
+
+    const eshk = shopkeeper.mextra.eshk;
+    if (!eshk.billct && !eshk.debit) return;
+    if (await rob_shop(shopkeeper, state, { message }))
+        await call_kops(shopkeeper, false, state, { message });
+}
+
+// C ref: shk.c rob_shop() (684-719).  rouse_shk(), hot_pursuit(), and the
+// livelog_printf() result are discarded here because those C helpers are not
+// ported; preserve their reached gaps without inventing state or output.
+async function rob_shop(
+    shopkeeper,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    const eshk = shopkeeper.mextra.eshk;
+    note_unported('shk.c rouse_shk');
+    let total = addupbill(shopkeeper) + eshk.debit;
+    if (eshk.credit >= total) {
+        await message(
+            `Your credit of ${eshk.credit} ${currency(eshk.credit, state)}`
+                + ' is used to cover your shopping bill.',
+            state,
+        );
+        total = 0;
+    } else {
+        await message('You escaped the shop without paying!', state);
+        total -= eshk.credit;
+    }
+
+    setpaid(shopkeeper, state);
+    if (!total) return false;
+
+    eshk.robbed += total;
+    await message(
+        `You stole ${total} ${currency(total, state)} worth of merchandise.`,
+        state,
+    );
+    note_unported('pline.c livelog_printf');
+    if (state.urole?.mnum !== PM_ROGUE)
+        adjalign(-sgn(state.u.ualign.type), state);
+    note_unported('shk.c hot_pursuit');
+    return true;
+}
+
+// C ref: shk.c deserted_shop() (721-747).  `sensemon()` and `canseemon()`
+// are the shared visibility helpers; the latter is gated by the mimic's
+// appearance type exactly as in the source.
+async function deserted_shop(
+    enterstring,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    const roomno = Math.trunc(enterstring?.[0] ?? 0);
+    const room = state.level.rooms[roomno - ROOMOFFSET];
+    let sensed = 0;
+    let total = 0;
+
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (u_at(x, y, state)) continue;
+            const monster = m_at(x, y, state);
+            if (!monster) continue;
+            ++total;
+            if (sensesMonster(monster, state)
+                || ((M_AP_TYPE(monster) === M_AP_NOTHING
+                    || M_AP_TYPE(monster) === M_AP_MONSTER)
+                    && canSeeMonster(monster, state))) {
+                ++sensed;
+            }
+        }
+    }
+
+    if (heroIsBlind(state)
+        && !(state.u?.uprops?.[TELEPAT]?.intrinsic
+            || state.u?.uprops?.[TELEPAT]?.extrinsic
+            || state.u?.uprops?.[DETECT_MONSTERS]?.intrinsic
+            || state.u?.uprops?.[DETECT_MONSTERS]?.extrinsic)) {
+        ++total;
+    }
+    await message(
+        `This shop ${sensed < total ? 'seems to be' : 'is'} `
+            + `${total ? 'untended' : 'deserted'}.`,
+        state,
     );
 }
 

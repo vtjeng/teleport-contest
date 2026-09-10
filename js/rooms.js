@@ -221,7 +221,12 @@ export async function check_special_room(
     // C calls u_left_shop() whenever the previous square belonged to a shop,
     // including an interior-to-boundary step whose leavestring is empty.
     if (roomString(roomBuffer(state.u, 'ushops0')).length)
-        u_left_shop(roomBuffer(state.u, 'ushops_left'), newlev, state);
+        await u_left_shop(
+            roomBuffer(state.u, 'ushops_left'),
+            newlev,
+            state,
+            { message },
+        );
 
     const achieveo = state.context?.achieveo;
     if (state.level?.flags?.has_town && !achieveo?.minetn_reached

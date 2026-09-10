@@ -28,6 +28,7 @@ import {
 import { newObject } from '../js/obj.js';
 import {
     append_price_quote,
+    addupbill,
     contained_gold,
     clear_no_charge_pets,
     get_cost,
@@ -40,6 +41,27 @@ import {
 } from '../js/shk.js';
 import { hidden_gold } from '../js/vault.js';
 import { PM_TOURIST } from '../js/monsters.js';
+
+test('addupbill sums exactly the active bill entries', () => {
+    // C ref: shk.c addupbill() (496-507).  billct bounds the pointer walk;
+    // entries after it must not contribute.
+    const shopkeeper = {
+        mextra: {
+            eshk: {
+                billct: 3,
+                bill_p: [
+                    { price: 7, bquan: 2 },
+                    { price: 11, bquan: 1 },
+                    { price: 3, bquan: 5 },
+                    { price: 99, bquan: 9 },
+                ],
+            },
+        },
+    };
+    assert.equal(addupbill(shopkeeper), 40);
+    shopkeeper.mextra.eshk.billct = 0;
+    assert.equal(addupbill(shopkeeper), 0);
+});
 
 // The four seen-price fields carry init_objects()'s sentinel until
 // record_price_quote() writes one. These formatter cases set them directly so
