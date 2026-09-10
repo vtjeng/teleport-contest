@@ -1,0 +1,12 @@
+{
+  "_comment": "Retained independent seed 841010 is the cheap wand variation of the speed-potion case; its three forced rests let ordinary gameplay reach muse.c use_misc()'s speed-wand branch and worn.c mon_adjust_speed(+1) without session-specific logic.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 841010,
+      "datetime": "20370718110319",
+      "nethackrc": "OPTIONS=name:QuickWitness,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,!debug_mongen,playmode:debug\n",
+      "moves": ".\u0007captain\nm.m.m. "
+    }
+  ]
+}
