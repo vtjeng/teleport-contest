@@ -20261,7 +20261,7 @@
     {
       "id": "port-wintty-startup",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wintty startup and player-name handlers",
       "cFile": "wintty.c",
       "sessions": [],
@@ -20285,8 +20285,11 @@
         "screens": 5305,
         "rng": 376957
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8f3478eef9fe3f73a16a52cca7964103d36220b3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "tty_init_nhwindows",
