@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -167,6 +168,7 @@ export function runCheckpointChecks(commands, {
     verbose = false,
 } = {}) {
     const results = [];
+    let failureLogDirectory;
     for (const {
         label,
         command,
@@ -185,18 +187,20 @@ export function runCheckpointChecks(commands, {
             : { stdio: 'inherit' });
         const summary = summarize ? summarize(result) : {};
         if (summary.body) output(summary.body);
+        let logPath;
         if (useCapture && result.status !== 0) {
             const full = [result.stdout, result.stderr]
                 .filter(Boolean).join('\n').trimEnd();
             if (full) {
                 const lines = full.split('\n');
                 const slug = label.replace(/[^a-z0-9]+/gi, '-');
-                const logPath = join('/tmp', `checkpoint-${slug}.log`);
+                // Concurrent worktrees must retain their own failure output.
+                // Passing runs do not need a temporary log directory.
+                failureLogDirectory ??= mkdtempSync(join(tmpdir(), 'teleport-checkpoint-'));
+                logPath = join(failureLogDirectory, `${slug}.log`);
                 writeFileSync(logPath, full + '\n');
                 const TAIL = 20;
-                if (lines.length > TAIL) {
-                    output(`  (${lines.length} lines written to ${logPath})`);
-                }
+                output(`  (${lines.length} lines written to ${logPath})`);
                 output(lines.slice(-TAIL).join('\n'));
             }
         }
@@ -206,6 +210,7 @@ export function runCheckpointChecks(commands, {
         const passed = summary.passed ?? (result.status === 0);
         const entry = { label, passed, informational,
             skipped: Boolean(summary.skipped), detail: summary.detail ?? '' };
+        if (logPath) entry.logPath = logPath;
         if (label === 'development score' && capture) entry.stdout = result.stdout;
         results.push(entry);
     }
@@ -218,7 +223,8 @@ export function runCheckpointChecks(commands, {
         // The detail rides the summary line because `.agents/validation.md` has
         // agents read the tail of the log, which the body never reaches.
         output(`${status}  ${result.label}`
-            + (result.detail ? `: ${result.detail}` : ''));
+            + (result.detail ? `: ${result.detail}` : '')
+            + (result.logPath ? ` (log: ${result.logPath})` : ''));
     }
     // A skipped check ran nothing and has nothing to say. An informational one
     // carries evidence and no verdict, so it cannot fail either.

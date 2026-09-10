@@ -11,7 +11,8 @@ scans, or browser checks. The access rules in `AGENTS.md` for
 - After committing, run `npm run checkpoint`. It requires a clean tree and
   writes `.cache/checkpoint-summary.json` with the commit SHA and results. A
   passing check prints only its `PASS` line; a failing check writes its full
-  output to `/tmp/checkpoint-<label>.log` and prints the last 20 lines.
+  output to a unique `teleport-checkpoint-<run>/<label>.log` path in the system
+  temporary directory and prints the path and last 20 lines.
   `npm run checkpoint -- --verbose` prints everything. Two of its checks
   replay recorded play: the development score over `sessions/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops

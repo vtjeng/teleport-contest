@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, rmSync } from 'node:fs';
+import { basename, dirname } from 'node:path';
 
 import {
     checkpointCommands,
@@ -360,10 +362,10 @@ test('checkpoint parser accepts --verbose and rejects unknown options', () => {
     );
 });
 
-test('quiet mode suppresses passing output and tails failures', () => {
+test('quiet mode suppresses passing output and tails failures', (t) => {
     const output = [];
     const failStdout = Array.from({ length: 50 }, (_, i) => `line ${i}`).join('\n');
-    const { allPassed: passed } = runCheckpointChecks([
+    const { allPassed: passed, results } = runCheckpointChecks([
         { label: 'full test suite', command: 'npm', args: ['test'] },
         { label: 'static check', command: 'node', args: ['check'] },
     ], {
@@ -383,6 +385,10 @@ test('quiet mode suppresses passing output and tails failures', () => {
         output: (line) => output.push(line),
         verbose: false,
     });
+    for (const result of results) {
+        if (result.logPath)
+            t.after(() => rmSync(dirname(result.logPath), { recursive: true, force: true }));
+    }
 
     assert.equal(passed, false);
     // Passing check: no stdout dumped
@@ -390,4 +396,49 @@ test('quiet mode suppresses passing output and tails failures', () => {
     // Failing check: last 20 lines shown, full output written to file
     assert.ok(output.some((line) => line.includes('lines written to')));
     assert.ok(output.some((line) => line.includes('line 49')));
+});
+
+test('checkpoint runs keep distinct failure logs with their complete output', (t) => {
+    const directories = new Set();
+    t.after(() => {
+        for (const directory of directories)
+            rmSync(directory, { recursive: true, force: true });
+    });
+    // Both runs use identical check labels, as concurrent worktrees do. Each
+    // run has two failures to confirm its checks share one unique directory.
+    const checks = [
+        { label: 'first check', command: 'first', args: [] },
+        { label: 'second check', command: 'second', args: [] },
+    ];
+    const runs = ['earlier run', 'later run'].map((name) => {
+        const output = [];
+        const { results, allPassed } = runCheckpointChecks(checks, {
+            run: (command) => ({
+                status: 1, stdout: `${name}: ${command} stdout`,
+                stderr: `${name}: ${command} stderr`,
+            }),
+            output: (line) => output.push(line),
+        });
+        for (const result of results) directories.add(dirname(result.logPath));
+        assert.equal(allPassed, false);
+        assert.equal(dirname(results[0].logPath), dirname(results[1].logPath));
+        assert.match(basename(dirname(results[0].logPath)), /^teleport-checkpoint-/u);
+        // Failure paths stay on the final summary lines, including for short
+        // outputs, so reading only the checkpoint tail still finds the logs.
+        for (const [index, result] of results.entries()) {
+            assert.ok(output.slice(-results.length)[index].includes(result.logPath));
+        }
+        return { name, results };
+    });
+    assert.notEqual(runs[0].results[0].logPath, runs[1].results[0].logPath);
+    assert.notEqual(dirname(runs[0].results[0].logPath), dirname(runs[1].results[0].logPath));
+    // Read after both runs finish: an overwrite would replace the earlier
+    // run's exact stdout and stderr with the later run's diagnostics.
+    for (const { name, results } of runs) {
+        for (const [index, { logPath }] of results.entries()) {
+            const command = checks[index].command;
+            assert.equal(readFileSync(logPath, 'utf8'),
+                `${name}: ${command} stdout\n${name}: ${command} stderr\n`);
+        }
+    }
 });
