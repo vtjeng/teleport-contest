@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9001,
+      "datetime": "20000110000000",
+      "nethackrc": "OPTIONS=name:MorgueProbe,role:Wizard,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Independent midnight normal-gameplay probe: wizard-mode level teleport to depth 12, then a source-chosen room traversal. The fresh C run reaches a magic portal before MORGUE entry; the JavaScript replay is blocked at bones.c getbones() during that level change. Record after getbones() lands.",
+      "moves": " \u001612\n     kllllllllljjjjhhhhhhhkhhhhhhkkkkhhhhhhhhhhjljlljjjjjjhhhhhhhhhhhhhhhhhhhklllllljlllllllllllllljjjjlllllllklllllkkkkkklllllllljjjjlljjjlljllllklkllkkkkkkkkklllllljjjjjljjjjljjj"
+    }
+  ]
+}
