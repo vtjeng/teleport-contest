@@ -2,12 +2,27 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { MAX_MSG_HISTORY, NHW_MESSAGE, NHW_STATUS } from '../js/const.js';
 import {
+    COLNO,
+    MAX_MSG_HISTORY,
+    NHW_MESSAGE,
+    NHW_STATUS,
+    ROWNO,
+    WIN_ERR,
+} from '../js/const.js';
+import { resetGame } from '../js/gstate.js';
+import { parseCFunctions } from './c-functions.mjs';
+import {
+    bail,
+    new_status_window,
+    newclipping,
     print_vt_code,
     print_vt_soundcode_idx,
+    resize_tty,
     tty_create_nhwindow,
+    winch_handler,
 } from '../js/wintty.js';
+import { initUnported } from '../js/unported.js';
 
 const C_SOURCE = readFileSync(
     'nethack-c/upstream/win/tty/wintty.c',
@@ -83,4 +98,118 @@ test('compile-disabled VT escape helpers preserve state and output routing', () 
     assert.equal(print_vt_code(2, 17, 31, state), undefined);
     assert.equal(print_vt_soundcode_idx(9, 120, state), undefined);
     assert.deepEqual(state, before);
+});
+
+test('window-resize functions follow the wintty.c source order and build flags', () => {
+    const names = ['bail', 'winch_handler', 'resize_tty', 'newclipping',
+        'new_status_window'];
+    const sourceNames = parseCFunctions(C_SOURCE)
+        .filter(({ name }) => names.includes(name))
+        .map(({ name }) => name);
+    assert.deepEqual(sourceNames, names);
+    assert.match(CONFIG_SOURCE, /^#define CLIPPING\s*\/\* allow smaller screens/mu);
+    assert.doesNotMatch(CONFIG_SOURCE, /^#define WINCHAIN/mu);
+    assert.match(C_SOURCE, /#if defined\(CLIPPING\) && !defined\(NO_SIGNAL\)/u);
+});
+
+test('bail records unavailable cleanup and exposes C termination state', () => {
+    // The zero-valued status is EXIT_SUCCESS in wintty.c:348 and is not a
+    // game result; gameover is the runner's observable nh_terminate result.
+    const state = resetGame();
+    initUnported();
+    bail('stop here', state);
+
+    assert.deepEqual([...state.unported], [
+        'files.c clearlocks',
+        'wintty.c tty_exit_nhwindows',
+        'end.c nh_terminate',
+    ]);
+    assert.deepEqual(state.program_state, {
+        in_moveloop: 0,
+        exiting: 1,
+        gameover: true,
+    });
+});
+
+test('winch_handler increments pending work and services a waiting resize', () => {
+    const state = resetGame();
+    state.program_state = { getting_char: 0, resize_pending: 0 };
+    winch_handler(0, state);
+    assert.equal(state.program_state.resize_pending, 1);
+
+    state.wintty = {
+        LI: 24,
+        CO: 80,
+        ttyDisplay: { rows: 24, cols: 80 },
+        getwindowsz() {
+            this.LI = 22;
+            this.CO = 70;
+        },
+    };
+    state.iflags = { window_inited: false };
+    state.program_state.getting_char = 1;
+    winch_handler(0, state);
+    assert.equal(state.program_state.resize_pending, 0);
+    assert.equal(state.wintty.ttyDisplay.rows, 22);
+    assert.equal(state.wintty.ttyDisplay.cols, 70);
+});
+
+test('resize_tty preserves its early reset and records a missing ioctl query', () => {
+    // No browser API supplies C's ioctl(TIOCGWINSZ), so the resize request is
+    // consumed while the platform boundary remains visible in game.unported.
+    const state = resetGame();
+    initUnported();
+    state.wintty = { LI: 24, CO: 80, resize_mesg: 3 };
+    state.program_state = { resize_pending: 7 };
+    resize_tty(state);
+
+    assert.equal(state.program_state.resize_pending, 0);
+    assert.equal(state.wintty.resize_mesg, 0);
+    assert.deepEqual([...state.unported], ['ioctl.c getwindowsz']);
+});
+
+test('newclipping keeps the complete-screen branch local and gaps small-screen helpers', () => {
+    const state = resetGame();
+    state.iflags = { wc2_statuslines: 2 };
+    state.wintty = {
+        LI: 1 + ROWNO + 2,
+        CO: COLNO,
+        clipping: true,
+        clipx: 9,
+        clipy: 7,
+    };
+    newclipping(12, 8, state);
+    assert.deepEqual(
+        [state.wintty.clipping, state.wintty.clipx, state.wintty.clipy],
+        [false, 0, 0],
+    );
+
+    initUnported();
+    state.wintty.LI = ROWNO;
+    newclipping(0, 8, state);
+    newclipping(12, 8, state);
+    assert.deepEqual([...state.unported], [
+        'wintty.c setclipped',
+        'wintty.c tty_cliparound',
+    ]);
+});
+
+test('new_status_window invalidates the JavaScript status layout', () => {
+    // WIN_STATUS=4 represents an existing C window descriptor; the concrete
+    // value only exercises the destroy-before-recreate branch.
+    const state = resetGame();
+    initUnported();
+    state.wintty = { WIN_STATUS: 4 };
+    state.disp = { botlx: false };
+    new_status_window(state);
+
+    assert.equal(state.wintty.WIN_STATUS, WIN_ERR);
+    assert.equal(state.disp.botlx, true);
+    assert.equal(state._renderedStatusLayouts, null);
+    assert.deepEqual([...state.unported], [
+        'wintty.c tty_clear_nhwindow',
+        'wintty.c tty_destroy_nhwindow',
+        'windows.c genl_status_finish',
+        'wintty.c tty_status_init',
+    ]);
 });

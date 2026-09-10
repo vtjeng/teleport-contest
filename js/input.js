@@ -4,6 +4,7 @@ import { KEY_ESC } from './const.js';
 import { game } from './gstate.js';
 import { TOPLINE_NEED_MORE, TOPLINE_NON_EMPTY } from './tty_message.js';
 import { KEY_BINDINGS } from './terminal.js';
+import { resize_tty } from './wintty.js';
 
 // C ref: tty_nhgetch — read one key.
 // In replay mode, reads from the input queue.
@@ -19,6 +20,11 @@ export async function nhgetch(state = game) {
     // Escape-dismissed More boundary suppresses messages through precisely
     // the next recorded input boundary.
     state._ttyMessageStopped = false;
+
+    // C ref: wintty.c tty_nhgetch() services a pending SIGWINCH before it
+    // increments getting_char and waits for the next byte.
+    if (state.program_state?.resize_pending)
+        resize_tty(state);
 
     // Replay and browser input share the display-owned queue.
     const display = state?.nhDisplay;
