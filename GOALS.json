@@ -20357,7 +20357,7 @@
     {
       "id": "div-hack-test-move-seed0030",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Fix seed0030 stop at step 537 in test_move() (hack.c)",
       "cFile": "hack.c",
       "sessions": [],
@@ -20382,7 +20382,12 @@
       "delivered": null,
       "function": "test_move",
       "session": "seed0030-ten-diverse-deaths",
-      "step": 537
+      "step": 537,
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedReason": "Fresh source review shows test_move() is a partial implementation with explicit UnsupportedHeroMoveBoundaryError seams, including the SDOOR obstacle branch. Preserve this historical divergence record; replace it with a bounded source port for the whole function."
     }
   ]
 }
