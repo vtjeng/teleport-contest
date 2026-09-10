@@ -1088,6 +1088,18 @@ function clear_no_charge(shopkeeper, list, state) {
     }
 }
 
+// C ref: shk.c clear_no_charge_pets() (389-399). Walks fmon and clears
+// no_charge from the inventories of tame monsters only. hot_pursuit() is not
+// ported, so this helper has no JavaScript caller yet.
+export function clear_no_charge_pets(shopkeeper, state = game) {
+    for (let mtmp = state.level?.monlist ?? null;
+        mtmp;
+        mtmp = mtmp.nmon) {
+        if (mtmp.mtame && mtmp.minvent)
+            clear_no_charge(shopkeeper, mtmp.minvent, state);
+    }
+}
+
 // C ref: shk.c setpaid() (397-433). Clears one shopkeeper's claim on every
 // object list the game holds, then discards the bill itself.
 //

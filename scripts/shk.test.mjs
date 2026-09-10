@@ -29,6 +29,7 @@ import { newObject } from '../js/obj.js';
 import {
     append_price_quote,
     contained_gold,
+    clear_no_charge_pets,
     get_cost,
     get_pricing_units,
     getprice,
@@ -283,6 +284,40 @@ function container({ cknown = true, contents = [] } = {}) {
 function gold(quan) {
     return { oclass: COIN_CLASS, quan, cobj: null, nobj: null };
 }
+
+function minventObject(no_charge) {
+    return newObject({
+        // OBJ_MINVENT is the location C assigns to a monster's inventory.
+        where: OBJ_MINVENT,
+        no_charge,
+    });
+}
+
+test('clear_no_charge_pets clears only tame monster inventories', () => {
+    // C ref: shk.c:393-395. The loop visits every fmon entry, but calls
+    // clear_no_charge() only when mtame and minvent are both nonzero.
+    const tameObject = minventObject(true);
+    const tameWithoutInventory = { mtame: 1, minvent: null, nmon: null };
+    const wildObject = minventObject(true);
+    const tameLaterObject = minventObject(true);
+    const tame = {
+        mtame: 1,
+        minvent: tameObject,
+        nmon: tameWithoutInventory,
+    };
+    tameWithoutInventory.nmon = {
+        mtame: 0,
+        minvent: wildObject,
+        nmon: { mtame: 1, minvent: tameLaterObject, nmon: null },
+    };
+    const state = { level: { monlist: tame } };
+
+    clear_no_charge_pets(null, state);
+
+    assert.equal(tameObject.no_charge, false);
+    assert.equal(wildObject.no_charge, true);
+    assert.equal(tameLaterObject.no_charge, false);
+});
 
 test('contained_gold sums nested piles by shk.c\'s rules', () => {
     // C recurses only into a container whose contents the hero has seen,
