@@ -147,12 +147,15 @@ function renderTimeline(data, generatedAt) {
 
 function timelineBars(timeline) {
     return [...timeline.matchAll(
-        /<div class="(day-bar[^"]*)" data-goal="(\d+)" style="left:([\d.e+-]+)%;width:([\d.e+-]+)%"/gu,
+        /<div class="(day-bar[^"]*)" data-goal="(\d+)" style="left:([\d.e+-]+)%;width:([\d.e+-]+)%(?:;top:([\d.]+)px;height:([\d.]+)px)?"/gu,
     )].map((match) => ({
         classes: match[1].split(' '),
         goal: Number(match[2]),
         left: Number(match[3]),
         width: Number(match[4]),
+        // Only a bar stacked in a lane carries its own top and height.
+        top: match[5] === undefined ? null : Number(match[5]),
+        height: match[6] === undefined ? null : Number(match[6]),
     }));
 }
 
@@ -352,8 +355,19 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     // alpha's open commit is recorded, so its bar is solid.
     assert.ok(timelineBar(data, builtAt, 'orphan').classes.includes('inferred'));
     assert.ok(!timelineBar(data, builtAt, 'alpha').classes.includes('inferred'));
-    // Alpha ran from :10 to :30, 20 minutes, one 72nd of its day's row.
+    // Alpha ran from :10 to :30, 20 minutes, one 72nd of its day's row, and
+    // shares its time with no other goal, so the stylesheet sizes its bar.
     assert.ok(Math.abs(timelineBar(data, builtAt, 'alpha').width - 100 / 72) < 1e-9);
+    assert.equal(timelineBar(data, builtAt, 'alpha').top, null);
+    // A goal that shares alpha's time stacks with it: the two split the 16 px
+    // bar height into two 7 px lanes with a 2 px gap, the earlier bar on top.
+    const shift = (iso, minutes) => new Date(new Date(iso).getTime() + minutes * 60000).toISOString();
+    const twin = { ...alpha, name: 'twin', openTime: shift(alpha.openTime, 5), closeTime: shift(alpha.closeTime, 5) };
+    assert.deepEqual(
+        timelineBars(renderTimeline({ ...data, goals: [alpha, twin] }, builtAt))
+            .map((bar) => [bar.goal, bar.top, bar.height]),
+        [[0, 7, 7], [1, 16, 7]],
+    );
     // All SHAs resolve, so no hollow markers
     assert.equal(
         rendered.get('progressProvenance').textContent,

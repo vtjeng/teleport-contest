@@ -28,7 +28,6 @@
   --rate-24h: #10b981;
 
   --goal-boundary: #e0762a;
-  --goal-overlap: #c026d3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -56,7 +55,6 @@
     --rate-24h: #34d399;
 
     --goal-boundary: #d97025;
-    --goal-overlap: #ad36c4;
   }
 }
 :root[data-theme="dark"] {
@@ -82,7 +80,6 @@
   --rate-24h: #34d399;
 
   --goal-boundary: #d97025;
-  --goal-overlap: #ad36c4;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -368,16 +365,12 @@ canvas {
   background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, transparent 3px, transparent 6px);
 }
 
-/* Two goals running at once is rare, so their common span gets a band of its
-   own, taller than the bars it covers. */
-.day-overlap {
-  position: absolute;
-  top: 4px;
-  height: 22px;
-  min-width: 2px;
-  border-radius: 2px;
-  background: var(--goal-overlap);
-  pointer-events: none;
+/* Goals that share time stack in lanes; the script sets each stacked bar's
+   top and height inline. The legend shows the stack in two greys so that it
+   names no kind. */
+.legend-swatch.stacked {
+  background: linear-gradient(to bottom,
+    var(--ink-secondary) 0 5px, transparent 5px 7px, var(--ink-muted) 7px 12px);
 }
 
 /* Two reserved lines under the rows name the bar under the pointer, so a
@@ -717,7 +710,7 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Goal timeline</h2>
-  <p class="subtitle">One row per local day. Each bar is a goal from open to close; a lighter bar has an open time inferred from the previous goal's close, so it may include idle time. Blank space is time with no goal running.</p>
+  <p class="subtitle">One row per local day. Each bar is a goal from open to close; a lighter bar has an open time inferred from the previous goal's close, so it may include idle time. Goals that share time stack within the row. Blank space is time with no goal running.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -1636,7 +1629,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     '<div class="legend-item"><div class="legend-swatch split" style="--bar:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
   ).join('')
     + '<div class="legend-item"><div class="legend-swatch hatched"></div>in progress</div>'
-    + '<div class="legend-item"><div class="legend-swatch" style="background:var(--goal-overlap)"></div>two goals overlapping</div>';
+    + '<div class="legend-item"><div class="legend-swatch stacked"></div>goals overlapping, stacked</div>';
 
   function dayStart(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
   function span(g) {
@@ -1668,21 +1661,39 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     const d = new Date(r.start);
     const label = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate();
     const pct = t => (t - r.start) / dayMs * 100;
+    // Bars that share time stack in lanes. A cluster of chained overlaps
+    // splits the bar height between its lanes; every other bar keeps it all.
+    r.bars.sort((x, y) => x.a - y.a);
+    let cluster = [];
+    let laneEnds = [];
+    let clusterEnd = -Infinity;
+    const closeCluster = () => {
+      for (const bar of cluster) bar.lanes = laneEnds.length;
+      cluster = [];
+      laneEnds = [];
+    };
+    for (const bar of r.bars) {
+      if (bar.a >= clusterEnd) closeCluster();
+      let lane = laneEnds.findIndex(end => end <= bar.a);
+      if (lane < 0) lane = laneEnds.length;
+      laneEnds[lane] = bar.b;
+      bar.lane = lane;
+      cluster.push(bar);
+      clusterEnd = Math.max(clusterEnd, bar.b);
+    }
+    closeCluster();
     let bars = '';
     for (const bar of r.bars) {
       const g = DATA.goals[bar.index];
       const cls = 'day-bar ' + g.kind
         + (g.status === 'in-progress' ? ' in-progress' : '')
         + (g.openTimeSource === 'open-commit' ? '' : ' inferred');
-      bars += '<div class="' + cls + '" data-goal="' + bar.index + '" style="left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%"></div>';
-    }
-    // Each pair of bars that share time gets its own highlight.
-    for (let i = 0; i < r.bars.length; i++) {
-      for (let j = i + 1; j < r.bars.length; j++) {
-        const a = Math.max(r.bars[i].a, r.bars[j].a);
-        const b = Math.min(r.bars[i].b, r.bars[j].b);
-        if (b > a) bars += '<div class="day-overlap" style="left:' + pct(a) + '%;width:' + (pct(b) - pct(a)) + '%"></div>';
+      let box = 'left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%';
+      if (bar.lanes > 1) {
+        const height = (16 - 2 * (bar.lanes - 1)) / bar.lanes;
+        box += ';top:' + (7 + bar.lane * (height + 2)) + 'px;height:' + height + 'px';
       }
+      bars += '<div class="' + cls + '" data-goal="' + bar.index + '" style="' + box + '"></div>';
     }
     html += '<div class="day-row"><div class="day-label">' + label + '</div><div class="day-bars">' + bars + '</div></div>';
   }
@@ -1697,9 +1708,15 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     const g = DATA.goals[Number(el.dataset.goal)];
     const { open, close } = span(g);
     const inferred = g.openTimeSource !== 'open-commit';
+    const overlapping = DATA.goals.filter(other => {
+      if (other === g) return false;
+      const o = span(other);
+      return o.open < close && open < o.close;
+    });
     readout.innerHTML = '<div>' + esc(g.name) + '</div><div>'
       + stamp(open) + (inferred ? '\u2020' : '') + ' \u2013 ' + (g.status === 'in-progress' ? 'in progress' : stamp(close))
-      + ' \u00b7 ' + fmt((close - open) / 60000) + (inferred ? ' \u00b7 \u2020 open time inferred' : '') + '</div>';
+      + ' \u00b7 ' + fmt((close - open) / 60000) + (inferred ? ' \u00b7 \u2020 open time inferred' : '')
+      + (overlapping.length ? ' \u00b7 overlaps ' + esc(overlapping.map(other => other.name).join(', ')) : '') + '</div>';
   }
   for (const type of ['pointerover', 'pointerdown']) {
     container.addEventListener(type, e => { if (e.target.classList.contains('day-bar')) describe(e.target); });
