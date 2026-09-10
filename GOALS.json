@@ -20392,7 +20392,7 @@
     {
       "id": "port-hack-test-move",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete hack.c test_move() movement contract and wire its production callers",
       "cFile": "hack.c",
       "sessions": [
@@ -20401,8 +20401,12 @@
       "selectionReason": "The refreshed queue ranks hack.c first. Source review shows test_move() is partial, not a complete implementation: js/hack.js defers the IS_OBSTRUCTED terrain branches and admits SDOOR to a refusal seam before the C function can return FALSE. The bounded source port must cover the whole C function and its production admission/caller path.",
       "detail": "Upstream nethack-c/upstream/src/hack.c test_move() lines 991-1255 contains the complete movement contract: physical obstacles including SDOOR/SCORR, closed doors, diagonal doorway rules, squeeze and worm checks, travel and trap probes, doorway exit, and boulder handling. js/hack.js test_move() and preflightDomoveDestination() currently implement only a subset and retain explicit unsupported-boundary refusals. The development session seed0030-ten-diverse-deaths reaches SDOOR at global step 537, where C returns FALSE silently while JS throws before test_move(); this is source-port evidence, not a complete-function divergence fix.",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "710634a493fa31fc924a74b2f96811d7772765ed",
+      "openStanding": {
+        "sha": "2c9af5b7",
+        "screens": 5339,
+        "rng": 388477
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -20417,7 +20421,29 @@
       "range": {
         "from": 991,
         "to": 1265
-      }
+      },
+      "activeStanding": {
+        "sha": "2c9af5b7",
+        "screens": 5339,
+        "rng": 388477
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 537,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 1416
+        }
+      ]
     }
   ]
 }
