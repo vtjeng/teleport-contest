@@ -1814,7 +1814,7 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {
-        // test_move() owns the complete closed-door arm, including its
+        // test_move() owns the source-order closed-door arm, including its
         // pass-wall, ooze, tunnel, autoopen, bump, and TEST_TRAV/TEST_TRAP
         // branches. Admit the command so it can make the source-order choice.
     } else if (sobj_at(BOULDER, x, y, state)) {
@@ -2452,12 +2452,13 @@ async function moverock_core(sx, sy, state, env) {
     return 0;
 }
 
-// C ref: hack.c test_move() (991-1265). This is the complete movement
-// admission function. Its callers are domove_core() for DO_MOVE, the steed
-// landing checks and monster knockback for TEST_MOVE, and the travel/trap
-// probes for TEST_TRAV and TEST_TRAP. Calls whose return values C discards
-// are recorded at the call site; return-valued dependencies remain explicit
-// boundaries in their owning source files.
+// C ref: hack.c test_move() (991-1265). This is the source-order movement
+// admission implementation. Its callers are domove_core() for DO_MOVE, the
+// steed landing checks and monster knockback for TEST_MOVE, and the
+// travel/trap probes for TEST_TRAV and TEST_TRAP. Calls whose return values C
+// discards are recorded at the call site; return-valued dependencies remain
+// explicit boundaries in their owning source files, so this is not completion
+// evidence for the whole function.
 export async function test_move(
     ux,
     uy,
@@ -2622,7 +2623,8 @@ export async function test_move(
             // arm below.
             if ((mode === TEST_TRAV || mode === TEST_TRAP)
                 && dx && dy && !passesWalls
-                && !doorless_door(location, state)) {
+                && (!doorless_door(location, state)
+                    || await block_door(x, y, state, { message }))) {
                 return false;
             }
             if (mode === DO_MOVE) return false;
