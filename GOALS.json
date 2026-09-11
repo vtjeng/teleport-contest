@@ -24945,7 +24945,7 @@
     {
       "id": "div-region-mon-harmless-gas-entry-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit monsters entering harmless gas-cloud regions",
       "cFile": "region.c",
       "sessions": [],
@@ -24954,8 +24954,8 @@
       "spans": [
         {
           "name": "harmless-gas-region-transition",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "23267348c774e0fcc4e91a7f65e6272cbe08743a",
           "functions": [
             "m_in_out_region"
           ]
@@ -24967,8 +24967,11 @@
         "screens": 6399,
         "rng": 480788
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "23267348c774e0fcc4e91a7f65e6272cbe08743a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "m_in_out_region",
       "session": "seed0360-wizard-world-tour",
       "step": 335,
