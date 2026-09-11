@@ -23754,8 +23754,8 @@
       "spans": [
         {
           "name": "asmodeus.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0b668192053be74d41404e37f203b625ce66cd82",
           "functions": [
             "asmodeus.lua"
           ]
@@ -23775,7 +23775,7 @@
           "line": 1,
           "endLine": 96,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -23799,7 +23799,49 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 526
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "asmodeus.lua",
+            "implementation": "js/asmodeus_levels.js",
+            "symbol": "asmodeus",
+            "sourceReview": "Read the complete upstream dat/asmodeus.lua program (1-96) and the nhlib.lua hell_tweaks() helper it invokes. The implementation preserves level initialization and maze flags, both aligned map fragments, every map callback descriptor in source order, fixed and random traps, objects, monsters, level regions, teleport region, protected-area union, and all hell_tweaks pool, river, boulder, and iron-bar branches with their source random-call order. Map coordinates use the special-level frame exactly where Lua selection.area/fillrect and selection.rndcoord/randline resolve them. No obsolete refusal or injected result stands in for a source branch; the existing stocked-mazewalk handler is used through its production des.mazewalk API.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mkmaze.c makemaz() resolves the Asmodeus proto and calls load_special(), which dispatches the registered Lua program through createSpecialLevelApi()"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The special-level registry imports ASMODEUS_LEVEL_LOADERS and maps the source proto name asmodeus to the asmodeus() implementation"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/asmodeus-level-loader.test.mjs"
+            ],
+            "recordings": [
+              "recordings/asmodeus.lua/asmodeus-level-teleport.session.json"
+            ],
+            "checkedAt": "0b668192053be74d41404e37f203b625ce66cd82"
+          }
+        ],
+        "entryPointReview": "The Lua program has one production entry point: the dungeon menu selects the Asmodeus special level, do.c goto_level() invokes mklev.c makelevel(), mklev.js resolves the asmodeus proto through makemaz() and load_special(), and the registered asmodeus() loader builds the level. The independently selected wizard level-teleport recording reaches this caller path and matches the C reference through all six captured boundaries, 5,206 PRNG calls, and the complete generated level screen.",
+        "entryPoints": [
+          {
+            "name": "Asmodeus Gehennom special level",
+            "functions": [
+              "asmodeus.lua"
+            ],
+            "recordings": [
+              "recordings/asmodeus.lua/asmodeus-level-teleport.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
