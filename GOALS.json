@@ -25945,7 +25945,7 @@
     {
       "id": "monster-drops-wielded-weapon",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port weapon.c mwepgone() so a monster's extracted wielded weapon is unwielded during inventory release",
       "cFile": "weapon.c",
       "sessions": [
@@ -25956,8 +25956,8 @@
       "spans": [
         {
           "name": "mwepgone",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "fed063ca9d160c672c0780d46265dbb8d3ba81df",
           "functions": [
             "mwepgone"
           ]
@@ -25969,15 +25969,18 @@
         "screens": 6642,
         "rng": 496733
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fed063ca9d160c672c0780d46265dbb8d3ba81df",
+      "delivered": {
+        "screens": 31,
+        "rng": 566
+      },
       "functions": [
         {
           "name": "mwepgone",
           "line": 938,
           "endLine": 949,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -26004,6 +26007,61 @@
           "unlocatedKinds": [],
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 379
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mwepgone",
+            "implementation": "js/weapon.js",
+            "symbol": "mwepgone",
+            "sourceReview": "Read the complete upstream weapon.c mwepgone() definition at lines 938-949. The implementation reads MON_WEP(mon), conditionally calls setmnotwielded(mon, mwep), and then sets mon->weapon_check to NEED_WEAPON; the null-weapon branch has no state change, output, or random draw. JavaScript uses monster.mw for MON_WEP(mon), calls the existing setmnotwielded() helper at the synchronous worn.c extraction boundary, and preserves the source order. No unported callee, injected substitute, obsolete guard, or swallowed refusal remains in this source unit.",
+            "callers": [
+              {
+                "path": "js/worn.js",
+                "symbol": "extract_from_minvent",
+                "source": "worn.c extract_from_minvent() lines 1414-1415 calls mwepgone(mon) when the extracted object's unwornmask contains W_WEP; js/worn.js invokes the supplied mwepgone hook after unlinking and clearing the object's worn mask."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "mdrop_obj",
+                "source": "steal.c mdrop_obj() lines 823-824 calls extract_from_minvent(mon, obj, FALSE, TRUE); js/steal.js composes extractionEnv() with the real weapon.c mwepgone() implementation before making that production call."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_detach",
+                "source": "mon.c m_detach() line 2779 calls relobj(mtmp, 1, FALSE), which reaches steal.c mdrop_obj() and worn.c extract_from_minvent(); js/mon.js follows that same death path into the mwepgone hook."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/steal.test.mjs",
+              "scripts/weapon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/weapon.c/mwepgone-drop.session.json"
+            ],
+            "checkedAt": "fed063ca9d160c672c0780d46265dbb8d3ba81df"
+          }
+        ],
+        "entryPointReview": "The selected range contains the mwepgone() helper and no standalone command, monster action, level feature, or startup entry point. Production coverage comes from worn.c extract_from_minvent() through steal.c mdrop_obj() and mon.c m_detach(); the independent weapon.c recipe and recording exercise a monster wielding an orcish dagger before its death drop.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1605,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: magic trap invisibility toggle",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 348
         }
       ]
     }
