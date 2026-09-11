@@ -11,6 +11,7 @@
 // state goto_level() leaves behind when it stops.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -40,6 +41,7 @@ import { mksobj } from '../js/obj.js';
 import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
 import { stairway_add, stairway_at } from '../js/stairs.js';
+import { S_darkroom, S_room } from '../js/symbols.js';
 import { UnsupportedSteedError } from '../js/steed.js';
 import {
     uescaped_shaft,
@@ -50,6 +52,9 @@ import {
     DOWN_COMMAND,
     loadDescendRefusalRecipe,
 } from './run-descend-refusal.mjs';
+
+const C_SOURCE = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
+const JS_SOURCE = readFileSync('js/do.js', 'utf8');
 
 const REFUSAL = "You can't go down here.";
 
@@ -80,6 +85,34 @@ function quiet(state) {
     clearTtyMessageWindow(state);
     state._ttyToplines = '';
 }
+
+test('goto_level keeps reglyph_darkroom between generation and arrival setup',
+    () => {
+    // do.c:1692-1718. Pin the source order that makes this call part of the
+    // level transition: generation first, reglyphing next, then water and
+    // vision reset before the deferred redraw.
+    const cStart = C_SOURCE.indexOf('\ngoto_level(\n');
+    assert.ok(cStart >= 0, 'the upstream goto_level definition is present');
+    const cBody = C_SOURCE.slice(cStart);
+    const cGenerate = cBody.indexOf('\n        mklev();');
+    const cReglyph = cBody.indexOf('\n    reglyph_darkroom();');
+    const cArrivalReset = cBody.indexOf(
+        '\n    set_uinwater(0);', cReglyph,
+    );
+    assert.ok(cGenerate >= 0 && cGenerate < cReglyph);
+    assert.ok(cReglyph < cArrivalReset);
+
+    const jsStart = JS_SOURCE.indexOf('export async function goto_level');
+    assert.ok(jsStart >= 0, 'the JavaScript goto_level definition is present');
+    const jsBody = JS_SOURCE.slice(jsStart);
+    const jsGenerate = jsBody.indexOf('await mklev();');
+    const jsReglyph = jsBody.indexOf('reglyph_darkroom(state);');
+    const jsArrivalReset = jsBody.indexOf(
+        'set_uinwater(false, state);', jsReglyph,
+    );
+    assert.ok(jsGenerate >= 0 && jsGenerate < jsReglyph);
+    assert.ok(jsReglyph < jsArrivalReset);
+});
 
 test('the descend-refusal matrix contains only source-selected inputs', () => {
     const recipe = loadDescendRefusalRecipe();
@@ -285,6 +318,25 @@ test('the descent marks the staircase traversed before building the level',
     // mklev() generates the destination, so the descent is far from silent.
     assert.ok(getRngLog().length > drawsBefore + 100,
         'building the destination level draws random numbers');
+});
+
+test('goto_level refreshes the dark-room symbol after level generation',
+    async () => {
+    // do.c:1692-1715. mklev()/getlev() finishes before reglyph_darkroom(),
+    // whose display.c:1850-1853 tail aliases S_darkroom to S_room when
+    // dark_room and colour are enabled. Change the alias after startup so
+    // only the goto_level() call can repair it during this descent.
+    const state = await heroOnDownStairs();
+    assert.equal(state.flags.dark_room, true);
+    assert.equal(state.iflags.wc_color, true);
+    state.gs.showsyms[S_darkroom] = '?'.charCodeAt(0);
+    assert.notEqual(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
+
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    await dodown(state);
+
+    assert.equal(state.u.uz.dlevel, 2);
+    assert.equal(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
 });
 
 test('goto_level() discards the context belonging to the level being left',

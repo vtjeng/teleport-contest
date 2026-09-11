@@ -81,6 +81,7 @@ import {
     docrt,
     flush_screen,
     newsym,
+    reglyph_darkroom,
 } from './display.js';
 import { Adjmonnam, Monnam, docall } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
@@ -1467,12 +1468,11 @@ export async function goto_level(
         oinit(state);
     }
 
-    // do.c:1713 reglyph_darkroom() rewrites the remembered glyph of every
-    // square that changed lit-corridor or dark-room appearance. mklev() has
-    // just replaced the map, so every square is unexplored and no arm of its
-    // double loop matches. Its closing gs.showsyms[S_darkroom] assignment
-    // depends only on flags.dark_room and iflags.use_color, neither of which a
-    // level change alters.
+    // do.c:1713. Refresh remembered corridor and room glyphs after the
+    // destination level is generated, before the arrival redraw begins. The
+    // closing symbol assignment also keeps customized dark-room rendering in
+    // sync with the room symbol.
+    reglyph_darkroom(state);
     set_uinwater(false, state);
     vision_reset(state);
     state.vision_full_recalc = 0;

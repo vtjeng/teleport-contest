@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8500001,
+      "datetime": "20350102030405",
+      "nethackrc": "OPTIONS=name:Reglyph,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,symset:DECgraphics\n",
+      "moves": "hhyhykkkkkkkkybbhhhbjbbbbbhhbhbnnbbbykkkkkkkkkkkkkybb> "
+    }
+  ]
+}
