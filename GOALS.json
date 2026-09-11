@@ -26205,7 +26205,7 @@
     {
       "id": "port-do-wear-gloves-on",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do_wear.c Gloves_on() for gauntlet identification and worn-status updates",
       "cFile": "do_wear.c",
       "sessions": [
@@ -26216,8 +26216,8 @@
       "spans": [
         {
           "name": "Gloves_on",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "996ed1e72621951f8d7a7eaaa4eb959e2d292bee",
           "functions": [
             "Gloves_on"
           ]
@@ -26229,15 +26229,18 @@
         "screens": 6813,
         "rng": 500793
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "996ed1e72621951f8d7a7eaaa4eb959e2d292bee",
+      "delivered": {
+        "screens": 2,
+        "rng": 204
+      },
       "functions": [
         {
           "name": "Gloves_on",
           "line": 576,
           "endLine": 607,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -26265,7 +26268,96 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 338
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Gloves_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Gloves_on",
+            "sourceReview": "Read the complete upstream do_wear.c Gloves_on() definition at lines 576-607. The port computes oldprop before dispatch, masks WORN_GLOVES exactly as C does, preserves source order across LEATHER_GLOVES, GAUNTLETS_OF_FUMBLING, GAUNTLETS_OF_POWER, GAUNTLETS_OF_DEXTERITY, and the diagnostic default, and retains the shared known/update_inventory tail. Fumbling uses rnd(20) only when the existing property has no non-timeout source and updates HFumbling through the ported incr_itimeout(); power maps makeknown() to discover_object(TRUE, TRUE, TRUE) and raises disp.botl; dexterity reaches the needed first adj_abon() arm, which discovers nonzero enchantments, updates ABON(A_DEX), and always raises disp.botl. The default calls note_unported() for C's discarded impossible() diagnostic and continues. The obsolete non-leather refusal was removed from accessory_or_armor_on().",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dowear",
+                "source": "do_wear.c dowear() dispatches the W command through getobj() to accessory_or_armor_on(); the JavaScript dowear() preserves that production command path."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c accessory_or_armor_on() selects Gloves_on() for W_ARMG after setworn() installs the slot and stores it in ga.afternmv; JavaScript selects the ported callback for every glove type without the former refusal."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c unmul() clears ga.afternmv and invokes the delayed callback when dressing's negative multi count expires; JavaScript unmul() awaits the stored Gloves_on() callback."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c set_wear() calls Gloves_on() for a starting uarmg; JavaScript awaits Gloves_on() in the same armor-slot order."
+              },
+              {
+                "path": "js/moveloop_preamble.js",
+                "symbol": "moveloop_preamble",
+                "source": "allmain.c moveloop_preamble() invokes set_wear() during new-game startup; JavaScript moveloop_preamble() reaches the startup Gloves_on() call before initial pickup."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json",
+              "recordings/do_wear.c/seed0361-healer-startup-wear-gloves.session.json"
+            ],
+            "checkedAt": "996ed1e72621951f8d7a7eaaa4eb959e2d292bee"
+          }
+        ],
+        "entryPointReview": "Gloves_on() has two production entry paths. The requested seed-360 Wizard world-tour recipe reaches the W command, answers the delayed gauntlets-of-power prompt, and completes through unmul(); its C recording and JavaScript replay match in PRNG calls, screens, attributes, and cursors. The independent seed-361 Healer recipe reaches the startup moveloop_preamble() -> set_wear() path with starting leather gloves and also matches strictly. Focused tests cover all four switch labels, Fumbling's oldprop/RNG guard, power discovery and status refresh, both dexterity delta arms, and the shared known tail.",
+        "entryPoints": [
+          {
+            "name": "W command delayed Gloves_on callback",
+            "functions": [
+              "Gloves_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ]
+          },
+          {
+            "name": "new-game startup set_wear Gloves_on callback",
+            "functions": [
+              "Gloves_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0361-healer-startup-wear-gloves.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 497,
+          "kind": "stop",
+          "function": "Cloak_on",
+          "functionDeclared": true,
+          "sourceFile": "do_wear.c",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 149",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 336
+        }
+      ],
+      "closeStanding": {
+        "sha": "996ed1e72621951f8d7a7eaaa4eb959e2d292bee",
+        "screens": 6815,
+        "rng": 500997
+      }
     }
   ]
 }
