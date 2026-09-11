@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    AIR,
     ALTAR,
     ARROW_TRAP,
     BEAR_TRAP,
@@ -11,9 +12,11 @@ import {
     BURN_OBJECT,
     CONFLICT,
     COULD_SEE,
+    CLOUD,
     CORR,
     D_BROKEN,
     D_CLOSED,
+    DRAWBRIDGE_DOWN,
     D_ISOPEN,
     D_LOCKED,
     D_NODOOR,
@@ -1724,15 +1727,11 @@ test('simple preflight admits engravings that source wipe leaves intact',
         }
     });
 
-// mon.c mfndpos() and teleport.c goodpos() admit STAIRS as ordinary
-// accessible terrain and monmove.c postmov() has no stair branch, so an
-// ordinary monster steps onto a staircase with no extra effect. LADDER shares
-// that C treatment but no recorded case reaches it, so it stays refused.
-// mon.c mfndpos() and teleport.c goodpos() admit any ACCESSIBLE(typ) square
-// with no furniture branch, and monmove.c postmov() has none either, so all
-// seven of rm.h:138's types are ordinary destinations for a monster. ICE,
-// rm.h:88's next type after ALTAR, is the case just outside the range.
-test('simple movement admits every furniture square but not ice', async () => {
+// mon.c mfndpos() admits every IS_ROOM(typ) square, where rm.h defines
+// IS_ROOM as typ >= ROOM. That includes the seven furniture types plus ICE,
+// DRAWBRIDGE_DOWN, AIR and CLOUD; monmove.c postmov() has no terrain arm for
+// any of them, so an ordinary monster steps onto each square unchanged.
+test('simple movement admits every IS_ROOM square', async () => {
     for (const [label, terrain] of [
         ['stairs', STAIRS],
         ['ladder', LADDER],
@@ -1741,6 +1740,10 @@ test('simple movement admits every furniture square but not ice', async () => {
         ['sink', SINK],
         ['grave', GRAVE],
         ['altar', ALTAR],
+        ['ice', ICE],
+        ['drawbridge down', DRAWBRIDGE_DOWN],
+        ['air', AIR],
+        ['cloud', CLOUD],
     ]) {
         const admitted = await prepareSelectedAction();
         const location = game.level.at(
@@ -1757,26 +1760,6 @@ test('simple movement admits every furniture square but not ice', async () => {
             [admitted.monster.mx, admitted.monster.my],
             [admitted.destinationX, admitted.heroY],
             label,
-        );
-    }
-
-    const ice = await prepareSelectedAction();
-    game.level.at(ice.destinationX, ice.heroY).typ = ICE;
-    const iceBefore = completeSecondTurnSnapshot(game, ice.replay);
-
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'mfndpos() door or special terrain movement'
-            ),
-            `ice attempt ${attempt + 1}`,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, ice.replay),
-            iceBefore,
-            `ice attempt ${attempt + 1}`,
         );
     }
 });
@@ -2308,20 +2291,6 @@ test('simple preflight rejects every selected excluded action atomically',
                     target.monster.nmon = defender;
                     game.level.monsters[target.destinationX][target.heroY]
                         = defender;
-                    return target;
-                },
-            },
-            {
-                // ICE, the first type past IS_FURNITURE()'s range, stands for
-                // terrain the destination check still refuses.
-                name: 'special terrain',
-                reason: 'mfndpos() door or special terrain movement',
-                prepare: async () => {
-                    const target = await prepareSelectedAction();
-                    game.level.at(
-                        target.destinationX,
-                        target.heroY,
-                    ).typ = ICE;
                     return target;
                 },
             },

@@ -23,8 +23,8 @@ import {
     HEADSTONE,
     INVIS,
     IS_FOUNTAIN,
-    IS_FURNITURE,
     IS_OBSTRUCTED,
+    IS_ROOM,
     IS_STWALL,
     IS_TREE,
     IS_WATERWALL,
@@ -33,7 +33,6 @@ import {
     NEED_WEAPON,
     NORMAL_SPEED,
     OBJ_MINVENT,
-    ROOM,
     SLEEP_RES,
     SLP_GAS_TRAP,
     FIRE_TRAP,
@@ -913,10 +912,10 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
     const doorMask = location?.flags || location?.doormask || 0;
-    // Every IS_FURNITURE type is ordinary terrain for a monster that is not
-    // covetous: all seven are ACCESSIBLE, so mon.c mfndpos() and teleport.c
-    // goodpos() admit them with no furniture branch, and monmove.c postmov()
-    // has none either. Three furniture tests do sit on the monster-move path.
+    // Every IS_ROOM type is ordinary terrain for a monster that is not
+    // covetous: mon.c mfndpos() admits typ >= ROOM directly, so this includes
+    // all furniture plus ICE, DRAWBRIDGE_DOWN, AIR and CLOUD. No terrain arm
+    // in monmove.c postmov() changes those destinations.
     // monmove.c:274 onscary()'s vampire-fears-altar arm is ported in
     // js/monmove.js; monmove.c:1233 holds_up_web() is ported in
     // js/monmove.js and reached from maybe_spin_web(); and
@@ -967,9 +966,8 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
         && (lavaOkay || !destinationLava);
     const digsWall = digsDestination(location, x, y, env);
     const ordinaryDestination = location
-        && (location.typ === ROOM
+        && (IS_ROOM(location.typ)
             || location.typ === CORR
-            || IS_FURNITURE(location.typ)
             || inertDoorway
             || opensDoor
             || trappedDoor
