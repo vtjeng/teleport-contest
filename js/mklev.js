@@ -5596,7 +5596,16 @@ function fill_empty_maze(frame, state, env) {
                 while (is_pit(trytrap) || is_hole(trytrap))
                     trytrap = rndtrap(state);
             }
-            maketrap(mm.x, mm.y, trytrap, env);
+            // sp_lev.c calls maketrap() directly here. Route through the
+            // mklev wrapper to install its statue-trap capability while
+            // retaining direct-call semantics for web and victim handling.
+            make_level_trap(
+                trytrap,
+                MKTRAP_NOSPIDERONWEB | MKTRAP_NOVICTIM,
+                null,
+                mm,
+                env,
+            );
         }
     }
 }
