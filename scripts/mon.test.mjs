@@ -55,11 +55,14 @@ import {
     PM_GNOME,
     PM_HUMAN_WEREWOLF,
     PM_SMALL_MIMIC,
+    PM_PURPLE_WORM,
+    PM_SANDESTIN,
     PM_VAMPIRE,
     PM_VLAD_THE_IMPALER,
     PM_WEREWOLF,
     S_EEL,
     monst_globals_init,
+    reset_mvitals,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj_at, newObject } from '../js/obj.js';
@@ -737,6 +740,116 @@ test('waiting vampires skip distress shapechange without a random draw', async (
         canSpotMonster: () => false,
         message: noDraw,
     }), false);
+});
+
+// C refs: mon.c decide_to_shapeshift() (4872-4937),
+// select_newcham_form() (5157-5225), and newcham() (5278-5534). A natural
+// Sandestin uses the ordinary shapeshifter gate, then its PM_SANDESTIN
+// pick_nasty branch; the draw sequence below pins that source order.
+test('Sandestin distress admits empty inventory and preserves source draws', async () => {
+    const state = {
+        level: new GameMap(),
+        u: {
+            ux: 5,
+            uy: 5,
+            uz: { dnum: 0, dlevel: 1 },
+            uprops: [],
+        },
+        dungeons: [{
+            depth_start: 1,
+            ledger_start: 0,
+            num_dunlevs: 29,
+            entry_lev: 1,
+            flags: { hellish: false },
+        }],
+    };
+    monst_globals_init(state);
+    reset_mvitals(state);
+    state.youmonst = { data: state.mons[PM_SANDESTIN] };
+
+    const subject = newMonster({
+        data: state.mons[PM_SANDESTIN],
+        mnum: PM_SANDESTIN,
+        cham: PM_SANDESTIN,
+        mhp: 40,
+        mhpmax: 40,
+        mx: 4,
+        my: 4,
+    });
+    const calls = [];
+    const expectedRn2 = [
+        [6, 0], // decide_to_shapeshift() ordinary change gate succeeds.
+        [10, 5], // decide_to_shapeshift() sets mspec_used to 3 + this draw.
+        [7, 3], // select_newcham_form() enters Sandestin's pick_nasty arm.
+        [44, 5], // pick_nasty() selects the sixth generated nasty, PM_PURPLE_WORM.
+        [10, 9], // mgender_from_permonst() leaves the existing gender unchanged.
+    ];
+    const random = {
+        rn2(bound) {
+            const expected = expectedRn2[calls.length];
+            assert.ok(expected, `unexpected rn2(${bound}) at draw ${calls.length}`);
+            assert.equal(bound, expected[0],
+                `unexpected rn2(${bound}) at draw ${calls.length}`);
+            calls.push([bound, expected[1]]);
+            return expected[1];
+        },
+        d(number, sides) {
+            assert.deepEqual([number, sides], [14, 8]);
+            calls.push(['d', number, sides, 88]);
+            return 88; // D:1's adjusted PM_PURPLE_WORM level is 14 here.
+        },
+        rn1() { assert.fail('Sandestin distress called unexpected rn1'); },
+        rnd() { assert.fail('Sandestin distress called unexpected rnd'); },
+        rne() { assert.fail('Sandestin distress called unexpected rne'); },
+    };
+
+    assert.equal(await decide_to_shapeshift(subject, {
+        state,
+        random,
+        canSeeMonster: () => false,
+        canSpotMonster: () => false,
+        message: () => {},
+        redrawSquare: () => {},
+    }), true);
+    assert.deepEqual(calls, [
+        [6, 0],
+        [10, 5],
+        [7, 3],
+        [44, 5],
+        [10, 9],
+        ['d', 14, 8, 88],
+    ]);
+    assert.equal(subject.mspec_used, 8);
+    assert.equal(subject.mnum, PM_PURPLE_WORM);
+    assert.equal(subject.mhpmax, 88);
+    assert.equal(subject.mhp, 88);
+    assert.equal(subject.minvent, null);
+
+    const attached = newMonster({
+        data: state.mons[PM_SANDESTIN],
+        cham: PM_SANDESTIN,
+        mhp: 40,
+        mhpmax: 40,
+        minvent: { otyp: 1 },
+    });
+    const noDraw = {
+        rn2: () => assert.fail('attached Sandestin consumed rn2'),
+        d: () => assert.fail('attached Sandestin consumed d'),
+        rn1: () => assert.fail('attached Sandestin consumed rn1'),
+        rnd: () => assert.fail('attached Sandestin consumed rnd'),
+        rne: () => assert.fail('attached Sandestin consumed rne'),
+    };
+    await assert.rejects(
+        () => decide_to_shapeshift(attached, {
+            state,
+            random: noDraw,
+            canSeeMonster: () => false,
+            canSpotMonster: () => false,
+            message: () => {},
+            redrawSquare: () => {},
+        }),
+        /attachment state/u,
+    );
 });
 
 test('counter_were preserves the source human and beast pairing', () => {

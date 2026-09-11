@@ -3325,7 +3325,8 @@ function requiredDistressShapechangeOperation(env, name) {
 
 function preflightDistressShapechange(monster, normalized) {
     const { state } = normalized;
-    const supportedShifter = monster?.cham === PM_CHAMELEON
+    const supportedShifter = monster?.cham === PM_SANDESTIN
+        || monster?.cham === PM_CHAMELEON
         || monster?.cham === PM_VAMPIRE
         || monster?.cham === PM_VAMPIRE_LEADER;
     if (!supportedShifter) {
@@ -3333,10 +3334,11 @@ function preflightDistressShapechange(monster, normalized) {
             `distress shapechanger ${monster?.cham}`,
         );
     }
-    // The initial-D:1 forms admitted here are empty-inventory chameleons and
-    // Mausoleum vampires. General newcham() has additional owners for worm
-    // teardown, disguise, leash/steed/engulfment, armor, wielding, and
-    // self-touch. Refuse those states before selection can consume RNG.
+    // The initial-D:1 forms admitted here are empty-inventory chameleons,
+    // Sandestins, and Mausoleum vampires. General newcham() has additional
+    // owners for worm teardown, disguise, leash/steed/engulfment, armor,
+    // wielding, and self-touch. Refuse those states before selection can
+    // consume RNG.
     if (monster.minvent || monster.wormno || monster.m_ap_type
         || monster.mleashed || state.u?.ustuck === monster
         || state.u?.usteed === monster) {
