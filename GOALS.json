@@ -23751,7 +23751,16 @@
       ],
       "selectionReason": "The highest-ranked current mismatch is seed0360-wizard-world-tour at step 307, where makelevel() requests special level asmodeus and the JavaScript loader has no asmodeus.lua implementation. The upstream dat/asmodeus.lua program defines level_init/flags, two maps with doors, stairs, non-diggable terrain, lighting, monsters, objects, traps, levregions, teleport region, and hell_tweaks; select the whole Lua program and its loader wiring.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "asmodeus.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "asmodeus.lua"
+          ]
+        }
+      ],
       "openedAt": "7a9797ee323ca748ccdfa5597b7a7f16c5d8bd7e",
       "openStanding": {
         "sha": "005de4b360d6415148995cefca3049c989327ea8",
