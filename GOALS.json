@@ -22862,6 +22862,59 @@
           "remainingScreensUpperBound": 679
         }
       ]
+    },
+    {
+      "id": "fix-mthrowu-thitu-lethal-exercise",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Stop thitu after lethal monster missile damage before post-death exercise",
+      "cFile": "mthrowu.c",
+      "sessions": [],
+      "selectionReason": "The current highest-ranked queue entry is attributed to o_init.c at global step 1274, but fresh source tracing shows that annotation is downstream. In seed0030 segment 6, JS emits one extra rn2(2) after Cs final RNG call; the stack is exerciseAttribute() in attrib.js called from thitu() after lethal losehp(). C mthrowu.c:150-151 does not return from losehp() because end.c really_done() terminates the game. The mthrowu.c thitu() fix is therefore the source owner of the higher-ranked o_init annotation and should be selected before unrelated candidates.",
+      "detail": "C mthrowu.c:150-151 calls losehp() followed by exercise(A_STR,FALSE), but lethal losehp() enters end.c really_done() at end.c:1124-1125 and never returns. JS mthrowu.js:1634-1638 awaits losehp() and unconditionally calls exercise afterward; its m_throw() gameover guard at lines 939-945 is too late. Return immediately after losehp() when state.program_state.gameover, preserving exercise for nonlethal hits. This removes one extra rn2(2) from exerciseAttribute() and realigns segment 7 randomize_gem_colors().",
+      "spans": [
+        {
+          "name": "thitu-lethal-exercise",
+          "status": "closed",
+          "closedBy": "faeaf8996bb5dfd7cc0a79edc02eef6f45fc22aa",
+          "functions": [
+            "thitu"
+          ]
+        }
+      ],
+      "openedAt": "a755adbfbb56bbfa5b060700a229380ecf0ef879",
+      "openStanding": {
+        "sha": "2712521cffeb7ade13e80581006d1f26dab8aa8f",
+        "screens": 6240,
+        "rng": 426514
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "thitu",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 1274,
+      "activeStanding": {
+        "sha": "2712521cffeb7ade13e80581006d1f26dab8aa8f",
+        "screens": 6240,
+        "rng": 426514
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1274,
+          "kind": "rng",
+          "function": "randomize_gem_colors",
+          "functionDeclared": true,
+          "sourceFile": "o_init.c",
+          "cFile": "o_init.c",
+          "luaFile": null,
+          "line": 92,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 679
+        }
+      ]
     }
   ]
 }
