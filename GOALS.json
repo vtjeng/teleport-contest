@@ -23062,7 +23062,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0360-wizard-world-tour at global step 274: makelevel() refuses because SPECIAL_LEVEL_LOADERS has no loader for special level tower3. Source tracing assigns the missing behavior to the whole nethack-c/upstream/dat/tower3.lua program; existing special-level API handlers cover its des.* calls, so select the Lua port and QUEST_LEVEL_LOADERS wiring.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "tower3.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "tower3.lua"
+          ]
+        }
+      ],
       "openedAt": "0909dc805482c10fd668a348581d8e7c3859e2f9",
       "openStanding": {
         "sha": "45f160db6ac1c2cb0d88f0ae84b004f7adc72fd4",
