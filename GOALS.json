@@ -25236,7 +25236,7 @@
     {
       "id": "div-monmove-dochug-sleeping-worm-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit sleeping out-of-sight worms through dochug early no-wake return",
       "cFile": "monmove.c",
       "sessions": [],
@@ -25245,8 +25245,8 @@
       "spans": [
         {
           "name": "dochug",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9299225a25c63e40ed8ee98bb4633a7d00b7f6b8",
           "functions": [
             "dochug"
           ]
@@ -25258,8 +25258,11 @@
         "screens": 6506,
         "rng": 493277
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9299225a25c63e40ed8ee98bb4633a7d00b7f6b8",
+      "delivered": {
+        "screens": 5,
+        "rng": 18
+      },
       "function": "dochug",
       "session": "seed0360-wizard-world-tour",
       "step": 368,
