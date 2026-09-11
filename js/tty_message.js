@@ -105,6 +105,41 @@ function restoreRows(display, snapshot) {
     }
 }
 
+function pendingTtyMessageLayout(state) {
+    const display = state.nhDisplay;
+    const lines = wrapTtyTopline(state._pending_message, display.cols);
+    let promptRow = lines.length - 1;
+    let promptColumn = lines.at(-1).length;
+    if (promptColumn >= display.cols - MORE_PROMPT.length) {
+        ++promptRow;
+        promptColumn = 0;
+    }
+    return { display, lines, promptRow, promptColumn };
+}
+
+// Write the pending message and its source-owned More marker without waiting.
+// C's tty_wait_synch() map-window arm refreshes the map and leaves this marker
+// for the next tty_yn_function() read; it does not call getret().
+function writePendingTtyMessagePrompt(state, layout) {
+    const { display, lines, promptRow, promptColumn } = layout;
+    for (let row = 0; row < lines.length; ++row)
+        writeRecorderTtyLine(display, row, lines[row]);
+    if (state._ttyMixedFirstCell)
+        display.setCell(0, 0, state._ttyMixedFirstCell, NO_COLOR, 0);
+    display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
+    display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
+}
+
+// C ref: wintty.c tty_display_nhwindow(WIN_MAP, FALSE) leaves an existing
+// message's --More-- marker visible after repainting the map. This is the
+// nonblocking half of displayPendingTtyMessageWindow(), used by
+// tty_wait_synch()'s map-window branch.
+export function showPendingTtyMessage(state = game) {
+    if (!state._pending_message || !state.nhDisplay) return false;
+    writePendingTtyMessagePrompt(state, pendingTtyMessageLayout(state));
+    return true;
+}
+
 // C ref: decl.c quitchars[] (" \r\n\033"), the set more() and dmore() pass to
 // xwaitforspace().  The Escape it ends with is matched by the arm above the
 // membership test, exactly as in C.
@@ -214,13 +249,8 @@ export async function dismissPendingTtyMessage(
     if (!display)
         throw new Error('tty message dismissal requires an initialized display');
 
-    const lines = wrapTtyTopline(state._pending_message, display.cols);
-    let promptRow = lines.length - 1;
-    let promptColumn = lines.at(-1).length;
-    if (promptColumn >= display.cols - MORE_PROMPT.length) {
-        ++promptRow;
-        promptColumn = 0;
-    }
+    const layout = pendingTtyMessageLayout(state);
+    const { lines, promptRow, promptColumn } = layout;
     const multiline = promptRow > 0;
     const snapshot = multiline
         ? snapshotRows(display, promptRow + 1)
@@ -236,12 +266,7 @@ export async function dismissPendingTtyMessage(
     // high-bit bytes, and calls cl_end() after every logical/physical line.
     // Do not clear the prefix first: skipped byte cells retain their prior
     // character, color, and attributes in the recorder shadow grid.
-    for (let row = 0; row < lines.length; ++row)
-        writeRecorderTtyLine(display, row, lines[row]);
-    if (state._ttyMixedFirstCell)
-        display.setCell(0, 0, state._ttyMixedFirstCell, NO_COLOR, 0);
-    display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
-    display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
+    writePendingTtyMessagePrompt(state, layout);
 
     // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() restores
     // it only when this prompt's final response is Escape without WIN_NOSTOP.

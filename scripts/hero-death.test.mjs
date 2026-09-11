@@ -709,6 +709,15 @@ test('the mounted-death recipe reaches the ordinary disclosure boundary',
         await verifyMountedDeathSegment(recipe.segments[0]);
     });
 
+test('really_done waits before the can_make_bones draw', () => {
+    // end.c:1189 flushes the final death message before end.c:1201 asks
+    // can_make_bones(); this input boundary keeps later segment input aligned.
+    assert.match(
+        END_C,
+        /if \(have_windows\)\s*wait_synch\(\);[\s\S]*?bones_ok\s*=\s*\(how\s*<\s*GENOCIDED\)\s*&&\s*can_make_bones\(\);/u,
+    );
+});
+
 test('the query stops for a hung-up game and preflights ParanoidDie',
      async () => {
     await dyingGame({ playmode: 'debug' });
@@ -1070,10 +1079,10 @@ function appendBystander(mnum, overrides) {
 
 // The first moveloop_core() dispatches `m.`; the second runs the elapsed turn
 // that command charged, where the demon's second attack reaches done_in_by().
-// The space is the key that dismisses the "You die..." --More--, which the
-// recipe's verifier appends for the same reason.
+// The first space dismisses the "You die..." --More--; the second reaches the
+// first disclosure query after end.c:1189's map-window flush.
 async function lethalTurnRefusal() {
-    for (const key of 'm. ') game.nhDisplay.pushKey(key.charCodeAt(0));
+    for (const key of 'm.  ') game.nhDisplay.pushKey(key.charCodeAt(0));
     for (let iteration = 0; iteration < 2; ++iteration) {
         try {
             await moveloop_core();

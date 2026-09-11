@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9140049,
+      "datetime": "20320415143000",
+      "nethackrc": "OPTIONS=name:Finale,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!acoustics\n",
+      "moves": ".#ride\nj#ride\nj   x",
+      "comment": "The first seed kept by a 9140001-9140049 port scan reaches a mounted death and really_done()'s wait_synch() before can_make_bones()."
+    }
+  ]
+}

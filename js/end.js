@@ -138,6 +138,7 @@ import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
 import { reset_utrap } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { tty_wait_synch } from './tty_rawprint.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
 import { shkname, shkname_is_pname } from './shknam.js';
@@ -1060,6 +1061,7 @@ function identifyInventoryForDisclosure(state) {
 // remains outside this port.
 async function really_done(how, state) {
     const programState = state.program_state;
+    const haveWindows = state.iflags?.window_inited !== false;
     programState.gameover = 1;
     // JS can unwind an exhausted replay queue out of this still-running C
     // function. jsmain uses the marker to avoid treating that suspension as
@@ -1093,6 +1095,12 @@ async function really_done(how, state) {
             'really_done() first-move death message',
         );
     }
+
+    // C ref: end.c:1189. Flush the final death message before asking
+    // can_make_bones(); the live map-window arm leaves its --More-- marker
+    // for the disclosure reader.
+    if (haveWindows)
+        await tty_wait_synch(state);
 
     const bonesOk = can_make_bones(state);
     if (how !== DIED || state.u.ugrave_arise !== NON_PM) {

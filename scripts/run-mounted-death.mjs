@@ -39,11 +39,12 @@ export const MOUNTED_DEATH_CASE = Object.freeze({
     datetime: DATETIME,
     nethackrc: nethackrc(),
     // The wait advances moves beyond really_done()'s first-move death arm.
-    // The two spaces dismiss the second slip and the death message. The
-    // invalid `x` lets the recorder capture the possessions prompt while
+    // The three spaces dismiss the second slip, the death message, and the
+    // default-no possessions query after really_done()'s map-window flush.
+    // The invalid `x` lets the recorder capture the attributes prompt while
     // tty_yn_function() remains in its answer loop; it takes no answer arm.
     moves: `${WAIT}${RIDE}${PONY_DIRECTION}${RIDE}${PONY_DIRECTION}`
-        + MORE.repeat(2) + INVALID_DISCLOSURE_ANSWER,
+        + MORE.repeat(3) + INVALID_DISCLOSURE_ANSWER,
 });
 
 export function loadMountedDeathRecipe() {
@@ -57,7 +58,10 @@ export async function verifyMountedDeathSegment(segment) {
     const replay = await runSegment(segment);
     const topLine = game.nhDisplay.grid[0]
         .map(({ ch }) => ch).join('').trimEnd();
-    if (topLine !== 'Do you want your possessions identified? [ynq] (n)')
+    // The map-window wait_synch() leaves the death marker for the second
+    // space; the third answers the possessions query with its default `n`.
+    // `x` then leaves the next disclosure prompt in its answer loop.
+    if (topLine !== 'Do you want to see your attributes? [ynq] (n)')
         throw new Error(`mounted death stopped at ${JSON.stringify(topLine)}`);
     if (game.killer?.name !== 'slipped while mounting a saddled pony'
         || game.killer?.format !== NO_KILLER_PREFIX) {
