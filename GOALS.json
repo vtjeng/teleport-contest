@@ -24496,6 +24496,60 @@
           "remainingScreensUpperBound": 499
         }
       ]
+    },
+    {
+      "id": "div-newcham-sandestin-0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Resolve seed0360 Sandestin distress shapechange",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked unresolved refusal is Sandestin distress. C mon.c decide_to_shapeshift() calls newcham() for regular shapechangers, and newcham() selects Sandestin forms through select_newcham_form()'s PM_SANDESTIN/pick_nasty branch. The JS selection and empty-inventory transition are already present; preflightDistressShapechange() alone rejects PM_SANDESTIN before them.",
+      "detail": "At step 334, JS throws unsupported initial-level monster creation: distress shapechanger 301 from preflightDistressShapechange() in js/makemon_create.js. Upstream mon.c:m_calcdistress() -> decide_to_shapeshift() -> newcham(mon, NULL, NC_SHOW_MSG); decide_to_shapeshift()'s regular-shapechanger branch consumes rn2(6), then rn2(10), and newcham() reaches select_newcham_form() PM_SANDESTIN at mon.c:5162-5165, which calls pick_nasty(). JS already implements that selector and apply_newcham_form(); widen the source-backed distress admission for the empty-inventory Sandestin path while retaining attachment-state guards.",
+      "spans": [
+        {
+          "name": "sandestin-distress-newcham",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "decide_to_shapeshift",
+            "newcham"
+          ]
+        }
+      ],
+      "openedAt": "e1f76b7d47c2fbbf1aed4cf596c044ba6d981ded",
+      "openStanding": {
+        "sha": "e1f76b7d47c2fbbf1aed4cf596c044ba6d981ded",
+        "screens": 6398,
+        "rng": 480745
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "newcham",
+      "session": "seed0360-wizard-world-tour",
+      "step": 334,
+      "activeStanding": {
+        "sha": "e1f76b7d47c2fbbf1aed4cf596c044ba6d981ded",
+        "screens": 6398,
+        "rng": 480745
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 334,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: distress shapechanger 301",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 499
+        }
+      ]
     }
   ]
 }
