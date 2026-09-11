@@ -118,6 +118,7 @@
         "js/air_level_data.js",
         "js/air_levels.js",
         "js/asmodeus_levels.js",
+        "js/baalz_levels.js",
         "js/bigrm.js",
         "js/castle_levels.js",
         "js/dungeon.js",

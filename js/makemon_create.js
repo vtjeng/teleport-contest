@@ -58,6 +58,7 @@ import {
     MM_NOGRP,
     MM_NONAME,
     MM_NOMSG,
+    MS_BRIBE,
     M_AP_NOTHING,
     M_AP_MONSTER,
     M_AP_TYPE,
@@ -109,7 +110,11 @@ import {
     xdir,
     ydir,
 } from './const.js';
-import { artifact_exists } from './artifacts.js';
+import {
+    ART_DEMONBANE,
+    ART_EXCALIBUR,
+    artifact_exists,
+} from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { in_town } from './hack.js';
 import {
@@ -152,6 +157,7 @@ import {
     emits_light,
     humanoid,
     is_demon,
+    is_dprince,
     is_female,
     is_giant,
     is_lord,
@@ -3682,6 +3688,21 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     } else if (is_unicorn(ptr)
         && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
         monster.mpeaceful = true;
+    }
+    // C ref: makemon.c:1398-1403. Demon princes who use the bribe sound
+    // start peaceful and permanently invisible, unless the hero wields
+    // Excalibur or Demonbane. This runs before initial inventory, so it also
+    // controls rnd_misc_item()'s peaceful-monster branch without a draw.
+    if (is_dprince(ptr) && ptr.msound === MS_BRIBE) {
+        monster.mpeaceful = true;
+        monster.minvis = true;
+        monster.perminvis = true;
+        monster.mavenge = false;
+        if (state.uwep?.oartifact === ART_EXCALIBUR
+            || state.uwep?.oartifact === ART_DEMONBANE) {
+            monster.mpeaceful = false;
+            monster.mtame = false;
+        }
     }
     const lightRange = emits_light(monster.data);
     if (lightRange) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7617,
+      "datetime": "20070610141500",
+      "nethackrc": "OPTIONS=name:BaalzPort,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0016?\nn"
+    }
+  ],
+  "comment": "Wizard-mode level teleport (control-V, then the level menu's first-page Baalz entry) reaches Baalzebub's lair. Seed 7617 was selected independently from the existing mkmaze fixup recipe; the short route exercises the complete baalz.lua loader and its post-processing."
+}
