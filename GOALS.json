@@ -24372,7 +24372,7 @@
     {
       "id": "port-wizard1-special-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Gehennom Wizard's Tower level Lua program and wire its loader",
       "luaFile": "wizard1.lua",
       "sessions": [
@@ -24396,8 +24396,11 @@
         "screens": 6394,
         "rng": 477772
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b85c8b1aea0fad27ed694de151a70e9dcab259ce",
+      "delivered": {
+        "screens": 4,
+        "rng": 2973
+      },
       "functions": [
         {
           "name": "wizard1.lua",
@@ -24475,7 +24478,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 334,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: distress shapechanger 301",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 499
+        }
+      ]
     }
   ]
 }
