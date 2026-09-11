@@ -23997,7 +23997,16 @@
       ],
       "selectionReason": "The highest-ranked current mismatch is seed0030-ten-diverse-deaths at global step 1482, where the #quit extended command reaches cmd.c doextcmd() but JavaScript refuses before end.c done2(). The source done2() body handles tutorial and paranoid quit prompts, cancellation cleanup, wizard debugger handling, and done(QUIT); select only done2() so the existing later done()/really_done() boundary remains a subsequent source goal.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "done2",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "done2"
+          ]
+        }
+      ],
       "openedAt": "9cf6ec17eeb63a65251dc072cd1a863338e46e60",
       "openStanding": {
         "sha": "3f809ed8181b5e68babb3e58d51ec1ebef6afa26",
