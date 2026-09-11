@@ -11,7 +11,6 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { readRows, standing } from './score-log.mjs';
 import { currentDevelopmentStanding } from './development-standing.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 import {
@@ -118,49 +117,17 @@ function repositoryHead() {
         { encoding: 'utf8' }).trim();
 }
 
-function developmentStanding() {
-    const { development } = standing(readRows());
-    if (!development) return null;
-    return {
-        sha: development.sha,
-        screens: Number(development.screens_matched),
-        rng: Number(development.rng_matched),
-    };
-}
-
-/**
- * Refuse a close whose standing predates the head.
- *
- * `developmentStanding()` reads `SCORE.tsv` rather than scoring the tree, so a
- * close run before the goal's own row is appended subtracts the previous
- * goal's standing from itself. Closing `chat-command` did that and recorded
- * `delivered: 0 screens, 0 rng values` for a goal that delivered 21 and 31.
- * Nothing in the output said the standing was stale, and `GOALS.json` would
- * have carried the zero forward.
- *
- * A `SCORE.tsv` sha is the short form, so the head is matched by prefix.
- *
- * The check cannot tell a stale row from a correct row whose figures nobody
- * re-measured, so it catches the ordering mistake rather than a wrong
- * measurement. A goal that genuinely delivers zero still records zero, which
- * is right and indistinguishable here.
- */
-export function assertStandingIsCurrent(standing, head) {
-    const append = `Append the goal row for ${head.slice(0, 7)} with `
-        + '`node scripts/score-log.mjs --append`, as .agents/scoring.md '
-        + 'states, then close the goal.';
-    if (!standing) {
-        throw new Error(`SCORE.tsv states no development figure. ${append}`);
-    }
-    if (!head.startsWith(standing.sha)) {
-        throw new Error(
-            `the development standing in SCORE.tsv is at ${standing.sha}, not `
-            + `the repository head ${head.slice(0, 7)}. close-goal reads `
-            + 'SCORE.tsv rather than scoring the tree, so closing now would '
-            + `subtract the standing at open from a standing that predates `
-            + `this goal. ${append}`,
-        );
-    }
+/** The current checkpoint supplies totals; SCORE.tsv remains the event log. */
+export function checkpointClosingStanding(summary, head) {
+    assertCheckpointCurrent(summary, head);
+    const sha = summary.executionCommit;
+    const screens = summary.score?.screensMatched;
+    const rng = summary.score?.rngMatched;
+    if (!/^[a-f0-9]{40}$/u.test(sha ?? '')
+        || !Number.isSafeInteger(screens) || screens < 0
+        || !Number.isSafeInteger(rng) || rng < 0)
+        throw new Error('checkpoint lacks valid development figures; run npm run checkpoint -- --force');
+    return { sha, screens, rng };
 }
 
 /** Delivered figures for a closing goal: the standing now minus at open. */
@@ -528,10 +495,10 @@ Queueing does not open the goal; use open-goal before planning a span.`,
     'close-goal': {
         description: 'Close an open goal and record its delivered progress.',
         usage: '--goal <id>',
-        details: 'Requires an open goal and a development standing in SCORE.tsv at HEAD.\n'
-            + 'Source ports also require closed spans, complete source and entry-point\n'
-            + 'evidence, and a passing checkpoint at HEAD. See .agents/loop.md\n'
-            + 'and .agents/scoring.md for the closure sequence.',
+        details: 'Requires an open goal and a passing checkpoint for HEAD. Closing figures\n'
+            + 'come from checkpoint; SCORE.tsv remains the event log. Source ports also\n'
+            + 'require closed spans and complete source and entry-point evidence.\n'
+            + 'See .agents/loop.md and .agents/scoring.md for the closure sequence.',
     },
 };
 
@@ -682,6 +649,7 @@ function requireCheckpoint(head) {
         // The same actionable error covers a missing or malformed summary.
     }
     assertCheckpointCurrent(summary, head);
+    return summary;
 }
 
 async function main(args) {
@@ -892,18 +860,17 @@ async function main(args) {
             throw new Error(`goal ${goal.id} is ${goal.status}, not open`);
         }
         const head = repositoryHead();
-        const closeStanding = developmentStanding();
-        assertStandingIsCurrent(closeStanding, head);
+        const closeStanding = checkpointClosingStanding(requireCheckpoint(head), head);
         refreshCompletion(goal, null, store.goals);
         assertPortComplete(goal);
         if (isSourcePort(goal)) {
             validatePortEvidence(goal, goal.evidence);
-            requireCheckpoint(head);
             const { loadMismatchQueue } = await import('./mismatch-queue.mjs');
             goal.closeMismatches = scopedMismatches(goal, loadMismatchQueue());
         }
         goal.status = 'closed';
         goal.closedAt = head;
+        goal.closeStanding = closeStanding;
         goal.delivered = addDelivered(goal.progressBeforePark,
             deliveredSince(goal.activeStanding ?? goal.openStanding, closeStanding));
         writeGoals(store);

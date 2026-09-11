@@ -261,9 +261,15 @@ console.log(JSON.stringify({ results }));
         assert.match(result.stderr, pattern);
     };
     const goals = () => JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8')).goals;
-    const checkpoint = (overrides = {}) => json(`.git/checkpoint-results/${head()}/latest.json`, {
-        commit: head(), allPassed: true, recordings: { passed: true }, ...overrides,
-    });
+    const checkpoint = (overrides = {}) => {
+        // Simulate checkpoint's complete result for this fixture's game input.
+        const measured = JSON.parse(readFileSync(join(root, 'js/score-fixture.json')));
+        json(`.git/checkpoint-results/${head()}/latest.json`, {
+            commit: head(), executionCommit: head(), allPassed: true,
+            recordings: { passed: true },
+            score: { screensMatched: measured.screens, rngMatched: measured.rng }, ...overrides,
+        });
+    };
     const evidence = (overrides = {}) => ({
         functions: [{
             name: 'helper', implementation: 'js/widget.js',
@@ -359,6 +365,31 @@ test('a planned entry point without a recording keeps its source goal open', (t)
     f.record('widget', evidence);
     f.cli('close-goal', '--goal', 'widget');
     assert.equal(f.goals()[0].status, 'closed');
+});
+
+test('a source goal closes after bookkeeping reuse without relabeling its score', (t) => {
+    const f = fixture(t);
+    openC(f);
+    const measuredAt = f.measuredScore(BEFORE_PARK);
+    f.record('widget');
+    f.checkpoint();
+    f.cli('close-span', '--goal', 'widget', '--name', 'helper');
+    // Record only goal bookkeeping after the execution commit. SCORE still
+    // holds the opening figure and must not determine delivered progress.
+    f.git('add', 'GOALS.json');
+    f.git('commit', '--quiet', '-m', 'Record completed span');
+    assert.notEqual(f.head(), measuredAt);
+    f.checkpoint({ executionCommit: measuredAt });
+    const logBefore = readFileSync(join(f.root, 'SCORE.tsv'), 'utf8');
+    f.cli('close-goal', '--goal', 'widget');
+    const goal = f.goals()[0];
+    assert.equal(goal.closedAt, f.head());
+    assert.deepEqual(goal.closeStanding, { sha: measuredAt, ...BEFORE_PARK });
+    assert.deepEqual(goal.delivered, {
+        screens: BEFORE_PARK.screens - BASELINE.screens,
+        rng: BEFORE_PARK.rng - BASELINE.rng,
+    });
+    assert.equal(readFileSync(join(f.root, 'SCORE.tsv'), 'utf8'), logBefore);
 });
 
 test('replanning an unverified historical span preserves its closed record and uses a new name', (t) => {
@@ -488,6 +519,9 @@ test('parking preserves spans, rechecks priorities on resume, and excludes other
     f.cli('open-goal', '--id', 'other-fix');
     f.commit();
     f.score(OTHER_GOAL_END);
+    f.checkpoint({ score: {
+        screensMatched: OTHER_GOAL_END.screens, rngMatched: OTHER_GOAL_END.rng,
+    } }); // The following goal's closing measurement excludes the parked goal.
     f.cli('close-goal', '--goal', 'other-fix');
     f.refuses(/development mismatches remain/u, 'open-goal', '--id', 'widget');
     assert.equal(f.goals()[0].status, 'parked');
@@ -505,7 +539,9 @@ test('parking preserves spans, rechecks priorities on resume, and excludes other
     f.cli('close-span', '--goal', 'widget', '--name', 'helper');
     f.commit();
     f.score(AFTER_RESUME);
-    f.checkpoint();
+    f.checkpoint({ score: {
+        screensMatched: AFTER_RESUME.screens, rngMatched: AFTER_RESUME.rng,
+    } }); // Only progress after resumption belongs to this active interval.
     f.cli('close-goal', '--goal', 'widget');
     goal = f.goals()[0];
     assert.deepEqual(goal.delivered, {
@@ -544,6 +580,7 @@ test('an unfinished parked span owns its gain even when no SCORE event was allow
     assert.equal(f.replays(), 1); // Opening reuses the proven equivalent park measurement.
     f.measuredScore(OTHER_GOAL_END);
     f.score(OTHER_GOAL_END);
+    f.checkpoint();
     f.cli('close-goal', '--goal', 'other-fix');
     assert.deepEqual(f.goals()[1].delivered, {
         screens: OTHER_GOAL_END.screens - BEFORE_PARK.screens,

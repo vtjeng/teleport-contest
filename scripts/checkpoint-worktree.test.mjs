@@ -5,6 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { REUSE_VERSION } from './checkpoint-reuse.mjs';
 import { once } from 'node:events';
 import test from 'node:test';
 import { parseCheckpointOptions } from './checkpoint.mjs';
@@ -21,6 +22,9 @@ assert.equal(readFileSync('nethack-c/upstream/input.c', 'utf8'), 'committed C\\n
 assert.equal(existsSync('sessions/development.session.json'), true);
 assert.equal(existsSync('sessions/excluded-fixture'), false);
 const commit = git('rev-parse', 'HEAD');
+const reuseIndex = process.argv.indexOf('--reuse');
+const reused = reuseIndex < 0 ? null : JSON.parse(readFileSync(process.argv[reuseIndex + 1]));
+console.log(reused ? 'BOOKKEEPING_EXECUTION' : 'FULL_EXECUTION');
 console.log('FIXTURE_READY');
 if (process.env.CHECKPOINT_FIXTURE_WAIT) {
     await new Promise(resolve => process.stdin.once('data', resolve));
@@ -33,11 +37,14 @@ if (process.env.CHECKPOINT_FIXTURE_ADVANCE) {
     git('-C', origin, 'commit', '-qm', 'main continued during validation');
 }
 mkdirSync('.cache', { recursive: true });
-const passed = !process.env.CHECKPOINT_FIXTURE_FAIL;
+const passed = !process.env.CHECKPOINT_FIXTURE_FAIL
+    && (!existsSync('GOALS.json') || readFileSync('GOALS.json', 'utf8') !== 'invalid');
 writeFileSync('.cache/checkpoint-summary.json', JSON.stringify({ commit,
+    reuseVersion: ${REUSE_VERSION}, executionCommit: reused?.executionCommit ?? commit,
+    results: [{ label: 'fixture', passed }],
     timestamp: new Date().toISOString(), allPassed: passed,
     tests: { passed }, recordings: { passed }, score: { fixture: true } }));
-writeFileSync('.cache/development-standing.json', JSON.stringify({ score: { sha: commit } }));
+writeFileSync('.cache/development-standing.json', JSON.stringify({ score: { sha: reused?.executionCommit ?? commit } }));
 writeFileSync('.cache/session-results.json', JSON.stringify({ results: [] }));
 process.exitCode = passed ? 0 : 1;
 `;
@@ -68,7 +75,7 @@ function fixture(t) {
     git(cRoot, 'add', 'input.c');
     git(cRoot, 'commit', '-qm', 'C fixture');
     mkdirSync(join(root, 'scripts'));
-    for (const name of ['checkpoint.mjs', 'checkpoint-results.mjs', 'local-tmpdir.mjs'])
+    for (const name of ['checkpoint.mjs', 'checkpoint-results.mjs', 'checkpoint-reuse.mjs', 'local-tmpdir.mjs'])
         copyFileSync(new URL(name, import.meta.url), join(root, 'scripts', name));
     writeFileSync(join(root, 'scripts/checkpoint-checks.mjs'), CHECK);
     writeFileSync(join(root, '.gitignore'), '.cache/\n');
@@ -117,9 +124,10 @@ function fixture(t) {
 }
 
 test('checkpoint options select a revision and preserve verbose mode', () => {
-    assert.deepEqual(parseCheckpointOptions([]), { revision: 'HEAD', verbose: false });
+    assert.deepEqual(parseCheckpointOptions([]), { revision: 'HEAD', verbose: false, force: false });
     assert.deepEqual(parseCheckpointOptions(['--commit', 'HEAD^', '--verbose']),
-        { revision: 'HEAD^', verbose: true }); // Select a previous committed state.
+        { revision: 'HEAD^', verbose: true, force: false }); // Select a previous committed state.
+    assert.equal(parseCheckpointOptions(['--force']).force, true);
     for (const args of [['--commit'], ['--unknown'], ['--commit', '--verbose'],
         ['--commit', 'HEAD', '--commit', 'HEAD^']]) {
         assert.throws(() => parseCheckpointOptions(args), /usage:/u);
@@ -269,4 +277,65 @@ test('a local cache write failure cannot fail an archived checkpoint', (t) => {
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stderr, /local cache refresh failed/u);
     assert.equal(readCheckpointResult(f.root, f.commit).allPassed, true);
+});
+
+test('bookkeeping commits reuse execution and preserve its measured SHA', (t) => {
+    const f = fixture(t);
+    assert.equal(f.run().status, 0); // Establish full execution evidence.
+    const original = f.latest();
+    writeFileSync(join(f.root, 'GOALS.json'), '{"goals":[]}');
+    f.git(f.root, 'add', 'GOALS.json');
+    f.git(f.root, 'commit', '-qm', 'bookkeeping only');
+    const result = f.run();
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /BOOKKEEPING_EXECUTION/u);
+    assert.doesNotMatch(result.stdout, /FULL_EXECUTION/u);
+    assert.equal(f.latest().commit, f.git(f.root, 'rev-parse', 'HEAD'));
+    assert.equal(f.latest().executionCommit, original.commit);
+    assert.equal(JSON.parse(readFileSync(join(f.latest().artifacts,
+        'development-standing.json'))).score.sha, original.commit);
+    const forced = f.run({}, ['--force']);
+    assert.match(forced.stdout, /FULL_EXECUTION/u);
+    assert.equal(f.latest().executionCommit, f.latest().commit);
+});
+
+test('changed non-bookkeeping inputs and environment require full execution', (t) => {
+    const f = fixture(t);
+    assert.equal(f.run().status, 0);
+    writeFileSync(join(f.root, 'README.md'), 'new instructions\n');
+    f.git(f.root, 'add', 'README.md');
+    f.git(f.root, 'commit', '-qm', 'not bookkeeping');
+    assert.match(f.run().stdout, /FULL_EXECUTION/u);
+    // A changed environment is a different execution even for identical code.
+    assert.match(f.run({ CHECKPOINT_ENV_TEST: 'different' }).stdout, /FULL_EXECUTION/u);
+});
+
+test('missing or corrupted artifacts require full execution', (t) => {
+    const f = fixture(t);
+    assert.equal(f.run().status, 0);
+    rmSync(join(f.latest().artifacts, 'session-results.json'));
+    assert.match(f.run().stdout, /FULL_EXECUTION/u);
+    // Valid JSON is insufficient: it must match the archived artifact digest.
+    writeFileSync(join(f.latest().artifacts, 'session-results.json'), '{}');
+    assert.match(f.run().stdout, /FULL_EXECUTION/u);
+});
+
+test('invalid bookkeeping fails without erasing historical execution evidence', (t) => {
+    const f = fixture(t);
+    assert.equal(f.run().status, 0);
+    const original = f.latest();
+    writeFileSync(join(f.root, 'GOALS.json'), 'invalid');
+    f.git(f.root, 'add', 'GOALS.json');
+    f.git(f.root, 'commit', '-qm', 'invalid metadata');
+    const result = f.run();
+    assert.match(result.stdout, /BOOKKEEPING_EXECUTION/u);
+    assert.equal(result.status, 1); // A reused pass cannot hide failed current checks.
+    assert.equal(f.latest().allPassed, false);
+    assert.equal(JSON.parse(readFileSync(join(original.artifacts, 'summary.json'))).allPassed, true);
+    // A forced failure disables reuse even after the metadata is fixed.
+    assert.equal(f.run({}, ['--force']).status, 1);
+    writeFileSync(join(f.root, 'GOALS.json'), '{"goals":[]}');
+    f.git(f.root, 'add', 'GOALS.json');
+    f.git(f.root, 'commit', '-qm', 'repair metadata');
+    assert.match(f.run().stdout, /FULL_EXECUTION/u);
 });

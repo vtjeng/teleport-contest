@@ -9,6 +9,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { localTmpdir } from './local-tmpdir.mjs';
 import { checkpointResultsDirectory } from './checkpoint-results.mjs';
+import { digest, readReusableResult, reuseKey } from './checkpoint-reuse.mjs';
 
 const PROJECT_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const C_PATH = 'nethack-c/upstream';
@@ -28,16 +29,18 @@ function git(root, args) {
 export function parseCheckpointOptions(args) {
     let revision = 'HEAD';
     let verbose = false;
+    let force = false;
     let selected = false;
     for (let index = 0; index < args.length; index++) {
         if (args[index] === '--verbose') verbose = true;
+        else if (args[index] === '--force') force = true;
         else if (args[index] === '--commit' && !selected
             && args[index + 1] && !args[index + 1].startsWith('-')) {
             revision = args[++index];
             selected = true;
-        } else throw new Error('usage: npm run checkpoint -- [--commit <revision>] [--verbose]');
+        } else throw new Error('usage: npm run checkpoint -- [--commit <revision>] [--verbose] [--force]');
     }
-    return { revision, verbose };
+    return { revision, verbose, force };
 }
 
 export function createCheckpointWorkspace(root, commit) {
@@ -76,13 +79,14 @@ export function createCheckpointWorkspace(root, commit) {
     }
 }
 
-function runChecks(workspace, verbose) {
+function runChecks(workspace, verbose, reuse) {
     return new Promise((resolveRun, reject) => {
         // One process group lets an interruption stop npm and its descendants
         // before their checkout is removed. No polling is needed.
         const grouped = process.platform !== 'win32';
         const child = spawn(process.execPath,
-            ['scripts/checkpoint-checks.mjs', ...(verbose ? ['--verbose'] : [])],
+            ['scripts/checkpoint-checks.mjs', ...(verbose ? ['--verbose'] : []),
+                ...(reuse ? ['--reuse', '.cache/checkpoint-reuse.json'] : [])],
             { cwd: workspace, stdio: 'inherit', detached: grouped });
         let interrupted;
         const stop = (signal) => {
@@ -123,14 +127,23 @@ function atomicWrite(path, contents) {
     }
 }
 
-export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', verbose = false } = {}) {
+export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', verbose = false, force = false } = {}) {
     const commit = git(root, ['rev-parse', '--verify', `${revision}^{commit}`]);
     console.log(`Checkpoint for ${commit}; uncommitted changes are excluded.`);
     const resultsDirectory = checkpointResultsDirectory(root);
+    const key = reuseKey(root, commit);
+    const reuse = force ? null : readReusableResult(resultsDirectory, key);
     const { workspace, remove } = createCheckpointWorkspace(root, commit);
     let archived = false;
     try {
-        const exitCode = await runChecks(workspace, verbose);
+        if (reuse) {
+            mkdirSync(join(workspace, '.cache'), { recursive: true });
+            for (const name of ['development-standing.json', 'session-results.json'])
+                writeFileSync(join(workspace, '.cache', name), readFileSync(join(reuse.artifacts, name)));
+            writeFileSync(join(workspace, '.cache/checkpoint-reuse.json'), JSON.stringify(reuse));
+            console.log(`Execution evidence from ${reuse.executionCommit}; checking bookkeeping at ${commit}.`);
+        }
+        const exitCode = await runChecks(workspace, verbose, reuse);
         let summary;
         try {
             summary = JSON.parse(readFileSync(join(workspace, '.cache/checkpoint-summary.json'), 'utf8'));
@@ -139,12 +152,14 @@ export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', ve
             summary = { commit, allPassed: false, error: `checkpoint summary unavailable: ${error.message}` };
         }
         summary.allPassed = summary.allPassed === true && exitCode === 0;
+        summary.reuseKey = key;
         summary.timestamp = new Date().toISOString();
         const commitDirectory = join(resultsDirectory, commit);
         mkdirSync(commitDirectory, { recursive: true });
         const pending = mkdtempSync(join(commitDirectory, '.pending-'));
         const artifacts = pending.replace(/\.pending-([^/]+)$/u, 'run-$1');
         summary.artifacts = artifacts;
+        summary.artifactHashes = {};
         summary.exitCode = exitCode || (summary.allPassed ? 0 : 1);
         // Preserve only known development artifacts, never the whole cache.
         for (const name of ['development-standing.json', 'session-results.json']) {
@@ -152,6 +167,7 @@ export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', ve
             if (!existsSync(source)) continue;
             const contents = readFileSync(source);
             writeFileSync(join(pending, name), contents);
+            summary.artifactHashes[name] = digest(contents);
         }
         const contents = JSON.stringify(summary, null, 2) + '\n';
         writeFileSync(join(pending, 'summary.json'), contents);
@@ -160,6 +176,13 @@ export async function runCheckpoint({ root = PROJECT_ROOT, revision = 'HEAD', ve
         console.log(`Results: ${join(artifacts, 'summary.json')}`);
         atomicWrite(join(commitDirectory, 'latest.json'), contents);
         atomicWrite(join(resultsDirectory, 'latest.json'), contents);
+        if (!reuse || (!summary.reusedFrom && summary.executionCommit === commit)) {
+            // A failed forced run replaces the reuse pointer too. Do not
+            // resurrect an older pass after a new full execution failed.
+            const index = join(resultsDirectory, 'reusable');
+            mkdirSync(index, { recursive: true });
+            atomicWrite(join(index, `${key}.json`), JSON.stringify({ artifacts }));
+        }
         // Local caches are conveniences. Failure to refresh one must not
         // invalidate or delete evidence already stored in the shared archive.
         try {

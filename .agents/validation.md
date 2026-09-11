@@ -17,6 +17,11 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   worktree, initializes C from the local repository, and excludes uncommitted
   changes. Use `npm run checkpoint -- --commit <revision>` to select another
   commit. Run outside the Codex sandbox because setup writes Git metadata.
+  If only `GOALS.json`, `SCORE.tsv`, `QUALITY.json`, or
+  `QUALITY-evidence.json` changed, checkpoint can reuse earlier results
+  while checking the updated records. Reuse requires unchanged code,
+  test inputs, tools, and relevant settings, with the saved results intact.
+  Use `npm run checkpoint -- --force` to rerun every check.
   Results live in `checkpoint-results/` under the shared Git directory,
   whose path is printed by `git rev-parse --git-common-dir`. Each commit has
   a `latest.json` and retained `run-*/` directories containing the summary
@@ -37,8 +42,12 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   duplicate.
 - Use the tested commit's shared summary and its `artifacts` directory. Its
   development figures replace a separate score-development run for that
-  commit. A pass for an older commit does not establish that newer code
-  passes. Goal closure still requires a passing checkpoint at HEAD.
+  commit. The summary records which commit the results apply to (`commit`)
+  and where the tests ran (`executionCommit`). When results are reused,
+  `reusedFrom` points to the original summary. Report scores with the commit
+  where they were measured.
+  An older pass alone does not establish that newer code passes.
+  Goal closure still requires a passing checkpoint at HEAD.
   If validation failed, inspect its failure logs before choosing the next check.
 - For an entry point the span completes, write a recipe with a newly chosen
   seed, datetime, options, character, and inputs. Create the output directory

@@ -13,7 +13,7 @@ function fixture(t) {
     mkdirSync(join(root, 'scripts'));
     // These modules are loaded by the CLI; the fixture has no game or sessions.
     for (const name of ['checkpoint-checks.mjs', 'score-baseline.mjs',
-        'scoring-workspace.mjs', 'local-tmpdir.mjs']) {
+        'scoring-workspace.mjs', 'local-tmpdir.mjs', 'checkpoint-reuse.mjs']) {
         copyFileSync(new URL(name, import.meta.url), join(root, 'scripts', name));
     }
     writeFileSync(join(root, '.gitignore'), '.cache/\n');
@@ -87,8 +87,8 @@ syncBuiltinESMExports();
         tests: { passed: true }, recordings: { passed: true }, stale: true }));
     return {
         root, git, commit, summaryPath,
-        run: (env = {}, cwd = root) => spawnSync(process.execPath,
-            ['--require', guard, join(root, 'scripts/checkpoint-checks.mjs')],
+        run: (env = {}, cwd = root, args = []) => spawnSync(process.execPath,
+            ['--require', guard, join(root, 'scripts/checkpoint-checks.mjs'), ...args],
             { cwd, encoding: 'utf8', env: { ...process.env, ...env } }),
     };
 }
@@ -104,6 +104,41 @@ test('checkpoint attributes a clean run to its starting commit', (t) => {
     assert.equal(summary.recordings.passed, true);
     assert.equal(summary.stale, undefined); // The old result was replaced.
     assert.equal(f.git('status', '--porcelain'), '');
+});
+
+test('the real private runner refreshes bookkeeping and retains the execution commit', (t) => {
+    const f = fixture(t);
+    assert.equal(f.run().status, 0); // Establish a real runner summary with mocked costly commands.
+    const original = JSON.parse(readFileSync(f.summaryPath, 'utf8'));
+    original.artifacts = join(f.root, '.cache');
+    const reuse = join(f.root, '.cache/reuse.json');
+    writeFileSync(reuse, JSON.stringify(original));
+    writeFileSync(join(f.root, 'GOALS.json'), '{"goals":[]}');
+    f.git('add', 'GOALS.json');
+    f.git('commit', '-qm', 'metadata after execution');
+    rmSync(join(f.root, '.cache/checks-run'));
+    const result = f.run({}, f.root, ['--reuse', reuse]);
+    assert.equal(result.status, 0, result.stderr);
+    const summary = JSON.parse(readFileSync(f.summaryPath, 'utf8'));
+    assert.equal(summary.commit, f.git('rev-parse', 'HEAD'));
+    assert.equal(summary.executionCommit, f.commit);
+    assert.equal(summary.reusedFrom, join(original.artifacts, 'summary.json'));
+    assert.equal(summary.results.find(({ label }) => label === 'bookkeeping tests').passed, true);
+    assert.equal(readFileSync(join(f.root, '.cache/checks-run'), 'utf8').trim().split('\n').length,
+        3); // Bookkeeping tests, review status, and cache-sensitive overread only.
+    assert.doesNotMatch(result.stdout, /== full test suite ==/u);
+
+    const failed = f.run({ CHECKPOINT_FIXTURE_CHECK_FAILURE: 'yes' }, f.root, ['--reuse', reuse]);
+    assert.equal(failed.status, 1); // Current metadata failure overrides old passing execution.
+    assert.equal(JSON.parse(readFileSync(f.summaryPath, 'utf8')).allPassed, false);
+
+    original.results = []; // A truncated record cannot authorize skipped checks.
+    writeFileSync(reuse, JSON.stringify(original));
+    const fallback = f.run({}, f.root, ['--reuse', reuse]);
+    assert.equal(fallback.status, 0, fallback.stderr);
+    assert.match(fallback.stdout, /== full test suite ==/u);
+    assert.equal(JSON.parse(readFileSync(f.summaryPath, 'utf8')).executionCommit,
+        f.git('rev-parse', 'HEAD'));
 });
 
 // A commit can leave a clean tree while changing HEAD. The other cases keep

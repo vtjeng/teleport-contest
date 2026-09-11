@@ -5,6 +5,7 @@ import { basename, dirname } from 'node:path';
 
 import {
     checkpointCommands,
+    bookkeepingCommands,
     compareScoreToBaseline,
     parseCheckpointArgs,
     runCheckpointChecks,
@@ -13,6 +14,16 @@ import {
     summarizeReviewGate,
 } from './checkpoint-checks.mjs';
 import { readBaseline } from './score-baseline.mjs';
+
+test('bookkeeping checks refresh ledgers and history without replaying the game', () => {
+    const commands = bookkeepingCommands();
+    assert.deepEqual(commands.map(({ label }) => label),
+        ['bookkeeping tests', 'review gate', 'end-of-input over-read']);
+    // Ledger parsers validate this commit; fixture-only tests cannot do that.
+    assert.ok(commands[0].args.includes('scripts/checkpoint-bookkeeping.test.mjs'));
+    assert.ok(commands[0].args.includes('scripts/quality-status.test.mjs'));
+    assert.equal(commands[0].args[0], '--test');
+});
 
 test('the checkpoint surfaces the review gate without gating on it', () => {
     const gate = checkpointCommands().find(

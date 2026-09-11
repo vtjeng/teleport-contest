@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -13,6 +13,7 @@ import {
     readBaseline,
 } from './score-baseline.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
+import { executionTree, REUSE_VERSION } from './checkpoint-reuse.mjs';
 
 const GENERATED_CHECKS = [
     'check:colors',
@@ -153,14 +154,27 @@ export function checkpointCommands() {
 
 export function parseCheckpointArgs(args) {
     let verbose = false;
-    for (const arg of args) {
+    let reuse;
+    for (let index = 0; index < args.length; index++) {
+        const arg = args[index];
         if (arg === '--verbose') {
             verbose = true;
+        } else if (arg === '--reuse' && !reuse && args[index + 1]) {
+            reuse = args[++index];
         } else {
             throw new Error(`unknown checkpoint option: ${arg}`);
         }
     }
-    return { verbose };
+    return { verbose, ...(reuse ? { reuse } : {}) };
+}
+
+export function bookkeepingCommands() {
+    const commands = checkpointCommands();
+    return [{ label: 'bookkeeping tests', command: process.execPath,
+        args: ['--test', 'scripts/goal-log.test.mjs', 'scripts/goal-log-cli.test.mjs',
+            'scripts/score-log.test.mjs', 'scripts/quality-status.test.mjs',
+            'scripts/dashboard-data.test.mjs', 'scripts/checkpoint-bookkeeping.test.mjs'] },
+    ...commands.filter(({ label }) => label === 'review gate' || label === 'end-of-input over-read')];
 }
 
 export function runCheckpointChecks(commands, {
@@ -348,22 +362,26 @@ export function summarizeDevelopmentScore(stdout) {
 const SUMMARY_PATH = new URL('../.cache/checkpoint-summary.json',
     import.meta.url);
 
-export function writeCheckpointSummary(results, commit) {
+export function writeCheckpointSummary(results, commit, reused = null) {
     const testEntry = results.find(({ label }) => label === 'full test suite');
     const scoreEntry = results.find(
         ({ label }) => label === 'development score');
     const recordingsEntry = results.find(({ label }) => label === 'recordings corpus');
     const summary = {
         commit,
+        reuseVersion: REUSE_VERSION,
+        executionCommit: reused?.executionCommit ?? commit,
+        ...(reused ? { reusedFrom: join(reused.artifacts, 'summary.json') } : {}),
         timestamp: new Date().toISOString(),
         allPassed: results.every(({ passed, informational, skipped }) =>
             passed || informational || skipped),
         tests: { passed: testEntry?.passed ?? false },
         recordings: { passed: recordingsEntry?.passed ?? false,
             summary: recordingsEntry?.detail ?? '' },
-        score: scoreEntry?.stdout
+        score: reused ? reused.score : scoreEntry?.stdout
             ? developmentTotals(scoreEntry.stdout)
             : null,
+        results: results.map(({ stdout: _stdout, ...result }) => result),
     };
     const dest = fileURLToPath(SUMMARY_PATH);
     mkdirSync(dirname(dest), { recursive: true });
@@ -392,7 +410,7 @@ function requireCleanCheckpointTree() {
 }
 
 function main(args) {
-    const { verbose } = parseCheckpointArgs(args);
+    const { verbose, reuse } = parseCheckpointArgs(args);
     // Git, checks, and the summary must refer to the same worktree even when
     // the CLI is invoked by absolute path from another directory.
     process.chdir(PROJECT_ROOT);
@@ -401,7 +419,25 @@ function main(args) {
     const commit = checkpointGit(['rev-parse', '--verify', 'HEAD']);
     requireCleanCheckpointTree();
     const commands = checkpointCommands();
-    const { allPassed, results } = runCheckpointChecks(commands, { verbose });
+    let reused = null;
+    if (reuse) {
+        try {
+            reused = JSON.parse(readFileSync(reuse, 'utf8'));
+            if (reused.reuseVersion !== REUSE_VERSION || !reused.allPassed
+                || reused.executionCommit !== reused.commit
+                || executionTree(PROJECT_ROOT, reused.commit) !== executionTree(PROJECT_ROOT, commit)
+                || commands.some(({ label }) => !reused.results?.some(result => result.label === label)))
+                throw new Error('incomplete or changed execution evidence');
+        } catch (error) {
+            console.log(`Running full checkpoint: reuse unavailable (${error.message}).`);
+            reused = null;
+        }
+    }
+    const current = runCheckpointChecks(reused ? bookkeepingCommands() : commands, { verbose });
+    const refreshed = new Set(current.results.map(({ label }) => label));
+    const results = reused
+        ? [...reused.results.filter(({ label }) => !refreshed.has(label)), ...current.results]
+        : current.results;
     // Boundary checks catch persistent changes, not edits reverted between
     // observations. The worktree still needs exclusive use during validation.
     requireCleanCheckpointTree();
@@ -409,8 +445,8 @@ function main(args) {
         throw new Error('HEAD changed during checkpoint. Coordinate with active writers'
             + ' and rerun npm run checkpoint on the intended commit.');
     }
-    writeCheckpointSummary(results, commit);
-    if (!allPassed) process.exitCode = 1;
+    writeCheckpointSummary(results, commit, reused);
+    if (!current.allPassed) process.exitCode = 1;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
