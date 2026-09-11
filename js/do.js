@@ -44,6 +44,8 @@ import {
     CXN_SINGULAR,
     ROOM,
     RLOC_NOMSG,
+    PRIMARYSET,
+    ROGUESET,
     SLT_ENCUMBER,
     STAIRS,
     TIMEOUT,
@@ -74,7 +76,12 @@ import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
-import { docrt, flush_screen, newsym } from './display.js';
+import {
+    check_gold_symbol,
+    docrt,
+    flush_screen,
+    newsym,
+} from './display.js';
 import { Adjmonnam, Monnam, docall } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
@@ -196,6 +203,7 @@ import { cansee, canseemon, vision_recalc, vision_reset } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
+import { assign_graphics } from './symbols.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
 // staircase descent and positive-decimal level teleport ports.
@@ -1394,15 +1402,17 @@ export async function goto_level(
     update_mlstmv(state);
     savelev(ledger_no(u.uz, state), state);
 
-    // do.c:1665. assign_graphics() swaps the whole symbol set for a Rogue
-    // level. dat/dungeon.lua puts that level in the main dungeon between
-    // depths 15 and 18, so no descent from D:1 reaches it.
-    // do.c:1667 check_gold_symbol() writes iflags.invis_goldsym from
-    // gs.showsyms[COIN_CLASS]. Neither the flag nor a reader of it exists in
-    // the port, and the symbol set does not change across a level change, so
-    // the value it would compute is the one startup already computed.
-    // do.c:1668-1672 recbranch_mapseen() records a branch crossing; this
-    // descent keeps u.uz.dnum, which is the test C applies.
+    // do.c:1666-1668. Graphics are selected before u.uz changes, so the
+    // destination test and the departing-level test use the source values.
+    const enteringRogue = on_level(newlevel, state.rogue_level);
+    const leavingRogue = on_level(u.uz, state.rogue_level);
+    if (enteringRogue || leavingRogue) {
+        assign_graphics(
+            enteringRogue ? ROGUESET : PRIMARYSET,
+            state,
+        );
+    }
+    check_gold_symbol(state);
 
     // dungeon.c assign_level() copies the two fields into the destination
     // struct rather than replacing it, so anything holding a reference to
@@ -1664,7 +1674,14 @@ export async function goto_level(
         // C ref: do.c:1891-1892.
         await onquest(state);
     } else {
-        if (isNew && state.bigroom_level
+        // do.c:1912-1914. The Rogue level has its own arrival line before
+        // the big-room achievement check.
+        if (isNew && on_level(u.uz, state.rogue_level)) {
+            await ttyPline(
+                'You enter what seems to be an older, more primitive world.',
+                state,
+            );
+        } else if (isNew && state.bigroom_level
             && on_level(u.uz, state.bigroom_level)) {
             // C ref: do.c:1907. dat/dungeon.lua puts the big room between
             // depths 10 and 12.

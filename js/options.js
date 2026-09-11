@@ -189,6 +189,7 @@ import {
 // js/display.js from the other side, and both use the other's exports only
 // inside function bodies.
 import {
+    check_gold_symbol,
     bot,
     classify_terrain,
     docrt,
@@ -263,6 +264,7 @@ import {
 } from './drawing.js';
 import { escapes } from './options_escapes.js';
 import {
+    assign_graphics,
     finish_boulder_symbol,
     MAXMCLASSES,
     switch_symbols,
@@ -1776,11 +1778,8 @@ function optfn_IBMgraphics(result, request, negated, opts, op) {
         }
         if (result.gs?.symset) switch_symbols(result, true);
         if (result.go?.opt_initial === false
-            && Is_rogue_level(result.u?.uz)) {
-            // C discards assign_graphics()'s void result; the callee is not
-            // ported in symbols.c, so record the permitted discarded-result gap.
-            note_unported('symbols.c assign_graphics');
-        }
+            && Is_rogue_level(result.u?.uz))
+            assign_graphics(ROGUESET, result);
     }
     if (request === GET_VAL || request === GET_CNF_VAL) return '';
     return optn_ok;
@@ -8602,14 +8601,8 @@ export async function reset_needed_visuals(state) {
         if (go.opt_reset_customsymbols)
             throw new UnsupportedOptionMenuError('reset_customsymbols()');
         if (go.opt_need_redraw) {
-            // botl.c check_gold_symbol() writes iflags.invis_goldsym from
-            // gs.showsyms[COIN_CLASS + SYM_OFF_O].  Its only readers are
-            // botl.c:131 and botl.c:1071, which choose between the literal
-            // "$" and encglyph(objnum_to_glyph(GOLD_PIECE)); tty renders the
-            // second as the coin-class symbol, which is '$' in both symbol
-            // sets this port loads, so the two arms write the same status
-            // byte and js/display.js spells that byte out.  js/do.js:857-860
-            // records the same reasoning for goto_level()'s call.
+            // botl.c:check_gold_symbol() runs before the status line redraw.
+            check_gold_symbol(state);
             reglyph_darkroom(state);
         }
         // display.c docrt_flags() brackets its repaint with vision_recalc(2)

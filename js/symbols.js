@@ -1,5 +1,6 @@
 // symbols.js -- Primary display-symbol initialization and selection.
-// C refs: drawing.c:defsyms; symbols.c:init_symbols(), switch_symbols();
+// C refs: drawing.c:defsyms; symbols.c:init_symbols(), assign_graphics(),
+// switch_symbols();
 // options.c:sym_val(); dat/symbols.
 
 import {
@@ -484,6 +485,17 @@ export function switch_symbols(state = game, useOverrides = true) {
         // not suppress the selected UTF-8 set's glyph mapping.
         return arrays.overrideUtf8[index] ?? symbol;
     });
+}
+
+// C ref: symbols.c assign_graphics().  A level change selects the primary or
+// Rogue symbol table, then rebuilds the active display symbols.  The JavaScript
+// renderer resolves glyphs when it draws them, so reset_glyphmap() has no
+// separate table to rebuild here.
+export function assign_graphics(whichSet, state = game) {
+    graphicsState(state);
+    state.gc.currentgraphics = whichSet === ROGUESET
+        ? ROGUESET : PRIMARYSET;
+    switch_symbols(state, true);
 }
 
 export function initialize_symbols_from_options(options, state = game) {

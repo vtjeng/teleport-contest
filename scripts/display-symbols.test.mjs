@@ -111,6 +111,7 @@ import {
     armor_status,
     back_to_glyph,
     bot,
+    check_gold_symbol,
     classify_terrain,
     cls,
     cmap_c_to_glyph,
@@ -301,6 +302,7 @@ import {
 } from '../js/terminal.js';
 import {
     SYMBOL_INDEX_BY_NAME,
+    SYM_OFF_O,
     SYM_OFF_P,
     SYM_OFF_X,
 } from '../js/symbol_data.js';
@@ -351,6 +353,7 @@ import {
     S_vcdoor,
     S_vodoor,
     S_vwall,
+    assign_graphics,
     sym_val,
     trap_to_defsym,
 } from '../js/symbols.js';
@@ -419,6 +422,49 @@ test('symbol operation dispatch rejects unknown stream records', () => {
         }, {}),
         /unknown symbol operation 'typo'/u,
     );
+});
+
+test('assign_graphics selects the source Rogue and primary symbol tables', () => {
+    const state = {};
+    initialize_symbols_from_options({ flags: {} }, state);
+    const goldIndex = SYM_OFF_O + COIN_CLASS;
+
+    // symbols.c init_rogue_symbols() changes the stair and coin symbols;
+    // these distinct bytes make both assign_graphics() selections observable.
+    const primaryStair = state.gp.primary_syms[S_upstair];
+    const rogueStair = state.gr.rogue_syms[S_upstair];
+    const primaryGold = state.gp.primary_syms[goldIndex];
+    const rogueGold = state.gr.rogue_syms[goldIndex];
+    assert.notEqual(primaryStair, rogueStair);
+    assert.notEqual(primaryGold, rogueGold);
+
+    // symbols.c:217-250 copies the selected table and then sets
+    // gc.currentgraphics; its default branch is PRIMARYSET.
+    assign_graphics(ROGUESET, state);
+    assert.equal(state.gc.currentgraphics, ROGUESET);
+    assert.equal(state.gs.showsyms[S_upstair], rogueStair);
+    assert.equal(state.gs.showsyms[goldIndex], rogueGold);
+    assign_graphics(PRIMARYSET, state);
+    assert.equal(state.gc.currentgraphics, PRIMARYSET);
+    assert.equal(state.gs.showsyms[S_upstair], primaryStair);
+    assert.equal(state.gs.showsyms[goldIndex], primaryGold);
+});
+
+test('check_gold_symbol follows botl.c printable-character boundary', () => {
+    const state = {
+        gs: { showsyms: [] },
+        iflags: {},
+    };
+    const goldIndex = SYM_OFF_O + COIN_CLASS;
+
+    // botl.c:40-45 assigns invis_goldsym when the active coin symbol is
+    // space or a control byte, and leaves it clear for printable symbols.
+    state.gs.showsyms[goldIndex] = ' '.charCodeAt(0);
+    check_gold_symbol(state);
+    assert.equal(state.iflags.invis_goldsym, true);
+    state.gs.showsyms[goldIndex] = '!'.charCodeAt(0);
+    check_gold_symbol(state);
+    assert.equal(state.iflags.invis_goldsym, false);
 });
 
 function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {

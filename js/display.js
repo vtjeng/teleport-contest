@@ -6,6 +6,14 @@
 // get_hilite(), and the condition tables. eat.c's hu_stat[] is the one status
 // table that lives elsewhere, in js/eat.js, because eat.c defines it.
 
+// C ref: botl.c check_gold_symbol(). The status line uses the active coin
+// symbol when it is printable and falls back to '$' for a blank/control byte.
+export function check_gold_symbol(state = game) {
+    const goldch = state.gs?.showsyms?.[SYM_OFF_O + COIN_CLASS] ?? 0;
+    state.iflags ??= {};
+    state.iflags.invis_goldsym = goldch <= ' '.charCodeAt(0);
+}
+
 // DEC line-drawing characters that the scorer's screen-decode.mjs renderCell()
 // translates when decgfx=1. The scorer's DEC_MAP omits several VT100 entries
 // (backtick/diamond, degree, plus-minus, less-equal, greater-equal, not-equal,
@@ -116,6 +124,7 @@ import {
     BOULDER,
     CLOAK_OF_PROTECTION,
     CORPSE,
+    COIN_CLASS,
     CORNUTHAUM,
     CREAM_PIE,
     DUNCE_CAP,
@@ -145,6 +154,7 @@ import {
     optional_misc_symbol,
     symbol_at,
     MAXPCHARS,
+    SYM_OFF_O,
     SYM_OFF_W,
     S_arrow_trap,
     S_digbeam,
@@ -4301,7 +4311,18 @@ function _statusExperienceOrHD(u) {
 }
 
 function _statusVitals(u) {
-    return `$:${money_cnt(game.invent)} HP:${_statusHitPoints(u)}(${_statusMaxHitPoints(u)}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
+    return `${_statusGoldSymbol()}:${money_cnt(game.invent)} HP:${_statusHitPoints(u)}(${_statusMaxHitPoints(u)}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} ${_statusExperienceOrHD(u)}`;
+}
+
+// C ref: botl.c bot_via_windowport()'s BL_GOLD value.  check_gold_symbol()
+// marks symbols that cannot be used as a status prefix; otherwise encglyph()
+// resolves GOLD_PIECE through the active object-class symbol table.  The
+// concrete object shares its class slot, so this does not require the full
+// object catalog during early status-layout tests.
+function _statusGoldSymbol() {
+    if (game.iflags?.invis_goldsym) return '$';
+    const symbol = symbol_at(SYM_OFF_O + COIN_CLASS, game);
+    return symbol.displayCh ?? symbol.ch ?? '$';
 }
 
 // C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from
@@ -4517,7 +4538,7 @@ function _optionalStatusFieldList() {
 function _vitalStatusFields(u) {
     const poly = u && Upolyd(u);
     const fields = [
-        _statusField(`$:${money_cnt(game.invent)}`, _fieldOwner('gold')),
+        _statusField(`${_statusGoldSymbol()}:${money_cnt(game.invent)}`, _fieldOwner('gold')),
         _statusField(' '),
         _statusField(`HP:${_statusHitPoints(u)}`, _fieldOwner('hitpoints')),
         _statusField(`(${_statusMaxHitPoints(u)})`, _fieldOwner('hitpoints-max')),

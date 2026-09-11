@@ -25,6 +25,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     PLINE_VERBALIZE,
+    ROGUESET,
     ROOMOFFSET,
     ROOM,
     SHOPBASE,
@@ -46,6 +47,7 @@ import {
     goto_level,
     place_random_arrival,
 } from '../js/do.js';
+import { S_upstair } from '../js/symbols.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, weight_cap } from '../js/hack.js';
@@ -164,6 +166,39 @@ test('the arrival recipe reaches its exact destination and trailing command',
         for (const segment of loadLevelTeleportArrivalRecipe().segments) {
             await verifyLevelTeleportArrival(segment);
         }
+    });
+
+test('Rogue level arrival switches symbols and waits for its source message',
+    async () => {
+        await runSegment({
+            seed: 9003,
+            datetime: '20410202090000',
+            nethackrc: [
+                'OPTIONS=name:GotoRogue,role:Wizard,race:human,gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=playmode:debug,pettype:none',
+                '',
+            ].join('\n'),
+            // The first space dismisses startup, ? opens the level menu,
+            // lowercase g selects Rogue, and the last space dismisses the
+            // do.c:1913 arrival message's More wait.
+            moves: ' \x16?\ng ',
+        });
+
+        // do.c:1666-1667 selects ROGUESET before assigning u.uz, and
+        // do.c:1912-1914 prints this line only for a newly made Rogue level.
+        assert.equal(game.gc.currentgraphics, ROGUESET);
+        assert.equal(game.gs.showsyms[S_upstair], '%'.charCodeAt(0));
+        assert.equal(
+            game._ttyToplines,
+            'You enter what seems to be an older, more primitive world.',
+        );
+        assert.equal(game._pending_message, game._ttyToplines);
+        assert.equal(
+            game.nhDisplay.grid.some((row) => row.map(({ ch }) => ch)
+                .join('').includes('--More--')),
+            false,
+        );
     });
 
 function placementState() {
