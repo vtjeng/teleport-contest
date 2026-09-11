@@ -24553,6 +24553,59 @@
           "remainingScreensUpperBound": 499
         }
       ]
+    },
+    {
+      "id": "div-do-reglyph-darkroom-0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore goto_level()'s reglyph_darkroom() level-transition call",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked unresolved candidate is seed0360-wizard-world-tour at step 334. Fresh replay shows only two screen cells changing from C DEC middle dots to JS floor dots, with RNG aligned. C do.c goto_level() calls display.c reglyph_darkroom() at line 1715 after mklev(); JS js/display.js already implements reglyph_darkroom(), but js/do.js goto_level() omits the call, leaving S_darkroom unaliased after the level transition.",
+      "detail": "Segment 0, input step 334 (key k): first screen mismatch at row 10, columns 62-63 (zero-based). C cells are raw '~', decgfx=1, rendering '·'; JS cells are raw '.', decgfx=0. C do.c goto_level():1715 invokes display.c reglyph_darkroom(), whose dark_room && use_color tail aliases gs.showsyms[S_darkroom] to gs.showsyms[S_room] at display.c:1850-1851. JS js/do.js:1470-1479 documents the call but omits it; js/display.js reglyph_darkroom() is already implemented.",
+      "spans": [
+        {
+          "name": "reglyph-darkroom-goto-level",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "goto_level"
+          ]
+        }
+      ],
+      "openedAt": "a834938268489222543189d32605940121ea5d5c",
+      "openStanding": {
+        "sha": "b18d40062a97fbadf00203de805fac29213dd31f",
+        "screens": 6398,
+        "rng": 480788
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "goto_level",
+      "session": "seed0360-wizard-world-tour",
+      "step": 334,
+      "activeStanding": {
+        "sha": "b18d40062a97fbadf00203de805fac29213dd31f",
+        "screens": 6398,
+        "rng": 480788
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 334,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 499
+        }
+      ]
     }
   ]
 }
