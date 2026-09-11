@@ -339,7 +339,16 @@ function assertSimpleActionState(monster, state) {
 
     if (monster.mtame || monster.isminion)
         unsupported('minion movement');
-    if (monster.wormno || is_covetous(monster.data)) {
+    const covetous = is_covetous(monster.data);
+    // C ref: monmove.c dochug() checks msleeping at :726-731 before its
+    // covetous tactics() call at :782. When couldsee() is false, disturb()
+    // returns 0 without drawing or changing the monster, so this is the one
+    // covetous state that can pass through the existing early return safely.
+    // Keep every other covetous state behind the special-movement boundary.
+    const sleepingOutOfSightCovetous = covetous
+        && monster.msleeping
+        && !couldsee(monster.mx, monster.my, state);
+    if (monster.wormno || (covetous && !sleepingOutOfSightCovetous)) {
         unsupported('special monster movement');
     }
     // isgd is admitted: m_move() dispatches to gd_move() which handles the

@@ -90,6 +90,7 @@ import {
     PM_VAMPIRE_BAT,
     PM_TENGU,
     PM_WOOD_NYMPH,
+    PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
     M1_TPORT,
     S_HUMAN,
@@ -4455,6 +4456,103 @@ test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
     assert.equal(target.monster.msleeping, true);
     assert.equal(target.replay.getRngLog().length, rngBefore);
     assert.equal(target.replay.getScreens().length, screensBefore);
+});
+
+// C ref: monmove.c dochug() (726-731, 782). A sleeping covetous monster
+// outside couldsee() returns from disturb() before tactics(), so the planning
+// clone and live pass must both leave its state and the PRNG unchanged. The
+// Wizard of Yendor is used because monsters.h marks it M3_COVETOUS.
+test('sleeping out-of-sight covetous monster takes the disturb no-op',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_WIZARD_OF_YENDOR,
+        });
+        target.monster.msleeping = true;
+        game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const rngBefore = target.replay.getRngLog().length;
+        const screensBefore = target.replay.getScreens().length;
+        const events = [];
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                const wizard = planned.level.monlist;
+                assert.equal(wizard.movement, 0);
+                assert.equal(wizard.msleeping, true);
+                return true;
+            },
+        });
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+
+        await movemon_singlemon(target.monster, {
+            state: game,
+            everyTurnEffect: () => events.push('every-turn'),
+            visionRecalc: () => events.push('vision'),
+            clearBypasses: () => events.push('bypasses'),
+            minLiquid: () => {
+                events.push('liquid');
+                return false;
+            },
+            dowear: () => events.push('wear'),
+            restrap: () => false,
+            canSeeMonster: () => true,
+            hideUnder: () => false,
+            canSeeHero: () => false,
+            canSeeSquare: () => false,
+            fightMonster: () => false,
+            dochugwAction: (monster, chug, env) => {
+                events.push(`dochugw:${chug}`);
+                return runSimpleMonsterAction(monster, env);
+            },
+        });
+
+        assert.deepEqual(events, ['every-turn', 'liquid', 'dochugw:true']);
+        assert.equal(target.monster.movement, 0);
+        assert.equal(target.monster.msleeping, true);
+        assert.equal(target.replay.getRngLog().length, rngBefore);
+        assert.equal(target.replay.getScreens().length, screensBefore);
+    });
+
+// C ref: monmove.c dochug():726-731 and :782. The guard must reject a
+// covetous monster when it is awake, even outside couldsee(), and when it is
+// sleeping on a visible square, because either state can reach tactics().
+test('awake or visible covetous monsters remain fail-closed', async () => {
+    for (const testCase of [
+        // Awake removes the early disturb() return; clearing COULD_SEE checks
+        // that sleeping is required in addition to being out of sight.
+        { label: 'awake out of sight', sleeping: false, visible: false },
+        // A visible sleeping monster can be disturbed, so it must not enter
+        // the simplified action path even before the random wake check.
+        { label: 'sleeping in sight', sleeping: true, visible: true },
+    ]) {
+        const target = await prepareSelectedAction({
+            pmidx: PM_WIZARD_OF_YENDOR,
+        });
+        target.monster.msleeping = testCase.sleeping;
+        if (testCase.visible)
+            game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
+        else
+            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'special monster movement'
+                ),
+                `${testCase.label}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `${testCase.label}, attempt ${attempt + 1}`,
+            );
+        }
+    }
 });
 
 test('species guard still blocks Tengu and other leprechaun actions',
