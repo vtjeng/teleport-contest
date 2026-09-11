@@ -24609,6 +24609,120 @@
           "remainingScreensUpperBound": 499
         }
       ]
+    },
+    {
+      "id": "port-mon-monlineu-mm-displacement-complete",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete mon.c movement candidate filtering and aggression family, including mfndpos terrain eligibility",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0360-wizard-world-tour",
+        "seed0383-wizard-hallucinate"
+      ],
+      "selectionReason": "The highest-ranked current source candidate is mon.c:mfndpos(), reached by seed0360 step 335 and seed0383 step 203. Fresh replay traces piranha moat movement and earth-elemental passwall movement to the existing JS mfndpos admission seam, which rejects these source-valid destinations. Port the contiguous mon.c helper family from monlineu through mm_displacement so mfndpos() and its same-file eligibility/aggression helpers are source-complete and wired together.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "c25b181128f99fd7bedb27a8b48b2b7cffed0684",
+      "openStanding": {
+        "sha": "b6d0a83fd25bf9448dc6d45c90ab485ad99989ee",
+        "screens": 6399,
+        "rng": 480788
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "monlineu",
+          "line": 2057,
+          "endLine": 2063,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mon_allowflags",
+          "line": 2064,
+          "endLine": 2129,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "m_in_air",
+          "line": 2130,
+          "endLine": 2139,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mfndpos",
+          "line": 2140,
+          "endLine": 2387,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mm_2way_aggression",
+          "line": 2388,
+          "endLine": 2427,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mm_aggression",
+          "line": 2428,
+          "endLine": 2450,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mm_displacement",
+          "line": 2451,
+          "endLine": 2475,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2057,
+        "to": 2475
+      },
+      "activeStanding": {
+        "sha": "b6d0a83fd25bf9448dc6d45c90ab485ad99989ee",
+        "screens": 6399,
+        "rng": 480788
+      },
+      "openMismatches": [
+        {
+          "session": "seed0383-wizard-hallucinate",
+          "step": 203,
+          "kind": "stop",
+          "function": "mfndpos",
+          "functionDeclared": true,
+          "sourceFile": "mon.c",
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires mfndpos() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 219,
+          "remainingScreensUpperBound": 16
+        },
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 335,
+          "kind": "stop",
+          "function": "mfndpos",
+          "functionDeclared": true,
+          "sourceFile": "mon.c",
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires mfndpos() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 498
+        }
+      ]
     }
   ]
 }
