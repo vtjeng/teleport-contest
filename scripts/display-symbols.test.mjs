@@ -5863,6 +5863,81 @@ test('flush_screen preserves final map attributes for recorder and browser cells
     });
 });
 
+test('flush_screen follows C cursor_on_u mode', async () => {
+    // display.c flush_screen():2261-2263 calls curs(WIN_MAP, u.ux, u.uy)
+    // only when cursor_on_u is nonzero. These coordinates keep the saved
+    // cursor and hero inside the ordinary 80x24 map viewport.
+    const state = visibleCellState({ x: 7, y: 4, ux: 5, uy: 6 });
+    state.nhDisplay = new GameDisplay(null);
+    const savedCursor = [31, 12, 1];
+    state.nhDisplay.setCursor(...savedCursor.slice(0, 2));
+
+    await flush_screen(0);
+    assert.deepEqual(
+        [
+            state.nhDisplay.cursorCol,
+            state.nhDisplay.cursorRow,
+            state.nhDisplay.cursorVisible,
+        ],
+        savedCursor,
+        'cursor_on_u == 0 preserves the cursor selected by getpos',
+    );
+
+    await flush_screen(1);
+    assert.deepEqual(
+        [
+            state.nhDisplay.cursorCol,
+            state.nhDisplay.cursorRow,
+            state.nhDisplay.cursorVisible,
+        ],
+        [state.u.ux - 1, state.u.uy + 1, 1],
+        'cursor_on_u != 0 moves the cursor to the hero',
+    );
+});
+
+test('flush_screen leaves map output untouched in suppressed phases', async () => {
+    // display.c _suppress_map_output() (703-710) returns before the delay,
+    // re-entry, status, map, and cursor arms. Each flag below is one source
+    // phase that must leave this pre-existing terminal cell and cursor alone.
+    const state = visibleCellState({ x: 7, y: 4, ux: 5, uy: 6 });
+    state.nhDisplay = new GameDisplay(null);
+    const savedCursor = [31, 12, 1];
+    // The off-map screen coordinate and red/bold sentinel make any accidental
+    // clearScreen() or repaint visible without depending on a terrain glyph.
+    const savedCell = { ch: 'X', color: CLR_RED, attr: ATR_BOLD };
+    state.nhDisplay.setCursor(...savedCursor.slice(0, 2));
+    state.nhDisplay.setCell(10, 10, savedCell.ch, savedCell.color, savedCell.attr);
+
+    for (const phase of [
+        ['in_mklev', true],
+        ['saving', true],
+        ['restoring', true],
+        ['done_hup', true],
+    ]) {
+        state.in_mklev = false;
+        state.program_state = {};
+        state[phase[0]] = false;
+        if (phase[0] === 'in_mklev') state.in_mklev = phase[1];
+        else state.program_state[phase[0]] = phase[1];
+
+        await flush_screen(1);
+        assert.deepEqual(
+            state.nhDisplay.grid[10][10],
+            savedCell,
+            `${phase[0]} suppresses map repaint`,
+        );
+        assert.deepEqual(
+            [
+                state.nhDisplay.cursorCol,
+                state.nhDisplay.cursorRow,
+                state.nhDisplay.cursorVisible,
+            ],
+            savedCursor,
+            `${phase[0]} suppresses cursor movement`,
+        );
+    }
+});
+
 test('newsym layers seen traps below objects and above engravings', () => {
     const state = resetGame();
     const x = 7;

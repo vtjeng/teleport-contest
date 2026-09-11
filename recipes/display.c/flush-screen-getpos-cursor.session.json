@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22031,
+      "datetime": "20320506070809",
+      "nethackrc": "OPTIONS=name:FlushProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!tips,!autopickup\n",
+      "moves": "_>"
+    }
+  ],
+  "comment": "Independently chosen ordinary travel input reaches cmd.c dotravel(), then getpos.c's unmatched downstairs key. The final getpos.c flush_screen(0) keeps the cursor on the queried map square."
+}

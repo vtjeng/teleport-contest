@@ -5301,9 +5301,17 @@ function writeStatusRows(
 }
 
 // ── Build screen output ──
-function _buildScreenOutput() {
+function _buildScreenOutput(cursorOnHero = true) {
     const display = game?.nhDisplay;
     if (!display) return;
+    // display.c flush_screen() calls display_nhwindow() after its map loop.
+    // The TTY map window leaves its cursor where curs() last placed it, so a
+    // cursor_on_u == 0 flush must remember the position before this rebuild
+    // clears the terminal grid. Capture it after bot()/timebot(), because
+    // either status update can itself leave the terminal cursor elsewhere.
+    const savedCursor = !cursorOnHero && display.grid
+        ? [display.cursorCol, display.cursorRow]
+        : null;
     const statusRows = game._renderedStatusLayouts ?? statusLayouts();
     const viewport = mapViewport(display.rows, statusRows.length);
 
@@ -5364,12 +5372,16 @@ function _buildScreenOutput() {
             }
         }
         writeStatusRows(display, statusRows);
-        // Cursor at hero
-        if (game.u?.ux > 0)
+        // display.c flush_screen():2261-2263 moves the cursor only for a
+        // nonzero cursor_on_u. Restore the TTY cursor after clearScreen() for
+        // the mode used by getpos.c and tmp_at().
+        if (cursorOnHero && game.u?.ux > 0)
             display.setCursor(
                 game.u.ux - 1,
                 game.u.uy - viewport.top + 1,
             );
+        else if (!cursorOnHero && savedCursor)
+            display.setCursor(savedCursor[0], savedCursor[1]);
     }
 }
 
@@ -5392,45 +5404,67 @@ function _buildScreenOutput() {
 // port-side abort, not a divergence from the static's semantics within one
 // level change.
 
-// C ref: display.c flush_screen() (2207-2266). `mode` is C's cursor_on_u, and
-// the body below reads it for the -1 sentinel alone.
+// C ref: display.c flush_screen() (2208-2286). `mode` is C's cursor_on_u:
+// -1 toggles delay_flushing, zero preserves the current cursor, and every
+// other value selects the hero after the buffered map is displayed.
 //
 // A value of -1 toggles the delay: goto_level() calls flush_screen(-1) at
 // do.c:1718 to postpone every map flush while it builds the destination, and
 // again at do.c:1839 to release it. The second call falls past the guard below
 // and flushes.
 //
-// Every other value behaves as C's flush_screen(1) does, because
-// _buildScreenOutput() places the cursor on the hero unconditionally. No
-// ported caller passes 0, so the gap is latent; a caller that needs C's
-// cursor_on_u == 0 behaviour -- pline.c:274's NO_CURS_ON_U among them -- must
-// first give _buildScreenOutput() a way to leave the cursor where it stands.
+function suppressMapOutput(state = game) {
+    // display.c _suppress_map_output() covers level construction, save,
+    // restore, and hangup. Those phases must leave the buffered cells and the
+    // terminal cursor untouched until their owning operation redraws them.
+    return Boolean(
+        state.in_mklev
+        || state.program_state?.saving
+        || state.program_state?.restoring
+        || state.program_state?.done_hup,
+    );
+}
+
 export async function flush_screen(mode) {
+    if (suppressMapOutput()) return;
     if (mode === -1) game.delay_flushing = !game.delay_flushing;
     if (game.delay_flushing) return;
-    // C ref: display.c flush_screen() (2235-2239). The turn counter has its
-    // own arm, which refreshes that field alone.
-    if (game.disp?.botl || game.disp?.botlx) {
-        await bot({
-            // Before moveloop_preamble(), tty field dirtiness can preserve
-            // the initial three-row condition/optional-field overlap.
-            initialTtyRefresh: Boolean(
-                game.program_state
-                && !game.program_state.in_moveloop
-                && game.u?.ux,
-            ),
-        });
-    } else if (game.disp?.time_botl) {
-        await timebot();
-    }
-    _buildScreenOutput();
-    // C ref: display.c flush_glyph_buffer(). Once the buffered map has reached
-    // the window port, each gbuf entry is clean until show_glyph() writes it
-    // again. This also makes show_glyph()'s explicit gnew exception precise.
-    if (game.level?.at) {
-        for (let x = 1; x < COLNO; ++x)
-            for (let y = 0; y < ROWNO; ++y)
-                game.level.at(x, y).gnew = 0;
+    if (game.flushing) return;
+    // display.c keeps this guard function-static. The state field resets with
+    // resetGame(), which also prevents a completed segment's reentrant flush
+    // state from affecting the next runSegment().
+    game.flushing = true;
+    if (game.program_state?.done_hup) return;
+    try {
+        // C ref: display.c flush_screen() (2235-2239). The turn counter has
+        // its own arm, which refreshes that field alone.
+        if (game.disp?.botl || game.disp?.botlx) {
+            await bot({
+                // Before moveloop_preamble(), tty field dirtiness can preserve
+                // the initial three-row condition/optional-field overlap.
+                initialTtyRefresh: Boolean(
+                    game.program_state
+                    && !game.program_state.in_moveloop
+                    && game.u?.ux,
+                ),
+            });
+        } else if (game.disp?.time_botl) {
+            await timebot();
+        }
+        // C ref: display.c flush_screen() (2261-2263). A zero mode leaves the
+        // existing cursor in place; all other modes select the hero.
+        _buildScreenOutput(mode === 0 ? false : true);
+        // C ref: display.c flush_glyph_buffer(). Once the buffered map has
+        // reached the window port, each gbuf entry is clean until show_glyph()
+        // writes it again. This also makes show_glyph()'s explicit gnew
+        // exception precise.
+        if (game.level?.at) {
+            for (let x = 1; x < COLNO; ++x)
+                for (let y = 0; y < ROWNO; ++y)
+                    game.level.at(x, y).gnew = 0;
+        }
+    } finally {
+        game.flushing = false;
     }
 }
 
