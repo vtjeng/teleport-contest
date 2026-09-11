@@ -190,8 +190,7 @@ h1 {
 .work-status { font-size: 12px; font-weight: 600; color: var(--ink-secondary); margin-bottom: 4px; }
 .work-title { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; margin-bottom: 4px; }
 .work-empty { padding: 4px 0 20px; color: var(--ink-secondary); }
-.goal-details { margin-top: 12px; font-size: 12px; color: var(--ink-secondary); }
-.goal-details p { margin-top: 8px; overflow-wrap: anywhere; }
+.goal-details { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
 .diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
@@ -906,8 +905,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     'divergence-fix': 'Behavior fix', boundary: 'Historical goal' })[kind] || 'Historical goal';
   const description = goal => '<h3 class="work-title">' + esc(goal.summary || goal.id) + '</h3>'
     + '<p class="work-meta"><code>' + esc(goal.sourceFile || 'Source pending') + '</code></p>';
-  const goalDetails = goal => '<details class="goal-details"><summary>Goal details</summary>'
-    + '<p>' + esc(kindLabel(goal.kind)) + ' · <code>' + esc(goal.id) + '</code></p></details>';
+  const goalDetails = goal => '<p class="goal-details">' + esc(kindLabel(goal.kind))
+    + ' · <code>' + esc(goal.id) + '</code></p>';
   document.getElementById('currentWork').innerHTML = active.length
     ? active.map(goal => '<article class="active-work"><p class="work-status">In progress</p>'
       + description(goal) + goalDetails(goal) + '</article>').join('')
