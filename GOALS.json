@@ -22731,6 +22731,62 @@
           "remainingScreensUpperBound": 679
         }
       ]
+    },
+    {
+      "id": "port-end-really-done",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete end.c really_done() lifecycle and source ordered death finalization",
+      "cFile": "end.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The mismatch queue labels the shifted later RNG as o_init.c randomize_gem_colors(), but source tracing shows its first cause is the missing end.c really_done() wait_synch() boundary after segment 6 death. The JS o_init.c randomize_gem_colors() implementation already matches C and fresh per-segment startup draws. Select the responsible partial end.c function.",
+      "detail": "Fresh source trace of seed0030-ten-diverse-deaths: after the ordinary lethal missile path, C end.c really_done() calls wait_synch() at line 1189 before can_make_bones() at line 1201. JS reaches can_make_bones() immediately, so its input boundary is missing and the later segment's randomize_gem_colors() annotation is a downstream stream shift. The selected function remains partial: hangup, panic, first-move, grave-arise, and other source branches retain explicit refusals. Port source order and preserve waits, cleanup, disclosure, bones, and final termination behavior.",
+      "spans": [],
+      "openedAt": "f8c5d00ff8ffceb26acb60326132356d8cbf418c",
+      "openStanding": {
+        "sha": "f8c5d00ff8ffceb26acb60326132356d8cbf418c",
+        "screens": 6240,
+        "rng": 426514
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "really_done",
+          "line": 1130,
+          "endLine": 1593,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1130,
+        "to": 1593
+      },
+      "activeStanding": {
+        "sha": "f8c5d00ff8ffceb26acb60326132356d8cbf418c",
+        "screens": 6240,
+        "rng": 426514
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1274,
+          "kind": "rng",
+          "function": "randomize_gem_colors",
+          "functionDeclared": true,
+          "sourceFile": "o_init.c",
+          "cFile": "o_init.c",
+          "luaFile": null,
+          "line": 92,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 679
+        }
+      ]
     }
   ]
 }
