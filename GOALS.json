@@ -25889,7 +25889,7 @@
     {
       "id": "div-fountain-find-gem-0030",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Handle fountain.c drinkfountain() fate 27 gem discovery",
       "cFile": "fountain.c",
       "sessions": [],
@@ -25898,8 +25898,8 @@
       "spans": [
         {
           "name": "drinkfountain",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "35e4d3a5ceb52bf365878324b381b4edde929756",
           "functions": [
             "drinkfountain"
           ]
@@ -25911,8 +25911,11 @@
         "screens": 6633,
         "rng": 496517
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "35e4d3a5ceb52bf365878324b381b4edde929756",
+      "delivered": {
+        "screens": 9,
+        "rng": 216
+      },
       "function": "drinkfountain",
       "session": "seed0030-ten-diverse-deaths",
       "step": 1565,
