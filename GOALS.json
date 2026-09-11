@@ -26514,7 +26514,7 @@
     {
       "id": "div-pager-lookat-cloud-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Describe cloud terrain in pager lookat autodescribe",
       "cFile": "pager.c",
       "sessions": [],
@@ -26523,8 +26523,8 @@
       "spans": [
         {
           "name": "lookat-cloud",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c8bf69c9e8f8120eb769fe0a9dc3fbb5ffcfccc6",
           "functions": [
             "lookat"
           ]
@@ -26536,8 +26536,11 @@
         "screens": 6854,
         "rng": 504067
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c8bf69c9e8f8120eb769fe0a9dc3fbb5ffcfccc6",
+      "delivered": {
+        "screens": 5,
+        "rng": 0
+      },
       "function": "lookat",
       "session": "seed0360-wizard-world-tour",
       "step": 523,
@@ -26562,7 +26565,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 310
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c8bf69c9e8f8120eb769fe0a9dc3fbb5ffcfccc6",
+        "screens": 6859,
+        "rng": 504067
+      }
     }
   ]
 }
