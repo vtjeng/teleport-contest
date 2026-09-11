@@ -24500,7 +24500,7 @@
     {
       "id": "div-newcham-sandestin-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Resolve seed0360 Sandestin distress shapechange",
       "cFile": "mon.c",
       "sessions": [],
@@ -24509,8 +24509,8 @@
       "spans": [
         {
           "name": "sandestin-distress-newcham",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b18d40062a97fbadf00203de805fac29213dd31f",
           "functions": [
             "decide_to_shapeshift",
             "newcham"
@@ -24523,8 +24523,11 @@
         "screens": 6398,
         "rng": 480745
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b18d40062a97fbadf00203de805fac29213dd31f",
+      "delivered": {
+        "screens": 0,
+        "rng": 43
+      },
       "function": "newcham",
       "session": "seed0360-wizard-world-tour",
       "step": 334,
