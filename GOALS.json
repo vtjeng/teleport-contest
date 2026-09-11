@@ -26510,6 +26510,59 @@
         "screens": 6854,
         "rng": 504067
       }
+    },
+    {
+      "id": "div-pager-lookat-cloud-0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Describe cloud terrain in pager lookat autodescribe",
+      "cFile": "pager.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked unresolved development mismatch is seed0360-wizard-world-tour at global step 523. Source tracing maps the blank autodescribe line to an omitted S_cloud branch in the already wired pager.c lookat() behavior, so select a narrow divergence fix rather than a new file port.",
+      "detail": "seed0360-wizard-world-tour global step 523 occurs while getpos.c getpos() auto_describe() invokes pager.c do_screen_description() and lookat() under DECgraphics, where # is ambiguous. C pager.c lookat() around lines 763-767 handles S_cloud by returning Is_airlevel(&u.uz) ? cloudy area : fog/vapor cloud; the witness is ordinary terrain and C emits fog/vapor cloud repeatedly at steps 523-527 with no RNG or state change. JS pager.js lookatOrdinaryTerrain() omits S_cloud and throws UnsupportedWhatisError(terrain cloud), while getpos.js auto_describe() suppresses the exception and leaves a blank message line. Add S_cloud mapping and preserve the existing cursor/map behavior. The next expected unrelated divergence is hack.c test_move() at step 543.",
+      "spans": [
+        {
+          "name": "lookat-cloud",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "lookat"
+          ]
+        }
+      ],
+      "openedAt": "b9d8aa795554867760bb11d5d03d928ce20e693a",
+      "openStanding": {
+        "sha": "b9d8aa795554867760bb11d5d03d928ce20e693a",
+        "screens": 6854,
+        "rng": 504067
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "lookat",
+      "session": "seed0360-wizard-world-tour",
+      "step": 523,
+      "activeStanding": {
+        "sha": "b9d8aa795554867760bb11d5d03d928ce20e693a",
+        "screens": 6854,
+        "rng": 504067
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 523,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 310
+        }
+      ]
     }
   ]
 }
