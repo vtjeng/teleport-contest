@@ -25176,6 +25176,50 @@
           "remainingScreensUpperBound": 465
         }
       ]
+    },
+    {
+      "id": "div-end-really-done-quit-0030",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Handle end.c really_done() quit finalization for ordinary quit paths",
+      "cFile": "end.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked queue entry is seed0030-ten-diverse-deaths at global step 1483 with a 470-screen upper bound. Source tracing maps the stop to end.c really_done():1130-1593, whose QUIT branch is present in C but blocked by js/end.js really_done() refusing every how except DIED. This is a source-traced defect in an existing implementation, so queue the narrow divergence fix.",
+      "detail": "Fresh replay at seed0030-ten-diverse-deaths global step 1483 (segment 7, quit command) reaches done(QUIT) with killer name quit and format KILLED_BY_AN (0), then JavaScript refuses before the final screen. Upstream end.c really_done() lines 1130-1593 accepts how == QUIT: bones_ok is false because QUIT >= GENOCIDED; it changes killer.format to NO_KILLER_PREFIX, handles the already-dead HP case, calls fixup_death(), paybill(0), paygd(), clearpriests(), disclosure, score, window cleanup, and terminates. js/end.js already ports the shared lifecycle but throws when how !== DIED or ugrave_arise !== NON_PM at its special-death guard, so the QUIT branch never reaches the source-ordered finalization. The suspected owner is js/end.js really_done()/done(); implement the source branch without hardcoding this session.",
+      "spans": [],
+      "openedAt": "e6de0fa94a3abb63f9c15e45b17c646e4b882169",
+      "openStanding": {
+        "sha": "377bf1021c843fa068f75a1e7ea2190a6365757f",
+        "screens": 6432,
+        "rng": 493277
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "really_done",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 1483,
+      "activeStanding": {
+        "sha": "377bf1021c843fa068f75a1e7ea2190a6365757f",
+        "screens": 6432,
+        "rng": 493277
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1483,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: really_done(13) for killer \"quit\" in format 0",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 470
+        }
+      ]
     }
   ]
 }
