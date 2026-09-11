@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -86,7 +87,7 @@ import {
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
-    PM_STEAM_VORTEX,
+    PM_VAMPIRE_BAT,
     PM_TENGU,
     PM_WOOD_NYMPH,
     PM_YELLOW_LIGHT,
@@ -124,6 +125,7 @@ import {
 } from '../js/mon.js';
 import {
     create_region,
+    UnsupportedRegionCallbackError,
 } from '../js/region.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import {
@@ -137,6 +139,10 @@ import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
 
 const DATETIME = '20260725120000';
+const REGION_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/region.c', import.meta.url),
+    'utf8',
+);
 
 function rngSnapshot() {
     return {
@@ -1137,45 +1143,108 @@ test('fog-region transition callbacks remain fail-closed and inert',
         }
     });
 
-test('harmless fog-vapor exits do not admit postmove-effect species',
+test('callback-free harmless gas transitions follow region.c for entries and exits',
     async () => {
-        for (const pmidx of [PM_HEZROU, PM_STEAM_VORTEX]) {
-            const target = await prepareSelectedAction({ pmidx });
-            target.monster.movement = NORMAL_SPEED;
+        const start = REGION_SOURCE.indexOf(
+            'm_in_out_region(struct monst *mon, coordxy x, coordxy y)',
+        );
+        const end = REGION_SOURCE.indexOf(
+            '\n}\n\n/*\n * Checks player\'s regions',
+            start,
+        );
+        assert.ok(start >= 0);
+        assert.ok(end > start);
+        const source = REGION_SOURCE.slice(start, end);
+        assert.match(source, /can_enter_f[\s\S]*!= NO_CALLBACK/u);
+        assert.match(source, /can_leave_f[\s\S]*!= NO_CALLBACK/u);
+        assert.match(source, /remove_mon_from_reg[\s\S]*leave_f/u);
+        assert.match(source, /add_mon_to_reg[\s\S]*enter_f/u);
+
+        // PM_VAMPIRE_BAT is the ordinary monster in the development
+        // divergence.  The two cases exercise each callback-free membership
+        // loop from region.c: m_in_out_region() removes a leaving ID and adds
+        // an entering ID before considering its unset callback.
+        for (const enters of [true, false]) {
+            const target = await prepareSelectedAction({
+                pmidx: PM_VAMPIRE_BAT,
+            });
             const vapor = create_region([{
-                lx: target.monsterX,
+                lx: enters ? target.destinationX : target.monsterX,
                 ly: target.heroY,
-                hx: target.monsterX,
+                hx: enters ? target.destinationX : target.monsterX,
                 hy: target.heroY,
             }]);
             Object.assign(vapor, {
+                // Zero damage is the harmless gas-cloud branch in
+                // region.c inside_gas_cloud(). -1 is C's NO_CALLBACK value;
+                // the admission guard must treat it as unset alongside null.
                 arg: 0,
                 inside_f: 'inside_gas_cloud',
-                monsters: [target.monster.m_id],
+                monsters: enters ? [] : [target.monster.m_id],
                 visible: true,
+                can_enter_f: -1,
+                enter_f: -1,
+                can_leave_f: -1,
+                leave_f: -1,
             });
             game.level.regions = [vapor];
             const before = completeSecondTurnSnapshot(game, target.replay);
 
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'a region transition',
-                String(pmidx),
-            );
+            await preflightSimpleMonsterActions(game);
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,
-                String(pmidx),
+                enters ? 'entry planning is atomic' : 'exit planning is atomic',
+            );
+
+            await runSimpleMonsterAction(target.monster, { state: game });
+            assert.deepEqual(
+                [target.monster.mx, target.monster.my],
+                [target.destinationX, target.heroY],
+                enters ? 'entry moves the bat' : 'exit moves the bat',
+            );
+            assert.deepEqual(
+                vapor.monsters,
+                enters ? [target.monster.m_id] : [],
+                enters ? 'entry caches the bat ID' : 'exit removes the bat ID',
             );
         }
     });
 
-test('fog movement still refuses region entry and harmful vapor', async () => {
-    for (const variant of ['enter', 'harmful']) {
+test('harmful postmove gas remains fail-closed after harmless vapor exit',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_HEZROU });
+        target.monster.movement = NORMAL_SPEED;
+        const vapor = create_region([{
+            lx: target.monsterX,
+            ly: target.heroY,
+            hx: target.monsterX,
+            hy: target.heroY,
+        }]);
+        Object.assign(vapor, {
+            arg: 0,
+            inside_f: 'inside_gas_cloud',
+            monsters: [target.monster.m_id],
+            visible: true,
+        });
+        game.level.regions = [vapor];
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedRegionCallbackError
+                && error.callback === 'inside_gas_cloud',
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+    });
+
+test('fog movement still refuses harmful gas transitions', async () => {
+    for (const enters of [true, false]) {
         const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
         target.monster.movement = NORMAL_SPEED;
-        const enters = variant === 'enter';
         const vapor = create_region([{
             lx: enters ? target.destinationX : target.monsterX,
             ly: target.heroY,
@@ -1183,7 +1252,9 @@ test('fog movement still refuses region entry and harmful vapor', async () => {
             hy: target.heroY,
         }]);
         Object.assign(vapor, {
-            arg: variant === 'harmful' ? 1 : 0,
+            // Positive damage selects inside_gas_cloud()'s unsupported
+            // harmful branch in region.c, for either transition direction.
+            arg: 1,
             inside_f: 'inside_gas_cloud',
             monsters: enters ? [] : [target.monster.m_id],
             visible: true,
@@ -1195,12 +1266,12 @@ test('fog movement still refuses region entry and harmful vapor', async () => {
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
                 && error.reason === 'a region transition',
-            variant,
+            enters ? 'entry' : 'exit',
         );
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
-            variant,
+            enters ? 'entry' : 'exit',
         );
     }
 });

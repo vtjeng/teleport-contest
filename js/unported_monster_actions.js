@@ -109,7 +109,6 @@ import {
     AD_SPEL,
     AT_MAGC,
     PM_FLOATING_EYE,
-    PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,
     PM_GREMLIN,
     PM_IRON_GOLEM,
@@ -854,6 +853,9 @@ function digsDestination(location, x, y, env) {
     return may_dig(x, y, env.state);
 }
 
+function transitionCallbackUnset(callback) {
+    return callback == null || callback === -1;
+}
 
 async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const { state } = env;
@@ -936,21 +938,19 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
         const destinationInside = inside_region(region, x, y);
         if (currentlyInside === destinationInside) continue;
 
-        // This boundary admits only monmove.c m_everyturn_effect()'s harmless
-        // fog vapor. Its transition callbacks are unset, so the selected path
-        // only removes the moving fog's cached ID. Other species can reach
-        // monmove.c m_postmove_effect() after this transition, and callback-
-        // bearing regions can change more than cached membership; both stay
-        // fail-closed until their complete source paths are ported.
-        const leavesHarmlessFogVapor = currentlyInside
-            && monsndx(monster.data) === PM_FOG_CLOUD
-            && region.inside_f === 'inside_gas_cloud'
+        // C region.c m_in_out_region() permits callback-free membership
+        // changes for every monster. This boundary admits only the harmless
+        // gas-cloud regions whose transition callbacks therefore do no work;
+        // callback-bearing and harmful regions remain fail-closed until their
+        // complete movement paths are ported.
+        const callbackFreeHarmlessGas = region.inside_f
+            === 'inside_gas_cloud'
             && Math.trunc(region.arg ?? 0) === 0
-            && region.can_enter_f == null
-            && region.enter_f == null
-            && region.can_leave_f == null
-            && region.leave_f == null;
-        if (!leavesHarmlessFogVapor)
+            && transitionCallbackUnset(region.can_enter_f)
+            && transitionCallbackUnset(region.enter_f)
+            && transitionCallbackUnset(region.can_leave_f)
+            && transitionCallbackUnset(region.leave_f);
+        if (!callbackFreeHarmlessGas)
             unsupported('a region transition');
     }
     // Last, so that a destination another guard rejects prepares nothing.
