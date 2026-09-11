@@ -31,7 +31,7 @@ import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
-import { paranoid_query, yn_function } from './cmd.js';
+import { paranoid_query, y_n, yn_function } from './cmd.js';
 import {
     A_CON,
     ASCENDED,
@@ -39,6 +39,7 @@ import {
     BURNING,
     CHOKING,
     DIED,
+    ECMD_OK,
     DISCLOSE_NO_WITHOUT_PROMPT,
     DISCLOSE_PROMPT_DEFAULT_NO,
     DISCLOSE_PROMPT_DEFAULT_SPECIAL,
@@ -60,6 +61,7 @@ import {
     M_AP_MONSTER,
     M_AP_TYPE,
     NO_KILLER_PREFIX,
+    PARANOID_QUIT,
     PICK_ONE,
     PANICKED,
     PICK_NONE,
@@ -77,15 +79,18 @@ import {
     TRICKED,
     TT_LAVA,
     UNCHANGING,
+    UTOTYPE_ATSTAIRS,
     Upolyd,
     has_ebones,
     has_mgivenname,
     ismnum,
     MGIVENNAME,
     NON_PM,
+    In_tutorial,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
+import { schedule_goto } from './do.js';
 import { pmname } from './do_name.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
@@ -93,7 +98,7 @@ import { make_grave } from './grave.js';
 import { clearpriests } from './priest.js';
 import { paybill } from './shk.js';
 import { paygd } from './vault.js';
-import { curs_on_u } from './hack.js';
+import { curs_on_u, nomul } from './hack.js';
 import { zombie_maker } from './mon.js';
 import { gender, is_vampshifter, type_is_pname } from './mondata.js';
 import { G_NOCORPSE } from './monsters.js';
@@ -137,7 +142,7 @@ import {
 import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
 import { reset_utrap } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
@@ -449,6 +454,79 @@ export async function done_in_by(mtmp, how, state = game) {
         state.u.ugrave_arise = NON_PM;
 
     await done(how, state, { fromMonster: true });
+}
+
+// C ref: end.c done2() (90-153), the #quit command and keyboard-interrupt
+// handler. The browser has no signal disposition to restore, so the
+// source's SIGINT writes have no state counterpart. The two confirmation
+// prompts retain their C response queues and the cancellation arm preserves
+// the prompt cleanup, wait, multi-turn interruption, and tutorial transition.
+export async function done2(state = game) {
+    state.flags ??= {};
+    // svk.killer is a zero-initialized global in C. The command has no death
+    // caller to initialize its JavaScript equivalent before done(QUIT).
+    state.killer ??= { name: '', format: KILLED_BY_AN };
+
+    let abandonTutorial = false;
+    if (In_tutorial(state.u?.uz)
+        && await y_n(
+            'Switch from the tutorial back to regular play?', state,
+        ) === KEY_Y) {
+        abandonTutorial = true;
+    }
+
+    if (abandonTutorial || !await paranoid_query(
+        (state.flags.paranoia_bits & PARANOID_QUIT) !== 0,
+        'Really quit without saving?',
+        state,
+    )) {
+        // end.c:102-113. The query has left its prompt on WIN_MESSAGE;
+        // clear it before restoring the cursor and synchronizing the map.
+        clearTtyMessageWindow(state);
+        await curs_on_u(state);
+        await tty_wait_synch(state);
+        if ((state.multi ?? 0) > 0)
+            nomul(0, state);
+        if ((state.multi ?? 0) === 0) {
+            state.u.uinvulnerable = false;
+            state.u.usleep = 0;
+        }
+        if (abandonTutorial) {
+            schedule_goto(
+                state.u.ucamefrom,
+                UTOTYPE_ATSTAIRS,
+                'Resuming regular play.',
+                null,
+                state,
+            );
+        }
+        return ECMD_OK;
+    }
+
+    // The recorder is a UNIX build, where wizard mode offers a core dump
+    // query before done(QUIT). A core dump cannot be represented in the
+    // browser runner, so retain an explicit boundary after consuming the
+    // source prompt; 'n' and 'q' continue into done(QUIT) as C does.
+    if (state.wizard) {
+        const coreAnswer = await yn_function(
+            'Dump core?', 'ynq', 'q', true, state,
+        );
+        if (coreAnswer === KEY_Y) {
+            throw new UnsupportedEndOfGameError(
+                'done2() requested the unavailable core-dump path',
+            );
+        }
+        if (coreAnswer === KEY_Q) {
+            state.program_state ??= {};
+            state.program_state.stopprint =
+                (state.program_state.stopprint ?? 0) + 1;
+        }
+    }
+
+    // C's done(QUIT) is still the next boundary for the regular accepted
+    // quit path. Keep the return for the source's ECMD_OK signature.
+    await done(QUIT, state);
+    return ECMD_OK;
 }
 
 // C ref: end.c done() (1019-1126), "Be careful not to call panic from here!".

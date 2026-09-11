@@ -334,7 +334,7 @@ import {
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride, Punished, UnsupportedSteedError } from './steed.js';
-import { UnsupportedEndOfGameError } from './end.js';
+import { done2, UnsupportedEndOfGameError } from './end.js';
 import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import {
     acurr,
@@ -4905,6 +4905,11 @@ async function doextcmd(key, state) {
         // `retval = (*func)()`; the do/while around it repeats only for
         // doextlist.
         return doextcmd(key, state);
+    case 'done2':
+        // C ref: end.c done2(), the #quit handler. Its accepted path calls
+        // done(QUIT), while the cancellation path returns ECMD_OK after it
+        // restores the command loop.
+        return await done2(state);
     case 'doprev_message':
         return doprev_message(state);
     case 'enter_explore_mode':

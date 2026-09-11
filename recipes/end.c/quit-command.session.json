@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9141001,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:Quitter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": ".#quit\nn."
+    }
+  ]
+}
