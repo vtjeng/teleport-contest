@@ -23622,8 +23622,8 @@
       "spans": [
         {
           "name": "score_targ",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7a0e078d3a61a4cf37e53e4c45ba1217a3523e5b",
           "functions": [
             "score_targ"
           ]
@@ -23643,7 +23643,7 @@
           "line": 738,
           "endLine": 837,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -23671,7 +23671,54 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 527
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "score_targ",
+            "implementation": "js/dogmove.js",
+            "symbol": "score_targ",
+            "sourceReview": "Read the complete dogmove.c score_targ() body (738-837). The implementation preserves the confused-pet and quest-start short circuit, priest and minion alignment metadata, quest-friendly and coaligned-priest early returns, adjacency, tame-hero, and find_friends gates, hostility and passive penalties, weak-target and hero-relative level penalties, vampire-shifter strength roll, stronger-target penalty, level and hit-point score, final rnd(5) fuzz, and the confused-pet final rn2(3) penalty in C evaluation order. The source-valued state is supplied through the running game state; find_friends() and on_level() are existing source-aligned helpers, and no result-valued unported callee is substituted.",
+            "callers": [
+              {
+                "path": "js/dogmove.js",
+                "symbol": "best_target",
+                "source": "dogmove.c best_target() calls score_targ(mtmp, temp_targ) at lines 870-871 while scanning each visible ray"
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "pet_ranged_attk",
+                "source": "dogmove.c pet_ranged_attk() calls best_target(mtmp, forced) at lines 907-911, which dispatches each candidate to score_targ()"
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c dog_move() calls pet_ranged_attk(mtmp, FALSE) at lines 1273-1274; the JavaScript operation registry dispatches dog_move() through petRangedAttack"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dogmove.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json"
+            ],
+            "checkedAt": "7a0e078d3a61a4cf37e53e4c45ba1217a3523e5b"
+          }
+        ],
+        "entryPointReview": "The selected helper has one live production entry point: an active starting pet reaches dogmove.c dog_move(), which calls pet_ranged_attk(FALSE); pet_ranged_attk() calls best_target(), best_target() scans each visible ray and calls score_targ(), and the selected target reaches the existing monster-action attack path. The independently selected pet-ranged-score-probe recording executes this chain through the JavaScript dog_move() operation registry and includes score_targ() followed by mattackm() in one pet turn.",
+        "entryPoints": [
+          {
+            "name": "starting pet ranged target scoring",
+            "functions": [
+              "score_targ"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
