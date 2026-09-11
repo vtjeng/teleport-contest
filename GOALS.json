@@ -26362,7 +26362,7 @@
     {
       "id": "port-do-wear-toggle-displacement",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do_wear.c toggle_displacement() for cloak-of-displacement wear state",
       "cFile": "do_wear.c",
       "sessions": [
@@ -26373,8 +26373,8 @@
       "spans": [
         {
           "name": "toggle_displacement",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "318ffe6c649edfc557d963752dca08eb4e2a93f1",
           "functions": [
             "toggle_displacement"
           ]
@@ -26386,15 +26386,18 @@
         "screens": 6815,
         "rng": 500997
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "318ffe6c649edfc557d963752dca08eb4e2a93f1",
+      "delivered": {
+        "screens": 39,
+        "rng": 3070
+      },
       "functions": [
         {
           "name": "toggle_displacement",
           "line": 148,
           "endLine": 186,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -26422,7 +26425,91 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 336
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "toggle_displacement",
+            "implementation": "js/do_wear.js",
+            "symbol": "toggle_displacement",
+            "sourceReview": "Read the complete upstream do_wear.c toggle_displacement() definition at lines 148-178 (the selected 148-186 source range). The port preserves the conditional initial_don/cancelled_don guard and its evaluation order, then checks oldprop, intrinsic and blocked displacement, the Blind/uswallow/Invisible visibility condition, and the Unblind_telepat, Blind_telepat and Detect_monsters overrides. The visible branch calls discover_object() before You_feel(), retaining makeknown(obj->otyp), the creditHero Wisdom exercise and its rn2(19), and uses the on flag for the exact alternate sentence. The timed eat.c and timeout.c callers remain explicitly refused outside this span; no substitute random draw, message or state write is added for them.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Cloak_on",
+                "source": "do_wear.c Cloak_on() computes the cloak property oldprop before its switch and calls toggle_displacement(uarmc, oldprop, TRUE) for CLOAK_OF_DISPLACEMENT; JavaScript computes the same masked extrinsic and awaits the callback after the slot is installed."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "cloakOnPorted",
+                "source": "do_wear.c accessory_or_armor_on() must admit CLOAK_OF_DISPLACEMENT before setworn() can install it and schedule Cloak_on(); JavaScript includes the type in the ported cloak admission set while retaining the four fail-closed cloak refusals."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c accessory_or_armor_on() installs Cloak_on() as ga.afternmv for the cloak slot and runs it through unmul() for the zero-delay cloak; JavaScript awaits the same stored callback and then on_msg()."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c unmul() invokes ga.afternmv when a delayed wear completes; JavaScript unmul() awaits the callback selected by accessory_or_armor_on(), which is the production bridge from W to Cloak_on()."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c set_wear() sets gi.initial_don while replaying starting armor callbacks and calls Cloak_on() for uarmc; JavaScript carries state.initial_don through the ordered startup callbacks and clears it in finally."
+              },
+              {
+                "path": "js/moveloop_preamble.js",
+                "symbol": "moveloop_preamble",
+                "source": "allmain.c moveloop_preamble() invokes set_wear((struct obj *) 0) for new-game worn-item side effects; JavaScript moveloop_preamble() reaches the same startup caller before the first command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-cloak-of-displacement.session.json"
+            ],
+            "checkedAt": "318ffe6c649edfc557d963752dca08eb4e2a93f1"
+          }
+        ],
+        "entryPointReview": "The selected helper has a production W entry point through accessory_or_armor_on(), zero-delay unmul(), and Cloak_on(); the independent seed-360 Wizard world-tour recipe wishes a +3 cloak of displacement, wears it with W, dismisses the callback's You_feel() message, and completes through on_msg(). Its patched C recording and JavaScript differential match PRNG calls, all screen cells and attributes, cursor positions, and animation frames. New-game set_wear() is also wired with the source's initial_don guard; the startup case is covered by the focused state assertions, while the requested recording covers the live W entry point. Timed eat.c and timeout.c callers are outside the planned span and remain refused.",
+        "entryPoints": [
+          {
+            "name": "W command cloak-of-displacement callback",
+            "functions": [
+              "toggle_displacement"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-cloak-of-displacement.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 523,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 310
+        }
+      ],
+      "closeStanding": {
+        "sha": "318ffe6c649edfc557d963752dca08eb4e2a93f1",
+        "screens": 6854,
+        "rng": 504067
+      }
     }
   ]
 }
