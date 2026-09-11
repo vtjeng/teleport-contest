@@ -25007,7 +25007,16 @@
       "sessions": [],
       "selectionReason": "Source tracing identifies monmove.c dochug() as the owner: this Wizard is sleeping, out of sight, and beyond disturb()'s distance limit, so C returns before covetous tactics(). JS already implements that early return in js/monmove.js; the false refusal is the preflight guard in js/unported_monster_actions.js.",
       "detail": "Development session seed0360-wizard-world-tour, segment 0, input step 335 (key k): the first boundary is simple monster action requires special monster movement. Instrumented replay identifies Wizard of Yendor pmidx 285, m_id 3518, at (41,10), sleeping, with hero at (63,6), dist2=500, couldsee=false. Upstream monmove.c dochug() lines 727-731 returns 0 when sleeping and disturb() fails; disturb() lines 341-342 fails immediately on couldsee=false and mdistu>100. Thus C does not reach covetous tactics() lines 780-788 or m_move()'s covetous branch lines 1777-1803. JS monmove.js dochug() lines 2390-2394 already matches the early return; js/unported_monster_actions.js lines 342-344 rejects is_covetous() unconditionally before it. Narrow the admission guard to preserve this deterministic no-wake path.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "sleeping-covetous-dochug",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dochug"
+          ]
+        }
+      ],
       "openedAt": "99e7fc671d6ca492037fb8e662189738bcf0891a",
       "openStanding": {
         "sha": "99e7fc671d6ca492037fb8e662189738bcf0891a",
