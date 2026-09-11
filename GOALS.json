@@ -25180,7 +25180,7 @@
     {
       "id": "div-end-really-done-quit-0030",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Handle end.c really_done() quit finalization for ordinary quit paths",
       "cFile": "end.c",
       "sessions": [],
@@ -25189,8 +25189,8 @@
       "spans": [
         {
           "name": "really_done",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "01871e27ff582da013b8aa0052747490f009a797",
           "functions": [
             "really_done"
           ]
@@ -25202,8 +25202,11 @@
         "screens": 6432,
         "rng": 493277
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "01871e27ff582da013b8aa0052747490f009a797",
+      "delivered": {
+        "screens": 74,
+        "rng": 0
+      },
       "function": "really_done",
       "session": "seed0030-ten-diverse-deaths",
       "step": 1483,
