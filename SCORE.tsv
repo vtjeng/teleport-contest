@@ -914,3 +914,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-11T07:03:49.911Z	929a8595	goal	24	33	6388	7765	471412	610816	6426	7765	315	3640	38930	182022	port-baalz-level closes. Development 6388 of 7765 screens, 471412 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-11T07:46:29.631Z	e114461f	span	24	33	6394	7765	477772	610816	6432	7765					port-orcus-level closes. Development 6388→6394 of 7765 screens, 471412→477772 of 610816 rng. 24 of 33 sessions.
 2026-09-11T07:50:31.891Z	f283de34	goal	24	33	6394	7765	477772	610816	6432	7765	315	3640	38930	182022	port-orcus-level closes. Development 6394 of 7765 screens, 477772 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-11T08:13:12.579Z	23576292	span	24	33	6398	7765	480745	610816	6436	7765					port-wizard1-special-level closes. Development 6394→6398 of 7765 screens, 477772→480745 of 610816 rng. 24 of 33 sessions.
