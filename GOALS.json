@@ -24000,8 +24000,8 @@
       "spans": [
         {
           "name": "done2",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "84969b2b6e1085be2a127012c46cbb50df1f9b6e",
           "functions": [
             "done2"
           ]
@@ -24020,8 +24020,8 @@
           "name": "done2",
           "line": 90,
           "endLine": 153,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -24049,7 +24049,49 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 471
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "done2",
+            "implementation": "js/end.js",
+            "symbol": "done2",
+            "sourceReview": "Read the complete upstream end.c done2() definition (90-153). The implementation preserves the tutorial y_n() confirmation, ParanoidQuit query, prompt cleanup, cursor restoration, wait synchronization, positive multi interruption, zero-state invulnerability and sleep reset, tutorial schedule_goto(), wizard Dump core? query, stopprint increment for q, and final done(QUIT) call in source order. The browser has no signal disposition or process core-dump operation; the y core-dump branch remains an explicit UnsupportedEndOfGameError boundary. No random-number call is made by done2().",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() resolves the extcmdlist[] quit row and invokes its done2 function; the JavaScript switch dispatches the row to done2(state), returning its ECMD result to rhack()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c rhack() dispatches the key bound to doextcmd(), and its ECMD_OK result resets command state after done2() cancels the quit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/quit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/quit-command.session.json"
+            ],
+            "checkedAt": "84969b2b6e1085be2a127012c46cbb50df1f9b6e"
+          }
+        ],
+        "entryPointReview": "The selected range has one production entry point: the cmd.c extcmdlist[] quit row is selected by the #quit prompt, cmd.c doextcmd() invokes done2(), and the cancellation recording reaches the prompt cleanup and ECMD_OK return. Focused tests also execute the tutorial and accepted branches, with accepted ordinary quit stopping at the existing done(QUIT) boundary.",
+        "entryPoints": [
+          {
+            "name": "#quit extended command",
+            "functions": [
+              "done2"
+            ],
+            "recordings": [
+              "recordings/end.c/quit-command.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
