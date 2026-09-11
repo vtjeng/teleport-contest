@@ -9,8 +9,7 @@
 // player declines death. The life-saving amulet's earlier reprieve remains
 // refused. really_done() covers the mounted-slip prefix through cleanup, time
 // bookkeeping, inventory identification, disclosure, grave creation, score
-// calculation, the Save bones? prompt, and savebones()'s level snapshot. The
-// post-bones score-file path remains outside this port.
+// calculation, the Save bones? prompt, and ordinary final-game display.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
 // death is declined in wizard or explore mode. Two of its branches remain
@@ -523,8 +522,9 @@ export async function done2(state = game) {
         }
     }
 
-    // C's done(QUIT) is still the next boundary for the regular accepted
-    // quit path. Keep the return for the source's ECMD_OK signature.
+    // C's done(QUIT) performs the final-game path and then returns only after
+    // the terminal has been shut down. Keep the return for ECMD_OK's command
+    // signature.
     await done(QUIT, state);
     return ECMD_OK;
 }
@@ -548,8 +548,9 @@ export async function done2(state = game) {
 // value the port cannot yet spend.
 //
 // When the player declines death in wizard or explore mode, done() calls
-// savelife() and returns normally. When the player accepts death or there is
-// no query, done() throws UnsupportedEndOfGameError at really_done().
+// savelife() and returns normally. When the player accepts death or quits,
+// done() continues into really_done(). Unsupported special death branches
+// still stop at their source boundary there.
 export async function done(how, state = game, source = {}) {
     if (how === TRICKED) {
         // 1024-1034. The arm paniclogs the killer and, in wizard mode, prints
@@ -671,6 +672,10 @@ export async function done(how, state = game, source = {}) {
     //
     // zapyourself() constructs the death-ray killer from uhim(), so the
     // pronoun varies by gender but the surrounding text is fixed.
+    if (how === QUIT) {
+        await really_done(how, state);
+        return;
+    }
     if (how === DIED
         && killer.format === NO_KILLER_PREFIX
         && (killer.name.startsWith('slipped while mounting ')
@@ -1133,10 +1138,10 @@ function identifyInventoryForDisclosure(state) {
     }
 }
 
-// C ref: end.c really_done() (1130-1369). Covers the ordinary death path
-// through disclosure, grave creation, score calculation, the Save bones?
-// prompt, and savebones()'s level snapshot. The post-bones score-file path
-// remains outside this port.
+// C ref: end.c really_done() (1130-1593). Covers ordinary death and quit
+// finalization through disclosure, score calculation, the final display, and
+// the score-file display path. Bones creation and post-score-file persistence
+// remain outside this port.
 async function really_done(how, state) {
     const programState = state.program_state;
     const haveWindows = state.iflags?.window_inited !== false;
@@ -1180,17 +1185,42 @@ async function really_done(how, state) {
     if (haveWindows)
         await tty_wait_synch(state);
 
-    const bonesOk = can_make_bones(state);
-    if (how !== DIED || state.u.ugrave_arise !== NON_PM) {
+    // C ref: end.c:1201. QUIT and later reasons skip can_make_bones() and its
+    // random draw because only deaths before GENOCIDED can create bones.
+    const bonesOk = how < GENOCIDED && can_make_bones(state);
+
+    // C ref: end.c:1206-1230. A regular quit has no grave-arise state. If the
+    // hero was already below one hit point, C changes it into an ordinary
+    // death and records the additional mortality here because done() skipped
+    // that work for QUIT.
+    if (how === QUIT) {
+        state.killer.format = NO_KILLER_PREFIX;
+        if (state.u.uhp < 1) {
+            how = DIED;
+            state.u.umortality++;
+            state.killer.name = 'quit while already on Charon\'s boat';
+        }
+    }
+    if (how === ESCAPED || how === PANICKED)
+        state.killer.format = NO_KILLER_PREFIX;
+
+    // Preserve the existing DIED boundary for special death and grave-arise
+    // states. Ordinary QUIT is the additional source-supported path.
+    if ((how !== DIED && how !== QUIT)
+        || state.u.ugrave_arise !== NON_PM) {
         throw new UnsupportedEndOfGameError(
             'really_done() special death or grave-arise state',
         );
     }
-    // C ref: end.c:1234-1244. how is DIED here, so paybill() is called with
-    // croaked == 1. clearlocks() unlinks the on-disk level files; the port
-    // holds levels in memory and writes no files, so it has no counterpart.
+
+    // fixup_death() only adjusts the multi-turn reason in this port; its
+    // source call precedes the cleanup functions below. The result is not
+    // consumed here, so record the unported void callee and continue.
+    note_unported('end.c fixup_death');
+    // clearlocks() unlinks on-disk level files; the port holds levels in
+    // memory and writes no files, so it has no counterpart.
     const silently = disclosureStopprint(state);
-    const taken = paybill(1, silently, state);
+    const taken = paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
     if (state._paybill_message) {
         await state._paybill_message;
         delete state._paybill_message;

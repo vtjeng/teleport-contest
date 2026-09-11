@@ -3,13 +3,12 @@ import test from 'node:test';
 
 import {
     ECMD_OK,
-    KILLED_BY_AN,
+    NO_KILLER_PREFIX,
     UTOTYPE_ATSTAIRS,
     UTOTYPE_DEFERRED,
 } from '../js/const.js';
 import {
     done2,
-    UnsupportedEndOfGameError,
 } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -97,23 +96,32 @@ test('done2 abandons the tutorial and schedules the return level', async () => {
     assert.equal(state.gd.dfr_pre_msg, 'Resuming regular play.');
 });
 
-test('accepted ordinary quit keeps the existing done(QUIT) boundary',
+test('accepted ordinary quit reaches really_done() finalization',
     async () => {
         const state = await startedGame();
+        const movesBefore = state.moves;
+        // Set all six end-disclosure categories to C's no-prompt setting so
+        // this focused test reaches the quit final screen with one queued
+        // answer reserved for done2()'s confirmation.
+        state.flags.end_disclose.fill('-');
+        // readchar() consumes the confirmation from its source queue, while
+        // xwaitforspace() consumes display-owned keys for the final window.
         state.readchar_queue = ['y'.charCodeAt(0)];
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await assert.rejects(
-            done2(state),
-            (error) => {
-                assert.ok(error instanceof UnsupportedEndOfGameError);
-                assert.match(error.message, /really_done\(13\)/u);
-                return true;
-            },
-        );
+        await done2(state);
+        // end.c really_done():1221-1227 changes QUIT to NO_KILLER_PREFIX;
+        // this ordinary case keeps positive HP, so it remains QUIT and does
+        // not increment the mortality counter or spend a turn.
         assert.deepEqual(state.killer, {
             name: 'quit',
-            format: KILLED_BY_AN,
+            format: NO_KILLER_PREFIX,
         });
+        assert.equal(state.program_state.gameover, true);
+        assert.equal(state.program_state.in_really_done, false);
+        assert.equal(state.u.umortality, 0);
+        assert.equal(state.moves, movesBefore);
     });
 
 test('the quit recipe contains replay inputs only', () => {

@@ -4,8 +4,8 @@
 // replay the same inputs through the JavaScript port.
 //
 // The leading and trailing waits make a wrongly spent quit visible in the
-// next compared frame. The `n` answer exercises done2()'s cleanup arm, so the
-// accepted path remains at the existing done(QUIT) boundary.
+// next compared frame. The `n` answer exercises done2()'s cleanup arm; the
+// accepted finalization path is covered by the focused quit-command test.
 
 import assert from 'node:assert/strict';
 
