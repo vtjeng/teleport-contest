@@ -229,9 +229,6 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     // Rows follow the goal order, not the step order: quest breaks at step 1
     // but its owner ranks second, so the footer no longer restates the order.
     assert.match(table, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
-    // Prose follows the scrollable table so it wraps at the card.
-    assert.doesNotMatch(element.parentElement.afterHTML, /Goal order/u);
-    assert.match(element.parentElement.afterHTML, /Roadmap fallback is blocked while mismatches remain/u);
     assert.doesNotMatch(table, /Every development session matches/u);
 });
 
@@ -273,16 +270,17 @@ test('source ports deduplicate overlapping C units and include whole Lua program
     const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
     // Three distinct C units, two verified, across two goals; summing the
     // goals' unit counts would incorrectly report four units.
-    assert.match(table, /hack\.c<\/td><td>1 in progress<\/td><td>1<\/td><td>2 \/ 3<\/td>/u);
-    assert.match(table, /Arc-loca\.lua<\/td><td>No active goals<\/td><td>1<\/td><td>1 \/ 1<\/td>/u);
-    assert.match(table, /<tr><td>options\.c<\/td><td>1 paused<\/td><td>0<\/td><td>0 \/ 1<\/td>/u);
-    assert.match(table, /<th>Verified \/ tracked units<\/th>/u);
+    assert.match(table, /hack\.c<\/td><td>1 in progress<\/td><td>1<\/td><td>2 of 3 functions<\/td>/u);
+    assert.match(table, /Arc-loca\.lua<\/td><td>Closed<\/td><td>1<\/td><td>1 of 1 program<\/td>/u);
+    assert.match(table, /<tr><td>options\.c<\/td><td>1 paused<\/td><td>0<\/td><td>0 of 1 function<\/td>/u);
+    assert.match(table, /<th>Verified<\/th>/u);
 });
 
 test('current work and source rows include fixes, parked goals, and unknown sources', () => {
     // A fix shares its file with a closed port and a parked goal; another
     // parked goal lacks a source owner. Status must not depend on goal kind
-    // or on a corresponding Open commit in the historical timeline.
+    // or on a corresponding Open commit in the historical timeline. The
+    // summary and reason include markup to check HTML escaping.
     const work = [
         { id: 'old-port', kind: 'file-port', sourceFile: 'fountain.c', status: 'closed',
             summary: 'Implement fountains', units: [{ name: 'drinkfountain', verified: true }] },
@@ -303,10 +301,10 @@ test('current work and source rows include fixes, parked goals, and unknown sour
     assert.doesNotMatch(current, /Finish fountains/u);
     assert.equal(rendered.get('workSummary').textContent, '2 in progress · 2 paused');
     assert.match(rendered.get('pausedWork').innerHTML, /Waiting for &lt;caller&gt;/u);
-    assert.match(rendered.get('pausedWork').innerHTML, /Source not assigned/u);
+    assert.match(rendered.get('pausedWork').innerHTML, /Source pending/u);
     const table = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(table, /class="in-progress"><td>fountain\.c<\/td><td>1 in progress · 1 paused<\/td><td>1<\/td><td>1 \/ 1/u);
-    assert.match(table, /class="in-progress"><td>dog\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>—<\/td>/u);
+    assert.match(table, /class="in-progress"><td>fountain\.c<\/td><td>1 in progress · 1 paused<\/td><td>1<\/td><td>1 of 1 function/u);
+    assert.match(table, /class="in-progress"><td>dog\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>Unlisted<\/td>/u);
     assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
 });
 
@@ -317,7 +315,7 @@ test('current work explains an idle snapshot and an empty goal register', () => 
         { id: 'next', sourceFile: 'dog.c', status: 'queued', units: [] },
     ]]) {
         const rendered = renderDashboard(sourceDashboardData(work));
-        assert.match(rendered.get('currentWork').innerHTML, /No goal is in progress in this snapshot/u);
+        assert.match(rendered.get('currentWork').innerHTML, /0 goals in progress/u);
         assert.equal(rendered.get('workSummary').textContent, '0 in progress · 0 paused');
         assert.equal(rendered.get('pausedWork').innerHTML, '');
     }
@@ -525,9 +523,9 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.match(emptyRow, /<tr class="kind-boundary/u);
     // Alpha's historical declaration has no completion evidence. Its one
     // goal is closed, but neither of its two units counts as verified.
-    const filePortTable = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(filePortTable, /alpha\.c<\/td><td>No active goals<\/td><td>1<\/td><td>0 \/ 2</u);
-    assert.match(filePortTable, /beta\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>0 \/ 1</u);
+    const sourceWorkTable = rendered.get('sourceWorkTable').innerHTML;
+    assert.match(sourceWorkTable, /alpha\.c<\/td><td>Closed<\/td><td>1<\/td><td>0 of 2 functions</u);
+    assert.match(sourceWorkTable, /beta\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>0 of 1 function</u);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);
@@ -560,7 +558,7 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     // All SHAs resolve, so no hollow markers
     assert.equal(
         rendered.get('progressProvenance').textContent,
-        'All plotted times come from commit timestamps.',
+        'Times from commits.',
     );
     // All SHAs resolve to commits, so no hollow markers are drawn
     assert.equal(

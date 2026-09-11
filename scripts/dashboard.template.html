@@ -203,6 +203,7 @@ summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4
 .pause-reason { margin-top: 8px; color: var(--ink-secondary); overflow-wrap: anywhere; }
 #sourceWorkTable td:nth-child(2), #sourceWorkTable th:nth-child(2) { text-align: left; }
 #sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
+#sourceWorkTable td:nth-child(2), #sourceWorkTable td:last-child { white-space: normal; }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -711,7 +712,7 @@ canvas {
   <h1>NetHack Port Progress</h1>
   <span class="updated" id="updated"></span>
 </div>
-<p class="subtitle">How closely the JavaScript port matches NetHack in the development recordings.</p>
+<p class="subtitle">Results from development recordings.</p>
 
 <div class="stats" id="stats"></div>
 
@@ -737,27 +738,25 @@ canvas {
     <h2 class="section-title" id="currentWorkTitle">Current work</h2>
     <p id="workSummary" class="work-meta"></p>
   </div>
-  <p class="subtitle">Goal status at the last update; this page does not track whether an agent is running.</p>
   <div id="currentWork"></div>
   <div id="pausedWork"></div>
 </section>
 
 <section class="section" aria-labelledby="sourceWorkTitle">
   <h2 class="section-title" id="sourceWorkTitle">Work by source file</h2>
-  <p class="subtitle">Implementation and fixes, grouped together. Status describes the goals; it does not establish that a file is complete.</p>
+  <p class="subtitle">Counts cover functions and Lua programs listed in goals. Verification requires source review, caller checks, and validation evidence.</p>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="sourceWorkTable"></table>
     </div>
   </div>
-  <p class="table-note">Verified / tracked units counts functions and Lua programs with source, caller, and validation evidence, out of those listed for verification. It is not whole-file coverage. — means no units are tracked.</p>
 </section>
 
 <details class="diagnostics">
   <summary>Diagnostics and goal history</summary>
 <div class="section">
   <h2 class="section-title">Mismatch queue</h2>
-  <p class="subtitle">Each development session's first known mismatch. C, Lua, and unresolved source investigations share one priority order, which the rows follow. Screens after mismatch counts the recorded screens past the first mismatch; fixing it regains at most that many.</p>
+  <p class="subtitle">First mismatch per session, in priority order. A fix can recover at most the listed screens.</p>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="queueTable"></table>
@@ -767,7 +766,7 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Goal timeline</h2>
-  <p class="subtitle">Timing reconstructed from commits and score entries; intervals may include pauses or idle time. Lighter bars have inferred opening times. Overlapping intervals stack. Use Current work above for the recorded goal status.</p>
+  <p class="subtitle">Goal intervals from commits and score records. Pale bars have estimated start times.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -834,8 +833,8 @@ const inferredProgressCount = DATA.progress.filter(
   p => p.utcSource !== 'commit',
 ).length;
 document.getElementById('progressProvenance').textContent = inferredProgressCount
-  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
-  : 'All plotted times come from commit timestamps.';
+  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' a logged date; solid markers use commit dates.'
+  : 'Times from commits.';
 
 // --- Mismatch queue ---
 (function() {
@@ -878,7 +877,6 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   });
   html += '</tbody>';
   table.innerHTML = html;
-  table.parentElement.insertAdjacentHTML('afterend', '<p class="table-note">Roadmap fallback is blocked while mismatches remain.</p>');
 })();
 
 // --- Current work and source files ---
@@ -894,17 +892,17 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const kindLabel = kind => ({ 'file-port': 'C implementation', 'lua-port': 'Lua implementation',
     'divergence-fix': 'Behavior fix', boundary: 'Historical goal' })[kind] || 'Historical goal';
   const description = goal => '<h3 class="work-title">' + esc(goal.summary || goal.id) + '</h3>'
-    + '<p class="work-meta"><code>' + esc(goal.sourceFile || 'Source not assigned') + '</code></p>';
+    + '<p class="work-meta"><code>' + esc(goal.sourceFile || 'Source pending') + '</code></p>';
   const goalDetails = goal => '<details class="goal-details"><summary>Goal details</summary>'
     + '<p>' + esc(kindLabel(goal.kind)) + ' · <code>' + esc(goal.id) + '</code></p></details>';
   document.getElementById('currentWork').innerHTML = active.length
     ? active.map(goal => '<article class="active-work"><p class="work-status">In progress</p>'
       + description(goal) + goalDetails(goal) + '</article>').join('')
-    : '<p class="work-empty">No goal is in progress in this snapshot.</p>';
+    : '<p class="work-empty">0 goals in progress.</p>';
   document.getElementById('pausedWork').innerHTML = paused.length
     ? '<details class="paused-work"><summary>' + paused.length + ' paused goal' + (paused.length === 1 ? '' : 's')
-      + ' — reasons and details</summary>' + paused.map(goal => '<article class="paused-goal">'
-        + description(goal) + '<p class="pause-reason">' + esc(goal.parkedReason || 'No reason recorded.')
+      + '</summary>' + paused.map(goal => '<article class="paused-goal">'
+        + description(goal) + '<p class="pause-reason">' + esc(goal.parkedReason || 'Reason unspecified.')
         + '</p>' + goalDetails(goal) + '</article>').join('') + '</details>'
     : '';
 
@@ -925,23 +923,27 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   });
   const table = document.getElementById('sourceWorkTable');
   if (files.size === 0) {
-    table.outerHTML = '<p class="table-note">No goals have a source file assigned.</p>';
+    table.outerHTML = '<p class="table-note">0 source files recorded.</p>';
     return;
   }
   // Active files come first, then paused and queued work, then other files.
   const priority = file => file.active ? 0 : file.paused ? 1 : file.queued ? 2 : 3;
   const sorted = [...files.values()].sort((a, b) => priority(a) - priority(b)
     || a.sourceFile.localeCompare(b.sourceFile));
-  let html = '<thead><tr><th>Source file</th><th>Goal status</th><th>Goals closed</th><th>Verified / tracked units</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Source file</th><th>Goal status</th><th>Goals closed</th><th>Verified</th></tr></thead><tbody>';
   sorted.forEach(file => {
     const status = [file.active ? file.active + ' in progress' : '',
       file.paused ? file.paused + ' paused' : '', file.queued ? file.queued + ' queued' : '']
-      .filter(Boolean).join(' · ') || 'No active goals';
+      .filter(Boolean).join(' · ') || 'Closed';
     const verified = [...file.units.values()].filter(Boolean).length;
+    const unit = file.sourceFile.endsWith('.lua') ? 'program' : 'function';
+    const verification = file.units.size
+      ? verified + ' of ' + file.units.size + ' ' + unit + (file.units.size === 1 ? '' : 's')
+      : 'Unlisted';
     html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
       + '<td>' + esc(file.sourceFile) + '</td><td>' + status + '</td>'
       + '<td>' + file.goalsClosed + '</td>'
-      + '<td>' + (file.units.size ? verified + ' / ' + file.units.size : '—') + '</td></tr>';
+      + '<td>' + verification + '</td></tr>';
   });
   table.innerHTML = html + '</tbody>';
 })();
