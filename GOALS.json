@@ -24244,7 +24244,7 @@
     {
       "id": "port-orcus-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Gehennom Orcus special-level Lua program and wire its loader",
       "luaFile": "orcus.lua",
       "sessions": [
@@ -24268,8 +24268,11 @@
         "screens": 6388,
         "rng": 471412
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f283de340b869b5da4a112475e8c5fa4d9b62dda",
+      "delivered": {
+        "screens": 6,
+        "rng": 6360
+      },
       "functions": [
         {
           "name": "orcus.lua",
@@ -24347,7 +24350,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 330,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "wizard1.lua",
+          "cFile": null,
+          "luaFile": "wizard1.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"wizard1\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 503
+        }
+      ]
     }
   ]
 }
