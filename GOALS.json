@@ -25560,7 +25560,7 @@
     {
       "id": "div-mon-mfndpos-cloud-terrain-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit source-valid room-family terrain through monster movement",
       "cFile": "mon.c",
       "sessions": [],
@@ -25569,8 +25569,8 @@
       "spans": [
         {
           "name": "mfndpos",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "56e6c4a2473fb1a75eea66b613a45837c3f1a779",
           "functions": [
             "mfndpos"
           ]
@@ -25582,8 +25582,11 @@
         "screens": 6522,
         "rng": 495171
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "56e6c4a2473fb1a75eea66b613a45837c3f1a779",
+      "delivered": {
+        "screens": 15,
+        "rng": 116
+      },
       "function": "mfndpos",
       "session": "seed0360-wizard-world-tour",
       "step": 384,
