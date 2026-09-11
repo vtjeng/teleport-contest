@@ -9,6 +9,7 @@ import {
     AC_VALUE,
     BLINDED,
     CONFLICT,
+    DISPLACED,
     DIED,
     HALF_PHDAM,
     INVIS,
@@ -26,6 +27,7 @@ import {
     PROTECTION,
     P_WHIP,
     RLOC_NOMSG,
+    IS_WATERWALL,
     TT_PIT,
     W_AMUL,
     W_ARMOR,
@@ -69,6 +71,7 @@ import {
     is_demon,
     is_minion,
     is_orc,
+    nolimbs,
     is_undead,
     is_vampshifter,
     is_were,
@@ -97,6 +100,7 @@ import { rn2 } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
+    messageAt,
     monsterVisible,
 } from './startup_a11y.js';
 import { t_at } from './trap.js';
@@ -163,6 +167,106 @@ function mdistu(monster, state) {
 // term reads it too, and one C macro gets one port.
 export function m_next2u(monster, state) {
     return mdistu(monster, state) <= 2;
+}
+
+// C ref: mhitu.c wildmiss() (176-262). A monster can attack the wrong square
+// when it cannot see, when the hero is displaced, or while the hero is
+// underwater. The caller supplies the ordinary gameplay random source; the
+// display and message seams remain injectable so the planning pass can spend
+// gameplay draws without painting the live terminal.
+export async function wildmiss(mtmp, mattk, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const canSee = rawEnv.canSee
+        ?? ((x, y) => cansee(x, y, state));
+    const message = rawEnv.message ?? ttyPline;
+    const invisibleHero = activeHeroProperty(state, INVIS)
+        && !perceives(mtmp.data);
+    const unotseen = !mtmp.mcansee || invisibleHero;
+    const unotthere = Boolean(
+        state.u?.uprops?.[DISPLACED]?.intrinsic
+        || state.u?.uprops?.[DISPLACED]?.extrinsic,
+    );
+    const usubmerged = Boolean(state.u?.uinwater);
+
+    // C's impossible() diagnostic is not a gameplay message. This path means
+    // the caller violated mattacku()'s target invariant, so return after the
+    // diagnostic seam (when one is provided) without changing the PRNG.
+    if (!unotseen && !unotthere && !usubmerged) {
+        if (typeof rawEnv.impossible === 'function') {
+            rawEnv.impossible(
+                `${capitalizedMonsterName(mtmp, state, rawEnv)} attacks you `
+                + 'without knowing your location?',
+            );
+        }
+        return;
+    }
+
+    if (!state.flags?.verbose || !canSee(mtmp.mx, mtmp.my)) return;
+
+    // could_seduce() is evaluated before the monster name in C. Its nonzero
+    // result is still fail-closed for seductive attack types outside this
+    // span, while ordinary physical attacks return zero without a draw.
+    const compat = (mattk.adtyp === M.AD_SEDU || mattk.adtyp === M.AD_SSEX)
+        ? could_seduce(mtmp, state.youmonst, mattk, { ...rawEnv, state })
+        : 0;
+
+    if (unotseen) {
+        if (!compat) {
+            // C consumes this draw even during planning, but the planning pass
+            // must not evaluate display-only naming or write a line.
+            const outcome = random.rn2(3);
+            if (rawEnv.planning) return;
+            const name = capitalizedMonsterName(mtmp, state, rawEnv);
+            const swings = mattk.aatyp === M.AT_BITE ? 'snaps'
+                : mattk.aatyp === M.AT_KICK ? 'kicks'
+                    : mattk.aatyp === M.AT_STNG
+                        || mattk.aatyp === M.AT_BUTT
+                        || nolimbs(mtmp.data) ? 'lunges' : 'swings';
+            const target = (() => {
+                const location = state.level?.at?.(mtmp.mux, mtmp.muy);
+                return location && IS_WATERWALL(location.typ)
+                    ? 'empty water' : 'thin air';
+            })();
+            const text = outcome === 0
+                ? `${name} ${swings} wildly and misses!`
+                : outcome === 1
+                    ? `${name} attacks a spot beside you.`
+                    : `${name} strikes at ${target}!`;
+            await message(messageAt(text, mtmp.mx, mtmp.my, state), state);
+        } else if (!rawEnv.planning) {
+            const name = capitalizedMonsterName(mtmp, state, rawEnv);
+            await message(
+                messageAt(`${name} tries to touch you and misses!`,
+                    mtmp.mx, mtmp.my, state),
+                state,
+            );
+        }
+        return;
+    }
+
+    // The displacement message is intentionally emitted even while blind;
+    // at this point cansee() has established that the monster's own square is
+    // visible. Underwater is reached only when the preceding reason is off.
+    if (rawEnv.planning) return;
+    const name = capitalizedMonsterName(mtmp, state, rawEnv);
+    let text;
+    if (unotthere) {
+        text = compat
+            ? `${name} smiles ${compat === 2 ? 'engagingly' : 'seductively'} `
+                + `at your ${invisibleHero ? 'invisible ' : ''}`
+                + 'displaced image...'
+            : `${name} strikes at your ${invisibleHero ? 'invisible ' : ''}`
+                + 'displaced image and misses you!';
+    } else if (usubmerged) {
+        text = compat
+            ? `${name} reaches towards your distorted image.`
+            : `${name} is fooled by water reflections and misses!`;
+    } else {
+        // unotseen with compat != 0 is the seduction-specific message.
+        text = `${name} tries to touch you and misses!`;
+    }
+    await message(messageAt(text, mtmp.mx, mtmp.my, state), state);
 }
 
 // C ref: mhitu.c could_seduce() (1933-1984). "returns 0 if seduction
@@ -689,7 +793,12 @@ export async function mattacku(monster, rawEnv = {}) {
         if (offended !== 0) return offended === 1 ? 1 : 0;
     }
 
+    // C resets the shared drain-inventory guard for each monster attack.
+    // mhitm.js uses the same field when a monster attacks another monster.
+    state.gs ??= {};
+    state.gs.skipdrin = false;
     const firstfoundyou = foundyou;
+    let skipnonmagc = false;
     const sum = new Array(NATTK).fill(M_ATTK_MISS);
 
     for (let i = 0; i < NATTK; i++) {
@@ -708,11 +817,16 @@ export async function mattacku(monster, rawEnv = {}) {
             // bhitpos, so that test is always false and is left out.
         }
         const mattk = getmattk(monster, state.youmonst, i, sum, env);
-        // C skips this attack for three reasons, none of which can be true
-        // here. u.uswallow is never set: js/mon.js clears it and no ported
-        // path writes it. skipnonmagc is wildmiss()'s, and gs.skipdrin is
-        // mhitm_ad_drin()'s; wildmiss() refuses below and mhitm_ad_drin()
-        // sits behind hitmu(), which refuses too.
+        // C skips swallowed non-engulfing attacks, all non-magical attacks
+        // after wildmiss(), and a second drain-inventory tentacle when the
+        // first one already handled it. The latter two state fields are kept
+        // here even though the selected recipe reaches only wildmiss().
+        if ((u.uswallow && mattk.aatyp !== M.AT_ENGL)
+            || (skipnonmagc && mattk.aatyp !== M.AT_MAGC)
+            || (state.gs?.skipdrin && mattk.aatyp === M.AT_TENT
+                && mattk.adtyp === M.AD_DRIN)) {
+            continue;
+        }
 
         switch (mattk.aatyp) {
         case M.AT_CLAW: /* "hand to hand" attacks */
@@ -746,7 +860,10 @@ export async function mattacku(monster, rawEnv = {}) {
                 } else {
                     // wildmiss() announces an attack on the wrong square and
                     // sets skipnonmagc for the rest of the loop.
-                    unsupported('a monster attacking where the hero is not');
+                    await wildmiss(monster, mattk, env);
+                    // C avoids repeating the same physical miss for the
+                    // attack slots that follow; magical attacks still run.
+                    skipnonmagc = true;
                 }
             }
             break;
@@ -862,7 +979,10 @@ export async function mattacku(monster, rawEnv = {}) {
                     if (mon_currwep)
                         tmp -= hittmp;
                 } else {
-                    unsupported('a monster attacking where the hero is not');
+                    await wildmiss(monster, mattk, env);
+                    // C avoids repeating the same physical miss for the
+                    // attack slots that follow; magical attacks still run.
+                    skipnonmagc = true;
                 }
             }
             break;

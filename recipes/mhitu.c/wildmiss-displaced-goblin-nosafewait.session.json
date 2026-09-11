@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap option variation of wildmiss-displaced-goblin: disabling safe_wait lets ordinary waits reach the same displaced wrong-location weapon attack.",
+  "segments": [
+    {
+      "seed": 360,
+      "datetime": "20260911110000",
+      "nethackrc": "OPTIONS=name:WildmissProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\ncloak of displacement\nTWo ll.................................................."
+    }
+  ]
+}

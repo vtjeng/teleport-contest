@@ -8,6 +8,7 @@ import {
     CONFLICT,
     CQ_CANNED,
     DETECT_MONSTERS,
+    DISPLACED,
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
@@ -96,6 +97,7 @@ import {
     PM_PESTILENCE,
     PM_PLAINS_CENTAUR,
     PM_PYTHON,
+    PM_RAVEN,
     PM_RUST_MONSTER,
     PM_SEWER_RAT,
     PM_SOLDIER_ANT,
@@ -598,17 +600,6 @@ test('mattacku refuses each arm the slice leaves unported', async () => {
 
     state.u.uinvulnerable = false;
 
-    // mhitu.c:817-820, wildmiss(). The attacker guessed a square the hero is
-    // not on, so `foundyou` is false.
-    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
-    rat.mux = state.u.ux + 2;
-    rat.muy = state.u.uy;
-    await assert.rejects(
-        () => mattacku(rat, meleeEnv(state, [17]).env),
-        (error) => error.reason === 'a monster attacking where the hero is not',
-    );
-    rat.mux = state.u.ux;
-
     // mhitu.c:955-993, summonmu(). A were-creature next to the hero
     // triggers the were-creature summoning arm before it strikes.
     const were = meleeAttacker(state, PM_WERERAT, 0, 1);
@@ -629,6 +620,51 @@ test('mattacku refuses each arm the slice leaves unported', async () => {
         (error) => error.reason === 'a monster crushing the hero',
     );
     state.u.ustuck = null;
+});
+
+test('mattacku reports a displaced wrong-location attack once', async () => {
+    // mhitu.c:817-820 and :920-923. A raven has a bite followed by a claw;
+    // displacement makes the first attack miss the remembered square, and
+    // skipnonmagc suppresses the second physical attack without another draw
+    // or message. The seed is a fixture species choice, not session data.
+    const state = await meleeHero();
+    state.u.uprops[DISPLACED].intrinsic = 1;
+    const raven = meleeAttacker(state, PM_RAVEN, 1, 0);
+    raven.mux = state.u.ux + 2;
+    raven.muy = state.u.uy;
+
+    const result = meleeEnv(state, []);
+    assert.equal(await mattacku(raven, result.env), false);
+    assert.deepEqual(result.lines, [
+        'The raven strikes at your displaced image and misses you!',
+    ]);
+    assert.deepEqual(result.bounds, []);
+});
+
+test('wildmiss chooses unseen and underwater feedback in source order',
+    async () => {
+    // mhitu.c:184-258. Blindness takes precedence over displacement and uses
+    // one rn2(3) draw; underwater feedback is drawless once the hero is seen.
+    const state = await meleeHero();
+    const raven = meleeAttacker(state, PM_RAVEN, 1, 0);
+    raven.mcansee = false;
+    raven.mux = state.u.ux + 2;
+    raven.muy = state.u.uy;
+    const unseen = meleeEnv(state, [], { rn2: () => 0 });
+    await mattacku(raven, unseen.env);
+    assert.deepEqual(unseen.lines, [
+        'The raven snaps wildly and misses!',
+    ]);
+    assert.deepEqual(unseen.bounds, ['rn2(3)']);
+
+    raven.mcansee = true;
+    state.u.uinwater = true;
+    const underwater = meleeEnv(state, []);
+    await mattacku(raven, underwater.env);
+    assert.deepEqual(underwater.lines, [
+        'The raven is fooled by water reflections and misses!',
+    ]);
+    assert.deepEqual(underwater.bounds, []);
 });
 
 test('mattacku swings a wielded weapon and adds its to-hit bonus',
