@@ -23877,8 +23877,8 @@
       "spans": [
         {
           "name": "juiblex.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "226ca2c93c3803d5421d273bbe29aeb867ab1bbd",
           "functions": [
             "juiblex.lua"
           ]
@@ -23898,7 +23898,7 @@
           "line": 1,
           "endLine": 122,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -23922,7 +23922,49 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 520
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "juiblex.lua",
+            "implementation": "js/juiblex_levels.js",
+            "symbol": "juiblex",
+            "sourceReview": "Read the complete upstream dat/juiblex.lua program (1-122). The implementation preserves level flags and swamp initialization, both auxiliary map fragments and their alignment, the centered lair map, source-order shuffle and selection coordinates, the swamp region and all five exit/teleport regions, the fountain and three fountain disguises, fixed Juiblex/lemures, fixed and random monsters, random objects, and all six traps. The map-relative selection frame and x-major selection:rndcoord(true) removal order are source traced. The required ter:fountain branch in sp_lev.c create_monster() was completed to resolve the generated defsyms explanation table; no swallowed refusal or injected result remains on this path.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The special-level registry imports JUIBLEX_LEVEL_LOADERS and registers the juiblex key used by the source proto name."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mkmaze.c makemaz() calls load_special() for the Juiblex proto; load_special() constructs createSpecialLevelApi(), invokes juiblex(), and performs special-level post-processing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/juiblex-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/juiblex.lua/juiblex-level-teleport.session.json"
+            ],
+            "checkedAt": "226ca2c93c3803d5421d273bbe29aeb867ab1bbd"
+          }
+        ],
+        "entryPointReview": "The Lua program has one production entry point: the wizard level-teleport menu selects Juiblex, do.c goto_level() invokes mklev.c makelevel(), mkmaze.c makemaz() resolves the juiblex proto and calls load_special(), and the registered JS loader builds the level through createSpecialLevelApi(). The independently selected wizard route in the committed recording reaches this path and checks the resulting Juiblex, lemures, three fountain disguises, swamp flags, and traps in the matrix verifier.",
+        "entryPoints": [
+          {
+            "name": "Juiblex Gehennom special level",
+            "functions": [
+              "juiblex.lua"
+            ],
+            "recordings": [
+              "recordings/juiblex.lua/juiblex-level-teleport.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
