@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
-//         dat/tower1.lua, dat/tower2.lua.
+//         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -1096,6 +1096,67 @@ function tower2(des) {
     des.non_diggable(selection_area(0, 0, 14, 10));
 }
 
+// C ref: dat/tower3.lua. Lower stage of Vlad's Tower: a broad tower map with
+// a branch region, a locked entry door, random monsters, and ten trapped
+// niches containing fixed objects.
+function tower3(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'solidify');
+    des.map({
+        halign: 'half-left',
+        valign: 'center',
+        map: [
+            '    --- --- ---    ',
+            '    |.| |.| |.|    ',
+            '  ---S---S---S---  ',
+            '  |.S.........S.|  ',
+            '-----.........-----',
+            '|...|.........+...|',
+            '|.---.........---.|',
+            '|.|.S.........S.|.|',
+            '|.---S---S---S---.|',
+            '|...|.|.|.|.|.|...|',
+            '---.---.---.---.---',
+            '  |.............|  ',
+            '  ---------------  ',
+        ].join('\n'),
+    });
+
+    // The source leaves this ten-coordinate niche list in map order; Lua
+    // table indexing is one-based, so place[4] is index 3 in JavaScript.
+    const place = [
+        [5, 1], [9, 1], [13, 1], [3, 3], [15, 3],
+        [3, 7], [15, 7], [5, 9], [9, 9], [13, 9],
+    ];
+
+    des.levregion({ type: 'branch', region: [2, 5, 2, 5] });
+    des.ladder({ dir: 'up', coord: [5, 7] });
+    // Entry door is locked in dat/tower3.lua.
+    des.door({ state: 'locked', coord: [14, 5] });
+
+    des.monster('D', 13, 5);
+    des.monster({ x: 12, y: 4 });
+    des.monster({ x: 12, y: 6 });
+    des.monster();
+    des.monster();
+    des.monster();
+    des.monster();
+    des.monster();
+    des.monster();
+
+    des.object('long sword', place[3]);
+    des.trap({ coord: place[3] });
+    des.object('lock pick', place[0]);
+    des.trap({ coord: place[0] });
+    des.object('elven cloak', place[1]);
+    des.trap({ coord: place[1] });
+    des.object('blindfold', place[2]);
+    des.trap({ coord: place[2] });
+
+    // Walls in the tower are non-diggable.
+    des.non_diggable(selection_area(0, 0, 18, 12));
+}
+
 // C ref: dat/Pri-fila.lua. Room-based filler level for quest levels above
 // Pri-loca: six rooms with zombie and wraith monsters, morgue rooms, and
 // random objects and traps.
@@ -1226,4 +1287,5 @@ export const QUEST_LEVEL_LOADERS = {
     oracle,
     tower1,
     tower2,
+    tower3,
 };

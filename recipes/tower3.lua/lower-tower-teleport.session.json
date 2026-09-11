@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9527,
+      "datetime": "20320714113000",
+      "nethackrc": "OPTIONS=name:TowerThree,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "comment": "Wizard-mode level teleport (Ctrl-V, ?, second page's tower3 entry) reaches dat/tower3.lua with an independently chosen seed and character setup. The recipe covers the map, branch region, ladder, locked door, random monsters, trapped niches, fixed objects, and non-diggable selection through the production special-level loader.",
+      "moves": " \u0016?\n I"
+    }
+  ]
+}
