@@ -28,8 +28,12 @@ and scored outside a goal, or when an authorized holdout evaluation runs
 outside a goal close.
 A scoring run does not append a row.
 
-1. Measure the figures at the commit the row names. A run over uncommitted
-   work produces figures no later run can reproduce.
+1. Commit your changes before measuring a new score. Record the measured
+   commit in the row's `sha` column.
+   For development figures, open the `summary.json` path printed after
+   `Results:` by `npm run checkpoint`. Check that `allPassed` is `true`
+   and `commit` matches the commit you are closing. Use its `score` values
+   for the figures and `executionCommit` for the row's `sha`.
 2. Generate the note:
    `node scripts/score-log.mjs --generate-note event=<event> [label=<id>]
    screens_matched=<n> screens_total=<n> rng_matched=<n> rng_total=<n>

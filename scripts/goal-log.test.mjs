@@ -11,7 +11,7 @@ import { COLUMNS } from './score-log.mjs';
 import { cFunctions, parseCFunctions } from './c-functions.mjs';
 
 import {
-    SPAN_LINE_CAP, assertStandingIsCurrent, deliveredSince, formatGoal,
+    SPAN_LINE_CAP, checkpointClosingStanding, deliveredSince, formatGoal,
     formatRoadmap, lineRanges, nextSpan, readGoals, roadmapRows,
     selectFunctionRange, spanContext, validateGoals, refreshCompletion,
     assertPortComplete, recordEvidence, luaRoadmapRows,
@@ -375,32 +375,22 @@ test('delivered figures are the closing standing minus the opening one', () => {
     assert.equal(deliveredSince(null, { screens: 520, rng: 107227 }), null);
 });
 
-test('closing refuses a standing that predates the repository head', () => {
-    // The chat-command close: SCORE.tsv still held the previous goal's row, so
-    // the standing subtracted from itself and recorded delivered: 0 for a goal
-    // that delivered 21 screens and 31 rng values.
-    const head = 'afd1984c0ffee0000000000000000000000000d';
-    assert.throws(
-        () => assertStandingIsCurrent(
-            { sha: '3a78bc1', screens: 1203, rng: 117774 }, head),
-        /standing in SCORE.tsv is at 3a78bc1, not the repository head afd1984/u,
-    );
-    // A SCORE.tsv sha is the short form and the repository head is the full
-    // one, so a current standing matches by prefix rather than by equality.
-    assert.doesNotThrow(() => assertStandingIsCurrent(
-        { sha: 'afd1984', screens: 1228, rng: 117887 }, head));
-    // An empty log states no development figure at all, which is the same
-    // ordering mistake at its limit; close-goal would record delivered: null.
-    assert.throws(
-        () => assertStandingIsCurrent(null, head),
-        /SCORE.tsv states no development figure/u,
-    );
-    // Both refusals name the row to append and where the rule lives, because
-    // the fix is to append that row and rerun, not to edit GOALS.json.
-    assert.throws(
-        () => assertStandingIsCurrent(null, head),
-        /Append the goal row for afd1984 .*\.agents\/scoring\.md/su,
-    );
+test('closing takes current checkpoint figures without relabeling the measurement', () => {
+    const head = 'a'.repeat(40); // New metadata commit.
+    const measured = 'b'.repeat(40); // Earlier execution commit.
+    const summary = { commit: head, executionCommit: measured, allPassed: true,
+        recordings: { passed: true }, score: { screensMatched: 1228, rngMatched: 117887 } };
+    // Historical chat-command totals distinguish a real gain from a stale row.
+    assert.deepEqual(checkpointClosingStanding(summary, head),
+        { sha: measured, screens: 1228, rng: 117887 });
+    for (const invalid of [null, { ...summary, commit: measured },
+        { ...summary, allPassed: false }, { ...summary, recordings: { passed: false } }])
+        assert.throws(() => checkpointClosingStanding(invalid, head), /passing npm run checkpoint/u);
+    for (const invalid of [{ ...summary, score: null },
+        { ...summary, executionCommit: undefined },
+        ...[-1, NaN, 0.5, '1228'].map(screensMatched =>
+            ({ ...summary, score: { ...summary.score, screensMatched } }))])
+        assert.throws(() => checkpointClosingStanding(invalid, head), /development figures/u);
 });
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -428,7 +418,7 @@ function scoreRow(sha, screens, rng) {
  * is a divergence fix because closing a file port re-reads js/ and the C
  * tree, which the throwaway repository does not hold.
  */
-function closeGoalFixture(standingSha) {
+function closeGoalFixture(standingSha, checkpoint = {}) {
     const root = mkdtempSync(join(tmpdir(), 'goal-log-close-'));
     mkdirSync(join(root, 'scripts'));
     for (const name of ['goal-log.mjs', 'score-log.mjs', 'c-functions.mjs',
@@ -444,6 +434,13 @@ function closeGoalFixture(standingSha) {
         'commit', '--allow-empty', '--quiet', '-m', 'root');
     const head = spawnSync('git', ['rev-parse', 'HEAD'],
         { cwd: root, encoding: 'utf8' }).stdout.trim();
+    const resultDirectory = join(root, '.git/checkpoint-results', head);
+    mkdirSync(resultDirectory, { recursive: true });
+    writeFileSync(join(resultDirectory, 'latest.json'), JSON.stringify({
+        commit: head, executionCommit: 'c'.repeat(40), allPassed: true,
+        recordings: { passed: true }, score: { screensMatched: 1228, rngMatched: 117887 },
+        ...checkpoint,
+    }));
     writeFileSync(join(root, 'SCORE.tsv'),
         // The real chat-command figures: 1,207 screens and 117,856 rng values
         // at open, 1,228 and 117,887 at close, so it delivered 21 and 31.
@@ -481,19 +478,18 @@ function runCloseGoal(root) {
     };
 }
 
-test('close-goal refuses to record a goal against a stale standing', () => {
-    // The unit test above proves the check; this proves close-goal calls it.
-    // Deleting the call leaves every other test in this file passing.
-    const stale = closeGoalFixture(() => '3a78bc1');
+test('close-goal requires a passing current checkpoint even when SCORE names HEAD', () => {
+    // A current event row cannot stand in for failed validation.
+    const stale = closeGoalFixture(head => head, { allPassed: false });
     const refused = runCloseGoal(stale.root);
 
     assert.equal(refused.status, 1);
-    assert.match(refused.stderr, /standing in SCORE.tsv is at 3a78bc1/u);
-    // The goal stays open, so appending the row and rerunning is the whole fix.
+    assert.match(refused.stderr, /passing npm run checkpoint/u);
     assert.equal(refused.goal.status, 'open');
     assert.equal(refused.goal.delivered, null);
 
-    const current = closeGoalFixture((head) => head.slice(0, 7));
+    // A stale event row must not override a validated current measurement.
+    const current = closeGoalFixture(() => '3a78bc1');
     const closed = runCloseGoal(current.root);
 
     assert.equal(closed.status, 0, closed.stderr);
@@ -501,4 +497,5 @@ test('close-goal refuses to record a goal against a stale standing', () => {
     assert.equal(closed.goal.closedAt, current.head);
     // 1,228 - 1,207 screens and 117,887 - 117,856 rng values.
     assert.deepEqual(closed.goal.delivered, { screens: 21, rng: 31 });
+    assert.equal(closed.goal.closeStanding.sha, 'c'.repeat(40));
 });
