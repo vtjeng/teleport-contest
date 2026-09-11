@@ -349,6 +349,25 @@ test('a boulder with an obstructed destination fails without moving',
         const beforePosition = [boulder.ox, boulder.oy];
         const beforeRng = replay.getRngLog().length;
 
+        // hack.c:1245. A failed moverock() result refuses the step without
+        // mutating the boulder or consuming a random number. Supplying the
+        // source-shaped numeric seam also covers the test_move() caller
+        // contract without entering moverock_core().
+        assert.equal(
+            await test_move(
+                game.u.ux,
+                game.u.uy,
+                0,
+                -1,
+                DO_MOVE,
+                game,
+                { moverock: -1, message: () => {} },
+            ),
+            false,
+        );
+        assert.deepEqual([boulder.ox, boulder.oy], beforePosition);
+        assert.equal(replay.getRngLog().length, beforeRng);
+
         assert.equal(await stepNorth(),
                      'You try to move the boulder, but in vain.');
         assert.deepEqual([boulder.ox, boulder.oy], beforePosition);

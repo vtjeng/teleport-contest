@@ -36,6 +36,7 @@ import {
     COLNO,
     CORR,
     CQ_CANNED,
+    D_CLOSED,
     CROSSWALL,
     DBWALL,
     DO_MOVE,
@@ -329,7 +330,7 @@ test('the obstacle arm handles special movement before ordinary refusal',
         const ux = 10;
         const uy = 10;
 
-        function obstacleState() {
+        function obstacleState(typ = STONE, doorFlags = 0) {
             const state = {
                 // mention_walls on so a state that fails to refuse reaches the
                 // message hook, which fails the case rather than passing it
@@ -344,7 +345,9 @@ test('the obstacle arm handles special movement before ordinary refusal',
                 youmonst: { data: { mflags1: 0 } },
             };
             objects_globals_init(state);
-            state.level.at(ux + 1, uy).typ = STONE;
+            const destination = state.level.at(ux + 1, uy);
+            destination.typ = typ;
+            destination.flags = doorFlags;
             return state;
         }
 
@@ -377,6 +380,41 @@ test('the obstacle arm handles special movement before ordinary refusal',
         assert.equal(await step(tunneller), false);
         assert.equal(tunneller._ttyToplines,
             'You start chewing a hole in the rock.');
+
+        // The injected result must replace still_chewing() at this same
+        // source branch while keeping its planning message silent.
+        const injectedTunneller = obstacleState();
+        injectedTunneller.youmonst.data.mflags1 = M1_TUNNEL;
+        const tunnelEvents = [];
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, injectedTunneller, {
+                message: () => assert.fail('chewing arm printed a wall line'),
+                stillChewing: async (targetX, targetY) => {
+                    tunnelEvents.push(`chew(${targetX},${targetY})`);
+                    return true;
+                },
+            }),
+            false,
+        );
+        assert.deepEqual(tunnelEvents, [`chew(${ux + 1},${uy})`]);
+
+        // hack.c:1110-1114 uses the same result while a tunneller eats a
+        // closed door. Keep the destination flag explicit because DOOR with
+        // D_ISOPEN is routed to testdiag instead of this arm.
+        const closedDoor = obstacleState(DOOR, D_CLOSED);
+        closedDoor.youmonst.data.mflags1 = M1_TUNNEL;
+        const doorEvents = [];
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, closedDoor, {
+                message: () => assert.fail('door chewing printed a line'),
+                stillChewing: async (targetX, targetY) => {
+                    doorEvents.push(`chew(${targetX},${targetY})`);
+                    return true;
+                },
+            }),
+            false,
+        );
+        assert.deepEqual(doorEvents, [`chew(${ux + 1},${uy})`]);
 
         // A dwarf -- M1_TUNNEL and M1_NEEDPICK together -- keeps the
         // ordinary refusal and its line.

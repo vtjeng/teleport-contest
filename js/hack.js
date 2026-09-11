@@ -2490,10 +2490,20 @@ export async function test_move(
     const passesWalls = propertyPresent(state, PASSES_WALLS);
     const run = state.context.run ?? 0;
     const message = env.message ?? ttyPline;
-    const chewBoulder = env.stillChewing
-        ?? ((targetX, targetY) => still_chewing(targetX, targetY, state));
-    const pushBoulder = env.moverock
-        ?? (() => moverock(state, env));
+    // The C helper receives the boolean result of still_chewing() and the
+    // numeric result of moverock().  Keep the test seams usable with either
+    // their production callbacks or source-shaped scalar results; the latter
+    // is useful when a caller only needs to pin the branch's return value.
+    const chewBoulder = typeof env.stillChewing === 'function'
+        ? env.stillChewing
+        : env.stillChewing === undefined
+            ? (targetX, targetY) => still_chewing(targetX, targetY, state)
+            : async () => Boolean(env.stillChewing);
+    const pushBoulder = typeof env.moverock === 'function'
+        ? env.moverock
+        : env.moverock === undefined
+            ? () => moverock(state, env)
+            : async () => Number(env.moverock);
 
     // hack.c:1011-1072, physical obstacles. The feel happens before every
     // branch, and the pass-wall and tunnelling forms deliberately fall through
@@ -2512,7 +2522,7 @@ export async function test_move(
                 && (dmgtype(species, AD_RUST)
                     || dmgtype(species, AD_CORR)
                     || metallivorous(species))
-                && await still_chewing(x, y, state)) {
+                && await chewBoulder(x, y)) {
                 return false;
             }
             if (!(passesWalls || passes_bars(species))) {
@@ -2521,7 +2531,7 @@ export async function test_move(
                 return false;
             }
         } else if (tunnels(species) && !needspick(species)) {
-            if (mode === DO_MOVE && await still_chewing(x, y, state))
+            if (mode === DO_MOVE && await chewBoulder(x, y))
                 return false;
         } else if (state.flags?.autodig && !run
             && !state.context?.nopick && state.uwep
@@ -2567,7 +2577,7 @@ export async function test_move(
                 await message('There is an obstacle there.', state);
             return false;
         } else if (tunnels(species) && !needspick(species)) {
-            if (mode === DO_MOVE && await still_chewing(x, y, state))
+            if (mode === DO_MOVE && await chewBoulder(x, y))
                 return false;
         } else {
             if (mode === DO_MOVE) {
