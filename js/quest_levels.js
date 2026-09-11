@@ -3,7 +3,7 @@
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
-//         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
+//         dat/Wiz-strt.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -1272,6 +1272,113 @@ async function priFilb(des) {
     des.random_corridors();
 }
 
+// C ref: dat/Wiz-strt.lua. Wizard quest start level: Neferet the Green's
+// besieged tower, with apprentices in the audience chamber and monsters on
+// siege duty outside.
+async function wizStrt(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+
+    des.map([
+        '............................................................................',
+        '.....................C....CC.C........................C.....................',
+        '..........CCC.....................CCC.......................................',
+        '........CC........-----------.......C.C...C...C....C........................',
+        '.......C.....---------------------...C..C..C..C.............................',
+        '......C..C...------....\\....------....C.....C...............................',
+        '........C...||....|.........|....||.........................................',
+        '.......C....||....|.........+....||.........................................',
+        '.......C...||---+--.........|....|||........................................',
+        '......C....||...............|--S--||........................................',
+        '...........||--+--|++----|---|..|.SS..........C......C......................',
+        '........C..||.....|..|...|...|--|.||..CC..C.....C..........C................',
+        '.......C...||.....|..|.--|.|.|....||.................C..C...................',
+        '.....C......||....|..|.....|.|.--||..C..C..........C...........}}}..........',
+        '......C.C...||....|..-----.|.....||...C.C.C..............C....}}}}}}........',
+        '.........C...------........|------....C..C.....C..CC.C......}}}}}}}}}}}.....',
+        '.........CC..---------------------...C.C..C.....CCCCC.C.......}}}}}}}}......',
+        '.........C........-----------..........C.C.......CCC.........}}}}}}}}}......',
+        '..........C.C.........................C............C...........}}}}}........',
+        '......................CCC.C.................................................',
+    ]);
+
+    // First add clouds throughout the level, then restore the tower interior.
+    des.replace_terrain({
+        region: [0, 0, 75, 19], fromterrain: '.', toterrain: 'C', chance: 10,
+    });
+    des.replace_terrain({
+        region: [13, 5, 33, 15], fromterrain: 'C', toterrain: '.', chance: 100,
+    });
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'lit');
+    des.region(selection_area(35, 0, 49, 3), 'unlit');
+    des.region(selection_area(43, 12, 49, 16), 'unlit');
+    des.region({ region: [19, 11, 33, 15], lit: 0, type: 'ordinary', irregular: 1 });
+    des.region(selection_area(30, 10, 31, 10), 'unlit');
+
+    // Stairs and portal arrival point
+    des.stair('down', 30, 10);
+    des.terrain([63, 6], '.');
+    des.levregion({ region: [63, 6, 63, 6], type: 'branch' });
+
+    // Doors
+    des.door('closed', 31, 9);
+    des.door('closed', 16, 8);
+    des.door('closed', 28, 7);
+    des.door('locked', 34, 10);
+    des.door('locked', 35, 10);
+    des.door('closed', 15, 10);
+    des.door('locked', 19, 10);
+    des.door('locked', 20, 10);
+
+    // Neferet the Green and her treasure
+    des.monster({
+        id: 'Neferet the Green', coord: [23, 5], inventory() {
+            des.object({ id: 'elven cloak', spe: 5 });
+            des.object({ id: 'quarterstaff', spe: 5 });
+        },
+    });
+    des.object('chest', 24, 5);
+
+    // Apprentices in the audience chamber
+    des.monster('apprentice', 30, 7);
+    des.monster('apprentice', 24, 6);
+    des.monster('apprentice', 15, 6);
+    des.monster('apprentice', 15, 12);
+    des.monster('apprentice', 26, 11);
+    des.monster('apprentice', 27, 11);
+    des.monster('apprentice', 19, 9);
+    des.monster('apprentice', 20, 9);
+
+    // Eels in the pond
+    des.monster('giant eel', 62, 14);
+    des.monster('giant eel', 69, 15);
+    des.monster('giant eel', 67, 17);
+
+    des.non_diggable(selection_area(0, 0, 75, 19));
+
+    // Random traps
+    for (let i = 0; i < 6; ++i) des.trap();
+
+    // Monsters on siege duty
+    des.monster({ class: 'B', x: 60, y: 9, peaceful: 0 });
+    des.monster({ class: 'W', x: 60, y: 10, peaceful: 0 });
+    des.monster({ class: 'B', x: 60, y: 11, peaceful: 0 });
+    des.monster({ class: 'B', x: 60, y: 12, peaceful: 0 });
+    des.monster({ class: 'i', x: 60, y: 13, peaceful: 0 });
+    des.monster({ class: 'B', x: 61, y: 10, peaceful: 0 });
+    des.monster({ class: 'B', x: 61, y: 11, peaceful: 0 });
+    des.monster({ class: 'B', x: 61, y: 12, peaceful: 0 });
+    des.monster({ class: 'B', x: 35, y: 3, peaceful: 0 });
+    des.monster({ class: 'i', x: 35, y: 17, peaceful: 0 });
+    des.monster({ class: 'B', x: 36, y: 17, peaceful: 0 });
+    des.monster({ class: 'B', x: 34, y: 16, peaceful: 0 });
+    des.monster({ class: 'i', x: 34, y: 17, peaceful: 0 });
+    des.monster({ class: 'W', x: 67, y: 2, peaceful: 0 });
+    des.monster({ class: 'B', x: 10, y: 19, peaceful: 0 });
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
@@ -1284,6 +1391,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Pri-goal': priGoal,
     'Pri-fila': priFila,
     'Pri-filb': priFilb,
+    'Wiz-strt': wizStrt,
     oracle,
     tower1,
     tower2,

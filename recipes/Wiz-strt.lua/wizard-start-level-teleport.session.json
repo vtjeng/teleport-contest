@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 907143,
+      "datetime": "20451213112233",
+      "nethackrc": "OPTIONS=name:WizStartProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "   n#levelchange\n20\n                   \u0016?\ncy"
+    }
+  ],
+  "comment": "Wizard-mode level change followed by the level-teleport menu's Quest selection, reaching Wiz-strt through the production dispatch. The seed, clock, and character were chosen independently for this source entry point."
+}
