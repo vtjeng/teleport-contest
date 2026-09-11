@@ -25889,20 +25889,55 @@
     {
       "id": "div-fountain-find-gem-0030",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Handle fountain.c drinkfountain() fate 27 gem discovery",
       "cFile": "fountain.c",
       "sessions": [],
       "selectionReason": "The highest-ranked development mismatch is seed0030-ten-diverse-deaths at global step 1565. Source tracing maps the stop to fountain.c drinkfountain() fate 27, whose existing JavaScript implementation still throws before calling the already implemented dofindgem() helper. This is a source-traced defect in an existing function, so queue a narrow divergence fix.",
       "detail": "Development session seed0030-ten-diverse-deaths, segment 9, local input step 80, global step 1565, key y: first mismatch is a stop after 1565 matching input boundaries. C fountain.c:357-363 selects fate 27, checks !FOUNTAIN_IS_LOOTED(), calls dofindgem() at fountain.c:163-176, then reaches dryup() at fountain.c:389. The recorded C draws are rnd(30)=27 at drinkfountain(fountain.c:247), rnd(862)=529 at rnd_class(objnam.c:5413), rnd(2)=2 at next_ident(mkobj.c:521), rn2(19)=5 at exercise(attrib.c:509), and rn2(3)=0 at dryup(fountain.c:204). JS fountain.js:574-576 throws find-gem fountain effect (fate 27), while fountain.js:378-400 already implements dofindgem() and fountain.js:724-727 already calls it from dipfountain(). Production dispatch is cmd.c:1809 q -> potion.c dodrink():526-549 -> fountain.c drinkfountain(); JS is cmd.js runQuaffCommand():3335-3337 -> potion.js dodrink():878-881 -> fountain.js drinkfountain().",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "drinkfountain",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "drinkfountain"
+          ]
+        }
+      ],
+      "openedAt": "26114e906ba30fb8d05e19e3a78f212f5310cb45",
+      "openStanding": {
+        "sha": "c2fa9135c0670911fcf7edd27a43763ae8cf0808",
+        "screens": 6633,
+        "rng": 496517
+      },
       "closedAt": null,
       "delivered": null,
       "function": "drinkfountain",
       "session": "seed0030-ten-diverse-deaths",
-      "step": 1565
+      "step": 1565,
+      "activeStanding": {
+        "sha": "c2fa9135c0670911fcf7edd27a43763ae8cf0808",
+        "screens": 6633,
+        "rng": 496517
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1565,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: fountain requires find-gem fountain effect (fate 27)",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 388
+        }
+      ]
     }
   ]
 }
