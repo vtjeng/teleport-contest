@@ -1,46 +1,45 @@
 {
   "functions": [
     {
-      "name": "goto_level",
-      "implementation": "js/do.js",
-      "symbol": "goto_level",
-      "sourceReview": "Read the complete do.c goto_level() range (1479-2002). The supported ordinary-level transition preserves saved-level teardown, destination generation, arrival placement, vision and redraw order, deferred feedback, and the new-level message branches. Added the source-ordered Rogue/primary assign_graphics() selection before u.uz changes, check_gold_symbol(), and the Rogue arrival line from do.c:1912-1914. The supporting symbols.c assign_graphics() and botl.c check_gold_symbol() implementations preserve selected tables, overrides, currentgraphics, and the printable coin-symbol boundary; no result-valued unported callee is used by this span.",
+      "name": "score_targ",
+      "implementation": "js/dogmove.js",
+      "symbol": "score_targ",
+      "sourceReview": "Read the complete dogmove.c score_targ() body (738-837). The implementation preserves the confused-pet and quest-start short circuit, priest and minion alignment metadata, quest-friendly and coaligned-priest early returns, adjacency, tame-hero, and find_friends gates, hostility and passive penalties, weak-target and hero-relative level penalties, vampire-shifter strength roll, stronger-target penalty, level and hit-point score, final rnd(5) fuzz, and the confused-pet final rn2(3) penalty in C evaluation order. The source-valued state is supplied through the running game state; find_friends() and on_level() are existing source-aligned helpers, and no result-valued unported callee is substituted.",
       "callers": [
         {
-          "path": "js/do.js",
-          "symbol": "deferred_goto",
-          "source": "allmain.c deferred_goto() dispatches the scheduled transition to do.c goto_level() after the command stack unwinds"
+          "path": "js/dogmove.js",
+          "symbol": "best_target",
+          "source": "dogmove.c best_target() calls score_targ(mtmp, temp_targ) at lines 870-871 while scanning each visible ray"
         },
         {
-          "path": "js/teleport.js",
-          "symbol": "level_tele",
-          "source": "teleport.c level_tele() accepts a wizard numeric destination and schedules goto_level()"
+          "path": "js/dogmove.js",
+          "symbol": "pet_ranged_attk",
+          "source": "dogmove.c pet_ranged_attk() calls best_target(mtmp, forced) at lines 907-911, which dispatches each candidate to score_targ()"
         },
         {
-          "path": "js/artifacts.js",
-          "symbol": "invoke_create_portal",
-          "source": "artifact.c invoke_portal() calls goto_level() for a cross-dungeon portal transition"
+          "path": "js/dogmove.js",
+          "symbol": "dog_move",
+          "source": "dogmove.c dog_move() calls pet_ranged_attk(mtmp, FALSE) at lines 1273-1274; the JavaScript operation registry dispatches dog_move() through petRangedAttack"
         }
       ],
       "pure": false,
       "tests": [
-        "scripts/level-teleport-arrival.test.mjs",
-        "scripts/display-symbols.test.mjs"
+        "scripts/dogmove.test.mjs"
       ],
       "recordings": [
-        "recordings/do.c/rogue-level-teleport-g.session.json"
+        "recordings/dogmove.c/pet-ranged-score-probe.session.json"
       ]
     }
   ],
-  "entryPointReview": "The selected source range has one exercised production entry point: the wizard debug Ctrl-V level-teleport command enters teleport.c level_tele(), schedules a new ordinary or Rogue destination, allmain.c deferred_goto() dispatches do.c goto_level(), and goto_level() generates and displays the destination. The fresh recipe reaches the Rogue destination and its graphics/message branches through that production path.",
+  "entryPointReview": "The selected helper has one live production entry point: an active starting pet reaches dogmove.c dog_move(), which calls pet_ranged_attk(FALSE); pet_ranged_attk() calls best_target(), best_target() scans each visible ray and calls score_targ(), and the selected target reaches the existing monster-action attack path. The independently selected pet-ranged-score-probe recording executes this chain through the JavaScript dog_move() operation registry and includes score_targ() followed by mattackm() in one pet turn.",
   "entryPoints": [
     {
-      "name": "wizard level teleport into a newly generated Rogue level",
+      "name": "starting pet ranged target scoring",
       "functions": [
-        "goto_level"
+        "score_targ"
       ],
       "recordings": [
-        "recordings/do.c/rogue-level-teleport-g.session.json"
+        "recordings/dogmove.c/pet-ranged-score-probe.session.json"
       ]
     }
   ]

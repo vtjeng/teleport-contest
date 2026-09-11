@@ -60,6 +60,8 @@ import {
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_ROTHE,
+    PM_VAMPIRE,
+    PM_VAMPIRE_BAT,
 } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';
 import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
@@ -398,7 +400,7 @@ test('score_targ preserves ordinary early returns and random fuzz', () => {
     }), -3000);
 });
 
-test('score_targ rejects pets, the hero, and a friend in the line of fire',
+test('score_targ scores source-valid special targets and early returns',
     () => {
         const { monster, state } = activePetState();
         monster.m_lev = 2;
@@ -434,20 +436,28 @@ test('score_targ rejects pets, the hero, and a friend in the line of fire',
 
         monster.mux = 1;
         monster.muy = 1;
-        for (const specialFlag of ['isminion', 'ispriest', 'isshk']) {
-            target[specialFlag] = true;
-            assert.throws(
-                () => score_targ(monster, target, noFuzz),
-                /ordinary monster target/,
-                specialFlag,
-            );
-            target[specialFlag] = false;
-        }
-        target.data = { ...state.mons[PM_GIANT_ANT], msound: MS_LEADER };
-        assert.throws(
-            () => score_targ(monster, target, noFuzz),
-            /ordinary monster target/,
+        target.isshk = true;
+        assert.equal(
+            score_targ(monster, target, {
+                ...noFuzz,
+                random: { rnd: () => 1 },
+            }),
+            17, // 10 hostile + 4 level + 2 hp + 1 fuzz; shopkeepers are valid targets.
         );
+        target.isshk = false;
+        target.isminion = true;
+        target.mextra = { emin: { min_align: 1 } };
+        assert.equal(
+            score_targ(monster, target, {
+                ...noFuzz,
+                random: { rnd: () => 1 },
+            }),
+            17, // Minion metadata affects faith checks, but an ordinary pet has no faith.
+        );
+        target.isminion = false;
+        target.mextra = undefined;
+        target.data = { ...state.mons[PM_GIANT_ANT], msound: MS_LEADER };
+        assert.equal(score_targ(monster, target, noFuzz), -5000);
     });
 
 test('score_targ preserves source level-penalty boundaries', () => {
@@ -489,6 +499,101 @@ test('score_targ preserves source level-penalty boundaries', () => {
     assert.equal(score(2, 6, 1), 15);
     assert.equal(score(2, 7, 1), -83, 'strength penalty begins five levels up');
 });
+
+test('score_targ preserves confused and quest-start draw order', () => {
+    const { monster, state } = activePetState();
+    monster.mux = 1;
+    monster.muy = 1;
+    monster.mconf = true;
+    const target = {
+        data: state.mons[PM_GIANT_ANT],
+        m_lev: 2,
+        mhp: 7,
+        mpeaceful: false,
+        mtame: 0,
+        mx: 8,
+        my: 5,
+    };
+    const draws = [];
+    assert.equal(score_targ(monster, target, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => true,
+        random: {
+            rn2: (bound) => (draws.push(['rn2', bound]), 1),
+            rnd: (bound) => (draws.push(['rnd', bound]), 1),
+        },
+    }), 1, // Confusion skips normal scoring, then the final rn2(3) keeps it.
+    );
+    assert.deepEqual(draws, [['rn2', 3], ['rnd', 5], ['rn2', 3]]);
+
+    state.qstart_level = { dnum: 0, dlevel: 1 };
+    monster.mconf = true;
+    const questDraws = [];
+    assert.equal(score_targ(monster, target, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => true,
+        random: {
+            // A nonzero first rn2 would skip normal scoring without the
+            // quest-start override; Is_qstart() must force that block here.
+            rn2: (bound) => (questDraws.push(['rn2', bound]), 1),
+            rnd: (bound) => (questDraws.push(['rnd', bound]), 1),
+        },
+    }), 17, // 10 hostile + 4 level + 2 hp + 1 fuzz after the override.
+    );
+    assert.deepEqual(questDraws, [['rn2', 3], ['rnd', 5], ['rn2', 3]]);
+});
+
+test('score_targ protects coaligned priest targets and rolls vampire strength',
+    () => {
+        const { monster, state } = activePetState();
+        monster.mux = 1;
+        monster.muy = 1;
+        monster.isminion = true;
+        monster.mextra = { emin: { min_align: 0 } };
+        const priest = {
+            data: state.mons[PM_GIANT_ANT],
+            ispriest: true,
+            mextra: { epri: { shralign: 0 } },
+            m_lev: 2,
+            mhp: 7,
+            mpeaceful: true,
+            mtame: 0,
+            mx: 8,
+            my: 5,
+        };
+        assert.equal(score_targ(monster, priest, {
+            state,
+            monsterAt: () => null,
+            monsterCanSee: () => true,
+            random: { rnd: () => assert.fail('faith return precedes fuzz') },
+        }), -5000, // C protects a peaceful priest with matching alignment.
+        );
+
+        monster.isminion = false;
+        monster.mextra = null;
+        monster.data = state.mons[PM_VAMPIRE_BAT];
+        monster.cham = PM_VAMPIRE;
+        monster.m_lev = 2;
+        priest.ispriest = false;
+        priest.mextra = null;
+        priest.mpeaceful = false;
+        priest.m_lev = 15;
+        priest.mhp = 3;
+        const draws = [];
+        assert.equal(score_targ(monster, priest, {
+            state,
+            monsterAt: () => null,
+            monsterCanSee: () => true,
+            random: {
+                rn2: (bound) => (draws.push(['rn2', bound]), 0),
+                rnd: (bound) => (draws.push(['rnd', bound]), 1),
+            },
+        }), -58, // Vampire level 10 plus rn2(6)=0 incurs the 100-point penalty.
+        );
+        assert.deepEqual(draws, [['rn2', 6], ['rnd', 5]]);
+    });
 
 test('best_target uses dy-major ray order and rejects negative scores', () => {
     const { monster, state } = activePetState();

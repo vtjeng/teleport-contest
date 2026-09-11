@@ -5,6 +5,7 @@
 // finish_meating(), quickmimic(), could_reach_item(), and can_reach_location().
 
 import {
+    A_NONE,
     ACCFOOD,
     ALLOW_M,
     ALLOW_MDISP,
@@ -114,6 +115,7 @@ import {
     PM_GELATINOUS_CUBE,
     S_MIMIC,
     S_DOG,
+    S_VAMPIRE,
     MZ_GIGANTIC,
     MZ_HUGE,
     MZ_LARGE,
@@ -1078,43 +1080,93 @@ export function find_friends(monster, target, maxDistance, rawEnv = {}) {
     return 0;
 }
 
-// C ref: dogmove.c score_targ(). Covers the ordinary, unconfused starting-pet
-// branch used by dog_move(); special faith and shapeshifter branches stay at
-// the fail-closed boundary.
+// C ref: dogmove.c score_targ() (738-837). Keep the source's conditional
+// order: a confused pet may skip the normal scoring block, and both the
+// shapeshifter level adjustment and final confusion penalty consume their own
+// random draws.
 export function score_targ(monster, target, rawEnv = {}) {
-    admitOrdinaryStartingPet(monster, rawEnv);
-    if (target.isminion || target.ispriest || target.isshk || target.isgd) {
-        targetingRefusal(rawEnv, 'an ordinary monster target');
-    }
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rnd };
     if (typeof random.rnd !== 'function')
         throw new TypeError('score_targ random injection requires rnd');
+    const drawRn2 = (bound) => {
+        if (typeof random.rn2 !== 'function')
+            throw new TypeError('score_targ random injection requires rn2');
+        return random.rn2(bound);
+    };
 
-    if (target.data?.msound === MS_LEADER
-        || target.data?.msound === MS_GUARDIAN) {
-        targetingRefusal(rawEnv, 'an ordinary monster target');
-    }
-    if (distmin(monster.mx, monster.my, target.mx, target.my) <= 1)
-        return -3000;
-    if (target.mtame || target === state.youmonst)
-        return -3000;
-    if (find_friends(monster, target, 15, rawEnv)) return -3000;
+    let score = 0;
+    if (!monster.mconf
+        || !drawRn2(3)
+        || on_level(state.u?.uz, state.qstart_level)) {
+        let monsterLevel;
+        let align1 = A_NONE;
+        let align2 = A_NONE;
+        let faith1 = true;
+        let faith2 = true;
 
-    let score = target.mpeaceful ? 0 : 10;
-    if (target.data?.mattk?.[0]?.aatyp === AT_NONE) score -= 1000;
-    const weakTarget = target.m_lev < 2 && monster.m_lev > 5;
-    const farOutclassed = monster.m_lev > 12
-        && target.m_lev < monster.m_lev - 9
-        && state.u.ulevel > 8
-        && target.m_lev < state.u.ulevel - 7;
-    if (weakTarget || farOutclassed) {
-        score -= 25;
+        if (monster.isminion) {
+            align1 = monster.mextra?.emin?.min_align ?? A_NONE;
+        } else if (monster.ispriest) {
+            align1 = monster.mextra?.epri?.shralign ?? A_NONE;
+        } else {
+            faith1 = false;
+        }
+        if (target.isminion) {
+            align2 = target.mextra?.emin?.min_align ?? A_NONE;
+        } else if (target.ispriest) {
+            align2 = target.mextra?.epri?.shralign ?? A_NONE;
+        } else {
+            faith2 = false;
+        }
+
+        // Quest leaders and guardians are never targeted, but the C function
+        // returns a score for them rather than refusing the target class.
+        if (target.data?.msound === MS_LEADER
+            || target.data?.msound === MS_GUARDIAN)
+            return -5000;
+        // Fixed angelic beings using gaze attacks avoid coaligned priests.
+        if (faith1 && faith2 && align1 === align2 && target.mpeaceful) {
+            score -= 5000;
+            return score;
+        }
+        if (distmin(monster.mx, monster.my, target.mx, target.my) <= 1) {
+            score -= 3000;
+            return score;
+        }
+        if (target.mtame || target === state.youmonst) {
+            score -= 3000;
+            return score;
+        }
+        if (find_friends(monster, target, 15, rawEnv)) {
+            score -= 3000;
+            return score;
+        }
+        if (!target.mpeaceful) score += 10;
+        if (target.data?.mattk?.[0]?.aatyp === AT_NONE) score -= 1000;
+        if ((target.m_lev < 2 && monster.m_lev > 5)
+            || (monster.m_lev > 12
+                && target.m_lev < monster.m_lev - 9
+                && state.u.ulevel > 8
+                && target.m_lev < state.u.ulevel - 7)) {
+            score -= 25;
+        }
+
+        monsterLevel = monster.m_lev;
+        if (is_vampshifter(monster) && monster.data?.mlet !== S_VAMPIRE) {
+            // is_vampshifter() guarantees cham names a monster in C's mons[].
+            monsterLevel = state.mons[monster.cham].mlevel;
+            monsterLevel += drawRn2(Math.trunc(monsterLevel / 2) + 1);
+            if (monster.m_lev > monsterLevel)
+                monsterLevel = monster.m_lev;
+        }
+        if (target.m_lev > monsterLevel + 4)
+            score -= (target.m_lev - monsterLevel) * 20;
+        score += target.m_lev * 2 + Math.trunc(target.mhp / 3);
     }
-    if (target.m_lev > monster.m_lev + 4)
-        score -= (target.m_lev - monster.m_lev) * 20;
-    score += target.m_lev * 2 + Math.trunc(target.mhp / 3);
     score += random.rnd(5);
+    if (monster.mconf && !drawRn2(3))
+        score -= 1000;
     return score;
 }
 

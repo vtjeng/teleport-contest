@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2026091013,
+      "datetime": "20260910120000",
+      "nethackrc": "OPTIONS=name:ScoreProbe,role:Healer,race:human,gender:female,align:neutral,pettype:dog\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ".....",
+      "comment": "An independently scanned seed in the 2026091000-2026091099 range leaves the starting little dog with a distant line target during five wait turns. The production dog_move() caller reaches pet_ranged_attk(FALSE), best_target(), score_targ(), and mattackm() in the same pet turn."
+    }
+  ]
+}
