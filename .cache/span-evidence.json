@@ -1,43 +1,55 @@
 {
   "functions": [
     {
-      "name": "Wiz-strt.lua",
-      "implementation": "js/quest_levels.js",
-      "symbol": "wizStrt",
-      "sourceReview": "Read the complete nethack-c/upstream/dat/Wiz-strt.lua program (lines 1-107), including solidfill initialization, mazelevel/noteleport/hardfloor flags, the 76-by-20 map, both source-ordered terrain replacement passes, all five lighting regions, the down stair, branch arrival terrain and region, eight doors, Neferet's custom cloak and quarterstaff inventory, chest, eight apprentices, three eels, the whole-map non-diggable selection, six random traps, and all fifteen hostile siege monsters. Compared every descriptor with the special-level API handlers in js/mklev.js and selection_area() in js/themerooms.js. Verified that Lua coordinates remain map-relative through the active des frame, that the map rows and backslash map character match the source exactly, and that descriptor, random-trap, monster-gender, and custom-inventory evaluation order is preserved. No unported callee, obsolete guard, injected substitute, or swallowed refusal remains in this program.",
+      "name": "m_move",
+      "implementation": "js/monmove.js",
+      "symbol": "m_move",
+      "sourceReview": "Read the complete selected monmove.c m_move() range (1715-2087), including mintrap and eating order, concealment and set_apparxy setup, tame and shopkeeper/guard/priest dispatch, covetous and mail branches, Tengu natural teleport, swallowed handling, approach and item search, candidate enumeration and tie-breaking, displacement/aggression, region and boulder gates, physical movement, and postmov ordering. The Tengu branch now consumes rn2(5) before tele_restrict(); a rejected teleport falls through to ordinary movement on no-teleport levels, while teleport-permitted relocation remains fail-closed at the production action boundary because its complete rloc()/mnexto() side effects are not yet connected. The selected ordinary movement and Tengu fall-through branches preserve C evaluation and PRNG order; worm movement, covetous tactics, isgd/ispriest special cases outside their admitted return paths, displacement, boulder breaking, and teleport-permitted relocation remain explicit source-named seams rather than invented behavior. The existing mhitu.c attack-call identifier correction is included because the independent production recording reaches mattacku() after m_move().",
       "callers": [
         {
-          "path": "js/mklev.js",
-          "symbol": "ensureSpecialLevelLoaders",
-          "source": "mkmaze.c makemaz() resolves the role-specific x-strt prototype to Wiz-strt; the JavaScript registry imports QUEST_LEVEL_LOADERS and merges its Wiz-strt entry before dispatch."
+          "path": "js/unported_monster_actions.js",
+          "symbol": "moveSimpleOrdinary",
+          "source": "monmove.c dochug() calls m_move(mtmp, FALSE) for the ordinary monster action; moveSimpleOrdinary() supplies the production operation environment and invokes js/monmove.js m_move()."
         },
         {
-          "path": "js/mklev.js",
-          "symbol": "makemaz",
-          "source": "mkmaze.c makemaz() calls load_special() for the resolved Wiz-strt prototype; the JavaScript makemaz() invokes load_special('Wiz-strt'), which creates the special-level API and runs wizStrt before finish()."
+          "path": "js/unported_monster_actions.js",
+          "symbol": "runSimpleMonsterAction",
+          "source": "monmove.c movemon_singlemon() reaches dochug() after its pre-action gates; runSimpleMonsterAction() is the production dochugw() adapter and passes moveSimpleOrdinary() as dochug()'s moveMonster operation."
         },
         {
-          "path": "js/mklev.js",
-          "symbol": "load_special",
-          "source": "sp_lev.c load_special() runs the registered Lua-equivalent program through createSpecialLevelApi() and applies special-level post-processing after the program returns."
+          "path": "js/allmain.js",
+          "symbol": "runElapsedTurnMonsterAction",
+          "source": "mon.c movemon_singlemon() schedules one monster turn through the elapsed-turn adapter; js/allmain.js wires runSimpleMonsterAction() into that scheduler, which reaches m_move() through the moveMonster operation."
         }
       ],
       "pure": false,
-      "tests": [],
+      "tests": [
+        "scripts/monmove.test.mjs",
+        "scripts/unported-monster-actions.test.mjs"
+      ],
       "recordings": [
-        "recordings/Wiz-strt.lua/wizard-start-level-teleport.session.json"
+        "recordings/monmove.c/tengu-noteleport-move.session.json"
       ]
     }
   ],
-  "entryPointReview": "The whole Wiz-strt.lua program is one special-level entry point. dungeon.c's level_map and fixup_level_locations() substitute the role-specific Wiz-strt prototype for x-strt; mkmaze.c makemaz() then calls sp_lev.c load_special(), represented by js/mklev.js makemaz(), load_special(), and ensureSpecialLevelLoaders(). The independent wizard-start-level-teleport recording reaches the production dispatch through the wizard level-teleport command and executes the complete level loader, matching the patched C reference for its full RNG log, screens, cursor positions, and animation frames.",
+  "entryPointReview": "The selected runnable entry points are ordinary not_special movement and the Tengu natural-teleport branch when tele_restrict() rejects on a no-teleport level; both run through the production dochugw()/dochug()/moveSimpleOrdinary() chain and are exercised by the independent Castle recipe and matching recording. Tengu teleport-permitted relocation is deliberately fail-closed because rloc()/mnexto() operation ownership is incomplete. The source range was traced for the remaining worm, covetous, guard/priest special, displacement, boulder, and other helper branches; their existing source-named seams remain for later source-owner spans and are not claimed by this entry-point evidence.",
   "entryPoints": [
     {
-      "name": "Wiz-strt special-level load",
+      "name": "ordinary monster movement",
       "functions": [
-        "Wiz-strt.lua"
+        "m_move"
       ],
       "recordings": [
-        "recordings/Wiz-strt.lua/wizard-start-level-teleport.session.json"
+        "recordings/monmove.c/tengu-noteleport-move.session.json"
+      ]
+    },
+    {
+      "name": "Tengu natural teleport rejected by a no-teleport level",
+      "functions": [
+        "m_move"
+      ],
+      "recordings": [
+        "recordings/monmove.c/tengu-noteleport-move.session.json"
       ]
     }
   ]

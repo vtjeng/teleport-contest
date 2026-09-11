@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 361,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:TenguProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "   n#levelchange\n20\n                   \u0017blessed +3 gray dragon scale mail\n\u0017blessed +3 speed boots\n\u0017blessed amulet of life saving\nTaW oPp Pq  \u0016?\ncyyyhhhbbs.\u0016?\nj.\u0007tengu\nh"
+    }
+  ],
+  "comment": "Wizard-mode level teleport to the Castle, whose no-teleport flag exercises monmove.c m_move()'s Tengu rn2(5) and tele_restrict() fall-through before ordinary movement. The seed, clock, character, and input sequence were chosen independently for this entry point."
+}

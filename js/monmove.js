@@ -133,6 +133,7 @@ import {
     ROOMOFFSET,
     ROOM,
     ROWNO,
+    RLOC_MSG,
     RUST_TRAP,
     SHOPBASE,
     SLP_GAS_TRAP,
@@ -310,6 +311,7 @@ import {
     PM_LEPRECHAUN,
     PM_STALKER,
     PM_STEAM_VORTEX,
+    PM_TENGU,
     PM_VROCK,
     PM_XORN,
     S_BAT,
@@ -413,7 +415,12 @@ import {
     floor_trigger,
     mintrap,
 } from './trap_effects.js';
-import { noteleport_level } from './teleport.js';
+import {
+    mnexto,
+    noteleport_level,
+    rloc,
+    tele_restrict,
+} from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
@@ -3270,7 +3277,8 @@ export async function postmov(
 // not_special path through postmov(), m_move_aggress() for monster-vs-monster
 // combat, leppie_avoidance(), m_balks_at_approaching(), and m_postmove_effect().
 // Not covered: the wormno branch, the is_covetous() tactics branch, the isgd
-// and ispriest dispatches, displacement, and boulder breaking.
+// and ispriest dispatches, displacement, boulder breaking, and relocation
+// after a teleport-permitted Tengu turn.
 // Those remain explicit seams until their source owners connect.
 export async function m_move(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
@@ -3394,6 +3402,58 @@ export async function m_move(monster, rawEnv = {}) {
                 xm !== 1 ? MMOVE_NOTHING : MMOVE_MOVED,
                 env,
             );
+        }
+    }
+
+    // C ref: monmove.c:1840-1849. Tengu evaluates its natural teleport roll
+    // before tele_restrict(), so a noteleport level still consumes rn2(5) and
+    // then falls through to ordinary movement when the restriction applies.
+    // Teleport-permitted relocation remains behind the action boundary until
+    // its rloc()/mnexto() effects have a complete production caller path.
+    if (monster.data?.pmidx === PM_TENGU) {
+        if (!random.rn2(5) && !monster.mcan) {
+            const restricted = rawEnv.teleRestrict
+                ? await rawEnv.teleRestrict(monster, env)
+                : env.planning
+                    ? noteleport_level(monster, state)
+                    : await tele_restrict(monster, state);
+            if (!restricted) {
+                const relocateRandom = rawEnv.rloc ?? ((subject, flags) =>
+                    rloc(subject, flags, {
+                        ...env,
+                        message: env.planning ? async () => {}
+                            : (rawEnv.message ?? ttyPline),
+                        newsym: rawEnv.redraw ?? newsym,
+                        onscary: rawEnv.onscary
+                            ?? ((x, y, target) => onscary(x, y, target, state)),
+                        setApparxy: rawEnv.setApparxy
+                            ?? ((target, operationEnv) =>
+                                set_apparxy(target, operationEnv)),
+                    }));
+                const relocateNextTo = rawEnv.mnexto ?? ((subject, flags) =>
+                    mnexto(subject, flags, {
+                        ...env,
+                        message: env.planning ? async () => {}
+                            : (rawEnv.message ?? ttyPline),
+                        newsym: rawEnv.redraw ?? newsym,
+                        onscary: rawEnv.onscary
+                            ?? ((x, y, target) => onscary(x, y, target, state)),
+                        setApparxy: rawEnv.setApparxy
+                            ?? ((target, operationEnv) =>
+                                set_apparxy(target, operationEnv)),
+                    }));
+                if (monster.mhp < 7 || monster.mpeaceful || random.rn2(2))
+                    await relocateRandom(monster, RLOC_MSG);
+                else
+                    await relocateNextTo(monster, RLOC_MSG);
+                return await postMonsterMove(
+                    monster,
+                    oldX,
+                    oldY,
+                    MMOVE_MOVED,
+                    env,
+                );
+            }
         }
     }
 

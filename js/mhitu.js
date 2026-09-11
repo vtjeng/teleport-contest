@@ -800,13 +800,13 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_BREA:
             if (range2)
-                sum[i] = await breamu(mtmp, mattk, env);
+                sum[i] = await breamu(monster, mattk, env);
             /* Note: breamu takes care of displacement */
             break;
 
         case M.AT_SPIT:
             if (range2)
-                sum[i] = await spitmu(mtmp, mattk, env);
+                sum[i] = await spitmu(monster, mattk, env);
             /* Note: spitmu takes care of displacement */
             break;
 

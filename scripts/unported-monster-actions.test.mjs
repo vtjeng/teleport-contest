@@ -4382,8 +4382,8 @@ test('a planned monster blow writes nothing to frozen live state',
     });
 
 // C ref: monmove.c dochug() processes every M1_TPORT monster through the
-// normal Phase Two path. The port narrows its species guard to PM_TENGU
-// (teleport-in-nature at monmove.c:1841-1849) and PM_LEPRECHAUN
+// normal Phase Two path. The port narrows its species guard to PM_TENGU on
+// teleport-permitted levels (teleport-in-nature at monmove.c:1841-1849) and PM_LEPRECHAUN
 // (leppie_avoidance at monmove.c:1874), whose species-specific code is not
 // yet ported. Genetic engineer, quantum mechanic, and nymphs have no
 // species-specific branch in the movement path and enter dochug() normally.
@@ -4409,7 +4409,8 @@ test('species guard admits M1_TPORT monsters without species-specific code',
 // C ref: monmove.c dochug():726-731. A sleeping leprechaun outside
 // couldsee() returns from disturb() before m_move() reaches leppie_avoidance(),
 // so this one branch needs no leprechaun-specific port. Awake leprechauns and
-// Tengu still reach unported species actions and remain fail-closed.
+// teleport-permitted Tengu still reach unported species actions and remain
+// fail-closed.
 test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
     const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
     target.monster.msleeping = true;
@@ -4740,6 +4741,26 @@ test('species guard still blocks Tengu and other leprechaun actions',
             }
         }
     });
+
+// C ref: monmove.c m_move():1840-1849 and teleport.c tele_restrict(). The
+// natural-teleport roll runs before tele_restrict(), which rejects a Tengu on
+// a no-teleport level and lets ordinary movement continue. The clone-only
+// preflight must run that path without changing the live game, screen, or
+// PRNG context.
+test('Tengu on a no-teleport level reaches ordinary movement', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_TENGU });
+    game.level.flags.noteleport = true;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const rngBefore = target.replay.getRngLog().length;
+    const screensBefore = target.replay.getScreens().length;
+
+    await preflightSimpleMonsterActions(game);
+
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.equal(target.replay.getRngLog().length, rngBefore);
+    assert.equal(target.replay.getScreens().length, screensBefore);
+    assert.equal(target.monster.movement, NORMAL_SPEED);
+});
 
 // C ref: monmove.c gelcube_digests():424-434. An empty cube, or one carrying
 // only inorganic material, returns -1 and continues through ordinary dochug();

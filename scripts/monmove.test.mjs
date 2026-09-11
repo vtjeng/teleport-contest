@@ -173,6 +173,7 @@ import {
     PM_QUEEN_BEE,
     PM_SALAMANDER,
     PM_SHRIEKER,
+    PM_TENGU,
     PM_VAMPIRE_LEADER,
     PM_VROCK,
     PM_WHITE_UNICORN,
@@ -2062,6 +2063,63 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
         assert.deepEqual(events, ['dog_move', 'postmov']);
     }
 });
+
+// C ref: monmove.c:1840-1849. The Tengu natural-teleport rn2(5) is
+// evaluated before tele_restrict(), so a no-teleport level consumes that draw
+// and then enters the ordinary movement path.
+test('m_move rejects a Tengu teleport after consuming its natural roll',
+    async () => {
+        const { locations, state } = makeState();
+        state.level.flags.noteleport = true;
+        const monster = ordinaryMonster(state, {
+            data: state.mons[PM_TENGU],
+            mnum: PM_TENGU,
+            mconf: true,
+            mx: 4,
+            my: 4,
+            mux: 10,
+            muy: 10,
+            mcan: false,
+            mhp: 5,
+            mhpmax: 5,
+        });
+        sealNeighborhood(locations, monster.mx, monster.my);
+        locations.set('5,4', { typ: ROOM, flags: 0 });
+        state.level.monsters[monster.mx][monster.my] = monster;
+
+        const randomCalls = [];
+        const events = [];
+        const result = await m_move(monster, {
+            state,
+            random: {
+                rn2(bound) {
+                    randomCalls.push(bound);
+                    return randomCalls.length === 1 ? 0 : 1;
+                },
+            },
+            teleRestrict(subject) {
+                assert.equal(subject, monster);
+                events.push('tele_restrict');
+                return true;
+            },
+            finishEating: () => {},
+            movePet: () => assert.fail('Tengu is not tame'),
+            resistsTrapEffect: () => false,
+            itemSearchInLine: () => false,
+            unsupported: (reason) => assert.fail(reason),
+            postMonsterMove(subject, oldX, oldY, status) {
+                assert.equal(subject, monster);
+                assert.deepEqual([oldX, oldY], [4, 4]);
+                events.push('postmov');
+                return status;
+            },
+        });
+
+        assert.equal(randomCalls[0], 5);
+        assert.deepEqual(events, ['tele_restrict', 'postmov']);
+        assert.equal(result, MMOVE_MOVED);
+        assert.deepEqual([monster.mx, monster.my], [5, 4]);
+    });
 
 test('m_move pins source candidate order and reservoir tie-breaking',
     async () => {

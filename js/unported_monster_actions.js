@@ -171,6 +171,7 @@ import {
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
+import { noteleport_level } from './teleport.js';
 import { ttyPline, ttyPlineWillWait } from './tty_message.js';
 import { passive_obj } from './uhitm.js';
 import {
@@ -407,7 +408,11 @@ function assertSimpleActionState(monster, state) {
     const digestibleGelatinousCube =
         monster.data?.pmidx === PM_GELATINOUS_CUBE
         && gelcubeHasDigestibleObject(monster, state);
-    if (monster.data?.pmidx === PM_TENGU
+    // monmove.c m_move() consumes Tengu's natural-teleport roll before
+    // tele_restrict() rejects it on a no-teleport level. A permitted level
+    // reaches rloc()/mnexto(), whose complete action path remains gated.
+    if ((monster.data?.pmidx === PM_TENGU
+        && !noteleport_level(monster, state))
         || (monster.data?.pmidx === PM_LEPRECHAUN
             && !sleepingOutOfSightLeprechaun)
         || monster.data?.pmidx === PM_KILLER_BEE
