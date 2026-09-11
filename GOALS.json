@@ -23050,6 +23050,58 @@
           "remainingScreensUpperBound": 527
         }
       ]
+    },
+    {
+      "id": "port-tower3-special-level",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the tower3 special-level Lua program and wire its level loader",
+      "luaFile": "tower3.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked development mismatch is seed0360-wizard-world-tour at global step 274: makelevel() refuses because SPECIAL_LEVEL_LOADERS has no loader for special level tower3. Source tracing assigns the missing behavior to the whole nethack-c/upstream/dat/tower3.lua program; existing special-level API handlers cover its des.* calls, so select the Lua port and QUEST_LEVEL_LOADERS wiring.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "0909dc805482c10fd668a348581d8e7c3859e2f9",
+      "openStanding": {
+        "sha": "45f160db6ac1c2cb0d88f0ae84b004f7adc72fd4",
+        "screens": 6273,
+        "rng": 436668
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tower3.lua",
+          "line": 1,
+          "endLine": 50,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "45f160db6ac1c2cb0d88f0ae84b004f7adc72fd4",
+        "screens": 6273,
+        "rng": 436668
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 274,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "tower3.lua",
+          "cFile": null,
+          "luaFile": "tower3.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"tower3\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 559
+        }
+      ]
     }
   ]
 }
