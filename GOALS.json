@@ -24380,7 +24380,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0360-wizard-world-tour at global step 330, where makelevel() requests special level wizard1 and no registered loader exists. The complete dat/wizard1.lua program defines the centered Wizard's Tower map, level regions, room and door callbacks, terrain protections, monsters, traps, objects, and hell_tweaks; the existing special-level API and hellTweaks implementation cover its callees, so select the whole Lua program and loader wiring.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "wizard1.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "wizard1.lua"
+          ]
+        }
+      ],
       "openedAt": "d6a729ba3d247e75a29727c3b4d661f6884b5734",
       "openStanding": {
         "sha": "f283de340b869b5da4a112475e8c5fa4d9b62dda",
