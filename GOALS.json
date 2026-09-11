@@ -26571,6 +26571,71 @@
         "screens": 6859,
         "rng": 504067
       }
+    },
+    {
+      "id": "port-display-flush-screen-cursor",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port display.c flush_screen() cursor mode preservation",
+      "cFile": "display.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked unresolved development mismatch is seed0360-wizard-world-tour at global step 530, a cursor-only boundary after the already fixed pager cloud path. Source tracing identifies an intentional gap in the unverified display.c flush_screen() implementation, so select this narrow file-port.",
+      "detail": "Fresh development replay at commit 1a6e0f09: seed0360-wizard-world-tour segment 0 step/index 530, key >, prior step 529 matches; C cursor [2,9,1], JS cursor [2,5,1], cells and RNG both match. moves[528] is _, entering cmd.c dotravel() with cached destination (3,8); getpos.c getpos() handles > at lines 1114-1116, prints Can't find dungeon feature '>.', then calls curs(WIN_MAP,cx,cy) and flush_screen(0) at lines 1143-1149. C display.c flush_screen() moves to hero only when cursor_on_u is true (2262-2263), preserving the getpos cursor for mode 0. JS getpos.js follows the same order, but its flush_screen() ignores mode except -1 and _buildScreenOutput() always sets the hero cursor. Port display.c flush_screen() through its full definition and preserve the existing terminal cursor for flush_screen(0), without changing matching screen cells/RNG. Later step 543 test_move() terrain movement remains separate.",
+      "spans": [
+        {
+          "name": "flush_screen",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "flush_screen"
+          ]
+        }
+      ],
+      "openedAt": "1a6e0f09d71fc5af15df3f76dcbad8ba2fe7c63c",
+      "openStanding": {
+        "sha": "1a6e0f09d71fc5af15df3f76dcbad8ba2fe7c63c",
+        "screens": 6859,
+        "rng": 504067
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "flush_screen",
+          "line": 2208,
+          "endLine": 2286,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2208,
+        "to": 2286
+      },
+      "activeStanding": {
+        "sha": "1a6e0f09d71fc5af15df3f76dcbad8ba2fe7c63c",
+        "screens": 6859,
+        "rng": 504067
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 530,
+          "kind": "cursor",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 303
+        }
+      ]
     }
   ]
 }
