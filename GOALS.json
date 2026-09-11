@@ -26708,6 +26708,62 @@
         "screens": 6861,
         "rng": 504067
       }
+    },
+    {
+      "id": "div-steal-worn-item-removal-seed0014",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix steal.c worn_item_removal message ordering and await its steal callers",
+      "cFile": "steal.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "The refreshed mismatch queue still ranks seed0014-dequa-fountain-explore first at step 416 with at most 298 remaining screens. The read-only source investigation confirms an existing steal.c path defect: JavaScript worn_item_removal() does not await message(), unlike the C ordering, so select this narrow divergence fix before the lower-ranked hack.c test_move() candidate.",
+      "detail": "Development session seed0014-dequa-fountain-explore, global step 416, screen mismatch after matching step 415. At step 415 input c removes the shield; the water nymph then selects the black onyx ring with rn2(21)=12. C step 416 prints The water nymph removes your black onyx ring (from right hand).--More-- with cursor [71,0,1], then step 417 prints She stole a black onyx ring. The water nymph vanishes!. JavaScript leaves the shield message on step 416 and shows the ring-removal message one step late; RNG and later rloc calls remain aligned. Upstream nethack-c/upstream/src/steal.c worn_item_removal() orders the removal message before state continuation. JavaScript js/steal.js worn_item_removal() calls asynchronous message() without await at line 317, and steal() callers at lines 492 and 524 also call it without await. Fix the existing source path by making worn_item_removal async, awaiting message() inside it, and awaiting both callers. Suspected owner is js/steal.js; no files were edited during investigation.",
+      "spans": [
+        {
+          "name": "worn-item-removal-message-order",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "worn_item_removal",
+            "steal"
+          ]
+        }
+      ],
+      "openedAt": "506990954e821f8f3c6fc3f1bbfb799480ed703d",
+      "openStanding": {
+        "sha": "a94d27b293e532bb0feb30adacfbac97aa5eb0aa",
+        "screens": 6861,
+        "rng": 504067
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "worn_item_removal",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 416,
+      "activeStanding": {
+        "sha": "a94d27b293e532bb0feb30adacfbac97aa5eb0aa",
+        "screens": 6861,
+        "rng": 504067
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 416,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 298
+        }
+      ]
     }
   ]
 }
