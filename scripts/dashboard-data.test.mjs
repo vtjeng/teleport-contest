@@ -277,11 +277,11 @@ test('source ports deduplicate overlapping C units and include whole Lua program
     const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
     // Three distinct C units, two verified, across two goals; summing the
     // goals' unit counts would incorrectly report four units.
-    assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '0', '1', '2 / 3']);
-    assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['0', '0', '1', '1 / 1']);
-    assert.deepEqual(sourceFileRows(table).get('options.c'), ['0', '1', '0', '0 / 1']);
-    assert.match(table, /<summary>Verified<\/summary>/u);
-    assert.match(table, /C rows count functions; Lua rows count whole programs/u);
+    assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '0', '1', '2', '3']);
+    assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['0', '0', '1', '1', '1']);
+    assert.deepEqual(sourceFileRows(table).get('options.c'), ['0', '1', '0', '0', '1']);
+    assert.match(table, /<summary>Verification<\/summary>/u);
+    assert.match(table, /Listed counts distinct C functions or whole Lua programs/u);
 });
 
 test('current work and source rows include fixes, parked goals, and unknown sources', () => {
@@ -312,9 +312,9 @@ test('current work and source rows include fixes, parked goals, and unknown sour
     assert.match(rendered.get('pausedWork').innerHTML, /Source pending/u);
     const table = rendered.get('sourceWorkTable').innerHTML;
     assert.match(table, /class="in-progress"><td>fountain\.c<\/td>/u);
-    assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1', '1 / 1']);
+    assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1', '1', '1']);
     assert.match(table, /class="in-progress"><td>dog\.c<\/td>/u);
-    assert.deepEqual(sourceFileRows(table).get('dog.c'), ['1', '0', '0', '—']);
+    assert.deepEqual(sourceFileRows(table).get('dog.c'), ['1', '0', '0', '0', '0']);
     assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
 });
 
@@ -330,7 +330,7 @@ test('current work explains an idle snapshot and an empty goal register', () => 
         assert.equal(rendered.get('pausedWork').innerHTML, '');
         if (work.length) {
             assert.deepEqual(sourceFileRows(rendered.get('sourceWorkTable').innerHTML).get('dog.c'),
-                ['0', '0', '1', '0', '—']); // Only the queued column counts this goal.
+                ['0', '0', '1', '0', '0', '0']); // Only the queued column counts this goal.
             assert.match(rendered.get('sourceWorkLegend').innerHTML, /Queued/u);
         }
     }
@@ -539,8 +539,8 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     // Alpha's historical declaration has no completion evidence. Its one
     // goal is closed, but neither of its two units counts as verified.
     const sourceWorkTable = rendered.get('sourceWorkTable').innerHTML;
-    assert.deepEqual(sourceFileRows(sourceWorkTable).get('alpha.c'), ['0', '0', '1', '0 / 2']);
-    assert.deepEqual(sourceFileRows(sourceWorkTable).get('beta.c'), ['1', '0', '0', '0 / 1']);
+    assert.deepEqual(sourceFileRows(sourceWorkTable).get('alpha.c'), ['0', '0', '1', '0', '2']);
+    assert.deepEqual(sourceFileRows(sourceWorkTable).get('beta.c'), ['1', '0', '0', '0', '1']);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);

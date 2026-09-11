@@ -27,6 +27,7 @@
   --goal-divergence: #9b2f8f;
   --goal-boundary: #e0762a;
   --goal-in-progress: #1baf7a;
+  --goal-paused: #c99000;
 
   /* The progress chart plots measures, so its screens line is ink and both
      rates share one grey and differ by dash, so no series wears a colour
@@ -56,6 +57,7 @@
     --goal-divergence: #b451a8;
     --goal-boundary: #d97025;
     --goal-in-progress: #199e70;
+    --goal-paused: #d4a012;
 
     --progress-fill: #e6e4df;
     --progress-area: rgba(230,228,223,0.08);
@@ -81,6 +83,7 @@
   --goal-divergence: #b451a8;
   --goal-boundary: #d97025;
   --goal-in-progress: #199e70;
+  --goal-paused: #d4a012;
 
   --progress-fill: #e6e4df;
   --progress-area: rgba(230,228,223,0.08);
@@ -183,7 +186,7 @@ h1 {
 
 /* Work status uses the existing green rail plus a written label. */
 .work-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 24px; }
-.work-heading .section-title { margin-bottom: 8px; }
+.work-heading .section-title { font-size: 16px; margin-bottom: 12px; }
 .work-meta { color: var(--ink-secondary); font-size: 13px; }
 .work-heading .work-meta { margin-left: auto; }
 .active-work { border-left: 3px solid var(--goal-in-progress); padding: 4px 20px; margin-bottom: 20px; }
@@ -196,26 +199,29 @@ summary { cursor: pointer; }
 .diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
 summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
 .paused-work { border-top: 1px solid var(--border); padding-top: 16px; }
-.paused-work > summary { font-weight: 500; }
-.paused-goal { margin-top: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-.paused-goal .work-title { font-size: 14px; }
-.pause-reason { margin-top: 8px; color: var(--ink-secondary); overflow-wrap: anywhere; }
+.paused-work > summary { font-size: 13px; font-weight: 500; }
+.paused-goal { margin-top: 18px; padding: 2px 0 2px 14px; border-left: 2px solid var(--goal-paused); }
+.paused-goal .work-title { font-size: 13px; font-weight: 500; line-height: 1.45; }
+.paused-goal .work-meta { font-size: 12px; }
+.pause-reason { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
 #sourceWorkTable th, #sourceWorkTable td { padding: 6px clamp(4px, 1vw, 10px); }
 #sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
 #sourceWorkTable .zero { color: var(--ink-secondary); }
 .goal-symbol { display: inline-block; width: 1em; text-align: center; }
 .goal-symbol.active { color: var(--goal-in-progress); }
-.goal-symbol.paused { color: var(--phase-verif); }
+.goal-symbol.paused { color: var(--goal-paused); }
 .verification-help { position: relative; }
 .verification-help summary { list-style: none; white-space: nowrap; }
 .verification-help summary::-webkit-details-marker { display: none; }
-.verification-help summary::after { content: ' ⓘ'; }
+.verification-help summary::after { content: '?'; display: inline-grid; place-items: center;
+  width: 12px; height: 12px; margin-left: 4px; border: 1px solid currentColor; border-radius: 50%;
+  font: 600 10px/1 'Inter', sans-serif; vertical-align: middle; }
 .verification-help p { position: absolute; right: 0; top: calc(100% + 8px); z-index: 3;
   width: min(280px, calc(100vw - 64px)); padding: 12px; border: 1px solid var(--baseline);
   border-radius: 4px; background: var(--surface-card); color: var(--ink-primary);
   font: 12px/1.5 'Inter', system-ui, sans-serif; text-align: left; text-transform: none;
   letter-spacing: normal; box-shadow: 0 4px 12px var(--border); }
-#sourceWorkTable th:last-child { z-index: 3; }
+#sourceWorkTable .verification-heading { z-index: 4; border-bottom: 0; padding-bottom: 0; }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -945,25 +951,26 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     || a.sourceFile.localeCompare(b.sourceFile));
   const states = [
     { key: 'active', label: 'In progress', symbol: '▶' },
-    { key: 'paused', label: 'Paused', symbol: 'Ⅱ' },
+    { key: 'paused', label: 'Paused', symbol: '⏸️' },
     { key: 'queued', label: 'Queued', symbol: '◇' },
     { key: 'goalsClosed', label: 'Closed', symbol: '✓' },
   ].filter(state => state.key !== 'queued' || sorted.some(file => file.queued));
   const symbol = state => '<span class="goal-symbol ' + state.key + '" aria-hidden="true">' + state.symbol + '</span>';
   document.getElementById('sourceWorkLegend').innerHTML = states.map(state =>
     '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
-  let html = '<thead><tr><th scope="col">Source file</th>'
-    + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
+  let html = '<thead><tr><th scope="col" rowspan="2">Source file</th>'
+    + states.map(state => '<th scope="col" rowspan="2" aria-label="' + state.label + '" title="' + state.label + '">'
       + symbol(state) + '</th>').join('')
-    + '<th scope="col"><details class="verification-help"><summary>Verified</summary>'
-    + '<p>Verified / listed. C rows count functions; Lua rows count whole programs. Verified entries have source review, caller checks, and validation evidence. — = 0 listed.</p>'
-    + '</details></th></tr></thead><tbody>';
+    + '<th scope="colgroup" colspan="2" class="verification-heading"><details class="verification-help"><summary>Verification</summary>'
+    + '<p>Listed counts distinct C functions or whole Lua programs named for verification in this file’s goals. Bug-fix goals with an empty verification list add 0. Verified entries have source review, caller checks, and validation evidence.</p>'
+    + '</details></th></tr><tr><th scope="col">Verified</th><th scope="col">Listed</th></tr></thead><tbody>';
   sorted.forEach(file => {
     const verified = [...file.units.values()].filter(Boolean).length;
     html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
       + '<td>' + esc(file.sourceFile) + '</td>'
       + states.map(state => '<td' + (file[state.key] ? '' : ' class="zero"') + '>' + file[state.key] + '</td>').join('')
-      + '<td>' + (file.units.size ? verified + ' / ' + file.units.size : '—') + '</td></tr>';
+      + '<td' + (verified ? '' : ' class="zero"') + '>' + verified + '</td>'
+      + '<td' + (file.units.size ? '' : ' class="zero"') + '>' + file.units.size + '</td></tr>';
   });
   table.innerHTML = html + '</tbody>';
 })();
