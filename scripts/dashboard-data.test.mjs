@@ -247,6 +247,13 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     assert.doesNotMatch(table, /unavailable|unknown/u);
 });
 
+function sourceFileRows(table) {
+    return new Map([...table.matchAll(/<tr\b[^>]*>(.*?)<\/tr>/gsu)].map(([, row]) => {
+        const cells = [...row.matchAll(/<td\b[^>]*>(.*?)<\/td>/gsu)].map(([, cell]) => cell);
+        return [cells[0], cells.slice(1)];
+    }).filter(([file]) => file !== undefined));
+}
+
 test('source ports deduplicate overlapping C units and include whole Lua programs', () => {
     // The two C goals overlap on test_move. Its older verified evidence must
     // remain counted when the later goal lists it without new verification.
@@ -270,10 +277,11 @@ test('source ports deduplicate overlapping C units and include whole Lua program
     const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
     // Three distinct C units, two verified, across two goals; summing the
     // goals' unit counts would incorrectly report four units.
-    assert.match(table, /hack\.c<\/td><td>1 in progress · 1 closed<\/td><td>2 of 3 functions<\/td>/u);
-    assert.match(table, /Arc-loca\.lua<\/td><td>1 closed<\/td><td>1 of 1 program<\/td>/u);
-    assert.match(table, /<tr><td>options\.c<\/td><td>1 paused<\/td><td>0 of 1 function<\/td>/u);
-    assert.match(table, /<th>Verified<\/th>/u);
+    assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '0', '1', '2 / 3']);
+    assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['0', '0', '1', '1 / 1']);
+    assert.deepEqual(sourceFileRows(table).get('options.c'), ['0', '1', '0', '0 / 1']);
+    assert.match(table, /<summary>Verified<\/summary>/u);
+    assert.match(table, /C rows count functions; Lua rows count whole programs/u);
 });
 
 test('current work and source rows include fixes, parked goals, and unknown sources', () => {
@@ -303,8 +311,10 @@ test('current work and source rows include fixes, parked goals, and unknown sour
     assert.match(rendered.get('pausedWork').innerHTML, /Waiting for &lt;caller&gt;/u);
     assert.match(rendered.get('pausedWork').innerHTML, /Source pending/u);
     const table = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(table, /class="in-progress"><td>fountain\.c<\/td><td>1 in progress · 1 paused · 1 closed<\/td><td>1 of 1 function/u);
-    assert.match(table, /class="in-progress"><td>dog\.c<\/td><td>1 in progress<\/td><td>Unlisted<\/td>/u);
+    assert.match(table, /class="in-progress"><td>fountain\.c<\/td>/u);
+    assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1', '1 / 1']);
+    assert.match(table, /class="in-progress"><td>dog\.c<\/td>/u);
+    assert.deepEqual(sourceFileRows(table).get('dog.c'), ['1', '0', '0', '—']);
     assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
 });
 
@@ -318,6 +328,11 @@ test('current work explains an idle snapshot and an empty goal register', () => 
         assert.match(rendered.get('currentWork').innerHTML, /0 goals in progress/u);
         assert.equal(rendered.get('workSummary').textContent, '0 in progress · 0 paused');
         assert.equal(rendered.get('pausedWork').innerHTML, '');
+        if (work.length) {
+            assert.deepEqual(sourceFileRows(rendered.get('sourceWorkTable').innerHTML).get('dog.c'),
+                ['0', '0', '1', '0', '—']); // Only the queued column counts this goal.
+            assert.match(rendered.get('sourceWorkLegend').innerHTML, /Queued/u);
+        }
     }
 });
 
@@ -524,8 +539,8 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     // Alpha's historical declaration has no completion evidence. Its one
     // goal is closed, but neither of its two units counts as verified.
     const sourceWorkTable = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(sourceWorkTable, /alpha\.c<\/td><td>1 closed<\/td><td>0 of 2 functions</u);
-    assert.match(sourceWorkTable, /beta\.c<\/td><td>1 in progress<\/td><td>0 of 1 function</u);
+    assert.deepEqual(sourceFileRows(sourceWorkTable).get('alpha.c'), ['0', '0', '1', '0 / 2']);
+    assert.deepEqual(sourceFileRows(sourceWorkTable).get('beta.c'), ['1', '0', '0', '0 / 1']);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);

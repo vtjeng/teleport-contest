@@ -194,16 +194,29 @@ h1 {
 .goal-details p { margin-top: 8px; overflow-wrap: anywhere; }
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
-.diagnostics > summary { font-weight: 600; margin-bottom: 20px; }
+.diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
 summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
 .paused-work { border-top: 1px solid var(--border); padding-top: 16px; }
 .paused-work > summary { font-weight: 500; }
 .paused-goal { margin-top: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .paused-goal .work-title { font-size: 14px; }
 .pause-reason { margin-top: 8px; color: var(--ink-secondary); overflow-wrap: anywhere; }
-#sourceWorkTable td:nth-child(2), #sourceWorkTable th:nth-child(2) { text-align: left; }
+#sourceWorkTable th, #sourceWorkTable td { padding: 6px clamp(4px, 1vw, 10px); }
 #sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
-#sourceWorkTable td:nth-child(2), #sourceWorkTable td:last-child { white-space: normal; }
+#sourceWorkTable .zero { color: var(--ink-secondary); }
+.goal-symbol { display: inline-block; width: 1em; text-align: center; }
+.goal-symbol.active { color: var(--goal-in-progress); }
+.goal-symbol.paused { color: var(--phase-verif); }
+.verification-help { position: relative; }
+.verification-help summary { list-style: none; white-space: nowrap; }
+.verification-help summary::-webkit-details-marker { display: none; }
+.verification-help summary::after { content: ' ⓘ'; }
+.verification-help p { position: absolute; right: 0; top: calc(100% + 8px); z-index: 3;
+  width: min(280px, calc(100vw - 64px)); padding: 12px; border: 1px solid var(--baseline);
+  border-radius: 4px; background: var(--surface-card); color: var(--ink-primary);
+  font: 12px/1.5 'Inter', system-ui, sans-serif; text-align: left; text-transform: none;
+  letter-spacing: normal; box-shadow: 0 4px 12px var(--border); }
+#sourceWorkTable th:last-child { z-index: 3; }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -744,7 +757,7 @@ canvas {
 
 <section class="section" aria-labelledby="sourceWorkTitle">
   <h2 class="section-title" id="sourceWorkTitle">Work by source file</h2>
-  <p class="subtitle">Counts cover functions and Lua programs listed in goals. Verification requires source review, caller checks, and validation evidence.</p>
+  <div class="legend" id="sourceWorkLegend"></div>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="sourceWorkTable"></table>
@@ -752,10 +765,10 @@ canvas {
   </div>
 </section>
 
-<details class="diagnostics">
-  <summary>Diagnostics and goal history</summary>
+<section class="diagnostics">
+  <h2 class="section-title">Diagnostics and history</h2>
 <div class="section">
-  <h2 class="section-title">Mismatch queue</h2>
+  <h3 class="section-title">Mismatch queue</h3>
   <p class="subtitle">First mismatch per session, in priority order. A fix can recover at most the listed screens.</p>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
@@ -765,7 +778,7 @@ canvas {
 </div>
 
 <div class="section">
-  <h2 class="section-title">Goal timeline</h2>
+  <h3 class="section-title">Goal timeline</h3>
   <p class="subtitle">Goal intervals from commits and score records. Pale bars have estimated start times.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
@@ -775,7 +788,7 @@ canvas {
 </div>
 
 <div class="section">
-  <h2 class="section-title">Goal history</h2>
+  <h3 class="section-title">Goal history</h3>
   <p class="subtitle" id="tableSubtitle"></p>
   <div class="legend" id="tableLegend"></div>
   <div class="chart-wrap">
@@ -785,7 +798,7 @@ canvas {
   </div>
 </div>
 
-</details>
+</section>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -922,6 +935,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       Boolean(file.units.get(unit.name) || unit.verified)));
   });
   const table = document.getElementById('sourceWorkTable');
+  document.getElementById('sourceWorkLegend').innerHTML = '';
   if (files.size === 0) {
     table.outerHTML = '<p class="table-note">0 source files recorded.</p>';
     return;
@@ -930,19 +944,27 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const priority = file => file.active ? 0 : file.paused ? 1 : file.queued ? 2 : 3;
   const sorted = [...files.values()].sort((a, b) => priority(a) - priority(b)
     || a.sourceFile.localeCompare(b.sourceFile));
-  let html = '<thead><tr><th>Source file</th><th>Goal status</th><th>Verified</th></tr></thead><tbody>';
+  const states = [
+    { key: 'active', label: 'In progress', symbol: '▶' },
+    { key: 'paused', label: 'Paused', symbol: 'Ⅱ' },
+    { key: 'queued', label: 'Queued', symbol: '◇' },
+    { key: 'goalsClosed', label: 'Closed', symbol: '✓' },
+  ].filter(state => state.key !== 'queued' || sorted.some(file => file.queued));
+  const symbol = state => '<span class="goal-symbol ' + state.key + '" aria-hidden="true">' + state.symbol + '</span>';
+  document.getElementById('sourceWorkLegend').innerHTML = states.map(state =>
+    '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
+  let html = '<thead><tr><th scope="col">Source file</th>'
+    + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
+      + symbol(state) + '</th>').join('')
+    + '<th scope="col"><details class="verification-help"><summary>Verified</summary>'
+    + '<p>Verified / listed. C rows count functions; Lua rows count whole programs. Verified entries have source review, caller checks, and validation evidence. — = 0 listed.</p>'
+    + '</details></th></tr></thead><tbody>';
   sorted.forEach(file => {
-    const status = [file.active ? file.active + ' in progress' : '',
-      file.paused ? file.paused + ' paused' : '', file.queued ? file.queued + ' queued' : '',
-      file.goalsClosed ? file.goalsClosed + ' closed' : ''].filter(Boolean).join(' · ');
     const verified = [...file.units.values()].filter(Boolean).length;
-    const unit = file.sourceFile.endsWith('.lua') ? 'program' : 'function';
-    const verification = file.units.size
-      ? verified + ' of ' + file.units.size + ' ' + unit + (file.units.size === 1 ? '' : 's')
-      : 'Unlisted';
     html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
-      + '<td>' + esc(file.sourceFile) + '</td><td>' + status + '</td>'
-      + '<td>' + verification + '</td></tr>';
+      + '<td>' + esc(file.sourceFile) + '</td>'
+      + states.map(state => '<td' + (file[state.key] ? '' : ' class="zero"') + '>' + file[state.key] + '</td>').join('')
+      + '<td>' + (file.units.size ? verified + ' / ' + file.units.size : '—') + '</td></tr>';
   });
   table.innerHTML = html + '</tbody>';
 })();
