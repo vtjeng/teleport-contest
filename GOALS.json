@@ -24622,7 +24622,22 @@
       ],
       "selectionReason": "The highest-ranked current source candidate is mon.c:mfndpos(), reached by seed0360 step 335 and seed0383 step 203. Fresh replay traces piranha moat movement and earth-elemental passwall movement to the existing JS mfndpos admission seam, which rejects these source-valid destinations. Port the contiguous mon.c helper family from monlineu through mm_displacement so mfndpos() and its same-file eligibility/aggression helpers are source-complete and wired together.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "monlineu..mm_displacement",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "monlineu",
+            "mon_allowflags",
+            "m_in_air",
+            "mfndpos",
+            "mm_2way_aggression",
+            "mm_aggression",
+            "mm_displacement"
+          ]
+        }
+      ],
       "openedAt": "c25b181128f99fd7bedb27a8b48b2b7cffed0684",
       "openStanding": {
         "sha": "b6d0a83fd25bf9448dc6d45c90ab485ad99989ee",
