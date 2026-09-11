@@ -116,6 +116,7 @@ import {
     TEST_TRAV,
     TEST_TRAP,
     TEST_MOVE,
+    TRAVP_GUESS,
     TRAVP_TRAVEL,
     TRAVP_VALID,
     TIMER_OBJECT,
@@ -152,6 +153,7 @@ import {
     u_at,
     xdir,
     ydir,
+    dirs_ord,
     UNCHANGING,
 } from './const.js';
 import { float_vs_flight, rehumanize } from './polyself.js';
@@ -207,7 +209,15 @@ import {
 } from './dungeon.js';
 import { gethungry } from './eat.js';
 import { done } from './end.js';
-import { dist2, highc, ing_suffix, upstart, visctrl } from './hacklib.js';
+import {
+    dist2,
+    distmin,
+    highc,
+    ing_suffix,
+    sgn,
+    upstart,
+    visctrl,
+} from './hacklib.js';
 import {
     can_reach_floor,
     engr_at,
@@ -2813,15 +2823,14 @@ function travelSquareVisible(x, y, state) {
         || (!heroIsBlind(state) && couldsee(x, y, state)));
 }
 
-    // C ref: hack.c findtravelpath() (1266-1459). TRAVP_TRAVEL grows a
-    // shortest path backwards from the selected destination; TRAVP_VALID
-    // reverses the endpoints while checking a proposed destination.
-// Its frontier order is source-defined: cardinal directions first in W, N,
-// E, S order, then NW, NE, SE, SW. That order is observable when two paths
-// have the same length, so it is kept explicitly instead of relying on a
-// generic path-finding helper.
+// C ref: hack.c findtravelpath() (1266-1523). TRAVP_TRAVEL grows a shortest
+// path backwards from the selected destination; TRAVP_VALID reverses the
+// endpoints while checking a proposed destination; and TRAVP_GUESS first
+// chooses a visible reachable point before restarting in TRAVP_TRAVEL.
 export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
-    if (mode !== TRAVP_TRAVEL && mode !== TRAVP_VALID) {
+    if (mode !== TRAVP_TRAVEL
+        && mode !== TRAVP_GUESS
+        && mode !== TRAVP_VALID) {
         throw new UnsupportedHeroMoveBoundaryError(
             'non-ordinary travel path selection',
         );
@@ -2860,119 +2869,232 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
     if (state.u.tx === state.u.ux && state.u.ty === state.u.uy)
         return false;
 
-    const validTarget = mode === TRAVP_VALID;
-    const startX = validTarget ? state.u.ux : state.u.tx;
-    const startY = validTarget ? state.u.uy : state.u.ty;
-    const goalX = validTarget ? state.u.tx : state.u.ux;
-    const goalY = validTarget ? state.u.ty : state.u.uy;
     const travel = new Uint16Array(COLNO * ROWNO);
     const travelStepX = [[], []];
     const travelStepY = [[], []];
-    const directionOrder = [0, 2, 4, 6, 1, 3, 5, 7];
-    let n = 1;
-    let set = 0;
-    let radius = 1;
-    travelStepX[0][0] = startX;
-    travelStepY[0][0] = startY;
+    let tx;
+    let ty;
+    let ux;
+    let uy;
+    let n;
+    let set;
+    let radius;
+    let endpointsInitialized = false;
 
-    while (n !== 0) {
-        let nn = 0;
-        const currentX = travelStepX[set];
-        const currentY = travelStepY[set];
-        const nextX = travelStepX[1 - set];
-        const nextY = travelStepY[1 - set];
-        nextX.length = 0;
-        nextY.length = 0;
+    // C's noguess label restarts this same search after TRAVP_GUESS picks a
+    // visible intermediate target. A loop preserves that restart without
+    // duplicating the source traversal and its evaluation order.
+    for (;;) {
+        const validTarget = mode === TRAVP_VALID;
+        if (!endpointsInitialized) {
+            if (mode === TRAVP_GUESS || validTarget) {
+                tx = state.u.ux;
+                ty = state.u.uy;
+                ux = state.u.tx;
+                uy = state.u.ty;
+            } else {
+                tx = state.u.tx;
+                ty = state.u.ty;
+                ux = state.u.ux;
+                uy = state.u.uy;
+            }
+            endpointsInitialized = true;
+        }
 
-        for (let i = 0; i < n; ++i) {
-            const x = currentX[i];
-            const y = currentY[i];
-            const dirmax = NODIAG(state.u.umonnum) ? 4 : N_DIRS;
-            let alreadyRepeated = false;
+        travel.fill(0);
+        travelStepX[0].length = 0;
+        travelStepY[0].length = 0;
+        travelStepX[1].length = 0;
+        travelStepY[1].length = 0;
+        travelStepX[0][0] = tx;
+        travelStepY[0][0] = ty;
+        n = 1;
+        set = 0;
+        radius = 1;
 
-            for (let dir = 0; dir < dirmax; ++dir) {
-                const direction = directionOrder[dir];
-                const nx = x + xdir[direction];
-                const ny = y + ydir[direction];
-                if (!isok(nx, ny)) continue;
+        while (n !== 0) {
+            let nn = 0;
+            const currentX = travelStepX[set];
+            const currentY = travelStepY[set];
+            const nextX = travelStepX[1 - set];
+            const nextY = travelStepY[1 - set];
+            nextX.length = 0;
+            nextY.length = 0;
 
-                const delayed = Boolean(
-                    (!propertyPresent(state, PASSES_WALLS)
-                        && !amorphous(state.youmonst?.data)
-                        && closed_door(x, y, state))
-                    || (sobj_at(BOULDER, x, y, state)
-                        && !could_move_onto_boulder(x, y, 0, 0, state))
-                    || await test_move(
+            for (let i = 0; i < n; ++i) {
+                const x = currentX[i];
+                const y = currentY[i];
+                const dirmax = NODIAG(state.u.umonnum) ? 4 : N_DIRS;
+                let alreadyRepeated = false;
+
+                for (let dir = 0; dir < dirmax; ++dir) {
+                    const direction = dirs_ord[dir];
+                    const nx = x + xdir[direction];
+                    const ny = y + ydir[direction];
+                    if (!isok(nx, ny)
+                        || (mode === TRAVP_GUESS
+                            && !couldsee(nx, ny, state))) {
+                        continue;
+                    }
+
+                    const delayed = Boolean(
+                        (!propertyPresent(state, PASSES_WALLS)
+                            && !can_ooze(state.youmonst, state)
+                            && closed_door(x, y, state))
+                        || (sobj_at(BOULDER, x, y, state)
+                            && !could_move_onto_boulder(x, y, 0, 0, state))
+                        || await test_move(
+                            x,
+                            y,
+                            nx - x,
+                            ny - y,
+                            TEST_TRAP,
+                            state,
+                        )
+                    );
+                    if (delayed) {
+                        if (travel[travelMapIndex(x, y)] > radius - 3) {
+                            if (!alreadyRepeated) {
+                                nextX[nn] = x;
+                                nextY[nn] = y;
+                                ++nn;
+                                alreadyRepeated = true;
+                            }
+                            continue;
+                        }
+                    }
+
+                    if (await test_move(
                         x,
                         y,
                         nx - x,
                         ny - y,
-                        TEST_TRAP,
+                        TEST_TRAV,
                         state,
-                    )
-                );
-                if (delayed) {
-                    if (travel[travelMapIndex(x, y)] > radius - 3) {
-                        if (!alreadyRepeated) {
-                            nextX[nn] = x;
-                            nextY[nn] = y;
-                            ++nn;
-                            alreadyRepeated = true;
-                        }
-                    }
-                    continue;
-                }
-
-                if (await test_move(
-                    x,
-                    y,
-                    nx - x,
-                    ny - y,
-                    TEST_TRAV,
-                    state,
-                ) && travelSquareVisible(nx, ny, state)) {
-                    if (nx === goalX && ny === goalY) {
-                        const visited = travelMapGet(state, x, y);
-                        state.u.dx = x - goalX;
-                        state.u.dy = y - goalY;
-                        if (!validTarget
-                            && ((x === state.u.tx && y === state.u.ty)
-                                || visited)) {
-                            nomul(0, state);
-                            state.context.run = 8;
-                            if (visited) {
-                                await ttyPline(
-                                    'You stop, unsure which way to go.',
-                                    state,
-                                );
-                            } else {
-                                state.iflags.travelcc.x = 0;
-                                state.iflags.travelcc.y = 0;
+                    ) && travelSquareVisible(nx, ny, state)) {
+                        if (nx === ux && ny === uy) {
+                            if (mode === TRAVP_TRAVEL || validTarget) {
+                                const visited = travelMapGet(state, x, y);
+                                state.u.dx = x - ux;
+                                state.u.dy = y - uy;
+                                if (mode === TRAVP_TRAVEL
+                                    && ((x === state.u.tx && y === state.u.ty)
+                                        || visited)) {
+                                    nomul(0, state);
+                                    state.context.run = 8;
+                                    if (visited) {
+                                        await ttyPline(
+                                            'You stop, unsure which way to go.',
+                                            state,
+                                        );
+                                    } else {
+                                        state.iflags.travelcc.x = 0;
+                                        state.iflags.travelcc.y = 0;
+                                    }
+                                }
+                                travelMapSet(state, state.u.ux, state.u.uy);
+                                return true;
                             }
+                        } else if (!travel[travelMapIndex(nx, ny)]) {
+                            nextX[nn] = nx;
+                            nextY[nn] = ny;
+                            travel[travelMapIndex(nx, ny)] = radius;
+                            ++nn;
                         }
-                        travelMapSet(state, state.u.ux, state.u.uy);
-                        return true;
                     }
+                }
+            }
 
-                    if (!travel[travelMapIndex(nx, ny)]) {
-                        nextX[nn] = nx;
-                        nextY[nn] = ny;
-                        travel[travelMapIndex(nx, ny)] = radius;
-                        ++nn;
+            n = nn;
+            set = 1 - set;
+            radius += 1;
+        }
+
+        // C's TRAVP_GUESS arm ranks every couldsee() square in x-major,
+        // y-minor order. `ptrav` only changes on an equal Chebyshev distance
+        // when the squared distance also improves, preserving the source's
+        // non-zigzag preference and its tie behavior.
+        if (mode !== TRAVP_GUESS) return false;
+
+        let px = tx;
+        let py = ty;
+        let distance = distmin(ux, uy, tx, ty);
+        let squaredDistance = dist2(ux, uy, tx, ty);
+        let previousTravel = COLNO * ROWNO;
+        for (let candidateX = 1; candidateX < COLNO; ++candidateX) {
+            for (let candidateY = 0; candidateY < ROWNO; ++candidateY) {
+                if (!couldsee(candidateX, candidateY, state)) continue;
+                const candidateTravel = travel[
+                    travelMapIndex(candidateX, candidateY)
+                ];
+                if (candidateTravel <= 0) continue;
+                const candidateDistance = distmin(
+                    ux,
+                    uy,
+                    candidateX,
+                    candidateY,
+                );
+                if (candidateDistance === distance
+                    && candidateTravel < previousTravel) {
+                    const candidateSquaredDistance = dist2(
+                        ux,
+                        uy,
+                        candidateX,
+                        candidateY,
+                    );
+                    if (candidateSquaredDistance < squaredDistance) {
+                        px = candidateX;
+                        py = candidateY;
+                        squaredDistance = candidateSquaredDistance;
+                        previousTravel = candidateTravel;
                     }
+                } else if (candidateDistance < distance) {
+                    px = candidateX;
+                    py = candidateY;
+                    distance = candidateDistance;
+                    squaredDistance = dist2(
+                        ux,
+                        uy,
+                        candidateX,
+                        candidateY,
+                    );
+                    previousTravel = candidateTravel;
                 }
             }
         }
 
-        n = nn;
-        set = 1 - set;
-        radius += 1;
-    }
+        if (u_at(px, py, state)) {
+            // C has no usable guess, so try the direct general direction.
+            state.u.dx = sgn(state.u.tx - state.u.ux);
+            state.u.dy = sgn(state.u.ty - state.u.uy);
+            if (await test_move(
+                state.u.ux,
+                state.u.uy,
+                state.u.dx,
+                state.u.dy,
+                TEST_MOVE,
+                state,
+            )) {
+                travelMapSet(state, state.u.ux, state.u.uy);
+                return true;
+            }
+            state.u.dx = 0;
+            state.u.dy = 0;
+            nomul(0, state);
+            return false;
+        }
 
-    state.u.dx = 0;
-    state.u.dy = 0;
-    nomul(0, state);
-    return false;
+        tx = px;
+        ty = py;
+        ux = state.u.ux;
+        uy = state.u.uy;
+        set = 0;
+        n = 1;
+        radius = 1;
+        mode = TRAVP_TRAVEL;
+        // Continue at C's noguess label. The loop reinitializes the frontier
+        // and travel matrix before the next path search.
+    }
 }
 
 // C ref: hack.c is_valid_travelpt() (1526-1542). getpos.c uses this while
@@ -3722,16 +3844,12 @@ async function domove_core(state = game) {
     const u = state.u;
 
     // C ref: hack.c domove_core():2724-2728. Travel chooses the direction
-    // immediately before the ordinary movement pipeline. The selected
-    // boundary reaches only a known reachable target, so TRAVP_GUESS remains
-    // deliberately outside this slice if the ordinary search cannot find a
-    // path.
+    // immediately before the ordinary movement pipeline. An inaccessible
+    // target falls through to TRAVP_GUESS, which selects a visible reachable
+    // point and restarts the ordinary path search.
     if (state.context.travel) {
-        if (!await findtravelpath(TRAVP_TRAVEL, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'unreachable travel target guessing',
-            );
-        }
+        if (!await findtravelpath(TRAVP_TRAVEL, state))
+            await findtravelpath(TRAVP_GUESS, state);
         state.context.travel1 = 0;
     }
 

@@ -1,55 +1,54 @@
 {
   "functions": [
     {
-      "name": "m_move",
-      "implementation": "js/monmove.js",
-      "symbol": "m_move",
-      "sourceReview": "Read the complete selected monmove.c m_move() range (1715-2087), including mintrap and eating order, concealment and set_apparxy setup, tame and shopkeeper/guard/priest dispatch, covetous and mail branches, Tengu natural teleport, swallowed handling, approach and item search, candidate enumeration and tie-breaking, displacement/aggression, region and boulder gates, physical movement, and postmov ordering. The Tengu branch now consumes rn2(5) before tele_restrict(); a rejected teleport falls through to ordinary movement on no-teleport levels, while teleport-permitted relocation remains fail-closed at the production action boundary because its complete rloc()/mnexto() side effects are not yet connected. The selected ordinary movement and Tengu fall-through branches preserve C evaluation and PRNG order; worm movement, covetous tactics, isgd/ispriest special cases outside their admitted return paths, displacement, boulder breaking, and teleport-permitted relocation remain explicit source-named seams rather than invented behavior. The existing mhitu.c attack-call identifier correction is included because the independent production recording reaches mattacku() after m_move().",
+      "name": "findtravelpath",
+      "implementation": "js/hack.js",
+      "symbol": "findtravelpath",
+      "sourceReview": "Read the complete upstream hack.c findtravelpath() definition (1266-1523), including the adjacent fast path, endpoint reversal for TRAVP_VALID and TRAVP_GUESS, source-ordered breadth-first traversal, NODIAG direction bound, couldsee filtering while guessing, delayed closed-door/boulder/trap candidates and one-repeat frontier rule, TEST_TRAV visibility, travel-map reads and writes, visited-target message and run reset, and the TRAVP_GUESS ranking, direct fallback, and noguess restart. Checked evaluation order and the no-RNG contract of the path search against the JavaScript helpers; no unported return-valued callee is substituted. Removed the unreachable-target refusal from domove_core and preserved the source's messages, state changes, screen ownership, and RNG behavior.",
       "callers": [
         {
-          "path": "js/unported_monster_actions.js",
-          "symbol": "moveSimpleOrdinary",
-          "source": "monmove.c dochug() calls m_move(mtmp, FALSE) for the ordinary monster action; moveSimpleOrdinary() supplies the production operation environment and invokes js/monmove.js m_move()."
+          "path": "js/hack.js",
+          "symbol": "domove_core",
+          "source": "hack.c domove_core() 2724-2728 calls findtravelpath(TRAVP_TRAVEL), then findtravelpath(TRAVP_GUESS) when the ordinary path search fails; the JavaScript domove_core() follows that same dispatch before ordinary movement."
         },
         {
-          "path": "js/unported_monster_actions.js",
-          "symbol": "runSimpleMonsterAction",
-          "source": "monmove.c movemon_singlemon() reaches dochug() after its pre-action gates; runSimpleMonsterAction() is the production dochugw() adapter and passes moveSimpleOrdinary() as dochug()'s moveMonster operation."
+          "path": "js/hack.js",
+          "symbol": "is_valid_travelpt",
+          "source": "hack.c is_valid_travelpt() 1538-1540 temporarily changes u.tx/u.ty and calls findtravelpath(TRAVP_VALID); JavaScript preserves and restores those target fields around the production validator call."
         },
         {
-          "path": "js/allmain.js",
-          "symbol": "runElapsedTurnMonsterAction",
-          "source": "mon.c movemon_singlemon() schedules one monster turn through the elapsed-turn adapter; js/allmain.js wires runSimpleMonsterAction() into that scheduler, which reaches m_move() through the moveMonster operation."
+          "path": "js/getpos.js",
+          "symbol": "getpos",
+          "source": "getpos.c's travel destination validation calls is_valid_travelpt(); js/getpos.js invokes the JavaScript validator while selecting a travel target, which reaches findtravelpath(TRAVP_VALID)."
         }
       ],
       "pure": false,
       "tests": [
-        "scripts/monmove.test.mjs",
-        "scripts/unported-monster-actions.test.mjs"
+        "scripts/hack.test.mjs"
       ],
       "recordings": [
-        "recordings/monmove.c/tengu-noteleport-move.session.json"
+        "recordings/hack.c/findtravelpath-guess-clean.session.json"
       ]
     }
   ],
-  "entryPointReview": "The selected runnable entry points are ordinary not_special movement and the Tengu natural-teleport branch when tele_restrict() rejects on a no-teleport level; both run through the production dochugw()/dochug()/moveSimpleOrdinary() chain and are exercised by the independent Castle recipe and matching recording. Tengu teleport-permitted relocation is deliberately fail-closed because rloc()/mnexto() operation ownership is incomplete. The source range was traced for the remaining worm, covetous, guard/priest special, displacement, boulder, and other helper branches; their existing source-named seams remain for later source-owner spans and are not claimed by this entry-point evidence.",
+  "entryPointReview": "The selected runnable entry point is keyboard travel through hack.c domove_core(): it first attempts TRAVP_TRAVEL and, for an inaccessible target, enters TRAVP_GUESS to choose a visible reachable point and restart the ordinary path search. The independent clean travel recipe and matching recording exercise this production path. The debug world-tour recipe also reaches the guess acceptance movement, but its recording is blocked after that movement by the unrelated trap_effects.js dotrap() trap activation boundary; it remains committed as a recipe for later replay. The validator entry point is getpos.c is_valid_travelpt(), which reaches TRAVP_VALID through js/getpos.js and is covered by the focused travel validation test. The source range contains no other command or dispatcher entry point.",
   "entryPoints": [
     {
-      "name": "ordinary monster movement",
+      "name": "keyboard travel with an inaccessible target and TRAVP_GUESS fallback",
       "functions": [
-        "m_move"
+        "findtravelpath"
       ],
       "recordings": [
-        "recordings/monmove.c/tengu-noteleport-move.session.json"
+        "recordings/hack.c/findtravelpath-guess-clean.session.json"
       ]
     },
     {
-      "name": "Tengu natural teleport rejected by a no-teleport level",
+      "name": "travel destination validation",
       "functions": [
-        "m_move"
+        "findtravelpath"
       ],
       "recordings": [
-        "recordings/monmove.c/tengu-noteleport-move.session.json"
+        "recordings/hack.c/findtravelpath-guess-clean.session.json"
       ]
     }
   ]

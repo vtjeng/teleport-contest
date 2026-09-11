@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:GuessProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "comment": "Independent ordinary travel probe with a target selected six squares east of the starting hero; retained as the clean path case while the debug world-tour recipe reaches the guess fallback.",
+      "moves": "_llllll."
+    }
+  ]
+}

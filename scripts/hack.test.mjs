@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BLINDED,
     COLNO,
+    COULD_SEE,
     DB_FLOOR,
     DB_ICE,
     DRAWBRIDGE_UP,
@@ -37,6 +38,7 @@ import {
     STAIRS,
     STEALTH,
     TRAVP_VALID,
+    TRAVP_GUESS,
     TIMER_OBJECT,
     WT_ELF,
     ZOMBIFY_MON,
@@ -887,6 +889,40 @@ test('travel validation does not consume the adjacent travel state', async () =>
     );
     assert.equal(state.multi, 0);
 });
+
+test('travel guessing selects a visible reachable point and restarts travel',
+    async () => {
+        // hack.c:1451-1513. The target at <14,10> is enclosed by STONE, so
+        // TRAVP_TRAVEL cannot reach the hero. The only visible reachable
+        // square closer to that target is <11,10>; TRAVP_GUESS must choose it
+        // and then return the eastward direction from the restarted search.
+        const base = runState();
+        const state = runState({
+            u: {
+                ...base.u,
+                ux: 10,
+                uy: 10,
+                tx: 14,
+                ty: 10,
+                dx: 0,
+                dy: 0,
+            },
+            context: { run: 8, travel: 1, travel1: 0, mv: 1, move: 1 },
+            flags: { runmode: RUN_LEAP, time: false, mention_walls: false },
+        });
+        state.level = new GameMap();
+        state.level.at(10, 10).typ = ROOM;
+        state.level.at(11, 10).typ = ROOM;
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO).fill(COULD_SEE),
+        );
+        state.travelmap = new Uint8Array(COLNO * ROWNO);
+
+        assert.equal(await findtravelpath(TRAVP_GUESS, state), true);
+        assert.deepEqual([state.u.dx, state.u.dy], [1, 0]);
+        assert.equal(state.travelmap.some((value) => value !== 0), true);
+    });
 
 test('nomul returns early when multi is already lower than the request', () => {
     // hack.c nomul()'s "bug fix by ab@unido": a paralysis of -5 outlasts a
