@@ -1,0 +1,160 @@
+{
+  "functions": [
+    {
+      "name": "roguejoin",
+      "implementation": "js/extralev.js",
+      "symbol": "roguejoin",
+      "sourceReview": "Read the complete extralev.c roguejoin() body. Both horizontal and vertical L-shaped corridor branches preserve middle-point rn2 order, min/max loop bounds, and corr calls; no unported callee result is discarded.",
+      "callers": [
+        {
+          "path": "js/extralev.js",
+          "symbol": "roguecorr",
+          "source": "extralev.c roguecorr() calls roguejoin() after placing both connecting doors"
+        }
+      ],
+      "pure": false,
+      "tests": [],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    },
+    {
+      "name": "roguecorr",
+      "implementation": "js/extralev.js",
+      "symbol": "roguecorr",
+      "sourceReview": "Read the complete extralev.c roguecorr() body. XL_DOWN and XL_RIGHT branches preserve dummy versus real room coordinates, wall checks, door creation, D_NODOOR writes, endpoint mutation, and roguejoin ordering; impossible branches have no valid production reachability and no result-valued unported callee.",
+      "callers": [
+        {
+          "path": "js/extralev.js",
+          "symbol": "makeroguerooms",
+          "source": "extralev.c makeroguerooms() walks each selected XL_DOWN and XL_RIGHT edge through roguecorr()"
+        }
+      ],
+      "pure": false,
+      "tests": [],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    },
+    {
+      "name": "miniwalk",
+      "implementation": "js/extralev.js",
+      "symbol": "miniwalk",
+      "sourceReview": "Read the complete extralev.c miniwalk() body. Candidate directions retain C short-circuit order and one-in-ten reconnect draws, selected-direction rn2 order, bidirectional door bits, recursion, and terminal return; no unported callee is used.",
+      "callers": [
+        {
+          "path": "js/extralev.js",
+          "symbol": "makeroguerooms",
+          "source": "extralev.c makeroguerooms() starts miniwalk() at two rn2(3) coordinates"
+        }
+      ],
+      "pure": false,
+      "tests": [],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    },
+    {
+      "name": "makeroguerooms",
+      "implementation": "js/extralev.js",
+      "symbol": "makeroguerooms",
+      "sourceReview": "Read the complete extralev.c makeroguerooms() body. The nine-cell real/dummy decision and dimensions preserve C RNG and evaluation order, miniwalk starts before nroom reset, add_room receives source coordinates and lighting draw, and all selected edges dispatch roguecorr(); no result-valued unported callee remains.",
+      "callers": [
+        {
+          "path": "js/mklev.js",
+          "symbol": "makelevel",
+          "source": "mklev.c makelevel() selects makeroguerooms() for procedural Rogue levels before stair and fill work"
+        },
+        {
+          "path": "js/mklev.js",
+          "symbol": "splev_initlev",
+          "source": "sp_lev.c splev_initlev() dispatches LVLINIT_ROGUE to makeroguerooms()"
+        },
+        {
+          "path": "js/mklev.js",
+          "symbol": "mklev",
+          "source": "mklev.c mklev() calls makelevel(), which reaches the Rogue generator on a new level"
+        },
+        {
+          "path": "js/do.js",
+          "symbol": "goto_level",
+          "source": "do.c goto_level() invokes mklev() when the destination has no saved level"
+        },
+        {
+          "path": "js/teleport.js",
+          "symbol": "level_tele",
+          "source": "teleport.c level_tele() accepts the numeric procedural Rogue destination and calls schedule_goto()"
+        }
+      ],
+      "pure": false,
+      "tests": [],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    },
+    {
+      "name": "corr",
+      "implementation": "js/extralev.js",
+      "symbol": "corr",
+      "sourceReview": "Read the complete extralev.c corr() body. The rn2(50) choice preserves CORR versus SCORR terrain assignment and no other state or output branch is omitted.",
+      "callers": [
+        {
+          "path": "js/extralev.js",
+          "symbol": "roguejoin",
+          "source": "extralev.c roguejoin() writes every L-shaped corridor square with corr()"
+        }
+      ],
+      "pure": false,
+      "tests": [],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    },
+    {
+      "name": "makerogueghost",
+      "implementation": "js/extralev.js",
+      "symbol": "makerogueghost",
+      "sourceReview": "Read the complete extralev.c makerogueghost() body. Room selection, ghost creation and sleep/name steps, optional food, weapon, bow, arrows, armor, curses, erosionproof flags, quantities, weights, and fake amulet branches preserve source order and RNG calls. Supporting result-valued callees were wired through existing makemon, christen_monst, roguename, mksobj_at, weight, and curse ports.",
+      "callers": [
+        {
+          "path": "js/mklev.js",
+          "symbol": "makelevel",
+          "source": "mklev.c makelevel() calls makerogueghost() immediately after makeroguerooms() on Rogue levels"
+        },
+        {
+          "path": "js/mklev.js",
+          "symbol": "mklev",
+          "source": "mklev.c mklev() calls makelevel(), which reaches makerogueghost() on a new Rogue level"
+        },
+        {
+          "path": "js/do.js",
+          "symbol": "goto_level",
+          "source": "do.c goto_level() invokes mklev() when the destination has no saved level"
+        },
+        {
+          "path": "js/teleport.js",
+          "symbol": "level_tele",
+          "source": "teleport.c level_tele() accepts the numeric procedural Rogue destination and calls schedule_goto()"
+        }
+      ],
+      "pure": false,
+      "tests": [],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    }
+  ],
+  "entryPointReview": "The selected source range has one production entry point: debug level teleport (Ctrl-V) enters level_tele(), schedules the numeric Rogue destination, goto_level() invokes mklev makelevel(), and its Is_rogue_level branch runs makeroguerooms() followed by makerogueghost(); the LVLINIT_ROGUE dispatcher is also wired for special-level initialization.",
+  "entryPoints": [
+    {
+      "name": "procedural Rogue level generation",
+      "functions": [
+        "makeroguerooms",
+        "makerogueghost"
+      ],
+      "recordings": [
+        "recordings/extralev.c/rogue-level-teleport.session.json"
+      ]
+    }
+  ]
+}

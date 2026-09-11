@@ -269,6 +269,7 @@ import {
     In_quest, Is_medusa_level, NO_ROOM,
     TRAPNUM,
     In_endgame,
+    Is_rogue_level,
     is_hole,
     is_pit,
     undestroyable_trap,
@@ -323,8 +324,8 @@ import {
     swapbits,
 } from './hacklib.js';
 import { create_drawbridge } from './dbridge.js';
-import { note_unported } from './unported.js';
 import { priestini } from './priest.js';
+import { makeroguerooms, makerogueghost } from './extralev.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -637,7 +638,7 @@ async function makelevel(specialLevelLoader = null) {
     // is wrong but preserves the session's later matched screens.
     if (!specialLevelLoader) {
         const slev = Is_special(g.u.uz, g);
-        if (slev && slev.proto) {
+        if (slev && slev.proto && !Is_rogue_level(g.u.uz, g)) {
             await ensureSpecialLevelLoaders();
             // Determine the resolved protofile the same way makemaz() will.
             // For bigrm, slev.rndlevs is 13, so the proto is
@@ -712,9 +713,15 @@ async function makelevel(specialLevelLoader = null) {
     // Regular level generation
     // C ref: mklev.c:382-388 — load themerms.lua for themed rooms
     // nhlib.lua shuffle when loading themerms.lua (first level of branch)
-    initialize_themeroom_branch(g, rn2);
+    const rogue = Is_rogue_level(g.u.uz, g);
+    if (!rogue) initialize_themeroom_branch(g, rn2);
 
-    await makerooms();
+    if (rogue) {
+        makeroguerooms(g);
+        makerogueghost(g);
+    } else {
+        await makerooms();
+    }
 
     if (g.level.nroom <= 0) return;
     sort_rooms();
@@ -726,11 +733,14 @@ async function makelevel(specialLevelLoader = null) {
     // more room before it can spare one for a special room.
     let room_threshold = branchp ? 4 : 3;
 
-    makecorridors();
-    await make_niches();
+    if (!rogue) {
+        makecorridors();
+        await make_niches();
+    }
 
-    // C ref: mklev.c makelevel() secret-vault realization and retry.
-    if (g.vault_x !== -1) {
+    // C ref: mklev.c makelevel() secret-vault realization and retry. Rogue
+    // levels jump over this block together with corridors and niches.
+    if (!rogue && g.vault_x !== -1) {
         const vw = { v: 1 }, vh = { v: 1 };
         const vx = { v: g.vault_x }, vy = { v: g.vault_y };
         let realized = check_room(vx, vw, vy, vh, true);
@@ -764,35 +774,37 @@ async function makelevel(specialLevelLoader = null) {
     // one: four when the level carries a dungeon branch, three otherwise, plus
     // one more when a vault was placed above.
     const u_depth = depth(g.u.uz);
-    if (u_depth > 1 && u_depth < depth(g.medusa_level)
-        && g.level.nroom >= room_threshold && rn2(u_depth) < 3) {
-        do_mkroom(SHOPBASE, g);
-    } else if (u_depth > 4 && !rn2(6)) {
-        do_mkroom(COURT, g);
-    } else if (u_depth > 5 && !rn2(8)
-               && !(g.mvitals[PM_LEPRECHAUN].mvflags & G_GONE)) {
-        do_mkroom(LEPREHALL, g);
-    } else if (u_depth > 6 && !rn2(7)) {
-        do_mkroom(ZOO, g);
-    } else if (u_depth > 8 && !rn2(5)) {
-        do_mkroom(TEMPLE, g);
-    } else if (u_depth > 9 && !rn2(5)
-               && !(g.mvitals[PM_KILLER_BEE].mvflags & G_GONE)) {
-        do_mkroom(BEEHIVE, g);
-    } else if (u_depth > 11 && !rn2(6)) {
-        do_mkroom(MORGUE, g);
-    } else if (u_depth > 12 && !rn2(8)) {
-        // C's antholemon() picks the ant species that fills the hole and
-        // answers NON_PM when every candidate is gone.
-        do_mkroom(ANTHOLE, g);
-    } else if (u_depth > 14 && !rn2(4)
-               && !(g.mvitals[PM_SOLDIER].mvflags & G_GONE)) {
-        do_mkroom(BARRACKS, g);
-    } else if (u_depth > 15 && !rn2(6)) {
-        do_mkroom(SWAMP, g);
-    } else if (u_depth > 16 && !rn2(8)
-               && !(g.mvitals[PM_COCKATRICE].mvflags & G_GONE)) {
-        do_mkroom(COCKNEST, g);
+    if (!rogue) {
+        if (u_depth > 1 && u_depth < depth(g.medusa_level)
+            && g.level.nroom >= room_threshold && rn2(u_depth) < 3) {
+            do_mkroom(SHOPBASE, g);
+        } else if (u_depth > 4 && !rn2(6)) {
+            do_mkroom(COURT, g);
+        } else if (u_depth > 5 && !rn2(8)
+                   && !(g.mvitals[PM_LEPRECHAUN].mvflags & G_GONE)) {
+            do_mkroom(LEPREHALL, g);
+        } else if (u_depth > 6 && !rn2(7)) {
+            do_mkroom(ZOO, g);
+        } else if (u_depth > 8 && !rn2(5)) {
+            do_mkroom(TEMPLE, g);
+        } else if (u_depth > 9 && !rn2(5)
+                   && !(g.mvitals[PM_KILLER_BEE].mvflags & G_GONE)) {
+            do_mkroom(BEEHIVE, g);
+        } else if (u_depth > 11 && !rn2(6)) {
+            do_mkroom(MORGUE, g);
+        } else if (u_depth > 12 && !rn2(8)) {
+            // C's antholemon() picks the ant species that fills the hole and
+            // answers NON_PM when every candidate is gone.
+            do_mkroom(ANTHOLE, g);
+        } else if (u_depth > 14 && !rn2(4)
+                   && !(g.mvitals[PM_SOLDIER].mvflags & G_GONE)) {
+            do_mkroom(BARRACKS, g);
+        } else if (u_depth > 15 && !rn2(6)) {
+            do_mkroom(SWAMP, g);
+        } else if (u_depth > 16 && !rn2(8)
+                   && !(g.mvitals[PM_COCKATRICE].mvflags & G_GONE)) {
+            do_mkroom(COCKNEST, g);
+        }
     }
 
     const previousStairs = g.stairs;
@@ -1559,8 +1571,7 @@ function lvlfill_swamp(fg, bg, lit, frame, state) {
 }
 
 // C ref: sp_lev.c splev_initlev(). Dispatches a des.level_init() request to
-// the fill routine its style names. LVLINIT_ROGUE's makeroguerooms()
-// (extralev.c) is not ported; its result is discarded, so the gap is noted.
+// the fill routine its style names.
 function splev_initlev(linit, frame, state) {
     switch (linit.init_style) {
     default:
@@ -1581,7 +1592,11 @@ function splev_initlev(linit, frame, state) {
                     state);
         break;
     case LVLINIT_ROGUE:
-        note_unported('extralev.c makeroguerooms');
+        // Rogue-style special level descriptions use the same procedural
+        // generator as makelevel() and do not fill a rectangular map first.
+        // The Lua path is not a caller in the selected production branch yet;
+        // keep this dispatch source-shaped for future level definitions.
+        makeroguerooms(state);
         break;
     case LVLINIT_MINES:
         if (linit.lit === BOOL_RANDOM)
@@ -7449,6 +7464,8 @@ function makecorridors() {
 // Keep the long-standing mklev.js surface while the shared implementation
 // lives below both level generation and themed-fill creation.
 export {
+    add_room,
+    dodoor,
     get_free_room_loc,
     get_location,
     get_location_coord,

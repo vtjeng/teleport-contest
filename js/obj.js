@@ -1569,8 +1569,21 @@ export async function unbless(obj, env = {}) {
         await maybe_adjust_light(obj, old_light, env);
 }
 
-function curse(obj) {
+// C ref: mkobj.c curse(). The full runtime curse operation has additional
+// carried-object effects, while this primitive is the exact BUC mutation used
+// by level-generation objects after mksobj_at() places them on the floor.
+export function curse(obj, env = {}) {
     if (obj.oclass === COIN_CLASS) return obj;
+    // mkobj.c curse() is also used after mksobj_at() places a level object on
+    // the floor.  No carried or worn side effect can apply to that object;
+    // retain the source BUC mutation and the bag weight adjustment here.
+    if (obj.where === OBJ_FLOOR) {
+        obj.blessed = false;
+        obj.cursed = true;
+        if (obj.otyp === BAG_OF_HOLDING)
+            obj.owt = weight(obj, env);
+        return obj;
+    }
     assertStartupBucObject(obj, 'curse outside object initialization');
     obj.blessed = false;
     obj.cursed = true;

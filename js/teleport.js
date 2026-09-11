@@ -1916,12 +1916,14 @@ export async function level_tele(state = game) {
 
     // A numeric depth can be occupied by a special level even though
     // lev_by_name() returned zero. C has no guard here; it proceeds to
-    // schedule_goto() unconditionally. This JS guard refuses only special
-    // levels whose loaders are not yet ported: quest special levels now
-    // have loaders, and the random_levtport path skips this guard because
-    // C applies no Is_special() check after random_teleport_level().
+    // schedule_goto() unconditionally. This JS guard refuses special levels
+    // whose loaders are not yet ported. Quest special levels have loaders,
+    // and the procedural Rogue level now has its makelevel() branch, so both
+    // are admitted here. The random_levtport path skips this guard because C
+    // applies no Is_special() check after random_teleport_level().
     if (!randomPath && Is_special(newlevel, state)
-        && !In_quest(newlevel)) {
+        && !In_quest(newlevel)
+        && !on_level(newlevel, state.rogue_level)) {
         throw new UnsupportedLevelChangeError(
             'level_tele() resolving a numeric special-level destination',
         );

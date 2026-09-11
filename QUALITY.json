@@ -121,6 +121,7 @@
         "js/castle_levels.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
+        "js/extralev.js",
         "js/fire_level_data.js",
         "js/fire_levels.js",
         "js/hell_levels.js",

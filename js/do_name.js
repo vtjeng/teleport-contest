@@ -255,6 +255,25 @@ export function christen_monst(monster, name, env = {}) {
     return monster;
 }
 
+// C ref: do_name.c roguename() (1424-1436). ROGUEOPTS is a process
+// environment setting in C; the port exposes it through state.environment for
+// deterministic callers and otherwise follows the three-name random choice.
+export function roguename(state = game, random = rn2) {
+    const opts = state.environment?.ROGUEOPTS ?? state.ROGUEOPTS;
+    if (opts != null) {
+        // C scans every position in ROUGEOPTS, rather than requiring an
+        // option delimiter before name=.
+        const text = String(opts);
+        const start = text.indexOf('name=');
+        if (start >= 0) {
+            const end = text.indexOf(',', start + 5);
+            return text.slice(start + 5, end < 0 ? text.length : end);
+        }
+    }
+    return random(3) ? (random(2) ? 'Michael Toy' : 'Kenneth Arnold')
+        : 'Glenn Wichman';
+}
+
 // C ref: do_name.c rndorcname() (1537-1554).  Orc names alternate vowel and
 // consonant chunks, starting on either side, and very rarely hyphenate a
 // chunk after the first.  Keeping this here lets mkmaze.c's stolen_booty()
