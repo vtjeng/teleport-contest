@@ -24252,7 +24252,16 @@
       ],
       "selectionReason": "The highest-ranked current mismatch is seed0360-wizard-world-tour at step 324, where makelevel() requests special level orcus but SPECIAL_LEVEL_LOADERS has no orcus loader. The upstream dat/orcus.lua program defines mazegrid initialization, ghost-town map and callback contents, boulders and doors, altar and special rooms, traps, random objects, Orcus and companions, level/teleport regions, and hell_tweaks; select the whole Lua program and its loader wiring.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "orcus.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "orcus.lua"
+          ]
+        }
+      ],
       "openedAt": "1060bf1df2cd41efc2d7542c20a889dfac6bd7f4",
       "openStanding": {
         "sha": "929a85958293d40427b31694704425befaa13ca7",
