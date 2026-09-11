@@ -23607,6 +23607,36 @@
           "remainingScreensUpperBound": 526
         }
       ]
+    },
+    {
+      "id": "port-dogmove-score-targ",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete pet target scoring and permit source-valid monster target classes",
+      "cFile": "dogmove.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The refreshed queue's highest candidate is seed0030-ten-diverse-deaths at global step 1426, where a pet's monster-action preflight refuses an ordinary monster target. Source tracing reaches dogmove.c score_targ() (738-836): the target is shopkeeper Swidnica, which C permits and scores, while js/dogmove.js score_targ() explicitly refuses isshk targets and also omits the source confused, alignment, vampshifter, and final fuzz branches. Select the whole score_targ() function and wire its existing best_target()/pet_ranged_attk() caller.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "score_targ",
+          "line": 738,
+          "endLine": 837,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 738,
+        "to": 837
+      }
     }
   ]
 }
