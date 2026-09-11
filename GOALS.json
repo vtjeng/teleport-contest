@@ -26064,6 +26064,62 @@
           "remainingScreensUpperBound": 348
         }
       ]
+    },
+    {
+      "id": "port-trap-domagictrap-invisibility",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port trap.c domagictrap() fate-11 intrinsic invisibility toggle and wire self_invis_message()",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The highest-ranked unresolved stop is seed0030-ten-diverse-deaths global step 1605. Source tracing maps it to trap.c domagictrap() case 11 after trapeffect_magic_trap() consumes rn2(30)=3 and rnd(20)=11; JS domagictrap() currently refuses this branch. Include the observable potion.c self_invis_message() callee in the same coherent span.",
+      "detail": "Development session seed0030-ten-diverse-deaths, segment 9, local input step 120 (global step 1605, key h): fresh replay stops in js/trap_effects.js domagictrap() after 1605 matching boundaries. C trap.c:2293-2320 trapeffect_magic_trap() hero arm calls seetrap(), rn2(30)=3, then trap.c:4317-4451 domagictrap(); its rnd(20)=11 selects case 11 at trap.c:4359-4379. Witness preconditions are unmounted hero, unseen MAGIC_TRAP, Invis=false (HInvis=0,EInvis=0,BInvis=0), Blind=false, Hallucination=false, See_invisible=false, and pm_invisible(gy.youmonst.data)=false. C calls potion.c:self_invis_message() (potion.c:471-478), emitting \"Gee! All of a sudden, you can't see yourself.\" after \"You hear a low hum.\", toggles HInvis from 0 to FROMOUTSIDE, and calls newsym(u.ux,u.uy); case 11 consumes no RNG after rnd(20). JS owner is js/trap_effects.js domagictrap(), called by trapeffect_magic_trap() -> trapeffect_selector() -> dotrap() -> hack.js spoteffects() -> domove_core().",
+      "spans": [],
+      "openedAt": "2830136b75d41032478c1957ecd5ea4655a013b7",
+      "openStanding": {
+        "sha": "fed063ca9d160c672c0780d46265dbb8d3ba81df",
+        "screens": 6673,
+        "rng": 497299
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "domagictrap",
+          "line": 4317,
+          "endLine": 4454,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4317,
+        "to": 4454
+      },
+      "activeStanding": {
+        "sha": "fed063ca9d160c672c0780d46265dbb8d3ba81df",
+        "screens": 6673,
+        "rng": 497299
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1605,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: magic trap invisibility toggle",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 348
+        }
+      ]
     }
   ]
 }
