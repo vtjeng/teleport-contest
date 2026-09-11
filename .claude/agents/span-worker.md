@@ -40,9 +40,9 @@ restriction overrides the AGENTS.md reading rows that name them.
 
 You own one span: the source it ports, the code and tests it changes, the
 recipes and recordings it adds, and the commits that land them. After the
-last commit, run `npm run checkpoint` and push. Include score and
-validation evidence in your report; the orchestrator uses it to close the
-span, append the `SCORE.tsv` row, and watch CI.
+last commit, run `npm run checkpoint` and push. Include the checkpoint
+handoff and source evidence in your report; the orchestrator uses them to
+close the span, append the `SCORE.tsv` row, and watch CI.
 
 Beyond code and tests:
 
@@ -113,6 +113,8 @@ done, and commit integration artifacts once they stabilize.
 
 Report to the orchestrator in one brief message. Cover:
 
+- The tested commit, checkpoint outcome, and shared summary path, following
+  `.agents/validation.md`, "Routine validation", for ownership and handoff.
 - What you ported, from which C functions or Lua program, and every gap you recorded with
   the C callee it stands for.
 - Every bug and surprise you hit, and what you did about it.
@@ -124,5 +126,5 @@ Report to the orchestrator in one brief message. Cover:
 - Whether the span matched its plan. Say so when landing it meant tracing far
   more C source, or touching more files, than the span context implied.
 
-The orchestrator measures commits, development score, and test results
-independently, so do not repeat those.
+The orchestrator verifies the shared summary and artifacts directly; do not
+repeat their score totals in prose or run another checkpoint for the handoff.

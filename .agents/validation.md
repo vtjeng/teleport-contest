@@ -36,6 +36,13 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   replay recorded play: the development score over `sessions/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
   matching.
+- The agent that starts checkpoint owns the command through completion and
+  retains its process handle. Do not interrupt that agent merely to take over
+  validation. An explicit handoff identifies the tested commit, whether the
+  command is running or finished, and the shared result path when available.
+  If the owner was interrupted, establish the subprocess state before taking
+  over: an agent interruption does not prove its command exited. Wait for the
+  existing command or inspect its completed result before deciding to rerun.
 - Other agents may keep editing or committing during checkpoint. Its result
   remains attached to the tested commit; advancing HEAD does not make it fail.
   Wait for an existing run of the intended commit rather than launching a

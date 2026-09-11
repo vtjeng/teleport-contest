@@ -49,7 +49,8 @@ The orchestrator repeats without returning to the user between steps:
 3. Spawn a span worker (`.claude/agents/span-worker.md`) for that span.
    Include the selected mismatch entry, the commit it describes, relevant
    source ranges, and paths to existing evidence in the handoff.
-   The worker owns implementation validation until it returns. Do not
+   The worker owns implementation validation through checkpoint completion
+   and handoff, following `.agents/validation.md`, "Routine validation". Do not
    launch a competing full suite, checkpoint, or development scorer while
    it performs that validation.
 
