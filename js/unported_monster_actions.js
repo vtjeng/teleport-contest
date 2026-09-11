@@ -17,11 +17,14 @@ import {
     CORR,
     DOOR,
     D_CLOSED,
+    D_LOCKED,
+    D_TRAPPED,
     FIRE_RES,
     HEADSTONE,
     INVIS,
     IS_FOUNTAIN,
     IS_FURNITURE,
+    IS_OBSTRUCTED,
     IS_STWALL,
     IS_TREE,
     IS_WATERWALL,
@@ -58,7 +61,13 @@ import { capitalizedMonsterName } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { losehp, may_dig, nh_delay_output, nomul } from './hack.js';
+import {
+    losehp,
+    may_dig,
+    may_passwall,
+    nh_delay_output,
+    nomul,
+} from './hack.js';
 import { hands_obj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
@@ -739,14 +748,16 @@ function resistsTrapEffect(monster, trapType, env) {
 }
 
 // C ref: monmove.c postmov()'s `here->doormask == D_CLOSED && can_open` arm
-// (1576-1592), plus the block's own entry test at 1520-1522. can_open repeats
-// mon.c mon_allowflags():2067, so mfndpos() has already refused this square to
-// a monster without it; a wall-walker or a tunneler skips the block instead and
-// leaves the door closed, which is a separate behavior and stays refused.
+// (1576-1592), plus the block's own entry test at 1520-1522. mfndpos() admits
+// a trapped closed door when OPENDOOR is set; postmov() checks the trap before
+// its whole-mask D_CLOSED arm, so retain the D_TRAPPED bit here and let that
+// source-owned boundary run. can_open repeats mon.c mon_allowflags():2067; a
+// wall-walker or a tunneler skips the block instead and leaves the door closed.
 function opensClosedDoor(monster, location, doorMask) {
     const species = monster.data;
     return location?.typ === DOOR
-        && doorMask === D_CLOSED
+        && (doorMask & D_CLOSED)
+        && !(doorMask & D_LOCKED)
         && !(nohands(species) || verysmall(species))
         && !passes_walls(species)
         && !tunnels(species);
@@ -872,20 +883,34 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const inertDoorway = location?.typ === DOOR
         && INERT_DOOR_MASKS.has(doorMask);
     const opensDoor = opensClosedDoor(monster, location, doorMask);
+    // mfndpos() admits an open or closed trapped door when it is otherwise
+    // passable; postmov() checks btrapped before its door-state arm.
+    const trappedDoor = location?.typ === DOOR
+        && (doorMask & D_TRAPPED)
+        && !(doorMask & D_LOCKED);
     // C ref: mon.c mfndpos() :2166-2170. poolok and lavaok decide whether the
     // monster can step onto pool and lava tiles. m_in_air() covers flyers,
-    // floaters, and ceiling-clinging clingers; is_swimmer() covers swimmers
-    // (but not eels that *want* pool -- assertSimpleScanState refuses eels
-    // before this point); likes_lava() covers fire elementals and salamanders.
-    // PM_FLOATING_EYE overrides lavaok to FALSE at :2169-2170 (prefers to
-    // avoid heat). On the Plane of Water, Is_waterlevel at :2166 suppresses
-    // m_in_air() for poolok; that level is not yet reachable.
-    const poolOkay = m_in_air(monster, state)
-        || (is_swimmer(monster.data) && monster.data.mlet !== S_EEL);
+    // floaters, and ceiling-clinging clingers; is_swimmer() covers swimmers;
+    // likes_lava() covers fire elementals and salamanders. PM_FLOATING_EYE
+    // overrides lavaok to FALSE at :2169-2170. The pool test below is the
+    // source's `(poolok || is_pool(nx,ny) == wantpool)` predicate, including
+    // its second scan for an eel that starts on land.
+    let wantsPool = monster.data?.mlet === S_EEL;
+    const poolOkay = (!on_level(state.u?.uz, state.water_level)
+            && m_in_air(monster, state))
+        || (is_swimmer(monster.data) && !wantsPool);
+    const sourceIsPool = is_pool(monster.mx, monster.my, state);
+    if (!poolOkay && wantsPool && !sourceIsPool) wantsPool = false;
     const lavaOkay = (m_in_air(monster, state) || likes_lava(monster.data))
         && monsndx(monster.data) !== PM_FLOATING_EYE;
-    const liquidDestination = (is_pool(x, y, state) && poolOkay)
-        || (is_lava(x, y, state) && lavaOkay);
+    const passwallDestination = IS_OBSTRUCTED(location?.typ)
+        && passes_walls(monster.data)
+        && may_passwall(x, y, state);
+    const destinationPool = is_pool(x, y, state);
+    const destinationLava = is_lava(x, y, state);
+    const liquidDestination = (destinationPool || destinationLava)
+        && (poolOkay || destinationPool === wantsPool)
+        && (lavaOkay || !destinationLava);
     const digsWall = digsDestination(location, x, y, env);
     const ordinaryDestination = location
         && (location.typ === ROOM
@@ -893,6 +918,8 @@ async function admitSimpleDestinationAndRegion(monster, x, y, env) {
             || IS_FURNITURE(location.typ)
             || inertDoorway
             || opensDoor
+            || trappedDoor
+            || passwallDestination
             || digsWall
             || liquidDestination);
     if (!ordinaryDestination)

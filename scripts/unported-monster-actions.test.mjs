@@ -34,6 +34,7 @@ import {
     LS_OBJECT,
     MMOVE_DONE,
     MMOVE_NOTHING,
+    MOAT,
     NATTK,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -68,6 +69,7 @@ import {
     AT_WEAP,
     PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
+    PM_EARTH_ELEMENTAL,
     PM_FOG_CLOUD,
     PM_GIANT_EEL,
     PM_ACID_BLOB,
@@ -1743,6 +1745,45 @@ test('simple movement admits pool and lava destinations for a floater',
 
     });
 
+// C ref: mon.c mfndpos() :2166-2170. An eel keeps wantpool=true, so a moat
+// candidate is selected by `is_pool(nx,ny) == wantpool`; treating liquid as a
+// generic destination would incorrectly reject a grounded swimmer here.
+test('simple movement admits a swimmer into a moat', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+    game.level.at(target.monsterX, target.heroY).typ = POOL;
+    game.level.at(target.destinationX, target.heroY).typ = MOAT;
+    const before = preflightSnapshot();
+
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), before);
+    await runSimpleMonsterAction(target.monster, { state: game });
+    assert.deepEqual(
+        [target.monster.mx, target.monster.my],
+        [target.destinationX, target.heroY],
+    );
+});
+
+// C ref: mon.c mfndpos() :2160-2163. ALLOW_WALL plus may_passwall() admits
+// an obstructed square for a wall-walking monster; the movement preflight must
+// pass that candidate through to postmov() rather than classify it as terrain.
+test('simple movement admits a passwall wall candidate', async () => {
+    const target = await prepareSelectedAction({
+        pmidx: PM_EARTH_ELEMENTAL,
+    });
+    const wall = game.level.at(target.destinationX, target.heroY);
+    wall.typ = STONE;
+    wall.wall_info = 0;
+    const before = preflightSnapshot();
+
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), before);
+    await runSimpleMonsterAction(target.monster, { state: game });
+    assert.deepEqual(
+        [target.monster.mx, target.monster.my],
+        [target.destinationX, target.heroY],
+    );
+});
+
 // C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its
 // move on a doorless, broken or open doorway reaches no arm of that block, so
 // the move completes with the doormask, the map and the message window
@@ -1802,13 +1843,16 @@ test('simple movement admits an inert doorway and no other mask', async () => {
                     // select the locked square and no excluded action is due.
                     await preflightSimpleMonsterActions(game);
                 } else {
+                    // mfndpos() admits a trapped doorway when the gnome can
+                    // open it; postmov() then checks the trap before changing
+                    // the doormask.
                     await assert.rejects(
                         preflightSimpleMonsterActions(game),
                         (error) => (
                             error
                                 instanceof UnsupportedSimpleMonsterActionError
                             && error.reason
-                                === 'mfndpos() door or special terrain movement'
+                                === 'a door trap under a monster'
                         ),
                         `${representation} mask ${mask}, `
                             + `attempt ${attempt + 1}`,
