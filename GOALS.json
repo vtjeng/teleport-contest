@@ -23611,7 +23611,7 @@
     {
       "id": "port-dogmove-score-targ",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete pet target scoring and permit source-valid monster target classes",
       "cFile": "dogmove.c",
       "sessions": [
@@ -23635,8 +23635,11 @@
         "screens": 6306,
         "rng": 451767
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "005de4b360d6415148995cefca3049c989327ea8",
+      "delivered": {
+        "screens": 62,
+        "rng": 11713
+      },
       "functions": [
         {
           "name": "score_targ",
@@ -23718,7 +23721,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1482,
+          "kind": "stop",
+          "function": "done2",
+          "functionDeclared": false,
+          "sourceFile": "end.c",
+          "cFile": "end.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: done2() for the extended command 'quit' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 471
+        }
+      ]
     }
   ]
 }
