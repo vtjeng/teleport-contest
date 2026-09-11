@@ -373,7 +373,14 @@ function assertSimpleActionState(monster, state) {
     // has cleared its sleeping bit in this scan.
     const waitingCovetous = covetous
         && (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK));
-    if (monster.wormno || (covetous
+    // C ref: monmove.c dochug() checks msleeping before m_move()'s wormno
+    // branch. A long worm outside couldsee() therefore takes the ordinary
+    // disturb() no-op; awake or visible worms still reach unported m_move()
+    // behavior and remain fail-closed.
+    const sleepingOutOfSightWorm = monster.wormno > 0
+        && monster.msleeping
+        && !couldsee(monster.mx, monster.my, state);
+    if ((monster.wormno > 0 && !sleepingOutOfSightWorm) || (covetous
         && !sleepingOutOfSightCovetous
         && !waitingCovetous)) {
         unsupported('special monster movement');

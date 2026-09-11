@@ -85,6 +85,7 @@ import {
     PM_IRON_GOLEM,
     PM_KITTEN,
     PM_LEPRECHAUN,
+    PM_LONG_WORM,
     PM_LITTLE_DOG,
     PM_ORC_SHAMAN,
     PM_PONY,
@@ -4517,6 +4518,101 @@ test('sleeping out-of-sight covetous monster takes the disturb no-op',
         assert.equal(target.replay.getRngLog().length, rngBefore);
         assert.equal(target.replay.getScreens().length, screensBefore);
     });
+
+// C ref: monmove.c dochug():726-731 and m_move():1769. A sleeping long worm
+// outside couldsee() returns before the unported wormno movement branch, so
+// the planning clone and live pass must leave its state and PRNG unchanged.
+test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
+    target.monster.msleeping = true;
+    // A positive worm number identifies the long-worm movement state in C.
+    target.monster.wormno = 1;
+    game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const rngBefore = target.replay.getRngLog().length;
+    const screensBefore = target.replay.getScreens().length;
+    const events = [];
+
+    await preflightSimpleMonsterActions(game, {
+        advanceRound(planned) {
+            const worm = planned.level.monlist;
+            assert.equal(worm.movement, 0);
+            assert.equal(worm.msleeping, true);
+            assert.equal(worm.wormno, 1);
+            return true;
+        },
+    });
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+    );
+
+    await movemon_singlemon(target.monster, {
+        state: game,
+        everyTurnEffect: () => events.push('every-turn'),
+        visionRecalc: () => events.push('vision'),
+        clearBypasses: () => events.push('bypasses'),
+        minLiquid: () => {
+            events.push('liquid');
+            return false;
+        },
+        dowear: () => events.push('wear'),
+        restrap: () => false,
+        canSeeMonster: () => true,
+        hideUnder: () => false,
+        canSeeHero: () => false,
+        canSeeSquare: () => false,
+        fightMonster: () => false,
+        dochugwAction: (monster, chug, env) => {
+            events.push(`dochugw:${chug}`);
+            return runSimpleMonsterAction(monster, env);
+        },
+    });
+
+    assert.deepEqual(events, ['every-turn', 'liquid', 'dochugw:true']);
+    assert.equal(target.monster.movement, 0);
+    assert.equal(target.monster.msleeping, true);
+    assert.equal(target.monster.wormno, 1);
+    assert.equal(target.replay.getRngLog().length, rngBefore);
+    assert.equal(target.replay.getScreens().length, screensBefore);
+});
+
+// C ref: monmove.c dochug():726-731 and m_move():1769. An awake or visible
+// long worm can reach its unported wormno movement branch, so the boundary
+// must keep both cases fail-closed.
+test('awake or visible long worms remain fail-closed', async () => {
+    for (const testCase of [
+        // Awake removes dochug()'s early disturb() return.
+        { label: 'awake out of sight', sleeping: false, visible: false },
+        // couldsee() lets disturb() potentially wake a sleeping worm.
+        { label: 'sleeping in sight', sleeping: true, visible: true },
+    ]) {
+        const target = await prepareSelectedAction({ pmidx: PM_LONG_WORM });
+        target.monster.msleeping = testCase.sleeping;
+        // A positive worm number identifies the long-worm movement state in C.
+        target.monster.wormno = 1;
+        if (testCase.visible)
+            game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
+        else
+            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'special monster movement'
+                ),
+                `${testCase.label}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `${testCase.label}, attempt ${attempt + 1}`,
+            );
+        }
+    }
+});
 
 // C ref: monmove.c dochug():717-724. Conflict can clear msleeping during an
 // earlier attack in the same scan, but STRAT_WAITFORU still returns before a
