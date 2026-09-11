@@ -25232,6 +25232,24 @@
           "remainingScreensUpperBound": 470
         }
       ]
+    },
+    {
+      "id": "div-monmove-dochug-sleeping-worm-0360",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit sleeping out-of-sight worms through dochug early no-wake return",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked mismatch is seed0360 step 368. C monmove.c dochug() returns from its sleeping/disturb() early path before m_move(), while JS dochug() already matches; js/unported_monster_actions.js assertSimpleActionState() incorrectly rejects wormno before dochug().",
+      "detail": "Development session seed0360-wizard-world-tour, segment 0, input step 368 (key .), first boundary: simple monster action requires special monster movement. Fresh prefix replay identifies long worm pmidx 114, m_id 3678, wormno 1, sleeping at (69,7), hero at (59,9), couldsee false, squared distance 104. C monmove.c disturb() lines 327-358 returns 0 because couldsee() is false or mdistu() > 100; dochug() lines 690-731 returns before m_move() lines 1715-1770. JS dochug() lines 2391-2395 already matches; the overbroad guard is js/unported_monster_actions.js lines 376-379. Keep awake or visible worms fail-closed.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "dochug",
+      "session": "seed0360-wizard-world-tour",
+      "step": 368
     }
   ]
 }
