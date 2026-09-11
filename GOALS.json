@@ -23486,7 +23486,16 @@
       ],
       "selectionReason": "seed0360-wizard-world-tour is the highest-ranked development mismatch at global step 301. Source-traced comparison shows C and JavaScript both reach Rogue level D:18 with identical 263-step RNG and room placement, but js/do.js goto_level() omits do.c:1666-1668 assign_graphics(ROGUESET)/check_gold_symbol() and do.c:1912-1914's Rogue arrival message, causing the screen and cursor mismatch. The source owner is an incomplete goto_level() port, so select a file-port and include the required symbols.c assign_graphics() and botl.c check_gold_symbol() dependencies.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "goto_level",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "goto_level"
+          ]
+        }
+      ],
       "openedAt": "29f6c7b0531c97bd913e640685a9bc25293abd9e",
       "openStanding": {
         "sha": "29f6c7b0531c97bd913e640685a9bc25293abd9e",
