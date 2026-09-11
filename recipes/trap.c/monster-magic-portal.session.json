@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh portal entry-point coverage: seed 2 reaches the D:12 branch portal after the debug level change; the generated monster is created after four More prompts, and n-l-u moves the hero far enough for the existing giant bat to step onto MAGIC_PORTAL. The input stops before the hero enters the portal so it exercises trap.c trapeffect_magic_portal() and teleport.c mlevel_tele_trap() without the unported domagicportal() path.",
+  "segments": [
+    {
+      "seed": 2,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:PortalScan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " \u001612\n    #wizgenesis\ngiant rat\nnlu"
+    }
+  ]
+}

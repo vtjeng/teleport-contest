@@ -1298,6 +1298,25 @@ async function trapeffect_level_telep(mtmp, trap, trflags, env) {
     return result === 'moved' ? Trap_Moved_Mon : Trap_Effect_Finished;
 }
 
+// C ref: trap.c trapeffect_magic_portal() (2710-2724). The hero arm remains
+// behind preflight_dotrap(), which excludes MAGIC_PORTAL before dotrap() can
+// call feeltrap() or the unported domagicportal(). A monster takes the same
+// level-migration path as LEVEL_TELEP, with mlevel_tele_trap() selecting the
+// portal-specific endgame gate and MIGR_PORTAL mode.
+async function trapeffect_magic_portal(mtmp, trap, trflags, env) {
+    const { state } = env;
+    if (mtmp === state.youmonst) {
+        // Keep the direct selector call explicit as well as the production
+        // preflight boundary. C calls feeltrap() before domagicportal(); the
+        // latter remains unported, so this branch cannot continue.
+        seetrap(trap, env);
+        const unsupported = requireTrapOperation(env, 'unsupported');
+        unsupported('domagicportal()');
+        return Trap_Effect_Finished; // unreachable
+    }
+    return trapeffect_level_telep(mtmp, trap, trflags, env);
+}
+
 // C ref: trap.c trapeffect_fire_trap() (1729-1821), monster arm
 // (1738-1819). The hero arm still stops at dofiretrap(), because dotrap()'s
 // preflight rejects FIRE_TRAP. The monster arm is live through mintrap() and
@@ -1759,7 +1778,6 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
     RUST_TRAP,
     SPIKED_PIT,
-    MAGIC_PORTAL,
     WEB,
     STATUE_TRAP,
     ANTI_MAGIC,
@@ -1794,6 +1812,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_hole(monster, trap, trflags, env);
     if (trap.ttyp === LEVEL_TELEP)
         return trapeffect_level_telep(monster, trap, trflags, env);
+    if (trap.ttyp === MAGIC_PORTAL)
+        return trapeffect_magic_portal(monster, trap, trflags, env);
     if (trap.ttyp === TELEP_TRAP)
         return trapeffect_telep_trap(monster, trap, trflags, env);
     if (trap.ttyp === ROLLING_BOULDER_TRAP)

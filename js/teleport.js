@@ -36,9 +36,11 @@ import {
     ICE,
     IS_LAVA,
     IS_STWALL,
+    MAGIC_PORTAL,
     LAVAPOOL,
     LR_MONGEN,
     MIGR_RANDOM,
+    MIGR_PORTAL,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
     MON_FLOOR,
@@ -90,6 +92,7 @@ import {
 import {
     Amonnam,
     capitalizedMonsterName,
+    mon_nam,
     monsterCommonName,
 } from './do_name.js';
 import { newsym, see_monsters } from './display.js';
@@ -119,12 +122,14 @@ import {
 } from './hack.js';
 import { dist2, distmin } from './hacklib.js';
 import {
+    control_teleport,
     is_covetous,
     is_dlord,
     is_dprince,
     is_rider,
     passes_walls,
 } from './mondata.js';
+import { is_home_elemental } from './makemon.js';
 import {
     m_at,
     mon_track_clear,
@@ -142,6 +147,7 @@ import {
     PM_MINOTAUR,
     PM_SALAMANDER,
     S_ANGEL,
+    S_ELEMENTAL,
     S_EEL,
     S_EYE,
     S_HUMAN,
@@ -172,6 +178,7 @@ import {
 import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
 import { make_blinded } from './potion.js';
+import { mon_has_amulet } from './wizard.js';
 import { deltrap, fill_pit, reset_utrap, t_at, unconscious }
     from './trap.js';
 import { somexyspace } from './mklev.js';
@@ -740,7 +747,7 @@ export async function mtele_trap(
 }
 
 // C ref: teleport.c mlevel_tele_trap() (2006-2086). The ordinary monster
-// hole/trapdoor path is complete; leash handling and the portal, level-
+// hole/trapdoor and magic-portal paths are complete; leash handling, the level
 // teleporter, and forced-off-level callers remain explicit boundaries because
 // their source owners are not yet wired into monster movement.
 export async function mlevel_tele_trap(
@@ -751,8 +758,9 @@ export async function mlevel_tele_trap(
     rawEnv = {},
 ) {
     const env = teleportEnv(rawEnv);
-    const { state } = env;
+    const { random, state } = env;
     const trapType = trap?.ttyp ?? NO_TRAP;
+    const portal = trapType === MAGIC_PORTAL;
     if (monster === state.u?.ustuck) return 'finished';
     if (monster === state.u?.usteed) return 'finished';
     if (monster.mleashed) {
@@ -762,7 +770,7 @@ export async function mlevel_tele_trap(
                 : 'leashed-pet level teleportation',
         );
     }
-    if (trapType !== HOLE && trapType !== TRAPDOOR) {
+    if (!portal && trapType !== HOLE && trapType !== TRAPDOOR) {
         throw new UnsupportedPositionCheckError(
             'non-hole monster level teleportation',
         );
@@ -797,7 +805,29 @@ export async function mlevel_tele_trap(
     // never rewrite trap->dst because the trap remains in the source level's
     // data until that level is saved.
     const destination = { ...trap.dst };
-    if (state.stronghold_level
+    let migrationType = MIGR_RANDOM;
+    if (portal) {
+        // teleport.c:2034-2044. A monster carrying the Amulet, a home
+        // elemental, or one which wins rn2(7) cannot leave the endgame via a
+        // portal. The random draw is after the two inventory/species tests,
+        // matching C's short-circuit order.
+        if (inEndgame(state) && (mon_has_amulet(monster)
+            || is_home_elemental(monster.data, state)
+            || random.rn2(7))) {
+            if (inSight && monster.data?.mlet !== S_ELEMENTAL) {
+                await message(messageAt(
+                    `${capitalizedMonsterName(monster, state)} `
+                        + 'seems to shimmer for a moment.',
+                    monster.mx,
+                    monster.my,
+                    state,
+                ), state);
+                seeTrap(trap, env);
+            }
+            return 'finished';
+        }
+        migrationType = MIGR_PORTAL;
+    } else if (state.stronghold_level
         && on_level(state.u?.uz, state.stronghold_level)) {
         destination.dnum = state.valley_level?.dnum;
         destination.dlevel = state.valley_level?.dlevel;
@@ -828,20 +858,23 @@ export async function mlevel_tele_trap(
     }
     if (inSight) {
         await message(messageAt(
-            `Suddenly, ${monsterCommonName(monster, state)} `
-                + `${trapType === HOLE
-                    ? 'falls into a hole'
-                    : 'falls through a trap door'}.`,
+            portal
+                ? `Suddenly, ${mon_nam(monster, state)} disappears out of sight.`
+                : `Suddenly, ${monsterCommonName(monster, state)} `
+                    + `${trapType === HOLE
+                        ? 'falls into a hole'
+                        : 'falls through a trap door'}.`,
             monster.mx,
             monster.my,
             state,
         ), state);
         seeTrap(trap, env);
     }
+    if (portal && !control_teleport(monster.data)) monster.mconf = 1;
     migrateToLevel(
         monster,
         ledger_no(destination, state),
-        MIGR_RANDOM,
+        migrationType,
         null,
         env,
     );
