@@ -22918,6 +22918,62 @@
           "remainingScreensUpperBound": 679
         }
       ]
+    },
+    {
+      "id": "port-trap-slp-gas-trap",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port trap.c trapeffect_slp_gas_trap() hero and monster sleep-gas effects",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The highest-ranked development queue candidate is an unresolved source investigation for seed0030 at global step 1393. Source tracing of the boundary identifies trap.c trapeffect_slp_gas_trap(): C's hero trap activation emits rnd(25) and sleep effects, while JS preflight_dotrap() stops before the SLP_GAS_TRAP arm. Select this smallest complete trap.c function to resolve the top candidate before lower-ranked parked work.",
+      "detail": "Development witness: seed0030-ten-diverse-deaths at global step 1393, segment 7 local step 119, key k (movenorth). C executes trapeffect_slp_gas_trap() at trap.c:1563-1592 after the hero enters an unseen sleep-gas trap; the step's RNG includes rnd(25)=16 at trap.c:1584 and then monster movement. JS preflight_dotrap() refuses all unported trap effects, including SLP_GAS_TRAP, before activation. Port the complete hero and monster arms, preserving seetrap, sleep resistance/breathless checks, fall_asleep or sleep_monst, steedintrap, messages, and source order; audit required callers and state helpers.",
+      "spans": [],
+      "openedAt": "32182fd97c37c03e170e557cd382ded0cdaa0cfa",
+      "openStanding": {
+        "sha": "1b7b68aac8eecb12f86b8871df27b57797d35dcf",
+        "screens": 6240,
+        "rng": 435495
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_slp_gas_trap",
+          "line": 1563,
+          "endLine": 1594,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1563,
+        "to": 1594
+      },
+      "activeStanding": {
+        "sha": "1b7b68aac8eecb12f86b8871df27b57797d35dcf",
+        "screens": 6240,
+        "rng": 435495
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1393,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 560
+        }
+      ]
     }
   ]
 }
