@@ -176,9 +176,10 @@ Each of these has produced a wrong conclusion before.
   recorded segments. Legacy recordings can have a different top-level shape.
 - mismatch-queue.mjs accepts `--json` and `--scan <path>`, not `--session`.
   Filter its JSON output when inspecting one development session.
-- goal-log.mjs does not implement subcommand `--help`. Use the procedures
-  in `.agents/loop.md` and `.agents/divergence.md`; inspect its option parser
-  when those procedures do not cover the required operation.
+- `node scripts/goal-log.mjs --help` lists commands; append `--help` to a
+  command for its arguments and prerequisites. Help runs without repository
+  state, a C checkout, or subprocesses and needs no sandbox escalation.
+  `.agents/loop.md` and `.agents/divergence.md` define the workflow sequence.
 - `rngMatched` compares positionally over the whole log.
   `frozen/ps_test_runner.mjs` walks both logs to their full length, so a
   segment that stops early scores the next segment's startup calls against C's

@@ -450,6 +450,108 @@ export function formatRoadmap(rows, head, luaRows = []) {
     return `${lines.join('\n')}\n`;
 }
 
+// Help is static so discovering a command never depends on game state, Git,
+// the C checkout, or a development scan. Keep syntax beside the CLI parser.
+const COMMAND_HELP = {
+    '--current': {
+        description: 'Show queued, open, and parked goals (the default command).',
+        usage: '[--detail]',
+        details: '  --detail  Include source-unit evidence and goal details.',
+    },
+    roadmap: {
+        description: 'List C declarations and verified C/Lua source units.',
+        usage: '',
+        details: 'Takes no operation arguments. Requires the C and Lua source checkout.',
+    },
+    'queue-goal': {
+        description: 'Create a queued C port, Lua port, or divergence-fix goal.',
+        usage: '--id <id> --kind <kind> --summary <text> <source options> [options]',
+        details: `Source options by --kind:
+  file-port       --c-file <name.c>
+                  [--from-function <name>] [--to-function <name>]
+                  Omitted bounds select the start/end of the C file.
+  lua-port        --lua-file <name.lua>
+                  Covers the whole Lua program, including top-level statements.
+  divergence-fix  --c-file <name.c> --function <name> --session <session>
+                  [--step <input-step>]
+
+Optional for all kinds:
+  --sessions <a,b,...>        Related development sessions.
+  --selection-reason <text>  Source-based reason for choosing this goal.
+  --detail <text>            Supporting source and mismatch evidence.
+
+The goal ID must be new. Selection must satisfy the current mismatch queue.
+Queueing does not open the goal; use open-goal before planning a span.`,
+    },
+    'open-goal': {
+        description: 'Open a queued goal or resume a parked goal.',
+        usage: '--id <id> [--selection-reason <text>]',
+        details: 'Requires a queued or parked goal and a valid current selection.\n'
+            + 'Captures the development standing; scoring inputs must be clean.',
+    },
+    'next-span': {
+        description: 'Plan or resume the next span of a C or Lua source port.',
+        usage: '--goal <id>',
+        details: 'Requires an open source port. Writes .cache/span-context.json\n'
+            + 'for the selected span. For a divergence fix, use queue-span.',
+    },
+    'queue-span': {
+        description: 'Queue a named span for a divergence fix.',
+        usage: '--goal <id> --name <name> [--functions <a,b,...>]',
+        details: 'Requires an open divergence-fix goal, a new span name, and a valid\n'
+            + 'current selection. For a C or Lua source port, use next-span.',
+    },
+    'record-evidence': {
+        description: 'Record verified source completion evidence for a goal.',
+        usage: '--goal <id> --evidence <relative-path.json>',
+        details: 'Requires an open C or Lua source port and a regular evidence file\n'
+            + 'inside this worktree. The schema is in .agents/validation.md.',
+    },
+    'close-span': {
+        description: 'Close a queued span of an open goal.',
+        usage: '--goal <id> --name <name>',
+        details: 'Source ports require completion evidence for every planned unit\n'
+            + 'and a passing checkpoint at HEAD, including the recordings corpus.',
+    },
+    'park-goal': {
+        description: 'Park an open goal while preserving its progress and spans.',
+        usage: '--goal <id> --reason <text>',
+        details: 'Requires an open goal and clean scoring inputs to capture its\n'
+            + 'development standing. Resume it later with open-goal.',
+    },
+    'discard-goal': {
+        description: 'Remove a queued goal from GOALS.json.',
+        usage: '--id <id> --reason <text>',
+        details: 'Only queued goals can be discarded; open or parked goals cannot.',
+    },
+    'close-goal': {
+        description: 'Close an open goal and record its delivered progress.',
+        usage: '--goal <id>',
+        details: 'Requires an open goal and a development standing in SCORE.tsv at HEAD.\n'
+            + 'Source ports also require closed spans, complete source and entry-point\n'
+            + 'evidence, and a passing checkpoint at HEAD. See .agents/loop.md\n'
+            + 'and .agents/scoring.md for the closure sequence.',
+    },
+};
+
+function formatHelp(mode) {
+    if (mode !== undefined) {
+        const { description, usage, details } = COMMAND_HELP[mode];
+        return `Usage: node scripts/goal-log.mjs ${mode}${usage ? ` ${usage}` : ''}\n\n`
+            + `${description}\n\n${details}`;
+    }
+    return [
+        'Usage: node scripts/goal-log.mjs [command] [options]',
+        '',
+        'Commands:',
+        ...Object.entries(COMMAND_HELP).map(([command, { description }]) =>
+            `  ${command.padEnd(17)} ${description}`),
+        '',
+        'Run node scripts/goal-log.mjs <command> --help for arguments and prerequisites.',
+        'Help prints syntax without reading or changing repository state.',
+    ].join('\n');
+}
+
 function parseOptions(args) {
     const options = {};
     for (let index = 0; index < args.length; index += 1) {
@@ -583,6 +685,19 @@ function requireCheckpoint(head) {
 
 async function main(args) {
     const mode = args[0];
+    if (mode === '--help') {
+        if (args.length !== 1) throw new Error('--help takes no other arguments');
+        console.log(formatHelp());
+        return;
+    }
+    if (mode !== undefined && !Object.hasOwn(COMMAND_HELP, mode))
+        throw new Error(`unknown command: ${mode}`);
+    if (args.includes('--help')) {
+        if (args.length !== 2 || args[1] !== '--help')
+            throw new Error('request command help without other arguments');
+        console.log(formatHelp(mode));
+        return;
+    }
     if (mode === '--current' || mode === undefined) {
         const rest = args.slice(1);
         const unexpected = rest.find((argument) => argument !== '--detail');
@@ -794,14 +909,14 @@ async function main(args) {
         console.log(formatGoal(goal));
         return;
     }
-    throw new Error('modes: --current [--detail], queue-goal, open-goal, '
-        + 'next-span, queue-span, record-evidence, close-span, park-goal, '
-        + 'discard-goal, close-goal, roadmap');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
     main(process.argv.slice(2)).catch((error) => {
         console.error(`goal-log: ${error.message}`);
+        const mode = process.argv[2] ?? '--current';
+        const command = Object.hasOwn(COMMAND_HELP, mode) ? `${mode} ` : '';
+        console.error(`Run node scripts/goal-log.mjs ${command}--help for usage.`);
         process.exitCode = 1;
     });
 }

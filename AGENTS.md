@@ -129,6 +129,9 @@ first invocation while the same restrictions apply:
 - `node scripts/diff-fresh.mjs` and fresh-differential matrix runners
   that invoke the C recorder.
 
+`goal-log.mjs --help` and `<command> --help` only print syntax and can run
+inside the sandbox.
+
 Keep ordinary source reads, searches, and supported focused checks
 sandboxed. These exceptions do not mean that every command launching a
 subprocess needs escalation.

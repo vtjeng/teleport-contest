@@ -4,7 +4,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync }
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync }
     from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -30,6 +30,110 @@ const AFTER_RESUME = { screens: 89, rng: 1656 }; // Resumed work adds four scree
 // Top-level statements surround a Lua helper so planning only declarations
 // would omit observable work at both ends of this five-line program.
 const LUA_SOURCE = 'des.level_init({});\nfunction helper()\nend\nhelper();\ndes.room({});\n';
+
+// A scripts-only checkout has no goal store, Git repository, C checkout, or
+// sessions. The preload also refuses state I/O and subprocesses so accidentally
+// swallowed failures cannot make a help request look harmless.
+function helpFixture(t) {
+    const root = mkdtempSync(join(tmpdir(), 'goal-log-help-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    mkdirSync(join(root, 'scripts'));
+    writeFileSync(join(root, 'package.json'), '{"type":"module"}\n');
+    for (const name of CORE_SCRIPTS)
+        copyFileSync(join(SCRIPT_ROOT, name), join(root, 'scripts', name));
+    const guard = join(root, 'guard.cjs');
+    writeFileSync(guard, `
+const fs = require('node:fs');
+const childProcess = require('node:child_process');
+const { syncBuiltinESMExports } = require('node:module');
+const readFileSync = fs.readFileSync;
+const forbidden = () => {
+    process.stderr.write('Help attempted repository I/O or a subprocess\\n');
+    process.exit(97); // Distinct from the CLI's ordinary invalid-input exit.
+};
+fs.readFileSync = function(path, ...args) {
+    if (!/\\.(?:mjs|cjs|js)$/.test(String(path)) && !String(path).endsWith('/package.json'))
+        forbidden();
+    return readFileSync.call(this, path, ...args);
+};
+for (const name of ['writeFileSync', 'mkdirSync', 'readdirSync', 'lstatSync'])
+    fs[name] = forbidden;
+for (const name of ['spawn', 'spawnSync', 'exec', 'execSync', 'execFile', 'execFileSync', 'fork'])
+    childProcess[name] = forbidden;
+syncBuiltinESMExports();
+`);
+    return {
+        root,
+        run: (...args) => spawnSync(process.execPath,
+            ['--require', guard, 'scripts/goal-log.mjs', ...args],
+            { cwd: root, encoding: 'utf8' }),
+    };
+}
+
+// Explicit expectations pin each supported command and its useful syntax;
+// reading a list from the implementation would miss accidentally omitted help.
+const HELP_COMMANDS = {
+    '--current': ['--detail', 'default'],
+    roadmap: ['C', 'Lua'],
+    'queue-goal': ['--id', '--kind', '--summary', '--c-file', '--lua-file',
+        '--from-function', '--to-function', '--function', '--session', '--sessions',
+        '--step', '--selection-reason', '--detail'],
+    'open-goal': ['--id', '--selection-reason', 'queued', 'parked'],
+    'next-span': ['--goal', 'source', '.cache/span-context.json'],
+    'queue-span': ['--goal', '--name', '--functions', 'divergence'],
+    'record-evidence': ['--goal', '--evidence', 'open'],
+    'close-span': ['--goal', '--name', 'checkpoint'],
+    'park-goal': ['--goal', '--reason', 'open'],
+    'discard-goal': ['--id', '--reason', 'queued'],
+    'close-goal': ['--goal', 'SCORE.tsv', 'checkpoint'],
+};
+
+test('CLI help lists every command without repository access or side effects', (t) => {
+    const f = helpFixture(t);
+    const before = readdirSync(f.root, { recursive: true }).sort();
+    const result = f.run('--help');
+    assert.equal(result.status, 0, result.stderr); // Help is a successful invocation.
+    assert.equal(result.stderr, ''); // The guard must not have observed forbidden work.
+    for (const command of Object.keys(HELP_COMMANDS)) assert.ok(result.stdout.includes(command), command);
+    assert.match(result.stdout, /Usage: node scripts\/goal-log\.mjs/u);
+    assert.deepEqual(readdirSync(f.root, { recursive: true }).sort(), before);
+});
+
+test('each CLI command has useful help without its normal required arguments', async (t) => {
+    const f = helpFixture(t);
+    for (const [command, expected] of Object.entries(HELP_COMMANDS)) {
+        await t.test(command, () => {
+            const result = f.run(command, '--help');
+            assert.equal(result.status, 0, result.stderr); // Missing operation arguments do not block help.
+            assert.equal(result.stderr, '');
+            assert.ok(result.stdout.includes(`Usage: node scripts/goal-log.mjs ${command}`));
+            for (const token of expected) assert.ok(result.stdout.includes(token), token);
+        });
+    }
+});
+
+test('invalid CLI invocations fail and point to relevant help before accessing state', (t) => {
+    const f = helpFixture(t);
+    const cases = [
+        // Unknown modes must not be mistaken for known commands or object properties.
+        { args: ['missing-command'], help: '--help' },
+        { args: ['constructor', '--help'], help: '--help' },
+        // Malformed help must not turn an invalid invocation into success.
+        { args: ['--help', 'extra'], help: '--help' },
+        { args: ['queue-goal', '--help', '--typo'], help: 'queue-goal --help' },
+        // Existing option validation still applies outside the help path.
+        { args: ['queue-goal', '--id'], help: 'queue-goal --help' },
+        { args: ['open-goal', '--id', 'first', '--id', 'second'], help: 'open-goal --help' },
+        { args: ['--current', '--typo'], help: '--current --help' },
+        { args: ['roadmap', '--typo'], help: 'roadmap --help' },
+    ];
+    for (const { args, help } of cases) {
+        const result = f.run(...args);
+        assert.equal(result.status, 1, result.stderr); // CLI failure, not the preload guard's exit.
+        assert.equal(result.stdout, '');
+        assert.ok(result.stderr.includes(`node scripts/goal-log.mjs ${help}`), result.stderr);
+    }
+});
 
 function fixture(t) {
     const root = mkdtempSync(join(tmpdir(), 'goal-log-cli-'));
