@@ -25288,6 +25288,58 @@
           "remainingScreensUpperBound": 465
         }
       ]
+    },
+    {
+      "id": "port-wiz-strt-special-level",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Wizard quest start special-level Lua program and wire its loader",
+      "luaFile": "Wiz-strt.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked mismatch is seed0360-wizard-world-tour at global step 373, where wizard level teleport selects Wiz-strt and JavaScript makelevel has no registered loader. Source tracing assigns the missing behavior to the whole nethack-c/upstream/dat/Wiz-strt.lua program; existing special-level API handlers cover all of its des calls, so queue the complete Lua port.",
+      "detail": "The replay stops at step 373 key y with unsupported level change: makelevel has no loader for special level Wiz-strt. Upstream dungeon.c level_map and fixup_level_locations substitute Wiz-strt for x-strt; mklev.c makelevel dispatches the special level to mkmaze.c makemaz, which calls sp_lev.c load_special on Wiz-strt.lua. The 107-line program is one top-level entry point covering solidfill initialization, level flags, map and terrain replacement, lighting regions, branch arrival, stairs, doors, Neferet and inventory, chest, apprentices, eels, non-diggable walls, six random traps, and siege monsters. js/mklev.js createSpecialLevelApi and js/themerooms.js selection_area provide every required descriptor handler. This is one complete Lua-port span, with implementation and registry wiring in js/quest_levels.js.",
+      "spans": [],
+      "openedAt": "1d6ace4929bd75ab445aee8725368cb4a5d3caed",
+      "openStanding": {
+        "sha": "9299225a25c63e40ed8ee98bb4633a7d00b7f6b8",
+        "screens": 6511,
+        "rng": 493295
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Wiz-strt.lua",
+          "line": 1,
+          "endLine": 107,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "9299225a25c63e40ed8ee98bb4633a7d00b7f6b8",
+        "screens": 6511,
+        "rng": 493295
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 373,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "Wiz-strt.lua",
+          "cFile": null,
+          "luaFile": "Wiz-strt.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Wiz-strt\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 460
+        }
+      ]
     }
   ]
 }
