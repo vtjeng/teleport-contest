@@ -23065,8 +23065,8 @@
       "spans": [
         {
           "name": "tower3.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f0b28086023bb8dc6664ee7648e5c3833fbcd1a6",
           "functions": [
             "tower3.lua"
           ]
@@ -23086,7 +23086,7 @@
           "line": 1,
           "endLine": 50,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -23110,7 +23110,59 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 559
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tower3.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "tower3",
+            "sourceReview": "Read nethack-c/upstream/dat/tower3.lua lines 1-50 in full and compared every top-level statement with js/quest_levels.js tower3(): solidfill initialization; mazelevel, noteleport, hardfloor, and solidify flags; the half-left/center 19x13 map with all leading and trailing spaces; the branch region; the up ladder; the locked entry door; the dragon class monster, two coordinate monsters, and six random monsters; the four fixed objects and four traps at the one-based niche coordinates; and the full 00,00,18,12 non-diggable selection. Checked Lua table indexing against the JavaScript place[3], place[0], place[1], and place[2] references. The production des.* API supplies the corresponding sp_lev.c handlers for map, levregion, ladder, door, monster, object, trap, and non_diggable. The program has no unported callee, random helper, obsolete guard, injected substitute, or swallowed refusal.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "sp_lev.c load_special() inventory loads QUEST_LEVEL_LOADERS into SPECIAL_LEVEL_LOADERS, including the tower3 key."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() looks up the requested proto name and invokes loader(specialLevelApi, state), which calls the registered tower3 function."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the tower prototype to tower3 and calls load_special() for the special level."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() detects the Vlad's Tower special level and dispatches makemaz(slev.proto, slev, state) before ordinary level generation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/tower3-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/tower3.lua/lower-tower-teleport.session.json"
+            ],
+            "checkedAt": "f0b28086023bb8dc6664ee7648e5c3833fbcd1a6"
+          }
+        ],
+        "entryPointReview": "The selected source is one whole Lua program with one production entry point: a wizard level teleport to Vlad's Tower level 3. The live wiz_level_tele() command reaches level_tele(), goto_level(), mklev.js makelevel(), makemaz(), load_special('tower3'), and QUEST_LEVEL_LOADERS.tower3. The fresh lower-tower-teleport recipe uses an independently selected seed, fixed datetime, character, options, and input sequence; its recording executes the map, branch region, ladder, door, monster, object, trap, and non-diggable calls through that production path.",
+        "entryPoints": [
+          {
+            "name": "tower3 special-level load",
+            "functions": [
+              "tower3.lua"
+            ],
+            "recordings": [
+              "recordings/tower3.lua/lower-tower-teleport.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
