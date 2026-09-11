@@ -1213,10 +1213,9 @@ async function really_done(how, state) {
         );
     }
 
-    // fixup_death() only adjusts the multi-turn reason in this port; its
-    // source call precedes the cleanup functions below. The result is not
-    // consumed here, so record the unported void callee and continue.
-    note_unported('end.c fixup_death');
+    // C ref: end.c:1232 fixup_death(). Its only changes apply to STONING and
+    // STARVING multi-turn reasons, both outside the DIED/QUIT paths admitted
+    // above, so there is no state change to reproduce here.
     // clearlocks() unlinks on-disk level files; the port holds levels in
     // memory and writes no files, so it has no counterpart.
     const silently = disclosureStopprint(state);
