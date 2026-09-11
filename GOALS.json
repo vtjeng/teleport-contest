@@ -26575,7 +26575,7 @@
     {
       "id": "port-display-flush-screen-cursor",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port display.c flush_screen() cursor mode preservation",
       "cFile": "display.c",
       "sessions": [
@@ -26586,8 +26586,8 @@
       "spans": [
         {
           "name": "flush_screen",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a94d27b293e532bb0feb30adacfbac97aa5eb0aa",
           "functions": [
             "flush_screen"
           ]
@@ -26599,15 +26599,18 @@
         "screens": 6859,
         "rng": 504067
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a94d27b293e532bb0feb30adacfbac97aa5eb0aa",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "flush_screen",
           "line": 2208,
           "endLine": 2286,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -26635,7 +26638,76 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 303
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "flush_screen",
+            "implementation": "js/display.js",
+            "symbol": "flush_screen",
+            "sourceReview": "Read the complete upstream display.c flush_screen() definition at lines 2208-2286. The port preserves the source order of the map-output suppression guard, the -1 delay toggle, the delayed and reentrant returns, the hangup guard, bot/timebot refresh, buffered glyph rendering and gnew clearing, cursor selection, and final display flush. C's cursor_on_u == 0 path now saves and restores the TTY cursor across the canonical grid rebuild; nonzero modes select the hero, and -1 still selects the hero after toggling delay. The C function-static flushing and delay_flushing values are represented on resetGame-owned game state so they survive awaits within a segment without leaking into the next runSegment(). The JavaScript map model has no separate glyph bounding box, so the existing full-map gnew sweep is the equivalent reset after rendering. All callees used for values or observable work in this body (bot, timebot, map rendering, and display output) are already implemented; no unported callee or refusal is substituted.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "dotravel",
+                "source": "cmd.c dotravel() prints the travel prompt, calls getpos(), and then dispatches dotravel_target(); JavaScript follows that production route through the command handler and reaches getpos.c's unmatched-feature flush_screen(0) arm."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c getpos() calls flush_screen(0) after cursor movement and after the ordinary feature-search result; JavaScript updates gg.getposx/gg.getposy and invokes flush_screen(0) at the corresponding selected-location and unmatched-key points."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c's command dispatcher routes the travel command to dotravel(); JavaScript's command dispatch arm awaits dotravel(), preserving the live caller chain into getpos() and flush_screen()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/display.c/flush-screen-getpos-cursor.session.json"
+            ],
+            "checkedAt": "a94d27b293e532bb0feb30adacfbac97aa5eb0aa"
+          }
+        ],
+        "entryPointReview": "The selected range contains the shared flush_screen() display entry point. Its ordinary travel entry path is cmd.js command dispatch -> dotravel() -> getpos(), where the independently chosen unmatched downstairs-key recipe reaches getpos.c's flush_screen(0) call. The focused source-pinned test covers the zero and nonzero cursor modes directly, including suppression phases; the matching recording covers runtime command dispatch, map cells and attributes, RNG calls, screens, and cursors.",
+        "entryPoints": [
+          {
+            "name": "ordinary travel target selection with getpos cursor flush",
+            "functions": [
+              "flush_screen"
+            ],
+            "recordings": [
+              "recordings/display.c/flush-screen-getpos-cursor.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 543,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 290
+        }
+      ],
+      "closeStanding": {
+        "sha": "a94d27b293e532bb0feb30adacfbac97aa5eb0aa",
+        "screens": 6861,
+        "rng": 504067
+      }
     }
   ]
 }
