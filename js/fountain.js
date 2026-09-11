@@ -377,7 +377,7 @@ function require_trap_constants() {
 // fountain and mark it looted.
 async function dofindgem(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const random = env.random ?? { rnd };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
 
     if (!heroIsBlind(state)) {
         await message('You spot a gem in the sparkling waters!', state);
@@ -572,8 +572,14 @@ export async function drinkfountain(state = game, env = {}) {
             });
             break;
         case 27: // Find a gem
-            throw new UnsupportedFountainError(
-                'find-gem fountain effect (fate 27)');
+            // C ref: fountain.c:357-362. An unlooted fountain produces a
+            // gem, marks the fountain looted, and then reaches the common
+            // dryup() tail. A looted fountain falls through to fate 28.
+            if (!FOUNTAIN_IS_LOOTED(state.u.ux, state.u.uy, state)) {
+                await dofindgem(state, env);
+                break;
+            }
+            // FALLTHROUGH: C's fate 27 branch falls through when looted.
         case 28: // Water Nymph
             throw new UnsupportedFountainError(
                 'water-nymph fountain effect (fate 28)');

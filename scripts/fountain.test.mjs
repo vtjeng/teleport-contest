@@ -28,6 +28,7 @@ import {
     PM_WATER_MOCCASIN,
     PM_YELLOW_DRAGON,
 } from '../js/monsters.js';
+import { DILITHIUM_CRYSTAL, LUCKSTONE } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 
 const RC = [
@@ -176,6 +177,86 @@ test('drinkfountain follows fountain.c foul-water fate 20', async () => {
     assert.equal(game.multi, -2);
     assert.equal(game.multi_reason, 'vomiting');
     assert.equal(game.nomovemsg, 'You can move again.');
+    assert.equal(location.typ, ROOM);
+    assert.equal(location.horizontal, 0);
+    assert.equal(location.flags, 0);
+});
+
+test('drinkfountain follows fountain.c unlooted find-gem fate 27', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(
+        source,
+        /case 27:[\s\S]*?if \(!FOUNTAIN_IS_LOOTED\(u\.ux, u\.uy\)\)[\s\S]*?dofindgem\(\);[\s\S]*?break;[\s\S]*?FALLTHROUGH;/u,
+    );
+
+    await startedGame();
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    const beforeObjects = [];
+    for (let object = game.level.objects[game.u.ux][game.u.uy];
+        object;
+        object = object.nexthere) {
+        beforeObjects.push(object);
+    }
+    const messages = [];
+    const draws = [];
+    const unexpected = (name) => (...args) => {
+        throw new Error(`unexpected ${name}(${args.join(',')}) draw`);
+    };
+    const random = {
+        rnd(bound) {
+            draws.push(`rnd(${bound})`);
+            // Fate 27 selects the find-gem branch; rnd(30) is from
+            // fountain.c:247 and the value is the investigator's C draw.
+            if (bound === 30) return 27;
+            // The gem range's source probabilities sum to 862; this value
+            // selects the same weighted gem as the investigator's C trace.
+            if (bound === 862) return 529;
+            // mksobj() calls next_ident(), whose patched C rnd(2) draw is 2.
+            if (bound === 2) return 2;
+            throw new Error(`unexpected rnd(${bound}) draw`);
+        },
+        rn2(bound) {
+            draws.push(`rn2(${bound})`);
+            // exercise(A_WIS, TRUE) uses rn2(19); dryup() then uses rn2(3).
+            if (bound === 19) return 5;
+            if (bound === 3) return 0;
+            throw new Error(`unexpected rn2(${bound}) draw`);
+        },
+        rn1: unexpected('rn1'),
+        rne: unexpected('rne'),
+    };
+
+    await drinkfountain(game, {
+        message: (line) => messages.push(line),
+        random,
+    });
+
+    assert.deepEqual(draws, [
+        'rnd(30)', 'rnd(862)', 'rnd(2)', 'rn2(19)', 'rn2(3)',
+    ]);
+    assert.deepEqual(messages, [
+        'You spot a gem in the sparkling waters!',
+        'The fountain dries up!',
+    ]);
+    const createdObjects = [];
+    for (let object = game.level.objects[game.u.ux][game.u.uy];
+        object;
+        object = object.nexthere) {
+        if (!beforeObjects.includes(object)) createdObjects.push(object);
+    }
+    assert.equal(createdObjects.length, 1);
+    assert.ok(
+        createdObjects[0].otyp >= DILITHIUM_CRYSTAL
+            && createdObjects[0].otyp < LUCKSTONE,
+    );
+    // dryup() follows dofindgem(), so the fountain tile and its looted flag
+    // are both reset after the C rn2(3)=0 draw.
     assert.equal(location.typ, ROOM);
     assert.equal(location.horizontal, 0);
     assert.equal(location.flags, 0);
