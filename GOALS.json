@@ -23187,7 +23187,7 @@
     {
       "id": "port-extralev-rogue-level",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port procedural Rogue-level generation and wire makelevel",
       "cFile": "extralev.c",
       "sessions": [
@@ -23216,8 +23216,11 @@
         "screens": 6300,
         "rng": 451504
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5cb122273020fc5531489e0d180195c1b316dac0",
+      "delivered": {
+        "screens": 1,
+        "rng": 263
+      },
       "functions": [
         {
           "name": "roguejoin",
@@ -23453,7 +23456,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 301,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 532
+        }
+      ]
     }
   ]
 }
