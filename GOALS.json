@@ -24951,7 +24951,16 @@
       "sessions": [],
       "selectionReason": "The highest-ranked unresolved development boundary is seed0360-wizard-world-tour at step 335. Instrumented replay shows vampire bat pmidx 129 entering a one-cell harmless gas cloud at (42,10), arg 0, with no region callbacks. Upstream region.c m_in_out_region() admits the transition, updates the region's cached monster membership, and returns TRUE; js/unported_monster_actions.js admitSimpleDestinationAndRegion() rejects every region entry except a narrow harmless fog-vapor exit. This is a divergence fix because JS already implements m_in_out_region() and the missing behavior is the production admission seam.",
       "detail": "C region.c:m_in_out_region() first checks can_enter/can_leave callbacks, then removes leaving monsters and adds entering monsters, with no callback work for this gas region. The JS region.js implementation already matches that source order. At the boundary, game.level.regions contains one visible region {rects:[{lx:42,ly:10,hx:42,hy:10}], ttl:3, arg:0, inside_f:'inside_gas_cloud', expire_f:'expire_gas_cloud', can_enter_f:null, enter_f:null, can_leave_f:null, leave_f:null, monsters:[3524]}; linked monster id 3524 is pmidx 129 (vampire bat) at (42,10) after the attempted move. Widen the guard to admit zero-damage gas-cloud entries/exits when all transition callbacks are unset, preserving harmful gas and callback-bearing regions as fail-closed.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "harmless-gas-region-transition",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_in_out_region"
+          ]
+        }
+      ],
       "openedAt": "0c5e21e78783102789860f3b3c9f8725b72d1da2",
       "openStanding": {
         "sha": "0c5e21e78783102789860f3b3c9f8725b72d1da2",
