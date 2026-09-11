@@ -90,6 +90,17 @@ The orchestrator repeats without returning to the user between steps:
    row at the measured commit before `goal-log.mjs close-goal`. Commit the
    closure and continue at step 1.
 
+When a goal is ready to close, its passing checkpoint and refreshed development
+queue can establish the next candidate before closure finishes. If that candidate
+still needs source tracing, start one read-only investigator while completing
+closure and push. Give it the tested commit, selected development mismatch, and
+existing artifacts; require a short report identifying the source owner, callers,
+and dependencies. It must not edit files or run a competing full suite or scorer.
+Finish closing the current goal and recheck selection before opening the next one.
+Skip this overlap when the current goal completes the user's active objective.
+Use actual start, finish, and closure timestamps when reporting overlap, including
+any remaining wait or rework.
+
 A correctness review, when one is warranted, is a loop step between spans.
 Commits that land while a review reads its fixed range belong to the next
 review.
