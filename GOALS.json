@@ -23739,6 +23739,58 @@
           "remainingScreensUpperBound": 471
         }
       ]
+    },
+    {
+      "id": "port-asmodeus-level",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Gehennom Asmodeus special level Lua program and wire its loader",
+      "luaFile": "asmodeus.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked current mismatch is seed0360-wizard-world-tour at step 307, where makelevel() requests special level asmodeus and the JavaScript loader has no asmodeus.lua implementation. The upstream dat/asmodeus.lua program defines level_init/flags, two maps with doors, stairs, non-diggable terrain, lighting, monsters, objects, traps, levregions, teleport region, and hell_tweaks; select the whole Lua program and its loader wiring.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "7a9797ee323ca748ccdfa5597b7a7f16c5d8bd7e",
+      "openStanding": {
+        "sha": "005de4b360d6415148995cefca3049c989327ea8",
+        "screens": 6368,
+        "rng": 463480
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "asmodeus.lua",
+          "line": 1,
+          "endLine": 96,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "005de4b360d6415148995cefca3049c989327ea8",
+        "screens": 6368,
+        "rng": 463480
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 307,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "asmodeus.lua",
+          "cFile": null,
+          "luaFile": "asmodeus.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"asmodeus\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 526
+        }
+      ]
     }
   ]
 }
