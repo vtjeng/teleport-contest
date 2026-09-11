@@ -24255,8 +24255,8 @@
       "spans": [
         {
           "name": "orcus.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e114461fe719b6c950448aae168f0d8e27e6a62f",
           "functions": [
             "orcus.lua"
           ]
@@ -24276,7 +24276,7 @@
           "line": 1,
           "endLine": 159,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -24300,7 +24300,54 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 509
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "orcus.lua",
+            "implementation": "js/orcus_levels.js",
+            "symbol": "orcus",
+            "sourceReview": "Read the complete upstream dat/orcus.lua program (lines 1-159). The loader preserves mazegrid initialization, mazelevel and shortsighted flags, pre-map bounds selection, right-aligned and centered 45-by-17 map placement, mazewalk callback, unlit main region, fixed down stair, all 24 boulders, all 16 doors, sanctum altar, morgue and two shop regions, eight traps, ten random objects, rn2(2) marker-or-lamp compensation, fixed and random monster descriptors in source order, level-relative stair-up and branch regions, teleport region, protected selection union, and hell_tweaks. Selection coordinate conversion and hell_tweaks follow the existing selvar.lua and nhlib.lua ports; no unported callee or placeholder remains in this Lua program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The special-level registry dynamically imports orcus_levels.js and spreads ORCUS_LEVEL_LOADERS into SPECIAL_LEVEL_LOADERS, making the Lua program available under the orcus proto name."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() resolves SPECIAL_LEVEL_LOADERS[name], creates the special-level descriptor API, invokes the orcus loader, and runs finish() post-processing."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the orcus special-level proto during makelevel() when Is_special() selects Orcus's level, then dispatches it through load_special()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/orcus-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/orcus.lua/orcus-level-teleport.session.json"
+            ],
+            "checkedAt": "e114461fe719b6c950448aae168f0d8e27e6a62f"
+          }
+        ],
+        "entryPointReview": "The selected whole Lua program has one entry point: mkmaze.c makemaz() selects the orcus proto, load_special() dispatches the registered loader, and the descriptor API executes the complete dat/orcus.lua program. The independent wizard-mode teleport recipe reaches this dispatch and records the resulting full map, population, region, trap, object, and hell_tweaks generation trace.",
+        "entryPoints": [
+          {
+            "name": "orcus special-level loader",
+            "functions": [
+              "orcus.lua"
+            ],
+            "recordings": [
+              "recordings/orcus.lua/orcus-level-teleport.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
