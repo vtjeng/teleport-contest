@@ -25624,7 +25624,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0360-wizard-world-tour at global step 399, where the selected travel target is unreachable. C hack.c domove_core() calls findtravelpath(TRAVP_GUESS) after TRAVP_TRAVEL fails; JavaScript throws instead. The missing behavior is the TRAVP_GUESS branch in the existing findtravelpath() implementation, so select the complete source function and its production caller update.",
       "detail": "Fresh replay reaches input step 399 key . after travel prompt steps 393-398. C hack.c:2724-2728 calls findtravelpath(TRAVP_GUESS) when TRAVP_TRAVEL fails; hack.c:1266-1523 findtravelpath() scans couldsee candidates, picks the closest reachable point, handles the hero fallback direction, then retargets and restarts in TRAVP_TRAVEL. JS hack.js:2823-2827 rejects TRAVP_GUESS and domove_core():3729-3734 throws unsupported hero move: unreachable travel target guessing. Port the complete findtravelpath() source range, preserving traversal order, travel-map state, direction selection, and RNG/screen behavior, and wire the caller to invoke TRAVP_GUESS.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "findtravelpath",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "findtravelpath"
+          ]
+        }
+      ],
       "openedAt": "415f9ea0526505008c6f2d0a91b8390ecf2dfe07",
       "openStanding": {
         "sha": "56e6c4a2473fb1a75eea66b613a45837c3f1a779",
