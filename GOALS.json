@@ -22922,7 +22922,7 @@
     {
       "id": "port-trap-slp-gas-trap",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c trapeffect_slp_gas_trap() hero and monster sleep-gas effects",
       "cFile": "trap.c",
       "sessions": [
@@ -22946,8 +22946,11 @@
         "screens": 6240,
         "rng": 435495
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "45f160db6ac1c2cb0d88f0ae84b004f7adc72fd4",
+      "delivered": {
+        "screens": 33,
+        "rng": 1173
+      },
       "functions": [
         {
           "name": "trapeffect_slp_gas_trap",
@@ -23029,7 +23032,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1426,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires an ordinary monster target",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 527
+        }
+      ]
     }
   ]
 }
