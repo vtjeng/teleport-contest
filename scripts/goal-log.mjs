@@ -13,6 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { readRows, standing } from './score-log.mjs';
 import { currentDevelopmentStanding } from './development-standing.mjs';
+import { readCheckpointResult } from './checkpoint-results.mjs';
 import {
     PROJECT_ROOT, cFunctions, jsFunctionNames, listCFiles, markDeclared,
     parseCFunctions,
@@ -676,7 +677,7 @@ export function assertCheckpointCurrent(summary, head) {
 function requireCheckpoint(head) {
     let summary;
     try {
-        summary = JSON.parse(readFileSync(join(PROJECT_ROOT, '.cache', 'checkpoint-summary.json'), 'utf8'));
+        summary = readCheckpointResult(PROJECT_ROOT, head);
     } catch {
         // The same actionable error covers a missing or malformed summary.
     }

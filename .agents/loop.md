@@ -14,7 +14,8 @@ The orchestrator repeats without returning to the user between steps:
 
    - No goal in progress: start at step 1.
    - Goal in progress, a span is queued: the worker may have been interrupted.
-     Run `git log --oneline` and check `.cache/checkpoint-summary.json` to
+     Run `git log --oneline` and check the shared checkpoint results described
+     in `.agents/validation.md`, "Routine validation", to
      establish what it landed. If the span's commits landed, skip the worker
      and continue with step 3's measurement and push; otherwise start at
      step 3 and spawn the worker.
@@ -57,15 +58,15 @@ The orchestrator repeats without returning to the user between steps:
    to trigger handoff checks. When it returns, establish what landed with
    `git log --oneline origin/main..HEAD` and `git status --short`. The worker
    runs `npm run checkpoint` after committing, so
-   `.cache/checkpoint-summary.json` describes the committed state: read that
-   file and apply `.agents/validation.md`, "Routine validation", to reuse its
+   its shared summary describes the tested commit. Apply
+   `.agents/validation.md`, "Routine validation", to find and reuse its
    results or handle a failure. Push before the turn ends.
 
    Watch the CI run from a background task (`gh run list --limit 1`,
    then `gh run watch <id> --exit-status`). Retain one watcher for that run;
    do not also poll run lists or CI logs for its completion. CI can fail
-   where a local checkpoint passes because CI runs from a fresh checkout; start the
-   next step without waiting. When a run fails, diagnose, fix, push,
+   where a local checkpoint passes; start the next step without waiting.
+   When a run fails, diagnose, fix, push,
    and watch the new run before the current span closes. The `gh`
    commands require `gh repo set-default vtjeng/teleport-contest`; run
    it if `gh run list` shows unfamiliar runs.

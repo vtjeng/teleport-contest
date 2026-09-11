@@ -306,8 +306,9 @@ Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`
 leaves that path as an empty directory. The generated-data checks and the
 source-pinned tests read the C source from that path, so they all fail until
 you check it out. When both sets of failures appear together, the missing
-checkout is the likely cause. Run this once in a new
-worktree, before its first `npm run checkpoint`:
+checkout is the likely cause. Run this once in a new development worktree
+before running source-pinned tests directly. `npm run checkpoint` initializes
+its own private C checkout from the existing local repository:
 
 ```
 git submodule update --init --checkout --no-fetch -- nethack-c/upstream
