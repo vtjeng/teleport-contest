@@ -135,6 +135,7 @@
         "js/mkmaze.js",
         "js/mkroom.js",
         "js/object_generation.js",
+        "js/orcus_levels.js",
         "js/quest_levels.js",
         "js/rect.js",
         "js/room_coordinates.js",

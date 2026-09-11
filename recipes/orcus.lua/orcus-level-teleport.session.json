@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920001,
+      "datetime": "20451203112233",
+      "nethackrc": "OPTIONS=name:OrcusProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u0016?\np"
+    }
+  ],
+  "comment": "Wizard-mode level teleport to Orcus, selected from the dungeon menu. The seed and clock were chosen independently for this source entry point; the route exercises the map callback, fixed and random undead populations, and hell_tweaks post-map randomization."
+}

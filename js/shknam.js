@@ -22,7 +22,7 @@ import {
     SDOOR,
     ismnum,
 } from './const.js';
-import { depth, ledger_no } from './dungeon.js';
+import { depth, ledger_no, on_level } from './dungeon.js';
 import { noit_mon_nam } from './do_name.js';
 import { set_tin_variety, vegetarian } from './eat.js';
 import { make_engr_at } from './engrave.js';
@@ -32,6 +32,7 @@ import {
     makemon,
     mkmonmoney,
     mongets,
+    mongone,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
@@ -540,6 +541,14 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
             );
         }
     }
+
+    // C ref: shknam.c stock_room()'s Orcus-level ghost-town hack. The
+    // shopkeepers are created and their normal inventory is initialized so
+    // that object IDs and RNG calls remain in source order, then the keeper
+    // is dismissed after stocking. mongone() preserves special items while
+    // discarding ordinary inventory and consumes obj_resists() once per item.
+    if (on_level(state.u?.uz, state.orcus_level) && sroom.resident)
+        mongone(sroom.resident, normalized);
 
     state.level.flags.has_shop = true;
     return true;

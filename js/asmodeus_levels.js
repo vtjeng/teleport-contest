@@ -151,7 +151,7 @@ function selectionIterateRelative(selection, frame, callback) {
 
 // C ref: dat/nhlib.lua hell_tweaks(). The helper is kept here because every
 // Asmodeus-level call to it changes terrain, objects, and the RNG stream.
-function hellTweaks(des, protectedArea, state) {
+export function hellTweaks(des, protectedArea, state) {
     const liquid = 'L';
     const ground = '.';
     const nProtected = protectedArea.numpoints();

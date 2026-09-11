@@ -284,6 +284,7 @@ import {
     PM_MINOTAUR,
     PM_GIANT_EEL,
     PM_GUARD,
+    PM_NAZGUL,
     PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
     PM_NEANDERTHAL,
@@ -511,6 +512,7 @@ import {
     RANSEUR,
     RING_MAIL,
     RING_CLASS,
+    RIN_INVISIBILITY,
     ROCK,
     ROBE,
     ROCK_CLASS,
@@ -2461,6 +2463,18 @@ function m_initinv(monster, normalized) {
             obj.owt = weight(obj, normalized);
             addFreshMonsterObject(monster, obj, normalized);
         }
+    } else if (ptr.mlet === S_WRAITH && ptr.pmidx === PM_NAZGUL) {
+        // C ref: makemon.c:752-759. Every Nazgul starts with a cursed
+        // invisibility ring; mksobj() consumes next_ident before the BUC
+        // mutation, then mpickobj() links the object to the monster.
+        const ring = mksobj(
+            RIN_INVISIBILITY,
+            false,
+            false,
+            normalized,
+        );
+        curseFreeObject(ring, normalized);
+        addFreshMonsterObject(monster, ring, normalized);
     } else if (ptr.mlet === S_LICH) {
         // C ref: makemon.c:759-771. Master liches rarely receive an athame
         // or empty wand; arch-liches can receive a higher-quality weapon.
