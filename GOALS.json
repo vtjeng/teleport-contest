@@ -24613,7 +24613,7 @@
     {
       "id": "port-mon-monlineu-mm-displacement-complete",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete mon.c movement candidate filtering and aggression family, including mfndpos terrain eligibility",
       "cFile": "mon.c",
       "sessions": [
@@ -24644,8 +24644,11 @@
         "screens": 6399,
         "rng": 480788
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9c1feae981ac22b5c3fe4b278c31c3ced2919326",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "monlineu",
@@ -24905,7 +24908,39 @@
         ],
         "entryPointReview": "This source range contains helper functions only, with no standalone command, monster action, level feature, or startup entry point. Runtime coverage comes from monmove.c m_move(), dogmove.c dog_move(), and priest.c move_special(), which are wired to mon_allowflags() and mfndpos(); mfndpos() reaches monlineu(), m_in_air(), mm_aggression(), and mm_displacement() in the candidate scan. The new source-pinned preflight cases exercise the swimmer moat and passwall wall candidates, while existing monmove recordings cover impure movement through those callers.",
         "entryPoints": []
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0383-wizard-hallucinate",
+          "step": 203,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a door trap under a monster",
+          "unlocatedKinds": [],
+          "recordedSteps": 219,
+          "remainingScreensUpperBound": 16
+        },
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 335,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a region transition",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 498
+        }
+      ]
     }
   ]
 }
