@@ -25001,7 +25001,7 @@
     {
       "id": "div-monmove-dochug-sleeping-covetous-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit sleeping covetous monsters through dochug's no-wake return",
       "cFile": "monmove.c",
       "sessions": [],
@@ -25023,8 +25023,11 @@
         "screens": 6399,
         "rng": 480788
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "12b8f8f4d89472b478b387489553c3bd6d14f108",
+      "delivered": {
+        "screens": 9,
+        "rng": 172
+      },
       "function": "dochug",
       "session": "seed0360-wizard-world-tour",
       "step": 335,
