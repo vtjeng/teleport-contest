@@ -22866,7 +22866,7 @@
     {
       "id": "fix-mthrowu-thitu-lethal-exercise",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Stop thitu after lethal monster missile damage before post-death exercise",
       "cFile": "mthrowu.c",
       "sessions": [],
@@ -22888,8 +22888,11 @@
         "screens": 6240,
         "rng": 426514
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1b7b68aac8eecb12f86b8871df27b57797d35dcf",
+      "delivered": {
+        "screens": 0,
+        "rng": 8981
+      },
       "function": "thitu",
       "session": "seed0030-ten-diverse-deaths",
       "step": 1274,
