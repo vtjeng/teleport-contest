@@ -11,7 +11,6 @@ import {
     showPendingTtyMessage,
     xwaitforspace,
 } from './tty_message.js';
-import { flush_screen } from './display.js';
 
 // Buffer.toString('utf8') in record-session.mjs preserves a leading U+FEFF
 // from the capture payload. TextDecoder's counterintuitive ignoreBOM option
@@ -127,8 +126,10 @@ export async function tty_wait_synch(state = game) {
     // The browser has no separate WinDesc for WIN_MAP, but a generated level
     // and initialized hero are the same source boundary: normal play has a
     // map window even though the terminal renderer owns its cells directly.
+    // The preceding death pline() has already flushed the canonical map. C's
+    // tty_display_nhwindow(WIN_MAP, FALSE) has no status refresh here, so do
+    // not route this arm through flush_screen(), which calls bot() first.
     if (state.level?.at && state.u?.ux && state.iflags?.window_inited !== false) {
-        await flush_screen(1);
         showPendingTtyMessage(state);
         return;
     }

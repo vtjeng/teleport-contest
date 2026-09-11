@@ -40,6 +40,8 @@ import { losehp } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { tty_wait_synch } from '../js/tty_rawprint.js';
+import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 import {
     NON_PM,
     PM_GIANT_BAT,
@@ -715,6 +717,23 @@ test('really_done waits before the can_make_bones draw', () => {
     assert.match(
         END_C,
         /if \(have_windows\)\s*wait_synch\(\);[\s\S]*?bones_ok\s*=\s*\(how\s*<\s*GENOCIDED\)\s*&&\s*can_make_bones\(\);/u,
+    );
+});
+
+test('the map wait leaves the dirty status line unchanged', async () => {
+    await dyingGame();
+    // end.c:1189 reaches tty_wait_synch() after done() has changed u.uhp but
+    // before the next status refresh. A direct map-window wait must preserve
+    // the previous HP:10(10) row while exposing the pending More marker.
+    game.u.uhp = 0;
+    assert.match(statusRow(), STARTING_HP_STATUS);
+    await tty_wait_synch(game);
+    assert.match(statusRow(), STARTING_HP_STATUS);
+    assert.equal(game.nhDisplay.toplin, TOPLINE_NEED_MORE);
+    assert.match(
+        game.nhDisplay.grid.slice(0, 2)
+            .map((row) => row.map(({ ch }) => ch).join('')).join('\n'),
+        /--More--/u,
     );
 });
 
