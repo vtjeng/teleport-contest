@@ -26068,7 +26068,7 @@
     {
       "id": "port-trap-domagictrap-invisibility",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c domagictrap() fate-11 intrinsic invisibility toggle and wire self_invis_message()",
       "cFile": "trap.c",
       "sessions": [
@@ -26079,8 +26079,8 @@
       "spans": [
         {
           "name": "domagictrap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ebb9db63957d67b3aa0a6ff7ebe0183787a95330",
           "functions": [
             "domagictrap"
           ]
@@ -26092,15 +26092,18 @@
         "screens": 6673,
         "rng": 497299
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fca9b0a04593f6482fcbbe931f35c5a45f009cad",
+      "delivered": {
+        "screens": 140,
+        "rng": 3494
+      },
       "functions": [
         {
           "name": "domagictrap",
           "line": 4317,
           "endLine": 4454,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -26128,7 +26131,76 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 348
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "domagictrap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "domagictrap",
+            "sourceReview": "Read the complete upstream trap.c domagictrap() definition (4317-4454), including its rnd(20) fate selection, the case-11 You_hear()/self_invis_message()/HInvis/newsym order, and the remaining fate branches. Case 11 now preserves the C preconditions, message gates, HInvis FROMOUTSIDE toggle, redraw, and absence of post-fate RNG; potion.c self_invis_message() (471-478) is implemented in js/potion.js as the only required callee. Other fate branches retain explicit source-named boundaries for their still-unported C callees, with no swallowed refusal or invented random draw.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_magic_trap",
+                "source": "trap.c trapeffect_magic_trap() 2293-2320 calls domagictrap() after the hero rn2(30) gate; js/trap_effects.js dispatches the same hero effect and passes its message, random, and redraw environment."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches MAGIC_TRAP to trapeffect_magic_trap(); js/trap_effects.js selector preserves that dispatcher path to the repaired domagictrap() case."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c domove() calls spoteffects() after movement onto an unseen trap; js/hack.js spoteffects() invokes dotrap(), which reaches trapeffect_selector() and domagictrap() through the live movement path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-magic-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-magic-trap-invisibility.session.json"
+            ],
+            "checkedAt": "ebb9db63957d67b3aa0a6ff7ebe0183787a95330"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one production entry point: hero movement onto MAGIC_TRAP reaches hack.js spoteffects(), trap_effects.js dotrap()/trapeffect_selector()/trapeffect_magic_trap(), and domagictrap() case 11. The independent hero-magic-trap-invisibility recipe and matching recording exercise this path with rn2(30)=1 and rnd(20)=11, including both messages, the intrinsic invisibility toggle, redraw, and cursor/screen output. Focused source-pinned tests cover the toggle-on, toggle-off, blindness, message gates, and exact random draw order.",
+        "entryPoints": [
+          {
+            "name": "hero magic trap intrinsic invisibility toggle",
+            "functions": [
+              "domagictrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-magic-trap-invisibility.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1745,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: a gas spore exploding on death",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 208
+        }
+      ],
+      "closeStanding": {
+        "sha": "fca9b0a04593f6482fcbbe931f35c5a45f009cad",
+        "screens": 6813,
+        "rng": 500793
+      }
     }
   ]
 }
