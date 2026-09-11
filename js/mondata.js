@@ -45,6 +45,7 @@ import {
     Upolyd,
     W_ACCESSORY,
     W_AMUL,
+    W_ARM,
     W_ARMC,
     W_ARMOR,
     W_WEP,
@@ -62,7 +63,17 @@ import * as M from './monsters.js';
 import {
     ALCHEMY_SMOCK,
     AMULET_OF_MAGICAL_BREATHING,
+    BLACK_DRAGON_SCALES,
+    BLUE_DRAGON_SCALES,
     CREAM_PIE,
+    GRAY_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALES,
+    GOLD_DRAGON_SCALES,
+    GREEN_DRAGON_SCALES,
+    ORANGE_DRAGON_SCALES,
+    RED_DRAGON_SCALES,
+    WHITE_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALES,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { makesingular } from './fruit.js';
@@ -87,6 +98,35 @@ function hasDamageType(species, damageType) {
     return Boolean(species?.mattk?.some(
         (attack) => attack.adtyp === damageType,
     ));
+}
+
+// C ref: artifact.c defends()'s dragon-armor branch (636-685). The caller
+// has already established that `armor` is dragon armor, so this compact switch
+// preserves the source's mail-to-scales normalization without consulting the
+// initialized artifact table.
+function dragonArmorDefends(armor, adtyp) {
+    let scales = armor.otyp;
+    if (scales >= GRAY_DRAGON_SCALE_MAIL
+        && scales < GRAY_DRAGON_SCALES) {
+        scales += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+    }
+    switch (adtyp) {
+    case M.AD_MAGM: return scales === GRAY_DRAGON_SCALES;
+    case M.AD_HALU: return scales === GOLD_DRAGON_SCALES;
+    case M.AD_FIRE: return scales === RED_DRAGON_SCALES;
+    case M.AD_COLD: return scales === WHITE_DRAGON_SCALES;
+    case M.AD_DRST:
+    case M.AD_DISE: return scales === GREEN_DRAGON_SCALES;
+    case M.AD_SLEE:
+    case M.AD_PLYS: return scales === ORANGE_DRAGON_SCALES;
+    case M.AD_DISN:
+    case M.AD_DRLI: return scales === BLACK_DRAGON_SCALES;
+    case M.AD_ELEC:
+    case M.AD_SLOW: return scales === BLUE_DRAGON_SCALES;
+    case M.AD_ACID:
+    case M.AD_STON: return scales === YELLOW_DRAGON_SCALES;
+    default: return false;
+    }
 }
 
 // C refs: mondata.c attacktype(), noattacks(), dmgtype(); mondata.h's
@@ -1929,17 +1969,27 @@ export function get_atkdam_type(adtyp, random = { rn2 }) {
 }
 
 // C ref: mondata.c defended() (90-124). Checks whether a monster has artifact
-// or dragon-armor defense against a damage type. The port checks only wielded
-// artifact defense, which is the branch resists_drli() exercises. The full
-// dragon-armor branch is left for a later slice that ports the dragon armor
-// defense system.
+// or dragon-armor defense against a damage type. Adult dragons stand in for
+// their own scales; ordinary monsters and the hero use their worn suit.
 export function defended(mon, adtyp, state = game) {
     const is_you = (mon === state.youmonst);
     // wielded artifact that defends against adtyp
     const wep = is_you ? state.uwep : mon?.mw;
     if (wep && wep.oartifact && artifact_defends(wep, adtyp, state))
         return true;
-    // dragon armor defense omitted here; add when dragon armor effects are ported
+
+    // C constructs a zeroed object with the adult dragon's scale type, so only
+    // the object type matters here and no inventory object is created.
+    const mndx = mon?.data?.pmidx;
+    const armor = mndx >= M.PM_GRAY_DRAGON && mndx <= M.PM_YELLOW_DRAGON
+        ? { otyp: GRAY_DRAGON_SCALES + mndx - M.PM_GRAY_DRAGON }
+        : which_armor(mon, W_ARM, state);
+    if (armor
+        && armor.otyp >= GRAY_DRAGON_SCALE_MAIL
+        && armor.otyp <= YELLOW_DRAGON_SCALES
+        && dragonArmorDefends(armor, adtyp)) {
+        return true;
+    }
     return false;
 }
 

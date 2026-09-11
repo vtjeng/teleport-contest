@@ -2,7 +2,7 @@
 // C ref: trap.c -- wearing_iron_shoes(), floor_trigger(), check_in_air(),
 // seetrap(), feeltrap(), trapnote(), t_missile(), thitm(),
 // trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_rocktrap(),
-// trapeffect_bear_trap(),
+// trapeffect_bear_trap(), trapeffect_slp_gas_trap(),
 // mselftouch(), trapeffect_pit(), trapeffect_telep_trap(),
 // trapeffect_magic_trap(), trapeffect_rolling_boulder_trap(),
 // launch_drop_spot(), launch_obj(), trapeffect_selector(), dotrap(), mintrap().
@@ -59,6 +59,8 @@ import {
     ROLL,
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
+    SLEEP_RES,
+    M_SEEN_SLEEP,
     SLP_GAS_TRAP,
     SPIKED_PIT,
     SPINE,
@@ -78,6 +80,7 @@ import {
     VIBRATING_SQUARE,
     WEB,
     W_ARMF,
+    helpless,
     is_hole,
     is_pit,
     isok,
@@ -114,6 +117,8 @@ import { count_wsegs } from './makemon_create.js';
 import { maybe_unhide_at, monkilled, wake_nearto } from './mon.js';
 import {
     amorphous,
+    breathless,
+    defended,
     grounded,
     is_floater,
     is_flyer,
@@ -125,6 +130,8 @@ import {
     mon_knows_traps,
     mon_learns_traps,
     mons_see_trap,
+    monstseesu,
+    monstunseesu,
     passes_rocks,
     passes_walls,
     touch_petrifies,
@@ -134,6 +141,7 @@ import {
     AD_FIRE,
     AD_PHYS,
     AD_RBRE,
+    AD_SLEE,
     MZ_HUGE,
     MZ_SMALL,
     PM_BUGBEAR,
@@ -145,6 +153,7 @@ import {
     PM_STRAW_GOLEM,
     PM_WOOD_GOLEM,
 } from './monsters.js';
+import { finish_meating } from './dogmove.js';
 import { m_at } from './monst.js';
 import { thitu } from './mthrowu.js';
 import {
@@ -180,6 +189,7 @@ import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { is_ice } from './terrain.js';
+import { fall_asleep } from './timeout.js';
 import { note_unported } from './unported.js';
 import { dmgval } from './weapon.js';
 import {
@@ -856,6 +866,80 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     );
     await losehp(Maybe_Half_Phys(dmg, state), 'bear trap', KILLED_BY_AN, state);
     await exercise(A_DEX, false, state, random);
+    return Trap_Effect_Finished;
+}
+
+// C ref: mhitm.c sleep_monst() (1221-1245), the how=-1 path used by the
+// sleep-gas monster arm below. The caller performs the resistance, breathing,
+// and helplessness checks; this helper keeps the return-valued state change
+// and the meal interruption in the same source order as C.
+function sleep_monst(mtmp, amount, _how, env) {
+    const { state } = env;
+
+    if (monster_resists_element(mtmp, SLEEP_RES, state)
+        || defended(mtmp, AD_SLEE, state)) {
+        // C calls shieldeff() here. It only animates the display and has no
+        // state or RNG effect, so record the discarded call and continue.
+        note_unported('mhitm.c shieldeff');
+        return false;
+    }
+    if (!mtmp.mcanmove) return false;
+
+    finish_meating(mtmp, { state, redraw: env.redraw });
+    amount += mtmp.mfrozen ?? 0;
+    if (amount > 0) {
+        mtmp.mcanmove = false;
+        mtmp.mfrozen = Math.min(amount, 127);
+    } else {
+        mtmp.msleeping = true;
+    }
+    return true;
+}
+
+// C ref: trap.c trapeffect_slp_gas_trap() (1563-1592), both hero and monster
+// arms. `trflags` is intentionally unused by the C function.
+async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
+    const { state } = env;
+    const random = env.random;
+    const message = requireTrapOperation(env, 'message');
+
+    if (mtmp === state.youmonst) {
+        seetrap(trap, env);
+        const resistance = state.u?.uprops?.[SLEEP_RES];
+        if (resistance?.intrinsic || resistance?.extrinsic
+            || breathless(state.youmonst.data)) {
+            await message('You are enveloped in a cloud of gas!', state, env);
+            monstseesu(M_SEEN_SLEEP, state);
+        } else {
+            await message('A cloud of gas puts you to sleep!', state, env);
+            await fall_asleep(-random.rnd(25), true, state, { message });
+            monstunseesu(M_SEEN_SLEEP, state);
+        }
+        // The return value is discarded. The mounted case is admitted only
+        // after preflight_dotrap() rejects it because steedintrap() is not
+        // ported, while an unmounted hero reaches C's no-op guard here.
+        note_unported('trap.c steedintrap');
+    } else {
+        const in_sight = canSeeMonster(mtmp, state)
+            || mtmp === state.u?.usteed;
+        if (!monster_resists_element(mtmp, SLEEP_RES, state)
+            && !breathless(mtmp.data) && !helpless(mtmp)
+            && sleep_monst(mtmp, random.rnd(25), -1, env)
+            && in_sight) {
+            await message(
+                messageAt(
+                    `${capitalizedMonsterName(mtmp, state)}`
+                    + ' suddenly falls asleep!',
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+            seetrap(trap, env);
+        }
+    }
     return Trap_Effect_Finished;
 }
 
@@ -1664,15 +1748,15 @@ function heroIsDeaf(state) {
 
 // The trap types whose trapeffect_*() body has no arm in the port yet. C
 // dispatches all of them; each stops the scan before the effect changes state,
-// draws, or writes a message. BEAR_TRAP, DART_TRAP and MAGIC_TRAP are absent
-// because their hero arms are ported. ROCKTRAP is absent for the mirror reason:
-// its monster arm is ported and its own body refuses the hero arm. PIT is absent because its own body owns the
-// refusal: its monster arm is ported and its hero arm stops there. SPIKED_PIT
-// stays here even though C sends it to trapeffect_pit() as well, because
-// neither arm's spike handling is ported.
+// draws, or writes a message. BEAR_TRAP, DART_TRAP, MAGIC_TRAP and SLP_GAS_TRAP
+// are absent because their hero arms are ported. ROCKTRAP is absent for the
+// mirror reason: its monster arm is ported and its own body refuses the hero
+// arm. PIT is absent because its own body owns the refusal: its monster arm is
+// ported and its hero arm stops there. SPIKED_PIT stays here even though C
+// sends it to trapeffect_pit() as well, because neither arm's spike handling is
+// ported.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
-    SLP_GAS_TRAP,
     RUST_TRAP,
     SPIKED_PIT,
     MAGIC_PORTAL,
@@ -1704,6 +1788,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_fire_trap(monster, trap, trflags, env);
     if (trap.ttyp === MAGIC_TRAP)
         return trapeffect_magic_trap(monster, trap, trflags, env);
+    if (trap.ttyp === SLP_GAS_TRAP)
+        return trapeffect_slp_gas_trap(monster, trap, trflags, env);
     if (trap.ttyp === HOLE || trap.ttyp === TRAPDOOR)
         return trapeffect_hole(monster, trap, trflags, env);
     if (trap.ttyp === LEVEL_TELEP)
@@ -1723,8 +1809,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, TELEP_TRAP, and
-//     ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
+//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, TELEP_TRAP,
+//     and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
@@ -1741,7 +1827,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game) {
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
-        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
+        && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== ROLLING_BOULDER_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {

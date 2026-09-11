@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 800821,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:GasProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "comment": "Freshly selected from the seed range 800001-801000: debug ^V2 enters level 2, and the final movement key activates a sleep gas trap through dotrap().",
+      "moves": "   \u00162\nj"
+    }
+  ]
+}
