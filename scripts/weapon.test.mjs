@@ -112,6 +112,7 @@ import {
     dbon,
     dmgval,
     hitval,
+    mwepgone,
     martial_bonus,
     mon_wield_item,
     select_hwep,
@@ -721,6 +722,30 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
     await setmnotwielded(subject, litOrdinary, { state });
     assert.equal(subject.mw, null);
     assert.equal(litOrdinary.owornmask, 0);
+});
+
+test('mwepgone clears the wielded object and requests a weapon check', async () => {
+    const state = makeState();
+    const subject = monster(state, PM_NEWT, {
+        // C mwepgone() overwrites this value only when MON_WEP(mon) exists.
+        weapon_check: NO_WEAPON_WANTED,
+    });
+    const dagger = object(state, DAGGER, { owornmask: W_WEP });
+    subject.mw = dagger;
+
+    await mwepgone(subject, { state });
+
+    assert.equal(subject.mw, null);
+    assert.equal(dagger.owornmask, 0);
+    assert.equal(subject.weapon_check, NEED_WEAPON);
+
+    // weapon.c mwepgone() returns immediately for MON_WEP(mon) == NULL, so
+    // an empty-handed monster keeps the prior check state.
+    const empty = monster(state, PM_NEWT, {
+        weapon_check: NO_WEAPON_WANTED,
+    });
+    await mwepgone(empty, { state });
+    assert.equal(empty.weapon_check, NO_WEAPON_WANTED);
 });
 
 // wield.c:1078 mwelded() is `obj && (obj->owornmask & W_WEP)

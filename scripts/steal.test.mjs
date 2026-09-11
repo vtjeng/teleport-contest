@@ -5,6 +5,7 @@ import {
     BLINDED,
     IN_SIGHT,
     I_SPECIAL,
+    NEED_WEAPON,
     LOST_DROPPED,
     LOST_NONE,
     LOST_STOLEN,
@@ -720,11 +721,10 @@ test('a surviving monster dropping unworn gear does not reach that stop',
         assert.equal(carrier.misc_worn_check, 0);
     });
 
-test('a dropped wielded weapon stops on mwepgone', async () => {
+test('a dropped wielded weapon is unwielded before it lands', async () => {
     // worn.c extract_from_minvent():1413-1415 calls weapon.c mwepgone(), which
-    // is unported. No monster in the running port wields anything, so this is
-    // reached only through the unit path, and the refusal exists so that the
-    // first widening of the wield boundary ends a segment rather than throwing.
+    // clears MON_WEP(mon) and requests a new weapon check before mdrop_obj()
+    // places the extracted object on the floor.
     const wielder = dropFixture({
         // A stack of two. objnam.c doname_base():1571 takes the "(wielded)"
         // phrasing for any quan != 1, which keeps the name off body_part(HAND)
@@ -736,17 +736,16 @@ test('a dropped wielded weapon stops on mwepgone', async () => {
             otyp: ORCISH_DAGGER,
             quan: 2,
         },
-        carrier: { mhp: 0, misc_worn_check: 0 },
+        carrier: { mhp: 0, misc_worn_check: 0, mw: null },
     });
+    wielder.carrier.mw = wielder.held;
 
-    await assert.rejects(
-        relobj(wielder.carrier, 0, false, wielder.env),
-        (error) => error instanceof RefusedRelease
-            && error.reason === 'a monster dropping the weapon it wields',
-    );
-    // mwepgone() runs after obj_extract_self(), so the weapon has left minvent
-    // but has not been placed.
-    assert.equal(wielder.held.where, OBJ_FREE);
+    await relobj(wielder.carrier, 0, false, wielder.env);
+    assert.equal(wielder.carrier.minvent, null);
+    assert.equal(wielder.carrier.mw, null);
+    assert.equal(wielder.carrier.weapon_check, NEED_WEAPON);
+    assert.equal(wielder.held.where, OBJ_FLOOR);
+    assert.equal(wielder.held.owornmask, 0);
 });
 
 test('a dropped lamplit suit of armor stops before its light is ended',

@@ -36,16 +36,15 @@
 // through pickup.c look_here() when the hero steps onto it and through
 // dolook() on the ':' that follows.
 //
-// Three arms of mdrop_obj() are deliberately absent, because no input reaches
-// them. The saddle no_charge exemption at 826-832 needs a tame saddled steed
-// dying inside a shop the hero also stands in. The W_WEP tail of
-// extract_from_minvent() (1414-1415) needs a monster that has wielded its
-// weapon, which this port refuses one step earlier, at 'monster wield action'
-// in js/unported_monster_actions.js. Its end_burn() arm (1399-1400) needs a
-// monster wearing lit gold dragon scales or scale mail, which mdrop_obj()
-// refuses one call earlier still, when distant_name() names a lamplit worn
-// object. All three are covered by scripts/steal.test.mjs alone and none has a
-// recorded case.
+// Two arms of mdrop_obj() are deliberately absent from this armor matrix,
+// because no row reaches them. The saddle no_charge exemption at 826-832
+// needs a tame saddled steed dying inside a shop the hero also stands in. The
+// end_burn() arm at 1399-1400 needs a monster wearing lit gold dragon scales or
+// scale mail, which mdrop_obj() refuses one call earlier still, when
+// distant_name() names a lamplit worn object. Both remain covered by
+// scripts/steal.test.mjs alone. The W_WEP tail of extract_from_minvent()
+// (1414-1415) has separate source-pinned coverage in
+// recipes/weapon.c/mwepgone-drop.session.json.
 
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

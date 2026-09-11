@@ -947,9 +947,9 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
 // about touches its own wielded corpse; trapeffect_pit()'s monster arm below
 // is the caller this port was written for.
 //
-// Only the guard is ported. The body needs minstapetrify(), corpse_xname()
-// and mwepgone(), none of which is ported, so it stops the scan. The stop is
-// one conjunct wider than C's condition: monst.h:279 resists_ston() expands to
+// Only the guard is ported. The body needs minstapetrify() and corpse_xname(),
+// neither of which is ported, so it stops the scan. The stop is one conjunct
+// wider than C's condition: monst.h:279 resists_ston() expands to
 // mondata.c Resists_Elem() (129-231), which is not ported either, so the port
 // also stops for a stone-resistant monster, which C would let walk away.
 function mselftouch(mon, _arg, _byplayer, env) {

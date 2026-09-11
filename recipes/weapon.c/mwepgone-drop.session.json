@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9100002,
+      "datetime": "20260911120000",
+      "nethackrc": "OPTIONS=name:MwepDrop,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\nOPTIONS=pettype:none,rest_on_space,!safe_wait\n",
+      "moves": " \u0007goblin\n    k"
+    }
+  ]
+}

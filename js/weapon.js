@@ -1,6 +1,6 @@
 // weapon.js -- Monster weapon selection and wield state.
 // C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
-// setmnotwielded().
+// mwepgone(), setmnotwielded().
 
 import {
     ART_SNICKERSNEE,
@@ -817,6 +817,18 @@ async function clearMonsterWeapon(
 // end_burn(FALSE) and its visibility-dependent message.
 export async function setmnotwielded(monster, obj, env = {}) {
     return clearMonsterWeapon(monster, obj, weaponEnv(env));
+}
+
+// C ref: weapon.c mwepgone() (938-946). Release a monster's wielded weapon
+// and make its next weapon check reconsider what it should wield. The C
+// caller, worn.c extract_from_minvent(), is synchronous; the ordinary weapon
+// path in setmnotwielded() therefore completes before this function returns.
+export function mwepgone(monster, env = {}) {
+    const mwep = monster.mw; /* MON_WEP(monster) */
+    if (mwep) {
+        setmnotwielded(monster, mwep, env);
+        monster.weapon_check = NEED_WEAPON;
+    }
 }
 
 // C ref: weapon.c abon() (949-987), the hero's Strength and Dexterity attack

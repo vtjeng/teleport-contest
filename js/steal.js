@@ -64,6 +64,7 @@ import { extract_from_minvent, setnotworn } from './worn.js';
 import { uwepgone, uswapwepgone } from './wield.js';
 import { monnear } from './monmove.js';
 import { stop_occupation } from './allmain.js';
+import { mwepgone } from './weapon.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -563,27 +564,23 @@ function dropEnv(rawEnv = {}) {
     return { ...rawEnv, state };
 }
 
-// Passing do_extrinsics false leaves two WornEnv hooks extract_from_minvent()
-// can ask mdrop_obj() for. Neither has a port, and each would throw worn.js's
-// bare "worn requires ..." Error, which js/jsmain.js does not recognize as a
-// boundary, so a segment would be discarded rather than ended.
+// Passing do_extrinsics false leaves the WornEnv endArtifactLight hook as the
+// only missing operation extract_from_minvent() can ask mdrop_obj() for. It
+// would throw worn.js's bare "worn requires ..." Error, which js/jsmain.js does
+// not recognize as a boundary, so a segment would be discarded rather than
+// ended.
 //
 // endArtifactLight, at worn.c 1399-1400, wants a lamplit W_ARM object that
-// artifact_light() recognizes, and gets no key because mdrop_obj() stops one
-// call earlier: js/objnam.js refuses 'lit worn-object suffix' for any lamplit
-// worn object, a wider condition than that arm's, when distant_name() names the
-// object below. Further out, js/makemon_create.js m_dowear_type() omits
-// worn.c 973-975's begin_burn(), so nothing a monster wears is lamplit to begin
-// with. scripts/steal.test.mjs pins the near gate, which is the one that holds.
+// artifact_light() recognizes. mdrop_obj() currently stops one call earlier:
+// js/objnam.js refuses 'lit worn-object suffix' for any lamplit worn object,
+// a wider condition than that arm's, when distant_name() names the object.
+// Further out, js/makemon_create.js m_dowear_type() omits worn.c 973-975's
+// begin_burn(), so nothing a monster wears is lamplit to begin with.
+// scripts/steal.test.mjs pins the near gate, which is the one that holds.
 //
 // mwepgone, at worn.c 1414-1415, wants a W_WEP object, and nothing refuses a
-// wielded weapon's name, so that arm needs the key below. In the port only
-// js/weapon.js mon_wield_item() puts W_WEP on a monster's object, and its one
-// call site in js/unported_monster_actions.js refuses at 'monster wield action'
-// for every selection that would reach the assignment. C is wider on both
-// counts: mon_wield_item() has ten callers, and mthrowu.c:894 sets W_WEP on a
-// tethered weapon returning to its thrower without calling it at all. The key
-// is what makes the first widening of either route end a segment.
+// wielded weapon's name. extractionEnv() supplies the weapon.c implementation
+// so the object can finish the drop after it is unwielded.
 //
 // Composed at the call site rather than in dropEnv(), as the stackobj()
 // comment below does, so every other call in this function keeps running on
@@ -592,9 +589,7 @@ function extractionEnv(env) {
     return {
         ...env,
         hooks: {
-            mwepgone: () => env.unsupported(
-                'a monster dropping the weapon it wields',
-            ),
+            mwepgone: (mon, actionEnv) => mwepgone(mon, actionEnv),
             ...(env.hooks ?? {}),
         },
     };
