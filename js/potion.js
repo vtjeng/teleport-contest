@@ -1,7 +1,8 @@
 // potion.js -- quaffing and vapor effects for potions.
 // C ref: src/potion.c dodrink() (526-615), drink_ok() (505-521),
 //        dopotion() (618-641), peffects() (1333-1425),
-//        make_confused() (89-104), peffect_confusion() (1014-1027),
+//        make_confused() (89-104), self_invis_message() (471-478),
+//        peffect_confusion() (1014-1027),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
@@ -330,6 +331,19 @@ export function make_glib(xtime, state = game) {
     // C: if (uarmg) update_inventory(); — may change "(being worn; slippery)"
     // The dragon-HP slice reaches this only with xtime=0 and no gloves
     // (nohands form), so the uarmg guard is always false here.
+}
+
+// C ref: potion.c self_invis_message() (471-478). The optional message seam
+// lets trap_effects.js preserve its controlled message owner while normal
+// potion callers continue to write through ttyPline().
+export async function self_invis_message(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    await message(
+        `${Hallucination(state) ? 'Far out, man!  You'
+            : 'Gee!  All of a sudden, you'} ${See_invisible(state)
+            ? 'can see right through yourself' : "can't see yourself"}.`,
+        state,
+    );
 }
 
 // C ref: potion.c make_deaf() (443-457). Set or clear timed deafness.

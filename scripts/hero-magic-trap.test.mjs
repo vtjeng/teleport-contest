@@ -2,9 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
+    FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
+    INVIS,
     MAGIC_TRAP,
+    SEE_INVIS,
     SPINE,
     Trap_Effect_Finished,
     In_quest,
@@ -60,17 +64,20 @@ function makeTrap(state) {
 // test controls the rn2(30) explosion gate and the rnd(20) fate roll.
 function heroEnv(state, rn2_30, rnd_20) {
     const messages = [];
+    const randomCalls = [];
     let rn2Called = false;
     let rndCalled = false;
     return {
         state,
         random: {
             rn2(n) {
+                randomCalls.push(`rn2(${n})`);
                 // rn2(30) is the explosion gate in trapeffect_magic_trap().
                 if (n === 30) { rn2Called = true; return rn2_30; }
                 return 1; // default nonzero; no other rn2 in the ported path
             },
             rnd(n) {
+                randomCalls.push(`rnd(${n})`);
                 // rnd(20) is the fate roll in domagictrap().
                 if (n === 20) { rndCalled = true; return rnd_20; }
                 return 1;
@@ -85,6 +92,7 @@ function heroEnv(state, rn2_30, rnd_20) {
             throw new UnsupportedHeroMoveBoundaryError(reason);
         },
         messages,
+        randomCalls,
         get rn2Called() { return rn2Called; },
         get rndCalled() { return rndCalled; },
     };
@@ -326,16 +334,74 @@ test('trapeffect_magic_trap: fate < 10 refuses (monster creation)',
         );
     });
 
-test('trapeffect_magic_trap: fate 11 refuses (invisibility toggle)',
+test('trapeffect_magic_trap: fate 11 grants intrinsic invisibility',
     async () => {
+        // rn2(30)=1 skips the explosion and rnd(20)=11 selects case 11.
+        // The source order is You_hear(), self_invis_message(), HInvis toggle,
+        // and newsym(); case 11 consumes no random draw after rnd(20).
         const state = await initState();
         const trap = makeTrap(state);
+        // The starter inventory can grant See_invisible; clear it so this
+        // fixture reaches potion.c:self_invis_message()'s ordinary wording.
+        state.u.uprops[SEE_INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
         const env = heroEnv(state, 1, 11);
-        await assert.rejects(
-            () => trapeffect_selector(state.youmonst, trap, 0, env),
-            (error) => error.reason === 'magic trap invisibility toggle',
-        );
+        const redraws = [];
+        env.redraw = (x, y) => redraws.push([x, y]);
+        await trapeffect_selector(state.youmonst, trap, 0, env);
+        assert.deepEqual(env.messages, [
+            'You hear a low hum.',
+            'Gee!  All of a sudden, you can\'t see yourself.',
+        ]);
+        assert.equal(state.u.uprops[INVIS].intrinsic, FROMOUTSIDE);
+        assert.equal(state.u.uprops[INVIS].extrinsic, 0);
+        // The first redraw reveals the trap through seetrap(); the second is
+        // domagictrap()'s newsym() after HInvis changes.
+        assert.deepEqual(redraws, [
+            [state.u.ux, state.u.uy],
+            [state.u.ux, state.u.uy],
+        ]);
+        assert.deepEqual(env.randomCalls, ['rn2(30)', 'rnd(20)']);
     });
+
+test('trapeffect_magic_trap: fate 11 toggles off intrinsic invisibility',
+    async () => {
+        // An already intrinsically invisible hero hears the hum, then gets the
+        // source-specific restoration message before HInvis is cleared.
+        const state = await initState();
+        const trap = makeTrap(state);
+        state.u.uprops[INVIS].intrinsic = FROMOUTSIDE;
+        state.u.uprops[SEE_INVIS] = {
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        };
+        const env = heroEnv(state, 1, 11);
+        const redraws = [];
+        env.redraw = (x, y) => redraws.push([x, y]);
+        await trapeffect_selector(state.youmonst, trap, 0, env);
+        assert.deepEqual(env.messages, [
+            'You hear a low hum.',
+            'You can see yourself again!',
+        ]);
+        assert.equal(state.u.uprops[INVIS].intrinsic, 0);
+        assert.deepEqual(redraws, [
+            [state.u.ux, state.u.uy],
+            [state.u.ux, state.u.uy],
+        ]);
+        assert.deepEqual(env.randomCalls, ['rn2(30)', 'rnd(20)']);
+    });
+
+test('trapeffect_magic_trap: fate 11 still toggles while blind', async () => {
+    // Blindness suppresses self_invis_message() and restoration feedback, but
+    // the hum and HInvis toggle still occur in C's case-11 order.
+    const state = await initState();
+    const trap = makeTrap(state);
+    state.u.uprops[BLINDED].intrinsic = 1;
+    state.u.uprops[SEE_INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const env = heroEnv(state, 1, 11);
+    await trapeffect_selector(state.youmonst, trap, 0, env);
+    assert.deepEqual(env.messages, ['You hear a low hum.']);
+    assert.equal(state.u.uprops[INVIS].intrinsic, FROMOUTSIDE);
+    assert.deepEqual(env.randomCalls, ['rn2(30)', 'rnd(20)']);
+});
 
 test('trapeffect_magic_trap: fate 12 refuses (fire)', async () => {
     const state = await initState();

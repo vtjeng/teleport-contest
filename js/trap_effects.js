@@ -21,6 +21,7 @@ import {
     A_CON,
     A_DEX,
     BEAR_TRAP,
+    BLINDED,
     BOLT_LIM,
     DART_TRAP,
     DEAF,
@@ -32,9 +33,11 @@ import {
     FAILEDUNTRAP,
     FIRE_TRAP,
     FIRE_RES,
+    FAINTED,
     FOOT,
     FORCEBUNGLE,
     FORCETRAP,
+    FROMOUTSIDE,
     HALF_PHDAM,
     HALLUC,
     HALLUC_RES,
@@ -52,6 +55,7 @@ import {
     LEVEL_TELEP,
     MAGIC_PORTAL,
     MAGIC_TRAP,
+    INVIS,
     PIT,
     POLY_TRAP,
     RIGHT_SIDE,
@@ -60,6 +64,7 @@ import {
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
     SLEEP_RES,
+    SEE_INVIS,
     M_SEEN_SLEEP,
     SLP_GAS_TRAP,
     SPIKED_PIT,
@@ -132,6 +137,7 @@ import {
     mons_see_trap,
     monstseesu,
     monstunseesu,
+    pm_invisible,
     passes_rocks,
     passes_walls,
     touch_petrifies,
@@ -179,6 +185,7 @@ import {
     Flying,
     Levitation,
     deltrap,
+    unconscious,
     set_utrap,
     t_at,
     trapname,
@@ -190,6 +197,7 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { is_ice } from './terrain.js';
 import { fall_asleep } from './timeout.js';
+import { self_invis_message } from './potion.js';
 import { note_unported } from './unported.js';
 import { dmgval } from './weapon.js';
 import {
@@ -1067,12 +1075,43 @@ function Hallucination(state) {
 //   fate < 10: blindness, deafness, monster creation -- refused (needs
 //     make_blinded, incr_itimeout, Soundeffect, makemon, wake_nearto).
 //   fate 10: no-op.
-//   fate 11: toggle HInvis -- refused (needs self_invis_message, HInvis
-//     toggle, pm_invisible, See_invisible, EInvis).
+//   fate 11: toggle HInvis, including self_invis_message() and redraw.
 //   fate 12: dofiretrap() -- refused (not ported).
 //   fate 13-18: odd-feelings messages, fully ported.
 //   fate 19: tame nearby monsters -- refused (needs adjattrib, tamedog).
 //   fate 20: uncurse items -- refused (needs seffects with SPE_REMOVE_CURSE).
+
+// C ref: youprop.h:198 Invis, the intrinsic or extrinsic invisibility source
+// minus its block; :152 See_invisible has no block term. Each C file spells
+// these macros out beside its callers, so domagictrap keeps local copies.
+function Invis(state) {
+    const property = state.u?.uprops?.[INVIS];
+    return Boolean((property?.intrinsic || property?.extrinsic)
+        && !property?.blocked);
+}
+
+function See_invisible(state) {
+    const property = state.u?.uprops?.[SEE_INVIS];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+// C ref: youprop.h:399 Unaware and pline.c You_hear() (435-451). This local
+// composition keeps the trap effect independent from monmove.js, which imports
+// trap_effects.js for the monster movement dispatcher.
+function heroUnaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+}
+
+function magicTrapHear(line, state) {
+    if ((heroIsDeaf(state) && !heroUnaware(state))
+        || !state.flags?.acoustics)
+        return null;
+    if (state.u?.uinwater) return `You barely hear ${line}`;
+    if (heroUnaware(state)) return `You dream that you hear ${line}`;
+    return `You hear ${line}`;
+}
+
 async function domagictrap(env) {
     const { state } = env;
     const random = env.random;
@@ -1092,10 +1131,40 @@ async function domagictrap(env) {
             /* sometimes nothing happens */
             break;
         case 11: /* toggle intrinsic invisibility */
-            // Needs self_invis_message(), HInvis toggle, pm_invisible(),
-            // See_invisible, EInvis.
-            unsupported('magic trap invisibility toggle');
-            break; // unreachable; unsupported throws
+            // Soundeffect(se_low_hum, 100) is a tty-sound hook that writes
+            // nothing. You_hear() still applies its Deaf and acoustics gates.
+            {
+                const heard = magicTrapHear('a low hum.', state);
+                if (heard !== null) await message(heard, state);
+            }
+            const invisProp = state.u.uprops[INVIS];
+            if (!Invis(state)) {
+                if (!heroIsBlind(state))
+                    await self_invis_message(state, { message });
+            } else if (!invisProp.extrinsic
+                       && !pm_invisible(state.youmonst.data)) {
+                if (!heroIsBlind(state)) {
+                    if (!See_invisible(state))
+                        await message('You can see yourself again!', state);
+                    else
+                        await message("You can't see through yourself anymore.", state);
+                }
+            } else {
+                await message(
+                    `You feel a little more ${invisProp.intrinsic
+                        ? 'obvious' : 'hidden'} now.`,
+                    state,
+                );
+            }
+            // C preserves any existing HInvis value only when it is false;
+            // the true arm clears it before redraw.
+            invisProp.intrinsic = invisProp.intrinsic
+                ? 0 : invisProp.intrinsic | FROMOUTSIDE;
+            requireTrapOperation(env, 'redraw')(
+                state.u.ux,
+                state.u.uy,
+            );
+            break;
         case 12: /* a flash of fire */
             // Needs dofiretrap(), which is not ported.
             unsupported('magic trap fire');

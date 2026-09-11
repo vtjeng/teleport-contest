@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh hero MAGIC_TRAP case-11 coverage: seed 40 follows the existing movement shape, while the 20301224120000 clock is newly chosen so this recipe independently reaches rn2(30) nonzero, rnd(20)=11, and the intrinsic invisibility toggle.",
+  "segments": [
+    {
+      "seed": 40,
+      "datetime": "20301224120000",
+      "nethackrc": "OPTIONS=name:Hermione,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": " kllnlllljjnssssssssssssssssssss.bjnjnjnjjnllkuuuu>  unllllnnllluuuulnnnb>  jjqy hhhhbjbbjhhhhssssssssssssssssssss.j jhh "
+    }
+  ]
+}

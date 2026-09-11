@@ -45,11 +45,12 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
+    ACCESSIBLE, BLINDED, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
+    HALLUC, HALLUC_RES,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
-    SLIMED, STONED, STR18, STRANGLED, STUNNED, OBJ_FLOOR,
+    SLIMED, STONED, STR18, STRANGLED, STUNNED, TELEPAT, INVIS, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
     DISP_FLASH, DISP_FREEMEM, DISP_TETHER,
     P_SHORT_SWORD, P_SABER,
@@ -3235,10 +3236,11 @@ export function newsym(x, y) {
 
     if (game.u?.ux === x && game.u?.uy === y) {
         // C ref: display.h display_self() (251-260). maybe_display_usteed()
-        // puts a visible steed's glyph on the hero's square while the hero
-        // rides; the hero's own glyph shows through only when there is no
-        // steed or the hero cannot see it.
-        display_self();
+        // puts a visible steed's glyph on the hero's square. C's newsym()
+        // first maps the underlying location when canspotself() is false,
+        // which is what an invisible hero needs after HInvis changes.
+        if (heroCanSpotSelf(game)) display_self();
+        else show_glyph_cell(x, y, underlying);
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph
                 = remembered_glyph_from_presentation(rememberedUnderlying);
@@ -4135,6 +4137,21 @@ function _propertyIntrinsic(u, index) {
 
 function _propertyActiveUnblocked(u, index) {
     return _propertyActive(u, index) && !u.uprops?.[index]?.blocked;
+}
+
+// C ref: display.h canseeself(), senseself(), and canspotself() (164-176).
+// newsym() must map the hero's square underneath an invisible hero when no
+// source lets the hero perceive that square; display_self() is only legal in
+// the canspotself() arm.
+function heroCanSpotSelf(state) {
+    const hero = state.u;
+    const canSeeSelf = _propertyActiveUnblocked(hero, BLINDED)
+        || hero?.uswallow
+        || (!_propertyActiveUnblocked(hero, INVIS)
+            && !hero?.uundetected);
+    const unblindTelepathy = Boolean(hero?.uprops?.[TELEPAT]?.extrinsic);
+    const detectsMonsters = _propertyActive(hero, DETECT_MONSTERS);
+    return Boolean(canSeeSelf || unblindTelepathy || detectsMonsters);
 }
 
 function _hungerStatus(u) {
