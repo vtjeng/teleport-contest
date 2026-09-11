@@ -38,6 +38,7 @@ import {
     SLP_GAS_TRAP,
     FIRE_TRAP,
     ANTI_MAGIC,
+    STRAT_WAITMASK,
 } from './const.js';
 import { exercise } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
@@ -75,7 +76,7 @@ import { fightm } from './mhitm.js';
 import { mattacku, mdamageu, MonsterDeathPlanningError } from './mhitu.js';
 import { buzzmu, castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
-import { AKLYS } from './objects.js';
+import { AKLYS, WOOD } from './objects.js';
 import { quest_stat_check, quest_talk } from './quest.js';
 import { whimper } from './sounds.js';
 import {
@@ -224,6 +225,24 @@ function liveOnMap(monster) {
         && (monster.mstate ?? MON_FLOOR) === MON_FLOOR;
 }
 
+// C ref: monmove.c gelcube_digests()'s inventory scan (424-434). The
+// digestion effect remains behind the special-action boundary, but a cube
+// whose pack contains no eligible object reaches ordinary dochug() unchanged.
+function gelcubeHasDigestibleObject(monster, state) {
+    if (monster.meating || !monster.minvent) return false;
+    const achieveo = state.context?.achieveo;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        const organic = (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
+        const minesPrize = Boolean(achieveo?.mines_prize_oid)
+            && obj.o_id === achieveo.mines_prize_oid;
+        const sokoPrize = Boolean(achieveo?.soko_prize_oid)
+            && obj.o_id === achieveo.soko_prize_oid;
+        if (organic && !obj.oartifact && !minesPrize && !sokoPrize)
+            return true;
+    }
+    return false;
+}
+
 function assertSimpleScanState(monster, state) {
     const parkedGuard = monster.isgd
         && !monster.mx
@@ -348,7 +367,15 @@ function assertSimpleActionState(monster, state) {
     const sleepingOutOfSightCovetous = covetous
         && monster.msleeping
         && !couldsee(monster.mx, monster.my, state);
-    if (monster.wormno || (covetous && !sleepingOutOfSightCovetous)) {
+    // dochug() returns before tactics() when the monster is waiting for the
+    // hero (or otherwise cannot move).  A covetous monster in that early arm
+    // has no special movement to preflight, even when a prior Conflict attack
+    // has cleared its sleeping bit in this scan.
+    const waitingCovetous = covetous
+        && (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK));
+    if (monster.wormno || (covetous
+        && !sleepingOutOfSightCovetous
+        && !waitingCovetous)) {
         unsupported('special monster movement');
     }
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
@@ -370,11 +397,15 @@ function assertSimpleActionState(monster, state) {
         && !monster.mtame
         && !monster.isminion
         && !couldsee(monster.mx, monster.my, state);
+    const digestibleGelatinousCube =
+        monster.data?.pmidx === PM_GELATINOUS_CUBE
+        && gelcubeHasDigestibleObject(monster, state);
     if (monster.data?.pmidx === PM_TENGU
         || (monster.data?.pmidx === PM_LEPRECHAUN
             && !sleepingOutOfSightLeprechaun)
         || monster.data?.pmidx === PM_KILLER_BEE
-        || monster.data?.pmidx === PM_GELATINOUS_CUBE) {
+        || (monster.data?.pmidx === PM_GELATINOUS_CUBE
+            && digestibleGelatinousCube)) {
         unsupported('a special monster action');
     }
 }
