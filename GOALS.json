@@ -20392,7 +20392,7 @@
     {
       "id": "port-hack-test-move",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete hack.c test_move() movement contract and wire its production callers",
       "cFile": "hack.c",
       "sessions": [
@@ -20403,8 +20403,8 @@
       "spans": [
         {
           "name": "test_move",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "637cc80bc84cc27e7c2cbd2eb45ab32457df0f63",
           "functions": [
             "test_move"
           ]
@@ -20416,15 +20416,18 @@
         "screens": 5339,
         "rng": 388477
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "637cc80bc84cc27e7c2cbd2eb45ab32457df0f63",
+      "delivered": {
+        "screens": 71,
+        "rng": 1539
+      },
       "functions": [
         {
           "name": "test_move",
           "line": 991,
           "endLine": 1265,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -20462,7 +20465,99 @@
         "screens": 5410,
         "rng": 390016
       },
-      "parkedReason": "Fresh queue now ranks monmove.c:distfleeck() first at seed0030 step 569 (upper bound 1384). test_move source span commit 8da36b8a remains unfinished because return-valued doopen_indir() and moverock() dependencies are incomplete; preserve the queued dependency work with no span evidence or close."
+      "parkedReason": "Fresh queue now ranks monmove.c:distfleeck() first at seed0030 step 569 (upper bound 1384). test_move source span commit 8da36b8a remains unfinished because return-valued doopen_indir() and moverock() dependencies are incomplete; preserve the queued dependency work with no span evidence or close.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "test_move",
+            "implementation": "js/hack.js",
+            "symbol": "test_move",
+            "sourceReview": "Read the complete hack.c test_move() range (991-1265), including the obstacle, closed-door/testdiag, diagonal squeeze and worm, travel trap/liquid, doorway-exit, and boulder branches. Checked source evaluation order, DO_MOVE/TEST_MOVE/TEST_TRAV/TEST_TRAP message and return gates, state.context.door_opened reset, context.run and hero direction reads, and the numeric/boolean results from still_chewing() and moverock(). The discarded use_pick_axe2() call remains explicitly recorded as note_unported('dig.c use_pick_axe2'); block_door(), block_entry(), doopen_indir(), still_chewing(), and moverock() remain their owning-file implementations and are only used at the source branch boundaries.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "findtravelpath",
+                "source": "hack.c findtravelpath() calls test_move() for TEST_MOVE, TEST_TRAP, TEST_TRAV, and TEST_MOVE path probes"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "avoid_trap_andor_region",
+                "source": "hack.c avoid_trap_andor_region() calls test_move() for movement admission"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c domove_core() calls test_move() for DO_MOVE terrain and boulder admission"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "there_cmd_menu",
+                "source": "cmd.c there_cmd_menu() uses test_move() for the numeric movement probe"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domouseaction",
+                "source": "cmd.c domouseaction() uses test_move() for the numeric movement probe"
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "mount_steed",
+                "source": "steed.c mount_steed() calls test_move() before mounting"
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "dismount_steed",
+                "source": "steed.c dismount_steed() calls test_move() for the landing square"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "move_into_trap",
+                "source": "trap.c move_into_trap() calls test_move() for trap movement"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_knockback",
+                "source": "uhitm.c mhitm_knockback() calls test_move() when the hero is the defender"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs",
+              "scripts/diagonal-doorway.test.mjs",
+              "scripts/hero-boulder-push.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/test-move-seed731204.session.json",
+              "recordings/hack.c/findtravelpath-guess-clean.session.json"
+            ],
+            "checkedAt": "637cc80bc84cc27e7c2cbd2eb45ab32457df0f63"
+          }
+        ],
+        "entryPointReview": "test_move() is a movement-admission helper with no independent command, monster action, level feature, or startup entry point in hack.c:991-1265. Its production callers are the travel and trap probes, live hero movement, command movement probes, steed landing checks, and hero-defender knockback listed above.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1745,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: a gas spore exploding on death",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 208
+        }
+      ],
+      "closeStanding": {
+        "sha": "637cc80bc84cc27e7c2cbd2eb45ab32457df0f63",
+        "screens": 6900,
+        "rng": 505246
+      }
     },
     {
       "id": "port-worn-mon-adjust-speed",
