@@ -917,3 +917,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-11T08:13:12.579Z	23576292	span	24	33	6398	7765	480745	610816	6436	7765					port-wizard1-special-level closes. Development 6394→6398 of 7765 screens, 477772→480745 of 610816 rng. 24 of 33 sessions.
 2026-09-11T08:17:04.165Z	b85c8b1a	goal	24	33	6398	7765	480745	610816	6436	7765	315	3640	38930	182022	port-wizard1-special-level closes. Development 6398 of 7765 screens, 480745 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-11T08:47:57.222Z	b18d4006	divergence	24	33	6398	7765	480788	610816	6437	7765					div-newcham-sandestin-0360 closes. Development 6398 of 7765 screens, 480745→480788 of 610816 rng. 24 of 33 sessions.
+2026-09-11T09:10:59.255Z	b6d0a83f	divergence	24	33	6399	7765	480788	610816	6437	7765					div-do-reglyph-darkroom-0360 closes. Development 6398→6399 of 7765 screens, 480788 of 610816 rng. 24 of 33 sessions.

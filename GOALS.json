@@ -24557,7 +24557,7 @@
     {
       "id": "div-do-reglyph-darkroom-0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore goto_level()'s reglyph_darkroom() level-transition call",
       "cFile": "do.c",
       "sessions": [],
@@ -24566,8 +24566,8 @@
       "spans": [
         {
           "name": "reglyph-darkroom-goto-level",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b6d0a83fd25bf9448dc6d45c90ab485ad99989ee",
           "functions": [
             "goto_level"
           ]
@@ -24579,8 +24579,11 @@
         "screens": 6398,
         "rng": 480788
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b6d0a83fd25bf9448dc6d45c90ab485ad99989ee",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "goto_level",
       "session": "seed0360-wizard-world-tour",
       "step": 334,
