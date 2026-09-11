@@ -35,6 +35,7 @@ import {
     DEFAULT_INVENT,
     G_EXTINCT,
     G_GONE,
+    M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_MONSTER,
     NO_LOC_WARN,
@@ -86,7 +87,8 @@ import { mkclass, set_malign } from './makemon.js';
 import { your_race } from './mondata.js';
 import { lspo_gas_cloud, lspo_monster } from './mklev.js';
 import { christen_monst } from './do_name.js';
-import { MAXMCLASSES } from './symbols.js';
+import { MAXMCLASSES, MAXPCHARS } from './symbols.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { block_point, does_block } from './vision.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -505,8 +507,8 @@ function impossible(message, env) {
 // stores its `class` as the class index rather than the C's class
 // character. Two arms are not ported: an explicit alignment (C: mk_roamer)
 // and a player species (C: mk_mplayer) both fall through to makemon(), and
-// assertSupportedMonsterAppearance() refuses the furniture and monster
-// appearance arms before this runs.
+// assertSupportedMonsterAppearance() refuses the monster appearance arm
+// before this runs; object and furniture disguises are handled below.
 function createMonsterBody(m, croom, env) {
     const replacement = env.hooks.createMonster;
     // This hook replaces create_monster()'s monster construction and
@@ -603,6 +605,21 @@ function createMonsterBody(m, croom, env) {
             || (ismnum(mtmp.cham) && m.appear === M_AP_MONSTER))
         && !Protection_from_shape_changers(state)) {
         switch (m.appear) {
+        case M_AP_FURNITURE: {
+            // C: scan defsyms[] for the exact furniture explanation. The
+            // generated cmap explanation table has the same MAXPCHARS order.
+            const i = CMAP_EXPLANATIONS.indexOf(m.appear_as);
+            if (i < 0 || i >= MAXPCHARS) {
+                impossible(
+                    `create_monster: can't find feature "${m.appear_as}"`,
+                    env,
+                );
+            } else {
+                mtmp.m_ap_type = M_AP_FURNITURE;
+                mtmp.mappearance = i;
+            }
+            break;
+        }
         case M_AP_OBJECT: {
             const objects = getObjects(state);
             let i;
@@ -651,7 +668,7 @@ function createMonsterBody(m, croom, env) {
             break;
         }
         default:
-            // M_AP_NOTHING, M_AP_FURNITURE, and M_AP_MONSTER: refused by
+            // M_AP_NOTHING and M_AP_MONSTER: the latter is refused by
             // assertSupportedMonsterAppearance() before creation.
             break;
         }
@@ -722,12 +739,12 @@ function createMonsterBody(m, croom, env) {
     return mtmp;
 }
 
-// The furniture and monster appearance arms of create_monster() are not
-// ported. Refuse those descriptors before create_monster() consumes RNG or
-// mutates level state.
+// The monster appearance arm of create_monster() remains unported. Refuse
+// those descriptors before create_monster() consumes RNG or mutates level
+// state; object and furniture appearances are source-complete above.
 function assertSupportedMonsterAppearance(m) {
     if (m.appear_as == null) return;
-    if (m.appear !== M_AP_OBJECT) {
+    if (m.appear !== M_AP_OBJECT && m.appear !== M_AP_FURNITURE) {
         throw new UnsupportedMonsterCreationError(
             `special-level appearance type ${m.appear}`,
         );

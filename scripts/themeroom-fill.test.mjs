@@ -26,6 +26,7 @@ import {
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     M_AP_OBJECT,
+    M_AP_FURNITURE,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -154,6 +155,7 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
+import { S_altar } from '../js/symbols.js';
 import { set_levltyp } from '../js/terrain.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
@@ -562,7 +564,19 @@ test('automatic mimic setup handles all room types', () => {
     }
 });
 
-test('unsupported appearance pairs fail before hooks, RNG, or level mutation', () => {
+test('furniture appearance resolves while unsupported monster appearance fails early', () => {
+    const furniture = monsterDescriptorFixture();
+    const mimic = lspo_monster([{
+        class: S_MIMIC,
+        appear_as: 'ter:altar',
+    }], furniture.room, {
+        state: furniture.state,
+        random: quietObjectRandom(),
+    });
+    assert.ok(mimic);
+    assert.equal(mimic.m_ap_type, M_AP_FURNITURE);
+    assert.equal(mimic.mappearance, S_altar);
+
     const { level, room, state } = monsterDescriptorFixture();
     const random = {};
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
@@ -577,12 +591,9 @@ test('unsupported appearance pairs fail before hooks, RNG, or level mutation', (
             },
         },
     };
-    // The furniture and monster appearance arms of create_monster() are not
-    // ported; an appear_as prefix the C does not know is a Lua error in
-    // lspo_monster().
+    // The monster appearance arm remains outside this span. An appear_as
+    // prefix the C does not know is a Lua error in lspo_monster().
     const invalid = [
-        [{ class: S_MIMIC, appear_as: 'ter:altar' },
-            /unsupported initial-level monster creation/u],
         [{ class: S_MIMIC, appear_as: 'mon:goblin' },
             /unsupported initial-level monster creation/u],
         [{ class: S_MIMIC, appear_as: 'chest' }, /Unknown appear_as type/u],

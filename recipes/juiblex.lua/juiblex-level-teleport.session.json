@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7312,
+      "datetime": "20440402074500",
+      "nethackrc": "OPTIONS=name:BogTest,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "   n\u0016?\nm"
+    }
+  ]
+}
