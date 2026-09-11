@@ -26201,6 +26201,71 @@
         "screens": 6813,
         "rng": 500793
       }
+    },
+    {
+      "id": "port-do-wear-gloves-on",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port do_wear.c Gloves_on() for gauntlet identification and worn-status updates",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked unresolved development stop is seed0360-wizard-world-tour at global step 495, where the existing JavaScript wear path refuses do_wear.c Gloves_on() for GAUNTLETS_OF_POWER (otyp 161). Source tracing identifies an intentional placeholder, so select a file-port of the complete Gloves_on() function and its accessory_or_armor_on() wiring.",
+      "detail": "Development session seed0360-wizard-world-tour stops at global step 495 (wear command, GAUNTLETS_OF_POWER otyp 161) after the delayed dressing turn. C do_wear.c accessory_or_armor_on() installs the gloves, calls nomul(-1), and sets gn.nomovemsg to You finish your dressing maneuver.; unmul() emits that message first, then Gloves_on() lines 575-603 calls makeknown(otyp), sets disp.botl, updates inventory, and reaches existing acurr() strength/AC behavior. For a previously unidentified wished object, makeknown() consumes rn2(19)=10 in exercise(A_WIS, TRUE). The complete Gloves_on() source also contains Fumbling rnd(20)/timeout and Dexterity adj_abon branches; port the whole function rather than only GAUNTLETS_OF_POWER. Production callers are command W -> dowear() -> accessory_or_armor_on() -> setworn() -> delayed Gloves_on() via unmul(), plus startup set_wear(). Existing JS discover_object() and GoP strength/status behavior are reusable; replace the old wear-armor refusal and add matching evidence.",
+      "spans": [
+        {
+          "name": "Gloves_on",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Gloves_on"
+          ]
+        }
+      ],
+      "openedAt": "d292f01e6d3304db77a60e6dee6a6132c5e05d54",
+      "openStanding": {
+        "sha": "fca9b0a04593f6482fcbbe931f35c5a45f009cad",
+        "screens": 6813,
+        "rng": 500793
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Gloves_on",
+          "line": 576,
+          "endLine": 607,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 576,
+        "to": 607
+      },
+      "activeStanding": {
+        "sha": "fca9b0a04593f6482fcbbe931f35c5a45f009cad",
+        "screens": 6813,
+        "rng": 500793
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 495,
+          "kind": "stop",
+          "function": "Gloves_on",
+          "functionDeclared": true,
+          "sourceFile": "do_wear.c",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Gloves_on() for otyp 161",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 338
+        }
+      ]
     }
   ]
 }
