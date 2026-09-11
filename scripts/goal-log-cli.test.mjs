@@ -19,7 +19,7 @@ const CORE_SCRIPTS = [
     'goal-log.mjs', 'c-functions.mjs', 'score-log.mjs', 'lua-sources.mjs',
     'port-evidence.mjs', 'check-namespace-members.mjs',
     'score-development.mjs', 'scoring-workspace.mjs', 'local-tmpdir.mjs',
-    'development-standing.mjs',
+    'development-standing.mjs', 'checkpoint-results.mjs',
 ];
 // These standings distinguish progress before parking, during another goal,
 // and after resumption without depending on real development-session totals.
@@ -261,7 +261,7 @@ console.log(JSON.stringify({ results }));
         assert.match(result.stderr, pattern);
     };
     const goals = () => JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8')).goals;
-    const checkpoint = (overrides = {}) => json('.cache/checkpoint-summary.json', {
+    const checkpoint = (overrides = {}) => json(`.git/checkpoint-results/${head()}/latest.json`, {
         commit: head(), allPassed: true, recordings: { passed: true }, ...overrides,
     });
     const evidence = (overrides = {}) => ({
@@ -325,6 +325,9 @@ test('C CLI plans a same-name partial function and closes only with evidence and
     f.refuses(/passing npm run checkpoint at HEAD/u,
         'close-span', '--goal', 'widget', '--name', 'helper');
     f.checkpoint();
+    // An older overlapping run can complete last and own the global summary.
+    // Closure must read this HEAD's result, not whichever run completed last.
+    f.json('.cache/checkpoint-summary.json', { commit: oldHead, allPassed: false });
     f.cli('close-span', '--goal', 'widget', '--name', 'helper');
     f.score(BASELINE);
     f.checkpoint({ allPassed: false });

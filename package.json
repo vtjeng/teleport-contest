@@ -25,7 +25,7 @@
     "check:sound-effects": "node scripts/generate-sound-effects.mjs --check",
     "check:symbols": "node scripts/generate-symbol-data.mjs --check",
     "check:themerooms": "node scripts/generate-themeroom-data.mjs --check",
-    "checkpoint": "node scripts/checkpoint-checks.mjs",
+    "checkpoint": "node scripts/checkpoint.mjs",
     "coverage-report": "node scripts/coverage-report.mjs",
     "quality": "node scripts/quality-status.mjs",
     "score": "bash frozen/score.sh",

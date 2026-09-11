@@ -13,8 +13,17 @@ scans, or browser checks. The access rules in `AGENTS.md` for
 - If a focused run reports only a file-level `test failed`, run
   `node <test-file>` to expose its underlying assertions. Changing the
   reporter alone is not a reason to repeat the test.
-- After committing, run `npm run checkpoint`. It requires a clean tree and
-  writes `.cache/checkpoint-summary.json` with the commit SHA and results. A
+- After committing, run `npm run checkpoint`. It tests HEAD in a fresh
+  worktree, initializes C from the local repository, and excludes uncommitted
+  changes. Use `npm run checkpoint -- --commit <revision>` to select another
+  commit. Run outside the Codex sandbox because setup writes Git metadata.
+  Results live in `checkpoint-results/` under the shared Git directory,
+  whose path is printed by `git rev-parse --git-common-dir`. Each commit has
+  a `latest.json` and retained `run-*/` directories containing the summary
+  and development artifacts. The shared top-level `latest.json` describes
+  the latest completed run across commits. Worktree-local
+  `.cache/checkpoint-summary.json` is a convenience copy. If archiving fails,
+  the temporary checkout is retained and its path is reported. A
   passing check prints only its `PASS` line; a failing check writes its full
   output to a unique `teleport-checkpoint-<run>/<label>.log` path in the system
   temporary directory and prints the path and last 20 lines.
@@ -22,13 +31,15 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   replay recorded play: the development score over `sessions/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
   matching.
-- Confirm the tree is clean immediately before launching checkpoint.
-  Coordinate with any active writer; do not stage another worker's changes
-  to satisfy this requirement. Keep one checkpoint running per worktree.
-- Use a passing checkpoint summary whose commit matches HEAD while the
-  measured inputs remain unchanged. Its development figures replace a
-  separate score-development run for that state. If it failed, inspect the
-  recorded failure logs before choosing the next check.
+- Other agents may keep editing or committing during checkpoint. Its result
+  remains attached to the tested commit; advancing HEAD does not make it fail.
+  Wait for an existing run of the intended commit rather than launching a
+  duplicate.
+- Use the tested commit's shared summary and its `artifacts` directory. Its
+  development figures replace a separate score-development run for that
+  commit. A pass for an older commit does not establish that newer code
+  passes. Goal closure still requires a passing checkpoint at HEAD.
+  If validation failed, inspect its failure logs before choosing the next check.
 - For an entry point the span completes, write a recipe with a newly chosen
   seed, datetime, options, character, and inputs. Create the output directory
   with `mkdir -p recordings/<source-file>` before recording it:

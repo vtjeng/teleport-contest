@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -12,6 +12,7 @@ import {
     describeDrops,
     readBaseline,
 } from './score-baseline.mjs';
+import { PROJECT_ROOT } from './scoring-workspace.mjs';
 
 const GENERATED_CHECKS = [
     'check:colors',
@@ -347,9 +348,7 @@ export function summarizeDevelopmentScore(stdout) {
 const SUMMARY_PATH = new URL('../.cache/checkpoint-summary.json',
     import.meta.url);
 
-export function writeCheckpointSummary(results) {
-    const commit = spawnSync('git', ['rev-parse', 'HEAD'],
-        { encoding: 'utf8' }).stdout.trim();
+export function writeCheckpointSummary(results, commit) {
     const testEntry = results.find(({ label }) => label === 'full test suite');
     const scoreEntry = results.find(
         ({ label }) => label === 'development score');
@@ -371,19 +370,46 @@ export function writeCheckpointSummary(results) {
     writeFileSync(dest, JSON.stringify(summary, null, 2) + '\n');
 }
 
+function checkpointGit(args) {
+    const result = spawnSync('git', args, { encoding: 'utf8' });
+    if (result.error || result.status !== 0) {
+        const reason = result.error?.message || result.stderr?.trim()
+            || `exit status ${result.status}`;
+        throw new Error(`cannot verify checkpoint checkout: git ${args.join(' ')}: ${reason}`);
+    }
+    return result.stdout.trim();
+}
+
+function requireCleanCheckpointTree() {
+    // Override user settings that can otherwise hide untracked inputs or
+    // modifications inside the C submodule. Ignored run artifacts stay allowed.
+    const status = checkpointGit(['status', '--porcelain',
+        '--untracked-files=all', '--ignore-submodules=none']);
+    if (status) {
+        throw new Error('working tree is not clean. Coordinate with active writers'
+            + ' and commit your changes before rerunning npm run checkpoint.');
+    }
+}
+
 function main(args) {
     const { verbose } = parseCheckpointArgs(args);
-    const status = spawnSync('git', ['status', '--porcelain'],
-        { encoding: 'utf8' }).stdout.trim();
-    if (status) {
-        console.error(
-            'npm run checkpoint: working tree is not clean.'
-            + ' Commit before running checkpoint.');
-        process.exit(1);
-    }
+    // Git, checks, and the summary must refer to the same worktree even when
+    // the CLI is invoked by absolute path from another directory.
+    process.chdir(PROJECT_ROOT);
+    // A rejected or interrupted attempt must not leave an older pass usable.
+    rmSync(SUMMARY_PATH, { force: true });
+    const commit = checkpointGit(['rev-parse', '--verify', 'HEAD']);
+    requireCleanCheckpointTree();
     const commands = checkpointCommands();
     const { allPassed, results } = runCheckpointChecks(commands, { verbose });
-    writeCheckpointSummary(results);
+    // Boundary checks catch persistent changes, not edits reverted between
+    // observations. The worktree still needs exclusive use during validation.
+    requireCleanCheckpointTree();
+    if (checkpointGit(['rev-parse', '--verify', 'HEAD']) !== commit) {
+        throw new Error('HEAD changed during checkpoint. Coordinate with active writers'
+            + ' and rerun npm run checkpoint on the intended commit.');
+    }
+    writeCheckpointSummary(results, commit);
     if (!allPassed) process.exitCode = 1;
 }
 
