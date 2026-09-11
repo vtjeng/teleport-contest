@@ -21,7 +21,6 @@ import {
     A_CON,
     A_DEX,
     BEAR_TRAP,
-    BLINDED,
     BOLT_LIM,
     DART_TRAP,
     DEAF,
