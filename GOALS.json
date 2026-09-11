@@ -23866,7 +23866,7 @@
     {
       "id": "port-juiblex-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Gehennom Juiblex swamp special level Lua program and wire its loader",
       "luaFile": "juiblex.lua",
       "sessions": [
@@ -23890,8 +23890,11 @@
         "screens": 6374,
         "rng": 466868
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3f809ed8181b5e68babb3e58d51ec1ebef6afa26",
+      "delivered": {
+        "screens": 5,
+        "rng": 2723
+      },
       "functions": [
         {
           "name": "juiblex.lua",
@@ -23964,7 +23967,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 318,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "baalz.lua",
+          "cFile": null,
+          "luaFile": "baalz.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"baalz\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 515
+        }
+      ]
     }
   ]
 }
