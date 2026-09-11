@@ -5,12 +5,15 @@ import { ART_SUNSWORD } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     ACID_RES,
+    BLINDED,
     A_CHA,
     A_CON,
     A_DEX,
     A_STR,
     BASICENLIGHTENMENT,
     DRAIN_RES,
+    DETECT_MONSTERS,
+    DISPLACED,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -25,14 +28,17 @@ import {
     GETOBJ_SUGGEST,
     GLIB,
     INFRAVISION,
+    INVIS,
     INTRINSIC,
     JUMPING,
     MAGICENLIGHTENMENT,
     POISON_RES,
     SICK_RES,
+    SEE_INVIS,
     SLOW_DIGESTION,
     STONE_RES,
     TIMEOUT,
+    TELEPAT,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -206,7 +212,8 @@ import {
 } from './run-wear-armor.mjs';
 
 const { Armor_on, Boots_on, Cloak_on, Gloves_on, Helmet_on, Ring_on,
-    Shield_on, Shirt_on, accessory_or_armor_on, already_wearing, on_msg }
+    Shield_on, Shirt_on, accessory_or_armor_on, already_wearing, on_msg,
+    toggle_displacement }
     = _doWearInternals;
 
 function topLine() {
@@ -651,6 +658,111 @@ test('Cloak_on reveals a wished cloak\'s enchantment', async () => {
     }
 });
 
+test('toggle_displacement follows its source visibility guards', async () => {
+    // do_wear.c:148-178. The callback must leave both the discovery ledger and
+    // the message alone until C's initial_don, cancelled_don, oldprop,
+    // displaced, blocked, Blind, swallowed and Invisible tests all pass. A
+    // live discovery also calls exercise(A_WIS, TRUE), which is the one
+    // rn2(19) this span is responsible for preserving.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+
+    async function freshCase() {
+        await setup(segment, OFF);
+        const cloak = armor(CLOAK_OF_DISPLACEMENT, {
+            dknown: 1, spe: 0, known: false,
+        });
+        const type = game.objects[CLOAK_OF_DISPLACEMENT];
+        type.oc_name_known = 0;
+        type.oc_encountered = 0;
+        game.initial_don = false;
+        game.context.takeoff.cancelled_don = false;
+        game.u.uswallow = false;
+        for (const index of [BLINDED, DETECT_MONSTERS, DISPLACED, INVIS,
+            SEE_INVIS, TELEPAT]) {
+            game.u.uprops[index].intrinsic = 0;
+            game.u.uprops[index].extrinsic = 0;
+            game.u.uprops[index].blocked = 0;
+        }
+        return { cloak, type };
+    }
+
+    const rejected = [
+        ['initial startup don', (state) => { state.initial_don = true; },
+            0, true],
+        ['cancelled startup don', (state) => {
+            state.context.takeoff.cancelled_don = true;
+        }, 0, false],
+        ['another extrinsic source', null, W_ARMC, true],
+        ['intrinsic displacement', (state) => {
+            state.u.uprops[DISPLACED].intrinsic = 1;
+        }, 0, true],
+        ['blocked displacement', (state) => {
+            state.u.uprops[DISPLACED].blocked = 1;
+        }, 0, true],
+        ['blind without sensing', (state) => {
+            state.u.uprops[BLINDED].intrinsic = 1;
+        }, 0, true],
+        ['swallowed', (state) => { state.u.uswallow = true; }, 0, true],
+        ['invisible without see invisible', (state) => {
+            state.u.uprops[INVIS].intrinsic = 1;
+        }, 0, true],
+    ];
+    for (const [label, change, oldprop, on] of rejected) {
+        const { cloak, type } = await freshCase();
+        if (change) change(game);
+        const before = getRngLog().length;
+        await toggle_displacement(cloak, oldprop, on, game);
+        assert.equal(getRngLog().length, before, label);
+        assert.equal(type.oc_name_known, 0, `${label}: no discovery`);
+        assert.equal(takePendingTopLine(), '', `${label}: no message`);
+    }
+
+    // Blind telepathy's intrinsic and extrinsic forms each satisfy their own
+    // C macro, while detect_monsters overrides all three physical blockers.
+    const sensed = [
+        ['blind telepathy', (state) => {
+            state.u.uprops[BLINDED].intrinsic = 1;
+            state.u.uprops[TELEPAT].intrinsic = 1;
+        }],
+        ['unblind telepathy', (state) => {
+            state.u.uprops[BLINDED].intrinsic = 1;
+            state.u.uprops[TELEPAT].extrinsic = 1;
+        }],
+        ['detect monsters', (state) => {
+            state.u.uprops[BLINDED].intrinsic = 1;
+            state.u.uswallow = true;
+            state.u.uprops[INVIS].intrinsic = 1;
+            state.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+        }],
+    ];
+    for (const [label, change] of sensed) {
+        const { cloak, type } = await freshCase();
+        change(game);
+        const before = getRngLog().length;
+        await toggle_displacement(cloak, 0, true, game);
+        assert.equal(getRngLog().length, before + 1, `${label}: WIS rng`);
+        assert.equal(type.oc_name_known, 1, `${label}: discovery`);
+        assert.equal(type.oc_encountered, 1, `${label}: encounter`);
+        assert.equal(
+            takePendingTopLine(),
+            'You feel that monsters have difficulty pinpointing your location.',
+            label,
+        );
+    }
+
+    // The off arm has the source's alternate sentence. Cloak_off() remains
+    // outside this span, so call the shared callback directly to pin `on`.
+    const { cloak, type } = await freshCase();
+    const before = getRngLog().length;
+    await toggle_displacement(cloak, 0, false, game);
+    assert.equal(getRngLog().length, before + 1);
+    assert.equal(type.oc_name_known, 1);
+    assert.equal(
+        takePendingTopLine(),
+        'You feel that monsters no longer have difficulty pinpointing your location.',
+    );
+});
+
 // The keys scripts/run-wear-armor.mjs records for Cloak_on()'s two acting
 // arms, spelled here so that the segments the tests below replay are located
 // by what they type rather than by their shared seed.
@@ -888,18 +1000,18 @@ test('every one of the seven slots installs its own callback', async () => {
     }
 });
 
-test('the five cloaks Cloak_on cannot run are refused unwritten',
+test('the four cloaks Cloak_on cannot run are refused unwritten',
     async () => {
-    // do_wear.c:338-363. Five of Cloak_on()'s labels fall to a bare break and
-    // two more act without leaving do_wear.c; the remaining five makeknown(),
-    // toggle stealth or displacement, or redraw the hero with the
+    // do_wear.c:338-363. Six of Cloak_on()'s labels fall to a bare break and
+    // three more act without leaving do_wear.c; the remaining four makeknown(),
+    // toggle stealth, or redraw the hero with the
     // See_invisible messages, all outside this file. The refusal is hoisted
     // above setworn(), so a refused cloak never reaches the slot and its
     // oc_delay 0 never gets the chance to run the callback.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
-    for (const otyp of [CLOAK_OF_PROTECTION, ELVEN_CLOAK,
-        CLOAK_OF_DISPLACEMENT, MUMMY_WRAPPING, CLOAK_OF_INVISIBILITY]) {
+    for (const otyp of [CLOAK_OF_PROTECTION, ELVEN_CLOAK, MUMMY_WRAPPING,
+        CLOAK_OF_INVISIBILITY]) {
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
         await assert.rejects(
@@ -910,16 +1022,17 @@ test('the five cloaks Cloak_on cannot run are refused unwritten',
         assert.equal(game.uarmc ?? null, null, `otyp ${otyp}`);
         assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
     }
-    // Six of the seven that go on. CLOAK_OF_PROTECTION is the one member of
+    // Six of the eight that go on are silent here (oilskin and displacement
+    // are covered by their recording and focused callback tests).
+    // CLOAK_OF_PROTECTION is the one member of
     // Cloak_off()'s bare-break set missing here, and it is why the two sets
     // are named apart: reusing the take-off list would wear it with its
-    // makeknown() missing. The seventh admitted type, the oilskin cloak, is
-    // absent for a reason of the harness rather than the source: its arm
-    // prints, which makes a second message in the same turn and so a --More--
-    // this test has no key for. The two tests above replay its recorded
-    // segment instead. No message is asserted here either, because four of the
-    // twelve cloak appearances are shuffled by o_init.c and the magic
-    // resistance one is among them.
+    // makeknown() missing. The oilskin cloak is absent for a reason of the
+    // harness rather than the source: its arm prints, which makes a second
+    // message in the same turn and so a --More-- this test has no key for. The
+    // dedicated test above replays its recorded segment instead. No message is
+    // asserted here either, because four of the twelve cloak appearances are
+    // shuffled by o_init.c and the magic resistance one is among them.
     for (const otyp of [ORCISH_CLOAK, DWARVISH_CLOAK,
         CLOAK_OF_MAGIC_RESISTANCE, ROBE, LEATHER_CLOAK, ALCHEMY_SMOCK]) {
         // A fresh segment per type, so each wearing starts from an empty

@@ -1,0 +1,12 @@
+{
+  "_comment": "Seed 360 wizard world tour reaches do_wear.c toggle_displacement() through W and the wished +3 cloak of displacement; the final space dismisses its feedback before on_msg().",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 360,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Magellan,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "   n#levelchange\n20\n                   \u0017blessed +3 gray dragon scale mail\n\u0017blessed +3 speed boots\n\u0017blessed amulet of life saving\nTaW oPp Pq  \u0016?\ncyyyhhhbbs.\u0016?\nj.\u0016?\nk   .\u0016?\n v .\u0016?\n wyyybb:.\u0016?\n xukkuululuuuus.\u0016?\n Byhhb:.\u0016?\n Cyyuyhykyu:.\u0016?\n Duuun:.\u0016?\n Eykulln:.\u0016?\n G.\u0016?\n H.\u0016?\n Ihhhhhhbbbb:.\u0016?\nh.\u0016?\nes.\u0016?\ng .\u0016?\nl .\u0016?\nm.\u0016?\nn .\u0016?\np:.\u0016?\nqhhykk k :.\u0016?\nr.\u0016?\ns.\u0016?\n ts.\u0016?\n uh h :.\u0016?\n y  .#chat\n.y_ >\n   ._>\n   . #chat\nhy\u0017blessed Mjollnir\n\u0017blessed +3 gauntlets of power\n\u0017blessed +3 cloak of displacement\nwrWsWt "
+    }
+  ]
+}
