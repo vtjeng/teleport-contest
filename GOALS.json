@@ -24116,7 +24116,7 @@
     {
       "id": "port-baalz-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Gehennom Baalzebub special level Lua program and wire its loader",
       "luaFile": "baalz.lua",
       "sessions": [
@@ -24140,8 +24140,11 @@
         "screens": 6382,
         "rng": 469591
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "929a85958293d40427b31694704425befaa13ca7",
+      "delivered": {
+        "screens": 6,
+        "rng": 1821
+      },
       "functions": [
         {
           "name": "baalz.lua",
@@ -24219,7 +24222,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 324,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "orcus.lua",
+          "cFile": null,
+          "luaFile": "orcus.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"orcus\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 509
+        }
+      ]
     }
   ]
 }
