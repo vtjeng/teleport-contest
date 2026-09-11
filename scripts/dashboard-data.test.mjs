@@ -280,8 +280,8 @@ test('source ports deduplicate overlapping C units and include whole Lua program
     assert.deepEqual(sourceFileRows(table).get('hack.c'), ['1', '', '1', '2', '3']);
     assert.deepEqual(sourceFileRows(table).get('Arc-loca.lua'), ['', '', '1', '1', '1']);
     assert.deepEqual(sourceFileRows(table).get('options.c'), ['', '1', '', '0', '1']);
-    assert.match(table, /<summary>Verification<\/summary>/u);
-    assert.match(table, /Listed counts distinct C functions or whole Lua programs/u);
+    assert.match(table, /<summary>Functions \/ programs<\/summary>/u);
+    assert.match(table, /<strong>Listed:<\/strong> distinct C functions or whole Lua programs/u);
 });
 
 test('current work and source rows include fixes, parked goals, and unknown sources', () => {

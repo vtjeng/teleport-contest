@@ -209,7 +209,7 @@ summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4
 .goal-symbol.active { color: var(--goal-in-progress); }
 .goal-symbol.paused { color: var(--goal-paused); }
 .verification-help { position: relative; }
-.verification-help summary { list-style: none; white-space: nowrap; }
+.verification-help summary { list-style: none; }
 .verification-help summary::-webkit-details-marker { display: none; }
 .verification-help summary::after { content: '?'; display: inline-grid; place-items: center;
   width: 12px; height: 12px; margin-left: 4px; border: 1px solid currentColor; border-radius: 50%;
@@ -959,8 +959,8 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
   let html = '<thead><tr><th scope="col" rowspan="2" class="source-heading">Source file</th>'
     + '<th scope="colgroup" colspan="' + states.length + '" class="goals-heading">Goals</th>'
-    + '<th scope="colgroup" colspan="2" class="verification-heading"><details class="verification-help"><summary>Verification</summary>'
-    + '<p>Listed counts distinct C functions or whole Lua programs named for verification in this file’s goals. Bug-fix goals with an empty verification list add 0. Verified entries have source review, caller checks, and validation evidence.</p>'
+    + '<th scope="colgroup" colspan="2" class="verification-heading"><details class="verification-help"><summary>Functions / programs</summary>'
+    + '<p><strong>Verified:</strong> listed functions or programs with recorded source review, caller checks, and validation evidence.<br><br><strong>Listed:</strong> distinct C functions or whole Lua programs named in this file’s goals. 0 means those goals’ lists are empty.</p>'
     + '</details></th></tr><tr>'
     + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
       + symbol(state) + '</th>').join('')
