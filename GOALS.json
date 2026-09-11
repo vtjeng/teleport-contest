@@ -26358,6 +26358,71 @@
         "screens": 6815,
         "rng": 500997
       }
+    },
+    {
+      "id": "port-do-wear-toggle-displacement",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port do_wear.c toggle_displacement() for cloak-of-displacement wear state",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked unresolved development stop is seed0360-wizard-world-tour at global step 497, where Cloak_on() refuses the cloak-of-displacement branch. Source tracing maps that branch to the deliberate missing do_wear.c toggle_displacement() helper, so select its narrow file-port span and wire Cloak_on() admission.",
+      "detail": "Development session seed0360-wizard-world-tour, seed 360 Wizard/human/male/neutral, reaches W at step 496, selects wished CLOAK_OF_DISPLACEMENT (otyp 149) at step 497, and stops in js/do_wear.js Cloak_on(). C accessory_or_armor_on() accepts the cloak, setworn() installs it, assigns Cloak_on(), and immediately unmul()s because objects.h otyp 149 has oc_delay 0. Cloak_on() computes oldprop = DISPLACED.extrinsic & ~WORN_CLOAK and its otyp 149 arm calls toggle_displacement(uarmc, oldprop, TRUE). C toggle_displacement() do_wear.c:148-178 preserves initial_don/cancelled_don, timed-displacement, blocked, swallowing/vision, and telepathy/detection guards, then makeknown() exercises Wisdom (recorded rn2(19)=3) and emits the displacement feeling; unmul() later emits You are now wearing a cloak of displacement. Port only toggle_displacement() lines 148-178 and wire Cloak_on()/cloakOnPorted() without pulling unrelated toggle_stealth or boots functions. Preserve startup set_wear() initial_don semantics; other eat.c and timeout.c callers remain separately refused.",
+      "spans": [
+        {
+          "name": "toggle_displacement",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "toggle_displacement"
+          ]
+        }
+      ],
+      "openedAt": "521ac96143a23ddb6b01f96e692587933e8239ee",
+      "openStanding": {
+        "sha": "996ed1e72621951f8d7a7eaaa4eb959e2d292bee",
+        "screens": 6815,
+        "rng": 500997
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "toggle_displacement",
+          "line": 148,
+          "endLine": 186,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 148,
+        "to": 186
+      },
+      "activeStanding": {
+        "sha": "996ed1e72621951f8d7a7eaaa4eb959e2d292bee",
+        "screens": 6815,
+        "rng": 500997
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 497,
+          "kind": "stop",
+          "function": "Cloak_on",
+          "functionDeclared": true,
+          "sourceFile": "do_wear.c",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 149",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 336
+        }
+      ]
     }
   ]
 }
