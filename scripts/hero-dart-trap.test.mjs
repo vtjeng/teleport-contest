@@ -182,7 +182,7 @@ test('thitu planning handoff preserves a lethal monster missile hit',
         assert.equal(env.exercises.length, 0);
     });
 
-test('thitu live lethal hit still calls losehp before strength exercise',
+test('thitu live lethal hit stops after losehp gameover',
     async () => {
         const state = await heroState();
         state.u.uac = 3;
@@ -191,19 +191,23 @@ test('thitu live lethal hit still calls losehp before strength exercise',
         const obj = { otyp: DART, oclass: WEAPON_CLASS, opoisoned: false };
         const env = thituEnv([1]);
         env.fromMonster = true;
+        const originalLosehp = env.losehp;
+        env.losehp = async (...args) => {
+            await originalLosehp(...args);
+            // C losehp() does not return from thitu() after really_done(); the
+            // JS death path sets gameover so thitu() can unwind to its caller.
+            state.program_state.gameover = true;
+        };
 
         const result = await thitu(7, 3, obj, 'little dart', state, env);
         assert.equal(result, 1);
-        // mthrowu.c calls losehp() even when dam is lethal; the death
-        // boundary belongs to losehp(), after this call returns to thitu().
+        // mthrowu.c calls losehp() even when dam is lethal, but its NORETURN
+        // death path prevents the following exercise() call.
         assert.equal(state.u.uhp, -1);
         assert.equal(env.hpLosses.length, 1);
         assert.equal(env.hpLosses[0].n, 3);
         assert.equal(env.hpLosses[0].options.fromMonster, true);
-        assert.deepEqual(
-            env.exercises.map(({ index, increase }) => ({ index, increase })),
-            [{ index: A_STR, increase: false }],
-        );
+        assert.equal(env.exercises.length, 0);
     });
 
 test('thitu hit with high damage uses "!" and low damage uses "."',

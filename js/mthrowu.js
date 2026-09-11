@@ -1635,6 +1635,10 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
             fromMonster: Boolean(env.fromMonster),
             message,
         });
+        // C losehp() enters end.c really_done() on lethal damage, whose
+        // NORETURN path never reaches exercise(A_STR, FALSE).
+        if (state.program_state?.gameover)
+            return 1;
         await exercise(A_STR, false, state);
     }
     return 1;
