@@ -25556,6 +25556,50 @@
           "remainingScreensUpperBound": 449
         }
       ]
+    },
+    {
+      "id": "div-mon-mfndpos-cloud-terrain-0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Admit source-valid room-family terrain through monster movement",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked development mismatch reaches a source-valid CLOUD destination. mon.c:mfndpos() is already complete in js/monmove.js and accepts CLOUD, while js/unported_monster_actions.js:admitSimpleDestinationAndRegion() rejects it through an incomplete ordinaryDestination predicate. monmove.c:postmov() has no special CLOUD, AIR, ICE, or DRAWBRIDGE_DOWN branch, so this is an existing admission defect rather than a missing source port.",
+      "detail": "C mfndpos() lines 2140-2387 scans (37,1) CLOUD typ 36 and accepts it because IS_OBSTRUCTED(CLOUD) is false and pool/lava/door predicates pass. The Tengu consumes rn2(5)=2 at monmove.c:1841, so the teleport arm short-circuits and ordinary m_move() selection proceeds. JS mfndpos() already produces the candidate, but admitSimpleDestinationAndRegion() lines 912-1010 refuses it with mfndpos() door or special terrain movement. Use IS_ROOM-equivalent coverage, preserve existing special terrain and region gates, and add a positive CLOUD regression while updating the stale ICE refusal test.",
+      "spans": [],
+      "openedAt": "586774f80f94ec57b36fd76e1f50cf573e4adf46",
+      "openStanding": {
+        "sha": "ab9b5ee63741caa8a96e8298d37532a91e8f149d",
+        "screens": 6522,
+        "rng": 495171
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "mfndpos",
+      "session": "seed0360-wizard-world-tour",
+      "step": 384,
+      "activeStanding": {
+        "sha": "ab9b5ee63741caa8a96e8298d37532a91e8f149d",
+        "screens": 6522,
+        "rng": 495171
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 384,
+          "kind": "stop",
+          "function": "mfndpos",
+          "functionDeclared": true,
+          "sourceFile": "mon.c",
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires mfndpos() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 449
+        }
+      ]
     }
   ]
 }
