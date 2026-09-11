@@ -23611,7 +23611,7 @@
     {
       "id": "port-dogmove-score-targ",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete pet target scoring and permit source-valid monster target classes",
       "cFile": "dogmove.c",
       "sessions": [
@@ -23619,9 +23619,22 @@
       ],
       "selectionReason": "The refreshed queue's highest candidate is seed0030-ten-diverse-deaths at global step 1426, where a pet's monster-action preflight refuses an ordinary monster target. Source tracing reaches dogmove.c score_targ() (738-836): the target is shopkeeper Swidnica, which C permits and scores, while js/dogmove.js score_targ() explicitly refuses isshk targets and also omits the source confused, alignment, vampshifter, and final fuzz branches. Select the whole score_targ() function and wire its existing best_target()/pet_ranged_attk() caller.",
       "detail": "",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "score_targ",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "score_targ"
+          ]
+        }
+      ],
+      "openedAt": "e21fa0f5f5375ff464c502ed2c56eef99fafccfb",
+      "openStanding": {
+        "sha": "2c8b5a108d12c7f8c7042dd23aa95a9c0394ad9f",
+        "screens": 6306,
+        "rng": 451767
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -23636,7 +23649,29 @@
       "range": {
         "from": 738,
         "to": 837
-      }
+      },
+      "activeStanding": {
+        "sha": "2c8b5a108d12c7f8c7042dd23aa95a9c0394ad9f",
+        "screens": 6306,
+        "rng": 451767
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1426,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires an ordinary monster target",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 527
+        }
+      ]
     }
   ]
 }
