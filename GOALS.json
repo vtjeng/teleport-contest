@@ -23474,6 +23474,62 @@
           "remainingScreensUpperBound": 532
         }
       ]
+    },
+    {
+      "id": "port-do-goto-level",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port goto_level's complete level-transition contract, including Rogue graphics and arrival behavior",
+      "cFile": "do.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "seed0360-wizard-world-tour is the highest-ranked development mismatch at global step 301. Source-traced comparison shows C and JavaScript both reach Rogue level D:18 with identical 263-step RNG and room placement, but js/do.js goto_level() omits do.c:1666-1668 assign_graphics(ROGUESET)/check_gold_symbol() and do.c:1912-1914's Rogue arrival message, causing the screen and cursor mismatch. The source owner is an incomplete goto_level() port, so select a file-port and include the required symbols.c assign_graphics() and botl.c check_gold_symbol() dependencies.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "29f6c7b0531c97bd913e640685a9bc25293abd9e",
+      "openStanding": {
+        "sha": "29f6c7b0531c97bd913e640685a9bc25293abd9e",
+        "screens": 6301,
+        "rng": 451767
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "goto_level",
+          "line": 1479,
+          "endLine": 2002,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1479,
+        "to": 2002
+      },
+      "activeStanding": {
+        "sha": "29f6c7b0531c97bd913e640685a9bc25293abd9e",
+        "screens": 6301,
+        "rng": 451767
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 301,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 532
+        }
+      ]
     }
   ]
 }
