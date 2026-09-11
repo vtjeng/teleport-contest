@@ -25010,8 +25010,8 @@
       "spans": [
         {
           "name": "sleeping-covetous-dochug",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f8770fb6bdaf45f767c92f23c606071e685e15e8",
           "functions": [
             "dochug"
           ]
