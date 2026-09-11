@@ -26772,6 +26772,71 @@
         "screens": 6869,
         "rng": 504135
       }
+    },
+    {
+      "id": "port-monmove-dochug-flee-teleport",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port monmove.c dochug() fleeing-monster teleport branch and wire planning/live relocation",
+      "cFile": "monmove.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "The refreshed queue still ranks seed0014-dequa-fountain-explore first at step 424 with at most 290 remaining screens. The completed read-only investigation source-traced the refusal to missing monmove.c dochug() behavior at lines 744-750, so select the complete dochug() source unit before the lower-ranked hack.c test_move() candidate.",
+      "detail": "Fresh replay of seed0014-dequa-fountain-explore at tested commit 03912f930dedb07fa2e62cf7a1a399c24b878d05 reproduces the stop at global step 424 with simple monster action requires fleeing monster teleport; the RNG prefix matches through the fountain dryup draw. Upstream nethack-c/upstream/src/monmove.c dochug() lines 690-989 contains the missing branch at lines 744-750: if mtmp->mflee && !rn2(40) && can_teleport(mdat) && !mtmp->iswiz && !noteleport_level(mtmp), call rloc(mtmp, RLOC_MSG), call leppie_stash(mtmp) only when relocation succeeds, then return 0. The observed hostile water nymph has mflee=true and satisfies the guards; C consumes rn2(40)=0 then rloc relocation draws. JavaScript js/monmove.js dochug() lines 2414-2425 currently throws unsupported('fleeing monster teleport'). Existing js/teleport.js rloc() and js/monmove.js leppie_stash() are dependencies; js/unported_monster_actions.js runSimpleMonsterAction() provides the planning/live environment wrappers. Port the complete dochug() contract needed by this branch and preserve clone/live atomicity and draw order.",
+      "spans": [
+        {
+          "name": "dochug",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dochug"
+          ]
+        }
+      ],
+      "openedAt": "b5d9c348574c7a000c96908b2fc7e12b07e6b16d",
+      "openStanding": {
+        "sha": "03912f930dedb07fa2e62cf7a1a399c24b878d05",
+        "screens": 6869,
+        "rng": 504135
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dochug",
+          "line": 690,
+          "endLine": 998,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 690,
+        "to": 998
+      },
+      "activeStanding": {
+        "sha": "03912f930dedb07fa2e62cf7a1a399c24b878d05",
+        "screens": 6869,
+        "rng": 504135
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 424,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires fleeing monster teleport",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 290
+        }
+      ]
     }
   ]
 }
