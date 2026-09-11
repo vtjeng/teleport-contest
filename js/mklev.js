@@ -1717,6 +1717,7 @@ async function ensureSpecialLevelLoaders() {
     const { BAALZ_LEVEL_LOADERS } = await import('./baalz_levels.js');
     const { JUIBLEX_LEVEL_LOADERS } = await import('./juiblex_levels.js');
     const { ORCUS_LEVEL_LOADERS } = await import('./orcus_levels.js');
+    const { WIZARD1_LEVEL_LOADERS } = await import('./wizard1_levels.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1733,6 +1734,7 @@ async function ensureSpecialLevelLoaders() {
         ...BAALZ_LEVEL_LOADERS,
         ...JUIBLEX_LEVEL_LOADERS,
         ...ORCUS_LEVEL_LOADERS,
+        ...WIZARD1_LEVEL_LOADERS,
     };
 }
 

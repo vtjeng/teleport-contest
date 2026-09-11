@@ -153,7 +153,8 @@
         "js/themeroom_fill.js",
         "js/themerooms.js",
         "js/tutorial_level.js",
-        "js/valley_levels.js"
+        "js/valley_levels.js",
+        "js/wizard1_levels.js"
       ],
       "generatedOutputs": [
         {
