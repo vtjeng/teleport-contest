@@ -25765,7 +25765,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0360-wizard-world-tour at queue step 399, corresponding to world-tour input step 400. Source tracing identifies MAGIC_PORTAL ttyp 17 on the monster postmov mintrap path, where JavaScript stops in trapeffect_selector because MAGIC_PORTAL remains in UNPORTED_TRAP_EFFECTS. This is missing C behavior and therefore a narrow file-port goal, rather than a divergence fix or the historical broad trap-activation goal.",
       "detail": "Port trap.c trapeffect_magic_portal() lines 2709-2722 and wire trapeffect_selector() MAGIC_PORTAL dispatch at lines 2936-2993. Production chain is allmain.c moveloop_core() -> mon.c movemon_singlemon() -> monmove.c dochug()/m_move() -> monmove.c postmov() -> trap.c mintrap() -> trapeffect_selector(). Include the required monster branch of teleport.c mlevel_tele_trap() lines 2004-2098: the In_endgame amulet/home-elemental/rn2(7) refusal, trap destination assignment, MIGR_PORTAL migration, visible disappearance message and seetrap, control_teleport mconf update, and migrate_to_level call. Extend the existing JavaScript mlevel_tele_trap() portal guard without broadening level-teleporter or forced-off-level paths. Keep the hero domagicportal() arm explicitly bounded by the existing hero preflight.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "trapeffect_magic_portal",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_magic_portal"
+          ]
+        }
+      ],
       "openedAt": "edeb23a64559ee3e32678df141b95ebd405ccfeb",
       "openStanding": {
         "sha": "c432f78d4cff87fcdf6043d0b066169aba4e365d",
