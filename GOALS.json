@@ -24625,8 +24625,8 @@
       "spans": [
         {
           "name": "monlineu..mm_displacement",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63",
           "functions": [
             "monlineu",
             "mon_allowflags",
@@ -24652,49 +24652,49 @@
           "line": 2057,
           "endLine": 2063,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_allowflags",
           "line": 2064,
           "endLine": 2129,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_in_air",
           "line": 2130,
           "endLine": 2139,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mfndpos",
           "line": 2140,
           "endLine": 2387,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mm_2way_aggression",
           "line": 2388,
           "endLine": 2427,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mm_aggression",
           "line": 2428,
           "endLine": 2450,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mm_displacement",
           "line": 2451,
           "endLine": 2475,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -24737,7 +24737,175 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 498
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "monlineu",
+            "implementation": "js/mon.js",
+            "symbol": "monlineu",
+            "sourceReview": "Read the complete mon.c monlineu() definition at lines 2057-2060. It returns online2(nx, ny, mon->mux, mon->muy), preserving the remembered apparent hero position and the source argument order. The JavaScript implementation has no obsolete guard or unported callee.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "mfndposCore",
+                "source": "mon.c mfndpos() calls monlineu() while recording NOTONL for each candidate at lines 2346-2349."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          },
+          {
+            "name": "mon_allowflags",
+            "implementation": "js/mon.js",
+            "symbol": "mon_allowflags",
+            "sourceReview": "Read the complete mon.c mon_allowflags() definition at lines 2062-2126. The port preserves can_open/can_unlock/doorbuster, rogue and hostile needspick suppression, tame/peaceful/hostile disposition, the single Conflict resistance draw, shopkeeper/priest flags, passwall/rock/boulder, digging, door, bars, sanctuary, garlic, alignment, and unicorn clauses in source order. Its only impure operation is the source Conflict resistance RNG call, supplied by the same random context used by the callers; monhaskey() and m_can_break_boulder() are wired to their monmove.c implementations.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c m_move() computes the movement capabilities before its mfndpos() call at lines 1763-1766 and passes them into the candidate scan."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c dog_move() obtains mon_allowflags() for its mfndpos-backed goal scan."
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "move_special",
+                "source": "priest.c move_special() computes allowflags with mon_allowflags() before calling mfndpos() at lines 42-66."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/monmove.c/gelcube-digests-organic.session.json",
+              "recordings/monmove.c/vampire-lord-shift.session.json",
+              "recordings/monmove.c/bee-eats-royal-jelly.session.json"
+            ],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          },
+          {
+            "name": "m_in_air",
+            "implementation": "js/monmove.js",
+            "symbol": "m_in_air",
+            "sourceReview": "Read the complete mon.c m_in_air() definition at lines 2128-2136. The port preserves unconditional flyer/floater eligibility and the clinger condition requiring both has_ceiling(&u.uz) and mundetected, with no state mutation, output, random draw, or unported callee.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "mfndposCore",
+                "source": "mon.c mfndpos() calls m_in_air() while deriving poolok and lavaok at lines 2166-2168."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "monsterPoisonGasSafe",
+                "source": "monmove.c's movement poison-gas eligibility uses the same in-air predicate before mfndpos()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          },
+          {
+            "name": "mfndpos",
+            "implementation": "js/monmove.js",
+            "symbol": "mfndpos",
+            "sourceReview": "Read the complete mon.c mfndpos() definition at lines 2140-2381. The port resets all nine output slots, derives wantpool/poolok/lavaok and the ALLOW_DIG tools, scans neighbors x-major then y-major, preserves obstructed/passwall/digging, peaceful temple/shop, waterwall, bars, doors, poison gas, diagonal, lava-wall, and pool/lava gates, then records displacement, scary, hero memory, aggression, monster displacement, sanctuary, garlic, boulder, NOTONL, squeeze, and trap metadata in source order. It retries eel land movement only after an empty pool scan. Production callers are wired through m_move(), dog_move(), and priest move_special(); m_harmless_trap(), mm_aggression(), mm_displacement(), monlineu(), and count_wsegs() are implemented and called for their source return values. The planning wrapper rolls back the same output and mux/muy writes when its trap-resistance callback refuses, so the fail-closed clone does not leak state into the live turn.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c m_move() calls mfndpos() after its item and tunnel capability gates at lines 1910-1925 and chooses the next movement candidate from its poss/info output."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c dog_move() calls mfndpos() through its findPositions operation for pet goal selection."
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "move_special",
+                "source": "priest.c move_special() calls mfndpos() at lines 42-66 for priest and shopkeeper movement."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/monmove.c/gelcube-digests-organic.session.json",
+              "recordings/monmove.c/vampire-lord-shift.session.json",
+              "recordings/monmove.c/bee-eats-royal-jelly.session.json"
+            ],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          },
+          {
+            "name": "mm_2way_aggression",
+            "implementation": "js/mon.js",
+            "symbol": "mm_2way_aggression",
+            "sourceReview": "Read the complete mon.c mm_2way_aggression() definition at lines 2388-2426. The port preserves the Wizard's Tower inside/outside partition, zombie-maker and zombie-form tests, generated-on-level mutual exclusion, stronghold exclusion, unique-monster exclusion, and ALLOW_M|ALLOW_TM result without random draws or output.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mm_aggression",
+                "source": "mon.c mm_aggression() calls mm_2way_aggression() in both attacker/defender orders at lines 2446-2447."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          },
+          {
+            "name": "mm_aggression",
+            "implementation": "js/mon.js",
+            "symbol": "mm_aggression",
+            "sourceReview": "Read the complete mon.c mm_aggression() definition at lines 2428-2448. The port preserves the tame-pet early return, purple-worm versus shrieker exception, and symmetric two-way aggression calls with their bitwise OR order; it has no random draw, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "mfndposCore",
+                "source": "mon.c mfndpos() calls mm_aggression() for an occupied candidate at lines 2301-2310."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          },
+          {
+            "name": "mm_displacement",
+            "implementation": "js/mon.js",
+            "symbol": "mm_displacement",
+            "sourceReview": "Read the complete mon.c mm_displacement() definition at lines 2451-2473. The port preserves displacer level ordering, diagonal NODIAG exclusion, trapped and multi-location worm exclusions, rider and size eligibility, and ALLOW_MDISP result without random draws, output, or state mutation; count_wsegs() is wired to its makemon_create.js implementation.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "mfndposCore",
+                "source": "mon.c mfndpos() calls mm_displacement() after aggression declines an occupied candidate at lines 2311-2315."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/monmove.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "c04c71035f3b0a5f9662fa4e363f0a45fcb35e63"
+          }
+        ],
+        "entryPointReview": "This source range contains helper functions only, with no standalone command, monster action, level feature, or startup entry point. Runtime coverage comes from monmove.c m_move(), dogmove.c dog_move(), and priest.c move_special(), which are wired to mon_allowflags() and mfndpos(); mfndpos() reaches monlineu(), m_in_air(), mm_aggression(), and mm_displacement() in the candidate scan. The new source-pinned preflight cases exercise the swimmer moat and passwall wall candidates, while existing monmove recordings cover impure movement through those callers.",
+        "entryPoints": []
+      }
     }
   ]
 }
