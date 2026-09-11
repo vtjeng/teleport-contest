@@ -23985,6 +23985,62 @@
           "remainingScreensUpperBound": 515
         }
       ]
+    },
+    {
+      "id": "port-end-done2",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port end.c done2() and wire the #quit extended command",
+      "cFile": "end.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The highest-ranked current mismatch is seed0030-ten-diverse-deaths at global step 1482, where the #quit extended command reaches cmd.c doextcmd() but JavaScript refuses before end.c done2(). The source done2() body handles tutorial and paranoid quit prompts, cancellation cleanup, wizard debugger handling, and done(QUIT); select only done2() so the existing later done()/really_done() boundary remains a subsequent source goal.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "9cf6ec17eeb63a65251dc072cd1a863338e46e60",
+      "openStanding": {
+        "sha": "3f809ed8181b5e68babb3e58d51ec1ebef6afa26",
+        "screens": 6379,
+        "rng": 469591
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "done2",
+          "line": 90,
+          "endLine": 153,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 90,
+        "to": 153
+      },
+      "activeStanding": {
+        "sha": "3f809ed8181b5e68babb3e58d51ec1ebef6afa26",
+        "screens": 6379,
+        "rng": 469591
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1482,
+          "kind": "stop",
+          "function": "done2",
+          "functionDeclared": false,
+          "sourceFile": "end.c",
+          "cFile": "end.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: done2() for the extended command 'quit' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 471
+        }
+      ]
     }
   ]
 }
