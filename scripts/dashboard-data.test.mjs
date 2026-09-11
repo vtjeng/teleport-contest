@@ -182,7 +182,7 @@ function assertBarsBounded(bars) {
     }
 }
 
-function sourceDashboardData(filePorts = []) {
+function sourceDashboardData(workGoals = []) {
     // No score or timing history is needed to render the queue and source
     // tables. Unit totals keep the unrelated percentage tiles well-defined.
     return {
@@ -192,7 +192,7 @@ function sourceDashboardData(filePorts = []) {
             sessions: 0, sessionsTotal: 1, totalGoals: 0,
             medianTotalMin: null, medianGoalSelectionMin: null,
         },
-        goals: [], progress: [], filePorts,
+        goals: [], progress: [], workGoals,
     };
 }
 
@@ -270,13 +270,57 @@ test('source ports deduplicate overlapping C units and include whole Lua program
             units: [{ name: 'parseoptions', verified: false }],
             spansClosed: 0, spansTotal: 0, screensDelivered: null },
     ];
-    const table = renderDashboard(sourceDashboardData(ports)).get('filePortTable').innerHTML;
+    const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
     // Three distinct C units, two verified, across two goals; summing the
     // goals' unit counts would incorrectly report four units.
-    assert.match(table, /hack\.c<\/td><td>1 \/ 2<\/td><td>2 \/ 3<\/td>/u);
-    assert.match(table, /Arc-loca\.lua<\/td><td>1 \/ 1<\/td><td>1 \/ 1<\/td>/u);
-    assert.match(table, /<tr><td>options\.c<\/td><td>0 \/ 1<\/td><td>0 \/ 1<\/td>/u);
-    assert.match(table, /<th>Verified units<\/th>/u);
+    assert.match(table, /hack\.c<\/td><td>1 in progress<\/td><td>1<\/td><td>2 \/ 3<\/td>/u);
+    assert.match(table, /Arc-loca\.lua<\/td><td>No active goals<\/td><td>1<\/td><td>1 \/ 1<\/td>/u);
+    assert.match(table, /<tr><td>options\.c<\/td><td>1 paused<\/td><td>0<\/td><td>0 \/ 1<\/td>/u);
+    assert.match(table, /<th>Verified \/ tracked units<\/th>/u);
+});
+
+test('current work and source rows include fixes, parked goals, and unknown sources', () => {
+    // A fix shares its file with a closed port and a parked goal; another
+    // parked goal lacks a source owner. Status must not depend on goal kind
+    // or on a corresponding Open commit in the historical timeline.
+    const work = [
+        { id: 'old-port', kind: 'file-port', sourceFile: 'fountain.c', status: 'closed',
+            summary: 'Implement fountains', units: [{ name: 'drinkfountain', verified: true }] },
+        { id: 'gem-fix', kind: 'divergence-fix', sourceFile: 'fountain.c', status: 'open',
+            summary: 'Fix gem discovery <&>', units: [] },
+        { id: 'paused-fountain', sourceFile: 'fountain.c', status: 'parked',
+            summary: 'Finish fountains', parkedReason: 'Waiting for <caller>', units: [] },
+        { id: 'unknown', sourceFile: null, status: 'parked',
+            summary: 'Investigate a mismatch', parkedReason: 'Find its source', units: [] },
+        { id: 'new-file', sourceFile: 'dog.c', status: 'open',
+            summary: 'Fix pet movement', units: [] },
+    ];
+    const rendered = renderDashboard(sourceDashboardData(work));
+    const current = rendered.get('currentWork').innerHTML;
+    assert.match(current, /Fix gem discovery &lt;&amp;&gt;/u);
+    assert.match(current, /fountain\.c/u);
+    assert.match(current, /Fix pet movement/u);
+    assert.doesNotMatch(current, /Finish fountains/u);
+    assert.equal(rendered.get('workSummary').textContent, '2 in progress · 2 paused');
+    assert.match(rendered.get('pausedWork').innerHTML, /Waiting for &lt;caller&gt;/u);
+    assert.match(rendered.get('pausedWork').innerHTML, /Source not assigned/u);
+    const table = rendered.get('sourceWorkTable').innerHTML;
+    assert.match(table, /class="in-progress"><td>fountain\.c<\/td><td>1 in progress · 1 paused<\/td><td>1<\/td><td>1 \/ 1/u);
+    assert.match(table, /class="in-progress"><td>dog\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>—<\/td>/u);
+    assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
+});
+
+test('current work explains an idle snapshot and an empty goal register', () => {
+    // Closed and queued records must not imply that work is in progress.
+    for (const work of [[], [
+        { id: 'finished', sourceFile: 'hack.c', status: 'closed', units: [] },
+        { id: 'next', sourceFile: 'dog.c', status: 'queued', units: [] },
+    ]]) {
+        const rendered = renderDashboard(sourceDashboardData(work));
+        assert.match(rendered.get('currentWork').innerHTML, /No goal is in progress in this snapshot/u);
+        assert.equal(rendered.get('workSummary').textContent, '0 in progress · 0 paused');
+        assert.equal(rendered.get('pausedWork').innerHTML, '');
+    }
 });
 
 test('Lua source goals retain their kind in timeline lanes and history stripes', () => {
@@ -359,6 +403,11 @@ test('dashboard separates closed goals and labels inferred timing', () => {
                 summary: 'fix', cFile: 'dog.c', function: 'dog_eat',
                 session: 'seed0001-example', spans: [],
             },
+            {
+                id: 'paused-investigation', kind: 'divergence-fix', status: 'parked',
+                summary: 'Investigate the next mismatch',
+                parkedReason: 'Waiting for source ownership', spans: [],
+            },
         ],
     }));
 
@@ -419,11 +468,15 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.equal(alpha.functionsVerified, 0); // Historical declarations are not completion evidence.
     assert.equal(orphan.kind, 'divergence-fix');
     assert.equal(beta.kind, 'file-port');
-    assert.deepEqual(data.filePorts.map((port) => port.id), ['alpha', 'beta']);
-    assert.equal(data.filePorts[0].spansClosed, 1);
-    assert.equal(data.filePorts[0].screensDelivered, 5);
-    assert.equal(data.summary.filePortsClosed, 1);
-    assert.equal(data.summary.filePortsTotal, 2);
+    assert.deepEqual(data.workGoals.map((port) => port.id), ['alpha', 'beta', 'orphan', 'paused-investigation']);
+    assert.deepEqual(data.workGoals[0].units, [
+        { name: 'one', verified: false }, { name: 'two', verified: false },
+    ]); // Historical declarations do not count as verified units.
+    assert.equal(data.workGoals[2].sourceFile, 'dog.c');
+    assert.equal(data.workGoals[2].kind, 'divergence-fix');
+    assert.equal(data.workGoals[3].status, 'parked');
+    assert.equal(data.workGoals[3].parkedReason, 'Waiting for source ownership');
+    assert.equal(data.workGoals[3].sourceFile, null);
     assert.equal(legacy.closeTimeSource, 'commit');
     assert.equal(data.progress[0].utcSource, 'commit');
     assert.equal(data.progress[1].utcSource, 'commit');
@@ -472,9 +525,9 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.match(emptyRow, /<tr class="kind-boundary/u);
     // Alpha's historical declaration has no completion evidence. Its one
     // goal is closed, but neither of its two units counts as verified.
-    const filePortTable = rendered.get('filePortTable').innerHTML;
-    assert.match(filePortTable, /alpha\.c<\/td><td>1 \/ 1<\/td><td>0 \/ 2</u);
-    assert.match(filePortTable, /beta\.c<\/td><td>0 \/ 1<\/td><td>0 \/ 1</u);
+    const filePortTable = rendered.get('sourceWorkTable').innerHTML;
+    assert.match(filePortTable, /alpha\.c<\/td><td>No active goals<\/td><td>1<\/td><td>0 \/ 2</u);
+    assert.match(filePortTable, /beta\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>0 \/ 1</u);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);

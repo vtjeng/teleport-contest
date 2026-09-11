@@ -394,17 +394,16 @@ for (const goal of goals) {
   Object.assign(goal, completionCounts(record));
 }
 
-const filePorts = [...goalRecords.values()]
-  .filter((record) => record.kind === 'file-port' || record.kind === 'lua-port')
+// Current work follows the register, independently of historical commit names.
+const workGoals = [...goalRecords.values()]
   .map((record) => ({
     id: record.id,
+    kind: record.kind ?? null,
     status: record.status,
-    sourceFile: record.luaFile ?? record.cFile,
+    sourceFile: record.luaFile ?? record.cFile ?? null,
     summary: record.summary,
-    ...completionCounts(record),
-    spansClosed: (record.spans ?? []).filter((span) => span.status === 'closed').length,
-    spansTotal: (record.spans ?? []).length,
-    screensDelivered: record.delivered?.screens ?? null,
+    parkedReason: record.parkedReason ?? null,
+    units: completionCounts(record).units,
   }));
 
 // --- Compute per-goal screen deltas ---
@@ -491,10 +490,8 @@ const summary = {
   medianImplementationMin: median(recentObservedGoals.filter(g => g.sliceCount > 0 && g.implementationMin < 600).map(g => g.implementationMin)),
   medianVerificationMin: median(recentWithVerif.map(g => g.verificationMin)),
   medianTotalMin: median(recentGoals.filter(g => g.totalObserved && g.totalMin < 600).map(g => g.totalMin)),
-  filePortsClosed: filePorts.filter((port) => port.status === 'closed').length,
-  filePortsTotal: filePorts.length,
 };
 
-const output = { goals, progress, standaloneAudits, filePorts, summary };
+const output = { goals, progress, standaloneAudits, workGoals, summary };
 
 process.stdout.write(JSON.stringify(output, null, 2));
