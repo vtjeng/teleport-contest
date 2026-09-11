@@ -23743,7 +23743,7 @@
     {
       "id": "port-asmodeus-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Gehennom Asmodeus special level Lua program and wire its loader",
       "luaFile": "asmodeus.lua",
       "sessions": [
@@ -23767,8 +23767,11 @@
         "screens": 6368,
         "rng": 463480
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a958f72b499333724f2a75caf2df56370aaea666",
+      "delivered": {
+        "screens": 6,
+        "rng": 3388
+      },
       "functions": [
         {
           "name": "asmodeus.lua",
@@ -23841,7 +23844,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 313,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "juiblex.lua",
+          "cFile": null,
+          "luaFile": "juiblex.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"juiblex\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 520
+        }
+      ]
     }
   ]
 }
