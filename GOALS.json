@@ -23478,7 +23478,7 @@
     {
       "id": "port-do-goto-level",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port goto_level's complete level-transition contract, including Rogue graphics and arrival behavior",
       "cFile": "do.c",
       "sessions": [
@@ -23502,8 +23502,11 @@
         "screens": 6301,
         "rng": 451767
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2c8b5a108d12c7f8c7042dd23aa95a9c0394ad9f",
+      "delivered": {
+        "screens": 5,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "goto_level",
@@ -23586,7 +23589,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 307,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "asmodeus.lua",
+          "cFile": null,
+          "luaFile": "asmodeus.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"asmodeus\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 526
+        }
+      ]
     }
   ]
 }
