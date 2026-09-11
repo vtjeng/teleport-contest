@@ -22746,8 +22746,8 @@
       "spans": [
         {
           "name": "really_done",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2fa0de568d7b55cb85d0111bb9b31e693165caee",
           "functions": [
             "really_done"
           ]
@@ -22767,7 +22767,7 @@
           "line": 1130,
           "endLine": 1593,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -22795,7 +22795,53 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 679
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "really_done",
+            "implementation": "js/end.js",
+            "symbol": "really_done",
+            "sourceReview": "Read nethack-c/upstream/src/end.c really_done() lines 1130-1593 in full. The implementation keeps the source order for gameover and vision state, non-panicking object cleanup, fixed death time, day flags, first-move guard, wait_synch(), can_make_bones(), grave-arise state, billing cleanup, disclosure, grave and score work, savebones(), end-window teardown, and termination. The TTY wait follows win/tty/wintty.c:3624-3647: before the map is live it uses getret(), while normal death repaints the map and leaves the pending --More-- marker for the disclosure reader. Existing explicit UnsupportedEndOfGameError boundaries remain for source branches whose required callees are not ported (hangup, panic, achievement-only disclosure, special grave-arise, and the later score-file or platform-specific arms); no injected death result or extra random draw substitutes for those boundaries. The ordinary mounted and monster-caused death paths call this function through done(), and the new source-pinned test plus fresh recordings cover the wait boundary and can_make_bones() draw.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "done",
+                "source": "nethack-c/upstream/src/end.c:1124 calls really_done(how) after the survive query; js/end.js dispatches accepted ordinary death to really_done() at lines 600 and 606."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "done_in_by",
+                "source": "nethack-c/upstream/src/end.c:344 calls done(how) after constructing the killer; js/end.js done_in_by() reaches done() at line 451."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-wait-synch.session.json",
+              "recordings/end.c/death-ray-cleanup.session.json",
+              "recordings/end.c/done-in-by-shopkeeper.session.json"
+            ],
+            "checkedAt": "2fa0de568d7b55cb85d0111bb9b31e693165caee"
+          }
+        ],
+        "entryPointReview": "The ordinary lethal-death entry point is done() -> really_done(), reached by both the mounted-slip and monster-killer paths. The newly selected seed 9140049 recipe reaches the final death message, source-ordered tty_wait_synch() map refresh, can_make_bones() draw, and disclosure reader; the existing death-ray and shopkeeper recordings exercise the same production caller with different killer construction. The selected span still stops at explicit source boundaries for unported helper families, as named in sourceReview.",
+        "entryPoints": [
+          {
+            "name": "ordinary lethal death finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-wait-synch.session.json",
+              "recordings/end.c/death-ray-cleanup.session.json",
+              "recordings/end.c/done-in-by-shopkeeper.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
