@@ -9,8 +9,8 @@
 // player declines death. The life-saving amulet's earlier reprieve remains
 // refused. really_done() covers the mounted-slip prefix through cleanup, time
 // bookkeeping, inventory identification, disclosure, grave creation, score
-// calculation, and the Save bones? prompt; savebones(), tombstone, and the
-// score file remain refused.
+// calculation, the Save bones? prompt, and savebones()'s level snapshot. The
+// post-bones score-file path remains outside this port.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
 // death is declined in wizard or explore mode. Two of its branches remain
@@ -29,7 +29,7 @@
 // value initializer while the cycle remains.
 import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
-import { can_make_bones } from './bones.js';
+import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
 import { paranoid_query, yn_function } from './cmd.js';
 import {
@@ -1054,9 +1054,10 @@ function identifyInventoryForDisclosure(state) {
     }
 }
 
-// C ref: end.c really_done() (1130-1369).  Covers the ordinary death path
-// through disclosure, grave creation, score calculation, and the Save bones?
-// prompt.  savebones() and the post-bones code remain refused.
+// C ref: end.c really_done() (1130-1369). Covers the ordinary death path
+// through disclosure, grave creation, score calculation, the Save bones?
+// prompt, and savebones()'s level snapshot. The post-bones score-file path
+// remains outside this port.
 async function really_done(how, state) {
     const programState = state.program_state;
     programState.gameover = 1;
@@ -1191,13 +1192,7 @@ async function really_done(how, state) {
                 'Save bones?',
                 state,
             )) {
-            // savebones() and the post-bones path remain outside this port.
-            // Refuse exactly where C would enter savebones(), after the
-            // can_make_bones() draw and optional Save bones? query, so the
-            // supported prefix keeps its source RNG and screen order.
-            throw new UnsupportedEndOfGameError(
-                'really_done() savebones()',
-            );
+            await savebones(how, endtime, corpse, state);
         }
         corpse = null;
     }

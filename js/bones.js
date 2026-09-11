@@ -11,6 +11,7 @@ import {
     MM_NONAME,
     NON_PM,
     ROWNO,
+    W_WEP,
     has_ebones,
     has_oname,
     isok,
@@ -611,6 +612,16 @@ function serializeBonesLevel(state) {
             const v = mtmp[k];
             if (typeof v === 'function') continue;
             if (k === 'nmon') { m.nmon = null; continue; }
+            // C serializes the species number (mnum), not mtmp->data.  The
+            // live species record is shared by monsters and carries object
+            // aliases in this port, so copying the pointer would reintroduce
+            // a cycle into the bones JSON.  restoreBonesLevel() resolves data
+            // from mnum before rebuilding the monster list.
+            if (k === 'data') continue;
+            // mtmp->mw points into mtmp->minvent.  Save its presence as a
+            // flag; restoreBonesLevel() reconnects it to the restored weapon
+            // object after rebuilding that inventory chain.
+            if (k === 'mw') { m.mw = Boolean(v); continue; }
             if (k === 'minvent') {
                 m.minvent = cloneObjChain(v);
                 continue;
@@ -846,6 +857,17 @@ function restoreBonesLevel(bonesData, state) {
             reassignObjIds(m.minvent, state);
         } else {
             m.minvent = null;
+        }
+        // C restore.c:432-446 serializes mw as a non-null pointer marker,
+        // then reconnects it to the restored inventory object carrying W_WEP.
+        // The saved pointer itself is not a usable object reference.
+        if (m.mw) {
+            let weapon = m.minvent;
+            while (weapon && !(weapon.owornmask & W_WEP))
+                weapon = weapon.nobj;
+            m.mw = weapon ?? null;
+        } else {
+            m.mw = null;
         }
         m.nmon = null;
         if (isok(m.mx, m.my)) monsGrid[m.mx][m.my] = m;

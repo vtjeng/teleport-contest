@@ -538,6 +538,80 @@ test('m_throw miss lets the missile continue flying and drop at range end',
         );
     });
 
+test('m_throw stops after a lethal hit has settled the transit object',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        // Two squares gives one ordinary flight step before the hero. This
+        // reaches the thitu() handoff with one intervening rn2(5) draw.
+        const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
+        const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+        add_to_minv(subject, dagger, { state });
+        dagger.owornmask = W_WEP;
+        subject.mw = dagger;
+        clearRow(state, state.u.ux, subject.mx, y);
+        state.program_state.gameover = 0;
+        let stopOccupationCalls = 0;
+
+        const result = await m_throw(
+            subject,
+            subject.mx,
+            y,
+            -1,
+            0,
+            2,
+            dagger,
+            {
+                state,
+                random: {
+                    // Nonzero catches and a non-forced intermediate flight
+                    // keep the ordinary lethal-hit path selected.
+                    rn2: () => 1,
+                    rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+                },
+                canSeeMonster: () => true,
+                canSeeSquare: () => false,
+                monsterAt: () => null,
+                objectToGlyph: () => 777,
+                temporaryDisplay: async () => {},
+                delayOutput: async () => {},
+                clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+                observeObject: () => {},
+                extractObject: (obj) => obj_extract_self(obj, { state }),
+                setMonsterNotWielded: (monster, obj) =>
+                    setmnotwielded(monster, obj, { state }),
+                damageValue: () => 1,
+                hitHero: async (_hitv, _damage, obj) => {
+                    // done_object_cleanup() has already placed this object
+                    // when C's lethal losehp() returns control to no caller.
+                    state.program_state.gameover = 1;
+                    place_object(obj, state.u.ux, state.u.uy, { state });
+                    stackobj(obj, {
+                        state,
+                        hooks: { extractExternalObject: remove_object },
+                    });
+                    state.gt.thrownobj = null;
+                    return true;
+                },
+                stopOccupation: async () => { stopOccupationCalls++; },
+                shouldMulch: () => assert.fail('lethal hit must skip drop_throw'),
+                shipsAway: () => assert.fail('lethal hit must skip drop_throw'),
+                floorEffects: () => assert.fail('lethal hit must skip drop_throw'),
+                placeObject: () => assert.fail('lethal hit must skip drop_throw'),
+                passiveObject: () => assert.fail('lethal hit must skip drop_throw'),
+                stackObject: () => assert.fail('lethal hit must skip drop_throw'),
+                unsupported: (reason) => assert.fail(reason),
+            },
+        );
+
+        assert.equal(result, 0);
+        assert.equal(state.program_state.gameover, 1);
+        assert.equal(stopOccupationCalls, 0);
+        assert.equal(dagger.where, OBJ_FLOOR);
+        assert.equal(state.level.objects[state.u.ux][y], dagger);
+        assert.equal(state.gt.thrownobj, null);
+    });
+
 // C ref: mthrowu.c m_throw()'s POTION_CLASS arm (698-701), which hands the
 // missile to potion.c potionhit() and never reaches drop_throw(). The whole
 // chain is one witness: bottlename()'s rn2(7), potionhit()'s rnd(2), and the

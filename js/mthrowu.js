@@ -936,6 +936,13 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             if (singleobj.otyp !== ACID_VENOM)
                 damage = maybeHalfPhysical(damage, state);
             hit = Boolean(await hitHero(hitv, damage, singleobj, env));
+            // C thitu() calls losehp(), whose lethal done() path is NORETURN.
+            // The JavaScript end-game path returns after setting gameover so
+            // the replay can capture its final screen. done_object_cleanup()
+            // has already settled gt.thrownobj in that path; continuing here
+            // would pass the same floor object to drop_throw() a second time.
+            if (state.program_state?.gameover)
+                return 0;
             await stopOccupation(state, env);
             if (hit) {
                 if (!tethered_weapon) {
