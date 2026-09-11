@@ -22624,8 +22624,8 @@
       "spans": [
         {
           "name": "done_object_cleanup",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7763d2d356a083d4febd15119a5625587e42a4c5",
           "functions": [
             "done_object_cleanup"
           ]
@@ -22645,7 +22645,7 @@
           "line": 851,
           "endLine": 906,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -22673,7 +22673,44 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 688
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "done_object_cleanup",
+            "implementation": "js/end.js",
+            "symbol": "done_object_cleanup",
+            "sourceReview": "Read nethack-c/upstream/src/end.c done_object_cleanup() lines 851-906 in full. The port preserves inven_inuse(TRUE)'s next-link-before-useup order, computes the attempted destination before the isok()/accessible() fallback, places and stacks free thrown and kicked objects, handles a free uchain at the ball.c source boundary, and clears perm_invent after the cleanup. The JavaScript state has grouped gt/gk transit fields as well as legacy root thrownobj/kickedobj fields, so the implementation clears whichever production representation supplied the object. place_object(), stackobj(), remove_object(), useup(), isok(), and accessible() are wired to their existing modules. C discards lift_covet_and_placebc()'s result and ball.c is not ported, so this branch records note_unported('ball.c lift_covet_and_placebc') without inventing placement. The TTY port has no persistent inventory window, so clearing iflags.perm_invent is the available equivalent of perm_invent_toggled(TRUE).",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "really_done",
+                "source": "nethack-c/upstream/src/end.c really_done() calls done_object_cleanup() at lines 1157-1158 after marking gameover and disabling vision; the JavaScript caller invokes the ported cleanup at the corresponding point on the ordinary death path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/end-done-object-cleanup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/death-ray-cleanup.session.json"
+            ],
+            "checkedAt": "7763d2d356a083d4febd15119a5625587e42a4c5"
+          }
+        ],
+        "entryPointReview": "The production entry point is really_done() on the ordinary death path. The fresh death-ray recipe reaches the accepted death flow and its done_object_cleanup() call; the focused tests cover in-use inventory consumption, valid and invalid transit destinations, grouped kicked-object cleanup, non-free transit preservation, and the permanent-inventory flag. The free uchain branch remains explicitly recorded as the unported ball.c lift_covet_and_placebc() dependency because C discards that callee's result.",
+        "entryPoints": [
+          {
+            "name": "ordinary death object cleanup",
+            "functions": [
+              "done_object_cleanup"
+            ],
+            "recordings": [
+              "recordings/end.c/death-ray-cleanup.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
