@@ -5,7 +5,7 @@
 //        (186-259), Cloak_on()
 //        (325-380), Cloak_off()
 //        (382-431), Helmet_on() (433-515), Helmet_off() (517-564),
-//        Gloves_on() (575-603), Shield_on() (704-730),
+//        Gloves_on() (576-607), Shield_on() (704-730),
 //        Shield_off() (732-756), Shirt_on() (758-775), Shirt_off() (777-794),
 //        dragon_armor_handling() (798-884), Armor_on() (886-906),
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
@@ -40,6 +40,7 @@ import {
     A_CHAOTIC,
     A_CON,
     A_CURRENT,
+    A_DEX,
     A_INT,
     A_LAWFUL,
     A_NEUTRAL,
@@ -63,6 +64,7 @@ import {
     ECMD_TIME,
     FACE,
     FAST,
+    FUMBLING,
     FINGER,
     FLYING,
     FOOT,
@@ -217,6 +219,9 @@ import {
     FEDORA,
     GOLD_DRAGON_SCALES,
     GOLD_DRAGON_SCALE_MAIL,
+    GAUNTLETS_OF_DEXTERITY,
+    GAUNTLETS_OF_FUMBLING,
+    GAUNTLETS_OF_POWER,
     GREEN_DRAGON_SCALES,
     GREEN_DRAGON_SCALE_MAIL,
     HAWAIIAN_SHIRT,
@@ -292,7 +297,7 @@ import {
 } from './objnam.js';
 import { u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
-import { toggle_blindness } from './potion.js';
+import { incr_itimeout, toggle_blindness } from './potion.js';
 import { rn2, rn2_on_display_rng, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
@@ -555,7 +560,7 @@ function extremeattr(attrindx, state) {
         // rings when cursed gloves are on. The check is kept for accuracy.
         if (state.uarmg
             && state.uarmg.otyp
-                === 161 /* GAUNTLETS_OF_POWER, imported below if needed */)
+                === GAUNTLETS_OF_POWER)
             lolimit = hilimit;
     } else if (attrindx === A_CON) {
         // u_wield_art(ART_OGRESMASHER) sets the ceiling.  acurr() already
@@ -1628,36 +1633,65 @@ async function Helmet_off(state) {
     return 0;
 }
 
-// C ref: do_wear.c Gloves_on() (575-603). Two callers ask: set_wear() below,
-// for the leather gloves a Healer, Knight or Monk starts in (u_init.c:78, :57,
-// :63), and accessory_or_armor_on(), which hoists the type question above
-// setworn() because objects.h gives all four gloves an oc_delay of 1 (686-697),
-// so the callback itself runs a turn after the slot and the status line have
-// already moved.
-//
-// C's other three labels all reach outside do_wear.c: GAUNTLETS_OF_FUMBLING
-// draws rnd(20) into HFumbling, GAUNTLETS_OF_POWER calls makeknown() and
-// redraws the status line, and GAUNTLETS_OF_DEXTERITY calls adj_abon(). All
-// three are refused. C's `oldprop` at 578 is read only by the fumbling arm, so
-// it is not computed -- the reasoning Cloak_off() above already records for its
-// own copy.
-//
-// Until 'W' could reach this callback the `known` write had no witness at all:
-// u_init.c ini_inv_adjust_obj() (1215-1216) sets known on every starting piece,
-// and the three roles above are the only heroes who had gloves. A wished pair
-// arrives from mkobj.c mksobj() (864) with known 0, and is the first thing to
-// turn the line over.
-//
-// C's known tail at 598-601 carries no `uarmg &&` guard, unlike Helmet_on()'s
-// and Cloak_on()'s, because nothing in this switch can empty the slot.
-function Gloves_on(state) {
-    const otyp = state.uarmg.otyp;
+// C ref: do_wear.c adj_abon() (3319-3331). Gloves_on() reaches the first arm
+// here. The identity and type checks are part of the helper's contract: it
+// adjusts only a worn pair of gauntlets of dexterity, and discovers the type
+// only when the adjustment is nonzero.
+function adj_abon(obj, delta, state) {
+    if (state.uarmg && state.uarmg === obj
+        && obj.otyp === GAUNTLETS_OF_DEXTERITY) {
+        if (delta) {
+            discover_object(obj.otyp, true, true, true, state);
+            state.u.abon ??= {};
+            const abon = Array.isArray(state.u.abon)
+                ? state.u.abon : (state.u.abon.a ??= []);
+            abon[A_DEX] = (abon[A_DEX] ?? 0) + delta;
+        }
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+}
 
-    if (otyp !== LEATHER_GLOVES)
-        throw new UnsupportedWearError(`Gloves_on() for otyp ${otyp}`);
-    if (!state.uarmg.known) {
+// C ref: do_wear.c Gloves_on() (576-607). Two callers ask: set_wear() below,
+// for starting gloves, and accessory_or_armor_on(), which runs the callback
+// after setworn() has installed the slot. Every glove type has an oc_delay of
+// 1 in objects.h (686-697), so a command callback runs after the slot and the
+// status line have already moved.
+function Gloves_on(state) {
+    const gloves = state.uarmg;
+    const oldprop = (state.u.uprops[objectType(gloves, state).oc_oprop]
+        ?.extrinsic ?? 0) & ~WORN_GLOVES;
+
+    switch (gloves.otyp) {
+    case LEATHER_GLOVES:
+        break;
+    case GAUNTLETS_OF_FUMBLING:
+        // HFumbling is the intrinsic field of FUMBLING. incr_itimeout()
+        // preserves non-timeout source flags, matching potion.c.
+        if (!oldprop
+            && !((state.u.uprops[FUMBLING]?.intrinsic ?? 0) & ~TIMEOUT)) {
+            incr_itimeout(state.u.uprops[FUMBLING], rnd(20));
+        }
+        break;
+    case GAUNTLETS_OF_POWER:
+        // hack.h makeknown(otyp) expands to discover_object(..., TRUE, TRUE,
+        // TRUE), including its Wisdom exercise draw in live play.
+        discover_object(gloves.otyp, true, true, true, state);
+        state.disp ??= {};
+        state.disp.botl = true; /* taken care of in attrib.c */
+        break;
+    case GAUNTLETS_OF_DEXTERITY:
+        adj_abon(gloves, gloves.spe, state);
+        break;
+    default:
+        // impossible() only reports and continues. Its diagnostic helper is
+        // not ported, and C discards its return value.
+        note_unported('pline.c impossible');
+        break;
+    }
+    if (!gloves.known) {
         /* gloves' +/- evident because of status line AC */
-        state.uarmg.known = true;
+        gloves.known = true;
         update_inventory({ state });
     }
     return 0;
@@ -2691,9 +2725,8 @@ async function accessory_or_armor_on(obj, state = game) {
         // anything: by then setworn() has moved AC, and on the delayed arm
         // the helpless turns are spent as well. Above setworn() a refusal
         // leaves the hero as it found her. Boots_on(), Helmet_on() and
-        // Gloves_on() keep a copy of their question as well as being
-        // hoisted here, because set_wear() reaches them with whatever
-        // u_init.c wore and has no frame above it to hoist into.
+        // Gloves_on() keeps the source's old-property calculation inside the
+        // callback, because all four glove arms are now implemented.
         let afternmv;
 
         switch (mask) {
@@ -2724,10 +2757,6 @@ async function accessory_or_armor_on(obj, state = game) {
             afternmv = Helmet_on;
             break;
         case W_ARMG:
-            if (obj.otyp !== LEATHER_GLOVES)
-                throw new UnsupportedWearError(
-                    `Gloves_on() for otyp ${obj.otyp}`,
-                );
             afternmv = Gloves_on;
             break;
         case W_ARMF:

@@ -1,0 +1,12 @@
+{
+  "_comment": "Seed 361 independently checks the startup set_wear() caller: a Healer starts in leather gloves, so moveloop_preamble() reaches Gloves_on() before the first turn.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 361,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:Startup,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": "."
+    }
+  ]
+}

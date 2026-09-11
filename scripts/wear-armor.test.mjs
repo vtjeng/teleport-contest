@@ -7,6 +7,7 @@ import {
     ACID_RES,
     A_CHA,
     A_CON,
+    A_DEX,
     A_STR,
     BASICENLIGHTENMENT,
     DRAIN_RES,
@@ -15,6 +16,7 @@ import {
     ECMD_TIME,
     ENL_GAMEINPROGRESS,
     FAST,
+    FUMBLING,
     FREE_ACTION,
     FROMEXPER,
     GETOBJ_DOWNPLAY,
@@ -30,6 +32,7 @@ import {
     SICK_RES,
     SLOW_DIGESTION,
     STONE_RES,
+    TIMEOUT,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -64,6 +67,7 @@ import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { UnsupportedEnlightenmentError, enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
+import { getRngLog } from '../js/rng.js';
 import { cantweararm, has_horns, num_horns } from '../js/mondata.js';
 import {
     MZ_HUGE,
@@ -861,6 +865,7 @@ test('every one of the seven slots installs its own callback', async () => {
     const pending = [
         [LEATHER_ARMOR, W_ARM, 'uarm', Armor_on, -3],
         [LEATHER_GLOVES, W_ARMG, 'uarmg', Gloves_on, -1],
+        [GAUNTLETS_OF_POWER, W_ARMG, 'uarmg', Gloves_on, -1],
         [LOW_BOOTS, W_ARMF, 'uarmf', Boots_on, -2],
     ];
     for (const [otyp, mask, field, callback, multi] of pending) {
@@ -1349,42 +1354,77 @@ test('no starting hero reaches a slot or a type set_wear refuses',
     }
 });
 
-test('the three gauntlets Gloves_on cannot run are refused unwritten',
-    async () => {
-    // do_wear.c:584-596. GAUNTLETS_OF_FUMBLING draws rnd(20) into HFumbling,
-    // GAUNTLETS_OF_POWER calls makeknown(), and GAUNTLETS_OF_DEXTERITY calls
-    // adj_abon(); u_init.c gives no role a pair, so all three are refused.
-    // GAUNTLETS_OF_POWER is the case just outside this goal's stated limit,
-    // recorded as the QUALITY.json deferral wear-gauntlets-stop.
+test('Gloves_on handles leather and all three gauntlet branches', async () => {
+    // do_wear.c:576-607. Fumbling's oldprop guard controls its rnd(20) draw;
+    // power makes the object type known; dexterity applies spe through
+    // adj_abon(). The shared tail marks each wished or synthetic pair known.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
-    for (const otyp of [GAUNTLETS_OF_FUMBLING, GAUNTLETS_OF_POWER,
-        GAUNTLETS_OF_DEXTERITY]) {
-        // The refusal accessory_or_armor_on() hoists above setworn(), which
-        // is what leaves AC and the slot alone; all four gloves carry an
-        // oc_delay of 1, so the callback's own copy would run a turn late.
-        await setup(segment, WAIT);
-        const obj = armor(otyp, { dknown: 1, spe: 0 });
+    await setup(segment, WAIT);
 
-        await assert.rejects(
-            () => accessory_or_armor_on(obj, game),
-            refusal(UnsupportedWearError, `Gloves_on() for otyp ${otyp}`),
-            `otyp ${otyp}`,
-        );
-        assert.equal(game.uarmg ?? null, null, `otyp ${otyp}`);
-        assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
-        assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
-
-        // Gloves_on() asks the same question again for set_wear(), which has
-        // no frame above it to hoist into.
-        game.uarmg = armor(otyp, { known: false });
-        assert.throws(() => Gloves_on(game),
-            refusal(UnsupportedWearError, `Gloves_on() for otyp ${otyp}`));
-        assert.equal(game.uarmg.known, false, `otyp ${otyp}`);
-        game.uarmg = null;
-    }
-    game.uarmg = armor(LEATHER_GLOVES, { known: false });
+    const leather = armor(LEATHER_GLOVES, { known: false, spe: 0 });
+    game.uarmg = leather;
     assert.equal(Gloves_on(game), 0);
-    assert.equal(game.uarmg.known, true);
+    assert.equal(leather.known, true);
+
+    const fumbling = armor(GAUNTLETS_OF_FUMBLING,
+        { known: false, spe: 0 });
+    game.uarmg = fumbling;
+    game.u.uprops[FUMBLING].intrinsic = 0;
+    game.u.uprops[FUMBLING].extrinsic = 0;
+    const beforeFumbling = getRngLog().length;
+    assert.equal(Gloves_on(game), 0);
+    assert.equal(getRngLog().length, beforeFumbling + 1,
+        'fumbling draws rnd(20) once');
+    assert.ok((game.u.uprops[FUMBLING].intrinsic & TIMEOUT) >= 1
+        && (game.u.uprops[FUMBLING].intrinsic & TIMEOUT) <= 20,
+    'fumbling receives a 1..20 timeout');
+    assert.equal(fumbling.known, true);
+
+    // A non-timeout extrinsic source is the other oldprop arm. W_ARM is a
+    // named worn-source bit; C masks only WORN_GLOVES before this check.
+    const guarded = armor(GAUNTLETS_OF_FUMBLING,
+        { known: false, spe: 0 });
+    game.uarmg = guarded;
+    game.u.uprops[FUMBLING].intrinsic = 0;
+    game.u.uprops[FUMBLING].extrinsic = W_ARM;
+    const beforeGuarded = getRngLog().length;
+    assert.equal(Gloves_on(game), 0);
+    assert.equal(getRngLog().length, beforeGuarded,
+        'an existing source suppresses fumbling RNG');
+    assert.equal(game.u.uprops[FUMBLING].intrinsic, 0);
+    assert.equal(guarded.known, true);
+
+    const power = armor(GAUNTLETS_OF_POWER, { known: false, spe: 0 });
+    game.uarmg = power;
+    assert.equal(Gloves_on(game), 0);
+    assert.equal(game.objects[GAUNTLETS_OF_POWER].oc_name_known, 1,
+        'power makes the type known');
+    assert.equal(power.known, true);
+    assert.equal(game.disp.botl, true, 'power redraws the status line');
+
+    const dex = armor(GAUNTLETS_OF_DEXTERITY, { known: false, spe: 2 });
+    game.uarmg = dex;
+    const dexBefore = acurr(game, A_DEX);
+    assert.equal(Gloves_on(game), 0);
+    assert.equal(acurr(game, A_DEX), dexBefore + 2,
+        'dexterity applies the gauntlet enchantment');
+    assert.equal(game.objects[GAUNTLETS_OF_DEXTERITY].oc_name_known, 1,
+        'nonzero dexterity makes the type known');
+    assert.equal(dex.known, true);
+
+    // adj_abon() still raises the botl flag when spe is zero, while its
+    // discovery and bonus arms stay conditional on a nonzero delta.
+    const zeroDex = armor(GAUNTLETS_OF_DEXTERITY, { known: false, spe: 0 });
+    game.disp.botl = false;
+    game.uarmg = zeroDex;
+    const zeroBefore = acurr(game, A_DEX);
+    assert.equal(Gloves_on(game), 0);
+    assert.equal(acurr(game, A_DEX), zeroBefore);
+    assert.equal(game.disp.botl, true);
+    assert.equal(zeroDex.known, true);
+
+    game.u.uprops[FUMBLING].intrinsic = 0;
+    game.u.uprops[FUMBLING].extrinsic = 0;
     game.uarmg = null;
 });
 
