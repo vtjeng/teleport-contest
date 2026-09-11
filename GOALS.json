@@ -25065,7 +25065,16 @@
       ],
       "selectionReason": "The highest-ranked actionable development mismatch is seed0360-wizard-world-tour at global step 344, where makelevel() requests special level wizard2 and the JavaScript special-level registry has no loader. The complete upstream dat/wizard2.lua program defines mazegrid initialization, mazelevel/noteleport/hardfloor flags, a centered map with level regions and room/zoo callbacks, fixed doors and mazewalk, ladders, non-diggable and non-passwall selections, four random traps, five random loot objects, a fixed treasure object, and hell_tweaks(protected). Existing special-level API, selection helpers, and hellTweaks cover the callees; port the whole Lua program and register it under wizard2.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "wizard2.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "wizard2.lua"
+          ]
+        }
+      ],
       "openedAt": "6cc15228164c1c6775230e1f338c1fe4b7fe1641",
       "openStanding": {
         "sha": "12b8f8f4d89472b478b387489553c3bd6d14f108",
