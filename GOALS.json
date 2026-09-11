@@ -23862,6 +23862,58 @@
           "remainingScreensUpperBound": 520
         }
       ]
+    },
+    {
+      "id": "port-juiblex-level",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Gehennom Juiblex swamp special level Lua program and wire its loader",
+      "luaFile": "juiblex.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked current mismatch is seed0360-wizard-world-tour at step 313, where makelevel() requests special level juiblex but SPECIAL_LEVEL_LOADERS has no juiblex loader. The upstream dat/juiblex.lua program defines swamp initialization and flags, two aligned boulder maps, the lair map, shuffled blob classes, selected fountain and mimic placement, Juiblex and demon/blob monsters, objects, traps, level regions, and teleport regions; select the whole Lua program and its loader wiring.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "345a46fec6c019c26058b4627c0313c46b2e248b",
+      "openStanding": {
+        "sha": "a958f72b499333724f2a75caf2df56370aaea666",
+        "screens": 6374,
+        "rng": 466868
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "juiblex.lua",
+          "line": 1,
+          "endLine": 122,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "a958f72b499333724f2a75caf2df56370aaea666",
+        "screens": 6374,
+        "rng": 466868
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 313,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "juiblex.lua",
+          "cFile": null,
+          "luaFile": "juiblex.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"juiblex\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 520
+        }
+      ]
     }
   ]
 }
