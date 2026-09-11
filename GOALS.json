@@ -22735,7 +22735,7 @@
     {
       "id": "port-end-really-done",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete end.c really_done() lifecycle and source ordered death finalization",
       "cFile": "end.c",
       "sessions": [
@@ -22759,8 +22759,11 @@
         "screens": 6240,
         "rng": 426514
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2712521cffeb7ade13e80581006d1f26dab8aa8f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "really_done",
@@ -22841,7 +22844,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1274,
+          "kind": "rng",
+          "function": "randomize_gem_colors",
+          "functionDeclared": true,
+          "sourceFile": "o_init.c",
+          "cFile": "o_init.c",
+          "luaFile": null,
+          "line": 92,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 679
+        }
+      ]
     }
   ]
 }
