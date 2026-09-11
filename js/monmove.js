@@ -2362,6 +2362,7 @@ export async function dochug(monster, rawEnv = {}) {
     const wipeEngraving = rawEnv.wipeEngraving ?? wipe_engr_at;
     const wieldPreMoveWeapon = rawEnv.wieldPreMoveWeapon
         ?? wield_pre_move_weapon;
+    const relocateRandomMonster = rawEnv.relocateRandomMonster ?? rloc;
     // C's Hallucination arms below repaint the live monster once. The
     // JavaScript preflight repeats dochug() on a clone before that live pass,
     // so its redraw must not spend the module-global display RNG or paint the
@@ -2417,12 +2418,39 @@ export async function dochug(monster, rawEnv = {}) {
         // monster consumes this draw regardless of whether it can teleport.
         if (!random.rn2(40) && can_teleport(monster.data) && !monster.iswiz
             && !noteleport_level(monster, state)) {
-            // rloc(RLOC_MSG) is not yet ported for this path; leppie_stash()
-            // is ported but requires rloc() to succeed first.  The action
-            // boundary blocks tengu, the only reachable species with
-            // M1_TPORT, so this branch is unreachable until that guard is
-            // removed.
-            unsupported('fleeing monster teleport');
+            // C ref: teleport.c rloc() and rloc_to_core().  The clone-only
+            // pass must use the clone's map and random stream while keeping
+            // display and message effects silent; the live pass uses the
+            // ordinary display and message owners.  rloc() returns FALSE when
+            // no destination exists, and leppie_stash() follows only after a
+            // successful relocation, in the same order as C.
+            const relocation = await relocateRandomMonster(monster, RLOC_MSG, {
+                ...env,
+                newsym: rawEnv.planning
+                    ? () => {}
+                    : (rawEnv.newsym ?? ((x, y) => newsym(x, y))),
+                onscary: rawEnv.onscary
+                    ?? ((x, y, subject, relocationEnv) => onscary(
+                        x,
+                        y,
+                        subject,
+                        relocationEnv.state,
+                    )),
+                setApparxy: rawEnv.setApparxy
+                    ?? ((subject, relocationEnv) => set_apparxy(
+                        subject,
+                        relocationEnv,
+                    )),
+                message: rawEnv.planning
+                    ? async () => {}
+                    : (rawEnv.message ?? ttyPline),
+            });
+            if (relocation)
+                await leppie_stash(monster, {
+                    ...env,
+                    redraw: rawEnv.planning ? () => {} : rawEnv.redraw,
+                });
+            return 0;
         }
         // C ref: monmove.c:753-755. A Medusa gaze can kill the responder, so
         // the dead-monster result is tested before fleeing recovery.

@@ -95,6 +95,7 @@ import {
     PM_QUANTUM_MECHANIC,
     PM_VAMPIRE_BAT,
     PM_TENGU,
+    PM_WATER_NYMPH,
     PM_WOOD_NYMPH,
     PM_WIZARD_OF_YENDOR,
     PM_YELLOW_LIGHT,
@@ -4374,6 +4375,50 @@ test('species guard admits M1_TPORT monsters without species-specific code',
             assert.deepEqual(preflightSnapshot(), before, `pmidx ${pmidx}`);
         }
     });
+
+// C ref: monmove.c dochug():745-750. Water nymphs have M1_TPORT but no
+// species-specific movement arm, so an already fleeing one reaches rloc()
+// and spends its turn before m_respond() or ordinary movement. The fixed
+// random values choose the only open square next to the starting square and
+// pin rloc()'s first destination draw without relying on a recorded session.
+test('fleeing water nymph relocates through dochug and rloc', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_WATER_NYMPH });
+    target.monster.mflee = true;
+    target.monster.mfleetim = 3;
+    game.moves = 2;
+    const draws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(`rn2(${bound})`);
+            if (bound === 40) return 0;
+            if (bound === 21) return target.heroY;
+            throw new Error(`unexpected rn2(${bound})`);
+        },
+        rnd(bound) {
+            draws.push(`rnd(${bound})`);
+            // target.monsterX + 1 is the open route square toward the hero.
+            return target.monsterX + 1;
+        },
+    };
+
+    const before = [target.monster.mx, target.monster.my];
+    const result = await runSimpleMonsterAction(target.monster, {
+        state: game,
+        random,
+        newsym: () => {},
+        message: async () => {},
+    });
+
+    assert.equal(result, 0);
+    assert.deepEqual(before, [target.monsterX, target.heroY]);
+    assert.deepEqual(
+        [target.monster.mx, target.monster.my],
+        [target.monsterX + 1, target.heroY],
+    );
+    assert.deepEqual(draws, ['rn2(40)', 'rnd(79)', 'rn2(21)']);
+    assert.equal(target.monster.mflee, true,
+        'the successful teleport returns before courage recovery');
+});
 
 // C ref: monmove.c dochug():726-731. A sleeping leprechaun outside
 // couldsee() returns from disturb() before m_move() reaches leppie_avoidance(),

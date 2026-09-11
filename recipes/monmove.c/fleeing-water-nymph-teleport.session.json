@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Exercises monmove.c dochug()'s fleeing-monster teleport branch with a debug-created water nymph. The command and short movement sequence are an independent starting point for recording the rare rn2(40) teleport roll.",
+  "segments": [
+    {
+      "seed": 900314,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:FleeProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " #wizgenesis\nwater nymph\nh.............................."
+    }
+  ]
+}

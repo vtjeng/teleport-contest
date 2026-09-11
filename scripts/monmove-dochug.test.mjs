@@ -12,6 +12,7 @@ import {
     M_SEEN_SLEEP,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
+    RLOC_MSG,
     STRAT_ARRIVE,
     STRAT_CLOSE,
     STRAT_WAITFORU,
@@ -1113,10 +1114,12 @@ test('dochug does not teleport a fleeing non-teleporter when rn2(40) is 0',
         'monster should still be fleeing (no teleport)');
 });
 
-test('dochug throws unsupported for a fleeing teleporter', async () => {
-    // C ref: monmove.c:745-749.  rn2(40) returns 0, can_teleport() is true,
-    // iswiz is false, noteleport_level is false.  The teleport branch fires,
-    // but rloc(RLOC_MSG) is not yet ported, so the unsupported seam rejects.
+test('dochug teleports a fleeing monster and spends its turn', async () => {
+    // C ref: monmove.c:745-750.  rn2(40) returns 0, can_teleport() is true,
+    // iswiz is false, and noteleport_level() is false.  rloc() receives
+    // RLOC_MSG, then dochug() returns before m_respond() or movement.  The
+    // injected relocation operation keeps this unit test focused on dochug's
+    // branch contract; teleport.test.mjs covers rloc()'s destination draws.
     const state = makeState();
     // state.moves > 0 so noteleport_level's stasis_until (0) < moves, making
     // noteleport_level() return false and allowing the teleport branch.
@@ -1139,18 +1142,18 @@ test('dochug throws unsupported for a fleeing teleporter', async () => {
         },
         distanceAndFear: () => ({ nearby: false, scared: false }),
         moveMonster: () => MMOVE_NOTHING,
-        unsupported: (what) => {
-            events.push(`unsupported:${what}`);
-            throw new Error(what);
+        relocateRandomMonster: async (subject, flags) => {
+            assert.equal(flags, RLOC_MSG);
+            events.push('relocate');
+            subject.mx = 5;
+            subject.my = 4;
+            return true;
         },
     };
 
-    await assert.rejects(
-        () => dochug(monster, env),
-        { message: 'fleeing monster teleport' },
-    );
-    assert.ok(events.includes('unsupported:fleeing monster teleport'),
-        'should have hit the unsupported seam');
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, ['preflight', 'wipe', 'relocate']);
+    assert.deepEqual([monster.mx, monster.my], [5, 4]);
 });
 
 test('dochug clears mflee for a hostile monster with expired timer and full hp',
