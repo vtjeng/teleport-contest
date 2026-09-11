@@ -22933,8 +22933,8 @@
       "spans": [
         {
           "name": "trapeffect_slp_gas_trap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "88bfcffb9dd4636ee64d6e3ca90e42dda4d97983",
           "functions": [
             "trapeffect_slp_gas_trap"
           ]
@@ -22953,8 +22953,8 @@
           "name": "trapeffect_slp_gas_trap",
           "line": 1563,
           "endLine": 1594,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -22982,7 +22982,54 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 560
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_slp_gas_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_slp_gas_trap",
+            "sourceReview": "Read the complete trap.c trapeffect_slp_gas_trap() body (1563-1594) and checked both arms in source order. The hero arm reveals the trap, checks Sleep_resistance and breathless before its message, calls fall_asleep(-rnd(25), TRUE) only for a susceptible hero, updates monstseesu/monstunseesu, and discards steedintrap(). The monster arm computes in_sight first, gates resists_sleep/breathless/helpless before rnd(25), applies the return-valued sleep_monst(mtmp, rnd(25), -1), then conditionally messages and reveals the trap. The port preserves state, waits, messages, and RNG order; it removes SLP_GAS_TRAP from the unsupported selector and hero preflight. The return-valued mhitm.c sleep_monst() how=-1 path and its finish_meating() dependency are ported, while the discarded shieldeff() and steedintrap() calls are recorded with note_unported(). The required mondata.c defended() dragon armor branch is complete for the AD_SLEE result used here.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() (2937-2992) dispatches SLP_GAS_TRAP to trapeffect_slp_gas_trap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c dotrap() (2996-3060) calls trapeffect_selector(&gy.youmonst, trap, trflags) after trap discovery and caller preflight."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() (3733-3840) calls trapeffect_selector(mtmp, trap, mintrapflags) after monster trap gates and discovery."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-sleep-gas-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/sleep-gas-trap.session.json"
+            ],
+            "checkedAt": "88bfcffb9dd4636ee64d6e3ca90e42dda4d97983"
+          }
+        ],
+        "entryPointReview": "The selected range has one entry point: triggering an SLP_GAS_TRAP. trap.c dotrap() reaches the hero arm through trapeffect_selector(), and trap.c mintrap() reaches the monster arm through the same dispatcher. The fresh recipe uses the production movement path to enter a sleep gas trap on level 2; the focused tests exercise both arms, resistance and helplessness gates, the rnd(25) draw, meal interruption, and sleep duration. The committed recording covers the hero entry through dotrap().",
+        "entryPoints": [
+          {
+            "name": "sleep gas trap activation",
+            "functions": [
+              "trapeffect_slp_gas_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/sleep-gas-trap.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
