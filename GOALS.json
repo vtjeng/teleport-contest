@@ -20392,7 +20392,7 @@
     {
       "id": "port-hack-test-move",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port the complete hack.c test_move() movement contract and wire its production callers",
       "cFile": "hack.c",
       "sessions": [
@@ -20432,9 +20432,9 @@
         "to": 1265
       },
       "activeStanding": {
-        "sha": "2c9af5b7",
-        "screens": 5339,
-        "rng": 388477
+        "sha": "3571577329ccba2e03dc9b2a70744e562e5c5cc5",
+        "screens": 6900,
+        "rng": 505246
       },
       "openMismatches": [
         {
