@@ -26776,7 +26776,7 @@
     {
       "id": "port-monmove-dochug-flee-teleport",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monmove.c dochug() fleeing-monster teleport branch and wire planning/live relocation",
       "cFile": "monmove.c",
       "sessions": [
@@ -26787,8 +26787,8 @@
       "spans": [
         {
           "name": "dochug",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3571577329ccba2e03dc9b2a70744e562e5c5cc5",
           "functions": [
             "dochug"
           ]
@@ -26800,15 +26800,18 @@
         "screens": 6869,
         "rng": 504135
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3571577329ccba2e03dc9b2a70744e562e5c5cc5",
+      "delivered": {
+        "screens": 31,
+        "rng": 1111
+      },
       "functions": [
         {
           "name": "dochug",
           "line": 690,
           "endLine": 998,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -26836,7 +26839,82 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 290
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dochug",
+            "implementation": "js/monmove.js",
+            "symbol": "dochug",
+            "sourceReview": "Read the complete upstream monmove.c dochug() definition at lines 690-998 and compared its four phases with js/monmove.js. The port preserves the pre-movement arrival, wait, sleep, engraving, confusion, stun, and fleeing recovery order; the fleeing teleport conditional consumes rn2(40) before can_teleport(), checks iswiz and noteleport_level(), calls teleport.c rloc() with RLOC_MSG, calls leppie_stash() only after successful relocation, and returns 0 before m_respond() or ordinary movement. rloc() receives clone-owned state, random, onscary, apparent-position and silent planning display/message callbacks; the live path receives the ordinary display/message owners. The old unsupported('fleeing monster teleport') refusal is removed. The remaining special species and extended relocation boundaries are retained only where their upstream callers are outside this span or explicitly unported: covetous tactics, leprechaun movement, killer-bee and gelatinous-cube actions, worm/off-map cleanup, and cuss are excluded by the existing source-traced action boundary; rloc() itself keeps its separate steed, wizard, controlled, migrating, shop, worm, trap, hidden, grab and occupation checks. No result-valued unported callee is substituted on the reached fleeing-teleport path.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "movemon_singlemon",
+                "source": "mon.c movemon_singlemon() calls dochugw(mtmp, TRUE) after the movement debit, liquid, equipment, concealment and Conflict checks; JavaScript invokes the injected dochugwAction at the same point."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochugw",
+                "source": "mon.c dochugw() calls dochug(mtmp); JavaScript's dochugw() dispatches to the action-owned dochug operation and then applies the occupation interruption tail."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The ordinary action adapter binds dochug() with the production attack, spell, movement, pre-move item, weapon, quest, perception, and planning/live callback environment; its dochug operation calls js/monmove.js dochug()."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveElapsedTurnMonster",
+                "source": "The elapsed-turn production caller passes runSimpleMonsterAction() through runElapsedTurnMonsterAction as movemon_singlemon()'s dochugwAction, preserving the live redraw and message owners."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monmove-dochug.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/monmove.c/fleeing-water-nymph-teleport.session.json"
+            ],
+            "checkedAt": "3571577329ccba2e03dc9b2a70744e562e5c5cc5"
+          }
+        ],
+        "entryPointReview": "The selected range contains the monster-turn entry point through movemon_singlemon() -> dochugw() -> runSimpleMonsterAction() -> dochug(). The independent debug recipe creates a water nymph and reaches this production chain; its committed recording matches the patched C reference. Source-pinned tests exercise the rare fleeing teleport branch directly and through the live rloc() callback contract, including draw order, RLOC_MSG, successful relocation, early return, and silent planning callbacks.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster turn with fleeing teleport",
+            "functions": [
+              "dochug"
+            ],
+            "recordings": [
+              "recordings/monmove.c/fleeing-water-nymph-teleport.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 455,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 259
+        }
+      ],
+      "closeStanding": {
+        "sha": "3571577329ccba2e03dc9b2a70744e562e5c5cc5",
+        "screens": 6900,
+        "rng": 505246
+      }
     }
   ]
 }
