@@ -5347,11 +5347,9 @@ export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
             hideunder(monster, { ...rawEnv, state });
             return;
         }
-        if (monster.mundetected) {
-            throw new UnsupportedHideError(
-                'maybe_unhide_at() over a hidden monster',
-            );
-        }
+        // C returns here when a hidden monster is neither an object hider
+        // whose cover disappeared nor an eel that left water.  Its other
+        // concealment modes are owned by their callers and stay unchanged.
         return;
     }
     if (!u_at(x, y, state)) return;

@@ -741,8 +741,8 @@ test('deleting a floor object unhides whoever was under it', async () => {
     });
     assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
 
-    // A monster whose mundetected is set stops the delete, because
-    // hideunder() is what maybe_unhide_at() would call for it.
+    // C's maybe_unhide_at() leaves a hidden monster alone when it is neither
+    // an object hider with lost cover nor an eel out of water.
     await standOnStairs();
     const x = game.u.ux + 1;
     const y = game.u.uy;
@@ -752,14 +752,42 @@ test('deleting a floor object unhides whoever was under it', async () => {
     game.level.monsters[x][y] = newMonster({
         mx: x, my: y, mhp: 3, mundetected: 1, data: species(),
     });
-    assert.throws(
-        () => delobj(second, {
-            state: game,
-            hooks: { extractExternalObject: remove_object },
-        }),
-        UnsupportedHideError,
-    );
+    delobj(second, {
+        state: game,
+        hooks: { extractExternalObject: remove_object },
+    });
+    assert.equal(game.level.objects[x][y], null);
     game.level.monsters[x][y] = null;
+});
+
+test('maybe_unhide_at preserves a concealed monster with valid cover', async () => {
+    // mon.c maybe_unhide_at():4713-4718. A M1_CONCEAL monster remains hidden
+    // while a suitable floor object still covers its square; hideunder() is
+    // called only after that cover disappears or becomes unsuitable.
+    await standOnStairs();
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    mksobj_at(
+        FOOD_RATION,
+        x,
+        y,
+        true,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    const monster = newMonster({
+        mx: x,
+        my: y,
+        mhp: 3,
+        mundetected: 1,
+        data: species({ mflags1: M1_CONCEAL }),
+    });
+    game.level.monsters[x][y] = monster;
+
+    assert.doesNotThrow(() => maybe_unhide_at(x, y, game));
+    assert.equal(monster.mundetected, 1);
+    game.level.monsters[x][y] = null;
+    game.level.objects[x][y] = null;
 });
 
 test('maybe_unhide_at returns for a square holding nobody', async () => {
