@@ -23195,7 +23195,21 @@
       ],
       "selectionReason": "No upstream dat/rogue.lua exists. The mismatch queue's rogue.lua owner is synthetic: mklev.c makelevel excludes Is_rogue_level from makemaz, calls extralev.c makeroguerooms and makerogueghost, and skips normal corridors and niches. Source tracing at seed0360-wizard-world-tour step 301 shows RNG from both makeroguerooms and makerogueghost, so this complete extralev.c function family owns the active blocker.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "roguejoin..makerogueghost",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "roguejoin",
+            "roguecorr",
+            "miniwalk",
+            "makeroguerooms",
+            "corr",
+            "makerogueghost"
+          ]
+        }
+      ],
       "openedAt": "7a7a9cd9b7cb2d1aacc95ed65d8688f3eae32b68",
       "openStanding": {
         "sha": "2edc93c3d656648da4f8c4b846e34ff114a98e6f",
