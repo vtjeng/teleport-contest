@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    AIR,
     BLINDED,
+    CLOUD,
     COLNO,
     COULD_SEE,
     DB_FLOOR,
@@ -449,6 +451,23 @@ test('liquid admission requires a warning that will stop the move', () => {
             () => preflightDomoveDestination(11, 10, state),
             /door or special terrain movement/u,
             name,
+        );
+    }
+});
+
+test('air and cloud terrain pass the movement admission seam', () => {
+    // rm.h:139 defines IS_AIR as AIR or CLOUD, and hack.c test_move():1253
+    // returns TRUE for both because neither type enters an obstacle arm.
+    for (const terrain of [AIR, CLOUD]) {
+        const state = swimDangerState();
+        state.level.at(11, 10).typ = terrain;
+        assert.doesNotThrow(
+            () => preflightDomoveDestination(11, 10, state),
+            `terrain type ${terrain} reaches test_move()`,
+        );
+        assert.doesNotThrow(
+            () => requireSimpleHeroDestination(11, 10, state),
+            `terrain type ${terrain} reaches the direct caller seam`,
         );
     }
 });

@@ -1328,7 +1328,7 @@ function refusedDiagonalDoorway(x, y, state) {
     return blocksDiagonalDoorwayExit(ux, uy, x, y, state);
 }
 
-// This repeated-command boundary owns entry into a ROOM, CORR, or
+// This repeated-command boundary owns entry into a ROOM, CORR, IS_AIR, or
 // IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR,
 // D_BROKEN, or D_ISOPEN. With autopickup disabled, it also admits the sighted
 // object descriptions and, now that js/dungeon.js surface() names every
@@ -1394,6 +1394,7 @@ export function requireSimpleHeroDestination(
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
+            || IS_AIR(location.typ)
             || IS_FURNITURE(location.typ)
             || doorway);
     if (!ordinaryDestination) {
@@ -4734,7 +4735,8 @@ export function terrain_changed_under_hero(state = game) {
 }
 
 // C ref: hack.c spoteffects() (3312-3462), the arms an ordinary ROOM, CORR,
-// IS_FURNITURE or open doorway square reaches, plus the trap arm at 3373-3398.
+// IS_AIR, IS_FURNITURE or open doorway square reaches, plus the trap arm at
+// 3373-3398.
 // Its two ported callers, domove() and teleport.c teleds(), each admit their
 // destination through requireSimpleHeroDestination() first, which refuses
 // every square that could reach the pool, lava or ice-warning arms and hands
