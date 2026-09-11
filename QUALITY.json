@@ -99,6 +99,7 @@
         "js/u_init_inventory_data.js",
         "js/u_init_inventory_use.js",
         "js/vault.js",
+        "js/wizard2_levels.js",
         "js/worn.js",
         "js/zap.js",
         "js/zap_destroy_items.js"

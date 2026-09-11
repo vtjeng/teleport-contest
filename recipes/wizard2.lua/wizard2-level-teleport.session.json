@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 811223,
+      "datetime": "20450910112233",
+      "nethackrc": "OPTIONS=name:Wiz2Probe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0016?\nr."
+    }
+  ],
+  "comment": "Wizard-mode level teleport to the Wizard's Tower middle level, selected from the Gehennom page of the dungeon menu. The seed, clock, and character were chosen independently for this source entry point."
+}
