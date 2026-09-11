@@ -25953,7 +25953,16 @@
       ],
       "selectionReason": "Fresh replay traced the highest source-unresolved stop to worn.c extract_from_minvent()'s W_WEP tail and its missing weapon.c mwepgone() callee.",
       "detail": "seed0030-ten-diverse-deaths segment 9 stops after 1574 emitted screens; the next input is key b (0-based move index 88). C mon.c:m_detach() -> relobj() -> mdrop_obj() -> worn.c:extract_from_minvent(); when the extracted object has W_WEP, worn.c calls weapon.c:mwepgone() (lines 938-946). mwepgone() obtains MON_WEP(mon), calls setmnotwielded(mon, mwep), and sets mon->weapon_check = NEED_WEAPON. JS reaches js/hack.js:3980 -> js/steal.js extractionEnv().mwepgone -> js/worn.js extract_from_minvent() -> js/steal.js mdrop_obj()/relobj() -> js/mon.js m_detach(), but extractionEnv() injects an unsupported callback because mwepgone is absent. Existing js/weapon.js setmnotwielded()/clearMonsterWeapon() provide the source helper behavior.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mwepgone",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mwepgone"
+          ]
+        }
+      ],
       "openedAt": "8812ff172f300c86a3d2cfee409c61d9a5bf5b35",
       "openStanding": {
         "sha": "35e4d3a5ceb52bf365878324b381b4edde929756",
