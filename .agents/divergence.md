@@ -22,9 +22,13 @@ the function the goal named, or the record is classified `machine-local` or
 
 ### 1. Establish the inventory
 
-Run `node scripts/score-development.mjs` and save its development screen
-counts as the before measurement. Run `node scripts/mismatch-queue.mjs` for
-the session's entry: the step, the kind, and the C function it names.
+Establish the before measurement using `.agents/validation.md`, "Routine
+validation". Reuse a qualifying checkpoint summary; otherwise run
+`node scripts/score-development.mjs`.
+
+Obtain the selected session's mismatch-queue entry: the step, the kind,
+and the C function it names. Reuse an entry already established for the
+same code state; otherwise run `node scripts/mismatch-queue.mjs`.
 
 ### 2. Confirm and record the divergence
 
@@ -44,6 +48,10 @@ Put the record in its `--detail`:
 - whether the first mismatch is screen or RNG, and its position;
 - the exact upstream C file, function, branch, and preconditions;
 - the JavaScript owner suspected of causing the mismatch.
+
+Open the queued goal as `.agents/loop.md`, step 1c, specifies before
+queueing its span. On resumption, inspect the recorded goal and span state
+and continue the existing work rather than queueing it again.
 
 Queue the first span with `queue-span`, naming the functions the fix will
 read, and write `.cache/span-context.json` with the same fields
@@ -84,9 +92,9 @@ naming the session and root cause, following `.agents/scoring.md`.
 
 ### 5. Report completion
 
-Report the before-and-after screen counts from `node
-scripts/score-development.mjs`, the session's new first mismatch if any, and
-the record's final state. Use measurements from the commands, not
+Report the before-and-after screen counts from the measurement artifacts
+established above, the session's new first mismatch if any, and the record's
+final state. Inspect the artifacts directly rather than relying on
 worker-reported figures.
 
 ## Record lifecycle

@@ -6,8 +6,13 @@ scans, or browser checks. The access rules in `AGENTS.md` for
 
 ## Routine validation
 
-- Before committing, run the focused tests and the full suite: `npm test` or
-  `node --test <file>`.
+- Before committing, run focused tests with `node --test <file>`.
+  Put Node test options before the file. `npm test` selects the default
+  suite; it does not forward file selections or Node test options.
+  Leave the routine full-suite run to checkpoint.
+- If a focused run reports only a file-level `test failed`, run
+  `node <test-file>` to expose its underlying assertions. Changing the
+  reporter alone is not a reason to repeat the test.
 - After committing, run `npm run checkpoint`. It requires a clean tree and
   writes `.cache/checkpoint-summary.json` with the commit SHA and results. A
   passing check prints only its `PASS` line; a failing check writes its full
@@ -17,8 +22,16 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   replay recorded play: the development score over `sessions/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
   matching.
+- Confirm the tree is clean immediately before launching checkpoint.
+  Coordinate with any active writer; do not stage another worker's changes
+  to satisfy this requirement. Keep one checkpoint running per worktree.
+- Use a passing checkpoint summary whose commit matches HEAD while the
+  measured inputs remain unchanged. Its development figures replace a
+  separate score-development run for that state. If it failed, inspect the
+  recorded failure logs before choosing the next check.
 - For an entry point the span completes, write a recipe with a newly chosen
-  seed, datetime, options, character, and inputs, and record it:
+  seed, datetime, options, character, and inputs. Create the output directory
+  with `mkdir -p recordings/<source-file>` before recording it:
   `node scripts/record-session.mjs recipes/<source-file>/<name>.session.json
   recordings/<source-file>/<name>.session.json`. Then run `npm run checkpoint`,
   which compares the PRNG log, the complete 24x80 screens with their
@@ -36,6 +49,10 @@ A declaration establishes that code exists. Completion also requires a
 whole-source comparison, production wiring, and appropriate execution
 coverage. `goal-log.mjs next-span` skips only units with this evidence; old
 `ported` flags and old goal closures remain historical name counts.
+
+`.cache/span-context.json` and `.cache/span-evidence.json` are untracked
+handoff files. Do not stage them. The orchestrator records verified evidence
+in GOALS.json.
 
 The worker writes `.cache/span-evidence.json`. The orchestrator reads the
 source and artifacts, verifies the assertions, then records the evidence:
@@ -151,6 +168,17 @@ message.
 
 Each of these has produced a wrong conclusion before.
 
+- `.cache/session-results.json` contains a `.results` array.
+  scan-sessions JSON output contains `.rows`; GOALS.json contains `.goals`.
+  These formats are not interchangeable. Check the producing script when
+  accessing an unfamiliar field.
+- Use `normalizeSession()` from `frozen/session_loader.mjs` before accessing
+  recorded segments. Legacy recordings can have a different top-level shape.
+- mismatch-queue.mjs accepts `--json` and `--scan <path>`, not `--session`.
+  Filter its JSON output when inspecting one development session.
+- goal-log.mjs does not implement subcommand `--help`. Use the procedures
+  in `.agents/loop.md` and `.agents/divergence.md`; inspect its option parser
+  when those procedures do not cover the required operation.
 - `rngMatched` compares positionally over the whole log.
   `frozen/ps_test_runner.mjs` walks both logs to their full length, so a
   segment that stops early scores the next segment's startup calls against C's

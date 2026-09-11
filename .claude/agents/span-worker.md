@@ -16,6 +16,11 @@ Read these sources:
 - `.agents/validation.md`: what validating this span requires
 - `.agents/glossary.md`: the work vocabulary
 
+Use the orchestrator's selected mismatch entry for the assigned work.
+Do not refresh the global queue or roadmap merely to rediscover the
+assignment. Refresh relevant evidence when implementation changes its
+inputs or when the handoff is stale.
+
 Before writing, read the complete C functions or Lua program in the span,
 including Lua top-level statements. A span can pass over verified functions,
 so C ranges need not be adjacent. List direct callees and inspect their
@@ -53,8 +58,10 @@ Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
 directly or through a subagent.
 
 Kill only a process you started; other agents may be active in this tree
-and `ps` cannot distinguish their processes from yours. To wait for your
-own command, poll for a result it produces (a file or exit code).
+and `ps` cannot distinguish their processes from yours. Wait for owned
+commands using the waiting rules in the shared instructions' "Operational
+Workflow" section and the harness's process handles. Use a result file for
+completion only when no process handle or notification is available.
 
 Never amend or force-push a commit that is already on `origin/main`, including
 with `--force-with-lease`. To correct a commit message or a trailer after

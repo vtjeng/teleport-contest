@@ -92,6 +92,51 @@ completes one span per run.
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
 
+## Local command execution
+
+- Check the project documentation before using an unfamiliar command or
+  interface. If it is undocumented, consult an existing example or its
+  implementation. Reuse syntax already established in the session.
+- For multiline JavaScript, use a heredoc with a quoted opening delimiter,
+  such as `node --input-type=module <<'JS'`, and an unquoted closing `JS`
+  on its own line. Quoting the opening delimiter prevents the shell from
+  interpreting JavaScript backticks, dollar signs, and backslashes.
+- The default shell in this workspace is zsh. Capture exit status with
+  command_rc=$?; status is read-only. Preserve the command's exit code
+  when displaying its logs.
+
+### Codex execution
+
+- When wrapping exec_command or write_stdin in functions.exec, return
+  session_id, exit_code, and output. Retain the session ID and wait on that
+  command with write_stdin until it exits.
+- Workers send completion messages automatically. When blocked on a worker,
+  use collaboration's notification-aware wait. Reserve list_agents for
+  recovering ownership or diagnosing an unexpected state.
+
+### Codex sandbox restrictions
+
+Under this workspace's restricted permission profile, the following
+commands have failed because the sandbox denied a subprocess launch
+(`spawnSync … EPERM`) or a Git metadata write. Request escalation on their
+first invocation while the same restrictions apply:
+
+- `git add` and `git commit`, when the profile makes .git read-only.
+- `node scripts/mismatch-queue.mjs`.
+- `node scripts/scan-sessions.mjs`.
+- `node scripts/goal-log.mjs` with `roadmap`, `queue-goal`,
+  `record-evidence`, `close-span`, or `close-goal`.
+- `node scripts/diff-fresh.mjs` and fresh-differential matrix runners
+  that invoke the C recorder.
+
+Keep ordinary source reads, searches, and supported focused checks
+sandboxed. These exceptions do not mean that every command launching a
+subprocess needs escalation.
+
+Pass established restrictions to workers using those commands. If another
+command encounters the same restriction, carry that finding forward for
+the session. Recheck restrictions when the permission profile changes.
+
 ## Implementation rules
 
 ### Implement NetHack behavior from source

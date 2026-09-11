@@ -45,17 +45,26 @@ The orchestrator repeats without returning to the user between steps:
    commit `GOALS.json` with a message that starts `Queue <span name> span`.
    For a divergence fix, name the span yourself with `queue-span` and write
    the context file from `.agents/divergence.md`, step 2.
-3. Spawn a span worker (`.claude/agents/span-worker.md`) for that span. When
-   the worker returns, establish what landed with
+3. Spawn a span worker (`.claude/agents/span-worker.md`) for that span.
+   Include the selected mismatch entry, the commit it describes, relevant
+   source ranges, and paths to existing evidence in the handoff.
+   The worker owns implementation validation until it returns. Do not
+   launch a competing full suite, checkpoint, or development scorer while
+   it performs that validation.
+
+   While the worker runs, follow the waiting rules in the shared
+   instructions' "Operational Workflow" section. Use its completion message
+   to trigger handoff checks. When it returns, establish what landed with
    `git log --oneline origin/main..HEAD` and `git status --short`. The worker
    runs `npm run checkpoint` after committing, so
    `.cache/checkpoint-summary.json` describes the committed state: read that
-   file and use its figures. Rerun checkpoint only when the file is missing or
-   its `commit` does not match `git rev-parse HEAD`. Push before the turn ends.
+   file and apply `.agents/validation.md`, "Routine validation", to reuse its
+   results or handle a failure. Push before the turn ends.
 
    Watch the CI run from a background task (`gh run list --limit 1`,
-   then `gh run watch <id> --exit-status`). CI can fail where a local
-   checkpoint passes because CI runs from a fresh checkout; start the
+   then `gh run watch <id> --exit-status`). Retain one watcher for that run;
+   do not also poll run lists or CI logs for its completion. CI can fail
+   where a local checkpoint passes because CI runs from a fresh checkout; start the
    next step without waiting. When a run fails, diagnose, fix, push,
    and watch the new run before the current span closes. The `gh`
    commands require `gh repo set-default vtjeng/teleport-contest`; run
