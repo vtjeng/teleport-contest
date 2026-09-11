@@ -930,11 +930,11 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const priority = file => file.active ? 0 : file.paused ? 1 : file.queued ? 2 : 3;
   const sorted = [...files.values()].sort((a, b) => priority(a) - priority(b)
     || a.sourceFile.localeCompare(b.sourceFile));
-  let html = '<thead><tr><th>Source file</th><th>Goal status</th><th>Goals closed</th><th>Verified</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Source file</th><th>Goal status</th><th>Verified</th></tr></thead><tbody>';
   sorted.forEach(file => {
     const status = [file.active ? file.active + ' in progress' : '',
-      file.paused ? file.paused + ' paused' : '', file.queued ? file.queued + ' queued' : '']
-      .filter(Boolean).join(' · ') || 'Closed';
+      file.paused ? file.paused + ' paused' : '', file.queued ? file.queued + ' queued' : '',
+      file.goalsClosed ? file.goalsClosed + ' closed' : ''].filter(Boolean).join(' · ');
     const verified = [...file.units.values()].filter(Boolean).length;
     const unit = file.sourceFile.endsWith('.lua') ? 'program' : 'function';
     const verification = file.units.size
@@ -942,7 +942,6 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
       : 'Unlisted';
     html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
       + '<td>' + esc(file.sourceFile) + '</td><td>' + status + '</td>'
-      + '<td>' + file.goalsClosed + '</td>'
       + '<td>' + verification + '</td></tr>';
   });
   table.innerHTML = html + '</tbody>';

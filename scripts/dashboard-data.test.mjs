@@ -270,9 +270,9 @@ test('source ports deduplicate overlapping C units and include whole Lua program
     const table = renderDashboard(sourceDashboardData(ports)).get('sourceWorkTable').innerHTML;
     // Three distinct C units, two verified, across two goals; summing the
     // goals' unit counts would incorrectly report four units.
-    assert.match(table, /hack\.c<\/td><td>1 in progress<\/td><td>1<\/td><td>2 of 3 functions<\/td>/u);
-    assert.match(table, /Arc-loca\.lua<\/td><td>Closed<\/td><td>1<\/td><td>1 of 1 program<\/td>/u);
-    assert.match(table, /<tr><td>options\.c<\/td><td>1 paused<\/td><td>0<\/td><td>0 of 1 function<\/td>/u);
+    assert.match(table, /hack\.c<\/td><td>1 in progress · 1 closed<\/td><td>2 of 3 functions<\/td>/u);
+    assert.match(table, /Arc-loca\.lua<\/td><td>1 closed<\/td><td>1 of 1 program<\/td>/u);
+    assert.match(table, /<tr><td>options\.c<\/td><td>1 paused<\/td><td>0 of 1 function<\/td>/u);
     assert.match(table, /<th>Verified<\/th>/u);
 });
 
@@ -303,8 +303,8 @@ test('current work and source rows include fixes, parked goals, and unknown sour
     assert.match(rendered.get('pausedWork').innerHTML, /Waiting for &lt;caller&gt;/u);
     assert.match(rendered.get('pausedWork').innerHTML, /Source pending/u);
     const table = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(table, /class="in-progress"><td>fountain\.c<\/td><td>1 in progress · 1 paused<\/td><td>1<\/td><td>1 of 1 function/u);
-    assert.match(table, /class="in-progress"><td>dog\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>Unlisted<\/td>/u);
+    assert.match(table, /class="in-progress"><td>fountain\.c<\/td><td>1 in progress · 1 paused · 1 closed<\/td><td>1 of 1 function/u);
+    assert.match(table, /class="in-progress"><td>dog\.c<\/td><td>1 in progress<\/td><td>Unlisted<\/td>/u);
     assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
 });
 
@@ -524,8 +524,8 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     // Alpha's historical declaration has no completion evidence. Its one
     // goal is closed, but neither of its two units counts as verified.
     const sourceWorkTable = rendered.get('sourceWorkTable').innerHTML;
-    assert.match(sourceWorkTable, /alpha\.c<\/td><td>Closed<\/td><td>1<\/td><td>0 of 2 functions</u);
-    assert.match(sourceWorkTable, /beta\.c<\/td><td>1 in progress<\/td><td>0<\/td><td>0 of 1 function</u);
+    assert.match(sourceWorkTable, /alpha\.c<\/td><td>1 closed<\/td><td>0 of 2 functions</u);
+    assert.match(sourceWorkTable, /beta\.c<\/td><td>1 in progress<\/td><td>0 of 1 function</u);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
     assert.match(orphanRow, /Working time: 20/u);
