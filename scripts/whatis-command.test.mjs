@@ -58,6 +58,7 @@ import {
 } from '../js/pager.js';
 import {
     S_brupstair,
+    S_cloud,
     S_corr,
     S_darkroom,
     S_ndoor,
@@ -257,6 +258,42 @@ test('corridor ambiguity uses pager.c many-things truncation', () => {
         out: '#        can be many things (corridor)',
         firstmatch: 'corridor',
     });
+});
+
+test('cloud ambiguity names air and non-air terrain', () => {
+    // DECgraphics gives S_cloud the overloaded '#' byte. The ordinary
+    // dungeon branch uses pager.c's fog/vapor wording.
+    assert.deepEqual(terrainDescription(S_cloud), {
+        found: 1,
+        out: '#        can be many things (fog/vapor cloud)',
+        firstmatch: 'fog/vapor cloud',
+    });
+
+    // C Is_airlevel(&u.uz) compares the active hero level with the global
+    // air-level record, so this matching pair exercises the alternate branch.
+    const priorAirLevel = game.air_level;
+    const airLevel = { dnum: 0, dlevel: 99 };
+    game.air_level = airLevel;
+    try {
+        const state = {
+            u: { ux: 40, uy: 10, uz: airLevel },
+            level: {},
+            iflags: { terrainmode: 0 },
+        };
+        initialize_symbols_from_options(
+            parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
+        );
+        state.level.at = (x, y) => (x === 3 && y === 4
+            ? { disp_glyph: { glyph: cmap_to_glyph(S_cloud, state) } }
+            : undefined);
+        assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+            found: 1,
+            out: '#        can be many things (cloudy area)',
+            firstmatch: 'cloudy area',
+        });
+    } finally {
+        game.air_level = priorAirLevel;
+    }
 });
 
 test('doorway refinement distinguishes broken and trapped-broken masks', () => {

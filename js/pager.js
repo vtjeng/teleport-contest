@@ -76,6 +76,7 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     MAXPCHARS,
     S_brupstair,
+    S_cloud,
     S_corr,
     S_dnstair,
     S_darkroom,
@@ -545,6 +546,7 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         || index === S_corr || index === S_litcorr
         || index === S_upstair || index === S_dnstair
         || index === S_brupstair
+        || index === S_cloud
         || index === S_pool || index === S_water
         || index === S_lava || index === S_lavawall || index === S_ice;
     if (!supported) {
@@ -557,6 +559,8 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
         const mask = location?.flags ?? location?.doormask ?? 0;
         return (mask & ~D_TRAPPED) === D_BROKEN ? 'broken door' : 'doorway';
     }
+    if (index === S_cloud)
+        return Is_airlevel(state.u?.uz) ? 'cloudy area' : 'fog/vapor cloud';
     if (index === S_pool || index === S_water
         || index === S_lava || index === S_lavawall || index === S_ice)
         return waterbody_name(x, y, state);
