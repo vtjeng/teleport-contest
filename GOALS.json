@@ -27010,6 +27010,69 @@
         "screens": 6900,
         "rng": 505246
       }
+    },
+    {
+      "id": "div-hack-test-move-cloud-seed0360",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit CLOUD movement through the shared hero destination check after hack.c test_move() succeeds",
+      "cFile": "hack.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The refreshed development queue ranks seed0360-wizard-world-tour step 543 highest, at most 290 remaining screens. Source tracing confirms hack.c test_move() returns TRUE for CLOUD (typ 36): CLOUD is not obstructed, and the diagonal, trap/liquid, doorway-exit, and boulder refusals are skipped before the final legal-place return. The JS refusal occurs afterward in requireSimpleHeroDestination(), which rejects CLOUD and stops domove_core().",
+      "detail": "C hack.c test_move() lines 991-1265 reaches the final return TRUE at lines 1253-1254 for CLOUD; js/hack.js test_move() already matches this branch. The live caller is continued travel from cmd.c dotravel_target() through findtravelpath() and domove_core(), which must proceed to swim_move_danger(), in_out_region(), coordinate commit, spoteffects(TRUE), and delay. The shared admission seam is requireSimpleHeroDestination(), reached from domove_core() and preflightDomoveDestination(); preserve existing room, object, trap, region, shop, liquid, ICE, and other special-terrain guards while admitting IS_AIR (AIR and CLOUD).",
+      "spans": [
+        {
+          "name": "test_move",
+          "status": "closed",
+          "closedBy": "4e17b8e541fb37a9da4cd04152384f1258043e7a",
+          "functions": [
+            "test_move"
+          ]
+        }
+      ],
+      "openedAt": "4f72e68c9aae627a8803cf0cb767ef674c8d109b",
+      "openStanding": {
+        "sha": "637cc80bc84cc27e7c2cbd2eb45ab32457df0f63",
+        "screens": 6900,
+        "rng": 505246
+      },
+      "closedAt": "4e17b8e541fb37a9da4cd04152384f1258043e7a",
+      "delivered": {
+        "screens": 0,
+        "rng": 328
+      },
+      "function": "test_move",
+      "session": "seed0360-wizard-world-tour",
+      "step": 543,
+      "activeStanding": {
+        "sha": "637cc80bc84cc27e7c2cbd2eb45ab32457df0f63",
+        "screens": 6900,
+        "rng": 505246
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 543,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 290
+        }
+      ],
+      "closeStanding": {
+        "sha": "4e17b8e541fb37a9da4cd04152384f1258043e7a",
+        "screens": 6900,
+        "rng": 505574
+      }
     }
   ]
 }
