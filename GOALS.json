@@ -23489,8 +23489,8 @@
       "spans": [
         {
           "name": "goto_level",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "691843cfaf3c5ca3af776da657cf0a9df40e8d01",
           "functions": [
             "goto_level"
           ]
@@ -23510,7 +23510,7 @@
           "line": 1479,
           "endLine": 2002,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -23538,7 +23538,55 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 532
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "goto_level",
+            "implementation": "js/do.js",
+            "symbol": "goto_level",
+            "sourceReview": "Read the complete do.c goto_level() range (1479-2002). The supported ordinary-level transition preserves saved-level teardown, destination generation, arrival placement, vision and redraw order, deferred feedback, and the new-level message branches. Added the source-ordered Rogue/primary assign_graphics() selection before u.uz changes, check_gold_symbol(), and the Rogue arrival line from do.c:1912-1914. The supporting symbols.c assign_graphics() and botl.c check_gold_symbol() implementations preserve selected tables, overrides, currentgraphics, and the printable coin-symbol boundary; no result-valued unported callee is used by this span.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "deferred_goto",
+                "source": "allmain.c deferred_goto() dispatches the scheduled transition to do.c goto_level() after the command stack unwinds"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "level_tele",
+                "source": "teleport.c level_tele() accepts a wizard numeric destination and schedules goto_level()"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_create_portal",
+                "source": "artifact.c invoke_portal() calls goto_level() for a cross-dungeon portal transition"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-teleport-arrival.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/rogue-level-teleport-g.session.json"
+            ],
+            "checkedAt": "691843cfaf3c5ca3af776da657cf0a9df40e8d01"
+          }
+        ],
+        "entryPointReview": "The selected source range has one exercised production entry point: the wizard debug Ctrl-V level-teleport command enters teleport.c level_tele(), schedules a new ordinary or Rogue destination, allmain.c deferred_goto() dispatches do.c goto_level(), and goto_level() generates and displays the destination. The fresh recipe reaches the Rogue destination and its graphics/message branches through that production path.",
+        "entryPoints": [
+          {
+            "name": "wizard level teleport into a newly generated Rogue level",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": [
+              "recordings/do.c/rogue-level-teleport-g.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
