@@ -185,12 +185,10 @@ h1 {
 }
 
 /* Work status uses the existing green rail plus a written label. */
-.work-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 24px; }
-.work-heading .section-title { font-size: 16px; margin-bottom: 12px; }
+#currentWorkTitle { font-size: 16px; }
 .work-meta { color: var(--ink-secondary); font-size: 13px; }
-.work-heading .work-meta { margin-left: auto; }
-.active-work { border-left: 3px solid var(--goal-in-progress); padding: 4px 20px; margin-bottom: 20px; }
-.work-status { font-size: 12px; font-weight: 600; color: var(--ink-secondary); margin-bottom: 4px; }
+.active-goals { margin-bottom: 20px; }
+.active-work { border-left: 3px solid var(--goal-in-progress); padding: 4px 20px; margin-top: 18px; }
 .work-title { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; margin-bottom: 4px; }
 .work-empty { padding: 4px 0 20px; color: var(--ink-secondary); }
 .goal-details { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
@@ -199,7 +197,7 @@ summary { cursor: pointer; }
 .diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
 summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
 .paused-work { border-top: 1px solid var(--border); padding-top: 16px; }
-.paused-work > summary { font-size: 13px; font-weight: 500; }
+.work-group > summary { font-size: 13px; font-weight: 500; }
 .paused-goal { margin-top: 18px; padding: 2px 0 2px 14px; border-left: 2px solid var(--goal-paused); }
 .paused-goal .work-title { font-size: 13px; font-weight: 500; line-height: 1.45; }
 .paused-goal .work-meta { font-size: 12px; }
@@ -221,7 +219,11 @@ summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4
   border-radius: 4px; background: var(--surface-card); color: var(--ink-primary);
   font: 12px/1.5 'Inter', system-ui, sans-serif; text-align: left; text-transform: none;
   letter-spacing: normal; box-shadow: 0 4px 12px var(--border); }
-#sourceWorkTable .verification-heading { z-index: 4; border-bottom: 0; padding-bottom: 0; }
+#sourceWorkTable th { text-align: right; border-right: 0; left: auto; z-index: 1; }
+#sourceWorkTable .source-heading { text-align: left; left: 0; border-right: 1px solid var(--border); z-index: 3; }
+#sourceWorkTable .goals-heading { text-align: center; border-bottom: 0; padding-bottom: 0; }
+#sourceWorkTable .verification-heading { z-index: 4; border-bottom: 0; padding-bottom: 0; border-left: 1px solid var(--border); }
+#sourceWorkTable .verification-count { border-left: 1px solid var(--border); }
 code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
@@ -752,10 +754,7 @@ canvas {
 </div>
 
 <section class="section" aria-labelledby="currentWorkTitle">
-  <div class="work-heading">
-    <h2 class="section-title" id="currentWorkTitle">Current work</h2>
-    <p id="workSummary" class="work-meta"></p>
-  </div>
+  <h2 class="section-title" id="currentWorkTitle">Current work</h2>
   <div id="currentWork"></div>
   <div id="pausedWork"></div>
 </section>
@@ -906,7 +905,6 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const active = work.filter(goal => goal.status === 'open');
   const paused = work.filter(goal => goal.status === 'parked');
-  document.getElementById('workSummary').textContent = active.length + ' in progress · ' + paused.length + ' paused';
   const kindLabel = kind => ({ 'file-port': 'C implementation', 'lua-port': 'Lua implementation',
     'divergence-fix': 'Behavior fix', boundary: 'Historical goal' })[kind] || 'Historical goal';
   const description = goal => '<h3 class="work-title">' + esc(goal.summary || goal.id) + '</h3>'
@@ -914,11 +912,12 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const goalDetails = goal => '<p class="goal-details">' + esc(kindLabel(goal.kind))
     + ' · <code>' + esc(goal.id) + '</code></p>';
   document.getElementById('currentWork').innerHTML = active.length
-    ? active.map(goal => '<article class="active-work"><p class="work-status">In progress</p>'
-      + description(goal) + goalDetails(goal) + '</article>').join('')
+    ? '<details class="active-goals work-group" open><summary>' + active.length + ' goal' + (active.length === 1 ? '' : 's')
+      + ' in progress</summary>' + active.map(goal => '<article class="active-work">'
+        + description(goal) + goalDetails(goal) + '</article>').join('') + '</details>'
     : '<p class="work-empty">0 goals in progress.</p>';
   document.getElementById('pausedWork').innerHTML = paused.length
-    ? '<details class="paused-work"><summary>' + paused.length + ' paused goal' + (paused.length === 1 ? '' : 's')
+    ? '<details class="paused-work work-group"><summary>' + paused.length + ' paused goal' + (paused.length === 1 ? '' : 's')
       + '</summary>' + paused.map(goal => '<article class="paused-goal">'
         + description(goal) + '<p class="pause-reason">' + esc(goal.parkedReason || 'Reason unspecified.')
         + '</p>' + goalDetails(goal) + '</article>').join('') + '</details>'
@@ -958,18 +957,20 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   const symbol = state => '<span class="goal-symbol ' + state.key + '" aria-hidden="true">' + state.symbol + '</span>';
   document.getElementById('sourceWorkLegend').innerHTML = states.map(state =>
     '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
-  let html = '<thead><tr><th scope="col" rowspan="2">Source file</th>'
-    + states.map(state => '<th scope="col" rowspan="2" aria-label="' + state.label + '" title="' + state.label + '">'
-      + symbol(state) + '</th>').join('')
+  let html = '<thead><tr><th scope="col" rowspan="2" class="source-heading">Source file</th>'
+    + '<th scope="colgroup" colspan="' + states.length + '" class="goals-heading">Goals</th>'
     + '<th scope="colgroup" colspan="2" class="verification-heading"><details class="verification-help"><summary>Verification</summary>'
     + '<p>Listed counts distinct C functions or whole Lua programs named for verification in this file’s goals. Bug-fix goals with an empty verification list add 0. Verified entries have source review, caller checks, and validation evidence.</p>'
-    + '</details></th></tr><tr><th scope="col">Verified</th><th scope="col">Listed</th></tr></thead><tbody>';
+    + '</details></th></tr><tr>'
+    + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
+      + symbol(state) + '</th>').join('')
+    + '<th scope="col" class="verification-count">Verified</th><th scope="col">Listed</th></tr></thead><tbody>';
   sorted.forEach(file => {
     const verified = [...file.units.values()].filter(Boolean).length;
     html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
       + '<td>' + esc(file.sourceFile) + '</td>'
-      + states.map(state => '<td' + (file[state.key] ? '' : ' class="zero"') + '>' + file[state.key] + '</td>').join('')
-      + '<td' + (verified ? '' : ' class="zero"') + '>' + verified + '</td>'
+      + states.map(state => '<td' + (file[state.key] ? '' : ' aria-label="0"') + '>' + (file[state.key] || '') + '</td>').join('')
+      + '<td class="verification-count' + (verified ? '' : ' zero') + '">' + verified + '</td>'
       + '<td' + (file.units.size ? '' : ' class="zero"') + '>' + file.units.size + '</td></tr>';
   });
   table.innerHTML = html + '</tbody>';
