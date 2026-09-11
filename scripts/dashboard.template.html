@@ -27,6 +27,7 @@
   --goal-divergence: #9b2f8f;
   --goal-boundary: #e0762a;
   --goal-in-progress: #1baf7a;
+  --goal-paused: #c99000;
 
   /* The progress chart plots measures, so its screens line is ink and both
      rates share one grey and differ by dash, so no series wears a colour
@@ -56,6 +57,7 @@
     --goal-divergence: #b451a8;
     --goal-boundary: #d97025;
     --goal-in-progress: #199e70;
+    --goal-paused: #d4a012;
 
     --progress-fill: #e6e4df;
     --progress-area: rgba(230,228,223,0.08);
@@ -81,6 +83,7 @@
   --goal-divergence: #b451a8;
   --goal-boundary: #d97025;
   --goal-in-progress: #199e70;
+  --goal-paused: #d4a012;
 
   --progress-fill: #e6e4df;
   --progress-area: rgba(230,228,223,0.08);
@@ -130,12 +133,15 @@ h1 {
 /* --- Stat tiles --- */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 12px;
   margin-bottom: 28px;
 }
 
 .stat {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
   background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -177,6 +183,48 @@ h1 {
   margin-bottom: 12px;
   letter-spacing: -0.01em;
 }
+
+/* Work status uses the existing green rail plus a written label. */
+#currentWorkTitle { font-size: 16px; }
+.work-meta { color: var(--ink-secondary); font-size: 13px; }
+.active-goals { margin-bottom: 20px; }
+.active-work { border-left: 3px solid var(--goal-in-progress); padding: 4px 20px; margin-top: 18px; }
+.work-title { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; margin-bottom: 4px; }
+.work-empty { padding: 4px 0 20px; color: var(--ink-secondary); }
+.goal-details { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
+summary { cursor: pointer; }
+.diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
+.diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
+summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
+.paused-work { border-top: 1px solid var(--border); padding-top: 16px; }
+.work-group > summary { font-size: 13px; font-weight: 500; }
+.paused-goal { margin-top: 18px; padding: 2px 0 2px 14px; border-left: 2px solid var(--goal-paused); }
+.paused-goal .work-title { font-size: 13px; font-weight: 500; line-height: 1.45; }
+.paused-goal .work-meta { font-size: 12px; }
+.pause-reason { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
+#sourceWorkTable th, #sourceWorkTable td { padding: 6px clamp(4px, 1vw, 10px); }
+#sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
+#sourceWorkTable .zero { color: var(--ink-secondary); }
+.goal-symbol { display: inline-block; width: 1em; text-align: center; }
+.goal-symbol.active { color: var(--goal-in-progress); }
+.goal-symbol.paused { color: var(--goal-paused); }
+.verification-help { position: relative; }
+.verification-help summary { list-style: none; }
+.verification-help summary::-webkit-details-marker { display: none; }
+.verification-help summary::after { content: '?'; display: inline-grid; place-items: center;
+  width: 12px; height: 12px; margin-left: 4px; border: 1px solid currentColor; border-radius: 50%;
+  font: 600 10px/1 'Inter', sans-serif; vertical-align: middle; }
+.verification-help p { position: absolute; right: 0; top: calc(100% + 8px); z-index: 3;
+  width: min(280px, calc(100vw - 64px)); padding: 12px; border: 1px solid var(--baseline);
+  border-radius: 4px; background: var(--surface-card); color: var(--ink-primary);
+  font: 12px/1.5 'Inter', system-ui, sans-serif; text-align: left; text-transform: none;
+  letter-spacing: normal; box-shadow: 0 4px 12px var(--border); }
+#sourceWorkTable th { text-align: right; border-right: 0; left: auto; z-index: 1; }
+#sourceWorkTable .source-heading { text-align: left; left: 0; border-right: 1px solid var(--border); z-index: 3; }
+#sourceWorkTable .goals-heading { text-align: center; border-bottom: 0; padding-bottom: 0; }
+#sourceWorkTable .verification-heading { z-index: 4; border-bottom: 0; padding-bottom: 0; border-left: 1px solid var(--border); }
+#sourceWorkTable .verification-count { border-left: 1px solid var(--border); }
+code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
 
 /* --- Legend --- */
 .legend {
@@ -248,7 +296,7 @@ canvas {
 @media (max-width: 480px) {
   body { padding: 12px; }
   h1 { font-size: 16px; }
-  .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stats { column-gap: 8px; }
   .stat { padding: 8px 10px; }
   .stat-value { font-size: 16px; }
   .stat-detail { font-size: 11px; }
@@ -582,7 +630,7 @@ canvas {
 }
 
 /* C file names are short, so that column takes its content's width. */
-#filePortTable td:first-child {
+#sourceWorkTable td:first-child {
   width: auto;
   min-width: 0;
   max-width: none;
@@ -684,30 +732,9 @@ canvas {
   <h1>NetHack Port Progress</h1>
   <span class="updated" id="updated"></span>
 </div>
-<p class="subtitle">Development session set</p>
+<p class="subtitle">Results from development recordings.</p>
 
 <div class="stats" id="stats"></div>
-
-<div class="section">
-  <h2 class="section-title">Mismatch queue</h2>
-  <p class="subtitle">Each development session's first known mismatch. C, Lua, and unresolved source investigations share one priority order, which the rows follow. Screens after mismatch counts the recorded screens past the first mismatch; fixing it regains at most that many.</p>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="queueTable"></table>
-    </div>
-  </div>
-</div>
-
-<div class="section">
-  <h2 class="section-title">Source ports</h2>
-  <p class="subtitle">C functions and Lua programs listed in GOALS.json, grouped by source file. Verified units have source, caller, and validation evidence. Historical declarations and closed goals do not establish verification.</p>
-  <div class="legend" id="filePortLegend"></div>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="filePortTable"></table>
-    </div>
-  </div>
-</div>
 
 <div class="section">
   <h2 class="section-title">Screens matched over time</h2>
@@ -726,9 +753,37 @@ canvas {
   </div>
 </div>
 
+<section class="section" aria-labelledby="currentWorkTitle">
+  <h2 class="section-title" id="currentWorkTitle">Current work</h2>
+  <div id="currentWork"></div>
+  <div id="pausedWork"></div>
+</section>
+
+<section class="section" aria-labelledby="sourceWorkTitle">
+  <h2 class="section-title" id="sourceWorkTitle">Work by source file</h2>
+  <div class="legend" id="sourceWorkLegend"></div>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="sourceWorkTable"></table>
+    </div>
+  </div>
+</section>
+
+<section class="diagnostics">
+  <h2 class="section-title">Diagnostics and history</h2>
 <div class="section">
-  <h2 class="section-title">Goal timeline</h2>
-  <p class="subtitle">One row per local day. Each bar is a goal from open to close; a lighter bar has an open time inferred from the previous goal's close, so it may include idle time. Goals that share time stack within the row. Blank space is time with no goal running.</p>
+  <h3 class="section-title">Mismatch queue</h3>
+  <p class="subtitle">First mismatch per session, in priority order. A fix can recover at most the listed screens.</p>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="queueTable"></table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3 class="section-title">Goal timeline</h3>
+  <p class="subtitle">Goal intervals from commits and score records. Pale bars have estimated start times.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -737,7 +792,7 @@ canvas {
 </div>
 
 <div class="section">
-  <h2 class="section-title">Goal history</h2>
+  <h3 class="section-title">Goal history</h3>
   <p class="subtitle" id="tableSubtitle"></p>
   <div class="legend" id="tableLegend"></div>
   <div class="chart-wrap">
@@ -746,6 +801,8 @@ canvas {
     </div>
   </div>
 </div>
+
+</section>
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -780,24 +837,21 @@ function relativeTime(iso) {
 }
 
 // --- Last updated ---
-document.getElementById('updated').textContent = 'Updated ' + relativeTime(DATA.summary.generatedAt);
+document.getElementById('updated').textContent = 'Snapshot built ' + relativeTime(DATA.summary.generatedAt);
 
 // --- Stat tiles ---
 const s = DATA.summary;
 document.getElementById('stats').innerHTML = [
-  { label: 'Screens', value: pct(s.screens, s.screensTotal), detail: fmtN(s.screens) + ' / ' + fmtN(s.screensTotal) },
-  { label: 'RNG calls', value: pct(s.rng, s.rngTotal), detail: fmtN(s.rng) + ' / ' + fmtN(s.rngTotal) },
-  { label: 'Sessions', value: s.sessions + ' / ' + s.sessionsTotal, detail: pct(s.sessions, s.sessionsTotal) },
-  { label: 'Goals closed', value: s.totalGoals, detail: 'median ' + fmt(s.medianTotalMin) },
-  { label: 'Goal selection', value: fmt(s.medianGoalSelectionMin), detail: 'median, last 20' },
-  { label: 'Source-port goals', value: (s.filePortsClosed ?? 0) + ' / ' + (s.filePortsTotal ?? 0), detail: 'closed / opened' },
+  { label: 'Screens matched', value: pct(s.screens, s.screensTotal), detail: fmtN(s.screens) + ' / ' + fmtN(s.screensTotal) },
+  { label: 'Random calls matched', value: pct(s.rng, s.rngTotal), detail: fmtN(s.rng) + ' / ' + fmtN(s.rngTotal) },
+  { label: 'Full sessions matched', value: s.sessions + ' / ' + s.sessionsTotal, detail: pct(s.sessions, s.sessionsTotal) },
 ].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
 const inferredProgressCount = DATA.progress.filter(
   p => p.utcSource !== 'commit',
 ).length;
 document.getElementById('progressProvenance').textContent = inferredProgressCount
-  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' SCORE timestamp where the commit SHA was not found.'
-  : 'All plotted times come from commit timestamps.';
+  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' a logged date; solid markers use commit dates.'
+  : 'Times from commits.';
 
 // --- Mismatch queue ---
 (function() {
@@ -840,54 +894,86 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   });
   html += '</tbody>';
   table.innerHTML = html;
-  table.parentElement.insertAdjacentHTML('afterend', '<p class="table-note">Roadmap fallback is blocked while mismatches remain.</p>');
 })();
 
-// --- Source ports ---
-// GOALS.json records one source-port goal per C function group or Lua
-// program. Each row groups a source file's goals and distinct verified units.
+// --- Current work and source files ---
+// GOALS.json supplies status for every kind of goal. Commit-derived history
+// is used only by the historical charts below.
 (function() {
-  const table = document.getElementById('filePortTable');
-  document.getElementById('filePortLegend').innerHTML = '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(--goal-in-progress)"></div>a goal of the file is in progress</div>';
-  const ports = DATA.filePorts || [];
-  if (ports.length === 0) {
-    table.outerHTML = '<p class="table-note">No source port recorded yet.</p>';
+  const work = DATA.workGoals || [];
+  const esc = text => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const active = work.filter(goal => goal.status === 'open');
+  const paused = work.filter(goal => goal.status === 'parked');
+  const kindLabel = kind => ({ 'file-port': 'C implementation', 'lua-port': 'Lua implementation',
+    'divergence-fix': 'Behavior fix', boundary: 'Historical goal' })[kind] || 'Historical goal';
+  const description = goal => '<h3 class="work-title">' + esc(goal.summary || goal.id) + '</h3>'
+    + '<p class="work-meta"><code>' + esc(goal.sourceFile || 'Source pending') + '</code></p>';
+  const goalDetails = goal => '<p class="goal-details">' + esc(kindLabel(goal.kind))
+    + ' · <code>' + esc(goal.id) + '</code></p>';
+  document.getElementById('currentWork').innerHTML = active.length
+    ? '<details class="active-goals work-group" open><summary>' + active.length + ' goal' + (active.length === 1 ? '' : 's')
+      + ' in progress</summary>' + active.map(goal => '<article class="active-work">'
+        + description(goal) + goalDetails(goal) + '</article>').join('') + '</details>'
+    : '<p class="work-empty">0 goals in progress.</p>';
+  document.getElementById('pausedWork').innerHTML = paused.length
+    ? '<details class="paused-work work-group"><summary>' + paused.length + ' paused goal' + (paused.length === 1 ? '' : 's')
+      + '</summary>' + paused.map(goal => '<article class="paused-goal">'
+        + description(goal) + '<p class="pause-reason">' + esc(goal.parkedReason || 'Reason unspecified.')
+        + '</p>' + goalDetails(goal) + '</article>').join('') + '</details>'
+    : '';
+
+  const files = new Map();
+  work.forEach(goal => {
+    if (!goal.sourceFile) return;
+    if (!files.has(goal.sourceFile)) {
+      files.set(goal.sourceFile, { sourceFile: goal.sourceFile, goalsClosed: 0,
+        active: 0, paused: 0, queued: 0, units: new Map() });
+    }
+    const file = files.get(goal.sourceFile);
+    if (goal.status === 'closed') file.goalsClosed += 1;
+    if (goal.status === 'open') file.active += 1;
+    if (goal.status === 'parked') file.paused += 1;
+    if (goal.status === 'queued') file.queued += 1;
+    goal.units.forEach(unit => file.units.set(unit.name,
+      Boolean(file.units.get(unit.name) || unit.verified)));
+  });
+  const table = document.getElementById('sourceWorkTable');
+  document.getElementById('sourceWorkLegend').innerHTML = '';
+  if (files.size === 0) {
+    table.outerHTML = '<p class="table-note">0 source files recorded.</p>';
     return;
   }
-  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-  const files = new Map();
-  ports.forEach(port => {
-    if (!files.has(port.sourceFile)) {
-      files.set(port.sourceFile, {
-        sourceFile: port.sourceFile, goals: [], goalsClosed: 0,
-        units: new Map(),
-        spansClosed: 0, spansTotal: 0, screensDelivered: null,
-      });
-    }
-    const file = files.get(port.sourceFile);
-    file.goals.push(port);
-    if (port.status === 'closed') file.goalsClosed += 1;
-    port.units.forEach(unit => file.units.set(unit.name,
-      Boolean(file.units.get(unit.name) || unit.verified)));
-    file.spansClosed += port.spansClosed;
-    file.spansTotal += port.spansTotal;
-    if (port.screensDelivered != null) {
-      file.screensDelivered = (file.screensDelivered ?? 0) + port.screensDelivered;
-    }
-  });
-  let html = '<thead><tr><th>Source file</th><th>Goals closed</th><th>Verified units</th><th>Spans closed</th><th>Screens delivered</th></tr></thead><tbody>';
-  files.forEach(file => {
-    const open = file.goals.some(goal => goal.status === 'open');
-    html += '<tr' + (open ? ' class="in-progress"' : '') + '>'
+  // Active files come first, then paused and queued work, then other files.
+  const priority = file => file.active ? 0 : file.paused ? 1 : file.queued ? 2 : 3;
+  const sorted = [...files.values()].sort((a, b) => priority(a) - priority(b)
+    || a.sourceFile.localeCompare(b.sourceFile));
+  const states = [
+    { key: 'active', label: 'In progress', symbol: '▶' },
+    { key: 'paused', label: 'Paused', symbol: '⏸️' },
+    { key: 'queued', label: 'Queued', symbol: '◇' },
+    { key: 'goalsClosed', label: 'Closed', symbol: '✓' },
+  ].filter(state => state.key !== 'queued' || sorted.some(file => file.queued));
+  const symbol = state => '<span class="goal-symbol ' + state.key + '" aria-hidden="true">' + state.symbol + '</span>';
+  document.getElementById('sourceWorkLegend').innerHTML = states.map(state =>
+    '<span class="legend-item">' + symbol(state) + ' ' + state.label + '</span>').join('');
+  let html = '<thead><tr><th scope="col" rowspan="2" class="source-heading">Source file</th>'
+    + '<th scope="colgroup" colspan="' + states.length + '" class="goals-heading">Goals</th>'
+    + '<th scope="colgroup" colspan="2" class="verification-heading"><details class="verification-help"><summary>Functions / programs</summary>'
+    + '<p><strong>Verified:</strong> listed functions or programs with recorded source review, caller checks, and validation evidence.<br><br><strong>Listed:</strong> distinct C functions or whole Lua programs named in this file’s goals. 0 means those goals’ lists are empty.</p>'
+    + '</details></th></tr><tr>'
+    + states.map(state => '<th scope="col" aria-label="' + state.label + '" title="' + state.label + '">'
+      + symbol(state) + '</th>').join('')
+    + '<th scope="col" class="verification-count">Verified</th><th scope="col">Listed</th></tr></thead><tbody>';
+  sorted.forEach(file => {
+    const verified = [...file.units.values()].filter(Boolean).length;
+    html += '<tr' + (file.active ? ' class="in-progress"' : '') + '>'
       + '<td>' + esc(file.sourceFile) + '</td>'
-      + '<td>' + file.goalsClosed + ' / ' + file.goals.length + '</td>'
-      + '<td>' + [...file.units.values()].filter(Boolean).length + ' / ' + file.units.size + '</td>'
-      + '<td>' + file.spansClosed + ' / ' + file.spansTotal + '</td>'
-      + '<td>' + fmtDelta(file.screensDelivered) + '</td>'
-      + '</tr>';
+      + states.map(state => '<td' + (file[state.key] ? '' : ' aria-label="0"') + '>' + (file[state.key] || '') + '</td>').join('')
+      + '<td class="verification-count' + (verified ? '' : ' zero') + '">' + verified + '</td>'
+      + '<td' + (file.units.size ? '' : ' class="zero"') + '>' + file.units.size + '</td></tr>';
   });
-  html += '</tbody>';
-  table.innerHTML = html;
+  table.innerHTML = html + '</tbody>';
 })();
 
 // --- Progress chart (time-zoomable step plot, minimap, and hover readout) ---
