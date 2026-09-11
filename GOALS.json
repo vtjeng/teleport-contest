@@ -26712,7 +26712,7 @@
     {
       "id": "div-steal-worn-item-removal-seed0014",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix steal.c worn_item_removal message ordering and await its steal callers",
       "cFile": "steal.c",
       "sessions": [
@@ -26723,8 +26723,8 @@
       "spans": [
         {
           "name": "worn-item-removal-message-order",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "03912f930dedb07fa2e62cf7a1a399c24b878d05",
           "functions": [
             "worn_item_removal",
             "steal"
@@ -26737,8 +26737,11 @@
         "screens": 6861,
         "rng": 504067
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "03912f930dedb07fa2e62cf7a1a399c24b878d05",
+      "delivered": {
+        "screens": 8,
+        "rng": 68
+      },
       "function": "worn_item_removal",
       "session": "seed0014-dequa-fountain-explore",
       "step": 416,
@@ -26763,7 +26766,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 298
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "03912f930dedb07fa2e62cf7a1a399c24b878d05",
+        "screens": 6869,
+        "rng": 504135
+      }
     }
   ]
 }
