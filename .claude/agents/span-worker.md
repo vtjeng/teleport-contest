@@ -69,12 +69,17 @@ pushing, add a follow-up commit that states the correction.
 
 ## Subagents
 
-Use `grep` to find a symbol whose name you know. Spawn a subagent only
-when the search is broader: the name is uncertain, you need to survey
-call sites across many files, or you need to classify results against a
-rubric. Pin subagents to Sonnet: `Explore` with `model: sonnet` for
-code searches, `sonnet-worker` for classification. Verify each pointer a
-subagent returns by opening the file.
+Use `rg` to find a symbol whose name you know. The orchestrator owns concurrent
+caller and dependency surveys. When the handoff delegates one, continue the
+complete source comparison and implementation without repeating that broad
+survey. Verify every returned pointer by opening the file before relying on it.
+When no survey is delegated, trace production callers yourself as usual. Do not
+pause the span to obtain subagent access or ask the orchestrator to restart you.
+
+For other work, spawn a subagent only when a callable subagent mechanism is
+available and the search is broader: the name is uncertain or results need
+classification against a rubric. Treat model annotations as non-binding project
+metadata and use the active model and reasoning settings.
 
 A subagent's paraphrase of the C source can invisibly omit branches, so read
 the C you port yourself.

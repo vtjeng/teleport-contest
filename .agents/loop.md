@@ -54,6 +54,19 @@ The orchestrator repeats without returning to the user between steps:
    launch a competing full suite, checkpoint, or development scorer while
    it performs that validation.
 
+   When the handoff leaves a broad, unresolved cross-file caller or dependency
+   question, start one read-only survey helper at substantially the same time as
+   the span worker. Tell both agents the split: the worker owns the complete
+   source comparison, implementation, tests, recordings, commit, and checkpoint;
+   the helper owns only the named survey and returns concise file and function
+   pointers plus the contracts they preserve. The helper does not edit files or
+   run a recorder, full suite, checkpoint, or scorer. Forward its findings while
+   the worker can still use them, and have the worker verify each pointer before
+   relying on it. Skip the helper when the symbol and callers are local or already
+   known, a prior investigation settled them, or implementation cannot proceed
+   independently. Record the agents' start and finish times, which findings the
+   worker used, duplication or rework, and handoff overhead.
+
    While the worker runs, follow the waiting rules in the shared
    instructions' "Operational Workflow" section. Use its completion message
    to trigger handoff checks. When it returns, establish what landed with
