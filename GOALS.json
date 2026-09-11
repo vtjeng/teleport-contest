@@ -22613,7 +22613,7 @@
     {
       "id": "port-end-done-object-cleanup",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete end.c done_object_cleanup() cleanup for in-use, in-transit, punishment, and persistent-inventory objects",
       "cFile": "end.c",
       "sessions": [
@@ -22637,8 +22637,11 @@
         "screens": 6113,
         "rng": 426428
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8196289cfb7ae69ea9c616ce1f310ecde153e27b",
+      "delivered": {
+        "screens": 127,
+        "rng": 86
+      },
       "functions": [
         {
           "name": "done_object_cleanup",
@@ -22710,7 +22713,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1274,
+          "kind": "rng",
+          "function": "randomize_gem_colors",
+          "functionDeclared": true,
+          "sourceFile": "o_init.c",
+          "cFile": "o_init.c",
+          "luaFile": null,
+          "line": 92,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 679
+        }
+      ]
     }
   ]
 }
