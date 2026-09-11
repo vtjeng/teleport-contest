@@ -25426,7 +25426,16 @@
       ],
       "selectionReason": "The highest-ranked development mismatch is seed0360-wizard-world-tour at global step 384. Replay identifies Tengu pmidx 55, m_id 4040, at (38,2), with mcan false, while the hero is at (8,0); the Home 1 level has flags.noteleport set and the Tengu is unseen. Upstream monmove.c m_move() lines 1840-1849 evaluates rn2(5), then tele_restrict(), before falling through to not_special because noteleport_level() is true. JS m_move() omits this branch and js/unported_monster_actions.js rejects every Tengu before m_move(). This is missing or partial monmove.c behavior, so selection requires a file-port for the whole m_move() function rather than a divergence fix.",
       "detail": "First refusal: simple monster action requires a special monster action, at development session seed0360-wizard-world-tour segment 0 input step 384. C owner: monmove.c m_move() lines 1715-2087, Tengu branch lines 1840-1849; teleport.c tele_restrict() lines 1950-1960 returns true from noteleport_level() and emits no visible message because the monster is unseen. C still consumes rn2(5) before that restriction check. JS owner: assertSimpleActionState() at js/unported_monster_actions.js:410-417 rejects the Tengu, and js/monmove.js:m_move() has no corresponding branch. Production path: allmain.js advanceElapsedTurn() -> preflightSimpleMonsterActions() -> mon.js movemon_singlemon() -> unported_monster_actions.js runSimpleMonsterAction() -> monmove.js dochug()/m_move(). Port the complete m_move() source unit, preserve C evaluation order, wire rloc()/mnexto()/postmov() through planning and live callers, and retain a teleport-allowed Tengu boundary until relocation coverage is complete. Regression: extend scripts/unported-monster-actions.test.mjs with a Tengu on flags.noteleport=true, assert preflight succeeds with no live-state/RNG/screen leakage, and retain a teleport-allowed Tengu refusal.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "m_move",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_move"
+          ]
+        }
+      ],
       "openedAt": "a952addac0502deb129fba4642eb1a245b1b1349",
       "openStanding": {
         "sha": "98a4403d38f2b9bc2ba4956f2c813993368ded2b",
