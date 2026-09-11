@@ -201,6 +201,7 @@ import {
     angry_guards,
     curr_mon_load,
     hideunder,
+    maybe_unhide_at,
     m_carrying,
     m_consume_obj,
     meatcorpse,
@@ -3643,6 +3644,20 @@ export async function m_move(monster, rawEnv = {}) {
     if (movementMsg && !env.planning) {
         const msgFn = rawEnv.message ?? ttyPline;
         await msgFn(movementMsg, state, env);
+    }
+    // C ref: monmove.c:2060. A concealed hider that leaves its object pile
+    // is revealed before movement tracking and postmov()'s re-hide roll.
+    // C calls maybe_unhide_at() for every move.  Its only stateful arms are
+    // hidden object-concealing monsters and eels; leave other hidden species
+    // on the existing fail-closed path rather than asking that helper to own
+    // an unrelated concealment implementation.
+    if (!monster.mundetected
+        || hides_under(monster.data)
+        || monster.data?.mlet === S_EEL) {
+        maybe_unhide_at(monster.mx, monster.my, state, {
+            ...env,
+            redraw: env.planning ? () => {} : (rawEnv.redraw ?? newsym),
+        });
     }
     mon_track_add(monster, oldX, oldY);
     return postMonsterMove(

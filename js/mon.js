@@ -171,7 +171,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { flooreffects, revive_corpse } from './do.js';
-import { finish_meating } from './dogmove.js';
+import { cursed_object_at, finish_meating } from './dogmove.js';
 import {
     has_ceiling,
     In_W_tower,
@@ -490,6 +490,7 @@ import {
 import {
     accessible,
     m_can_break_boulder,
+    can_hide_under_obj,
     m_in_air,
     monhaskey,
     onscary,
@@ -5228,11 +5229,10 @@ export function restrap(monster, env = {}) {
     return false;
 }
 
-// C ref: mon.c hideunder() (4726-4801), the S_EEL arm only, which is the arm
-// movemon_singlemon() above reaches. mon.c's other two arms -- the hero's own
-// concealment and the M1_CONCEAL species that hide under an object -- stay
-// fail-closed here; js/makemon_create.js carries a separate level-creation
-// subset that still owns them for mklev() and newcham().
+// C ref: mon.c hideunder() (4726-4801). The monster eel and object-concealing
+// arms are covered here; hero concealment and the visible-monster message path
+// remain fail-closed. js/makemon_create.js carries a separate level-creation
+// subset that also owns the object-concealing arm for mklev() and newcham().
 //
 // The boundary is `seeit` alone rather than `seeit && undetected`, because C
 // evaluates `seenmon = y_monnam(mtmp)` for every visible monster, whether or
@@ -5250,7 +5250,8 @@ export function hideunder(monster, env = {}) {
     if (monster === state.youmonst) {
         throw new UnsupportedHideError('hero concealment');
     }
-    if (monster.data?.mlet !== S_EEL) {
+    const isEel = monster.data?.mlet === S_EEL;
+    if (!isEel && !hides_under(monster.data)) {
         throw new UnsupportedHideError('a monster that hides under objects');
     }
 
@@ -5271,7 +5272,7 @@ export function hideunder(monster, env = {}) {
         /* can't hide if holding you or held by you */
     } else if (monster.mtrapped || (trap && !is_pit(trap.ttyp))) {
         /* can't hide while trapped or on a non-pit trap */
-    } else {
+    } else if (isEel) {
         // "aquatic creatures only hide under water, not under objects; they
         // don't do so on the Plane of Water or when hero is also under water
         // unless some obstacle blocks line-of-sight". Is_waterlevel(&u.uz) and
@@ -5280,6 +5281,21 @@ export function hideunder(monster, env = {}) {
         undetected = is_pool(x, y, state)
             && !on_level(state.u?.uz, state.water_level)
             && (!state.u?.uinwater || !couldsee(x, y, state));
+    } else {
+        let object = state.level?.objects?.[x]?.[y] ?? null;
+        if (can_hide_under_obj(object, state)
+            && (!monster.mtame || !cursed_object_at(x, y, state))
+            && !is_pool_or_lava(x, y, state)) {
+            // C's hider branch skips cockatrice corpses unless the pile has a
+            // second object the monster can hide beneath.
+            if (!monster_resists_element(monster, STONE_RES, state)) {
+                while (object?.otyp === CORPSE
+                    && touch_petrifies(state.mons?.[object.corpsenm])) {
+                    object = object.nexthere;
+                }
+            }
+            undetected = Boolean(object);
+        }
     }
 
     const oldundetctd = Boolean(monster.mundetected);
@@ -5312,18 +5328,25 @@ export function mon_animal_list(construct, state = game) {
 // C ref: mon.c maybe_unhide_at() (4696-4720), "reveal a hiding monster at x,y,
 // either under nonexistent object, or an eel out of water".
 //
-// The lookup and the early return are ported whole. The one call the guard
-// makes, hideunder(), is only partly: the version above covers the eel arm for
-// a monster the hero cannot see, and js/makemon_create.js holds a
-// level-creation subset that answers for the object-concealing spiders and
-// snakes mklev() places. Neither covers what this guard needs, which is a
-// hider being revealed while the hero watches. The stop is therefore taken on
-// `undetected` alone, one term wider than C's guard, which also wants a
-// hides_under() species with nothing left to hide under or an eel out of
-// water.
-export function maybe_unhide_at(x, y, state = game) {
+// The lookup and guard are ported whole. Its hideunder() call covers the eel
+// and object-concealing monster state paths above; hero concealment remains a
+// refusal. A hidden monster is never visible through canseemon(), so the
+// visible-monster message path in hideunder() remains outside this span.
+export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
     const monster = m_at(x, y, state);
     if (monster) {
+        const trapped = Boolean(monster.mtrapped);
+        const object = state.level?.objects?.[x]?.[y] ?? null;
+        const shouldReevaluate = monster.mundetected
+            && ((hides_under(monster.data)
+                && (!OBJ_AT(x, y, state)
+                    || trapped
+                    || !can_hide_under_obj(object, state)))
+                || (monster.data?.mlet === S_EEL && !is_pool(x, y, state)));
+        if (shouldReevaluate) {
+            hideunder(monster, { ...rawEnv, state });
+            return;
+        }
         if (monster.mundetected) {
             throw new UnsupportedHideError(
                 'maybe_unhide_at() over a hidden monster',

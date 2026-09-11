@@ -153,6 +153,7 @@ import {
     PM_FOG_CLOUD,
     PM_FLOATING_EYE,
     PM_CAVE_SPIDER,
+    PM_WATER_MOCCASIN,
     PM_ETTIN,
     PM_GIANT_RAT,
     PM_GIANT_EEL,
@@ -2134,6 +2135,53 @@ test('m_move ordinary path reports no moves from a sealed square', async () => {
 
     assert.equal(result, MMOVE_NOMOVES);
     assert.deepEqual([monster.mx, monster.my], [4, 4]);
+});
+
+// C ref: monmove.c m_move():2051-2062. A concealed M1_CONCEAL monster leaves
+// an object pile for an empty square; maybe_unhide_at() clears mundetected
+// before postmov() decides whether to spend its rn2(5) re-hide roll.
+test('m_move rechecks concealment before postmov re-hide', async () => {
+    const { locations, state } = makeState();
+    const monster = newMonster({
+        data: state.mons[PM_WATER_MOCCASIN],
+        mnum: PM_WATER_MOCCASIN,
+        mhp: 5,
+        mhpmax: 5,
+        mcansee: true,
+        mcanmove: true,
+        mconf: true,
+        mundetected: 1,
+        mx: 4,
+        my: 4,
+        mux: 10,
+        muy: 10,
+    });
+    state.level.monsters[4][4] = monster;
+    // One legal western destination keeps movement selection deterministic.
+    sealNeighborhood(locations, monster.mx, monster.my);
+    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    // C's can_hide_under_obj() requires a floor object with matching coords;
+    // the destination intentionally has no object.
+    state.level.objects[4][4] = objectFor(state, DAGGER, {
+        where: OBJ_FLOOR,
+        ox: 4,
+        oy: 4,
+    });
+    const calls = [];
+
+    const result = await m_move(monster, {
+        state,
+        random: sequenceRandom([0, 0, 0, 0], calls),
+        finishEating: () => {},
+        movePet: () => { throw new Error('unexpected pet mover'); },
+        resistsTrapEffect: () => false,
+        unsupported: (reason) => assert.fail(reason),
+    });
+
+    assert.equal(result, MMOVE_MOVED);
+    assert.deepEqual(calls, [10, 1, 5]);
+    assert.equal(monster.mundetected, 0);
+    assert.deepEqual([monster.mx, monster.my], [3, 4]);
 });
 
 test('m_move reads unicorn line avoidance from the returned candidate count',
