@@ -25292,7 +25292,7 @@
     {
       "id": "port-wiz-strt-special-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Wizard quest start special-level Lua program and wire its loader",
       "luaFile": "Wiz-strt.lua",
       "sessions": [
@@ -25303,8 +25303,8 @@
       "spans": [
         {
           "name": "Wiz-strt.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "98a4403d38f2b9bc2ba4956f2c813993368ded2b",
           "functions": [
             "Wiz-strt.lua"
           ]
@@ -25316,15 +25316,18 @@
         "screens": 6511,
         "rng": 493295
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "98a4403d38f2b9bc2ba4956f2c813993368ded2b",
+      "delivered": {
+        "screens": 11,
+        "rng": 1876
+      },
       "functions": [
         {
           "name": "Wiz-strt.lua",
           "line": 1,
           "endLine": 107,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -25347,6 +25350,68 @@
           "unlocatedKinds": [],
           "recordedSteps": 833,
           "remainingScreensUpperBound": 460
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Wiz-strt.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizStrt",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Wiz-strt.lua program (lines 1-107), including solidfill initialization, mazelevel/noteleport/hardfloor flags, the 76-by-20 map, both source-ordered terrain replacement passes, all five lighting regions, the down stair, branch arrival terrain and region, eight doors, Neferet's custom cloak and quarterstaff inventory, chest, eight apprentices, three eels, the whole-map non-diggable selection, six random traps, and all fifteen hostile siege monsters. Compared every descriptor with the special-level API handlers in js/mklev.js and selection_area() in js/themerooms.js. Verified that Lua coordinates remain map-relative through the active des frame, that the map rows and backslash map character match the source exactly, and that descriptor, random-trap, monster-gender, and custom-inventory evaluation order is preserved. No unported callee, obsolete guard, injected substitute, or swallowed refusal remains in this program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "mkmaze.c makemaz() resolves the role-specific x-strt prototype to Wiz-strt; the JavaScript registry imports QUEST_LEVEL_LOADERS and merges its Wiz-strt entry before dispatch."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() calls load_special() for the resolved Wiz-strt prototype; the JavaScript makemaz() invokes load_special('Wiz-strt'), which creates the special-level API and runs wizStrt before finish()."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() runs the registered Lua-equivalent program through createSpecialLevelApi() and applies special-level post-processing after the program returns."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/Wiz-strt.lua/wizard-start-level-teleport.session.json"
+            ],
+            "checkedAt": "98a4403d38f2b9bc2ba4956f2c813993368ded2b"
+          }
+        ],
+        "entryPointReview": "The whole Wiz-strt.lua program is one special-level entry point. dungeon.c's level_map and fixup_level_locations() substitute the role-specific Wiz-strt prototype for x-strt; mkmaze.c makemaz() then calls sp_lev.c load_special(), represented by js/mklev.js makemaz(), load_special(), and ensureSpecialLevelLoaders(). The independent wizard-start-level-teleport recording reaches the production dispatch through the wizard level-teleport command and executes the complete level loader, matching the patched C reference for its full RNG log, screens, cursor positions, and animation frames.",
+        "entryPoints": [
+          {
+            "name": "Wiz-strt special-level load",
+            "functions": [
+              "Wiz-strt.lua"
+            ],
+            "recordings": [
+              "recordings/Wiz-strt.lua/wizard-start-level-teleport.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 384,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a special monster action",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 449
         }
       ]
     }
