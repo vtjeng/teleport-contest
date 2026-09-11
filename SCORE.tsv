@@ -910,3 +910,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-11T06:08:37.218Z	3f809ed8	goal	24	33	6379	7765	469591	610816	6417	7765	315	3640	38930	182022	port-juiblex-level closes. Development 6379 of 7765 screens, 469591 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
 2026-09-11T06:30:29.437Z	84969b2b	span	24	33	6382	7765	469591	610816	6420	7765					port-end-done2 closes. Development 6379→6382 of 7765 screens, 469591 of 610816 rng. 24 of 33 sessions.
 2026-09-11T06:34:26.124Z	82378be1	goal	24	33	6382	7765	469591	610816	6420	7765	315	3640	38930	182022	port-end-done2 closes. Development 6382 of 7765 screens, 469591 of 610816 rng. 24 of 33 sessions. Holdout 315/3640 screens, 38930/182022 rng.
+2026-09-11T07:00:00.882Z	dd29aaad	span	24	33	6388	7765	471412	610816	6426	7765					port-baalz-level closes. Development 6382→6388 of 7765 screens, 469591→471412 of 610816 rng. 24 of 33 sessions.

@@ -24127,8 +24127,8 @@
       "spans": [
         {
           "name": "baalz.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "dd29aaad2ea09b82d19f9c7e354c53678f025177",
           "functions": [
             "baalz.lua"
           ]
@@ -24148,7 +24148,7 @@
           "line": 1,
           "endLine": 66,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -24172,7 +24172,54 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 515
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "baalz.lua",
+            "implementation": "js/baalz_levels.js",
+            "symbol": "baalz",
+            "sourceReview": "Read the complete upstream dat/baalz.lua program (lines 1-66). The loader preserves solidfill initialization, mazelevel/corrmaze flags, right alignment and trailing map spaces, both level-relative levregions and the excluded stair-up/branch/teleport area, non-diggable selection, stocked westward mazewalk, fixed stair and locked door, and every fixed and random object, trap, and monster descriptor in source order. All descriptor callees are implemented by js/mklev.js and js/themerooms.js; no unported callee or placeholder remains in this Lua program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The special-level registry dynamically imports baalz_levels.js and spreads BAALZ_LEVEL_LOADERS into SPECIAL_LEVEL_LOADERS, making the Lua program available under the baalz proto name."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() resolves SPECIAL_LEVEL_LOADERS[name], creates the special-level descriptor API, invokes the baalz loader, and runs finish() post-processing."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the baalz special-level proto and calls load_special() during makelevel() when Is_special() selects Baalzebub's level."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/baalz-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/baalz.lua/baalzebub-level-teleport.session.json"
+            ],
+            "checkedAt": "dd29aaad2ea09b82d19f9c7e354c53678f025177"
+          }
+        ],
+        "entryPointReview": "The selected whole Lua program has one entry point: mkmaze.c makemaz() selects the baalz proto, load_special() dispatches the registered loader, and the descriptor API executes the complete dat/baalz.lua program. The Baalzebub wizard-mode teleport recipe reaches this dispatch and records the resulting full level-generation trace.",
+        "entryPoints": [
+          {
+            "name": "baalz special-level loader",
+            "functions": [
+              "baalz.lua"
+            ],
+            "recordings": [
+              "recordings/baalz.lua/baalzebub-level-teleport.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
