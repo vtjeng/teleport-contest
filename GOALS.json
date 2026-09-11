@@ -25057,7 +25057,7 @@
     {
       "id": "port-wizard2-special-level",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete wizard2.lua Yendor tower level and wire its special-level loader",
       "luaFile": "wizard2.lua",
       "sessions": [
@@ -25081,8 +25081,11 @@
         "screens": 6408,
         "rng": 480960
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "377bf1021c843fa068f75a1e7ea2190a6365757f",
+      "delivered": {
+        "screens": 24,
+        "rng": 12317
+      },
       "functions": [
         {
           "name": "wizard2.lua",
@@ -25155,7 +25158,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 368,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires special monster movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 465
+        }
+      ]
     }
   ]
 }
