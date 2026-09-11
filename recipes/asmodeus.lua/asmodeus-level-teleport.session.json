@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 810003,
+      "datetime": "20440909112233",
+      "nethackrc": "OPTIONS=name:AsmoProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0016?\nl"
+    }
+  ],
+  "comment": "Wizard-mode level teleport to Asmodeus, selected from the dungeon menu. The seed and clock were chosen independently for this source entry point; the route exercises both map callbacks and the hell_tweaks post-map randomization."
+}

@@ -1713,6 +1713,7 @@ async function ensureSpecialLevelLoaders() {
     const { VALLEY_LEVEL_LOADERS } = await import('./valley_levels.js');
     const { MEDUSA_LEVEL_LOADERS } = await import('./medusa_levels.js');
     const { SANCTUM_LEVEL_LOADERS } = await import('./sanctum_levels.js');
+    const { ASMODEUS_LEVEL_LOADERS } = await import('./asmodeus_levels.js');
     SPECIAL_LEVEL_LOADERS = {
         ...BIGRM_LOADERS,
         ...QUEST_LEVEL_LOADERS,
@@ -1725,6 +1726,7 @@ async function ensureSpecialLevelLoaders() {
         ...VALLEY_LEVEL_LOADERS,
         ...MEDUSA_LEVEL_LOADERS,
         ...SANCTUM_LEVEL_LOADERS,
+        ...ASMODEUS_LEVEL_LOADERS,
     };
 }
 
