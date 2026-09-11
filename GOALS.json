@@ -24112,6 +24112,58 @@
           "remainingScreensUpperBound": 470
         }
       ]
+    },
+    {
+      "id": "port-baalz-level",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the complete Gehennom Baalzebub special level Lua program and wire its loader",
+      "luaFile": "baalz.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The highest-ranked current mismatch is seed0360-wizard-world-tour at step 318, where makelevel() requests special level baalz and the JavaScript loader has no baalz.lua implementation. The upstream dat/baalz.lua program defines solidfill initialization, mazelevel/corrmaze flags, a right-aligned map with stair, branch, and teleport regions, a non-diggable beetle area, stocked mazewalk, fixed stair and locked door, Baalzebub and random monsters, random-class objects, and fixed/random traps; select the whole Lua program and its loader wiring.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "160b5dc78f42791d05f996a21dc30fa25741c62d",
+      "openStanding": {
+        "sha": "82378be1b1228d2aa4d4a960d420008a88c9e02b",
+        "screens": 6382,
+        "rng": 469591
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "baalz.lua",
+          "line": 1,
+          "endLine": 66,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "82378be1b1228d2aa4d4a960d420008a88c9e02b",
+        "screens": 6382,
+        "rng": 469591
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 318,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "baalz.lua",
+          "cFile": null,
+          "luaFile": "baalz.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"baalz\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 515
+        }
+      ]
     }
   ]
 }
