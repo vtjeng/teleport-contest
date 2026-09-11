@@ -23989,7 +23989,7 @@
     {
       "id": "port-end-done2",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port end.c done2() and wire the #quit extended command",
       "cFile": "end.c",
       "sessions": [
@@ -24013,8 +24013,11 @@
         "screens": 6379,
         "rng": 469591
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "82378be1b1228d2aa4d4a960d420008a88c9e02b",
+      "delivered": {
+        "screens": 3,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "done2",
@@ -24091,7 +24094,24 @@
             ]
           }
         ]
-      }
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1483,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: really_done(13) for killer \"quit\" in format 0",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 470
+        }
+      ]
     }
   ]
 }
