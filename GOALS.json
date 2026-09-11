@@ -25757,7 +25757,7 @@
     {
       "id": "port-trap-magic-portal-monster-arm",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c MAGIC_PORTAL monster activation through level migration",
       "cFile": "trap.c",
       "sessions": [
@@ -25768,8 +25768,8 @@
       "spans": [
         {
           "name": "trapeffect_magic_portal",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c2fa9135c0670911fcf7edd27a43763ae8cf0808",
           "functions": [
             "trapeffect_magic_portal"
           ]
@@ -25781,15 +25781,18 @@
         "screens": 6537,
         "rng": 495796
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c2fa9135c0670911fcf7edd27a43763ae8cf0808",
+      "delivered": {
+        "screens": 96,
+        "rng": 721
+      },
       "functions": [
         {
           "name": "trapeffect_magic_portal",
           "line": 2710,
           "endLine": 2724,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -25816,6 +25819,70 @@
           "unlocatedKinds": [],
           "recordedSteps": 833,
           "remainingScreensUpperBound": 434
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_magic_portal",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_magic_portal",
+            "sourceReview": "Read trap.c:2710-2724 and trap.c:2936-2992. The hero branch calls feeltrap() before the still-unported domagicportal() boundary; the monster branch delegates to trapeffect_level_telep(). The MAGIC_PORTAL selector arm is wired and the obsolete unsupported-effect placeholder is removed. No random draw is added in the selector; portal random behavior belongs to teleport.c mlevel_tele_trap().",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:2967-2968"
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c:3825"
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:1509"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport-monster-traps.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-portal.session.json"
+            ],
+            "checkedAt": "c2fa9135c0670911fcf7edd27a43763ae8cf0808"
+          }
+        ],
+        "entryPointReview": "The selected range has one runtime entry point: a monster moving onto a MAGIC_PORTAL reaches trap.c trapeffect_selector(), trapeffect_magic_portal(), and teleport.c mlevel_tele_trap(). The independent recipe creates this path through postmov() and stops before the hero can enter the portal, leaving domagicportal() behind its existing preflight boundary.",
+        "entryPoints": [
+          {
+            "name": "monster magic portal activation",
+            "functions": [
+              "trapeffect_magic_portal"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-portal.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 495,
+          "kind": "stop",
+          "function": "Gloves_on",
+          "functionDeclared": true,
+          "sourceFile": "do_wear.c",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Gloves_on() for otyp 161",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 338
         }
       ]
     }
