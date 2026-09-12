@@ -29876,7 +29876,7 @@
     {
       "id": "port-mondata-can-track-seed0360",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port can_track and wire Excalibur-aware monster tracking for seed0360",
       "cFile": "mondata.c",
       "sessions": [
@@ -29887,8 +29887,8 @@
       "spans": [
         {
           "name": "can_track",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6b3f23432c165ab8517dd2dd3802f2a6c416ae2b",
           "functions": [
             "can_track"
           ]
@@ -29900,15 +29900,18 @@
         "screens": 7202,
         "rng": 528987
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6b3f23432c165ab8517dd2dd3802f2a6c416ae2b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "can_track",
           "line": 623,
           "endLine": 631,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -29936,7 +29939,54 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 165
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "can_track",
+            "implementation": "js/mondata.js",
+            "symbol": "can_track",
+            "sourceReview": "Read the complete mondata.c can_track() definition at lines 623-628. The JavaScript checks the hero's state.uwep artifact index against ART_EXCALIBUR, matching obj.h u_wield_art(ART_EXCALIBUR) and is_art(uwep, art), then returns haseyes(species) in source order. The function makes no random-number call, output, or state mutation and has no unported callee.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c m_move() calls can_track(ptr) at lines 1880-1885 while selecting a remembered track square; the JavaScript receives state from the production dochug() path. The running chain is allmain.js moveElapsedTurnMonster -> mon.js movemon_singlemon -> unported_monster_actions.js runSimpleMonsterAction -> monmove.js dochug() -> m_move()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "6b3f23432c165ab8517dd2dd3802f2a6c416ae2b"
+          }
+        ],
+        "entryPointReview": "can_track() is a helper-only source range with no standalone command, monster action, level feature, or startup entry point. Its production caller is monmove.c m_move(), reached through the monster-turn chain listed above; the source-pinned test covers both the Excalibur override and the haseyes() fallback.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 668,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 165
+        }
+      ],
+      "closeStanding": {
+        "sha": "6b3f23432c165ab8517dd2dd3802f2a6c416ae2b",
+        "screens": 7202,
+        "rng": 528987
+      }
     }
   ]
 }
