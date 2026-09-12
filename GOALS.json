@@ -28770,7 +28770,7 @@
     {
       "id": "div-do-wear-boots-on-fumble",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Fix do_wear.c Boots_on() FUMBLE_BOOTS branch and preserve source timeout behavior",
       "cFile": "do_wear.c",
       "sessions": [
@@ -28778,14 +28778,49 @@
       ],
       "selectionReason": "After closing pickup.c and refreshing the development queue, the highest-ranked candidate is seed0014 step 470 Boots_on() in do_wear.c, with at most 244 remaining screens. A completed read-only source trace identified the exact FUMBLE_BOOTS C branch, the rnd(20) call, and the JavaScript W_ARMF caller; select this bounded divergence fix before lower-ranked mismatches.",
       "detail": "Development session seed0014-dequa-fountain-explore stops at input step 470 while wearing object type 171 (FUMBLE_BOOTS). The patched C path reaches do_wear.c Boots_on() case FUMBLE_BOOTS at line 231, where oldprop is false and HFumbling has no active timeout, then calls incr_itimeout(&HFumbling, rnd(20)) before the common known and inventory update tail; the recorded C draw is rnd(20)=14 at Boots_on(do_wear.c:233). JavaScript do_wear.js accessory_or_armor_on() dispatches W_ARMF to Boots_on(), but both the W_ARMF guard and Boots_on() reject type 171 with UnsupportedWearError. Implement the general C branch using existing incr_itimeout, FUMBLING, TIMEOUT, and rnd dependencies, retain Boots_on() common tail, and leave Boots_off and other boot classes out of scope.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "Boots_on",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Boots_on"
+          ]
+        }
+      ],
+      "openedAt": "098398e8efb39d91f001e2099a61326a2c6fac29",
+      "openStanding": {
+        "sha": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f",
+        "screens": 6996,
+        "rng": 509709
+      },
       "closedAt": null,
       "delivered": null,
       "function": "Boots_on",
       "session": "seed0014-dequa-fountain-explore",
-      "step": 470
+      "step": 470,
+      "activeStanding": {
+        "sha": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f",
+        "screens": 6996,
+        "rng": 509709
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 470,
+          "kind": "stop",
+          "function": "Boots_on",
+          "functionDeclared": true,
+          "sourceFile": "do_wear.c",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Boots_on() for otyp 171",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 244
+        }
+      ]
     }
   ]
 }
