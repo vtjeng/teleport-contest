@@ -27787,7 +27787,7 @@
     {
       "id": "port-sounds-domonnoise-seduce",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port sounds.c domonnoise() ordinary MS_SEDUCE response and timing",
       "cFile": "sounds.c",
       "sessions": [
@@ -27796,8 +27796,12 @@
       "selectionReason": "The refreshed development queue ranks seed0014-dequa-fountain-explore first at step 455, where #chat targets a water nymph and JS refuses the ordinary monster branch. Source tracing identifies sounds.c domonnoise() case MS_SEDUCE (approximately lines 1105-1128) as the owner: with default SYSOPT_SEDUCE=1, a female Dequa water nymph bypasses seduction, sets pline_msg to cajoles you, then follows the common Monnam response and ECMD_TIME tail. The production path cmd.c chat -> JS doextcmd()/runChatCommand() -> dotalk() -> dochat() -> domonnoise() is already wired. Select only domonnoise() and preserve the source branch/timing; the dog’s later miss is downstream and out of scope.",
       "detail": "",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "68b1335971cc6ab2a16c5395da7ce191e7684bb8",
+      "openStanding": {
+        "sha": "0babdb2eddd6e316333a5aedc9ce6a322f5c031f",
+        "screens": 6981,
+        "rng": 509322
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -27812,7 +27816,29 @@
       "range": {
         "from": 679,
         "to": 1247
-      }
+      },
+      "activeStanding": {
+        "sha": "0babdb2eddd6e316333a5aedc9ce6a322f5c031f",
+        "screens": 6981,
+        "rng": 509322
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 455,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 259
+        }
+      ]
     }
   ]
 }
