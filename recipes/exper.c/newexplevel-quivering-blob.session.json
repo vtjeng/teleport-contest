@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640217,
+      "datetime": "20470918114600",
+      "nethackrc": "OPTIONS=name:ExperKillProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": "#levelchange\n2\n#wizgenesis\nquivering blob\nFuFuFuFuFuFu "
+    }
+  ],
+  "comment": "Exercises exper.c newexplevel() and pluslvl(TRUE) through mon.c xkilled(): raise the debug Wizard to level 2 with the wizard command, create a source-listed quivering blob, and strike the stationary adjacent monster until it is killed. The seed, clock, character, and input sequence were chosen independently for this production caller path."
+}
