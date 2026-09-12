@@ -16,7 +16,9 @@ import {
     DEAF,
     DOOR,
     DUST,
+    HWALL,
     LA_UP,
+    STONE,
     STAIRS,
     WOUNDED_LEGS,
 } from '../js/const.js';
@@ -25,6 +27,7 @@ import { commandKeyCode } from '../js/command_bindings.js';
 import { dist2 } from '../js/hacklib.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { rhack } from '../js/cmd.js';
+import { kickstr } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
@@ -119,8 +122,8 @@ test('the matrix holds replay inputs only', () => {
     // changed case.
     assert.deepEqual(
         recipe.segments.map(({ seed }) => seed),
-        [6600001, 6600001, 6600007, 6600006, 6600001, 6600001, 6600001,
-         6600057, 6600170],
+        [6600001, 6600001, 6600007, 6600006, 6600100, 6600001, 6600001,
+         6600001, 6600057, 6600170],
     );
 });
 
@@ -250,7 +253,6 @@ test('an unported target stops the command before it draws or prints',
     // The door case that was here is now ported (kick_door failure branch).
     const cases = [
         [MONK(), `${KICK}k`, /monster arm/u],
-        [VALKYRIE(), `${KICK}k`, /wall and upward-stairs arm/u],
         [OBJECT_PILE(), `${KICK}y`, /object-pile arm/u],
     ];
     for (const [segment, moves, reason] of cases) {
@@ -264,6 +266,49 @@ test('an unported target stops the command before it draws or prints',
         // followed it.
         assert.match(kick.toplines, /^In what direction\?/u);
     }
+});
+
+test('kicking a wall hurts and spends the turn', async () => {
+    // dokick.c:1242-1249 dispatches a wall to kick_ouch(), whose calls at
+    // :886-903 print, exercise both attributes, and then roll and apply the
+    // physical injury in this order.
+    assert.equal(lineOf(DOKICK_C, 1248), 'kick_ouch(x, y, "");');
+    assert.equal(lineOf(DOKICK_C, 886),
+        'pline("Ouch!  That hurts!");');
+    assert.equal(lineOf(DOKICK_C, 887), 'exercise(A_DEX, FALSE);');
+    assert.equal(lineOf(DOKICK_C, 888), 'exercise(A_STR, FALSE);');
+    assert.equal(lineOf(DOKICK_C, 898), 'wake_nearto(x, y, 5 * 5);');
+    assert.equal(lineOf(DOKICK_C, 900), 'if (!rn2(3))');
+    assert.equal(lineOf(DOKICK_C, 902),
+        'dmg = rnd(ACURR(A_CON) > 15 ? 3 : 5);');
+    assert.equal(lineOf(DOKICK_C, 903),
+        'losehp(Maybe_Half_Phys(dmg), kickstr(buf, kickobjnam), KILLED_BY);');
+
+    // Seed 6600001 places a Valkyrie beside a stone wall to the north. The
+    // two exercise calls draw rn2(2), then kick_ouch() draws rn2(3) and rnd(3)
+    // for a Constitution value above 15. The expected tail records those
+    // source calls before monster movement begins.
+    const base = await replay(VALKYRIE(), '');
+    const kicked = await replay(VALKYRIE(), `${KICK}k`);
+    assert.equal(kicked.boundary, null);
+    assert.equal(kicked.toplines, 'Ouch!  That hurts!');
+    assert.equal(kicked.turns, base.turns + 1);
+    assert.equal(game.u.uhp, 15);
+    assert.deepEqual(kicked.rngLog.slice(base.draws, base.draws + 4), [
+        'rn2(2)=0', 'rn2(2)=0', 'rn2(3)=1', 'rnd(3)=2',
+    ]);
+});
+
+test('kickstr describes the C terrain choices', () => {
+    // dokick.c:798-830 is pure: it only selects the killer noun and writes the
+    // fixed "kicking " prefix. Pin the explicit object, the wall branch, the
+    // arboreal STONE branch, and the nowhere fallback from that source order.
+    assert.equal(kickstr({ typ: STONE }, 'a boulder'), 'kicking a boulder');
+    assert.equal(kickstr({ typ: HWALL }), 'kicking a wall');
+    assert.equal(kickstr({ typ: STONE }, '', {
+        level: { flags: { arboreal: true } },
+    }), 'kicking a tree');
+    assert.equal(kickstr(null, ''), 'kicking nothing');
 });
 
 test('sixteen points of Dexterity are enough to skip the rn2(3)',
@@ -291,7 +336,7 @@ test('a strained muscle refuses the next kick', async () => {
     assert.equal(second.turns, first.turns);
 });
 
-test('kicking the staircase the hero stepped off refuses', async () => {
+test('kicking the staircase the hero stepped off hurts', async () => {
     // dokick.c:1242-1249. The hero starts on the up staircase, so one step
     // west and a kick east is the shortest way to reach that arm. LA_UP is
     // what sends it to kick_ouch() instead of kick_dumb().
@@ -302,9 +347,9 @@ test('kicking the staircase the hero stepped off refuses', async () => {
     assert.equal(start.ladder, LA_UP);
 
     const kicked = await replay(MONK(), `h${KICK}l`);
-    assert.ok(kicked.boundary, 'the staircase kick was refused');
-    assert.match(kicked.boundary.message, /wall and upward-stairs arm/u);
-    assert.match(kicked.toplines, /^In what direction\?/u);
+    assert.equal(kicked.boundary, null);
+    assert.equal(kicked.toplines, 'Ouch!  That hurts!');
+    assert.equal(kicked.turns, base.turns + 2);
 });
 
 test('a kicked square is remembered, and every later command forgets it',

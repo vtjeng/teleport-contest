@@ -5,12 +5,13 @@
 // reference output in an isolated temporary workspace.
 //
 // The command is dokick.c dokick(), which cmd.c rhack() reaches from '^D' and
-// doextcmd() reaches from '#kick'. Two arms of it are ported: kick_nondoor()'s
-// final else at :1251, which calls kick_dumb() (:863-878) on the empty floor
-// beside the hero; and kick_door()'s non-trapped success branch (:940-950),
-// which shatters (D_NODOOR) or crashes open (D_BROKEN) a closed or locked door.
-// Both of kick_dumb()'s arms are here, and so are both of dokick()'s
-// no-direction exits.
+// doextcmd() reaches from '#kick'. Three arms of it are ported:
+// kick_nondoor()'s final else at :1251, which calls kick_dumb() (:863-878) on
+// the empty floor beside the hero; kick_nondoor()'s wall and upward-stairs arm
+// at :1248, which calls kick_ouch() (:881-906); and kick_door()'s non-trapped
+// success branch (:940-950), which shatters (D_NODOOR) or crashes open
+// (D_BROKEN) a closed or locked door. Both of kick_dumb()'s arms are here, and
+// so are both of dokick()'s no-direction exits.
 //
 // kick_dumb()'s test at :867 is `martial() || ACURR(A_DEX) >= 16 || rn2(3)`,
 // three terms whose short circuits decide whether the rn2(3) is drawn at all.
@@ -32,12 +33,13 @@
 //
 // Seeds were chosen by generating D:1 with the port and reading the squares
 // around the hero, not by copying any recorded session. Scanning upward from
-// 6600001, these are the first seeds that offer what each case needs: a
-// neighbouring square of plain room floor with no monster and no object on it,
-// and, for `highDex` and `strain`, the Dexterity or the draw the case is named
-// for. The scan also rejects a seed whose search reaches an unported branch of
-// monster movement, which is why `strain` is 6600006 rather than 6600005: on
-// 6600005 a monster steps onto a trap on the turn after the kick.
+// 6600001, these are the first seeds that offer what each case needs: an
+// adjacent target with no monster or object, and, for `highDex` and `strain`,
+// the Dexterity or the draw the case is named for. The scan also rejects a
+// seed whose search reaches an unported branch of monster movement, which is
+// why `strain` is 6600006 rather than 6600005: on 6600005 a monster steps onto
+// a trap on the turn after the kick. The wall case is the first matching seed
+// in the independent 6600100-6600300 scan.
 
 import { A_DEX, D_BROKEN, D_NODOOR, DOOR, WOUNDED_LEGS } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -101,10 +103,10 @@ export function kickSegment({ seed, character, moves }) {
     };
 }
 
-// Each case names the direction that seed leaves as plain floor and the
-// wounded-leg state the kick has to end in, so a re-recording that moved the
-// hero into a different room fails the differential instead of quietly
-// kicking a wall.
+// Each case names the direction and terrain that seed leaves beside the hero,
+// together with the wounded-leg state the kick has to end in, so a
+// re-recording that moved the hero into a different room fails the
+// differential instead of quietly taking another arm.
 export const KICK_CASES = Object.freeze([
     {
         label: 'martial',
@@ -133,6 +135,16 @@ export const KICK_CASES = Object.freeze([
         character: VALKYRIE_CHARACTER,
         moves: `${KICK}h${SEARCH}`,
         strained: true,
+    },
+    {
+        // Seed 6600100: the square north of the Valkyrie is an unoccupied
+        // horizontal wall, so the kick reaches kick_nondoor()'s kick_ouch()
+        // arm without a monster or object stopping it first.
+        label: 'wall',
+        seed: 6600100,
+        character: VALKYRIE_CHARACTER,
+        moves: `${KICK}k${SEARCH}`,
+        strained: false,
     },
     {
         label: 'extendedPrompt',

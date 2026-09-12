@@ -1,4 +1,4 @@
-// C ref: src/dokick.c. Four of its functions are ported: dokick() (1257-1470),
+// C ref: src/dokick.c. Six of its functions are ported: dokick() (1257-1470),
 // the #kick command; kick_door() (908-970), the door arm of dokick()'s final
 // pair; kick_nondoor() (974-1253), the terrain chain dokick() ends on; and
 // kick_dumb() (863-878), the one arm of that chain the earlier goal reached.
@@ -14,10 +14,9 @@
 // shop/town follow-ups are refused.
 //
 // kickdmg(), maybe_kick_monster(), kick_monster(), kick_object(),
-// really_kick_object(), kickstr(), watchman_thief_arrest(),
-// watchman_door_damage(), kick_ouch(), otransit_msg() and drop_to() keep
-// dokick.c company in C and have no ported caller; the arm that would reach
-// each one names it in its refusal.
+// really_kick_object(), watchman_thief_arrest(), watchman_door_damage(),
+// otransit_msg() and drop_to() keep dokick.c company in C and have no ported
+// caller; the arm that would reach each one names it in its refusal.
 
 import { acurrstr, exercise, acurr } from './attrib.js';
 import { getdir } from './cmd.js';
@@ -33,7 +32,10 @@ import {
     DEAF,
     ECMD_CANCEL,
     ECMD_TIME,
+    HALF_PHDAM,
     IRONBARS,
+    IS_DRAWBRIDGE,
+    IS_OBSTRUCTED,
     IS_ALTAR,
     IS_DOOR,
     IS_FOUNTAIN,
@@ -44,6 +46,7 @@ import {
     IS_TREE,
     Is_airlevel,
     Is_waterlevel,
+    KILLED_BY,
     LA_DOWN,
     LADDER,
     LAVAWALL,
@@ -63,9 +66,9 @@ import { feel_location, feel_newsym, unmap_invisible } from './display.js';
 import { set_wounded_legs } from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
-import { in_town, near_capacity } from './hack.js';
+import { in_town, losehp, near_capacity } from './hack.js';
 import { is_giant, nolimbs, slithy, verysmall } from './mondata.js';
-import { wake_nearby } from './mon.js';
+import { wake_nearby, wake_nearto } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_SASQUATCH, S_LIZARD } from './monsters.js';
 import { sobj_at } from './obj.js';
@@ -75,6 +78,8 @@ import { rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { is_pool } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { is_drawbridge_wall } from './startup_a11y.js';
+import { note_unported } from './unported.js';
 import { recalc_block_point } from './vision.js';
 import { martial_bonus } from './weapon.js';
 
@@ -181,6 +186,93 @@ async function kick_dumb(x, y, state) {
     }
 }
 
+// C ref: hack.h Maybe_Half_Phys(), used by dokick.c kick_ouch() at :903.
+// Half physical damage has no blocking term: either intrinsic or extrinsic
+// Half_physical_damage halves the odd damage with C integer arithmetic.
+function Maybe_Half_Phys(dmg, state) {
+    const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
+    return (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
+        ? Math.trunc((dmg + 1) / 2) : dmg;
+}
+
+// C ref: dokick.c kickstr() (794-830). The killer string is selected from the
+// object name when one exists; otherwise it describes the square saved by
+// dokick(). `maploc === null` is the JavaScript representation of C's
+// gn.nowhere square for an off-map kick.
+export function kickstr(maploc, kickobjnam, state = game) {
+    let what;
+
+    if (kickobjnam) {
+        what = kickobjnam;
+    } else if (!maploc) {
+        what = 'nothing';
+    } else if (IS_DOOR(maploc.typ)) {
+        what = 'a door';
+    } else if (IS_TREE(maploc.typ, state)) {
+        what = 'a tree';
+    } else if (IS_STWALL(maploc.typ)) {
+        what = 'a wall';
+    } else if (IS_OBSTRUCTED(maploc.typ)) {
+        what = 'a rock';
+    } else if (IS_THRONE(maploc.typ)) {
+        what = 'a throne';
+    } else if (IS_FOUNTAIN(maploc.typ)) {
+        what = 'a fountain';
+    } else if (IS_GRAVE(maploc.typ)) {
+        what = 'a headstone';
+    } else if (IS_SINK(maploc.typ)) {
+        what = 'a sink';
+    } else if (IS_ALTAR(maploc.typ)) {
+        what = 'an altar';
+    } else if (IS_DRAWBRIDGE(maploc.typ)) {
+        what = 'a drawbridge';
+    } else if (maploc.typ === STAIRS) {
+        what = 'the stairs';
+    } else if (maploc.typ === LADDER) {
+        what = 'a ladder';
+    } else if (maploc.typ === IRONBARS) {
+        what = 'an iron bar';
+    } else {
+        what = 'something weird';
+    }
+    return `kicking ${what}`;
+}
+
+// C ref: dokick.c kick_ouch() (881-906). This helper is shared by the wall
+// and upward-stairs arm of kick_nondoor(), and by future terrain arms as they
+// become reachable. The drawbridge lookup and floating recoil stay gaps until
+// dbridge.c and the movement owner port those functions.
+async function kick_ouch(x, y, kickobjnam, state) {
+    const u = state.u;
+    const maploc = isok(x, y) ? state.level.at(x, y) : null;
+
+    await ttyPline('Ouch!  That hurts!', state);
+    await exercise(A_DEX, false, state, { rn2 });
+    await exercise(A_STR, false, state, { rn2 },
+                   { encumberMessage: encumber_msg });
+    if (isok(x, y)) {
+        if (Blind(state)) feel_location(x, y, state);
+        if (is_drawbridge_wall(x, y, state)) {
+            await ttyPline('The drawbridge is unaffected.', state);
+            // C discards find_drawbridge()'s return value, but its coordinate
+            // arguments update gm.maploc. Record the unported mutation rather
+            // than inventing a map update for this out-of-scope branch.
+            note_unported('dbridge.c find_drawbridge');
+        }
+        await wake_nearto(x, y, 5 * 5, { state });
+    }
+    if (!rn2(3))
+        await set_wounded_legs(RIGHT_SIDE, 5 + rnd(5), state);
+    const dmg = rnd(acurr(state, A_CON) > 15 ? 3 : 5);
+    await losehp(Maybe_Half_Phys(dmg, state), kickstr(maploc, kickobjnam,
+        state), KILLED_BY, state);
+    if (Is_airlevel(u.uz) || Levitation(state)) {
+        throw new UnsupportedKickError(
+            "kick_ouch()'s floating recoil, which needs hurtle()",
+        );
+    }
+}
+
 // C ref: dokick.c kick_door() (908-970). Kick a door. The failure branch
 // (959-969) is fully implemented: the hero fails to break the door, hears
 // "Whammm!!" or "Thwack!!", and gains Strength exercise. The non-trapped
@@ -201,7 +293,8 @@ async function kick_door(x, y, avrg_attrib, state) {
     }
 
     // 921-924. Not enough leverage to kick open doors while levitating.
-    // kick_ouch() is unported; refuse.
+    // kick_ouch() still reaches its unported floating recoil; refuse before
+    // changing state because this guard is the Levitation-specific arm.
     if (Levitation(state)) {
         throw new UnsupportedKickError(
             "kick_door()'s Levitation guard, which needs kick_ouch()",
@@ -345,9 +438,8 @@ async function kick_nondoor(x, y, state) {
         );
     }
     if (maploc.typ === IRONBARS) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s iron-bars arm, which needs kick_ouch()",
-        );
+        await kick_ouch(x, y, '', state);
+        return ECMD_TIME;
     }
     // 1135. An arboreal level makes STONE a tree, and this test precedes the
     // IS_STWALL() one below that would otherwise claim the same square.
@@ -371,10 +463,8 @@ async function kick_nondoor(x, y, state) {
             await kick_dumb(x, y, state);
             return ECMD_TIME;
         }
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s wall and upward-stairs arm, which needs "
-            + 'kick_ouch()',
-        );
+        await kick_ouch(x, y, '', state);
+        return ECMD_TIME;
     }
     await kick_dumb(x, y, state);
     return ECMD_TIME;

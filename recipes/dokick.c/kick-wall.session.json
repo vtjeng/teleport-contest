@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6600100,
+      "datetime": "20240517131415",
+      "nethackrc": "OPTIONS=name:WallKick,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": "\u0004k",
+      "comment": "Reaches dokick.c kick_nondoor()'s ordinary wall arm and exercises kick_ouch()'s injury path."
+    }
+  ]
+}
