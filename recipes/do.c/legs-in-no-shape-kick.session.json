@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6600200,
+      "datetime": "20240617131415",
+      "nethackrc": "OPTIONS=name:LegGuard,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": "\u0004h\u0004 ",
+      "comment": "Reaches dokick.c dokick()'s wounded-legs guard after kick_dumb() strains the right leg, then dismisses its --More-- window."
+    }
+  ]
+}

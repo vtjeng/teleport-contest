@@ -3,7 +3,7 @@
 // C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dropx(),
 // dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), doup(),
 // goto_level(), u_collide_m(), temperature_change_msg() and
-// set_wounded_legs(); dokick.c obj_delivery(); mon.c
+// legs_in_no_shape(), set_wounded_legs(); dokick.c obj_delivery(); mon.c
 // kill_genocided_monsters(); questpgr.c deliver_splev_message().
 
 import {
@@ -34,6 +34,7 @@ import {
     In_tutorial,
     LADDER,
     LEG,
+    LEFT_SIDE,
     LEVITATION,
     LFILE_EXISTS,
     LOST_DROPPED,
@@ -61,6 +62,7 @@ import {
     Upolyd,
     VIBRATING_SQUARE,
     VISITED,
+    RIGHT_SIDE,
     WOUNDED_LEGS,
     W_ACCESSORY,
     W_ARMOR,
@@ -1845,6 +1847,36 @@ async function temperature_change_msg(prev_temperature, state = game) {
     } else if (prev_temperature < 0) {
         await ttyPline('You are out of the cold.', state);
     }
+}
+
+// C ref: do.c legs_in_no_shape() (2408-2423). This is shared feedback for
+// jumping, kicking and riding. The mounted branch names the steed; the hero
+// branch masks EWounded_legs to the two side bits before selecting the body
+// part, plural form and matching verb.
+export async function legs_in_no_shape(
+    forWhat,
+    bySteed,
+    state = game,
+) {
+    if (bySteed && state.u.usteed) {
+        await ttyPline(
+            `${Monnam(state.u.usteed, state)} is in no shape for ${forWhat}.`,
+            state,
+        );
+        return;
+    }
+
+    const wounded = state.u.uprops[WOUNDED_LEGS];
+    const wl = (wounded.extrinsic ?? 0) & BOTH_SIDES;
+    let bp = body_part(LEG, state.youmonst);
+    if (wl === BOTH_SIDES) bp = makeplural(bp);
+    const side = wl === LEFT_SIDE
+        ? 'left ' : wl === RIGHT_SIDE ? 'right ' : '';
+    const verb = wl === BOTH_SIDES ? 'are' : 'is';
+    await ttyPline(
+        `Your ${side}${bp} ${verb} in no shape for ${forWhat}.`,
+        state,
+    );
 }
 
 // C ref: do.c set_wounded_legs() (2425-2446). youprop.h:136-138 splits the

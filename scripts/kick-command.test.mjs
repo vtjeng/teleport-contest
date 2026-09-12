@@ -6,6 +6,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    BOTH_SIDES,
     BLINDED,
     D_BROKEN,
     D_CLOSED,
@@ -18,6 +19,8 @@ import {
     DUST,
     HWALL,
     LA_UP,
+    LEFT_SIDE,
+    RIGHT_SIDE,
     STONE,
     STAIRS,
     WOUNDED_LEGS,
@@ -27,10 +30,14 @@ import { commandKeyCode } from '../js/command_bindings.js';
 import { dist2 } from '../js/hacklib.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { rhack } from '../js/cmd.js';
+import { legs_in_no_shape } from '../js/do.js';
 import { kickstr } from '../js/dokick.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { newMonster } from '../js/monst.js';
+import { PM_LICHEN } from '../js/monsters.js';
 import {
     KICK,
     KICK_CASES,
@@ -49,6 +56,7 @@ function cSource(file) {
 }
 // split('\n') is zero-based and C line numbers are one-based.
 const DOKICK_C = cSource('src/dokick.c');
+const DO_C = cSource('src/do.c');
 const CMD_C = cSource('src/cmd.c');
 const HACK_C = cSource('src/hack.c');
 const MON_C = cSource('src/mon.c');
@@ -311,6 +319,58 @@ test('kickstr describes the C terrain choices', () => {
     assert.equal(kickstr(null, ''), 'kicking nothing');
 });
 
+test('legs_in_no_shape preserves do.c side and steed wording', async () => {
+    // do.c:2408-2423. These source lines pin the helper's complete branch,
+    // including its by_steed test, EWounded_legs mask, pluralizer and nested
+    // side selection. The helper itself has no random calls.
+    assert.equal(lineOf(DO_C, 2408),
+        'legs_in_no_shape(const char *for_what, /* jumping, kicking, riding */');
+    assert.equal(lineOf(DO_C, 2409), 'boolean by_steed)');
+    assert.equal(lineOf(DO_C, 2411), 'if (by_steed && u.usteed) {');
+    assert.equal(lineOf(DO_C, 2412),
+        'pline("%s is in no shape for %s.", Monnam(u.usteed), for_what);');
+    assert.equal(lineOf(DO_C, 2414),
+        'long wl = (EWounded_legs & BOTH_SIDES);');
+    assert.equal(lineOf(DO_C, 2417), 'if (wl == BOTH_SIDES)');
+    assert.equal(lineOf(DO_C, 2418), 'bp = makeplural(bp);');
+    assert.equal(lineOf(DO_C, 2420),
+        '(wl == LEFT_SIDE) ? "left " : (wl == RIGHT_SIDE) ? "right " : "",');
+    assert.equal(lineOf(DO_C, 2421),
+        'bp, (wl == BOTH_SIDES) ? "are" : "is", for_what);');
+
+    // Seed 6600001 is a normal human Monk start, so body_part(LEG) is the
+    // ordinary "leg" and each side value exercises one C formatting arm.
+    await runSegment({ ...MONK(), moves: '' });
+    const wounded = game.u.uprops[WOUNDED_LEGS];
+    for (const [side, expected] of [
+        [0, 'Your leg is in no shape for kicking.'],
+        [LEFT_SIDE, 'Your left leg is in no shape for kicking.'],
+        [RIGHT_SIDE, 'Your right leg is in no shape for kicking.'],
+        [BOTH_SIDES, 'Your legs are in no shape for kicking.'],
+    ]) {
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        // The timeout makes Wounded_legs meaningful even for side 0, while
+        // extrinsic is the exact EWounded_legs value the helper masks.
+        wounded.intrinsic = 5;
+        wounded.extrinsic = side;
+        await legs_in_no_shape('kicking', false, game);
+        assert.equal(game._ttyToplines, expected, `side ${side}`);
+    }
+
+    // A lichen-shaped test steed gives Monnam() a complete monster record and
+    // checks the helper's by_steed branch without wiring apply.c or steed.c.
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    game.u.usteed = newMonster({
+        data: game.mons[PM_LICHEN],
+        mnum: PM_LICHEN,
+    });
+    await legs_in_no_shape('riding', true, game);
+    assert.equal(game._ttyToplines, 'The lichen is in no shape for riding.');
+    game.u.usteed = null;
+});
+
 test('sixteen points of Dexterity are enough to skip the rn2(3)',
     async () => {
     // :867's second term. The Valkyrie of seed 6600007 rolled exactly 16,
@@ -321,18 +381,29 @@ test('sixteen points of Dexterity are enough to skip the rn2(3)',
     assert.doesNotMatch(highDex.draws[1], /^rn2\(3\)=/u);
 });
 
-test('a strained muscle refuses the next kick', async () => {
-    // dokick.c:1279, the Wounded_legs guard, reached from the state the strain
-    // arm left behind. This is the only guard a replay can reach without
-    // polymorphing the hero or loading her down.
+test('a strained muscle reports the next kick as impossible', async () => {
+    // dokick.c:1279-1281, the Wounded_legs guard, reached from the state the
+    // strain arm left behind. This is the only guard a replay can reach
+    // without polymorphing the hero or loading her down.
+    assert.equal(lineOf(DOKICK_C, 1279), '} else if (Wounded_legs) {');
+    assert.equal(lineOf(DOKICK_C, 1280),
+        'legs_in_no_shape("kicking", FALSE);');
+    assert.equal(lineOf(DOKICK_C, 1281), 'no_kick = TRUE;');
+    assert.equal(lineOf(DOKICK_C, 1314),
+        'display_nhwindow(WIN_MESSAGE, TRUE); /* --More-- */');
+    assert.equal(lineOf(DOKICK_C, 1315), 'return ECMD_FAIL;');
     const first = await replay(segmentFor('strain'), `${KICK}h`);
     assert.equal(first.toplines, 'Dumb move!  You strain a muscle.');
-    const second = await replay(segmentFor('strain'), `${KICK}h${KICK}`);
-    assert.ok(second.boundary, 'the second kick was refused');
-    assert.match(second.boundary.message, /wounded-legs guard/u);
-    // The guard runs above getdir(), so the second '^D' prints no prompt of
-    // its own and the strain line is still the last thing written.
-    assert.equal(second.toplines, 'Dumb move!  You strain a muscle.');
+    // The final space dismisses the guard's source-owned WIN_MESSAGE More
+    // window after the extra kick byte has demonstrated that invalid keys do
+    // not dismiss it. The guard itself consumes no RNG and no turn.
+    const second = await replay(
+        segmentFor('strain'), `${KICK}h${KICK} `,
+    );
+    assert.equal(second.boundary, null);
+    assert.equal(second.toplines,
+        'Your right leg is in no shape for kicking.');
+    assert.equal(second.draws, first.draws);
     assert.equal(second.turns, first.turns);
 });
 

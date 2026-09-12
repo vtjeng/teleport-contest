@@ -31,6 +31,7 @@ import {
     D_TRAPPED,
     DEAF,
     ECMD_CANCEL,
+    ECMD_FAIL,
     ECMD_TIME,
     HALF_PHDAM,
     IRONBARS,
@@ -63,7 +64,10 @@ import {
     isok,
 } from './const.js';
 import { feel_location, feel_newsym, unmap_invisible } from './display.js';
-import { set_wounded_legs } from './do.js';
+import {
+    legs_in_no_shape,
+    set_wounded_legs,
+} from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { in_town, losehp, near_capacity } from './hack.js';
@@ -77,7 +81,10 @@ import { encumber_msg } from './pickup.js';
 import { rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { is_pool } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import { is_drawbridge_wall } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { recalc_block_point } from './vision.js';
@@ -471,8 +478,8 @@ async function kick_nondoor(x, y, state) {
 }
 
 // C ref: dokick.c dokick() (1257-1470), the #kick command. Its return value is
-// rhack()'s: ECMD_CANCEL when the direction prompt answers nothing, ECMD_TIME
-// once the kick lands.
+// rhack()'s: ECMD_CANCEL when the direction prompt answers nothing, ECMD_FAIL
+// for a guard refusal, and ECMD_TIME once the kick lands.
 export async function dokick(state = game) {
     const u = state.u;
     const species = state.youmonst?.data;
@@ -480,8 +487,8 @@ export async function dokick(state = game) {
     // 1265-1316. Nine guards, each of which prints its own refusal, sets
     // no_kick and leaves through one shared `display_nhwindow(WIN_MESSAGE,
     // TRUE)` --More-- and ECMD_FAIL. C evaluates them as one else-if chain, so
-    // a later condition is read only when every earlier one was false; these
-    // sequential throws reproduce that order.
+    // a later condition is read only when every earlier one was false; the
+    // remaining unported guards keep the source order through refusals.
     if (nolimbs(species) || slithy(species)) {
         throw new UnsupportedKickError(
             "dokick()'s no-legs guard, which needs its --More-- flush",
@@ -498,9 +505,9 @@ export async function dokick(state = game) {
         );
     }
     if (Wounded_legs(state)) {
-        throw new UnsupportedKickError(
-            "dokick()'s wounded-legs guard, which needs legs_in_no_shape()",
-        );
+        await legs_in_no_shape('kicking', false, state);
+        await displayPendingTtyMessageWindow(state);
+        return ECMD_FAIL;
     }
     if (near_capacity(state) > SLT_ENCUMBER) {
         throw new UnsupportedKickError(
