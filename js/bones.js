@@ -41,6 +41,7 @@ import {
 import { y_n } from './cmd.js';
 import { dmonsfree, makemon, mongone } from './makemon_create.js';
 import {
+    is_unicorn,
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
@@ -67,7 +68,7 @@ import {
     PM_GHOST,
     SPECIAL_PM,
 } from './monsters.js';
-import { propagate } from './makemon.js';
+import { peace_minded, propagate, set_malign } from './makemon.js';
 import { rn2 } from './rng.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
 import { roles, races, genders, aligns } from './roles.js';
@@ -743,6 +744,25 @@ function purgeDefunctBonesMonsters(state) {
     dmonsfree(state);
 }
 
+// C ref: restore.c getlev() (1199-1210).  A bones level is loaded for a new
+// character, so every non-shopkeeper monster's attitude must be recomputed
+// against that character before the restored level begins play.  In
+// particular, a peaceful monster from the dead character's game can become
+// hostile to the new character.  Keep this before purgeDefunctBonesMonsters
+// to preserve C's random-call order for monsters rejected by propagate().
+export function resetGhostlyMonsterAttitudes(state) {
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (!mtmp.isshk) {
+            mtmp.mpeaceful = (is_unicorn(mtmp.data)
+                && Math.sign(state.u.ualign.type)
+                    === Math.sign(mtmp.data.maligntyp))
+                ? 1
+                : peace_minded(mtmp.data, { state });
+        }
+        set_malign(mtmp, state);
+    }
+}
+
 // C ref: bones.c getbones() (630-756). Reads a bones file from VFS storage,
 // restores the level, and deletes the bones file. The caller (mklev.js)
 // handles the preliminary eligibility checks (discover, flags.bones, rn2(3),
@@ -768,6 +788,10 @@ export function getbones(state = game) {
     // identities and inline inventories were assigned by restmonchn-shaped
     // reconstruction above; this covers the floor and buried chains.
     reassignBonesIds(state);
+
+    // C ref: restore.c getlev() resets peaceful/malign relative to the new
+    // character while walking the restored monster chain.
+    resetGhostlyMonsterAttitudes(state);
 
     // Process defunct monsters and surviving inventories for the restore path.
     purgeDefunctBonesMonsters(state);
