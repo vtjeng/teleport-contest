@@ -29567,7 +29567,7 @@
     {
       "id": "fix-pager-quest-staircase-description",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix pager quest-start blocked staircase wording in do_screen_description()",
       "cFile": "pager.c",
       "sessions": [],
@@ -29576,8 +29576,8 @@
       "spans": [
         {
           "name": "quest_staircase_wording",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ab9d4bd5b7a62a935d66b7346419c930c639a666",
           "functions": [
             "do_screen_description"
           ]
@@ -29589,8 +29589,11 @@
         "screens": 7170,
         "rng": 524609
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ab9d4bd5b7a62a935d66b7346419c930c639a666",
+      "delivered": {
+        "screens": 5,
+        "rng": 0
+      },
       "function": "do_screen_description",
       "session": "seed0360-wizard-world-tour",
       "step": 626,
@@ -29615,7 +29618,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 207
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "ab9d4bd5b7a62a935d66b7346419c930c639a666",
+        "screens": 7175,
+        "rng": 524609
+      }
     }
   ]
 }

@@ -988,3 +988,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-09-12T08:14:10.306Z	ae898ac9	goal	24	33	7097	7765	520392	610816	7130	7765	328	3640	39048	182022	Development 7097 of 7765 screens, 520392 of 610816 rng. 24 of 33 sessions. Holdout 328/3640 screens, 39048/182022 rng.
 2026-09-12T08:51:16.325Z	ebf44284	span	24	33	7170	7765	524609	610816	7204	7765					Development 7097→7170 of 7765 screens, 520392→524609 of 610816 rng. 24 of 33 sessions.
 2026-09-12T08:52:19.667Z	ebf44284	goal	24	33	7170	7765	524609	610816	7204	7765	328	3640	39048	182022	Development 7170 of 7765 screens, 524609 of 610816 rng. 24 of 33 sessions. Holdout 328/3640 screens, 39048/182022 rng.
+2026-09-12T09:18:32.985Z	ab9d4bd5	divergence	24	33	7175	7765	524609	610816	7204	7765					fix-pager-quest-staircase-description closes. Development 7170→7175 of 7765 screens, 524609 of 610816 rng. 24 of 33 sessions.
