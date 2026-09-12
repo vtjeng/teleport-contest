@@ -40,6 +40,7 @@ import { m_at } from '../js/monst.js';
 import { mksobj } from '../js/obj.js';
 import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
+import { normalizeSession } from '../frozen/session_loader.mjs';
 import { stairway_add, stairway_at } from '../js/stairs.js';
 import { S_darkroom, S_room } from '../js/symbols.js';
 import { UnsupportedSteedError } from '../js/steed.js';
@@ -57,6 +58,10 @@ const C_SOURCE = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
 const JS_SOURCE = readFileSync('js/do.js', 'utf8');
 
 const REFUSAL = "You can't go down here.";
+
+const FALLING_SESSION =
+    'sessions/seed0014-dequa-fountain-explore.session.json';
+const FALLING_STEP = 481; // The recorded '>' step that first reaches the fall.
 
 // gt.toplines, which pline.c writes whether or not the row has been repainted.
 function toplines(state) {
@@ -912,4 +917,42 @@ test('goto_level stops for a punished hero', async () => {
         dodown(state),
         (error) => /punished hero/u.test(error.message),
     );
+});
+
+test('goto_level falls down burdened stairs before the arrival tail',
+    async () => {
+    // The development witness reaches do.c:1780 with a burden above
+    // UNENCUMBERED. Replay through its step 481, whose key is '>', so the
+    // production command path executes the falling arm without a new recipe.
+    const recorded = normalizeSession(
+        JSON.parse(readFileSync(FALLING_SESSION, 'utf8')),
+    );
+    const segment = recorded.segments[0];
+    const moves = segment.steps
+        .slice(0, FALLING_STEP + 1)
+        .map(({ key }) => key ?? '')
+        .join('');
+    let boundary = null;
+    const replay = await runSegment(
+        { ...segment, moves },
+        { onBoundary: (error) => { boundary = error; } },
+    );
+
+    assert.equal(boundary, null,
+        'the on-foot falling branch reaches the arrival boundary');
+    assert.equal(game.u.uz.dlevel, 3,
+        'goto_level() changes level before the next input boundary');
+    assert.equal(game.u.uhp, 29,
+        'rnd(3)=2 applies two points of stair-fall damage');
+    assert.equal(game._ttyToplines, 'You fall down the stairs.');
+    const fallSlice = replay.getRngSlices().at(-1);
+    const fallDraw = fallSlice.findLastIndex((value) => value.startsWith('rnd(3)='));
+    assert.ok(fallDraw >= 0, 'the falling damage uses rnd(3)');
+    assert.match(
+        fallSlice[fallDraw + 1],
+        /^rn2\(10\)=/u,
+        'the drawless selftouch() call precedes mon_arrive() randomness',
+    );
+    assert.ok(game.unported?.has('trap.c selftouch'),
+        'the discarded selftouch() result is recorded as a gap');
 });

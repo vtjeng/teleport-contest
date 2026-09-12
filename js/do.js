@@ -27,11 +27,13 @@ import {
     GETOBJ_PROMPT,
     G_GENOD,
     HAND,
+    HALF_PHDAM,
     IS_ALTAR,
     IS_SINK,
     In_endgame,
     In_quest,
     In_tutorial,
+    KILLED_BY,
     LADDER,
     LEG,
     LEFT_SIDE,
@@ -118,6 +120,7 @@ import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
+    losehp,
     near_capacity,
     notice_all_mons,
     notice_mon_off,
@@ -177,7 +180,7 @@ import { ok_to_quest, onquest } from './quest.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
-import { cloneIsaacContext, createCoreRandom, rn2 } from './rng.js';
+import { cloneIsaacContext, createCoreRandom, rn2, rnd } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot } from './shk.js';
@@ -202,6 +205,7 @@ import {
 } from './trap.js';
 import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import { cansee, canseemon, vision_recalc, vision_reset } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
@@ -1257,12 +1261,14 @@ export async function doup(state = game) {
 // same-level return at 1583, the tether at 1594, the context discard at
 // 1601-1622, keepdogs() at 1624, vision_recalc(2) at 1631, the level teardown
 // at 1634-1664, the level-identity update at 1665-1690, mklev() at 1699, the
-// hero placement and transit message at 1766-1800, the deliveries at
+// hero placement and transit message at 1766-1800, including the on-foot fall
+// damage and self-touch at 1780-1797, the deliveries at
 // 1812-1825, the repaint at 1835-1839, the arrival messages at 1843-1965 and
 // the arrival tail at 1967-1993.
 //
-// Not covered, each named at its site: the endgame, tutorial, portal, falling,
-// punished, Gehennom, Knox, Mines, Sokoban and Rogue-level arms. The getlev()
+// Not covered, each named at its site: the endgame, tutorial, portal, trap-door
+// falling, punished, mounted falling, Gehennom, Knox, Mines, Sokoban and
+// Rogue-level arms. The getlev()
 // reload at 1704-1711 and the ascending-at-stairs placement and message at
 // 1747-1764 are now ported. Common Quest-entrance, shop-entry, object pickup,
 // and dwarf earth-sense arrival effects are included below.
@@ -1573,14 +1579,34 @@ export async function goto_level(
             );
         } else if (near_capacity(state) > UNENCUMBERED
                    || Punished(state) || heroPropertyActive(u, FUMBLING)) {
-            // do.c:1783-1795, the fall. It calls rnd(3) through losehp() and
-            // drag_down()/ballrelease() for a punished hero. Ordinary pickup
-            // can now make the burdened arm reachable, but the complete
-            // stair-fall behavior remains excluded; the punished arm is
-            // already refused at do.c:1616 above.
-            throw new UnsupportedLevelChangeError(
-                'goto_level() falling down the stairs',
+            // do.c:1783-1797. The punished arm is refused at do.c:1616, and
+            // the mounted fall has separate dismount behavior that remains
+            // fail-closed here. The selected witness is on foot, so C's
+            // source-ordered message, damage, and self-touch run below.
+            if (u.usteed) {
+                throw new UnsupportedLevelChangeError(
+                    'goto_level() falling down the stairs with a steed',
+                );
+            }
+            await ttyPline(
+                `You fall down the ${state.ga?.at_ladder ? 'ladder' : 'stairs'}.`,
+                state,
             );
+            const damage = heroPropertyActive(u, HALF_PHDAM)
+                ? Math.trunc((rnd(3) + 1) / 2)
+                : rnd(3);
+            await losehp(
+                damage,
+                state.ga?.at_ladder
+                    ? 'falling off a ladder'
+                    : 'tumbling down a flight of stairs',
+                KILLED_BY,
+                state,
+            );
+            // trap.c selftouch() returns no value and remains outside this
+            // span; preserving the discarded-result call keeps the arrival
+            // tail source-ordered without inventing petrification behavior.
+            note_unported('trap.c selftouch');
         } else if (state.flags?.verbose) { /* ordinary descent */
             await ttyPline(
                 state.ga?.at_ladder
