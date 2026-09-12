@@ -46,7 +46,11 @@ scans, or browser checks. The access rules in `AGENTS.md` for
 - Other agents may keep editing or committing during checkpoint. Its result
   remains attached to the tested commit; advancing HEAD does not make it fail.
   Wait for an existing run of the intended commit rather than launching a
-  duplicate.
+  duplicate. When the current loop step will require a checkpoint at HEAD,
+  defer unrelated commits that change checkpoint inputs until the owner hands
+  off that result. `scripts/checkpoint-reuse.mjs` excludes only its named
+  bookkeeping files; any other intervening commit requires another exact-HEAD
+  checkpoint even when it changes no game behavior.
 - Use the tested commit's shared summary and its `artifacts` directory. Its
   development figures replace a separate score-development run for that
   commit. The summary records which commit the results apply to (`commit`)
