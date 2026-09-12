@@ -1092,6 +1092,11 @@ async function moveSimpleOrdinary(monster, env) {
             set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
+        // monmove.c m_move():1953 rejects the square the hero most recently
+        // kicked before it filters occupants and tracking. The ordinary
+        // adapter must provide the same predicate that the pet adapter uses.
+        avoidKicked: (subject, x, y) =>
+            m_avoid_kicked_loc(subject, x, y, env.state),
         resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
         // every item a monster considers, and that function can blast the

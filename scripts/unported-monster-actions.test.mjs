@@ -124,7 +124,7 @@ import {
     ROCK,
     WAX_CANDLE,
 } from '../js/objects.js';
-import { m_move } from '../js/monmove.js';
+import { m_avoid_kicked_loc, m_move } from '../js/monmove.js';
 import {
     hideunder,
     minliquid,
@@ -1764,6 +1764,49 @@ test('simple movement admits every IS_ROOM square', async () => {
         );
     }
 });
+
+// C ref: monmove.c m_move():1953 and m_avoid_kicked_loc():1295-1308. The
+// ordinary movement adapter must pass the kicked-location predicate through
+// to candidate filtering, so a peaceful monster does not enter the kicked
+// square when it is the only legal destination.
+test('ordinary movement avoids the square the hero most recently kicked',
+    async () => {
+        const target = await prepareSelectedAction();
+        target.monster.mpeaceful = true;
+        // Keep the selected destination one square from the hero while the
+        // monster still remembers a farther target, so mfndpos() offers it as
+        // an ordinary movement candidate rather than an ALLOW_U attack.
+        game.u.ux = game.u.ux0 = target.destinationX + 1;
+        target.monster.mux = target.destinationX + 2;
+        target.monster.muy = target.heroY;
+        game.gk = {
+            kickedloc: {
+                x: target.destinationX,
+                y: target.heroY,
+            },
+        };
+        assert.equal(
+            m_avoid_kicked_loc(
+                target.monster,
+                target.destinationX,
+                target.heroY,
+                game,
+            ),
+            true,
+        );
+
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            [target.monster.mx, target.monster.my],
+            [target.monsterX, target.heroY],
+        );
+
+        await runSimpleMonsterAction(target.monster, { state: game });
+        assert.deepEqual(
+            [target.monster.mx, target.monster.my],
+            [target.monsterX, target.heroY],
+        );
+    });
 
 // C ref: mon.c mfndpos() :2166-2168 and minliquid_core() :967-972. A flyer or
 // floater can move over pool and lava tiles. mfndpos() computes poolok from
