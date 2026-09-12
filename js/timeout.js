@@ -12,10 +12,22 @@ import {
     BLINDED,
     CONFUSION,
     CONTAINED_TOO,
+    DB_ICE,
+    DB_UNDER,
+    DEAF,
+    DRAWBRIDGE_UP,
     FIG_TRANSFORM,
+    FOOT,
     FULL_MOON,
+    FLYING,
+    FROMOUTSIDE,
+    FUMBLING,
     HATCH_EGG,
     HALLUC,
+    HALLUC_RES,
+    ICE,
+    isok,
+    LEVITATION,
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -42,6 +54,7 @@ import {
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
     UNCHANGING,
+    WT_NOISY_INV,
     WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from './const.js';
@@ -50,16 +63,18 @@ import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs, wipeoff } from './do.js';
+import { makeplural } from './fruit.js';
 import { carrying } from './invent.js';
 import { game } from './gstate.js';
-import { You_can_move_again, nomul } from './hack.js';
+import { inv_weight, You_can_move_again, nomul } from './hack.js';
 import {
     candle_light_range,
     get_obj_location,
     new_light_source,
 } from './light.js';
 import { is_rider, is_were, zombie_form } from './mondata.js';
-import { rehumanize } from './polyself.js';
+import { body_part, rehumanize } from './polyself.js';
+import { wake_nearby } from './mon.js';
 import { note_unported } from './unported.js';
 import {
     PM_DEATH,
@@ -355,10 +370,88 @@ function unportedDueTimerReason(state, env) {
     return null;
 }
 
+function heroPropertyActive(state, propertyIndex) {
+    const property = state.u?.uprops?.[propertyIndex];
+    return Boolean(property?.intrinsic || property?.extrinsic)
+        && !property?.blocked;
+}
+
+// C ref: dbridge.c is_ice(). Keep its drawbridge-under-ice arm beside the
+// timeout preflight so an expiring Fumbling property is admitted only when the
+// plain on-foot branch of slip_or_trip() is certain to run.
+function heroIsOnIce(state) {
+    const u = state.u ?? {};
+    const location = isok(u.ux, u.uy)
+        ? state.level?.at?.(u.ux, u.uy)
+        : null;
+    return location?.typ === ICE
+        || (location?.typ === DRAWBRIDGE_UP
+            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
+}
+
+// timeout.c::slip_or_trip() has several source-heavy branches. This span only
+// admits the branch whose message is the four-way plain on-foot switch; object,
+// ice, mounted, and deferred-decoration paths remain fail closed.
+function plainOnFootFumbleAdmitted(state) {
+    const u = state.u ?? {};
+    const fumbling = u.uprops?.[FUMBLING];
+    return Boolean(u.umoved)
+        && !u.usteed
+        && !heroPropertyActive(state, LEVITATION)
+        && !heroPropertyActive(state, FLYING)
+        && !((fumbling?.intrinsic ?? 0) & FROMOUTSIDE)
+        && !heroIsOnIce(state)
+        && !state.level?.objects?.[u.ux]?.[u.uy]
+        && !state.iflags?.defer_decor;
+}
+
+function hallucinating(state) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(hallucination?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+function deaf(state) {
+    const deafness = state.u?.uprops?.[DEAF];
+    return Boolean(
+        deafness?.intrinsic || deafness?.extrinsic
+        || state.u?.uroleplay?.deaf,
+    );
+}
+
+// C ref: timeout.c slip_or_trip() (1300-1317), the plain on-foot arm. The
+// random choice precedes its message, as in C's switch (rn2(4)).
+async function slipOrTripPlainOnFoot(state, random, message) {
+    switch (random.rn2(4)) {
+    case 1:
+        await message(
+            `You trip over your own ${hallucinating(state)
+                ? 'elbow'
+                : makeplural(body_part(FOOT, state.youmonst))}.`,
+            state,
+        );
+        break;
+    case 2:
+        await message(
+            `You slip ${hallucinating(state) ? 'on a banana peel' : 'and nearly fall'}.`,
+            state,
+        );
+        break;
+    case 3:
+        await message('You flounder.', state);
+        break;
+    default:
+        await message('You stumble.', state);
+        break;
+    }
+}
+
 // C ref: timeout.c nh_timeout() and timer.c run_timers(), specialized to the
 // source-inert timeout state admitted by the current repeated-command
 // boundary. Validate those invariants rather than silently skipping a newly
-// reachable timeout branch.
+// reachable timeout branch. FUMBLING expiry is admitted only for the
+// source-backed plain on-foot path below.
 //
 // `env` carries the newsym() seam the due timers will draw through, so a turn
 // whose timer cannot fire refuses before the turn starts rather than partway
@@ -403,6 +496,8 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         // HALLUC's timeout expiry still needs make_hallucinated(), but its
         // ordinary decrement is source-inert while more than one turn remains.
         if (index === HALLUC && timeout > 1) continue;
+        if (index === FUMBLING
+            && (timeout > 1 || plainOnFootFumbleAdmitted(state))) continue;
         // timeout.c:784's SLEEPY case has no effect while its timeout remains
         // above one, regardless of whether the source is a worn amulet or an
         // intrinsic flag.  At expiry, the source-bearing and extrinsic cases
@@ -484,8 +579,8 @@ async function sleep_dialogue(state, env = {}) {
 // nonzero and runs the switch on each one that reaches zero. An invulnerable
 // hero never arrives, because the caller returns first exactly as
 // timeout.c:621 does; every other hero has been through the preflight. The
-// admitted rows here are WOUNDED_LEGS, source-inert SLEEPY, and the
-// non-expiring CONFUSION/HALLUC countdowns.
+// admitted rows here are WOUNDED_LEGS, the plain on-foot FUMBLING arm,
+// source-inert SLEEPY, and the non-expiring CONFUSION/HALLUC countdowns.
 //
 // C reads find_delayed_killer() at 672 before switching, but only its STONED,
 // SLIMED and SICK cases use the result and none of the three is admitted here.
@@ -494,6 +589,32 @@ async function decrement_property_timeouts(state, env) {
         const property = state.u.uprops[index];
         if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) === 0) continue;
         if ((--property.intrinsic & TIMEOUT) !== 0) continue;
+        if (index === FUMBLING) {
+            const random = env.random ?? { rn2, rnd };
+            const message = env.message ?? ttyPline;
+            await slipOrTripPlainOnFoot(state, random, message);
+            nomul(-2, state);
+            state.multi_reason = 'fumbling';
+            state.nomovemsg = '';
+            // timeout.c:914-917. The inventory calculation uses the current
+            // capacity, then noise wakes nearby monsters even for a deaf hero.
+            if (inv_weight(state) > -WT_NOISY_INV) {
+                if (!deaf(state)) await message('You make a lot of noise!', state);
+                await wake_nearby(false, {
+                    ...env,
+                    state,
+                    random,
+                    message,
+                });
+            }
+            // from outside means slippery ice; this branch has already proved
+            // that no FROMOUTSIDE source can be active.
+            property.intrinsic &= ~FROMOUTSIDE;
+            if (property.intrinsic || property.extrinsic)
+                property.intrinsic = (property.intrinsic & ~TIMEOUT)
+                    | (random.rnd(20) & TIMEOUT);
+            continue;
+        }
         if (index === SLEEPY) {
             // C's case SLEEPY (timeout.c:784-793) sees Sleepy as false here
             // when the property had only the worn amulet's timeout bit. The
@@ -523,6 +644,7 @@ function Unchanging(state) {
 // cloned state first and that pass has to stay silent.
 export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     preflight_nh_timeout_elapsed_turn(state, env);
+    const random = env.random ?? { rn2, rnd };
     adjust_timeout_luck(state);
     /* "things past this point could kill you" -- timeout.c:621-622, below the
        basal-luck block and above every branch nh_timeout() has left. */
@@ -542,7 +664,7 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
             await rehumanize(state);
     }
     if (state.u.ucreamed) --state.u.ucreamed;
-    await decrement_property_timeouts(state, env);
+    await decrement_property_timeouts(state, { ...env, random });
     /* timeout.c:947, nh_timeout()'s last statement. */
     await run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });
 }

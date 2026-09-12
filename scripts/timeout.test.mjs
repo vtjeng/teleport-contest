@@ -7,8 +7,11 @@ import {
     BURN_OBJECT,
     CONFUSION,
     FIG_TRANSFORM,
+    FLYING,
     FROMOUTSIDE,
+    FUMBLING,
     HATCH_EGG,
+    ICE,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -25,6 +28,7 @@ import {
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
+    LEVITATION,
     UNCHANGING,
     WOUNDED_LEGS,
     ZOMBIFY_MON,
@@ -40,7 +44,9 @@ import {
     PM_LICHEN,
     PM_LIZARD,
     PM_TROLL,
+    M1_HUMANOID,
     monst_globals_init,
+    S_HUMAN,
 } from '../js/monsters.js';
 import { GameMap } from '../js/game.js';
 import { newObject, place_object } from '../js/obj.js';
@@ -80,6 +86,36 @@ function timerState(moves = 10) {
     return state;
 }
 
+function plainFumblingState() {
+    const state = timerState(10);
+    state.level = new GameMap();
+    state.flags = { acoustics: true };
+    state.iflags = { defer_decor: false };
+    state.context = { run: 0, travel: 0 };
+    state.u = {
+        ux: 10,
+        uy: 10,
+        uz: { dnum: 0, dlevel: 1 },
+        ulevel: 1,
+        umoved: true,
+        usteed: null,
+        uinwater: false,
+        uinvulnerable: false,
+        uprops: [],
+        acurr: { a: [10, 10, 10, 10, 10, 10] },
+        abon: [0, 0, 0, 0, 0, 0],
+        atemp: [0, 0, 0, 0, 0, 0],
+    };
+    state.u.uprops[FUMBLING] = { intrinsic: 1, extrinsic: 1 };
+    state.youmonst = {
+        data: { mflags1: M1_HUMANOID, mlet: S_HUMAN },
+    };
+    // Keep inv_weight() above C's -500 noise threshold (capacity is 550 here).
+    state.invent = { owt: 100, nobj: null };
+    state.multi = 0;
+    return state;
+}
+
 function monsterTimerState(moves = 1) {
     const state = timerState(moves);
     monst_globals_init(state);
@@ -92,6 +128,76 @@ function queue(state) {
         result.push(timer);
     return result;
 }
+
+test('plain on-foot fumbling expiry keeps C ordering and random draws',
+    async () => {
+        const state = plainFumblingState();
+        const messages = [];
+        const draws = [];
+        const random = {
+            rn2(bound) {
+                draws.push(['rn2', bound]);
+                return 1; // timeout.c slip_or_trip() case 1: trip over feet
+            },
+            rnd(bound) {
+                draws.push(['rnd', bound]);
+                return 7; // timeout.c incr_itimeout(&HFumbling, rnd(20))
+            },
+        };
+
+        await nh_timeout_elapsed_turn(state, {
+            random,
+            message: async (text) => messages.push(text),
+        });
+
+        assert.deepEqual(messages, [
+            'You trip over your own feet.',
+            'You make a lot of noise!',
+        ]);
+        assert.deepEqual(draws, [['rn2', 4], ['rnd', 20]]);
+        assert.equal(state.multi, -2);
+        assert.equal(state.multi_reason, 'fumbling');
+        assert.equal(state.nomovemsg, '');
+        assert.equal(state.u.uprops[FUMBLING].intrinsic, 7);
+        assert.equal(state.u.uprops[FUMBLING].extrinsic, 1);
+    });
+
+test('unsupported fumbling expiry branches remain fail closed', async () => {
+    const cases = [
+        ['without a move', (state) => { state.u.umoved = false; }],
+        ['while mounted', (state) => { state.u.usteed = {}; }],
+        ['while levitating', (state) => {
+            state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0 };
+        }],
+        ['while flying', (state) => {
+            state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0 };
+        }],
+        ['from outside', (state) => {
+            state.u.uprops[FUMBLING].intrinsic = FROMOUTSIDE | 1;
+        }],
+        ['on ice', (state) => {
+            state.level.at(state.u.ux, state.u.uy).typ = ICE;
+        }],
+        ['over an object', (state) => {
+            state.level.objects[state.u.ux][state.u.uy] = { nobj: null };
+        }],
+        ['with deferred decoration', (state) => {
+            state.iflags.defer_decor = true;
+        }],
+    ];
+
+    for (const [label, mutate] of cases) {
+        const state = plainFumblingState();
+        mutate(state);
+        await assert.rejects(
+            nh_timeout_elapsed_turn(state),
+            /no active property timeout at index 25/u,
+            label,
+        );
+        assert.equal(state.u.uprops[FUMBLING].intrinsic & 0x00ffffff, 1);
+        assert.equal(state.multi, 0);
+    }
+});
 
 test('timeout globals reset source-owned fields without replacing owners', () => {
     const state = timerState();

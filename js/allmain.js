@@ -809,6 +809,7 @@ export async function finishElapsedTurn(
     // function, so the segment ends on its last matching screen instead of
     // being discarded whole.
     await nh_timeout_elapsed_turn(state, {
+        random,
         message: turnMessage,
         statusRefresh: turnStatusRefresh,
         // dig.c rot_corpse() redraws the square it cleared. The dry run works
