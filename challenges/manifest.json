@@ -5,7 +5,9 @@
       "id": "scout",
       "title": "Inventory and escape",
       "outcome": "Missed the descent mission; inspected inventory and escaped through the D:1 upstairs.",
-      "sourcePointers": [],
+      "sourcePointers": [
+        "do.c doup: ledger-1 escape confirmation (C lines 1330–1335). At 64224b4b, JS doup refuses before boundary 12 on <; C asks whether to leave the dungeon."
+      ],
       "playmode": "ordinary",
       "gameTurns": null,
       "mission": "Explore D:1, use inventory, find stairs and attempt a return journey",
