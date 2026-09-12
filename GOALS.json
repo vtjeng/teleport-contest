@@ -29748,6 +29748,61 @@
         "screens": 7198,
         "rng": 528987
       }
+    },
+    {
+      "id": "div-getpos-invalid-direction-seed0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Handle invalid direction keys in getpos during travel target selection",
+      "cFile": "getpos.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The refreshed queue still ranks seed0360-wizard-world-tour first at step 661 with at most 172 remaining screens. Source tracing identifies getpos.c getpos() invalid-direction handling as the owner, before downstream pathfinding; select this bounded divergence fix.",
+      "detail": "The development session seed0360-wizard-world-tour first mismatches at step 661 input ^D (0x04), with no RNG and unchanged cursor [22,20,1]; C prints Unknown direction: ^D (use h, j, k, l or .), while JS emits no matching diagnostic. C cmd.c dotravel() lines 5299-5343 calls getpos(&cc, TRUE, ...) at 5333-5338 and only then updates travelcc/u.tx/u.ty and calls dotravel_target(). JS js/cmd.js dotravel() lines 2584-2617 calls getpos at 2605-2609; readchar_poskey() marks getpos input at 711-716. hack.c findtravelpath() and js/hack.js are downstream and uninvolved. Scope getpos.c getpos() invalid-key diagnostic/handling and its JS owner js/getpos.js; preserve successful target selection and production caller contracts. Steps 665-667 repeat the same invalid-key branch for ^T, 4, and 7.",
+      "spans": [
+        {
+          "name": "invalid_direction_diagnostic",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "getpos"
+          ]
+        }
+      ],
+      "openedAt": "6422e61e7dcb6deb0aa2b9a43856718c0d53bb0e",
+      "openStanding": {
+        "sha": "6422e61e7dcb6deb0aa2b9a43856718c0d53bb0e",
+        "screens": 7198,
+        "rng": 528987
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "getpos",
+      "session": "seed0360-wizard-world-tour",
+      "step": 661,
+      "activeStanding": {
+        "sha": "6422e61e7dcb6deb0aa2b9a43856718c0d53bb0e",
+        "screens": 7198,
+        "rng": 528987
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 661,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 172
+        }
+      ]
     }
   ]
 }
