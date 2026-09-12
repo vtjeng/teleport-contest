@@ -29628,7 +29628,7 @@
     {
       "id": "fix-mon-explodes-killer-name",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix mon_explodes killer naming to use the true monster species",
       "cFile": "explode.c",
       "sessions": [],
@@ -29637,8 +29637,8 @@
       "spans": [
         {
           "name": "killer_species_name",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c9964dbed4d29cab694593a2a02669c42dc2aa94",
           "functions": [
             "mon_explodes"
           ]
@@ -29650,8 +29650,11 @@
         "screens": 7177,
         "rng": 524609
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c9964dbed4d29cab694593a2a02669c42dc2aa94",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mon_explodes",
       "session": "seed0030-ten-diverse-deaths",
       "step": 1746,
@@ -29676,7 +29679,12 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 133
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c9964dbed4d29cab694593a2a02669c42dc2aa94",
+        "screens": 7177,
+        "rng": 524609
+      }
     }
   ]
 }
