@@ -85,6 +85,14 @@ async function is_pure(talk, ops) {
         }
     }
 
+    return is_pure_without_talk(state);
+}
+
+// C ref: quest.c is_pure(FALSE). The pager's description routine is
+// synchronous, so keep this no-prompt branch available to its quest gate.
+function is_pure_without_talk(state) {
+    const u = state.u;
+    const originalAlignment = u.ualignbase[A_ORIGINAL];
     return u.ualign.record >= MIN_QUEST_ALIGN
         && u.ualign.type === originalAlignment
         && u.ualignbase[A_CURRENT] === originalAlignment
@@ -95,10 +103,10 @@ async function is_pure(talk, ops) {
 // C ref: quest.c ok_to_quest() (139-144). External hook for do.c level
 // change check: the hero may descend past the quest start level when the
 // leader gave the quest and the hero is pure, or the leader is dead.
-export async function ok_to_quest(state = game) {
+export function ok_to_quest(state = game) {
     const qs = state.svq.quest_status;
     return ((qs.got_quest || qs.got_thanks)
-            && (await is_pure(false, { state })) > 0)
+            && is_pure_without_talk(state) > 0)
         || qs.killed_leader;
 }
 

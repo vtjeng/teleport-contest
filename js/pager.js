@@ -64,6 +64,7 @@ import { HELP_TEXT_FILES } from './help_data.js';
 import { display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
+import { ok_to_quest } from './quest.js';
 import {
     an,
     distant_name,
@@ -116,6 +117,7 @@ import { t_at, trapname } from './trap.js';
 import { couldsee } from './vision.js';
 import { getlin, select_menu } from './windows.js';
 import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
+import { on_level } from './dungeon.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -669,7 +671,16 @@ export function do_screen_description(cc, looked, sym, state = game) {
         out = `${visibleGlyphCharacter(glyphinfo)}        can be many things`;
 
     if (found > 1) {
-        const detail = lookatOrdinaryTerrain(cc.x, cc.y, glyph, state);
+        let detail = lookatOrdinaryTerrain(cc.x, cc.y, glyph, state);
+        // C ref: pager.c do_screen_description() (1595-1606). A downstairs
+        // staircase on the quest start level remains blocked until the quest
+        // leader has granted access, and the rewritten detail appears in both
+        // firstmatch and the parenthesized whatis output.
+        if (detail === 'staircase down'
+            && on_level(state.u?.uz, state.qstart_level)
+            && !ok_to_quest(state)) {
+            detail = 'blocked staircase down';
+        }
         firstmatch = detail;
         out += ` (${detail})`;
         found = 1;

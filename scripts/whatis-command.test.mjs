@@ -61,6 +61,7 @@ import {
     S_cloud,
     S_corr,
     S_darkroom,
+    S_dnstair,
     S_ndoor,
     S_room,
     initialize_symbols_from_options,
@@ -210,7 +211,7 @@ test('direct glance dispatches the quick cursor lookup without a turn',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
-function terrainDescription(cmap, flags = 0) {
+function terrainDescriptionState(cmap, flags = 0) {
     // The separate hero coordinate keeps pager.c lookat() on its ordinary
     // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.
     const state = {
@@ -227,6 +228,11 @@ function terrainDescription(cmap, flags = 0) {
     state.level.at = (x, y) => (x === 3 && y === 4
         ? { flags, disp_glyph: { glyph: cmap_to_glyph(cmap, state) } }
         : undefined);
+    return state;
+}
+
+function terrainDescription(cmap, flags = 0) {
+    const state = terrainDescriptionState(cmap, flags);
     return do_screen_description({ x: 3, y: 4 }, true, 0, state);
 }
 
@@ -237,6 +243,27 @@ test('branch stairs retain the symbol ambiguity and specific terrain', () => {
         found: 1,
         out: '<        a staircase up or a branch staircase up (branch staircase up)',
         firstmatch: 'branch staircase up',
+    });
+});
+
+test('quest-start downstairs is described as blocked before the quest', () => {
+    // pager.c do_screen_description() rewrites lookat()'s "staircase down"
+    // when the hero remains on qstart_level and quest.c ok_to_quest() is false.
+    const state = terrainDescriptionState(S_dnstair);
+    state.u.uz = { dnum: 0, dlevel: 2 };
+    state.qstart_level = { dnum: 0, dlevel: 2 };
+    state.svq = { quest_status: {
+        got_quest: false,
+        got_thanks: false,
+        killed_leader: false,
+    } };
+    state.level.at = (x, y) => (x === 3 && y === 4
+        ? { disp_glyph: { glyph: cmap_to_glyph(S_dnstair, state) } }
+        : undefined);
+    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+        found: 1,
+        out: '>        a staircase down or a branch staircase down (blocked staircase down)',
+        firstmatch: 'blocked staircase down',
     });
 });
 
