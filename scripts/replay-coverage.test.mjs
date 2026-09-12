@@ -19,7 +19,7 @@ const argsFor = (session) => ['--sha', SYNTACTIC_SHA, '--session', session,
 test('unsafe references are rejected before any repository or session read', () => {
     // These are rejected strings, not fixture paths. Nothing creates or opens
     // a restricted directory. The nonexistent repo makes read order observable.
-    for (const session of ['sessions/holdout/private.session.json',
+    for (const session of ['sessions/holdout/nested/game.session.json',
         'sessions/nested/game.session.json', 'sessions/../game.session.json',
         '/sessions/game.session.json', 'recordings/../game.session.json',
         'recordings/a\\game.session.json']) {
@@ -34,6 +34,9 @@ test('unsafe references are rejected before any repository or session read', () 
         '--target', 'js/../elsewhere.js:target']), /invalid target/u);
     assert.throws(() => parseReplayCoverageArgs([...argsFor('sessions/game.session.json'),
         '--target', 'js/terminal.js:target']), /scorer-supplied/u);
+    // Opening permits diagnostics on a direct holdout file; nesting stays invalid.
+    assert.equal(parseReplayCoverageArgs(argsFor('sessions/holdout/example.session.json')).session,
+        'sessions/holdout/example.session.json');
     assert.equal(parseReplayCoverageArgs(argsFor('recordings/rooms.c/entry.session.json')).session,
         'recordings/rooms.c/entry.session.json');
 });

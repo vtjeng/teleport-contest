@@ -119,7 +119,8 @@ and that caller, test, and recording references exist. These checks do not
 prove the written assertions: the orchestrator verifies complete behavior,
 runtime reachability, and that the cited recordings execute the claimed
 functions. References are regular files within this worktree; absolute paths,
-traversal, symlinks, and holdout references are rejected. Evidence is stored
+traversal, symlinks, and holdout references are rejected. Opening the holdout
+permits diagnosis but does not replace independent completion recordings. Evidence is stored
 in `GOALS.json`; do not retain a separate report.
 
 `close-span` requires evidence for every planned source unit. `close-goal`
@@ -140,8 +141,9 @@ Keep blocked recipes and revisit their named dependencies when those land.
 A fresh differential records a case with the patched C program and replays the
 same inputs with the JavaScript port. Its input is a **recipe**, as
 `.agents/glossary.md` defines it: a session file holding replay inputs only,
-never recorded `steps`. Every tool below rejects a
-path under `sessions/holdout/`.
+never recorded `steps`. These recording tools still reject paths under
+`sessions/holdout/` to keep the fixed recordings intact and new recipes
+independently chosen. Inspect or replay the opened files with the scan or scorer.
 
 - One case: `node scripts/diff-fresh.mjs --seed 42 --moves 'jjj' --role
   Valkyrie --race human --gender female --align neutral`, or

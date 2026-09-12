@@ -7,7 +7,7 @@
 // Usage:
 //   node scripts/mismatch-queue.mjs               # print the ranked queue
 //   node scripts/mismatch-queue.mjs --json        # machine-readable form
-//   node scripts/mismatch-queue.mjs --scan <path> # reuse a development scan
+//   node scripts/mismatch-queue.mjs --scan <path> # reuse a saved scan
 
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -17,7 +17,6 @@ import { pathToFileURL } from 'node:url';
 import {
     PROJECT_ROOT, cFunctions, functionOwners, jsFunctionNames,
 } from './c-functions.mjs';
-import { isSealedHoldoutPath } from './diff-fresh.mjs';
 
 // Patch 004 adds Lua annotations alongside ordinary `name(file.c:line)`.
 const CALLER = /^(.+)\(([A-Za-z0-9_.-]+\.(c|lua)):(\d+)\)$/u;
@@ -168,7 +167,7 @@ export function assertGoalSelection(queue, goal) {
     const sessions = new Set([goal.session, ...(goal.sessions ?? [])].filter(Boolean));
     const candidate = queue.candidates.find((entry) => entry.sourceFile === sourceFile)
         ?? queue.candidates.find((entry) => entry.sessions.some((session) => sessions.has(session)));
-    if (!candidate) throw new Error('development mismatches remain; select a ranked source '
+    if (!candidate) throw new Error('fixed-corpus mismatches remain; select a ranked source '
         + 'or name the mismatching session whose source trace justifies this goal');
     const reason = typeof goal.selectionReason === 'string' ? goal.selectionReason.trim() : '';
     const sameSource = candidate.sourceFile !== null && candidate.sourceFile === sourceFile;
@@ -181,7 +180,7 @@ export function assertGoalSelection(queue, goal) {
 
 function runScan() {
     const scan = join(PROJECT_ROOT, 'scripts', 'scan-sessions.mjs');
-    const run = spawnSync(process.execPath, [scan, '--json'], {
+    const run = spawnSync(process.execPath, [scan, '--json', '--include-holdout'], {
         cwd: PROJECT_ROOT,
         encoding: 'utf8',
         maxBuffer: 64 * 1024 * 1024,
@@ -203,7 +202,7 @@ export function loadMismatchQueue(scan = runScan()) {
 }
 
 export function formatQueue(queue) {
-    const lines = ['Mismatch queue (development sessions, first known mismatch):'];
+    const lines = ['Mismatch queue (development and local-holdout sessions, first known mismatch):'];
     if (queue.sessions.length === 0) lines.push('  every session matches');
     for (const entry of queue.sessions) {
         const where = entry.sourceFile
@@ -228,7 +227,7 @@ export function formatQueue(queue) {
             + `${candidate.earliestStep ?? 'unknown'}${declarations}`);
     }
     lines.push('', queue.roadmapFallbackAllowed
-        ? 'Roadmap fallback: allowed (no development mismatches).'
+        ? 'Roadmap fallback: allowed (no fixed-corpus mismatches).'
         : 'Roadmap fallback: blocked while any development mismatch remains.');
     return lines.join('\n');
 }
@@ -242,9 +241,6 @@ function main(args) {
             scanPath = args[++index];
             if (!scanPath || scanPath.startsWith('--')) throw new Error('--scan requires a path');
         } else throw new Error(`unexpected argument: ${args[index]}`);
-    }
-    if (scanPath && isSealedHoldoutPath(scanPath)) {
-        throw new Error('sealed holdout paths are not accepted as development scans');
     }
     const queue = scanPath ? loadMismatchQueue(JSON.parse(readFileSync(scanPath, 'utf8')))
         : loadMismatchQueue();

@@ -39,7 +39,7 @@ import {
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const RECORD_SCRIPT = join(PROJECT_ROOT, 'scripts', 'record-session.mjs');
 const JS_WORKER_SCRIPT = join(PROJECT_ROOT, 'scripts', 'diff-fresh-worker.mjs');
-const SEALED_HOLDOUT_DIR = join(PROJECT_ROOT, 'sessions', 'holdout');
+const LOCAL_HOLDOUT_DIR = join(PROJECT_ROOT, 'sessions', 'holdout');
 const DEFAULT_RECORD_INSTALL = join(
     PROJECT_ROOT,
     'nethack-c',
@@ -253,8 +253,8 @@ export function buildFreshRecipe(config, exactNethackrc) {
     };
 }
 
-export function isSealedHoldoutPath(candidate) {
-    return isPathWithinDirectory(candidate, SEALED_HOLDOUT_DIR);
+export function isLocalHoldoutPath(candidate) {
+    return isPathWithinDirectory(candidate, LOCAL_HOLDOUT_DIR);
 }
 
 export function isPathWithinDirectory(candidate, directory) {
@@ -266,7 +266,7 @@ export function isPathWithinDirectory(candidate, directory) {
     const absolute = resolve(candidate);
     if (isWithinDirectory(absolute)) return true;
 
-    // An outside symlink must not turn into a path beneath the sealed tree.
+    // An outside symlink must not turn into a path beneath the fixed corpus.
     // Missing paths are handled by their eventual read operation.
     try {
         return isWithinDirectory(realpathSync(absolute));
@@ -911,8 +911,8 @@ export function formatReport(result) {
 function loadRecipe(config) {
     if (config.mode === 'recipe') {
         const inputPath = resolve(config.recipePath);
-        if (isSealedHoldoutPath(inputPath)) {
-            throw new Error('sealed holdout recipes are not accepted by the fresh differential');
+        if (isLocalHoldoutPath(inputPath)) {
+            throw new Error('choose an independent recipe; replay existing local-holdout recordings with scan-sessions');
         }
         let data;
         try {
@@ -926,8 +926,8 @@ function loadRecipe(config) {
     let exactNethackrc = config.nethackrc;
     if (config.nethackrcFile !== undefined) {
         const rcPath = resolve(config.nethackrcFile);
-        if (isSealedHoldoutPath(rcPath)) {
-            throw new Error('sealed holdout paths are not accepted by the fresh differential');
+        if (isLocalHoldoutPath(rcPath)) {
+            throw new Error('choose independent options rather than a local-holdout recording');
         }
         exactNethackrc = readFileSync(rcPath, 'utf8');
     }

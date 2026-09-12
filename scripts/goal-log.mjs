@@ -444,7 +444,7 @@ const COMMAND_HELP = {
                   [--step <input-step>]
 
 Optional for all kinds:
-  --sessions <a,b,...>        Related development sessions.
+  --sessions <a,b,...>        Related development or holdout/ sessions.
   --selection-reason <text>  Source-based reason for choosing this goal.
   --detail <text>            Supporting source and mismatch evidence.
 

@@ -54,8 +54,9 @@ Beyond code and tests:
 Do not run formal review passes or launch reviewer skills. If the span
 needs one, say so in your report.
 
-Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
-directly or through a subagent.
+The local holdout is open under `AGENTS.md`. Inspect and replay its sessions
+when the span needs them. Leave `scripts/score-holdout.mjs` and aggregate score
+bookkeeping to the orchestrator; implement behavior from the C source.
 
 Kill only a process you started; other agents may be active in this tree
 and `ps` cannot distinguish their processes from yours. Wait for owned

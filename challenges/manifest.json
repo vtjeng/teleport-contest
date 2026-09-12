@@ -62,6 +62,50 @@
       "recipeSha256": "2b18a553ddc19b712808b16161b3674b422597c9234bbe89b5cbd93aa5a4df1d",
       "recording": "challenges/cases/containers.session.json",
       "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d"
+    },
+    {
+      "id": "knight-jump-return",
+      "title": "Jump, revisit, and return",
+      "outcome": "Ordinary Knight attempts jumping around a pet, then jumps from a changed position, inspects inventory and returns to the upstairs tile.",
+      "playmode": "ordinary",
+      "sourcePointers": [
+        "apply.c dojump, jump, check_jump and is_valid_jump_pos: physical jumping, destination constraints, obstacles and repeated position changes."
+      ],
+      "gameTurns": 40,
+      "mission": "Ordinary Knight attempts a legal knight-move jump, walks back, inspects inventory, attempts another jump under a changed position, and explores toward stairs if reachable",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 86,
+      "boundaries": 87,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/knight-jump-return.recipe.json",
+      "recipeSha256": "3e0f5aee7d181dd92de06174d3b653b28035b5296ba89a95c692f43bff15c113",
+      "recording": "challenges/cases/knight-jump-return.session.json",
+      "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e"
+    },
+    {
+      "id": "food-quiver-history",
+      "title": "Cookie, fire, and re-quiver",
+      "outcome": "Debug setup supplies a boomerang; ordinary actions read a fortune cookie, cancel and complete quivering, fire and retrieve the projectile, and re-quiver it.",
+      "playmode": "debug setup",
+      "sourcePointers": [
+        "eat.c fpostfx FORTUNE_COOKIE and rumors.c outrumor: eating and reading the cookie.",
+        "wield.c doquiver_core: cancelled and successful inventory selection, clearing and refilling the quiver.",
+        "dothrow.c dofire and throwit: firing and retrieving a boomerang."
+      ],
+      "gameTurns": 6,
+      "mission": "Debug setup, then ordinarily eat a fortune cookie, inspect inventory, quiver a projectile, throw/fire it, retrieve it, and re-quiver with a cancelled selection before success.",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 49,
+      "boundaries": 50,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/food-quiver-history.recipe.json",
+      "recipeSha256": "c931944b0a8efb28b0008070e8afa1fe922439004007f8ca1f22b1411b7f6aa4",
+      "recording": "challenges/cases/food-quiver-history.session.json",
+      "recordingSha256": "dd6ec08a74e8b386cba633817515d23e75a29eab26c337a268163db5a61055a5"
     }
   ]
 }

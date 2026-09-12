@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 76392,
+      "datetime": "20010418113000",
+      "nethackrc": "OPTIONS=name:Scoutfood-quiver-history,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\u001b#wizwish\nboomerang\ni\u001bed  i\u001bQ\u001bQmi\u001bflll,i\u001bQ-i\u001bQmi"
+    }
+  ]
+}

@@ -4,8 +4,8 @@
 // and where it diverges from the C recording. `scripts/mismatch-queue.mjs`
 // reads the `--json` output to build the goal selection queue.
 //
-// The scanned directory is fixed and this script accepts no path argument, so
-// it cannot be aimed at sessions/holdout/.
+// Default scans use the fixed development set. --include-holdout adds the
+// opened local holdout, preserving holdout/ in each session identifier.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -47,9 +47,9 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
 export const DEVELOPMENT_DIR = join(PROJECT_ROOT, 'sessions');
 
-// Keep routine scanning on the reviewed side of the fixed 33/11 split, the
-// same guard scripts/score-development.mjs applies.
+// Preserve the historical split even though both corpora are now open.
 const EXPECTED_DEVELOPMENT_COUNT = 33;
+const EXPECTED_HOLDOUT_COUNT = 11;
 
 // tty rows 1 through 21 are the map. Row 0 is the top line and rows 22 and 23
 // are the status lines, so a cursor on any of those three is not waiting for a
@@ -81,11 +81,23 @@ function sameFiles(left, right) {
         && left.every((file, index) => file === right[index]);
 }
 
-function scanInputsUnchanged(root, sha, files) {
-    if (!sameFiles(listSessionFiles(join(root, 'sessions')), files)) return false;
-    // Use only direct development filenames. A sessions/ pathspec would also
-    // inspect the sealed evaluation directory. Include untracked source and
-    // both index and working-tree changes, including an uncommitted merge.
+function scanFiles(root, includeHoldout) {
+    const files = listSessionFiles(join(root, 'sessions'));
+    if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
+        throw new Error('development count changed');
+    if (includeHoldout) {
+        const holdout = listSessionFiles(join(root, 'sessions', 'holdout'));
+        if (holdout.length !== EXPECTED_HOLDOUT_COUNT)
+            throw new Error('local holdout count changed');
+        files.push(...holdout.map(file => 'holdout/' + file));
+    }
+    return files;
+}
+
+function scanInputsUnchanged(root, sha, files, includeHoldout) {
+    if (!sameFiles(scanFiles(root, includeHoldout), files)) return false;
+    // Check only the selected corpora, plus every replay input. Include
+    // untracked source, index changes, and an uncommitted merge.
     const status = execFileSync('git', [
         '--literal-pathspecs', 'status', '--porcelain=v1', '-z',
         '--untracked-files=all', '--', 'js/', 'frozen/', 'scripts/',
@@ -110,21 +122,21 @@ function readScanCache(path, sha, files) {
 
 // The root and replay callback let fixture repositories exercise the same
 // cache lifecycle without replaying real games. The CLI always uses this
-// repository and its fixed development directory through loadAnnotatedRows().
-export async function loadScanRows(root, replay, { forceReplay = false } = {}) {
-    const files = listSessionFiles(join(root, 'sessions'));
-    if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
-        throw new Error('development count changed');
+// repository and the selected fixed corpora through loadAnnotatedRows().
+export async function loadScanRows(root, replay, {
+    forceReplay = false, includeHoldout = false,
+} = {}) {
+    const files = scanFiles(root, includeHoldout);
     const sha = repositoryHead(root);
-    const cacheable = scanInputsUnchanged(root, sha, files);
+    const cacheable = scanInputsUnchanged(root, sha, files, includeHoldout);
     const cacheDir = join(root, '.cache');
-    const cachePath = join(cacheDir, 'scan-cache.json');
+    const cachePath = join(cacheDir, includeHoldout ? 'scan-cache-with-holdout.json' : 'scan-cache.json');
     if (cacheable && !forceReplay) {
         const cached = readScanCache(cachePath, sha, files);
-        if (cached && scanInputsUnchanged(root, sha, files)) return cached;
+        if (cached && scanInputsUnchanged(root, sha, files, includeHoldout)) return cached;
     }
     const rows = await replay(files);
-    if (cacheable && scanInputsUnchanged(root, sha, files)) {
+    if (cacheable && scanInputsUnchanged(root, sha, files, includeHoldout)) {
         mkdirSync(cacheDir, { recursive: true });
         writeFileSync(cachePath, JSON.stringify({
             version: SCAN_CACHE_VERSION, sha, files, rows,
@@ -461,6 +473,31 @@ export async function scanSession(file) {
     const data = normalizeSession(
         JSON.parse(readFileSync(join(DEVELOPMENT_DIR, file), 'utf8')),
     );
+    return scanRecordedSession(file, data);
+}
+
+/** Diagnose a normalized recording while retaining unexpected replay errors. */
+export async function scanRecordedSession(file, data, replaySegment = runSegment) {
+    try {
+        return await replaySession(file, data, replaySegment);
+    } catch (error) {
+        // An unexpected runtime error must not hide the rest of the corpus.
+        // runSegment does not return its capture after a throw, so neither
+        // the emitted count nor the failing step is known here.
+        return {
+            file, screensEmitted: null,
+            recordedSteps: data.segments.reduce((sum, segment) =>
+                sum + (segment.steps?.length ?? 0), 0),
+            divergence: null, boundary: 'Replay error: ' + error.message,
+            scanError: String(error.stack ?? error).replaceAll(PROJECT_ROOT + '/', ''),
+            commandRefusal: false, key: null, command: null, keyCursor: null,
+            message: '', stopContext: null, behavioral: null, issued: [],
+            answers: null, ambiguous: null, unported: [], segmentEndStates: [],
+        };
+    }
+}
+
+async function replaySession(file, data, replaySegment) {
     const storage = createStorageHandle();
     const recordedSteps = data.segments.reduce(
         (total, segment) => total + (segment.steps || []).length,
@@ -489,7 +526,7 @@ export async function scanSession(file) {
 
     for (const [segmentIndex, segment] of data.segments.entries()) {
         let boundary = null;
-        const segmentGame = await runSegment(
+        const segmentGame = await replaySegment(
             { ...replayInputFor(segment), storage },
             { onBoundary: (error) => { boundary ??= error; } },
         );
@@ -681,12 +718,12 @@ function isSupported(command, supported) {
 
 function reportStops(rows) {
     const nameWidth = Math.max(...rows.map((r) => r.file.length));
-    console.log('Where each development session first stops (observed)\n');
+    console.log('Where each selected session first stops (observed)\n');
     for (const row of rows) {
         console.log(
             [
                 row.file.padEnd(nameWidth),
-                `${row.screensEmitted}/${row.recordedSteps}`.padStart(10),
+                `${row.screensEmitted ?? '?'}/${row.recordedSteps}`.padStart(10),
                 (row.command ?? '-').padEnd(14),
                 row.boundary ?? 'no stop (input exhausted)',
                 row.message ? `| C: ${JSON.stringify(row.message)}` : '',
@@ -738,6 +775,8 @@ function reportDivergences(rows) {
 }
 
 function report(rows) {
+    const errored = rows.filter(row => row.scanError).length;
+    if (errored) console.log(`${errored} replay errors; their emitted counts and failure steps are unknown.`);
     reportStops(rows);
     reportDivergences(rows);
 
@@ -755,27 +794,27 @@ function report(rows) {
 export async function main(args) {
     if (args.includes('--help')) {
         console.log(
-            'Usage: node scripts/scan-sessions.mjs [--json] [--debug-full-replay]\n'
+            'Usage: node scripts/scan-sessions.mjs [--json] [--include-holdout] [--debug-full-replay]\n'
             + '\n  --json                   emit per-session rows in'
             + ' machine-readable form.'
             + '\n  --debug-full-replay      force a fresh replay even when'
             + ' .cache/scan-cache.json\n'
             + '                           matches clean replay inputs at HEAD.'
             + ' For debugging only.'
-            + '\n\nThe scanned directory is fixed and no path argument is'
-            + ' accepted, so this scan\ncannot be aimed at sessions/holdout/.',
+            + '\n  --include-holdout        also scan the 11 opened local-holdout sessions.'
+            + '\n\nWithout --include-holdout, scan only the 33 direct development sessions.',
         );
         return undefined;
     }
     const rejected = args.find((arg) => arg !== '--json'
-        && arg !== '--debug-full-replay');
+        && arg !== '--debug-full-replay' && arg !== '--include-holdout');
     if (rejected !== undefined) {
-        throw new Error('only --json and --debug-full-replay are accepted');
+        throw new Error('only --json, --debug-full-replay, and --include-holdout are accepted');
     }
     const json = args.includes('--json');
     const forceReplay = args.includes('--debug-full-replay');
 
-    const rows = await loadAnnotatedRows({ forceReplay });
+    const rows = await loadAnnotatedRows({ forceReplay, includeHoldout: args.includes('--include-holdout') });
 
     if (json) {
         console.log(JSON.stringify({ rows }, null, 2));

@@ -47,7 +47,7 @@ export function discoverDefaultTests() {
 
 // Directories the stray-test scan never enters: dependencies, git metadata
 // and agent worktrees under dot-directories, the C reference tree, and the
-// recorded sessions (which include the sealed holdout).
+// recorded sessions (data rather than test modules).
 const STRAY_SCAN_SKIPS = new Set(['node_modules', 'nethack-c', 'sessions']);
 
 // Every *.test.mjs file outside the discovered roots, relative to the

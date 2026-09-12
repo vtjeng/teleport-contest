@@ -28,53 +28,35 @@ Agents may inspect and replay them to find mismatches and detect regressions.
 When a session reveals a mismatch, determine the correct behavior from the C
 source and patches before changing the JavaScript port.
 
-Use an explicit development-session path when it is known. When discovery is
-necessary, restrict it to regular files directly under `sessions/`, for example
-with `find sessions -maxdepth 1 -type f`. Never run recursive discovery rooted
-at `sessions/`, including `rg --files sessions`, an unrestricted `find
-sessions`, or a recursive `sessions/**` glob, and then filter its output. A
-downstream filter does not prevent the discovery command from traversing
-`sessions/holdout/`.
+Use explicit session paths. The fixed sets remain the 33 regular files directly
+under `sessions/` and the 11 regular files directly under `sessions/holdout/`.
+List each directory directly; do not use recursive discovery or move recordings
+between sets. Keep their scores separate.
 
-`sessions/holdout/` contains holdout evaluation sessions whose contents remain
-hidden during development. At approved evaluation points, their combined results
-show whether development-session progress generalizes to unseen sessions.
+## Opened local holdout
 
-## Prevent overfitting to the holdout sessions
+The user authorized opening the entire local holdout on 2026-09-12. The
+pre-exposure implementation is `a8890744786a48de9b20926acafa3c16a777dc67`;
+`experiments/generalization/plan.md` records the diagnosis and source handoff.
+Agents may inspect, replay, compare, and discuss every local-holdout session,
+including through workers and review tools. The remote competition holdout
+remains separate and unavailable.
 
-Agents must not inspect individual holdout sessions; their contents could
-influence implementation decisions and reduce the holdout's value.
+Use local-holdout failures to locate missing behavior, then implement from the
+C source and patches. Preserve the recorded files and choose independent inputs
+for new reproductions and challenges. Do not special-case a session or its
+seed, inputs, expected output, or replay position.
 
-Only these commands may access `sessions/holdout/`:
+Local-holdout measurements after opening describe progress on an exposed fixed
+corpus. They no longer test generalization to unseen games. Preserve historical
+scores and the Development, Local holdout, and Challenges labels. Challenge
+scores describe their expanding workload, not the remote holdout's distribution.
 
-- `node scripts/score-holdout.mjs --check` confirms that the directory contains
-  the expected number of session files without reading their contents. It
-  reports only the file count.
-- `node scripts/score-holdout.mjs --goal <id>` runs the JavaScript port against
-  all holdout sessions and reports only combined counts for sessions, screens,
-  and random-number calls. Only the orchestrator may run it. The user authorizes
-  one evaluation at each goal's close; any other evaluation needs explicit
-  authorization. The script refuses a second evaluation for a goal that already
-  has one, unless `--despite-prior-evaluation <reason>` records why.
-
-Base implementation decisions on the C source and the development sessions, not
-the holdout results. For routine scoring, run
-`node scripts/score-development.mjs`, which scores the development sessions in a
-temporary workspace and leaves `js/` unchanged.
-
-All other access to `sessions/holdout/` is prohibited:
-
-- Do not list the directory or open, read, search, parse, compare, summarize,
-  copy, display, or reveal its files, filenames, or contents.
-- Do not pass the directory, any path inside it, or any file from it to another
-  agent or tool, including `frozen/ps_test_runner.mjs`, the Session Viewer,
-  recording tools, and audit tools.
-- Do not inspect temporary files, caches, or CI logs to recover individual
-  holdout results.
-- Do not change which sessions belong to the development and holdout sets
-  without explicit user approval.
-- These restrictions apply even when the files are accessible through the
-  filesystem or public Git history.
+`node scripts/scan-sessions.mjs --include-holdout --json` diagnoses both fixed
+sets. The mismatch queue uses this combined scan; the score scripts still report
+the two sets separately. `score-holdout.mjs` remains the orchestrator's aggregate
+bookkeeping command at goal closure. Workers may replay individual sessions
+but leave aggregate score recording to the orchestrator.
 
 ## Read the instructions for your task
 
@@ -345,9 +327,8 @@ every staged path belongs to the commit.
 `.agents/loop.md` describes a loop that alternates implementation and review
 without returning to the user. Stop and ask only for:
 
-- a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;
-- a complete port: every development session matches and
+- a complete port: every development and local-holdout session matches and
   `node scripts/goal-log.mjs roadmap` lists no unverified C function or Lua
   program;
 - a decision not covered by this file or any file it references.
