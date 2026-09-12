@@ -26,6 +26,7 @@ import {
     stairway_at,
     stairway_find_dir,
     stairway_find_special_dir,
+    u_on_sstairs,
 } from '../js/stairs.js';
 import { CMAP_EXPLANATIONS } from '../js/symbol_data.js';
 
@@ -76,6 +77,28 @@ test('the stairway list answers every stairs.c lookup', () => {
     const local = stairway_at(7, 8);
     local.u_traversed = true;
     assert.equal(known_branch_stairs(local), false);
+});
+
+test('u_on_sstairs places a descending branch arrival on its special stairs',
+    async () => {
+    const state = await startedGame();
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    state.stairs = {
+        sx: x,
+        sy: y,
+        up: true,
+        isladder: false,
+        tolev: { dnum: state.mines_dnum, dlevel: 1 },
+        next: null,
+    };
+
+    // stairs.c u_on_sstairs(0) selects a branch stairway whose direction is
+    // opposite to the descent flag. The coordinate is adjacent to the
+    // startup hero so the source's u_on_newpos() path remains in bounds.
+    u_on_sstairs(0, state);
+
+    assert.deepEqual([state.u.ux, state.u.uy], [x, y]);
 });
 
 test('stairs_description reproduces each stairs.c sentence', async () => {

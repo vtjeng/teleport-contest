@@ -190,6 +190,7 @@ import {
     stairway_free_all,
     u_on_dnstairs,
     u_on_upstairs,
+    u_on_sstairs,
 } from './stairs.js';
 import { Punished, stucksteed } from './steed.js';
 import { enexto, mnexto } from './teleport.js';
@@ -1560,9 +1561,7 @@ export async function goto_level(
         } else if (newdungeon) {
             // u_on_sstairs(0) places the hero on a branch staircase. A
             // same-dungeon descent always makes an up staircase instead.
-            throw new UnsupportedLevelChangeError(
-                'goto_level() arriving in a new dungeon',
-            );
+            u_on_sstairs(0, state);
         } else {
             u_on_upstairs(state);
         }
