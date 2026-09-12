@@ -78,13 +78,14 @@ Preserve first results and add new case IDs instead of replacing recordings.
 Compare gains and losses only on unchanged cases with the same scorer and
 denominators. Report added cases and screens separately. Dashboard builds read
 saved evidence; they do not run challenge evaluations. A failed or older
-measurement remains labeled as such. The shared reader exposes development,
-local holdout, and challenges as separate standings.
+measurement retains its failure status or measured commit age. The shared
+reader exposes development, local holdout, and challenges as separate standings.
 
-The dashboard has two headline scores: Development + local holdout, with a
-separate breakdown, and Challenges. Sum development and local holdout only
-when both measurements identify the same full commit. Historical missing
-session/cursor counts remain unknown. Do not show a remote-holdout score.
+The dashboard shows Development, Local holdout, and Challenges in the same
+format, each with the age of its measured commit. Challenge details follow
+Work by source file; additions and existing-case accounting remain in the
+saved evidence. Historical missing session/cursor counts remain unknown.
+Do not show a remote-holdout score.
 
 ## Reading the log
 
