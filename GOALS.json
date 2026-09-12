@@ -29303,7 +29303,16 @@
       ],
       "selectionReason": "After closing doread and rechecking the queue, seed0360 step 624 is the highest-ranked unresolved candidate at most 209 remaining screens. Source tracing identifies wizcmds.c wiz_map() as the unverified owner; select this source unit and wire its existing wizard command callers.",
       "detail": "The mismatch is seed0360-wizard-world-tour step 624, input Ctrl-F, after matching step 623. C cmd.c:1982-1983 binds Ctrl-F to wiz_map; wizcmds.c:173-198 implements wiz_map by disabling monster notices, clearing HConfusion and HHallucination temporarily, marking traps and engravings seen, calling do_mapping, and restoring state. JS extcmdlist_data.js already names wizmap, but cmd.js admission at 1793-1858 omits it; extended dispatch at 4879-5130 and direct Ctrl-F at 6160-6171 lack the wiz_map call. Port js/wizcmds.js and wire both routes using existing notice_mon_off/on, map_trap, map_engraving, and do_mapping. No holdout data was inspected.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "wiz_map",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "wiz_map"
+          ]
+        }
+      ],
       "openedAt": "4d0b98267b32749e8e9d65bba8a4acd133e431b0",
       "openStanding": {
         "sha": "7d0d4d5ee4d19999f8e4c6351a93aa235ca56a2a",
