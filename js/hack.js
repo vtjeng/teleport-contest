@@ -1,11 +1,13 @@
 // Movement-adjacent world effects owned by hack.c.
 
 import {
-    ACCESSIBLE,
     A_CON,
     A_DEX,
     A_STR,
     ALTAR,
+    ARTICLE_NONE,
+    ARTICLE_THE,
+    ARTICLE_YOUR,
     BLINDED,
     COLD_RES,
     CONFUSION,
@@ -23,9 +25,7 @@ import {
     DO_MOVE,
     DRAWBRIDGE_UP,
     D_BROKEN,
-    D_CLOSED,
     D_ISOPEN,
-    D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
     CQ_CANNED,
@@ -79,11 +79,13 @@ import {
     MELT_ICE_AWAY,
     M_AP_FURNITURE,
     M_AP_OBJECT,
+    M_AP_TYPE,
     M_AP_TYPMASK,
     MOD_ENCUMBER,
     N_DIRS,
     NEUTRAL,
     NO_KILLER_PREFIX,
+    NO_TRAP_FLAGS,
     PASSES_WALLS,
     PARANOID_CONFIRM,
     PARANOID_SWIM,
@@ -145,6 +147,11 @@ import {
     WT_WOUNDEDLEG_REDUCT,
     WWALKING,
     ZOMBIFY_MON,
+    SUPPRESS_SADDLE,
+    Trap_Caught_Mon,
+    Trap_Effect_Finished,
+    Trap_Killed_Mon,
+    Trap_Moved_Mon,
     OVERLOADED,
     PROT_FROM_SHAPE_CHANGERS,
     helpless,
@@ -157,7 +164,7 @@ import {
     UNCHANGING,
 } from './const.js';
 import { float_vs_flight, rehumanize } from './polyself.js';
-import { acurrstr, acurr, exercise } from './attrib.js';
+import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
     classify_terrain,
@@ -194,10 +201,11 @@ import { clear_kickedloc } from './dokick.js';
 import { dig_typ } from './dig.js';
 import {
     a_monnam,
-    alwaysVisibleMonsterName,
+    capitalizedAlwaysVisibleMonsterName,
     hliquid,
     m_monnam,
     mon_nam,
+    x_monnam,
     y_monnam,
 } from './do_name.js';
 import {
@@ -209,6 +217,7 @@ import {
 } from './dungeon.js';
 import { gethungry } from './eat.js';
 import { done } from './end.js';
+import { experience, more_experienced, newexplevel } from './exper.js';
 import {
     dist2,
     distmin,
@@ -253,6 +262,8 @@ import {
     slithy,
     sticks,
     strongmonst,
+    monsndx,
+    type_is_pname,
     throws_rocks,
     tunnels,
     verysmall,
@@ -273,6 +284,7 @@ import {
     simple_typename,
     The,
     the,
+    just_an,
     donameFresh,
     UnsupportedObjectNameError,
     xnameFresh,
@@ -301,10 +313,8 @@ import {
     PM_DISPLACER_BEAST,
     PM_ELF,
     PM_GRID_BUG,
-    PM_KITTEN,
-    PM_LITTLE_DOG,
     PM_LONG_WORM_TAIL,
-    PM_PONY,
+    PM_ORACLE,
     PM_VALKYRIE,
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
@@ -312,14 +322,22 @@ import {
     S_EEL,
     S_NYMPH,
 } from './monsters.js';
-import { curr_mon_load, maybe_unhide_at, set_ustuck } from './mon.js';
+import {
+    curr_mon_load,
+    minliquid,
+    maybe_unhide_at,
+    seemimic,
+    set_ustuck,
+} from './mon.js';
 import { m_next2u } from './mhitu.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { abuse_dog } from './dog.js';
 import {
     accessible,
     can_ooze,
     can_fog,
     closed_door,
+    m_in_air,
     onscary,
     wormCross,
     youHear,
@@ -337,7 +355,7 @@ import {
     visible_region_at,
 } from './region.js';
 import { CapitalMon } from './random_text.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { water_friction } from './mkmaze.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
@@ -389,7 +407,7 @@ import {
     into_vs_onto,
     immune_to_trap,
 } from './trap.js';
-import { dotrap, preflight_dotrap } from './trap_effects.js';
+import { dotrap, feeltrap, mintrap, preflight_dotrap } from './trap_effects.js';
 import {
     ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
@@ -404,8 +422,6 @@ import {
     recalc_block_point,
     vision_recalc,
 } from './vision.js';
-
-const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
 function reset_tmp_anything(state) {
     state.tmp_anything ??= {};
@@ -1598,47 +1614,14 @@ function requireSupportedDestinationMonster(monster, x, y, state) {
         requireOrdinaryHostileMelee(monster, state);
         return;
     }
-    requireOrdinaryStartingPetSwap(monster, x, y, state);
+    requireOrdinarySafeMonsterSwap(monster, x, y, state);
 }
 
-function requireOrdinaryStartingPetSwap(monster, x, y, state) {
-    const startingPet = monster
-        && monster.m_id === state.context?.startingpet_mid
-        && STARTING_PETS.has(monster.data?.pmidx)
-        && monster.mtame
-        && monster.mpeaceful;
-    if (!startingPet) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'peaceful monster displacement',
-        );
-    }
-    const ordinaryTimedFlee = !monster.mflee
-        || (Number.isInteger(monster.mfleetim)
-            && monster.mfleetim >= 1
-            && monster.mfleetim <= 127);
-    const specialState = monster.mhp < 1
-        || !monster.mcanmove
-        || monster.mfrozen
-        || monster.msleeping
-        || monster.mtrapped
-        || !ordinaryTimedFlee
-        || monster.meating
-        || monster.wormno;
-    if (specialState) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'hero combat or exceptional pet displacement',
-        );
-    }
-
-    // hack.c domove_swap_with_pet() (2098-2180) never reads this square. Each
-    // of its six refusal arms is about the pet or about the square the pet
-    // moves into: the pit-and-boulder pin, NODIAG on a diagonal, a boulder on
-    // the hero's square, bad_rock() through an opening, a trapped peaceful,
-    // and goodpos(u.ux0, u.uy0, mtmp, 0). So this list only has to name the
-    // terrain whose *arrival* consequences are ported, which is the same set
-    // requireSimpleHeroDestination() admits above, less the doorway masks: a
-    // D_ISOPEN swap has no recording behind it and this seam has never carried
-    // one, so it keeps the mask-0 test it was written with.
+function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
+    // hack.c domove_swap_with_pet() does not inspect the destination terrain
+    // while deciding whether the swap itself is possible. This admission
+    // seam names only the arrival behavior that domove_core() still needs
+    // after the helper succeeds.
     const destination = state.level?.at(x, y);
     const ordinaryDestination = destination
         && (destination.typ === ROOM
@@ -1675,22 +1658,6 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
         }
     }
 
-    const source = state.level?.at(state.u.ux, state.u.uy);
-    const sourceAccessible = source
-        && ACCESSIBLE(source.typ)
-        && !(source.typ === DOOR
-            && (doorMask(source) & (D_CLOSED | D_LOCKED)));
-    if (!sourceAccessible) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'exceptional pet displacement terrain',
-        );
-    }
-    if (t_at(x, y, state)
-        || t_at(state.u.ux, state.u.uy, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'pet swap trap interaction',
-        );
-    }
     if (state.level?.objects?.[x]?.[y]) {
         // pickup.c pickup() runs only after domove_swap_with_pet() has moved
         // both actors and domove_core() has committed the hero position. A
@@ -1803,11 +1770,10 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // intact doorway spends that draw before test_move()'s exit rule
         // refuses the step and no time elapses.
         //
-        // The swap-consequence gates inside requireOrdinaryStartingPetSwap()
-        // are therefore wider than C on such a step: C declines it at
-        // test_move() without ever consulting them, where this seam refuses a
-        // trap, object, region or engraving on the destination first. Both
-        // stop the port; the seam simply stops it one call earlier.
+        // The source-side refusal gates live in domove_swap_with_pet() and
+        // therefore run only after do_attack() spends its safe-monster draw.
+        // This seam owns destination arrival effects that must be planned
+        // before that draw to keep an unsupported late operation atomic.
         requireSupportedDestinationMonster(destinationMonster, x, y, state);
     } else if (state.context?.forcefight) {
         // C ref: domove_core():2805-2810. A force-fight step at a square with
@@ -4121,16 +4087,14 @@ async function domove_core(state = game) {
         // says the steed write "could skip this since we're about to call
         // u_on_newpos()", which js/dungeon.js u_on_newpos() ports.
         //
-        // domove_swap_with_pet() below has a single `return true`. Not every
+        // domove_swap_with_pet() below returns TRUE only after all source
+        // refusal gates pass. Not every
         // FALSE arm in C reports through do_name.c YMonnam() -- the first
         // prints nothing at all -- so the reason this restore is unreachable
         // is what refuses each arm, not what each arm says:
-        // requireOrdinaryStartingPetSwap() above covers the pit-and-boulder
-        // pin and the trapped-peaceful arm through its `monster.mtrapped`
-        // term, NODIAG and bad_rock cannot fire for the three STARTING_PETS
-        // species, and the source-square and trap checks exclude the
-        // goodpos/mundisplaceable arm. js/hack.js:1247-1254 lists them.
-        // Porting a FALSE arm of that helper is what would make this live.
+        // domove_swap_with_pet() owns the pit-and-boulder pin, diagonal and
+        // narrow-opening checks, trapped-peaceful refusal, and the
+        // goodpos/trap/mundisplaceable refusal in source order.
         if (!await domove_swap_with_pet(
             destinationMonster,
             newx,
@@ -4529,11 +4493,11 @@ export async function lookaround(state = game) {
     }
 }
 
-// C ref: hack.c domove_swap_with_pet(), successful ordinary starting-pet
-// branch. domove() reaches this helper only after its admission seam has
-// accepted ordinary terrain, a preflighted automatic-pickup transaction, no
-// source or destination trap, an accessible source square, and ordinary pet
-// state.
+// C ref: hack.c domove_swap_with_pet() (2098-2228). The caller has already
+// run uhitm.c do_attack(); its FALSE result means that an unforced safe
+// monster can be displaced. This helper owns every source-side refusal and
+// the trap consequences after a successful swap, including peaceful monsters
+// that are not tame pets.
 export async function domove_swap_with_pet(
     monster,
     x,
@@ -4548,16 +4512,184 @@ export async function domove_swap_with_pet(
     const oldX = u.ux0;
     const oldY = u.uy0;
 
+    // hack.c:2102. The tentative hero coordinate is the monster's square on
+    // entry. Save the boulder test before restoring u.ux/u.uy to the square
+    // the hero is leaving, just as the C local is initialized first.
+    const uWithBoulder = Boolean(sobj_at(BOULDER, u.ux, u.uy, state));
+    u.ux = oldX;
+    u.uy = oldY;
+
+    // hack.c:2105-2107. A safe monster can still be an undiscovered mimic;
+    // revealing it is part of the swap attempt and repaints its square.
     monster.mundetected = false;
+    if (M_AP_TYPE(monster)) seemimic(monster, state);
+    u.ux = monster.mx;
+    u.uy = monster.my;
+
+    let trap = monster.mtrapped
+        ? t_at(monster.mx, monster.my, state)
+        : null;
+    if (!trap) monster.mtrapped = false;
+
+    let didntMove = false;
+    if (monster.mtrapped && is_pit(trap.ttyp)
+        && sobj_at(BOULDER, trap.tx, trap.ty, state)) {
+        // hack.c:2114-2116. A trapped monster cannot leave a boulder-filled
+        // pit; C emits no line in this arm.
+        didntMove = true;
+    } else if (oldX !== x && oldY !== y && NODIAG(monsndx(monster.data))) {
+        await message(
+            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                + ` can't move diagonally.`,
+            state,
+        );
+        didntMove = true;
+    } else if (uWithBoulder
+        && !(verysmall(monster.data)
+            && (!monster.minvent || curr_mon_load(monster) <= 600))) {
+        await message(
+            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                + ` won't fit into the same spot that you're at.`,
+            state,
+        );
+        didntMove = true;
+    } else if (oldX !== x && oldY !== y
+        && bad_rock(monster.data, x, oldY, state)
+        && bad_rock(monster.data, oldX, y, state)
+        && (bigmonst(monster.data) || curr_mon_load(monster) > 600)) {
+        await message(
+            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                + ` won't fit through.`,
+            state,
+        );
+        didntMove = true;
+    } else if (monster.mpeaceful && monster.mtrapped) {
+        // hack.c:2141-2157. feeltrap() is deliberately before the name is
+        // assembled for an unseen trap, and handle_tip() follows the line.
+        const what = trapname(trap.ttyp);
+        const unseen = !trap.tseen;
+        let which = 'that ';
+        if (unseen) {
+            feeltrap(trap, {
+                state,
+                redraw: (tx, ty) => newsym(tx, ty, state),
+            });
+            which = just_an(what);
+        }
+        await message(
+            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                + ` can't move out of ${which}${what}.`,
+            state,
+        );
+        await handle_tip(TIP_UNTRAP_MON, state);
+        didntMove = true;
+    } else if (monster.mpeaceful
+        && (!goodpos(oldX, oldY, monster, 0, { state, random: env.random ?? { rn2 } })
+            || t_at(oldX, oldY, state) !== null
+            || monster.ispriest
+            || monster.isshk
+            || monster.isgd
+            || monster.data === state.mons?.[PM_ORACLE]
+            || (state.svq?.quest_status?.leader_m_id
+                && monster.m_id === state.svq.quest_status.leader_m_id))) {
+        await message(
+            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                + ` doesn't want to swap places.`,
+            state,
+        );
+        didntMove = true;
+    }
+
+    if (didntMove) return false;
+
+    // hack.c:2182-2195. Move the monster only after every refusal has
+    // succeeded, then describe the source verb and full x_monnam() article.
     monster.mtrapped = false;
     remove_monster(x, y, state);
     place_monster(monster, oldX, oldY, state);
-    newsym(x, y);
-    newsym(oldX, oldY);
+    newsym(x, y, state);
+    newsym(oldX, oldY, state);
+
+    const hasGivenName = Boolean(
+        monster.mextra?.mgivenname || monster.mgivenname,
+    );
+    const article = monster.mtame
+        ? ARTICLE_YOUR
+        : (!hasGivenName && !type_is_pname(monster.data))
+            ? ARTICLE_THE
+            : ARTICLE_NONE;
+    const adjective = monster.mpeaceful && !monster.mtame
+        ? 'peaceful'
+        : null;
+    const suppress = hasGivenName ? SUPPRESS_SADDLE : 0;
+    const namedMonster = x_monnam(
+        monster,
+        article,
+        adjective,
+        suppress,
+        false,
+        state,
+        env,
+    );
     await message(
-        `You swap places with ${alwaysVisibleMonsterName(monster, state)}.`,
+        `You ${monster.mpeaceful ? 'swap places with' : 'frighten'} `
+            + `${namedMonster}.`,
         state,
     );
+
+    // hack.c:2198-2226. minliquid() has precedence over mintrap(); both are
+    // invoked after the monster has arrived on the hero's former square.
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const trapEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        redraw: env.redraw ?? ((tx, ty) => newsym(tx, ty, state)),
+        mInAir: env.mInAir ?? ((mon, st) => m_in_air(mon, st)),
+        heroDeaf: env.heroDeaf ?? heroIsDeaf,
+        youHear: env.youHear ?? ((line, st) => youHear(line, st)),
+        unsupported: env.unsupported ?? ((reason) => {
+            throw new UnsupportedHeroMoveBoundaryError(reason);
+        }),
+    };
+    const trapResult = await minliquid(monster, trapEnv)
+        ? Trap_Killed_Mon
+        : await mintrap(monster, NO_TRAP_FLAGS, trapEnv);
+    switch (trapResult) {
+    case Trap_Effect_Finished:
+        break;
+    case Trap_Caught_Mon:
+    case Trap_Moved_Mon:
+        await abuse_dog(monster, state, random);
+        adjalign(-3, state);
+        break;
+    case Trap_Killed_Mon: {
+        state.u.uconduct ??= {};
+        const hadNoKillers = !state.u.uconduct.killer;
+        state.u.uconduct.killer = Math.trunc(state.u.uconduct.killer ?? 0) + 1;
+        if (hadNoKillers)
+            note_unported('hack.c domove_swap_with_pet() livelog_printf');
+        const mndx = monsndx(monster.data);
+        const deaths = state.svm?.mvitals?.[mndx]?.died ?? 0;
+        const gained = experience(monster, deaths, state);
+        more_experienced(gained, 0, state);
+        await newexplevel(state, { message, random });
+        if (random.rn2(4)) {
+            await message(
+                'You feel guilty about losing your pet like this.',
+                state,
+            );
+            state.u.ugangr++;
+            adjalign(-15, state);
+        }
+        break;
+    }
+    default:
+        throw new UnsupportedHeroMoveBoundaryError(
+            'domove_swap_with_pet() unknown trap result',
+        );
+    }
     return true;
 }
 

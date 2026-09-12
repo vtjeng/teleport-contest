@@ -688,18 +688,14 @@ export function find_roll_to_hit(
 // C ref: uhitm.c do_attack() (446-583). The hero moves into a square holding a
 // monster. Returns TRUE when the step is used up.
 //
-// The `is_safemon(mtmp) && !forcefight` arm at 461-509 covers the ordinary
-// active starting pet only. The repeated-command boundary makes punishment,
-// shops and Stormbringer unreachable there and preflights long worms,
-// helplessness and obstructed source squares before this function can draw.
-// Result false lets hack.c swap places; true consumes the move after the pet
-// refuses. Everything from 511 on is the hostile arm.
+// The `is_safemon(mtmp) && !forcefight` arm at 461-509 covers safe peaceful
+// monsters as well as tame pets. Result false lets hack.c swap places; true
+// consumes the move after the monster refuses. Everything from 511 on is the
+// hostile arm.
 export async function do_attack(monster, state = game, env = {}) {
     const random = env.random ?? { d, rn1, rn2, rnd };
-    if (typeof random.rn2 !== 'function'
-        || typeof random.rnd !== 'function') {
-        throw new TypeError('do_attack random injection requires rn2 and rnd');
-    }
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('do_attack random injection requires rn2');
     const unsupported = requireAttackOperation(env, 'unsupported');
 
     if (is_safemon(monster, state) && !state.context?.forcefight) {
@@ -711,11 +707,17 @@ export async function do_attack(monster, state = game, env = {}) {
 
         if (random.rn2(7)) return false;
 
-        await makeFlee(monster, random.rnd(6), false, false, {
-            ...env,
-            state,
-            random,
-        });
+        // uhitm.c:497 only frightens a tame pet. A peaceful non-pet uses the
+        // same safety stop but must not consume the rnd(6) flee duration.
+        if (monster.mtame) {
+            if (typeof random.rnd !== 'function')
+                throw new TypeError('do_attack pet refusal requires rnd');
+            await makeFlee(monster, random.rnd(6), false, false, {
+                ...env,
+                state,
+                random,
+            });
+        }
         await message(
             `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)} `
                 + 'is in the way!',

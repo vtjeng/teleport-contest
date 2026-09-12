@@ -97,6 +97,7 @@ import {
     remembered_glyph_presentation,
 } from '../js/display.js';
 import {
+    BOULDER,
     CORPSE,
     ARMOR_CLASS,
     DAGGER,
@@ -114,6 +115,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     domove,
+    domove_swap_with_pet,
     monster_nearby,
     test_move,
     UnsupportedHeroMoveBoundaryError,
@@ -1291,24 +1293,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 };
             },
         },
-        // is_safemon() sends a spotted peaceful monster down do_attack()'s
-        // swap arm at uhitm.c:461, and everything that arm does past the
-        // rn2(7) is written for the starting pet. Any other peaceful stops.
-        {
-            name: 'peaceful non-pet at destination',
-            reason: 'peaceful monster displacement',
-            setup: ({ x, y }) => {
-                game.level.monsters[x][y] = newMonster({
-                    mx: x, my: y, mhp: 3, mhpmax: 3, mcanmove: 1,
-                    // A distinct m_id is what makes it not the starting pet;
-                    // this recipe has pettype:none, so there is no pet at all.
-                    m_id: 4242,
-                    mpeaceful: 1,
-                    data: game.mons[PM_NEWT],
-                });
-                assert.notEqual(game.context.startingpet_mid, 4242);
-            },
-        },
     ];
 
     for (const admissionCase of cases) {
@@ -1784,31 +1768,106 @@ test('the reqmenu prefix bumps a visible pet without attacking', async () => {
     }
 });
 
-// The swap-consequence gates in requireOrdinaryStartingPetSwap() guard
-// domove_swap_with_pet(), which C calls at hack.c:2922 -- long after the
-// test_move() that declines this step. Running them ahead of do_attack() is
-// therefore wider than C, which never consults them here. The widening is
-// deliberate: both stop the port, and this seam stops it one call earlier
-// than the terrain rule would. A trap on the destination is what shows it,
-// because a bare pet square passes every gate.
-test('the pet-swap gates refuse a diagonal C declines at test_move()',
-    async () => {
-        const replay = await runSegment(
-            petDoorwaySegment(840026, 'TrapDoorway'),
-        );
-        const { x, y } = petOnRefusedDiagonal('TrapDoorway');
-        game.level.traps = [{ tx: x, ty: y, ttyp: PIT, tseen: false }];
-        const drawsBefore = replay.getRngLog().length;
-
-        game.nhDisplay.pushKey(commandKeyCode('u'));
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === 'pet swap trap interaction',
-        );
-        // The seam runs before movement intent is committed, so the refusal
-        // costs the draw the same step spent in the test above.
-        assert.equal(replay.getRngLog().length, drawsBefore);
+// uhitm.c:474 spends one rn2(7) for every safe peaceful monster. A non-tame
+// monster that survives that stop reaches hack.c:2922 and is named with the
+// peaceful adjective by domove_swap_with_pet(). This pins the ordinary
+// peaceful-monster admission that was previously restricted to starting pets.
+test('a peaceful non-pet reaches the source swap helper', async () => {
+    const base = petDoorwaySegment(840026, 'PeacefulNewt');
+    const replay = await runSegment({
+        ...base,
+        nethackrc: base.nethackrc.replace(
+            '!splash_screen', '!splash_screen,pettype:none',
+        ),
     });
+    const [x, y] = [game.u.ux + 1, game.u.uy];
+    const start = [game.u.ux, game.u.uy];
+    const monster = newMonster({
+        mx: x,
+        my: y,
+        mhp: 3,
+        mhpmax: 3,
+        mcanmove: 1,
+        m_id: 4242,
+        mpeaceful: true,
+        data: game.mons[PM_NEWT],
+    });
+    game.level.monsters[x][y] = monster;
+    const drawsBefore = replay.getRngLog().length;
+
+    game.nhDisplay.pushKey(commandKeyCode('l'));
+    await moveloop_core();
+
+    assert.deepEqual(
+        replay.getRngLog().slice(drawsBefore, drawsBefore + 1),
+        ['rn2(7)=4'],
+        'safe-monster admission consumes do_attack()\'s draw',
+    );
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.deepEqual([monster.mx, monster.my], start);
+    assert.match(game._ttyToplines, /You swap places with the peaceful newt\./u);
+});
+
+// hack.c:2114-2157 keeps refusal checks inside domove_swap_with_pet(), after
+// do_attack() and test_move(). These two cases pin the silent pit-and-boulder
+// stop and the visible peaceful trapped-monster stop, including feeltrap()'s
+// source-order tseen write.
+test('domove_swap_with_pet preserves trapped-monster refusal gates', async () => {
+    const replay = await runSegment(petDoorwaySegment(840026, 'SwapGates'));
+    const { pet, x, y } = petOnRefusedDiagonal('SwapGates');
+    const start = [game.u.ux, game.u.uy];
+    game.u.ux0 = start[0];
+    game.u.uy0 = start[1];
+    game.u.ux = x;
+    game.u.uy = y;
+    pet.mtrapped = true;
+    const trap = { tx: x, ty: y, ttyp: PIT, tseen: false };
+    game.level.traps = [trap];
+    game.level.objects[x][y] = {
+        o_id: 9001,
+        otyp: BOULDER,
+        where: OBJ_FLOOR,
+        quan: 1,
+    };
+    const messages = [];
+    const moved = await domove_swap_with_pet(
+        pet,
+        x,
+        y,
+        game,
+        { message: async (line) => messages.push(line) },
+    );
+    assert.equal(moved, false);
+    assert.deepEqual(messages, []);
+    assert.equal(trap.tseen, false, 'silent boulder pin precedes feeltrap()');
+    assert.deepEqual([pet.mx, pet.my], [x, y]);
+    assert.ok(replay.getRngLog().length > 0, 'startup replay was initialized');
+
+    const second = await runSegment(petDoorwaySegment(840026, 'TrappedPet'));
+    const { pet: trappedPet, x: tx, y: ty } = petOnRefusedDiagonal('TrappedPet');
+    game.u.ux0 = game.u.ux;
+    game.u.uy0 = game.u.uy;
+    game.u.ux = tx;
+    game.u.uy = ty;
+    trappedPet.mtrapped = true;
+    const seenTrap = { tx, ty, ttyp: PIT, tseen: false };
+    game.level.traps = [seenTrap];
+    game.level.objects[tx][ty] = null;
+    const trappedMessages = [];
+    const trappedMoved = await domove_swap_with_pet(
+        trappedPet,
+        tx,
+        ty,
+        game,
+        { message: async (line) => trappedMessages.push(line) },
+    );
+    assert.equal(trappedMoved, false);
+    assert.equal(seenTrap.tseen, true);
+    assert.deepEqual(trappedMessages, [
+        "You stop.  Your little dog can't move out of a pit.",
+    ]);
+    assert.ok(second.getRngLog().length > 0, 'second replay was initialized');
+});
 
 // The mirror of the pet case above, and the ordering it protects.
 // domove_core() takes m_at() at hack.c:2762 and reaches domove_attackmon_at()
