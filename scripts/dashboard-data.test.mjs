@@ -130,6 +130,7 @@ function renderDashboard(data, queue = null) {
             getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
             getContext: () => context(ops),
             addEventListener() {},
+            setAttribute() {},
             appendChild(child) { this.children.push(child); return child; },
             replaceChildren(...nodes) { this.children = nodes; },
         };
@@ -150,6 +151,7 @@ function renderDashboard(data, queue = null) {
     };
     const window = {
         addEventListener: () => {},
+        matchMedia: () => ({ addEventListener() {} }),
         devicePixelRatio: 1,
         innerWidth: 1200,
     };
@@ -217,6 +219,9 @@ function sourceDashboardData(workGoals = []) {
             medianTotalMin: null, medianGoalSelectionMin: null,
         },
         goals: [], progress: [], workGoals,
+        scoreHistory: ['Development', 'Local holdout', 'Challenges'].map((title, index) => ({
+            id: ['development', 'localHoldout', 'challenges'][index], title, points: [],
+        })),
         scores: {
             headSha: null,
             development: { status: 'unmeasured', sha: null, utc: null,
@@ -707,18 +712,10 @@ test('dashboard separates closed goals and labels inferred timing', () => {
             .map((bar) => [bar.goal, bar.top, bar.height]),
         [[0, 7, 7], [1, 16, 7]],
     );
-    // Axis labels and marker provenance share the compact chart legend.
+    // One legend explains the measures shared by all three histories.
     const legend = rendered.get('progressLegend').innerHTML;
-    assert.match(legend, /Left axis[\s\S]*Screens matched/u);
-    assert.match(legend, /Right axis[\s\S]*7-day avg screens\/day[\s\S]*Last 24h screens/u);
-    assert.match(legend, /Dates[\s\S]*Commit[\s\S]*Logged/u);
-    // All SHAs resolve to commits, so no hollow markers are drawn
-    assert.equal(
-        rendered.canvasOps.filter(
-            ([operation, , , radius]) => operation === 'arc' && radius === 3,
-        ).length,
-        0,
-    );
+    assert.match(legend, /Matched[\s\S]*Total[\s\S]*Cases added/u);
+    assert.doesNotMatch(legend, /Logged|Commit/u);
 
     const queueLessBeta = {
         ...beta,
@@ -966,25 +963,67 @@ test('progress points carry what the chart readout shows', () => {
 
     const rendered = renderDashboard(data);
     // Twenty minutes of goals is less than the week the chart opens on, so it
-    // shows all three and Show all has nothing left to reveal.
-    assert.equal(rendered.get('progressReset').disabled, true);
+    // shows all three and the range control shows All.
+    assert.equal(rendered.get('progressWindow').value, 'all');
     assert.equal(
         rendered.get('progressRange').textContent,
-        '1 Jan 2026 00:10 – 1 Jan 2026 00:30 UTC · 3 goals',
+        ['2026-01-01T00:10:00Z', '2026-01-01T00:30:00Z'].map(iso => {
+            const time = new Date(iso);
+            return time.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                + ' ' + time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }).join(' – '),
     );
 
     // The minimap's window is the only rectangle it strokes. On the whole
     // range it covers the whole track: the stub canvas is 1000 wide, and the
-    // chart's 56px left and 74px right margins are shared with the plot above.
+    // chart's 52px left and 16px right margins are shared with the plot above.
     const [, x, y, width, height] = rendered.get('progressMinimap').ops
         .find(([operation]) => operation === 'strokeRect');
-    assert.deepEqual([x, y, width], [56.5, 0.5, 1000 - 56 - 74]);
-    // One pixel short of the 54px strip, so both edges of the outline land
-    // inside it.
-    assert.equal(height, 53);
+    assert.deepEqual([x, y, width], [52.5, 0.5, 1000 - 52 - 16]);
+    // The single selection spans three 44px traces and excludes their date labels.
+    assert.equal(height, 3 * 44 - 1);
 });
 
-test('the chart opens on the last week of goals', () => {
+test('score histories include intermediate progress without inventing holdout measurements', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-history-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    // Three kinds of score event share a commit but have separate measurement
+    // times. The holdout was measured only on the first event, with zero hits.
+    const sha = commit(fixture, 'Implementation', '2026-01-01T00:00:00Z');
+    const events = ['goal', 'span', 'divergence'];
+    const dates = ['2026-01-01T00:10:00Z', '2026-01-01T00:20:00Z', '2026-01-01T00:30:00Z'];
+    const hits = [0, 40, 55]; // A measured zero, a gain, then a later gain.
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        ...events.map((event, i) => scoreRow({
+            utc: dates[i], sha, event, screens: hits[i],
+            holdoutScreens: i === 0 ? 0 : undefined,
+            holdoutScreensTotal: i === 0 ? 100 : undefined, // Same fixed corpus size as development.
+            note: `alpha ${event}.`,
+        })),
+        '',
+    ].join('\n'));
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture, encoding: 'utf8',
+    }));
+    const [development, holdout, challenges] = data.scoreHistory;
+    assert.deepEqual(development.points.map(point => point.screens), hits);
+    assert.deepEqual(development.points.map(point => point.utc), dates.map(date => new Date(date).toISOString()));
+    assert.equal(holdout.points.length, 1);
+    assert.equal(holdout.points[0].screens, 0);
+    assert.equal(holdout.points[0].utc, development.points[0].utc);
+    assert.deepEqual(challenges.points, []);
+    const rendered = renderDashboard(data);
+    const readout = rendered.get('progressReadout').innerHTML.replace(/<[^>]*>/gu, '');
+    assert.match(readout, /55\/100·55.0%/);
+    assert.match(readout, /0\/100·0.0%/);
+    assert.match(readout, /ago/);
+    assert.doesNotMatch(readout, /earlier/);
+});
+
+test('the chart opens on the last week of measurements', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-week-'));
     git(fixture, ['init', '--quiet']);
     git(fixture, ['config', 'user.name', 'Dashboard Test']);
@@ -1020,19 +1059,20 @@ test('the chart opens on the last week of goals', () => {
     // holds the goals of 20 and 25 Jan.
     assert.equal(
         rendered.get('progressRange').textContent,
-        '18 Jan 2026 – 25 Jan 2026 · 2 goals',
+        ['2026-01-18T00:00:00Z', '2026-01-25T00:00:00Z'].map(time => new Date(time)
+            .toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })).join(' – '),
     );
-    // The two older goals are off-window, so Show all has something to reveal.
-    assert.equal(rendered.get('progressReset').disabled, false);
+    // The two older goals are off-window, so the range control shows 7d.
+    assert.equal(rendered.get('progressWindow').value, '7');
 
     // The minimap still covers the whole 24 days, so its window is now a
-    // fraction of the track: 7 of 24 days across the 870px between the
-    // chart's 56px left and 74px right margins.
+    // fraction of the track: 7 of 24 days across the 932px between the
+    // chart's 52px left and 16px right margins.
     const [, x, , width] = rendered.get('progressMinimap').ops
         .find(([operation]) => operation === 'strokeRect');
-    const track = 1000 - 56 - 74;
+    const track = 1000 - 52 - 16;
     assert.equal(width, Math.round(track * 7 / 24));
-    assert.equal(x, Math.round(56 + track * 17 / 24) + 0.5);
+    assert.equal(x, Math.round(52 + track * 17 / 24) + 0.5);
 });
 
 test('dashboard builder injects data into a standalone HTML file', () => {

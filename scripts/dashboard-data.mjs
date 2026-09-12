@@ -98,6 +98,7 @@ const scoreEvents = scoreRows.map(row => {
 
   return {
     utc,
+    recordedUtc: row.utc,
     utcSource: commit ? 'commit' : 'score-utc-fallback',
     sha: row.sha, event: row.event,
     sessionsPassed: numberOrNull(row.sessions_passed),
@@ -511,12 +512,12 @@ for (let i = 0; i < goals.length; i++) {
   }
 }
 
-// --- Build progress timeline from SCORE goal events ---
+// --- Saved screen measurements, including spans and divergence fixes ---
 
 const progress = scoreEvents
-  .filter(e => e.event === 'goal' && e.screensMatched !== null)
+  .filter(e => e.screensMatched !== null && e.screensTotal !== null)
   .map(e => ({
-    utc: e.utc?.toISOString() ?? null,
+    utc: Number.isFinite(Date.parse(e.recordedUtc)) ? new Date(e.recordedUtc).toISOString() : e.utc?.toISOString() ?? null,
     utcSource: e.utcSource,
     sha: e.sha,
     name: goalNameFromNote(e.note),
@@ -527,14 +528,33 @@ const progress = scoreEvents
     sessions: e.sessionsPassed,
     sessionsTotal: e.sessionsTotal,
     note: e.note,
-  }));
+  }))
+  .filter(point => point.utc)
+  .sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
 
-// How many screens each goal added, for the chart's hover readout. The first
+// How many screens each measurement added. The first
 // point has no predecessor to subtract, so it carries no delta.
 for (let i = 1; i < progress.length; i++) {
   progress[i].screensDelta = progress[i].screens - progress[i - 1].screens;
 }
 if (progress.length) progress[0].screensDelta = null;
+
+const localHoldoutHistory = scoreEvents
+  .filter(event => event.holdoutScreensMatched !== null && event.holdoutScreensTotal !== null)
+  .map(event => ({
+    utc: Number.isFinite(Date.parse(event.recordedUtc))
+      ? new Date(event.recordedUtc).toISOString() : event.utc?.toISOString() ?? null,
+    sha: event.sha, screens: event.holdoutScreensMatched,
+    screensTotal: event.holdoutScreensTotal, note: event.note,
+  }))
+  .filter(point => point.utc)
+  .sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
+const scoreHistory = [
+  { id: 'development', title: 'Development', points: progress },
+  { id: 'localHoldout', title: 'Local holdout', points: localHoldoutHistory },
+  { id: 'challenges', title: 'Challenges', points: challenges.history,
+    error: challenges.status === 'failed' ? challenges.error : null },
+];
 
 // --- Standalone audit events (outside goals) ---
 
@@ -588,7 +608,7 @@ const summary = {
 };
 
 const output = {
-  goals, progress, standaloneAudits, workGoals, summary, scores, challenges,
+  goals, progress, scoreHistory, standaloneAudits, workGoals, summary, scores, challenges,
 };
 
 process.stdout.write(JSON.stringify(output, null, 2));

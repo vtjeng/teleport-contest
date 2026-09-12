@@ -87,6 +87,12 @@ test('first measurements persist; additions are unmeasured until included in a s
     assert.equal(view.cases[0].first.screens.matched, 0);
     assert.equal(view.cases[0].delta, 2);
     assert.equal(view.totals.screens.matched, 3);
+    // Saved evaluation times and the growing denominator survive into the chart.
+    assert.deepEqual(view.history.map(point => [point.utc, point.screens, point.screensTotal]),
+        [[FIRST_TIME, 0, 2], [NEXT_TIME, 3, 4]]);
+    assert.equal(view.history[1].changes.addedScreensMatched, 1);
+    assert.equal(view.history[1].changes.screensGained, 2);
+
     assert.equal(challengeDashboard(root, [row, next], FIRST_SHA).status, 'stale');
 });
 
@@ -105,6 +111,10 @@ test('missing, failed and measured zero stay distinct, including ledger evidence
     assert.equal(view.totals, null);
     assert.equal(view.cases[0].first.screens.matched, 0);
     assert.equal(view.cases[0].current, null);
+    assert.equal(view.history[0].screens, 0);
+    assert.equal(view.history[1].screens, null);
+    assert.equal(view.history[1].error, 'worker timeout');
+
     recordEvaluation(root, failed.challenge_evaluation);
     assert.throws(() => recordEvaluation(root, failed.challenge_evaluation), /already recorded/u);
     const badRow = { ...zero, challenge_screens_matched: '1' }; // Ledger must agree with saved zero.
