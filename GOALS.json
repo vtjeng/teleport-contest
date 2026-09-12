@@ -27787,7 +27787,7 @@
     {
       "id": "port-sounds-domonnoise-seduce",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port sounds.c domonnoise() ordinary MS_SEDUCE response and timing",
       "cFile": "sounds.c",
       "sessions": [
@@ -27798,8 +27798,8 @@
       "spans": [
         {
           "name": "domonnoise",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5b46e955221331c68bcf6677d08bb63c627e47fc",
           "functions": [
             "domonnoise"
           ]
@@ -27811,15 +27811,18 @@
         "screens": 6981,
         "rng": 509322
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5b46e955221331c68bcf6677d08bb63c627e47fc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "domonnoise",
           "line": 679,
           "endLine": 1247,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -27847,7 +27850,81 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 259
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "domonnoise",
+            "implementation": "js/sounds.js",
+            "symbol": "domonnoise",
+            "sourceReview": "Read the complete upstream sounds.c domonnoise() definition at lines 679-1247. The port preserves the Deaf and silent guards, the polymorphed quest-leader identification, the unseen-monster map update, and the common response tail's Monnam/verbalize1 choice and ECMD_TIME return. It ports case MS_SEDUCE at lines 1105-1128: SYSOPT_SEDUCE defaults enabled, nymphs bypass could_seduce()/doseduce(), poly_gender()/Mgender() selects the zero arm or rn2(3) in source order, and the three source messages are preserved. The non-nymph could_seduce()/doseduce() path remains an explicit mhitu.c source-named refusal because those routines' seduction effects are outside this span; all other domonnoise sound families retain their existing bounded refusal. No random draw, message, or state update is invented for an unported sound arm.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dochat",
+                "source": "sounds.c dochat() at lines 1397-1408 returns domonnoise(mtmp) after the Deaf, tame-eating and target guards; JavaScript dochat() reaches return domonnoise(mtmp, state) at line 1187 after the same common tail."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "dotalk",
+                "source": "sounds.c dotalk() at lines 1247-1254 calls dochat(); JavaScript dotalk() at lines 1191-1193 delegates to dochat(state)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runChatCommand",
+                "source": "cmd.c rhack()/doextcmd() dispatches the #chat entry to dotalk(); JavaScript runChatCommand() at lines 3553-3556 invokes dotalk(state) through failClosedCommand()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() selects the dotalk function from extcmdlist[]; JavaScript doextcmd() at lines 5074-5075 dispatches case dotalk to runChatCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/domonnoise-seduce.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sounds.c/domonnoise-seduce.session.json"
+            ],
+            "checkedAt": "5b46e955221331c68bcf6677d08bb63c627e47fc"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one admitted entry point: #chat reaches sounds.c dochat() and domonnoise() through the production command dispatcher. The independent wizard-mode recipe creates an awake hostile female water nymph adjacent to a female Wizard with no pet, then answers the chat direction; its matching recording executes the MS_SEDUCE same-gender response and common ECMD_TIME tail. The opposite-gender and verbal response arms are pinned by source-focused tests. Non-nymph seduction effects and all other monster sound families remain source-named boundaries for later spans.",
+        "entryPoints": [
+          {
+            "name": "ordinary MS_SEDUCE monster chat",
+            "functions": [
+              "domonnoise"
+            ],
+            "recordings": [
+              "recordings/sounds.c/domonnoise-seduce.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 455,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a seductive monster attack",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 259
+        }
+      ],
+      "closeStanding": {
+        "sha": "5b46e955221331c68bcf6677d08bb63c627e47fc",
+        "screens": 6981,
+        "rng": 509322
+      }
     }
   ]
 }
