@@ -86,8 +86,21 @@ The orchestrator repeats without returning to the user between steps:
    duplication or rework, and handoff overhead.
 
    While the worker runs, follow the waiting rules in the shared
-   instructions' "Operational Workflow" section. Use its completion message
-   to trigger handoff checks. When it returns, establish what landed with
+   instructions' "Operational Workflow" section. Wait with
+   `wait_agent({timeout_ms: 600000})`; the wait returns early when an agent
+   sends an update or completes.
+
+   At timeout, inspect the worker transcript. Evidence of liveness—new
+   transcript events, an active tool call, or a retained process handle—starts
+   another ten-minute notification-aware wait. A stationary transcript with
+   no active tool call or retained process handle starts a 60-second
+   confirmation wait. If the transcript remains stationary, call
+   `followup_task` with the existing worker path when it is idle. When
+   collaboration still reports it as running, call `interrupt_agent` once and
+   then call `followup_task` with that same path.
+
+   Use the worker's completion message to trigger handoff checks. When it
+   returns, establish what landed with
    `git log --oneline origin/main..HEAD` and `git status --short`. The worker
    runs `npm run checkpoint` after committing, so
    its shared summary describes the tested commit. Apply
@@ -160,8 +173,9 @@ the count of open entries and the newest one.
 Spawn a fresh subagent by agent type (such as `span-worker`) only at
 the step that calls for one.
 
-When the loop runs under `/loop`, set a long wakeup interval while work
-is in flight and a short one when idle. End the loop with
+When the loop runs under `/loop`, completion notifications advance work in
+flight. When `ScheduleWakeup` is available, set it to ten minutes as a
+recovery watchdog and use a short interval when idle. End the loop with
 `ScheduleWakeup stop` only for `AGENTS.md`'s stop cases; running low on
 context is not a reason to stop.
 
