@@ -258,38 +258,30 @@ export function more_experienced(exper, rexp, state = game) {
 
 // C ref: exper.c newexplevel(). "Make experience gaining similar to AD&D(tm),
 // whereby you can at most go up by one level at a time, extra expr possibly
-// helping you along." The one caller wired here is do.c goto_level()'s
-// Tourist arrival, whose grant is level_difficulty(); a Tourist needs to reach
-// D:6 before 2+3+4+5+6 meets newuexp(1), so pluslvl(TRUE) below stays refused.
+// helping you along." Callers include do.c goto_level()'s Tourist arrival and
+// mon.c xkilled(), each of which grants experience before asking whether the
+// hero should advance.
 export async function newexplevel(state = game, env = {}) {
     const u = state.u;
     if (u.ulevel < MAXULEV && u.uexp >= newuexp(u.ulevel))
         await pluslvl(true, state, env);
 }
 
-// C ref: exper.c pluslvl(). `incr` is False for the potion of gain level, the
-// wraith corpse, and wizard mode's #levelchange; only #levelchange reaches it
-// here, so the "You feel more experienced." opening always prints.
+// C ref: exper.c pluslvl(). `incr` is True for incremental experience growth
+// through newexplevel(); False is used by the potion of gain level, the wraith
+// corpse, and wizard mode's #levelchange.
 //
 // The message order is load-bearing for both the random-number log and the
-// screen. The opening message runs before newhp() and newpw() draw, and the
-// welcome line runs after u.ulevel has already been incremented. Each message
-// also flushes the status line before update_topl() can block on --More--
-// (pline.c:274), so a screen recorded at that prompt can show a level the top
-// line has not announced yet.
-//
-// Three arms have no owner. `incr` is True only from exper.c newexplevel()
-// above, whose sole wired caller grants a Tourist level_difficulty() points on
-// arrival; the smallest fresh case that meets newuexp(1) with those grants is
-// a Tourist on D:6, and no recorded or fresh case has taken the port past D:2.
-// The `incr` arm -- the silent opening and the u.uexp cap just below the next
-// threshold -- is therefore refused below rather than written blind, and
-// QUALITY.json carries it as a deferral.
+// screen. In the non-incremental mode, the opening message runs before
+// newhp() and newpw() draw. Both modes print the welcome line after u.ulevel
+// has already been incremented. Each message also flushes the status line
+// before update_topl() can block on --More-- (pline.c:274), so a screen
+// recorded at that prompt can show a level the top line has not announced yet.
 //
 // The Upolyd block, which adds monhp_per_lvl() to u.mh, cannot run because
 // js/u_init.js is this port's only writer of u.umonnum and sets it equal to
 // u.umonster. livelog_printf() writes a file this port cannot write, the
-// treatment recorded at js/do.js:658-660; it is the only reader of C's
+// treatment recorded at js/do.js:658-660. It is the only reader of C's
 // `old_ach_cnt`, so count_achievements() has no consumer here either.
 export async function pluslvl(incr, state = game, env = {}) {
     const message = env.message;
@@ -298,12 +290,8 @@ export async function pluslvl(incr, state = game, env = {}) {
     const random = env.random ?? { rn1, rnd };
     const u = state.u;
 
-    if (incr) {
-        throw new UnsupportedExperienceChangeError(
-            'pluslvl(TRUE), which only exper.c newexplevel() reaches',
-        );
-    }
-    await message('You feel more experienced.', state);
+    if (!incr)
+        await message('You feel more experienced.', state);
 
     /* increase hit points (when polymorphed, C does monster form first
        in order to retain normal human/whatever increase for later) */
@@ -327,10 +315,14 @@ export async function pluslvl(incr, state = game, env = {}) {
     if (u.ulevel < MAXULEV) {
         const oldrank = xlev_to_rank(u.ulevel);
 
-        /* increase experience points to reflect new level; C's `incr` arm,
-           which instead caps u.uexp one point below newuexp(u.ulevel + 1),
-           is the one refused above */
-        u.uexp = newuexp(u.ulevel);
+        /* increase experience points to reflect new level */
+        if (incr) {
+            const nextLevelExp = newuexp(u.ulevel + 1);
+            if (u.uexp >= nextLevelExp)
+                u.uexp = nextLevelExp - 1;
+        } else {
+            u.uexp = newuexp(u.ulevel);
+        }
         ++u.ulevel;
         await message(
             `Welcome ${u.ulevelmax < u.ulevel ? '' : 'back '}`

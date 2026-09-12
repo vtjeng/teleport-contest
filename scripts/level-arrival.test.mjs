@@ -15,7 +15,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_CON,
+    A_WIS,
     LFILE_EXISTS,
+    LAST_PROP,
     LS_MONSTER,
     OBJ_CONTAINED,
     OBJ_FLOOR,
@@ -50,6 +53,8 @@ import {
     TIMER_OBJECT,
     VISITED,
     LS_OBJECT,
+    MAXULEV,
+    N_ACH,
     ZOO,
 } from '../js/const.js';
 import { losedogs, update_mlstmv } from '../js/dog.js';
@@ -92,6 +97,7 @@ import {
     PM_CHAMELEON,
     PM_KOBOLD_ZOMBIE,
     PM_LITTLE_DOG,
+    PM_HUMAN,
     PM_ORACLE,
     PM_SOLDIER,
     PM_TOURIST,
@@ -973,12 +979,52 @@ test('mon_arrive puts a follower beside the hero when the roll misses', () => {
 // --- the sightseeing grant at do.c:1961-1964 ---
 
 // exper.c more_experienced() reads u.uexp, u.urexp, flags.showexp, disp.botl,
-// urole.mnum and flags.beginner, and nothing else.
+// urole.mnum and flags.beginner. The fixture also carries the hero fields
+// needed by the level-up test below, which calls newhp(), newpw() and adjabil().
 function sightseerState({ role = PM_TOURIST, showexp = true } = {}) {
     const state = resetGame();
-    state.u = { uz: { dnum: 0, dlevel: 2 }, ulevel: 1, uexp: 0, urexp: 0 };
-    state.urole = { mnum: role };
-    state.flags = { showexp, beginner: true };
+    state.u = {
+        uz: { dnum: 0, dlevel: 2 },
+        ulevel: 1,
+        ulevelmax: 1,
+        ulevelpeak: 1,
+        uexp: 0,
+        urexp: 0,
+        uhp: 13,
+        uhpmax: 13,
+        uhppeak: 13,
+        uen: 3,
+        uenmax: 3,
+        uenpeak: 3,
+        uhpinc: new Array(MAXULEV).fill(0),
+        ueninc: new Array(MAXULEV).fill(0),
+        uachieved: new Array(N_ACH).fill(0),
+        uprops: Array.from(
+            { length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+        ),
+        umonnum: role,
+        umonster: role,
+        weapon_slots: 0,
+        skills_advanced: 0,
+        acurr: { a: [10, 10, 10, 10, 10, 10] },
+    };
+    // The advancement rows are only needed to let the level-up test reach
+    // newhp() and newpw(); the exact Tourist values are covered by the
+    // source-pinned level-change tests.
+    state.urole = {
+        mnum: role,
+        filecode: 'Tou',
+        xlev: 14,
+        hpadv: { lofix: 0, lornd: 1, hifix: 1, hirnd: 0 },
+        enadv: { lofix: 0, lornd: 1, hifix: 0, hirnd: 1 },
+    };
+    state.urace = {
+        mnum: PM_HUMAN,
+        hpadv: { lofix: 0, lornd: 0, hifix: 1, hirnd: 0 },
+        enadv: { lofix: 0, lornd: 0, hifix: 1, hirnd: 0 },
+    };
+    state.flags = { showexp, beginner: true, female: false };
     state.disp = { botl: false };
     state.iflags = { status_hilites: [] };
     return state;
@@ -1082,14 +1128,20 @@ test('newexplevel leaves the level alone below the next threshold', async () => 
 test('newexplevel raises the hero once the threshold is met', async () => {
     const state = sightseerState();
     state.u.uexp = 20;
+    const messages = [];
 
-    // exper.c:302 calls pluslvl(TRUE), the arm this port refuses: the
-    // smallest fresh case that reaches it is a Tourist on D:6, where
-    // 2 + 3 + 4 + 5 + 6 first meets newuexp(1).
-    await assert.rejects(
-        () => newexplevel(state, { message: async () => {} }),
-        UnsupportedExperienceChangeError,
-    );
+    // exper.c:302 calls pluslvl(TRUE): the smallest fresh case that reaches
+    // it is a Tourist on D:6, where 2 + 3 + 4 + 5 + 6 first meets
+    // newuexp(1). Incremental growth keeps the already-earned 20 points,
+    // because they remain below newuexp(2).
+    await newexplevel(state, {
+        message: (text) => messages.push(text),
+        random: { rnd: () => 1, rn1: () => 1 },
+    });
+
+    assert.equal(state.u.ulevel, 2);
+    assert.equal(state.u.uexp, 20);
+    assert.deepEqual(messages, ['Welcome to experience level 2.']);
 });
 
 test('newexplevel stops at MAXULEV however many points are banked', async () => {

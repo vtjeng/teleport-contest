@@ -45,7 +45,7 @@ import {
     WARNING,
 } from '../js/const.js';
 import { xlev_to_rank } from '../js/display.js';
-import { newuexp, pluslvl } from '../js/exper.js';
+import { newexplevel, newuexp, pluslvl } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { achieve_rank, record_achievement } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
@@ -801,12 +801,50 @@ test('pluslvl at MAXULEV grants hit points and energy but no level',
     assert.equal(state.disp.botl, true);
 });
 
-test('pluslvl refuses the incremental growth newexplevel() asks for',
+test('pluslvl increments experience without the non-incremental message',
     async () => {
-    await assert.rejects(
-        () => pluslvl(true, heroState(), { message: () => {} }),
-        /newexplevel/,
-    );
+    const state = heroState();
+    state.u.uexp = 100;
+    const messages = [];
+    const draws = [];
+    const random = {
+        rnd: (n) => {
+            draws.push(`rnd(${n})`);
+            return n === 8 ? 5 : 2; /* 5 from rnd(8), 2 from rnd(2) */
+        },
+        rn1: (x, y) => {
+            draws.push(`rn1(${x},${y})`);
+            return 4; /* rn2(6) == 2, plus enfix 2 */
+        },
+    };
+
+    await pluslvl(true, state, { message: (text) => messages.push(text), random });
+
+    // exper.c skips You_feel() when incr is true. It caps the old experience
+    // below the next threshold before announcing the new level.
+    assert.deepEqual(messages, ['Welcome to experience level 2.']);
+    assert.deepEqual(draws, ['rnd(8)', 'rnd(2)', 'rn1(6,2)']);
+    assert.equal(state.u.uexp, 39); /* newuexp(2) - 1 */
+    assert.equal(state.u.ulevel, 2);
+    assert.equal(state.u.uhp, 20); /* 13 + 7 */
+    assert.equal(state.u.uhpmax, 20);
+    assert.equal(state.u.uen, 7); /* 3 + 4 */
+    assert.equal(state.u.uenmax, 7);
+});
+
+test('newexplevel wires the incremental level gain', async () => {
+    const state = heroState();
+    state.u.uexp = 20; /* newuexp(1), the threshold for level 2 */
+    const messages = [];
+
+    await newexplevel(state, {
+        message: (text) => messages.push(text),
+        random: { rnd: () => 1, rn1: () => 1 },
+    });
+
+    assert.equal(state.u.ulevel, 2);
+    assert.deepEqual(messages, ['Welcome to experience level 2.']);
+    assert.equal(state.u.uexp, 20); /* below newuexp(2), so no cap */
 });
 
 test('pluslvl prints the intrinsic it grants last, through the same owner',

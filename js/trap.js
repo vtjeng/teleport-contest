@@ -1797,7 +1797,7 @@ async function disarm_squeaky_board(ttmp, state = game) {
     deltrap(ttmp, state);
     newsym(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
     more_experienced(1, 5, state);
-    newexplevel(state);
+    await newexplevel(state, { message: ttyPline });
     return 1;
 }
 
@@ -1924,7 +1924,7 @@ async function disarm_box(box, force, confused, state = game) {
             box.otrapped = 0;
             box.tknown = 1;
             more_experienced(8, 0, state);
-            newexplevel(state);
+            await newexplevel(state, { message: ttyPline });
         }
         exercise(A_DEX, true, state);
     } else {
@@ -2172,7 +2172,7 @@ async function untrap(force, rx, ry, container, state = game) {
                 loc.flags = doormask & ~D_TRAPPED;
                 loc.doormask = doormask & ~D_TRAPPED;
                 more_experienced(8, 0, state);
-                newexplevel(state);
+                await newexplevel(state, { message: ttyPline });
             }
         } else {
             await ttyPline('This door was not trapped.', state);
