@@ -461,19 +461,26 @@ canvas {
   cursor: grabbing;
 }
 
-.history-controls { display: flex; gap: 6px; }
-.history-controls [aria-pressed="true"] { color: var(--ink-primary); border-color: var(--ink-secondary); }
+.history-controls { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.history-controls .chart-reset { border: 0; border-radius: 0; }
+.history-controls .chart-reset + .chart-reset { border-left: 1px solid var(--border); }
+.history-controls [aria-pressed="true"] { background: var(--progress-area); color: var(--ink-primary); border-color: var(--ink-secondary); }
+.history-view-controls { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+#progressWindow { font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .history-line { width: 22px; border-top: 2px solid var(--progress-fill); }
 .history-line.total { border-top: 1px dashed var(--chart-total); }
+.history-addition { height: 13px; border-left: 1px dashed var(--ink-secondary); }
 .score-inspection { position: sticky; top: 0; z-index: 5; background: var(--surface-card); padding: 8px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
 .readout-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
-.score-readout-row { display: grid; grid-template-columns: minmax(104px, 1fr) minmax(0, 2fr) minmax(64px, 1fr); gap: 8px; align-items: baseline; padding: 3px 0; font-size: 12px; }
-.score-readout-row > span { text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.score-readout-row > span:last-child { font-size: 11px; color: var(--ink-muted); }
-.measurement-details { font-size: 11px; color: var(--ink-secondary); margin-top: 6px; }
-.measurement-details p { margin-top: 8px; white-space: pre-line; overflow-wrap: anywhere; max-height: 96px; overflow-y: auto; }
+#progressReadout { display: grid; grid-template-columns: minmax(max-content, 1fr) max-content max-content max-content max-content max-content minmax(max-content, 1fr); column-gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.score-readout-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; align-items: baseline; padding: 3px 0; }
+.score-readout-row strong { padding-right: 8px; }
+.score-readout-row > span { text-align: right; }
+.score-readout-row .score-dot { padding: 0 4px; }
+.score-readout-row .score-age { padding-left: 8px; font-size: 11px; color: var(--ink-muted); }
+.score-readout-row .score-missing { grid-column: 2 / 7; }
 .history-plot { margin-top: 12px; }
-.history-plot h3, .history-navigator h3 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.history-plot h3 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
 .history-navigator { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; }
 .history-help { color: var(--ink-muted); font-size: 11px; margin-top: 8px; }
 
@@ -852,22 +859,25 @@ canvas {
   <div class="chart-wrap">
     <div class="chart-toolbar">
       <span class="chart-range" id="progressRange"></span>
-      <div class="history-controls" aria-label="Chart controls">
-        <button type="button" class="chart-reset" id="progressMode-screens" aria-pressed="true">Screens</button>
-        <button type="button" class="chart-reset" id="progressMode-percent" aria-pressed="false">%</button>
-        <button type="button" class="chart-reset" id="progressReset">Show all</button>
+      <div class="history-view-controls">
+        <div class="history-controls" role="group" aria-label="Chart units">
+          <button type="button" class="chart-reset" id="progressMode-screens" aria-pressed="true">Screens</button>
+          <button type="button" class="chart-reset" id="progressMode-percent" aria-pressed="false">%</button>
+        </div>
+        <select id="progressWindow" aria-label="Time range">
+          <option value="1">1d</option><option value="7" selected>7d</option><option value="30">30d</option><option value="all">All</option><option value="custom" disabled hidden>Custom</option>
+        </select>
       </div>
     </div>
     <div class="legend" id="progressLegend"></div>
     <div class="score-inspection">
       <div class="readout-heading"><time id="progressReadoutDate"></time><button type="button" class="chart-reset" id="progressClearPin" disabled>Unpin</button></div>
       <div id="progressReadout" aria-live="polite"></div>
-      <details class="measurement-details"><summary>Measurement details</summary><p id="progressReadoutDetails"></p></details>
     </div>
     <div class="history-plot"><h3>Development</h3><canvas id="progressChart" class="score-history-canvas" tabindex="0"></canvas></div>
     <div class="history-plot"><h3>Local holdout</h3><canvas id="holdoutChart" class="score-history-canvas" tabindex="0"></canvas></div>
     <div class="history-plot"><h3>Challenges</h3><canvas id="challengeChart" class="score-history-canvas" tabindex="0"></canvas></div>
-    <div class="history-navigator"><h3>Full history</h3>
+    <div class="history-navigator">
       <canvas id="progressMinimap" tabindex="0" aria-label="Full history for all three sets. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
     </div>
     <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom.</p>
@@ -1186,10 +1196,9 @@ document.getElementById('stats').innerHTML = [
   }));
   const minimap = document.getElementById('progressMinimap');
   const rangeLabel = document.getElementById('progressRange');
-  const reset = document.getElementById('progressReset');
+  const windowSelect = document.getElementById('progressWindow');
   const readout = document.getElementById('progressReadout');
   const readoutDate = document.getElementById('progressReadoutDate');
-  const readoutDetails = document.getElementById('progressReadoutDetails');
   const clearPin = document.getElementById('progressClearPin');
   const modes = ['screens', 'percent'].map(id => document.getElementById('progressMode-' + id));
   const DAY = 86400000, HOUR = DAY / 24, MIN_SPAN = 20 * 60000;
@@ -1207,13 +1216,18 @@ document.getElementById('stats').innerHTML = [
     ? (point.screensTotal ? (total ? 100 : point.screens / point.screensTotal * 100) : null)
     : total ? point.screensTotal : point.screens;
   const measured = point => point.screens !== null && point.screensTotal !== null;
-  const clock = time => new Date(time).toISOString().slice(11, 16);
+  const clock = time => new Date(time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   const day = time => new Date(time).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
+    day: 'numeric', month: 'short', year: 'numeric',
   });
-  const dateTime = time => day(time) + ' ' + clock(time) + ' UTC';
-  const age = ms => ms < 60000 ? 'just measured' : ms < HOUR ? Math.floor(ms / 60000) + 'm earlier'
-    : ms < DAY ? Math.floor(ms / HOUR) + 'h earlier' : Math.floor(ms / DAY) + 'd earlier';
+  const dateTime = time => new Date(time).toLocaleString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+  });
+  const age = time => {
+    const ms = Date.now() - time;
+    return ms < 60000 ? 'just now' : ms < HOUR ? Math.floor(ms / 60000) + 'm ago'
+      : ms < DAY ? Math.floor(ms / HOUR) + 'h ago' : Math.floor(ms / DAY) + 'd ago';
+  };
   const pointAt = (entry, time) => {
     let lo = 0, hi = entry.points.length;
     while (lo < hi) {
@@ -1263,29 +1277,39 @@ document.getElementById('stats').innerHTML = [
   }
   // Stop at the last measurement; failures and scorer changes break the line.
   // Clipping includes a predecessor so a sparse series carries into the window.
-  function drawSteps(ctx, entry, x, y, total, ink) {
+  function drawSteps(ctx, entry, x, y, kind, ink) {
+    const total = kind === 'total', area = kind === 'area';
     let previous = null;
+    const closeArea = () => {
+      if (area && previous) { ctx.lineTo(x(previous.time), y(0)); ctx.closePath(); }
+    };
     ctx.beginPath();
     for (const point of entry.points) {
       const value = measured(point) ? valueOf(point, total) : null;
-      if (value === null) { previous = null; continue; }
-      if (previous && !point.breakBefore) {
+      if (value === null || point.breakBefore) { closeArea(); previous = null; }
+      if (value === null) continue;
+      if (previous) {
         ctx.lineTo(x(point.time), y(valueOf(previous, total)));
         ctx.lineTo(x(point.time), y(value));
+      } else if (area) {
+        ctx.moveTo(x(point.time), y(0)); ctx.lineTo(x(point.time), y(value));
       } else ctx.moveTo(x(point.time), y(value));
       previous = point;
     }
+    closeArea();
+    if (area) { ctx.fillStyle = ink.area; ctx.fill(); return; }
     ctx.strokeStyle = total ? ink.total : ink.ink;
     ctx.lineWidth = total ? 1 : 2;
     ctx.setLineDash(total ? [4, 4] : []);
     ctx.stroke(); ctx.setLineDash([]);
   }
-  function drawMarker(ctx, x, y, added, color) {
+  function drawAdditions(ctx, entry, x, top, bottom, ink) {
+    ctx.strokeStyle = ink.muted; ctx.lineWidth = 1; ctx.setLineDash([5, 3]);
     ctx.beginPath();
-    if (added) {
-      ctx.moveTo(x, y - 4); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 4); ctx.lineTo(x - 4, y); ctx.closePath();
-    } else ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
+    for (const point of entry.points) if (point.changes?.added > 0) {
+      ctx.moveTo(x(point.time), top); ctx.lineTo(x(point.time), bottom);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
   }
   function drawChart(entry) {
     const height = entry.canvas.getBoundingClientRect().width < 500 ? 128 : 150;
@@ -1306,26 +1330,37 @@ document.getElementById('stats').innerHTML = [
     const maxTicks = Math.max(2, Math.floor((width - pad.left - pad.right) / 64));
     const interval = intervals.find(step => (view.t1 - view.t0) / step <= maxTicks) || DAY * 365;
     ctx.textAlign = 'center';
-    for (let time = Math.ceil(view.t0 / interval) * interval; time <= view.t1; time += interval) {
-      const date = new Date(time), px = x(time);
+    // Advance calendar dates locally so daily ticks stay at midnight over DST.
+    const tick = new Date(view.t0); tick.setHours(0, 0, 0, 0);
+    const advanceTick = () => interval >= DAY ? tick.setDate(tick.getDate() + interval / DAY) : tick.setTime(tick.getTime() + interval);
+    while (tick.getTime() < view.t0) advanceTick();
+    for (; tick.getTime() <= view.t1; advanceTick()) {
+      const time = tick.getTime(), px = x(time);
       ctx.fillStyle = ink.muted;
-      ctx.fillText(interval >= DAY ? (date.getUTCMonth() + 1) + '/' + date.getUTCDate() : clock(time), px, height - 5);
+      ctx.fillText(interval >= DAY ? (tick.getMonth() + 1) + '/' + tick.getDate() : clock(time), px, height - 5);
       ctx.strokeStyle = ink.grid;
       ctx.beginPath(); ctx.moveTo(px, pad.top); ctx.lineTo(px, height - pad.bottom); ctx.stroke();
     }
     ctx.save(); ctx.beginPath(); ctx.rect(pad.left - 4, pad.top - 5, width - pad.left - pad.right + 8, height - pad.top - pad.bottom + 10); ctx.clip();
-    drawSteps(ctx, entry, x, y, true, ink);
-    drawSteps(ctx, entry, x, y, false, ink);
+    drawSteps(ctx, entry, x, y, 'area', ink);
+    drawAdditions(ctx, entry, x, pad.top, height - pad.bottom, ink);
+    drawSteps(ctx, entry, x, y, 'total', ink);
+    drawSteps(ctx, entry, x, y, 'matched', ink);
     for (const point of entry.points) {
       if (point.time < view.t0 || point.time > view.t1) continue;
-      if (measured(point) && valueOf(point) !== null) drawMarker(ctx, x(point.time), y(valueOf(point)), point.changes?.added > 0, ink.ink);
-      else if (point.error) {
+      if (point.error && cursor === point.time) {
         const px = x(point.time), py = height - pad.bottom - 4;
         ctx.strokeStyle = ink.muted; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(px - 3, py - 3); ctx.lineTo(px + 3, py + 3); ctx.moveTo(px + 3, py - 3); ctx.lineTo(px - 3, py + 3); ctx.stroke();
       }
     }
     if (cursor !== null) {
+      const point = pointAt(entry, cursor);
+      // Only highlight evidence being inspected, at its actual measurement time.
+      if (point && measured(point) && valueOf(point) !== null && point.time >= view.t0) {
+        ctx.beginPath(); ctx.arc(x(point.time), y(valueOf(point)), 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = ink.ink; ctx.fill();
+      }
       ctx.strokeStyle = ink.muted; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
       ctx.beginPath(); ctx.moveTo(x(cursor), pad.top); ctx.lineTo(x(cursor), height - pad.bottom); ctx.stroke(); ctx.setLineDash([]);
     }
@@ -1347,10 +1382,9 @@ document.getElementById('stats').innerHTML = [
       ctx.fillText(entry.title, pad.left, top + 10);
       ctx.strokeStyle = ink.grid; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, top + 39); ctx.lineTo(width - pad.right, top + 39); ctx.stroke();
-      drawSteps(ctx, entry, x, y, true, ink); drawSteps(ctx, entry, x, y, false, ink);
-      for (const point of entry.points) if (measured(point) && valueOf(point) !== null) {
-        ctx.beginPath(); ctx.arc(x(point.time), y(valueOf(point)), 1.5, 0, Math.PI * 2); ctx.fillStyle = ink.ink; ctx.fill();
-      }
+      drawSteps(ctx, entry, x, y, 'area', ink);
+      drawAdditions(ctx, entry, x, top + 14, top + 38, ink);
+      drawSteps(ctx, entry, x, y, 'total', ink); drawSteps(ctx, entry, x, y, 'matched', ink);
     });
     const left = x(view.t0), right = x(view.t1), bottom = MINI_ROW * 3;
     ctx.fillStyle = ink.area; ctx.fillRect(left, 0, right - left, bottom);
@@ -1367,34 +1401,26 @@ document.getElementById('stats').innerHTML = [
   function showReadout() {
     const time = cursor ?? view.t1;
     readoutDate.textContent = dateTime(time);
+    readoutDate.setAttribute('datetime', new Date(time).toISOString());
     clearPin.disabled = !pinned;
-    const notes = [];
     readout.innerHTML = series.map(entry => {
       const point = pointAt(entry, time);
-      const score = point && measured(point) ? fmtN(point.screens) + '/' + fmtN(point.screensTotal)
-        + (mode === 'percent' ? ' · ' + pct(point.screens, point.screensTotal) : '') : point?.error || entry.error ? 'Unavailable' : 'Unmeasured';
-      if (!point && entry.error) notes.push(entry.title + ': ' + entry.error);
-      if (point) {
-        const changes = point.changes;
-        const parts = [entry.title + ': ' + dateTime(point.time)];
-        if (changes?.added) parts.push(changes.added + ' new case' + (changes.added === 1 ? '' : 's')
-          + ', ' + changes.addedScreensMatched + '/' + changes.addedScreens + ' screens');
-        if (changes) parts.push(changes.uncomparable ? 'Previous cases cannot be compared'
-          : 'Previous cases ' + fmtDelta(changes.screensGained - changes.screensLost) + ' screens');
-        if (point.error) parts.push(point.error);
-        else if (point.note) parts.push(point.note);
-        notes.push(parts.join('. '));
-      }
-      return '<div class="score-readout-row"><strong>' + entry.title + '</strong><span>' + score + '</span><span>'
-        + (point ? '<time datetime="' + esc(point.utc) + '" title="' + esc(dateTime(point.time)) + '">' + age(time - point.time) + '</time>' : '—') + '</span></div>';
+      const score = point && measured(point)
+        ? '<span class="score-matched">' + fmtN(point.screens) + '</span><span class="score-slash">/</span>'
+          + '<span class="score-total">' + fmtN(point.screensTotal) + '</span><span class="score-dot">·</span>'
+          + '<span class="score-percent">' + pct(point.screens, point.screensTotal) + '</span>'
+        : '<span class="score-missing">' + (point?.error || entry.error ? 'Unavailable' : 'Unmeasured') + '</span>';
+      return '<div class="score-readout-row"><strong>' + entry.title + '</strong>' + score + '<span class="score-age">'
+        + (point ? '<time datetime="' + esc(point.utc) + '" title="' + esc(dateTime(point.time)) + '">' + age(point.time) + '</time>' : '—') + '</span></div>';
     }).join('');
-    readoutDetails.textContent = notes.length ? notes.join('\n') : 'No measurements at this time.';
   }
   function render() {
     const shortRange = view.t1 - view.t0 < 3 * DAY;
     rangeLabel.textContent = day(view.t0) + (shortRange ? ' ' + clock(view.t0) : '') + ' – '
-      + day(view.t1) + (shortRange ? ' ' + clock(view.t1) + ' UTC' : '');
-    reset.disabled = view.t0 === domain.t0 && view.t1 === domain.t1;
+      + day(view.t1) + (shortRange ? ' ' + clock(view.t1) : '');
+    const fullRange = view.t0 === domain.t0 && view.t1 === domain.t1;
+    const preset = [1, 7, 30].find(days => view.t1 === domain.t1 && Math.abs(view.t1 - view.t0 - days * DAY) < 1);
+    windowSelect.value = fullRange ? 'all' : preset ? String(preset) : 'custom';
     modes.forEach((button, index) => button.setAttribute('aria-pressed', String(mode === (index ? 'percent' : 'screens'))));
     series.forEach(drawChart); drawMinimap(); showReadout();
   }
@@ -1496,14 +1522,18 @@ document.getElementById('stats').innerHTML = [
       : view.t0 + (event.key === 'ArrowLeft' ? -1 : 1) * span / 5;
     setView(start, start + span); render();
   });
-  reset.addEventListener('click', () => { cursor = null; pinned = false; setView(domain.t0, domain.t1); render(); });
+  windowSelect.addEventListener('change', () => {
+    cursor = null; pinned = false;
+    const start = windowSelect.value === 'all' ? domain.t0 : Math.max(domain.t0, domain.t1 - Number(windowSelect.value) * DAY);
+    setView(start, domain.t1); render();
+  });
   clearPin.addEventListener('click', () => { cursor = null; pinned = false; render(); });
   modes.forEach((button, index) => button.addEventListener('click', () => { mode = index ? 'percent' : 'screens'; render(); }));
   window.addEventListener('resize', render);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
   document.getElementById('progressLegend').innerHTML = '<span class="legend-item"><span class="history-line"></span>Matched</span>'
     + '<span class="legend-item"><span class="history-line total"></span>Total</span>'
-    + '<span class="legend-item"><span aria-hidden="true">◆</span>Cases added</span>';
+    + '<span class="legend-item"><span class="history-addition" aria-hidden="true"></span>Cases added</span>';
   setTimeout(() => {
     if (view.t1 !== domain.t1) sessionStorage.setItem('progressWindow', JSON.stringify([view.t0, view.t1]));
     location.reload();

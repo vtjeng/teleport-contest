@@ -963,11 +963,15 @@ test('progress points carry what the chart readout shows', () => {
 
     const rendered = renderDashboard(data);
     // Twenty minutes of goals is less than the week the chart opens on, so it
-    // shows all three and Show all has nothing left to reveal.
-    assert.equal(rendered.get('progressReset').disabled, true);
+    // shows all three and the range control shows All.
+    assert.equal(rendered.get('progressWindow').value, 'all');
     assert.equal(
         rendered.get('progressRange').textContent,
-        '1 Jan 2026 00:10 – 1 Jan 2026 00:30 UTC',
+        ['2026-01-01T00:10:00Z', '2026-01-01T00:30:00Z'].map(iso => {
+            const time = new Date(iso);
+            return time.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                + ' ' + time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }).join(' – '),
     );
 
     // The minimap's window is the only rectangle it strokes. On the whole
@@ -1012,9 +1016,11 @@ test('score histories include intermediate progress without inventing holdout me
     assert.equal(holdout.points[0].utc, development.points[0].utc);
     assert.deepEqual(challenges.points, []);
     const rendered = renderDashboard(data);
-    assert.match(rendered.get('progressReadout').innerHTML, /55\/100/);
-    assert.match(rendered.get('progressReadout').innerHTML, /0\/100/);
-    assert.match(rendered.get('progressReadout').innerHTML, /20m earlier/);
+    const readout = rendered.get('progressReadout').innerHTML.replace(/<[^>]*>/gu, '');
+    assert.match(readout, /55\/100·55.0%/);
+    assert.match(readout, /0\/100·0.0%/);
+    assert.match(readout, /ago/);
+    assert.doesNotMatch(readout, /earlier/);
 });
 
 test('the chart opens on the last week of measurements', () => {
@@ -1053,10 +1059,11 @@ test('the chart opens on the last week of measurements', () => {
     // holds the goals of 20 and 25 Jan.
     assert.equal(
         rendered.get('progressRange').textContent,
-        '18 Jan 2026 – 25 Jan 2026',
+        ['2026-01-18T00:00:00Z', '2026-01-25T00:00:00Z'].map(time => new Date(time)
+            .toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })).join(' – '),
     );
-    // The two older goals are off-window, so Show all has something to reveal.
-    assert.equal(rendered.get('progressReset').disabled, false);
+    // The two older goals are off-window, so the range control shows 7d.
+    assert.equal(rendered.get('progressWindow').value, '7');
 
     // The minimap still covers the whole 24 days, so its window is now a
     // fraction of the track: 7 of 24 days across the 932px between the
