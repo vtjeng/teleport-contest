@@ -86,6 +86,8 @@ import {
     ATR_BOLD,
     ATR_UNDERLINE,
     NO_COLOR,
+    CLR_BLUE,
+    CLR_BROWN,
     CLR_BLACK,
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_MAGENTA,
@@ -218,6 +220,7 @@ import {
     S_sw_bl,
     S_sw_bc,
     S_sw_br,
+    S_expl_tl,
     SYM_OFF_X,
     defsym_to_trap,
     trap_to_defsym,
@@ -238,6 +241,13 @@ import {
     GLYPH_CMAP_STONE_OFF,
     GLYPH_DETECT_FEM_OFF,
     GLYPH_DETECT_MALE_OFF,
+    GLYPH_EXPLODE_DARK_OFF,
+    GLYPH_EXPLODE_FIERY_OFF,
+    GLYPH_EXPLODE_FROSTY_OFF,
+    GLYPH_EXPLODE_MAGICAL_OFF,
+    GLYPH_EXPLODE_MUDDY_OFF,
+    GLYPH_EXPLODE_NOXIOUS_OFF,
+    GLYPH_EXPLODE_WET_OFF,
     GLYPH_INVIS_OFF,
     GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
@@ -1802,7 +1812,7 @@ export const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
 ]);
 
 // The glyph ranges map_glyphinfo() has an arm for: GLYPH_NOTHING, every object
-// range, and every cmap range but the zap beams'. This is the port's own
+// range, every cmap range but the zap beams, and explosion frames. This is the port's own
 // assertion rather than a ported predicate, and it is deliberately narrower
 // than glyph_is_cmap(): that macro's contiguous span admits the zap range,
 // which zapdir_to_glyph() would have to produce and no ported path does.
@@ -1819,6 +1829,8 @@ function mapGlyphinfoResolves(glyph) {
         || glyph === GLYPH_INVISIBLE
         || glyph_is_object(glyph)
         || glyph_is_cmap(glyph)
+        || (glyph >= GLYPH_EXPLODE_DARK_OFF
+            && glyph < GLYPH_WARNING_OFF)
         || glyph_is_swallow(glyph);
 }
 
@@ -1898,6 +1910,29 @@ export function map_glyphinfo(glyph, state = game) {
         symbol = statueSymbol(offset, state);
         color = statueColor(state);
         glyphflags = MG_STATUE | MG_MALE;
+    } else if ((offset = glyph - GLYPH_EXPLODE_FROSTY_OFF) >= 0) {
+        // display.c:2843-2862. Explosion glyphs use the same cmap symbol
+        // sequence for each color family and choose color from explodecolors.
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_WHITE;
+    } else if ((offset = glyph - GLYPH_EXPLODE_FIERY_OFF) >= 0) {
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_ORANGE;
+    } else if ((offset = glyph - GLYPH_EXPLODE_MAGICAL_OFF) >= 0) {
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_MAGENTA;
+    } else if ((offset = glyph - GLYPH_EXPLODE_WET_OFF) >= 0) {
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_BLUE;
+    } else if ((offset = glyph - GLYPH_EXPLODE_MUDDY_OFF) >= 0) {
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_BROWN;
+    } else if ((offset = glyph - GLYPH_EXPLODE_NOXIOUS_OFF) >= 0) {
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_GREEN;
+    } else if ((offset = glyph - GLYPH_EXPLODE_DARK_OFF) >= 0) {
+        cmap = S_expl_tl + offset;
+        color = state.iflags?.use_color === false ? NO_COLOR : CLR_BLACK;
     } else if ((offset = glyph - GLYPH_SWALLOW_OFF) >= 0) {
         // display.c:2864-2872. The low three bits select one of the eight
         // stomach-wall symbols; the remaining bits select the engulfer's

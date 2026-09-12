@@ -61,6 +61,7 @@ import {
     DIED,
     KILLED_BY_AN,
     NO_KILLER_PREFIX,
+    PHYS_EXPL_TYPE,
     Is_airlevel,
     Is_waterlevel,
     LAVAWALL,
@@ -1739,7 +1740,7 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
 // maketrap() leaves behind) and a fountain (dryup()). So do the two arms the
 // other wand damage types reach, and the secret door, the closed door and the
 // floor objects in the shared tail.
-async function zap_over_floor(
+export async function zap_over_floor(
     x, y,
     type,
     shopdamage,
@@ -1755,6 +1756,11 @@ async function zap_over_floor(
 
     // 5157-5160's PHYS_EXPL_TYPE (hack.h:1470, -1) is explode.c's gas-spore
     // constant; ubuzz() cannot produce a negative type.
+    if (type === PHYS_EXPL_TYPE) {
+        /* This is explode.c's gas-spore physical explosion, not a zap. */
+        return -1000;
+    }
+
     if (exploding_wand_typ) {
         throw new UnsupportedZapError(
             'zap_over_floor() for a wand that broke or burning oil',

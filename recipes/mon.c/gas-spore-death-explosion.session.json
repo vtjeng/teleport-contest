@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Creates an adjacent gas spore with the debug monster command, then strikes it until corpse_chance() reaches mon_explodes().",
+  "segments": [
+    {
+      "seed": 7770042,
+      "datetime": "20261028100000",
+      "nethackrc": "OPTIONS=name:Exploder,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  \u0007gas spore\nkkk"
+    }
+  ]
+}

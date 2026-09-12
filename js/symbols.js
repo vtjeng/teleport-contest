@@ -135,6 +135,15 @@ export const S_sw_mr = requiredCmapSymbol('s_sw_mr');
 export const S_sw_bl = requiredCmapSymbol('s_sw_bl');
 export const S_sw_bc = requiredCmapSymbol('s_sw_bc');
 export const S_sw_br = requiredCmapSymbol('s_sw_br');
+export const S_expl_tl = requiredCmapSymbol('s_expl_tl');
+export const S_expl_tc = requiredCmapSymbol('s_expl_tc');
+export const S_expl_tr = requiredCmapSymbol('s_expl_tr');
+export const S_expl_ml = requiredCmapSymbol('s_expl_ml');
+export const S_expl_mc = requiredCmapSymbol('s_expl_mc');
+export const S_expl_mr = requiredCmapSymbol('s_expl_mr');
+export const S_expl_bl = requiredCmapSymbol('s_expl_bl');
+export const S_expl_bc = requiredCmapSymbol('s_expl_bc');
+export const S_expl_br = requiredCmapSymbol('s_expl_br');
 // The base of the four beam directions a zap glyph carries, which
 // glyphs.c glyph_to_cmap() (1003-1004) adds its remainder to.
 export const S_vbeam = requiredCmapSymbol('s_vbeam');

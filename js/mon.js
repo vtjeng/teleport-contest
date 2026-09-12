@@ -62,6 +62,8 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
+    HALF_PHDAM,
+    KILLED_BY_AN,
     MAGICAL_BREATHING,
     has_mcorpsenm,
     has_egd,
@@ -133,6 +135,7 @@ import {
     LAVAPOOL,
     LAVAWALL,
     ROWNO,
+    STOMACH,
     FEMALE,
     FAINTED,
     IN_SIGHT,
@@ -189,7 +192,12 @@ import { adjalign, ALIGNLIM } from './attrib.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { growl, maybe_gasp } from './sounds.js';
 import { game } from './gstate.js';
-import { disturb_buried_zombies, NODIAG, u_locomotion } from './hack.js';
+import {
+    disturb_buried_zombies,
+    losehp,
+    NODIAG,
+    u_locomotion,
+} from './hack.js';
 import { dist2, online2, s_suffix, upstart } from './hacklib.js';
 import {
     add_to_container,
@@ -600,6 +608,8 @@ import {
     vision_recalc,
 } from './vision.js';
 import { which_armor } from './worn.js';
+import { body_part } from './polyself.js';
+import { mon_explodes } from './explode.js';
 
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;
@@ -4168,12 +4178,12 @@ function LEVEL_SPECIFIC_NOCORPSE(mdat, state, random) {
 // C ref: mon.c corpse_chance() (3180-3249). "TRUE if corpse might be dropped,
 // magr may die if mon was swallowed".
 //
-// Two arms stop, each above the first draw or message on its path:
+// The lich branch remains a source-prescribed no-corpse refusal; the gas-spore
+// branch below is fully wired through explode.c so its two damage rolls and
+// explosion effects occur before returning FALSE.
 //
 //   3193-3197  Vlad and the liches, whose bodies crumble into dust instead.
-//   3200-3232  AT_BOOM, the gas spore's death explosion. The refusal is at the
-//              top of the matching attack slot, so neither the d() rolled for
-//              its damage nor mon_explodes() runs first.
+//   3200-3232  AT_BOOM, the gas spore's death explosion.
 //
 // The closing formula at 3247 is what decides an ordinary kill, and it splits
 // species that look alike: a sewer rat is G_FREQ 1 and verysmall, so tmp is 4;
@@ -4187,7 +4197,7 @@ export function corpse_chance(
     env = {},
 ) {
     const unsupported = requiredKillOperation(env, 'unsupported');
-    const random = env.random ?? { d, rn2 };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
     const mdat = mon.data;
     let i;
     let tmp;
@@ -4204,8 +4214,53 @@ export function corpse_chance(
 
     /* "Gas spores always explode upon death" */
     for (i = 0; i < NATTK; i++) {
-        if (mdat.mattk[i].aatyp === AT_BOOM)
-            unsupported('a gas spore exploding on death');
+        if (mdat.mattk[i].aatyp !== AT_BOOM) continue;
+        const attack = mdat.mattk[i];
+        if (attack.damn) tmp = random.d(attack.damn, attack.damd);
+        else if (attack.damd) tmp = random.d((mdat.mlevel ?? 0) + 1,
+                                              attack.damd);
+        else tmp = 0;
+
+        if (was_swallowed && magr) {
+            const message = env.message ?? ttyPline;
+            return (async () => {
+                if (magr === state.youmonst) {
+                    await message(
+                        `There is an explosion in your ${body_part(STOMACH,
+                            state.youmonst)}!`,
+                        state,
+                        env,
+                    );
+                    state.killer ??= { name: '', format: KILLED_BY_AN };
+                    state.killer.name = `${s_suffix(mon_pmname(mon))} explosion`;
+                    state.killer.format = KILLED_BY_AN;
+                    const half = state.u?.uprops?.[HALF_PHDAM];
+                    await losehp(
+                        half?.intrinsic || half?.extrinsic
+                            ? Math.trunc((tmp + 1) / 2) : tmp,
+                        state.killer.name,
+                        KILLED_BY_AN,
+                        state,
+                        env,
+                    );
+                } else {
+                    await message('You hear an explosion.', state, env);
+                    magr.mhp -= tmp;
+                    if (magr.mhp <= 0) {
+                        await mondied(magr, state, env);
+                        if (canSpotMonster(magr, state))
+                            await message(`${Monnam(magr, state, env)} rips open!`,
+                                state, env);
+                    } else if (canseemon(magr, state)) {
+                        await message(`${Monnam(magr, state, env)} seems to have indigestion.`,
+                            state, env);
+                    }
+                }
+                return false;
+            })();
+        }
+        return mon_explodes(mon, attack, state, { ...env, random })
+            .then(() => false);
     }
 
     /* "must duplicate this below check in xkilled() since it results in
@@ -4431,7 +4486,7 @@ export async function mondied(mdef, state = game, env = {}) {
 
     /* "this assumes that the dead monster's map coordinates remain
        accurate" */
-    if (corpse_chance(mdef, null, false, state, env)
+    if (await corpse_chance(mdef, null, false, state, env)
         && (accessible(mdef.mx, mdef.my, state)
             || is_pool(mdef.mx, mdef.my, state)))
         make_corpse(mdef, CORPSTAT_NONE, state, env);
@@ -4806,7 +4861,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                 }
             }
             /* "corpse--none if hero was inside the monster" */
-            if (!wasinside && corpse_chance(mtmp, null, false, state, env)) {
+            if (!wasinside && await corpse_chance(mtmp, null, false, state, env)) {
                 /* gz.zombify decides whether mkobj.c start_corpse_timeout()
                    turns the corpse into a zombie; js/corpstat.js and
                    js/timeout.js read it and this is its only writer. */

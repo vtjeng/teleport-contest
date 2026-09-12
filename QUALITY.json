@@ -183,6 +183,7 @@
         "js/dog.js",
         "js/dogfood.js",
         "js/dogmove.js",
+        "js/explode.js",
         "js/makemon.js",
         "js/makemon_create.js",
         "js/mcastu.js",

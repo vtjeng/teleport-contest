@@ -301,9 +301,9 @@ test('corpse_chance answers big and special monsters without drawing',
         assert.deepEqual(cloned.bounds, ['rn2(3)']);
     });
 
-// mon.c corpse_chance():3193-3232. Both stopped arms sit above the first draw
-// or message on their path.
-test('corpse_chance stops on liches and gas spores before it draws',
+// mon.c corpse_chance():3193-3232. Liches stop before any draw, while a gas
+// spore consumes its corpse_chance() roll and mon_explodes() roll.
+test('corpse_chance stops on liches and explodes gas spores',
     async () => {
         await hero();
         for (const pmidx of [PM_ARCH_LICH, PM_VLAD_THE_IMPALER]) {
@@ -314,15 +314,13 @@ test('corpse_chance stops on liches and gas spores before it draws',
             );
             assert.deepEqual(env.bounds, []);
         }
-        const spore = killEnv();
-        refuses(
-            () => corpse_chance(monster(PM_GAS_SPORE), null, false, game,
+        const spore = killEnv([13, 11]);
+        assert.equal(
+            await corpse_chance(monster(PM_GAS_SPORE), null, false, game,
                                 spore),
-            'a gas spore exploding on death',
+            false,
         );
-        // The refusal is at the top of the matching attack slot, so the d()
-        // that would roll the explosion's damage is unspent.
-        assert.deepEqual(spore.bounds, []);
+        assert.deepEqual(spore.bounds, ['d(4,6)', 'd(4,6)']);
     });
 
 // mon.c LEVEL_SPECIFIC_NOCORPSE() (44-47). Its rn2(3) belongs to a graveyard
