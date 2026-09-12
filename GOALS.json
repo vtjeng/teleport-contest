@@ -28064,7 +28064,7 @@
     {
       "id": "port-mhitm-hitmm-seduction",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mhitm.c hitmm() seductive hit message and continuation into mdamagem",
       "cFile": "mhitm.c",
       "sessions": [
@@ -28075,8 +28075,8 @@
       "spans": [
         {
           "name": "hitmm",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "dc943f99c7689b99199d9f940806421350bef538",
           "functions": [
             "hitmm"
           ]
@@ -28088,15 +28088,18 @@
         "screens": 6981,
         "rng": 509322
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dc943f99c7689b99199d9f940806421350bef538",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hitmm",
           "line": 644,
           "endLine": 735,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -28124,7 +28127,81 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 259
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hitmm",
+            "implementation": "js/mhitm.js",
+            "symbol": "hitmm",
+            "sourceReview": "Read the complete upstream mhitm.c hitmm() definition at lines 642-735. The JavaScript port preserves weaponhit and silverhit evaluation, pre_mm_attack(), the !magr->mcan could_seduce() call, shade_miss() early return, visibility split, Monnam/mon_nam naming, the compat-dependent smiles-at/talks-to and engagingly/seductively message, the physical attack verb switch, and the final mdamagem() continuation in source order. It removes the old seductive-attack refusal that stood in for the compat message. The silver weapon searing refusal remains only for the separate AT_WEAP path that mattackm() still rejects, and the downstream uhitm.c mhitm_ad_sedu() monster arm remains the next source boundary after mdamagem().",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c mattackm() calls hitmm() at line 455; JavaScript mattackm() calls hitmm() at line 540 after the source-ordered to-hit and failed-grab checks."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move_aggress",
+                "source": "monmove.c m_move_aggress() calls mattackm() at lines 2098-2114; JavaScript m_move_aggress() calls mattackm() on the adjacent monster pair at lines 3772 and 3786."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c dog_move() calls mattackm() for the pet's occupant and possible return attack at lines 1149-1171; JavaScript dog_move() calls mattackm() at lines 1413 and 1427."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The live simple-monster dispatcher binds fightMonster to mhitm.js fightm(), which calls mattackm() and then hitmm(); JavaScript runSimpleMonsterAction() carries that production dispatch at lines 1473 and 1768."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json"
+            ],
+            "checkedAt": "dc943f99c7689b99199d9f940806421350bef538"
+          }
+        ],
+        "entryPointReview": "The selected source range contains the impure monster-versus-monster hitmm() entry point. Ordinary physical monster attacks reach it through mattackm(), including the existing pet recording cited below. The new monster-nymph-seduction-boundary recipe reaches hitmm()'s compat == 1 message and then stops at the deferred uhitm.c mhitm_ad_sedu() monster arm; it remains a blocked recipe until that downstream dependency lands.",
+        "entryPoints": [
+          {
+            "name": "monster-versus-monster hitmm attack",
+            "functions": [
+              "hitmm"
+            ],
+            "recordings": [
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 455,
+          "kind": "stop",
+          "function": "mhitm_ad_sedu",
+          "functionDeclared": true,
+          "sourceFile": "uhitm.c",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires uhitm.c mhitm_ad_sedu() mhitm arm",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 259
+        }
+      ],
+      "closeStanding": {
+        "sha": "dc943f99c7689b99199d9f940806421350bef538",
+        "screens": 6981,
+        "rng": 509322
+      }
     }
   ]
 }
