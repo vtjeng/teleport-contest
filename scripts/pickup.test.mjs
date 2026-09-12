@@ -11,6 +11,10 @@ import {
     HVY_ENCUMBER,
     INCLUDE_HERO,
     INVORDER_SORT,
+    LOST_DROPPED,
+    LOST_EXPLODING,
+    LOST_STOLEN,
+    LOST_THROWN,
     MOAT,
     MOD_ENCUMBER,
     OBJ_FLOOR,
@@ -56,6 +60,9 @@ import { addinv, obj_extract_self } from '../js/invent.js';
 import { make_engr_at } from '../js/engrave.js';
 import {
     encumber_msg,
+    autopick,
+    autopick_testobj,
+    check_autopickup_exceptions,
     describe_decor,
     observe_pickup_object,
     pickup,
@@ -76,12 +83,14 @@ import {
     FIGURINE,
     LEATHER_GLOVES,
     GOLD_PIECE,
+    RIN_PROTECTION,
     SACK,
     SCR_IDENTIFY,
     SCR_SCARE_MONSTER,
     TOOL_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
+import { regex_compile, regex_init } from '../js/posixregex.js';
 
 function inventoryOfSize(state, count, { withCoins = false } = {}) {
     const template = state.invent;
@@ -1247,6 +1256,65 @@ test('autopickup picks up everything when pickup_types is empty',
         assert.equal(dagger.where, OBJ_INVENT);
         assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
     });
+
+test('autopickup lost-object options override types and exceptions', async () => {
+    const state = await heroOnAnEmptySquare();
+    const ring = typedObjectUnderHero(state, RIN_PROTECTION);
+    const regex = regex_init();
+    assert.equal(regex_compile('ring', regex), true);
+    state.ga.apelist = {
+        pattern: 'ring',
+        // The matching exception rejects this ring unless the stolen override
+        // runs first, which is the ordering in pickup.c:946-950.
+        grab: false,
+        regex,
+        next: null,
+    };
+    state.flags.pickup = true;
+    // RIN_PROTECTION is a ring, while WEAPON_CLASS deliberately excludes it.
+    state.flags.pickup_types = [WEAPON_CLASS];
+    ring.dknown = false;
+
+    assert.equal(check_autopickup_exceptions(ring, state), state.ga.apelist);
+    assert.equal(autopick_testobj(ring, true, state), false,
+        'the exception rejects an ordinary ring');
+
+    // pickup_stolen overrides both pickup_types and a matching grab=false
+    // exception, so the stolen ring is selected and carried.
+    ring.how_lost = LOST_STOLEN;
+    assert.equal(autopick_testobj(ring, true, state), true);
+    const selected = autopick(ring, BY_NEXTHERE, state);
+    assert.equal(selected.n, 1);
+    assert.equal(selected.pick_list[0].obj, ring);
+    assert.equal(selected.pick_list[0].count, ring.quan);
+    assert.equal(ring.dknown, true,
+        'source autopickup matching names the object before carrying it');
+
+    // The same source ordering applies to the other lost-object arms.
+    ring.how_lost = LOST_THROWN;
+    assert.equal(autopick_testobj(ring, true, state), true);
+    ring.how_lost = LOST_DROPPED;
+    assert.equal(autopick_testobj(ring, true, state), false);
+    ring.how_lost = LOST_EXPLODING;
+    assert.equal(autopick_testobj(ring, true, state), false);
+    ring.how_lost = LOST_STOLEN;
+    ring.dknown = false;
+
+    const projected = {
+        ...state,
+        gw: { ...(state.gw ?? {}) },
+        u: { ...state.u },
+    };
+    preflight_projected_random_arrival_pickup(projected);
+    assert.equal(ring.dknown, false,
+        'random-arrival preflight names a copy of the floor object');
+
+    quiet(state);
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    assert.equal(await pickup(1, state), 1);
+    assert.equal(ring.where, OBJ_INVENT);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+});
 
 // pickup.c u_safe_from_fatal_corpse() (272-281). Each row names the term
 // that answers TRUE, or the state in which every term is FALSE. The species

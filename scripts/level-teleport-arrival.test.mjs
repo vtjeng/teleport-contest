@@ -783,7 +783,7 @@ test('an entirely autopicked arrival pile skips visible-region description',
         assert.equal(game.level.regions.includes(region), true);
     });
 
-test('random arrival refuses every unsupported ordinary pickup guard atomically',
+test('random arrival refuses each unsupported ordinary pickup guard atomically',
     async () => {
         await runSegment({
             seed: 7632401,
@@ -849,16 +849,6 @@ test('random arrival refuses every unsupported ordinary pickup guard atomically'
                 },
                 restore: () => {
                     game.youmonst.data = originalSpecies;
-                },
-            },
-            {
-                name: 'autopickup exception list',
-                pattern: /autopickup exceptions/u,
-                apply: () => {
-                    game.ga.apelist = {};
-                },
-                restore: () => {
-                    game.ga.apelist = null;
                 },
             },
             // pickup_types filtering is now handled: objects whose oclass is

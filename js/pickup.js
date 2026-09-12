@@ -44,7 +44,9 @@ import {
     LOOKHERE_PICKED_SOME,
     LOOKHERE_SKIP_DFEATURE,
     LOST_DROPPED,
-    LOST_NONE,
+    LOST_EXPLODING,
+    LOST_STOLEN,
+    LOST_THROWN,
     MENU_FULL,
     MENU_PARTIAL,
     MENU_TRADITIONAL,
@@ -96,6 +98,7 @@ import { hliquid } from './do_name.js';
 import { ceiling, surface } from './dungeon.js';
 import { dropy } from './do.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
+import { makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
 import {
@@ -144,6 +147,7 @@ import { get_obj_location } from './light.js';
 import { bagotricks } from './makemon.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { regex_match } from './posixregex.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
     CANDELABRUM_OF_INVOCATION, COIN_CLASS, CORPSE, GOLD_PIECE,
@@ -857,35 +861,104 @@ function preflightPickupObjects(selected, state) {
     return { addPlans, env };
 }
 
-// C ref: pickup.c autopick() (975-1003) reduced to the option settings
-// pickup() admits, fused with the preflight above. The autopickup exception
-// list is refused by the caller, so autopick_testobj() applies only the
-// costly-spot and pickup_types filters.
-function planAutomaticFloorPickupAndRefreshCapacityCache(state) {
-    const { u } = state;
-    const costly = costly_spot(u.ux, u.uy, state);
+// C ref: pickup.c check_autopickup_exceptions() (913-927).  The exception
+// list is kept in reverse configuration order, just as C's ga.apelist is.
+// `doname()` is deliberately part of the match: besides producing the text
+// that the user's regular expression sees, it performs the same object
+// discovery writes before autopickup chooses an item.
+export function check_autopickup_exceptions(obj, state = game) {
+    let ape = state.ga?.apelist ?? null;
+    if (ape) {
+        const objdesc = makesingular(donameFresh(obj, state));
+        while (ape && !regex_match(objdesc, ape.regex)) ape = ape.next;
+    }
+    return ape;
+}
+
+// C ref: pickup.c autopick_testobj() (930-965). The static costly value is
+// refreshed by autopick() at the start of each operation; callers such as
+// hack.c cannot_push() pass calc_costly=true for their own operation.
+let autopickCostly = false;
+
+export function autopick_testobj(otmp, calc_costly, state = game) {
+    if (calc_costly) {
+        autopickCostly = otmp.where === OBJ_FLOOR
+            && costly_spot(otmp.ox, otmp.oy, state);
+    }
+
+    // An unpaid object on a costly square is never autopicked, including when
+    // one of the lost-object options would otherwise override the filters.
+    if (autopickCostly && !otmp.no_charge) return false;
+
+    // pickup_thrown/pickup_stolen/nopick_dropped override pickup_types and
+    // exceptions, in this order, exactly as pickup.c does.
+    if ((state.flags?.pickup_thrown && otmp.how_lost === LOST_THROWN)
+        || (state.flags?.pickup_stolen && otmp.how_lost === LOST_STOLEN))
+        return true;
+    if (state.flags?.nopick_dropped && otmp.how_lost === LOST_DROPPED)
+        return false;
+    if (otmp.how_lost === LOST_EXPLODING) return false;
+
     const pickupTypes = state.flags?.pickup_types ?? [];
-    const selected = [];
+    let pickit = !pickupTypes.length || pickupTypes.includes(otmp.oclass);
+    const ape = check_autopickup_exceptions(otmp, state);
+    if (ape) pickit = Boolean(ape.grab);
+    return pickit;
+}
+
+function autopickTestObject(otmp, calc_costly, state, dryRun) {
+    if (!dryRun) return autopick_testobj(otmp, calc_costly, state);
+    // preflight_projected_random_arrival_pickup() runs before movement. The
+    // source matcher calls doname(), which can set dknown; name a shallow copy
+    // there so admission does not write through to the live floor object.
+    const projected = {
+        ...otmp,
+        oextra: otmp.oextra ? { ...otmp.oextra } : otmp.oextra,
+    };
+    return autopick_testobj(projected, calc_costly, state);
+}
+
+// C ref: pickup.c autopick() (975-1003). Return the count and menu items
+// together because JavaScript does not need C's out-parameter allocation.
+export function autopick(olist, follow, state = game, { dryRun = false } = {}) {
+    let n = 0;
+    let check_costly = true;
+
+    /* first count the number of eligible items */
+    for (let curr = olist; curr; curr = FOLLOW(curr, follow)) {
+        if (autopickTestObject(curr, check_costly, state, dryRun)) ++n;
+        check_costly = false; /* only need to check once per autopickup */
+    }
+
+    const pick_list = [];
+    if (n) {
+        for (let curr = olist; curr; curr = FOLLOW(curr, follow)) {
+            if (autopickTestObject(curr, false, state, dryRun)) {
+                pick_list.push({ obj: curr, count: curr.quan });
+            }
+        }
+    }
+    return { n, pick_list };
+}
+
+// Keep the preflight's result in the same shape used by pickup()'s commit
+// loop, while deriving eligibility through the complete source autopick path.
+function planAutomaticFloorPickupAndRefreshCapacityCache(
+    state,
+    { dryRun = false } = {},
+) {
+    const { u } = state;
+    const head = state.level.objects[u.ux][u.uy];
+    const { pick_list: selected } = autopick(
+        head,
+        BY_NEXTHERE,
+        state,
+        { dryRun },
+    );
+    const selectedObjects = new Set(selected.map(({ obj }) => obj));
     const remaining = [];
-    for (let obj = state.level.objects[u.ux][u.uy];
-        obj;
-        obj = obj.nexthere) {
-        if (costly && !obj.no_charge) {
-            remaining.push(obj);
-            continue;
-        }
-        if ((obj.how_lost ?? LOST_NONE) !== LOST_NONE) {
-            throw new UnsupportedPickupError(
-                'pickup() with a lost-object option override',
-            );
-        }
-        // C ref: pickup.c autopick_testobj():956-957.  When pickup_types is
-        // non-empty, objects whose oclass is not listed go to remaining.
-        if (pickupTypes.length && !pickupTypes.includes(obj.oclass)) {
-            remaining.push(obj);
-            continue;
-        }
-        selected.push({ obj, count: obj.quan });
+    for (let obj = head; obj; obj = obj.nexthere) {
+        if (!selectedObjects.has(obj)) remaining.push(obj);
     }
     return {
         ...preflightPickupObjects(selected, state),
@@ -951,12 +1024,10 @@ export function preflight_projected_random_arrival_pickup(state) {
         remaining = [];
         for (let obj = head; obj; obj = obj.nexthere) remaining.push(obj);
     } else {
-        if (state.ga?.apelist) {
-            throw new UnsupportedPickupError(
-                'pickup() with autopickup exceptions',
-            );
-        }
-        const plan = planAutomaticFloorPickupAndRefreshCapacityCache(state);
+        const plan = planAutomaticFloorPickupAndRefreshCapacityCache(
+            state,
+            { dryRun: true },
+        );
         remaining = plan.remaining;
         pickedSome = Boolean(plan.selected.length);
     }
@@ -1126,11 +1197,6 @@ export async function pickup(what, state = game) {
     let addPlans;
     let env;
     if (autopickup) {
-        if (state.ga?.apelist) {
-            throw new UnsupportedPickupError(
-                'pickup() with autopickup exceptions',
-            );
-        }
         ({ addPlans, env, selected }
             = planAutomaticFloorPickupAndRefreshCapacityCache(state));
     } else {

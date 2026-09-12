@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 219,
+      "datetime": "20350718101500",
+      "nethackrc": "OPTIONS=name:PickupPort,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,autopickup\n",
+      "moves": " k"
+    }
+  ]
+}
