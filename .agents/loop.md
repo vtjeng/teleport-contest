@@ -67,6 +67,24 @@ The orchestrator repeats without returning to the user between steps:
    independently. Record the agents' start and finish times, which findings the
    worker used, duplication or rework, and handoff overhead.
 
+   When a confirmed difficult mismatch has two concrete, falsifiable
+   explanations, start at most two read-only investigators concurrently, one
+   for each explanation, while the span worker keeps implementation and
+   checkpoint ownership. This also applies when one focused investigation has
+   not resolved the mismatch after two source-backed probes and the
+   orchestrator can then state two distinct explanations. Give each
+   investigator a narrow source and artifact allowlist and tell it what would
+   falsify its explanation. It must stop when falsified and return concise
+   source pointers and evidence. It must not edit files, enumerate session
+   corpora, record a session, or run a full suite, checkpoint, or scorer.
+   Forward each verified result as soon as the worker can use it, and stop the
+   remaining investigation if the worker resolves the mismatch first. Skip
+   this overlap when the cause is already source-local, the explanations are
+   not distinct, or implementation cannot proceed independently. Record the
+   investigators' start and finish times, overlap with implementation, the
+   accepted and rejected explanations, findings used by the worker,
+   duplication or rework, and handoff overhead.
+
    While the worker runs, follow the waiting rules in the shared
    instructions' "Operational Workflow" section. Use its completion message
    to trigger handoff checks. When it returns, establish what landed with
