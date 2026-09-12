@@ -29443,7 +29443,16 @@
       ],
       "selectionReason": "After closing wiz_map and rechecking the development queue, seed0030-ten-diverse-deaths step 1745 is the highest-ranked unresolved candidate at most 208 remaining screens. Source tracing identifies mon.c corpse_chance() AT_BOOM as the owner; select this whole function and its required explosion wiring.",
       "detail": "The mismatch is seed0030-ten-diverse-deaths segment 9 global screen 1745, gas spore death. C mon.c:3181-3249 corpse_chance() computes d(4,6) at its AT_BOOM branch (3200-3234), then calls explode.c mon_explodes() which computes a second d(4,6) and invokes explode(). JS js/mon.js:4182-4220 still refuses before either draw; production callers are killed()->xkilled()->corpse_chance() at js/mon.js:4809 and mondied()->corpse_chance() at 4434. Port the C branch and wire the bounded explode.c dependency group: explosionmask() 25-115, engulfer_explosion_msg() 117-179, explode() 199-696, adtyp_to_expltype() 987-1012, mon_explodes() 1014-1067. Preserve source RNG order, monster death state, explosion display and affected-square side effects. Add the source-prescribed PHYS_EXPL_TYPE early return from zap.c:5157-5160 to js/zap.js zap_over_floor(). Existing destroy_items() and resist() are available for the named explosion effects. Other mhitu/mhitm explosion callers remain outside this session scope. No holdout data was inspected.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "corpse_chance",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "corpse_chance"
+          ]
+        }
+      ],
       "openedAt": "02c5f96829238a3dd21330bb92f739d281632d42",
       "openStanding": {
         "sha": "ae898ac90ce07d222f6250c557727703acb2e224",
