@@ -29153,7 +29153,7 @@
     {
       "id": "port-read-doread-enchant-weapon",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port read.c doread() ordinary enchant-weapon scroll path through seffects and chwepon wiring",
       "cFile": "read.c",
       "sessions": [
@@ -29164,8 +29164,8 @@
       "spans": [
         {
           "name": "doread",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
           "functions": [
             "doread"
           ]
@@ -29177,15 +29177,18 @@
         "screens": 7042,
         "rng": 514457
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
+      "delivered": {
+        "screens": 20,
+        "rng": 5466
+      },
       "functions": [
         {
           "name": "doread",
           "line": 330,
           "endLine": 651,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -29213,7 +29216,81 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 198
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doread",
+            "implementation": "js/read.js",
+            "symbol": "doread",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:doread() 330-651 in full and checked the source order from gk.known reset through capacity, getobj/read_ok, pickup_prev, conduct, in_use, disappearance and confusion feedback, seffects(), naming, in_use clearing, useup(), and ECMD_TIME. Added the ordinary uncursed, sighted, unconfused, low-enchantment SCR_ENCHANT_WEAPON branch. read.c:1627-1676 chooses s=1 and delegates to wield.c:916-1048 chwepon(); the reachable chwepon branch preserves the blue glow message, makeknown/discovery, weapon spe increment, and return value, while cursed, confused, blind, no-weapon, high-enchantment, artifact, erosion, strange-feeling, other scroll, spellbook, and unrelated readable branches remain fail-closed. No unported callee is invoked by the admitted branch.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c:1816-1817 binds the r command to doread(); js/cmd.js runReadCommand() passes the live game state to doread() and consumes its ECMD result"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:635 calls seffects(scroll); read.c:2194-2290 dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(), which is wired through js/read.js seffects()"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_enchant_weapon",
+                "source": "read.c:1639-1675 computes the ordinary positive amount, calls chwepon(), and caps spe; js/read.js calls js/wield.js chwepon() and preserves the scroll for doread() useup()"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "chwepon",
+                "source": "read.c:1672 consumes chwepon()'s return and wield.c:1011-1018 supplies the reachable glow and makeknown effects; js/wield.js chwepon() returns 1 after the weapon state transition"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "checkedAt": "b26545e0945804ea3bc6e777968095e46ec8d2bc"
+          }
+        ],
+        "entryPointReview": "The selected range has one live entry point for this span: the r command selecting an ordinary uncursed enchant-weapon scroll while a known low-enchantment weapon is wielded. The committed recipe reaches cmd.c's doread binding, read.c's common prefix and seffects dispatch, seffect_enchant_weapon()'s s=1 arm, wield.c chwepon()'s blue glow and makeknown path, doread()'s useup(), and the following wait.",
+        "entryPoints": [
+          {
+            "name": "ordinary enchant-weapon scroll read",
+            "functions": [
+              "doread"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 536,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed-turn nh_timeout requires no active property timeout at index 25",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 178
+        }
+      ],
+      "closeStanding": {
+        "sha": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
+        "screens": 7062,
+        "rng": 519923
+      }
     }
   ]
 }
