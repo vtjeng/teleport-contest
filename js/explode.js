@@ -122,8 +122,7 @@ import { canSpotMonster } from './startup_a11y.js';
 import { cansee } from './vision.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { resist, zap_over_floor } from './zap.js';
-import { rndmonnam } from './do_name.js';
-import { Monnam } from './do_name.js';
+import { mon_pmname, Monnam, rndmonnam } from './do_name.js';
 import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
@@ -659,7 +658,7 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     }
     if (mon.mhp > 0) await mondead(mon, state, env);
     state.killer ??= { name: '', format: KILLED_BY };
-    state.killer.name = `${s_suffix(Monnam(mon, state, env))} explosion`;
+    state.killer.name = `${s_suffix(mon_pmname(mon))} explosion`;
     state.killer.format = KILLED_BY_AN;
     await explode(mon.mx, mon.my, type, damage, MON_EXPLODE,
         adtyp_to_expltype(mattk.adtyp), state, env);
