@@ -3548,8 +3548,9 @@ async function runKickCommand(key, state) {
 }
 
 // C ref: sounds.c dotalk(). Like dosearch() and doeat() it returns its own
-// ECMD_* result: dochat() answers ECMD_CANCEL for a cancelled direction prompt
-// and ECMD_OK for every arm this goal ports, so #chat never spends a move.
+// ECMD_* result: dochat() answers ECMD_CANCEL for a cancelled direction prompt,
+// ECMD_OK for the no-monster arms, and ECMD_TIME for domonnoise()'s admitted
+// MS_SEDUCE response.
 async function runChatCommand(key, state) {
     return failClosedCommand(key, state, () => dotalk(state));
 }

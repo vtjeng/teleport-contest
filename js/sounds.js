@@ -136,6 +136,7 @@ import {
     PM_GECKO,
     PM_LONG_WORM,
     PM_ORACLE,
+    S_NYMPH,
     S_ANT,
     S_EEL,
 } from './monsters.js';
@@ -145,7 +146,7 @@ import { g_at } from './obj.js';
 import { an, helm_simple_name, vtense } from './objnam.js';
 import { STATUE } from './objects.js';
 import { halu_gname } from './pray.js';
-import { body_part } from './polyself.js';
+import { body_part, poly_gender } from './polyself.js';
 import { quest_chat } from './quest.js';
 import { inhistemple, p_coaligned, temple_occupied } from './priest.js';
 import { rn1, rn2 } from './rng.js';
@@ -928,10 +929,11 @@ export class UnsupportedChatError extends Error {
     }
 }
 
-// C ref: sounds.c domonnoise() (679-731). The leader is identified by its
+// C ref: sounds.c domonnoise() (679-1247). The leader is identified by its
 // persistent m_id rather than by its current species, because the leader can
-// be polymorphed and still speaks with quest-leader dialogue. Other sound
-// families remain fail-closed at this boundary until their own slices land.
+// be polymorphed and still speaks with quest-leader dialogue. This span also
+// ports the ordinary MS_SEDUCE response; other sound families remain
+// fail-closed at this boundary until their own slices land.
 async function domonnoise(mtmp, state) {
     if (Deaf(state)) return ECMD_OK;
     if (is_silent(mtmp.data) && !mtmp.isshk) return ECMD_OK;
@@ -941,6 +943,13 @@ async function domonnoise(mtmp, state) {
     if (mtmp.m_id === leaderId && msound > MS_ANIMAL)
         msound = MS_LEADER;
 
+    // sounds.c:717-721. The monster is marked invisible before its sound arm
+    // runs, including when the arm ultimately has no visual name.
+    if (!canSpotMonster(mtmp, state))
+        map_invisible(mtmp.mx, mtmp.my, state);
+
+    let plineMsg = null;
+    let verbalMsg = null;
     if (msound === MS_LEADER) {
         // quest.c chat_with_leader() raises the caller's own class for the
         // conversation arms this port does not carry, so #chat keeps reporting
@@ -948,14 +957,66 @@ async function domonnoise(mtmp, state) {
         await quest_chat(mtmp, state, {
             unsupported: (reason) => { throw new UnsupportedChatError(reason); },
         });
+    } else if (msound === MS_SEDUCE) {
+        let swval;
+        // sys.c:100 initializes SYSOPT_SEDUCE to one. Keep an explicit state
+        // override for source-shaped tests and future configuration wiring.
+        const seductionEnabled = state.sysopt?.seduce === undefined
+            ? true : Boolean(state.sysopt.seduce);
+        if (seductionEnabled) {
+            // sounds.c:1109-1113 calls could_seduce()/doseduce() for the
+            // non-nymph arm. Those mhitu.c routines are still unported, so
+            // retain a source-named boundary for that path. Nymphs bypass
+            // both calls and continue to the response selection below.
+            if (mtmp.data?.mlet !== S_NYMPH) {
+                throw new UnsupportedChatError(
+                    'mhitu.c could_seduce()/doseduce()',
+                );
+            }
+            // poly_gender() and Mgender() both return 0 for male and 1 for
+            // female. Matching genders take the source's zero arm without a
+            // random draw.
+            swval = poly_gender(state) !== Number(Boolean(mtmp.female))
+                ? rn2(3) : 0;
+        } else {
+            swval = poly_gender(state) === 0 ? rn2(3) : 0;
+        }
+        switch (swval) {
+        case 2:
+            verbalMsg = 'Hello, sailor.';
+            break;
+        case 1:
+            plineMsg = 'comes on to you.';
+            break;
+        default:
+            plineMsg = 'cajoles you.';
+            break;
+        }
     } else {
         // Preserve the existing public boundary for every ordinary monster;
-        // only the quest-leader arm is admitted by this slice.
+        // only the quest-leader and nymph arms are admitted by this slice.
         throw new UnsupportedChatError('a monster occupying the target square');
     }
 
+    // sounds.c:1229-1244. pline_msg uses Monnam directly; verbal responses
+    // set the monster voice and quote the text through verbalize1().
+    if (plineMsg) {
+        await ttyPline(
+            `${capitalizedMonsterName(mtmp, state)} ${plineMsg}`,
+            state,
+        );
+    } else if (verbalMsg) {
+        set_voice(mtmp, 0, 80, 0, state);
+        state.gp.pline_flags |= PLINE_VERBALIZE;
+        try {
+            await ttyPline(`"${verbalMsg}"`, state);
+        } finally {
+            state.gp.pline_flags &= ~PLINE_VERBALIZE;
+        }
+    }
+
     // C's quest_chat() is void; domonnoise() returns ECMD_TIME after the
-    // selected sound arm has completed.
+    // selected sound arm and common response tail have completed.
     return ECMD_TIME;
 }
 
@@ -978,8 +1039,9 @@ const WALLTALK = Object.freeze([
  * calls this goal leaves for later: price_quote() at :1288 and domonnoise() at
  * :1302 and :1408.
  *
- * Every ported arm answers ECMD_OK or ECMD_CANCEL, so #chat spends no move.
- * Two arms draw, and both belong to a hallucinating hero. The wall reply at
+ * Every ported pre-monster arm answers ECMD_OK or ECMD_CANCEL. The admitted
+ * MS_SEDUCE arm in domonnoise() answers ECMD_TIME. Two pre-monster arms draw,
+ * and both belong to a hallucinating hero. The wall reply at
  * :1364 spends rn2(10) on the core stream, which the recorder logs. The
  * statue line at :1338 spends rndmonnam()'s draws on the display stream,
  * which the recorder does not log -- but they still choose the name the line

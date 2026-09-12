@@ -10,7 +10,8 @@
 // The rest cover what no C case can reach: the four speech guards, each of
 // which needs a hero who is polymorphed, strangled, swallowed or submerged;
 // the shop quote, which needs the hero standing on a shop's stock; and the
-// monster arm, which stops rather than continuing into domonnoise().
+// ordinary pet arm, which continues into domonnoise() and stops at its
+// still-unported sound family.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -446,7 +447,8 @@ test('chatting at a monster stops at domonnoise()', async () => {
         moves: `#chat\n${key}`,
     }, { onBoundary: (error) => { boundary = error; } });
     // sounds.c:1374-1377 lets a detected monster through to the naming arms
-    // and finally to domonnoise() at :1408, none of which this goal ports.
+    // and finally to domonnoise() at :1408. The pet's MS_BARK arm remains
+    // outside the selected MS_SEDUCE span.
     assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
     assert.match(boundary.message, /a monster occupying the target square/u);
 });

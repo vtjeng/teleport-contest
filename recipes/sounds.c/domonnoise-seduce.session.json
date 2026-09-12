@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Wizard-mode seed 7710002 creates an awake hostile female water nymph without a pet; #chat reaches sounds.c domonnoise() case MS_SEDUCE with a same-gender hero and stops after the response.",
+  "segments": [
+    {
+      "seed": 7710002,
+      "datetime": "20270401090000",
+      "nethackrc": "OPTIONS=name:SeduceTest,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": ".#wizgenesis\nwater nymph\n#chat\nu"
+    }
+  ]
+}
