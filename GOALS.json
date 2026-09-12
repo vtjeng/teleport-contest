@@ -29872,6 +29872,71 @@
         "screens": 7202,
         "rng": 528987
       }
+    },
+    {
+      "id": "port-mondata-can-track-seed0360",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port can_track and wire Excalibur-aware monster tracking for seed0360",
+      "cFile": "mondata.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The queue still ranks monmove.c at step 668 first, but post-closure source tracing established that the remaining mismatch is the missing mondata.c can_track(ptr) dependency called from monmove.c m_move(). C can_track returns TRUE when u_wield_art(ART_EXCALIBUR), otherwise haseyes(ptr); JS js/monmove.js:3535 substitutes haseyes() and js/mondata.js leaves can_track unported because u_wield_art is missing. Porting this one dependency is required to address the highest-ranked monmove candidate; no lower candidate is being selected.",
+      "detail": "Development session seed0360-wizard-world-tour, step 668. On tested commit ad5812c2b21122f4eb260997634cffe766c916ef, the mismatch moved beyond distfleeck and the preferred-range branch. C trace shows A mysterious force prevents the tengu from teleporting, then rn2(5)=0 at m_move(monmove.c:1841) and rn2(32)=14 at m_move(monmove.c:1963). The source owner for the next deterministic divergence is mondata.c:623-628 can_track(ptr), which returns true for u_wield_art(ART_EXCALIBUR) or haseyes(ptr). JS m_move at js/monmove.js:3535 uses haseyes(monster.data) directly, while js/mondata.js:1499 records can_track as unported because it needs u_wield_art. Production path: allmain.js moveElapsedTurnMonster -> mon.js movemon_singlemon -> unported_monster_actions.js runSimpleMonsterAction -> monmove.js dochug -> m_move. Read-only investigation used only the named development session and source files; no holdout access.",
+      "spans": [
+        {
+          "name": "can_track",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "can_track"
+          ]
+        }
+      ],
+      "openedAt": "86176675576f0e65fe5a3ec4690eb7297aa3ab00",
+      "openStanding": {
+        "sha": "ad5812c2b21122f4eb260997634cffe766c916ef",
+        "screens": 7202,
+        "rng": 528987
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "can_track",
+          "line": 623,
+          "endLine": 631,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 623,
+        "to": 631
+      },
+      "activeStanding": {
+        "sha": "ad5812c2b21122f4eb260997634cffe766c916ef",
+        "screens": 7202,
+        "rng": 528987
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 668,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 165
+        }
+      ]
     }
   ]
 }
