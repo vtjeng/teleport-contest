@@ -54,6 +54,7 @@ import {
 } from './const.js';
 import { acurr } from './attrib.js';
 import {
+    ART_EXCALIBUR,
     artifact_defends,
     defends,
     defends_when_carried,
@@ -1496,7 +1497,6 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //                           change monster state; setworn() calls it.
 //   can_blow               its hero branch reads Strangled, which callers
 //                           of the port do not exercise yet
-//   can_track               needs u_wield_art()
 
 // C ref: mondata.c can_be_strangled() (591-619). Strangulation is loss of
 // blood flow to the brain from neck constriction: headless creatures are immune
@@ -1520,6 +1520,15 @@ export function can_be_strangled(mon, state = game) {
                 && mamul.otyp === AMULET_OF_MAGICAL_BREATHING);
     }
     return !nobrainer || !nonbreathing;
+}
+
+// C ref: mondata.c can_track() (623-628). Excalibur lets the hero track any
+// monster, including species whose M1_NOEYES flag makes haseyes() false.
+export function can_track(species, state = game) {
+    // obj.h u_wield_art(art) is is_art(uwep, art), so the port compares the
+    // active hero weapon's artifact index against ART_EXCALIBUR.
+    if (state.uwep?.oartifact === ART_EXCALIBUR) return true;
+    return haseyes(species);
 }
 
 // C ref: mondata.c levl_follower() (1209-1226). Answers whether a monster

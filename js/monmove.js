@@ -229,6 +229,7 @@ import {
     attacktype,
     attacktype_fordmg,
     breathless,
+    can_track,
     can_teleport,
     dmgtype,
     flesh_petrifies,
@@ -3532,7 +3533,7 @@ export async function m_move(monster, rawEnv = {}) {
         preferredrange_min = balks.distmin;
         preferredrange_max = balks.distmax;
 
-        if (!shouldSee && haseyes(monster.data)) {
+        if (!shouldSee && can_track(monster.data, state)) {
             const track = gettrack(oldX, oldY, state);
             if (track) {
                 goalX = track.x;

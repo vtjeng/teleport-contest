@@ -26,6 +26,7 @@ import {
     always_peaceful,
     big_little_match,
     breakarm,
+    can_track,
     emits_light,
     extra_nasty,
     cantvomit,
@@ -141,6 +142,32 @@ test('ranged_attk accepts only the four distance attack types', () => {
     assert.equal(ranged_attk(pm(M.PM_FLOATING_EYE)), false);
     // A pure melee biter has no distance attack.
     assert.equal(ranged_attk(pm(M.PM_JACKAL)), false);
+});
+
+test('can_track lets Excalibur track eyeless monsters and otherwise uses haseyes', () => {
+    // mondata.c:623-628 returns TRUE for u_wield_art(ART_EXCALIBUR) before it
+    // evaluates haseyes(ptr). artilist.h:88 puts EXCALIBUR in the first
+    // artifact slot (index 1), and obj.h:441 defines u_wield_art() in terms
+    // of is_art(uwep, art), so this literal independently pins that branch.
+    const trackingState = monsterState();
+    trackingState.uwep = { oartifact: 1 };
+    // monsters.h:137-146 gives acid blob M1_NOEYES; Excalibur overrides it.
+    assert.equal(
+        can_track(trackingState.mons[M.PM_ACID_BLOB], trackingState),
+        true,
+    );
+
+    trackingState.uwep = null;
+    // With no Excalibur, acid blob's M1_NOEYES makes haseyes() false.
+    assert.equal(
+        can_track(trackingState.mons[M.PM_ACID_BLOB], trackingState),
+        false,
+    );
+    // monsters.h:3260-3268 gives newt no M1_NOEYES flag, so haseyes() is true.
+    assert.equal(
+        can_track(trackingState.mons[M.PM_NEWT], trackingState),
+        true,
+    );
 });
 
 test('mstrength reproduces the C difficulty formula', () => {
