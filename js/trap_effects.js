@@ -4,7 +4,8 @@
 // trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_rocktrap(),
 // trapeffect_bear_trap(), trapeffect_slp_gas_trap(),
 // mselftouch(), trapeffect_pit(), trapeffect_telep_trap(),
-// trapeffect_magic_trap(), trapeffect_rolling_boulder_trap(),
+// trapeffect_statue_trap(), trapeffect_magic_trap(),
+// trapeffect_rolling_boulder_trap(),
 // launch_drop_spot(), launch_obj(), trapeffect_selector(), dotrap(), mintrap().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
@@ -1950,11 +1951,20 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     RUST_TRAP,
     SPIKED_PIT,
     WEB,
-    STATUE_TRAP,
     LANDMINE,
     POLY_TRAP,
     VIBRATING_SQUARE,
 ]));
+
+// C ref: trap.c trapeffect_statue_trap() (2279-2292). The hero arm still
+// stops at activate_statue_trap(), which is outside this span; monsters do
+// not trigger statue traps and finish without output, RNG, or state changes.
+async function trapeffect_statue_trap(mtmp, _trap, _trflags, env) {
+    if (mtmp === env.state.youmonst) {
+        requireTrapOperation(env, 'unsupported')('trap activation');
+    }
+    return Trap_Effect_Finished;
+}
 
 // C ref: trap.c trapeffect_selector() (2936-2992). C's default arm calls
 // impossible() for a type outside the switch; the port throws instead, since
@@ -1988,6 +1998,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_magic_portal(monster, trap, trflags, env);
     if (trap.ttyp === TELEP_TRAP)
         return trapeffect_telep_trap(monster, trap, trflags, env);
+    if (trap.ttyp === STATUE_TRAP)
+        return trapeffect_statue_trap(monster, trap, trflags, env);
     if (trap.ttyp === ROLLING_BOULDER_TRAP)
         return trapeffect_rolling_boulder_trap(monster, trap, trflags, env);
     if (UNPORTED_TRAP_EFFECTS.has(trap.ttyp)) unsupported('trap activation');

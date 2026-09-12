@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh monster statue-trap entry-point coverage: seed 8000535 was the first qualifying seed in a scan of 8000000-8000999 at the fixed clock below. One hundred search turns let an ordinary monster walk onto the generated STATUE_TRAP while the hero stays still; the recording therefore reaches trapeffect_statue_trap() through postmov() without the hero activation arm.",
+  "segments": [
+    {
+      "seed": 8000535,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:StatueProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+    }
+  ]
+}
