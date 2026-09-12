@@ -29563,6 +29563,24 @@
         "screens": 7170,
         "rng": 524609
       }
+    },
+    {
+      "id": "fix-pager-quest-staircase-description",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix pager quest-start blocked staircase wording in do_screen_description()",
+      "cFile": "pager.c",
+      "sessions": [],
+      "selectionReason": "After closing the gas-spore goal and rechecking the queue, seed0360-wizard-world-tour remains the highest-ranked candidate at step 626. Source tracing identifies pager.c do_screen_description() as the owner: C rewrites staircase down to blocked staircase down on the quest start level when ok_to_quest() is false; the JS pager path omits this deterministic wording branch.",
+      "detail": "Development session seed0360-wizard-world-tour segment 0 step 626, key >, expects row 0 blocked staircase down (no travel path), cursor [32,10,1]. Step 625 travel prompt matches. C nethack-c/upstream/src/pager.c:1595-1606 performs lookat() then rewrites staircase down when on_level(&u.uz, &qstart_level) && !ok_to_quest(). JS js/pager.js:671-675 assigns lookatOrdinaryTerrain() staircase down directly to firstmatch. Production callers: js/getpos.js:auto_describe() 74-85, js/pager.js:do_look() 948, js/cmd.js:doclicklook() 4774; quest gate js/quest.js:ok_to_quest() 95-103 and on_level() js/dungeon.js. Preserve parenthesized out detail and getpos no-travel suffix. No holdout data was inspected.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "do_screen_description",
+      "session": "seed0360-wizard-world-tour",
+      "step": 626
     }
   ]
 }
