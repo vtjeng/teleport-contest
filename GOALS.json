@@ -29811,6 +29811,59 @@
         "screens": 7202,
         "rng": 528987
       }
+    },
+    {
+      "id": "div-monmove-m-move-preferred-range-seed0360",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Match m_move preferred-range candidate selection for seed0360 step 668",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "selectionReason": "",
+      "detail": "Development session seed0360-wizard-world-tour, segment 0, mismatch queue step 668 is RNG at distfleeck(monmove.c:538). Read-only source investigation confirms distfleeck itself matches C (monmove.c:532-567; js/monmove.js:2119-2174), including rn2(5) and flee predicates. The source-traced defect is m_move candidate selection: C monmove.c:1967-1974 includes the preferred-range disjunct for appr == -2, while js/monmove.js:3665-3676 omits it; JS already computes approach -2 for throw-and-return weapons at js/monmove.js:1623-1630. This deterministic square choice changes state before the later distfleeck call. Production chain is movemon_singlemon -> runSimpleMonsterAction -> dochug -> distfleeck -> m_move. Smallest fix is the missing C preferred-range disjunct in m_move; do not alter distfleeck. Fresh source-backed investigation found no holdout access.",
+      "spans": [
+        {
+          "name": "preferred_range_selection",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_move"
+          ]
+        }
+      ],
+      "openedAt": "3b697fc0c28218b9ebc5d751f1aa506d355a18e7",
+      "openStanding": {
+        "sha": "67fc8bb6bc2285ec025ec84145ba4567c23d38a1",
+        "screens": 7202,
+        "rng": 528987
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "m_move",
+      "session": "seed0360-wizard-world-tour",
+      "step": 668,
+      "activeStanding": {
+        "sha": "67fc8bb6bc2285ec025ec84145ba4567c23d38a1",
+        "screens": 7202,
+        "rng": 528987
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 668,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 165
+        }
+      ]
     }
   ]
 }
