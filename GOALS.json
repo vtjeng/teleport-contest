@@ -28894,7 +28894,7 @@
     {
       "id": "port-do-goto-level-falling-stairs",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port do.c goto_level() ordinary downward-stair falling arm and preserve source-ordered damage and arrival wiring",
       "cFile": "do.c",
       "sessions": [
@@ -28903,8 +28903,12 @@
       "selectionReason": "After closing nh_timeout and rechecking the development queue, seed0014 step 481 is the highest-ranked unresolved mismatch, with at most 233 remaining screens. A source investigation confirms do.c goto_level() owns the ordinary downward-stair falling branch at lines 1780-1795, where encumbrance triggers You fall down the stairs, rnd(3) damage through losehp, then selftouch and the shared arrival tail. Select the smallest source-backed file-port span for goto_level(); preserve existing callers and leave later Punished, steed, Flying, and selftouch dependencies bounded.",
       "detail": "Development session seed0014-dequa-fountain-explore step 481 (input >) reaches goto_level() after a matching timeout fix. C do.c goto_level() is defined at lines 1478-1998; ordinary same-dungeon downward stair handling is lines 1765-1800, with the falling branch at 1780-1795. Preconditions are near_capacity() > UNENCUMBERED || Punished || Fumbling; this witness is unmounted, unpunished, and has no Fumbling equipment, so encumbrance selects the branch. C prints You fall down the stairs., calls losehp(Maybe_Half_Phys(rnd(3)), ..., KILLED_BY), then selftouch(). The session records rnd(3)=2 at goto_level(do.c:1792) and HP 31 to 29. JS js/do.js mirrors the predicate but throws UnsupportedLevelChangeError at 1574-1583. Production callers are already wired through jsmain.js -> allmain.js -> cmd.js rhack/runDownCommand -> do.js dodown -> dungeon.js next_level -> do.js goto_level. Required existing dependencies are near_capacity/UNENCUMBERED, heroPropertyActive(FUMBLING), rnd, losehp, and the stair placement/shared arrival tail. selftouch() is trap.c-owned and its return is discarded; with the spear witness, retain note_unported(trap.c selftouch) unless included later. Keep Punished, steed, and Flying subarms outside this first bounded span.",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "875c7e16164c835324a39aed57e0a3057c38ab5d",
+      "openStanding": {
+        "sha": "a8ec8023da53f37abd6e510817ee2087764895b9",
+        "screens": 7007,
+        "rng": 512612
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -28919,7 +28923,39 @@
       "range": {
         "from": 1479,
         "to": 2002
-      }
+      },
+      "activeStanding": {
+        "sha": "a8ec8023da53f37abd6e510817ee2087764895b9",
+        "screens": 7007,
+        "rng": 512612
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 481,
+          "kind": "stop",
+          "function": "goto_level",
+          "functionDeclared": true,
+          "sourceFile": "do.c",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: goto_level() falling down the stairs",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 233
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a8ec8023da53f37abd6e510817ee2087764895b9",
+        "screens": 7007,
+        "rng": 512612
+      },
+      "parkedReason": "goto_level() is already a completed do.c source unit with prior whole-function evidence; the newly confirmed encumbrance falling branch is a source-local defect in implemented behavior and must be selected as a bounded divergence-fix instead."
     }
   ]
 }
