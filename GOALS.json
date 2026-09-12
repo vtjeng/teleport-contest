@@ -27518,7 +27518,7 @@
     {
       "id": "port-dokick-kick-nondoor-wall",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dokick.c kick_nondoor() wall/upward-stairs arm with required kick_ouch() and kickstr() dependencies",
       "cFile": "dokick.c",
       "sessions": [
@@ -27529,8 +27529,8 @@
       "spans": [
         {
           "name": "kick_nondoor",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "539cc66f4d5359b40b527c90c210b7b6f72debf6",
           "functions": [
             "kick_nondoor"
           ]
@@ -27542,15 +27542,18 @@
         "screens": 6902,
         "rng": 508247
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "539cc66f4d5359b40b527c90c210b7b6f72debf6",
+      "delivered": {
+        "screens": 3,
+        "rng": 367
+      },
       "functions": [
         {
           "name": "kick_nondoor",
           "line": 974,
           "endLine": 1256,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -27578,7 +27581,71 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 288
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "kick_nondoor",
+            "implementation": "js/dokick.js",
+            "symbol": "kick_nondoor",
+            "sourceReview": "Read the complete upstream dokick.c kick_nondoor() definition at lines 974-1253 and compared each terrain branch in source order. The selected ordinary wall and upward-stairs arm now awaits kick_ouch() after the LA_DOWN ladder short circuit and returns ECMD_TIME. kick_ouch() preserves the C output, exercise, visibility, wake_nearto, wounded-leg, damage, and losehp ordering; kickstr() follows dokick.c:794-830. The drawbridge find_drawbridge() coordinate mutation and floating hurtle() recoil remain explicit gaps. Other terrain arms retain source-named refusals for later spans or unported callees; no substitute state or random call is invented.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:1465-1468 selects kick_nondoor after the target passes monster, pool, object, and door checks; JavaScript dokick() reaches kick_nondoor() at line 621."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKickCommand",
+                "source": "cmd.c dispatches the kick command through rhack(); JavaScript runKickCommand() at lines 3546-3548 calls dokick(), and rhack() handles the ECMD result at lines 5829-5833."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-wall.session.json"
+            ],
+            "checkedAt": "539cc66f4d5359b40b527c90c210b7b6f72debf6"
+          }
+        ],
+        "entryPointReview": "The selected span has one bounded entry point: the kick command reaches dokick() and then kick_nondoor() for an ordinary wall or upward staircase. The independent kick-wall recipe uses seed 6600100 and Ctrl-D/#kick production input to exercise that path. Remaining kick_nondoor terrain branches retain explicit source-named blockers.",
+        "entryPoints": [
+          {
+            "name": "ordinary wall and upward-stairs kick",
+            "functions": [
+              "kick_nondoor"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-wall.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 548,
+          "kind": "stop",
+          "function": "dokick",
+          "functionDeclared": true,
+          "sourceFile": "dokick.c",
+          "cFile": "dokick.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s wounded-legs guard, which needs legs_in_no_shape()",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 285
+        }
+      ],
+      "closeStanding": {
+        "sha": "539cc66f4d5359b40b527c90c210b7b6f72debf6",
+        "screens": 6905,
+        "rng": 508614
+      }
     }
   ]
 }
