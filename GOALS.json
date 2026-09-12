@@ -30280,7 +30280,16 @@
       ],
       "selectionReason": "The refreshed queue's highest candidate is seed0014-dequa-fountain-explore at step 557. Source tracing shows the JS stop occurs before C uhitm.c do_attack() safe-monster handling and hack.c domove_swap_with_pet() at lines 2098-2224; JS preflight admits only the starting dog, kitten, or pony and rejects this ordinary peaceful gnome. Port the complete hack.c function and required caller/admission wiring so the existing uhitm.c random stop and subsequent swap path remain source ordered.",
       "detail": "Development session seed0014-dequa-fountain-explore, segment 0, first stop at step 557 with unsupported hero move: peaceful monster displacement; fresh bounded investigation used the explicit session and current checkpoint artifacts only. C uhitm.c do_attack() lines 448-511 consumes rn2(7) and, for a visible safe peaceful monster without forcefight/confusion/hallucination/stun, can print You stop. The gnome is in the way! at lines 489-502. If attack returns false, hack.c domove_swap_with_pet() lines 2098-2224 handles swap refusal gates and successful You swap places with the peaceful gnome at lines 2169-2175, called from hack.c domove_core() around 2922. JS cmd.js executeMovement() calls hack.js preflightDomoveDestination(); hack.js requireOrdinaryStartingPetSwap() lines 1604-1613 rejects every safe peaceful monster not the starting pet, repeated in domove_core() lines 3962-3969, while domove_swap_with_pet() at hack.js:4537 only handles successful ordinary starting-pet swaps. Smallest scope is whole domove_swap_with_pet() source unit plus production admission/wiring and required dependencies; no holdout access.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "domove_swap_with_pet",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "domove_swap_with_pet"
+          ]
+        }
+      ],
       "openedAt": "8321a63b4326226e476b0606fc836661bffa30e7",
       "openStanding": {
         "sha": "edd25620870f12b3181ca719b4cfc7ac3df49e71",
