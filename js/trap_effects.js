@@ -974,7 +974,7 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
 // wider than C's condition: monst.h:279 resists_ston() expands to
 // mondata.c Resists_Elem() (129-231), which is not ported either, so the port
 // also stops for a stone-resistant monster, which C would let walk away.
-function mselftouch(mon, _arg, _byplayer, env) {
+export function mselftouch(mon, _arg, _byplayer, env) {
     const { state } = env;
     const unsupported = requireTrapOperation(env, 'unsupported');
     const mwep = mon.mw; /* MON_WEP() */

@@ -14,9 +14,11 @@ import {
     A_DEX,
     A_LAWFUL,
     A_STR,
+    ARTICLE_THE,
     BLINDED,
     CONFUSION,
     DEAF,
+    DISMOUNT_POLY,
     HALLUC,
     HALLUC_RES,
     HMON_APPLIED,
@@ -26,6 +28,7 @@ import {
     M_ATTK_AGR_DONE,
     M_ATTK_HIT,
     RLOC_MSG,
+    RLOC_NOMSG,
     M_SEEN_COLD,
     M_SEEN_ELEC,
     NATTK,
@@ -46,12 +49,14 @@ import {
     M_AP_OBJECT,
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
+    STRAT_WAITFORU,
     STRAT_WAITMASK,
     STUNNED,
     TEST_MOVE,
     W_ARMG,
     W_RINGL,
     W_RINGR,
+    W_SADDLE,
     engulfing_u,
     helpless,
     isok,
@@ -65,6 +70,7 @@ import {
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
     l_monnam,
+    Monnam,
     monsterCommonName,
     monsterPossessive,
     pmname,
@@ -197,6 +203,7 @@ import {
     S_FUNGUS,
     S_LEPRECHAUN,
     S_MIMIC,
+    S_NYMPH,
     S_TROLL,
 } from './monsters.js';
 import {
@@ -208,7 +215,8 @@ import {
     mksobj,
     objectType,
 } from './obj.js';
-import { clone_mon } from './makemon.js';
+import { add_to_minv } from './invent.js';
+import { clone_mon, grow_up } from './makemon.js';
 import { an, cxname, donameFresh, is_plural, otense, simpleonames, yname } from './objnam.js';
 import {
     CORPSE,
@@ -243,10 +251,13 @@ import {
     uwep_skill_type,
     weapon_dam_bonus,
     weapon_hit_bonus,
+    mwepgone,
+    possibly_unwield,
 } from './weapon.js';
 import { can_twoweapon } from './wield.js';
 import {
     bimanual,
+    extract_from_minvent,
     find_mac,
     is_pole,
     which_armor,
@@ -255,9 +266,12 @@ import { steal } from './steal.js';
 import { noteleport_level, rloc } from './teleport.js';
 import { is_pool } from './trap.js';
 import { mintrap } from './trap_effects.js';
+import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { Cold_resistance, exclam } from './zap.js';
+import { note_unported } from './unported.js';
+import { canseemon } from './vision.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -1667,8 +1681,9 @@ function first_weapon_hit() {
 }
 
 // C ref: uhitm.c mhitm_ad_sedu() (4623-4748). Seduction / item theft attack.
-// Three arms: hero attacks monster (uhitm, unported), monster attacks hero
-// (mhitu, ported below), monster attacks monster (mhitm, unported).
+// Three arms: hero attacks monster (uhitm, still delegated to steal_it()),
+// monster attacks hero (mhitu, ported below), and monster attacks monster
+// (mhitm, ported below).
 //
 // The mhitu arm: if the attacker is an animal, it acts like a hit message then
 // falls through to steal(). If the hero's own species seduces, the attacker
@@ -1676,12 +1691,14 @@ function first_weapon_hit() {
 // Otherwise steal() runs and the attacker teleports away on success.
 async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
     const random = env.random ?? { d, rn2, rnd };
-    const unsupported = requireAttackOperation(env, 'unsupported');
     const message = requireAttackOperation(env, 'message');
 
     if (magr === state.youmonst) {
-        // uhitm: hero seduces monster. steal_it() unported.
-        unsupported('uhitm.c mhitm_ad_sedu() uhitm arm');
+        // uhitm: steal_it() is a void callee whose result C discards. Keep
+        // the source call boundary visible while the hero-versus-monster
+        // theft operation remains outside this span.
+        note_unported('uhitm.c steal_it');
+        mhm.damage = 0;
         return;
     }
 
@@ -1771,8 +1788,106 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         }
     }
 
-    // mhitm: monster seduces another monster. Unported.
-    unsupported('uhitm.c mhitm_ad_sedu() mhitm arm');
+    // mhitm: monster seduces another monster. C cancels the attack before it
+    // looks for an object, so a canceled aggressor keeps the damage that
+    // mdamagem() initialized on entry.
+    if (magr.mcan) return;
+
+    // Find the first object that a tame aggressor may take. C's loop reads
+    // the live nobj chain in order and leaves cursed objects eligible only to
+    // a wild aggressor.
+    let obj = mdef.minvent;
+    if (magr.mtame) {
+        while (obj && obj.cursed) obj = obj.nobj;
+    }
+
+    if (obj) {
+        // C names the defender before extraction, because x_monnam() can
+        // inspect the defender's saddle and other current state.
+        const mdefnambuf = x_monnam(
+            mdef,
+            ARTICLE_THE,
+            null,
+            0,
+            false,
+            state,
+            env,
+        );
+
+        if (state.u?.usteed === mdef
+            && obj === which_armor(mdef, W_SADDLE, state)) {
+            // steed.c dismount_steed() is a void callee and its
+            // DISMOUNT_POLY arm remains outside this span. Preserve the call
+            // boundary without replacing it with a throw that stops theft.
+            if (typeof env.dismountSteed === 'function') {
+                await env.dismountSteed(DISMOUNT_POLY, state, env);
+            } else {
+                note_unported('steed.c dismount_steed');
+            }
+        }
+
+        // The W_WEP hook is already source-backed; provide it here so a
+        // stolen wielded object clears the defender's weapon slot in the same
+        // extraction operation. Other equipped-item hooks remain explicit
+        // gaps in worn.c and are not invented here.
+        const extractionEnv = {
+            ...env,
+            state,
+            hooks: {
+                ...(env.hooks ?? {}),
+                mwepgone: env.hooks?.mwepgone
+                    ?? ((mon, actionEnv) => mwepgone(mon, actionEnv)),
+            },
+        };
+        extract_from_minvent(mdef, obj, true, false, extractionEnv);
+
+        // add_to_minv() may merge and free obj, so C obtains its display name
+        // before adding it to the aggressor's inventory.
+        const onambuf = state.gv?.vis ? donameFresh(obj, state) : '';
+        add_to_minv(magr, obj, { ...env, state });
+        const buf = Monnam(magr, state, env);
+        if (state.gv?.vis && canseemon(mdef, state)) {
+            await message(
+                `${buf} steals ${onambuf} from ${mdefnambuf}!`,
+                state,
+            );
+        }
+
+        // Both calls are void source callees. Existing partial ports are
+        // safe no-ops when extraction cleared the weapon; retain their source
+        // order and leave their still-unported effect paths explicit.
+        possibly_unwield(mdef, false, env);
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        mselftouch(mdef, null, false, { ...env, state });
+
+        if (mdef.mhp < 1) {
+            const grew = grow_up(magr, mdef, { ...env, state });
+            mhm.hitflags = M_ATTK_DEF_DIED
+                | (grew ? 0 : M_ATTK_AGR_DIED);
+            mhm.done = true;
+            return;
+        }
+        if (magr.data.mlet === S_NYMPH
+            && !noteleport_level(magr, state)) {
+            const couldspot = canSpotMonster(magr, state);
+            mhm.hitflags = M_ATTK_AGR_DONE;
+            const rlocEnv = {
+                ...env,
+                state,
+                random,
+                newsym,
+                onscary: (x, y, mon, normalized) =>
+                    onscary(x, y, mon, normalized.state),
+                setApparxy: set_apparxy,
+            };
+            await rloc(magr, RLOC_NOMSG, rlocEnv);
+            if (state.gv?.vis && couldspot
+                && !canSpotMonster(magr, state)) {
+                await message(`${buf} suddenly disappears!`, state);
+            }
+        }
+    }
+    mhm.damage = 0;
 }
 
 // C ref: uhitm.c mhitm_ad_cold() (2625-2681). A cold-damage attack across

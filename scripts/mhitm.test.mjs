@@ -18,6 +18,7 @@ import {
     unmap_invisible,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
+import { add_to_minv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { engulf_target, fightm, mattackm } from '../js/mhitm.js';
 import {
@@ -67,9 +68,11 @@ import {
     PM_WOODLAND_ELF,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { mksobj } from '../js/obj.js';
 import { cansee } from '../js/vision.js';
 import { mon_wield_item } from '../js/weapon.js';
 import { find_mac } from '../js/worn.js';
+import { APPLE } from '../js/objects.js';
 import {
     loadUnseenPetFightRecipe,
     UNSEEN_PET_FIGHT_DATETIME,
@@ -355,14 +358,58 @@ test('hitmm prints a nymph engagement before its seduction damage arm',
         // is the C damage initialization before the deferred mhitm arm.
         const env = attackEnv([1, 0]);
 
-        await assert.rejects(
-            mattackm(nymph, dog, env),
-            (error) => error.message === 'uhitm.c mhitm_ad_sedu() mhitm arm',
-        );
+        assert.equal(await mattackm(nymph, dog, env), M_ATTK_HIT);
         assert.deepEqual(env.lines,
-            ['The water nymph smiles at the little dog engagingly.']);
-        assert.deepEqual(env.bounds, ['rnd(20)', 'd(0,0)']);
+            [
+                'The water nymph smiles at the little dog engagingly.',
+                'The water nymph smiles at the little dog engagingly.',
+            ]);
+        assert.deepEqual(env.bounds, [
+            'rnd(20)', 'd(0,0)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+            'rnd(21)', 'd(0,0)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+        ]);
         assert.equal(dog.mhp, 8);
+    });
+
+// uhitm.c mhitm_ad_sedu():4702-4748. A non-cursed object is detached from the
+// defender, named before add_to_minv() can merge it, and then transferred to a
+// nymph. The level's no-teleport flag keeps this focused test on the ordered
+// inventory and message writes rather than rloc()'s map search.
+test('mhitm seduction transfers the first eligible inventory object',
+    async () => {
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        const nymph = fixture(PM_WATER_NYMPH, ax, y);
+        const dog = fixture(PM_LITTLE_DOG, dx, y);
+        const firstAttack = nymph.data.mattk[0];
+        nymph.data = {
+            ...nymph.data,
+            mattk: [
+                firstAttack,
+                ...Array.from({ length: NATTK - 1 }, () => ({
+                    aatyp: AT_NONE,
+                    adtyp: AD_PHYS,
+                    damn: 0,
+                    damd: 0,
+                })),
+            ],
+        };
+        const apple = mksobj(APPLE, false, false, { state: game });
+        add_to_minv(dog, apple, { state: game });
+        game.level.flags.noteleport = true;
+        aim(dog);
+
+        const env = attackEnv([1, 0]);
+        assert.equal(await mattackm(nymph, dog, env), M_ATTK_HIT);
+        assert.equal(dog.minvent, null);
+        assert.equal(nymph.minvent, apple);
+        assert.deepEqual(env.lines, [
+            'The water nymph smiles at the little dog engagingly.',
+            'The water nymph steals an apple from the little dog!',
+        ]);
+        assert.deepEqual(env.bounds, [
+            'rnd(20)', 'd(0,0)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+        ]);
     });
 
 // mhitm.c mdamagem():1071-1119 and makemon.c grow_up():2049-2100. The kill
