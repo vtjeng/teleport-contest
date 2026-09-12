@@ -29752,7 +29752,7 @@
     {
       "id": "div-getpos-invalid-direction-seed0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Handle invalid direction keys in getpos during travel target selection",
       "cFile": "getpos.c",
       "sessions": [
@@ -29763,8 +29763,8 @@
       "spans": [
         {
           "name": "invalid_direction_diagnostic",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "67fc8bb6bc2285ec025ec84145ba4567c23d38a1",
           "functions": [
             "getpos"
           ]
@@ -29776,8 +29776,11 @@
         "screens": 7198,
         "rng": 528987
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "67fc8bb6bc2285ec025ec84145ba4567c23d38a1",
+      "delivered": {
+        "screens": 4,
+        "rng": 0
+      },
       "function": "getpos",
       "session": "seed0360-wizard-world-tour",
       "step": 661,
@@ -29802,7 +29805,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 172
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "67fc8bb6bc2285ec025ec84145ba4567c23d38a1",
+        "screens": 7202,
+        "rng": 528987
+      }
     }
   ]
 }
