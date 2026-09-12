@@ -215,6 +215,37 @@ h1 {
   white-space: normal;
 }
 
+#challengePanel { container-type: inline-size; }
+#challengeCards { display: none; }
+
+#challengeCards details + details { border-top: 1px solid var(--border); }
+#challengeCards summary {
+  padding: 14px 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+#challengeCards summary:focus-visible {
+  outline: 2px solid var(--ink-secondary);
+  outline-offset: 2px;
+}
+#challengeCards dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 12px 0 16px;
+  font-size: 12px;
+}
+#challengeCards dt { color: var(--ink-muted); }
+#challengeCards dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Use disclosures once the panel cannot fit the table's minimum width. */
+@container (max-width: 720px) {
+  #challengeTableWrap { display: none; }
+  #challengeCards { display: block; }
+}
+
 #challengeTable { min-width: 720px; }
 
 #challengeTable td:nth-child(5) {
@@ -251,7 +282,8 @@ h1 {
 #currentWorkTitle { font-size: 16px; }
 .work-meta { color: var(--ink-secondary); font-size: 13px; }
 .active-goals { margin-bottom: 20px; }
-.active-work { border-left: 3px solid var(--goal-in-progress); padding: 4px 20px; margin-top: 18px; }
+.active-work, .paused-goal { padding: 4px 20px; margin-top: 18px; border-left: 3px solid; }
+.active-work { border-color: var(--goal-in-progress); }
 .work-title { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; margin-bottom: 4px; }
 .work-empty { padding: 4px 0 20px; color: var(--ink-secondary); }
 .goal-details { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
@@ -261,9 +293,7 @@ summary { cursor: pointer; }
 summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
 .paused-work { border-top: 1px solid var(--border); padding-top: 16px; }
 .work-group > summary { font-size: 13px; font-weight: 500; }
-.paused-goal { margin-top: 18px; padding: 2px 0 2px 14px; border-left: 2px solid var(--goal-paused); }
-.paused-goal .work-title { font-size: 13px; font-weight: 500; line-height: 1.45; }
-.paused-goal .work-meta { font-size: 12px; }
+.paused-goal { border-color: var(--goal-paused); }
 .pause-reason { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
 #sourceWorkTable th, #sourceWorkTable td { padding: 6px clamp(4px, 1vw, 10px); }
 #sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
@@ -298,6 +328,10 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
   font-size: 12px;
   color: var(--ink-secondary);
 }
+
+.legend-group { display: grid; gap: 6px; }
+.legend-group-title { font-size: 11px; font-weight: 600; color: var(--ink-muted); }
+.legend-group-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 
 .legend-item {
   display: flex;
@@ -803,7 +837,6 @@ canvas {
 
 <div class="section">
   <h2 class="section-title">Development screens matched over time</h2>
-  <p class="subtitle" id="progressProvenance"></p>
   <div class="legend" id="progressLegend"></div>
   <div class="chart-wrap">
     <div class="chart-toolbar">
@@ -836,8 +869,9 @@ canvas {
 
 <section class="section" aria-labelledby="challengeTitle">
   <h2 class="section-title" id="challengeTitle">Challenges</h2>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
+  <div class="chart-wrap" id="challengePanel">
+    <div id="challengeCards"></div>
+    <div class="goal-table-wrap" id="challengeTableWrap">
       <table class="goal-table" id="challengeTable"></table>
     </div>
   </div>
@@ -950,16 +984,16 @@ document.getElementById('stats').innerHTML = [
 // --- Challenge detail ---
 (function() {
   const table = document.getElementById('challengeTable');
+  const cards = document.getElementById('challengeCards');
   const esc = text => String(text ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   if (!challengeCases.length) {
     table.innerHTML = '<tbody><tr><td>No challenge cases recorded.</td></tr></tbody>';
+    cards.innerHTML = '<p class="table-note">No challenge cases recorded.</p>';
     return;
   }
   const resultText = result => {
     if (!result) return '—';
-    const outcome = result.passed === true ? 'pass'
-      : result.passed === false ? 'fail' : 'unknown';
     const screens = result.screens
       ? fmtN(result.screens.matched) + '/' + fmtN(result.screens.total) + ' screens'
       : 'screens —';
@@ -972,29 +1006,30 @@ document.getElementById('stats').innerHTML = [
     const provenance = source || date
       ? '<br><span class="challenge-result-source">' + source + (source && date ? ' · ' : '') + date + '</span>'
       : '';
-    return outcome + ' · ' + screens + provenance;
+    return screens + provenance;
   };
   let html = '<thead><tr><th>Challenge</th><th>Initial</th><th>Current</th>'
     + '<th>Change</th><th>Source pointers</th></tr></thead><tbody>';
+  let cardHtml = '';
   challengeCases.forEach(item => {
     const title = item.title || item.id;
     const pointers = (item.sourcePointers || []).join(' · ');
     const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
+    const fields = [
+      ['Initial', resultText(item.first)],
+      ['Current', resultText(item.current)],
+      ['Change', item.delta == null ? '—' : fmtDelta(item.delta)],
+      ['Source pointers', pointers ? esc(pointers) : '—'],
+    ];
     html += '<tr><td title="' + esc(title) + '"><div>' + esc(title) + '</div>' + outcome + '</td>'
-      + '<td>' + resultText(item.first) + '</td>'
-      + '<td>' + resultText(item.current) + '</td>'
-      + '<td>' + (item.delta == null ? '—' : fmtDelta(item.delta)) + '</td>'
-      + '<td title="' + esc(pointers) + '">' + (pointers ? esc(pointers) : '—') + '</td></tr>';
+      + fields.map(([, value]) => '<td>' + value + '</td>').join('') + '</tr>';
+    cardHtml += '<details><summary>' + esc(title) + '</summary>' + outcome
+      + '<dl>' + fields.map(([label, value]) => '<dt>' + label + '</dt><dd>' + value + '</dd>').join('')
+      + '</dl></details>';
   });
+  cards.innerHTML = cardHtml;
   table.innerHTML = html + '</tbody>';
 })();
-const inferredProgressCount = DATA.progress.filter(
-  p => p.utcSource !== 'commit',
-).length;
-document.getElementById('progressProvenance').textContent = inferredProgressCount
-  ? inferredProgressCount + ' hollow marker' + (inferredProgressCount === 1 ? ' uses' : 's use') + ' a logged date; solid markers use commit dates.'
-  : 'Times from commits.';
-
 // --- Mismatch queue ---
 (function() {
   const table = document.getElementById('queueTable');
@@ -1854,13 +1889,23 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   }, 30 * 60 * 1000);
   render();
 
+  const lineKey = (label, stroke, dash = '') =>
+    '<div class="legend-item"><svg class="legend-line" width="24" height="8" aria-hidden="true"><line x1="2" y1="4" x2="22" y2="4" stroke="' + stroke + '" stroke-width="2" stroke-linecap="round"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>' + label + '</div>';
+  const dateKey = (label, fill) =>
+    '<div class="legend-item"><svg class="legend-line" width="12" height="8" aria-hidden="true"><circle cx="6" cy="4" r="3" stroke="var(--progress-fill)" fill="' + fill + '"/></svg>' + label + '</div>';
+  const legendGroup = (title, keys) => '<div class="legend-group"><div class="legend-group-title">'
+    + title + '</div><div class="legend-group-items">' + keys.join('') + '</div></div>';
   document.getElementById('progressLegend').innerHTML = [
-    { stroke: 'var(--progress-fill)', dash: '', label: 'Development screens matched (left axis)' },
-    { stroke: 'var(--rate)', dash: '8 4', label: '7-day avg screens/day (right axis)' },
-    { stroke: 'var(--rate)', dash: '1 4', label: 'Last 24h screens (right axis)' },
-  ].map(item =>
-    '<div class="legend-item"><svg class="legend-line" width="24" height="8" aria-hidden="true"><line x1="2" y1="4" x2="22" y2="4" stroke="' + item.stroke + '" stroke-width="2" stroke-linecap="round"' + (item.dash ? ' stroke-dasharray="' + item.dash + '"' : '') + '/></svg>' + item.label + '</div>'
-  ).join('');
+    legendGroup('Left axis', [lineKey('Screens matched', 'var(--progress-fill)')]),
+    legendGroup('Right axis', [
+      lineKey('7-day avg screens/day', 'var(--rate)', '8 4'),
+      lineKey('Last 24h screens', 'var(--rate)', '1 4'),
+    ]),
+    legendGroup('Dates', [
+      dateKey('Commit', 'var(--progress-fill)'),
+      dateKey('Logged', 'var(--surface-card)'),
+    ]),
+  ].join('');
 })();
 
 // --- Goal timeline: one row per local day ---
