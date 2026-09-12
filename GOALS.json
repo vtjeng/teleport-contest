@@ -29991,7 +29991,7 @@
     {
       "id": "div-monmove-move-avoid-kicked-seed0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire ordinary monster kicked-location avoidance into m_move",
       "cFile": "monmove.c",
       "sessions": [],
@@ -30000,8 +30000,8 @@
       "spans": [
         {
           "name": "avoid_kicked_wiring",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d155150afdbf33ba82cfbb321f9d896baf5a62f6",
           "functions": [
             "m_move"
           ]
@@ -30013,8 +30013,11 @@
         "screens": 7202,
         "rng": 528987
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d155150afdbf33ba82cfbb321f9d896baf5a62f6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "m_move",
       "session": "seed0360-wizard-world-tour",
       "step": 668,
@@ -30039,7 +30042,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 165
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "d155150afdbf33ba82cfbb321f9d896baf5a62f6",
+        "screens": 7202,
+        "rng": 528987
+      }
     }
   ]
 }
