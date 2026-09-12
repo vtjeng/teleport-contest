@@ -30403,7 +30403,16 @@
       ],
       "selectionReason": "The refreshed queue still ranks seed0014 step 560 first. Source tracing identifies trap.c trapeffect_rolling_boulder_trap() as the exact owner; its monster arm calls launch_obj() and ohitmon() through the existing postmov/mintrap selector path.",
       "detail": "Witness sessions/seed0014-dequa-fountain-explore.session.json step 560 shows the gnome lord triggering a rolling boulder trap and step 561 shows the boulder killing it. C trap.c trapeffect_rolling_boulder_trap() lines 2661-2707, selector lines 2936-2992, mintrap lines 3733-3840, and monmove.c postmov() lines 1454-1517. JS trap_effects.js trapeffect_rolling_boulder_trap() currently refuses the monster arm at lines 1902-1926; JS selector and mintrap are wired, while launch_obj() lines 1792-1800 still guards monster collision. Smallest end-to-end span ports the monster arm plus required rolling launch path and ohitmon integration. No holdout data inspected.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "trapeffect_rolling_boulder_trap",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_rolling_boulder_trap"
+          ]
+        }
+      ],
       "openedAt": "4380c2c43dec9e8be85e5655573b1ae73c440038",
       "openStanding": {
         "sha": "81fa02bbd6bd649852e4634e85821944bdb73153",
