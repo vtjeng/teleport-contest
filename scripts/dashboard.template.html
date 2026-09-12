@@ -469,7 +469,7 @@ canvas {
 #progressWindow { font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .history-line { width: 22px; border-top: 2px solid var(--progress-fill); }
 .history-line.total { border-top: 1px dashed var(--chart-total); }
-.history-addition { height: 13px; border-left: 1px dashed var(--ink-secondary); }
+.history-addition { width: 6px; height: 6px; margin: 0 2px; background: var(--ink-muted); transform: rotate(45deg); }
 .score-inspection { position: sticky; top: 0; z-index: 5; background: var(--surface-card); padding: 8px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
 .readout-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
 #progressReadout { display: grid; grid-template-columns: minmax(max-content, 1fr) max-content max-content max-content max-content max-content minmax(max-content, 1fr); column-gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -1303,13 +1303,15 @@ document.getElementById('stats').innerHTML = [
     ctx.setLineDash(total ? [4, 4] : []);
     ctx.stroke(); ctx.setLineDash([]);
   }
-  function drawAdditions(ctx, entry, x, top, bottom, ink) {
-    ctx.strokeStyle = ink.muted; ctx.lineWidth = 1; ctx.setLineDash([5, 3]);
+  function drawAdditions(ctx, entry, x, baseline, radius, ink) {
+    ctx.fillStyle = ink.muted;
     ctx.beginPath();
     for (const point of entry.points) if (point.changes?.added > 0) {
-      ctx.moveTo(x(point.time), top); ctx.lineTo(x(point.time), bottom);
+      const px = x(point.time);
+      ctx.moveTo(px, baseline - radius); ctx.lineTo(px + radius, baseline);
+      ctx.lineTo(px, baseline + radius); ctx.lineTo(px - radius, baseline); ctx.closePath();
     }
-    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fill();
   }
   function drawChart(entry) {
     const height = entry.canvas.getBoundingClientRect().width < 500 ? 128 : 150;
@@ -1343,9 +1345,9 @@ document.getElementById('stats').innerHTML = [
     }
     ctx.save(); ctx.beginPath(); ctx.rect(pad.left - 4, pad.top - 5, width - pad.left - pad.right + 8, height - pad.top - pad.bottom + 10); ctx.clip();
     drawSteps(ctx, entry, x, y, 'area', ink);
-    drawAdditions(ctx, entry, x, pad.top, height - pad.bottom, ink);
     drawSteps(ctx, entry, x, y, 'total', ink);
     drawSteps(ctx, entry, x, y, 'matched', ink);
+    drawAdditions(ctx, entry, x, height - pad.bottom, 4, ink);
     for (const point of entry.points) {
       if (point.time < view.t0 || point.time > view.t1) continue;
       if (point.error && cursor === point.time) {
@@ -1383,8 +1385,8 @@ document.getElementById('stats').innerHTML = [
       ctx.strokeStyle = ink.grid; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, top + 39); ctx.lineTo(width - pad.right, top + 39); ctx.stroke();
       drawSteps(ctx, entry, x, y, 'area', ink);
-      drawAdditions(ctx, entry, x, top + 14, top + 38, ink);
       drawSteps(ctx, entry, x, y, 'total', ink); drawSteps(ctx, entry, x, y, 'matched', ink);
+      drawAdditions(ctx, entry, x, top + 39, 3, ink);
     });
     const left = x(view.t0), right = x(view.t1), bottom = MINI_ROW * 3;
     ctx.fillStyle = ink.area; ctx.fillRect(left, 0, right - left, bottom);
