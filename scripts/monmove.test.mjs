@@ -190,6 +190,7 @@ import { init_objects } from '../js/o_init.js';
 import {
     COIN_CLASS,
     WEAPON_CLASS,
+    AKLYS,
     AXE,
     BOULDER,
     CLOVE_OF_GARLIC,
@@ -2173,6 +2174,67 @@ test('m_move pins source candidate order and reservoir tie-breaking',
         { x: 0, y: 0 },
     ]);
     assert.deepEqual(events, ['post:4,4:5,4']);
+});
+
+// C ref: monmove.c:1967-1974. An aklys user receives appr == -2 from
+// m_balks_at_approaching() (monmove.c:1207-1214), so candidate selection must
+// choose a square that moves into the preferred [4, 16] squared-distance
+// band, even when an earlier candidate would move farther away.
+test('m_move selects an aklys destination inside its preferred range', async () => {
+    const { locations, state } = makeState();
+    state.u.ux = 6;
+    state.u.uy = 4;
+    state.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+    // m_canseeu() reads couldsee() at the monster's square.
+    state.viz_array = Array.from({ length: ROWNO }, () =>
+        new Uint8Array(COLNO));
+    state.viz_array[5][5] = COULD_SEE;
+    const aklys = newObject({
+        otyp: AKLYS,
+        oclass: WEAPON_CLASS,
+        quan: 1,
+    });
+    const monster = ordinaryMonster(state, {
+        data: state.mons[PM_GIANT_RAT],
+        mconf: false,
+        mhp: 5, // A living monster is required by the placement index.
+        mx: 5,
+        my: 5,
+        mw: aklys,
+        minvent: aklys,
+    });
+    state.level.monsters[monster.mx][monster.my] = monster;
+    sealNeighborhood(locations, monster.mx, monster.my);
+    // mfndpos() visits (4,4) before (6,6). Their squared distances to the
+    // hero are both 4; only the latter satisfies ndist <= preferred_min while
+    // !nearer after the first candidate, so C's appr == -2 arm must replace
+    // the first choice. The four orthogonal squares keep both diagonal moves
+    // legal under mfndpos()'s tight-squeeze check.
+    for (const [x, y] of [[4, 4], [4, 5], [5, 4], [5, 6], [6, 5], [6, 6]]) {
+        locations.set(`${x},${y}`, { typ: ROOM, flags: 0 });
+    }
+
+    const result = await m_move(monster, {
+        state,
+        random: { rn2: () => assert.fail('preferred-range path draws no rn2') },
+        finishEating: () => {},
+        movePet: () => assert.fail('aklys user is not a pet'),
+        resistsTrapEffect: () => false,
+        itemSearchInLine: () => false,
+        searchItems(subject, goalX, goalY, approach) {
+            assert.equal(approach, -2);
+            return { goalX, goalY, approach, complete: false };
+        },
+        unsupported: (reason) => assert.fail(reason),
+        postMonsterMove(subject, oldX, oldY, status) {
+            assert.equal(status, MMOVE_MOVED);
+            assert.deepEqual([oldX, oldY], [5, 5]);
+            return status;
+        },
+    });
+
+    assert.equal(result, MMOVE_MOVED);
+    assert.deepEqual([monster.mx, monster.my], [6, 6]);
 });
 
 test('m_move ordinary path reports no moves from a sealed square', async () => {

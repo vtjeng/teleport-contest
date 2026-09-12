@@ -3667,6 +3667,9 @@ export async function m_move(monster, rawEnv = {}) {
         if ((approach === 1 && nearer)
             || (approach === -1 && !nearer)
             || (!approach && !random.rn2(++choiceCount))
+            || (approach === -2
+                && ((distance <= preferredrange_min && !nearer)
+                    || (distance >= preferredrange_max && nearer)))
             || moved === MMOVE_NOTHING) {
             nextX = x;
             nextY = y;
