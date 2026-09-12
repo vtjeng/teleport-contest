@@ -25,6 +25,7 @@ import {
     HMON_KICKED,
     HMON_MELEE,
     HMON_THROWN,
+    OBJ_DELETED,
     D_CLOSED,
     D_NODOOR,
     DOOR,
@@ -66,6 +67,7 @@ import {
     ARROW,
     BOW,
     CORPSE,
+    CREAM_PIE,
     BULLWHIP,
     DART,
     KATANA,
@@ -189,22 +191,20 @@ function hitEnv({ rolls = [], fallback = 1, ...overrides } = {}) {
 }
 
 // uhitm.c:819-822. hmon()'s `thrown` parameter selects between melee, thrown,
-// kicked and applied. dothrow.c, dokick.c and apply.c own the other three and
-// none is ported, so the guard rejects them before hmon_hitmon() allocates
-// anything.
-test('hmon admits melee alone', async () => {
+// kicked and applied. A thrown cream pie reaches hmon_hitmon() with its mode
+// intact and consumes itself in hmon_hitmon_misc_obj().
+test('hmon admits a thrown cream pie', async () => {
     await hero();
-    for (const thrown of [HMON_THROWN, HMON_KICKED, HMON_APPLIED]) {
-        const env = hitEnv();
-        await refusesAsync(
-            () => hmon(target(), game.uwep, thrown, 10, game, env),
-            'ranged or applied hit',
-            `thrown ${thrown}`,
-        );
-        // The refusal is above the damage roll, so nothing was drawn or said.
-        assert.deepEqual(env.bounds, [], `thrown ${thrown}`);
-        assert.deepEqual(env.lines, [], `thrown ${thrown}`);
-    }
+    const pie = mksobj(CREAM_PIE, false, false, { state: game });
+    const mon = target(PM_NEWT, { mpeaceful: false, mcansee: 1 });
+    game.thrownobj = pie;
+    const env = hitEnv();
+    const alive = await hmon(mon, pie, HMON_THROWN, 10, game, env);
+    assert.equal(alive, true);
+    assert.equal(mon.mcansee, 0);
+    assert.equal(mon.mblinded, 22);
+    assert.equal(pie.where, OBJ_DELETED);
+    assert.ok(env.lines.some((line) => line.includes('cream pie')));
 });
 
 // uhitm.c:826-833. A temple priest's god strikes back through ghod_hitsu(),

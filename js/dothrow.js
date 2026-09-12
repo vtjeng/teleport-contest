@@ -1109,7 +1109,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     const random = env.random ?? { rn1, rn2, rnd };
     const message = env.message ?? ttyPline;
     const unsupported = env.unsupported
-        ?? ((what) => { throw new UnsupportedThrowError(what); });
+        ?? ((what) => {
+            throw new UnsupportedThrowError(`thitmonst(): ${what}`);
+        });
     const u = state.u;
     const otyp = obj.otyp;
     const guaranteedHit = engulfing_u(mon, state);
