@@ -1720,6 +1720,28 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
     });
     const youHear = env.youHear ?? magicTrapHear;
 
+    // Object lifecycle hooks receive the normalized operation environment,
+    // whereas the vision owners take the state directly.  Keep that adapter
+    // at this source boundary so removing the launched boulder can set
+    // vision_full_recalc before the next C message flushes the map.
+    const objectHooks = {
+        ...(env.hooks ?? {}),
+        blockPoint: env.hooks?.blockPoint
+            ?? ((ox, oy, actionEnv) => block_point(
+                ox,
+                oy,
+                actionEnv?.state ?? state,
+            )),
+        extractExternalObject: env.hooks?.extractExternalObject
+            ?? ((object, actionEnv) => remove_object(object, actionEnv)),
+        recalcBlockPoint: env.hooks?.recalcBlockPoint
+            ?? ((ox, oy, actionEnv) => recalc_block_point(
+                ox,
+                oy,
+                actionEnv?.state ?? state,
+            )),
+    };
+
     let otmp = sobj_at(otyp, x1, y1, state);
     // Try the other side too, for rolling boulder traps
     let otherside = false;
@@ -1740,11 +1762,7 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
     let singleobj;
     const objectEnv = {
         state,
-        hooks: {
-            blockPoint: block_point,
-            extractExternalObject: remove_object,
-            recalcBlockPoint: recalc_block_point,
-        },
+        hooks: objectHooks,
     };
     if (otmp.quan === 1) {
         obj_extract_self(otmp, objectEnv);
@@ -1861,9 +1879,9 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
                             ?? ((subject) => canSeeMonster(subject, state)),
                         hooks: {
                             ...(env.hooks ?? {}),
-                            blockPoint: block_point,
-                            extractExternalObject: remove_object,
-                            recalcBlockPoint: recalc_block_point,
+                            blockPoint: objectHooks.blockPoint,
+                            extractExternalObject: objectHooks.extractExternalObject,
+                            recalcBlockPoint: objectHooks.recalcBlockPoint,
                         },
                     };
                     if (typeof env.mpickobj === 'function')
@@ -1896,16 +1914,16 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
                         ...actionEnv,
                         hooks: {
                             ...(actionEnv.hooks ?? {}),
-                            blockPoint: block_point,
-                            extractExternalObject: remove_object,
-                            recalcBlockPoint: recalc_block_point,
+                            blockPoint: objectHooks.blockPoint,
+                            extractExternalObject: objectHooks.extractExternalObject,
+                            recalcBlockPoint: objectHooks.recalcBlockPoint,
                         },
                     })),
                 hooks: {
                     ...(env.hooks ?? {}),
-                    blockPoint: block_point,
-                    extractExternalObject: remove_object,
-                    recalcBlockPoint: recalc_block_point,
+                    blockPoint: objectHooks.blockPoint,
+                    extractExternalObject: objectHooks.extractExternalObject,
+                    recalcBlockPoint: objectHooks.recalcBlockPoint,
                 },
             };
             if (await ohitmon(
