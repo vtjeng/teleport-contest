@@ -418,6 +418,27 @@ test('getpos restores the caller direction after moving its cursor', async () =>
     );
 });
 
+test('forced getpos reports an invalid direction before Escape', async () => {
+    const segment = loadWhatisMapCursorTerrainRecipe().segments[0];
+    await runSegment({ ...segment, moves: WHATIS_SETUP });
+    game.flags.tips = false;
+    game.flags.verbose = false;
+    game.iflags.autodescribe = true;
+
+    const coordinate = { x: game.u.ux, y: game.u.uy };
+    // Control-D is outside getpos.c's movement, pick, and quitchar keys and
+    // therefore exercises the force=true diagnostic branch. Escape then ends
+    // the prompt.
+    game.nhDisplay.pushKey(0x04);
+    game.nhDisplay.pushKey(0x1B);
+
+    assert.equal(await getpos(coordinate, true, 'a target', game), -1);
+    assert.equal(
+        game._ttyToplines,
+        "Unknown direction: '^D' (use 'h', 'j', 'k', 'l' or '.').",
+    );
+});
+
 test('typed fountain lookup displays its entry through the next boundary',
     async () => {
         const [segment] = loadWhatisTypedInventoryRecipe().segments;

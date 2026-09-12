@@ -10,7 +10,12 @@ import {
     MV_WALK,
     ROWNO,
     TIP_GETPOS,
+    quitchars,
 } from './const.js';
+import {
+    createCommandBindingModel,
+    keyForCommand,
+} from './command_bindings.js';
 import { movecmd } from './cmd.js';
 import {
     back_to_glyph,
@@ -46,6 +51,20 @@ function cursorAt(x, y, state) {
 
 function sign(value) {
     return value < 0 ? -1 : value > 0 ? 1 : 0;
+}
+
+// C ref: getpos.c getpos() (1126-1132). cmd_from_func() resolves the current
+// bindings for the four cardinal movement handlers, while gc.Cmd.spkeys[]
+// supplies the active traditional-pick key.
+function unknownDirectionNote(state) {
+    state.commandBindings ??= createCommandBindingModel(state);
+    const directions = ['movewest', 'movesouth', 'movenorth', 'moveeast'];
+    const keys = directions.map((command) => (
+        keyForCommand(state.commandBindings, command)
+    ));
+    const pick = state.commandBindings.specialKeys?.['getpos.pick'] ?? 0;
+    return `use '${visctrl(keys[0])}', '${visctrl(keys[1])}', `
+        + `'${visctrl(keys[2])}', '${visctrl(keys[3])}' or '${visctrl(pick)}'`;
 }
 
 // C ref: getpos.c truncate_to_map() (729-748). JavaScript returns the two
@@ -268,14 +287,24 @@ export async function getpos(ccp, force, goal, state = game) {
                 cursorAt(cx, cy, state);
                 continue;
             }
-            // C ref: getpos.c:1039-1141. Unrecognized keys that are
-            // quitchars (" \r\n") exit when force is false; all other
-            // unrecognized keys print an error. In both cases force=true
-            // falls through to `goto nxtc`, ignoring the key.
+            // C ref: getpos.c:1126-1141. Force mode prints a diagnostic for
+            // an unrecognized non-quitchar, then reaches nxtc and keeps
+            // targeting. Preserve the existing non-force exit flow below.
             if (force) {
+                if (!quitchars.includes(String.fromCharCode(key))) {
+                    await ttyPline(
+                        `Unknown direction: '${visctrl(String.fromCharCode(key))}' `
+                        + `(${unknownDirectionNote(state)}).`,
+                        state,
+                    );
+                    messageGiven = true;
+                }
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
                 cursorAt(cx, cy, state);
+                // C's nxtc label flushes the newly printed diagnostic before
+                // the next getpos input boundary captures the screen.
+                await flush_screen(0);
                 continue;
             }
             if (key === 0x20 || key === 0x0D || key === 0x0A) {
