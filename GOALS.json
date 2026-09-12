@@ -27377,6 +27377,143 @@
         "screens": 6900,
         "rng": 506362
       }
+    },
+    {
+      "id": "port-trap-anti-magic-monster-arm",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port trap.c trapeffect_anti_magic() monster activation and wire selector dispatch",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The refreshed queue ranks seed0360-wizard-world-tour step 543 highest, at most 290 remaining screens. Source tracing maps the trap activation refusal to trap.c postmov() -> mintrap() -> trapeffect_selector() -> trapeffect_anti_magic(). The first monster crossing an ANTI_MAGIC trap is a non-resistant B monster without AT_MAGC or AT_BREA; C's monster branch makes no state change and no RNG calls, while JS currently lists ANTI_MAGIC in UNPORTED_TRAP_EFFECTS and raises the trap-activation refusal.",
+      "detail": "Port trap.c trapeffect_anti_magic() monster branch (approximately lines 2323-2453), remove ANTI_MAGIC from js/trap_effects.js UNPORTED_TRAP_EFFECTS, and preserve selector dispatch. Existing hero activation and dependencies (wearing_iron_shoes, resists_magm, defended, defends_when_carried, passes_walls, monkilled, visibility/screen helpers) remain outside this bounded monster arm unless source use requires them. Production chain: js/monmove.js postmov equivalent -> js/trap_effects.js trapeffect_selector().",
+      "spans": [
+        {
+          "name": "trapeffect_anti_magic",
+          "status": "closed",
+          "closedBy": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019",
+          "functions": [
+            "trapeffect_anti_magic"
+          ]
+        }
+      ],
+      "openedAt": "a6008976ea668b3d20eb8c7d59aa85a9c9ad4e27",
+      "openStanding": {
+        "sha": "03b708445b18577db539b3765d6ef73d2bbd4a3c",
+        "screens": 6900,
+        "rng": 506362
+      },
+      "closedAt": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019",
+      "delivered": {
+        "screens": 2,
+        "rng": 1885
+      },
+      "functions": [
+        {
+          "name": "trapeffect_anti_magic",
+          "line": 2323,
+          "endLine": 2452,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2323,
+        "to": 2452
+      },
+      "activeStanding": {
+        "sha": "03b708445b18577db539b3765d6ef73d2bbd4a3c",
+        "screens": 6900,
+        "rng": 506362
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 543,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 290
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_anti_magic",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_anti_magic",
+            "sourceReview": "Read the complete upstream trap.c trapeffect_anti_magic() body at lines 2323-2452 and compared its monster branches in source order. The JavaScript decrements positively enchanted iron shoes and returns, makes uncancelled AT_MAGC or AT_BREA monsters lethargic with d(2,6), and applies the resistant branch's rnd(4) damage, Magicbane and carried-artifact additions, passes_walls reduction, visibility, death handling, and result codes. The selector dispatches ANTI_MAGIC to this function, and mintrap() validates d() before any trap state or RNG work. The hero branch remains behind preflight_dotrap() and raises an explicit boundary when called directly because hero activation is outside this bounded monster arm. No result-valued unported callee is substituted on the monster path.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c postmov() calls mintrap() after a monster move at lines 1509-1516; the JavaScript postmov() passes the live or planning owners to mintrap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() dispatches trap_result = trapeffect_selector(mtmp, trap, mintrapflags) at lines 3825-3825; the JavaScript mintrap() performs the same gates and dispatch."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches ANTI_MAGIC to trapeffect_anti_magic() at lines 2977-2978; the JavaScript selector now has the corresponding ANTI_MAGIC arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monster-magic-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ],
+            "checkedAt": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019"
+          }
+        ],
+        "entryPointReview": "The selected range has one bounded entry point: a monster move enters monmove.c postmov(), calls mintrap(), and reaches trap.c trapeffect_selector() for an ANTI_MAGIC trap. The fresh anti-magic recipe uses seed 6200021, whose generated trap is crossed by a non-resistant grid bug during thirty search turns; its matching recording exercises this production chain. The hero activation remains intentionally outside this span because preflight_dotrap() rejects it before dotrap() and the goal selects the monster arm.",
+        "entryPoints": [
+          {
+            "name": "monster anti-magic trap activation",
+            "functions": [
+              "trapeffect_anti_magic"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 545,
+          "kind": "stop",
+          "function": "kick_nondoor",
+          "functionDeclared": true,
+          "sourceFile": "dokick.c",
+          "cFile": "dokick.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: kick_nondoor()'s wall and upward-stairs arm, which needs kick_ouch()",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 288
+        }
+      ],
+      "closeStanding": {
+        "sha": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019",
+        "screens": 6902,
+        "rng": 508247
+      }
     }
   ]
 }
