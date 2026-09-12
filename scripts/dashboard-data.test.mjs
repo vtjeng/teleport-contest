@@ -318,7 +318,10 @@ test('score rows expose named development and local holdout measures', () => {
     assert.deepEqual(data.scores.localHoldout.sessions, { matched: 1, total: 2 });
     assert.deepEqual(data.scores.development.cursors, { matched: 7, total: 8 });
     assert.deepEqual(data.scores.localHoldout.cursors, { matched: 2, total: 3 });
-    assert.equal(data.scores.development.commitUtc, '2026-01-01T00:10:00+00:00');
+    assert.equal(
+        new Date(data.scores.development.commitUtc).toISOString(),
+        '2026-01-01T00:10:00.000Z',
+    );
     assert.equal(data.scores.localHoldout.commitUtc, data.scores.development.commitUtc);
     assert.equal(data.scores.development.utc, '2026-01-01T00:15:00Z');
 
