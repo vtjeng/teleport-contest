@@ -29153,7 +29153,7 @@
     {
       "id": "port-read-doread-enchant-weapon",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port read.c doread() ordinary enchant-weapon scroll path through seffects and chwepon wiring",
       "cFile": "read.c",
       "sessions": [
@@ -29161,9 +29161,22 @@
       ],
       "selectionReason": "After closing thitmonst and rechecking the development queue, seed0014 step 516 is the highest-ranked unresolved mismatch at most 198 remaining screens. Source tracing identifies read.c doread() as an unverified source unit whose selected uncursed enchant-weapon scroll path dispatches through seffects and seffect_enchant_weapon into wield.c chwepon; select this bounded read command source span.",
       "detail": "Development session seed0014-dequa-fountain-explore step 516 (input u) selects u, a scroll labeled DAIYEN FOOELS, confirmed as SCR_ENCHANT_WEAPON. C cmd.c binds r to read.c doread(); read.c:328-646 handles the common read prefix, and seffects() at 2194-2290 dispatches SCR_ENCHANT_WEAPON at 2233-2235 to seffect_enchant_weapon() at 1627-1676. The witness is uncursed, unconfused, sighted, and able to chant; the starting dwarvish spear has spe=1 from u_init.c:160-164 and dwarf substitution at 246. C chooses s=1, calls wield.c chwepon() at 916-1048, emits the blue glow message, raises the spear to +2, and identifies the scroll through makeknown() at wield.c:1011-1018; doread then clears in_use and consumes the scroll at read.c:635-645. Recorded behavior has no extra effect RNG beyond the common Wisdom exercise. JS cmd.js already dispatches doread at 5025 and applies command results at 5578-5589; js/read.js refuses at 360-363 and seffects rejects this type at 554-559. Port the complete selected doread() source unit while wiring the reachable seffects/seffect_enchant_weapon branch and chwepon return contract in the same span. Keep cursed, confused, blind, no-weapon, high-enchantment, artifact, erosion, strange-feeling, other scroll, spellbook, and unrelated readable branches fail-closed until separately sourced; do not special-case this seed or scroll.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "doread",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "doread"
+          ]
+        }
+      ],
+      "openedAt": "908610a3940073b32ea039d29711d18368d39158",
+      "openStanding": {
+        "sha": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+        "screens": 7042,
+        "rng": 514457
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -29178,7 +29191,29 @@
       "range": {
         "from": 330,
         "to": 651
-      }
+      },
+      "activeStanding": {
+        "sha": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+        "screens": 7042,
+        "rng": 514457
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 516,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 198
+        }
+      ]
     }
   ]
 }
