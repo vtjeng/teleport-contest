@@ -27929,7 +27929,7 @@
     {
       "id": "port-mhitu-could-seduce",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mhitu.c could_seduce() visibility, attack-type, and gender result for seductive monster attacks",
       "cFile": "mhitu.c",
       "sessions": [
@@ -27940,8 +27940,8 @@
       "spans": [
         {
           "name": "could_seduce",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5ff523af75aa83894d241d0928f39ae548819da3",
           "functions": [
             "could_seduce"
           ]
@@ -27953,15 +27953,18 @@
         "screens": 6981,
         "rng": 509322
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5ff523af75aa83894d241d0928f39ae548819da3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "could_seduce",
           "line": 1934,
           "endLine": 1984,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -27989,7 +27992,74 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 259
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "could_seduce",
+            "implementation": "js/mhitu.js",
+            "symbol": "could_seduce",
+            "sourceReview": "Read the complete upstream mhitu.c could_seduce() definition at lines 1934-1984. The JavaScript port preserves the animal early return, hero-versus-monster identity branches, Invis and See_invisible property terms, poly_gender() and gender() calls, null-attack damage-type inference in AD_SSEX then AD_SEDU order, SYSOPT_SEDUCE conversion, invisible AD_SEDU rejection, the S_NYMPH/PM_AMOROUS_DEMON and AD_SEDU/AD_SSEX/AD_SITM acceptance test, and the final opposite-gender, same-gender nymph, and zero results. It uses existing source-matched helpers and performs no random draw, output, or state mutation. The previous seductive monster attack refusal was removed.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "wildmiss",
+                "source": "mhitu.c wildmiss() at lines 203-204 calls could_seduce() for AD_SEDU or AD_SSEX attacks; JavaScript wildmiss() calls could_seduce() at line 214 before its wrong-location feedback."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmsg",
+                "source": "mhitu.c hitmsg() at line 37 calls could_seduce() before selecting the hit verb; JavaScript hitmsg() calls could_seduce() at line 390 before its attack-type switch."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "missmu",
+                "source": "mhitu.c missmu() at line 93 calls could_seduce() before selecting the miss message; JavaScript missmu() calls could_seduce() at line 461 before its message."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "missmm",
+                "source": "mhitm.c missmm() at line 85 calls could_seduce() in the visible miss message; JavaScript missmm() calls could_seduce() at line 255 in the same expression."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "hitmm",
+                "source": "mhitm.c hitmm() at line 659 calls could_seduce() before shade_miss() and its visible hit message; JavaScript hitmm() calls could_seduce() at line 726 in the same order."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5ff523af75aa83894d241d0928f39ae548819da3"
+          }
+        ],
+        "entryPointReview": "The selected range contains the pure helper could_seduce(), so it has no independent command or gameplay entry point. Its production callers are wildmiss(), hitmsg(), and missmu() in js/mhitu.js, plus missmm() and hitmm() in js/mhitm.js; those callers are the entry points for the helper's runtime behavior. The source-pinned test covers every branch and result without inventing a recording for a helper-only range.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 455,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a seductive monster attack",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 259
+        }
+      ],
+      "closeStanding": {
+        "sha": "5ff523af75aa83894d241d0928f39ae548819da3",
+        "screens": 6981,
+        "rng": 509322
+      }
     }
   ]
 }
