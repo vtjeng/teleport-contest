@@ -28833,7 +28833,7 @@
     {
       "id": "div-timeout-nh-timeout-fumbling",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix timeout.c nh_timeout() FUMBLING expiry ordering and random draws for the plain on-foot path",
       "cFile": "timeout.c",
       "sessions": [],
@@ -28842,8 +28842,8 @@
       "spans": [
         {
           "name": "nh_timeout",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a8ec8023da53f37abd6e510817ee2087764895b9",
           "functions": [
             "nh_timeout"
           ]
@@ -28855,8 +28855,11 @@
         "screens": 7000,
         "rng": 509804
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a8ec8023da53f37abd6e510817ee2087764895b9",
+      "delivered": {
+        "screens": 7,
+        "rng": 2808
+      },
       "function": "nh_timeout",
       "session": "seed0014-dequa-fountain-explore",
       "step": 474,
@@ -28881,7 +28884,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 240
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "a8ec8023da53f37abd6e510817ee2087764895b9",
+        "screens": 7007,
+        "rng": 512612
+      }
     }
   ]
 }
