@@ -27650,7 +27650,7 @@
     {
       "id": "port-do-legs-in-no-shape-kick",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do.c legs_in_no_shape() and wire dokick() wounded-legs guard",
       "cFile": "do.c",
       "sessions": [
@@ -27661,8 +27661,8 @@
       "spans": [
         {
           "name": "legs_in_no_shape",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0babdb2eddd6e316333a5aedc9ce6a322f5c031f",
           "functions": [
             "legs_in_no_shape"
           ]
@@ -27674,15 +27674,18 @@
         "screens": 6905,
         "rng": 508614
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0babdb2eddd6e316333a5aedc9ce6a322f5c031f",
+      "delivered": {
+        "screens": 76,
+        "rng": 708
+      },
       "functions": [
         {
           "name": "legs_in_no_shape",
           "line": 2408,
           "endLine": 2425,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -27710,7 +27713,76 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 285
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "legs_in_no_shape",
+            "implementation": "js/do.js",
+            "symbol": "legs_in_no_shape",
+            "sourceReview": "Read the complete upstream do.c legs_in_no_shape() definition at lines 2408-2423. The by_steed && u.usteed branch calls Monnam() and formats riding feedback; the hero branch masks EWounded_legs with BOTH_SIDES, pluralizes body_part(LEG) only for both sides, and selects the left, right, or unqualified prefix and are/is verb in source order. JavaScript awaits ttyPline() for the same message boundary and makes no random call. No injected substitute or obsolete refusal remains in the dokick() caller; apply.c and steed.c callers remain outside this span as instructed.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:1279-1281 calls legs_in_no_shape(\"kicking\", FALSE) from the Wounded_legs guard; JavaScript dokick() awaits legs_in_no_shape('kicking', false, state), dismisses the shared message window, and returns ECMD_FAIL."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runKickCommand",
+                "source": "cmd.c rhack() dispatches the internal kick key and JavaScript runKickCommand() at lines 3546-3548 calls dokick(); doextcmd()'s dokick case provides the #kick route."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() selects the entry's ef_funct and JavaScript doextcmd()'s switch case 'dokick' calls runKickCommand(), completing the extended-command dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/legs-in-no-shape-kick.session.json"
+            ],
+            "checkedAt": "0babdb2eddd6e316333a5aedc9ce6a322f5c031f"
+          }
+        ],
+        "entryPointReview": "The selected span has one bounded entry point: the production kick command reaches dokick() and then legs_in_no_shape() when kick_dumb() has wounded the hero's right leg. The guard recipe uses an independently chosen seed, datetime, character name and four-key input and matches the C screen, cursor and PRNG recordings. The helper's by_steed branch is source-pinned and directly exercised; apply.c and steed.c production callers remain outside this span.",
+        "entryPoints": [
+          {
+            "name": "wounded-legs kick refusal",
+            "functions": [
+              "legs_in_no_shape"
+            ],
+            "recordings": [
+              "recordings/do.c/legs-in-no-shape-kick.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 624,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizlevelport, wizgenesis, wizintrinsic, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, teleport, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 209
+        }
+      ],
+      "closeStanding": {
+        "sha": "0babdb2eddd6e316333a5aedc9ce6a322f5c031f",
+        "screens": 6981,
+        "rng": 509322
+      }
     }
   ]
 }
