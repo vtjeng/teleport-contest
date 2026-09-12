@@ -18,7 +18,14 @@ import {
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
 import { trapped_chest_at } from '../js/detect.js';
 import { GameMap } from '../js/game.js';
-import { getpos, truncate_to_map } from '../js/getpos.js';
+import {
+    getpos,
+    LOOK_ONCE,
+    LOOK_QUICK,
+    LOOK_TRADITIONAL,
+    LOOK_VERBOSE,
+    truncate_to_map,
+} from '../js/getpos.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
@@ -416,6 +423,87 @@ test('getpos restores the caller direction after moving its cursor', async () =>
         [game.u.dx, game.u.dy, game.u.dz],
         [3, -4, 5],
     );
+});
+
+test('getpos returns each source-defined active pick result', async () => {
+    const segment = loadWhatisMapCursorTerrainRecipe().segments[0];
+    await runSegment({ ...segment, moves: WHATIS_SETUP });
+    // Disable the first-use tip and startup verbosity so only getpos.c's
+    // pick result and cleanup are under test.
+    game.flags.tips = false;
+    game.flags.verbose = false;
+
+    // getpos.c builds this table in source order, where these defaults are
+    // '.', ',', ';', and ':' and return 0, 1, 2, and 3 respectively.
+    const pickCases = [
+        ['.', LOOK_TRADITIONAL],
+        [',', LOOK_QUICK],
+        [';', LOOK_ONCE],
+        [':', LOOK_VERBOSE],
+    ];
+    for (const [key, expectedResult] of pickCases) {
+        const coordinate = { x: game.u.ux, y: game.u.uy };
+        // Distinct direction components make the getpos.c exit restoration
+        // observable for dx, dy, and dz after each one-byte pick.
+        game.u.dx = 3;
+        game.u.dy = -4;
+        game.u.dz = 5;
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+
+        assert.equal(
+            await getpos(coordinate, true, 'a target', game),
+            expectedResult,
+            key,
+        );
+        assert.deepEqual(
+            coordinate,
+            { x: game.u.ux, y: game.u.uy },
+            `pick ${key} returns the selected location`,
+        );
+        assert.deepEqual(
+            [game.u.dx, game.u.dy, game.u.dz],
+            [3, -4, 5],
+            `pick ${key} restores caller direction`,
+        );
+        assert.deepEqual(
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible],
+            [coordinate.x - 1, coordinate.y + 1, 1],
+            `pick ${key} leaves the cursor on the selected map square`,
+        );
+        // C's readchar_poskey() consumes exactly the pick byte before exit.
+        assert.equal(
+            game.nhDisplay.inputQueueLength,
+            0,
+            `pick ${key} consumes one input`,
+        );
+        assert.deepEqual(
+            { x: game.gg.getposx, y: game.gg.getposy },
+            { x: 0, y: 0 },
+            `pick ${key} clears getpos globals`,
+        );
+    }
+});
+
+test('getpos reads configured pick keys before handling input', async () => {
+    const segment = loadWhatisMapCursorTerrainRecipe().segments[0];
+    await runSegment({
+        ...segment,
+        nethackrc: `${segment.nethackrc}BIND=q:getpos.pick.quick\n`,
+        moves: WHATIS_SETUP,
+    });
+    // Disable the first-use tip and startup verbosity so the configured key
+    // reaches getpos.c's pick_chars lookup directly.
+    game.flags.tips = false;
+    game.flags.verbose = false;
+
+    const coordinate = { x: game.u.ux, y: game.u.uy };
+    game.nhDisplay.pushKey('q'.charCodeAt(0));
+    // options.c parsebindings() updates gc.Cmd.spkeys[], which getpos.c reads
+    // into pick_chars before its first readchar_poskey() call.
+    assert.equal(await getpos(coordinate, true, 'a target', game), LOOK_QUICK);
+    assert.deepEqual(coordinate, { x: game.u.ux, y: game.u.uy });
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
 test('forced getpos reports an invalid direction before Escape', async () => {

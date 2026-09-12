@@ -8,6 +8,10 @@ import {
     MV_RUN,
     MV_RUSH,
     MV_WALK,
+    LOOK_ONCE,
+    LOOK_QUICK,
+    LOOK_TRADITIONAL,
+    LOOK_VERBOSE,
     ROWNO,
     TIP_GETPOS,
     quitchars,
@@ -33,7 +37,12 @@ import { cmap_symbol_byte, S_dnstair } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 
-export const LOOK_TRADITIONAL = 0;
+export {
+    LOOK_ONCE,
+    LOOK_QUICK,
+    LOOK_TRADITIONAL,
+    LOOK_VERBOSE,
+};
 
 export class UnsupportedGetposError extends Error {
     constructor(reason) {
@@ -65,6 +74,26 @@ function unknownDirectionNote(state) {
     const pick = state.commandBindings.specialKeys?.['getpos.pick'] ?? 0;
     return `use '${visctrl(keys[0])}', '${visctrl(keys[1])}', `
         + `'${visctrl(keys[2])}', '${visctrl(keys[3])}' or '${visctrl(pick)}'`;
+}
+
+// C ref: getpos.c pick_chars_def[] (773-780, 830-836). The four bindings are
+// read when getpos() starts, so configured keys take effect without changing
+// the cursor loop. strchr() returns the first matching entry, which preserves
+// C's traditional-pick precedence when two special keys share one byte.
+const PICK_CHAR_RESULTS = Object.freeze([
+    ['getpos.pick', LOOK_TRADITIONAL],
+    ['getpos.pick.quick', LOOK_QUICK],
+    ['getpos.pick.once', LOOK_ONCE],
+    ['getpos.pick.verbose', LOOK_VERBOSE],
+]);
+
+function pickResultForKey(key, state) {
+    state.commandBindings ??= createCommandBindingModel(state);
+    for (const [command, result] of PICK_CHAR_RESULTS) {
+        if (state.commandBindings.specialKeys?.[command] === key)
+            return result;
+    }
+    return null;
 }
 
 // C ref: getpos.c truncate_to_map() (729-748). JavaScript returns the two
@@ -186,6 +215,9 @@ export async function getpos(ccp, force, goal, state = game) {
     let cy = ccp.y;
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
     let messageGiven = true;
+    // Build the active special-key table before reading input, matching C's
+    // pick_chars derivation immediately before the prompt starts.
+    state.commandBindings ??= createCommandBindingModel(state);
 
     if (state.flags.verbose)
         await ttyPline("(For instructions type a '?')", state);
@@ -222,10 +254,11 @@ export async function getpos(ccp, force, goal, state = game) {
                 result = -1;
                 break;
             }
-            if (key === '.'.charCodeAt(0)) {
+            const pickResult = pickResultForKey(key, state);
+            if (pickResult !== null) {
                 ccp.x = cx;
                 ccp.y = cy;
-                result = LOOK_TRADITIONAL;
+                result = pickResult;
                 break;
             }
             if (key === '>'.charCodeAt(0)) {
