@@ -30052,7 +30052,7 @@
     {
       "id": "port-trap-statue-trap-monster-seed0360",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster statue-trap no-op and selector wiring for seed0360",
       "cFile": "trap.c",
       "sessions": [
@@ -30063,8 +30063,8 @@
       "spans": [
         {
           "name": "trapeffect_statue_trap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6f98646530c2e8cbf076bfecc43f9fbb4b3fff36",
           "functions": [
             "trapeffect_statue_trap"
           ]
@@ -30076,15 +30076,18 @@
         "screens": 7202,
         "rng": 528987
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6f98646530c2e8cbf076bfecc43f9fbb4b3fff36",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "trapeffect_statue_trap",
           "line": 2279,
           "endLine": 2292,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -30112,7 +30115,96 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 165
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_statue_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_statue_trap",
+            "sourceReview": "Read trap.c:2279-2292 completely. The hero identity branch remains behind the existing activate_statue_trap() refusal; the monster branch performs no call, output, RNG draw, or state write and returns Trap_Effect_Finished. The selector case mirrors trap.c:2973-2974, and STATUE_TRAP was removed only from the unported selector set.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector():2973-2974 dispatches STATUE_TRAP to trapeffect_statue_trap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap():3827-3838 calls trapeffect_selector() after a monster reaches a trap."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c postmov():1509 calls mintrap() for the square a monster has reached."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c m_move():1733-1742 and its movement tail reach postmov() for ordinary monsters."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimpleOrdinary",
+                "source": "The ordinary monster action delegates to monmove.c m_move() after movemon_singlemon()."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "movemon_singlemon",
+                "source": "mon.c movemon_singlemon() runs each ordinary monster action through its injected move operation."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveElapsedTurnMonster",
+                "source": "allmain.c's elapsed-turn monster loop dispatches each monster through movemon_singlemon()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monster-statue-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-statue-trap.session.json"
+            ],
+            "checkedAt": "6f98646530c2e8cbf076bfecc43f9fbb4b3fff36"
+          }
+        ],
+        "entryPointReview": "The selected range has one reachable entry point: a monster walking onto STATUE_TRAP through postmov(), mintrap(), and trapeffect_selector(). The hero arm is a separate activate_statue_trap() dependency and remains refused in this span.",
+        "entryPoints": [
+          {
+            "name": "monster statue-trap activation",
+            "functions": [
+              "trapeffect_statue_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-statue-trap.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 668,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 165
+        }
+      ],
+      "closeStanding": {
+        "sha": "6f98646530c2e8cbf076bfecc43f9fbb4b3fff36",
+        "screens": 7202,
+        "rng": 528987
+      }
     }
   ]
 }
