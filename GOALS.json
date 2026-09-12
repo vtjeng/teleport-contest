@@ -28363,7 +28363,7 @@
     {
       "id": "port-exper-newexplevel-pluslvl",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port exper.c newexplevel() and incremental pluslvl(TRUE) level-up behavior",
       "cFile": "exper.c",
       "sessions": [
@@ -28374,8 +28374,8 @@
       "spans": [
         {
           "name": "newexplevel..pluslvl",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1f96f999b5b88dd4ab35c24f6d5733620bc071f0",
           "functions": [
             "newexplevel",
             "pluslvl"
@@ -28388,22 +28388,25 @@
         "screens": 6987,
         "rng": 509542
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1f96f999b5b88dd4ab35c24f6d5733620bc071f0",
+      "delivered": {
+        "screens": 1,
+        "rng": 73
+      },
       "functions": [
         {
           "name": "newexplevel",
           "line": 300,
           "endLine": 306,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "pluslvl",
           "line": 307,
           "endLine": 377,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -28431,7 +28434,115 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 253
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "newexplevel",
+            "implementation": "js/exper.js",
+            "symbol": "newexplevel",
+            "sourceReview": "Read nethack-c/upstream/src/exper.c newexplevel() lines 299-304. The JavaScript guard preserves the MAXULEV ceiling and calls pluslvl(true) only after u.uexp reaches newuexp(u.ulevel). The call is asynchronous only because the message owner is asynchronous; all state and message work remains in pluslvl's C order.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c goto_level() pays a Tourist's level_difficulty() grant and calls newexplevel(); JavaScript goto_level() does the same at js/do.js:1729-1730."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c xkilled() calls more_experienced() followed by newexplevel() at lines 3671-3674; JavaScript xkilled() preserves that order at js/mon.js:4851-4852."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c disarm_squeaky_board() grants experience and calls newexplevel(); JavaScript awaits the same call at js/trap.js:1800."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_box",
+                "source": "trap.c disarm_box() grants experience after a successful disarm and calls newexplevel(); JavaScript awaits it at js/trap.js:1927."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "untrap",
+                "source": "trap.c untrap() grants experience after a successful trapped-door disarm and calls newexplevel(); JavaScript awaits it at js/trap.js:2175."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-arrival.test.mjs",
+              "scripts/level-change.test.mjs"
+            ],
+            "recordings": [
+              "recordings/exper.c/newexplevel-quivering-blob.session.json"
+            ],
+            "checkedAt": "1f96f999b5b88dd4ab35c24f6d5733620bc071f0"
+          },
+          {
+            "name": "pluslvl",
+            "implementation": "js/exper.js",
+            "symbol": "pluslvl",
+            "sourceReview": "Read nethack-c/upstream/src/exper.c pluslvl() lines 307-372. The implementation preserves the C evaluation and output order: the non-incremental opening message is conditional, newhp() and newpw() run before the level update, incremental experience is capped at newuexp(u.ulevel + 1) - 1 only when needed, the level and ulevelmax are updated before the welcome message, adjabil() follows the welcome, rank achievements are recorded, ulevelpeak is updated, and disp.botl is set last. The Upolyd monhp_per_lvl() arm remains fail-closed because this port has no production path that can make Upolyd true; SoundAchievement(), count_achievements(), and livelog_printf() have no observable owner in this browser port. The former pluslvl(TRUE) refusal was removed.",
+            "callers": [
+              {
+                "path": "js/exper.js",
+                "symbol": "newexplevel",
+                "source": "exper.c newexplevel() calls pluslvl(TRUE) when the experience threshold is reached; JavaScript newexplevel() does so at js/exper.js:266-267."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_change",
+                "source": "wizcmds.c wiz_level_change() repeatedly calls pluslvl(FALSE); JavaScript wiz_level_change() awaits pluslvl(false) at js/wizcmds.js:399-400."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-arrival.test.mjs",
+              "scripts/level-change.test.mjs"
+            ],
+            "recordings": [
+              "recordings/exper.c/newexplevel-quivering-blob.session.json"
+            ],
+            "checkedAt": "1f96f999b5b88dd4ab35c24f6d5733620bc071f0"
+          }
+        ],
+        "entryPointReview": "The selected range has one level-gain behavior with two production routes: experience accumulation reaches newexplevel() from Tourist arrival, monster kills, and trap disarms, while wizard level change reaches pluslvl(FALSE) directly. The source-pinned tests exercise both incremental and non-incremental modes, including random draw order, message order, experience capping, level state, rank recording, intrinsics, and the MAXULEV ceiling. The quivering-blob recording reaches mon.c xkilled() and captures pluslvl(TRUE)'s welcome output after the kill.",
+        "entryPoints": [
+          {
+            "name": "experience level gain",
+            "functions": [
+              "newexplevel",
+              "pluslvl"
+            ],
+            "recordings": [
+              "recordings/exper.c/newexplevel-quivering-blob.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 462,
+          "kind": "stop",
+          "function": "pickup",
+          "functionDeclared": true,
+          "sourceFile": "pickup.c",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: pickup() with a lost-object option override",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 252
+        }
+      ],
+      "closeStanding": {
+        "sha": "1f96f999b5b88dd4ab35c24f6d5733620bc071f0",
+        "screens": 6988,
+        "rng": 509615
+      }
     }
   ]
 }
