@@ -30541,7 +30541,16 @@
       "sessions": [],
       "selectionReason": "The refreshed queue ranks seed0360 step 698 first. Source tracing identifies the existing JS mcast_spell() effect-3 refusal, with no extra RNG and an existing mon_adjust_speed dependency.",
       "detail": "Development session seed0360-wizard-world-tour, step 698 (input h), is a stop requiring mcast_spell effect 3. The two C castmu attempts spend rn2(7) selection and rn2(70) fumble checks, then mcastu.c mcast_spell() line 801 reaches MCAST_HASTE_SELF enum 3 at line 852, calling mon_adjust_speed(mtmp, 1, NULL) and producing zero damage. C caller is monmove.c line 889 through castmu(FALSE,FALSE). JS monmove.js:2528 -> unported_monster_actions.js:1510-1542 -> castmu(false,false) -> js/mcastu.js:mcast_spell(); js/mcastu.js lines 565-603 currently refuse effect 3. Existing js/worn.js mon_adjust_speed is already used by js/muse.js with a null-item-compatible contract. Smallest fix: add the effect-3 branch in js/mcastu.js with zero RNG and source state/message order. No holdout data inspected.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mcast-spell-haste-self",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mcast_spell"
+          ]
+        }
+      ],
       "openedAt": "6ae198c115cadf108471c8eecd81092be970a72f",
       "openStanding": {
         "sha": "c6151a50f490208c1f031a1a31ac41f15c7fd1ea",
