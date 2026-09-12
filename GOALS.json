@@ -30535,7 +30535,7 @@
     {
       "id": "div-mcast-spell-haste-self-seed0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement mcast_spell effect 3 (MCAST_HASTE_SELF) with source-aligned mon_adjust_speed behavior.",
       "cFile": "mcastu.c",
       "sessions": [],
@@ -30544,8 +30544,8 @@
       "spans": [
         {
           "name": "mcast-spell-haste-self",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "961c769da76fb459f89816ebfc52606fbf786de9",
           "functions": [
             "mcast_spell"
           ]
@@ -30557,8 +30557,11 @@
         "screens": 7270,
         "rng": 533856
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "961c769da76fb459f89816ebfc52606fbf786de9",
+      "delivered": {
+        "screens": 78,
+        "rng": 2115
+      },
       "function": "mcast_spell",
       "session": "seed0360-wizard-world-tour",
       "step": 698,
@@ -30583,7 +30586,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 135
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "961c769da76fb459f89816ebfc52606fbf786de9",
+        "screens": 7348,
+        "rng": 535971
+      }
     }
   ]
 }
