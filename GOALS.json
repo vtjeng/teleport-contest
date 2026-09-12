@@ -28547,7 +28547,7 @@
     {
       "id": "port-pickup-autopickup-lost-override",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port pickup.c pickup() and its autopickup selection family so LOST_STOLEN overrides pickup types and exceptions as in C",
       "cFile": "pickup.c",
       "sessions": [
@@ -28555,9 +28555,25 @@
       ],
       "selectionReason": "The refreshed development queue ranks seed0014-dequa-fountain-explore at step 462, where the C pickup.c pickup() path selects a LOST_STOLEN black onyx ring while JavaScript refuses the lost-object option override. The completed source trace identifies pickup.c pickup() lines 672-912 and its self-contained check_autopickup_exceptions(), autopick_testobj(), and autopick() family lines 913-1024; autopick_testobj() lines 946-950 explicitly lets pickup_stolen override pickup_types and exceptions. Select the bounded pickup..autopick family and wire it through the existing automatic pickup planner, preserving pickup_object() and steal.js state.",
       "detail": "",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "pickup..autopick",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "pickup",
+            "check_autopickup_exceptions",
+            "autopick_testobj",
+            "autopick"
+          ]
+        }
+      ],
+      "openedAt": "b79fc85dddccadf69db14ea4bbc1b5b209a39c4f",
+      "openStanding": {
+        "sha": "0140256042cf9166589fb3968c7d149afebd8040",
+        "screens": 6988,
+        "rng": 509615
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -28593,7 +28609,29 @@
       "range": {
         "from": 672,
         "to": 1024
-      }
+      },
+      "activeStanding": {
+        "sha": "0140256042cf9166589fb3968c7d149afebd8040",
+        "screens": 6988,
+        "rng": 509615
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 462,
+          "kind": "stop",
+          "function": "pickup",
+          "functionDeclared": true,
+          "sourceFile": "pickup.c",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: pickup() with a lost-object option override",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 252
+        }
+      ]
     }
   ]
 }
