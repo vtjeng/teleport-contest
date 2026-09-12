@@ -389,17 +389,20 @@ function heroIsOnIce(state) {
             && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
 }
 
-// timeout.c::slip_or_trip() has several source-heavy branches. This span only
-// admits the branch whose message is the four-way plain on-foot switch; object,
-// ice, mounted, and deferred-decoration paths remain fail closed.
+// timeout.c::slip_or_trip() has several source-heavy branches. This span admits
+// the four-way plain on-foot switch after a move and the no-move expiry arm,
+// whose movement effects are skipped by nh_timeout(); object, ice, mounted,
+// and deferred-decoration paths remain fail closed. FROMOUTSIDE is safe on the
+// no-move arm because slip_or_trip() is not called, but a moved hero with that
+// bit reaches its unported ice branch.
 function plainOnFootFumbleAdmitted(state) {
     const u = state.u ?? {};
     const fumbling = u.uprops?.[FUMBLING];
-    return Boolean(u.umoved)
-        && !u.usteed
+    const fromOutside = Boolean((fumbling?.intrinsic ?? 0) & FROMOUTSIDE);
+    return !u.usteed
         && !heroPropertyActive(state, LEVITATION)
         && !heroPropertyActive(state, FLYING)
-        && !((fumbling?.intrinsic ?? 0) & FROMOUTSIDE)
+        && (!u.umoved || !fromOutside)
         && !heroIsOnIce(state)
         && !state.level?.objects?.[u.ux]?.[u.uy]
         && !state.iflags?.defer_decor;
@@ -592,23 +595,30 @@ async function decrement_property_timeouts(state, env) {
         if (index === FUMBLING) {
             const random = env.random ?? { rn2, rnd };
             const message = env.message ?? ttyPline;
-            await slipOrTripPlainOnFoot(state, random, message);
-            nomul(-2, state);
-            state.multi_reason = 'fumbling';
-            state.nomovemsg = '';
-            // timeout.c:914-917. The inventory calculation uses the current
-            // capacity, then noise wakes nearby monsters even for a deaf hero.
-            if (inv_weight(state) > -WT_NOISY_INV) {
-                if (!deaf(state)) await message('You make a lot of noise!', state);
-                await wake_nearby(false, {
-                    ...env,
-                    state,
-                    random,
-                    message,
-                });
+            // timeout.c:905 gates slip_or_trip(), nomul(), noise, and wakeup
+            // on u.umoved. A stationary closed-door bump still reaches the
+            // clearing and extension below, but consumes no rn2(4).
+            if (state.u?.umoved) {
+                await slipOrTripPlainOnFoot(state, random, message);
+                nomul(-2, state);
+                state.multi_reason = 'fumbling';
+                state.nomovemsg = '';
+                // timeout.c:914-917. The inventory calculation uses the
+                // current capacity, then noise wakes nearby monsters even for
+                // a deaf hero.
+                if (inv_weight(state) > -WT_NOISY_INV) {
+                    if (!deaf(state)) await message('You make a lot of noise!', state);
+                    await wake_nearby(false, {
+                        ...env,
+                        state,
+                        random,
+                        message,
+                    });
+                }
             }
-            // from outside means slippery ice; this branch has already proved
-            // that no FROMOUTSIDE source can be active.
+            // timeout.c:920-924. Clearing FROMOUTSIDE is unconditional, and
+            // an extrinsic or other remaining source extends Fumbling with
+            // rnd(20), whether or not the hero moved this turn.
             property.intrinsic &= ~FROMOUTSIDE;
             if (property.intrinsic || property.extrinsic)
                 property.intrinsic = (property.intrinsic & ~TIMEOUT)

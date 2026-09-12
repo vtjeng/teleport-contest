@@ -162,9 +162,42 @@ test('plain on-foot fumbling expiry keeps C ordering and random draws',
         assert.equal(state.u.uprops[FUMBLING].extrinsic, 1);
     });
 
+test('stationary fumbling expiry clears outside and only draws extension',
+    async () => {
+        const state = plainFumblingState();
+        // A failed walk into a closed door leaves u.umoved false. The C
+        // FUMBLING arm still clears FROMOUTSIDE and extends another active
+        // source, but timeout.c:905-918 skips slip_or_trip() and movement
+        // effects, so this case must make no rn2(4) draw or message.
+        state.u.umoved = false;
+        state.u.uprops[FUMBLING].intrinsic = FROMOUTSIDE | 1;
+        const messages = [];
+        const draws = [];
+        const random = {
+            rn2(bound) {
+                draws.push(['rn2', bound]);
+                return 1;
+            },
+            rnd(bound) {
+                draws.push(['rnd', bound]);
+                return 5; // timeout.c:924 extends the remaining fumble.
+            },
+        };
+
+        await nh_timeout_elapsed_turn(state, {
+            random,
+            message: async (text) => messages.push(text),
+        });
+
+        assert.deepEqual(messages, []);
+        assert.deepEqual(draws, [['rnd', 20]]);
+        assert.equal(state.multi, 0);
+        assert.equal(state.u.uprops[FUMBLING].intrinsic, 5);
+        assert.equal(state.u.uprops[FUMBLING].extrinsic, 1);
+    });
+
 test('unsupported fumbling expiry branches remain fail closed', async () => {
     const cases = [
-        ['without a move', (state) => { state.u.umoved = false; }],
         ['while mounted', (state) => { state.u.usteed = {}; }],
         ['while levitating', (state) => {
             state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0 };
