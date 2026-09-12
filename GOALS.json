@@ -28956,6 +28956,24 @@
         "rng": 512612
       },
       "parkedReason": "goto_level() is already a completed do.c source unit with prior whole-function evidence; the newly confirmed encumbrance falling branch is a source-local defect in implemented behavior and must be selected as a bounded divergence-fix instead."
+    },
+    {
+      "id": "div-do-goto-level-falling-stairs",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix do.c goto_level() ordinary downward-stair falling damage and arrival ordering",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "After closing nh_timeout and rechecking the queue, seed0014 step 481 remains the highest-ranked unresolved mismatch at most 233 screens. goto_level() is already a completed do.c source unit with prior whole-function evidence, so this source-local falling branch is selected as a divergence fix rather than another file port.",
+      "detail": "Development session seed0014-dequa-fountain-explore step 481 (input >) is a stop after the timeout fix. C do.c goto_level() lines 1478-1998 handles ordinary same-dungeon downward stair arrival at 1765-1800; the falling branch at 1780-1795 triggers when near_capacity() > UNENCUMBERED || Punished || Fumbling. This witness is on foot, unpunished, and has no Fumbling equipment, so encumbrance selects the branch. C prints You fall down the stairs., calls losehp(Maybe_Half_Phys(rnd(3)), ..., KILLED_BY), then selftouch(), followed by the shared arrival tail; the explicit development session records rnd(3)=2 at goto_level(do.c:1792) and HP 31 to 29. JS js/do.js mirrors the predicate but throws UnsupportedLevelChangeError at 1574-1583. Existing production callers are jsmain.js -> allmain.js -> cmd.js rhack/runDownCommand -> do.js dodown -> dungeon.js next_level -> do.js goto_level. Keep Punished, steed, Flying, and broader selftouch behavior bounded; selftouch() is trap.c-owned and its return is discarded for this witness, so note_unported(trap.c selftouch) is acceptable unless the dependency is already available.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "goto_level",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 481
     }
   ]
 }
