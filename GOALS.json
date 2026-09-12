@@ -28060,6 +28060,36 @@
         "screens": 6981,
         "rng": 509322
       }
+    },
+    {
+      "id": "port-mhitm-hitmm-seduction",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mhitm.c hitmm() seductive hit message and continuation into mdamagem",
+      "cFile": "mhitm.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "After could_seduce() passed at 5ff523af, the refreshed mismatch queue still ranks seed0014-dequa-fountain-explore step 455 with a seductive monster attack. The read-only residual trace locates the exact refusal at js/mhitm.js hitmm() lines 736-740, whose C owner is mhitm.c hitmm() lines 659-671: C uses could_seduce() compatibility, emits the engaging or seductive message, and continues into mdamagem. Production callers are monmove.js m_move_aggress -> mhitm.js fightm -> mattackm -> hitmm, with dogmove.js dog_move as the named play path. Select only hitmm() now; defer the downstream uhitm.c mhitm_ad_sedu monster-vs-monster arm until a later queue selection.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hitmm",
+          "line": 644,
+          "endLine": 735,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 644,
+        "to": 735
+      }
     }
   ]
 }
