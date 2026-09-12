@@ -29685,6 +29685,61 @@
         "screens": 7177,
         "rng": 524609
       }
+    },
+    {
+      "id": "div-timeout-nh-timeout-fumbling-bump",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix timeout.c nh_timeout() FUMBLING expiry for a stationary door bump",
+      "cFile": "timeout.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "The refreshed queue still ranks seed0014-dequa-fountain-explore first at step 536. Source tracing identifies the unresolved branch as timeout.c nh_timeout() case FUMBLING when u.umoved is false; select this bounded divergence fix before lower-ranked candidates.",
+      "detail": "The development session stops at input step 536 after a closed-door bump while Fumbling is active. C timeout.c:670 and 902-931 skips slip_or_trip() when u.umoved is false, still clears HFumbling FROMOUTSIDE, and extends active Fumbling with rnd(20) at timeout.c:924; the recorded C log consumes rnd(20)=5 and no rn2(4). JS timeout.js preflight_nh_timeout_elapsed_turn() requires plainOnFootFumbleAdmitted() and rejects the stationary path; its nh_timeout_elapsed_turn() would also unconditionally run rn2(4), nomul(-2), noise, and wake logic. Production flow is allmain.c moveloop_core() -> nh_timeout() and JS allmain.js advanceElapsedTurn() -> timeout.js decrement_property_timeouts(). Scope only timeout.js: admit expiring Fumbling when u.umoved is false and guard movement-only slip, nomul, noise, and wake with u.umoved while retaining FROMOUTSIDE clearing and persistent-Fumbling rnd(20). Preserve other timeout arms for later goals.",
+      "spans": [
+        {
+          "name": "stationary_fumbling_expiry",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nh_timeout"
+          ]
+        }
+      ],
+      "openedAt": "a1c2f15e842e8b27889eddf226442e7ae6484980",
+      "openStanding": {
+        "sha": "c9964dbed4d29cab694593a2a02669c42dc2aa94",
+        "screens": 7177,
+        "rng": 524609
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "nh_timeout",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 536,
+      "activeStanding": {
+        "sha": "c9964dbed4d29cab694593a2a02669c42dc2aa94",
+        "screens": 7177,
+        "rng": 524609
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 536,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed-turn nh_timeout requires no active property timeout at index 25",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 178
+        }
+      ]
     }
   ]
 }
