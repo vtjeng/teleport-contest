@@ -28829,6 +28829,24 @@
         "screens": 7000,
         "rng": 509804
       }
+    },
+    {
+      "id": "div-timeout-nh-timeout-fumbling",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix timeout.c nh_timeout() FUMBLING expiry ordering and random draws for the plain on-foot path",
+      "cFile": "timeout.c",
+      "sessions": [],
+      "selectionReason": "After closing Boots_on and rechecking the queue, seed0014 step 474 is the highest-ranked unresolved mismatch. The completed source investigation identifies timeout.c nh_timeout() as the owner and a bounded plain on-foot FUMBLING branch with existing JS dependencies; select this divergence fix before lower-ranked candidates.",
+      "detail": "Development session seed0014-dequa-fountain-explore stops at input step 474 after Boots_on() activates FUMBLING. The patched C path reaches timeout.c nh_timeout() when HFumbling & TIMEOUT is exactly one; timeout.c:902-931 case FUMBLING, reached from timeout.c:669-671, first calls slip_or_trip() only when u.umoved and neither Levitation nor Flying, then nomul(-2), sets multi_reason to fumbling, clears nomovemsg, prints the noise message when inv_weight() > -500 and not Deaf, calls wake_nearby(FALSE), clears HFumbling FROMOUTSIDE, extends remaining equipment Fumbling with rnd(20), and handles deferred_decor. The observed plain on-foot branch consumes rn2(4) at slip_or_trip(timeout.c:1302) and rnd(20) at nh_timeout(timeout.c:924). JavaScript js/timeout.js preflight_nh_timeout_elapsed_turn() rejects active FUMBLING at lines 395-419 and decrement_property_timeouts() has no FUMBLING case. js/allmain.js owns planning/live calls; thread random through both so the new draws match. Keep mounted fall, ice FROMOUTSIDE, object, petrification, and deferred_decor arms fail-closed for later goals.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "nh_timeout",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 474
     }
   ]
 }
