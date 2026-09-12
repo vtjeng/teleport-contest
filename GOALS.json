@@ -29021,7 +29021,7 @@
     {
       "id": "port-dothrow-thitmonst-cream-pie",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port dothrow.c thitmonst() thrown-object hit dispatch including the cream-pie monster branch",
       "cFile": "dothrow.c",
       "sessions": [
@@ -29029,9 +29029,22 @@
       ],
       "selectionReason": "After closing goto_level and rechecking the development queue, seed0014 step 505 is the highest-ranked unresolved mismatch, at most 209 remaining screens. Source tracing identifies dothrow.c thitmonst() as the incomplete owner for a thrown cream pie striking a kobold; select the next unverified dothrow.c source unit and wire its required uhitm and mondata dependencies.",
       "detail": "Development session seed0014-dequa-fountain-explore step 505 (input y) reaches dothrow.c thitmonst(mon,obj) after throwit()->bhit()->throwit_mon_hit(). C dothrow.c:2011-2304 enters HMON_THROWN with obj CREAM_PIE; the nonweapon arm at 2256-2260 tests guaranteed_hit || ACURR(A_DEX) > rnd(25). This witness has Dex 12 and records rnd(20)=2 at thitmonst.c:2152, rnd(25)=8 at 2258, then rn2(25)=1 in uhitm.c hmon_hitmon_misc_obj() at 1295. C prints the cream-pie splash message, blinds and angers the kobold, consumes the pie, and returns 1. JS js/dothrow.js:856-866 unconditionally throws UnsupportedThrowError when bhit() returns a monster; js/uhitm.js hmon() rejects every mode except HMON_MELEE and refuses nonweapon objects because hmon_hitmon_misc_obj() is absent; js/mondata.js:239-253 only admits hero-defender can_blnd while C mondata.c:300-398 admits monster defenders. Keep source ordering and general thrown-object behavior; include direct static helpers tmiss() and gem_accept() if required by thitmonst, and stage the minimum uhitm hmon/hmon_hitmon_do_hit/hmon_hitmon_misc_obj CREAM_PIE arm plus general can_blnd dependency. Do not special-case the seed or pie.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "thitmonst",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "thitmonst"
+          ]
+        }
+      ],
+      "openedAt": "bc59d39a094156bc3fe6b6b547822eeeff02da26",
+      "openStanding": {
+        "sha": "2427be4458fc2f5506450c214c6b8fa5c3e6fa22",
+        "screens": 7031,
+        "rng": 513951
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -29046,7 +29059,29 @@
       "range": {
         "from": 2011,
         "to": 2308
-      }
+      },
+      "activeStanding": {
+        "sha": "2427be4458fc2f5506450c214c6b8fa5c3e6fa22",
+        "screens": 7031,
+        "rng": 513951
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 505,
+          "kind": "stop",
+          "function": "thitmonst",
+          "functionDeclared": false,
+          "sourceFile": "dothrow.c",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst()",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 209
+        }
+      ]
     }
   ]
 }
