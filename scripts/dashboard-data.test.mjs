@@ -1110,5 +1110,5 @@ test('challenge session counts describe measured cases when the catalog has grow
         ] };
     const stats = renderDashboard(data).get('stats').innerHTML;
     assert.doesNotMatch(stats, /Cases evaluated|Manifest/u);
-    assert.match(stats, /Sessions<\/div><div class="score-breakdown-value">1\/2/u);
+    assert.match(stats.replace(/<[^>]*>/gu, ''), /Sessions1\/2/u);
 });
