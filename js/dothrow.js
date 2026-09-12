@@ -202,7 +202,6 @@ import {
     singular,
     the,
     The,
-    vtense,
     xnameFresh,
 } from './objnam.js';
 import { Monnam } from './do_name.js';

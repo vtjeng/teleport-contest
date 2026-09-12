@@ -21,8 +21,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    HMON_APPLIED,
-    HMON_KICKED,
     HMON_MELEE,
     HMON_THROWN,
     OBJ_DELETED,

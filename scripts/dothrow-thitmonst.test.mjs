@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { HMON_THROWN, OBJ_DELETED, OBJ_FREE } from '../js/const.js';
+import { OBJ_DELETED, OBJ_FREE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { thitmonst } from '../js/dothrow.js';
 import { mksobj } from '../js/obj.js';
