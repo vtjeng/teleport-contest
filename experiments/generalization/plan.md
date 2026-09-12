@@ -1,23 +1,35 @@
 # Generalization experiment
 
-## Scope and authorization
+Status: proposed. Full execution and merging to main await agreement on this
+plan. The user separately authorized a C-playing agent pilot and monitoring
+dashboard before opening the local holdout. That pilot has run on the isolated
+branch. Local-holdout contents have not been inspected; no new holdout or
+challenge evaluation has run, and no game behavior has changed.
 
-The user requested one session of work: record a learning plan, open the
-entire existing local holdout and improve the port against it, while creating
-a synthetic holdout in parallel. This experiment uses that explicit scope
-instead of the normal development-only goal-selection loop. The source-porting
-and regression-validation requirements still apply.
+## Proposed scope
 
-The eleven files in `sessions/holdout/` are now authorized for inspection and
-replay for this experiment. They remain at their existing paths. Results after
-inspection are labeled **exposed local corpus**, not unseen-case evidence.
-The remote competition holdout remains unavailable.
+The proposed sequence is one session of work: record a learning plan, open
+the entire existing local holdout and improve the port against it, while
+creating an expanding generated challenge set in parallel. The user has
+agreed to the objectives, opening all eleven sessions for an initial diagnosis,
+and using an expanding challenge set without a separate synthetic holdout.
+Overall execution remains paused while the plan is reviewed section by section.
 
-The first implementation batch targets three source-backed repairs. This is
-an engineering allocation, not a promised gain. Infrastructure, generation,
-diagnosis, repairs, dashboard integration, and final evaluation belong to
-this one session. Work is isolated on `experiment/generalization` so the
-unfinished change in the main workspace is not included accidentally.
+The two objectives are to explain the development/local-holdout gap and
+determine whether repairs help unfamiliar games. The experiment would use
+exposed-corpus and challenge failures instead of the normal development-only
+selection loop. Source-porting and regression-validation requirements remain.
+
+Inspection and replay of the eleven files in `sessions/holdout/` are proposed,
+not yet started. They would remain at their existing paths. Results after
+inspection would be labeled **exposed local corpus**, not unseen-case evidence.
+The remote competition holdout would remain unavailable.
+
+The climbing budget remains to be agreed. Three source-backed repairs was
+an assistant proposal, not a user-approved limit. Infrastructure, generation,
+diagnosis, repairs, dashboard integration, and final evaluation would belong
+to the same session. Draft work is isolated on `experiment/generalization`;
+nothing may merge to main before agreement.
 
 ## Baseline and prior exposure
 
@@ -26,7 +38,7 @@ recorded evaluation in that snapshot describes `2427be4`: development
 7,031/7,765 screens and local holdout 328/3,640 screens. These historical
 figures will be distinguished from new measured results.
 
-Before this authorization, a mistaken Git status command exposed local-holdout
+Before this plan, a mistaken Git status command exposed local-holdout
 filenames during worktree setup. Their contents were not opened. The initial
 hypotheses were consequently not fully blind to labels. This plan is recorded
 before inspecting those contents.
@@ -46,23 +58,38 @@ failures at the source baseline. Cluster failures by their source cause, not
 by session label. Trace each selected repair to C and preserve an independently
 chosen reproducer. Report rejected explanations as well as supported ones.
 
-## Synthetic generation specification
+## Expanding challenge set
 
-An independent generator/evaluator worker must not inspect the exposed local
-corpus or its diagnosis. It uses C source and existing recorder tooling to
-generate new cases, with C providing expected outputs. Implementation workers
-may inspect the synthetic development sample but not the synthetic holdout.
+Use the exposed-corpus findings and the C source to shape generated workloads.
+Existing sessions show plausible play; source analysis identifies missing
+behaviors and combinations. C supplies expected outputs. There is no separate
+sealed synthetic corpus in this experiment.
 
-The initial C-only pilot includes one ordinary start for each of thirteen
-roles and two variants for six scenario families: inventory/menus,
-equipment/item use, combat, conditions over time, level transitions, and
-persistence/end-of-game behavior. Pilot cases are separate from evaluation.
+Begin with a C-only pilot to establish valid generation, target reachability,
+and recording cost. Select the initial batch size after that pilot and within
+the agreed session budget. The earlier 25-case pilot and 76-case split were
+assistant proposals, not agreed allocations.
 
-The first frozen suite targets 76 cases: four independently seeded ordinary
-games per role (52), and four variants per scenario family (24). Half of each
-group forms an inspectable synthetic development sample; the other half forms
-the sealed synthetic sample. These 38-case allocations test the experiment
-machinery and transfer; they are not claims of statistical precision.
+Candidate families include ordinary starts and play across roles,
+inventory/menus, equipment/item use, combat, conditions over time, level
+transitions, and persistence/end-of-game behavior. The final generation mix
+remains to be agreed.
+
+Proposed mission generation uses a coverage map rather than relying only on
+free-form agent play. Assign missions across behavior families, action histories
+(repeat, reverse, interrupt, revisit, save and resume), relevant character/state
+conditions, and lengths. Combine familiar actions into longer dependencies,
+such as storing food, changing levels, retrieving it, and eating it. Include
+ordinary play and focused source-based cases, with debug-assisted setup labeled.
+The planner proposes missions; the player adapts to the actual C observations.
+
+Record attempted, reached, and blocked behaviors separately. A stated mission
+or an agent's completion report does not establish reachability. Verify the
+endpoint from recorded observations and source evidence. Track related variants
+as one mission family so new seeds do not inflate the apparent diversity.
+Choose later batches from coverage gaps, preserving a broad allocation across
+families alongside targeted cases. Coverage views would complement the score
+dashboard; they would not estimate remote-holdout coverage.
 
 Use valid role/race/gender/alignment combinations and vary relevant options.
 Include short, medium, and longer continuations. Scripted setup may use wizard
@@ -70,29 +97,32 @@ mode when that mode does not change the target behavior; report its cases
 separately from ordinary play. New seeds can change what subsequent keys do,
 so validate target reachability against C.
 
-Freeze sampling and acceptance rules before comparing JavaScript. Reject
-recorder failures and invalid C setup using stated criteria, preserve counts
-and reasons, and never select seeds or cases by whether JavaScript passes.
-If C-only piloting requires a change to this allocation or a scenario,
-record the reason before measuring JavaScript and identify the resulting
-corpus version. Do not silently report partial generation as a complete suite.
+Freeze each batch's sampling and acceptance rules before comparing JavaScript.
+Reject recorder failures and invalid C setup using stated criteria, preserve
+counts and reasons, and never select seeds or cases by whether JavaScript
+passes. Record generator changes with a new version. Do not silently report
+partial generation as a complete batch.
 
-Keep sealed seeds, recipes, recordings, detailed results, and generator logs
-outside the implementation checkout, in a private evaluation directory under
-the shared Git directory. Only the generator/evaluator worker accesses them.
-This is a separation of worker responsibilities, not an operating-system
-security boundary. Commit the generator and public specification, plus a
-digest of the private manifest. Preserve enough private metadata to reproduce
-the exact suite. Visible generator families mean the initial sealed result
-measures new instances of those families, not wholly unfamiliar task designs.
+For each batch, score a pinned implementation before inspecting JavaScript
+failures or making repairs. Preserve that first evaluation, then inspect the
+cases and add their failures to the implementation backlog. Keep each batch's
+membership and C recordings immutable; the overall challenge corpus grows by
+adding versioned batches. A correction to an invalid case is explicit and
+creates a new manifest version rather than rewriting past measurements.
+
+First evaluations describe unfamiliar instances of the generated workload.
+They are not evidence of independence from known scenario families or an
+estimate of the remote distribution. Compare synthetic and remote changes on
+the same commits when remote measurements become available. Broaden challenges
+when the current corpus is exhausted instead of declaring the port complete.
 
 ## Measurements and schedule
 
-The exposed local corpus and synthetic development sample may be replayed
-during diagnosis and repairs. The synthetic holdout is evaluated only at the
-source baseline and at the end of the implementation batch. Its evaluator
-returns aggregate results only. Generator failures are resolved using C,
-without consulting JavaScript outcomes.
+The exposed local corpus and existing challenge batches may be replayed during
+diagnosis and repairs. Each new batch gets a recorded first evaluation before
+its failures guide fixes; later replays are recorded as reassessments.
+Generator failures are resolved using C, without selecting for JavaScript
+success. There is no synthetic-holdout evaluation schedule.
 
 Each result identifies the exact implementation commit, corpus identifier,
 corpus digest, scorer identity, evaluation time, and whether evaluation
@@ -111,36 +141,119 @@ play. Keep source-function and validation evidence with each repair's commit
 and in the experiment findings. Do not claim complete source ports for partial
 branches or claim passing recipes that remain blocked.
 
-## Dashboard and repository records
+## SCORE.tsv and dashboard accounting
 
-The canonical plan is this file. Structured, sanitized results belong under
-`experiments/generalization/runs/`; the dashboard reads those records rather
-than a manually maintained score table. Put generator and evaluator tools in
-`scripts/`. Keep failing synthetic development cases outside the passing
-`recordings/` regression corpus; add passing regression evidence using the
-existing source-file recipe and recording conventions.
+The user explicitly requested that the expanding challenge set be represented
+in both `SCORE.tsv` and the existing dashboard. `SCORE.tsv` remains the canonical
+aggregate score history. Detailed per-case artifacts and immutable batch
+manifests may live under `experiments/generalization/`; they are evidence for
+the score rows, not a competing manually maintained score history.
 
-Extend the existing dashboard with an experiment view: milestone, exposed
-local progress, synthetic development progress, and separate discrete sealed
-evaluation points. Show corpus/scorer versions and the measured commit. Do not
-draw a gain across incompatible corpus versions or imply an old measurement
-describes current HEAD. Put RNG and diagnostic detail below the primary scores.
+Extend the score schema to identify the corpus, evaluated case-set version or
+manifest digest, batch or cumulative scope, measured implementation commit,
+scoring version, and evaluation kind. Distinguish a batch's first evaluation,
+later reassessments, and corpus-expansion events. Record sessions, screens,
+RNG values, and cursors with matched and total counts, plus the mean per-session
+screen fraction when available. Link each measurement to its detailed artifact.
 
-Dashboard builds read recorded summaries and do not run sealed evaluations.
-The complete generated HTML payload must omit sealed seeds, filenames,
-keystrokes, screens, raw errors, and per-case results. Test that boundary with
-invented fixtures and inspect the rendered dashboard in a browser.
+Preserve historical measurements and their original meaning during the schema
+migration. Missing values remain missing; do not infer synthetic scores for
+older commits. Record the old local corpus's exposure boundary so historical
+unseen evaluations remain distinguishable from later development evaluations.
+Keep original development, exposed local, and generated challenges identifiable
+as separate corpora. Do not combine their figures into an unlabeled total.
+
+Use one schema-aware score reader for command-line reports and dashboard data.
+The current dashboard reads positional columns directly and derives progress
+from goal events, so both assumptions need updating for challenge evaluations.
+Standings and deltas must be scoped to the correct corpus, case set, scoring
+version, and evaluation kind. Retain the first evaluation of each batch even
+after every case has been repaired.
+
+The dashboard should show:
+
+- Current challenge-corpus size and matching sessions/screens with denominators.
+- Per-batch first-evaluation results alongside the latest result for that same
+  batch, with the corresponding commits and generator/scoring versions.
+- Implementation progress measured on unchanged cases. Calculate a code-change
+  delta only from the same case set and scoring version.
+- Explicit additions to the challenge corpus, showing how many new cases and
+  screens were added and how many matched on their first evaluation.
+- Separate original-development and exposed-local trends; RNG and first-failure
+  detail can be secondary to screen/session results.
+
+When a batch is added, assess the old and expanded sets at the same commit to
+separate corpus growth from code changes. Adding passing cases is not an
+implementation gain; a lower percentage after adding harder cases is not by
+itself a regression. A matched-case gain and a newly failing case are reported
+separately rather than hidden in a net total. First-evaluation rates across
+different batch mixes are descriptive, not automatically a comparable trend.
+
+Show evaluated commit and time, and distinguish an unmeasured corpus, a failed
+evaluation, and a measured zero. Builds read saved score records and do not
+launch challenge evaluations. Test schema migration, batch growth at unchanged
+code, same-batch improvements/regressions, preservation of first evaluations,
+and missing/failed results. Inspect the rendered dashboard in a browser.
+
+## Repository organization
+
+The canonical plan is this file. Put generation and scoring tools in `scripts/`
+and challenge manifests and detailed evidence under `experiments/generalization/`.
+Keep intentionally failing challenge cases outside the passing `recordings/`
+regression corpus. Add passing regression evidence for repairs using the
+existing source-file recipe and recording conventions. Preserve generated
+cases and their first results after they start passing.
 
 ## Milestones
 
-- Plan and generation rules recorded before content inspection.
+- Plan and hypotheses recorded before content inspection.
 - Baseline exposed-corpus census and diagnosis recorded.
-- Synthetic pilot and frozen suite generated independently; baseline scored.
-- Three source-backed repairs completed with regression evidence.
-- Dashboard displays corpus-specific results and evaluation status.
-- Final checkpoint, exposed and synthetic evaluations, and findings recorded.
+- Generated challenge pilot validated; initial versioned batch scored before
+  inspecting its JavaScript failures.
+- Source-backed repairs completed within the agreed climbing budget, with
+  regression evidence.
+- SCORE.tsv and dashboard distinguish corpus growth, first evaluations, and
+  implementation improvements on unchanged cases.
+- Final checkpoint, exposed and challenge evaluations, and findings recorded.
 
 ## Findings
 
-Pending execution. Append measured findings, repairs, limitations, and
-changes to the generation specification here; link the structured results.
+The authorized pilot used two `gpt-5.6-luna` agents with `xhigh` reasoning.
+One agent built `scripts/explore-c.mjs` and played ordinary games; the other
+used debug wishes for container setup and then ordinary commands. Each action
+re-records its complete input prefix in a private C installation. The driver
+retains its recipe, canonical recording, action log, and latest screen.
+
+| Run | Inputs / boundaries | Observed result |
+| --- | --- | --- |
+| scout | 17 / 18 | Inspected inventory and escaped via the starting D:1 upstairs. This did not satisfy the intended descent-and-return objective. |
+| journey | 56 / 57 | Explored D:1, descended to D:2, returned to D:1, inspected inventory, and stopped at 6/16 HP after combat. |
+| containers | 172 / 173 | Used floor insertion/removal, tipped mixed contents and a nested sack into a carried bag of holding, removed the nested sack, and inspected the remaining food and scroll. |
+
+The journey and container recipes were independently replayed in separate
+private C installations. Their complete parsed recording objects matched the
+pilot recordings, including screens, cursors, and random-number logs. This
+establishes reproducibility of those two cases, not JavaScript parity. Their
+JavaScript behavior has not been scored or inspected. Artifacts remain in
+`/tmp/teleport-c-pilot/<run>/`; verification recordings are in
+`/tmp/teleport-c-pilot-verify/`. These pilot outputs are not yet an accepted
+challenge batch or part of the passing recordings corpus.
+
+The early scout exit supports explicit mission endpoints and independent
+reachability checks. The other two trajectories demonstrate adaptive C play
+and repeatable multi-feature cases; this small pilot does not establish a
+representative workload or transfer to the remote holdout.
+
+`scripts/monitor-c-explorers.mjs --runs /tmp/teleport-c-pilot` serves current
+screens and action histories on loopback port 8766. Its `--snapshot <html>`
+option creates a standalone page that checks for later uploaded snapshots
+every 30 seconds when hosted. Focused tests cover read-only access, artifact
+isolation, damaged status files, and safe snapshot embedding. Chromium checks
+covered loading, empty, populated, error, disconnected, and expanded-history
+states at widths from 320 to 1,920 pixels, plus standalone snapshot refresh.
+
+Sites project `appgprj_6aa4ff25659c8191994e6b39f28b7469` was created for the
+monitor; its source checkout is `/tmp/teleport-c-pilot-site`. Ownership and
+owner-only access were verified. Automatic approval review rejected the source
+upload and requested explicit approval for the destination and payload. That
+approval is pending; no Sites version has been published.

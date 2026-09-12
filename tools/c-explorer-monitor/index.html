@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C explorer pilot</title>
+<style>
+:root {
+  /* Exact dark palette from scripts/dashboard.template.html. */
+  --dashboard-ground: #0e1117;
+  --dashboard-surface: #161b22;
+  --dashboard-ink: #e6e4df;
+  --dashboard-secondary: #c3c2b7;
+  --dashboard-rule: #2c2c2a;
+  --dashboard-blue: #3987e5;
+  --terminal-black: #000000;
+  --terminal-white: #c0c0c0;
+  color-scheme: dark;
+  font-family: ui-sans-serif, sans-serif;
+  color: var(--dashboard-ink);
+  background: var(--dashboard-ground);
+  font-variant-numeric: tabular-nums;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: clamp(16px, 3vw, 40px); }
+main { max-width: 110rem; margin: auto; }
+header { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: baseline; }
+h1 { font-size: 30px; line-height: 1.15; font-weight: 500; margin: 0 0 12px; letter-spacing: -.03em; }
+header p, .muted { color: var(--dashboard-secondary); }
+header p { margin: 0; }
+#connection { font-size: 14px; min-height: 20px; }
+#runs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 39rem), 1fr)); gap: 32px; margin-top: 12px; }
+.run { min-width: 0; container-type: inline-size; border-top: 2px solid var(--dashboard-rule); padding-top: 16px; }
+.run[data-status="running"] { border-color: var(--dashboard-blue); }
+.run-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+h2 { font-size: 22px; font-weight: 500; margin: 0; }
+.status { font-size: 14px; text-transform: uppercase; letter-spacing: .07em; }
+.mission { line-height: 1.55; margin: 12px 0; min-height: 3.1em; }
+.metrics { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--dashboard-secondary); margin: 0 0 12px; }
+.terminal-wrap { overflow-x: auto; background: var(--terminal-black); padding: 12px; }
+.terminal { font-family: 'DejaVu Sans Mono', 'Liberation Mono', monospace; font-size: clamp(10px, 1.84cqw, 14px); line-height: 1.2; width: 80ch; margin: 0; color: var(--terminal-white); }
+.terminal span { display: inline; }
+.cursor { outline: 1px solid var(--terminal-white); outline-offset: -1px; }
+.intent { min-height: 3.2em; margin: 16px 0 8px; line-height: 1.6; }
+.intent strong { font-weight: 600; }
+.updated { font-size: 13px; color: var(--dashboard-secondary); margin: 0 0 16px; }
+details { border-top: 1px solid var(--dashboard-rule); padding-top: 14px; }
+summary { cursor: pointer; font-size: 15px; }
+.actions { padding: 0; list-style: none; margin-bottom: 8px; }
+.actions li { border-bottom: 1px solid var(--dashboard-rule); padding: 12px 0; }
+.action-time { font-size: 12px; color: var(--dashboard-secondary); margin-right: 12px; }
+.action-intent { font-size: 14px; line-height: 1.5; }
+.keys { font-family: 'DejaVu Sans Mono', monospace; font-size: 12px; overflow-wrap: anywhere; color: var(--dashboard-secondary); margin: 6px 0 0; white-space: pre-wrap; }
+.outcome { font-size: 13px; line-height: 1.5; margin: 6px 0 0; white-space: pre-wrap; }
+.artifacts { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 16px; font-size: 14px; }
+a { color: var(--dashboard-blue); text-underline-offset: 3px; }
+#empty { margin-top: 32px; line-height: 1.6; }
+#errors { height: 1.6em; overflow: auto; margin-top: 16px; line-height: 1.6; }
+#errors p { margin: 0; }
+footer { margin-top: 32px; border-top: 1px solid var(--dashboard-rule); padding-top: 16px; color: var(--dashboard-secondary); font-size: 13px; line-height: 1.6; }
+</style>
+<main>
+  <header>
+    <div><h1>C explorer pilot</h1><p>Agents playing the original NetHack C + Lua game</p></div>
+    <div id="connection" role="status">Connecting…</div>
+  </header>
+  <p id="empty" hidden>No explorers have written a screen yet. Their missions will appear here when they start.</p>
+  <div id="errors" role="alert"></div>
+  <div id="runs"></div>
+  <footer>The screen is the latest completed C observation. Each action includes the agent's stated intent and the recorded outcome. Keys and input boundaries are not game turns.</footer>
+</main>
+<script id="snapshot" type="application/json">null</script>
+<script>
+const SNAPSHOT = JSON.parse(document.getElementById('snapshot').textContent);
+const cards = new Map();
+const connection = document.getElementById('connection');
+function text(tag, value, className) {
+  const element = document.createElement(tag);
+  element.textContent = value ?? '';
+  if (className) element.className = className;
+  return element;
+}
+function time(value) {
+  if (!value) return 'No observation yet';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+function drawTerminal(pre, run) {
+  pre.replaceChildren();
+  if (!run.cells) {
+    pre.textContent = run.screenText || Array(24).fill(' '.repeat(80)).join('\n');
+    return;
+  }
+  const fragment = document.createDocumentFragment();
+  run.cells.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      const span = text('span', cell.ch);
+      span.style.color = cell.attr & 1 ? 'var(--terminal-black)' : cell.color;
+      if (cell.attr & 1) span.style.backgroundColor = cell.color;
+      if (cell.attr & 2) span.style.fontWeight = 'bold';
+      if (cell.attr & 4) span.style.textDecoration = 'underline';
+      if (run.cursor?.[0] === x && run.cursor?.[1] === y && run.cursor?.[2]) span.className = 'cursor';
+      fragment.append(span);
+    });
+    if (y < run.cells.length - 1) fragment.append(document.createTextNode('\n'));
+  });
+  pre.append(fragment);
+}
+function renderRun(run) {
+  let card = cards.get(run.directory);
+  if (!card) {
+    const section = text('section', '', 'run');
+    const heading = text('div', '', 'run-heading');
+    const title = text('h2', run.id || run.directory);
+    const status = text('span', '', 'status');
+    heading.append(title, status);
+    const mission = text('p', '', 'mission');
+    const metrics = text('div', '', 'metrics');
+    const terminalWrap = text('div', '', 'terminal-wrap');
+    const terminal = text('pre', '', 'terminal');
+    terminal.setAttribute('aria-label', 'Latest original C game screen');
+    terminalWrap.append(terminal);
+    const intent = text('p', '', 'intent');
+    const updated = text('p', '', 'updated');
+    const details = document.createElement('details');
+    const summary = text('summary', 'Action history');
+    const actions = text('ol', '', 'actions');
+    details.append(summary, actions);
+    const artifacts = text('div', '', 'artifacts');
+    section.append(heading, mission, metrics, terminalWrap, intent, updated, details, artifacts);
+    document.getElementById('runs').append(section);
+    card = { section, status, mission, metrics, terminal, intent, updated, details, summary, actions, artifacts };
+    cards.set(run.directory, card);
+  }
+  const version = JSON.stringify(run);
+  if (version === card.version) return;
+  card.version = version;
+  card.section.dataset.status = run.status || 'starting';
+  card.status.textContent = run.status || 'starting';
+  card.mission.textContent = run.mission || 'Mission not yet recorded';
+  card.metrics.replaceChildren(...[
+    `${run.model || 'Luna'} · ${run.reasoningEffort || 'xhigh'}`,
+    `${run.role || 'Character pending'} · ${run.playmode || 'ordinary'}`,
+    `${run.keyCount ?? 0} keys · ${run.boundaries ?? 0} boundaries`,
+    `Seed ${run.seed ?? 'pending'}`,
+  ].map((value) => text('span', value)));
+  drawTerminal(card.terminal, run);
+  const label = text('strong', run.status === 'completed' ? 'Result: ' : 'Latest intent: ');
+  card.intent.replaceChildren(label, document.createTextNode(run.error || run.summary || run.latestIntent || 'Waiting for the first action.'));
+  card.updated.textContent = `Last observation ${time(run.observedAt || run.updatedAt)}`;
+  card.summary.textContent = `Action history · ${run.actions.length} recorded actions`;
+  card.actions.replaceChildren(...run.actions.slice().reverse().map((action) => {
+    const item = document.createElement('li');
+    item.append(text('span', time(action.time), 'action-time'), text('span', action.intent || 'Action', 'action-intent'));
+    item.append(text('p', `Keys: ${JSON.stringify(action.keys ?? '')}`, 'keys'));
+    if (action.outcome) item.append(text('p', typeof action.outcome === 'string' ? action.outcome : JSON.stringify(action.outcome), 'outcome'));
+    return item;
+  }));
+  card.artifacts.replaceChildren();
+  if (!SNAPSHOT) {
+    for (const [file, label] of [['recording.session.json', 'C recording'], ['recipe.session.json', 'Replay recipe'], ['actions.jsonl', 'Action log']]) {
+      if (run.artifacts[file]) {
+        const link = text('a', label);
+        link.href = run.artifacts[file];
+        link.target = '_blank';
+        link.rel = 'noopener';
+        card.artifacts.append(link);
+      }
+    }
+  }
+}
+function render(data) {
+  document.getElementById('empty').hidden = data.runs.length > 0;
+  document.getElementById('errors').replaceChildren(...data.errors.map((error) => text('p', `${error.run}: ${error.message}`)));
+  data.runs.forEach(renderRun);
+  for (const [id, card] of cards) {
+    if (!data.runs.some((run) => run.directory === id)) {
+      card.section.remove();
+      cards.delete(id);
+    }
+  }
+}
+async function refresh() {
+  try {
+    const response = await fetch(SNAPSHOT ? `${location.pathname}?checked=${Date.now()}` : '/api/runs', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (SNAPSHOT) {
+      const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const data = JSON.parse(page.getElementById('snapshot').textContent);
+      render(data);
+      connection.textContent = `Snapshot ${time(data.capturedAt)} · checked ${time(new Date().toISOString())}`;
+    } else {
+      render(await response.json());
+      connection.textContent = `Live · checked ${time(new Date().toISOString())}`;
+    }
+  } catch {
+    connection.textContent = 'Connection interrupted · showing last observation';
+  }
+  setTimeout(refresh, SNAPSHOT ? 30000 : 2000);
+}
+if (SNAPSHOT) {
+  render(SNAPSHOT);
+  connection.textContent = `Saved snapshot · ${time(SNAPSHOT.capturedAt)}`;
+  if (location.protocol === 'https:' || location.protocol === 'http:') {
+    document.querySelector('footer').append(' This page checks for newly uploaded snapshots every 30 seconds.');
+    setTimeout(refresh, 30000);
+  }
+} else refresh();
+</script>
+</html>
