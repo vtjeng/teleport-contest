@@ -30596,7 +30596,7 @@
     {
       "id": "div-do-goto-level-new-dungeon-seed0030",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix goto_level() ordinary downward arrival into a new dungeon.",
       "cFile": "do.c",
       "sessions": [],
@@ -30605,8 +30605,8 @@
       "spans": [
         {
           "name": "goto-level-new-dungeon",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d7c70506c96bc13ee3d8ffa6315c7f49522a2401",
           "functions": [
             "goto_level"
           ]
@@ -30618,8 +30618,11 @@
         "screens": 7348,
         "rng": 535971
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d7c70506c96bc13ee3d8ffa6315c7f49522a2401",
+      "delivered": {
+        "screens": 7,
+        "rng": 196
+      },
       "function": "goto_level",
       "session": "seed0030-ten-diverse-deaths",
       "step": 1820,
@@ -30644,7 +30647,12 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 133
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "d7c70506c96bc13ee3d8ffa6315c7f49522a2401",
+        "screens": 7355,
+        "rng": 536167
+      }
     }
   ]
 }
