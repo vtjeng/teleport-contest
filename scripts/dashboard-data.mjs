@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
 // Parses SCORE.tsv and git log to produce a JSON blob for the progress dashboard.
-// Covers the development session set only.
 
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { completedFunctionNames } from './port-evidence.mjs';
+import { readRows, standing } from './score-log.mjs';
+import { challengeDashboard } from './challenge-results.mjs';
 
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).trim();
@@ -47,6 +49,8 @@ for (const c of commits) {
   commitBySha.set(c.sha.slice(0, 7), c);
 }
 
+const headFullSha = run('git rev-parse HEAD');
+
 // Classify commits
 const openCommits = commits.filter(c => /^(Open|Register)\b/i.test(c.message));
 const queueCommits = commits.filter(c => /^Queue\b/i.test(c.message));
@@ -65,35 +69,163 @@ queueCommits.sort((a, b) => a.time - b.time);
 
 // --- Parse SCORE.tsv ---
 
-const scoreLines = readFileSync('SCORE.tsv', 'utf8').split('\n').slice(1).filter(Boolean);
+// score-log owns the append-only schema. Read named fields so adding columns
+// after `note` cannot silently shift the dashboard's existing measures.
+const scoreRows = readRows(join(process.cwd(), 'SCORE.tsv'));
 
-const scoreEvents = scoreLines.map(line => {
-  const cols = line.split('\t');
-  const [tsStr, sha, event] = cols;
-  const note = cols[15] || '';
+function numberOrNull(value) {
+  if (value === '' || value == null) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function fullShaFor(row) {
+  if (!row?.sha) return null;
+  const sha = row.sha.toLowerCase();
+  if (/^[\da-f]{40}$/u.test(sha)) return sha;
+  if (!/^[\da-f]+$/u.test(sha)) return null;
+  const matches = commits.filter(commit => commit.sha.startsWith(sha));
+  return matches.length === 1 ? matches[0].sha : null;
+}
+
+const scoreEvents = scoreRows.map(row => {
+  const note = row.note || '';
   const noteLower = note.toLowerCase();
   if (noteLower.includes('supersedes') || noteLower.includes('sha-correction')) return null;
 
-  const commit = commitBySha.get(sha) || commitBySha.get(sha.slice(0, 7));
-  const utc = commit?.time || (tsStr ? new Date(tsStr) : null);
+  const commit = commitBySha.get(fullShaFor(row));
+  const utc = commit?.time || (row.utc ? new Date(row.utc) : null);
 
   return {
     utc,
     utcSource: commit ? 'commit' : 'score-utc-fallback',
-    sha, event,
-    sessionsPassed: cols[3] ? parseInt(cols[3]) : null,
-    sessionsTotal: cols[4] ? parseInt(cols[4]) : null,
-    screensMatched: cols[5] ? parseInt(cols[5]) : null,
-    screensTotal: cols[6] ? parseInt(cols[6]) : null,
-    rngMatched: cols[7] ? parseInt(cols[7]) : null,
-    rngTotal: cols[8] ? parseInt(cols[8]) : null,
-    holdoutScreensMatched: cols[11] ? parseInt(cols[11]) : null,
-    holdoutScreensTotal: cols[12] ? parseInt(cols[12]) : null,
-    holdoutRngMatched: cols[13] ? parseInt(cols[13]) : null,
-    holdoutRngTotal: cols[14] ? parseInt(cols[14]) : null,
+    sha: row.sha, event: row.event,
+    sessionsPassed: numberOrNull(row.sessions_passed),
+    sessionsTotal: numberOrNull(row.sessions_total),
+    screensMatched: numberOrNull(row.screens_matched),
+    screensTotal: numberOrNull(row.screens_total),
+    rngMatched: numberOrNull(row.rng_matched),
+    rngTotal: numberOrNull(row.rng_total),
+    cursorsMatched: numberOrNull(row.cursors_matched),
+    cursorsTotal: numberOrNull(row.cursors_total),
+    holdoutSessionsPassed: numberOrNull(row.holdout_sessions_passed),
+    holdoutSessionsTotal: numberOrNull(row.holdout_sessions_total),
+    holdoutScreensMatched: numberOrNull(row.holdout_screens_matched),
+    holdoutScreensTotal: numberOrNull(row.holdout_screens_total),
+    holdoutRngMatched: numberOrNull(row.holdout_rng_matched),
+    holdoutRngTotal: numberOrNull(row.holdout_rng_total),
+    holdoutCursorsMatched: numberOrNull(row.holdout_cursors_matched),
+    holdoutCursorsTotal: numberOrNull(row.holdout_cursors_total),
+    challengeSessionsPassed: numberOrNull(row.challenge_sessions_passed),
+    challengeSessionsTotal: numberOrNull(row.challenge_sessions_total),
+    challengeScreensMatched: numberOrNull(row.challenge_screens_matched),
+    challengeScreensTotal: numberOrNull(row.challenge_screens_total),
+    challengeRngMatched: numberOrNull(row.challenge_rng_matched),
+    challengeRngTotal: numberOrNull(row.challenge_rng_total),
+    challengeCursorsMatched: numberOrNull(row.challenge_cursors_matched),
+    challengeCursorsTotal: numberOrNull(row.challenge_cursors_total),
+    challengeManifestSha256: row.challenge_manifest_sha256 || null,
+    challengeEvaluation: row.challenge_evaluation || null,
     note,
   };
 }).filter(Boolean);
+
+function metricFromRow(row, prefix, matchedColumn = `${prefix}_matched`) {
+  if (!row) return null;
+  const matched = numberOrNull(row[matchedColumn]);
+  const total = numberOrNull(row[`${prefix}_total`]);
+  if (matched === null || total === null) return null;
+  return { matched, total };
+}
+
+function scoreFromRow(row, prefixes) {
+  const score = {
+    status: row ? 'measured' : 'unmeasured',
+    sha: fullShaFor(row),
+    utc: row?.utc || null,
+    sessions: metricFromRow(row, prefixes.sessions),
+    screens: metricFromRow(row, prefixes.screens),
+    rng: metricFromRow(row, prefixes.rng),
+    cursors: metricFromRow(row, prefixes.cursors),
+  };
+  return score;
+}
+
+const scoreStanding = standing(scoreRows);
+const developmentScore = scoreFromRow(scoreStanding.development, {
+  sessions: 'sessions', screens: 'screens', rng: 'rng', cursors: 'cursors',
+});
+const localHoldoutScore = scoreFromRow(scoreStanding.holdout, {
+  sessions: 'holdout_sessions', screens: 'holdout_screens',
+  rng: 'holdout_rng', cursors: 'holdout_cursors',
+});
+
+developmentScore.sessions = metricFromRow(
+  scoreStanding.development, 'sessions', 'sessions_passed',
+);
+localHoldoutScore.sessions = metricFromRow(
+  scoreStanding.holdout, 'holdout_sessions', 'holdout_sessions_passed',
+);
+if (developmentScore.sha && developmentScore.sha !== headFullSha) {
+  developmentScore.status = 'stale';
+}
+developmentScore.freshForCommit = Boolean(
+  developmentScore.sha && developmentScore.sha === headFullSha,
+);
+if (localHoldoutScore.sha && localHoldoutScore.sha !== headFullSha) {
+  localHoldoutScore.status = 'stale';
+}
+localHoldoutScore.freshForCommit = Boolean(
+  localHoldoutScore.sha && localHoldoutScore.sha === headFullSha,
+);
+
+function combinedMetric(first, second) {
+  if (!first || !second) return null;
+  return {
+    matched: first.matched + second.matched,
+    total: first.total + second.total,
+  };
+}
+
+const sameEvidenceCommit = Boolean(
+  developmentScore.sha
+  && localHoldoutScore.sha
+  && developmentScore.sha === localHoldoutScore.sha,
+);
+const combinedScore = {
+  status: !developmentScore.sha && !localHoldoutScore.sha
+    ? 'unmeasured'
+    : !sameEvidenceCommit
+      ? 'incomplete'
+      : developmentScore.sha === headFullSha
+        ? 'measured'
+        : 'stale',
+  sha: sameEvidenceCommit ? developmentScore.sha : null,
+  utc: sameEvidenceCommit
+    ? (developmentScore.utc || localHoldoutScore.utc)
+    : null,
+  sessions: sameEvidenceCommit
+    ? combinedMetric(developmentScore.sessions, localHoldoutScore.sessions)
+    : null,
+  screens: sameEvidenceCommit
+    ? combinedMetric(developmentScore.screens, localHoldoutScore.screens)
+    : null,
+  rng: sameEvidenceCommit
+    ? combinedMetric(developmentScore.rng, localHoldoutScore.rng)
+    : null,
+  cursors: sameEvidenceCommit
+    ? combinedMetric(developmentScore.cursors, localHoldoutScore.cursors)
+    : null,
+};
+
+const scores = {
+  headSha: headFullSha,
+  combined: combinedScore,
+  development: developmentScore,
+  localHoldout: localHoldoutScore,
+};
+
+const challenges = challengeDashboard(process.cwd(), scoreRows, headFullSha);
 
 // Extracts the goal name from a SCORE note. Both the goal timeline and the
 // progress chart label their entries with it.
@@ -126,13 +258,14 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
   const name = goalNameFromNote(sg.note);
 
   // Find close commit by SHA
-  const closeCommit = commitBySha.get(sg.sha) || commitBySha.get(sg.sha.slice(0, 7));
+  const closeCommit = commitBySha.get(fullShaFor({ sha: sg.sha }));
   const closeTime = sg.utc || closeCommit?.time;
   if (!closeTime) continue;
 
   // Previous goal's close time (for bounding the open search)
   const prevCloseTime = gi > 0
-    ? (scoreGoals[gi - 1].utc || commitBySha.get(scoreGoals[gi - 1].sha)?.time)
+    ? (scoreGoals[gi - 1].utc
+      || commitBySha.get(fullShaFor({ sha: scoreGoals[gi - 1].sha }))?.time)
     : null;
 
   // Find the Open commit: most recent Open before this close, after previous close
@@ -492,6 +625,8 @@ const summary = {
   medianTotalMin: median(recentGoals.filter(g => g.totalObserved && g.totalMin < 600).map(g => g.totalMin)),
 };
 
-const output = { goals, progress, standaloneAudits, workGoals, summary };
+const output = {
+  goals, progress, standaloneAudits, workGoals, summary, scores, challenges,
+};
 
 process.stdout.write(JSON.stringify(output, null, 2));

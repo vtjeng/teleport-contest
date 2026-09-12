@@ -16,20 +16,35 @@ import {
 
 const dir = mkdtempSync(join(tmpdir(), 'score-log-'));
 
-// Three rows in the shape SCORE.tsv holds after the 2026-08-01 conversion. The
+// Three rows in the current SCORE.tsv shape. The
 // first goal row carries holdout figures because its own event ran an
 // evaluation (139/3640 screens and 30048/182022 rng are the recorded fifth-zero
 // values); the two later rows leave the holdout cells empty, the encoding for
 // "no new holdout evidence", so standing() must reach back past both of them.
+function scoreRow(fields) {
+    return COLUMNS.map((column) => fields[column] ?? '').join('\t');
+}
+
 const fixture = [
     COLUMNS.join('\t'),
-    ['2026-08-01', 'aaaa111', 'goal', '', '', '496', '7765', '106505',
-        '610816', '', '', '139', '3640', '30048', '182022', 'goal row']
-        .join('\t'),
-    ['2026-08-01', 'bbbb222', 'slice', '', '', '520', '7765', '107227',
-        '610816', '', '', '', '', '', '', 'slice row'].join('\t'),
-    ['2026-08-02', 'cccc333', 'goal', '', '', '520', '7765', '107227',
-        '610816', '', '', '', '', '', '', ''].join('\t'),
+    scoreRow({
+        utc: '2026-08-01', sha: 'aaaa111', event: 'goal',
+        screens_matched: '496', screens_total: '7765',
+        rng_matched: '106505', rng_total: '610816',
+        holdout_screens_matched: '139', holdout_screens_total: '3640',
+        holdout_rng_matched: '30048', holdout_rng_total: '182022',
+        note: 'goal row',
+    }),
+    scoreRow({
+        utc: '2026-08-01', sha: 'bbbb222', event: 'slice',
+        screens_matched: '520', screens_total: '7765',
+        rng_matched: '107227', rng_total: '610816', note: 'slice row',
+    }),
+    scoreRow({
+        utc: '2026-08-02', sha: 'cccc333', event: 'goal',
+        screens_matched: '520', screens_total: '7765',
+        rng_matched: '107227', rng_total: '610816',
+    }),
 ].join('\n');
 
 function writeFixture(name, text = fixture) {
@@ -51,10 +66,16 @@ test('readRows parses rows keyed by column and rejects drifted shapes', () => {
     const renamed = fixture.replace('holdout_rng_total', 'holdout_rngs');
     assert.throws(() => readRows(writeFixture('renamed.tsv', renamed)),
         /header differs/u);
-    // A row with 15 fields is a hand-edit gone wrong; 16 is the shape.
+    // A row with too few fields is a hand-edit gone wrong; the current shape
+    // has one field for every column.
     const short = `${COLUMNS.join('\t')}\n2026-08-01\taaaa111\tgoal`;
     assert.throws(() => readRows(writeFixture('short.tsv', short)),
         /3 fields/u);
+    // The old 16-column header is deliberately not accepted at runtime. The
+    // checked-in ledger is widened by the schema migration instead.
+    const oldHeader = COLUMNS.slice(0, 16).join('\t');
+    assert.throws(() => readRows(writeFixture('legacy.tsv', oldHeader)),
+        /header differs/u);
 });
 
 test('appendRow composes a full row and refuses malformed input', () => {
@@ -67,6 +88,7 @@ test('appendRow composes a full row and refuses malformed input', () => {
     assert.equal(rows.length, 4);
     assert.equal(rows[3].screens_matched, '521');
     assert.equal(rows[3].note, '');
+    assert.equal(rows[3].challenge_screens_matched, '');
     // A caller-supplied utc used to be accepted (and a date-only one upgraded
     // to a timestamp); every row's utc is now the moment the script wrote it.
     assert.throws(() => appendRow(
@@ -92,6 +114,62 @@ test('appendRow composes a full row and refuses malformed input', () => {
     assert.throws(() => appendRow(
         { sha: 'e', event: 'goal', note: 'the "?" path' }, path),
         /double quote/u);
+    const stalePath = join(dir, 'stale-append.tsv');
+    writeFileSync(stalePath, `${COLUMNS.slice(0, 16).join('\t')}\n`);
+    assert.throws(() => appendRow({ sha: 'e', event: 'goal' }, stalePath),
+        /header differs/u);
+});
+
+test('challenge rows require a complete identity and isolated metrics', () => {
+    const path = writeFixture('challenge.tsv');
+    const fields = {
+        sha: 'eeee555', event: 'challenge',
+        challenge_sessions_passed: '2', challenge_sessions_total: '3',
+        challenge_screens_matched: '8', challenge_screens_total: '10',
+        challenge_rng_matched: '80', challenge_rng_total: '100',
+        challenge_cursors_matched: '9', challenge_cursors_total: '10',
+        challenge_manifest_sha256: 'a'.repeat(64),
+        challenge_evaluation: 'challenges/evaluations/batch-1.json',
+    };
+    const row = appendRow(fields, path);
+    assert.equal(row.event, 'challenge');
+    assert.equal(row.challenge_screens_matched, '8');
+    assert.equal(readRows(path).at(-1).challenge_evaluation,
+        'challenges/evaluations/batch-1.json');
+
+    assert.throws(() => appendRow({
+        ...fields, sha: 'eeee556', challenge_sessions_total: '1',
+    }, path), /challenge_sessions_passed must be no greater/u);
+    assert.throws(() => appendRow({
+        ...fields, sha: 'eeee557', challenge_rng_total: '',
+    }, path), /all present or all blank/u);
+    assert.throws(() => appendRow({
+        ...fields, sha: 'eeee558', challenge_manifest_sha256: 'bad',
+    }, path), /64 hexadecimal/u);
+    assert.throws(() => appendRow({
+        ...fields, sha: 'eeee559', challenge_evaluation: 'tmp/eval.json',
+    }, path), /challenges\/evaluations/u);
+    assert.throws(() => appendRow({
+        ...fields, sha: 'eeee560', screens_matched: '1',
+    }, path), /cannot include development or holdout/u);
+    assert.throws(() => appendRow({
+        sha: 'eeee561', event: 'goal', challenge_evaluation: fields.challenge_evaluation,
+    }, path), /only valid for event=challenge/u);
+});
+
+test('failed challenge rows retain a challenge standing with blank counts', () => {
+    const path = writeFixture('challenge-failed.tsv');
+    const row = appendRow({
+        sha: 'ffff555', event: 'challenge',
+        challenge_sessions_passed: '', challenge_sessions_total: '',
+        challenge_screens_matched: '', challenge_screens_total: '',
+        challenge_rng_matched: '', challenge_rng_total: '',
+        challenge_cursors_matched: '', challenge_cursors_total: '',
+        challenge_manifest_sha256: 'b'.repeat(64),
+        challenge_evaluation: 'challenges/evaluations/failed.json',
+    }, path);
+    assert.equal(row.challenge_screens_matched, '');
+    assert.equal(standing(readRows(path)).challenges.sha, 'ffff555');
 });
 
 test('latestRow returns the last row, or the last of one event', () => {
@@ -110,6 +188,24 @@ test('standing carries the last stated holdout figure forward', () => {
     assert.equal(development.sha, 'cccc333');
     assert.equal(holdout.sha, 'aaaa111');
     assert.equal(holdout.holdout_screens_matched, '139');
+});
+
+test('challenge rows cannot replace development or holdout standings', () => {
+    const challenge = scoreRow({
+        utc: '2026-08-03', sha: 'dddd444', event: 'challenge',
+        challenge_sessions_passed: '1', challenge_sessions_total: '1',
+        challenge_screens_matched: '12', challenge_screens_total: '12',
+        challenge_rng_matched: '50', challenge_rng_total: '50',
+        challenge_cursors_matched: '4', challenge_cursors_total: '4',
+        challenge_manifest_sha256: 'c'.repeat(64),
+        challenge_evaluation: 'challenges/evaluations/batch-2.json',
+    });
+    const rows = readRows(writeFixture('standing-challenge.tsv',
+        `${fixture}\n${challenge}`));
+    const current = standing(rows);
+    assert.equal(current.development.sha, 'cccc333');
+    assert.equal(current.holdout.sha, 'aaaa111');
+    assert.equal(current.challenges.sha, 'dddd444');
 });
 
 test('generateNote composes a delta summary from current and previous', () => {
@@ -185,6 +281,11 @@ test('generateNote works with no previous standing', () => {
     assert.match(note, /first-slice closes\./u);
     assert.match(note, /Development 10 of 100 screens, 50 of 500 rng/u);
     assert.doesNotMatch(note, /→/u);
+});
+
+test('generateNote refuses challenge events', () => {
+    assert.throws(() => generateNote({ event: 'challenge' }),
+        /score-challenges --record/u);
 });
 
 test('rowsSince slices from the matched sha, inclusive', () => {

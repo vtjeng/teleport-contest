@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "scout",
+      "title": "Inventory and escape",
+      "outcome": "Missed the descent mission; inspected inventory and escaped through the D:1 upstairs.",
+      "sourcePointers": [],
+      "playmode": "ordinary",
+      "gameTurns": null,
+      "mission": "Explore D:1, use inventory, find stairs and attempt a return journey",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 17,
+      "boundaries": 18,
+      "reproducibility": "Independent C replay matched the complete parsed recording.",
+      "recipe": "challenges/cases/scout.recipe.json",
+      "recipeSha256": "b7c9023cd98eda84dc9893bdd5c24b4655a6823093a008c74d74d7514f08a3ce",
+      "recording": "challenges/cases/scout.session.json",
+      "recordingSha256": "ea31e55f9ebc16379cbefe89702881d1f22cf2ced0f8bfef3c133621bfbea6b5"
+    },
+    {
+      "id": "journey",
+      "title": "Descend and return",
+      "outcome": "Explored D:1, descended to D:2 and returned; inventory and combat, ending at 6/16 HP.",
+      "sourcePointers": [],
+      "playmode": "ordinary",
+      "gameTurns": 40,
+      "mission": "Explore several D:1 rooms, descend to D:2, and attempt a return to D:1 without ascending out of the dungeon",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 56,
+      "boundaries": 57,
+      "reproducibility": "Independent C replay matched the complete parsed recording.",
+      "recipe": "challenges/cases/journey.recipe.json",
+      "recipeSha256": "795deeef964bbd4835cad721d55e4c70a7e479834d6305f01e4679b47de0c155",
+      "recording": "challenges/cases/journey.session.json",
+      "recordingSha256": "3c07e106fe3c51a8899904f75b71a677e32c29f1403055635f6f3908a5548a7d"
+    },
+    {
+      "id": "containers",
+      "title": "Transfer and nested containers",
+      "outcome": "Debug wishes set up containers; ordinary loot and tip commands moved mixed contents and a nested sack between floor and carried containers.",
+      "sourcePointers": [
+        "pickup.c dotip: inventory selection via getobj and tip_ok (C line 3624; JS inventory path refuses at boundary 153).",
+        "pickup.c tipcontainer: container-to-container transfer loop (C lines 3688–3841; next unported branch in js/pickup.js)."
+      ],
+      "playmode": "debug setup",
+      "gameTurns": 8,
+      "mission": "Use debug wishes only for setup; then exercise ordinary floor and carried container insertion/removal, mixed contents, and direct #tip into a carried bag of holding with safe nested containers.",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 172,
+      "boundaries": 173,
+      "reproducibility": "Independent C replay matched the complete parsed recording.",
+      "recipe": "challenges/cases/containers.recipe.json",
+      "recipeSha256": "2b18a553ddc19b712808b16161b3674b422597c9234bbe89b5cbd93aa5a4df1d",
+      "recording": "challenges/cases/containers.session.json",
+      "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d"
+    }
+  ]
+}

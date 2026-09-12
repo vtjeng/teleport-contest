@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9402101,
+      "datetime": "20000315120000",
+      "nethackrc": "OPTIONS=name:Scoutscout,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\\u001b\u001bjk<ynnnn "
+    }
+  ]
+}

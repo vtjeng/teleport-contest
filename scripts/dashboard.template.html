@@ -133,15 +133,13 @@ h1 {
 /* --- Stat tiles --- */
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 12px;
   margin-bottom: 28px;
 }
 
 .stat {
-  display: grid;
-  grid-template-rows: subgrid;
-  grid-row: span 3;
+  min-width: 0;
   background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -169,6 +167,92 @@ h1 {
   font-size: 12px;
   color: var(--ink-secondary);
   margin-top: 2px;
+}
+
+.score-card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.score-card-status {
+  color: var(--ink-muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.score-breakdown-group {
+  min-width: 0;
+}
+
+.score-breakdown-label {
+  color: var(--ink-muted);
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.score-breakdown-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.score-source {
+  color: var(--ink-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+
+.challenge-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: var(--ink-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.challenge-summary strong {
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+#challengeTable td:nth-child(5),
+#challengeTable th:nth-child(5) {
+  text-align: left;
+  white-space: normal;
+}
+
+#challengeTable { min-width: 720px; }
+
+#challengeTable td:nth-child(5) {
+  color: var(--ink-secondary);
+}
+
+.challenge-result-source {
+  color: var(--ink-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+
+.challenge-outcome {
+  white-space: normal;
+  line-height: 1.4;
+  color: var(--ink-muted);
+  font-size: 11px;
 }
 
 /* --- Sections --- */
@@ -732,12 +816,23 @@ canvas {
   <h1>NetHack Port Progress</h1>
   <span class="updated" id="updated"></span>
 </div>
-<p class="subtitle">Results from development recordings.</p>
+<p class="subtitle">Development and local holdout evidence. Charts below remain development-only.</p>
 
 <div class="stats" id="stats"></div>
 
+<section class="section" aria-labelledby="challengeTitle">
+  <h2 class="section-title" id="challengeTitle">Challenges</h2>
+  <p class="subtitle" id="challengeProvenance"></p>
+  <div class="challenge-summary" id="challengeSummary"></div>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="challengeTable"></table>
+    </div>
+  </div>
+</section>
+
 <div class="section">
-  <h2 class="section-title">Screens matched over time</h2>
+  <h2 class="section-title">Development screens matched over time</h2>
   <p class="subtitle" id="progressProvenance"></p>
   <div class="legend" id="progressLegend"></div>
   <div class="chart-wrap">
@@ -747,7 +842,7 @@ canvas {
       <button type="button" class="chart-reset" id="progressReset" disabled>Show all</button>
     </div>
     <canvas id="progressChart" height="220" tabindex="0"
-      aria-label="Screens matched over time. Arrow keys step through goals and report each one."></canvas>
+      aria-label="Development screens matched over time. Arrow keys step through goals and report each one."></canvas>
     <canvas id="progressMinimap" height="54"
       aria-label="Time range selector covering every goal. Drag its window or edges to choose what the chart above shows."></canvas>
   </div>
@@ -841,11 +936,180 @@ document.getElementById('updated').textContent = 'Snapshot built ' + relativeTim
 
 // --- Stat tiles ---
 const s = DATA.summary;
+const escScoreText = text => String(text ?? '').replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const scores = DATA.scores;
+const scoreStatus = score => {
+  if (!score) return 'unmeasured';
+  if (score.status === 'failed') return 'failed';
+  if (score.status === 'stale') return 'stale';
+  if (score.status === 'incomplete') return 'incomplete';
+  return score.status === 'measured' ? 'measured' : 'unmeasured';
+};
+const scoreStatusLabel = score => {
+  const status = scoreStatus(score);
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
+const scoreMetric = metric => metric
+  ? fmtN(metric.matched) + '/' + fmtN(metric.total) + ' (' + pct(metric.matched, metric.total) + ')'
+  : '—';
+const scoreSha = score => score?.sha ? score.sha.slice(0, 7) : null;
+const scoreSource = score => scoreSha(score)
+  ? 'at ' + scoreSha(score) + (score.status === 'stale' ? ' · stale' : '')
+  : null;
+const scoreLines = (score, fields) => fields.map(([label, key]) =>
+  '<div><span class="score-breakdown-label">' + label + '</span>'
+  + '<div class="score-breakdown-value">' + scoreMetric(score?.[key]) + '</div></div>'
+).join('');
+const statusText = score => {
+  const status = scoreStatusLabel(score);
+  const source = scoreSource(score);
+  return status + (source ? ' · ' + source : '');
+};
+const combinedValue = scores.combined?.status === 'measured'
+  || scores.combined?.status === 'stale'
+  ? pct(scores.combined.screens?.matched, scores.combined.screens?.total)
+  : scores.combined?.status === 'unmeasured' ? 'Unmeasured' : 'Incomplete';
+const challengeData = DATA.challenges;
+const challengeCases = challengeData.cases || [];
+const currentChallengeCases = challengeCases.filter(item => item.current);
+const challengeValue = challengeData.status === 'measured'
+  || challengeData.status === 'stale'
+  ? (challengeData.totals?.screens
+    ? pct(challengeData.totals.screens.matched, challengeData.totals.screens.total)
+    : 'Unmeasured')
+  : challengeData.status === 'failed' ? 'Failed'
+    : challengeData.status === 'unmeasured' ? 'Unmeasured' : 'Incomplete';
+const challengeCaseValue = challengeData.status === 'measured'
+  || challengeData.status === 'stale'
+  ? currentChallengeCases.length + '/' + challengeCases.length : '—';
+const challengeSessions = scoreMetric(challengeData.totals?.sessions);
+const challengeEvaluationDetail = challengeData.status === 'measured'
+  || challengeData.status === 'stale'
+  ? challengeSessions + ' sessions fully matching · ' + currentChallengeCases.length
+    + ' of ' + challengeCases.length + ' cases evaluated.'
+  : challengeData.status === 'failed'
+    ? 'No current case aggregate; retained first measurements are shown below.'
+    : 'No current case aggregate is available.';
 document.getElementById('stats').innerHTML = [
-  { label: 'Screens matched', value: pct(s.screens, s.screensTotal), detail: fmtN(s.screens) + ' / ' + fmtN(s.screensTotal) },
-  { label: 'Random calls matched', value: pct(s.rng, s.rngTotal), detail: fmtN(s.rng) + ' / ' + fmtN(s.rngTotal) },
-  { label: 'Full sessions matched', value: s.sessions + ' / ' + s.sessionsTotal, detail: pct(s.sessions, s.sessionsTotal) },
-].map(t => '<div class="stat"><div class="stat-label">' + t.label + '</div><div class="stat-value">' + t.value + '</div><div class="stat-detail">' + t.detail + '</div></div>').join('');
+  '<div class="stat"><div class="score-card-title">Development + local holdout</div>'
+    + '<div class="stat-value">' + combinedValue + '</div>'
+    + '<div class="stat-detail">Screens matched; combined only at one exact full commit.</div>'
+    + '<div class="score-card-status">' + escScoreText(statusText(scores.combined)) + '</div>'
+    + '<div class="score-breakdown">'
+    + '<div class="score-breakdown-group"><div class="score-breakdown-label">Development</div>'
+    + scoreLines(scores.development, [['Screens', 'screens'], ['RNG', 'rng'], ['Sessions', 'sessions'], ['Cursors', 'cursors']])
+    + '</div><div class="score-breakdown-group"><div class="score-breakdown-label">Local holdout</div>'
+    + scoreLines(scores.localHoldout, [['Screens', 'screens'], ['RNG', 'rng'], ['Sessions', 'sessions'], ['Cursors', 'cursors']])
+    + '</div></div>'
+    + '<div class="score-source">Development ' + escScoreText(statusText(scores.development))
+    + '; local holdout ' + escScoreText(statusText(scores.localHoldout)) + '.</div></div>',
+  '<div class="stat"><div class="score-card-title">Challenges</div>'
+    + '<div class="stat-value">' + challengeValue + '</div>'
+    + '<div class="stat-detail">' + challengeEvaluationDetail + '</div>'
+    + '<div class="score-card-status">' + escScoreText(
+      (challengeData.status || 'unmeasured').charAt(0).toUpperCase()
+        + (challengeData.status || 'unmeasured').slice(1)
+        + (challengeData.sha ? ' · at ' + challengeData.sha.slice(0, 7) : ''),
+    ) + '</div>'
+    + '<div class="score-breakdown">'
+    + '<div class="score-breakdown-group"><div class="score-breakdown-label">Cases evaluated</div>'
+    + '<div class="score-breakdown-value">' + challengeCaseValue + '</div></div>'
+    + '<div class="score-breakdown-group"><div class="score-breakdown-label">Sessions</div>'
+    + '<div class="score-breakdown-value">' + challengeSessions + '</div></div>'
+    + '<div class="score-breakdown-group"><div class="score-breakdown-label">Screens</div>'
+    + '<div class="score-breakdown-value">' + scoreMetric(challengeData.totals?.screens) + '</div></div>'
+    + '<div class="score-breakdown-group"><div class="score-breakdown-label">RNG</div>'
+    + '<div class="score-breakdown-value">' + scoreMetric(challengeData.totals?.rng) + '</div></div>'
+    + '<div class="score-breakdown-group"><div class="score-breakdown-label">Cursors</div>'
+    + '<div class="score-breakdown-value">' + scoreMetric(challengeData.totals?.cursors) + '</div></div>'
+    + '</div>'
+    + '<div class="score-source">' + escScoreText(
+      challengeData.error || (challengeData.manifestSha256
+        ? 'Manifest ' + challengeData.manifestSha256.slice(0, 12) : 'No manifest recorded.'),
+    ) + '</div></div>',
+].join('');
+
+// --- Challenge detail ---
+(function() {
+  const provenance = document.getElementById('challengeProvenance');
+  const summary = document.getElementById('challengeSummary');
+  const table = document.getElementById('challengeTable');
+  const esc = text => String(text ?? '').replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const status = challengeData.status || 'unmeasured';
+  const sha = challengeData.sha ? challengeData.sha.slice(0, 7) : null;
+  provenance.textContent = status === 'failed'
+    ? 'Challenge evaluation failed; retained evidence is shown where available.'
+    : status === 'unmeasured'
+      ? 'No challenge evaluation is recorded for the current implementation.'
+      : (status === 'stale' ? 'Latest complete evaluation is stale relative to the current implementation or case set.' : 'Latest complete evaluation.')
+        + (sha ? ' Evidence commit ' + sha + '.' : '');
+  const changes = challengeData.changes;
+  const unmeasuredCases = challengeCases.filter(item => item.first === null).length;
+  const summaryParts = [];
+  if (changes) {
+    const additions = [];
+    if (changes.added) additions.push(changes.added + ' evaluated case' + (changes.added === 1 ? '' : 's'));
+    if (changes.addedScreens) {
+      additions.push(changes.addedScreensMatched + '/' + changes.addedScreens + ' added screens matched');
+    }
+    if (unmeasuredCases) {
+      additions.push(unmeasuredCases + ' case' + (unmeasuredCases === 1 ? '' : 's') + ' awaiting first measurement');
+    }
+    summaryParts.push('<span><strong>Added:</strong> ' + esc(additions.length ? additions.join(' · ') : 'none') + '</span>');
+    const existing = [];
+    if (changes.improved) existing.push(changes.improved + ' improved');
+    if (changes.regressed) existing.push(changes.regressed + ' regressed');
+    if (changes.unchanged) existing.push(changes.unchanged + ' unchanged');
+    if (changes.uncomparable) existing.push(changes.uncomparable + ' uncomparable');
+    summaryParts.push('<span><strong>Existing:</strong> ' + esc(existing.length ? existing.join(' · ') : 'no changes') + '</span>');
+    const screenDelta = [];
+    if (changes.screensGained) screenDelta.push('+' + changes.screensGained + ' gained');
+    if (changes.screensLost) screenDelta.push('−' + changes.screensLost + ' lost');
+    if (screenDelta.length) {
+      summaryParts.push('<span><strong>Screens on existing:</strong> ' + esc(screenDelta.join(' · ')) + '</span>');
+    }
+  } else if (unmeasuredCases) {
+    summaryParts.push('<span><strong>Added:</strong> ' + esc(unmeasuredCases + ' case' + (unmeasuredCases === 1 ? '' : 's') + ' awaiting first measurement') + '</span>');
+  }
+  summary.innerHTML = summaryParts.join('');
+  if (!challengeCases.length) {
+    table.innerHTML = '<tbody><tr><td>No challenge cases recorded.</td></tr></tbody>';
+    return;
+  }
+  const resultText = result => {
+    if (!result) return '—';
+    const outcome = result.passed === true ? 'pass'
+      : result.passed === false ? 'fail' : 'unknown';
+    const screens = result.screens
+      ? fmtN(result.screens.matched) + '/' + fmtN(result.screens.total) + ' screens'
+      : 'screens —';
+    const source = result.sha
+      ? '<span title="' + esc(result.sha) + '">' + esc(result.sha.slice(0, 7)) + '</span>'
+      : '';
+    const date = result.utc
+      ? '<time datetime="' + esc(result.utc) + '">' + esc(result.utc.slice(0, 16).replace('T', ' ')) + 'Z</time>'
+      : '';
+    const provenance = source || date
+      ? '<br><span class="challenge-result-source">' + source + (source && date ? ' · ' : '') + date + '</span>'
+      : '';
+    return outcome + ' · ' + screens + provenance;
+  };
+  let html = '<thead><tr><th>Challenge</th><th>Initial</th><th>Current</th>'
+    + '<th>Change</th><th>Source pointers</th></tr></thead><tbody>';
+  challengeCases.forEach(item => {
+    const title = item.title || item.id;
+    const pointers = (item.sourcePointers || []).join(' · ');
+    const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
+    html += '<tr><td title="' + esc(title) + '"><div>' + esc(title) + '</div>' + outcome + '</td>'
+      + '<td>' + resultText(item.first) + '</td>'
+      + '<td>' + resultText(item.current) + '</td>'
+      + '<td>' + (item.delta == null ? '—' : fmtDelta(item.delta)) + '</td>'
+      + '<td title="' + esc(pointers) + '">' + (pointers ? esc(pointers) : '—') + '</td></tr>';
+  });
+  table.innerHTML = html + '</tbody>';
+})();
 const inferredProgressCount = DATA.progress.filter(
   p => p.utcSource !== 'commit',
 ).length;
@@ -1713,7 +1977,7 @@ document.getElementById('progressProvenance').textContent = inferredProgressCoun
   render();
 
   document.getElementById('progressLegend').innerHTML = [
-    { stroke: 'var(--progress-fill)', dash: '', label: 'Screens matched (left axis)' },
+    { stroke: 'var(--progress-fill)', dash: '', label: 'Development screens matched (left axis)' },
     { stroke: 'var(--rate)', dash: '8 4', label: '7-day avg screens/day (right axis)' },
     { stroke: 'var(--rate)', dash: '1 4', label: 'Last 24h screens (right axis)' },
   ].map(item =>
