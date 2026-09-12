@@ -28543,6 +28543,57 @@
         "screens": 6988,
         "rng": 509615
       }
+    },
+    {
+      "id": "port-pickup-autopickup-lost-override",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pickup.c pickup() and its autopickup selection family so LOST_STOLEN overrides pickup types and exceptions as in C",
+      "cFile": "pickup.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "The refreshed development queue ranks seed0014-dequa-fountain-explore at step 462, where the C pickup.c pickup() path selects a LOST_STOLEN black onyx ring while JavaScript refuses the lost-object option override. The completed source trace identifies pickup.c pickup() lines 672-912 and its self-contained check_autopickup_exceptions(), autopick_testobj(), and autopick() family lines 913-1024; autopick_testobj() lines 946-950 explicitly lets pickup_stolen override pickup_types and exceptions. Select the bounded pickup..autopick family and wire it through the existing automatic pickup planner, preserving pickup_object() and steal.js state.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pickup",
+          "line": 672,
+          "endLine": 912,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "check_autopickup_exceptions",
+          "line": 913,
+          "endLine": 929,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "autopick_testobj",
+          "line": 930,
+          "endLine": 974,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "autopick",
+          "line": 975,
+          "endLine": 1024,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 672,
+        "to": 1024
+      }
     }
   ]
 }
