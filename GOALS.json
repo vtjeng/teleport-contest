@@ -30406,8 +30406,8 @@
       "spans": [
         {
           "name": "trapeffect_rolling_boulder_trap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "fae01db8b4402b4ba7df94a59432706e1f6b7b78",
           "functions": [
             "trapeffect_rolling_boulder_trap"
           ]
@@ -30427,7 +30427,7 @@
           "line": 2661,
           "endLine": 2709,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -30455,7 +30455,57 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 154
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_rolling_boulder_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_rolling_boulder_trap",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c trapeffect_rolling_boulder_trap() lines 2661-2709 and launch_obj() rolling path lines 3260-3575. The translation preserves hero and monster arms, m_in_air gating, in_sight and launch style selection, newsym/message order, launch return handling, tseen updates, and Trap_* outcomes. Wired the rolling ohitmon() dependency from mthrowu.c lines 321-502, including range -1 object extraction and lethal monster messaging. Lifecycle hooks adapt the normalized object environment to block_point/recalc_block_point so launched boulder removal raises vision_full_recalc before C's next message flush. Retained explicit gaps for unrelated launch_obj branches.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() dispatches ROLLING_BOULDER_TRAP to trapeffect_rolling_boulder_trap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c mintrap() calls trapeffect_selector() after trap admission."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c postmov() lines 1454-1517 calls mintrap() after monster movement."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-rolling-boulder-trap.test.mjs",
+              "scripts/monster-rock-trap.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/monster-ranged-announcement.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-rolling-boulder-trap.session.json"
+            ],
+            "checkedAt": "fae01db8b4402b4ba7df94a59432706e1f6b7b78"
+          }
+        ],
+        "entryPointReview": "The selected source unit is reached from both movement and monster movement: command movement enters hack.js domove_core(), while monmove.js postmov() calls mintrap() after each monster move. The new trap.c recipe and recording exercise the monster-triggered rolling boulder entry point through the production movement path and reach the launch and ohitmon collision. The existing hero trap test covers the hero arm.",
+        "entryPoints": [
+          {
+            "name": "trapeffect_rolling_boulder_trap",
+            "functions": [
+              "trapeffect_rolling_boulder_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-rolling-boulder-trap.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
