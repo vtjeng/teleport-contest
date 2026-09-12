@@ -719,6 +719,45 @@ test('cure_self: is not chosen when the monster is at full health', async () => 
     assert.equal(damageAmount, 6, 'open_wounds delivers d(4,6)=6');
 });
 
+// -- haste_self via castmu ---------------------------------------------
+
+// C ref: mcastu.c mcast_spell() (801-897), MCAST_HASTE_SELF (852-855).
+// The spell calls mon_adjust_speed(mtmp, 1, NULL), clears damage, and makes
+// no random-number calls of its own.
+
+test('haste_self: speeds the caster without damage or extra RNG', async () => {
+    // Wizard rn2(7)=2 selects MCAST_HASTE_SELF; rn2(70)=50 passes fumble;
+    // d(4,6)=12 supplies the damage that mcast_spell() then discards.
+    const random = scriptedRandom([2, 50], 12);
+    const mtmp = makeCaster({
+        data: { mmove: 12, pmnames: [null, null, 'kobold shaman'] },
+    });
+    const messages = [];
+    let damageCalled = false;
+
+    const result = await castmu(mtmp, AD_SPEL_ATTACK, true, true, {
+        state: makeState(),
+        random,
+        unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: () => { damageCalled = true; },
+    });
+
+    assert.equal(result, M_ATTK_HIT);
+    assert.equal(mtmp.permspeed, MFAST,
+        'mon_adjust_speed(+1) grants permanent fast speed');
+    assert.equal(mtmp.mspeed, MFAST,
+        'active speed follows the permanent fast speed');
+    assert.deepEqual(messages, [
+        'Kobold shaman casts a spell!',
+        'The kobold shaman is suddenly moving faster.',
+    ]);
+    assert.equal(damageCalled, false,
+        'MCAST_HASTE_SELF sets damage to zero before mdamageu');
+    assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)'],
+        'haste has no random draw after cast damage');
+});
+
 // -- buzzmu ---------------------------------------------------------------
 
 // C ref: mcastu.c buzzmu() (988-1012). "monster uses spell (ranged)"

@@ -48,6 +48,7 @@ import { rn2, d } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
 import { has_aggravatables } from './wizard.js';
+import { mon_adjust_speed } from './worn.js';
 import { buzz, flash_str } from './zap.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
@@ -583,6 +584,10 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_CURE_SELF:
         resultDmg = m_cure_self(mtmp, dmg, env);
         break;
+    case MCAST_HASTE_SELF:
+        await mon_adjust_speed(mtmp, 1, null, env.state ?? game, env);
+        resultDmg = 0;
+        break;
     case MCAST_DEATH_TOUCH:
     case MCAST_CLONE_WIZ:
     case MCAST_SUMMON_MONS:
@@ -592,7 +597,6 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_WEAKEN_YOU:
     case MCAST_DISAPPEAR:
     case MCAST_STUN_YOU:
-    case MCAST_HASTE_SELF:
     case MCAST_GEYSER:
     case MCAST_FIRE_PILLAR:
     case MCAST_LIGHTNING:
