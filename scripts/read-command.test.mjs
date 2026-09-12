@@ -31,9 +31,11 @@ import {
     POTION_CLASS,
     POT_WATER,
     SCROLL_CLASS,
+    SCR_ENCHANT_WEAPON,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
     SCR_TELEPORTATION,
+    QUARTERSTAFF,
     SPBOOK_CLASS,
     SPE_FORCE_BOLT,
     SPE_HEALING,
@@ -70,6 +72,9 @@ import {
     HEALING_REFRESH_DECLINE,
     loadReadKnownHealingRecipe,
 } from './run-read-known-healing.mjs';
+import {
+    loadReadEnchantWeaponRecipe,
+} from './run-read-enchant-weapon.mjs';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -202,6 +207,14 @@ test('read is admitted and selected objects stop before pickup_prev changes',
     let selected = game.invent;
     while (selected && selected.oclass !== SCROLL_CLASS
         && selected.oclass !== SPBOOK_CLASS) selected = selected.nobj;
+    // This fixture can randomize the first suggested scroll into the newly
+    // admitted enchant-weapon branch; choose the next readable object so this
+    // test continues to pin the pre-effect refusal boundary.
+    while (selected && selected.otyp === SCR_ENCHANT_WEAPON) {
+        selected = selected.nobj;
+        while (selected && selected.oclass !== SCROLL_CLASS
+            && selected.oclass !== SPBOOK_CLASS) selected = selected.nobj;
+    }
     assert.ok(selected, 'the Wizard starts with something readable');
     selected.pickup_prev = 1;
     game.nhDisplay.pushKey(selected.invlet.charCodeAt(0));
@@ -319,6 +332,31 @@ test('an uncursed magic-mapping scroll maps the ordinary level and is used up',
         msalign: 0,
         shoptype: 0,
     });
+});
+
+test('an ordinary enchant-weapon scroll raises the wielded weapon', async () => {
+    const segment = loadReadEnchantWeaponRecipe().segments[0];
+    const replay = await runSegment(segment);
+
+    // read.c:1627-1676 chooses s=1 for an uncursed scroll below the soft
+    // enchantment limit, then wield.c:1011-1018 announces the blue glow and
+    // identifies the scroll before doread() consumes it.
+    assert.equal(game.uwep?.otyp, QUARTERSTAFF);
+    assert.equal(game.uwep?.spe, 2);
+    assert.equal(game.objects[SCR_ENCHANT_WEAPON].oc_name_known, 1);
+    assert.equal(game.u.uconduct.literate, 1);
+    assert.equal(game.moves, 4);
+    assert.equal(game.nhDisplay.toplines,
+        'Your quarterstaff glows blue for a moment.');
+    assert.ok(!inventorySnapshot().some(
+        (obj) => obj.otyp === SCR_ENCHANT_WEAPON,
+    ));
+    assert.deepEqual(
+        // The `n` selection is input 37; its per-step slice is index 38
+        // because index 0 captures startup before the first key.
+        replay.getRngSlices()[38],
+        ['rn2(19)=0'],
+    );
 });
 
 test('an unknown identify scroll reports a fully identified remaining pack',

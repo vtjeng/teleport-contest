@@ -3,8 +3,9 @@
 // create_particular_parse(), create_particular_creation() and
 // create_particular(). doread() completes a known ordinary magic-mapping
 // scroll, the ordinary unknown identify-scroll path whose remaining pack is
-// fully identified, and declining a fresh known healing-spell refresh. It
-// also takes a calm ordinary teleportation scroll through seffects() and
+// fully identified, an ordinary positive enchant-weapon scroll, and declining
+// a fresh known healing-spell refresh. It also takes a calm ordinary
+// teleportation scroll through seffects() and
 // seffect_teleportation() into scrolltele(), which handles the uncontrolled
 // safe_teleds path; a blessed confused teleportation scroll goes through
 // level_tele(), which handles the confused random_levtport path through
@@ -39,6 +40,7 @@ import {
     ROWNO,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
+    SPE_LIM,
     ismnum,
 } from './const.js';
 import {
@@ -79,6 +81,7 @@ import {
     RING_CLASS,
     SCROLL_CLASS,
     SCR_DESTROY_ARMOR,
+    SCR_ENCHANT_WEAPON,
     TOOL_CLASS,
     WAND_CLASS,
     SCR_IDENTIFY,
@@ -92,6 +95,7 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     SPE_NOVEL,
     SPBOOK_CLASS,
+    WEAPON_CLASS,
 } from './objects.js';
 import { is_flammable, is_weptool, objectType } from './obj.js';
 import { not_fully_identified } from './objnam.js';
@@ -110,6 +114,7 @@ import {
     study_book_preflight,
 } from './spell.js';
 import { destroy_arm, some_armor } from './do_wear.js';
+import { chwepon } from './wield.js';
 
 // A selected scroll or spellbook enters doread()'s effect arms. Raising before
 // pickup_prev changes keeps every unsupported object and the turn retryable
@@ -306,8 +311,9 @@ async function studyTooHardSpellbook(spellbook, state) {
 
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
 // uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
-// remaining inventory is already fully identified, and the fresh-known
-// healing-book refresh decline. The other admitted paths are a sighted,
+// remaining inventory is already fully identified, an ordinary positive
+// enchant-weapon scroll, and the fresh-known healing-book refresh decline.
+// The other admitted paths are a sighted,
 // non-hallucinating wizard reading a blessed teleportation scroll while
 // confused, and the calm ordinary teleportation-scroll path. The former
 // proceeds through seffect_teleportation() into level_tele(), which handles
@@ -341,6 +347,15 @@ export async function doread(state = game) {
         && scroll.otyp === SCR_DESTROY_ARMOR
         && !objectType(scroll, state).oc_name_known
         && oneWornFlammableArmor(state);
+    const enchantWeapon = ordinaryScroll
+        && scroll.otyp === SCR_ENCHANT_WEAPON
+        && !propertyActive(HALLUC, state)
+        && state.uwep
+        && (state.uwep.oclass === WEAPON_CLASS
+            || is_weptool(state.uwep, state))
+        && !state.uwep.oartifact
+        && !state.uwep.oeroded && !state.uwep.oeroded2
+        && state.uwep.spe <= 5;
     const knownHealing = scroll.oclass === SPBOOK_CLASS
         && !propertyActive(BLINDED, state) && !confused
         && study_book_preflight(scroll, state);
@@ -359,6 +374,7 @@ export async function doread(state = game) {
         && can_chant(state.youmonst, state);
     if (!mapping && !identify && !destroyArmor
         && !knownHealing && !tooHardBook
+        && !enchantWeapon
         && !confusedTeleport && !calmTeleport && !removeCurse) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
@@ -545,14 +561,15 @@ export async function seffect_magic_mapping(scroll, state = game) {
 }
 
 // C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
-// SCR_DESTROY_ARMOR, SCR_MAGIC_MAPPING, SCR_REMOVE_CURSE, and
-// SCR_TELEPORTATION. C returns `sobj ? 0 : 1`:
+// SCR_DESTROY_ARMOR, SCR_ENCHANT_WEAPON, SCR_MAGIC_MAPPING,
+// SCR_REMOVE_CURSE, and SCR_TELEPORTATION. C returns `sobj ? 0 : 1`:
 // 0 when the scroll still exists (caller handles useup), 1 when the effect
 // consumed it.  seffect_remove_curse(), seffect_teleportation(), and
 // seffect_magic_mapping() never consume the scroll, so those paths return 0.
 export async function seffects(scroll, state = game) {
     if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY
         && scroll.otyp !== SCR_DESTROY_ARMOR
+        && scroll.otyp !== SCR_ENCHANT_WEAPON
         && scroll.otyp !== SCR_REMOVE_CURSE
         && scroll.otyp !== SCR_TELEPORTATION) {
         throw new UnsupportedReadError('the selected scroll effect');
@@ -568,6 +585,10 @@ export async function seffects(scroll, state = game) {
         await seffect_destroy_armor(scroll, state);
         return 0;
     }
+    if (scroll.otyp === SCR_ENCHANT_WEAPON) {
+        await seffect_enchant_weapon(scroll, state);
+        return 0;
+    }
     if (scroll.otyp === SCR_REMOVE_CURSE) {
         await seffect_remove_curse(scroll, state);
         return 0;
@@ -578,6 +599,32 @@ export async function seffects(scroll, state = game) {
     }
     await seffect_magic_mapping(scroll, state);
     return 0;
+}
+
+// C ref: read.c seffect_enchant_weapon() (1627-1676), restricted to the
+// ordinary uncursed positive branch. The source chooses `s = 1` below its
+// soft upper limit, passes that value to wield.c chwepon(), and leaves the
+// scroll for doread() to consume after the effect returns.
+export async function seffect_enchant_weapon(scroll, state = game) {
+    const uwep = state.uwep;
+    if (scroll.otyp !== SCR_ENCHANT_WEAPON
+        || scroll.oclass !== SCROLL_CLASS
+        || scroll.blessed || scroll.cursed
+        || propertyActive(CONFUSION, state)
+        || propertyActive(BLINDED, state)
+        || propertyActive(HALLUC, state)
+        || !uwep
+        || (uwep.oclass !== WEAPON_CLASS && !is_weptool(uwep, state))
+        || uwep.oartifact || uwep.oeroded || uwep.oeroded2
+        || uwep.spe > 5
+        || !can_chant(state.youmonst, state)) {
+        throw new UnsupportedReadError(
+            'the selected ordinary enchant-weapon branch',
+        );
+    }
+    await chwepon(scroll, 1, state);
+    if (state.uwep && Math.abs(state.uwep.spe) > SPE_LIM)
+        state.uwep.spe = Math.sign(state.uwep.spe) * SPE_LIM;
 }
 
 // A request the player typed that read.c understands and this port does not.

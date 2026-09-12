@@ -10,6 +10,7 @@
 
 import {
     A_DEX,
+    BLINDED,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
@@ -21,6 +22,7 @@ import {
     GETOBJ_SUGGEST,
     GLIB,
     HAND,
+    HALLUC,
     plur,
     Upolyd,
     W_ACCESSORY,
@@ -66,6 +68,7 @@ import {
 import {
     donameFresh,
     is_plural,
+    otense,
     vtense,
     xnameFresh,
     Yname2,
@@ -77,11 +80,13 @@ import {
     HEAVY_IRON_BALL,
     IRON_CHAIN,
     MAGIC_LAMP,
+    SCROLL_CLASS,
     TIN_OPENER,
     WEAPON_CLASS,
 } from './objects.js';
+import { discover_object } from './o_init.js';
 import { body_part } from './polyself.js';
-import { rnd } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import {
     bimanual,
@@ -297,6 +302,51 @@ export class UnsupportedWieldError extends Error {
         this.name = 'UnsupportedWieldError';
         this.what = what;
     }
+}
+
+// C ref: wield.c chwepon() (916-1048). This span owns the ordinary,
+// uncursed, positive-enchantment branch reached by read.c's
+// seffect_enchant_weapon(). The refusal arms remain behind the command's
+// fail-closed boundary until their source dependencies are ported.
+export async function chwepon(otmp, amount, state = game) {
+    const uwep = state.uwep;
+    if (amount !== 1 || !uwep
+        || (uwep.oclass !== WEAPON_CLASS && !is_weptool(uwep, state))
+        || uwep.oartifact || uwep.spe > 5
+        || uwep.oeroded || uwep.oeroded2
+        || propertyActiveForWield(state, BLINDED)
+        || propertyActiveForWield(state, HALLUC)) {
+        throw new UnsupportedWieldError(
+            'chwepon() outside the ordinary positive branch',
+        );
+    }
+
+    const otyp = otmp?.oclass === SCROLL_CLASS ? otmp.otyp : null;
+    // C's hcolor(NH_BLUE) is the plain blue name while hallucination is
+    // absent; Yobjnam2() capitalizes yname() and otense() agrees with the
+    // weapon's quantity.
+    const xtime = amount * amount === 1 ? 'moment' : 'while';
+    await ttyPline(
+        `${Yname2(uwep, state)} ${otense(uwep, 'glow')} blue for a ${xtime}.`,
+        state,
+    );
+    if (otyp !== null && uwep.known && amount > 0) {
+        // makeknown(otyp) credits the hero and exercises Wisdom in C. The
+        // discovery helper supplies the same source random draw when the
+        // exercise limit has not already been reached.
+        discover_object(otyp, true, true, true, state, {
+            random: { rn2 },
+            hooks: {},
+        });
+    }
+    uwep.spe += amount;
+    if (amount > 0 && uwep.cursed) uwep.cursed = false;
+    return 1;
+}
+
+function propertyActiveForWield(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
 }
 
 // C ref: mondata.h:123 cantwield().
