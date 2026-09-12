@@ -29689,7 +29689,7 @@
     {
       "id": "div-timeout-nh-timeout-fumbling-bump",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix timeout.c nh_timeout() FUMBLING expiry for a stationary door bump",
       "cFile": "timeout.c",
       "sessions": [
@@ -29700,8 +29700,8 @@
       "spans": [
         {
           "name": "stationary_fumbling_expiry",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2fdb3e61764a614bea6b44c3623465aac286d08c",
           "functions": [
             "nh_timeout"
           ]
@@ -29713,8 +29713,11 @@
         "screens": 7177,
         "rng": 524609
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2fdb3e61764a614bea6b44c3623465aac286d08c",
+      "delivered": {
+        "screens": 21,
+        "rng": 4378
+      },
       "function": "nh_timeout",
       "session": "seed0014-dequa-fountain-explore",
       "step": 536,
@@ -29739,7 +29742,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 178
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "2fdb3e61764a614bea6b44c3623465aac286d08c",
+        "screens": 7198,
+        "rng": 528987
+      }
     }
   ]
 }
