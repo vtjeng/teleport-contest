@@ -29435,7 +29435,7 @@
     {
       "id": "port-mon-corpse-chance-gas-spore",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mon.c corpse_chance AT_BOOM gas-spore death handling and wire the source explosion dependency",
       "cFile": "mon.c",
       "sessions": [
@@ -29446,8 +29446,8 @@
       "spans": [
         {
           "name": "corpse_chance",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ebf442841b3a412c75a573a746f5725791dbe946",
           "functions": [
             "corpse_chance"
           ]
@@ -29459,15 +29459,18 @@
         "screens": 7097,
         "rng": 520392
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ebf442841b3a412c75a573a746f5725791dbe946",
+      "delivered": {
+        "screens": 73,
+        "rng": 4217
+      },
       "functions": [
         {
           "name": "corpse_chance",
           "line": 3181,
           "endLine": 3252,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -29495,7 +29498,71 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 208
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "corpse_chance",
+            "implementation": "js/mon.js",
+            "symbol": "corpse_chance",
+            "sourceReview": "Read mon.c:3181-3252 completely. Preserved mswallower substitution, lich/Vlad no-corpse return, the AT_BOOM first d() before the swallowed and mon_explodes branches, LEVEL_SPECIFIC_NOCORPSE, special-monster returns, and the final rn2 divisor. The old gas-spore refusal was removed. mondied() and xkilled() now await the asynchronous explosion path. The only remaining source refusal in this function is the existing lich/Vlad body-crumbling operation.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "mondied",
+                "source": "mon.c:3251-3262 calls corpse_chance() before make_corpse()"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "xkilled",
+                "source": "mon.c:3574-3575 and 3618-3624 call corpse_chance() in the corpse/drop path"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-kill.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/gas-spore-death-explosion.session.json"
+            ],
+            "checkedAt": "ebf442841b3a412c75a573a746f5725791dbe946"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the production gas-spore death path mon.c xkilled() -> corpse_chance(). Its AT_BOOM branch reaches the implemented explode.c dependency through mon_explodes(); mondied() is also wired for non-hero deaths. The gas-spore recipe executes corpse_chance through the running hero-kill caller.",
+        "entryPoints": [
+          {
+            "name": "gas spore death corpse chance",
+            "functions": [
+              "corpse_chance"
+            ],
+            "recordings": [
+              "recordings/mon.c/gas-spore-death-explosion.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1746,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 207
+        }
+      ],
+      "closeStanding": {
+        "sha": "ebf442841b3a412c75a573a746f5725791dbe946",
+        "screens": 7170,
+        "rng": 524609
+      }
     }
   ]
 }
