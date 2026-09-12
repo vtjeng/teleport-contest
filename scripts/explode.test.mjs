@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
-import { adtyp_to_expltype, explosionmask } from '../js/explode.js';
+import { adtyp_to_expltype, explosionmask, mon_explodes } from '../js/explode.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     AD_COLD,
@@ -23,6 +23,11 @@ import {
     FIRE_RES,
     PHYS_EXPL_TYPE,
 } from '../js/const.js';
+import { newMonster } from '../js/monst.js';
+import {
+    NON_PM,
+    PM_GAS_SPORE,
+} from '../js/monsters.js';
 import { zap_over_floor } from '../js/zap.js';
 
 test('adtyp_to_expltype follows explode.c mapping', () => {
@@ -78,4 +83,56 @@ test('zap_over_floor ignores physical explosions before zap arms', async () => {
         -1000,
     );
     assert.equal(shopdamage.value, false);
+});
+
+// explode.c mon_explodes():1056-1060 uses pmname(mon->data, Mgender(mon))
+// for the killer text. A named fixture makes contextual Monnam() observably
+// different while keeping the source's species and gender inputs explicit.
+test('mon_explodes uses the species name for killer text', async () => {
+    // This seed and fixed datetime select a normal initialized level; neither
+    // value affects the naming branch under test.
+    await runSegment({
+        seed: 7710044,
+        datetime: '20260214031500',
+        nethackrc: [
+            'OPTIONS=name:Lich,role:Valkyrie,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,time',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+    const monster = newMonster({
+        // Gas spore's physical AT_BOOM path calls mon_explodes() with AD_PHYS.
+        data: game.mons[PM_GAS_SPORE],
+        cham: NON_PM,
+        m_lev: game.mons[PM_GAS_SPORE].mlevel,
+        // A given name is what contextual Monnam() would select here.
+        mextra: { mgivenname: 'Bob' },
+        // Centering the zero-map fixture on the hero gives explode() a visible
+        // target, so its message includes the killer text.
+        mx: game.u.ux,
+        my: game.u.uy,
+        mhp: 0,
+    });
+    const lines = [];
+    const random = {
+        // mon_explodes()'s one damage die is fixed at one to keep the hero
+        // alive while still exercising the physical explosion message.
+        d: () => 1,
+        rn1: () => 1,
+        rn2: () => 0,
+        rnd: () => 1,
+        rne: () => 1,
+    };
+    await mon_explodes(monster, { damn: 1, damd: 1, adtyp: AD_PHYS }, game, {
+        message: async (line) => lines.push(line),
+        random,
+        unsupported: (reason) => { throw new Error(reason); },
+    });
+    assert.ok(
+        lines.includes("You are caught in the gas spore's explosion!"),
+        `messages: ${JSON.stringify(lines)}`,
+    );
+    assert.equal(game.killer.name, '');
 });
