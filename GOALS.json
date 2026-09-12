@@ -27783,6 +27783,36 @@
         "screens": 6981,
         "rng": 509322
       }
+    },
+    {
+      "id": "port-sounds-domonnoise-seduce",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port sounds.c domonnoise() ordinary MS_SEDUCE response and timing",
+      "cFile": "sounds.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "The refreshed development queue ranks seed0014-dequa-fountain-explore first at step 455, where #chat targets a water nymph and JS refuses the ordinary monster branch. Source tracing identifies sounds.c domonnoise() case MS_SEDUCE (approximately lines 1105-1128) as the owner: with default SYSOPT_SEDUCE=1, a female Dequa water nymph bypasses seduction, sets pline_msg to cajoles you, then follows the common Monnam response and ECMD_TIME tail. The production path cmd.c chat -> JS doextcmd()/runChatCommand() -> dotalk() -> dochat() -> domonnoise() is already wired. Select only domonnoise() and preserve the source branch/timing; the dog’s later miss is downstream and out of scope.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "domonnoise",
+          "line": 679,
+          "endLine": 1247,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 679,
+        "to": 1247
+      }
     }
   ]
 }
