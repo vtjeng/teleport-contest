@@ -27073,6 +27073,310 @@
         "screens": 6900,
         "rng": 505574
       }
+    },
+    {
+      "id": "port-mhitu-wildmiss-mattacku-seed0360",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete mhitu.c wrong-location monster attack handling through wildmiss() and mattacku()",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The refreshed queue ranks seed0360-wizard-world-tour step 543 highest, at most 290 remaining screens. Source tracing shows monmove.c phase four calls mhitu.c mattacku(); its first raven attack reaches mhitu.c line 816 with foundyou=false and range2=false, where C calls wildmiss(), sets skipnonmagc, and skips the second claw attack. JavaScript currently refuses at js/mhitu.js lines 747 and 865 before any equivalent behavior. Select the contiguous mhitu.c source family from wildmiss() through mattacku() so the wrong-location helper, its production branches, and the existing caller seam are ported together.",
+      "detail": "C mhitu.c wildmiss() lines 176-262 handles blindness, displacement, and underwater wrong-location feedback, including cansee and message/RNG contracts. mattacku() lines 491-951 calls wildmiss() at physical and weapon arms (around 816 and 920), sets skipnonmagc, and continues source-ordered attack handling. JS production path: advanceElapsedTurn() -> preflightSimpleMonsterActions() -> runSimpleMonsterAction() -> monmove.js dochug() -> attackHeroWithMattacku() -> mhitu.js mattacku(). Preserve foundyou/range2, skipnonmagc, visibility/properties, and planning/live callbacks; remove only the injected wrong-location refusals while keeping unrelated unported attack families out of scope.",
+      "spans": [
+        {
+          "name": "wildmiss..mattacku",
+          "status": "closed",
+          "closedBy": "03b708445b18577db539b3765d6ef73d2bbd4a3c",
+          "functions": [
+            "wildmiss",
+            "expels",
+            "getmattk",
+            "calc_mattacku_vars",
+            "mtrapped_in_pit",
+            "mattacku"
+          ]
+        }
+      ],
+      "openedAt": "6b64ebfd233c58b8060ce82df77d8835b2af2749",
+      "openStanding": {
+        "sha": "4e17b8e541fb37a9da4cd04152384f1258043e7a",
+        "screens": 6900,
+        "rng": 505574
+      },
+      "closedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c",
+      "delivered": {
+        "screens": 0,
+        "rng": 788
+      },
+      "functions": [
+        {
+          "name": "wildmiss",
+          "line": 176,
+          "endLine": 263,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "expels",
+          "line": 264,
+          "endLine": 309,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "getmattk",
+          "line": 310,
+          "endLine": 447,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "calc_mattacku_vars",
+          "line": 448,
+          "endLine": 466,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "mtrapped_in_pit",
+          "line": 467,
+          "endLine": 490,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "mattacku",
+          "line": 491,
+          "endLine": 955,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 176,
+        "to": 955
+      },
+      "activeStanding": {
+        "sha": "4e17b8e541fb37a9da4cd04152384f1258043e7a",
+        "screens": 6900,
+        "rng": 505574
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 543,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a monster attacking where the hero is not",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 290
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wildmiss",
+            "implementation": "js/mhitu.js",
+            "symbol": "wildmiss",
+            "sourceReview": "Read the complete mhitu.c wildmiss() body (176-261), including the impossible diagnostic, verbose and cansee gates, could_seduce evaluation, set_msg_xy ordering, the unseen rn2(3) outcomes and waterwall target text, displacement precedence (including Blind), underwater feedback, and the not-reached fallthrough. The JavaScript port preserves the property reads, messageAt coordinates, draw order, and planning/live display split; ordinary physical and weapon wrong-location callers use it and set skipnonmagc. The existing could_seduce() partial is only consulted for the source's seduction attack types; ordinary physical/weapon recipes take its zero-result path.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku() calls wildmiss() in the physical wrong-location arm (817-823) and weapon wrong-location arm (920-923); the JavaScript caller also preserves the following skipnonmagc guard."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "monmove.c dochug() phase four dispatches an ordinary hostile monster attack to mattacku(); runSimpleMonsterAction() supplies this production seam as attackHero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/wildmiss-displaced-goblin.session.json",
+              "recordings/mhitu.c/wildmiss-displaced-goblin-nosafewait.session.json"
+            ],
+            "checkedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c"
+          },
+          {
+            "name": "expels",
+            "implementation": "js/mhitu.js",
+            "symbol": "expels",
+            "sourceReview": "Read the complete mhitu.c expels() body (263-306), including disp.botl, the message=true digest/enfold/attacktype_fordmg alternatives, unstuck, redraw and newsym ordering, mnexto relocation and distance feedback, and spoteffects. The current JavaScript implements the admitted non-digestive message=false ice-vortex path, including the swallowed vision redraw bracket, deferred mspec_used draw, and the source's um_dist-based Brrooaa message when relocation leaves the monster beyond a neighboring square; recordings/mhitu.c/expels-ice-vortex.session.json reaches the ordinary expiry call after gulpmu() displays the expulsion message. The named message=true formatters and mnexto overcrowding/telecontrol outcomes remain explicit refusal seams because their owning source paths are outside this span; no such refusal is silently converted into a message, draw, or state change.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c gulpmu() calls expels() after the ordinary non-digestive engulfing timer expires (1558-1567); the JavaScript ice-vortex path reaches that call."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "vamp_stone",
+                "source": "mon.c vamp_stone() releases a swallowed hero by calling expels() when an engulfing monster is transformed or revived (the JavaScript caller is the corresponding production transition)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json"
+            ],
+            "checkedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c"
+          },
+          {
+            "name": "getmattk",
+            "implementation": "js/mhitu.js",
+            "symbol": "getmattk",
+            "sourceReview": "Read the complete mhitu.c getmattk() body (308-444), including the disabled SYSOPT_SEDUCE substitution, consecutive disease/pest/famine to stun, drain-energy scaling, mspec_used holder/engulfer substitution, cancelled or interesting weapon physical substitution, lich cold-to-physical substitution, and home-elemental damage doubling. The JavaScript returns the unchanged catalog attack, implements the admitted mspec_used copy, and retains explicit refusal seams for every other substituted attack. The SYSOPT_SEDUCE block is omitted only because sys.c fixes seduce enabled in this build. No random draw, message, screen write, or game-state mutation occurs in this selector, so it is source-pure for this port and is pinned by its substitution tests.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku() selects each hero-facing attack through getmattk() inside its NATTK loop (780-804)."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c mattackm() selects each monster-versus-monster attack through getmattk() in its NATTK loop."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/wildmiss-displaced-goblin.session.json",
+              "recordings/mhitu.c/wildmiss-displaced-goblin-nosafewait.session.json"
+            ],
+            "checkedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c"
+          },
+          {
+            "name": "calc_mattacku_vars",
+            "implementation": "js/mhitu.js",
+            "symbol": "calc_mattacku_vars",
+            "sourceReview": "Read the complete mhitu.c calc_mattacku_vars() body (446-463), checking the source order for mdistu/ranged, monnear/range2, u_at/foundyou, canseemon/youseeit, and the writes clearing gn.notonhead after setting gb.bhitpos to the hero square. JavaScript preserves all four predicates and calls the helper before the initial attack and before each later slot. The current port intentionally does not duplicate gb.bhitpos or gn.notonhead: no ported reader consumes either value, and the corresponding mattacku target test is tautologically false after this helper's source write. This is a state-mutating C helper, so its production executions are cited below.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku() calls calc_mattacku_vars() for the initial target state and again at each attack slot after the first (491-512 and 800-815)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/wildmiss-displaced-goblin.session.json",
+              "recordings/mhitu.c/wildmiss-displaced-goblin-nosafewait.session.json"
+            ],
+            "checkedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c"
+          },
+          {
+            "name": "mtrapped_in_pit",
+            "implementation": "js/mhitu.js",
+            "symbol": "mtrapped_in_pit",
+            "sourceReview": "Read the complete mhitu.c mtrapped_in_pit() body (465-479), including the separate hero and monster trap predicates, t_at lookup, and is_pit acceptance for both ordinary and spiked pits. The JavaScript preserves the hero's u.utrap/u.utraptype gate and the monster's mtrapped gate without output, RNG, or state mutation; the source-pinned test covers both parties, pit/spiked-pit acceptance, and non-pit rejection.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku() skips a trapped monster's AT_KICK slot by calling mtrapped_in_pit() in the physical attack group (839-840)."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c mattackm() skips a trapped monster's AT_KICK slot by calling mtrapped_in_pit() in the monster-versus-monster physical group."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c"
+          },
+          {
+            "name": "mattacku",
+            "implementation": "js/mhitu.js",
+            "symbol": "mattacku",
+            "sourceReview": "Read the complete mhitu.c mattacku() body (481-952), including the initial ranged/occupation and swallowed/steed gates, concealment and armor-class handling, eel reveal, summonmu call boundary, invulnerability and offensive-item ordering, the NATTK loop, target recalculation, getmattk and skip guards, physical wrong-location wildmiss/skipnonmagc, weapon wrong-location wildmiss/skipnonmagc, magic and ranged dispatch, status and wake-up checks, attacker-death exits, and final return. JavaScript wires the production attack seam, preserves planning/live callbacks and RNG order for the admitted physical/weapon wrong-location paths, and retains explicit refusals for unrelated hero-concealment, summoning, offensive-item, engulfing, ranged, spell, and other attack-family branches whose owning functions are not in this span. The summonmu() call remains a named boundary: the C helper starts immediately after this body at line 955 and is exercised only by the blocked boundary recipe below.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "monmove.c dochug() phase four calls mattacku() for a standard hostile monster action; this JavaScript seam supplies the C-equivalent operation and is passed by runSimpleMonsterAction()."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "advanceElapsedTurn() preflight/runSimpleMonsterAction() reaches monmove.js dochug(), which dispatches the standard attack to attackHeroWithMattacku() and then mhitu.js mattacku()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/wildmiss-displaced-goblin.session.json",
+              "recordings/mhitu.c/wildmiss-displaced-goblin-nosafewait.session.json"
+            ],
+            "checkedAt": "03b708445b18577db539b3765d6ef73d2bbd4a3c"
+          }
+        ],
+        "entryPointReview": "The selected range has one independent production entry point: a standard hostile monster turn enters monmove.c dochug() phase four, passes through runSimpleMonsterAction() and attackHeroWithMattacku(), and reaches mhitu.js mattacku(). The two committed mhitu.c recordings exercise that path through calc_mattacku_vars(), getmattk(), and the weapon wrong-location wildmiss() arm; the safe_wait variation reaches the same branch with a different wait policy. The expels-ice-vortex recording exercises the same production attack seam through gulpmu() expiry and the ordinary message=false expels() call, including the source message and release state. mtrapped_in_pit() is a pure helper covered by source-pinned tests. expels() is also called by vamp_stone(), whose separate transformation path remains represented by the source review and direct tests. The required just-outside-range case is recipes/mhitu.c/mattacku-summonmu-boundary.session.json: summonmu() starts at mhitu.c line 955, immediately after mattacku(), and remains intentionally unrecorded because its msummon() / were-creature continuation is still blocked. The selected range therefore has matching entry-point recordings listed below.",
+        "entryPoints": [
+          {
+            "name": "standard hostile monster attack through mattacku",
+            "functions": [
+              "mattacku",
+              "calc_mattacku_vars",
+              "getmattk",
+              "wildmiss"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/wildmiss-displaced-goblin.session.json",
+              "recordings/mhitu.c/wildmiss-displaced-goblin-nosafewait.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 543,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 290
+        }
+      ],
+      "closeStanding": {
+        "sha": "03b708445b18577db539b3765d6ef73d2bbd4a3c",
+        "screens": 6900,
+        "rng": 506362
+      }
     }
   ]
 }
