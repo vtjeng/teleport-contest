@@ -91,12 +91,11 @@ artifact records the implementation SHA, measurement time, scorer digest,
 individual results, and totals. The digest covers sorted IDs and recording
 hashes; descriptive metadata does not change the measured case set.
 
-The dashboard has two headline scores: **Development + local holdout**, with
-separate development/local breakdowns, and **Challenges**. Combine the fixed
-corpora only when their evidence identifies the same full implementation SHA.
-Otherwise show the available breakdowns and the missing or older measurement.
-Keep the existing historical development chart labeled as development.
-There is no remote-holdout score on the dashboard.
+The dashboard shows **Development**, **Local holdout**, and **Challenges**
+in the same format, each with the age of its measured commit. Challenge
+details appear below Work by source file. Keep the existing historical
+development chart labeled as development. There is no remote-holdout score
+on the dashboard.
 
 Show matched/total screens and fully matching/total sessions. RNG and cursors
 remain available as detail. Historical local-holdout rows lack session and
@@ -104,8 +103,8 @@ cursor counts; those values stay unknown. The serializer identity stays in
 challenge evidence because local serialization differs from the official scorer.
 
 For challenges, show each case's first and latest results with measured commits.
-Between consecutive complete evaluations, report added cases/screens separately
-from screen gains and losses on unchanged cases. Compare only identical
+Between consecutive complete evaluations, retain added cases/screens separately
+from screen gains and losses on unchanged cases in the saved evidence. Compare only identical
 recordings, denominators, and scorers. A changed scorer makes that comparison
 unavailable. A changed case set or implementation makes an older measurement
 stale. Missing and failed evaluations remain distinct from measured zeros.

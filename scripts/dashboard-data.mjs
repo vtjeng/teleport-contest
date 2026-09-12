@@ -36,11 +36,11 @@ function ensureFullHistory() {
 // --- Parse git log ---
 
 ensureFullHistory();
-const gitLog = run(`git log --format="%H %aI %s" --reverse`);
+const gitLog = run(`git log --format="%H %aI %cI %s" --reverse`);
 
 const commits = gitLog.split('\n').map(line => {
-  const [sha, iso, ...rest] = line.split(' ');
-  return { sha, time: new Date(iso), message: rest.join(' ') };
+  const [sha, iso, committedAt, ...rest] = line.split(' ');
+  return { sha, time: new Date(iso), committedAt, message: rest.join(' ') };
 });
 
 const commitBySha = new Map();
@@ -143,6 +143,7 @@ function scoreFromRow(row, prefixes) {
     status: row ? 'measured' : 'unmeasured',
     sha: fullShaFor(row),
     utc: row?.utc || null,
+    commitUtc: commitBySha.get(fullShaFor(row))?.committedAt || null,
     sessions: metricFromRow(row, prefixes.sessions),
     screens: metricFromRow(row, prefixes.screens),
     rng: metricFromRow(row, prefixes.rng),
@@ -179,53 +180,14 @@ localHoldoutScore.freshForCommit = Boolean(
   localHoldoutScore.sha && localHoldoutScore.sha === headFullSha,
 );
 
-function combinedMetric(first, second) {
-  if (!first || !second) return null;
-  return {
-    matched: first.matched + second.matched,
-    total: first.total + second.total,
-  };
-}
-
-const sameEvidenceCommit = Boolean(
-  developmentScore.sha
-  && localHoldoutScore.sha
-  && developmentScore.sha === localHoldoutScore.sha,
-);
-const combinedScore = {
-  status: !developmentScore.sha && !localHoldoutScore.sha
-    ? 'unmeasured'
-    : !sameEvidenceCommit
-      ? 'incomplete'
-      : developmentScore.sha === headFullSha
-        ? 'measured'
-        : 'stale',
-  sha: sameEvidenceCommit ? developmentScore.sha : null,
-  utc: sameEvidenceCommit
-    ? (developmentScore.utc || localHoldoutScore.utc)
-    : null,
-  sessions: sameEvidenceCommit
-    ? combinedMetric(developmentScore.sessions, localHoldoutScore.sessions)
-    : null,
-  screens: sameEvidenceCommit
-    ? combinedMetric(developmentScore.screens, localHoldoutScore.screens)
-    : null,
-  rng: sameEvidenceCommit
-    ? combinedMetric(developmentScore.rng, localHoldoutScore.rng)
-    : null,
-  cursors: sameEvidenceCommit
-    ? combinedMetric(developmentScore.cursors, localHoldoutScore.cursors)
-    : null,
-};
-
 const scores = {
   headSha: headFullSha,
-  combined: combinedScore,
   development: developmentScore,
   localHoldout: localHoldoutScore,
 };
 
 const challenges = challengeDashboard(process.cwd(), scoreRows, headFullSha);
+challenges.commitUtc = commitBySha.get(challenges.sha)?.committedAt || null;
 
 // Extracts the goal name from a SCORE note. Both the goal timeline and the
 // progress chart label their entries with it.

@@ -219,8 +219,6 @@ function sourceDashboardData(workGoals = []) {
         goals: [], progress: [], workGoals,
         scores: {
             headSha: null,
-            combined: { status: 'unmeasured', sha: null, utc: null,
-                sessions: null, screens: null, rng: null, cursors: null },
             development: { status: 'unmeasured', sha: null, utc: null,
                 sessions: null, screens: null, rng: null, cursors: null },
             localHoldout: { status: 'unmeasured', sha: null, utc: null,
@@ -233,14 +231,10 @@ function sourceDashboardData(workGoals = []) {
     };
 }
 
-test('score cards keep exact-commit evidence separate from challenge details', () => {
+test('score cards share one format and show commit ages without hashes', () => {
     const data = sourceDashboardData();
     data.scores = {
         headSha: 'a'.repeat(40),
-        combined: {
-            status: 'incomplete', sha: null, utc: null,
-            sessions: null, screens: null, rng: null, cursors: null,
-        },
         development: {
             status: 'measured', sha: 'b'.repeat(40), utc: '2026-01-01T00:00:00Z',
             sessions: { matched: 3, total: 4 },
@@ -270,14 +264,18 @@ test('score cards keep exact-commit evidence separate from challenge details', (
             current: null, delta: null,
         }],
     };
+    // The measured commit is one hour old even though its ledger row is older.
+    data.scores.development.commitUtc = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const rendered = renderDashboard(data);
     const stats = rendered.get('stats').innerHTML;
-    assert.match(stats, /Development \+ local holdout/u);
-    assert.match(stats, />Incomplete</u);
-    assert.match(stats, /Development Measured/u);
-    assert.match(stats, /local holdout Stale/u);
+    assert.deepEqual([...stats.matchAll(/class="score-card-title">([^<]+)/gu)]
+        .map(match => match[1]), ['Development', 'Local holdout', 'Challenges']);
+    assert.match(stats, /Commit 1h 0m ago/u);
+    assert.match(stats, />80.0%</u);
+    assert.match(stats, />66.7%</u);
     assert.match(stats, />Failed</u);
-    assert.match(rendered.get('challengeProvenance').textContent, /failed/u);
+    assert.match(stats, /runner failed: &lt;details&gt;/u);
+    assert.doesNotMatch(stats, /Incomplete|combined only|Cases evaluated|Manifest|bbbbbbb|ccccccc|ddddddd/u);
     const table = rendered.get('challengeTable').innerHTML;
     assert.match(table, /Nested &lt;box&gt;/u);
     assert.match(table, /container/u);
@@ -298,7 +296,8 @@ test('score rows expose named development and local holdout measures', () => {
     writeFileSync(join(fixture, 'SCORE.tsv'), [
         SCORE_HEADER,
         scoreRow({
-            utc: '2026-01-01T00:10:00Z', sha: measured, event: 'holdout',
+            // The ledger is appended later than the measured commit.
+            utc: '2026-01-01T00:15:00Z', sha: measured, event: 'holdout',
             screens: 8, screensTotal: 10, rng: 9, rngTotal: 10,
             cursors: 7, cursorsTotal: 8,
             sessions: 3, sessionsTotal: 4,
@@ -315,13 +314,13 @@ test('score rows expose named development and local holdout measures', () => {
     }));
     assert.deepEqual(data.scores.development.screens, { matched: 8, total: 10 });
     assert.deepEqual(data.scores.localHoldout.screens, { matched: 4, total: 6 });
-    assert.deepEqual(data.scores.combined.screens, { matched: 12, total: 16 });
     assert.deepEqual(data.scores.development.sessions, { matched: 3, total: 4 });
     assert.deepEqual(data.scores.localHoldout.sessions, { matched: 1, total: 2 });
-    assert.deepEqual(data.scores.combined.sessions, { matched: 4, total: 6 });
-    assert.equal(data.scores.combined.status, 'measured');
     assert.deepEqual(data.scores.development.cursors, { matched: 7, total: 8 });
     assert.deepEqual(data.scores.localHoldout.cursors, { matched: 2, total: 3 });
+    assert.equal(data.scores.development.commitUtc, '2026-01-01T00:10:00+00:00');
+    assert.equal(data.scores.localHoldout.commitUtc, data.scores.development.commitUtc);
+    assert.equal(data.scores.development.utc, '2026-01-01T00:15:00Z');
 
     commit(fixture, 'Later implementation change', '2026-01-01T00:20:00Z');
     const stale = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
@@ -329,7 +328,6 @@ test('score rows expose named development and local holdout measures', () => {
     }));
     assert.equal(stale.scores.development.status, 'stale');
     assert.equal(stale.scores.localHoldout.status, 'stale');
-    assert.equal(stale.scores.combined.status, 'stale');
 });
 
 test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
@@ -1054,7 +1052,7 @@ test('dashboard JSON escapes script closing markup', () => {
     assert.equal(escaped, '{"title":"\\u003c/script\\u003e\\u003cscript\\u003eowned"}');
 });
 
-test('cases evaluated counts coverage of the catalog separately from passing sessions', () => {
+test('challenge session counts describe measured cases when the catalog has grown', () => {
     const data = sourceDashboardData();
     // Two measured cases among three admitted cases; only one passes.
     const result = { sha: 'a'.repeat(40), utc: '2026-01-01T00:00:00Z',
@@ -1068,6 +1066,6 @@ test('cases evaluated counts coverage of the catalog separately from passing ses
             { id: 'new', title: 'New', first: null, current: null },
         ] };
     const stats = renderDashboard(data).get('stats').innerHTML;
-    assert.match(stats, /Cases evaluated<\/div><div class="score-breakdown-value">2\/3/u);
+    assert.doesNotMatch(stats, /Cases evaluated|Manifest/u);
     assert.match(stats, /Sessions<\/div><div class="score-breakdown-value">1\/2/u);
 });
