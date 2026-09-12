@@ -26,6 +26,7 @@ import {
 } from './const.js';
 import {
     capitalizedMonsterName,
+    mon_nam,
     mon_nam_too,
     monsterPossessive,
 } from './do_name.js';
@@ -240,10 +241,9 @@ function pre_mm_attack(magr, mdef, env) {
 // C ref: mhitm.c missmm() (74-93). "feedback for when a monster-vs-monster
 // attack misses".
 //
-// could_seduce() answers 0 for every aggressor this port admits and refuses
-// for the rest (js/mhitu.js could_seduce()), so the verb is always "misses"
-// and the "pretends to be friendly to" arm has no reachable caller. C's whole
-// expression is kept so the call happens where C makes it.
+// could_seduce() answers 0 for ordinary physical attacks and can answer 1 or 2
+// for a nymph's item-theft or seduction attack. C's whole expression is kept
+// so the call happens where C makes it.
 async function missmm(magr, mdef, mattk, env) {
     const { state } = env;
     const message = requireAttackOperation(env, 'message');
@@ -734,10 +734,14 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
         let buf = '';
 
         if (compat) {
-            // C prints "%s smiles at %s seductively" here. could_seduce()
-            // refuses before it can answer nonzero, so this is where a
-            // completed could_seduce() would first need the line.
-            unsupported('a seductive monster attack');
+            // C uses the defender's mcansee flag to choose the verb and
+            // compat's nymph gender result to choose the adverb.
+            await message(
+                `${magr_name} ${mdef.mcansee ? 'smiles at' : 'talks to'} `
+                + `${mon_nam(mdef, state, env)} `
+                + `${compat === 2 ? 'engagingly' : 'seductively'}.`,
+                state,
+            );
         } else {
             switch (mattk.aatyp) {
             case AT_BITE: buf = `${magr_name} bites`; break;

@@ -63,6 +63,7 @@ import {
     PM_LITTLE_DOG,
     PM_PONY,
     PM_SEWER_RAT,
+    PM_WATER_NYMPH,
     PM_WOODLAND_ELF,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
@@ -335,6 +336,33 @@ test('mattackm lands a bite and spends the damage and knockback rolls',
         assert.deepEqual(env.bounds,
                          ['rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
         assert.equal(ant.mhp, 5);
+    });
+
+// mhitm.c hitmm():659-671. A same-gender water nymph's AD_SITM attack gets
+// compat == 2, prints the engaging message, and then continues into
+// mdamagem(), whose uhitm.c mhitm_ad_sedu() monster arm remains the next
+// source boundary. The test pins the message before that boundary and the
+// initial zero-damage roll that proves the continuation reached mdamagem().
+test('hitmm prints a nymph engagement before its seduction damage arm',
+    async () => {
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        const nymph = fixture(PM_WATER_NYMPH, ax, y);
+        const dog = fixture(PM_LITTLE_DOG, dx, y);
+        aim(dog);
+        // Both fixtures use the default male gender, so could_seduce() returns
+        // 2 for the nymph's first AD_SITM attack. rnd(20)=1 lands; d(0,0)=0
+        // is the C damage initialization before the deferred mhitm arm.
+        const env = attackEnv([1, 0]);
+
+        await assert.rejects(
+            mattackm(nymph, dog, env),
+            (error) => error.message === 'uhitm.c mhitm_ad_sedu() mhitm arm',
+        );
+        assert.deepEqual(env.lines,
+            ['The water nymph smiles at the little dog engagingly.']);
+        assert.deepEqual(env.bounds, ['rnd(20)', 'd(0,0)']);
+        assert.equal(dog.mhp, 8);
     });
 
 // mhitm.c mdamagem():1071-1119 and makemon.c grow_up():2049-2100. The kill

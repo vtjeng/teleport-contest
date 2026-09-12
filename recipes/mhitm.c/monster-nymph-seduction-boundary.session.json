@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7710054,
+      "datetime": "20270401090000",
+      "nethackrc": "OPTIONS=name:MhitmSeduce,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,rest_on_space,!safe_wait\n",
+      "moves": " \u0007water nymph\n                    "
+    }
+  ],
+  "_comment": "Independent debug genesis case for mhitm.c hitmm(): the starting pet attacks a generated water nymph, whose return AD_SITM attack reaches hitmm()'s engaging message. The recipe remains unrecorded while the JavaScript replay stops in uhitm.c mhitm_ad_sedu()'s monster arm; record it after that dependency lands."
+}
