@@ -707,11 +707,11 @@ test('dashboard separates closed goals and labels inferred timing', () => {
             .map((bar) => [bar.goal, bar.top, bar.height]),
         [[0, 7, 7], [1, 16, 7]],
     );
-    // All SHAs resolve, so no hollow markers
-    assert.equal(
-        rendered.get('progressProvenance').textContent,
-        'Times from commits.',
-    );
+    // Axis labels and marker provenance share the compact chart legend.
+    const legend = rendered.get('progressLegend').innerHTML;
+    assert.match(legend, /Left axis[\s\S]*Screens matched/u);
+    assert.match(legend, /Right axis[\s\S]*7-day avg screens\/day[\s\S]*Last 24h screens/u);
+    assert.match(legend, /Dates[\s\S]*Commit[\s\S]*Logged/u);
     // All SHAs resolve to commits, so no hollow markers are drawn
     assert.equal(
         rendered.canvasOps.filter(
