@@ -116,11 +116,22 @@ import {
     nomul,
 } from './hack.js';
 import { done } from './end.js';
-import { obj_extract_self, obfree, stackobj } from './invent.js';
+import {
+    obj_extract_self,
+    obfree,
+    stackobj,
+    update_inventory,
+} from './invent.js';
+import {
+    ART_MAGICBANE,
+    defends_when_carried,
+    is_art,
+} from './artifacts.js';
 import { count_wsegs } from './makemon_create.js';
 import { maybe_unhide_at, monkilled, wake_nearto } from './mon.js';
 import {
     amorphous,
+    attacktype,
     breathless,
     defended,
     grounded,
@@ -139,14 +150,18 @@ import {
     pm_invisible,
     passes_rocks,
     passes_walls,
+    resists_magm,
     touch_petrifies,
     unsolid,
 } from './mondata.js';
 import {
+    AD_MAGM,
     AD_FIRE,
     AD_PHYS,
     AD_RBRE,
     AD_SLEE,
+    AT_BREA,
+    AT_MAGC,
     MZ_HUGE,
     MZ_SMALL,
     PM_BUGBEAR,
@@ -1554,6 +1569,94 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     return Trap_Effect_Finished;
 }
 
+// C ref: trap.c trapeffect_anti_magic() (2323-2452), monster arm only.
+// The hero arm remains behind preflight_dotrap(); callers that reach this
+// selector with the hero still get an explicit boundary rather than silently
+// taking the monster path.
+async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
+    const { state } = env;
+
+    if (mtmp === state.youmonst) {
+        const unsupported = requireTrapOperation(env, 'unsupported');
+        unsupported('anti-magic trap hero activation');
+        return Trap_Effect_Finished; // unreachable
+    }
+
+    // Iron shoes protect against an anti-magic trap only while positively
+    // enchanted. The monster's inventory update is the only state change in
+    // this branch, and C returns before any resistance or damage check.
+    if (wearing_iron_shoes(mtmp, state)) {
+        const shoes = which_armor(mtmp, W_ARMF, state);
+        if (shoes.spe > 0) {
+            shoes.spe -= 1;
+            update_inventory({ state });
+            return Trap_Effect_Finished;
+        }
+    }
+
+    const random = env.random;
+    const message = requireTrapOperation(env, 'message');
+    const inSight = canSeeMonster(mtmp, state)
+        || mtmp === state.u?.usteed;
+    const seeIt = cansee(mtmp.mx, mtmp.my, state);
+    const species = mtmp.data;
+
+    if (!resists_magm(mtmp, state)) {
+        // A cancelled monster, or one without a magical or breath attack,
+        // simply walks through the field. C's short circuit preserves the
+        // absence of a random call for this common case.
+        if (!mtmp.mcan
+            && (attacktype(species, AT_MAGC)
+                || attacktype(species, AT_BREA))) {
+            mtmp.mspec_used = (mtmp.mspec_used ?? 0) + random.d(2, 6);
+            if (inSight) {
+                seetrap(trap, env);
+                await message(
+                    messageAt(
+                        `${capitalizedMonsterName(mtmp, state)} seems lethargic.`,
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+            }
+        }
+    } else {
+        let damage = random.rnd(4);
+        const weapon = mtmp.mw; // MON_WEP(mtmp)
+
+        if (is_art(weapon, ART_MAGICBANE)) damage += random.rnd(4);
+        for (let object = mtmp.minvent; object; object = object.nobj) {
+            if (object.oartifact
+                && defends_when_carried(AD_MAGM, object, state)) {
+                damage += random.rnd(4);
+                break;
+            }
+        }
+        if (passes_walls(species)) damage = Math.trunc((damage + 3) / 4);
+
+        if (inSight) seetrap(trap, env);
+        mtmp.mhp -= damage;
+        if (mtmp.mhp < 1) {
+            await monkilled(
+                mtmp,
+                inSight ? 'compression from an anti-magic field' : null,
+                -AD_MAGM,
+                state,
+                env,
+            );
+        }
+        if (mtmp.mhp < 1) {
+            if (seeIt) env.redraw(trap.tx, trap.ty);
+            return Trap_Killed_Mon;
+        }
+    }
+
+    return mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
 // C ref: trap.c launch_drop_spot() (3222-3233). Marks a spot where a launched
 // object should be placed in a bones file so it is not lost mid-flight. The
 // port stores the triple on state rather than in a file-scoped global.
@@ -1848,7 +1951,6 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     SPIKED_PIT,
     WEB,
     STATUE_TRAP,
-    ANTI_MAGIC,
     LANDMINE,
     POLY_TRAP,
     VIBRATING_SQUARE,
@@ -1874,6 +1976,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_fire_trap(monster, trap, trflags, env);
     if (trap.ttyp === MAGIC_TRAP)
         return trapeffect_magic_trap(monster, trap, trflags, env);
+    if (trap.ttyp === ANTI_MAGIC)
+        return trapeffect_anti_magic(monster, trap, trflags, env);
     if (trap.ttyp === SLP_GAS_TRAP)
         return trapeffect_slp_gas_trap(monster, trap, trflags, env);
     if (trap.ttyp === HOLE || trap.ttyp === TRAPDOOR)
@@ -2050,8 +2154,8 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     // The random set covers every operation trapeffect_selector() can dispatch
     // to, not only mintrap()'s own rn2(4) and rnl(5): the dart arm reaches
     // mksobj() and next_ident(), which need rn1, rnd and rne, while the fire
-    // trap arms need d(). Proving these owners here rather than in the arm
-    // matters, because the arm runs after
+    // and anti-magic trap arms need d(). Proving these owners here rather than
+    // in the arm matters, because the arm runs after
     // mon_learns_traps() has written mtrapseen on the victim and every
     // onlooker, and after the rn2(4) and rnl(5) gates may have drawn -- so a
     // late proof would refuse with state already changed, and with a bare
@@ -2059,7 +2163,8 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     const random = env.random;
     const tt = trap.ttyp;
     const randomNames = ['rn1', 'rn2', 'rnd', 'rne', 'rnl'];
-    if (tt === FIRE_TRAP || tt === MAGIC_TRAP) randomNames.push('d');
+    if (tt === FIRE_TRAP || tt === MAGIC_TRAP || tt === ANTI_MAGIC)
+        randomNames.push('d');
     for (const name of randomNames)
         if (typeof random?.[name] !== 'function')
             throw new TypeError(`mintrap requires ${randomNames.join(', ')}`);

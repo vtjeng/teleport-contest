@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Fresh trap.c coverage: seed 6200021 was selected from 6,200,000-6,200,199. After thirty search turns, a non-resistant grid bug crosses the generated ANTI_MAGIC trap at (19,14), exercising trapeffect_anti_magic() through postmov() and mintrap().",
+  "segments": [
+    {
+      "seed": 6200021,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:AntiProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "ssssssssssssssssssssssssssssss"
+    }
+  ]
+}

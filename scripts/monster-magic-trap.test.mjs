@@ -1,11 +1,12 @@
-// Focused trap.c coverage for the monster arm of trapeffect_magic_trap().
-// The ordinary nonzero roll finishes immediately; zero delegates to the
-// return-valued trapeffect_fire_trap() path, including thitm() and burnarmor().
+// Focused trap.c coverage for the monster arms of trapeffect_magic_trap() and
+// trapeffect_anti_magic(). The ordinary nonzero roll finishes immediately;
+// zero delegates to trapeffect_fire_trap(), including thitm() and burnarmor().
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ANTI_MAGIC,
     FIRE_TRAP,
     MAGIC_TRAP,
     Trap_Effect_Finished,
@@ -14,7 +15,13 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { NON_PM, PM_JACKAL } from '../js/monsters.js';
+import {
+    AD_MAGM,
+    AD_PHYS,
+    AT_MAGC,
+    NON_PM,
+    PM_JACKAL,
+} from '../js/monsters.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 
@@ -152,4 +159,53 @@ test('the trap selector reaches the monster fire-trap arm directly', async () =>
     assert.deepEqual(env.lines, [
         'A tower of flame erupts from the floor under the jackal!',
     ]);
+});
+
+test('a non-caster crosses an anti-magic trap without a draw', async () => {
+    await hero();
+    const { monster, trap } = victimOnMagicTrap();
+    // trap.c ANTI_MAGIC; the jackal has no magical attack.
+    trap.ttyp = ANTI_MAGIC;
+    const env = trapEnv([0]);
+
+    assert.equal(await mintrap(monster, 0, env), Trap_Effect_Finished);
+    assert.deepEqual(env.bounds, [], 'the non-caster arm spends no RNG');
+    assert.equal(monster.mhp, 20);
+    assert.equal(monster.mspec_used ?? 0, 0);
+    assert.equal(trap.tseen, false);
+});
+
+test('an uncancelled magical attacker becomes lethargic', async () => {
+    await hero();
+    const { monster, trap } = victimOnMagicTrap();
+    trap.ttyp = ANTI_MAGIC; // trap.c ANTI_MAGIC.
+    monster.mspec_used = 3;
+    monster.data = {
+        ...monster.data,
+        mattk: [{ aatyp: AT_MAGC, adtyp: AD_PHYS }],
+    };
+    const env = trapEnv([], 4);
+
+    assert.equal(await mintrap(monster, 0, env), Trap_Effect_Finished);
+    assert.deepEqual(env.bounds, ['d(2,6)']);
+    assert.equal(monster.mspec_used, 7);
+    assert.equal(trap.tseen, true);
+    assert.deepEqual(env.lines, ['The jackal seems lethargic.']);
+});
+
+test('a magic-resistant monster takes anti-magic damage', async () => {
+    await hero();
+    const { monster, trap } = victimOnMagicTrap();
+    trap.ttyp = ANTI_MAGIC; // trap.c ANTI_MAGIC.
+    monster.data = {
+        ...monster.data,
+        mattk: [{ aatyp: AT_MAGC, adtyp: AD_MAGM }],
+    };
+    const env = trapEnv([3]);
+
+    assert.equal(await mintrap(monster, 0, env), Trap_Effect_Finished);
+    assert.deepEqual(env.bounds, ['rnd(4)']);
+    assert.equal(monster.mhp, 17);
+    assert.equal(trap.tseen, true);
+    assert.deepEqual(env.lines, []);
 });
