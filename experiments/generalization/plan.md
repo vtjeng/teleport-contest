@@ -252,8 +252,18 @@ isolation, damaged status files, and safe snapshot embedding. Chromium checks
 covered loading, empty, populated, error, disconnected, and expanded-history
 states at widths from 320 to 1,920 pixels, plus standalone snapshot refresh.
 
-Sites project `appgprj_6aa4ff25659c8191994e6b39f28b7469` was created for the
-monitor; its source checkout is `/tmp/teleport-c-pilot-site`. Ownership and
-owner-only access were verified. Automatic approval review rejected the source
-upload and requested explicit approval for the destination and payload. That
-approval is pending; no Sites version has been published.
+The [private Sites monitor](https://teleport-c-explorer-pilot.jocund-rice-0231.chatgpt.site)
+is published as version 1 of project
+`appgprj_6aa4ff25659c8191994e6b39f28b7469`. The user explicitly approved
+uploading the pilot screens and action histories and refreshing them during
+the pilot. Owner-only access was verified. Its separate source checkout is
+`/tmp/teleport-c-pilot-site`, with static assets under `dist/` and the project
+identifier in `.openai/hosting.json`. Chromium opened the published page,
+verified all three completed runs, and exercised snapshot refresh while keeping
+an action history expanded. Later active runs can be synced by rebuilding the
+snapshot and publishing a new version of this same site.
+
+Checkpoint passed for pilot implementation commit `aab2191f`: the full test
+suite, generated-data checks, development replay, and all 99 regression
+recordings passed. The development score remained 7,031/7,765 screens. No
+holdout evaluation or inspection was part of the checkpoint.
