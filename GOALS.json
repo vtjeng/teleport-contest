@@ -28206,7 +28206,7 @@
     {
       "id": "port-uhitm-mhitm-ad-sedu",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port uhitm.c mhitm_ad_sedu() monster-vs-monster seduction arm and inventory semantics",
       "cFile": "uhitm.c",
       "sessions": [
@@ -28217,8 +28217,8 @@
       "spans": [
         {
           "name": "mhitm_ad_sedu",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2f4ebdd9e9383451cb47bd59d5b1164ffe3260ba",
           "functions": [
             "mhitm_ad_sedu"
           ]
@@ -28230,15 +28230,18 @@
         "screens": 6981,
         "rng": 509322
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2f4ebdd9e9383451cb47bd59d5b1164ffe3260ba",
+      "delivered": {
+        "screens": 6,
+        "rng": 220
+      },
       "functions": [
         {
           "name": "mhitm_ad_sedu",
           "line": 4623,
           "endLine": 4750,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -28266,7 +28269,96 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 259
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_sedu",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_sedu",
+            "sourceReview": "Read nethack-c/upstream/src/uhitm.c mhitm_ad_sedu() lines 4623-4750. Ported the hero, monster-versus-hero, and monster-versus-monster arms in source order. The monster arm preserves the canceled-attacker return, tame-versus-wild cursed-object selection, defender naming before extraction, saddle dismount boundary, direct extract_from_minvent/add_to_minv transfer, visible object naming and theft message, possibly_unwield, strategy clearing, mselftouch, defender death hitflags and grow_up result, nymph relocation with RLOC_NOMSG and disappearance output, and final zero damage. RNG, evaluation, state, and output order were checked against C. The void steal_it() call is recorded with note_unported(); steed.c dismount_steed() is recorded as a void gap unless an optional callback is provided. Existing partial weapon.c possibly_unwield(), trap.c mselftouch(), worn.c equipped-item hooks, makemon.c grow_up(), and teleport.c rloc() remain their source owners and are called without invented substitutes.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c mhitm_adtyping() dispatches AD_SITM and AD_SEDU to mhitm_ad_sedu(); JavaScript dispatches the same damage types at js/uhitm.js:2231-2262."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c mdamagem() initializes mhm.damage and calls mhitm_adtyping() at lines 1016-1059; JavaScript mdamagem() does the same at js/mhitm.js:805-825."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "hitmm",
+                "source": "mhitm.c hitmm() calls mdamagem() at line 731; JavaScript hitmm() calls mdamagem() at js/mhitm.js:713-783."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c mattackm() calls hitmm() at lines 455 and 488; JavaScript mattackm() calls hitmm() at js/mhitm.js:397-539."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move_aggress",
+                "source": "monmove.c m_move_aggress() calls mattackm() for an occupied adjacent square at lines 2098-2114; JavaScript m_move_aggress() does so at js/monmove.js:3763-3786."
+              },
+              {
+                "path": "js/dogmove.js",
+                "symbol": "dog_move",
+                "source": "dogmove.c dog_move() calls mattackm() for pet combat and a possible return attack at lines 1149-1171; JavaScript dog_move() does so at js/dogmove.js:1239-1427."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "The live simple-monster dispatcher binds fightMonster to mhitm.js fightm(), which reaches mattackm() and then hitmm(); JavaScript runSimpleMonsterAction() carries that production dispatch at js/unported_monster_actions.js:1473 and its fightMonster binding."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "checkedAt": "2f4ebdd9e9383451cb47bd59d5b1164ffe3260ba"
+          }
+        ],
+        "entryPointReview": "The selected source range has one impure production entry point: monster-versus-monster AD_SITM/AD_SEDU damage dispatched from mhitm_adtyping(). It is reached through mdamagem(), hitmm(), mattackm(), and the movement dispatchers m_move_aggress() and dog_move(), including the simple monster action fightMonster binding. The matching recording exercises a water nymph's no-item arm through the live monster attack path; the focused source-pinned test exercises direct qualifying-item transfer, naming order, message output, and damage/result contracts.",
+        "entryPoints": [
+          {
+            "name": "monster-versus-monster seduction and item theft",
+            "functions": [
+              "mhitm_ad_sedu"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 461,
+          "kind": "stop",
+          "function": "newexplevel",
+          "functionDeclared": true,
+          "sourceFile": "exper.c",
+          "cFile": "exper.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: experience change requires pluslvl(TRUE), which only exper.c newexplevel() reaches",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 253
+        }
+      ],
+      "closeStanding": {
+        "sha": "2f4ebdd9e9383451cb47bd59d5b1164ffe3260ba",
+        "screens": 6987,
+        "rng": 509542
+      }
     }
   ]
 }
