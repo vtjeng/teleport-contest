@@ -29291,6 +29291,36 @@
         "screens": 7062,
         "rng": 519923
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-map",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizcmds.c wiz_map() and wire wizard level-map command admission and dispatch",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "After closing doread and rechecking the queue, seed0360 step 624 is the highest-ranked unresolved candidate at most 209 remaining screens. Source tracing identifies wizcmds.c wiz_map() as the unverified owner; select this source unit and wire its existing wizard command callers.",
+      "detail": "The mismatch is seed0360-wizard-world-tour step 624, input Ctrl-F, after matching step 623. C cmd.c:1982-1983 binds Ctrl-F to wiz_map; wizcmds.c:173-198 implements wiz_map by disabling monster notices, clearing HConfusion and HHallucination temporarily, marking traps and engravings seen, calling do_mapping, and restoring state. JS extcmdlist_data.js already names wizmap, but cmd.js admission at 1793-1858 omits it; extended dispatch at 4879-5130 and direct Ctrl-F at 6160-6171 lack the wiz_map call. Port js/wizcmds.js and wire both routes using existing notice_mon_off/on, map_trap, map_engraving, and do_mapping. No holdout data was inspected.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_map",
+          "line": 176,
+          "endLine": 202,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 176,
+        "to": 202
+      }
     }
   ]
 }
