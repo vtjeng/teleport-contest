@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "sha": "50047e4ed73ee986dbdcc40e721b0b9daf060b1c",
+  "utc": "2026-09-12T08:37:23.496Z",
+  "status": "complete",
+  "manifestSha256": "743ae22c2c7284aaa5408e87c28bc7d4f27df79a558871033723916804d8763e",
+  "scorerSha256": "55260e2aa72710758548a899af21a4486170d19b6e9d8926a38731eff1e4174a",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "0978b01c0048ba422cbb8b5c33cec18a1b1505afb1d3a308ee0961316b1b8007"
+  },
+  "cases": [
+    {
+      "id": "containers",
+      "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 152,
+          "total": 173
+        },
+        "rng": {
+          "matched": 2997,
+          "total": 3106
+        },
+        "cursors": {
+          "matched": 152,
+          "total": 173
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "journey",
+      "recordingSha256": "3c07e106fe3c51a8899904f75b71a677e32c29f1403055635f6f3908a5548a7d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 6286,
+          "total": 6286
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 1,
+      "total": 2
+    },
+    "screens": {
+      "matched": 209,
+      "total": 230
+    },
+    "rng": {
+      "matched": 9283,
+      "total": 9392
+    },
+    "cursors": {
+      "matched": 209,
+      "total": 230
+    }
+  },
+  "provenance": {
+    "implementation": "50047e4ed73ee986dbdcc40e721b0b9daf060b1c",
+    "main": "b5a06b3e055f1c2ccdce3acd9a114c57abaab9db",
+    "evaluatedAt": "2026-09-12T08:37:23.496Z",
+    "kind": "pilot-reassessment-after-sync",
+    "firstEvaluation": "/tmp/teleport-c-pilot-first-evaluation",
+    "scorer": "local serializer fix",
+    "scorerFiles": {
+      "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+      "frozen/terminal.js": "0978b01c0048ba422cbb8b5c33cec18a1b1505afb1d3a308ee0961316b1b8007"
+    },
+    "cases": [
+      {
+        "id": "journey",
+        "recordingSha256": "3c07e106fe3c51a8899904f75b71a677e32c29f1403055635f6f3908a5548a7d"
+      },
+      {
+        "id": "containers",
+        "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d"
+      }
+    ],
+    "rawResults": {
+      "timestamp": "2026-09-12T08:37:27.034Z",
+      "commit": "unknown",
+      "speed": {
+        "startup_ms": 1159,
+        "per_move_ms": -3.3989,
+        "r2": 1,
+        "label": "1159+-3.40/turn",
+        "sessions": 2
+      },
+      "results": [
+        {
+          "session": "containers.session.json",
+          "passed": false,
+          "metrics": {
+            "rngCalls": {
+              "matched": 2997,
+              "total": 3106
+            },
+            "screens": {
+              "matched": 152,
+              "total": 173
+            },
+            "cellsOnly": {
+              "matched": 152,
+              "total": 173
+            },
+            "cursors": {
+              "matched": 152,
+              "total": 173
+            },
+            "animFrames": {
+              "matched": 0,
+              "total": 0
+            }
+          },
+          "error": null,
+          "time": {
+            "ms": 574.42,
+            "moves": 172
+          }
+        },
+        {
+          "session": "journey.session.json",
+          "passed": true,
+          "metrics": {
+            "rngCalls": {
+              "matched": 6286,
+              "total": 6286
+            },
+            "screens": {
+              "matched": 57,
+              "total": 57
+            },
+            "cellsOnly": {
+              "matched": 57,
+              "total": 57
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 57
+            },
+            "animFrames": {
+              "matched": 0,
+              "total": 0
+            }
+          },
+          "error": null,
+          "time": {
+            "ms": 968.69,
+            "moves": 56
+          }
+        }
+      ]
+    }
+  }
+}

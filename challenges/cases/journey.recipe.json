@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4819027,
+      "datetime": "20000412103000",
+      "nethackrc": "OPTIONS=name:Scoutjourney,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "hhhhlllllllllllllllkkkkklkkjjjlklllllljhhhh> kkkjjj< i\u001bk"
+    }
+  ]
+}

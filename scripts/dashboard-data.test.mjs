@@ -11,18 +11,14 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
+import { COLUMNS } from './score-log.mjs';
+import { escapeJsonForScript } from './build-dashboard.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
 const BUILD_SCRIPT = join(PROJECT_ROOT, 'scripts', 'build-dashboard.mjs');
 const TEMPLATE = join(PROJECT_ROOT, 'scripts', 'dashboard.template.html');
-const SCORE_HEADER = [
-    'utc', 'sha', 'event', 'sessions_passed', 'sessions_total',
-    'screens_matched', 'screens_total', 'rng_matched', 'rng_total',
-    'cursors_matched', 'cursors_total', 'holdout_screens_matched',
-    'holdout_screens_total', 'holdout_rng_matched', 'holdout_rng_total',
-    'note',
-].join('\t');
+const SCORE_HEADER = COLUMNS.join('\t');
 
 function git(cwd, args, env = {}) {
     return execFileSync('git', args, {
@@ -40,19 +36,47 @@ function commit(cwd, message, time) {
     return git(cwd, ['rev-parse', 'HEAD']);
 }
 
-function scoreRow({ utc, sha, event, screens, note }) {
-    const cells = Array(16).fill('');
-    cells[0] = utc;
-    cells[1] = sha;
-    cells[2] = event;
-    cells[3] = '1';
-    cells[4] = '2';
-    cells[5] = String(screens);
-    cells[6] = '100';
-    cells[7] = '10';
-    cells[8] = '1000';
-    cells[15] = note;
-    return cells.join('\t');
+function scoreRow(fields) {
+    const aliases = {
+        utc: 'utc', sha: 'sha', event: 'event', note: 'note',
+        sessions: 'sessions_passed', sessionsTotal: 'sessions_total',
+        screens: 'screens_matched', screensTotal: 'screens_total',
+        rng: 'rng_matched', rngTotal: 'rng_total',
+        cursors: 'cursors_matched', cursorsTotal: 'cursors_total',
+        holdoutSessions: 'holdout_sessions_passed',
+        holdoutSessionsTotal: 'holdout_sessions_total',
+        holdoutScreens: 'holdout_screens_matched',
+        holdoutScreensTotal: 'holdout_screens_total',
+        holdoutRng: 'holdout_rng_matched', holdoutRngTotal: 'holdout_rng_total',
+        holdoutCursors: 'holdout_cursors_matched',
+        holdoutCursorsTotal: 'holdout_cursors_total',
+        challengeSessions: 'challenge_sessions_passed',
+        challengeSessionsTotal: 'challenge_sessions_total',
+        challengeScreens: 'challenge_screens_matched',
+        challengeScreensTotal: 'challenge_screens_total',
+        challengeRng: 'challenge_rng_matched',
+        challengeRngTotal: 'challenge_rng_total',
+        challengeCursors: 'challenge_cursors_matched',
+        challengeCursorsTotal: 'challenge_cursors_total',
+        challengeManifestSha256: 'challenge_manifest_sha256',
+        challengeEvaluation: 'challenge_evaluation',
+    };
+    const row = Object.fromEntries(COLUMNS.map((column) => [column, '']));
+    for (const [name, column] of Object.entries(aliases)) {
+        if (fields[name] !== undefined && column in row) row[column] = String(fields[name]);
+    }
+    for (const column of COLUMNS) {
+        if (fields[column] !== undefined) row[column] = String(fields[column]);
+    }
+    // Preserve the compact defaults used by the timeline fixtures while
+    // allowing a test to override any named score column above.
+    if (!row.sessions_passed) row.sessions_passed = '1';
+    if (!row.sessions_total) row.sessions_total = '2';
+    if (!row.screens_matched) row.screens_matched = '0';
+    if (!row.screens_total) row.screens_total = '100';
+    if (!row.rng_matched) row.rng_matched = '10';
+    if (!row.rng_total) row.rng_total = '1000';
+    return COLUMNS.map((column) => row[column]).join('\t');
 }
 
 function renderDashboard(data, queue = null) {
@@ -193,8 +217,120 @@ function sourceDashboardData(workGoals = []) {
             medianTotalMin: null, medianGoalSelectionMin: null,
         },
         goals: [], progress: [], workGoals,
+        scores: {
+            headSha: null,
+            combined: { status: 'unmeasured', sha: null, utc: null,
+                sessions: null, screens: null, rng: null, cursors: null },
+            development: { status: 'unmeasured', sha: null, utc: null,
+                sessions: null, screens: null, rng: null, cursors: null },
+            localHoldout: { status: 'unmeasured', sha: null, utc: null,
+                sessions: null, screens: null, rng: null, cursors: null },
+        },
+        challenges: {
+            status: 'unmeasured', sha: null, utc: null, manifestSha256: null,
+            totals: null, changes: null, cases: [],
+        },
     };
 }
+
+test('score cards keep exact-commit evidence separate from challenge details', () => {
+    const data = sourceDashboardData();
+    data.scores = {
+        headSha: 'a'.repeat(40),
+        combined: {
+            status: 'incomplete', sha: null, utc: null,
+            sessions: null, screens: null, rng: null, cursors: null,
+        },
+        development: {
+            status: 'measured', sha: 'b'.repeat(40), utc: '2026-01-01T00:00:00Z',
+            sessions: { matched: 3, total: 4 },
+            screens: { matched: 8, total: 10 },
+            rng: { matched: 9, total: 10 },
+            cursors: { matched: 2, total: 2 },
+        },
+        localHoldout: {
+            status: 'stale', sha: 'c'.repeat(40), utc: '2025-12-01T00:00:00Z',
+            sessions: { matched: 1, total: 2 },
+            screens: { matched: 4, total: 6 },
+            rng: { matched: 5, total: 6 },
+            cursors: { matched: 1, total: 2 },
+        },
+    };
+    data.challenges = {
+        status: 'failed', sha: 'd'.repeat(40), utc: '2026-01-02T00:00:00Z',
+        manifestSha256: 'e'.repeat(64), totals: null,
+        changes: null, error: 'runner failed: <details>',
+        cases: [{
+            id: 'nested-box', title: 'Nested <box>', outcome: 'container',
+            sourcePointers: ['invent.c:12 <tip>'],
+            first: {
+                sha: 'f'.repeat(40), utc: '2026-01-01T00:00:00Z',
+                screens: { matched: 2, total: 3 }, passed: false, error: null,
+            },
+            current: null, delta: null,
+        }],
+    };
+    const rendered = renderDashboard(data);
+    const stats = rendered.get('stats').innerHTML;
+    assert.match(stats, /Development \+ local holdout/u);
+    assert.match(stats, />Incomplete</u);
+    assert.match(stats, /Development Measured/u);
+    assert.match(stats, /local holdout Stale/u);
+    assert.match(stats, />Failed</u);
+    assert.match(rendered.get('challengeProvenance').textContent, /failed/u);
+    const table = rendered.get('challengeTable').innerHTML;
+    assert.match(table, /Nested &lt;box&gt;/u);
+    assert.match(table, /container/u);
+    assert.match(table, /title="f{40}">fffffff/u);
+    assert.match(table, /2026-01-01 00:00Z/u);
+    assert.match(table, /invent\.c:12 &lt;tip&gt;/u);
+    assert.doesNotMatch(table, /<th>Added<\/th>/u);
+    assert.doesNotMatch(table, /<box>|<tip>/u);
+});
+
+test('score rows expose named development and local holdout measures', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-scores-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    const measured = commit(fixture, 'Record development and holdout', '2026-01-01T00:10:00Z');
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01T00:10:00Z', sha: measured, event: 'holdout',
+            screens: 8, screensTotal: 10, rng: 9, rngTotal: 10,
+            cursors: 7, cursorsTotal: 8,
+            sessions: 3, sessionsTotal: 4,
+            holdoutScreens: 4, holdoutScreensTotal: 6,
+            holdoutRng: 5, holdoutRngTotal: 6,
+            holdoutCursors: 2, holdoutCursorsTotal: 3,
+            holdoutSessions: 1, holdoutSessionsTotal: 2,
+            note: 'scores',
+        }),
+        '',
+    ].join('\n'));
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture, encoding: 'utf8',
+    }));
+    assert.deepEqual(data.scores.development.screens, { matched: 8, total: 10 });
+    assert.deepEqual(data.scores.localHoldout.screens, { matched: 4, total: 6 });
+    assert.deepEqual(data.scores.combined.screens, { matched: 12, total: 16 });
+    assert.deepEqual(data.scores.development.sessions, { matched: 3, total: 4 });
+    assert.deepEqual(data.scores.localHoldout.sessions, { matched: 1, total: 2 });
+    assert.deepEqual(data.scores.combined.sessions, { matched: 4, total: 6 });
+    assert.equal(data.scores.combined.status, 'measured');
+    assert.deepEqual(data.scores.development.cursors, { matched: 7, total: 8 });
+    assert.deepEqual(data.scores.localHoldout.cursors, { matched: 2, total: 3 });
+
+    commit(fixture, 'Later implementation change', '2026-01-01T00:20:00Z');
+    const stale = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture, encoding: 'utf8',
+    }));
+    assert.equal(stale.scores.development.status, 'stale');
+    assert.equal(stale.scores.localHoldout.status, 'stale');
+    assert.equal(stale.scores.combined.status, 'stale');
+});
 
 test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
     // Synthetic remaining counts order a C blocker, Lua loader, and unknown
@@ -911,4 +1047,27 @@ test('dashboard builder injects data into a standalone HTML file', () => {
     assert.match(html, /<title>NetHack Port<\/title>/u);
     assert.doesNotMatch(html, /DATA_PLACEHOLDER/u);
     assert.match(html, /"inProgressGoals"\s*:\s*\d+/u);
+});
+
+test('dashboard JSON escapes script closing markup', () => {
+    const escaped = escapeJsonForScript('{"title":"</script><script>owned"}');
+    assert.equal(escaped, '{"title":"\\u003c/script\\u003e\\u003cscript\\u003eowned"}');
+});
+
+test('cases evaluated counts coverage of the catalog separately from passing sessions', () => {
+    const data = sourceDashboardData();
+    // Two measured cases among three admitted cases; only one passes.
+    const result = { sha: 'a'.repeat(40), utc: '2026-01-01T00:00:00Z',
+        screens: { matched: 1, total: 2 }, passed: false };
+    data.challenges = { status: 'stale', sha: result.sha, utc: result.utc,
+        manifestSha256: 'b'.repeat(64), changes: null,
+        totals: { sessions: { matched: 1, total: 2 }, screens: { matched: 3, total: 4 } },
+        cases: [
+            { id: 'one', title: 'One', first: result, current: result },
+            { id: 'two', title: 'Two', first: result, current: { ...result, passed: true } },
+            { id: 'new', title: 'New', first: null, current: null },
+        ] };
+    const stats = renderDashboard(data).get('stats').innerHTML;
+    assert.match(stats, /Cases evaluated<\/div><div class="score-breakdown-value">2\/3/u);
+    assert.match(stats, /Sessions<\/div><div class="score-breakdown-value">1\/2/u);
 });
