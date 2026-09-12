@@ -30272,7 +30272,7 @@
     {
       "id": "port-hack-domove-swap-peaceful-seed0014",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port domove_swap_with_pet() and wire ordinary peaceful-monster displacement",
       "cFile": "hack.c",
       "sessions": [
@@ -30283,8 +30283,8 @@
       "spans": [
         {
           "name": "domove_swap_with_pet",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "daf9a2bd36f7791e095f5161e41b67b3543bc2d9",
           "functions": [
             "domove_swap_with_pet"
           ]
@@ -30296,15 +30296,18 @@
         "screens": 7232,
         "rng": 530429
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "daf9a2bd36f7791e095f5161e41b67b3543bc2d9",
+      "delivered": {
+        "screens": 3,
+        "rng": 304
+      },
       "functions": [
         {
           "name": "domove_swap_with_pet",
           "line": 2098,
           "endLine": 2228,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -30332,7 +30335,62 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 157
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "domove_swap_with_pet",
+            "implementation": "js/hack.js",
+            "symbol": "domove_swap_with_pet",
+            "sourceReview": "Read nethack-c/upstream/src/hack.c domove_swap_with_pet() lines 2098-2228 completely. The translation preserves the initial boulder snapshot and hero-coordinate restore, mimic reveal, trap lookup and mtrapped clearing, silent pit-and-boulder pin, diagonal NODIAG stop, boulder fit and bad_rock opening stops, trapped peaceful-monster feeltrap/message/tip order, goodpos/source-trap/mundisplaceable refusal, successful remove/place/newsym order, peaceful versus frightened x_monnam naming, minliquid before mintrap, abuse_dog/alignment outcomes, and the Trap_Killed_Mon experience, guilt, and alignment sequence. Existing source gaps remain explicit: livelog_printf is recorded with note_unported because its file output is discarded by the game port; minliquid, mintrap, abuse_dog, experience, more_experienced, and newexplevel use their existing source-aligned implementations. The obsolete starting-pet identity and source/destination trap refusal was removed from the admission seam. uhitm.c do_attack() now leaves peaceful non-pets without the pet-only rnd(6) flee draw.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c domove_core() lines 2921-2926 calls domove_swap_with_pet() after the tentative hero move and test_move(); js/hack.js domove_core() calls the helper and restores u.ux/u.uy only when it returns false."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "executeMovement",
+                "source": "cmd.c movement dispatch reaches hack.c domove_core() after command admission; js/cmd.js executeMovement() calls preflightDomoveDestination(), whose safe peaceful-monster arm now admits ordinary peaceful monsters so do_attack() and domove_swap_with_pet() run in source order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs",
+              "scripts/force-fight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ],
+            "checkedAt": "daf9a2bd36f7791e095f5161e41b67b3543bc2d9"
+          }
+        ],
+        "entryPointReview": "The selected source unit is a helper reached by the existing movement entry point: command dispatch enters cmd.js executeMovement(), then hack.js domove_core(), uhitm.js do_attack(), and domove_swap_with_pet(). The existing dothrow.c recording exercises the successful starting-pet production route, while the development witness sessions/seed0014-dequa-fountain-explore.session.json reaches the newly admitted peaceful non-pet swap at step 558. No new recipe or recording is needed because this divergence uses that existing development witness and adds no independent command or level entry point.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 560,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a monster triggering a rolling boulder trap",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 154
+        }
+      ],
+      "closeStanding": {
+        "sha": "daf9a2bd36f7791e095f5161e41b67b3543bc2d9",
+        "screens": 7235,
+        "rng": 530733
+      }
     }
   ]
 }
