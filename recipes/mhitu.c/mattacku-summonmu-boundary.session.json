@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Just outside the selected mhitu.c range: summonmu() begins at line 955. Debug-create a hostile wererat and wait for dochug() to reach mattacku()'s summonmu() call; this recipe stays unrecorded because that later function remains blocked.",
+  "segments": [
+    {
+      "seed": 7710601,
+      "datetime": "20270318143000",
+      "nethackrc": "OPTIONS=name:SummonBoundary,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nwererat\n."
+    }
+  ]
+}
