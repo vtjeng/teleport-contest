@@ -2,6 +2,8 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dirname, join } from 'node:path';
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -95,4 +97,43 @@ test('an unknown argument fails before scoring', () => {
     assert.equal(result.status, 1); // CLI rejection, before opening a scoring workspace.
     assert.equal(result.stdout, '');
     assert.match(result.stderr, /usage: score-holdout/);
+});
+
+
+test('the CLI scores a disposable corpus without a goal or permission records', (t) => {
+    const root = mkdtempSync(join(tmpdir(), 'holdout-cli-fixture-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    for (const path of ['scripts', 'js', 'frozen', 'sessions/holdout', 'tmp'])
+        mkdirSync(join(root, path), { recursive: true });
+    for (const name of ['score-holdout.mjs', 'scoring-workspace.mjs', 'local-tmpdir.mjs'])
+        copyFileSync(join(TEST_DIR, name), join(root, 'scripts', name));
+    writeFileSync(join(root, 'package.json'), '{"type":"module"}');
+    for (const name of ['isaac64.js', 'terminal.js', 'storage.js'])
+        writeFileSync(join(root, 'frozen', name), '// Synthetic scorer overlay.\n');
+    // Eleven newly written fixtures exercise the fixed count without reading
+    // any recorded development or holdout game. Distinct screen and RNG
+    // fractions expose a swapped aggregate field.
+    const fixture = { passed: false, error: null, metrics: {
+        screens: { matched: 1, total: 2 },
+        rngCalls: { matched: 3, total: 4 },
+        cursors: { matched: 1, total: 2 },
+    } };
+    for (let index = 0; index < 11; index++)
+        writeFileSync(join(root, 'sessions', 'holdout', index + '.session.json'), JSON.stringify(fixture));
+    writeFileSync(join(root, 'frozen', 'ps_test_runner.mjs'), [
+        "import { readdirSync, readFileSync } from 'node:fs';",
+        "import { join } from 'node:path';",
+        'const directory = process.argv[2];',
+        'const results = readdirSync(directory).map(file => JSON.parse(readFileSync(join(directory, file), "utf8")));',
+        'console.log("__RESULTS_JSON__" + JSON.stringify({ results }));',
+    ].join('\n'));
+    const result = spawnSync(process.execPath, [join(root, 'scripts', 'score-holdout.mjs')], {
+        cwd: root, encoding: 'utf8', env: { ...process.env, TMPDIR: join(root, 'tmp') },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Sessions: 0\/11 passing; 0 replay errors/);
+    assert.match(result.stdout, /Screens: 11\/22 \(50\.0%\)/);
+    assert.match(result.stdout, /PRNG: 33\/44 \(75\.0%\)/);
+    assert.match(result.stdout, /Cursors: 11\/22 \(50\.0%\)/);
+    assert.deepEqual(readdirSync(join(root, 'tmp')), []); // Scoring workspace was removed.
 });

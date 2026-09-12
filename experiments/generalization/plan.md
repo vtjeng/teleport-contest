@@ -253,6 +253,13 @@ The first evaluation of this five-case set is saved as
 all earlier measurements; the two new cases add 137 screens. Use that artifact's
 separate additions and unchanged-case deltas when assessing progress.
 
+At `de406486`, the existing three cases remained at 220/248 screens. The
+new Knight case matched 7/87 before the unported dojump dispatch; the food case
+matched 25/50 before outrumor. Both reproduce source blockers with independently
+chosen C play. The five-case total is 252/385 screens and 1/5 complete sessions.
+The added cases contribute 32/137 screens; the lower aggregate percentage is
+corpus growth, not a regression.
+
 The next mission batches should vary actual behavior and history: conversation
 with pets and other monsters, terrain transitions in both directions, ordinary
 versus equipped monster transformations, verbose versus quiet prompts, and
@@ -288,3 +295,11 @@ were recovered with matching hashes. The replacement experiment worktree is
 `.cache/generalization-worktree` in the main checkout. Its repeated checkpoint
 passed at `64224b4b`: 7,175/7,765 development screens and 106/106 regression
 recordings. Original action histories remain in the published Sites snapshot.
+
+The baseline was measured with the approved official local runner before the
+opening-tool commit. Automatic approval review later rejected an optional
+repeat using the new no-argument `score-holdout.mjs` CLI, citing the previous
+sealed-corpus rule. Its argument handling, aggregation and cleanup were instead
+exercised with eleven synthetic fixtures in a disposable repository. The main
+loop can retain its goal-scoped scoring command at closure; the saved baseline
+and challenge artifacts are sufficient for this handoff.
