@@ -1,7 +1,7 @@
 // wizcmds.js -- the wizard-mode extended commands.
-// C refs: src/wizcmds.c wiz_genesis(), wiz_level_change(), wiz_level_tele(),
-// wiz_wish() and wiz_polyself(), so far the five rows of that file cmd.c
-// dispatches here.
+// C refs: src/wizcmds.c wiz_map(), wiz_genesis(), wiz_level_change(),
+// wiz_level_tele(), wiz_wish() and wiz_polyself(), so far the six rows of
+// that file cmd.c dispatches here.
 
 import {
     ACID_RES,
@@ -83,13 +83,49 @@ import { polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
+import { notice_mon_off, notice_mon_on } from './hack.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
-import { docrt } from './display.js';
+import { docrt, map_engraving, map_trap } from './display.js';
+import { do_mapping } from './detect.js';
 import { incr_itimeout, make_glib, make_hallucinated } from './potion.js';
+
+// C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
+// binding. The temporary clearing of HConfusion and HHallucination keeps
+// detect.c do_mapping() in its ordinary, unconfused branch. The source walks
+// traps before engravings, then maps the level, and restores both properties
+// after notice_mon_on().
+export async function wiz_map(state = game) {
+    if (state.wizard) {
+        const confusion = state.u.uprops[CONFUSION];
+        const hallucination = state.u.uprops[HALLUC];
+        const save_Hconf = confusion.intrinsic;
+        const save_Hhallu = hallucination.intrinsic;
+
+        notice_mon_off(state);
+        confusion.intrinsic = 0;
+        hallucination.intrinsic = 0;
+        for (const trap of state.level.traps) {
+            trap.tseen = 1;
+            map_trap(trap, true, state);
+        }
+        for (let engraving = state.head_engr;
+            engraving;
+            engraving = engraving.nxt_engr) {
+            map_engraving(engraving, true, state);
+        }
+        await do_mapping(state);
+        notice_mon_on(state);
+        confusion.intrinsic = save_Hconf;
+        hallucination.intrinsic = save_Hhallu;
+    } else {
+        await ttyPline("Unavailable command 'wizmap'.", state);
+    }
+    return ECMD_OK;
+}
 
 // C ref: wizcmds.c wiz_wish() (31-44), the #wizwish command.
 //

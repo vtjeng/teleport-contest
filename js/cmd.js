@@ -352,7 +352,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_genesis, wiz_intrinsic, wiz_level_change, wiz_level_tele,
+    wiz_genesis, wiz_intrinsic, wiz_level_change, wiz_level_tele, wiz_map,
     wiz_polyself, wiz_wish,
 } from './wizcmds.js';
 import {
@@ -1796,7 +1796,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
-    'wizwish', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'fire', 'throw',
+    'wizwish', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'fire', 'throw',
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
@@ -3436,6 +3436,12 @@ async function runLevelTeleCommand(key, state) {
 // both arms, so creating a monster spends no turn however many arrive.
 async function runGenesisCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_genesis(state));
+}
+
+// C ref: wizcmds.c wiz_map(). Both the direct C('f') binding and #wizmap end
+// with ECMD_OK, so rhack() only clears command state after mapping completes.
+async function runMapCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_map(state));
 }
 
 // C ref: wizcmds.c wiz_intrinsic(). Its menu and all selected property
@@ -5087,6 +5093,8 @@ async function doextcmd(key, state) {
         return await runWishCommand(key, state);
     case 'wiz_genesis':
         return await runGenesisCommand(key, state);
+    case 'wiz_map':
+        return await runMapCommand(key, state);
     case 'wiz_intrinsic':
         return await runIntrinsicCommand(key, state);
     case 'wiz_polyself':
@@ -5893,6 +5901,14 @@ export async function rhack(key, state = game) {
             // 3774-3802 cannot divert it; it carries no CMD_M_PREFIX either,
             // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
             await runGenesisCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'wizmap') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818.
+            // wiz_map() ends with ECMD_OK after mapping, so no turn is spent
+            // and reset_cmd_vars() is the whole of this arm.
+            await runMapCommand(key, state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

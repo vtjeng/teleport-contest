@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9061202,
+      "datetime": "20310912091500",
+      "nethackrc": "OPTIONS=name:Mapx,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizmap\n"
+    }
+  ]
+}
