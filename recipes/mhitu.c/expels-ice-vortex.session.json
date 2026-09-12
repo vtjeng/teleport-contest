@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises mhitu.c expels() through the admitted ordinary ice-vortex path. Debug-create one ice vortex beside a Wizard, use source m-prefix no-op waits, and dismiss the engulfing damage prompt so gulpmu() reaches expiry and calls expels().",
+  "segments": [
+    {
+      "seed": 7710613,
+      "datetime": "20270402143000",
+      "nethackrc": "OPTIONS=name:ExpelProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nice vortex\nm.m. "
+    }
+  ]
+}

@@ -58,7 +58,7 @@ import { In_hell, on_level } from './dungeon.js';
 import { done_in_by } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage, spoteffects } from './hack.js';
-import { dist2 } from './hacklib.js';
+import { dist2, distmin } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import { engulf_target, failed_grab } from './mhitm.js';
 import { set_ustuck, unstuck } from './mon.js';
@@ -1094,6 +1094,15 @@ export async function expels(mtmp, rawEnv = {}) {
         newsym(mtmp.mx, mtmp.my);
         newsym(state.u.ux, state.u.uy);
     }
+    // mhitu.c:302-304. um_dist() is Chebyshev distance, and the message is
+    // emitted only when mnexto() had to leave the monster beyond a neighboring
+    // square (for example through a controlled relocation seam).
+    if (!rawEnv.planning
+        && distmin(mtmp.mx, mtmp.my, state.u.ux, state.u.uy) > 1) {
+        await (rawEnv.message ?? ttyPline)(
+            'Brrooaa...  You land hard at some distance.', state,
+        );
+    }
     await spoteffects(true, state);
 }
 
@@ -1136,6 +1145,17 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (u.usteed || u.utrap)
             unsupported('engulfing a steed or trapped hero');
 
+        // C evaluates Monnam() for the urgent engulfing line before it shuts
+        // down vision.  A monster which moved onto the hero's square is
+        // visible to C at this point, while the JS sight grid deliberately
+        // omits that occupied square.  Supply the source's visibility fact
+        // for this pre-swallow name lookup; retaining it before placement
+        // also preserves C's display-RNG evaluation point.
+        const engulferName = rawEnv.planning
+            ? null : capitalizedMonsterName(mtmp, state, {
+                ...rawEnv,
+                canSpotMonster: () => !mtmp.minvis && !mtmp.mundetected,
+            });
         remove_monster(omx, omy, state);
         mtmp.mtrapped = false;
         place_monster(mtmp, u.ux, u.uy, state);
@@ -1150,7 +1170,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
             // do_name.c's hallucinated rndmonnam() is a display-stream draw.
         } else {
             await (rawEnv.urgentMessage ?? ttyUrgentPline)(
-                `${capitalizedMonsterName(mtmp, state)} engulfs you!`, state,
+                `${engulferName} engulfs you!`, state,
             );
         }
         await mattackuStopOccupation(rawEnv);
