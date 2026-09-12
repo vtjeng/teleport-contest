@@ -28547,7 +28547,7 @@
     {
       "id": "port-pickup-autopickup-lost-override",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pickup.c pickup() and its autopickup selection family so LOST_STOLEN overrides pickup types and exceptions as in C",
       "cFile": "pickup.c",
       "sessions": [
@@ -28558,8 +28558,8 @@
       "spans": [
         {
           "name": "pickup..autopick",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f",
           "functions": [
             "pickup",
             "check_autopickup_exceptions",
@@ -28574,36 +28574,39 @@
         "screens": 6988,
         "rng": 509615
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f",
+      "delivered": {
+        "screens": 8,
+        "rng": 94
+      },
       "functions": [
         {
           "name": "pickup",
           "line": 672,
           "endLine": 912,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "check_autopickup_exceptions",
           "line": 913,
           "endLine": 929,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "autopick_testobj",
           "line": 930,
           "endLine": 974,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "autopick",
           "line": 975,
           "endLine": 1024,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -28631,7 +28634,138 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 252
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pickup",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c pickup() lines 672-910 in full, including the unconscious guard, floor and swallowed inventory selection, autopickup versus menu pickup, pickup_object() loop, floor-chain removal, display refresh, and check_here() ordering. The automatic floor path now calls the source-shaped autopick() helper and retains the existing transaction preflight for the supported pickup_object() branches; the selected lost-object and exception behavior no longer stops at an obsolete UnsupportedPickupError guard.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c spoteffects() calls pickup(1) after movement at lines 3379-3400; JavaScript spoteffects() awaits pickup(1, state) at js/hack.js:4775-4778."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "goto_level",
+                "source": "do.c goto_level() calls pickup(1) after placing the hero at the destination at line 1996; JavaScript goto_level() awaits pickup(1, state) at js/do.js:1748-1752."
+              },
+              {
+                "path": "js/moveloop_preamble.js",
+                "symbol": "moveloop_preamble",
+                "source": "allmain.c moveloop_preamble() calls pickup(1) during startup at lines 70-75; JavaScript moveloopPreamble() awaits pickup(1, state) at js/moveloop_preamble.js:70-75."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/autopickup-floor-object.session.json",
+              "recordings/pickup.c/autopickup-exception-floor-object.session.json"
+            ],
+            "checkedAt": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f"
+          },
+          {
+            "name": "check_autopickup_exceptions",
+            "implementation": "js/pickup.js",
+            "symbol": "check_autopickup_exceptions",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c check_autopickup_exceptions() lines 913-927. The JavaScript port obtains ga.apelist, produces a singular doname() description, scans the linked exception list with regex_match(), and returns the first matching exception with its grab decision. The source's object naming and discovery side effect are preserved; no refusal substitute remains.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "autopick_testobj",
+                "source": "pickup.c autopick_testobj() calls check_autopickup_exceptions() after lost-object and pickup_types decisions at lines 960-963; JavaScript autopick_testobj() does the same at js/pickup.js:902-905."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/autopickup-exception-floor-object.session.json"
+            ],
+            "checkedAt": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f"
+          },
+          {
+            "name": "autopick_testobj",
+            "implementation": "js/pickup.js",
+            "symbol": "autopick_testobj",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c autopick_testobj() lines 930-965. Evaluation order is preserved: recalculate the static costly value only when requested, reject unpaid costly-square objects, apply pickup_thrown and pickup_stolen overrides, then nopick_dropped and LOST_EXPLODING exclusions, apply pickup_types, and finally let a matching exception set grab. The prior lost-object refusal was removed. The JavaScript static costly value is shared by the two autopick passes as in C; projected arrival matching uses a shallow object copy only to isolate doname() discovery writes.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "autopick",
+                "source": "pickup.c autopick() calls autopick_testobj() during its count and list passes at lines 980-997; JavaScript autopick() calls the same exported implementation through autopickTestObject() at js/pickup.js:927-937."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/autopickup-floor-object.session.json",
+              "recordings/pickup.c/autopickup-exception-floor-object.session.json"
+            ],
+            "checkedAt": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f"
+          },
+          {
+            "name": "autopick",
+            "implementation": "js/pickup.js",
+            "symbol": "autopick",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c autopick() lines 975-1003. The JavaScript port preserves the first pass that counts eligible objects, resets the costly check only on the first item, and the second pass that appends each eligible object with its full quantity. It returns the count and list together for the existing JavaScript pickup preflight, and the former reduced pickup_types-only planner is gone.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "planAutomaticFloorPickupAndRefreshCapacityCache",
+                "source": "pickup.c pickup() calls autopick() for an automatic floor pickup at lines 754-756; JavaScript pickup() reaches autopick() through planAutomaticFloorPickupAndRefreshCapacityCache() at js/pickup.js:946-957 and js/pickup.js:1199-1202."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/autopickup-floor-object.session.json",
+              "recordings/pickup.c/autopickup-exception-floor-object.session.json"
+            ],
+            "checkedAt": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f"
+          }
+        ],
+        "entryPointReview": "The selected range exposes automatic floor pickup through pickup(), reached after ordinary movement (hack.c spoteffects()), random level arrival (do.c goto_level()), and startup (allmain.c moveloop_preamble()). Both committed recipes use ordinary movement to reach pickup(): one exercises normal automatic selection and the other configures an autopickup exception that rejects the ordinary object while exercising the exception scan. The source-pinned pickup test directly covers all lost-object precedence arms and the projected random-arrival naming isolation; the movement recordings cover the production caller path.",
+        "entryPoints": [
+          {
+            "name": "automatic floor pickup",
+            "functions": [
+              "pickup",
+              "check_autopickup_exceptions",
+              "autopick_testobj",
+              "autopick"
+            ],
+            "recordings": [
+              "recordings/pickup.c/autopickup-floor-object.session.json",
+              "recordings/pickup.c/autopickup-exception-floor-object.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 470,
+          "kind": "stop",
+          "function": "Boots_on",
+          "functionDeclared": true,
+          "sourceFile": "do_wear.c",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Boots_on() for otyp 171",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 244
+        }
+      ],
+      "closeStanding": {
+        "sha": "0ab2ca47c98b829c16536ab2f0c4d303657c2f4f",
+        "screens": 6996,
+        "rng": 509709
+      }
     }
   ]
 }
