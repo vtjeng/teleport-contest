@@ -99,9 +99,11 @@ import {
     monstunseesu,
     nohands,
     noncorporeal,
+    nonliving,
     passes_rocks,
     throws_rocks,
     touch_petrifies,
+    is_vampshifter,
     is_gnome,
     is_lord,
     is_mplayer,
@@ -207,7 +209,12 @@ import { dropy, flooreffects } from './do.js';
 import { shade_miss } from './uhitm.js';
 import { is_lava, is_pool } from './trap.js';
 import { obj_sheds_light } from './light.js';
-import { monsterCommonName, some_mon_nam } from './do_name.js';
+import {
+    capitalizedMonsterName,
+    monsterCommonName,
+    some_mon_nam,
+} from './do_name.js';
+import { canSpotMonster } from './startup_a11y.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
@@ -639,7 +646,13 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
                     how = exclam(damage); /* "!" or "." */
                 else
                     how = ` but passes harmlessly through ${mhim(mtmp)}.`;
-                await hit(distant_name(otmp, mshot_xname, state), mtmp, how, state);
+                await hit(
+                    distant_name(otmp, mshot_xname, state),
+                    mtmp,
+                    how,
+                    state,
+                    env,
+                );
             }
         } else if (verbose && !state.gm?.mtarget)
             note_unported('pline.c pline'); /* "%s%s is hit%s" */
@@ -695,8 +708,18 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         if (!harmless && mtmp.mhp > 0 /* !DEADMONSTER */) {
             mtmp.mhp -= damage;
             if (mtmp.mhp <= 0 /* DEADMONSTER */) {
-                if (vis || (verbose && !state.gm?.mtarget))
-                    note_unported('pline.c pline'); /* "%s is %s!" destroyed/killed */
+                if (vis || (verbose && !state.gm?.mtarget)) {
+                    const fate = nonliving(mtmp.data)
+                        || is_vampshifter(mtmp)
+                        || !canSpotMonster(mtmp, state)
+                        ? 'destroyed' : 'killed';
+                    const killMessage = `${capitalizedMonsterName(mtmp, state)}`
+                        + ` is ${fate}!`;
+                    if (typeof env.message === 'function')
+                        await env.message(killMessage, state, env);
+                    else
+                        await ttyPline(killMessage, state);
+                }
                 /* don't blame hero for unknown rolling boulder trap */
                 if (!state.context?.mon_moving
                     && (otmp.otyp !== BOULDER || range >= 0
@@ -729,7 +752,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         const objgone = await drop_throw(otmp, 1,
             state.gb.bhitpos.x, state.gb.bhitpos.y, env);
         if (!objgone && range === -1) { /* special case */
-            obj_extract_self(otmp, { state }); /* free it for motion again */
+            obj_extract_self(otmp, env); /* free it for motion again */
             return false;
         }
         return true;

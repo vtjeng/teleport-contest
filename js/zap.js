@@ -786,16 +786,18 @@ export function exclam(force) {
 
 // C ref: zap.c hit() (3555-3568). Message when a zap or missile hits a monster.
 // `str` is the zap text or missile name, `force` is the exclam() punctuation.
-export async function hit(str, mtmp, force, state = game) {
+export async function hit(str, mtmp, force, state = game, rawEnv = {}) {
     const verbosely = (mtmp === state.youmonst
         || (state.flags?.verbose
             && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
                 || canSpotMonster(mtmp, state)
                 || (state.u.uswallow && state.u.ustuck === mtmp))));
-    await ttyPline(
+    const message = rawEnv.message ?? ttyPline;
+    await message(
         `${The(str, state)} ${vtense(str, 'hit')} `
         + `${verbosely ? monsterCommonName(mtmp, state) : 'it'}${force}`,
         state,
+        rawEnv,
     );
 }
 

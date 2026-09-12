@@ -94,7 +94,7 @@ import {
 import { stop_occupation } from './allmain.js';
 import { exercise, poisoned } from './attrib.js';
 import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
-import { set_wounded_legs } from './do.js';
+import { flooreffects, set_wounded_legs } from './do.js';
 import {
     at_dgn_entrance,
     Can_fall_thru,
@@ -152,6 +152,7 @@ import {
     passes_rocks,
     passes_walls,
     resists_magm,
+    throws_rocks,
     touch_petrifies,
     unsolid,
 } from './mondata.js';
@@ -176,7 +177,8 @@ import {
 } from './monsters.js';
 import { finish_meating } from './dogmove.js';
 import { m_at } from './monst.js';
-import { thitu } from './mthrowu.js';
+import { mpickobj } from './steal.js';
+import { ohitmon, thitu } from './mthrowu.js';
 import {
     dealloc_obj,
     mksobj,
@@ -191,11 +193,16 @@ import {
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
 import { BOULDER, CORPSE, DART, IRON, ROCK } from './objects.js';
-import { donameFresh, just_an } from './objnam.js';
+import { an, donameFresh, just_an, xnameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne } from './rng.js';
-import { canSeeMonster, heroIsBlind, messageAt } from './startup_a11y.js';
+import {
+    canSeeMonster,
+    canSpotMonster,
+    heroIsBlind,
+    messageAt,
+} from './startup_a11y.js';
 import {
     Flying,
     Levitation,
@@ -1687,13 +1694,31 @@ export function force_launch_placement(state = game) {
 // (x1,y1) toward (x2,y2). Returns 0 if no object was launched, 1 if launched
 // and placed, 2 if launched and used up.
 //
-// This port covers the hero arm of the main loop: the ROLL|LAUNCH_KNOWN style,
-// hero collision via thitu (miss or hit), and boulder stopping at a wall or at
-// the destination. Unreached branches (monster collision via ohitmon,
-// throws_rocks snatch, ship_object/down_gate, boulder-on-trap interactions,
-// boulder-chain collisions, door crashes, iron bars hits_bars) throw.
-async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
-    const message = (line) => ttyPline(line, state);
+// This port covers the rolling path shared by the hero and monster arms. The
+// display and message operations are injected so mintrap() can first replay
+// the same motion against its planning clone without painting or printing.
+async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
+    const env = {
+        ...rawEnv,
+        state,
+        random: rawEnv.random ?? { rn2, rnd },
+    };
+    const planning = Boolean(env.planning);
+    const message = env.message ?? ((line, target) =>
+        ttyPline(line, target ?? state));
+    const redraw = env.redraw ?? ((x, y) => newsym(x, y, state));
+    const delayOutput = env.delayOutput
+        ?? (planning ? async () => {} : nh_delay_output);
+    const temporaryDisplay = env.temporaryDisplay
+        ?? (planning ? async () => {} : tmp_at);
+    const cursorOnHero = env.cursorOnHero
+        ?? (planning ? async () => {} : curs_on_u);
+    const youSee = env.youSee ?? ((line, target) => {
+        if (heroUnaware(target)) return `You dream that you see ${line}`;
+        if (heroIsBlind(target)) return `You sense ${line}`;
+        return `You see ${line}`;
+    });
+    const youHear = env.youHear ?? magicTrapHear;
 
     let otmp = sobj_at(otyp, x1, y1, state);
     // Try the other side too, for rolling boulder traps
@@ -1730,7 +1755,7 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
         singleobj = splitobj(otmp, 1, objectEnv);
         obj_extract_self(singleobj, objectEnv);
     }
-    newsym(x1, y1);
+    redraw(x1, y1);
     // C: if the boulder is being dug out, clear the dig context. The port does
     // not yet track context.digging, so this is a no-op.
 
@@ -1746,8 +1771,29 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
 
     switch (style) {
     case ROLL | LAUNCH_UNSEEN:
-        // Monster arm: the hero hears but doesn't see the boulder start.
-        throw new Error('launch_obj ROLL|LAUNCH_UNSEEN not yet ported');
+        if (otyp === BOULDER) {
+            let announcement;
+            if (cansee(x1, y1, state)) {
+                announcement = youSee(
+                    `${an(xnameFresh(singleobj, state))} start to roll.`,
+                    state,
+                );
+            } else if (Hallucination(state)) {
+                note_unported('sounds.c Soundeffect');
+                announcement = youHear('someone bowling.', state);
+            } else {
+                note_unported('sounds.c Soundeffect');
+                const nearby = dist2(x1, y1, state.u?.ux, state.u?.uy) <= 16;
+                announcement = youHear(
+                    `rumbling ${nearby ? 'nearby' : 'in the distance'}.`,
+                    state,
+                );
+            }
+            if (announcement)
+                await message(announcement, state, env);
+        }
+        style &= ~LAUNCH_UNSEEN;
+        // FALLTHROUGH
     case ROLL | LAUNCH_KNOWN:
         // use otrapped as a flag to ohitmon
         singleobj.otrapped = 1;
@@ -1762,23 +1808,25 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
         if (!delaycnt)
             delaycnt = 1;
         if (!cansee(x, y, state))
-            await curs_on_u(state);
-        await tmp_at(DISP_FLASH, obj_to_glyph(singleobj, state,
-            rn2_on_display_rng), state);
-        await tmp_at(x, y, state);
+            await cursorOnHero(state);
+        if (!planning) {
+            await temporaryDisplay(DISP_FLASH, obj_to_glyph(singleobj, state,
+                rn2_on_display_rng), state);
+            await temporaryDisplay(x, y, state);
+        }
     }
     // Mark a spot for bones files to prevent loss of object mid-flight.
     launch_drop_spot(singleobj, x, y, state);
 
     // Set the object in motion
     while (dist-- > 0 && !used_up) {
-        await tmp_at(x, y, state);
+        if (!planning) await temporaryDisplay(x, y, state);
         let tmp = delaycnt;
 
         // Delay only if hero sees it
         if (cansee(x, y, state))
             while (tmp-- > 0)
-                await nh_delay_output(state);
+                await delayOutput(state);
 
         // Bounds check (github issue #1490 fix)
         if (!isok(state.bhitpos.x + dx, state.bhitpos.y + dy)) {
@@ -1792,14 +1840,87 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
         const mtmp = m_at(x, y, state);
         if (mtmp) {
             if (otyp === BOULDER) {
-                // throws_rocks snatch: not yet ported
-                // ohitmon: not yet ported
+                if (throws_rocks(mtmp.data) && env.random.rn2(3)) {
+                    if (cansee(x, y, state))
+                        await message(
+                            messageAt(
+                                `${capitalizedMonsterName(mtmp, state)}`
+                                    + ' snatches the boulder.',
+                                x,
+                                y,
+                                state,
+                            ),
+                            state,
+                            env,
+                        );
+                    singleobj.otrapped = 0;
+                    const pickupEnv = {
+                        ...env,
+                        state,
+                        canSeeMonster: env.canSeeMonster
+                            ?? ((subject) => canSeeMonster(subject, state)),
+                        hooks: {
+                            ...(env.hooks ?? {}),
+                            blockPoint: block_point,
+                            extractExternalObject: remove_object,
+                            recalcBlockPoint: recalc_block_point,
+                        },
+                    };
+                    if (typeof env.mpickobj === 'function')
+                        env.mpickobj(mtmp, singleobj, pickupEnv);
+                    else
+                        mpickobj(mtmp, singleobj, pickupEnv);
+                    used_up = true;
+                    launch_drop_spot(null, 0, 0, state);
+                    break;
+                }
             }
-            // C: ohitmon() handles monster collision. Not reached in the
-            // session's path (no monster in the boulder's trajectory).
-            throw new Error('launch_obj monster collision not yet ported');
+            const hitEnv = {
+                ...env,
+                state,
+                random: env.random,
+                monsterAt: env.monsterAt
+                    ?? ((mx, my, target) => m_at(mx, my, target)),
+                floorEffects: env.floorEffects
+                    ?? ((obj, ox, oy, verb, actionEnv) =>
+                        obj.otyp === BOULDER ? false
+                            : flooreffects(obj, ox, oy, verb, actionEnv)),
+                placeObject: env.placeObject
+                    ?? ((obj, ox, oy, actionEnv) =>
+                        place_object(obj, ox, oy, actionEnv)),
+                passiveObject: env.passiveObject ?? (async () => {}),
+                shipsAway: env.shipsAway ?? (() => false),
+                shouldMulch: env.shouldMulch ?? (() => false),
+                stackObject: env.stackObject
+                    ?? ((obj, actionEnv) => stackobj(obj, {
+                        ...actionEnv,
+                        hooks: {
+                            ...(actionEnv.hooks ?? {}),
+                            blockPoint: block_point,
+                            extractExternalObject: remove_object,
+                            recalcBlockPoint: recalc_block_point,
+                        },
+                    })),
+                hooks: {
+                    ...(env.hooks ?? {}),
+                    blockPoint: block_point,
+                    extractExternalObject: remove_object,
+                    recalcBlockPoint: recalc_block_point,
+                },
+            };
+            if (await ohitmon(
+                mtmp,
+                singleobj,
+                style === ROLL ? -1 : dist,
+                false,
+                hitEnv,
+            )) {
+                used_up = true;
+                launch_drop_spot(null, 0, 0, state);
+                break;
+            }
         } else if (u_at(x, y, state)) {
-            const dam = dmgval(singleobj, state.youmonst, state);
+            const dam = dmgval(singleobj, state.youmonst, state, env);
 
             if (state.multi)
                 nomul(0, state);
@@ -1812,7 +1933,7 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
                         random: { rnd },
                     }))
                 await stop_occupation(state, {
-                    message: (line, s) => ttyPline(line, s),
+                    message,
                 });
         }
         if (style === ROLL) {
@@ -1888,23 +2009,24 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state) {
             }
         }
     } // while dist > 0
-    await tmp_at(DISP_END, 0, state);
+    if (!planning) await temporaryDisplay(DISP_END, 0, state);
     launch_drop_spot(null, 0, 0, state);
     if (!used_up) {
         singleobj.otrapped = 0;
         place_object(singleobj, x2, y2, objectEnv);
-        newsym(x2, y2);
+        redraw(x2, y2);
         return 1;
     }
     return 2;
 }
 
-// C ref: trap.c trapeffect_rolling_boulder_trap() (2661-2707). Hero arm only;
-// the monster arm is not reached by any development session and throws.
+// C ref: trap.c trapeffect_rolling_boulder_trap() (2661-2707). Both arms call
+// launch_obj(); the monster arm keeps the result code so mintrap() can tell
+// postmov() that a boulder killed or moved its triggerer.
 async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
     const { state } = env;
     const message = requireTrapOperation(env, 'message');
-    const unsupported = requireTrapOperation(env, 'unsupported');
+    const redraw = requireTrapOperation(env, 'redraw');
 
     if (monster === state.youmonst) {
         let style = ROLL | (trap.tseen ? LAUNCH_KNOWN : 0);
@@ -1913,7 +2035,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
         await message(`${!heroIsDeaf(state) ? 'Click!  ' : ''
             }You trigger a rolling boulder trap!`, state);
         if (!await launch_obj(BOULDER, trap.launch.x, trap.launch.y,
-                trap.launch2.x, trap.launch2.y, style, state)) {
+                trap.launch2.x, trap.launch2.y, style, state, env)) {
             // If this is a known trap, use a shorter message.
             if (style & LAUNCH_KNOWN)
                 await message('No boulder was released.', state);
@@ -1922,8 +2044,47 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
                     'Fortunately for you, no boulder was released.', state);
         }
     } else {
-        // Monster arm: not reached in any development session.
-        unsupported('a monster triggering a rolling boulder trap');
+        const mInAir = requireTrapOperation(env, 'mInAir');
+        if (!mInAir(monster, state)) {
+            const inSight = monster === state.u?.usteed
+                || (cansee(monster.mx, monster.my, state)
+                    && canSpotMonster(monster, state));
+            const style = ROLL | (inSight ? 0 : LAUNCH_UNSEEN);
+            let trapkilled = false;
+
+            redraw(monster.mx, monster.my);
+            if (inSight) {
+                await message(
+                    messageAt(
+                        `${!heroIsDeaf(state) ? 'Click!  ' : ''}`
+                            + `${capitalizedMonsterName(monster, state)}`
+                            + ` triggers ${trap.tseen
+                                ? 'a rolling boulder trap' : 'something'}.`,
+                        monster.mx,
+                        monster.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+            }
+            if (await launch_obj(
+                BOULDER,
+                trap.launch.x,
+                trap.launch.y,
+                trap.launch2.x,
+                trap.launch2.y,
+                style,
+                state,
+                env,
+            )) {
+                if (inSight) trap.tseen = true;
+                trapkilled = monster.mhp < 1;
+            }
+            return trapkilled ? Trap_Killed_Mon
+                : monster.mtrapped ? Trap_Caught_Mon
+                    : Trap_Effect_Finished;
+        }
     }
     return Trap_Effect_Finished;
 }
