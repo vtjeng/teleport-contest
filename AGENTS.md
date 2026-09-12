@@ -28,6 +28,14 @@ Agents may inspect and replay them to find mismatches and detect regressions.
 When a session reveals a mismatch, determine the correct behavior from the C
 source and patches before changing the JavaScript port.
 
+Use an explicit development-session path when it is known. When discovery is
+necessary, restrict it to regular files directly under `sessions/`, for example
+with `find sessions -maxdepth 1 -type f`. Never run recursive discovery rooted
+at `sessions/`, including `rg --files sessions`, an unrestricted `find
+sessions`, or a recursive `sessions/**` glob, and then filter its output. A
+downstream filter does not prevent the discovery command from traversing
+`sessions/holdout/`.
+
 `sessions/holdout/` contains holdout evaluation sessions whose contents remain
 hidden during development. At approved evaluation points, their combined results
 show whether development-session progress generalizes to unseen sessions.
