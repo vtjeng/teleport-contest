@@ -30592,6 +30592,50 @@
         "screens": 7348,
         "rng": 535971
       }
+    },
+    {
+      "id": "div-do-goto-level-new-dungeon-seed0030",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix goto_level() ordinary downward arrival into a new dungeon.",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "The refreshed queue ranks the seed0030 do.c mismatch first. The existing whole-function goto_level evidence covers earlier branches; source tracing isolates the missing new-dungeon arrival arm as a separate divergence.",
+      "detail": "Development session seed0030-ten-diverse-deaths, segment 9, local input step 335/global step 1820, key > from Dlvl:4. C cmd.c:1703-1707 binds > to dodown; do.c:1288-1291 calls next_level(TRUE); dungeon.c:1495-1514 follows the stairway tolev and calls goto_level(&newlevel, TRUE, FALSE, FALSE). The exact missing C arm is do.c:1746-1773: at_stairs, down, not falling, not portal, newdungeon, not endgame, and no stairway from u.uz0; it calls u_on_sstairs(0), then continues through the common arrival tail and emits You descend the stairs. JS cmd.js:5599-5616 -> do.js:1188-1194 -> dungeon.js:759-779 -> do.js:1280-1778 reaches the same arm, but js/do.js:1560-1565 throws UnsupportedLevelChangeError(goto_level() arriving in a new dungeon). Smallest fix is source-aligned new-dungeon arrival wiring plus u_on_sstairs dependency as needed; do.c goto_level() remains the named owner. No holdout data inspected.",
+      "spans": [],
+      "openedAt": "5a0dd1fc40dc987634e79bf22fe859ff1969eac0",
+      "openStanding": {
+        "sha": "5a0dd1fc40dc987634e79bf22fe859ff1969eac0",
+        "screens": 7348,
+        "rng": 535971
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "goto_level",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 1820,
+      "activeStanding": {
+        "sha": "5a0dd1fc40dc987634e79bf22fe859ff1969eac0",
+        "screens": 7348,
+        "rng": 535971
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1820,
+          "kind": "stop",
+          "function": "goto_level",
+          "functionDeclared": true,
+          "sourceFile": "do.c",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: goto_level() arriving in a new dungeon",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 133
+        }
+      ]
     }
   ]
 }
