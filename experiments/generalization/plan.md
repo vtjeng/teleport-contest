@@ -143,9 +143,11 @@ All three complete parsed recordings matched independent C replays.
 The preserved first evaluation at `f47b1c25` measured journey at 57/57 screens
 and containers at 152/173. Reassessment at `50047e4e` gave the same results.
 Those two evaluations are imported with their original timestamps and SHAs.
-Scout was not in those evaluations and remains unmeasured until the first
-assessment of the complete three-case set. This admission does not reclassify
-previously inspected failures as fresh results.
+Scout was not in those evaluations. The first assessment of all three cases
+at `64224b4b` matched 220/248 screens and 1/3 complete sessions. Scout added
+11/18 screens; journey and containers were unchanged. The artifact is
+`challenges/evaluations/pilot-complete-64224b4b.json`. This admission does not
+reclassify previously inspected failures as fresh results.
 
 Journey consumed all input with no recorded unported boundary. Containers
 stopped before boundary 153 at inventory `#tip`: the JavaScript inventory path
@@ -153,20 +155,25 @@ in `pickup.js` refused the command before `getobj`/`tip_ok`. The C selection
 branch is `pickup.c:3624`; its subsequent container-to-container transfer loop
 is at C lines 3688–3841, another unported branch in `tipcontainer`. These are
 source pointers for the main agent, not completion evidence. No game fix was
-made here. The pilot is too small to establish workload representativeness.
+made here. Scout first stops before boundary 12 on `<`. C `do.c doup`,
+lines 1330–1335, asks for confirmation before leaving ledger 1; the matching
+JavaScript branch refuses this path. Its random-number log still matches
+2,502/2,502 calls. Later escape/end-game behavior remains unevaluated behind
+that first stop. The pilot is too small to establish workload representativeness.
 
 ## Monitoring and validation
 
-`scripts/monitor-c-explorers.mjs --runs /tmp/teleport-c-pilot` serves original
-C screens and action histories on loopback port 8766. `--snapshot <html>` makes
+`scripts/monitor-c-explorers.mjs --runs <run-directory>` serves original
+C screens and action histories on loopback port 8766. Use a run directory
+under the repository’s `.cache/` for future pilots. `--snapshot <html>` makes
 a standalone page that checks for updated hosted snapshots every 30 seconds.
 All three pilot agents have completed. Future missions can reuse this monitor.
 
 The user approved periodic publication of pilot screens and actions to the
 [private Sites monitor](https://teleport-c-explorer-pilot.jocund-rice-0231.chatgpt.site).
 Reuse project `appgprj_6aa4ff25659c8191994e6b39f28b7469`; its separate source
-checkout is `/tmp/teleport-c-pilot-site`, with assets under `dist/`. Owner-only
-access and the published page were verified. The monitor was tested in Chromium
+checkout is `.cache/generalization-site` in the main worktree, with assets
+under `dist/`. Owner-only access and the published page were verified. The monitor was tested in Chromium
 at widths 320–1,920 pixels, including expanded history and snapshot refresh.
 
 For scoring changes, test corpus growth, separate gains/regressions, immutable
@@ -174,3 +181,10 @@ first results, missing/failed/zero measurements, and ledger consistency. Browser
 checks cover the dashboard's unmeasured, measured, stale, and failed states.
 Run focused tests before committing and checkpoint on each committed chunk.
 Retain source pointers and findings here; do not create a competing goal log.
+
+The machine restart interrupted the first checkpoint of `64224b4b` and
+cleared its temporary worktree. The committed cases and first evaluations
+were recovered with matching hashes. The replacement experiment worktree is
+`.cache/generalization-worktree` in the main checkout. Its repeated checkpoint
+passed at `64224b4b`: 7,175/7,765 development screens and 106/106 regression
+recordings. Original action histories remain in the published Sites snapshot.
