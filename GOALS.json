@@ -29628,20 +29628,55 @@
     {
       "id": "fix-mon-explodes-killer-name",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Fix mon_explodes killer naming to use the true monster species",
       "cFile": "explode.c",
       "sessions": [],
       "selectionReason": "After closing the pager fix and rechecking the queue, seed0030-ten-diverse-deaths step 1746 is the highest-ranked unresolved candidate. Source tracing identifies explode.c mon_explodes() as the owner: C builds the killer text from species-only pmname(), while JS uses contextual Monnam() and changes the explosion message.",
       "detail": "Development session seed0030-ten-diverse-deaths segment 9 step 261, global step 1746, key space after the gas-spore explosion. C cell row 0 col 30 is g while JS is T; cursors differ [60,0,1] vs [64,0,1], RNG remains aligned and step 260 explosion damage matches. C explode.c:1014-1067 mon_explodes() assigns s_suffix(pmname(mon->data, Mgender(mon))) at 1056-1060, bypassing hallucination, apparent-monster naming, and visibility. JS js/explode.js:641-667 uses s_suffix(Monnam(mon, state, env)); replace only this killer-name assignment with existing js/do_name.js mon_pmname() 787-796. Keep contextual Monnam() calls in explode() unchanged. Production path is js/mon.js:xkilled() 4864 -> corpse_chance() 4192-4263 -> mon_explodes() 4262 -> explode(); downstream goto_level refusal is unrelated. No holdout data was inspected.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "killer_species_name",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mon_explodes"
+          ]
+        }
+      ],
+      "openedAt": "c0124dda6a998ee040de0b81147cd191dc66b820",
+      "openStanding": {
+        "sha": "c0124dda6a998ee040de0b81147cd191dc66b820",
+        "screens": 7177,
+        "rng": 524609
+      },
       "closedAt": null,
       "delivered": null,
       "function": "mon_explodes",
       "session": "seed0030-ten-diverse-deaths",
-      "step": 1746
+      "step": 1746,
+      "activeStanding": {
+        "sha": "c0124dda6a998ee040de0b81147cd191dc66b820",
+        "screens": 7177,
+        "rng": 524609
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1820,
+          "kind": "stop",
+          "function": "goto_level",
+          "functionDeclared": true,
+          "sourceFile": "do.c",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: goto_level() arriving in a new dungeon",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 133
+        }
+      ]
     }
   ]
 }
