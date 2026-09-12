@@ -30395,7 +30395,7 @@
     {
       "id": "port-trap-rolling-boulder-monster-seed0014",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the monster arm of trapeffect_rolling_boulder_trap() and wire its rolling launch_obj()/ohitmon() collision path.",
       "cFile": "trap.c",
       "sessions": [
@@ -30419,8 +30419,11 @@
         "screens": 7235,
         "rng": 530733
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c6151a50f490208c1f031a1a31ac41f15c7fd1ea",
+      "delivered": {
+        "screens": 35,
+        "rng": 3123
+      },
       "functions": [
         {
           "name": "trapeffect_rolling_boulder_trap",
@@ -30505,6 +30508,28 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 595,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: random coordinates outside mklev",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 119
+        }
+      ],
+      "closeStanding": {
+        "sha": "c6151a50f490208c1f031a1a31ac41f15c7fd1ea",
+        "screens": 7270,
+        "rng": 533856
       }
     }
   ]
