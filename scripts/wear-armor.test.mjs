@@ -71,6 +71,7 @@ import {
 import { acurr } from '../js/attrib.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import { unmul } from '../js/hack.js';
 import { UnsupportedEnlightenmentError, enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
@@ -968,10 +969,10 @@ test('every one of the seven slots installs its own callback', async () => {
             `otyp ${otyp}`);
     }
 
-    // The three that reach C's delayed arm, with the callback still pending
+    // The five that reach C's delayed arm, with the callback still pending
     // and the countdown running. objects.h gives leather armor an oc_delay of
     // 3 (595), all four gloves 1 (686-697) and all ten boots 2 (700-727), so
-    // the three delays differ and the multi each leaves behind names its slot.
+    // the delays differ and the multi each leaves behind names its slot.
     // No on_msg() is printed on this arm, which is why the top line is empty
     // where the four above carry a message.
     const pending = [
@@ -979,6 +980,7 @@ test('every one of the seven slots installs its own callback', async () => {
         [LEATHER_GLOVES, W_ARMG, 'uarmg', Gloves_on, -1],
         [GAUNTLETS_OF_POWER, W_ARMG, 'uarmg', Gloves_on, -1],
         [LOW_BOOTS, W_ARMF, 'uarmf', Boots_on, -2],
+        [FUMBLE_BOOTS, W_ARMF, 'uarmf', Boots_on, -2],
     ];
     for (const [otyp, mask, field, callback, multi] of pending) {
         await setup(segment, OFF);
@@ -1119,18 +1121,16 @@ test('the five helmets Helmet_on cannot run are refused unwritten',
     }
 });
 
-test('the four boots Boots_on cannot run are refused unwritten', async () => {
+test('the three boots Boots_on cannot run are refused unwritten', async () => {
     // do_wear.c:199-249. Five of Boots_on()'s ten labels fall to a bare break;
-    // SPEED_BOOTS is ported separately below, and the other four call
-    // spoteffects(), toggle_stealth(), incr_itimeout() over rnd(20), or
-    // float_up(). Refusing above setworn() keeps the random-number log empty
-    // on FUMBLE_BOOTS, the one arm on the 'W' spine that would draw.
+    // SPEED_BOOTS and FUMBLE_BOOTS are ported separately below, and the other
+    // three call spoteffects(), toggle_stealth(), or float_up(). Refusing
+    // above setworn() leaves each unsupported branch's state untouched.
     //
-    // These four retained types remain outside this goal's stated limit and
+    // These three retained types remain outside this goal's stated limit and
     // stay covered by the QUALITY.json deferral wear-magic-boots-stop.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
-    for (const otyp of [WATER_WALKING_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS,
-        LEVITATION_BOOTS]) {
+    for (const otyp of [WATER_WALKING_BOOTS, ELVEN_BOOTS, LEVITATION_BOOTS]) {
         await setup(segment, OFF);
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
@@ -1176,6 +1176,101 @@ test('the four boots Boots_on cannot run are refused unwritten', async () => {
         assert.equal(obj.known ?? false, false,
             `the callback has not run yet for otyp ${otyp}`);
     }
+});
+
+test('FUMBLE_BOOTS starts a timeout through both wear callers', async () => {
+    // do_wear.c:231-233. setworn() supplies W_ARMF in extrinsic before either
+    // accessory_or_armor_on() or set_wear() calls Boots_on(). The callback
+    // therefore must mask that source, draw rnd(20) once, and preserve the
+    // resulting 1..20 timeout in the intrinsic field.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    const boots = armor(FUMBLE_BOOTS, {
+        dknown: 1,
+        spe: 0,
+        known: false,
+    });
+    let fumbling = game.u.uprops[FUMBLING];
+    fumbling.intrinsic = 0;
+    fumbling.extrinsic = 0;
+    const beforeDraw = getRngLog().length;
+
+    assert.equal(await accessory_or_armor_on(boots, game), ECMD_TIME);
+    assert.equal(game.uarmf, boots);
+    assert.equal(game.afternmv, _doWearInternals.Boots_on);
+    assert.equal(game.multi, -2);
+    await unmul('', game);
+    assert.equal(getRngLog().length, beforeDraw + 1,
+        'wearing FUMBLE_BOOTS draws rnd(20) once');
+    assert.ok((fumbling.intrinsic & TIMEOUT) >= 1
+        && (fumbling.intrinsic & TIMEOUT) <= 20,
+    'FUMBLE_BOOTS gives Fumbling a 1..20 timeout');
+    assert.equal(boots.known, true, 'the common known tail still runs');
+    assert.equal(game.afternmv ?? null, null, 'unmul clears the callback');
+
+    // set_wear() is the startup caller. It receives a slot already populated
+    // by ini_inv_use_obj(), so its property extrinsic includes W_ARMF before
+    // Boots_on() runs.
+    await setup(segment, OFF);
+    const startupBoots = armor(FUMBLE_BOOTS, { known: false });
+    game.uarmf = startupBoots;
+    const startupFumbling = game.u.uprops[FUMBLING];
+    fumbling = startupFumbling;
+    startupFumbling.intrinsic = 0;
+    startupFumbling.extrinsic = W_ARMF;
+    const beforeStartup = getRngLog().length;
+    await set_wear(game);
+    assert.equal(getRngLog().length, beforeStartup + 1,
+        'set_wear() reaches the same rnd(20) branch');
+    assert.ok((startupFumbling.intrinsic & TIMEOUT) >= 1
+        && (startupFumbling.intrinsic & TIMEOUT) <= 20,
+    'set_wear() preserves the 1..20 timeout');
+    assert.equal(startupBoots.known, true,
+        'set_wear() reaches the common known tail');
+
+    // A permanent Fumbling source suppresses the draw after the boots source
+    // is masked, while the callback still returns and reveals the object.
+    const guarded = armor(FUMBLE_BOOTS, { known: false });
+    game.uarmf = guarded;
+    fumbling.intrinsic = 0;
+    fumbling.extrinsic = W_ARMF | W_ARM;
+    const beforePermanent = getRngLog().length;
+    assert.equal(await _doWearInternals.Boots_on(game), 0);
+    assert.equal(getRngLog().length, beforePermanent,
+        'another extrinsic Fumbling source suppresses rnd(20)');
+    assert.equal(guarded.known, true);
+
+    // A timeout alone is excluded by ~TIMEOUT, so C draws again and adds a
+    // fresh 1..20 duration to the existing timeout.
+    const timed = armor(FUMBLE_BOOTS, { known: false });
+    game.uarmf = timed;
+    fumbling.intrinsic = 7;
+    fumbling.extrinsic = W_ARMF;
+    const beforeTimed = getRngLog().length;
+    assert.equal(await _doWearInternals.Boots_on(game), 0);
+    assert.equal(getRngLog().length, beforeTimed + 1,
+        'an existing timeout does not suppress rnd(20)');
+    assert.ok((fumbling.intrinsic & TIMEOUT) >= 8
+        && (fumbling.intrinsic & TIMEOUT) <= 27,
+    'the new timeout adds 1..20 to the existing value of 7');
+    assert.equal(timed.known, true);
+
+    // A non-timeout intrinsic flag is the other HFumbling guard, and it does
+    // suppress the draw while preserving the existing timeout bits.
+    const intrinsicGuard = armor(FUMBLE_BOOTS, { known: false });
+    game.uarmf = intrinsicGuard;
+    fumbling.intrinsic = FROMEXPER | 7;
+    fumbling.extrinsic = W_ARMF;
+    const beforeIntrinsic = getRngLog().length;
+    assert.equal(await _doWearInternals.Boots_on(game), 0);
+    assert.equal(getRngLog().length, beforeIntrinsic,
+        'a non-timeout intrinsic Fumbling source suppresses rnd(20)');
+    assert.equal(fumbling.intrinsic, FROMEXPER | 7);
+    assert.equal(intrinsicGuard.known, true);
+    game.uarmf = null;
+    fumbling.intrinsic = 0;
+    fumbling.extrinsic = 0;
 });
 
 test('Boots_on distinguishes the four prior FAST states', async () => {

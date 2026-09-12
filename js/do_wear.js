@@ -127,6 +127,7 @@ import {
     WORN_HELMET,
     WORN_SHIELD,
     WORN_SHIRT,
+    WORN_BOOTS,
     plur,
 } from './const.js';
 import { see_monsters } from './display.js';
@@ -223,6 +224,7 @@ import {
     ELVEN_LEATHER_HELM,
     FAKE_AMULET_OF_YENDOR,
     FEDORA,
+    FUMBLE_BOOTS,
     GOLD_DRAGON_SCALES,
     GOLD_DRAGON_SCALE_MAIL,
     GAUNTLETS_OF_DEXTERITY,
@@ -1279,8 +1281,9 @@ function Armor_off(state) {
 // feeds display.h sensemon(), which is ported and read on an ordinary turn
 // from four call sites, against a C redraw that is not ported, so it stays out
 // of PLAIN_HELMETS_ON below.
-const PLAIN_BOOTS_ON = new Set([
+const SUPPORTED_BOOTS_ON = new Set([
     LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS, KICKING_BOOTS,
+    FUMBLE_BOOTS,
 ]);
 
 // C ref: do_wear.c Boots_on() (186-259), the ga.afternmv callback
@@ -1292,14 +1295,13 @@ const PLAIN_BOOTS_ON = new Set([
 // on the turn the 'W' is typed: nomul(-2) spends two helpless turns first and
 // allmain.c moveloop_core() reaches the callback through unmul().
 //
-// The four types PLAIN_BOOTS_ON and SPEED_BOOTS leave out all reach outside
+// The types SUPPORTED_BOOTS_ON and SPEED_BOOTS leave out all reach outside
 // do_wear.c. WATER_WALKING_BOOTS calls spoteffects(); ELVEN_BOOTS calls
-// toggle_stealth(); FUMBLE_BOOTS calls incr_itimeout(&HFumbling, rnd(20)), the
-// one arm anywhere on this port's 'W' spine that would draw a random number;
-// and LEVITATION_BOOTS calls float_up(), spoteffects() and float_vs_flight().
-// accessory_or_armor_on() hoists their refusal above setworn() for the reason
-// the cloak and helmet refusals give: by the time this callback runs the boots
-// are worn, AC has moved and the two helpless turns are spent.
+// toggle_stealth(); and LEVITATION_BOOTS calls float_up(), spoteffects() and
+// float_vs_flight(). accessory_or_armor_on() hoists their refusal above
+// setworn() for the reason the cloak and helmet refusals give: by the time
+// this callback runs the boots are worn, AC has moved and the two helpless
+// turns are spent.
 //
 // C's `uarmf &&` at 254 is left out, as Helmet_on()'s equivalent guard is.
 // C's own comment at 253 says what it is for: float_up() inside the
@@ -1307,12 +1309,13 @@ const PLAIN_BOOTS_ON = new Set([
 // no arm here empties the slot, so port it and the guard comes back with it.
 async function Boots_on(state) {
     const otyp = state.uarmf.otyp;
+    const type = objectType(state.uarmf, state);
+    const oldprop = state.u.uprops[type.oc_oprop].extrinsic & ~WORN_BOOTS;
 
-    if (!PLAIN_BOOTS_ON.has(otyp) && otyp !== SPEED_BOOTS)
+    if (!SUPPORTED_BOOTS_ON.has(otyp) && otyp !== SPEED_BOOTS)
         throw new UnsupportedWearError(`Boots_on() for otyp ${otyp}`);
     if (otyp === SPEED_BOOTS) {
         const fast = state.u.uprops[FAST];
-        const oldprop = fast.extrinsic & ~W_ARMF;
 
         if (!oldprop && !(fast.intrinsic & TIMEOUT)) {
             discover_object(otyp, true, true, true, state);
@@ -1322,6 +1325,12 @@ async function Boots_on(state) {
                 state,
             );
         }
+    } else if (otyp === FUMBLE_BOOTS) {
+        // HFumbling is the intrinsic field of FUMBLING. C masks the footwear
+        // source from oldprop before checking for another source or timeout.
+        const fumbling = state.u.uprops[FUMBLING];
+        if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT))
+            incr_itimeout(fumbling, rnd(20));
     }
     if (!state.uarmf.known) {
         /* boots' +/- evident because of status line AC */
@@ -2830,7 +2839,8 @@ async function accessory_or_armor_on(obj, state = game) {
             afternmv = Gloves_on;
             break;
         case W_ARMF:
-            if (!PLAIN_BOOTS_ON.has(obj.otyp) && obj.otyp !== SPEED_BOOTS)
+            if (!SUPPORTED_BOOTS_ON.has(obj.otyp)
+                && obj.otyp !== SPEED_BOOTS)
                 throw new UnsupportedWearError(
                     `Boots_on() for otyp ${obj.otyp}`,
                 );
