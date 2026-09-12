@@ -28359,6 +28359,43 @@
         "screens": 6987,
         "rng": 509542
       }
+    },
+    {
+      "id": "port-exper-newexplevel-pluslvl",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port exper.c newexplevel() and incremental pluslvl(TRUE) level-up behavior",
+      "cFile": "exper.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "After the uhitm seduction span passed at 2f4ebdd9, the refreshed queue ranks seed0014-dequa-fountain-explore step 461, where C reaches exper.c newexplevel() and pluslvl(TRUE) after the monster kill but JS exper.js pluslvl() still refuses before newhp/newpw or level state updates. The read-only tracer found C exper.c newexplevel() lines 299-304 calling pluslvl(TRUE) and pluslvl() lines 307-372 performing source-ordered HP, energy, experience threshold, level, rank, achievement, and status updates; the named run consumes newhp/newpw RNG and prints the level-up message. Production path is uhitm.c hmon_hitmon -> mon.c killed/xkilled -> more_experienced -> newexplevel, already wired through js/uhitm.js and js/mon.js. Select the same-file rising increment family only; defer pluslvl(FALSE), losexp(), and unrelated experience callers.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "newexplevel",
+          "line": 300,
+          "endLine": 306,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "pluslvl",
+          "line": 307,
+          "endLine": 377,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 300,
+        "to": 377
+      }
     }
   ]
 }
