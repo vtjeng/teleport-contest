@@ -27929,7 +27929,7 @@
     {
       "id": "port-mhitu-could-seduce",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port mhitu.c could_seduce() visibility, attack-type, and gender result for seductive monster attacks",
       "cFile": "mhitu.c",
       "sessions": [
@@ -27938,8 +27938,12 @@
       "selectionReason": "The post-checkpoint queue ranks seed0014-dequa-fountain-explore first at step 455, now stopping on a seductive monster attack after domonnoise() succeeds. Read-only source tracing identifies the first refusal as js/mhitu.js could_seduce(), whose C owner is mhitu.c could_seduce() around lines 1934-1981; it supplies visibility, attack-type, and gender gating for the water-nymph versus pet path before later mhitm.c hitmm and uhitm.c mhitm_ad_sedu branches. The production flow is monmove.c m_move_aggress -> JS monmove.js m_move_aggress -> mhitm.js fightm()/could_seduce. Select only could_seduce() as this source unit and preserve its return/RNG contracts; defer later message and item-transfer arms until the queue confirms them.",
       "detail": "",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "fc4e3592e1538f2cfba1dd9aad67526d846ffd1a",
+      "openStanding": {
+        "sha": "5b46e955221331c68bcf6677d08bb63c627e47fc",
+        "screens": 6981,
+        "rng": 509322
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -27954,7 +27958,29 @@
       "range": {
         "from": 1934,
         "to": 1984
-      }
+      },
+      "activeStanding": {
+        "sha": "5b46e955221331c68bcf6677d08bb63c627e47fc",
+        "screens": 6981,
+        "rng": 509322
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 455,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a seductive monster attack",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 259
+        }
+      ]
     }
   ]
 }
