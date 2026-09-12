@@ -29021,7 +29021,7 @@
     {
       "id": "port-dothrow-thitmonst-cream-pie",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dothrow.c thitmonst() thrown-object hit dispatch including the cream-pie monster branch",
       "cFile": "dothrow.c",
       "sessions": [
@@ -29032,8 +29032,8 @@
       "spans": [
         {
           "name": "thitmonst",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
           "functions": [
             "thitmonst"
           ]
@@ -29045,15 +29045,18 @@
         "screens": 7031,
         "rng": 513951
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+      "delivered": {
+        "screens": 11,
+        "rng": 506
+      },
       "functions": [
         {
           "name": "thitmonst",
           "line": 2011,
           "endLine": 2308,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -29080,6 +29083,417 @@
           "unlocatedKinds": [],
           "recordedSteps": 714,
           "remainingScreensUpperBound": 209
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "thitmonst",
+            "implementation": "js/dothrow.js",
+            "symbol": "thitmonst",
+            "sourceReview": "Read dothrow.c:2011-2308 in full. Ported the source-order to-hit arithmetic, distance and Dexterity modifiers, glove penalty, omon_adj call, pre-roll unicorn handling, dieroll, nonweapon cream-pie gate, hmon caller, and explicit miss and unsupported branches. Ported direct tmiss() and gem_accept() helpers. The C callers and bhit handoff are wired through throwit_mon_hit()->thitmonst(). The remaining source boundaries are special quest-leader handling, ranged weapon damage, heavy-ball/boulder damage, potionhit(), pet-food/tamedog(), and swallowed-object side effects.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit_mon_hit",
+                "source": "dothrow.c:1482-1506 throwit_mon_hit() calls thitmonst() after zap.c bhit() returns a monster"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:1695 throwit() dispatches the returned bhit monster to throwit_mon_hit()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow-thitmonst.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ],
+            "checkedAt": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d"
+          }
+        ],
+        "entryPointReview": "The selected source range has one live entry point: a thrown object reaching a monster through throwit(), zap.c bhit(), and throwit_mon_hit(). The committed cream-pie recipe reaches the HMON_THROWN nonweapon arm and exercises hmon(), can_blnd(), hmon_hitmon_do_hit(), hmon_hitmon_misc_obj(), tmiss() support through the same production caller chain.",
+        "entryPoints": [
+          {
+            "name": "thrown cream pie hits monster",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 516,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 198
+        }
+      ],
+      "closeStanding": {
+        "sha": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+        "screens": 7042,
+        "rng": 514457
+      }
+    },
+    {
+      "id": "port-read-doread-enchant-weapon",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port read.c doread() ordinary enchant-weapon scroll path through seffects and chwepon wiring",
+      "cFile": "read.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "After closing thitmonst and rechecking the development queue, seed0014 step 516 is the highest-ranked unresolved mismatch at most 198 remaining screens. Source tracing identifies read.c doread() as an unverified source unit whose selected uncursed enchant-weapon scroll path dispatches through seffects and seffect_enchant_weapon into wield.c chwepon; select this bounded read command source span.",
+      "detail": "Development session seed0014-dequa-fountain-explore step 516 (input u) selects u, a scroll labeled DAIYEN FOOELS, confirmed as SCR_ENCHANT_WEAPON. C cmd.c binds r to read.c doread(); read.c:328-646 handles the common read prefix, and seffects() at 2194-2290 dispatches SCR_ENCHANT_WEAPON at 2233-2235 to seffect_enchant_weapon() at 1627-1676. The witness is uncursed, unconfused, sighted, and able to chant; the starting dwarvish spear has spe=1 from u_init.c:160-164 and dwarf substitution at 246. C chooses s=1, calls wield.c chwepon() at 916-1048, emits the blue glow message, raises the spear to +2, and identifies the scroll through makeknown() at wield.c:1011-1018; doread then clears in_use and consumes the scroll at read.c:635-645. Recorded behavior has no extra effect RNG beyond the common Wisdom exercise. JS cmd.js already dispatches doread at 5025 and applies command results at 5578-5589; js/read.js refuses at 360-363 and seffects rejects this type at 554-559. Port the complete selected doread() source unit while wiring the reachable seffects/seffect_enchant_weapon branch and chwepon return contract in the same span. Keep cursed, confused, blind, no-weapon, high-enchantment, artifact, erosion, strange-feeling, other scroll, spellbook, and unrelated readable branches fail-closed until separately sourced; do not special-case this seed or scroll.",
+      "spans": [
+        {
+          "name": "doread",
+          "status": "closed",
+          "closedBy": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
+          "functions": [
+            "doread"
+          ]
+        }
+      ],
+      "openedAt": "908610a3940073b32ea039d29711d18368d39158",
+      "openStanding": {
+        "sha": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+        "screens": 7042,
+        "rng": 514457
+      },
+      "closedAt": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
+      "delivered": {
+        "screens": 20,
+        "rng": 5466
+      },
+      "functions": [
+        {
+          "name": "doread",
+          "line": 330,
+          "endLine": 651,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 330,
+        "to": 651
+      },
+      "activeStanding": {
+        "sha": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+        "screens": 7042,
+        "rng": 514457
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 516,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 198
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doread",
+            "implementation": "js/read.js",
+            "symbol": "doread",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:doread() 330-651 in full and checked the source order from gk.known reset through capacity, getobj/read_ok, pickup_prev, conduct, in_use, disappearance and confusion feedback, seffects(), naming, in_use clearing, useup(), and ECMD_TIME. Added the ordinary uncursed, sighted, unconfused, low-enchantment SCR_ENCHANT_WEAPON branch. read.c:1627-1676 chooses s=1 and delegates to wield.c:916-1048 chwepon(); the reachable chwepon branch preserves the blue glow message, makeknown/discovery, weapon spe increment, and return value, while cursed, confused, blind, no-weapon, high-enchantment, artifact, erosion, strange-feeling, other scroll, spellbook, and unrelated readable branches remain fail-closed. No unported callee is invoked by the admitted branch.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c:1816-1817 binds the r command to doread(); js/cmd.js runReadCommand() passes the live game state to doread() and consumes its ECMD result"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:635 calls seffects(scroll); read.c:2194-2290 dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(), which is wired through js/read.js seffects()"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_enchant_weapon",
+                "source": "read.c:1639-1675 computes the ordinary positive amount, calls chwepon(), and caps spe; js/read.js calls js/wield.js chwepon() and preserves the scroll for doread() useup()"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "chwepon",
+                "source": "read.c:1672 consumes chwepon()'s return and wield.c:1011-1018 supplies the reachable glow and makeknown effects; js/wield.js chwepon() returns 1 after the weapon state transition"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "checkedAt": "b26545e0945804ea3bc6e777968095e46ec8d2bc"
+          }
+        ],
+        "entryPointReview": "The selected range has one live entry point for this span: the r command selecting an ordinary uncursed enchant-weapon scroll while a known low-enchantment weapon is wielded. The committed recipe reaches cmd.c's doread binding, read.c's common prefix and seffects dispatch, seffect_enchant_weapon()'s s=1 arm, wield.c chwepon()'s blue glow and makeknown path, doread()'s useup(), and the following wait.",
+        "entryPoints": [
+          {
+            "name": "ordinary enchant-weapon scroll read",
+            "functions": [
+              "doread"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 536,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed-turn nh_timeout requires no active property timeout at index 25",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 178
+        }
+      ],
+      "closeStanding": {
+        "sha": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
+        "screens": 7062,
+        "rng": 519923
+      }
+    },
+    {
+      "id": "port-wizcmds-wiz-map",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wizcmds.c wiz_map() and wire wizard level-map command admission and dispatch",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "After closing doread and rechecking the queue, seed0360 step 624 is the highest-ranked unresolved candidate at most 209 remaining screens. Source tracing identifies wizcmds.c wiz_map() as the unverified owner; select this source unit and wire its existing wizard command callers.",
+      "detail": "The mismatch is seed0360-wizard-world-tour step 624, input Ctrl-F, after matching step 623. C cmd.c:1982-1983 binds Ctrl-F to wiz_map; wizcmds.c:173-198 implements wiz_map by disabling monster notices, clearing HConfusion and HHallucination temporarily, marking traps and engravings seen, calling do_mapping, and restoring state. JS extcmdlist_data.js already names wizmap, but cmd.js admission at 1793-1858 omits it; extended dispatch at 4879-5130 and direct Ctrl-F at 6160-6171 lack the wiz_map call. Port js/wizcmds.js and wire both routes using existing notice_mon_off/on, map_trap, map_engraving, and do_mapping. No holdout data was inspected.",
+      "spans": [
+        {
+          "name": "wiz_map",
+          "status": "closed",
+          "closedBy": "ae898ac90ce07d222f6250c557727703acb2e224",
+          "functions": [
+            "wiz_map"
+          ]
+        }
+      ],
+      "openedAt": "4d0b98267b32749e8e9d65bba8a4acd133e431b0",
+      "openStanding": {
+        "sha": "7d0d4d5ee4d19999f8e4c6351a93aa235ca56a2a",
+        "screens": 7062,
+        "rng": 519923
+      },
+      "closedAt": "ae898ac90ce07d222f6250c557727703acb2e224",
+      "delivered": {
+        "screens": 35,
+        "rng": 469
+      },
+      "functions": [
+        {
+          "name": "wiz_map",
+          "line": 176,
+          "endLine": 202,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 176,
+        "to": 202
+      },
+      "activeStanding": {
+        "sha": "7d0d4d5ee4d19999f8e4c6351a93aa235ca56a2a",
+        "screens": 7062,
+        "rng": 519923
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 624,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizlevelport, wizgenesis, wizintrinsic, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, teleport, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 209
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_map",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_map",
+            "sourceReview": "Read nethack-c/upstream/src/wizcmds.c:176-198 and nethack-c/upstream/src/cmd.c:1982-1983. Port preserves the wizard guard, save and clear order for HConfusion and HHallucination, notice_mon_off(), trap traversal and tseen assignment, map_trap(), engraving traversal, map_engraving(), do_mapping(), notice_mon_on(), restoration order, and ECMD_OK. The retained callees are implemented: hack.c notice_mon_off/on, display.c map_trap/map_engraving, and detect.c do_mapping. No unported callee is skipped and no placeholder remains on either command path.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:505 and cmd.c:1982-1983; extended-command dispatch resolves the wizmap row to wiz_map()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:3688-3692 and 3810-3818, with cmd.c:1982-1983 binding C('f'); direct Ctrl-F admission and dispatch call wiz_map()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/wizcmds.c/wizmap-direct.session.json",
+              "recordings/wizcmds.c/wizmap-extended.session.json"
+            ],
+            "checkedAt": "ae898ac90ce07d222f6250c557727703acb2e224"
+          }
+        ],
+        "entryPointReview": "The selected wiz_map() source unit has two production entry points: the direct Ctrl-F binding in cmd.c:1982-1983 and the #wizmap extended-command row dispatched by doextcmd(). Both are wired in js/cmd.js and each has a matching accepted recording.",
+        "entryPoints": [
+          {
+            "name": "Ctrl-F direct wizmap",
+            "functions": [
+              "wiz_map"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizmap-direct.session.json"
+            ]
+          },
+          {
+            "name": "#wizmap extended command",
+            "functions": [
+              "wiz_map"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizmap-extended.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 626,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 207
+        }
+      ],
+      "closeStanding": {
+        "sha": "ae898ac90ce07d222f6250c557727703acb2e224",
+        "screens": 7097,
+        "rng": 520392
+      }
+    },
+    {
+      "id": "port-mon-corpse-chance-gas-spore",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port mon.c corpse_chance AT_BOOM gas-spore death handling and wire the source explosion dependency",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "After closing wiz_map and rechecking the development queue, seed0030-ten-diverse-deaths step 1745 is the highest-ranked unresolved candidate at most 208 remaining screens. Source tracing identifies mon.c corpse_chance() AT_BOOM as the owner; select this whole function and its required explosion wiring.",
+      "detail": "The mismatch is seed0030-ten-diverse-deaths segment 9 global screen 1745, gas spore death. C mon.c:3181-3249 corpse_chance() computes d(4,6) at its AT_BOOM branch (3200-3234), then calls explode.c mon_explodes() which computes a second d(4,6) and invokes explode(). JS js/mon.js:4182-4220 still refuses before either draw; production callers are killed()->xkilled()->corpse_chance() at js/mon.js:4809 and mondied()->corpse_chance() at 4434. Port the C branch and wire the bounded explode.c dependency group: explosionmask() 25-115, engulfer_explosion_msg() 117-179, explode() 199-696, adtyp_to_expltype() 987-1012, mon_explodes() 1014-1067. Preserve source RNG order, monster death state, explosion display and affected-square side effects. Add the source-prescribed PHYS_EXPL_TYPE early return from zap.c:5157-5160 to js/zap.js zap_over_floor(). Existing destroy_items() and resist() are available for the named explosion effects. Other mhitu/mhitm explosion callers remain outside this session scope. No holdout data was inspected.",
+      "spans": [
+        {
+          "name": "corpse_chance",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "corpse_chance"
+          ]
+        }
+      ],
+      "openedAt": "02c5f96829238a3dd21330bb92f739d281632d42",
+      "openStanding": {
+        "sha": "ae898ac90ce07d222f6250c557727703acb2e224",
+        "screens": 7097,
+        "rng": 520392
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "corpse_chance",
+          "line": 3181,
+          "endLine": 3252,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3181,
+        "to": 3252
+      },
+      "activeStanding": {
+        "sha": "ae898ac90ce07d222f6250c557727703acb2e224",
+        "screens": 7097,
+        "rng": 520392
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1745,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: a gas spore exploding on death",
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 208
         }
       ]
     }

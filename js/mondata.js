@@ -9,6 +9,7 @@ import {
     ACID_RES,
     ANTIMAGIC,
     BLINDED,
+    BLND_RES,
     COLD_RES,
     DISINT_RES,
     FEMALE,
@@ -49,9 +50,14 @@ import {
     W_ARMC,
     W_ARMOR,
     W_WEP,
+    W_ARMH,
 } from './const.js';
 import { acurr } from './attrib.js';
-import { artifact_defends } from './artifacts.js';
+import {
+    artifact_defends,
+    defends,
+    defends_when_carried,
+} from './artifacts.js';
 import { def_char_to_monclass } from './drawing.js';
 // grounded() below reads has_ceiling(). The two files already reach each other
 // through js/shk.js and js/display.js, and both sides use the other's exports
@@ -66,6 +72,8 @@ import {
     BLACK_DRAGON_SCALES,
     BLUE_DRAGON_SCALES,
     CREAM_PIE,
+    BLINDING_VENOM,
+    POT_BLINDNESS,
     GRAY_DRAGON_SCALE_MAIL,
     GRAY_DRAGON_SCALES,
     GOLD_DRAGON_SCALES,
@@ -79,6 +87,7 @@ import { rn2, rnd } from './rng.js';
 import { makesingular } from './fruit.js';
 import { genders, roles } from './roles.js';
 import { is_fshk } from './shk.js';
+import { objdescr_is } from './o_init.js';
 import { MONSTER_CLASS_EXPLANATIONS } from './symbol_data.js';
 import { MAXMCLASSES } from './symbols.js';
 // monstunseesu() below reads m_canseeu(), which reads perceives() from this
@@ -232,24 +241,118 @@ export function ceiling_hider(species) {
 }
 export function haseyes(species) { return !flag1(species, M.M1_NOEYES); }
 
-// C ref: mondata.c can_blnd() (305-398), restricted to the live
-// use_cream_pie() call: no aggressor, the hero as defender, AT_WEAP, and a
-// cream pie. The no-eyes guard precedes the attack switch in C, and a worn
-// blindfold is the cream pie's only defense inside that switch.
+// C ref: mondata.c resists_blnd_by_arti() (278-303).  Artifact defenses are
+// checked separately from ordinary blindness resistance because can_blnd()
+// uses this predicate for both the hero and monster defenders.
+export function resists_blnd_by_arti(mon, state = game) {
+    const isYou = mon === state.youmonst;
+    const wielded = isYou ? state.uwep : mon?.mw;
+    if (wielded?.oartifact && defends(M.AD_BLND, wielded, state))
+        return true;
+    for (let obj = isYou ? state.invent : mon?.minvent;
+        obj; obj = obj.nobj) {
+        if (defends_when_carried(M.AD_BLND, obj, state)) return true;
+    }
+    return false;
+}
+
+// C ref: mondata.c resists_blnd() (248-275).  The hero's Blind and Unaware
+// properties are represented by the same state fields used by the status
+// line; monsters retain their mblinded/mcansee/sleeping flags.
+export function resists_blnd(mon, state = game) {
+    const isYou = mon === state.youmonst;
+    const blinded = state.u?.uprops?.[BLINDED];
+    const heroBlind = Boolean((blinded?.intrinsic || blinded?.extrinsic)
+        && !blinded?.blocked);
+    const heroUnaware = Boolean(state.gm?.multi < 0
+        && (state.u?.unconscious || state.u?.fainted));
+    if (isYou
+        ? (heroBlind || heroUnaware)
+        : (mon?.mblinded || !mon?.mcansee || !haseyes(mon?.data)
+            || mon?.msleeping)) {
+        return true;
+    }
+    if (dmgtype_fromattack(mon.data, M.AD_BLND, M.AT_EXPL)
+        || dmgtype_fromattack(mon.data, M.AD_BLND, M.AT_GAZE)) {
+        return true;
+    }
+    if (resists_blnd_by_arti(mon, state)) return true;
+    const blindResist = state.u?.uprops?.[BLND_RES];
+    if (isYou && (blindResist?.intrinsic || blindResist?.extrinsic))
+        return true;
+    return false;
+}
+
+// C ref: mondata.c can_blnd() (305-398).  This is called for monster
+// defenders as well as the hero, and keeps the source's attack-type switch and
+// visor check in the same order.  A no-eyed defender is immune to all modes.
 export function can_blnd(magr, mdef, aatyp, obj, state = game) {
     if (!haseyes(mdef?.data)) return false;
 
     const isYou = mdef === state.youmonst;
-    if (magr !== null || !isYou || aatyp !== M.AT_WEAP
-        || obj?.otyp !== CREAM_PIE) {
-        throw new Error(
-            'can_blnd requires the hero AT_WEAP cream-pie path',
-        );
+    const blindfolded = Boolean(state.ublindf
+        || state.u?.uprops?.[BLINDED]?.extrinsic);
+    if (!isYou && !mdef?.mcansee && !mdef?.mblinded) return false;
+    if (magr?.data?.pmidx === M.PM_RAVEN
+        && mdef?.data?.pmidx === M.PM_RAVEN) return false;
+
+    let checkVisor = false;
+    switch (aatyp) {
+    case M.AT_EXPL:
+    case M.AT_BOOM:
+    case M.AT_GAZE:
+    case M.AT_MAGC:
+    case M.AT_BREA:
+        if (magr?.mcan) return false;
+        return !resists_blnd(mdef, state);
+    case M.AT_WEAP:
+    case M.AT_SPIT:
+    case M.AT_NONE:
+        if (obj?.otyp === CREAM_PIE) {
+            if (isYou && blindfolded) return false;
+        } else if (obj?.otyp === BLINDING_VENOM) {
+            if (isYou && (blindfolded || state.u?.ucreamed)) return false;
+            checkVisor = true;
+        } else if (obj?.otyp === POT_BLINDNESS) {
+            return true;
+        } else {
+            return false;
+        }
+        if (magr === state.youmonst && state.u?.uswallow) return false;
+        break;
+    case M.AT_ENGL:
+        if (isYou && (blindfolded || heroUnaware(state)
+            || state.u?.ucreamed)) return false;
+        if (!isYou && mdef?.msleeping) return false;
+        break;
+    case M.AT_CLAW:
+        if (isYou && blindfolded) return false;
+        if (magr === state.youmonst && state.u?.uswallow) return false;
+        checkVisor = true;
+        break;
+    case M.AT_TUCH:
+    case M.AT_STNG:
+        if (magr?.mcan) return false;
+        break;
+    default:
+        break;
     }
 
-    // youprop.h Blindfolded is EBlinded. apply.js preflights every other
-    // blindness state before this narrowly ported source branch executes.
-    return !state.u.uprops?.[BLINDED]?.extrinsic;
+    if (checkVisor) {
+        for (let worn = isYou ? state.invent : mdef?.minvent;
+            worn; worn = worn.nobj) {
+            if ((worn.owornmask & W_ARMH)
+                && objdescr_is(worn, 'visored helmet', state)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function heroUnaware(state) {
+    return Boolean(state.gm?.multi < 0
+        && (state.u?.unconscious || state.u?.fainted));
 }
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }
 export function nolimbs(species) {
@@ -1384,12 +1487,8 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //
 // Left for later, with the reason each one is not pure or not yet portable:
 //   Resists_Elem            already ported above as monster_resists_element
-//   resists_blnd            calls impossible()
-//   defended, resists_drli, resists_blnd_by_arti
-//                           need artifact and inventory support that the port
-//                           does not have yet
-//   can_blnd                the hero AT_WEAP cream-pie arm is ported above;
-//                           the remaining arms need those same dependencies
+//   defended, resists_drli  retain source branches used by other effects
+//   pronoun_gender          calls rn2()
 //   pronoun_gender          calls rn2()
 //   set_mon_data, give_u_to_m_resistances, mon_learns_traps, mons_see_trap,
 //   monstseesu             change monster or hero state.  monstunseesu() is

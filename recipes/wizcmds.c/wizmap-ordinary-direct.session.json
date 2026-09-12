@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9061203,
+      "datetime": "20310912091500",
+      "nethackrc": "OPTIONS=name:Mapo,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": ".\u0006."
+    }
+  ]
+}

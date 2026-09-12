@@ -19,6 +19,7 @@ import {
     CONFUSION,
     DEAF,
     DISMOUNT_POLY,
+    FACE,
     HALLUC,
     HALLUC_RES,
     HMON_APPLIED,
@@ -103,6 +104,7 @@ import {
     angry_guards,
     killed,
     seemimic,
+    setmangry,
     set_ustuck,
     wakeup,
 } from './mon.js';
@@ -110,8 +112,10 @@ import {
     amorphous,
     attacktype,
     bigmonst,
+    can_blnd,
     dmgtype,
     gender,
+    haseyes,
     hides_under,
     is_animal,
     is_orc,
@@ -191,6 +195,7 @@ import {
     PM_HEALER,
     PM_KNIGHT,
     PM_MONK,
+    PM_FLOATING_EYE,
     PM_PURPLE_WORM,
     PM_ROGUE,
     PM_SAMURAI,
@@ -215,11 +220,22 @@ import {
     mksobj,
     objectType,
 } from './obj.js';
-import { add_to_minv } from './invent.js';
+import { add_to_minv, obfree, useup } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
-import { an, cxname, donameFresh, is_plural, otense, simpleonames, yname } from './objnam.js';
+import {
+    an,
+    cxname,
+    donameFresh,
+    is_plural,
+    otense,
+    simpleonames,
+    The,
+    vtense,
+    yname,
+} from './objnam.js';
 import {
     CORPSE,
+    CREAM_PIE,
     GAUNTLETS_OF_POWER,
     GEM_CLASS,
     IRON,
@@ -230,7 +246,7 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { encumber_msg } from './pickup.js';
-import { d, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -272,6 +288,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { Cold_resistance, exclam } from './zap.js';
 import { note_unported } from './unported.js';
 import { canseemon } from './vision.js';
+import { mbodypart } from './polyself.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -678,7 +695,7 @@ export function find_roll_to_hit(
 // Result false lets hack.c swap places; true consumes the move after the pet
 // refuses. Everything from 511 on is the hostile arm.
 export async function do_attack(monster, state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? { d, rn1, rn2, rnd };
     if (typeof random.rn2 !== 'function'
         || typeof random.rnd !== 'function') {
         throw new TypeError('do_attack random injection requires rn2 and rnd');
@@ -1032,16 +1049,12 @@ export async function hitum(mon, uattk, state = game, env = {}) {
 //
 // `anger_guards` is computed at 826-828, before hmon_hitmon() runs, and is
 // called after the hit just as C does. The priest's rn2(2) and ghod_hitsu()
-// remain an unported consequence, so priest targets still stop first.
+// remain an unported consequence; ordinary ranged hits still reach the full
+// damage routine before that boundary.
 export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     const unsupported = requireAttackOperation(env, 'unsupported');
     const angerGuards = mon.mpeaceful
         && (mon.ispriest || mon.isshk || is_watch(mon.data));
-
-    // 819-822. Only known_hitum() calls this, always with HMON_MELEE.
-    // dothrow.c, dokick.c and apply.c own the other three values and none of
-    // them is ported, so no caller can send one.
-    if (thrown !== HMON_MELEE) unsupported('ranged or applied hit');
 
     // 830-831 ghod_hitsu() remains unported.
     if (mon.ispriest) unsupported('striking a temple priest');
@@ -1230,11 +1243,9 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
 // and needs the BOOMERANG return arm at 901-917 that gives the weapon back to
 // the hero.
 //
-// C's four tests are written against `hmd->thrown`, which hmon() fixes at
-// HMON_MELEE. That makes `!hmd->thrown` hold in the second and third, and makes
-// the fourth's `thrown != HMON_THROWN` hold and short-circuit
-// ammo_and_launcher(), leaving `is_ammo(obj)` -- which the second already
-// covers. The three that remain are written here.
+// C's four tests are written against `hmd->thrown`; the ranged path now keeps
+// that field, so its projectile-specific tests remain source-visible even
+// while the separate ranged weapon helper is still unsupported.
 async function hmon_hitmon_weapon(hmd, mon, obj, state, env, random) {
     /* is it not a melee weapon? */
     if (/* if you strike with a bow... */
@@ -1252,18 +1263,61 @@ async function hmon_hitmon_weapon(hmd, mon, obj, state, env, random) {
     }
 }
 
+// C ref: uhitm.c hmon_hitmon_misc_obj() (1204-1300). The cream pie arm is
+// reached by dothrow.c for a thrown nonweapon. It blinds and angers a visible
+// defender, consumes the object, and leaves zero damage while marking the hit
+// text so the generic damage and message tails do not add a second result.
+async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
+    if (obj?.otyp !== CREAM_PIE) {
+        requireAttackOperation(env, 'unsupported')(
+            'hitting with an unsupported non-weapon',
+        );
+        return;
+    }
+
+    const message = requireAttackOperation(env, 'message');
+    mon.msleeping = 0;
+    if (can_blnd(state.youmonst, mon, AT_WEAP, obj, state)) {
+        if (heroIsBlind(state)) {
+            await message('Splat!', state);
+        } else {
+            let whom = monsterPossessive(mon, state);
+            const what = The(cxname(obj, state), state);
+            if (haseyes(hmd.mdat) && hmd.mdat.pmidx !== PM_FLOATING_EYE)
+                whom += ` ${mbodypart(mon, FACE)}`;
+            await message(
+                `${what} ${vtense(what, 'splash')} over ${whom}!`,
+                state,
+            );
+        }
+        await setmangry(mon, true, { ...env, state, random });
+        mon.mcansee = 0;
+        hmd.dmg = random.rn1(25, 21);
+        mon.mblinded = Math.min(127, (mon.mblinded ?? 0) + hmd.dmg);
+    } else {
+        await message('Splat!', state);
+        await setmangry(mon, true, { ...env, state, random });
+    }
+
+    if (hmd.thrown)
+        obfree(obj, null, { ...env, state });
+    else
+        useup(obj, { ...env, state });
+    hmd.hittxt = true;
+    hmd.get_dmg_bonus = false;
+    hmd.dmg = 0;
+}
+
 // C ref: uhitm.c hmon_hitmon_do_hit() (1386-1433). Rolls the blow's base
 // damage, dispatching on what the hero swung.
 //
 // Three arms stop:
 //
 //   1398-1406 a thrown or kicked stone missile against a rock-passing target.
-//             hmon() admits only HMON_MELEE, so neither value can arrive.
 //   1412-1413 bare_artifactname(), for a lit Sunsword whose name the messages
 //             need after the object may have been destroyed.
-//   1420-1431 hmon_hitmon_potion() and hmon_hitmon_misc_obj(), which cover
-//             hitting with a potion or with something that is not a weapon
-//             at all.
+//   1420-1431 hmon_hitmon_potion(), which remains outside this span; the
+//             cream-pie arm of hmon_hitmon_misc_obj() is implemented below.
 async function hmon_hitmon_do_hit(hmd, mon, obj, state, env, random) {
     const unsupported = requireAttackOperation(env, 'unsupported');
 
@@ -1281,6 +1335,8 @@ async function hmon_hitmon_do_hit(hmd, mon, obj, state, env, random) {
             || obj.oclass === GEM_CLASS) {
             await hmon_hitmon_weapon(hmd, mon, obj, state, env, random);
         /* attacking with non-weapons */
+        } else if (obj.otyp === CREAM_PIE) {
+            await hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random);
         } else {
             unsupported('hitting with a non-weapon');
         }
@@ -1290,13 +1346,9 @@ async function hmon_hitmon_do_hit(hmd, mon, obj, state, env, random) {
 // C ref: uhitm.c hmon_hitmon_dmg_recalc() (1435-1507). Adds the damage-ring,
 // strength and weapon-skill bonuses, and trains the skill.
 //
-// Three of C's tests are decided by `hmd->thrown`, which hmon() fixes at
-// HMON_MELEE. `thrown != HMON_THROWN` at 1466 holds, so the propellor
-// exemption never applies and both bonuses are always added. PROJECTILE(obj)
-// at 1497 is unreachable, because a projectile swung in melee took
-// hmon_hitmon_weapon()'s ranged arm and never set use_weapon_skill. And
-// `hmd->thrown ? weapon_type(skillwep) : uwep_skill_type()` at 1508-1509
-// always takes its second half.
+// The propeller exemption and weapon-skill choice below are decided by
+// `hmd->thrown`; cream pies leave get_dmg_bonus false, while ranged weapons
+// retain the source branches until their separate damage helper is ported.
 function hmon_hitmon_dmg_recalc(hmd, obj, state, env) {
     let dmgbonus = 0;
 
@@ -1440,9 +1492,9 @@ async function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
 // its variants. Nothing is printed when the blow killed the target: the guard
 // at 1641-1645 requires !destroyed, and killed() speaks for that case instead.
 //
-// The `thrown` arm at 1646-1647 needs mshot_xname(); hmon() admits only
-// HMON_MELEE, so the whole `(thrown && ...)` disjunct of the guard is FALSE
-// too and the guard reduces to `!hittxt && !destroyed`.
+// The `thrown` arm at 1646-1647 needs mshot_xname(); cream pies set hittxt in
+// their misc-object helper, while other ranged objects retain this message
+// path for when their damage helpers land.
 //
 // Two of C's four verbs are left out because hmon_hitmon_do_hit() cannot
 // deliver an object that would select them. "bash" needs is_shield(), which is
@@ -1494,8 +1546,8 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 // a stop that cannot happen:
 //
 //   ispoisoned   1808-1809 hmon_hitmon_poison(). C writes it at 1061-1062,
-//                inside `thrown == HMON_THROWN`, which hmon() rejects, and at
-//                1065-1066, where hmon_hitmon_weapon_melee() refuses
+//                inside `thrown == HMON_THROWN`, and at 1065-1066, where
+//                hmon_hitmon_weapon_melee() refuses
 //                permapoisoned() in place of the assignment.
 //   dryit        1872-1873 dry_a_towel(). Only the wet-towel branch of
 //                hmon_hitmon_misc_obj() writes it, and hmon_hitmon_do_hit()
@@ -1522,7 +1574,7 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 // than restated: polyself is unported, so Upolyd() is constantly false, which
 // js/regen.js:52 records for the same reason.
 async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
-    const random = env.random ?? { d, rn2, rnd };
+    const random = env.random ?? { d, rn1, rn2, rnd };
     const unsupported = requireAttackOperation(env, 'unsupported');
     const hmd = {
         dmg: 0,

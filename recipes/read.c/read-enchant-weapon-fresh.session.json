@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9048199,
+      "datetime": "20380506070809",
+      "nethackrc": "OPTIONS=name:EnchantRead,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed scroll of enchant weapon\nrn ."
+    }
+  ]
+}

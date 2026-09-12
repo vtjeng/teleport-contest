@@ -20,10 +20,9 @@
 // flint stones." and calls throwit() once per shot; throwit() flies each one
 // with zap.c bhit() and puts it down where it lands.
 //
-// The unported branches are collected under UnsupportedThrowError. The three
-// largest are thitmonst(), which is this C file's own 380-line function for a
-// missile that reaches a monster; breakobj() with breakmsg(), for a missile
-// that shatters; and dothrow.c's whole thrown-and-return family -- Mjollnir,
+// The unported branches are collected under UnsupportedThrowError. The two
+// largest are breakobj() with breakmsg(), for a missile that shatters, and
+// dothrow.c's whole thrown-and-return family -- Mjollnir,
 // an aklys and a boomerang -- which needs boomhit() and sho_obj_return_to_u().
 // dowield(), doquiver_core(), autoquiver(), use_pole() and use_whip() stop for
 // the same reason: each is a command in its own right.
@@ -56,6 +55,7 @@ import {
     isok,
     LOST_THROWN,
     P_CROSSBOW,
+    P_BOW,
     P_DART,
     P_DAGGER,
     P_EXPERT,
@@ -71,11 +71,21 @@ import {
     THROWN_WEAPON,
     WT_SPLASH_THRESHOLD,
     W_WEP,
+    HMON_APPLIED,
+    HMON_KICKED,
+    HMON_THROWN,
+    M_AP_MONSTER,
+    M_AP_TYPE,
+    OBJ_MINVENT,
+    RLOC_MSG,
+    engulfing_u,
+    helpless,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
+import { change_luck } from './moveloop_preamble.js';
 import { newsym } from './display.js';
 import { canletgo, flooreffects } from './do.js';
 import { ceiling, surface } from './dungeon.js';
@@ -86,10 +96,18 @@ import {
     check_capacity,
     disturb_buried_zombies,
 } from './hack.js';
+import { distmin, sgn } from './hacklib.js';
 import { freeinv, getobj, stackobj } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { MZ_MEDIUM } from './monsters.js';
-import { nohands, notake, throws_rocks, touch_petrifies } from './mondata.js';
+import {
+    is_orc,
+    is_unicorn,
+    nohands,
+    notake,
+    throws_rocks,
+    touch_petrifies,
+} from './mondata.js';
 import { closed_door } from './monmove.js';
 import {
     PM_CAVE_DWELLER,
@@ -148,10 +166,16 @@ import {
     EXPENSIVE_CAMERA,
     FLINT,
     FORTUNE_COOKIE,
+    GAUNTLETS_OF_DEXTERITY,
+    GAUNTLETS_OF_FUMBLING,
+    GAUNTLETS_OF_POWER,
     GEM_CLASS,
+    GEMSTONE,
+    MINERAL,
     GLASS,
     HEAVY_IRON_BALL,
     KELP_FROND,
+    LEATHER_GLOVES,
     MELON,
     OILSKIN_SACK,
     ORCISH_ARROW,
@@ -170,19 +194,35 @@ import {
     YA,
     YUMI,
 } from './objects.js';
-import { an, helm_simple_name, singular, the, xnameFresh } from './objnam.js';
+import {
+    an,
+    helm_simple_name,
+    mshot_xname,
+    otense,
+    singular,
+    the,
+    The,
+    xnameFresh,
+} from './objnam.js';
+import { Monnam } from './do_name.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
-import { rn2, rnl, rnd } from './rng.js';
+import { rn1, rn2, rnl, rnd } from './rng.js';
 import { hitval } from './weapon.js';
 import { stairway_at } from './stairs.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import { Levitation, is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { cansee } from './vision.js';
+import { cansee, canseemon } from './vision.js';
 import { welded } from './wield.js';
-import { is_pole } from './worn.js';
-import { bhit } from './zap.js';
+import { find_mac, is_pole } from './worn.js';
+import { bhit, miss } from './zap.js';
+import { hmon } from './uhitm.js';
+import { m_at } from './monst.js';
+import { wakeup } from './mon.js';
+import { mpickobj } from './steal.js';
+import { rloc, tele_restrict } from './teleport.js';
+import { heroIsBlind } from './startup_a11y.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
@@ -759,6 +799,130 @@ function finishThrowObj(res, obj, save_osplit, state) {
     return res;
 }
 
+// C ref: dothrow.c tmiss() (1951-1973). A thrown object uses the missile
+// name in the miss message, wakes a target one third of the time, and hides
+// the target's real name when it is not a valid visible monster appearance.
+async function tmiss(obj, mon, maybeWakeup, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn2 };
+    const missile = mshot_xname(obj, state);
+    if (!canseemon(mon, state)
+        || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
+        await message(
+            `${The(missile, state)} ${otense(obj, 'miss')}.`,
+            state,
+            env,
+        );
+    } else {
+        await miss(missile, mon, state);
+    }
+    if (maybeWakeup && !random.rn2(3))
+        await wakeup(mon, true, { ...env, state, random });
+}
+
+// C ref: dothrow.c throwit_mon_hit() (1482-1506). bhit() supplies the target
+// and leaves the object in gt.thrownobj; this wrapper performs the source's
+// bookkeeping before and after thitmonst().
+async function throwit_mon_hit(mon, obj, state = game) {
+    if (mon?.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
+        return true;
+    if (obj?.lamplit)
+        throw new UnsupportedThrowError('snuff_candle()');
+    state.gn ??= {};
+    state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
+        || state.gb.bhitpos.y !== mon.my;
+    const objGone = await thitmonst(mon, obj, state);
+    const after = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+    if (after?.isshk
+        && after !== mon
+        && (state.u.ushops?.[0] || obj.unpaid)) {
+        throw new UnsupportedThrowError('hot_pursuit()');
+    }
+    if (objGone) state.thrownobj = null;
+    return false;
+}
+
+// C ref: dothrow.c gem_accept() (2309-2380). A unicorn's gift changes Luck,
+// turns the creature peaceful, and either gives it the gem or lets it keep
+// the object while relocating. The inventory and teleport owners are called
+// through their existing source APIs so their lifecycle checks remain active.
+async function gem_accept(mon, obj, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state, random: rawEnv.random ?? { rn2, rnd } };
+    const message = env.message ?? ttyPline;
+    const type = objectType(obj, state);
+    const isBuddy = sgn(mon.data.maligntyp ?? 0)
+        === sgn(state.u.ualign?.type ?? 0);
+    const isGem = type.oc_material === GEMSTONE;
+    const known = Boolean(obj.dknown && type.oc_name_known);
+    const guessed = Boolean(obj.oextra?.oname || type.oc_uname);
+    let text = Monnam(mon, state);
+    let accepted = true;
+
+    mon.mpeaceful = 1;
+    mon.mavenge = 0;
+    if (known) {
+        if (isGem) {
+            if (isBuddy) {
+                text += ' gratefully';
+                change_luck(5, state);
+            } else {
+                text += ' hesitatingly';
+                change_luck(env.random.rn2(7) - 3, state);
+            }
+        } else {
+            text += ' is not interested in your junk.';
+            accepted = false;
+        }
+    } else if (guessed) {
+        if (isGem) {
+            if (isBuddy) {
+                text += ' gratefully';
+                change_luck(2, state);
+            } else {
+                text += ' hesitatingly';
+                change_luck(env.random.rn2(3) - 1, state);
+            }
+        } else {
+            text += ' is not interested in your junk.';
+            accepted = false;
+        }
+    } else if (isGem) {
+        if (isBuddy) {
+            text += ' gratefully';
+            change_luck(1, state);
+        } else {
+            text += ' hesitatingly';
+            change_luck(env.random.rn2(3) - 1, state);
+        }
+    } else {
+        text += ' graciously';
+    }
+
+    if (accepted) {
+        text += ' accepts your gift.';
+        if (state.u.ushops?.[0] || obj.unpaid)
+            throw new UnsupportedThrowError('check_shop_obj()');
+        mpickobj(mon, obj, {
+            ...env,
+            canSeeMonster: (target) => canseemon(target, state),
+        });
+        if (!heroIsBlind(state)) await message(text, state, env);
+        return 1;
+    }
+
+    if (!heroIsBlind(state)) await message(text, state, env);
+    if (!(await tele_restrict(mon, state))) {
+        rloc(mon, RLOC_MSG, {
+            ...env,
+            state,
+            message,
+            random: env.random,
+            canSeeMonster: (target) => canseemon(target, state),
+        });
+    }
+    return 0;
+}
+
 // C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
 // consumed in the process". Sends one missile on its way and disposes of it
 // where it stops.
@@ -854,16 +1018,8 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
 
     if (mon) {
-        /* C ref: dothrow.c throwit_mon_hit() (1482-1506), reached from 1695.
-           Three statements stand between its entry and thitmonst() at 1492,
-           and none of them can act on a path this port admits. The shopkeeper
-           arm at 1487-1489 needs obj->where == OBJ_MINVENT, which only shk.c
-           shkcatch() produces and js/zap.js bhit() refuses. snuff_candle()
-           at 1490 needs obj->lamplit, which bhit()'s show_transient_light()
-           arm refuses. The gn.notonhead write at 1491 recomputes from
-           gb.bhitpos what bhit() already wrote at zap.c:3995 from the same
-           square. So thitmonst() is the first thing here that would run. */
-        throw new UnsupportedThrowError('thitmonst()');
+        await throwit_mon_hit(mon, obj, state);
+        return;
     }
 
     const bx = state.gb.bhitpos.x;
@@ -940,6 +1096,122 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         newsym(bx, by);
     if (obj_sheds_light(obj, state))
         state.vision_full_recalc = 1;
+}
+
+// C ref: dothrow.c thitmonst() (2011-2308).  This is the shared hit gate for
+// thrown objects, kicked objects, and polearms applied at range.  The weapon,
+// potion, pet-food, swallowed-object, and unicorn/leader side paths retain
+// their source boundaries below; the cream-pie path runs through hmon(), as
+// in C, so its random rolls and object lifecycle are shared with melee hits.
+export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn1, rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const unsupported = env.unsupported
+        ?? ((what) => {
+            throw new UnsupportedThrowError(`thitmonst(): ${what}`);
+        });
+    const u = state.u;
+    const otyp = obj.otyp;
+    const guaranteedHit = engulfing_u(mon, state);
+    const hmode = obj === state.uwep ? HMON_APPLIED
+        : obj === state.gk?.kickedobj ? HMON_KICKED : HMON_THROWN;
+
+    /* C's maybe_polyd() is ulevel for the unpolymorphed hero, which is the
+       only form represented by this port. */
+    let tmp = -1 + (u.uluck ?? 0) + (u.moreluck ?? 0)
+        + find_mac(mon, state) + (u.uhitinc ?? 0)
+        + (u.ulevel ?? 0);
+    const dex = acurr(state, A_DEX);
+    if (dex < 4) tmp -= 3;
+    else if (dex < 6) tmp -= 2;
+    else if (dex < 8) tmp -= 1;
+    else if (dex >= 14) tmp += dex - 14;
+
+    let disttmp = 3 - distmin(u.ux, u.uy, mon.mx, mon.my);
+    if (disttmp < -4) disttmp = -4;
+    tmp += disttmp;
+
+    if (state.uarmg && state.uwep
+        && objectType(state.uwep, state).oc_skill === P_BOW) {
+        switch (state.uarmg.otyp) {
+        case GAUNTLETS_OF_FUMBLING:
+            tmp -= 3;
+            break;
+        case GAUNTLETS_OF_POWER:
+            tmp -= 2;
+            break;
+        case LEATHER_GLOVES:
+        case GAUNTLETS_OF_DEXTERITY:
+            break;
+        default:
+            unsupported(`unknown type of gloves (${state.uarmg.otyp})`);
+            break;
+        }
+    }
+
+    tmp += omon_adj(mon, obj, true, { state, random });
+    if (is_orc(mon.data) && state.urace?.mnum === PM_ELF)
+        tmp++;
+    if (guaranteedHit) tmp += 1000;
+
+    /* Real gems have their unicorn interaction before the attack roll. */
+    if (obj.oclass === GEM_CLASS && is_unicorn(mon.data)
+        && objectType(obj, state).oc_material !== MINERAL
+        && !uslinging(state)) {
+        if (helpless(mon)) {
+            await tmiss(obj, mon, false, state, { ...env, random });
+            return 0;
+        }
+        await message(
+            `${Monnam(mon, state)} catches ${the(xnameFresh(obj, state), state)}.`,
+            state,
+        );
+        return gem_accept(mon, obj, state, { ...env, random, message });
+    }
+
+    /* C's special_obj_hits_leader() branch depends on quest and invocation
+       state which this span does not own. Leave the source boundary explicit
+       when a caller presents such a target. */
+    if (mon.m_id && state.svq?.quest_status?.leader_m_id === mon.m_id
+        && (obj.oartifact || objectType(obj, state).oc_unique
+            || (otyp === 0 && !obj.known))) {
+        unsupported('special artifact hit on quest leader');
+    }
+
+    const dieroll = random.rnd(20);
+
+    if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
+        || obj.oclass === GEM_CLASS) {
+        unsupported('thrown weapon hit');
+        return 0;
+    }
+    if (otyp === HEAVY_IRON_BALL || otyp === BOULDER) {
+        unsupported('thrown ball or boulder hit');
+        return 0;
+    }
+
+    if ((otyp === EGG || otyp === CREAM_PIE || otyp === BLINDING_VENOM
+        || otyp === ACID_VENOM)
+        && (guaranteedHit || dex > random.rnd(25))) {
+        const hitEnv = {
+            ...env,
+            state,
+            random,
+            message,
+            unsupported,
+        };
+        await hmon(mon, obj, hmode, dieroll, state, hitEnv);
+        return 1;
+    }
+    if (obj.oclass === POTION_CLASS
+        && (guaranteedHit || dex > random.rnd(25))) {
+        unsupported('potionhit()');
+        return 1;
+    }
+
+    unsupported('non-weapon thrown-object hit');
+    return 0;
 }
 
 // C ref: dokick.c down_gate() (1942-1975), reduced to the question
