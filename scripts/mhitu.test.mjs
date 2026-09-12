@@ -29,6 +29,7 @@ import {
     W_ARMG,
     W_ARMC,
     W_ARMU,
+    SEE_INVIS,
 } from '../js/const.js';
 import { midnight } from '../js/calendar.js';
 import {
@@ -56,6 +57,9 @@ import {
     monst_globals_init,
     AD_COLD,
     AD_PHYS,
+    AD_SEDU,
+    AD_SITM,
+    AD_SSEX,
     AT_BITE,
     AT_ENGL,
     AT_BOOM,
@@ -937,42 +941,68 @@ test('mtrapped_in_pit reads the pit under whichever party is asked',
     state.level.traps.length = 0;
 });
 
-test('could_seduce answers zero for every aggressor the port admits',
-    async () => {
+test('could_seduce follows visibility, attack type, and gender', async () => {
     const state = await meleeHero();
-    const refuse = {
-        state,
-        unsupported: (reason) => {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
-    };
-    // mhitu.c:1948-1949, the animal gate, then the S_NYMPH test at :1976.
+    // mhitu.c:1948-1949, the animal gate, returns before reading any other
+    // attacker fields. Both species carry M1_ANIMAL in monst.c.
     const jackal = meleeAttacker(state, PM_JACKAL, 1, 1);
-    assert.equal(could_seduce(jackal, state.youmonst, null, refuse), 0);
+    assert.equal(could_seduce(jackal, state.youmonst, null, { state }), 0);
     const goblin = meleeAttacker(state, PM_GOBLIN, -1, -1);
-    assert.equal(could_seduce(goblin, state.youmonst, null, refuse), 0);
-    // A nymph passes that test, and the rest of the function is unported.
-    const nymph = meleeAttacker(state, PM_WATER_NYMPH, 1, -1);
-    assert.throws(
-        () => could_seduce(nymph, state.youmonst, null, refuse),
-        (error) => error.reason === 'a seductive monster attack',
-    );
+    assert.equal(could_seduce(goblin, state.youmonst, null, { state }), 0);
 
-    // The refusal is wider than C's nonzero answer, which is what makes it a
-    // stop rather than the arm's boundary. mhitu.c:1976-1977 is a disjunction
-    // and the port tests only its species half, so an amorous demon's claw --
-    // its second and third slots, ATTK(AT_CLAW, AD_PHYS, 1, 3) at
-    // monsters.h:2922-2923 -- refuses here where C returns 0 at :1978 and
-    // hitmsg() prints "hits". Completing the adtyp half would land that blow
-    // instead, and this is where that change has to be argued.
+    // Water nymphs have AD_SITM then AD_SEDU attacks. A female nymph and a
+    // male human are opposite genders, so both explicit attacks return 1.
+    const nymph = meleeAttacker(state, PM_WATER_NYMPH, 1, -1);
+    nymph.female = true;
+    state.flags.female = false;
+    const itemTheft = nymph.data.mattk[0];
+    const seduction = nymph.data.mattk[1];
+    assert.equal(itemTheft.adtyp, AD_SITM);
+    assert.equal(seduction.adtyp, AD_SEDU);
+    assert.equal(could_seduce(nymph, state.youmonst, itemTheft, { state }), 1);
+    assert.equal(could_seduce(nymph, state.youmonst, seduction, { state }), 1);
+    // A null attack infers AD_SEDU after the species' AD_SSEX check fails.
+    assert.equal(could_seduce(nymph, state.youmonst, null, { state }), 1);
+
+    // The same nymph and hero gender uses the nymph-specific result 2.
+    state.flags.female = true;
+    assert.equal(could_seduce(nymph, state.youmonst, seduction, { state }), 2);
+
+    // An amorous demon's claw is AD_PHYS, so the accepted species alone does
+    // not make that attack seductive. C's :1976-1978 returns zero here.
     const demon = meleeAttacker(state, PM_AMOROUS_DEMON, -1, 1);
     const claw = demon.data.mattk[1];
     assert.equal(claw.aatyp, AT_CLAW);
     assert.equal(claw.adtyp, AD_PHYS);
-    assert.throws(
-        () => could_seduce(demon, state.youmonst, claw, refuse),
-        (error) => error.reason === 'a seductive monster attack',
-    );
+    assert.equal(could_seduce(demon, state.youmonst, claw, { state }), 0);
+
+    // AD_SSEX remains visible through an invisible attacker when seduction is
+    // enabled. Disabling SYSOPT_SEDUCE converts it to AD_SEDU first, and the
+    // same unseen attacker then fails the visibility gate at :1969-1970.
+    const sexAttack = demon.data.mattk[0];
+    assert.equal(sexAttack.adtyp, AD_SSEX);
+    demon.female = true;
+    demon.minvis = true;
+    state.flags.female = false;
+    state.sysopt.seduce = true;
+    assert.equal(could_seduce(demon, state.youmonst, sexAttack, { state }), 1);
+    state.sysopt.seduce = false;
+    assert.equal(could_seduce(demon, state.youmonst, sexAttack, { state }), 0);
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(could_seduce(demon, state.youmonst, sexAttack, { state }), 1);
+
+    // The two identity branches are separate in C. Make the hero the
+    // attacker in the same AD_SSEX case, then use a female monster defender
+    // to exercise gender() and perceives() on the non-hero side.
+    const heroSpecies = state.youmonst.data;
+    state.youmonst.data = state.mons[PM_AMOROUS_DEMON];
+    const monsterDefender = meleeAttacker(state, PM_GOBLIN, 0, 1);
+    monsterDefender.female = true;
+    state.u.uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.sysopt.seduce = true;
+    assert.equal(could_seduce(state.youmonst, monsterDefender,
+        sexAttack, { state }), 1);
+    state.youmonst.data = heroSpecies;
 });
 
 test('mattacku clamps a differential its rolls drove to zero', async () => {
@@ -1314,7 +1344,7 @@ test('getmattk separates the two damage types its holder guard names',
 // ---- mhitu.c hitmsg(), hitmu(), mdamageu() and passiveum() ----
 
 // hitmsg() reads a monster, an attack record and the two gh fields; the env
-// carries the printer and the refusal could_seduce() may raise.
+// carries the printer and the remaining unported hitmsg operations may raise.
 function hitmsgEnv(state) {
     const lines = [];
     return {

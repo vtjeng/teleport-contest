@@ -27,6 +27,7 @@ import {
     PROTECTION,
     P_WHIP,
     RLOC_NOMSG,
+    SEE_INVIS,
     IS_WATERWALL,
     TT_PIT,
     W_AMUL,
@@ -75,6 +76,8 @@ import {
     is_undead,
     is_vampshifter,
     is_were,
+    dmgtype,
+    gender,
     mhis,
     monstunseesu,
     mon_hates_blessings,
@@ -116,6 +119,7 @@ import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
+import { poly_gender } from './polyself.js';
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary
 // death entry updates the live terminal and then asks for input. This signal
@@ -204,9 +208,8 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
 
     if (!state.flags?.verbose || !canSee(mtmp.mx, mtmp.my)) return;
 
-    // could_seduce() is evaluated before the monster name in C. Its nonzero
-    // result is still fail-closed for seductive attack types outside this
-    // span, while ordinary physical attacks return zero without a draw.
+    // could_seduce() is evaluated before the monster name in C. Ordinary
+    // physical attacks return zero without a draw.
     const compat = (mattk.adtyp === M.AD_SEDU || mattk.adtyp === M.AD_SSEX)
         ? could_seduce(mtmp, state.youmonst, mattk, { ...rawEnv, state })
         : 0;
@@ -271,43 +274,59 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
 
 // C ref: mhitu.c could_seduce() (1933-1984). "returns 0 if seduction
 // impossible, 1 if fine, 2 if wrong gender for nymph".
-//
-// Partial: it covers every aggressor whose species fails the S_NYMPH /
-// PM_AMOROUS_DEMON test at :1976, which is the whole answer for all of them
-// and is 0. An aggressor that passes it refuses, because the rest of the
-// function needs polyself.c poly_gender(), sysopt.seduce and the AD_SSEX /
-// AD_SEDU / AD_SITM damage types, none of which is ported.
-//
-// That refusal is a fail-closed stop, not the boundary of C's nonzero answer.
-// It is wider, in three directions, because it tests the species alone:
-//
-//   C's :1976-1977 is a disjunction, and its second half also demands an adtyp
-//     of AD_SEDU, AD_SSEX or AD_SITM. An amorous demon's claw carries
-//     ATTK(AT_CLAW, AD_PHYS, 1, 3) (monsters.h:2922-2923), for which C returns
-//     0 at :1978 and hitmsg() prints its default verb, while this refuses.
-//   C's :1969-1970 returns 0 for an unseen aggressor's AD_SEDU attack.
-//   C's :1980 returns 0 for an amorous demon whose gender matches the hero's.
-//
-// A caller that needs C's answer rather than a stop therefore has to complete
-// this function; it cannot read the refusal as "C would have said yes".
 export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
-
     if (is_animal(magr.data)) return 0;
+
+    let pagr;
+    let agrinvis;
+    let genagr;
+    if (magr === state.youmonst) {
+        pagr = state.youmonst.data;
+        const invis = state.u?.uprops?.[INVIS];
+        agrinvis = Boolean((invis?.intrinsic || invis?.extrinsic)
+            && !invis?.blocked);
+        genagr = poly_gender(state);
+    } else {
+        pagr = magr.data;
+        agrinvis = Boolean(magr.minvis);
+        genagr = gender(magr);
+    }
+
+    let defperc;
+    let gendef;
+    if (mdef === state.youmonst) {
+        const seeInvisible = state.u?.uprops?.[SEE_INVIS];
+        defperc = Boolean(seeInvisible?.intrinsic
+            || seeInvisible?.extrinsic);
+        gendef = poly_gender(state);
+    } else {
+        defperc = perceives(mdef.data);
+        gendef = gender(mdef);
+    }
+
+    let adtyp = mattk ? mattk.adtyp
+        : dmgtype(pagr, M.AD_SSEX) ? M.AD_SSEX
+            : dmgtype(pagr, M.AD_SEDU) ? M.AD_SEDU
+                : M.AD_PHYS;
+    if (adtyp === M.AD_SSEX && !(state.sysopt?.seduce ?? true))
+        adtyp = M.AD_SEDU;
+
+    if (agrinvis && !defperc && adtyp === M.AD_SEDU)
+        return 0;
+
     /* nymphs have two attacks, one for steal-item damage and the other
        for seduction, both pass the could_seduce() test;
        incubi/succubi have three attacks, their claw attacks for damage
        don't pass the test */
-    // C's comment describes both halves of its :1976-1977 test. Only the
-    // species half is ported, so the claw attacks its last line excuses refuse
-    // here instead of falling through.
-    const pagr = magr.data;
-    if (pagr.mlet === M.S_NYMPH
-        || pagr === state.mons?.[M.PM_AMOROUS_DEMON]) {
-        unsupported('a seductive monster attack');
-    }
-    return 0;
+    if ((pagr.mlet !== M.S_NYMPH
+        && pagr !== state.mons[M.PM_AMOROUS_DEMON])
+        || (adtyp !== M.AD_SEDU && adtyp !== M.AD_SSEX
+            && adtyp !== M.AD_SITM))
+        return 0;
+
+    return genagr === 1 - gendef ? 1
+        : pagr.mlet === M.S_NYMPH ? 2 : 0;
 }
 
 // allmain.c stop_occupation(), which mhitu.c calls from missmu() at :99 and
@@ -361,15 +380,13 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 
     /* Note: if opposite gender, "seductively";
        if same gender, "engagingly" for nymph, normal msg for others. */
-    // C's first arm prints "%s smiles at you seductively." for a nonzero
-    // could_seduce(). It is left out because no route into hitmsg() can reach
-    // it, which is a fact about the callers rather than about the call below.
-    // uhitm.c mhitm_ad_phys() and mhitm_ad_elec() are the only two, and both
-    // pass a non-null mattk whose adtyp is AD_PHYS or AD_ELEC. mhitu.c:1977
-    // then holds for every aggressor, so C returns 0 at :1978 and the arm has
-    // no reachable spelling. The call stays for the refusal it carries, which
-    // is wider than C's nonzero set rather than equal to it; could_seduce()
-    // above says in which directions.
+    // C's first arm prints a seductive message for a nonzero could_seduce().
+    // No current hitmsg() caller reaches that arm, but keep the predicate in
+    // the source order so a future caller gets C's result.
+    // uhitm.c mhitm_ad_phys() and mhitm_ad_elec() are the only current callers,
+    // and both pass a non-null mattk whose adtyp is AD_PHYS or AD_ELEC. C
+    // returns zero for those attacks; calling the full helper preserves the
+    // source order for any future seductive caller.
     could_seduce(mtmp, state.youmonst, mattk, { ...env, state });
 
     switch (mattk.aatyp) {
