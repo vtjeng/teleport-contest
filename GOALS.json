@@ -29021,7 +29021,7 @@
     {
       "id": "port-dothrow-thitmonst-cream-pie",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dothrow.c thitmonst() thrown-object hit dispatch including the cream-pie monster branch",
       "cFile": "dothrow.c",
       "sessions": [
@@ -29032,8 +29032,8 @@
       "spans": [
         {
           "name": "thitmonst",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
           "functions": [
             "thitmonst"
           ]
@@ -29045,15 +29045,18 @@
         "screens": 7031,
         "rng": 513951
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+      "delivered": {
+        "screens": 11,
+        "rng": 506
+      },
       "functions": [
         {
           "name": "thitmonst",
           "line": 2011,
           "endLine": 2308,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -29081,7 +29084,71 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 209
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "thitmonst",
+            "implementation": "js/dothrow.js",
+            "symbol": "thitmonst",
+            "sourceReview": "Read dothrow.c:2011-2308 in full. Ported the source-order to-hit arithmetic, distance and Dexterity modifiers, glove penalty, omon_adj call, pre-roll unicorn handling, dieroll, nonweapon cream-pie gate, hmon caller, and explicit miss and unsupported branches. Ported direct tmiss() and gem_accept() helpers. The C callers and bhit handoff are wired through throwit_mon_hit()->thitmonst(). The remaining source boundaries are special quest-leader handling, ranged weapon damage, heavy-ball/boulder damage, potionhit(), pet-food/tamedog(), and swallowed-object side effects.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit_mon_hit",
+                "source": "dothrow.c:1482-1506 throwit_mon_hit() calls thitmonst() after zap.c bhit() returns a monster"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:1695 throwit() dispatches the returned bhit monster to throwit_mon_hit()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow-thitmonst.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ],
+            "checkedAt": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d"
+          }
+        ],
+        "entryPointReview": "The selected source range has one live entry point: a thrown object reaching a monster through throwit(), zap.c bhit(), and throwit_mon_hit(). The committed cream-pie recipe reaches the HMON_THROWN nonweapon arm and exercises hmon(), can_blnd(), hmon_hitmon_do_hit(), hmon_hitmon_misc_obj(), tmiss() support through the same production caller chain.",
+        "entryPoints": [
+          {
+            "name": "thrown cream pie hits monster",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-cream-pie.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 516,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 198
+        }
+      ],
+      "closeStanding": {
+        "sha": "55c6bdfb4f0ddc91dba313dd16e3773649526e3d",
+        "screens": 7042,
+        "rng": 514457
+      }
     }
   ]
 }
