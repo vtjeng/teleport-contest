@@ -27526,7 +27526,16 @@
       ],
       "selectionReason": "The refreshed development queue ranks seed0360-wizard-world-tour first at step 545, where C's dokick.c kick_nondoor() wall/upward-stairs arm emits Ouch, exercises dexterity and strength, draws rn2(3) and rnd(3), and applies kick_ouch() damage while JavaScript still refuses this branch. Source tracing identifies kick_ouch() lines 881-906 and kickstr() lines 794-830 as required same-span dependencies; the production entry is cmd.js runKickCommand() -> js/dokick.js dokick(). Select only kick_nondoor() as the source unit and wire the confirmed ordinary wall case while preserving exact ordering and ECMD_TIME; port kick_ouch()/kickstr() when their return or state contracts are needed.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "kick_nondoor",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "kick_nondoor"
+          ]
+        }
+      ],
       "openedAt": "4050663e7f6d5f184065e9a1681569818fef1ff1",
       "openStanding": {
         "sha": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019",
