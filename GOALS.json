@@ -29815,7 +29815,7 @@
     {
       "id": "div-monmove-m-move-preferred-range-seed0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match m_move preferred-range candidate selection for seed0360 step 668",
       "cFile": "monmove.c",
       "sessions": [],
@@ -29824,8 +29824,8 @@
       "spans": [
         {
           "name": "preferred_range_selection",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ad5812c2b21122f4eb260997634cffe766c916ef",
           "functions": [
             "m_move"
           ]
@@ -29837,8 +29837,11 @@
         "screens": 7202,
         "rng": 528987
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ad5812c2b21122f4eb260997634cffe766c916ef",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "m_move",
       "session": "seed0360-wizard-world-tour",
       "step": 668,
@@ -29863,7 +29866,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 165
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "ad5812c2b21122f4eb260997634cffe766c916ef",
+        "screens": 7202,
+        "rng": 528987
+      }
     }
   ]
 }
