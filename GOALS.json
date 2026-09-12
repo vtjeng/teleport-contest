@@ -30209,7 +30209,7 @@
     {
       "id": "div-getpos-quick-pick-seed0360",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match getpos() quick-pick keys in forced travel target selection",
       "cFile": "getpos.c",
       "sessions": [
@@ -30233,8 +30233,11 @@
         "screens": 7202,
         "rng": 528987
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "edd25620870f12b3181ca719b4cfc7ac3df49e71",
+      "delivered": {
+        "screens": 30,
+        "rng": 1442
+      },
       "function": "getpos",
       "session": "seed0360-wizard-world-tour",
       "step": 668,
@@ -30259,7 +30262,12 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 165
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "edd25620870f12b3181ca719b4cfc7ac3df49e71",
+        "screens": 7232,
+        "rng": 530429
+      }
     }
   ]
 }
