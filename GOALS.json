@@ -30217,7 +30217,16 @@
       ],
       "selectionReason": "The queue's top seed0360 step-668 boundary was annotated at distfleeck(), but exact adjacent-screen replay source-traces the mismatch to getpos.c getpos(): the recorded comma is C's LOOK_QUICK pick key at lines 910-913, while js/getpos.js handles only '.', leaving the travel target prompt active. This source-local fix is the highest candidate's first-mismatch owner; monmove.c is a downstream call-site attribution.",
       "detail": "Development session seed0360-wizard-world-tour, segment 0, input step 668 (key comma): first mismatch is screen/cursor after 668 prior matching boundaries. C screen starts with 'A mysterious force prevents the tengu from teleporting!--More--' and cursor [63,0,1]; JS screen still says Unknown direction: ',' and cursor [32,10,1]. C getpos.c getpos() lines 773-780 and 830-836 derive pick bindings; lines 910-913 map ',' to LOOK_QUICK and leave getpos before the travel action. JS js/getpos.js lines 215-229 handles only '.', then lines 293-308 treats comma as an invalid force-mode direction. C cmd.c dotravel() lines 5299-5343 calls getpos(&cc, TRUE, ...); JS js/cmd.js dotravel() lines 2587-2617 is the production caller. The pending More theory was checked against getpos.c and wintty.c and is false: invalid direction messages at steps 665-667 have no blocking More; comma is consumed as the quick-pick command. Fresh explicit replay reproduces the mismatch (ps_test_runner metrics: RNG 109546/120639, cursors 670/833; scan artifact /tmp/teleport-scan-8a9b.json). Smallest scope: add C pick-key handling to js/getpos.js, preserving result codes and caller state; test comma and existing period paths. No holdout accessed.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "getpos-quick-pick",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "getpos"
+          ]
+        }
+      ],
       "openedAt": "8a9b5c0750b30ac22fe9cf1c53b08cbd8d99a62e",
       "openStanding": {
         "sha": "8a9b5c0750b30ac22fe9cf1c53b08cbd8d99a62e",
