@@ -30653,6 +30653,63 @@
         "screens": 7355,
         "rng": 536167
       }
+    },
+    {
+      "id": "div-monmove-move-track-history-seed0030",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix ordinary m_move() candidate and track-history state before the rejection RNG",
+      "cFile": "monmove.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The refreshed queue ranks monmove.c::m_move() first at seed0030 step 1823; source tracing confirms the existing production m_move loop reaches monmove.c:1963, so this is a focused implemented-behavior divergence rather than a missing whole-file port.",
+      "detail": "Development session seed0030-ten-diverse-deaths, segment 9, first mismatch at global step 1823 is RNG rn2(32)=22 at monmove.c:1963 in m_move() candidate-loop track-history rejection (source lines 1953-1964, formula rn2(4 * (cnt - j))). Production JS is wired allmain.js:1189 -> unported_monster_actions.js:1085-1113 runSimpleMonsterAction/moveSimpleOrdinary -> monmove.js:3312-3762 m_move; corresponding loop monmove.js:3640-3664 has the same Math.min(MTSZ, count - 1) bound and RNG formula. Source-backed suspected dependencies before the call are mfndpos() (mon.c:2140-2382; js/monmove.js:1295-1528), m_avoid_kicked_loc() (monmove.c:1295-1308; js/monmove.js:556-572), and mtrack maintenance (monmove.c:76-86; js/monmove.js:542-554). Visible actors are ordinary classes; no worm/covetous/Tengu/displacement branch is implicated. Scope is the smallest general state/candidate fix, with focused source-pinned replay; no holdout data inspected.",
+      "spans": [
+        {
+          "name": "m-move-track-candidate",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "m_move",
+            "mfndpos",
+            "m_avoid_kicked_loc"
+          ]
+        }
+      ],
+      "openedAt": "0bf4a52fe0c40bce910dd22c864feca9f08aebb2",
+      "openStanding": {
+        "sha": "0bf4a52fe0c40bce910dd22c864feca9f08aebb2",
+        "screens": 7355,
+        "rng": 536167
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "m_move",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 1823,
+      "activeStanding": {
+        "sha": "0bf4a52fe0c40bce910dd22c864feca9f08aebb2",
+        "screens": 7355,
+        "rng": 536167
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1823,
+          "kind": "rng",
+          "function": "m_move",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 1963,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 130
+        }
+      ]
     }
   ]
 }
