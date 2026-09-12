@@ -180,7 +180,7 @@ h1 {
 .score-breakdown {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(max-content, 1fr) repeat(3, max-content) minmax(max-content, 1fr);
+  grid-template-columns: minmax(max-content, 1fr) max-content max-content;
   align-content: start;
   gap: 6px 4px;
   margin-top: 12px;
@@ -208,7 +208,7 @@ h1 {
 }
 
 .score-breakdown-missing { grid-column: 2 / -1; }
-.score-breakdown-total { text-align: left; }
+.score-breakdown-percent { margin-left: 12px; }
 
 .score-source {
   color: var(--ink-muted);
@@ -996,8 +996,7 @@ const escScoreText = text => String(text ?? '').replace(/&/g, '&amp;')
   .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const scores = DATA.scores;
 const scoreMetric = metric => metric
-  ? '<span class="score-breakdown-matched">' + fmtN(metric.matched) + '</span>'
-    + '<span class="score-breakdown-slash">/</span><span class="score-breakdown-total">' + fmtN(metric.total) + '</span>'
+  ? '<span class="score-breakdown-count">' + fmtN(metric.matched) + ' / ' + fmtN(metric.total) + '</span>'
     + '<span class="score-breakdown-percent">' + pct(metric.matched, metric.total) + '</span>'
   : '<span class="score-breakdown-missing">—</span>';
 const challengeData = DATA.challenges;
