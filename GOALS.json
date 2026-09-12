@@ -30048,6 +30048,71 @@
         "screens": 7202,
         "rng": 528987
       }
+    },
+    {
+      "id": "port-trap-statue-trap-monster-seed0360",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port monster statue-trap no-op and selector wiring for seed0360",
+      "cFile": "trap.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The queue still ranks monmove.c step 668 first, but post-avoid-kicked source tracing identifies its next missing dependency in trap.c. C monmove.c dochug/m_move calls mintrap after movement; trap.c trapeffect_statue_trap() explicitly returns Trap_Effect_Finished for monsters with no RNG, message, or state change. JS trap_effects.js still lists STATUE_TRAP in UNPORTED_TRAP_EFFECTS and stops the ordinary monster path. This one-function trap port is the source-backed dependency needed to address the highest-ranked monmove candidate.",
+      "detail": "Development session seed0360-wizard-world-tour, step 668. On tested commit d155150afdbf33ba82cfbb321f9d896baf5a62f6 (closure f806c200), the C trace has the Tengu restriction message, matched movement draws, and then a post-movement trap path before the next distfleeck attribution. Read-only source tracing found C nethack-c/upstream/src/trap.c:2279-2290 trapeffect_statue_trap(struct monst *mtmp, struct trap *trap, unsigned trflags): hero arm activates the statue trap, but the monster arm is an explicit no-op and returns Trap_Effect_Finished. C selector dispatches STATUE_TRAP at trap.c:2973-2974. JS js/monmove.js postmov calls mintrap at ~3108; js/trap_effects.js mintrap dispatches trapeffect_selector and currently keeps STATUE_TRAP in UNPORTED_TRAP_EFFECTS, causing the ordinary monster path to stop. Bounded scope: implement only monster STATUE_TRAP no-op and selector removal for monster dispatch; retain the hero arm refusal and all other trap types. Production path: allmain.js moveElapsedTurnMonster -> mon.js movemon_singlemon -> unported_monster_actions.js runSimpleOrdinary -> monmove.js dochug/m_move -> postmov -> trap_effects.js mintrap/trapeffect_selector. Existing investigation used only named source files, non-holdout artifacts, and sessions/seed0360-wizard-world-tour.session.json.",
+      "spans": [
+        {
+          "name": "trapeffect_statue_trap",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_statue_trap"
+          ]
+        }
+      ],
+      "openedAt": "f806c200cea9d141624784a923cfce1664f91acd",
+      "openStanding": {
+        "sha": "d155150afdbf33ba82cfbb321f9d896baf5a62f6",
+        "screens": 7202,
+        "rng": 528987
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_statue_trap",
+          "line": 2279,
+          "endLine": 2292,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2279,
+        "to": 2292
+      },
+      "activeStanding": {
+        "sha": "d155150afdbf33ba82cfbb321f9d896baf5a62f6",
+        "screens": 7202,
+        "rng": 528987
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 668,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 165
+        }
+      ]
     }
   ]
 }
