@@ -29,12 +29,11 @@
   --goal-in-progress: #1baf7a;
   --goal-paused: #c99000;
 
-  /* The progress chart plots measures, so its screens line is ink and both
-     rates share one grey and differ by dash, so no series wears a colour
-     that means a kind or a state elsewhere on the page. */
+  /* Matched screens use ink; totals use a quieter dashed line. Reserve
+     colours for work kinds and states elsewhere on the page. */
   --progress-fill: #1a1917;
   --progress-area: rgba(26,25,23,0.07);
-  --rate: #898781;
+  --chart-total: #898781;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -61,7 +60,7 @@
 
     --progress-fill: #e6e4df;
     --progress-area: rgba(230,228,223,0.08);
-    --rate: #898781;
+    --chart-total: #898781;
   }
 }
 :root[data-theme="dark"] {
@@ -87,7 +86,7 @@
 
   --progress-fill: #e6e4df;
   --progress-area: rgba(230,228,223,0.08);
-  --rate: #898781;
+  --chart-total: #898781;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -329,9 +328,6 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
   color: var(--ink-secondary);
 }
 
-.legend-group { display: grid; gap: 6px; }
-.legend-group-title { font-size: 11px; font-weight: 600; color: var(--ink-muted); }
-.legend-group-items { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 
 .legend-item {
   display: flex;
@@ -440,7 +436,7 @@ canvas {
 
 /* pan-y leaves a vertical swipe to the page; a horizontal drag pans the chart
    or slides the minimap window. */
-#progressChart {
+.score-history-canvas {
   cursor: grab;
   touch-action: pan-y;
 }
@@ -449,7 +445,7 @@ canvas {
   cursor: grabbing;
 }
 
-#progressChart:focus-visible {
+.score-history-canvas:focus-visible {
   outline: 2px solid var(--progress-fill);
   outline-offset: 2px;
 }
@@ -464,6 +460,22 @@ canvas {
 #progressMinimap.is-sliding {
   cursor: grabbing;
 }
+
+.history-controls { display: flex; gap: 6px; }
+.history-controls [aria-pressed="true"] { color: var(--ink-primary); border-color: var(--ink-secondary); }
+.history-line { width: 22px; border-top: 2px solid var(--progress-fill); }
+.history-line.total { border-top: 1px dashed var(--chart-total); }
+.score-inspection { position: sticky; top: 0; z-index: 5; background: var(--surface-card); padding: 8px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
+.readout-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
+.score-readout-row { display: grid; grid-template-columns: minmax(104px, 1fr) minmax(0, 2fr) minmax(64px, 1fr); gap: 8px; align-items: baseline; padding: 3px 0; font-size: 12px; }
+.score-readout-row > span { text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.score-readout-row > span:last-child { font-size: 11px; color: var(--ink-muted); }
+.measurement-details { font-size: 11px; color: var(--ink-secondary); margin-top: 6px; }
+.measurement-details p { margin-top: 8px; white-space: pre-line; overflow-wrap: anywhere; max-height: 96px; overflow-y: auto; }
+.history-plot { margin-top: 12px; }
+.history-plot h3, .history-navigator h3 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.history-navigator { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; }
+.history-help { color: var(--ink-muted); font-size: 11px; margin-top: 8px; }
 
 /* --- Goal timeline: one row per local day --- */
 .day-row {
@@ -829,27 +841,38 @@ canvas {
   <h1>NetHack Port Progress</h1>
   <span class="updated" id="updated"></span>
 </div>
-<p class="subtitle">Charts show development progress.</p>
+<p class="subtitle">Saved screen measurements.</p>
 
 <div class="stats" id="stats"></div>
 
 
 
-<div class="section">
-  <h2 class="section-title">Development screens matched over time</h2>
-  <div class="legend" id="progressLegend"></div>
+<section class="section" aria-labelledby="scoreHistoryTitle">
+  <h2 class="section-title" id="scoreHistoryTitle">Screen matches over time</h2>
   <div class="chart-wrap">
     <div class="chart-toolbar">
       <span class="chart-range" id="progressRange"></span>
-      <span class="chart-hint">Scroll to zoom time, or drag the window below</span>
-      <button type="button" class="chart-reset" id="progressReset" disabled>Show all</button>
+      <div class="history-controls" aria-label="Chart controls">
+        <button type="button" class="chart-reset" id="progressMode-screens" aria-pressed="true">Screens</button>
+        <button type="button" class="chart-reset" id="progressMode-percent" aria-pressed="false">%</button>
+        <button type="button" class="chart-reset" id="progressReset">Show all</button>
+      </div>
     </div>
-    <canvas id="progressChart" height="220" tabindex="0"
-      aria-label="Development screens matched over time. Arrow keys step through goals and report each one."></canvas>
-    <canvas id="progressMinimap" height="54"
-      aria-label="Time range selector covering every goal. Drag its window or edges to choose what the chart above shows."></canvas>
+    <div class="legend" id="progressLegend"></div>
+    <div class="score-inspection">
+      <div class="readout-heading"><time id="progressReadoutDate"></time><button type="button" class="chart-reset" id="progressClearPin" disabled>Unpin</button></div>
+      <div id="progressReadout" aria-live="polite"></div>
+      <details class="measurement-details"><summary>Measurement details</summary><p id="progressReadoutDetails"></p></details>
+    </div>
+    <div class="history-plot"><h3>Development</h3><canvas id="progressChart" class="score-history-canvas" tabindex="0"></canvas></div>
+    <div class="history-plot"><h3>Local holdout</h3><canvas id="holdoutChart" class="score-history-canvas" tabindex="0"></canvas></div>
+    <div class="history-plot"><h3>Challenges</h3><canvas id="challengeChart" class="score-history-canvas" tabindex="0"></canvas></div>
+    <div class="history-navigator"><h3>Full history</h3>
+      <canvas id="progressMinimap" tabindex="0" aria-label="Full history for all three sets. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
+    </div>
+    <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom.</p>
   </div>
-</div>
+</section>
 
 <section class="section" aria-labelledby="currentWorkTitle">
   <h2 class="section-title" id="currentWorkTitle">Current work</h2>
@@ -1153,759 +1176,339 @@ document.getElementById('stats').innerHTML = [
   table.innerHTML = html + '</tbody>';
 })();
 
-// --- Progress chart (time-zoomable step plot, minimap, and hover readout) ---
+// --- Three score histories with one time window and navigator ---
 (function() {
-  const canvas = document.getElementById('progressChart');
+  const canvasIds = ['progressChart', 'holdoutChart', 'challengeChart'];
+  const series = DATA.scoreHistory.map((entry, index) => ({ ...entry,
+    canvas: document.getElementById(canvasIds[index]),
+    points: entry.points.map(point => ({ ...point, time: Date.parse(point.utc) }))
+      .filter(point => Number.isFinite(point.time)).sort((a, b) => a.time - b.time),
+  }));
   const minimap = document.getElementById('progressMinimap');
   const rangeLabel = document.getElementById('progressRange');
-  const resetButton = document.getElementById('progressReset');
-  const tooltip = document.getElementById('tooltip');
-
-  const points = DATA.progress
-    .filter(p => p.screens != null && p.utc)
-    .map(p => ({ ...p, time: new Date(p.utc).getTime() }));
-  if (!points.length) return;
-
-  const H = 220;
-  const MINI_H = 54;
-  // Left and right margins are shared, so the minimap's window lines up with
-  // the plot above it.
-  const pad = { t: 12, r: 74, b: 36, l: 56 };
-  const DAY_MS = 86400000;
-  const HOUR_MS = 3600000;
-  // Goals close minutes apart, so a window narrower than this shows no more detail.
-  const MIN_SPAN_MS = 20 * 60000;
-  // The chart opens on the last week of recorded goals, which is the stretch a
-  // reader checks first. Show all and the minimap reach everything before it.
-  const DEFAULT_SPAN_MS = 7 * DAY_MS;
-  // The window can shrink to a fraction of a pixel on the minimap. Below this
-  // it stops shrinking, so that it stays visible and grabbable.
-  const MIN_WINDOW_PX = 18;
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  const domain = points.length > 1
-    ? { t0: points[0].time, t1: points[points.length - 1].time }
-    : { t0: points[0].time - DAY_MS, t1: points[0].time + DAY_MS };
-  const domainSpan = domain.t1 - domain.t0 || 1;
-
-  // The y-axis never changes: only time zooms, so every window is read against
-  // the same screens-matched scale, up to the target from the newest SCORE row.
-  const peak = Math.max(...points.map(p => p.screens));
-  const yMax = Math.max(points[points.length - 1].screensTotal || 0, peak);
-  const yStep = Math.max(1, niceStep(yMax / 4));
-
-  function screensAt(t) {
-    if (!points.length || t <= points[0].time) return 0;
-    let lo = 0, hi = points.length - 1;
+  const reset = document.getElementById('progressReset');
+  const readout = document.getElementById('progressReadout');
+  const readoutDate = document.getElementById('progressReadoutDate');
+  const readoutDetails = document.getElementById('progressReadoutDetails');
+  const clearPin = document.getElementById('progressClearPin');
+  const modes = ['screens', 'percent'].map(id => document.getElementById('progressMode-' + id));
+  const DAY = 86400000, HOUR = DAY / 24, MIN_SPAN = 20 * 60000;
+  const MINI_ROW = 44, MINI_H = MINI_ROW * 3 + 20;
+  const pad = { left: 52, right: 16, top: 10, bottom: 24 };
+  const times = [...new Set(series.flatMap(entry => entry.points.map(point => point.time)))].sort((a, b) => a - b);
+  const first = times[0] ?? Date.parse(DATA.summary.generatedAt);
+  const last = times.at(-1) ?? first;
+  const domain = { t0: first === last ? first - HOUR : first, t1: first === last ? last + HOUR : last };
+  let view = { t0: Math.max(domain.t0, domain.t1 - 7 * DAY), t1: domain.t1 };
+  let mode = 'screens', cursor = null, pinned = false, panning = null, sliding = null;
+  const esc = escScoreText;
+  const clamp = (value, lo, hi) => Math.max(lo, Math.min(hi, value));
+  const valueOf = (point, total = false) => mode === 'percent'
+    ? (point.screensTotal ? (total ? 100 : point.screens / point.screensTotal * 100) : null)
+    : total ? point.screensTotal : point.screens;
+  const measured = point => point.screens !== null && point.screensTotal !== null;
+  const clock = time => new Date(time).toISOString().slice(11, 16);
+  const day = time => new Date(time).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
+  });
+  const dateTime = time => day(time) + ' ' + clock(time) + ' UTC';
+  const age = ms => ms < 60000 ? 'just measured' : ms < HOUR ? Math.floor(ms / 60000) + 'm earlier'
+    : ms < DAY ? Math.floor(ms / HOUR) + 'h earlier' : Math.floor(ms / DAY) + 'd earlier';
+  const pointAt = (entry, time) => {
+    let lo = 0, hi = entry.points.length;
     while (lo < hi) {
-      const mid = (lo + hi + 1) >> 1;
-      if (points[mid].time <= t) lo = mid;
-      else hi = mid - 1;
+      const mid = (lo + hi) >>> 1;
+      if (entry.points[mid].time <= time) lo = mid + 1; else hi = mid;
     }
-    return points[lo].screens;
-  }
-
-  function buildRateSteps(windowMs, valueFn) {
-    const events = new Set();
-    for (const p of points) {
-      events.add(p.time);
-      events.add(p.time + windowMs);
-    }
-    const sorted = [...events].sort((a, b) => a - b);
-    const tMin = points[0].time;
-    const tMax = points[points.length - 1].time;
-    return sorted
-      .filter(t => t >= tMin && t <= tMax)
-      .map(t => ({ time: t, value: valueFn(t) }));
-  }
-
-  const rate7dSteps = buildRateSteps(7 * DAY_MS, t => (screensAt(t) - screensAt(t - 7 * DAY_MS)) / 7);
-  const rate24hSteps = buildRateSteps(DAY_MS, t => screensAt(t) - screensAt(t - DAY_MS));
-
-  const rateMax = Math.max(1,
-    ...rate7dSteps.map(r => r.value),
-    ...rate24hSteps.map(r => r.value));
-  const rateYMax = Math.ceil(rateMax / niceStep(rateMax / 4)) * niceStep(rateMax / 4);
-  const rateStep = niceStep(rateMax / 4);
-
-  let view = { t0: domain.t0, t1: domain.t1 };
-  let hover = null;   // index into points, or null when nothing is selected
-  let plot = null;    // scales and window from the last draw, for hit testing
-  let panning = null; // pan in progress on the main chart
-  let sliding = null; // drag in progress on the minimap
-
-  // --- View window ---
-
-  function isFullRange() {
-    return view.t0 === domain.t0 && view.t1 === domain.t1;
-  }
-
-  // Holds the window inside the recorded time span and no narrower than MIN_SPAN_MS.
+    return entry.points[lo - 1] ?? null;
+  };
   function setView(t0, t1) {
-    const span = Math.min(
-      Math.max(t1 - t0, Math.min(MIN_SPAN_MS, domainSpan)),
-      domainSpan,
-    );
-    const start = Math.min(Math.max(t0, domain.t0), domain.t1 - span);
-    view = { t0: start, t1: start + span };
+    const span = clamp(t1 - t0, Math.min(MIN_SPAN, domain.t1 - domain.t0), domain.t1 - domain.t0);
+    view.t0 = clamp(t0, domain.t0, domain.t1 - span);
+    view.t1 = view.t0 + span;
+    if (cursor !== null && (cursor < view.t0 || cursor > view.t1)) { cursor = null; pinned = false; }
   }
-
-  // Scales the window by factor while the time under anchorTime stays put.
-  function zoomAt(anchorTime, factor) {
-    const span = view.t1 - view.t0;
-    const nextSpan = span * factor;
-    const fraction = span ? (anchorTime - view.t0) / span : 0.5;
-    const start = anchorTime - fraction * nextSpan;
-    setView(start, start + nextSpan);
+  const saved = sessionStorage.getItem('progressWindow');
+  if (saved) {
+    try {
+      const bounds = JSON.parse(saved);
+      if (Array.isArray(bounds) && bounds.length === 2 && bounds.every(Number.isFinite) && bounds[1] > bounds[0]) setView(...bounds);
+    } catch { /* A malformed saved window opens at the latest week. */ }
+    sessionStorage.removeItem('progressWindow');
   }
-
-  function ensureVisible(index) {
-    const t = points[index].time;
-    const span = view.t1 - view.t0;
-    if (t < view.t0) setView(t - span * 0.1, t + span * 0.9);
-    else if (t > view.t1) setView(t - span * 0.9, t + span * 0.1);
-  }
-
-  // --- Formatting ---
-
-  function pad2(n) { return (n < 10 ? '0' : '') + n; }
-
-  function fmtDay(t) {
-    const d = new Date(t);
-    return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-  }
-
-  function fmtClock(t) {
-    const d = new Date(t);
-    return pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes());
-  }
-
-  // Rounds up to the next 1, 2, or 5 times a power of ten.
-  function niceStep(rough) {
-    if (!(rough > 0)) return 1;
-    const magnitude = Math.pow(10, Math.floor(Math.log10(rough)));
-    const scaled = rough / magnitude;
-    return (scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 5 ? 5 : 10) * magnitude;
-  }
-
   function palette() {
     const style = getComputedStyle(document.documentElement);
-    const read = (name) => style.getPropertyValue(name).trim();
-    return {
-      grid: read('--gridline'),
-      baseline: read('--baseline'),
-      muted: read('--ink-muted'),
-      primary: read('--ink-primary'),
-      fill: read('--progress-fill'),
-      area: read('--progress-area'),
-      rate: read('--rate'),
-      surface: read('--surface-chart'),
-      card: read('--surface-card'),
-    };
+    const read = name => style.getPropertyValue(name).trim();
+    return { ink: read('--progress-fill'), muted: read('--ink-muted'), total: read('--chart-total'),
+      grid: read('--gridline'), card: read('--surface-card'), area: read('--progress-area') };
   }
-
-  // Sizes a canvas to its CSS width at device resolution and returns its
-  // drawing context and that width.
-  function prepare(target, height) {
-    const width = target.getBoundingClientRect().width
-      || target.parentElement.getBoundingClientRect().width;
+  function prepare(canvas, height) {
+    const width = canvas.getBoundingClientRect().width || canvas.parentElement.getBoundingClientRect().width;
     const dpr = window.devicePixelRatio || 1;
-    target.width = width * dpr;
-    target.height = height * dpr;
-    target.style.height = height + 'px';
-    const ctx = target.getContext('2d');
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, width, height);
+    canvas.width = width * dpr; canvas.height = height * dpr;
+    canvas.style.height = height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
     return { ctx, width };
   }
-
-  // The step line as [x, screens] vertices between two point indices: each goal
-  // rises at its own time from the level the goal before it left.
-  function stepVertices(from, to, xScale) {
-    const vertices = [[xScale(points[from].time), points[from].screens]];
-    for (let i = from + 1; i <= to; i++) {
-      const x = xScale(points[i].time);
-      vertices.push([x, points[i - 1].screens], [x, points[i].screens]);
-    }
-    return vertices;
+  function scaleX(time, width, bounds) {
+    return pad.left + (time - bounds.t0) / (bounds.t1 - bounds.t0) * (width - pad.left - pad.right);
   }
-
-  function strokeSteps(ctx, vertices, yScale, color, width) {
+  function timeAt(canvas, clientX, bounds) {
+    const rect = canvas.getBoundingClientRect();
+    return bounds.t0 + clamp((clientX - rect.left - pad.left) / (rect.width - pad.left - pad.right), 0, 1) * (bounds.t1 - bounds.t0);
+  }
+  function yMax(entry) {
+    return mode === 'percent' ? 100 : Math.max(1, ...entry.points.filter(measured).map(point => point.screensTotal));
+  }
+  // Stop at the last measurement; failures and scorer changes break the line.
+  // Clipping includes a predecessor so a sparse series carries into the window.
+  function drawSteps(ctx, entry, x, y, total, ink) {
+    let previous = null;
     ctx.beginPath();
-    ctx.moveTo(vertices[0][0], yScale(vertices[0][1]));
-    for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.stroke();
+    for (const point of entry.points) {
+      const value = measured(point) ? valueOf(point, total) : null;
+      if (value === null) { previous = null; continue; }
+      if (previous && !point.breakBefore) {
+        ctx.lineTo(x(point.time), y(valueOf(previous, total)));
+        ctx.lineTo(x(point.time), y(value));
+      } else ctx.moveTo(x(point.time), y(value));
+      previous = point;
+    }
+    ctx.strokeStyle = total ? ink.total : ink.ink;
+    ctx.lineWidth = total ? 1 : 2;
+    ctx.setLineDash(total ? [4, 4] : []);
+    ctx.stroke(); ctx.setLineDash([]);
   }
-
-  function fillSteps(ctx, vertices, yScale, color) {
+  function drawMarker(ctx, x, y, added, color) {
     ctx.beginPath();
-    ctx.moveTo(vertices[0][0], yScale(0));
-    for (const [x, v] of vertices) ctx.lineTo(x, yScale(v));
-    ctx.lineTo(vertices[vertices.length - 1][0], yScale(0));
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
+    if (added) {
+      ctx.moveTo(x, y - 4); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 4); ctx.lineTo(x - 4, y); ctx.closePath();
+    } else ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
   }
-
-  // --- Main chart ---
-
-  function draw() {
-    const { ctx, width: W } = prepare(canvas, H);
-    const ink = palette();
-
-    const spanT = view.t1 - view.t0 || 1;
-    const xScale = (t) => pad.l + ((t - view.t0) / spanT) * (W - pad.l - pad.r);
-    const yScale = (v) => pad.t + (1 - v / yMax) * (H - pad.t - pad.b);
-
-    // The goal before the window carries the level into it, so the line is
-    // unbroken even when the window sits in a gap between goals.
-    let lo = 0;
-    while (lo < points.length - 1 && points[lo + 1].time < view.t0) lo++;
-    let hi = points.length - 1;
-    while (hi > 0 && points[hi - 1].time > view.t1) hi--;
-    // The newest goal whose step lands inside the window.
-    let last = hi;
-    while (last > lo && points[last].time > view.t1) last--;
-    plot = { W, xScale, yScale, lo, hi };
-
-    // Y grid
-    ctx.lineWidth = 1;
-    ctx.font = '11px "JetBrains Mono", monospace';
-    for (let v = 0; v <= yMax; v = v + yStep > yMax ? yMax : v + yStep) {
-      const y = Math.round(yScale(v)) + 0.5;
-      ctx.strokeStyle = v === 0 ? ink.baseline : ink.grid;
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-      ctx.fillStyle = ink.muted;
-      ctx.textAlign = 'right';
-      ctx.fillText(v.toLocaleString(), pad.l - 6, y + 4);
-      if (v === yMax) break;
+  function drawChart(entry) {
+    const height = entry.canvas.getBoundingClientRect().width < 500 ? 128 : 150;
+    const { ctx, width } = prepare(entry.canvas, height), ink = palette();
+    const maximum = yMax(entry);
+    const x = time => scaleX(time, width, view);
+    const y = value => pad.top + (1 - value / maximum) * (height - pad.top - pad.bottom);
+    ctx.font = '10px "JetBrains Mono", monospace';
+    // Three stable ticks keep the scale readable even on a phone.
+    for (const value of [0, maximum / 2, maximum]) {
+      const py = Math.round(y(value)) + 0.5;
+      ctx.strokeStyle = ink.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, py); ctx.lineTo(width - pad.right, py); ctx.stroke();
+      ctx.fillStyle = ink.muted; ctx.textAlign = 'right';
+      ctx.fillText(mode === 'percent' ? Math.round(value) + '%' : fmtN(Math.round(value)), pad.left - 6, py + 3);
     }
-
-    // X-axis ticks, spaced so that labels never crowd
-    const spanDays = spanT / DAY_MS;
-    const usableW = W - pad.l - pad.r;
-    const minPxPerTick = 50;
-    const maxTicks = Math.max(2, Math.floor(usableW / minPxPerTick));
-    const intervals = [HOUR_MS / 6, HOUR_MS / 2, HOUR_MS, 3 * HOUR_MS, 6 * HOUR_MS, DAY_MS, 2 * DAY_MS, 7 * DAY_MS, 14 * DAY_MS];
-    let xStep = intervals[intervals.length - 1];
-    for (const iv of intervals) {
-      if (spanT / iv <= maxTicks) { xStep = iv; break; }
-    }
-    ctx.fillStyle = ink.muted;
+    const intervals = [HOUR / 6, HOUR / 2, HOUR, HOUR * 3, HOUR * 6, DAY, DAY * 2, DAY * 7, DAY * 14, DAY * 30, DAY * 90];
+    const maxTicks = Math.max(2, Math.floor((width - pad.left - pad.right) / 64));
+    const interval = intervals.find(step => (view.t1 - view.t0) / step <= maxTicks) || DAY * 365;
     ctx.textAlign = 'center';
-    for (let t = Math.ceil(view.t0 / xStep) * xStep; t <= view.t1; t += xStep) {
-      const x = xScale(t);
-      if (x < pad.l || x > W - pad.r) continue;
-      const d = new Date(t);
-      const atMidnight = d.getUTCHours() === 0 && d.getUTCMinutes() === 0;
-      const label = (xStep >= DAY_MS || atMidnight)
-        ? (d.getUTCMonth() + 1) + '/' + d.getUTCDate()
-        : fmtClock(t);
-      ctx.fillText(label, x, H - pad.b + 14);
+    for (let time = Math.ceil(view.t0 / interval) * interval; time <= view.t1; time += interval) {
+      const date = new Date(time), px = x(time);
+      ctx.fillStyle = ink.muted;
+      ctx.fillText(interval >= DAY ? (date.getUTCMonth() + 1) + '/' + date.getUTCDate() : clock(time), px, height - 5);
       ctx.strokeStyle = ink.grid;
-      ctx.beginPath();
-      ctx.moveTo(Math.round(x) + 0.5, pad.t);
-      ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px, pad.top); ctx.lineTo(px, height - pad.bottom); ctx.stroke();
     }
-
-    // Carry the last level to the right edge when no later goal is on screen.
-    const vertices = stepVertices(lo, hi, xScale);
-    const rightEdge = xScale(view.t1);
-    const lastVertex = vertices[vertices.length - 1];
-    if (lastVertex[0] < rightEdge) vertices.push([rightEdge, lastVertex[1]]);
-
-    // Clipped, so that the goals bracketing the window stay off the axes
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(pad.l, pad.t, W - pad.l - pad.r, H - pad.t - pad.b);
-    ctx.clip();
-    fillSteps(ctx, vertices, yScale, ink.area);
-    strokeSteps(ctx, vertices, yScale, ink.fill, 2);
-
-    const rateYScale = (v) => pad.t + (1 - v / rateYMax) * (H - pad.t - pad.b);
-
-    function drawRateSteps(steps, color, dash) {
-      if (steps.length < 1) return;
-      let si = 0;
-      while (si < steps.length - 1 && steps[si + 1].time < view.t0) si++;
-      ctx.beginPath();
-      ctx.moveTo(xScale(steps[si].time), rateYScale(steps[si].value));
-      for (let i = si + 1; i < steps.length && steps[i - 1].time <= view.t1; i++) {
-        const x = xScale(steps[i].time);
-        ctx.lineTo(x, rateYScale(steps[i - 1].value));
-        ctx.lineTo(x, rateYScale(steps[i].value));
+    ctx.save(); ctx.beginPath(); ctx.rect(pad.left - 4, pad.top - 5, width - pad.left - pad.right + 8, height - pad.top - pad.bottom + 10); ctx.clip();
+    drawSteps(ctx, entry, x, y, true, ink);
+    drawSteps(ctx, entry, x, y, false, ink);
+    for (const point of entry.points) {
+      if (point.time < view.t0 || point.time > view.t1) continue;
+      if (measured(point) && valueOf(point) !== null) drawMarker(ctx, x(point.time), y(valueOf(point)), point.changes?.added > 0, ink.ink);
+      else if (point.error) {
+        const px = x(point.time), py = height - pad.bottom - 4;
+        ctx.strokeStyle = ink.muted; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(px - 3, py - 3); ctx.lineTo(px + 3, py + 3); ctx.moveTo(px + 3, py - 3); ctx.lineTo(px - 3, py + 3); ctx.stroke();
       }
-      const lastVisible = steps.find((_, i, a) => i === a.length - 1 || a[i + 1].time > view.t1) || steps[steps.length - 1];
-      ctx.lineTo(xScale(view.t1), rateYScale(lastVisible.value));
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.5;
-      if (dash) ctx.setLineDash(dash);
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-      ctx.stroke();
-      if (dash) ctx.setLineDash([]);
     }
-
-    // Both rates share a hue; the 7-day average is a long dash and the last
-    // 24 hours a dotted line.
-    drawRateSteps(rate7dSteps, ink.rate, [8, 4]);
-    drawRateSteps(rate24hSteps, ink.rate, [1, 4]);
-
+    if (cursor !== null) {
+      ctx.strokeStyle = ink.muted; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+      ctx.beginPath(); ctx.moveTo(x(cursor), pad.top); ctx.lineTo(x(cursor), height - pad.bottom); ctx.stroke(); ctx.setLineDash([]);
+    }
     ctx.restore();
-
-    // Right y-axis labels
-    ctx.font = '11px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = ink.muted;
-    for (let v = rateStep; v <= rateYMax; v += rateStep) {
-      const y = Math.round(rateYScale(v)) + 0.5;
-      ctx.fillText(Math.round(v).toLocaleString(), W - pad.r + 8, y + 4);
+    if (!entry.points.length) {
+      ctx.fillStyle = ink.muted; ctx.textAlign = 'center';
+      ctx.fillText(entry.error ? 'Measurements unavailable' : 'No measurements yet', (pad.left + width - pad.right) / 2, height / 2);
     }
-
-    // When a commit SHA was not found, the SCORE timestamp is used as a fallback.
-    // A hollow marker makes that visible.
-    for (let i = lo; i <= hi; i++) {
-      const point = points[i];
-      if (point.utcSource === 'commit') continue;
-      const x = xScale(point.time);
-      if (x < pad.l || x > W - pad.r) continue;
-      ctx.beginPath();
-      ctx.arc(x, yScale(point.screens), 3, 0, Math.PI * 2);
-      ctx.fillStyle = ink.surface;
-      ctx.fill();
-      ctx.strokeStyle = ink.fill;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-
-    // Direct label on the newest goal inside the window
-    const endPoint = points[last];
-    if (endPoint.time >= view.t0 && endPoint.time <= view.t1) {
-      const x = xScale(endPoint.time);
-      const y = yScale(endPoint.screens);
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = ink.fill;
-      ctx.fill();
-      ctx.strokeStyle = ink.surface;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = ink.primary;
-      ctx.font = '600 12px "JetBrains Mono", monospace';
-      // Right of the point, or left of it when the right would run into the
-      // right-axis labels.
-      const label = endPoint.screens.toLocaleString();
-      const fits = x + 8 + ctx.measureText(label).width <= W - pad.r;
-      ctx.textAlign = fits ? 'left' : 'right';
-      ctx.fillText(label, fits ? x + 8 : x - 8, Math.max(pad.t + 10, y - 8));
-    }
-
-    // Crosshair on the selected goal
-    if (hover !== null
-      && points[hover].time >= view.t0 && points[hover].time <= view.t1) {
-      const x = xScale(points[hover].time);
-      ctx.save();
-      ctx.setLineDash([3, 3]);
-      ctx.strokeStyle = ink.muted;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(Math.round(x) + 0.5, pad.t);
-      ctx.lineTo(Math.round(x) + 0.5, H - pad.b);
-      ctx.stroke();
-      ctx.restore();
-      ctx.beginPath();
-      ctx.arc(x, yScale(points[hover].screens), 5, 0, Math.PI * 2);
-      ctx.fillStyle = ink.fill;
-      ctx.fill();
-      ctx.strokeStyle = ink.surface;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+    entry.canvas.setAttribute('aria-label', entry.title + ', ' + mode + ', ' + dateTime(view.t0) + ' to ' + dateTime(view.t1)
+      + '. Left and right arrows inspect measurements; plus and minus zoom.');
   }
-
-  // --- Minimap ---
-
-  // Where the view window sits on the minimap. The drawn window stops
-  // shrinking at MIN_WINDOW_PX so that a deep zoom leaves something to grab;
-  // it then covers slightly more time than the view does.
-  function windowRect(W) {
-    const scale = (t) => pad.l + ((t - domain.t0) / domainSpan) * (W - pad.l - pad.r);
-    const left = scale(view.t0);
-    const right = scale(view.t1);
-    if (right - left >= MIN_WINDOW_PX) return { left, right };
-    const middle = (left + right) / 2;
-    const half = MIN_WINDOW_PX / 2;
-    const shift = Math.max(0, pad.l - (middle - half))
-      - Math.max(0, (middle + half) - (W - pad.r));
-    return { left: middle - half + shift, right: middle + half + shift };
-  }
-
   function drawMinimap() {
-    const { ctx, width: W } = prepare(minimap, MINI_H);
-    const ink = palette();
-    const inner = { t: 6, b: 5 };
-    const xScale = (t) => pad.l + ((t - domain.t0) / domainSpan) * (W - pad.l - pad.r);
-    // Scaled to the highest goal rather than to the target, so the shape fills
-    // the strip. This is a navigation control, not a second reading of the data.
-    const yScale = (v) => inner.t + (1 - v / peak) * (MINI_H - inner.t - inner.b);
-
-    // The whole series, muted, with the selected window drawn over it in the
-    // series color: the contrast is the selection, so no scrim is needed.
-    const vertices = stepVertices(0, points.length - 1, xScale);
-    fillSteps(ctx, vertices, yScale, ink.grid);
-    strokeSteps(ctx, vertices, yScale, ink.baseline, 1);
-
-    const { left, right } = windowRect(W);
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(left, 0, right - left, MINI_H);
-    ctx.clip();
-    fillSteps(ctx, vertices, yScale, ink.area);
-    strokeSteps(ctx, vertices, yScale, ink.fill, 1.5);
-    ctx.restore();
-
-    // Window outline and its two grab handles
-    ctx.strokeStyle = ink.muted;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(
-      Math.round(left) + 0.5, 0.5,
-      Math.round(right - left), MINI_H - 1,
-    );
-    for (const x of [left, right]) {
-      ctx.beginPath();
-      ctx.roundRect(Math.round(x) - 3.5, 6.5, 7, MINI_H - 13, 3);
-      ctx.fillStyle = ink.card;
-      ctx.fill();
-      ctx.strokeStyle = ink.muted;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(Math.round(x) + 0.5, 11);
-      ctx.lineTo(Math.round(x) + 0.5, MINI_H - 11);
-      ctx.strokeStyle = ink.muted;
-      ctx.stroke();
-    }
-  }
-
-  // --- Toolbar ---
-
-  function updateChrome() {
-    resetButton.disabled = isFullRange();
-    const inWindow = points.filter(
-      p => p.time >= view.t0 && p.time <= view.t1,
-    ).length;
-    const withClock = view.t1 - view.t0 < 3 * DAY_MS;
-    const bounds = withClock
-      ? fmtDay(view.t0) + ' ' + fmtClock(view.t0) + ' – '
-        + fmtDay(view.t1) + ' ' + fmtClock(view.t1) + ' UTC'
-      : fmtDay(view.t0) + ' – ' + fmtDay(view.t1);
-    rangeLabel.textContent = bounds + ' · ' + inWindow
-      + ' goal' + (inWindow === 1 ? '' : 's');
-  }
-
-  function render() {
-    draw();
-    drawMinimap();
-    updateChrome();
-  }
-
-  // --- Readout ---
-
-  // Notes and goal names come from SCORE.tsv, so they go in as text, never markup.
-  function node(tag, className, text) {
-    const created = document.createElement(tag);
-    if (className) created.className = className;
-    created.textContent = text;
-    return created;
-  }
-
-  function deltaText(point) {
-    if (point.screensDelta === null) return 'first recorded score';
-    if (point.screensDelta === 0) return 'no change from the previous goal';
-    const sign = point.screensDelta > 0 ? '+' : '−';
-    return sign + fmtN(Math.abs(point.screensDelta)) + ' from the previous goal';
-  }
-
-  function positionTooltip(clientX, clientY) {
-    const box = tooltip.getBoundingClientRect();
-    // Right of the pointer, or left of it when the right will not fit, so that
-    // the readout never slides across the point it describes.
-    const right = clientX + 14;
-    const left = right + box.width <= window.innerWidth - 12
-      ? right
-      : Math.max(12, clientX - 14 - box.width);
-    tooltip.style.left = left + 'px';
-    tooltip.style.top =
-      Math.max(12, Math.min(clientY - box.height / 2, window.innerHeight - box.height - 12)) + 'px';
-  }
-
-  function showReadout(index, clientX, clientY) {
-    const point = points[index];
-    const parts = [
-      node('div', 'tooltip-value', fmtN(point.screens) + ' screens'),
-      node('div', 'tooltip-delta', deltaText(point)),
-      node('div', 'tooltip-name', point.name),
-      node('div', 'tooltip-meta', fmtDay(point.time) + ' ' + fmtClock(point.time)
-        + ' UTC · ' + point.sha.slice(0, 7)
-        + (point.utcSource === 'commit' ? '' : ' †')),
-    ];
-    const stats = [];
-    if (point.rng !== null) {
-      stats.push(['RNG calls', fmtN(point.rng)
-        + (point.rngTotal ? ' / ' + fmtN(point.rngTotal) : '')]);
-    }
-    if (point.sessions !== null) {
-      stats.push(['Sessions', point.sessions
-        + (point.sessionsTotal ? ' / ' + point.sessionsTotal : '')]);
-    }
-    if (stats.length) {
-      const grid = document.createElement('div');
-      grid.className = 'tooltip-stats';
-      for (const [label, value] of stats) {
-        grid.appendChild(node('span', '', label));
-        grid.appendChild(node('b', '', value));
+    const { ctx, width } = prepare(minimap, MINI_H), ink = palette();
+    const x = time => scaleX(time, width, domain);
+    series.forEach((entry, index) => {
+      const top = index * MINI_ROW, maximum = yMax(entry);
+      const y = value => top + 38 - value / maximum * 22;
+      ctx.fillStyle = ink.muted; ctx.textAlign = 'left'; ctx.font = '10px "JetBrains Mono", monospace';
+      ctx.fillText(entry.title, pad.left, top + 10);
+      ctx.strokeStyle = ink.grid; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.left, top + 39); ctx.lineTo(width - pad.right, top + 39); ctx.stroke();
+      drawSteps(ctx, entry, x, y, true, ink); drawSteps(ctx, entry, x, y, false, ink);
+      for (const point of entry.points) if (measured(point) && valueOf(point) !== null) {
+        ctx.beginPath(); ctx.arc(x(point.time), y(valueOf(point)), 1.5, 0, Math.PI * 2); ctx.fillStyle = ink.ink; ctx.fill();
       }
-      parts.push(grid);
+    });
+    const left = x(view.t0), right = x(view.t1), bottom = MINI_ROW * 3;
+    ctx.fillStyle = ink.area; ctx.fillRect(left, 0, right - left, bottom);
+    ctx.strokeStyle = ink.muted; ctx.lineWidth = 1;
+    ctx.strokeRect(Math.round(left) + 0.5, 0.5, Math.round(right - left), bottom - 1);
+    for (const px of [left, right]) {
+      ctx.fillStyle = ink.card; ctx.strokeStyle = ink.muted;
+      ctx.beginPath(); ctx.roundRect(px - 4, bottom / 2 - 15, 8, 30, 3); ctx.fill(); ctx.stroke();
     }
-    if (point.note) parts.push(node('div', 'tooltip-note', point.note));
-    tooltip.replaceChildren(...parts);
-    tooltip.style.display = 'block';
-    positionTooltip(clientX, clientY);
+    ctx.fillStyle = ink.muted; ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left'; ctx.fillText(day(domain.t0), pad.left, MINI_H - 3);
+    ctx.textAlign = 'right'; ctx.fillText(day(domain.t1), width - pad.right, MINI_H - 3);
   }
-
-  function showReadoutAtPoint(index) {
-    const rect = canvas.getBoundingClientRect();
-    showReadout(
-      index,
-      rect.left + plot.xScale(points[index].time),
-      rect.top + plot.yScale(points[index].screens),
-    );
+  function showReadout() {
+    const time = cursor ?? view.t1;
+    readoutDate.textContent = dateTime(time);
+    clearPin.disabled = !pinned;
+    const notes = [];
+    readout.innerHTML = series.map(entry => {
+      const point = pointAt(entry, time);
+      const score = point && measured(point) ? fmtN(point.screens) + '/' + fmtN(point.screensTotal)
+        + (mode === 'percent' ? ' · ' + pct(point.screens, point.screensTotal) : '') : point?.error || entry.error ? 'Unavailable' : 'Unmeasured';
+      if (!point && entry.error) notes.push(entry.title + ': ' + entry.error);
+      if (point) {
+        const changes = point.changes;
+        const parts = [entry.title + ': ' + dateTime(point.time)];
+        if (changes?.added) parts.push(changes.added + ' new case' + (changes.added === 1 ? '' : 's')
+          + ', ' + changes.addedScreensMatched + '/' + changes.addedScreens + ' screens');
+        if (changes) parts.push(changes.uncomparable ? 'Previous cases cannot be compared'
+          : 'Previous cases ' + fmtDelta(changes.screensGained - changes.screensLost) + ' screens');
+        if (point.error) parts.push(point.error);
+        else if (point.note) parts.push(point.note);
+        notes.push(parts.join('. '));
+      }
+      return '<div class="score-readout-row"><strong>' + entry.title + '</strong><span>' + score + '</span><span>'
+        + (point ? '<time datetime="' + esc(point.utc) + '" title="' + esc(dateTime(point.time)) + '">' + age(time - point.time) + '</time>' : '—') + '</span></div>';
+    }).join('');
+    readoutDetails.textContent = notes.length ? notes.join('\n') : 'No measurements at this time.';
   }
-
-  function clearHover() {
-    tooltip.style.display = 'none';
-    if (hover === null) return;
-    hover = null;
-    draw();
+  function render() {
+    const shortRange = view.t1 - view.t0 < 3 * DAY;
+    rangeLabel.textContent = day(view.t0) + (shortRange ? ' ' + clock(view.t0) : '') + ' – '
+      + day(view.t1) + (shortRange ? ' ' + clock(view.t1) + ' UTC' : '');
+    reset.disabled = view.t0 === domain.t0 && view.t1 === domain.t1;
+    modes.forEach((button, index) => button.setAttribute('aria-pressed', String(mode === (index ? 'percent' : 'screens'))));
+    series.forEach(drawChart); drawMinimap(); showReadout();
   }
-
-  // The pointer only has to be closest to a goal, not on it. The right margin
-  // counts, because the newest goal's label sits in it; the left margin does
-  // not, because it holds the axis labels.
-  function nearestIndex(clientX) {
-    if (!plot) return null;
-    const x = clientX - canvas.getBoundingClientRect().left;
-    if (x < pad.l - 10 || x > plot.W) return null;
-    let best = null;
-    let bestDistance = Infinity;
-    for (let i = plot.lo; i <= plot.hi; i++) {
-      const distance = Math.abs(plot.xScale(points[i].time) - x);
-      if (distance < bestDistance) { bestDistance = distance; best = i; }
-    }
-    return best;
+  function zoom(factor, anchor = (view.t0 + view.t1) / 2) {
+    const fraction = (anchor - view.t0) / (view.t1 - view.t0);
+    const span = clamp((view.t1 - view.t0) * factor, Math.min(MIN_SPAN, domain.t1 - domain.t0), domain.t1 - domain.t0);
+    setView(anchor - span * fraction, anchor + span * (1 - fraction)); render();
   }
-
-  // --- Main chart events ---
-
-  canvas.addEventListener('pointermove', (e) => {
-    if (panning) {
-      const width = canvas.getBoundingClientRect().width - pad.l - pad.r;
-      const perPixel = (panning.t1 - panning.t0) / (width || 1);
-      const shift = (e.clientX - panning.clientX) * perPixel;
-      setView(panning.t0 - shift, panning.t1 - shift);
-      render();
-      return;
-    }
-    const index = nearestIndex(e.clientX);
-    if (index === null) { clearHover(); return; }
-    if (index !== hover) {
-      hover = index;
-      draw();
-      showReadout(index, e.clientX, e.clientY);
-    } else {
-      positionTooltip(e.clientX, e.clientY);
-    }
-  });
-
-  canvas.addEventListener('pointerleave', clearHover);
-  canvas.addEventListener('blur', clearHover);
-
-  canvas.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0) return;
-    panning = { clientX: e.clientX, t0: view.t0, t1: view.t1 };
-    canvas.setPointerCapture(e.pointerId);
-    canvas.classList.add('is-panning');
-    clearHover();
-  });
-
-  function endPan(e) {
-    if (!panning) return;
-    panning = null;
-    canvas.classList.remove('is-panning');
-    if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
-  }
-  canvas.addEventListener('pointerup', endPan);
-  canvas.addEventListener('pointercancel', endPan);
-
-  canvas.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    // Wheels report pixels, lines, or pages; scale the last two to pixels.
-    const steps = e.deltaMode === 1 ? e.deltaY * 16
-      : e.deltaMode === 2 ? e.deltaY * 400
-        : e.deltaY;
-    const rect = canvas.getBoundingClientRect();
-    const width = rect.width - pad.l - pad.r;
-    const fraction = Math.min(Math.max((e.clientX - rect.left - pad.l) / (width || 1), 0), 1);
-    zoomAt(view.t0 + fraction * (view.t1 - view.t0), Math.exp(steps * 0.002));
-    clearHover();
+  function inspect(entry, clientX) {
+    const time = timeAt(entry.canvas, clientX, view);
+    const nearest = entry.points.reduce((best, point) => !best || Math.abs(point.time - time) < Math.abs(best.time - time) ? point : best, null);
+    const width = entry.canvas.getBoundingClientRect().width - pad.left - pad.right;
+    cursor = nearest && nearest.time >= view.t0 && nearest.time <= view.t1 && Math.abs(nearest.time - time) * width / (view.t1 - view.t0) < 12
+      ? nearest.time : time;
     render();
-  }, { passive: false });
-
-  canvas.addEventListener('dblclick', () => {
-    setView(domain.t0, domain.t1);
-    clearHover();
-    render();
-  });
-
-  canvas.addEventListener('keydown', (e) => {
-    const middle = (view.t0 + view.t1) / 2;
-    let next = hover;
-    if (e.key === 'ArrowRight') next = hover === null ? plot.lo : Math.min(points.length - 1, hover + 1);
-    else if (e.key === 'ArrowLeft') next = hover === null ? plot.hi : Math.max(0, hover - 1);
-    else if (e.key === 'Home') next = 0;
-    else if (e.key === 'End') next = points.length - 1;
-    else if (e.key === 'Escape') { clearHover(); return; }
-    else if (e.key === '+' || e.key === '=') { zoomAt(middle, 1 / 1.5); clearHover(); render(); return; }
-    else if (e.key === '-') { zoomAt(middle, 1.5); clearHover(); render(); return; }
-    else if (e.key === '0') { setView(domain.t0, domain.t1); clearHover(); render(); return; }
-    else return;
-    e.preventDefault();
-    hover = next;
-    ensureVisible(next);
-    render();
-    showReadoutAtPoint(next);
-  });
-
-  // --- Minimap events ---
-
-  // Which part of the minimap is under x: an edge handle, the window itself,
-  // or the track outside it. A finger or pen lands less precisely than a
-  // mouse, so the handles reach further for them.
-  function minimapTarget(x, W, pointerType) {
-    const { left, right } = windowRect(W);
-    const reach = pointerType === 'mouse' ? 6 : 22;
-    if (Math.abs(x - left) <= reach) return 'start';
-    if (Math.abs(x - right) <= reach) return 'end';
-    return x > left && x < right ? 'window' : 'track';
   }
-
-  function minimapTime(x, W) {
-    const usable = W - pad.l - pad.r;
-    const fraction = Math.min(Math.max((x - pad.l) / (usable || 1), 0), 1);
-    return domain.t0 + fraction * domainSpan;
-  }
-
-  minimap.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0) return;
-    const rect = minimap.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const mode = minimapTarget(x, rect.width, e.pointerType);
-    // Pressing the track starts a fresh selection from that instant.
-    const anchor = minimapTime(x, rect.width);
-    sliding = { mode, anchor, t0: view.t0, t1: view.t1, clientX: e.clientX };
-    minimap.setPointerCapture(e.pointerId);
-    minimap.classList.add('is-sliding');
-    clearHover();
-    if (mode === 'track') { setView(anchor, anchor); render(); }
-  });
-
-  minimap.addEventListener('pointermove', (e) => {
-    const rect = minimap.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (!sliding) {
-      const mode = minimapTarget(x, rect.width, e.pointerType);
-      minimap.style.cursor = mode === 'window' ? 'grab'
-        : mode === 'track' ? 'crosshair' : 'ew-resize';
-      return;
+  series.forEach(entry => {
+    const canvas = entry.canvas;
+    canvas.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return;
+      panning = { canvas, x: event.clientX, t0: view.t0, t1: view.t1, moved: false };
+      canvas.setPointerCapture(event.pointerId);
+    });
+    canvas.addEventListener('pointermove', event => {
+      if (panning?.canvas === canvas) {
+        const dx = event.clientX - panning.x;
+        if (Math.abs(dx) > 5) panning.moved = true;
+        if (!panning.moved) return;
+        const width = canvas.getBoundingClientRect().width - pad.left - pad.right;
+        const offset = -dx / width * (panning.t1 - panning.t0);
+        cursor = null; pinned = false; setView(panning.t0 + offset, panning.t1 + offset); render();
+      } else if (!pinned && event.pointerType !== 'touch') inspect(entry, event.clientX);
+    });
+    function endPan(event) {
+      if (panning?.canvas !== canvas) return;
+      const tap = !panning.moved && event.type !== 'pointercancel';
+      panning = null;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      if (tap) { pinned = true; inspect(entry, event.clientX); }
     }
-    const usable = rect.width - pad.l - pad.r;
-    if (sliding.mode === 'window') {
-      const shift = ((e.clientX - sliding.clientX) / (usable || 1)) * domainSpan;
-      setView(sliding.t0 + shift, sliding.t1 + shift);
-    } else if (sliding.mode === 'start') {
-      setView(Math.min(minimapTime(x, rect.width), sliding.t1), sliding.t1);
-    } else if (sliding.mode === 'end') {
-      setView(sliding.t0, Math.max(minimapTime(x, rect.width), sliding.t0));
-    } else {
-      const other = minimapTime(x, rect.width);
-      setView(Math.min(sliding.anchor, other), Math.max(sliding.anchor, other));
-    }
-    render();
+    canvas.addEventListener('pointerup', endPan); canvas.addEventListener('pointercancel', endPan);
+    canvas.addEventListener('pointerleave', () => { if (!panning && !pinned) { cursor = null; render(); } });
+    canvas.addEventListener('wheel', event => {
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault(); zoom(Math.exp(event.deltaY * 0.002), timeAt(canvas, event.clientX, view));
+      } else if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+        event.preventDefault(); const shift = event.deltaX / canvas.getBoundingClientRect().width * (view.t1 - view.t0);
+        setView(view.t0 + shift, view.t1 + shift); render();
+      }
+    }, { passive: false });
+    canvas.addEventListener('keydown', event => {
+      if (event.key === '+' || event.key === '=') { event.preventDefault(); zoom(0.5); return; }
+      if (event.key === '-') { event.preventDefault(); zoom(2); return; }
+      if (event.key === 'Escape') { pinned = false; cursor = null; render(); return; }
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || !entry.points.length) return;
+      event.preventDefault();
+      const selected = cursor ?? view.t1;
+      const point = event.key === 'Home' ? entry.points[0] : event.key === 'End' ? entry.points.at(-1)
+        : event.key === 'ArrowLeft' ? entry.points.findLast(point => point.time < selected) ?? entry.points[0]
+          : entry.points.find(point => point.time > selected) ?? entry.points.at(-1);
+      if (point.time < view.t0 || point.time > view.t1) {
+        const span = view.t1 - view.t0; setView(point.time - span / 2, point.time + span / 2);
+      }
+      cursor = point.time; pinned = true; render();
+    });
   });
-
-  function endSlide(e) {
+  minimap.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    const rect = minimap.getBoundingClientRect(), px = event.clientX - rect.left;
+    const left = scaleX(view.t0, rect.width, domain), right = scaleX(view.t1, rect.width, domain);
+    const tolerance = event.pointerType === 'touch' ? 18 : 9;
+    const near = Math.min(Math.abs(px - left), Math.abs(px - right)) <= tolerance;
+    const target = near ? (Math.abs(px - left) < Math.abs(px - right) ? 'start' : 'end') : px >= left && px <= right ? 'window' : 'track';
+    sliding = { target, anchor: timeAt(minimap, event.clientX, domain), t0: view.t0, t1: view.t1 };
+    minimap.setPointerCapture(event.pointerId);
+    if (target === 'track') { setView(sliding.anchor, sliding.anchor + MIN_SPAN); render(); }
+  });
+  minimap.addEventListener('pointermove', event => {
     if (!sliding) return;
-    sliding = null;
-    minimap.classList.remove('is-sliding');
-    if (minimap.hasPointerCapture(e.pointerId)) minimap.releasePointerCapture(e.pointerId);
-  }
-  minimap.addEventListener('pointerup', endSlide);
-  minimap.addEventListener('pointercancel', endSlide);
-
-  resetButton.addEventListener('click', () => {
-    setView(domain.t0, domain.t1);
-    clearHover();
+    const time = timeAt(minimap, event.clientX, domain);
+    cursor = null; pinned = false;
+    if (sliding.target === 'window') setView(sliding.t0 + time - sliding.anchor, sliding.t1 + time - sliding.anchor);
+    else if (sliding.target === 'start') setView(Math.min(time, sliding.t1 - Math.min(MIN_SPAN, domain.t1 - domain.t0)), sliding.t1);
+    else if (sliding.target === 'end') setView(sliding.t0, Math.max(time, sliding.t0 + Math.min(MIN_SPAN, domain.t1 - domain.t0)));
+    else setView(Math.min(time, sliding.anchor), Math.max(time, sliding.anchor));
     render();
   });
-
-  window.addEventListener('resize', () => { clearHover(); render(); });
-
-  // Under a week of recorded goals leaves nothing to trim, and setView clamps
-  // the opening window back to the whole range.
-  setView(domain.t1 - DEFAULT_SPAN_MS, domain.t1);
-  const opening = view;
-
-  // The page reloads itself every 30 minutes to pick up new goals. The
-  // browser restores the scroll position; a window the reader has changed is
-  // carried across in sessionStorage, while the opening window follows the
-  // newest goal.
-  const WINDOW_KEY = 'progressWindow';
-  const saved = sessionStorage.getItem(WINDOW_KEY);
-  if (saved) {
-    sessionStorage.removeItem(WINDOW_KEY);
-    const [t0, t1] = JSON.parse(saved);
-    setView(t0, t1);
+  function endSlide(event) {
+    sliding = null;
+    if (minimap.hasPointerCapture(event.pointerId)) minimap.releasePointerCapture(event.pointerId);
   }
+  minimap.addEventListener('pointerup', endSlide); minimap.addEventListener('pointercancel', endSlide);
+  minimap.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', '+', '=', '-'].includes(event.key)) return;
+    event.preventDefault();
+    if (['+', '=', '-'].includes(event.key)) { zoom(event.key === '-' ? 2 : 0.5); return; }
+    const span = view.t1 - view.t0;
+    const start = event.key === 'Home' ? domain.t0 : event.key === 'End' ? domain.t1 - span
+      : view.t0 + (event.key === 'ArrowLeft' ? -1 : 1) * span / 5;
+    setView(start, start + span); render();
+  });
+  reset.addEventListener('click', () => { cursor = null; pinned = false; setView(domain.t0, domain.t1); render(); });
+  clearPin.addEventListener('click', () => { cursor = null; pinned = false; render(); });
+  modes.forEach((button, index) => button.addEventListener('click', () => { mode = index ? 'percent' : 'screens'; render(); }));
+  window.addEventListener('resize', render);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+  document.getElementById('progressLegend').innerHTML = '<span class="legend-item"><span class="history-line"></span>Matched</span>'
+    + '<span class="legend-item"><span class="history-line total"></span>Total</span>'
+    + '<span class="legend-item"><span aria-hidden="true">◆</span>Cases added</span>';
   setTimeout(() => {
-    if (view.t0 !== opening.t0 || view.t1 !== opening.t1) {
-      sessionStorage.setItem(WINDOW_KEY, JSON.stringify([view.t0, view.t1]));
-    }
+    if (view.t1 !== domain.t1) sessionStorage.setItem('progressWindow', JSON.stringify([view.t0, view.t1]));
     location.reload();
   }, 30 * 60 * 1000);
   render();
-
-  const lineKey = (label, stroke, dash = '') =>
-    '<div class="legend-item"><svg class="legend-line" width="24" height="8" aria-hidden="true"><line x1="2" y1="4" x2="22" y2="4" stroke="' + stroke + '" stroke-width="2" stroke-linecap="round"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>' + label + '</div>';
-  const dateKey = (label, fill) =>
-    '<div class="legend-item"><svg class="legend-line" width="12" height="8" aria-hidden="true"><circle cx="6" cy="4" r="3" stroke="var(--progress-fill)" fill="' + fill + '"/></svg>' + label + '</div>';
-  const legendGroup = (title, keys) => '<div class="legend-group"><div class="legend-group-title">'
-    + title + '</div><div class="legend-group-items">' + keys.join('') + '</div></div>';
-  document.getElementById('progressLegend').innerHTML = [
-    legendGroup('Left axis', [lineKey('Screens matched', 'var(--progress-fill)')]),
-    legendGroup('Right axis', [
-      lineKey('7-day avg screens/day', 'var(--rate)', '8 4'),
-      lineKey('Last 24h screens', 'var(--rate)', '1 4'),
-    ]),
-    legendGroup('Dates', [
-      dateKey('Commit', 'var(--progress-fill)'),
-      dateKey('Logged', 'var(--surface-card)'),
-    ]),
-  ].join('');
 })();
 
 // --- Goal timeline: one row per local day ---

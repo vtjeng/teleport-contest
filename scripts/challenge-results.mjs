@@ -170,7 +170,7 @@ function caseMeasurement(evaluation, entry) {
 // distinct from measured zeros, and a newly added case has no current score.
 export function challengeDashboard(root, rows, head) {
     const empty = { status: 'unmeasured', sha: null, utc: null, manifestSha256: null,
-        totals: null, changes: null, cases: [] };
+        totals: null, changes: null, cases: [], history: [] };
     try {
         const manifest = readChallenges(root);
         const evaluations = rows.filter(row => row.event === 'challenge').map(row => evaluationFromRow(root, row));
@@ -188,6 +188,19 @@ export function challengeDashboard(root, rows, head) {
                 if (!first.has(key)) first.set(key, { evaluation, entry });
             }
         }
+        let previous = null;
+        const history = evaluations.map(evaluation => {
+            const point = { utc: evaluation.utc, sha: evaluation.sha,
+                screens: evaluation.totals?.screens.matched ?? null,
+                screensTotal: evaluation.totals?.screens.total ?? null,
+                error: evaluation.error ?? null, manifestSha256: evaluation.manifestSha256,
+                scorerSha256: evaluation.scorerSha256,
+                changes: previous && evaluation.status === 'complete'
+                    ? compareEvaluations(previous, evaluation) : null,
+                breakBefore: Boolean(previous && previous.scorerSha256 !== evaluation.scorerSha256) };
+            if (evaluation.status === 'complete') previous = evaluation;
+            return point;
+        });
         const currentById = new Map(latest?.status === 'complete' ? latest.cases.map(entry => [entry.id, entry]) : []);
         const cases = manifest.cases.map(entry => {
             const initial = first.get(`${entry.id}:${entry.recordingSha256}`);
@@ -206,7 +219,7 @@ export function challengeDashboard(root, rows, head) {
         return { status: latest.status === 'failed' ? 'failed'
             : latest.sha === head && latest.manifestSha256 === manifest.manifestSha256 ? 'measured' : 'stale',
         sha: latest.sha, utc: latest.utc, manifestSha256: latest.manifestSha256,
-        totals: latest.totals, cases, error: latest.error ?? null,
+        totals: latest.totals, cases, history, error: latest.error ?? null,
         changes: latest.status === 'complete' ? compareEvaluations(complete.at(-2), latest) : null };
     } catch (error) {
         return { ...empty, status: 'failed', error: error.message };
