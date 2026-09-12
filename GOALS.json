@@ -27658,7 +27658,16 @@
       ],
       "selectionReason": "The refreshed development queue ranks seed0360-wizard-world-tour first at step 548 in dokick.c dokick(), where the wounded-legs guard still refuses because legs_in_no_shape() is unported. Source tracing identifies do.c legs_in_no_shape() as the owner (around lines 2408-2439): it formats side-specific feedback from EWounded_legs, consumes no RNG, and is called by dokick.c dokick() before the shared message-window flush and ECMD_FAIL. The JS production path is cmd.js runKickCommand()/commandHandler('dokick') -> js/dokick.js dokick(); set_wounded_legs state already exists in js/do.js. Select only legs_in_no_shape() and wire the dokick guard; apply.c and steed.c callers remain separate refused paths.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "legs_in_no_shape",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "legs_in_no_shape"
+          ]
+        }
+      ],
       "openedAt": "d8e85d5c58f7cd34a1a11a45c384768851cd8c12",
       "openStanding": {
         "sha": "539cc66f4d5359b40b527c90c210b7b6f72debf6",
