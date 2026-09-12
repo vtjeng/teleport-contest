@@ -5,14 +5,11 @@ import { game } from '../js/gstate.js';
 import { adtyp_to_expltype, explosionmask } from '../js/explode.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    AD_ACID,
     AD_COLD,
-    AD_DISN,
     AD_DRST,
     AD_ELEC,
     AD_ENCH,
     AD_FIRE,
-    AD_MAGM,
     AD_PHYS,
     AD_SPEL,
     AD_DREN,

@@ -13,7 +13,6 @@ import {
     DISP_BEAM,
     DISP_CHANGE,
     DISP_END,
-    EXPL_FIERY,
     EXPL_FROSTY,
     EXPL_MAGICAL,
     EXPL_MUDDY,
@@ -105,7 +104,6 @@ import { rehumanize, ugolemeffects } from './polyself.js';
 import {
     map_glyphinfo,
     map_invisible,
-    newsym,
     show_glyph_cell,
     tmp_at,
     unmap_invisible,
@@ -121,7 +119,7 @@ import {
     xkilled,
 } from './mon.js';
 import { canSpotMonster } from './startup_a11y.js';
-import { cansee, canseemon } from './vision.js';
+import { cansee } from './vision.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { resist, zap_over_floor } from './zap.js';
 import { rndmonnam } from './do_name.js';
