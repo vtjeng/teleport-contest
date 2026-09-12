@@ -28214,7 +28214,16 @@
       ],
       "selectionReason": "The post-hitmm queue refresh still ranks seed0014-dequa-fountain-explore step 455 with a seductive monster attack, now stopped at uhitm.c mhitm_ad_sedu() after hitmm() prints the C message and continues into mdamagem. Existing residual source tracing identifies C uhitm.c mhitm_ad_sedu() monster-vs-monster dispatch around lines 4623-4779 and 4781-4800, with AD_SITM/AD_SEDU handling, zero-damage no-item exit for the named dog play, and direct minvent transfer branches for qualifying inventory. JS uhitm.js dispatches at lines 2145-2148 but still refuses at lines 1774-1775. Production path is monmove.js m_move_aggress -> mhitm.js fightm/mattackm/hitmm -> mdamagem -> uhitm.js monster arm. Select this source function only; preserve source item-transfer, relocation, and damage contracts and defer unrelated uhitm functions.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mhitm_ad_sedu",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mhitm_ad_sedu"
+          ]
+        }
+      ],
       "openedAt": "36368a0787623d6c963587252d757824803d0c2d",
       "openStanding": {
         "sha": "dc943f99c7689b99199d9f940806421350bef538",
