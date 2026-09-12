@@ -1087,14 +1087,13 @@ test('a run command after force-fight preserves both prefix states',
     });
 
 // uhitm.c:462 splits do_attack() on `is_safemon(mtmp) && !svc.context
-// .forcefight`, so `F` aimed at the starting pet takes the attack arm rather
-// than the displacement arm that swaps places with it. attack_checks() no
-// longer stops it there: its force-fight arm now admits the pet, and the
-// refusal has moved down to hmon_hitmon_pet() on a damaging hit. The seam is
-// still pinned here rather than end to end, because what this test isolates is
-// the displacement arm's own refusal -- the same pet, the same square, and
-// only the flag differing.
-test('force-fight sends the starting pet down the attack arm', async () => {
+// .forcefight`, so `F` aimed at a peaceful monster takes the attack arm while
+// an ordinary step takes the displacement arm. Both arms are admitted by
+// hack.c's source path: the displacement helper now owns its source-side
+// refusal gates, and the force-fight arm proceeds to attack_checks(). Pin the
+// shared admission seam here with the same peaceful monster and both flag
+// values.
+test('force-fight and peaceful displacement share safe-monster admission', async () => {
     // A segment with a pet, unlike heroInARoom()'s pettype:none hero, and
     // safe_pet on so is_safemon() can answer TRUE.
     await runSegment({
@@ -1112,22 +1111,20 @@ test('force-fight sends the starting pet down the attack arm', async () => {
     assert.equal(state.flags.safe_dog, true);
 
     // Untame it while leaving it peaceful, so is_safemon() still answers TRUE
-    // and only the two arms differ in what they accept: the displacement arm
-    // refuses anything but an ordinary starting pet, while the melee arm takes
-    // a peaceful target the same way it takes a hostile one. Without that, both
-    // arms accept this monster and the seam is invisible.
+    // and the two source arms can be selected without changing the target.
     pet.mtame = 0;
 
-    // Without the flag: the displacement arm, which no longer recognizes it.
+    // Without the flag: the displacement arm reaches domove_swap_with_pet().
     state.context.forcefight = 0;
-    assert.throws(
+    assert.doesNotThrow(
         () => preflightDomoveDestination(pet.mx, pet.my, state),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError,
     );
 
-    // With it: the melee arm, which accepts it and raises nothing.
+    // With it: the melee arm also passes the destination admission seam.
     state.context.forcefight = 1;
-    preflightDomoveDestination(pet.mx, pet.my, state);
+    assert.doesNotThrow(
+        () => preflightDomoveDestination(pet.mx, pet.my, state),
+    );
 });
 
 // cmd.c:3791 clears svc.context.forcefight in the DOMOVE_WALK arm, and rhack()
