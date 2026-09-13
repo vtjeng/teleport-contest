@@ -33,7 +33,7 @@ import {
     uhim,
 } from './const.js';
 import { acurr, exercise } from './attrib.js';
-import { cmdq_pop, getdir } from './cmd.js';
+import { cmdq_pop, getdir, set_occupation } from './cmd.js';
 import { morehungry } from './eat.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
@@ -43,6 +43,7 @@ import { obfree, update_inventory } from './invent.js';
 import { can_chant } from './mondata.js';
 import { PM_KNIGHT, PM_WIZARD } from './monsters.js';
 import { isMetallic, mksobj, objectType, weight } from './obj.js';
+import { check_unpaid } from './shk.js';
 import {
     MAXSPELL,
     NODIR,
@@ -67,6 +68,7 @@ import {
     SPE_FORCE_BOLT,
     SPE_HASTE_SELF,
     SPE_HEALING,
+    SPE_BOOK_OF_THE_DEAD,
     SPE_INVISIBILITY,
     SPE_KNOCK,
     SPE_LEVITATION,
@@ -83,6 +85,7 @@ import {
     SPE_WIZARD_LOCK,
 } from './objects.js';
 import { rnd } from './rng.js';
+import { ttyPline } from './tty_message.js';
 import {
     P_SKILL,
     SPELL_KNOWLEDGE_KEEN,
@@ -188,18 +191,84 @@ export function study_book_preflight(
     return false;
 }
 
-// C ref: spell.c study_book() (468-659), restricted to the fresh-known
-// healing spell prefix and the default-no refresh response. The accepted
-// response stops after the source-defined prompt and before in_use or an
-// occupation changes; every other book stops in doread() above its mutations.
+function spellStudyDelay(type) {
+    const level = Math.trunc(type.oc_level ?? type.oc_oc2 ?? 0);
+    if (level === 1 || level === 2) return -type.oc_delay;
+    if (level === 3 || level === 4) return -(level - 1) * type.oc_delay;
+    if (level === 5 || level === 6) return -level * type.oc_delay;
+    if (level === 7) return -8 * type.oc_delay;
+    return 0;
+}
+
+// C ref: spell.c learn() (356-463). This occupation callback studies one
+// ordinary spellbook after study_book() has installed its delay and book
+// pointer. The delayed turns increment the negative delay; the completion
+// turn exercises Wisdom, fills the first empty spell slot, makes the book type
+// known, and clears the saved book identity.
+export async function learn(state = game) {
+    const spbook = state.context?.spbook ?? {};
+    const book = spbook.book;
+    if (!book)
+        throw new UnsupportedSpellStudyError('missing spellbook');
+    if (spbook.delay) {
+        spbook.delay++;
+        return 1;
+    }
+
+    await exercise(A_WIS, true, state);
+    const booktype = book.otyp;
+    const type = objectType(booktype, state);
+    const slots = state.svs?.spl_book ?? [];
+    let index = 0;
+    for (; index < MAXSPELL; ++index) {
+        const id = slots[index]?.sp_id ?? NO_SPELL;
+        if (id === booktype || id === NO_SPELL) break;
+    }
+
+    if (index < MAXSPELL && (slots[index]?.sp_id ?? NO_SPELL) === NO_SPELL) {
+        slots[index].sp_id = booktype;
+        slots[index].sp_lev = type.oc_level;
+        slots[index].sp_know = SPELL_KNOWLEDGE_KEEN + 1;
+        book.spestudied = (book.spestudied ?? 0) + 1;
+        const spellName = OBJ_NAME(type, state);
+        const spellText = type.oc_name_known
+            ? `"${spellName}"` : `the "${spellName}" spell`;
+        if (!index)
+            await ttyPline(`You learn ${spellText}.`, state);
+        else
+            await ttyPline(
+                `You add ${spellText} to your repertoire, as '${spellet(index)}'.`,
+                state,
+            );
+    } else if (index < MAXSPELL) {
+        // A fresh study of an already-known spell is outside this span; the
+        // existing refresh path owns that case before learn() is installed.
+        throw new UnsupportedSpellStudyError('re-reading a known spell');
+    }
+
+    if (index < MAXSPELL) {
+        // hack.h makeknown() expands to discover_object(..., TRUE, TRUE, TRUE).
+        discover_object(booktype, true, true, true, state);
+    }
+    check_unpaid(book, state);
+    spbook.book = null;
+    spbook.o_id = 0;
+    return 0;
+}
+
+// C ref: spell.c study_book() (468-659). The existing healing refresh arm
+// remains source-shaped, and the successful ordinary-book arm is admitted by
+// `env.successfulStudy` after its difficulty roll in read.c. Both arms share
+// the C delay, book identity, and occupation state.
 export async function study_book(spellbook, state = game, env = {}) {
-    if (!study_book_preflight(spellbook, state)) {
+    const knownHealing = study_book_preflight(spellbook, state);
+    if (!knownHealing && !env.successfulStudy) {
         throw new UnsupportedSpellStudyError(
             'the selected spellbook branch',
         );
     }
     if (typeof env.message !== 'function'
-        || typeof env.prompt !== 'function') {
+        || (knownHealing && typeof env.prompt !== 'function')) {
         throw new TypeError('study_book requires message and prompt owners');
     }
 
@@ -207,8 +276,20 @@ export async function study_book(spellbook, state = game, env = {}) {
     const type = objectType(booktype, state);
     state.context ??= {};
     state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
+    state.context.spbook.delay = spellStudyDelay(type);
+    if (env.successfulStudy) {
+        spellbook.in_use = false;
+        await env.message(
+            `You begin to ${booktype === SPE_BOOK_OF_THE_DEAD
+                ? 'recite' : 'memorize'} the runes.`,
+            state,
+        );
+        state.context.spbook.book = spellbook;
+        state.context.spbook.o_id = spellbook.o_id ?? 0;
+        set_occupation(learn, 'studying', 0, state);
+        return 1;
+    }
     // SPE_HEALING is level 1, so C stores -oc_delay directly.
-    state.context.spbook.delay = -type.oc_delay;
     await env.message(
         `You know "${OBJ_NAME(type, state)}" quite well already.`,
         state,

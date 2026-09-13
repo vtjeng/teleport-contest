@@ -37,6 +37,8 @@ import {
     SCR_TELEPORTATION,
     QUARTERSTAFF,
     SPBOOK_CLASS,
+    SPE_DETECT_FOOD,
+    SPE_DETECT_MONSTERS,
     SPE_FORCE_BOLT,
     SPE_HEALING,
 } from '../js/objects.js';
@@ -86,6 +88,20 @@ function pendingTopLine() {
 
 function firstSegment() {
     return loadReadCommandRecipe().segments[0];
+}
+
+function holdoutPrefix(lastStep) {
+    const session = JSON.parse(readFileSync(new URL(
+        '../sessions/holdout/seed4500-knight-coverage.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const segment = session.segments[0];
+    return {
+        ...segment,
+        moves: segment.steps.slice(1, lastStep + 1)
+            .map(({ key }) => key ?? '')
+            .join(''),
+    };
 }
 
 function inventorySnapshot(state = game) {
@@ -659,4 +675,54 @@ test('magic mapping remains consumed and mapped through the next command',
         for (let y = 0; y < 21; ++y)
             assert.equal(game.level.at(x, y).seenv, 0xff);
     }
+});
+
+test('successful ordinary spellbook study completes its learn occupation',
+    async () => {
+    // The opened holdout reaches spell.c study_book() at step 474. Its
+    // Knight has Int 7 and level 15, so the level-2 book has read ability 14;
+    // the recorded rnd(20)=13 enters the successful study arm. Steps through
+    // 477 include a second successful book and run both delayed occupations.
+    const segment = holdoutPrefix(477);
+    let boundary = null;
+    const replay = await runSegment(segment, {
+        onBoundary: (error) => { boundary = error; },
+    });
+
+    let foodBook = game.invent;
+    while (foodBook && foodBook.otyp !== SPE_DETECT_FOOD)
+        foodBook = foodBook.nobj;
+    assert.equal(boundary, null);
+    assert.equal(foodBook?.in_use, false);
+    // obj.h's spestudied alias is the spellbook use count; a fresh book starts
+    // at zero and learn() increments it once at spell.c:429.
+    assert.equal(foodBook?.spestudied, 1);
+    assert.deepEqual(game.svs.spl_book.slice(0, 2).map((spell) => ({
+        sp_id: spell.sp_id,
+        sp_lev: spell.sp_lev,
+        sp_know: spell.sp_know,
+    })), [
+        // learn() stores KEEN + 1 (20001), then age_spells() runs at the end
+        // of each later turn: three turns have elapsed for the first book and
+        // one for the second by step 477.
+        { sp_id: SPE_DETECT_FOOD, sp_lev: 2, sp_know: 19998 },
+        { sp_id: SPE_DETECT_MONSTERS, sp_lev: 1, sp_know: 20000 },
+    ]);
+    assert.equal(game.context.spbook.delay, 0);
+    assert.equal(game.context.spbook.book, null);
+    assert.equal(game.context.spbook.o_id, 0);
+    assert.equal(game.go?.occupation ?? null, null);
+    assert.match(game.nhDisplay.toplines,
+        /detect monsters.*repertoire/u);
+
+    // study_book() consumes one difficulty roll per book, and each learn()
+    // completion consumes the source's Wisdom exercise draw before discovery.
+    const studyRolls = replay.getRngLog().filter((entry) =>
+        entry.startsWith('rnd(20)=')
+        && (entry.endsWith('=13') || entry.endsWith('=11')),
+    );
+    assert.deepEqual(studyRolls, [
+        'rnd(20)=13',
+        'rnd(20)=11',
+    ]);
 });

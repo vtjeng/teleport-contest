@@ -255,9 +255,10 @@ function aggravateMonsters(state) {
 }
 
 // C ref: spell.c study_book() (575-619) and cursed_book() (130-183).
-// Only cursed_book()'s case 1 and its nonzero crumble result are open here;
-// the random draw is still consumed before a different outcome refuses, so
-// the boundary remains source-ordered without pretending to implement the
+// Successful ordinary study delegates its occupation setup to study_book();
+// the too-hard arm remains limited to cursed_book()'s case 1 and its nonzero
+// crumble result. The random draw is consumed before either outcome, so the
+// boundary remains source-ordered without pretending to implement the
 // teleport, blindness, gold, poison, explosion, or rndcurse arms.
 async function studyTooHardSpellbook(spellbook, state) {
     if (!tooHardSpellbookPreflight(spellbook, state)) {
@@ -270,10 +271,16 @@ async function studyTooHardSpellbook(spellbook, state) {
         + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
         + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
 
-    // C's rnd(20) is the ordinary uncursed-book difficulty roll.  A
-    // successful study reaches learn(), which remains a separate boundary.
+    // C sets in_use before the ordinary uncursed-book difficulty roll.
+    spellbook.in_use = true;
+
+    // C's rnd(20) is the ordinary uncursed-book difficulty roll. A successful
+    // study reaches study_book(), which installs learn() as the occupation.
     if (rnd(20) <= readAbility) {
-        throw new UnsupportedReadError('successful spellbook study');
+        return await study_book(spellbook, state, {
+            successfulStudy: true,
+            message: ttyPline,
+        });
     }
 
     state.context ??= {};
@@ -285,8 +292,6 @@ async function studyTooHardSpellbook(spellbook, state) {
             : level <= 6
                 ? -level * type.oc_delay
                 : level === 7 ? -8 * type.oc_delay : 0;
-    spellbook.in_use = true;
-
     // cursed_book() chooses one of `objects[booktype].oc_level` effects.
     // Case 1 is the witness branch: it only calls aggravate() after speaking.
     if (rn2(level) !== 1) {
