@@ -32729,6 +32729,146 @@
         "screens": 8150,
         "rng": 597901
       }
+    },
+    {
+      "id": "port-teleport-level-tele-seed4500",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port level_tele() hero level-teleport handling",
+      "cFile": "teleport.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The refreshed fixed 44-session mismatch queue ranks teleport.c first at step 316. Its level_tele() declaration exists in js/teleport.js but the C Gehennom-entry branch remains refused, so the source owner and implementation file are already local.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage reaches input step 316 and stops at level_tele() finding the entrance to Gehennom. Upstream nethack-c/upstream/src/teleport.c level_tele() spans lines 1165-1424 and includes random/debug destinations, wizard and controlled prompts, destination validation, and the Gehennom entrance search. JS js/teleport.js level_tele() around lines 1722-1930 contains the existing implementation and explicit refusals, including the missing Gehennom-entry branch. Production callers include js/wizcmds.js:wiz_level_tele(), js/read.js scroll handling, and js/artifacts.js LEV_TELE dispatch; preserve existing caller contracts and source RNG/evaluation order. Port the complete selected function, removing only obsolete refusals covered by the source span; document any truly unported discarded callees with note_unported(). Use the explicit local fixed-workload session for diagnosis and an independent recipe/recording for any newly reached entry point.",
+      "spans": [
+        {
+          "name": "level_tele",
+          "status": "closed",
+          "closedBy": "68bb56915fae7195c35df9d33d9ee5c921d792ba",
+          "functions": [
+            "level_tele"
+          ]
+        }
+      ],
+      "openedAt": "0417ec07aff42d4b1be5b49be3a177260a8ae618",
+      "openStanding": {
+        "sha": "0417ec07aff42d4b1be5b49be3a177260a8ae618",
+        "screens": 8150,
+        "rng": 597901
+      },
+      "closedAt": "68bb56915fae7195c35df9d33d9ee5c921d792ba",
+      "delivered": {
+        "screens": 6,
+        "rng": 14391
+      },
+      "functions": [
+        {
+          "name": "level_tele",
+          "line": 1165,
+          "endLine": 1443,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1165,
+        "to": 1443
+      },
+      "activeStanding": {
+        "sha": "0417ec07aff42d4b1be5b49be3a177260a8ae618",
+        "screens": 8150,
+        "rng": 597901
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 316,
+          "kind": "stop",
+          "function": "level_tele",
+          "functionDeclared": true,
+          "sourceFile": "teleport.c",
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: level_tele() finding the entrance to Gehennom",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1498
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "level_tele",
+            "implementation": "js/teleport.js",
+            "symbol": "level_tele",
+            "sourceReview": "Read the complete upstream teleport.c level_tele() definition at lines 1165-1443 and compared every branch in source order. The port preserves the debug-fuzzer selection and assign_level mutation, the Amulet/endgame/Sokoban guard, controlled versus involuntary dispatch, menu_requested and wizard-menu handling, retry suffix and getlin ordering, '*' and confused-rnl random routing, Escape cancellation, lev_by_name before atoi, ten-failure fallback, Nowhere confirmation/death/rematerialization sequence, single-level and Quest depth adjustments, buried-ball call boundary, next_to_u guard, endgame negative offsets, killer clearing, heaven/cloud escape output and shop cleanup, life-saving restoration, force-destination bypass, Medusa-to-Valley find_hell assignment, Quest/Mines/Sanctum deepest-level validation, and verbose-dependent schedule_goto message. RNG and evaluation order were checked against the C source. The obsolete refusals for ordinary numeric, named, '*' random, menu, non-wizard guard, negative, endgame, and find_hell paths were removed. Remaining unported callees are recorded at their source boundaries: dig.c buried_ball_to_punishment() retains an explicit UnsupportedLevelChangeError because its state mutation is not ported; window.c display_nhwindow() is recorded with note_unported() in the Cloud 9 and Nowhere branches. dungeon.c find_hell() is implemented locally as the source-equivalent assignment helper because its return value is discarded but its destination mutation is required.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "wizcmds.c:397-406"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_teleportation",
+                "source": "read.c:2015-2032"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:2160"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard-level-tele.test.mjs",
+              "scripts/print-dungeon.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/level-teleport-ordinary-fresh.session.json"
+            ],
+            "checkedAt": "68bb56915fae7195c35df9d33d9ee5c921d792ba"
+          }
+        ],
+        "entryPointReview": "The selected source range has three production callers: the wizard #wizlevelport command, the confused or cursed scroll teleport path, and the LEV_TELE artifact invocation. They all dispatch the same level_tele() state machine; the wizard command is the independently exercised entry point in this span, while the fixed local holdout also reaches the command repeatedly through input step 316 and beyond until the unrelated hellfill generator boundary at step 322. The independent recipe chooses a new seed, clock, Valkyrie character, and numeric answer and matches the patched C recorder through the command prompt, schedule, and segment end.",
+        "entryPoints": [
+          {
+            "name": "wizard numeric level teleport",
+            "functions": [
+              "level_tele"
+            ],
+            "recordings": [
+              "recordings/teleport.c/level-teleport-ordinary-fresh.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 322,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported level change: hellfill generator 3 not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1492
+        }
+      ],
+      "closeStanding": {
+        "sha": "68bb56915fae7195c35df9d33d9ee5c921d792ba",
+        "screens": 8156,
+        "rng": 612292
+      }
     }
   ]
 }
