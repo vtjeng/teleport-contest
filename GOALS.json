@@ -31277,7 +31277,17 @@
       "sessions": [],
       "selectionReason": "Highest-ranked development-only mismatch after 830e33b1: seed0014 step 620 reaches the existing uhitm.js unseen-monster attack refusal; source tracing identifies uhitm.c attack_checks as the owner.",
       "detail": "C uhitm.c attack_checks lines 230-252 handles an unseen target when the glyph is neither warning nor invisible: it prints the Wait message, calls map_invisible at gb.bhitpos, may set_ustuck for an unseen mimic, wakes the monster, and consumes the movement before hitum. Production JS is hack.js domove() -> domove_attackmon_at() -> uhitm.js do_attack() -> attack_checks(); js/uhitm.js:505-511 currently throws UnsupportedHeroMoveBoundaryError. Existing helpers map_invisible, wakeup, set_ustuck, and m_next2u are available; pass live state and the injected message callback. Fix only this source-backed attack-check branch.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "attack_checks-invisible-marker",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "attack_checks",
+            "do_attack"
+          ]
+        }
+      ],
       "openedAt": "399e5e730afff53e550f94ab622d14595ab99f4c",
       "openStanding": {
         "sha": "399e5e730afff53e550f94ab622d14595ab99f4c",
