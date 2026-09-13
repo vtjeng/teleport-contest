@@ -33080,7 +33080,17 @@
       "sessions": [],
       "selectionReason": "After the test_move divergence fix, the refreshed full fixed-workload queue ranks holdout/seed4500-knight-coverage first at step 372 with up to 1442 remaining screens. Source tracing identifies a local objnam.c readobjnam() branch and a bounded JavaScript refusal, so this highest-ranked divergence is selected.",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, step 372 submits 3 scrolls of punishment followed by newline; C produces i - 3 scrolls labeled KIRJE. and records rn2(16)=14 at objnam.c:3522, rnd(2)=2 at mkobj.c:521, rn2(4)=3 at mkobj.c:1846, and rn1(100,50) at zap.c:6421. C objnam.c readobjnam_init() lines 3933-3961 resets cnt; readobjnam_preparse() lines 3978-3988 reads 3; postparse3() lines 4749-4759 resolves the named type; mksobj() lines 5034-5038 creates it; wizard quantity branch lines 5071-5084 assigns otmp->quan=d.cnt when objects[d.typ].oc_merge is true, with no rnd(6) draw because wizard mode short-circuits. JS js/objnam_readobjnam.js requireSingleWishedObject() lines 1476-1480 currently throws for d.cnt>1 && type.oc_merge && state.wizard before named-type mksobj() lines 1718-1728; keep the separate post-mkobj() random-class refusal at 1731-1734. Production path: cmd.js #wizwish -> runWishCommand()/wiz_wish() -> zap.js makewish() -> readobjnam(), then existing hold_another_object() tail. Bounded scope is this explicit named-count mergeable-object branch; leave random-class quantity wishes outside it.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "named-mergeable-count-wish",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "readobjnam",
+            "makewish"
+          ]
+        }
+      ],
       "openedAt": "4af7abca2009e6e7cf27ca8d08a76bd6abf271e2",
       "openStanding": {
         "sha": "8eafee1cc12432a4f8222117162b941a64fdec7e",
