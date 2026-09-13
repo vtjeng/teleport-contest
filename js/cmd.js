@@ -105,6 +105,7 @@ import {
 } from './const.js';
 import {
     doapply,
+    dojump,
     dorub,
     reset_trapset,
     UnsupportedApplyError,
@@ -5038,6 +5039,8 @@ async function doextcmd(key, state) {
         return await runApplyCommand(key, state);
     case 'dorub':
         return await runRubCommand(key, state);
+    case 'dojump':
+        return await dojump(state);
     case 'dozap':
         return await runZapCommand(key, state);
     case 'docast':

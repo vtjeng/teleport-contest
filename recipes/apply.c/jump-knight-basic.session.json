@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4511,
+      "datetime": "20000202131415",
+      "nethackrc": "OPTIONS=name:JumpProbe,role:Knight,race:human,gender:male,align:neutral\n",
+      "comment": "Independent Knight probe enters #jump and selects a visible Knight move (two east, one south); the setup reaches dojump(), jump(), display_jump_positions(), getpos(), is_valid_jump_pos(), and the successful landing tail.",
+      "moves": "#jump\nllj."
+    }
+  ]
+}

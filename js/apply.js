@@ -20,7 +20,9 @@
 // still stop.
 
 import {
+    ACCESSIBLE,
     ARTICLE_A,
+    A_STR,
     BLINDED,
     CQ_CANNED,
     CORR,
@@ -31,6 +33,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FACE,
+    FORCETRAP,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -39,6 +42,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HAND,
+    KILLED_BY,
     has_mcorpsenm,
     isok,
     MCORPSENM,
@@ -50,6 +54,32 @@ import {
     OBJ_INVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
+    D_ISOPEN,
+    DISP_BEAM,
+    DISP_END,
+    FLYING,
+    HALF_PHDAM,
+    INTRINSIC,
+    IS_DOOR,
+    IS_STWALL,
+    JUMPING,
+    LEG,
+    LEVITATION,
+    LEFT_SIDE,
+    PASSES_WALLS,
+    RIGHT_SIDE,
+    TELEDS_NO_FLAGS,
+    TOOKPLUNGE,
+    TT_BEARTRAP,
+    TT_BURIEDBALL,
+    TT_INFLOOR,
+    TT_LAVA,
+    TT_PIT,
+    TT_WEB,
+    UNENCUMBERED,
+    WOUNDED_LEGS,
+    Is_airlevel,
+    Is_waterlevel,
     SCORR,
     SDOOR,
     STATUE_TRAP,
@@ -68,19 +98,22 @@ import {
 } from './cmd.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import {
+    cmap_to_glyph,
     feel_newsym,
     glyph_at,
     map_object,
     map_invisible,
+    map_glyphinfo,
     newsym,
     obj_to_glyph,
+    tmp_at,
     unmap_invisible,
 } from './display.js';
-import { obj_pmname, pmname, x_monnam } from './do_name.js';
+import { Monnam, mon_nam, obj_pmname, pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity } from './hack.js';
-import { highc } from './hacklib.js';
+import { check_capacity, losehp, near_capacity, nomul } from './hack.js';
+import { dist2, highc } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
     delobj,
@@ -93,7 +126,7 @@ import {
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks } from './makemon.js';
-import { seemimic } from './mon.js';
+import { seemimic, set_ustuck } from './mon.js';
 import {
     can_blnd,
     gender,
@@ -101,10 +134,13 @@ import {
     is_female,
     is_male,
     nohands,
+    nolimbs,
     pronoun_gender,
+    slithy,
+    throws_rocks,
     type_is_pname,
 } from './mondata.js';
-import { youHear } from './monmove.js';
+import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import { get_mtraits } from './corpstat.js';
 import { discover_object } from './o_init.js';
@@ -175,7 +211,8 @@ import { djinni_from_bottle, make_blinded } from './potion.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
-import { t_at } from './trap.js';
+import { deltrap, reset_utrap, t_at } from './trap.js';
+import { dotrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole, setnotworn } from './worn.js';
@@ -186,6 +223,18 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { check_unpaid_usage } from './shk.js';
 import { begin_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
+import { acurr } from './attrib.js';
+import { known_spell, spe_Fresh, spelleffects } from './spell.js';
+import { stucksteed } from './steed.js';
+import { teleds } from './teleport.js';
+import { legs_in_no_shape, set_wounded_legs } from './do.js';
+import { cansee } from './vision.js';
+import { morehungry } from './eat.js';
+import { makeplural } from './fruit.js';
+import { getpos } from './getpos.js';
+import { SPE_JUMPING, BOULDER } from './objects.js';
+import { S_goodpos } from './symbols.js';
+import { note_unported } from './unported.js';
 
 // C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
 // inventory, and its leashmon id names the monster; the monster's minvent is
@@ -788,6 +837,367 @@ async function use_stethoscope(obj, state = game) {
     if (!await its_dead(rx, ry, state, response))
         await ttyPline('You hear nothing special.', state); /* not You_hear() */
     return response.value;
+}
+
+// C ref: apply.c dojump(), check_jump(), is_valid_jump_pos(),
+// get_valid_jump_position(), display_jump_positions(), and jump() (1847-2166).
+// The callback walk is the same Bresenham algorithm as dothrow.c walk_path().
+// Its movement callback is kept local until dothrow.c's hurtle family lands.
+
+const JUMP_ANY = 0;
+const JUMP_HORZ = 1;
+const JUMP_VERT = 2;
+const JUMP_DIAG = 3;
+
+function jumpProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function jumpPropertyActive(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+// C ref: dothrow.c walk_path() (656-753).
+function jumpWalkPath(source, destination, callback, argument, state) {
+    let dx = destination.x - source.x;
+    let dy = destination.y - source.y;
+    let x = source.x;
+    let y = source.y;
+    let previousX = x;
+    let previousY = y;
+    const xChange = dx < 0 ? -1 : 1;
+    const yChange = dy < 0 ? -1 : 1;
+    if (dx < 0) dx = -dx;
+    if (dy < 0) dy = -dy;
+    let error = 0;
+    let keepGoing = true;
+    if (dx < dy) {
+        for (let i = 0; i < dy; ++i) {
+            previousX = x;
+            previousY = y;
+            y += yChange;
+            error += dx << 1;
+            if (error > dy) {
+                x += xChange;
+                error -= dy << 1;
+            }
+            keepGoing = callback(argument, x, y, state);
+            if (!keepGoing) break;
+        }
+    } else {
+        for (let i = 0; i < dx; ++i) {
+            previousX = x;
+            previousY = y;
+            x += xChange;
+            error += dy << 1;
+            if (error > dx) {
+                y += yChange;
+                error -= dx << 1;
+            }
+            keepGoing = callback(argument, x, y, state);
+            if (!keepGoing) break;
+        }
+    }
+    if (!keepGoing) {
+        destination.x = previousX;
+        destination.y = previousY;
+    }
+    return keepGoing;
+}
+
+// C ref: apply.c check_jump() (1860-1883).
+export function check_jump(trajectory, x, y, state = game) {
+    if (jumpProperty(state, PASSES_WALLS)) return true;
+    const location = state.level.at(x, y);
+    if (IS_STWALL(location.typ)) return false;
+    if (IS_DOOR(location.typ)) {
+        if (closed_door(x, y, state)) return false;
+        const mask = location.doormask ?? 0;
+        if ((mask & D_ISOPEN) !== 0 && trajectory !== JUMP_ANY
+            && (trajectory === JUMP_DIAG
+                || (((trajectory & JUMP_HORZ) !== 0)
+                    === Boolean(location.horizontal))))
+            return false;
+    }
+    if (sobj_at(BOULDER, x, y, state)
+        && !throws_rocks(state.youmonst?.data)) return false;
+    return true;
+}
+
+// C ref: apply.c is_valid_jump_pos() (1885-1954).
+export async function is_valid_jump_pos(x, y, magic, showmsg, state = game) {
+    const distance = dist2(x, y, state.u.ux, state.u.uy);
+    const jumping = state.u?.uprops?.[JUMPING] ?? {};
+    if (!magic && !(jumping.intrinsic & ~INTRINSIC) && !jumping.extrinsic
+        && distance !== 5) {
+        if (showmsg) await ttyPline('Illegal move!', state);
+        return false;
+    }
+    if (distance > (magic ? 6 + magic * 3 : 9)) {
+        if (showmsg) await ttyPline('Too far!', state);
+        return false;
+    }
+    if (!isok(x, y)) {
+        if (showmsg) await ttyPline('You cannot jump there!', state);
+        return false;
+    }
+    if (!cansee(x, y, state)) {
+        if (showmsg) await ttyPline('You cannot see where to land!', state);
+        return false;
+    }
+
+    const dx = x - state.u.ux;
+    const dy = y - state.u.uy;
+    const ax = Math.abs(dx);
+    const ay = Math.abs(dy);
+    const diagonal = (magic || jumpProperty(state, PASSES_WALLS) || (!dx && !dy))
+        ? JUMP_ANY : !dy ? JUMP_HORZ : !dx ? JUMP_VERT : JUMP_DIAG;
+    let flatX = ax;
+    let flatY = ay;
+    if (flatX >= 2 * flatY) flatY = 0;
+    else if (flatY >= 2 * flatX) flatX = 0;
+    const trajectory = (magic || jumpProperty(state, PASSES_WALLS)
+        || (!flatX && !flatY))
+        ? JUMP_ANY : !flatY ? JUMP_HORZ : !flatX ? JUMP_VERT : JUMP_DIAG;
+
+    const source = state.level.at(state.u.ux, state.u.uy);
+    if (diagonal === JUMP_DIAG && IS_DOOR(source.typ)
+        && (source.doormask & D_ISOPEN) !== 0
+        && (trajectory === JUMP_DIAG
+            || (((trajectory & JUMP_HORZ) !== 0)
+                === Boolean(source.horizontal)))) {
+        if (showmsg)
+            await ttyPline("You can't jump diagonally out of a doorway.", state);
+        return false;
+    }
+    const from = { x: state.u.ux, y: state.u.uy };
+    const to = { x, y };
+    if (!jumpWalkPath(from, to, check_jump, trajectory, state)) {
+        if (showmsg)
+            await ttyPline('There is an obstacle preventing that jump.', state);
+        return false;
+    }
+    return true;
+}
+
+export async function get_valid_jump_position(x, y, state = game) {
+    return isok(x, y)
+        && (ACCESSIBLE(state.level.at(x, y).typ)
+            || jumpProperty(state, PASSES_WALLS))
+        && await is_valid_jump_pos(
+            x, y, state.gj?.jumping_is_magic ?? 0, false, state,
+        );
+}
+
+// C ref: apply.c display_jump_positions() (1956-1986).
+async function display_jump_positions(onOff, state = game) {
+    if (onOff) {
+        await tmp_at(
+            DISP_BEAM,
+            map_glyphinfo(cmap_to_glyph(S_goodpos, state), state),
+            state,
+        );
+        for (let dx = -4; dx <= 4; ++dx) {
+            for (let dy = -4; dy <= 4; ++dy) {
+                const x = state.u.ux + dx;
+                const y = state.u.uy + dy;
+                if (await get_valid_jump_position(x, y, state)
+                    && !u_at(x, y, state))
+                    await tmp_at(x, y, state);
+            }
+        }
+    } else {
+        await tmp_at(DISP_END, 0, state);
+    }
+}
+
+function halfPhysicalDamage(damage, state) {
+    const prop = state.u?.uprops?.[HALF_PHDAM];
+    return (prop?.intrinsic || prop?.extrinsic)
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+async function jumpLandingPath(target, state) {
+    // dothrow.c hurtle_jump() normally advances each path cell and leaves its
+    // final safe cell in cc.  The unported collision side effects are absent;
+    // retaining the callback's destination and using teleds() preserves the
+    // ordinary clear-path movement and landing effects.
+    // dothrow.c hurtle_jump()/hurtle_step() owns collisions, wakeups,
+    // punishment and movement-side effects.  Its result is discarded by the
+    // source caller; record the unported family while preserving the clear
+    // path used by this span.
+    note_unported('dothrow.c hurtle_jump/hurtle_step');
+    const source = { x: state.u.ux, y: state.u.uy };
+    const destination = { x: target.x, y: target.y };
+    jumpWalkPath(source, destination, (unused, x, y) => !m_at(x, y, state), null, state);
+    target.x = destination.x;
+    target.y = destination.y;
+    return teleds(target.x, target.y, TELEDS_NO_FLAGS, state);
+}
+
+// C ref: apply.c dojump() (1847-1851).
+export async function dojump(state = game) {
+    return jump(0, state);
+}
+
+// C ref: apply.c jump() (1988-2163).
+export async function jump(magic = 0, state = game) {
+    if (!magic && !jumpProperty(state, JUMPING)
+        && known_spell(SPE_JUMPING, state) >= spe_Fresh)
+        return spelleffects(SPE_JUMPING, false, false, state);
+
+    const species = state.youmonst?.data;
+    if (!magic && (nolimbs(species) || slithy(species))) {
+        await ttyPline("You can't jump; you have no legs!", state);
+        return ECMD_OK;
+    }
+    if (!magic && !jumpProperty(state, JUMPING)) {
+        await ttyPline("You can't jump very far.", state);
+        return ECMD_OK;
+    }
+    if (!magic && state.u.usteed && stucksteed(false, state)) return ECMD_OK;
+    if (state.u.uswallow) {
+        if (magic) {
+            await ttyPline('You bounce around a little.', state);
+            return ECMD_TIME;
+        }
+        await ttyPline("You've got to be kidding!", state);
+        return ECMD_OK;
+    }
+    if (state.u.uinwater) {
+        if (magic) {
+            await ttyPline('You swish around a little.', state);
+            return ECMD_TIME;
+        }
+        await ttyPline('This calls for swimming, not jumping!', state);
+        return ECMD_OK;
+    }
+    if (state.u.ustuck) {
+        const captor = state.u.ustuck;
+        if (captor.mtame && !jumpProperty(state, CONFLICT) && !captor.mconf) {
+            set_ustuck(null, state);
+            await ttyPline(`You pull free from ${mon_nam(captor, state)}.`, state);
+            return ECMD_TIME;
+        }
+        if (magic) {
+            await ttyPline('You writhe a little in the grasp of your captor!', state);
+            return ECMD_TIME;
+        }
+        await ttyPline('You cannot escape from your captor!', state);
+        return ECMD_OK;
+    }
+    if (jumpPropertyActive(state, LEVITATION)
+        || Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+        if (magic) {
+            await ttyPline('You flail around a little.', state);
+            return ECMD_TIME;
+        }
+        await ttyPline("You don't have enough traction to jump.", state);
+        return ECMD_OK;
+    }
+    if (!magic && near_capacity(state) > UNENCUMBERED) {
+        await ttyPline('You are carrying too much to jump!', state);
+        return ECMD_OK;
+    }
+    if (!magic && (state.u.uhunger <= 100 || acurr(state, A_STR) < 6)) {
+        await ttyPline('You lack the strength to jump!', state);
+        return ECMD_OK;
+    }
+    if (!magic && jumpProperty(state, WOUNDED_LEGS)) {
+        await legs_in_no_shape('jumping', Boolean(state.u.usteed), state);
+        return ECMD_OK;
+    }
+    if (state.u.usteed && state.u.utrap) {
+        await ttyPline(`${Monnam(state.u.usteed, state)} is stuck in a trap.`, state);
+        return ECMD_OK;
+    }
+
+    await ttyPline('Where do you want to jump?', state);
+    const target = { x: state.u.ux, y: state.u.uy };
+    state.gj ??= {};
+    state.gj.jumping_is_magic = magic;
+    await display_jump_positions(true, state);
+    try {
+        if (await getpos(target, true, 'the desired position', state) < 0)
+            return ECMD_CANCEL;
+    } finally {
+        await display_jump_positions(false, state);
+    }
+    if (!await is_valid_jump_pos(target.x, target.y, magic, true, state))
+        return ECMD_FAIL;
+    if (state.u.usteed && u_at(target.x, target.y, state)) {
+        await ttyPline("Your steed isn't capable of jumping in place.", state);
+        return ECMD_FAIL;
+    }
+
+    let wasTrapped = false;
+    if (state.u.utrap) {
+        wasTrapped = true;
+        switch (state.u.utraptype) {
+        case TT_BEARTRAP: {
+            const side = rn2(3) ? LEFT_SIDE : RIGHT_SIDE;
+            await ttyPline('You rip yourself free of the bear trap!  Ouch!', state);
+            await losehp(halfPhysicalDamage(rnd(10), state),
+                'jumping out of a bear trap', KILLED_BY, state);
+            await set_wounded_legs(side, rn1(1000, 500), state);
+            break;
+        }
+        case TT_PIT:
+            await ttyPline('You leap from the pit!', state);
+            break;
+        case TT_WEB:
+            await ttyPline('You tear the web apart as you pull yourself free!', state);
+            deltrap(t_at(state.u.ux, state.u.uy, state), state);
+            break;
+        case TT_LAVA:
+            await ttyPline('You pull yourself above the lava!', state);
+            target.x = state.u.ux;
+            target.y = state.u.uy;
+            break;
+        case TT_BURIEDBALL:
+        case TT_INFLOOR:
+            const legs = makeplural(body_part(LEG, state.youmonst));
+            const place = state.u.utraptype === TT_INFLOOR
+                ? 'stuck in the floor' : 'attached to the buried ball';
+            await ttyPline(`You strain your ${legs}, but you're still ${place}.`, state);
+            await set_wounded_legs(LEFT_SIDE, rn1(10, 11), state);
+            await set_wounded_legs(RIGHT_SIDE, rn1(10, 11), state);
+            return ECMD_TIME;
+        default:
+            throw new Error(`Jumping out of strange trap (${state.u.utraptype})?`);
+        }
+        reset_utrap(true, state);
+    }
+
+    if (u_at(target.x, target.y, state)) {
+        const trap = t_at(target.x, target.y, state);
+        if (wasTrapped) {
+            await morehungry(rnd(10), state);
+            return ECMD_TIME;
+        }
+        if (trap) {
+            await ttyPline(
+                `You jump up and ${jumpPropertyActive(state, FLYING) ? 'fly' : 'come'} back down.`,
+                state,
+            );
+            await dotrap(trap, FORCETRAP | TOOKPLUNGE, state);
+            return ECMD_TIME;
+        }
+        await ttyPline(
+            `${heroHallucinating(state) ? 'You hop up and down a bit.' : 'You decide not to jump after all.'}`,
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    await jumpLandingPath(target, state);
+    nomul(-1, state);
+    state.multi_reason = 'jumping around';
+    state.nomovemsg = '';
+    await morehungry(rnd(25), state);
+    return ECMD_TIME;
 }
 
 // C ref: apply.c doapply() (4213-4430), the `a` command.
