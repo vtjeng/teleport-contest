@@ -230,11 +230,11 @@ import { teleds } from './teleport.js';
 import { legs_in_no_shape, set_wounded_legs } from './do.js';
 import { cansee } from './vision.js';
 import { morehungry } from './eat.js';
+import { hurtle_jump, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { getpos } from './getpos.js';
 import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
-import { note_unported } from './unported.js';
 
 // C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
 // inventory, and its leashmon id names the monster; the monster's minvent is
@@ -1020,18 +1020,20 @@ function halfPhysicalDamage(damage, state) {
 }
 
 async function jumpLandingPath(target, state) {
-    // dothrow.c hurtle_jump() normally advances each path cell and leaves its
-    // final safe cell in cc.  The unported collision side effects are absent;
-    // retaining the callback's destination and using teleds() preserves the
-    // ordinary clear-path movement and landing effects.
-    // dothrow.c hurtle_jump()/hurtle_step() owns collisions, wakeups,
-    // punishment and movement-side effects.  Its result is discarded by the
-    // source caller; record the unported family while preserving the clear
-    // path used by this span.
-    note_unported('dothrow.c hurtle_jump/hurtle_step');
     const source = { x: state.u.ux, y: state.u.uy };
     const destination = { x: target.x, y: target.y };
-    jumpWalkPath(source, destination, (unused, x, y) => !m_at(x, y, state), null, state);
+    const range = {
+        range: Math.max(
+            Math.abs(destination.x - source.x),
+            Math.abs(destination.y - source.y),
+        ),
+    };
+    await walk_path(
+        source,
+        destination,
+        hurtle_jump,
+        { state, range },
+    );
     target.x = destination.x;
     target.y = destination.y;
     return teleds(target.x, target.y, TELEDS_NO_FLAGS, state);

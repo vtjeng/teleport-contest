@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4789,
+      "datetime": "20010405112233",
+      "nethackrc": "OPTIONS=name:HurtleProbe,role:Knight,race:human,gender:female,align:neutral\n",
+      "comment": "Independent Knight probe enters #jump, toggles the position marker with $, and selects a westward two-cell, one-row landing to exercise walk_path(), hurtle_jump(), and hurtle_step().",
+      "moves": "#jump\n$hhj."
+    }
+  ]
+}

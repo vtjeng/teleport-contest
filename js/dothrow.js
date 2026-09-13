@@ -2,7 +2,8 @@
 // `t` command, which asks which object to throw.
 // C refs: src/dothrow.c multishot_class_bonus(), throw_obj(), ok_to_throw(),
 // throw_ok(), dothrow(), find_launcher(), dofire(), throwing_weapon(),
-// throwit(), throwit_return(), throwit_mon_hit() and breaktest().
+// throwit(), throwit_return(), throwit_mon_hit(), breaktest(), walk_path(),
+// hurtle_jump() and hurtle_step().
 //
 // dothrow() is three calls: ok_to_throw() asks whether the hero can throw at
 // all, getobj() runs the prompt over throw_ok()'s per-object classification,
@@ -22,22 +23,29 @@
 //
 // The unported branches are collected under UnsupportedThrowError. The two
 // largest are breakobj() with breakmsg(), for a missile that shatters, and
-// dothrow.c's whole thrown-and-return family -- Mjollnir,
-// an aklys and a boomerang -- which needs boomhit() and sho_obj_return_to_u().
+// dothrow.c's thrown-and-return family -- Mjollnir, an aklys and a boomerang
+// -- still needs boomhit() and sho_obj_return_to_u().
 // dowield(), doquiver_core(), autoquiver(), use_pole() and use_whip() stop for
 // the same reason: each is a command in its own right.
 
 import {
+    ARTICLE_A,
     A_CON,
     A_DEX,
     A_STR,
+    AUGMENT_IT,
     BOLT_LIM,
     CONFUSION,
     CQ_CANNED,
+    D_ISOPEN,
     DEAF,
+    DB_UNDER,
+    DB_MOAT,
+    DRAWBRIDGE_UP,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FIRE_TRAP,
     FUMBLING,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
@@ -45,13 +53,37 @@ import {
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HEAD,
+    I_SPECIAL,
+    IRONBARS,
     IS_SOFT,
+    IS_DOOR,
+    IS_OBSTRUCTED,
+    IS_TREE,
     Is_airlevel,
     Is_waterlevel,
+    KILLED_BY,
     LARGEST_INT,
+    MAGIC_PORTAL,
+    MOAT,
+    NO_TRAP_FLAGS,
+    NEUTRAL,
+    PRONOUN_HALLU,
+    PRONOUN_NO_IT,
     Has_contents,
+    HALF_PHDAM,
+    PASSES_WALLS,
     ZAP_POS,
+    VIBRATING_SQUARE,
+    WATER,
+    W_ARM,
+    W_ARMC,
+    W_ARMU,
+    WWALKING,
+    WT_TOOMUCH_DIAGONAL,
+    SUPPRESS_SADDLE,
     is_hole,
+    is_pit,
+    has_mgivenname,
     isok,
     LOST_THROWN,
     P_CROSSBOW,
@@ -86,23 +118,39 @@ import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
 import { change_luck } from './moveloop_preamble.js';
-import { newsym } from './display.js';
+import {
+    flush_screen,
+    glyph_at,
+    glyph_is_invisible,
+    glyph_is_monster,
+    map_invisible,
+    newsym,
+} from './display.js';
 import { canletgo, flooreffects } from './do.js';
-import { ceiling, surface } from './dungeon.js';
+import { ceiling, on_level, surface, u_on_newpos } from './dungeon.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import {
+    bad_rock,
     calc_capacity,
     check_capacity,
     disturb_buried_zombies,
+    inv_weight,
+    losehp,
+    may_passwall,
+    nh_delay_output,
+    switch_terrain,
+    weight_cap,
 } from './hack.js';
 import { distmin, sgn } from './hacklib.js';
 import { freeinv, getobj, stackobj } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { MZ_MEDIUM } from './monsters.js';
 import {
+    bigmonst,
     is_orc,
     is_unicorn,
+    pronoun_gender,
     nohands,
     notake,
     throws_rocks,
@@ -141,6 +189,7 @@ import {
     objectType,
     place_object,
     remove_object,
+    sobj_at,
     splitobj,
     uslinging,
     weight,
@@ -204,25 +253,40 @@ import {
     The,
     xnameFresh,
 } from './objnam.js';
-import { Monnam } from './do_name.js';
+import { Monnam, pmname, x_monnam } from './do_name.js';
+import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { rn1, rn2, rnl, rnd } from './rng.js';
 import { hitval } from './weapon.js';
 import { stairway_at } from './stairs.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
-import { Levitation, is_lava, is_pool, t_at } from './trap.js';
-import { ttyPline } from './tty_message.js';
-import { cansee, canseemon } from './vision.js';
+import {
+    Flying,
+    Levitation,
+    drown,
+    is_lava,
+    is_pool,
+    t_at,
+    trapname,
+} from './trap.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
+import { cansee, canseemon, vision_recalc } from './vision.js';
 import { welded } from './wield.js';
 import { find_mac, is_pole } from './worn.js';
 import { bhit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
-import { wakeup } from './mon.js';
+import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { heroIsBlind } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { in_out_region } from './region.js';
+import { check_special_room } from './rooms.js';
+import { dotrap } from './trap_effects.js';
+import { Punished } from './steed.js';
+import { move_bc, drag_ball } from './ball.js';
+import { note_unported } from './unported.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
@@ -251,6 +315,304 @@ export class UnsupportedThrowError extends Error {
         this.name = 'UnsupportedThrowError';
         this.what = what;
     }
+}
+
+// C ref: dothrow.c walk_path() (656-735). The callback sees every map cell
+// after the starting coordinate. It can stop the traversal; in that case the
+// destination object is rewound to the last cell whose callback succeeded.
+export async function walk_path(source, destination, checkProc, arg) {
+    let dx = destination.x - source.x;
+    let dy = destination.y - source.y;
+    let x = source.x;
+    let y = source.y;
+    let previousX = x;
+    let previousY = y;
+    const xChange = dx < 0 ? -1 : 1;
+    const yChange = dy < 0 ? -1 : 1;
+    if (dx < 0) dx = -dx;
+    if (dy < 0) dy = -dy;
+    let error = 0;
+    let keepGoing = true;
+
+    if (dx < dy) {
+        for (let i = 0; i < dy; ++i) {
+            previousX = x;
+            previousY = y;
+            y += yChange;
+            error += dx << 1;
+            if (error > dy) {
+                x += xChange;
+                error -= dy << 1;
+            }
+            keepGoing = await checkProc(arg, x, y);
+            if (!keepGoing) break;
+        }
+    } else {
+        for (let i = 0; i < dx; ++i) {
+            previousX = x;
+            previousY = y;
+            x += xChange;
+            error += dy << 1;
+            if (error > dx) {
+                y += yChange;
+                error -= dx << 1;
+            }
+            keepGoing = await checkProc(arg, x, y);
+            if (!keepGoing) break;
+        }
+    }
+    if (!keepGoing) {
+        destination.x = previousX;
+        destination.y = previousY;
+    }
+    return keepGoing;
+}
+
+function propertyPresent(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function heroWwalking(state) {
+    return !Is_waterlevel(state.u?.uz)
+        && propertyPresent(state, WWALKING);
+}
+
+function heroPassesWalls(state) {
+    return propertyPresent(state, PASSES_WALLS);
+}
+
+function heroHalfPhysicalDamage(damage, state) {
+    return propertyPresent(state, HALF_PHDAM)
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+function isMoat(x, y, state) {
+    const location = state.level?.at(x, y);
+    if (!location || on_level(state.u?.uz, state.juiblex_level)) return false;
+    if (location.typ === MOAT) return true;
+    return location.typ === DRAWBRIDGE_UP
+        && ((location.flags ?? location.drawbridgemask ?? 0) & DB_UNDER) === DB_MOAT;
+}
+
+function rangePointer(arg) {
+    if (arg && typeof arg === 'object' && 'range' in arg) return arg;
+    return { range: Number(arg ?? 0) };
+}
+
+function noitMhim(monster, state) {
+    const gender = pronoun_gender(
+        monster,
+        PRONOUN_NO_IT | PRONOUN_HALLU,
+        { state, canSpotMonster },
+    );
+    return genders[gender].him;
+}
+
+// C ref: dothrow.c hurtle_jump() (742-752). I_SPECIAL is temporary: the jump
+// path must stop one cell short of a pool or pit and restore the walking flag
+// before the callback returns to walk_path().
+export async function hurtle_jump(arg, x, y) {
+    const state = arg?.state ?? game;
+    const walking = state.u?.uprops?.[WWALKING]
+        ?? (state.u.uprops[WWALKING] = { intrinsic: 0, extrinsic: 0, blocked: 0 });
+    const saved = walking.extrinsic;
+    walking.extrinsic |= I_SPECIAL;
+    try {
+        return await hurtle_step(arg, x, y);
+    } finally {
+        walking.extrinsic = saved;
+    }
+}
+
+// C ref: dothrow.c hurtle_step() (773-972). This is the movement callback for
+// jumping and other recoil paths. The callback mutates the hero's position,
+// range and nearby state in source order; its boolean controls walk_path().
+export async function hurtle_step(arg, x, y) {
+    const state = arg?.state ?? game;
+    const pointer = rangePointer(arg);
+    const range = () => Math.trunc(pointer.range ?? 0);
+    let mayPass = true;
+
+    if (!isok(x, y)) {
+        await ttyPline('You feel the spirits holding you back.', state);
+        return false;
+    }
+    if (!await in_out_region(x, y, { state })) return false;
+    if (range() === 0) return false;
+
+    const viaJumping = (state.u?.uprops?.[WWALKING]?.extrinsic ?? 0)
+        & I_SPECIAL;
+    const stoppingShort = Boolean(viaJumping && range() < 2);
+    const lev = state.level.at(x, y);
+    const ltyp = lev.typ;
+    if (!heroPassesWalls(state) || !(mayPass = may_passwall(x, y, state))) {
+        let why = null;
+        const diagonal = state.u.ux !== x && state.u.uy !== y;
+        const openDoor = IS_DOOR(ltyp)
+            && ((lev.doormask ?? lev.flags ?? 0) & D_ISOPEN) !== 0;
+        const openDoorDiagonal = openDoor && diagonal;
+        if (IS_OBSTRUCTED(ltyp) || closed_door(x, y, state)
+            || openDoorDiagonal) {
+            why = IS_TREE(ltyp, state) ? 'bumping into a tree'
+                : IS_OBSTRUCTED(ltyp) ? 'bumping into a wall'
+                    : openDoorDiagonal ? 'bumping into a door frame'
+                        : 'bumping into a closed door';
+            if (openDoorDiagonal)
+                await ttyPline('You hit the door frame!', state);
+            await ttyPline('Ouch!', state);
+        } else if (ltyp === IRONBARS) {
+            why = 'crashing into iron bars';
+            await ttyPline('You crash into some iron bars.  Ouch!', state);
+        } else {
+            const obj = sobj_at(BOULDER, x, y, state);
+            if (obj) {
+                why = 'bumping into a boulder';
+                await ttyPline(`You bump into a ${xnameFresh(obj, state)}.  Ouch!`, state);
+            } else if (!mayPass) {
+                why = 'touching the edge of the universe';
+                await ttyPline('You smack into something!', state);
+            } else if (diagonal
+                && bad_rock(state.youmonst?.data, state.u.ux, y, state)
+                && bad_rock(state.youmonst?.data, x, state.u.uy, state)) {
+                const tooMuch = Boolean(state.invent
+                    && inv_weight(state) + weight_cap(state)
+                        > WT_TOOMUCH_DIAGONAL);
+                if (bigmonst(state.youmonst?.data) || tooMuch) {
+                    why = 'wedging into a narrow crevice';
+                    await ttyPline(
+                        `You ${tooMuch ? 'and all your belongings ' : ''}`
+                        + 'get forcefully wedged into a crevice.', state,
+                    );
+                }
+            }
+        }
+        if (why) {
+            await losehp(
+                heroHalfPhysicalDamage(rnd(2 + range()), state),
+                why,
+                KILLED_BY,
+                state,
+            );
+            await wake_nearto(x, y, 10, { state });
+            return false;
+        }
+    }
+
+    const mon = m_at(x, y, state);
+    if (mon) {
+        const glyph = glyph_at(x, y, state);
+        mon.mundetected = false;
+        const mnam = x_monnam(
+            mon,
+            ARTICLE_A,
+            null,
+            (has_mgivenname(mon) ? SUPPRESS_SADDLE : 0) | AUGMENT_IT,
+            false,
+            state,
+            { canSpotMonster },
+        );
+        if (!glyph_is_monster(glyph) && !glyph_is_invisible(glyph)) {
+            const pronoun = noitMhim(mon, state);
+            await ttyPline(`You find ${mnam} by bumping into ${pronoun}.`, state);
+        } else {
+            await ttyPline(`You bump into ${mnam}.`, state);
+        }
+        await wakeup(mon, false, { state });
+        if (!canSpotMonster(mon, state)) map_invisible(mon.mx, mon.my, state);
+        await setmangry(mon, false, { state });
+        if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
+            && !state.uarmc) {
+            state.killer ??= {};
+            state.killer.name = `bumping into ${an(pmname(mon.data, NEUTRAL))}`;
+            note_unported('trap.c instapetrify');
+        }
+        if (touch_petrifies(state.youmonst?.data)
+            && !which_armor(mon, W_ARMU | W_ARM | W_ARMC, state)) {
+            note_unported('trap.c minstapetrify');
+        }
+        await wake_nearto(x, y, 10, { state });
+        return false;
+    }
+
+    if (state.u.ux !== x && state.u.uy !== y
+        && bad_rock(state.youmonst?.data, state.u.ux, y, state)
+        && bad_rock(state.youmonst?.data, x, state.u.uy, state)
+        && state.level.flags?.sokoban_rules) {
+        await ttyPline('You come to an abrupt halt!', state);
+        return false;
+    }
+
+    if (Punished(state)) {
+        const control = { value: 0 };
+        const ballx = { value: state.uball.ox };
+        const bally = { value: state.uball.oy };
+        const chainx = { value: state.uchain.ox };
+        const chainy = { value: state.uchain.oy };
+        const causeDelay = { value: false };
+        if (await drag_ball(
+            x, y, control, ballx, bally, chainx, chainy, causeDelay,
+            true, state,
+        )) {
+            move_bc(0, control.value, ballx.value, bally.value,
+                chainx.value, chainy.value, state);
+        }
+    }
+
+    const oldX = state.u.ux;
+    const oldY = state.u.uy;
+    u_on_newpos(x, y, state);
+    newsym(oldX, oldY);
+    vision_recalc(1, { state });
+    await flush_screen(1);
+    if (ltyp !== state.level.at(oldX, oldY).typ)
+        switch_terrain(state);
+    await check_special_room(false, state);
+
+    if (is_pool(x, y, state) && !state.u.uinwater) {
+        if (state.level.at(x, y).typ === WATER
+            || !(Levitation(state) || Flying(state) || heroWwalking(state))) {
+            state.multi = 0;
+            await drown(state);
+            return false;
+        }
+        if (!Is_waterlevel(state.u.uz) && !stoppingShort) {
+            await ttyNorep(
+                `You move over ${an(isMoat(x, y, state) ? 'moat' : 'pool')}.`,
+                state,
+            );
+        }
+    } else if (is_lava(x, y, state) && !stoppingShort) {
+        await ttyNorep('You move over some lava.', state);
+    }
+
+    const trap = t_at(x, y, state);
+    if (trap) {
+        if (stoppingShort) {
+            // Jumping's last step is performed by teleds(), which applies the
+            // landing trap after this callback has stopped one square short.
+        } else if (trap.ttyp === MAGIC_PORTAL) {
+            await dotrap(trap, NO_TRAP_FLAGS, state);
+            return false;
+        } else if (trap.ttyp === VIBRATING_SQUARE) {
+            await ttyPline('The ground vibrates as you pass it.', state);
+            await dotrap(trap, NO_TRAP_FLAGS, state);
+        } else if (trap.ttyp === FIRE_TRAP) {
+            await dotrap(trap, NO_TRAP_FLAGS, state);
+        } else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
+            && state.level.flags?.sokoban_rules) {
+            if (!viaJumping) await dotrap(trap, NO_TRAP_FLAGS, state);
+            pointer.range = 0;
+            return true;
+        } else if (trap.tseen) {
+            await ttyPline(
+                `You pass right over ${an(trapname(trap.ttyp))}.`, state,
+            );
+        }
+    }
+    pointer.range = Math.max(0, range() - 1);
+    if (range() !== 0) await nh_delay_output(state);
+    return true;
 }
 
 // C ref: dothrow.c should_mulch_missile() (1976-2010). Only ammunition and

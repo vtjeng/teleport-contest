@@ -69,6 +69,7 @@ import {
     throw_obj,
     throw_ok,
     throwit,
+    walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -450,6 +451,30 @@ test('skiprange() picks the window a thrown rock may skip over', () => {
     draws.length = 0;
     assert.deepEqual(skiprange(3, { rnd }), { skipstart: 3, skipend: 2 });
     assert.deepEqual(draws, [3]);
+});
+
+test('walk_path() follows the source Bresenham cells and rewinds on failure', async () => {
+    // dothrow.c:681-719. A 4-by-2 path takes the x-major arm and visits the
+    // exact cells below; a failed callback leaves dest at the prior cell.
+    const source = { x: 2, y: 2 };
+    const destination = { x: 6, y: 4 };
+    const visited = [];
+    const result = await walk_path(
+        source,
+        destination,
+        (_arg, x, y) => {
+            visited.push({ x, y });
+            return x !== 5;
+        },
+        null,
+    );
+    assert.equal(result, false);
+    assert.deepEqual(visited, [
+        { x: 3, y: 2 },
+        { x: 4, y: 3 },
+        { x: 5, y: 3 },
+    ]);
+    assert.deepEqual(destination, { x: 4, y: 3 });
 });
 
 // ---------------------------------------------------------------------------

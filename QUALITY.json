@@ -222,6 +222,7 @@
       "label": "Terrain, traps, vision, and effects",
       "paths": [
         "js/apply_splash_lit.js",
+        "js/ball.js",
         "js/bury.js",
         "js/dbridge.js",
         "js/detect.js",
