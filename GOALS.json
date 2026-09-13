@@ -32873,7 +32873,7 @@
     {
       "id": "unsupported-level-change-hellfill-generator-3-not-ported",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the hellfill.lua level-filler dispatch and generator 3 solid maze arm, preserving source-ordered random draws, level initialization, stair setup, and populatemaze behavior.",
       "luaFile": "hellfill.lua",
       "sessions": [
@@ -32884,8 +32884,8 @@
       "spans": [
         {
           "name": "hellfill.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e008bb157391fd52f40eb5e293a3206accdb4669",
           "functions": [
             "hellfill.lua"
           ]
@@ -32897,15 +32897,18 @@
         "screens": 8156,
         "rng": 612292
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e008bb157391fd52f40eb5e293a3206accdb4669",
+      "delivered": {
+        "screens": 5,
+        "rng": 17190
+      },
       "functions": [
         {
           "name": "hellfill.lua",
           "line": 1,
           "endLine": 443,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -32929,7 +32932,81 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1492
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hellfill.lua",
+            "implementation": "js/hell_levels.js",
+            "symbol": "hellfill",
+            "sourceReview": "Read nethack-c/upstream/dat/hellfill.lua lines 1-443 in full. Checked the top-level generator selection and every shared tail operation, including the seven-arm table, the generator-3 solidfill/mazelevel/noflip/maze sequence at lines 346-351, the invocation-level vibrating-square branch, and populatemaze's six Lua numeric-for loops. Preserved the omitted corrwid field so lspo_level_init() supplies -1 and create_maze() consumes rnd(4) before maze generation. Cached each Lua loop bound before iteration because Lua evaluates numeric-for limits once. Generators 1, 2, 4, and 6 remain explicit unsupported boundaries for later spans; generator 5 and generator 7 were already implemented. No unported callee is invoked by the selected generator-3 path.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "nethack-c/upstream/src/mklev.c:1251-1274"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "nethack-c/upstream/src/mkmaze.c:1126-1195"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "nethack-c/upstream/src/sp_lev.c:2950-3018"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_level_init",
+                "source": "nethack-c/upstream/src/sp_lev.c:2950-3018"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hellfill-level-loader.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-3-random-corridor.session.json"
+            ],
+            "checkedAt": "e008bb157391fd52f40eb5e293a3206accdb4669"
+          }
+        ],
+        "entryPointReview": "The hellfill.lua top-level program is reached through the Gehennom dungeon fill_lvl value, makelevel(), makemaz(), and the special-level loader registry. It selects one of seven source generator arms, emits the common stairs or invocation trap, and runs populatemaze(). This span completes the generator-3 random-corridor maze entry point and records the other four unported arms as explicit bounded boundaries for later spans.",
+        "entryPoints": [
+          {
+            "name": "Gehennom hellfill generator 3 random-corridor maze",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-3-random-corridor.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 327,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1487
+        }
+      ],
+      "closeStanding": {
+        "sha": "e008bb157391fd52f40eb5e293a3206accdb4669",
+        "screens": 8161,
+        "rng": 629482
+      }
     }
   ]
 }
