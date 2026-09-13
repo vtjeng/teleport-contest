@@ -31271,7 +31271,7 @@
     {
       "id": "fix-uhitm-attack-checks-invisible-seed0014",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Handle unseen-monster attack checks and invisible-marker reveal",
       "cFile": "uhitm.c",
       "sessions": [],
@@ -31280,8 +31280,8 @@
       "spans": [
         {
           "name": "attack_checks-invisible-marker",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c784a2988bb125a934ce9e62101a2b076a66fa8f",
           "functions": [
             "attack_checks",
             "do_attack"
@@ -31294,8 +31294,11 @@
         "screens": 7838,
         "rng": 582442
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c784a2988bb125a934ce9e62101a2b076a66fa8f",
+      "delivered": {
+        "screens": 3,
+        "rng": 33
+      },
       "function": "attack_checks",
       "session": "seed0014-dequa-fountain-explore",
       "step": 620,
@@ -31320,7 +31323,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 94
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c784a2988bb125a934ce9e62101a2b076a66fa8f",
+        "screens": 7841,
+        "rng": 582475
+      }
     }
   ]
 }
