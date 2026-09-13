@@ -315,6 +315,36 @@ level. Future missions should use verified command syntax and distinguish
 navigation success from time spent searching; source-guided debug level setup
 can supply deeper-state cases when ordinary navigation misses its target.
 
+The first JavaScript evaluation is preserved in
+`challenges/evaluations/second-batch-first.json` at `accc55ad`. The new cases
+matched **103/533 screens**. All five existing cases were unchanged at
+252/385, giving 355/918 screens and 1/9 complete sessions. The new case-set
+digest and separate challenge fields are recorded in `SCORE.tsv`; development
+and local-holdout fields remain empty on this event.
+
+| Case | Initial screens | First JavaScript blocker and source pointer |
+| --- | ---: | --- |
+| pet-conversations | 23/113 | `js/sounds.js domonnoise` refuses the jackal target. C `sounds.c domonnoise`, MS_BARK at 837–853, supplies the growl. |
+| terrain-transitions | 49/137 | `js/do_wear.js Ring_on` refuses levitation at 674–677. C `do_wear.c Ring_on`, 1306–1315, calls `float_up`/`spoteffects` or updates blocked flight. |
+| monster-transformations | 26/81 | `js/read.js create_particular_parse`, 745–753, rejects the tame prefix. C `read.c create_particular_parse`, 3196–3207, sets disposition; creation then calls `tamedog`. |
+| sustained-journey | 5/202 | `js/cmd.js rhack`, 5341–5361, refuses counted movement. C `allmain.c moveloop_core`, 515–531, repeats the command through `lookaround` and `domove`. |
+
+All four first failures are explicit refusals. Later C behavior in these
+recordings is not evidence that JavaScript reaches it. In particular, the
+transformation case currently tests the creation parser first, and counted
+movement stops the long journey before its food, lamp and combat history.
+The manifest includes these first-stop pointers as well as the later C
+functions reached by each mission. Game implementation remains with the main
+agent.
+
+Automatic approval review rejected a fresh combined mismatch-queue build for
+this dashboard update, citing the sealed-corpus rule in the supplied
+`AGENTS.md` despite the opening instructions in the branch. No alternate
+holdout read was attempted. The published dashboard retains its prior queue
+snapshot while incorporating the saved challenge measurements and completed
+explorer histories. The four new challenges were diagnosed directly from
+their own recordings after their first evaluation was saved.
+
 ## Monitoring and validation
 
 `scripts/monitor-c-explorers.mjs --runs <run-directory>` serves original

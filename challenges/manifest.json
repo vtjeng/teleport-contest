@@ -113,6 +113,7 @@
       "gameTurns": 48,
       "outcome": "Talked to a hostile jackal and a pet dog; observed growl, bark, eating and yip responses around pet combat, a corpse meal, movement away and return, empty targeting and cancellation. No inventory feeding or level transition.",
       "sourcePointers": [
+        "First evaluation at accc55ad: 23/113 screens, then js/sounds.js domonnoise refuses the jackal target. C sounds.c domonnoise MS_BARK (837–853) supplies the growl; later pet states remain behind this stop.",
         "sounds.c dotalk and domonnoise: direction cancellation, empty targets, eating pets, and MS_BARK responses (lines 837–853 and 1246–1408).",
         "dogmove.c dog_eat and dog_move: corpse meals and pet attacks before later chat."
       ],
@@ -135,6 +136,7 @@
       "gameTurns": 31,
       "outcome": "Debug setup supplied levitation equipment and terrain. Ordinary play toggled levitation, tried stairs, crossed pool and lava while airborne, avoided liquids while grounded, entered water and crawled out with item dilution, then inspected a fountain. Did not locate downstairs or drink from the fountain.",
       "sourcePointers": [
+        "First evaluation at accc55ad: 49/137 screens, then js/do_wear.js Ring_on refuses its RIN_LEVITATION branch (674–677). C do_wear.c Ring_on (1306–1315) calls float_up and spoteffects or updates blocked flight.",
         "do_wear.c Ring_on, Ring_off_or_gone and Ring_off; trap.c float_up and float_down: wearing and removing levitation equipment.",
         "hack.c swim_move_danger and avoid_moving_on_liquid; trap.c drown: grounded water entry, escape and liquid avoidance.",
         "objnam.c wizterrainwish: debug terrain setup; pager.c do_look: feature inspection."
@@ -158,6 +160,7 @@
       "gameTurns": 2,
       "outcome": "Debug setup requested a tame soldier; C pacified it but refused taming. With monpolycontrol configured, an ordinary wand zap transformed it into a red dragon, destroying armor and dropping shield, helmet and boots. A subsequent attack provoked fatal retaliation; a second transformation was not reached.",
       "sourcePointers": [
+        "First evaluation at accc55ad: 26/81 screens, then js/read.js create_particular_parse rejects the tame prefix (745–753). C read.c create_particular_parse (3196–3207) sets disposition; create_particular_creation calls tamedog. Transformation behavior is later in the C recording.",
         "read.c create_particular_creation and dog.c tamedog: a human soldier becomes peaceful but is not tamed (dog.c line 1245).",
         "zap.c bhitm and mon.c newcham: a wand changes the equipped soldier into a red dragon; monpolycontrol supplies the requested form.",
         "worn.c mon_break_armor (line 1177): armor destruction and incompatible equipment drops; mhitu.c mattacku: fatal retaliation."
@@ -180,6 +183,7 @@
       "title": "Food, lamp, and sustained exploration",
       "outcome": "Ordinary Valkyrie revisited rooms and a corridor, ate rotten food and became confused, lit an oil lamp, canceled an equipment prompt, searched and fought monsters. Ended alive at turn 208 on D:1; did not find downstairs and declined the surface exit.",
       "sourcePointers": [
+        "First evaluation at accc55ad: 5/202 screens, then js/cmd.js rhack refuses counted movement (5341–5361). C cmd.c parse/rhack and allmain.c moveloop_core (515–531) retain and repeat the command through lookaround and domove.",
         "eat.c rottenfood and doeat: rotten-food confusion during a longer ordinary game.",
         "apply.c use_lamp and doapply: lighting a carried oil lamp; do.c doup and dodown: stair attempts and declined surface exit.",
         "dogmove.c dog_move and mon.c movemon: pet and monster turns during searches, exploration and combat."
