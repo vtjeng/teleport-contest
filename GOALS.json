@@ -33444,6 +33444,59 @@
         "screens": 8358,
         "rng": 629868
       }
+    },
+    {
+      "id": "divergence-objnam-ball-chain-suffix-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Render source-equivalent chained ball and chain suffixes in object names.",
+      "cFile": "objnam.c",
+      "sessions": [],
+      "selectionReason": "After the check_here fix and a rechecked full fixed-workload queue, holdout/seed4500-knight-coverage remains the highest-ranked candidate at step 518 with up to 1296 remaining screens. Source tracing identifies objnam.c doname_base and a missing JS ball/chain worn suffix.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, recorded index 518, first mismatch is a screen naming the chained object. C expects `You see here a very heavy iron ball (chained to you).`; fresh-process JavaScript emits `You see here a very heavy iron ball.` with matching RNG and cursor slices. Upstream nethack-c/upstream/src/objnam.c doname_base() lines 1540-1546 handles BALL_CLASS and CHAIN_CLASS, appending `(chained to you)` when W_BALL is set and `(attached to you)` when W_CHAIN is set. JS js/objnam.js wornSuffix() lines 1075-1162 handles worn/ring/wielded/alternate/quiver suffixes but lacks the ball/chain branch; donameFreshInternal() appends it around lines 1609-1614. Production path is js/hack.js spoteffects() -> js/pickup.js pickup()/check_here()/invent.js look_here() -> js/objnam.js donameFresh()/wornSuffix(). Bounded scope: import W_BALL and W_CHAIN and append the C-equivalent ball/chain suffix in wornSuffix(), preserving later suffix handling. Leave unrelated object-name branches and trap behavior outside scope.",
+      "spans": [
+        {
+          "name": "ball-chain-name-suffix",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "doname_base"
+          ]
+        }
+      ],
+      "openedAt": "fbed0d722ff7126bda7bf9efa1feec2685d6526a",
+      "openStanding": {
+        "sha": "fbed0d722ff7126bda7bf9efa1feec2685d6526a",
+        "screens": 8358,
+        "rng": 629868
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doname_base",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 518,
+      "activeStanding": {
+        "sha": "fbed0d722ff7126bda7bf9efa1feec2685d6526a",
+        "screens": 8358,
+        "rng": 629868
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 518,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1296
+        }
+      ]
     }
   ]
 }
