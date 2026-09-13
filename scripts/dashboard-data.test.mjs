@@ -380,13 +380,42 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     assert.match(table, /title="hack\.c:42">test_move\(\) in hack\.c</u);
     assert.match(table, /title="Arc-loca\.lua">Arc-loca\.lua</u);
     assert.match(table, /step unknown/u);
-    assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">source investigation</u);
+    assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">unresolved</u);
+    assert.match(table, /<th>Investigation<\/th>/u);
+    assert.equal((table.match(/No investigation result/gu) || []).length, 3);
     assert.match(table, /<th>Screens after mismatch<\/th>/u);
     assert.match(table, /<td>8 of 10<\/td>/u);
-    // Rows follow the goal order, not the step order: quest breaks at step 1
-    // but its owner ranks second, so the footer no longer restates the order.
+    // Rows follow per-session remaining counts even though quest fails earlier.
     assert.match(table, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
     assert.doesNotMatch(table, /Every development session matches/u);
+});
+
+test('the queue shows current findings and explicit missing, partial, and stale states', () => {
+    // Decreasing synthetic counts define per-session priority. Deliberately
+    // reverse the source-group order so it cannot silently override that policy.
+    const sessions = ['missing', 'complete', 'partial', 'stale', 'invalid'].map((status, index) => ({
+        session: status, step: index, kind: 'screen', sourceFile: null,
+        remainingScreensUpperBound: 10 - index, recordedSteps: 10,
+        investigation: {
+            status,
+            ...(['complete', 'partial'].includes(status) ? { result: {
+                summary: `${status} finding <tag> & "quote"`,
+                source: { file: 'hack.c', functions: ['test_move'] },
+            } } : {}),
+        },
+    }));
+    const queue = { sessions: [...sessions].reverse(), candidates: [...sessions].reverse()
+        .map(entry => ({ sessions: [entry.session] })) };
+    const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').innerHTML;
+    assert.match(table, /missing[\s\S]*complete[\s\S]*partial[\s\S]*stale[\s\S]*invalid/u);
+    assert.match(table, /No investigation result/u);
+    assert.match(table, /Complete investigation/u);
+    assert.match(table, /Partial investigation/u);
+    assert.match(table, /Needs investigation · remaining-screen count changed/u);
+    assert.match(table, /Investigation file incomplete or unreadable/u);
+    assert.match(table, /complete finding &lt;tag> &amp; &quot;quote&quot;/u);
+    assert.match(table, /Source: hack\.c · test_move/u);
+    assert.doesNotMatch(table, /<tag>/u);
 });
 
 test('an unavailable mismatch queue differs from a confirmed empty queue', () => {

@@ -104,6 +104,21 @@ test('source groups sum exposure and break ties by earliest step', () => {
     assert.deepEqual(queue.candidates[1].sessions, ['movement', 'later-movement']);
 });
 
+test('session priority uses remaining screens before mismatch step and session ID', () => {
+    // The later failure still ranks first because ten screens remain. The
+    // other fixtures all have eight remaining: known steps precede unknown
+    // steps, and the two movement entries resolve their tie by session ID.
+    const long = { ...screen, file: 'long.session.json', recordedSteps: 20,
+        divergence: { screen: { index: 10 } } };
+    const tie = { ...screen, file: 'tie.session.json', recordedSteps: 12 };
+    const unknown = { ...screen, file: 'unknown.session.json', recordedSteps: 8,
+        divergence: { rng: { index: 1, stepIndex: null } } }; // An unlocated RNG mismatch.
+    const queue = build([unknown, tie, { ...stop, file: 'z-move.session.json' },
+        long, { ...stop, file: 'a-move.session.json' }]);
+    assert.deepEqual(queue.sessions.map(entry => entry.session),
+        ['long', 'a-move', 'z-move', 'tie', 'unknown']);
+});
+
 test('missing Lua loaders belong to their Lua program, including makemaz refusals', () => {
     for (const boundary of [
         'makelevel: load_special() has no loader for special level "Arc-loca"',

@@ -419,7 +419,6 @@ canvas {
     background-repeat: no-repeat;
     background-attachment: local, scroll;
   }
-  #queueTable:has(thead) { min-width: 600px; }
 }
 
 .chart-reset {
@@ -712,9 +711,9 @@ canvas {
   background: var(--surface-card);
 }
 
-/* The first column names the row (session, C file, or goal) and stays put
-   while the rest scrolls sideways, so it is opaque; the row tints below are
-   image layers that show over it as well as over the other cells. */
+/* Most tables pin the row name while the rest scrolls sideways. The queue
+   overrides this below so a long finding fits on a phone. Row tints are image
+   layers over the opaque name cell as well as the other cells. */
 .goal-table th:first-child,
 .goal-table td:first-child {
   text-align: left;
@@ -809,11 +808,18 @@ canvas {
 #queueTable {
   table-layout: fixed;
   width: 100%;
+  min-width: 44rem;
 }
 
-#queueTable col:nth-child(1) { width: 25%; }
-#queueTable col:nth-child(2) { width: 14%; }
-#queueTable col:nth-child(3) { width: 12%; }
+#queueTable col:nth-child(1) { width: 23%; }
+#queueTable col:nth-child(2) { width: 10%; }
+#queueTable col:nth-child(3) { width: 9%; }
+#queueTable col:nth-child(4) { width: 43%; }
+#queueTable col:nth-child(5) { width: 15%; }
+
+/* Let the whole finding fit in a phone viewport when scrolling sideways. */
+#queueTable td:first-child,
+#queueTable th:first-child { left: auto; }
 
 /* Keep an unavailable step readable without changing the pinned name column. */
 #queueTable td:nth-child(2),
@@ -822,10 +828,13 @@ canvas {
 #queueTable td:nth-child(4),
 #queueTable th:nth-child(4) {
   text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
+
+.investigation-status { font-weight: 600; }
+.investigation-summary { margin-top: 4px; line-height: 1.5; }
+.investigation-source { margin-top: 4px; color: var(--ink-secondary); }
 
 .goal-table tr.in-progress td {
   --tint: color-mix(in srgb, var(--goal-in-progress) 6%, transparent);
@@ -923,7 +932,7 @@ canvas {
   <h2 class="section-title">Diagnostics and history</h2>
 <div class="section">
   <h3 class="section-title">Mismatch queue</h3>
-  <p class="subtitle">First mismatch per session, in priority order. A fix can recover at most the listed screens.</p>
+  <p class="subtitle">Sessions ordered by remaining screens. Work starts with the first completed investigation. Listed screens are upper bounds on recovery.</p>
   <div class="chart-wrap">
     <div class="goal-table-wrap">
       <table class="goal-table" id="queueTable"></table>
@@ -1083,31 +1092,33 @@ document.getElementById('stats').innerHTML = [
     return;
   }
   let html = '<colgroup><col><col><col><col><col></colgroup>'
-    + '<thead><tr><th>Session</th><th>First mismatch</th><th>Kind</th><th>Source owner</th><th>Screens after mismatch</th></tr></thead><tbody>';
-  // A session ranks with the candidate that owns it, a source file or the
-  // session's own investigation, so one owner's sessions sit together in
-  // step order and the table reads as the goal order.
-  const candidates = QUEUE.candidates || [];
-  const rank = entry => {
-    const index = candidates.findIndex(candidate => candidate.sourceFile
-      ? candidate.sourceFile === entry.sourceFile
-      : (candidate.sessions || []).includes(entry.session));
-    return index < 0 ? candidates.length : index;
-  };
+    + '<thead><tr><th>Session</th><th>First mismatch</th><th>Kind</th><th>Investigation</th><th>Screens after mismatch</th></tr></thead><tbody>';
   const stepOrder = step => step == null ? Infinity : step;
-  const rows = [...QUEUE.sessions].sort((a, b) => rank(a) - rank(b)
+  const rows = [...QUEUE.sessions].sort((a, b) => b.remainingScreensUpperBound - a.remainingScreensUpperBound
     || stepOrder(a.step) - stepOrder(b.step)
     || a.session.localeCompare(b.session));
   rows.forEach(entry => {
+    const investigation = entry.investigation;
+    const result = investigation?.result;
+    const status = ({
+      complete: 'Complete investigation', partial: 'Partial investigation',
+      stale: 'Needs investigation · remaining-screen count changed',
+      invalid: 'Investigation file incomplete or unreadable',
+    })[investigation?.status] || 'No investigation result';
+    const source = result?.source;
+    const findings = '<div class="investigation-status">' + status + '</div>'
+      + (result ? '<div class="investigation-summary">' + esc(result.summary) + '</div>' : '')
+      + (source ? '<div class="investigation-source">Source: ' + esc(source.file)
+        + (source.functions.length ? ' · ' + esc(source.functions.join(', ')) : '') + '</div>' : '');
     const where = entry.sourceFile
       ? '<span title="' + esc(entry.sourceFile + (entry.line ? ':' + entry.line : '')) + '">'
         + esc(entry.function ? entry.function + '() in ' : '') + esc(entry.sourceFile) + '</span>'
-      : '<span style="color:var(--ink-muted)" title="' + esc(entry.message || '') + '">source investigation</span>';
+      : '<span title="' + esc(entry.message || '') + '">unresolved</span>';
     html += '<tr>'
       + '<td title="' + esc(entry.session) + '">' + esc(entry.session.replace(/^seed/, '')) + '</td>'
       + '<td>step ' + (entry.step ?? 'unknown') + '</td>'
       + '<td>' + esc(entry.kind) + '</td>'
-      + '<td>' + where + '</td>'
+      + '<td>' + findings + '<div class="investigation-source">Mismatch site: ' + where + '</div></td>'
       + '<td>' + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps + '</td>'
       + '</tr>';
   });

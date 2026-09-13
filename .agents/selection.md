@@ -5,17 +5,28 @@ defines the goal kinds; `.agents/loop.md` describes their execution.
 
 ## Choosing a goal
 
-Run `node scripts/mismatch-queue.mjs`. Its single priority list includes C
-and Lua sources, partially implemented functions, defects in existing code,
-screen and cursor mismatches, and refusals whose source owner is unresolved.
+Run `node scripts/mismatch-queue.mjs --json` and use its `sessions` array,
+including each entry's `investigation` status and result.
+It includes C and Lua sources, partially implemented functions, defects in
+existing code, screen and cursor mismatches, and unresolved source owners.
 A JavaScript declaration is inventory information, never completion evidence.
 
-Take the highest-ranked candidate. Candidates are grouped by source owner
-when known, then ranked by the upper bound on remaining screens and the
-first mismatch step. A later blocker can consume the entire apparent gain;
-these counts are not predicted gains or measured unmatched-screen counts.
+Sort sessions by `remainingScreensUpperBound` descending, then by first
+mismatch `step` ascending (unknown steps last), then by canonical session ID.
+Select the first session with a completed, valid investigation from the cache
+specified below. Use this per-session order even when the command's grouped
+`candidates` order differs. A later blocker can consume the entire apparent
+gain; these counts are not predicted gains or measured unmatched-screen counts.
 
-Trace that candidate to the source before choosing the goal kind:
+Start background investigations for the other uncached or invalidated sessions
+as `.agents/loop.md`, "Background investigations", specifies. Do not wait for a
+higher-ranked session's investigation while a completed, valid investigation
+is available. If none is available, wait for an investigator's completion,
+then select the first ready session in the same order without waiting for the
+rest. Keep an implementation span running until its normal handoff; reconsider
+selection between spans.
+
+Use the selected investigation's source trace to choose the goal kind:
 
 - Missing or partial C behavior: open a `file-port` for the responsible whole
   function or self-contained function family. Use `--from-function` and
@@ -29,20 +40,25 @@ Trace that candidate to the source before choosing the goal kind:
 - A defect in implemented behavior: open a `divergence-fix` and follow
   `.agents/divergence.md`. Trace deterministic state changes as well as RNG
   and drawing; a screen mismatch need not be a rendering defect.
-- An unresolved source owner: investigate the named session, identify its
-  C or Lua owner, then queue one of the above. Do not skip the candidate
-  because it lacks a C function annotation.
+- An unresolved source owner: keep its investigation in the background queue
+  until it identifies a C or Lua owner and one of the above goal kinds. A
+  caller annotation alone does not count as a completed investigation.
 
-A lower-ranked candidate or a different owner requires `--selection-reason`
-explaining the source-traced dependency or the condition blocking the higher
-candidate. For a different or unresolved owner, also name the affected
-session with `--sessions` (or `--session` for a divergence fix). This is an
-implementation decision, not a request for user approval.
+Always name the selected session with `--sessions` (or `--session` for a
+divergence fix). When the selected goal differs from the command's highest
+grouped candidate or its annotated owner, supply `--selection-reason` with
+the selected session, remaining-screen count, cache path, and source-traced
+owner. Explain that this is the first session with a valid completed
+investigation in per-session order; identify higher-ranked sessions still
+awaiting investigation when applicable. This policy authorizes that choice
+without user approval. A source-traced dependency or a condition blocking
+implementation can still justify a different choice; record that reason.
 
 `queue-goal`, `open-goal`, `next-span`, and a divergence fix's `queue-span`
-enforce selection against the fixed 44-session queue. Reconsider priority
-between spans. When an open
-goal no longer addresses the highest candidate, preserve its work with
+still check selection against grouped candidates and the recorded reason.
+The orchestrator applies the completed-investigation priority described here.
+Reconsider priority between spans. When an open goal no longer addresses the
+first session with a valid completed investigation, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
 Resume it with `open-goal --id <id>` when its priority permits.
 
@@ -53,6 +69,69 @@ inactive helpers. The port is complete only when all 44 fixed-workload
 sessions match and all C functions and Lua programs have completion evidence.
 Synthetic local challenge results are reported separately and supplement
 source completion evidence.
+
+## Investigation cache
+
+Store each session's source investigation in
+`investigations/<session>.json`, using the queue's canonical session ID.
+Preserve the `holdout/` prefix as a subdirectory. This tracked cache supplies
+both worker handoffs and the CI-built dashboard. The orchestrator commits
+completed and partial results by explicit path at the next commit boundary
+that preserves checkpoint ownership, then pushes them. Uncommitted results
+are not published. Follow `.agents/validation.md`, "Routine validation", to
+avoid changing checkpoint inputs during goal closure. The orchestrator may seed an entry from an existing
+investigation with the required evidence and recorded count, without repeating
+its work.
+
+Each JSON object contains:
+
+- `session`: canonical session ID.
+- `remainingScreensUpperBound`: the session's queue count when investigated.
+- `status`: `partial` until the source owner and actionable scope are established,
+  then `complete`.
+- `commit` and `mismatch`: the full examined commit SHA and original session
+  queue entry, retained as provenance. Omit its `investigation` field to avoid
+  copying earlier cached results into later ones.
+- `summary`: a short source-backed finding for the dashboard; for a partial
+  result, state what is known and what remains unresolved.
+- `source`: an object with `file` and `branch` strings, plus `functions`,
+  `callers`, and `dependencies` arrays of strings. Name the preconditions in
+  `branch`.
+  Use the Lua program name in `functions` for a Lua investigation. A partial
+  result may omit `source`; when included, provide `file` and `functions`.
+  A complete result needs a nonempty file, branch, function list, and caller
+  list; use an empty dependency list when there are no dependencies.
+- `goalKind`: `file-port`, `lua-port`, or `divergence-fix` when complete.
+- `evidence`: a nonempty array of strings with source locations, diagnostic
+  artifact references, and explanations of the cause and implementation scope. For a partial result,
+  include the next source-backed probe. Include enough source detail to read
+  the finding in CI without access to local diagnostic artifacts.
+
+After each current scan, compare each session's `remainingScreensUpperBound`
+with its cached value. Invalidate only that session's investigation when the
+count changes. Do not invalidate it for a new commit, changed files, elapsed
+time, a changed annotation or mismatch kind, or another session's progress.
+Do not use the recording's fixed `recordedSteps` total as the invalidation key.
+Sessions absent from the mismatch queue need no investigation or selection;
+retain their cache files without scheduling work for them.
+
+A partial entry does not qualify for selection; continue its investigation.
+A complete entry with the same count remains valid across spans and restarts.
+Check the count again before accepting an investigator's result so that a late
+result for an old count cannot replace a current investigation. Pass a valid
+cached investigation to the span worker, which still verifies its source
+claims before implementation. Cache reuse does not establish source completion
+or replace validation.
+
+Keep the replay cache's existing freshness checks in `scan-sessions.mjs`.
+The current scan supplies the count used to validate this separate
+investigation cache.
+
+The queue and dashboard distinguish `complete`, `partial`, `missing`, `stale`
+(count changed), and `invalid` (unreadable or malformed file) results. Only a
+`complete` result qualifies for selection. Repair malformed files without
+discarding their source findings. CI reads the tracked investigation files;
+keep findings and their source pointers in the result, not only in `.cache/`.
 
 ## Opening the goal
 

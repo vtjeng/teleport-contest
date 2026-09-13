@@ -7,6 +7,9 @@ measurement, and the reviews it may call for.
 `.agents/review.md` states when a correctness review is warranted and how to
 run one.
 
+Maintain "Background investigations" throughout the loop, including while
+waiting for an active implementation worker or its checkpoint.
+
 The orchestrator repeats without returning to the user between steps:
 
    On entry (or after a restart), check
@@ -27,7 +30,8 @@ The orchestrator repeats without returning to the user between steps:
 
    a. Read `node scripts/goal-log.mjs --current --detail`. Existing queued
       or parked work still needs to satisfy the current mismatch queue.
-   b. Run `node scripts/mismatch-queue.mjs`. When every fixed-workload session
+   b. Run `node scripts/mismatch-queue.mjs --json` and maintain the background
+      investigations described below. When every fixed-workload session
       matches and `node scripts/goal-log.mjs roadmap` lists no unverified
       C function or Lua program, the port is complete: stop the loop and
       notify the user. Otherwise choose the goal by the order in
@@ -39,16 +43,20 @@ The orchestrator repeats without returning to the user between steps:
 2. Plan the next span with `node scripts/goal-log.mjs next-span --goal <id>`.
    It combines declaration inventory with recorded completion evidence,
    rechecks selection, queues a span, and writes `.cache/span-context.json`.
-   A declaration without evidence stays in scope. If selection now favors
-   another blocker, park the open goal with `park-goal --goal <id> --reason
-   "<source-based reason>"` and return to step 1. When every source unit has
-   evidence, the goal has no span left: go to step 6. Otherwise
+   Before planning, apply `.agents/selection.md` to the refreshed queue and
+   investigation cache. A declaration without evidence stays in scope. If
+   selection now favors another blocker, park the open goal with
+   `park-goal --goal <id> --reason "<source-based reason>"` and return to step 1.
+   When every source unit has evidence, the goal has no span left: go to
+   step 6. Otherwise
    commit `GOALS.json` with a message that starts `Queue <span name> span`.
    For a divergence fix, name the span yourself with `queue-span` and write
    the context file from `.agents/divergence.md`, step 2.
 3. Spawn a span worker (`.claude/agents/span-worker.md`) for that span.
-   Include the selected mismatch entry, the commit it describes, relevant
-   source ranges, and paths to existing evidence in the handoff.
+   Include the selected mismatch entry, the commit it describes, the valid
+   investigation cache path, relevant source ranges, and paths to existing
+   evidence in the handoff. Keep background investigations running while the
+   span worker implements and validates.
    The worker owns implementation validation through checkpoint completion
    and handoff, following `.agents/validation.md`, "Routine validation". Do not
    launch a competing full suite, checkpoint, or development scorer while
@@ -133,17 +141,13 @@ The orchestrator repeats without returning to the user between steps:
    append the goal's fixed-development score row at the measured commit before
    `goal-log.mjs close-goal`. Commit the closure and continue at step 1.
 
-When a goal's final span worker hands off a passing checkpoint, start
-`node scripts/mismatch-queue.mjs` before steps 4 through 6. Run that queue refresh
-while the orchestrator verifies quality and evidence, scores, closes the goal,
-commits, and pushes. If the next candidate still needs source tracing, start one
-read-only investigator as soon as the queue returns; do not wait for `close-span`,
-`close-goal`, the closure commit, push, or CI. Give it the tested commit, selected
-development mismatch, and existing artifacts; require a short report identifying
-the source owner, callers, and dependencies. It must not edit files or run a
-competing full suite or scorer. Finish closing the current goal and recheck
-selection before opening the next one. Skip this overlap when the current goal
-completes the user's active objective. Use actual checkpoint-handoff, queue,
+After each span worker hands off a passing checkpoint, start
+`node scripts/mismatch-queue.mjs --json` while the orchestrator verifies quality
+and evidence, scores, closes the span or goal, commits, and pushes. As soon as
+the queue returns, compare investigation-cache counts and replenish background
+investigations. Finish closing the current work and recheck selection before
+opening the next goal. Skip new investigations when the current goal completes
+the user's active objective. Use actual checkpoint-handoff, queue,
 investigator, closure, and push timestamps when reporting overlap, including any
 remaining wait or rework.
 
@@ -177,6 +181,48 @@ flight. When `ScheduleWakeup` is available, set it to ten minutes as a
 recovery watchdog and use a short interval when idle. End the loop with
 `ScheduleWakeup stop` only for `AGENTS.md`'s stop cases; running low on
 context is not a reason to stop.
+
+## Background investigations
+
+At loop entry and after each queue refresh, use the per-session order and
+cache rules in `.agents/selection.md`. For every mismatching session without
+a valid completed investigation, start or continue a source investigation in a
+subagent. Exclude the session owned by the active implementation worker.
+Launch investigators concurrently up to the available capacity, reserving a
+slot for the span worker and any helper required by its current work. When
+capacity is exhausted, queue the remaining sessions in the same order and
+start the next as a slot becomes available. Keep only one investigator per
+session; reuse partial findings when continuing an investigation.
+
+Give each investigator its session, remaining-screen count, examined commit,
+queue entry, existing artifacts, and any partial cache entry. It reads source
+and artifacts and may replay its assigned session under `.agents/validation.md`.
+Read source at the examined commit with `git show` or an existing worktree;
+do not mix findings from a changing working tree into that commit's evidence.
+It identifies the source owner, branch and preconditions, callers, dependencies,
+and goal scope. Its only writes are its assigned
+`investigations/<session>.json` file and session-specific diagnostic artifacts
+under `.cache/`; it does not edit game code, instructions, `GOALS.json`, or
+score records. Leave commits and pushes to the orchestrator. It does not scan
+other sessions, record C runs, or run a full suite, checkpoint, or aggregate
+scorer.
+
+Have each investigator write its result in the schema in `.agents/selection.md`
+to a temporary file beside its assigned cache file, then rename it into place
+before sending its completion message. Include the assigned count and cache
+path in the message; the orchestrator publishes results as `.agents/selection.md`
+specifies. If a scan changes the count during investigation, stop or finish
+the old assignment before starting its replacement; do not accept its old
+result for the new count or let it overwrite a newer result.
+
+Use completion notifications to collect results and refill available slots.
+When implementation can proceed from a valid completed investigation, proceed
+without waiting for other investigators. When none is ready, wait for a
+completion, check the cache and current session order, and begin implementation
+as soon as one qualifies. A partial result stays queued for continued
+investigation. Do not wait for the whole investigation batch before choosing
+work. Pass reused source findings to the worker and verify them as the normal
+source review requires.
 
 ## Reports
 

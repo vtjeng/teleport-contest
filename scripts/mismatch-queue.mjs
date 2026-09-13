@@ -17,6 +17,7 @@ import { pathToFileURL } from 'node:url';
 import {
     PROJECT_ROOT, cFunctions, functionOwners, jsFunctionNames,
 } from './c-functions.mjs';
+import { readInvestigation } from './investigation-cache.mjs';
 
 // Patch 004 adds Lua annotations alongside ordinary `name(file.c:line)`.
 const CALLER = /^(.+)\(([A-Za-z0-9_.-]+\.(c|lua)):(\d+)\)$/u;
@@ -26,8 +27,9 @@ const MISSING_LOADER = /\bno loader for (?:special level )?["']([A-Za-z0-9_.-]+)
 
 export const USAGE = `Usage: node scripts/mismatch-queue.mjs [--json] [--scan <path>]
 
-Print the ranked queue from the fixed 44-session scan. Use --scan with a
-saved scan artifact to avoid replaying the workload.`;
+Print the fixed 44-session queue and tracked source investigations. Sessions
+sort by remaining screens; select the first with a complete investigation.
+Use --scan with a saved scan artifact to avoid replaying the workload.`;
 
 export function parseCaller(caller) {
     const match = caller ? CALLER.exec(caller.trim()) : null;
@@ -152,7 +154,8 @@ export function buildQueue(scan, owners, declaredCounts, declaredNames = new Set
     const sessions = scan.rows
         .map((row) => queueEntry(row, owners, declaredNames))
         .filter(Boolean)
-        .sort((a, b) => stepOrder(a.step) - stepOrder(b.step)
+        .sort((a, b) => b.remainingScreensUpperBound - a.remainingScreensUpperBound
+            || stepOrder(a.step) - stepOrder(b.step)
             || a.session.localeCompare(b.session));
     return {
         sessions,
@@ -203,7 +206,9 @@ export function loadMismatchQueue(scan = runScan()) {
             functionsDeclared: functions.filter((entry) => declaredNames.has(entry.name)).length,
         };
     };
-    return buildQueue(scan, functionOwners(), declaredCounts, declaredNames);
+    const queue = buildQueue(scan, functionOwners(), declaredCounts, declaredNames);
+    for (const entry of queue.sessions) entry.investigation = readInvestigation(PROJECT_ROOT, entry);
+    return queue;
 }
 
 export function formatQueue(queue) {
@@ -220,8 +225,17 @@ export function formatQueue(queue) {
             + (entry.message ? `\n      ${entry.message}` : '')
             + (entry.unlocatedKinds.length ? `\n      ${entry.unlocatedKinds.join(', ')} `
                 + 'mismatch has no step; relative ordering needs investigation' : ''));
+        const investigation = entry.investigation;
+        const result = investigation?.result;
+        const status = investigation?.status ?? 'missing';
+        const description = result ? `${status}: ${result.summary}` : ({
+            missing: 'no investigation result',
+            stale: 'needs investigation; remaining-screen count changed',
+            invalid: 'investigation file is incomplete or unreadable',
+        })[status];
+        lines.push(`      Investigation: ${description}`);
     }
-    lines.push('', 'Goal order (remaining-screen upper bounds, not predicted gains):');
+    lines.push('', 'Source groups (remaining-screen upper bounds, not predicted gains):');
     if (queue.candidates.length === 0) lines.push('  none');
     for (const candidate of queue.candidates) {
         const owner = candidate.sourceFile ?? `investigate ${candidate.sessions.join(', ')}`;
