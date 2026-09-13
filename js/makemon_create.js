@@ -1321,8 +1321,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     const mainDungeonLevel = isMainDungeonLevel(state);
     const tutorialLevel = isTutorialLevel(state);
-    const runtimeRandomCall = mainDungeonLevel
-        && !state.in_mklev
+    const runtimeRandomCall = !state.in_mklev
         && randomCoordinates
         && !ptr
         && mmflags === 0;
@@ -3548,7 +3547,7 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 // call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
 // Storeroom themed fills, dog.c:makedog(), plus the level-generation random
 // coordinate shape needed by temporary Statuary monsters. Outside mklev(), it
-// also admits the exact initial-D:1 random-generation call
+// also admits the runtime random-generation call on every dungeon branch:
 // makemon(NULL, 0, 0, NO_MM_FLAGS), that call's explicit-coordinate,
 // MM_NOGRP recursive group members, and read.c create_particular_creation()'s
 // named species on the hero's own square under MM_NOEXCLAM.

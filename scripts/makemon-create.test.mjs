@@ -1764,6 +1764,42 @@ test('runtime random creation selects a compatible unseen D:1 monster', async ()
     assert.equal(monster.nmon, null);
 });
 
+test('runtime random creation admits a non-main dungeon level', async () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    // The C runtime call has no main-dungeon predicate. Configure a small
+    // second branch so this test reaches that source admission on dnum 1.
+    state.quest_dnum = 99;
+    state.dungeons[1] = {
+        depth_start: 1,
+        dunlev_ureached: 1,
+        entry_lev: 1,
+        flags: { align: 0, hellish: false },
+        num_dunlevs: 4,
+    };
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    state.level.at(17, 4).typ = ROOM;
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17), // First runtime coordinate candidate.
+        step('rn2', [21], 4), // Its row is outside the hero's sight map.
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], bound - 1)),
+        ...basicCreationSteps(),
+        step('rn2', [2], 0), // Jackal's small-group gate does not fire.
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const monster = await makemon_runtime(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+
+    assert.equal(monster.data, state.mons[PM_JACKAL]);
+    assert.deepEqual([monster.mx, monster.my], [17, 4]);
+    assert.equal(monster.mgenmklev, false);
+});
+
 test('runtime random coordinates reject a visible sample before goodpos', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
@@ -5130,12 +5166,13 @@ test('Mausoleum preflight admits every reachable species and rejects its boundar
     }
 });
 
-test('runtime creation on a non-main-dungeon level fails before RNG or state', () => {
+test('explicit-coordinate runtime creation on a non-main-dungeon level fails before RNG or state', () => {
     // During mklev, monster creation works on any dungeon branch -- Quest,
     // Mines, Sokoban, etc. -- because the level template and rndmonst()
     // place whatever species the level definition requests.  Outside mklev
-    // (runtime creation), non-main-dungeon levels still fail because the
-    // runtime call shapes require mainDungeonLevel.
+    // (runtime creation), this explicit-coordinate shape remains outside the
+    // currently admitted runtime call shapes. The random-coordinate shape is
+    // tested above and matches makemon(NULL, 0, 0, NO_MM_FLAGS).
     const cases = [
         {
             name: 'another dungeon at local level one',
