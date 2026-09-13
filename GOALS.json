@@ -31333,7 +31333,7 @@
     {
       "id": "port-dokick-monster-arm-seed0014",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port dokick monster-arm damage, attack, and movement behavior",
       "cFile": "dokick.c",
       "sessions": [
@@ -31344,8 +31344,8 @@
       "spans": [
         {
           "name": "kickdmg..kick_monster",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0cb74fa48b483901552e8473cd08bf18ed28909f",
           "functions": [
             "kickdmg",
             "maybe_kick_monster",
@@ -31366,22 +31366,22 @@
           "name": "kickdmg",
           "line": 34,
           "endLine": 125,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "maybe_kick_monster",
           "line": 126,
           "endLine": 145,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "kick_monster",
           "line": 146,
           "endLine": 294,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -31409,7 +31409,96 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 91
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "kickdmg",
+            "implementation": "js/dokick.js",
+            "symbol": "kickdmg",
+            "sourceReview": "Read the complete upstream dokick.c kickdmg() definition at lines 34-123 and checked every guard, short-circuit, state write, message, and RNG draw in source order: base damage and kicking boots, clumsy halving, thick-skinned and shade handling, special_dmgval, mimic discovery, caitiff checking, tame-monster abuse and monflee, rnd and martial rn2 damage, exercise, armor and ring modifiers, hp subtraction, martial recoil and goodpos movement, region and trap handling, passive damage, killed(), and the final use_skill() dialog ordering. The JavaScript keeps the same evaluation order and removes the old refusal path. Existing downstream helpers retain their source boundaries: special_dmgval, check_caitiff, abuse_dog, monflee, goodpos, m_in_out_region, mintrap, passive, killed, and use_skill are called through their production implementations; mintrap and use_skill may retain their existing unsupported downstream branches, but no substitute draw or state update is introduced here.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_monster",
+                "source": "dokick.c kick_monster() calls kickdmg(mon, clumsy) at line 287 after the ordinary kick block; js/dokick.js kick_monster() awaits kickdmg(mon, clumsy, state) at line 452."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c dokick() selects m_at(x, y) at line 1372 and enters the monster dispatch at lines 1377-1381; js/dokick.js dokick() performs the same target lookup and dispatch at lines 874-881, reaching kick_monster() and then kickdmg()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-wall.session.json"
+            ],
+            "checkedAt": "0cb74fa48b483901552e8473cd08bf18ed28909f"
+          },
+          {
+            "name": "maybe_kick_monster",
+            "implementation": "js/dokick.js",
+            "symbol": "maybe_kick_monster",
+            "sourceReview": "Read the complete upstream dokick.c maybe_kick_monster() definition at lines 126-143 and checked the source order of bhitpos writes, the saved forcefight value, the invisible or nonpeaceful forcefight assignment, the attack_checks() short-circuit before overexertion(), target discard, forcefight restoration, and the boolean result. js/dokick.js preserves the try/finally restoration even when a downstream check refuses. attack_checks() and overexertion() are existing production callees with their own source boundaries; this function adds no replacement RNG, message, or state mutation.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c dokick() calls maybe_kick_monster(mtmp, x, y) at lines 1377-1381 before the wake and engraving calls; js/dokick.js dokick() awaits maybe_kick_monster(mtmp, x, y, state) at lines 875-880 and only then calls kick_monster()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-wall.session.json"
+            ],
+            "checkedAt": "0cb74fa48b483901552e8473cd08bf18ed28909f"
+          },
+          {
+            "name": "kick_monster",
+            "implementation": "js/dokick.js",
+            "symbol": "kick_monster",
+            "sourceReview": "Read the complete upstream dokick.c kick_monster() definition through its closing brace at line 288 (the selected source range ends at line 294) and checked every branch, evaluation order, message, state update, and RNG draw: setmangry before wild misses; levitation's rn2 and verysmall/flyer guard; hidden and disguised target reveal; polymorphed AT_KICK attack enumeration, find_roll_to_hit, mon_maybe_unparalyze, multi interruption, rnd(20), shade short-circuit, damageum, missum, and passive results; ordinary carry-capacity no-damage and clumsy rolls; fumbling and bulky-armor Dexterity rnd(25); kick message; block and movement-evade rn2 paths; and the final kickdmg call. The JavaScript keeps those source-order effects and removes the monster-arm refusal. Existing helpers remain their production boundaries: setmangry, passive, find_roll_to_hit, damageum, missum, mon_maybe_unparalyze, maybe_mnexto, and kickdmg are wired calls; their unported downstream branches are not replaced with invented draws or messages. The AT_KICK source-pinned additions in js/uhitm.js provide the C result consumed by the polymorphed branch.",
+            "callers": [
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c dokick() calls maybe_kick_monster() and then falls through to kick_monster(mtmp, x, y) for a target that passes the checks at lines 1377-1381; js/dokick.js dokick() dispatches to kick_monster(mtmp, x, y, state) at lines 876-878 and returns ECMD_TIME after the kick."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kick-command.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/kick-wall.session.json"
+            ],
+            "checkedAt": "0cb74fa48b483901552e8473cd08bf18ed28909f"
+          }
+        ],
+        "entryPointReview": "This selected range is helper-only. Its production entry point is the monster arm of dokick(): upstream dokick.c obtains mtmp with m_at() and calls maybe_kick_monster(), then kick_monster() when the checks admit the target; js/dokick.js has the same dispatch at lines 874-881 and no longer refuses this arm. The explicit development session sessions/seed0014-dequa-fountain-explore.session.json reaches that dispatch at input step 623; after the port its replay has no divergence through 624 screens and stops at the next known boundary, the later unsupported hero move beginning with the first bash message. scripts/kick-command.test.mjs independently reaches the ordinary monster kick with a grid bug, while scripts/uhitm-to-hit.test.mjs and scripts/mhitu.test.mjs pin the forcefight, AT_KICK, and physical-damage callees. The existing source-pinned recording recordings/dokick.c/kick-wall.session.json exercises the same production #kick command dispatch and remains matching; no new recorder run was needed because the explicit development session supplies monster-arm reachability and the recordings corpus retained its match.",
+        "entryPoints": []
+      },
+      "progressBeforePark": {
+        "screens": 1,
+        "rng": 54
+      },
+      "parkedStanding": {
+        "sha": "0cb74fa48b483901552e8473cd08bf18ed28909f",
+        "screens": 7842,
+        "rng": 582529
+      },
+      "parkedReason": "Reconsidered against the full 44-session mismatch queue: holdout/seed4500-knight-coverage apply.c dojump() ranks above the remaining seed0014 work; preserve this completed span for later resumption."
     }
   ]
 }
