@@ -1,0 +1,16 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4471012,
+      "datetime": "20291105071500",
+      "nethackrc": "OPTIONS=name:StatueProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics,playmode:debug,symset:DECgraphics\n",
+      "moves": ".\u0017magic lamp\ndo l// h.   ."
+    }
+  ],
+  "comment": "An independently chosen debug wish drops a floor lamp, then the farlook cursor reaches pager.c do_screen_description() through getpos.c auto_describe(). The source-derived statue fixture covers the parallel ROCK_CLASS path.",
+  "selection": {
+    "seedRange": "single seed 4471012",
+    "reason": "Selected independently from the existing wish recipe while varying the seed and adding a floor-object farlook sequence."
+  }
+}
