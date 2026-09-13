@@ -30988,7 +30988,7 @@
     {
       "id": "port-getpos-help-seed0360",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port getpos help popup and refresh wiring for forced travel target selection",
       "cFile": "getpos.c",
       "sessions": [
@@ -30999,8 +30999,8 @@
       "spans": [
         {
           "name": "getpos_help_keyxhelp..getpos_help",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4800e0f93d2e2b857783b1e5680b851337c8ee12",
           "functions": [
             "getpos_help_keyxhelp",
             "getpos_help"
@@ -31013,22 +31013,25 @@
         "screens": 7503,
         "rng": 543153
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4800e0f93d2e2b857783b1e5680b851337c8ee12",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "getpos_help_keyxhelp",
           "line": 137,
           "endLine": 166,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "getpos_help",
           "line": 167,
           "endLine": 311,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -31056,7 +31059,88 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 104
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "getpos_help_keyxhelp",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos_help_keyxhelp",
+            "sourceReview": "Read the complete upstream getpos.c getpos_help_keyxhelp() definition at lines 137-161 and its gloc_descr/gloc_filtertxt tables at lines 117-134. Ported the source-ordered filter lookup, special explore wording and menu-only area shortening, menu/non-menu description selection, and putstr line construction. The helper has no RNG calls; it appends exactly one line to the NHW_MENU text collected by getpos_help().",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos_help",
+                "source": "getpos.c getpos_help() calls getpos_help_keyxhelp() for monster, object, door, unexplored, and interesting target lines; js/getpos.js getpos_help() makes the same five source-ordered calls before displaying the popup."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c getpos() invokes getpos_help() from the NHKF_GETPOS_HELP branch after dotravel() or do_look() has entered cursor selection; js/getpos.js getpos() dispatches the '?' special key to getpos_help()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/help-popup-seed7319.session.json"
+            ],
+            "checkedAt": "4800e0f93d2e2b857783b1e5680b851337c8ee12"
+          },
+          {
+            "name": "getpos_help",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos_help",
+            "sourceReview": "Read the complete upstream getpos.c getpos_help() definition at lines 165-311, including all terrainmode and goal branches, command-binding formatting, fast-move mode text, valid-location and autodescribe help, whatis alternate-pick explanations, force-dependent dismissal text, the trailing blank line, and NHW_MENU display/destroy order. Ported those branches in source order. The cmdassist coordinate string is intentionally not emitted because upstream computes it without a putstr call. The popup is impure through NHW_MENU output and its dismissal input; getpos() then calls getpos_refresh() and restores the targeting cursor as in getpos.c lines 945-954.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c getpos() calls getpos_help(force, goal) when the input is NHKF_GETPOS_HELP; js/getpos.js getpos() recognizes the active getpos.help binding, awaits getpos_help(force, target, state), then performs getpos_refresh() and cursor restoration."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "dotravel",
+                "source": "cmd.c dotravel() prompts for a forced travel destination and calls getpos(&cc, TRUE, goal); js/cmd.js dotravel() reaches js/getpos.js getpos(), whose '?' branch displays this help popup."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c do_look() enters getpos() for map lookup; js/pager.js do_look() uses the same getpos() loop, so its '?' cursor-help path shares getpos_help()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/help-popup-seed7319.session.json"
+            ],
+            "checkedAt": "4800e0f93d2e2b857783b1e5680b851337c8ee12"
+          }
+        ],
+        "entryPointReview": "This is a helper-only source range. The production entry point is forced keyboard travel target selection: js/cmd.js dotravel() dispatches from the travel command, awaits js/getpos.js getpos(TRUE, ...), and its '?' binding calls getpos_help() before getpos_refresh() restores the map. The independently chosen recipe supplies '_' to enter the target picker, '?' to open the help popup, newline to dismiss its dmore() wait, and Escape to leave the picker; its recording matches C through the popup and refresh. The same helper is reachable from js/pager.js do_look() through its getpos() caller.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 780,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "Wiz-loca.lua",
+          "cFile": null,
+          "luaFile": "Wiz-loca.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Wiz-loca\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 53
+        }
+      ],
+      "closeStanding": {
+        "sha": "4800e0f93d2e2b857783b1e5680b851337c8ee12",
+        "screens": 7505,
+        "rng": 543153
+      }
     }
   ]
 }

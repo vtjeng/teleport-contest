@@ -85,7 +85,7 @@ const HELP_COMMANDS = {
     'close-span': ['--goal', '--name', 'checkpoint'],
     'park-goal': ['--goal', '--reason', 'open'],
     'discard-goal': ['--id', '--reason', 'queued'],
-    'close-goal': ['--goal', 'SCORE.tsv', 'checkpoint'],
+    'close-goal': ['--goal', '--development-scan', 'SCORE.tsv', 'checkpoint'],
 };
 
 test('CLI help lists every command without repository access or side effects', (t) => {
@@ -339,7 +339,9 @@ test('C CLI plans a same-name partial function and closes only with evidence and
     f.checkpoint({ allPassed: false });
     f.refuses(/passing npm run checkpoint at HEAD/u, 'close-goal', '--goal', 'widget');
     f.checkpoint();
-    f.cli('close-goal', '--goal', 'widget');
+    f.json('.cache/development-scan.json', { rows: [] });
+    f.cli('close-goal', '--goal', 'widget',
+        '--development-scan', '.cache/development-scan.json');
     const goal = f.goals()[0];
     assert.equal(goal.status, 'closed');
     assert.equal(goal.spans[0].status, 'closed');

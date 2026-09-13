@@ -494,10 +494,11 @@ Queueing does not open the goal; use open-goal before planning a span.`,
     },
     'close-goal': {
         description: 'Close an open goal and record its delivered progress.',
-        usage: '--goal <id>',
+        usage: '--goal <id> [--development-scan <path>]',
         details: 'Requires an open goal and a passing checkpoint for HEAD. Closing figures\n'
             + 'come from checkpoint; SCORE.tsv remains the event log. Source ports also\n'
             + 'require closed spans and complete source and entry-point evidence.\n'
+            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.\n'
             + 'See .agents/loop.md and .agents/scoring.md for the closure sequence.',
     },
 };
@@ -619,6 +620,20 @@ function readEvidence(path) {
         || lstatSync(join(PROJECT_ROOT, path)).isSymbolicLink())
         throw new Error('evidence must be a regular file in this worktree');
     return JSON.parse(readFileSync(join(PROJECT_ROOT, path), 'utf8'));
+}
+
+function readDevelopmentScan(path) {
+    const resolved = path.startsWith('/') ? path : join(PROJECT_ROOT, path);
+    const normalized = resolved.replaceAll('\\', '/');
+    const cacheRoot = `${PROJECT_ROOT}/.cache/`;
+    if ((!normalized.startsWith('/tmp/') && !normalized.startsWith(cacheRoot))
+        || normalized.includes('/sessions/')) {
+        throw new Error('--development-scan must name a saved development scan under .cache/ or /tmp');
+    }
+    const stats = lstatSync(resolved);
+    if (!stats.isFile() || stats.isSymbolicLink())
+        throw new Error('--development-scan must name a regular file');
+    return JSON.parse(readFileSync(resolved, 'utf8'));
 }
 
 async function checkSelection(goal) {
@@ -866,7 +881,9 @@ async function main(args) {
         if (isSourcePort(goal)) {
             validatePortEvidence(goal, goal.evidence);
             const { loadMismatchQueue } = await import('./mismatch-queue.mjs');
-            goal.closeMismatches = scopedMismatches(goal, loadMismatchQueue());
+            const scan = options['development-scan']
+                ? readDevelopmentScan(options['development-scan']) : undefined;
+            goal.closeMismatches = scopedMismatches(goal, loadMismatchQueue(scan));
         }
         goal.status = 'closed';
         goal.closedAt = head;
