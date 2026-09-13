@@ -30787,7 +30787,7 @@
     {
       "id": "div-makemon-runtime-nonmain-seed0014",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit runtime random monster creation on non-main dungeon levels",
       "cFile": "makemon.c",
       "sessions": [
@@ -30798,8 +30798,8 @@
       "spans": [
         {
           "name": "makemon-runtime-nonmain",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a0d7210c1673554cb7f85c795cd3b89bec98f6b2",
           "functions": [
             "makemon",
             "makemon_rnd_goodpos"
@@ -30812,8 +30812,11 @@
         "screens": 7481,
         "rng": 536444
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a0d7210c1673554cb7f85c795cd3b89bec98f6b2",
+      "delivered": {
+        "screens": 20,
+        "rng": 6709
+      },
       "function": "makemon",
       "session": "seed0014-dequa-fountain-explore",
       "step": 595,
@@ -30838,7 +30841,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 119
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "a0d7210c1673554cb7f85c795cd3b89bec98f6b2",
+        "screens": 7501,
+        "rng": 543153
+      }
     }
   ]
 }
