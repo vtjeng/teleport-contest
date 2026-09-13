@@ -68,6 +68,7 @@ import {
 } from '../js/uhitm.js';
 import { skillSlot } from '../js/startup_skills.js';
 import { can_twoweapon } from '../js/wield.js';
+import { weapon_hit_bonus } from '../js/weapon.js';
 
 const DATETIME = '20260214031500';
 
@@ -171,33 +172,29 @@ test('attack_checks admits an ordinary hostile and clears its wait strategy',
         assert.equal(lichen.mstrategy, 0x40);
     });
 
-test('attack_checks stops on each state it cannot report', async () => {
+test('attack_checks keeps force-fight visibility independent', async () => {
     await hero();
-    const cases = [
-        // A forced blow at a target the hero cannot spot is the one case that
-        // would reach do_attack()'s unported atk_done tail, so it stops in the
-        // arm above rather than in the unseen-monster arm below.
-        ['force-fight at a monster the hero cannot spot', (mtmp) => {
-            game.context.forcefight = 1;
-            mtmp.mx = 0;
-            mtmp.my = 0;
-        }],
-        // uhitm.c:308-324 confirmation for a peaceful target still stops.
-        ['confirming an attack on a peaceful monster', (mtmp) => {
-            mtmp.mpeaceful = 1;
-        }],
-    ];
-    for (const [reason, apply] of cases) {
-        await hero();
-        const mtmp = target();
-        apply(mtmp);
-        await refusesAsync(
-            () => attack_checks(mtmp, game.uwep, game, REFUSING),
-            reason,
-            reason,
-        );
-    }
+    // dokick.c:1309-1314 sets forcefight before attack_checks() specifically
+    // so an invisible target can still be kicked. uhitm.c:201-214 returns
+    // FALSE without consulting canspotmon().
+    game.context.forcefight = 1;
+    const unseen = target(PM_LICHEN, { mx: 0, my: 0, minvis: 1 });
+    assert.equal(
+        await attack_checks(unseen, game.uwep, game, REFUSING), false,
+    );
+    game.context.forcefight = 0;
 });
+
+test('attack_checks still refuses confirmation for a peaceful target',
+    async () => {
+        await hero();
+        const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
+        await refusesAsync(
+            () => attack_checks(peaceful, game.uwep, game, REFUSING),
+            'confirming an attack on a peaceful monster',
+            'confirming an attack on a peaceful monster',
+        );
+    });
 
 // uhitm.c:230-252. An unseen target on an ordinary glyph is announced,
 // remembered as an invisible monster, and woken before the attempted attack
@@ -498,7 +495,7 @@ test('find_roll_to_hit adds every adjustment its source names', async () => {
     );
 });
 
-test('find_roll_to_hit reads the Monk arms and refuses a kick', async () => {
+test('find_roll_to_hit reads the Monk arms and martial kick bonus', async () => {
     await hero({ role: 'Monk', gender: 'male' });
     const counters = () => ({ attknum: 0, role_roll_penalty: 0 });
     const barehanded = find_roll_to_hit(
@@ -533,12 +530,21 @@ test('find_roll_to_hit reads the Monk arms and refuses a kick', async () => {
         game.urole.spelarmr + Math.trunc(game.u.ulevel / 3) + 2,
     );
 
-    // uhitm.c:424-425, the AT_KICK arm belongs to dokick.c.
-    refuses(
-        () => find_roll_to_hit(
-            target(), AT_KICK, null, counters(), game, REFUSING,
-        ),
-        'kicked to-hit roll',
+    // uhitm.c:424-425, the AT_KICK arm adds weapon_hit_bonus() for a
+    // martial role. A Valkyrie's AT_KICK arm has no bonus and is pinned too.
+    const kick = find_roll_to_hit(
+        target(), AT_KICK, null, counters(), game, REFUSING,
+    );
+    assert.equal(kick, barehanded);
+    await hero({ role: 'Valkyrie', gender: 'female' });
+    const ordinaryKick = find_roll_to_hit(
+        target(), AT_KICK, null, counters(), game, REFUSING,
+    );
+    const ordinaryClaw = find_roll_to_hit(
+        target(), AT_CLAW, null, counters(), game, REFUSING,
+    );
+    assert.equal(
+        ordinaryKick, ordinaryClaw - weapon_hit_bonus(null, game),
     );
 });
 

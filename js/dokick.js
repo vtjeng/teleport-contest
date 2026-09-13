@@ -1,7 +1,9 @@
-// C ref: src/dokick.c. Six of its functions are ported: dokick() (1257-1470),
+// C ref: src/dokick.c. Seven of its functions are ported: dokick() (1257-1470),
 // the #kick command; kick_door() (908-970), the door arm of dokick()'s final
 // pair; kick_nondoor() (974-1253), the terrain chain dokick() ends on; and
-// kick_dumb() (863-878), the one arm of that chain the earlier goal reached.
+// kick_dumb() (863-878), the one arm of that chain the earlier goal reached,
+// plus kickdmg() (34-123), maybe_kick_monster() (126-143), and
+// kick_monster() (146-487).
 //
 // dokick() is a guard chain, a direction prompt, and five ordered tests over
 // the target square -- monsters, pools, objects, non-doors, doors. Only the
@@ -13,8 +15,8 @@
 // arm (D_TRAPPED, b_trapped), the Levitation guard (kick_ouch), and the
 // shop/town follow-ups are refused.
 //
-// kickdmg(), maybe_kick_monster(), kick_monster(), kick_object(),
-// really_kick_object(), watchman_thief_arrest(), watchman_door_damage(),
+// kick_object(), really_kick_object(), watchman_thief_arrest(),
+// watchman_door_damage(),
 // otransit_msg() and drop_to() keep dokick.c company in C and have no ported
 // caller; the arm that would reach each one names it in its refusal.
 
@@ -53,6 +55,12 @@ import {
     LAVAWALL,
     LEVITATION,
     PASSES_WALLS,
+    FUMBLING,
+    M_ATTK_DEF_DIED,
+    M_ATTK_MISS,
+    M_AP_TYPE,
+    P_MARTIAL_ARTS,
+    P_NONE,
     RIGHT_SIDE,
     SCORR,
     SDOOR,
@@ -61,34 +69,62 @@ import {
     STAIRS,
     Upolyd,
     WOUNDED_LEGS,
+    W_ARMF,
+    M_AP_MONSTER,
+    NO_TRAP_FLAGS,
+    Trap_Killed_Mon,
     isok,
 } from './const.js';
-import { feel_location, feel_newsym, unmap_invisible } from './display.js';
+import { feel_location, feel_newsym, map_invisible, newsym,
+    unmap_invisible } from './display.js';
 import {
     legs_in_no_shape,
     set_wounded_legs,
 } from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
-import { in_town, losehp, near_capacity } from './hack.js';
-import { is_giant, nolimbs, slithy, verysmall } from './mondata.js';
-import { wake_nearby, wake_nearto } from './mon.js';
-import { m_at } from './monst.js';
-import { PM_SASQUATCH, S_LIZARD } from './monsters.js';
+import {
+    in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
+} from './hack.js';
+import {
+    bigmonst, can_teleport, haseyes, is_floater, is_flyer, is_giant,
+    nohands, nolimbs, slithy, thick_skinned, verysmall,
+} from './mondata.js';
+import { abuse_dog } from './dog.js';
+import {
+    m_in_air, monflee, set_apparxy, youHear,
+} from './monmove.js';
+import {
+    killed, maybe_mnexto, seemimic, setmangry, wake_nearby,
+    wake_nearto,
+} from './mon.js';
+import { m_at, place_monster, remove_monster } from './monst.js';
+import {
+    AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
+} from './monsters.js';
 import { sobj_at } from './obj.js';
 import { BOULDER, KICKING_BOOTS } from './objects.js';
 import { encumber_msg } from './pickup.js';
-import { rn2, rnd, rnl } from './rng.js';
+import { d, rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { is_pool } from './trap.js';
+import { m_in_out_region } from './region.js';
+import { mintrap } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
 import { is_drawbridge_wall } from './startup_a11y.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { recalc_block_point } from './vision.js';
-import { martial_bonus } from './weapon.js';
+import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
+import {
+    attack_checks, check_caitiff, damageum, find_roll_to_hit,
+    missum, mon_maybe_unparalyze, passive,
+} from './uhitm.js';
+import { a_monnam, Monnam, mon_nam } from './do_name.js';
+import { noteleport_level, goodpos } from './teleport.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
 // C files write it directly: dokick.c:1325 sets it, and hack.c domove():2708
@@ -159,6 +195,261 @@ function martial(state) {
     return martial_bonus(state)
         || state.youmonst?.data?.pmidx === PM_SASQUATCH
         || state.uarmf?.otyp === KICKING_BOOTS;
+}
+
+// youprop.h:129 Fumbling. Both intrinsic and extrinsic sources count, with
+// no blocked term.
+function Fumbling(state) {
+    const fumbling = state.u?.uprops?.[FUMBLING];
+    return Boolean(fumbling?.intrinsic || fumbling?.extrinsic);
+}
+
+function kickEnvironment(state) {
+    state.context ??= {};
+    const random = { d, rn2, rnd, rnl };
+    return {
+        state,
+        random,
+        message: ttyPline,
+        pline: ttyPline,
+        unsupported: (what) => {
+            throw new UnsupportedKickError(what);
+        },
+        nearCapacity: near_capacity,
+        encumberMessage: encumber_msg,
+        redraw: (x, y) => newsym(x, y),
+        mInAir: m_in_air,
+        heroDeaf: Deaf,
+        youHear: (line, targetState) => youHear(line, targetState),
+    };
+}
+
+// C ref: dokick.c kickdmg() (34-123). Damage for an ordinary, unpolymorphed
+// kick, including pet abuse, martial-arts staggering, passive counterattack,
+// and the trap-killed guard around killed().
+export async function kickdmg(mon, clumsy, state = game) {
+    const env = kickEnvironment(state);
+    let mdx;
+    let mdy;
+    let dmg = Math.trunc(
+        (acurrstr(state) + acurr(state, A_DEX) + acurr(state, A_CON)) / 15,
+    );
+    let kickSkill = P_NONE;
+    let trapKilled = false;
+    const boots = state.uarmf?.otyp === KICKING_BOOTS;
+    const martialKick = martial(state);
+
+    if (boots) dmg += 5;
+    if (clumsy) dmg = Math.trunc(dmg / 2);
+    if (thick_skinned(mon.data) || mon.data === state.mons?.[PM_SHADE])
+        dmg = 0;
+
+    const specialDmg = special_dmgval(
+        state.youmonst, mon, W_ARMF, null, state, env,
+    );
+    if (mon.data === state.mons?.[PM_SHADE] && !specialDmg) {
+        await ttyPline('The kick passes harmlessly through.', state);
+        return;
+    }
+
+    if (M_AP_TYPE(mon)) seemimic(mon, state);
+    check_caitiff(mon, state, env);
+
+    if (mon.mtame) {
+        await abuse_dog(mon, state, env.random);
+        if (mon.mtame)
+            await monflee(mon, dmg ? rnd(dmg) : 1, false, false, env);
+        else
+            mon.mflee = 0;
+    }
+
+    if (dmg > 0) {
+        dmg = rnd(dmg);
+        if (martialKick) {
+            if (dmg > 1) kickSkill = P_MARTIAL_ARTS;
+            dmg += rn2(Math.trunc(acurr(state, A_DEX) / 2) + 1);
+        }
+        await exercise(A_DEX, true, state, env.random);
+    }
+    dmg += specialDmg;
+    if (state.uarmf) dmg += state.uarmf.spe ?? 0;
+    dmg += state.u?.udaminc ?? 0;
+    if (dmg > 0) mon.mhp -= dmg;
+
+    if (mon.mhp >= 1 && martialKick && !bigmonst(mon.data) && !rn2(3)
+        && mon.mcanmove && mon !== state.u.ustuck && !mon.mtrapped) {
+        mdx = mon.mx + state.u.dx;
+        mdy = mon.my + state.u.dy;
+        if (goodpos(mdx, mdy, mon, 0, env)) {
+            await ttyPline(`${Monnam(mon, state)} reels from the blow.`, state);
+            if (await m_in_out_region(mon, mdx, mdy, env)) {
+                const oldX = mon.mx;
+                const oldY = mon.my;
+                remove_monster(oldX, oldY, state);
+                newsym(oldX, oldY);
+                place_monster(mon, mdx, mdy, state);
+                newsym(mdx, mdy);
+                set_apparxy(mon, env);
+                if (await mintrap(mon, NO_TRAP_FLAGS, env)
+                    === Trap_Killed_Mon)
+                    trapKilled = true;
+            }
+        }
+    }
+
+    passive(mon, state.uarmf, true, mon.mhp >= 1, AT_KICK, false,
+        state, env);
+    if (mon.mhp < 1 && !trapKilled)
+        await killed(mon, state, env);
+    if (kickSkill !== P_NONE) use_skill(kickSkill, 1, state);
+}
+
+// C ref: dokick.c maybe_kick_monster() (126-143). forcefight is scoped to
+// attack_checks(), and the target is discarded when discovery, confirmation,
+// or overexertion prevents the kick.
+export async function maybe_kick_monster(mon, x, y, state = game) {
+    if (!mon) return false;
+    const env = kickEnvironment(state);
+    state.gb ??= {};
+    state.gb.bhitpos = { x, y };
+    const saveForcefight = state.context?.forcefight;
+    if (!mon.mpeaceful || !canSpotMonster(mon, state)) {
+        state.context ??= {};
+        state.context.forcefight = true;
+    }
+    try {
+        const stopped = await attack_checks(mon, null, state, env);
+        return !(stopped || await overexertion(state));
+    } finally {
+        state.context ??= {};
+        state.context.forcefight = saveForcefight;
+    }
+}
+
+// C ref: dokick.c kick_monster() (146-294). Resolve a kick against a monster,
+// including polymorphed multiple kick attacks and the ordinary kick's weight,
+// fumbling, block, evade, and damage branches.
+export async function kick_monster(mon, x, y, state = game) {
+    const env = kickEnvironment(state);
+    const martialKick = martial(state);
+    let clumsy = false;
+
+    await setmangry(mon, true, env);
+
+    if (Levitation(state) && !rn2(3) && verysmall(mon.data)
+        && !is_flyer(mon.data)) {
+        await ttyPline('Floating in the air, you miss wildly!', state);
+        await exercise(A_DEX, false, state, env.random);
+        passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
+        return;
+    }
+
+    if (mon.mundetected
+        || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
+        if (M_AP_TYPE(mon)) seemimic(mon, state);
+        mon.mundetected = 0;
+        if (!canSpotMonster(mon, state)) map_invisible(x, y, state);
+        else newsym(x, y);
+        await ttyPline(
+            `There is ${canSpotMonster(mon, state) ? a_monnam(mon, { state })
+                : 'something hidden'} here.`,
+            state,
+        );
+    }
+
+    if (Upolyd(state.u) && attacktype(state.youmonst.data, AT_KICK)) {
+        const counters = { attknum: 0, role_roll_penalty: 0 };
+        // find_roll_to_hit() mutates the pointer-shaped counters object.
+        const hitRoll = find_roll_to_hit(mon, AT_KICK, null, counters,
+            state, env);
+        mon_maybe_unparalyze(mon, env.random);
+        for (const uattk of state.youmonst.data.mattk ?? []) {
+            if (state.multi < 0) break;
+            if (uattk.aatyp !== AT_KICK) continue;
+            const dieroll = rnd(20);
+            const specialDmg = special_dmgval(
+                state.youmonst, mon, W_ARMF, null, state, env,
+            );
+            if (mon.data === state.mons?.[PM_SHADE] && !specialDmg) {
+                await ttyPline(
+                    `Your kick passes harmlessly through ${mon_nam(mon, state)}.`,
+                    state,
+                );
+                break;
+            }
+            if (hitRoll > dieroll) {
+                await ttyPline(`You kick ${mon_nam(mon, state)}.`, state);
+                const sum = await damageum(mon, uattk, specialDmg, state, env);
+                passive(mon, state.uarmf, sum !== M_ATTK_MISS,
+                    !(sum & M_ATTK_DEF_DIED), AT_KICK, false, state, env);
+                if (sum & M_ATTK_DEF_DIED) break;
+            } else {
+                await missum(mon, uattk,
+                    hitRoll + counters.role_roll_penalty > dieroll,
+                    state, env);
+                passive(mon, state.uarmf, false, true, AT_KICK, false,
+                    state, env);
+            }
+        }
+        return;
+    }
+
+    const i = -inv_weight(state);
+    const j = weight_cap(state);
+    if (i < Math.trunc((j * 3) / 10)) {
+        if (!rn2(i < Math.trunc(j / 10) ? 2
+            : i < Math.trunc(j / 5) ? 3 : 4)) {
+            if (martialKick) {
+                clumsy = false;
+            } else {
+                await ttyPline('Your clumsy kick does no damage.', state);
+                passive(mon, state.uarmf, false, true, AT_KICK, false,
+                    state, env);
+                return;
+            }
+        } else if (i < Math.trunc(j / 10)) {
+            clumsy = true;
+        } else if (!rn2(i < Math.trunc(j / 5) ? 2 : 3)) {
+            clumsy = true;
+        }
+    }
+
+    if (Fumbling(state)) clumsy = true;
+    else if (state.uarm && state.objects?.[state.uarm.otyp]?.oc_bulky
+             && acurr(state, A_DEX) < rnd(25)) clumsy = true;
+
+    await ttyPline(`You kick ${mon_nam(mon, state)}.`, state);
+    if (!rn2(clumsy ? 3 : 4) && (clumsy || !bigmonst(mon.data))
+        && mon.mcansee && !mon.mtrapped && !thick_skinned(mon.data)
+        && mon.data.mlet !== S_EEL && haseyes(mon.data)
+        && mon.mcanmove && !mon.mstun && !mon.mconf && !mon.msleeping
+        && mon.data.mmove >= 12) {
+        if (!nohands(mon.data) && !rn2(martialKick ? 5 : 3)) {
+            await ttyPline(
+                `${Monnam(mon, state)} blocks your ${clumsy ? 'clumsy ' : ''}kick.`,
+                state,
+            );
+            passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
+            return;
+        }
+        maybe_mnexto(mon, state, env);
+        if (mon.mx !== x || mon.my !== y) {
+            unmap_invisible(x, y, state);
+            const movement = can_teleport(mon.data) && !noteleport_level(mon, state)
+                ? 'teleports'
+                : is_floater(mon.data) ? 'floats'
+                    : is_flyer(mon.data) ? 'swoops'
+                        : (nolimbs(mon.data) || slithy(mon.data)) ? 'slides'
+                            : 'jumps';
+            await ttyPline(
+                `${Monnam(mon, state)} ${movement}, ${clumsy ? 'easily' : 'nimbly'} evading your ${clumsy ? 'clumsy ' : ''}kick.`,
+                state,
+            );
+            passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
+            return;
+        }
+    }
+    await kickdmg(mon, clumsy, state);
 }
 
 // C ref: dokick.c kick_dumb() (863-878). Kicking at something that does not
@@ -582,10 +873,11 @@ export async function dokick(state = game) {
 
     const mtmp = isok(x, y) ? m_at(x, y, state) : null;
     if (mtmp) {
-        throw new UnsupportedKickError(
-            "dokick()'s monster arm, which needs maybe_kick_monster() and "
-            + 'kick_monster()',
-        );
+        if (await maybe_kick_monster(mtmp, x, y, state)) {
+            await kick_monster(mtmp, x, y, state);
+            return ECMD_TIME;
+        }
+        return ECMD_FAIL;
     }
 
     // 1383-1384. Both run before the target square is examined at all, so an

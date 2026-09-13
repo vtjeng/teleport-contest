@@ -258,9 +258,8 @@ test('an unported target stops the command before it draws or prints',
     // Each refusal must leave the turn, the PRNG and the top line exactly as
     // the direction prompt left them, because the segment keeps every frame
     // matched so far and the next replay resumes from the same keystroke.
-    // The door case that was here is now ported (kick_door failure branch).
+    // The monster case that was here is now ported (kick_monster arm).
     const cases = [
-        [MONK(), `${KICK}k`, /monster arm/u],
         [OBJECT_PILE(), `${KICK}y`, /object-pile arm/u],
     ];
     for (const [segment, moves, reason] of cases) {
@@ -274,6 +273,17 @@ test('an unported target stops the command before it draws or prints',
         // followed it.
         assert.match(kick.toplines, /^In what direction\?/u);
     }
+});
+
+test('kicking a monster spends the turn and reports the kick', async () => {
+    // dokick.c:1374-1378 routes an adjacent monster through
+    // maybe_kick_monster() and kick_monster(). The grid bug in this source
+    // case takes the ordinary kick path and remains alive after the blow.
+    const base = await replay(MONK(), '');
+    const kicked = await replay(MONK(), `${KICK}k`);
+    assert.equal(kicked.boundary, null);
+    assert.equal(kicked.toplines, 'You kick the grid bug.');
+    assert.equal(kicked.turns, base.turns + 1);
 });
 
 test('kicking a wall hurts and spends the turn', async () => {
