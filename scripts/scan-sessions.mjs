@@ -780,7 +780,7 @@ function report(rows) {
 }
 
 export async function main(args) {
-    if (args.includes('--help')) {
+    if (args.length === 1 && args[0] === '--help') {
         console.log(
             'Usage: node scripts/scan-sessions.mjs [--json] [--debug-full-replay]\n'
             + '\n  --json                   emit per-session rows in'
@@ -793,6 +793,9 @@ export async function main(args) {
             + ' sessions/holdout/.',
         );
         return undefined;
+    }
+    if (args.includes('--help')) {
+        throw new Error('request --help without other arguments');
     }
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--debug-full-replay');

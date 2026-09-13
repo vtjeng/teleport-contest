@@ -59,9 +59,9 @@ export const STARTUP_SORTDISCOVERIES_CASES = Object.freeze([
     }),
 ]);
 
-// This one case sits immediately outside the slice: parsing reaches `s`, and
+// This one case sits immediately outside the covered behavior: parsing reaches `s`, and
 // the known command stops at o_init.c disco_output_sorted().  Keeping replay
-// inputs here makes the next slice reproducible without admitting expected
+// inputs here makes the follow-up behavior reproducible without admitting expected
 // failure into the passing fresh matrix.
 export const SORTED_DISCOVERIES_DEFERRED_CASE = Object.freeze({
     label: 'sortloot discovery order',

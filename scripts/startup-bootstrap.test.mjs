@@ -96,14 +96,14 @@ test('pre-mklev startup composes every source initializer in order',
     }
 });
 
-test('seed 8000 reaches mklev without the deleted replay scaffold',
+test('seed 8000 reaches mklev with the complete startup sequence',
     async () => {
     const { state, log } = await initialize(
         8000, 'Tourist', 'human', 'female', 'neutral',
     );
 
-    // This is the former scaffold boundary: 199 object calls, 100 dungeon
-    // calls, handedness, then the two Lua alignment-shuffle calls.
+    // Startup consumes the object and dungeon initialization calls, handedness,
+    // and the two Lua alignment-shuffle calls before mklev begins.
     assert.equal(log.length, 302);
     assert.deepEqual(log.slice(-3), [
         'rn2(10)=0',

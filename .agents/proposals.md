@@ -36,8 +36,10 @@ unported function, which is the ordinary state.
 
 **What it changes.** A turn-end warning would print
 `git log --oneline origin/main..HEAD` when commits sit unpushed, enforcing the
-push rule in `.agents/loop.md`. `goal-log.mjs calibration` already provides a related check. The former
-per-goal holdout permission gate was retired when the local corpus was opened.
+push rule in `.agents/loop.md`. The current `npm run quality` command reports
+quality advisories but does not check whether commits have been pushed. The
+former per-goal holdout permission gate was retired when the local corpus was
+opened.
 
 **Scope.** A small addition to an existing script and its test file.
 
@@ -127,12 +129,3 @@ with the C dump is ongoing work.
 **What it leaves unfixed.** The oracle covers hero and monster state only, not
 items, traps, level geometry, or other game objects. Extending it to full game
 state would require substantially more C instrumentation.
-
-## Land the rest of the file-port tooling — done
-
-Items 1 through 4 landed. Item 5 (recipe migration to `<c-file>/`
-subdirectories) is incremental: the `recordings/` directory exists, and each
-recipe moves when the C file it exercises opens for porting.
-
-**What it leaves unfixed.** The 95 `Unsupported*Error` classes and their
-throw sites stay until the spans that port their files remove them.

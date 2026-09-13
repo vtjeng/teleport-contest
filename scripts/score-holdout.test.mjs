@@ -105,7 +105,10 @@ test('the CLI scores a disposable corpus without a goal or permission records', 
     t.after(() => rmSync(root, { recursive: true, force: true }));
     for (const path of ['scripts', 'js', 'frozen', 'sessions/holdout', 'tmp'])
         mkdirSync(join(root, path), { recursive: true });
-    for (const name of ['score-holdout.mjs', 'scoring-workspace.mjs', 'local-tmpdir.mjs'])
+    for (const name of [
+        'score-holdout.mjs', 'scoring-workspace.mjs', 'fixed-workload.mjs',
+        'local-tmpdir.mjs',
+    ])
         copyFileSync(join(TEST_DIR, name), join(root, 'scripts', name));
     writeFileSync(join(root, 'package.json'), '{"type":"module"}');
     for (const name of ['isaac64.js', 'terminal.js', 'storage.js'])

@@ -43,6 +43,7 @@ export function installDirTooLong(installDir) {
 }
 
 const RECORDER_TIME_ZONE = 'America/New_York';
+export const USAGE = 'Usage: node scripts/record-session.mjs <input.session.json> [output.session.json]';
 const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
     'en-CA-u-ca-gregory-nu-latn',
     {
@@ -686,9 +687,17 @@ async function exists(p) {
 
 async function main() {
     const argv = process.argv.slice(2);
-    if (argv.length < 1 || argv[0] === '-h' || argv[0] === '--help') {
-        console.error('Usage: node scripts/record-session.mjs <input.session.json> [output.session.json]');
-        process.exit(2);
+    if (argv.length === 1 && (argv[0] === '-h' || argv[0] === '--help')) {
+        console.log(USAGE);
+        return;
+    }
+    if (argv.length === 0) {
+        console.error(USAGE);
+        process.exitCode = 2;
+        return;
+    }
+    if (argv.length > 2 || argv.includes('-h') || argv.includes('--help')) {
+        throw new Error(USAGE);
     }
     const inputPath = path.resolve(argv[0]);
     const outputPath = argv[1] ? path.resolve(argv[1]) : inputPath;

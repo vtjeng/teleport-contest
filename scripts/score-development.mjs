@@ -17,8 +17,20 @@ import { fixedWorkload } from './fixed-workload.mjs';
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DEVELOPMENT_DIR = join(PROJECT_ROOT, 'sessions');
 
+export const USAGE = 'Usage: node scripts/score-development.mjs';
+
+export function parseArgs(args) {
+    if (args.length === 0) return { help: false };
+    if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
+        return { help: true };
+    throw new Error(USAGE);
+}
+
 async function main(args) {
-    if (args.length !== 0) throw new Error('arguments are not accepted');
+    if (parseArgs(args).help) {
+        console.log(USAGE);
+        return;
+    }
 
     const inputs = developmentInputs();
     const { scoringEntries } = fixedWorkload();
@@ -45,8 +57,8 @@ async function main(args) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).catch(() => {
-        console.error('Development scoring failed.');
+    main(process.argv.slice(2)).catch((error) => {
+        console.error(`Development scoring failed: ${error.message}`);
         process.exitCode = 1;
     });
 }

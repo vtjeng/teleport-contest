@@ -11,7 +11,7 @@ generalization rather than just hand-tuning.
 | **Open** | (announce date) |
 | **Deadline** | Sunday Nov 29, 2026 (the Sunday after US Thanksgiving), 00:00 UTC |
 | **Scoring** | Standard P+S parity against the 44-session fixed development workload; the judge may also score a separate remote competition holdout |
-| **Qualification** | Top 10 teams by total session-pass count qualify for Phase 2 |
+| **Qualification** | Top 10 teams by total session-pass count qualify for Phase 2; matched-screen totals remain the headline parity measure |
 
 ### Session difficulty escalation
 
@@ -53,9 +53,9 @@ but only the top 10 compete in Phase 2.)
 
 ### How the diff is measured
 
-The judge runs `git diff phase1/<your-tag> HEAD -- 'js/**' \
+The judge runs `git diff --numstat phase1/<your-tag> HEAD -- 'js/**' \
   ':(exclude)js/isaac64.js' ':(exclude)js/terminal.js' \
-  --numstat` and sums added + deleted lines. Whitespace-only and
+  ':(exclude)js/storage.js'` and sums added + deleted lines. Whitespace-only and
 comment-only changes are normalized out.
 
 A team whose Phase 1 codebase has clean module boundaries and

@@ -12,17 +12,17 @@ import {
     removeScoringWorkspace,
     runScorer,
 } from './scoring-workspace.mjs';
+import { EXPECTED_LOCAL_HOLDOUT_COUNT } from './fixed-workload.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const HOLDOUT_DIR = join(PROJECT_ROOT, 'sessions', 'holdout');
-
-// Opening the corpus does not change its historical membership.
-const EXPECTED_HOLDOUT_COUNT = 11;
+export const USAGE = 'Usage: node scripts/score-holdout.mjs [--goal <id>] | --check';
+const ERROR_USAGE = 'usage: score-holdout.mjs [--goal <id>] or --check';
 
 function sessionFiles() {
     if (!existsSync(HOLDOUT_DIR)) throw new Error('holdout directory missing');
     const files = listSessionFiles(HOLDOUT_DIR);
-    if (files.length !== EXPECTED_HOLDOUT_COUNT) {
+    if (files.length !== EXPECTED_LOCAL_HOLDOUT_COUNT) {
         throw new Error('holdout count changed');
     }
     return files;
@@ -33,10 +33,14 @@ export { parseRunnerBundle };
 // The corpus is open. A goal is an optional bookkeeping label, not an
 // authorization gate; repeated measurements are useful after source changes.
 export function parseEvaluationArgs(args) {
+    if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
+        return { help: true };
+    if (args.length === 1 && args[0] === '--check')
+        return { check: true };
     if (args.length === 0) return { goal: null };
     if (args.length === 2 && args[0] === '--goal' && args[1]
         && !args[1].startsWith('--')) return { goal: args[1] };
-    throw new Error('usage: score-holdout.mjs [--goal <id>] or --check');
+    throw new Error(ERROR_USAGE);
 }
 
 export function summarizeBundle(bundle) {
@@ -80,12 +84,16 @@ export function formatSummary(summary) {
 }
 
 async function main(args) {
-    if (args.length === 1 && args[0] === '--check') {
+    const options = parseEvaluationArgs(args);
+    if (options.help) {
+        console.log(USAGE);
+        return;
+    }
+    if (options.check) {
         const count = sessionFiles().length;
         console.log(`Local holdout: ${count} sessions; contents not read.`);
         return;
     }
-    const options = parseEvaluationArgs(args);
 
     if (options.goal) console.log('Goal: ' + options.goal);
 
@@ -96,7 +104,7 @@ async function main(args) {
         if (child.error || child.status !== 0) throw new Error('runner failed');
 
         const bundle = parseRunnerBundle(child.stdout || '');
-        if (bundle.results.length !== EXPECTED_HOLDOUT_COUNT) {
+        if (bundle.results.length !== EXPECTED_LOCAL_HOLDOUT_COUNT) {
             throw new Error('runner result count changed');
         }
         console.log(formatSummary(summarizeBundle(bundle)));
