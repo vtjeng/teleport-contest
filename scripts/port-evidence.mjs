@@ -27,7 +27,7 @@ function safePath(value, directory, suffix, label) {
     const path = text(value, `${label} path`);
     const parts = path.split('/');
     if (parts.some((part) => part.toLowerCase() === 'holdout')) {
-        throw new Error(`${label} path cannot reference holdout`);
+        throw new Error(`${label} path must name an evidence file, not a fixed-workload corpus directory`);
     }
     if (parts[0] !== directory || parts.length < 2
         || parts.some((part) => part === '' || part === '.' || part === '..')

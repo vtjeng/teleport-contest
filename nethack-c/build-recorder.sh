@@ -12,7 +12,7 @@
 # You DO NOT need this build to enter the contest. Only build it if
 # you want to:
 #   - record additional debugging sessions of your own keyplans
-#   - audit how the public sessions in sessions/ were produced
+#   - audit how the fixed-workload sessions were produced
 #   - cross-check your JS port against C live, side-by-side
 #
 # Requirements: clang (for cross-platform deterministic argument-eval

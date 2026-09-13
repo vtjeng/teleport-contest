@@ -80,25 +80,25 @@ test('abbreviated user options also replace generated defaults', () => {
     assert.doesNotMatch(recipe.segments[0].nethackrc, /!legacy|!tutorial|!splash_screen/u);
 });
 
-test('rejects direct use of the fixed local holdout path', () => {
+test('rejects a recorded fixed-workload path as a fresh recipe', () => {
     assert.equal(isLocalHoldoutPath('sessions/holdout/example.session.json'), true);
     assert.equal(isLocalHoldoutPath('/tmp/fresh-recipe.session.json'), false);
 });
 
-test('sealed-path containment follows outside symlinks', async (t) => {
+test('bounded-path containment follows outside symlinks', async (t) => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'diff-path-test-'));
     t.after(() => fs.rm(tempRoot, { recursive: true, force: true }));
-    const sealedRoot = path.join(tempRoot, 'sealed');
-    const answerPath = path.join(sealedRoot, 'answer.json');
+    const boundedRoot = path.join(tempRoot, 'bounded');
+    const answerPath = path.join(boundedRoot, 'answer.json');
     const symlinkPath = path.join(tempRoot, 'outside-link.json');
-    await fs.mkdir(sealedRoot);
+    await fs.mkdir(boundedRoot);
     await fs.writeFile(answerPath, '{}');
     await fs.symlink(answerPath, symlinkPath);
 
-    assert.equal(isPathWithinDirectory(answerPath, sealedRoot), true);
-    assert.equal(isPathWithinDirectory(symlinkPath, sealedRoot), true);
+    assert.equal(isPathWithinDirectory(answerPath, boundedRoot), true);
+    assert.equal(isPathWithinDirectory(symlinkPath, boundedRoot), true);
     assert.equal(
-        isPathWithinDirectory(path.join(tempRoot, 'ordinary.json'), sealedRoot),
+        isPathWithinDirectory(path.join(tempRoot, 'ordinary.json'), boundedRoot),
         false,
     );
 });

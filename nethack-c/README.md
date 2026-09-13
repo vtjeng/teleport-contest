@@ -25,7 +25,7 @@ You only need the recorder build if you want to:
 - **Record your own debugging session.** Pin a seed + datetime, play
   any keyplan you want, get back a `.session.json` your JS port can
   be diff'd against.
-- **Audit the public sessions.** Verify they really came from
+- **Audit the fixed-workload sessions.** Verify they really came from
   unmodified upstream + these specific patches and nothing else.
 - **Cross-check live.** Run a session in C and JS side-by-side to
   see where their RNG sequences diverge.

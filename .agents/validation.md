@@ -1,9 +1,12 @@
 # Validation
 
 Read this file when implementing gameplay or running recordings, differentials,
-scans, or browser checks. The fixed 44-session workload includes
-`sessions/holdout/`; its files are read-only recorded inputs for every tool
-named here.
+scans, or browser checks. The fixed 44-session workload includes the 33 regular
+recordings and the 11 recordings under `sessions/holdout/`. Those formerly
+held-out files are open, ordinary development inputs for scans, mismatch
+selection, replay, recording comparison, and checkpoint scoring. They remain
+recorded inputs, so tools must not modify them. The remote competition holdout
+is a separate unavailable corpus.
 
 ## Routine validation
 
@@ -120,9 +123,10 @@ goal cannot close until every listed entry point has a matching recording.
 and that caller, test, and recording references exist. These checks do not
 prove the written assertions: the orchestrator verifies complete behavior,
 runtime reachability, and that the cited recordings execute the claimed
-functions. References are regular files within this worktree; absolute paths,
-traversal, symlinks, and holdout references are rejected. Opening the holdout
-permits diagnosis but does not replace independent completion recordings. Evidence is stored
+functions. Evidence references are regular files within this worktree and are
+restricted to their declared evidence roots; absolute paths, traversal, and
+symlinks are rejected. This evidence-path check is about provenance and file
+integrity, not access to the open local-holdout recordings. Evidence is stored
 in `GOALS.json`; do not retain a separate report.
 
 `close-span` requires evidence for every planned source unit. `close-goal`
@@ -143,9 +147,12 @@ Keep blocked recipes and revisit their named dependencies when those land.
 A fresh differential records a case with the patched C program and replays the
 same inputs with the JavaScript port. Its input is a **recipe**, as
 `.agents/glossary.md` defines it: a session file holding replay inputs only,
-never recorded `steps`. These recording tools still reject paths under
-`sessions/holdout/` to keep the fixed recordings intact and new recipes
-independently chosen. Inspect or replay the opened files with the scan or scorer.
+never recorded `steps`. These recording tools reject fixed-workload recording
+paths as recipe inputs because a recipe must contain inputs only, never recorded
+answers. That rule applies to both session directories and preserves
+independent fresh cases; it does not restrict inspection, replay, comparison,
+or scoring of the open local holdout. Inspect or replay fixed recordings with
+the scan or scorer.
 
 - One case: `node scripts/diff-fresh.mjs --seed 42 --moves 'jjj' --role
   Valkyrie --race human --gender female --align neutral`, or

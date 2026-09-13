@@ -29,10 +29,13 @@ The directories preserve provenance and historical score labels, but the
 holdout files are now ordinary development inputs: default scans, mismatch
 selection, checkpoint scoring, and completion evidence include all 44. List
 each directory directly; do not use recursive discovery or move recordings
-between sets.
+between sets. The direct-listing rule is a traversal safeguard for any future
+nested session directories; it is not a restriction on the open local-holdout
+files.
 
-The user authorized opening the entire local holdout on 2026-09-12. The
-pre-exposure implementation is `a8890744786a48de9b20926acafa3c16a777dc67`;
+The user authorized opening the entire local holdout on 2026-09-12. The local
+`sessions/holdout/` directory is neither protected nor sealed. The pre-exposure
+implementation is `a8890744786a48de9b20926acafa3c16a777dc67`;
 `experiments/generalization/plan.md` records the diagnosis and source handoff.
 Agents may inspect, replay, compare, and discuss every local-holdout session,
 including through workers and review tools. The remote competition holdout
@@ -41,14 +44,15 @@ missing behavior, then implement from the C source and patches. Preserve the
 recorded files and choose independent inputs for new reproductions. Do not
 special-case a session or its seed, inputs, expected output, or replay position.
 
-The current `challenges/manifest.json` is frozen as synthetic local holdout
-`v1`. Evaluate it from saved artifacts after implementation changes, but do not
-feed its failures into the fixed mismatch queue or treat it as remote-holdout
-evidence. Put future challenge cases in a new versioned manifest. Preserve
-historical Development, Local holdout, and Challenges rows and labels; the
-dashboard combines the historical Development and Local holdout measures
-into one Development set series and keeps the synthetic-local-holdout measure
-separate.
+The current `challenges/manifest.json` is frozen as synthetic local challenge
+set `v1`. Evaluate it from saved artifacts after implementation changes, but do
+not feed its failures into the fixed mismatch queue or treat them as evidence
+about the remote competition holdout. Put future challenge cases in a new
+versioned manifest. Preserve historical Development, Local holdout, and
+Challenges rows and labels; the dashboard combines the historical Development
+and Local holdout measures into one Development set series and keeps the
+synthetic local challenge measure separate (the dashboard may retain its
+historical “Synthetic local holdout” label).
 
 `node scripts/scan-sessions.mjs --json` diagnoses the fixed 44-session
 workload. `score-development.mjs` is its aggregate scorer. The separate
@@ -76,8 +80,8 @@ completes one span per run.
 | Propose a change to tooling or process | `.agents/proposals.md` |
 | Complete one span as a loop worker | `.claude/agents/span-worker.md` |
 | Commit game implementation | `.agents/validation.md` |
-| Append a `SCORE.tsv` event row or read a holdout result (orchestrator only) | `.agents/scoring.md` |
-| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local-holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
+| Append a `SCORE.tsv` event row or read an aggregate remote-holdout result (orchestrator only) | `.agents/scoring.md` |
+| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local challenge evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
 
 ## Local command execution

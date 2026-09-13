@@ -73,8 +73,8 @@ work through most of it to find the summary and the failing test's location.
 
 ## Shard the development scorer
 
-**What it changes.** `scripts/score-development.mjs` would split the 33
-development sessions across several workspace copies, run one
+**What it changes.** `scripts/score-development.mjs` would split the 44 fixed
+workload sessions across several workspace copies, run one
 `frozen/ps_test_runner.mjs` per copy concurrently, and merge their
 `__RESULTS_JSON__` bundles.
 
@@ -87,7 +87,7 @@ sharded path later.
 **What prompted it.** On a 5-core/10-thread host, `score-development.mjs` takes
 19.7 s, of which
 about 8 s is replay. `frozen/ps_test_runner.mjs:464` spawns one worker per
-session sequentially, so 33 processes import the `js/` graph one after another.
+session sequentially, so 44 processes import the `js/` graph one after another.
 Every span worker pays this cost on each `npm run checkpoint`.
 
 **Cost.** Small. Sharding adds one workspace copy per shard and a merge step;

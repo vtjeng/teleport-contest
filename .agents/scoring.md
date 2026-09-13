@@ -2,9 +2,10 @@
 
 Read this file when you append a `SCORE.tsv` row or answer a score question
 from the log. Only the orchestrator appends rows; a span worker states its
-score evidence in its report. The local holdout is open under `AGENTS.md`.
+score evidence in its report. The former local holdout is open under `AGENTS.md`
+and is included in the operational fixed workload.
 Run `node scripts/score-holdout.mjs [--goal <id>]` for the separate historical
-holdout view; repeated evaluations no longer require separate authorization.
+holdout view; this view does not gate ordinary development work.
 The operational development score is the fixed 44-session workload, including
 the files under `sessions/holdout/`.
 
@@ -17,7 +18,7 @@ the files under `sessions/holdout/`.
 | --- | --- |
 | `utc` | ISO 8601 date and time the script appended the row. `--append` rejects a caller-supplied value. |
 | `sha` | The commit the figures were measured at. |
-| `event` | What prompted the row: `span` (span closure), `goal` (goal closure, of any kind), `holdout` (an authorized evaluation outside a goal close), or `divergence` (a divergence fix committed outside a goal), or `challenge` (a saved challenge evaluation). Rows before 2026-09-05 use `slice` for what is now a span, and rows before 2026-08-27 also use the retired `window` and `candidate` labels; the script no longer appends any of those. |
+| `event` | What prompted the row: `span` (span closure), `goal` (goal closure, of any kind), `holdout` (a separate local-holdout provenance evaluation), `divergence` (a divergence fix committed outside a goal), or `challenge` (a saved challenge evaluation). Rows before 2026-09-05 use `slice` for what is now a span, and rows before 2026-08-27 also use the retired `window` and `candidate` labels; the script no longer appends any of those. |
 | `sessions_passed`, `sessions_total` | Sessions matching completely, out of the measured development workload. Historical rows before the transition describe 33 public sessions; new operational rows describe all 44 fixed sessions. |
 | `screens_matched`, `screens_total` | Screens matched, out of the screens the C reference recorded. The operational development scorer measures the 44-session fixed workload. |
 | `rng_matched`, `rng_total` | Development random-number values matched, out of those recorded. `frozen/ps_test_runner.mjs` compares the two logs position by position over their whole length, so a segment that stops early scores its next segment's startup calls against C's continuing log, and this count can fall while correctness rises. |
@@ -54,7 +55,7 @@ import procedure below.
 Never rewrite a row; a later row supersedes an earlier one. Longer evidence
 belongs in the commit message, and review metrics belong in `QUALITY.json`.
 
-## Recording synthetic local holdout
+## Recording the synthetic local challenge set
 
 The frozen `v1` set in `challenges/manifest.json` contains valid C recordings
 that may fail in JavaScript. Keep those failures outside the passing
@@ -62,8 +63,8 @@ that may fail in JavaScript. Keep those failures outside the passing
 evaluations are separate from the fixed workload and the historical local-
 holdout provenance view.
 
-After an implementation goal's checkpoint, reassess synthetic local holdout
-`v1` at that committed HEAD. Save the evaluation before using its JavaScript
+After an implementation goal's checkpoint, reassess synthetic local challenge
+set `v1` at that committed HEAD. Save the evaluation before using its JavaScript
 failures to guide a future, explicitly selected investigation:
 
 ```
@@ -89,7 +90,8 @@ measured commit age. Synthetic failures never enter the fixed mismatch queue.
 The dashboard shows one combined Development set measure: it sums the
 historical public-development and local-holdout measurements, carrying the
 latest holdout measurement forward after the holdout is first recorded. It
-shows Synthetic local holdout separately. Each card includes the age of its
+shows the synthetic local challenge set separately (the historical display
+label is Synthetic local holdout). Each card includes the age of its
 measured commit. Challenge details follow Work by source file; per-case
 accounting remains in the saved evidence. Historical missing session/cursor
 counts remain unknown. Do not show a remote-holdout score.

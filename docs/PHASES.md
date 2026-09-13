@@ -10,22 +10,23 @@ generalization rather than just hand-tuning.
 | **Target** | NetHack 5.0 (released May 2, 2026 — first major version bump since 3.0 in 1989; 46 years into the game's history) |
 | **Open** | (announce date) |
 | **Deadline** | Sunday Nov 29, 2026 (the Sunday after US Thanksgiving), 00:00 UTC |
-| **Scoring** | Standard P+S parity against 88 sessions (44 public and 44 held-out) |
+| **Scoring** | Standard P+S parity against the 44-session fixed development workload; the judge may also score a separate remote competition holdout |
 | **Qualification** | Top 10 teams by total session-pass count qualify for Phase 2 |
 
 ### Session difficulty escalation
 
-The contest opens in May 2026 with a preliminary held-out set. **If
-top scores cluster too tightly to distinguish entrants, the judges
-will release additional, harder held-out sessions over the summer**
+The contest opens in May 2026 with a preliminary remote competition holdout.
+**If top scores cluster too tightly to distinguish entrants, the judges
+will release additional, harder remote sessions over the summer**
 (deeper dungeon levels, more subsystems exercised, more multi-segment
 save/restore chains, rarer monsters and items). New sessions are
-added to the held-out pool and re-scored across all submissions; they
+added to the remote pool and re-scored across all submissions; they
 do not retroactively invalidate prior passes, they just create more
 room at the top of the leaderboard.
 
-Public sessions are not changed by escalation — they remain the
-fixed self-test set you score against locally.
+The 44 fixed-workload recordings shipped in this repository are not changed by
+escalation. They remain the self-test set you score against locally; the 11
+files formerly called local holdout are part of that workload.
 
 ### Phase 1 freeze
 
@@ -48,7 +49,7 @@ but only the top 10 compete in Phase 2.)
 | **Diff penalty formula** | Announced Nov 30. Likely shape: `final_score = ps_score / (1 + lines_changed_in_js / N)`, where `N` is tuned for fairness. Comment-only changes don't count; `frozen/` doesn't count. |
 | **Open** | Nov 30, 2026 (target announcement) |
 | **Deadline** | Dec 31, 2026, 00:00 UTC |
-| **Scoring** | P+S parity against new 5.1 sessions (also 88 sessions, mix of public + held-out), divided by the diff penalty |
+| **Scoring** | P+S parity against new 5.1 sessions, divided by the diff penalty; any remote evaluation is separate |
 
 ### How the diff is measured
 

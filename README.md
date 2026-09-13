@@ -38,11 +38,11 @@ in the distance.* Let's begin.
    `nethack-c/upstream/`). Read it. Implement the equivalent in
    `js/`. Faithfully — including its bugs, its quirks, and its
    forty-six years of accumulated tradition.
-3. **Push.** GitHub Actions on your fork scores you on every push
-   against 44 public sessions — fast feedback in your own Actions
-   minutes. Every two hours, the official judge re-scores the
-   latest commit on every fork against all 88 sessions (44 public
-   and 44 held-out) and updates the leaderboard.
+3. **Push.** GitHub Actions on your fork scores the 44-session fixed
+   development workload — fast feedback in your own Actions minutes.
+   Every two hours, the official judge re-scores the latest commit on
+   every fork against its separate remote competition holdout and updates
+   the leaderboard.
 4. **Climb.** Both up the leaderboard, and metaphorically toward
    the Amulet of Yendor. Mostly the leaderboard.
 
@@ -71,8 +71,8 @@ If your plans don't fit in either category, you can select "other" and reach out
 ```
 # First, set your category to one of: agentic, transpiled, other .
 bash frozen/set-category.sh <CATEGORY>
-# Score locally against all 44 public sessions
-bash frozen/score.sh
+# Score locally against the complete fixed workload (33 regular + 11 opened local-holdout sessions)
+node scripts/score-development.mjs
 ```
 
 Out of the box, the skeleton scores partial credit on
@@ -139,8 +139,8 @@ don't exist yet but need to (`js/mon.js`, `js/dog.js`, `js/spell.js`,
 etc. — a complete NetHack port has on the order of 80 source files).
 
 **About `fastforward.js`:** it's a hardcoded list of `rn2(N)` calls
-that fakes the RNG sequence for `seed8000` only. It will never
-generalize and it will never pass a held-out session. The path
+that fakes the RNG sequence for `seed8000` only. It will not generalize
+to other fixed-workload sessions. The path
 forward is to delete its entries one at a time, replacing each with
 the real C function port that produces those calls naturally.
 
@@ -165,7 +165,7 @@ nothing is captured. So this repo includes a patched build of NetHack
 
 Plus changes to log every PRNG call (so you can see what C consumed
 and in what order), to capture the 24×80 terminal as a deterministic
-stream (not curses), and to swap in a stable sort. Eight patches total.
+stream (not curses), and to swap in a stable sort. Six patches total.
 
 The C source is organized like this:
 
@@ -173,13 +173,13 @@ The C source is organized like this:
 nethack-c/
 ├── upstream/                   ← git submodule pinned to NetHack 5.0.0_Release
 │                                 (clean upstream from github.com/NetHack/NetHack)
-├── patches/                    ← the eight deterministic-build patches:
+├── patches/                    ← the six deterministic-build patches:
 │   ├── 001-deterministic-runtime.patch        — NETHACK_SEED + NETHACK_FIXED_DATETIME
 │   ├── 002-deterministic-qsort.patch          — stable sort
 │   ├── 003-rng-log-core.patch                 — log core PRNG calls
 │   ├── 004-rng-log-lua-context.patch          — tag Lua-side PRNG calls
 │   ├── 005-rng-display-logging.patch          — log the display PRNG (hallucination)
-│   └── 006-008-nomux-*.patch                  — capture 24×80 terminal stream
+│   └── 006-nomux-capture.patch                 — capture 24×80 terminal stream
 ├── build-recorder.sh           ← clones submodule, applies patches, builds binary
 ├── macosx-minimal              ← macOS hints file (upstream doesn't ship one)
 ├── README.md                   ← deeper notes on each patch
@@ -206,13 +206,13 @@ bash nethack-c/build-recorder.sh
 ```
 
 This clones the submodule (NetHack 5.0.0_Release source from
-github.com/NetHack/NetHack), applies the eight patches into
+github.com/NetHack/NetHack), applies the six patches into
 `nethack-c/recorder/`, and builds the binary at
 `nethack-c/recorder/install/games/lib/nethackdir/nethack`. The
 `recorder/` directory is gitignored — it's built artifact, not source.
 
-You do NOT need to do this to enter the contest. The 44 sessions in
-`sessions/` were recorded with this build and ship ready to score
+You do NOT need to do this to enter the contest. The 44 fixed-workload
+sessions in `sessions/` and `sessions/holdout/` were recorded with this build and ship ready to score
 against. Build the recorder only if you want to record your own
 debugging sessions or generate supplemental coverage (see
 `PROMPT.md` Parts 2 and 4).
@@ -232,7 +232,8 @@ compiler.*
 
 ### 3. A pile of recorded delvings to score against
 
-Forty-four recorded sessions live in `sessions/` as `*.session.json`.
+Forty-four recorded sessions make up the fixed workload: 33 files directly
+under `sessions/` and 11 files directly under `sessions/holdout/`.
 Each is a complete game (or a chain of games) played from chargen to
 wherever it ended, with the PRNG sequence and screen output of the C
 recorder captured at every input boundary. They are the standard
@@ -242,7 +243,7 @@ fail.
 **Run them locally:**
 
 ```bash
-bash frozen/score.sh                             # score all 44
+node scripts/score-development.mjs               # score all 44
 node frozen/ps_test_runner.mjs sessions/seed8000-tourist-starter.session.json
                                                  # score one
 ```
@@ -256,11 +257,11 @@ seed0007-rogue-snake-swamp      FAIL  RNG: 391/3706 (10.5%)   div@392
 ```
 
 **The challenge, in one sentence.** You get about 10,000 game
-keystrokes (the recorded input across the 44 public sessions). For
+keystrokes (the recorded input across the 44 fixed-workload sessions). For
 every one of those keystrokes, can your JS port render the exact
 same 24×80 terminal screen the C reference produced? Each matching
-screen is one point. Public corpus has 11,284 screens — that's your
-public maximum.
+screen is one point. The fixed workload is the local maximum used for
+development scoring.
 
 A session that diverges at step 50 still earns 50 screen points;
 you don't have to pass a whole session to score, and you don't have
@@ -268,14 +269,12 @@ to start at the beginning to make progress. Each step's screen is
 checked independently after the recorded input has been replayed up
 to that point.
 
-**Then 10,000 more, unseen.** After your fork has been scored on
-the public set, the judge runs another ~10,000 keystrokes from the
-held-out pool — sessions you never see, only the judge has them.
+**The remote competition holdout.** The judge may run additional
+keystrokes from a remote hidden pool that is not shipped in this repository.
 Match those screens too and you've shown your port has comprehensive
-coverage of the game, not just the corner of it the public sessions
+coverage of the game, not just the corner of it the fixed workload
 exercise. A faithful port scores comparably on both pools; a port
-that secretly hardcoded the public traces falls off a cliff on
-held-out.
+that secretly hardcoded the fixed traces will fail to generalize there.
 
 PRNG sequence matching is the structural prerequisite (your PRNG
 calls have to align with C's call-by-call before any screen can
@@ -284,7 +283,7 @@ publishes your PRNG match percentage as advisory progress next to
 the screen score.
 
 If top scores cluster too tightly to distinguish the strongest
-entrants, additional and harder held-out sessions will be added over
+entrants, additional and harder remote sessions will be added over
 the summer (see `docs/PHASES.md`). Plan accordingly.
 
 **The 2-hour cron:** the judge auto-discovers every fork of
@@ -304,7 +303,7 @@ button, no email to send. The dungeon notices when you arrive.
 
 ### Scoring API
 
-Your fork must export `runSegment(input, prevGame=null)` from
+Your fork must export `runSegment(input, diagnostics={})` from
 `js/jsmain.js`. The full contract is in [`docs/API.md`](docs/API.md);
 the short version is that for each game segment, you receive a seed,
 a datetime, an `OPTIONS=…` rc-text blob, and a string of keys. You
@@ -324,9 +323,9 @@ Two channels are scored, both required:
 
 **Scoring is per-step, screens-only.** Your score is the count of
 steps where the captured 24×80 grid matches C's exactly (character +
-color + attribute + cursor position). The 44 public sessions contain
-11,284 steps (max 11,284 points). The 44 held-out pool adds 10,538
-more steps (max 10,538 more) for a global maximum of 21,822 points.
+color + attribute + cursor position). The fixed workload supplies the
+local development denominator; any remote competition score is reported
+separately by the judge.
 
 PRNG match is the structural prerequisite — if your PRNG diverges
 from C's, the game state diverges and screens can't match — but
@@ -432,10 +431,9 @@ Full mechanics in [`docs/PHASES.md`](docs/PHASES.md).
 
 **[mazesofmenace.ai](https://mazesofmenace.ai/)**
 
-Updates every two hours. Public scores recompute on every push;
-held-out scores update when the cron fires. The official upstream
-skeleton is included as a baseline reference, currently scoring
-0/88 — the floor from which everyone climbs. (For now.)
+Updates every two hours. Fixed-workload scores recompute on every push;
+remote competition scores update when the cron fires. The official
+upstream skeleton is included as a baseline reference.
 
 ## Questions
 
@@ -453,7 +451,7 @@ Open an issue on this repo, or check the docs:
 *You die...*
 
 Just kidding. Nobody dies in this contest. The worst that happens is
-the leaderboard says 0/88 for a while. That's also where everyone
+the leaderboard reports a zero for a while. That's also where everyone
 starts.
 
 *Welcome to NetHack.*

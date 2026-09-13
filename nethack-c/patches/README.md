@@ -1,6 +1,6 @@
 # NetHack 5.0 recorder patches
 
-Eight patches that turn upstream NetHack 5.0 into a deterministic,
+Six patches that turn upstream NetHack 5.0 into a deterministic,
 reproducible "recorder" build whose run-to-run behavior is exactly
 what the JS port has to match.
 
@@ -11,9 +11,7 @@ what the JS port has to match.
 | 003 | `rng-log-core` | Log every `rn2/rnd/rne/rnz/rnl/rn1/d` call to `NETHACK_RNGLOG` | Core PRNG — first of three contexts the port has to reproduce |
 | 004 | `rng-log-lua-context` | Tag Lua-side PRNG calls with their `<file>:<line>` source location | Lua scripts (special levels) use the same PRNG; need to know which call is which |
 | 005 | `rng-display-logging` | Log the third PRNG context (display/hallucination) to `NETHACK_RNGLOG_DISP` | Hallucination uses a separate stream so it doesn't perturb gameplay RNG |
-| 006 | `nomux-capture` | Replace `tty` curses output with a deterministic 24×80 frame capture | Need exact terminal contents at every input boundary |
-| 007 | `nomux-raw-print` | Route `raw_print` (early errors, banners) through nomux too | Otherwise startup banners aren't captured |
-| 008 | `nomux-deterministic-capture` | Snapshot the screen exactly when C blocks for the next key | Pins frame boundaries to `tty_nhgetch` calls |
+| 006 | `nomux-capture` | Replace `tty` curses output with deterministic 24×80 capture, raw-print routing, and input-boundary snapshots | Need exact terminal contents at every input boundary |
 
 ## Apply
 

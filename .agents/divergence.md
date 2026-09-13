@@ -11,7 +11,7 @@ the function the goal named, or the record is classified `machine-local` or
 
 ## Reference documents
 
-- `AGENTS.md`: source authority, holdout access, session-specific hardcoding,
+- `AGENTS.md`: source authority, fixed-workload session access, session-specific hardcoding,
   protected files, and escalation;
 - `.agents/selection.md`: the mismatch queue and how to read an entry;
 - `.agents/validation.md`: recording, replaying, and comparing cases;

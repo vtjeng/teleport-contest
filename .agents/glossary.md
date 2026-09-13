@@ -50,9 +50,9 @@ each fixed-workload session's first mismatch and its source owner when known;
 A **recipe** is a session file holding replay inputs only: seed, date and
 time, options, and keystrokes, with no recorded steps. A **recording** is a
 recipe recorded with the patched C program, carrying C's random-number log,
-screen, and cursor for every key. The scorer's sessions under `sessions/` are
-recordings; the port's own form the **recordings corpus** under `recordings/`
-and replay in `npm run checkpoint`.
+screen, and cursor for every key. The scorer's sessions under `sessions/` and
+`sessions/holdout/` are fixed-workload recordings; the port's own form the
+**recordings corpus** under `recordings/` and replay in `npm run checkpoint`.
 
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests, and may be one of several commits inside a span.

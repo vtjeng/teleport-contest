@@ -912,7 +912,7 @@ function loadRecipe(config) {
     if (config.mode === 'recipe') {
         const inputPath = resolve(config.recipePath);
         if (isLocalHoldoutPath(inputPath)) {
-            throw new Error('choose an independent recipe; replay existing local-holdout recordings with scan-sessions');
+            throw new Error('a fixed-workload recording is not an input-only recipe; replay it with scan-sessions');
         }
         let data;
         try {
@@ -927,7 +927,7 @@ function loadRecipe(config) {
     if (config.nethackrcFile !== undefined) {
         const rcPath = resolve(config.nethackrcFile);
         if (isLocalHoldoutPath(rcPath)) {
-            throw new Error('choose independent options rather than a local-holdout recording');
+            throw new Error('choose input-only options rather than a fixed-workload recording');
         }
         exactNethackrc = readFileSync(rcPath, 'utf8');
     }

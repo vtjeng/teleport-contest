@@ -130,7 +130,7 @@ The orchestrator repeats without returning to the user between steps:
 6. Before closing a source port, verify its `entryPointReview` and every
    entry point's matching recording. A blocked recipe leaves that entry
    point unfinished. Run checkpoint if its summary does not describe HEAD.
-   Then evaluate synthetic local holdout `v1`, retain its saved artifact, and
+   Then evaluate synthetic local challenge set `v1`, retain its saved artifact, and
    append the goal's fixed-development score row at the measured commit before
    `goal-log.mjs close-goal`. Commit the closure and continue at step 1.
 

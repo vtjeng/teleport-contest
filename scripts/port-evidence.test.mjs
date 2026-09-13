@@ -91,7 +91,7 @@ test('inactive source requires an explicit reason and a pure source-pinned test'
     assert.throws(() => validatePortEvidence(goal, evidence, { root }), /inactive.*pure/u);
 });
 
-test('file references reject absolute, traversal, holdout, and wrong-directory paths', (t) => {
+test('file references reject absolute, traversal, corpus, and wrong-directory paths', (t) => {
     const { root, goal, evidence } = fixture(t);
     // All cases must fail structurally, before attempting to read any file.
     const paths = [
@@ -101,7 +101,7 @@ test('file references reject absolute, traversal, holdout, and wrong-directory p
     ];
     for (const path of paths) {
         evidence.functions[0].implementation = path;
-        assert.throws(() => validatePortEvidence(goal, evidence, { root }), /path|holdout/u);
+        assert.throws(() => validatePortEvidence(goal, evidence, { root }), /path|holdout|corpus/u);
     }
 });
 
@@ -117,7 +117,7 @@ test('caller, test, recording, and entry-point references receive the same path 
     for (const mutate of mutations) {
         const unsafe = structuredClone(evidence);
         mutate(unsafe);
-        assert.throws(() => validatePortEvidence(goal, unsafe, { root }), /path|holdout/u);
+        assert.throws(() => validatePortEvidence(goal, unsafe, { root }), /path|holdout|corpus/u);
     }
 });
 
@@ -127,7 +127,7 @@ test('all path checks finish before looking up the upstream source', (t) => {
     // been screened. No prohibited directory is created or accessed.
     goal.cFile = 'missing.c';
     evidence.functions[0].recordings = ['recordings/holdout/game.session.json'];
-    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /holdout/u);
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /path|holdout|corpus/u);
 });
 
 test('symlink files and parent directories cannot supply evidence', (t) => {

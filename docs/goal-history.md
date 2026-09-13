@@ -5,6 +5,11 @@ when choosing work, and it is on no mandatory reading path. The falsified
 predictions and measured overstatements recorded here are what
 later entries in this file depend on: do not re-derive them.
 
+The holdout measurements recorded below predate the 2026-09-12 opening of the
+11 local-holdout files. They describe the then-hidden comparison pool and keep
+their historical labels; those local files are now part of the fixed development
+workload. The remote competition holdout remains unavailable.
+
 Twelve goal-closure rows in `SCORE.tsv` carry a holdout figure. Holdout
 screens rose by 17, then by 6, then by 21, and the goal that gained 21 is
 the one on which a first holdout session passed; after that the pickup,
@@ -639,8 +644,8 @@ work from each session's first mismatch. Of the 213 slices closed in the 14
 days before the change, 83 gained no screen.
 
 A goal is now a file port or a divergence fix, its unit of work is a span of
-functions in C order, and the divergence queue that
-`scripts/divergence-queue.mjs` prints selects it. The forecast, the witness
+functions in C order, and the then-`scripts/divergence-queue.mjs` (now
+`scripts/mismatch-queue.mjs`) selected it. The forecast, the witness
 tracing, the classifier capping, and the review cadence went with the census.
 The rules that governed them are in this repository's history at `9a8d2f6a`,
 and the goals recorded under them keep their `boundary`, `forecast`, and

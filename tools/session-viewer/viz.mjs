@@ -232,11 +232,6 @@ async function loadAndCompute(sessionData, name) {
     }
 
     const segments = [];
-    let prevGame = null;
-    // The same NethackGame instance is reused across segments, so its
-    // getScreens()/getCursors()/getRngSlices() return CUMULATIVE arrays.
-    // We track an offset so each segment reads only its own slice.
-    let priorCaptureCount = 0;
     for (let s = 0; s < sessionData.segments.length; s++) {
         const seg = sessionData.segments[s];
         const input = {
@@ -247,32 +242,29 @@ async function loadAndCompute(sessionData, name) {
         };
         let game;
         try {
-            game = await runSegment(input, prevGame);
+            game = await runSegment(input);
         } catch (err) {
             status(`seg ${s}: JS port threw: ${err.message}`, 'error');
             return;
         }
-        const allJsScreens = game.getScreens?.() || [];
-        const allJsCursors = game.getCursors?.() || [];
-        const allJsRngSlices = game.getRngSlices?.()
-            || sliceRng(game.getRngLog?.() || [], allJsScreens.length);
+        const jsScreens = game.getScreens?.() || [];
+        const jsCursors = game.getCursors?.() || [];
+        const jsRngSlices = game.getRngSlices?.()
+            || sliceRng(game.getRngLog?.() || [], jsScreens.length);
         const stepsOut = [];
         for (let i = 0; i < seg.steps.length; i++) {
             const canonStep = seg.steps[i];
-            const j = priorCaptureCount + i;
             stepsOut.push({
                 key: canonStep.key,
                 canonScreen: canonStep.screen || '',
                 canonCursor: canonStep.cursor || [0, 0, 1],
                 canonRng: canonStep.rng || [],
-                jsScreen: allJsScreens[j] || '',
-                jsCursor: allJsCursors[j] || [0, 0, 1],
-                jsRng: allJsRngSlices[j] || [],
+                jsScreen: jsScreens[i] || '',
+                jsCursor: jsCursors[i] || [0, 0, 1],
+                jsRng: jsRngSlices[i] || [],
             });
         }
         segments.push({ seg, steps: stepsOut });
-        priorCaptureCount = allJsScreens.length;
-        prevGame = game;
     }
 
     CURRENT = { sessionData, name, segments };

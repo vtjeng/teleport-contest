@@ -444,10 +444,10 @@ const COMMAND_HELP = {
                   [--step <input-step>]
 
 Optional for all kinds:
-  --sessions <a,b,...>        Related development or holdout/ sessions.
+  --sessions <a,b,...>        Related fixed-workload session IDs (including holdout/).
   --selection-reason <text>  Source-based reason for choosing this goal.
   --detail <text>            Supporting source and mismatch evidence.
-  --development-scan <path>  Use a saved development-only scan for selection.
+  --development-scan <path>  Use a saved fixed-workload scan for selection.
 
 The goal ID must be new. Selection must satisfy the current mismatch queue.
 Queueing does not open the goal; use open-goal before planning a span.`,
@@ -456,14 +456,14 @@ Queueing does not open the goal; use open-goal before planning a span.`,
         description: 'Open a queued goal or resume a parked goal.',
         usage: '--id <id> [--selection-reason <text>] [--development-scan <path>]',
         details: 'Requires a queued or parked goal and a valid current selection.\n'
-            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.\n'
+            + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.\n'
             + 'Captures the development standing; scoring inputs must be clean.',
     },
     'next-span': {
         description: 'Plan or resume the next span of a C or Lua source port.',
         usage: '--goal <id> [--development-scan <path>]',
         details: 'Requires an open source port. Writes .cache/span-context.json\n'
-            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.\n'
+            + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.\n'
             + 'for the selected span. For a divergence fix, use queue-span.',
     },
     'queue-span': {
@@ -471,7 +471,7 @@ Queueing does not open the goal; use open-goal before planning a span.`,
         usage: '--goal <id> --name <name> [--functions <a,b,...>] [--development-scan <path>]',
         details: 'Requires an open divergence-fix goal, a new span name, and a valid\n'
             + 'current selection. For a C or Lua source port, use next-span.\n'
-            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.',
+            + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.',
     },
     'record-evidence': {
         description: 'Record verified source completion evidence for a goal.',
@@ -502,7 +502,7 @@ Queueing does not open the goal; use open-goal before planning a span.`,
         details: 'Requires an open goal and a passing checkpoint for HEAD. Closing figures\n'
             + 'come from checkpoint; SCORE.tsv remains the event log. Source ports also\n'
             + 'require closed spans and complete source and entry-point evidence.\n'
-            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.\n'
+            + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.\n'
             + 'See .agents/loop.md and .agents/scoring.md for the closure sequence.',
     },
 };
@@ -632,7 +632,7 @@ function readDevelopmentScan(path) {
     const cacheRoot = `${PROJECT_ROOT}/.cache/`;
     if ((!normalized.startsWith('/tmp/') && !normalized.startsWith(cacheRoot))
         || normalized.includes('/sessions/')) {
-        throw new Error('--development-scan must name a saved development scan under .cache/ or /tmp');
+        throw new Error('--development-scan must name a saved fixed-workload scan under .cache/ or /tmp');
     }
     const stats = lstatSync(resolved);
     if (!stats.isFile() || stats.isSymbolicLink())

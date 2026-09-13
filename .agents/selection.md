@@ -110,7 +110,11 @@ segments. Compare first mismatches and complete recordings as well as totals.
 `score-development.mjs` is the authority on measured matching screens across
 the fixed 44-session workload.
 
-The queue ranks first failures from the fixed workload. Local-holdout session
-identifiers start with `holdout/`; keep that prefix in `--sessions` or
-`--session`. The upper bounds are not predicted gains. Challenge failures are
-synthetic local-holdout diagnostics and are not queue candidates.
+The queue ranks first failures from the fixed workload. The former local
+holdout is an ordinary part of that workload: goal-log accepts identifiers such
+as `holdout/seed4500-knight-coverage` in `--sessions` or `--session`, and the
+prefix must be preserved. These are queue identifiers (`holdout/<name>`), not
+filesystem paths; `--development-scan` still takes a saved scan JSON artifact.
+The upper bounds are not predicted gains. Challenge
+failures are synthetic local challenge diagnostics and are not queue
+candidates. The remote competition holdout is separate and unavailable.

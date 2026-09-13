@@ -31,9 +31,10 @@ python3 -m http.server 8080
 # then open http://localhost:8080/tools/session-viewer/ in a browser
 ```
 
-Pick a session from the dropdown, which lists the development
-sessions named in `sessions/manifest.json`, or use the file picker
-labeled `or load file…` to load any `.session.json` from disk.
+Pick a session from the dropdown, which lists the 33 regular development
+sessions named in `sessions/manifest.json`. The 11 opened local-holdout
+recordings are part of the fixed workload but are not in that manifest; use
+the file picker labeled `or load file…` to load one from disk.
 The viewer then:
 
 1. Fetches the session.
@@ -139,14 +140,12 @@ the same view.
 
 - The viewer reads `getScreens()`, `getCursors()`, and, when the
   port provides it, `getRngSlices()` from the `NethackGame` instance
-  that `runSegment()` returns. Each must return every capture since
-  the start of the session, because the viewer indexes into these
-  arrays with a per-segment offset. Without `getRngSlices()`, the
-  viewer divides the entries from `getRngLog()` into equal-sized
-  groups, one per step.
-- Sessions live under `sessions/`. The dropdown lists file names from
-  `sessions/manifest.json`; when
-  that fetch fails, the viewer reads the `.session.json` links from
-  the server's directory listing of `sessions/`. The file picker
-  loads a `.session.json` from disk regardless of whether the
-  manifest loaded.
+  that `runSegment()` returns. Each returned object covers its segment;
+  the viewer aligns those per-segment arrays with that segment's steps.
+  Without `getRngSlices()`, the viewer divides that segment's entries from
+  `getRngLog()` into equal-sized groups, one per step.
+- Sessions live under `sessions/`. The dropdown lists regular-workload file
+  names from `sessions/manifest.json`; when that fetch fails, the viewer reads
+  the `.session.json` links from the server's directory listing of `sessions/`.
+  The file picker loads any fixed-workload `.session.json`, including an opened
+  local-holdout recording, regardless of whether the manifest loaded.

@@ -6,7 +6,7 @@ returns, and compares against the recorded ground truth.
 
 ```js
 // js/jsmain.js
-export async function runSegment(input, prevGame = null) {
+export async function runSegment(input, diagnostics = {}) {
     // ... your code: launch a game, replay the keys, capture frames ...
     return game;
 }
@@ -23,13 +23,13 @@ recorded C reference 100%, end to end.
 For each session, scoring runs:
 
 ```
-game = null
+games = []
 for segment in session.segments:
-    game = await runSegment(segment, game)
+    games.push(await runSegment(segment))
 
-screens  = game.getScreens()    // collected across all segments
-rngLog   = game.getRngLog()     // collected across all segments
-cursors  = game.getCursors()    // collected across all segments
+screens  = games.flatMap(game => game.getScreens())
+rngLog   = games.flatMap(game => game.getRngLog())
+cursors  = games.flatMap(game => game.getCursors())
 ```
 
 Then it compares positionally:
@@ -44,11 +44,10 @@ Then it compares positionally:
 **Partial credit:** your score is the number of steps where the
 rendered screen matches C, summed across all sessions. A session
 that diverges at step 50 still earns 50 screen points; you don't
-need to pass the whole session. Across the public corpus
-(44 sessions, 11,284 steps) and the held-out pool (44 sessions,
-10,538 steps), your headline metric is the *total fraction of
-matched screens*. PRNG matching is reported alongside as advisory
-progress — it's the structural prerequisite for screens to match,
+need to pass the whole session. Across the 44-session fixed workload,
+your headline metric is the *total fraction of matched screens*.
+The judge may also report a separate remote competition holdout score.
+PRNG matching is reported alongside as advisory progress — it's the structural prerequisite for screens to match,
 but it doesn't earn points on its own. Passing whole sessions
 (every screen and every PRNG call matched) is the strict-perfect
 tiebreaker.
@@ -121,8 +120,9 @@ itself. Persistent C-side state (save file, bones, record) lives in
 
 ## `game` — what you return
 
-Any object with the following methods. Their cumulative output across
-all segments of a session is what gets compared.
+Any object with the following methods. Each returned object covers one
+segment; the harness concatenates these arrays across the session before
+comparison.
 
 ```js
 {
@@ -232,7 +232,7 @@ feature detection, no separate code path. Inside the canonical
 implementation the yield uses `requestAnimationFrame` when one is
 available (so the browser actually paints between frames in
 `/play/<owner>/`) and falls back to a microtask yield in Node
-(judge sandbox + local `score.sh`), where the Terminal is a pure
+(judge sandbox + local fixed-workload scorer), where the Terminal is a pure
 data structure and there is no paint loop to wait for. That choice
 is invisible to your code.
 
@@ -316,8 +316,8 @@ is the `input` object above.
 # Score one session
 node frozen/ps_test_runner.mjs sessions/seed8000-tourist-starter.session.json
 
-# Score everything
-bash frozen/score.sh
+# Score the complete fixed workload (33 regular + 11 opened local-holdout sessions)
+node scripts/score-development.mjs
 ```
 
 Same comparator, same input shape as the official scoring run. The
@@ -325,8 +325,8 @@ only differences:
 
 - Local self-test does not enforce the sandbox (faster iteration;
   debug freely).
-- Local self-test only sees the 44 public sessions. The official run
-  also scores against 44 held-out sessions you never see.
+- The fixed-workload self-test includes the 33 regular and 11 opened
+  local-holdout sessions. The remote competition holdout is not shipped.
 
 ## Worked example — minimal `runSegment`
 
@@ -337,8 +337,8 @@ only differences:
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import { Terminal } from './terminal.js';
 
-export async function runSegment(input, prevGame = null) {
-    const game = prevGame || createFreshGame();
+export async function runSegment(input, diagnostics = {}) {
+    const game = createFreshGame();
 
     initRng(input.seed);
     enableRngLog();
@@ -396,9 +396,11 @@ Just make sure they compare equal (after canonicalization) to C's.
 `frozen/`, `nethack-c/upstream/` (read-only reference), and node
 built-ins. The sandbox blocks anything else.
 
-**Does `runSegment` get a fresh process per call?** Per *session*,
-yes. Per *segment* within a session, no — you get the previous
-segment's `game` as `prevGame`.
+**Does `runSegment` get a fresh process per call?** The scorer calls it
+once per segment and passes only that segment's input. Persist state that
+must cross segments through `input.storage`; the returned game contains
+only that segment's captures. The optional second argument is for local
+diagnostics and is not part of the scorer contract.
 
 **What if my code throws?** That session is marked errored and the
 message is reported. Errors don't break other sessions.

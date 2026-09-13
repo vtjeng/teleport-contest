@@ -16,7 +16,7 @@ export function digest(value) {
 
 export function executionTree(root, commit) {
     // Read only the root entries. Directory object IDs cover their contents
-    // without enumerating or reading any individual sealed session.
+    // without enumerating or reading any individual fixed-workload session.
     const tree = execFileSync('git', ['ls-tree', '-z', commit],
         { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
     return digest(tree.split('\0').filter(entry => {
