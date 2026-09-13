@@ -67,6 +67,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     PASSES_WALLS,
+    PARANOID_SWIM,
     PIT,
     ROOM,
     ROWNO,
@@ -1253,6 +1254,10 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             reason: 'test_move() door or special terrain movement',
             setup: ({ destination, x, y }) => {
                 destination.typ = LAVAPOOL;
+                // Clearing paranoid_confirm:Swim selects swim_move_danger()'s
+                // non-warning lava arm, which remains outside this admission
+                // span and keeps the pile refusal atomic.
+                game.flags.paranoia_bits &= ~PARANOID_SWIM;
                 installFloorPile(x, y);
             },
         },

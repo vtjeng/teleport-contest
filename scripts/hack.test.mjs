@@ -25,6 +25,7 @@ import {
     LEVITATION,
     MAX_TYPE,
     MELT_ICE_AWAY,
+    LAVAPOOL,
     PARANOID_SWIM,
     POOL,
     ROOM,
@@ -388,10 +389,10 @@ test('notice distance comparator and simplified floor type follow hack.c', () =>
     assert.equal(u_simple_floortyp(11, 10, state), ROOM);
 });
 
-function swimDangerState() {
+function swimDangerState(destinationTyp = POOL) {
     const level = new GameMap();
     level.at(10, 10).typ = ROOM;
-    level.at(11, 10).typ = POOL;
+    level.at(11, 10).typ = destinationTyp;
     level.at(11, 10).seenv = 1;
     return {
         level,
@@ -432,6 +433,30 @@ test('known liquid warning passes the walking seam and stops before arrival',
         );
     });
 
+test('known lava warning passes the walking seam and stops before arrival',
+    async () => {
+        // hack.c test_move():1255 admits LAVAPOOL because IS_OBSTRUCTED(typ)
+        // is `typ < POOL`; domove_core():2852 then asks swim_move_danger(),
+        // whose visible paranoid lava arm prints the warning before movement.
+        const state = swimDangerState(LAVAPOOL);
+        assert.doesNotThrow(
+            () => preflightDomoveDestination(11, 10, state),
+        );
+        assert.equal(await swim_move_danger(11, 10, state), true);
+        assert.equal(
+            state._ttyToplines,
+            'You avoid stepping into the molten lava.',
+        );
+        assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
+
+        // teleport.c teleds() does not call swim_move_danger(), so the
+        // shared destination seam remains closed for a non-walking caller.
+        assert.throws(
+            () => requireSimpleHeroDestination(11, 10, state),
+            /door or special terrain movement/u,
+        );
+    });
+
 test('liquid admission requires a warning that will stop the move', () => {
     // Each variation follows a FALSE arm of hack.c swim_move_danger(): an
     // unseen pool, a forced m-prefix step, or disabled paranoid_confirm:Swim.
@@ -451,6 +476,19 @@ test('liquid admission requires a warning that will stop the move', () => {
             () => preflightDomoveDestination(11, 10, state),
             /door or special terrain movement/u,
             name,
+        );
+    }
+
+    // The same source predicates apply to lava: a visible lava square with
+    // no paranoid warning, or with an unseen square or an m-prefix, reaches
+    // unsupported arrival behavior and remains outside the seam.
+    for (const [name, change] of cases) {
+        const state = swimDangerState(LAVAPOOL);
+        change(state);
+        assert.throws(
+            () => preflightDomoveDestination(11, 10, state),
+            /door or special terrain movement/u,
+            `lava ${name}`,
         );
     }
 });

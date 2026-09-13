@@ -1379,7 +1379,7 @@ export function requireSimpleHeroDestination(
     // effect.  A warning which is certain to stop the step therefore needs no
     // ordinary-destination preflight.  Keep this walking-only: teleport.c
     // teleds() also calls this seam but never calls swim_move_danger().
-    if (pushesBoulder && is_pool(x, y, state)
+    if (pushesBoulder && is_pool_or_lava(x, y, state)
         && swim_move_danger_result(x, y, state) === SWIM_DANGER_AVOID) {
         return;
     }
