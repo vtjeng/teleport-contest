@@ -654,6 +654,11 @@ export function monsterCommonName(
     const givenName = monster.mextra?.mgivenname
         || monster.mgivenname
         || monster.name;
+    if (givenName && monster.data === state.mons?.[PM_GHOST]) {
+        // do_name.c x_monnam():964-967. A named ghost keeps the given name
+        // and appends the species, with the name made possessive first.
+        return `${s_suffix(givenName)} ghost`;
+    }
     if (givenName) return givenName;
     const blind = namingPropertyActive(state, BLINDED)
         || Boolean(state.u?.uroleplay?.blind);

@@ -95,6 +95,7 @@ import {
     pmname,
     rndmonnam,
 } from './do_name.js';
+import { s_suffix } from './hacklib.js';
 import {
     fruit_from_indx,
     makeplural,
@@ -159,6 +160,7 @@ import {
 } from './objects.js';
 import {
     M1_MINDLESS,
+    PM_GHOST,
     PM_SAMURAI,
     S_EEL,
     S_MIMIC,
@@ -774,6 +776,8 @@ function monsterBaseName(monster, called) {
             : storedShopkeeperName.slice(1);
     }
     const given = monster.mextra?.mgivenname ?? monster.mgivenname;
+    if (given && monster.data?.pmidx === PM_GHOST)
+        return `${s_suffix(given)} ghost`;
     if (given) return called ? `${speciesName(monster)} called ${given}` : given;
     return speciesName(monster);
 }

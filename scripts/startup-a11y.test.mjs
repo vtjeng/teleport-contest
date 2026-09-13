@@ -42,7 +42,12 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
-import { M1_FLY, MZ_HUGE } from '../js/monsters.js';
+import {
+    M1_FLY,
+    MZ_HUGE,
+    PM_GHOST,
+    monst_globals_init,
+} from '../js/monsters.js';
 import {
     _startupA11yInternals,
     collectLookaroundMessages,
@@ -560,6 +565,23 @@ test('monster descriptions use the stored C shopkeeper name', () => {
         }),
         'peaceful newt',
     );
+});
+
+test('monster descriptions format a named ghost as a possessive ghost', () => {
+    const state = startupState();
+    monst_globals_init(state);
+    const ghost = {
+        data: state.mons[PM_GHOST],
+        mextra: { mgivenname: 'Elara' },
+        m_ap_type: 0,
+        msleeping: true,
+        mx: 21,
+        my: 10,
+    };
+
+    // pager.c look_at_monster() calls distant_monnam(), whose x_monnam()
+    // ghost arm appends the species after making the given name possessive.
+    assert.equal(describeMonster(ghost, { state }), "Elara's ghost, asleep");
 });
 
 test('lookaround treats an adjacent object mimic as seen up close', () => {

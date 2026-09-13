@@ -347,6 +347,22 @@ test('x_monnam formats named ghosts before the called-name branch', () => {
     }
 });
 
+test('monsterCommonName formats a named ghost as a possessive ghost', () => {
+    const state = { u: { uprops: [] } };
+    monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    const monster = {
+        data: state.mons[PM_GHOST],
+        mextra: { mgivenname: 'Elara' },
+    };
+
+    // uhitm.c missum() calls mon_nam(), whose x_monnam() ghost arm appends
+    // the species after making the given name possessive.
+    assert.equal(monsterCommonName(monster, state), "Elara's ghost");
+});
+
 test('Amonnam preserves gender, invisibility, appearance, and display RNG', () => {
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },
