@@ -1118,12 +1118,14 @@ export async function jump(magic = 0, state = game) {
     const target = { x: state.u.ux, y: state.u.uy };
     state.gj ??= {};
     state.gj.jumping_is_magic = magic;
-    await display_jump_positions(true, state);
+    state.getpos_hilitefunc = display_jump_positions;
+    state.getpos_getvalid = get_valid_jump_position;
     try {
         if (await getpos(target, true, 'the desired position', state) < 0)
             return ECMD_CANCEL;
     } finally {
-        await display_jump_positions(false, state);
+        state.getpos_hilitefunc = null;
+        state.getpos_getvalid = null;
     }
     if (!await is_valid_jump_pos(target.x, target.y, magic, true, state))
         return ECMD_FAIL;

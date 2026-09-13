@@ -355,8 +355,12 @@ async function auto_describe(cx, cy, state) {
             { x: cx, y: cy }, true, 0, state,
         );
         if (description.found) {
+            const invalidTarget = state.iflags?.autodescribe
+                && state.getpos_getvalid
+                && !await state.getpos_getvalid(cx, cy, state);
             await ttyPline(
                 description.firstmatch
+                + (invalidTarget ? ' (invalid target)' : '')
                 + (noTravelPath ? ' (no travel path)' : ''),
                 state,
             );
@@ -469,6 +473,10 @@ export async function getpos(ccp, force, goal, state = game) {
     let cy = ccp.y;
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
     let messageGiven = true;
+    // getpos_sethilite() in C keeps a callback and a three-state mode. The
+    // jump caller supplies the callback; the default starts with no visible
+    // good-position markers when background highlighting is disabled.
+    let hiliteState = state.iflags?.bgcolors ? 2 : 0;
     // Build the active special-key table before reading input, matching C's
     // pick_chars derivation immediately before the prompt starts.
     state.commandBindings ??= createCommandBindingModel(state);
@@ -548,6 +556,24 @@ export async function getpos(ccp, force, goal, state = game) {
                 cursorAt(cx, cy, state);
                 showGoalMessage = true;
                 await flush_screen(0);
+                continue;
+            }
+            const hiliteKey = state.commandBindings.specialKeys?.['getpos.valid'];
+            if (state.getpos_hilitefunc && key === hiliteKey) {
+                if (hiliteState === 1) {
+                    await state.getpos_hilitefunc(false, state);
+                    hiliteState = 0;
+                } else if (!state.iflags?.bgcolors) {
+                    hiliteState = 1;
+                    await state.getpos_hilitefunc(true, state);
+                } else {
+                    hiliteState = 0;
+                }
+                showGoalMessage = true;
+                messageGiven = true;
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
                 continue;
             }
             if (key === '#') {
@@ -636,6 +662,8 @@ export async function getpos(ccp, force, goal, state = game) {
             cursorAt(cx, cy, state);
         }
     } finally {
+        if (hiliteState === 1 && state.getpos_hilitefunc)
+            await state.getpos_hilitefunc(false, state);
         if (messageGiven)
             clearTtyMessageWindow(state);
         state.gg.getposx = 0;
