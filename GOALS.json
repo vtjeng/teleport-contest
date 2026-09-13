@@ -32406,7 +32406,7 @@
     {
       "id": "fix-mthrowu-venom-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster venom missile handling through mthrowu.c",
       "cFile": "mthrowu.c",
       "sessions": [],
@@ -32415,8 +32415,8 @@
       "spans": [
         {
           "name": "mthrowu-venom-class",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6b4cab5b83eb8ef70c5b1abb61a13eb12abb3386",
           "functions": [
             "drop_throw",
             "m_throw",
@@ -32430,8 +32430,11 @@
         "screens": 8108,
         "rng": 588295
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6b4cab5b83eb8ef70c5b1abb61a13eb12abb3386",
+      "delivered": {
+        "screens": 18,
+        "rng": 146
+      },
       "function": "m_throw",
       "session": "holdout/seed4500-knight-coverage",
       "step": 274,
@@ -32456,7 +32459,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1540
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "6b4cab5b83eb8ef70c5b1abb61a13eb12abb3386",
+        "screens": 8126,
+        "rng": 588441
+      }
     }
   ]
 }
