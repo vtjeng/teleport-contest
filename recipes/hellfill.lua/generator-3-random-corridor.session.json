@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4503,
+      "datetime": "20310101120000",
+      "nethackrc": "OPTIONS=name:HellMaze3,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "   n\u0016?\nk   \u001635\n"
+    }
+  ]
+}

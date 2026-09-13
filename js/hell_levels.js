@@ -62,6 +62,16 @@ function hell_thick_wall_maze(des, state, random = rn2) {
     }
 }
 
+// C ref: hellfill.lua hells[3]. The source leaves corrwid absent, so
+// lspo_level_init() supplies -1 and create_maze() consumes rnd(4) before
+// generating the maze. Keep wallthick fixed at one and retain the source
+// call order.
+export function hell_random_corridor_maze(des) {
+    des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+    des.level_flags('mazelevel', 'noflip');
+    des.level_init({ style: 'maze', wallthick: 1 });
+}
+
 function unsupportedHellGenerator(number) {
     throw new UnsupportedLevelChangeError(
         `hellfill generator ${number} not ported`,
@@ -73,7 +83,7 @@ function unsupportedHellGenerator(number) {
 export const HELL_GENERATORS = Object.freeze([
     () => unsupportedHellGenerator(1),
     () => unsupportedHellGenerator(2),
-    () => unsupportedHellGenerator(3),
+    hell_random_corridor_maze,
     () => unsupportedHellGenerator(4),
     hell_thick_wall_maze,
     () => unsupportedHellGenerator(6),
@@ -84,19 +94,25 @@ export const HELL_GENERATORS = Object.freeze([
 // rn2(n) draw plus one, and each object/monster/trap/gold call retains the
 // special-level API's source ordering and random placement.
 export function populatemaze(des, random = rn2) {
-    for (let i = 1; i <= mathRandom(8, random) + 11; ++i) {
+    const objectCount = mathRandom(8, random) + 11;
+    for (let i = 1; i <= objectCount; ++i) {
         if (percent(50, random)) des.object('*');
         else des.object();
     }
-    for (let i = 1; i <= mathRandom(10, random) + 2; ++i)
+    const gemCount = mathRandom(10, random) + 2;
+    for (let i = 1; i <= gemCount; ++i)
         des.object('`');
-    for (let i = 1; i <= mathRandom(3, random); ++i)
+    const minotaurCount = mathRandom(3, random);
+    for (let i = 1; i <= minotaurCount; ++i)
         des.monster({ id: PM_MINOTAUR, peaceful: 0 });
-    for (let i = 1; i <= mathRandom(5, random) + 7; ++i)
+    const monsterCount = mathRandom(5, random) + 7;
+    for (let i = 1; i <= monsterCount; ++i)
         des.monster({ peaceful: 0 });
-    for (let i = 1; i <= mathRandom(6, random) + 7; ++i)
+    const goldCount = mathRandom(6, random) + 7;
+    for (let i = 1; i <= goldCount; ++i)
         des.gold();
-    for (let i = 1; i <= mathRandom(6, random) + 7; ++i)
+    const trapCount = mathRandom(6, random) + 7;
+    for (let i = 1; i <= trapCount; ++i)
         des.trap();
 }
 

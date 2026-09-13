@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
     HELL_GENERATORS,
     hell_open_cavern,
+    hell_random_corridor_maze,
     hellfill,
 } from '../js/hell_levels.js';
 import { ROOM } from '../js/const.js';
@@ -55,7 +56,38 @@ test('hellfill keeps all seven source generator slots and selects arm 7', () => 
     assert.match(C_SOURCE, /-- 7: open cavern, "mines" with more space/);
     assert.equal(HELL_GENERATORS.length, 7);
     assert.ok(HELL_GENERATORS.every((generator) => typeof generator === 'function'));
+    assert.equal(HELL_GENERATORS[2], hell_random_corridor_maze);
     assert.equal(HELL_GENERATORS[6], hell_open_cavern);
+});
+
+// The generator-3 arm is selected when math.random(7) returns 3, which is
+// rn2(7)=2. Its maze descriptor deliberately omits corrwid; that omission
+// makes sp_lev.c use create_maze()'s rnd(4) default.
+test('hellfill selects generator 3 with a one-thick random-corridor maze', async () => {
+    const { calls, des } = descriptorLog();
+    const bounds = [];
+    await hellfill(des, roomState(), (bound) => {
+        bounds.push(bound);
+        if (bounds.length === 1) {
+            assert.equal(bound, 7);
+            return 2;
+        }
+        return 0;
+    });
+
+    assert.deepEqual(calls.slice(0, 5).map(({ method, args }) => ({
+        method,
+        args,
+    })), [
+        { method: 'level_init', args: [{ style: 'solidfill', fg: ' ', lit: 0 }] },
+        { method: 'level_flags', args: ['mazelevel', 'noflip'] },
+        { method: 'level_init', args: [{ style: 'maze', wallthick: 1 }] },
+        { method: 'stair', args: ['up'] },
+        { method: 'stair', args: ['down'] },
+    ]);
+    assert.deepEqual(bounds, [
+        7, 8, ...Array(12).fill(100), 10, 3, 5, 6, 6,
+    ]);
 });
 test('hellfill runs the open-cavern arm and common population tail', async () => {
     const { calls, des } = descriptorLog();
