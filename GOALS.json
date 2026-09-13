@@ -31141,6 +31141,61 @@
         "screens": 7505,
         "rng": 543153
       }
+    },
+    {
+      "id": "fix-rolling-boulder-blockpoint-seed0014",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Propagate boulder blockPoint lifecycle hooks through rolling-trap placement",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "selectionReason": "The highest-ranked development mismatch is seed0014 step 615. Source tracing locates the C contract at mkobj.c place_object(), with the JS defect in rolling-boulder caller hook propagation through trap_effects.js/trap.js.",
+      "detail": "Development session seed0014-dequa-fountain-explore, first mismatch stop at input step 615 (runwest H) after the crashing-rock message. JS place_object() in js/obj.js:2813-2863 correctly requires hooks.blockPoint for BOULDER (otyp 475). Upstream mkobj.c place_object() lines 2303-2334 calls block_point(x,y) for a boulder. The rolling-trap path is trap.c trapeffect_rolling_boulder_trap() 2661-2707 -> launch_obj() 3319-3331, 3568-3571; JS trap_effects.js force_launch_placement() 1685 and makeRollingBoulderLaunch() in trap.js:406 can call place_object() without the objectGenerationEnv-compatible hooks. Fix caller propagation while preserving the obj.js contract; do not special-case the session.",
+      "spans": [
+        {
+          "name": "place_object-rolling-boulder-hooks",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "place_object",
+            "trapeffect_rolling_boulder_trap",
+            "launch_obj"
+          ]
+        }
+      ],
+      "openedAt": "f93293c2056c8ede14cabb5021dc11943581d399",
+      "openStanding": {
+        "sha": "f93293c2056c8ede14cabb5021dc11943581d399",
+        "screens": 7505,
+        "rng": 543153
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "place_object",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 615,
+      "activeStanding": {
+        "sha": "f93293c2056c8ede14cabb5021dc11943581d399",
+        "screens": 7505,
+        "rng": 543153
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 615,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "blockPoint is not available for otyp 475",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 99
+        }
+      ]
     }
   ]
 }

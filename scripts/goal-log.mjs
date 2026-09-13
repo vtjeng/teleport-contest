@@ -447,27 +447,31 @@ Optional for all kinds:
   --sessions <a,b,...>        Related development or holdout/ sessions.
   --selection-reason <text>  Source-based reason for choosing this goal.
   --detail <text>            Supporting source and mismatch evidence.
+  --development-scan <path>  Use a saved development-only scan for selection.
 
 The goal ID must be new. Selection must satisfy the current mismatch queue.
 Queueing does not open the goal; use open-goal before planning a span.`,
     },
     'open-goal': {
         description: 'Open a queued goal or resume a parked goal.',
-        usage: '--id <id> [--selection-reason <text>]',
+        usage: '--id <id> [--selection-reason <text>] [--development-scan <path>]',
         details: 'Requires a queued or parked goal and a valid current selection.\n'
+            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.\n'
             + 'Captures the development standing; scoring inputs must be clean.',
     },
     'next-span': {
         description: 'Plan or resume the next span of a C or Lua source port.',
-        usage: '--goal <id>',
+        usage: '--goal <id> [--development-scan <path>]',
         details: 'Requires an open source port. Writes .cache/span-context.json\n'
+            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.\n'
             + 'for the selected span. For a divergence fix, use queue-span.',
     },
     'queue-span': {
         description: 'Queue a named span for a divergence fix.',
-        usage: '--goal <id> --name <name> [--functions <a,b,...>]',
+        usage: '--goal <id> --name <name> [--functions <a,b,...>] [--development-scan <path>]',
         details: 'Requires an open divergence-fix goal, a new span name, and a valid\n'
-            + 'current selection. For a C or Lua source port, use next-span.',
+            + 'current selection. For a C or Lua source port, use next-span.\n'
+            + '--development-scan may name a saved development-only scan under .cache/ or /tmp.',
     },
     'record-evidence': {
         description: 'Record verified source completion evidence for a goal.',
@@ -636,9 +640,9 @@ function readDevelopmentScan(path) {
     return JSON.parse(readFileSync(resolved, 'utf8'));
 }
 
-async function checkSelection(goal) {
+async function checkSelection(goal, scan) {
     const { assertGoalSelection, loadMismatchQueue } = await import('./mismatch-queue.mjs');
-    const queue = loadMismatchQueue();
+    const queue = loadMismatchQueue(scan);
     const candidate = assertGoalSelection(queue, goal);
     if (isSourcePort(goal) && !goal.sessions.length && candidate)
         goal.sessions = [...candidate.sessions];
@@ -717,7 +721,9 @@ async function main(args) {
             throw new Error(`goal already exists: ${options.id}`);
         }
         const goal = newGoal(options);
-        await checkSelection(goal);
+        const scan = options['development-scan']
+            ? readDevelopmentScan(options['development-scan']) : undefined;
+        await checkSelection(goal, scan);
         refreshCompletion(goal, null, store.goals);
         store.goals.push(goal);
         writeGoals(store);
@@ -732,7 +738,9 @@ async function main(args) {
             throw new Error(`goal ${goal.id} is ${goal.status}, not queued or parked`);
         }
         if (options['selection-reason']) goal.selectionReason = options['selection-reason'];
-        const queue = await checkSelection(goal);
+        const scan = options['development-scan']
+            ? readDevelopmentScan(options['development-scan']) : undefined;
+        const queue = await checkSelection(goal, scan);
         const opening = currentDevelopmentStanding();
         if (goal.openedAt == null) goal.openedAt = repositoryHead();
         if (goal.openStanding == null) goal.openStanding = opening;
@@ -767,13 +775,17 @@ async function main(args) {
             }
             // Reconsider priorities between spans. A queued or open helper
             // goal must not bypass new gameplay blockers merely by existing.
-            await checkSelection(goal);
+            const scan = options['development-scan']
+                ? readDevelopmentScan(options['development-scan']) : undefined;
+            await checkSelection(goal, scan);
             span = { name: spanName(next, goal.spans), status: 'queued', closedBy: null,
                 functions: next.functions };
             goal.spans.push(span);
             writeGoals(store);
         } else {
-            await checkSelection(goal);
+            const scan = options['development-scan']
+                ? readDevelopmentScan(options['development-scan']) : undefined;
+            await checkSelection(goal, scan);
         }
         const context = spanContext(goal, span);
         mkdirSync(join(PROJECT_ROOT, '.cache'), { recursive: true });
@@ -787,7 +799,9 @@ async function main(args) {
         const goal = findGoal(store, options.goal);
         if (isSourcePort(goal)) throw new Error('plan source-port spans with next-span');
         if (goal.status !== 'open') throw new Error('queue-span requires an open goal');
-        await checkSelection(goal);
+        const scan = options['development-scan']
+            ? readDevelopmentScan(options['development-scan']) : undefined;
+        await checkSelection(goal, scan);
         const spans = goalSpans(goal);
         if (spans.some((entry) => entry.name === options.name)) {
             throw new Error(`span already exists: ${options.name}`);
