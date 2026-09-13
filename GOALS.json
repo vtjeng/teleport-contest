@@ -30851,7 +30851,7 @@
     {
       "id": "port-getpos-terrain-symbol-search-seed0360",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port getpos() generic terrain-symbol search and not-found diagnostic",
       "cFile": "getpos.c",
       "sessions": [
@@ -30862,8 +30862,8 @@
       "spans": [
         {
           "name": "getpos",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "86453f83323a1f0b0d746d1123245a4c08f8eacf",
           "functions": [
             "getpos"
           ]
@@ -30875,15 +30875,18 @@
         "screens": 7501,
         "rng": 543153
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "86453f83323a1f0b0d746d1123245a4c08f8eacf",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "getpos",
           "line": 771,
           "endLine": 1170,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -30911,7 +30914,76 @@
           "recordedSteps": 833,
           "remainingScreensUpperBound": 114
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "getpos",
+            "implementation": "js/getpos.js",
+            "symbol": "getpos",
+            "sourceReview": "Read the complete upstream getpos.c getpos() definition in the selected range 771-1170, including the source-ordered movement, pick, automatic-description, force-mode, generic feature-symbol, not-found, and cleanup branches. Ported the generic matcher at 1039-1064 with compiled and active symbols, the excluded cmap families, trap and engraving aliases, the current/remembered/vibrating/seen scan order at 1066-1116, and the feature-specific refusal before force-mode direction handling. Replaced the earlier downstairs-only matcher so the existing '>' path uses the same source matcher, and carried known_vibrating_square_at()'s return-valued check without an injected substitute or new RNG/output path.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "dotravel",
+                "source": "cmd.c dotravel() calls getpos(&cc, TRUE, ...) for keyboard travel destinations; JavaScript js/cmd.js dotravel() awaits getpos() and then dispatches dotravel_target()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c rhack() dispatches the unprefixed travel command to dotravel(); JavaScript command dispatch reaches js/cmd.js dotravel() and the generic getpos() branch."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c do_look() calls getpos() for map lookup; JavaScript js/pager.js do_look() reaches getpos() through the ordinary cursor lookup caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/terrain-symbol-search-seed22032.session.json"
+            ],
+            "checkedAt": "86453f83323a1f0b0d746d1123245a4c08f8eacf"
+          }
+        ],
+        "entryPointReview": "The selected runnable entry point is forced keyboard travel target selection: js/cmd.js rhack() dispatches dotravel(), dotravel() prompts and awaits getpos(TRUE), and the independently chosen recipe sends the generic altar symbol '_' where no altar exists. The same getpos source branch is also reachable from pager.c do_look() through js/pager.js, while its ordinary cursor entry remains covered by existing whatis recordings. The new recording covers the generic not-found diagnostic, map output, cursor state, and the complete startup RNG prefix.",
+        "entryPoints": [
+          {
+            "name": "forced travel target selection with an unmatched terrain symbol",
+            "functions": [
+              "getpos"
+            ],
+            "recordings": [
+              "recordings/getpos.c/terrain-symbol-search-seed22032.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 729,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 104
+        }
+      ],
+      "closeStanding": {
+        "sha": "86453f83323a1f0b0d746d1123245a4c08f8eacf",
+        "screens": 7503,
+        "rng": 543153
+      }
     }
   ]
 }
