@@ -3,6 +3,7 @@
 // default ordinary and fast movement, the traditional pick, and Escape.
 
 import {
+    MAXTCHARS,
     COLNO,
     GPCOORDS_NONE,
     MV_RUN,
@@ -14,6 +15,7 @@ import {
     LOOK_VERBOSE,
     ROWNO,
     TIP_GETPOS,
+    VIBRATING_SQUARE,
     quitchars,
 } from './const.js';
 import {
@@ -33,9 +35,25 @@ import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { do_screen_description } from './pager.js';
-import { cmap_symbol_byte, S_dnstair } from './symbols.js';
+import {
+    cmap_symbol_byte,
+    MAXPCHARS,
+    S_arrow_trap,
+    S_corr,
+    S_darkroom,
+    S_engrcorr,
+    S_engroom,
+    S_hcdoor,
+    S_litcorr,
+    S_ndoor,
+    S_room,
+    S_stone,
+    S_trwall,
+    S_vodoor,
+} from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import { Invocation_lev } from './dungeon.js';
 
 export {
     LOOK_ONCE,
@@ -140,28 +158,66 @@ async function auto_describe(cx, cy, state) {
     cursorAt(cx, cy, state);
 }
 
-// C ref: getpos.c's feature-symbol matching and two-pass map scan
-// (1039-1109), narrowed to the ordinary `>` travel target. The complete C
-// matcher also admits traps, furniture, and other terrain symbols; this slice
-// only needs the known ordinary downstairs, while those target families stay
-// with later getpos slices. Check the active showsym as well as the compiled
-// default defsym: C accepts both spellings after a symbol customization.
-function downstairsGlyphMatches(glyph, key, state) {
-    if (!glyph_is_cmap(glyph) || glyph_to_cmap(glyph) !== S_dnstair)
+// C ref: getpos.c known_vibrating_square_at() (422-431). A genuine
+// vibrating square is discoverable by '~' only at the invocation position;
+// this excludes wizard-created fake vibrating traps that cannot occur in a
+// normal invocation-level map.
+function known_vibrating_square_at(x, y, state) {
+    if (!Invocation_lev(state.u?.uz, state)
+        || state.inv_pos?.x !== x || state.inv_pos?.y !== y) {
         return false;
-    const active = cmap_symbol_byte(S_dnstair, state);
-    const compiled = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_P + S_dnstair];
-    return key === active || key === compiled;
+    }
+    return (state.level?.traps ?? []).some((trap) => (
+        trap.tx === x && trap.ty === y
+        && trap.ttyp === VIBRATING_SQUARE
+        && trap.tseen
+    ));
 }
 
-function findDownstairs(key, cx, cy, state) {
+// C ref: getpos.c getpos() feature-symbol matching (1039-1064). C builds a
+// one-based matching[] table from both the compiled defsym and active
+// showsym bytes, excluding walls, rooms, corridors, and doors. The table also
+// gives '^' the complete trap family and an engraving symbol both engraving
+// families.
+function featureSymbolMatches(key, state) {
+    const matching = Array(MAXPCHARS).fill(0);
+    let count = 0;
+    for (let sidx = 0; sidx < MAXPCHARS; ++sidx) {
+        if ((sidx >= S_stone && sidx <= S_trwall)
+            || (sidx >= S_room && sidx <= S_darkroom)
+            || (sidx >= S_corr && sidx <= S_litcorr)
+            || (sidx >= S_vodoor && sidx <= S_hcdoor)
+            || sidx === S_ndoor) {
+            continue;
+        }
+        const compiled = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_P + sidx];
+        const active = cmap_symbol_byte(sidx, state);
+        const trapMatch = key === '^'
+            && sidx >= S_arrow_trap
+            && sidx < S_arrow_trap + MAXTCHARS;
+        const engravingMatch = key === cmap_symbol_byte(S_engroom, state)
+            && (sidx === S_engroom || sidx === S_engrcorr);
+        if (key === compiled || key === active || trapMatch || engravingMatch)
+            matching[sidx] = ++count;
+    }
+    return { matching, count };
+}
+
+function matchingCmapGlyph(glyph, matching) {
+    return glyph_is_cmap(glyph)
+        && matching[glyph_to_cmap(glyph)];
+}
+
+// C ref: getpos.c getpos() feature-symbol scan (1066-1116). The scan uses
+// current presentation, remembered glyph, a genuine vibrating square, and
+// seen terrain in that order, with a lower-right pass followed by an
+// upper-left pass.
+function findTerrainFeature(key, cx, cy, state) {
     const map = state.level;
     if (!map) return null;
+    const { matching, count } = featureSymbolMatches(key, state);
+    if (!count) return { found: false, matching: false };
 
-    // C scans from immediately after the cursor through the lower-right
-    // portion of the map, then wraps to the upper-left portion. It examines
-    // current presentation, remembered glyph, and finally seen terrain in
-    // that order; keep those three layers and the coordinate order intact.
     for (let pass = 0; pass <= 1; ++pass) {
         const loY = pass === 0 ? cy : 0;
         const hiY = pass === 0 ? ROWNO - 1 : cy;
@@ -171,27 +227,23 @@ function findDownstairs(key, cx, cy, state) {
             for (let x = loX; x <= hiX; ++x) {
                 const location = map.at(x, y);
                 if (!location) continue;
-                if (downstairsGlyphMatches(glyph_at(x, y, state), key, state))
-                    return { x, y };
+                if (matchingCmapGlyph(glyph_at(x, y, state), matching))
+                    return { found: true, x, y };
                 if (state.level.flags?.hero_memory
                     && !state.iflags?.terrainmode
-                    && downstairsGlyphMatches(
-                        location.remembered_glyph?.glyph,
-                        key,
-                        state,
-                    )) {
-                    return { x, y };
-                }
+                    && matchingCmapGlyph(
+                        location.remembered_glyph?.glyph, matching,
+                    ))
+                    return { found: true, x, y };
+                if (key === '~' && known_vibrating_square_at(x, y, state))
+                    return { found: true, x, y };
                 if (location.seenv
-                    && downstairsGlyphMatches(
-                        back_to_glyph(x, y, state), key, state,
-                    )) {
-                    return { x, y };
-                }
+                    && matchingCmapGlyph(back_to_glyph(x, y, state), matching))
+                    return { found: true, x, y };
             }
         }
     }
-    return null;
+    return { found: false, matching: true };
 }
 
 export async function getpos(ccp, force, goal, state = game) {
@@ -261,30 +313,6 @@ export async function getpos(ccp, force, goal, state = game) {
                 result = pickResult;
                 break;
             }
-            if (key === '>'.charCodeAt(0)) {
-                const found = findDownstairs(key, cx, cy, state);
-                if (found) {
-                    cx = found.x;
-                    cy = found.y;
-                    if (messageGiven) clearTtyMessageWindow(state);
-                    messageGiven = false;
-                    state.gg.getposx = cx;
-                    state.gg.getposy = cy;
-                    cursorAt(cx, cy, state);
-                    // C's foundc arm reaches nxtc first: it flushes the map
-                    // with the new cursor, then the next loop iteration runs
-                    // auto_describe(). Keep that two-step order here.
-                    await flush_screen(0);
-                    continue;
-                }
-                await ttyPline("Can't find dungeon feature '>'.", state);
-                messageGiven = true;
-                state.gg.getposx = cx;
-                state.gg.getposy = cy;
-                cursorAt(cx, cy, state);
-                await flush_screen(0);
-                continue;
-            }
             let moved = null;
             if (movecmd(key, MV_WALK, state)) {
                 moved = truncate_to_map(cx, cy, state.u.dx, state.u.dy);
@@ -319,6 +347,38 @@ export async function getpos(ccp, force, goal, state = game) {
                 state.gg.getposy = cy;
                 cursorAt(cx, cy, state);
                 continue;
+            }
+            // C ref: getpos.c:1039-1116. A non-quitchar can select the next
+            // map square whose current, remembered, or seen terrain glyph
+            // carries the requested feature symbol. A matching symbol with
+            // no visible square receives a feature-specific diagnostic;
+            // symbols with no matching terrain fall through to direction
+            // handling below.
+            if (!quitchars.includes(String.fromCharCode(key))) {
+                const feature = findTerrainFeature(key, cx, cy, state);
+                if (feature?.found) {
+                    cx = feature.x;
+                    cy = feature.y;
+                    if (messageGiven) clearTtyMessageWindow(state);
+                    messageGiven = false;
+                    state.gg.getposx = cx;
+                    state.gg.getposy = cy;
+                    cursorAt(cx, cy, state);
+                    await flush_screen(0);
+                    continue;
+                }
+                if (feature?.matching) {
+                    await ttyPline(
+                        `Can't find dungeon feature '${String.fromCharCode(key)}'.`,
+                        state,
+                    );
+                    messageGiven = true;
+                    state.gg.getposx = cx;
+                    state.gg.getposy = cy;
+                    cursorAt(cx, cy, state);
+                    await flush_screen(0);
+                    continue;
+                }
             }
             // C ref: getpos.c:1126-1141. Force mode prints a diagnostic for
             // an unrecognized non-quitchar, then reaches nxtc and keeps

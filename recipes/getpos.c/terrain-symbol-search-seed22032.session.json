@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22032,
+      "datetime": "20320507080910",
+      "nethackrc": "OPTIONS=name:TerrainProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "__"
+    }
+  ],
+  "comment": "An independently chosen seed and datetime reach cmd.c dotravel(), then getpos.c's generic terrain-symbol search with an unmatched altar symbol. The recording ends after the diagnostic screen."
+}

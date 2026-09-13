@@ -527,6 +527,24 @@ test('forced getpos reports an invalid direction before Escape', async () => {
     );
 });
 
+test('forced getpos reports an unmatched terrain symbol before Escape', async () => {
+    const segment = loadWhatisMapCursorTerrainRecipe().segments[0];
+    await runSegment({ ...segment, moves: WHATIS_SETUP });
+    game.flags.tips = false;
+    game.flags.verbose = false;
+    game.iflags.autodescribe = true;
+
+    const coordinate = { x: game.u.ux, y: game.u.uy };
+    // The underscore is the source-defined altar symbol. This ordinary D:1
+    // map has no altar, so getpos.c's matching table is nonempty but its
+    // two-pass current/remembered/seen scan finds no matching square.
+    game.nhDisplay.pushKey('_'.charCodeAt(0));
+    game.nhDisplay.pushKey(0x1B);
+
+    assert.equal(await getpos(coordinate, true, 'a target', game), -1);
+    assert.equal(game._ttyToplines, "Can't find dungeon feature '_'.");
+});
+
 test('typed fountain lookup displays its entry through the next boundary',
     async () => {
         const [segment] = loadWhatisTypedInventoryRecipe().segments;
