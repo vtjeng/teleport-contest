@@ -32465,6 +32465,70 @@
         "screens": 8126,
         "rng": 588441
       }
+    },
+    {
+      "id": "fix-monmove-hideunder-seed4500",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix monster re-hiding under an object after movement",
+      "cFile": "monmove.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The refreshed fixed 44-session mismatch queue ranks holdout/seed4500-knight-coverage first at step 292. Read-only source tracing confirms a bounded postmov() concealment branch with an existing hideunder() presentation dependency.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage stops at input step 292 with simple monster action requires monster hiding under an object. Upstream monmove.c postmov() lines 1660-1699, after MMOVE_MOVED or MMOVE_DONE, calls hideunder() for M1_CONCEAL species such as cobra when already mundetected or rn2(5) succeeds, then newsym(). JS owner js/monmove.js postmov() around lines 3268-3295 currently refuses the object branch; js/mon.js hideunder() around lines 5303-5360 rejects visible concealment and needs the C-equivalent message/redraw contract. Existing can_hide_under_obj() and m_move() stay-hidden logic already mirror C. Production path is allmain.js advanceElapsedTurn -> movemon_singlemon -> dochug -> unported_monster_actions.js moveSimpleOrdinary -> monmove.js m_move/postmov -> mon.js hideunder. Investigator used explicit sessions/holdout/seed4500-knight-coverage.session.json and found step 293 displays You see the cobra slither under a statue.; no files or score artifacts were changed.",
+      "spans": [
+        {
+          "name": "monmove-hideunder",
+          "status": "closed",
+          "closedBy": "1d9adcc331aafc9e63614c11977704fab113276e",
+          "functions": [
+            "postmov",
+            "hideunder"
+          ]
+        }
+      ],
+      "openedAt": "c13b9b8eea293bf54647651979a9f47d85cbfd2a",
+      "openStanding": {
+        "sha": "c13b9b8eea293bf54647651979a9f47d85cbfd2a",
+        "screens": 8126,
+        "rng": 588441
+      },
+      "closedAt": "1d9adcc331aafc9e63614c11977704fab113276e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "postmov",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 292,
+      "activeStanding": {
+        "sha": "c13b9b8eea293bf54647651979a9f47d85cbfd2a",
+        "screens": 8126,
+        "rng": 588441
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 292,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires monster hiding under an object",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1522
+        }
+      ],
+      "closeStanding": {
+        "sha": "1d9adcc331aafc9e63614c11977704fab113276e",
+        "screens": 8126,
+        "rng": 588441
+      }
     }
   ]
 }
