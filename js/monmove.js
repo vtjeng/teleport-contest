@@ -233,7 +233,6 @@ import {
     can_teleport,
     dmgtype,
     flesh_petrifies,
-    haseyes,
     hides_under,
     is_animal,
     is_clinger,
