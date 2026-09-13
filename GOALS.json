@@ -30722,7 +30722,7 @@
     {
       "id": "div-hack-domove-vision-redraw-seed0030",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix ordinary hero movement vision/display redraw after domove_core()",
       "cFile": "hack.c",
       "sessions": [
@@ -30733,8 +30733,8 @@
       "spans": [
         {
           "name": "domove-vision-redraw",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f289a8a6028f6db8e9fa65eb7b2bd2831e1a7bc6",
           "functions": [
             "domove_core",
             "vision_recalc",
@@ -30748,8 +30748,11 @@
         "screens": 7479,
         "rng": 536444
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f289a8a6028f6db8e9fa65eb7b2bd2831e1a7bc6",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "function": "domove_core",
       "session": "seed0030-ten-diverse-deaths",
       "step": 1830,
@@ -30774,7 +30777,12 @@
           "recordedSteps": 1953,
           "remainingScreensUpperBound": 123
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "f289a8a6028f6db8e9fa65eb7b2bd2831e1a7bc6",
+        "screens": 7481,
+        "rng": 536444
+      }
     }
   ]
 }
