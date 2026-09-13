@@ -31834,7 +31834,7 @@
     {
       "id": "port-dothrow-hurtle-step195-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dothrow path traversal and hurtle movement used by physical jump landing",
       "cFile": "dothrow.c",
       "sessions": [
@@ -31845,8 +31845,8 @@
       "spans": [
         {
           "name": "walk_path..hurtle_step",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14",
           "functions": [
             "walk_path",
             "hurtle_jump",
@@ -31860,29 +31860,32 @@
         "screens": 8066,
         "rng": 587644
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "walk_path",
           "line": 656,
           "endLine": 741,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "hurtle_jump",
           "line": 742,
           "endLine": 772,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "hurtle_step",
           "line": 773,
           "endLine": 976,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -31910,7 +31913,109 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1619
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "walk_path",
+            "implementation": "js/dothrow.js",
+            "symbol": "walk_path",
+            "sourceReview": "Read all of dothrow.c walk_path() at lines 656-735. Ported both x-major and y-major Bresenham loops, callback order, start-cell exclusion, early-stop behavior, and rewind to the last successful coordinate. The function is pure apart from invoking its supplied callback and has no unported callee.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "jumpLandingPath",
+                "source": "apply.c jump() computes max(abs(dx),abs(dy)) and calls walk_path(&uc,&cc,hurtle_jump,&range) at lines 2140-2153."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14"
+          },
+          {
+            "name": "hurtle_jump",
+            "implementation": "js/dothrow.js",
+            "symbol": "hurtle_jump",
+            "sourceReview": "Read all of dothrow.c hurtle_jump() at lines 742-752. Ported temporary I_SPECIAL assignment to EWwalking, source callback delegation, and restoration even when the callback stops. Its callee hurtle_step is ported in this span.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "jumpLandingPath",
+                "source": "apply.c jump() passes hurtle_jump as walk_path's callback at lines 2140-2153."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/jump-knight-hurtle-step.session.json"
+            ],
+            "checkedAt": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14"
+          },
+          {
+            "name": "hurtle_step",
+            "implementation": "js/dothrow.js",
+            "symbol": "hurtle_step",
+            "sourceReview": "Read all of dothrow.c hurtle_step() at lines 773-972, including map validation, region transitions, wall/door/bar/boulder/edge/crevice collisions and damage, monster collisions and wakeups, Sokoban diagonal stopping, punishment ball movement, hero movement and vision/terrain/room updates, pool/lava handling, trap branches, range decrement, and delay ordering. Ported ball.c drag_ball()/move_bc() lines 437-830 because this function consumes drag_ball's return and coordinates. The C instapetrify() and minstapetrify() callees remain recorded with note_unported() at their source branches; all other called operations are wired to existing JavaScript implementations.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hurtle_jump",
+                "source": "dothrow.c hurtle_jump() delegates to hurtle_step() at lines 748-749."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "jumpLandingPath",
+                "source": "apply.c jump() reaches hurtle_step indirectly through walk_path and hurtle_jump at lines 2140-2153."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/jump-knight-hurtle-step.session.json"
+            ],
+            "checkedAt": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14"
+          }
+        ],
+        "entryPointReview": "The selected range has one running entry point: apply.c jump()'s physical landing path, which calls walk_path with hurtle_jump and therefore hurtle_step. Later dothrow.c hurtle() and mhurtle() callers are outside this span and remain downstream entry points. The physical jump recipe reaches the complete clear-path callback sequence.",
+        "entryPoints": [
+          {
+            "name": "apply.c jump physical landing path",
+            "functions": [
+              "walk_path",
+              "hurtle_jump",
+              "hurtle_step"
+            ],
+            "recordings": [
+              "recordings/apply.c/jump-knight-hurtle-step.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 195,
+          "kind": "cursor",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1619
+        }
+      ],
+      "closeStanding": {
+        "sha": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14",
+        "screens": 8066,
+        "rng": 587644
+      }
     }
   ]
 }
