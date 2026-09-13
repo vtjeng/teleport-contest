@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90173,
+      "datetime": "20010516103000",
+      "nethackrc": "OPTIONS=name:Scoutpet-conversations,role:Priest,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "#cl#chat\\n#chat\n#chat\nl#chat\nk j#chat\nlk#chat\nl#chat\nl#chat\n\u001bjjllkkhhjjllkkhhjjllkkhhjjllkkhhjjllkkhhll#chat\nbi\u001b"
+    }
+  ]
+}

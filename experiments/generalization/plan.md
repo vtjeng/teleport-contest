@@ -268,6 +268,53 @@ families. Record whether the C game actually reached the mission, including
 missed targets and valid early endings. These are expanding development
 challenges, not a claimed proxy distribution for the remote competition set.
 
+## Second challenge batch
+
+The user authorized this batch on 2026-09-13 UTC, while the main agent
+continues implementation. Its isolated worktree combines main `ba5a8b3f`
+with the opening branch at `96a38147`; integration commit `6d1b6c9d`
+preserves both branches' score events. The four missions below were assigned
+before their JavaScript results were inspected. Each uses a private C
+installation and a fresh seed and date. The explorers receive no JavaScript
+results or fixed-corpus recordings.
+
+| Mission | Character and setup | Intended variation |
+| --- | --- | --- |
+| pet-conversations | Ordinary human Priest, seed 90173 | Chat before and after pet activity, leave and return, repeat or cancel direction selection, and attempt another creature when naturally reachable. |
+| terrain-transitions | Human Wizard, seed 90174; debug setup | Put on and remove levitation equipment, revisit terrain, and compare interactions while airborne and grounded. |
+| monster-transformations | Human Wizard, seed 90175; debug setup | Transform a monster, attempt an equipped humanoid state, and interact again after its form changes. |
+| sustained-journey | Ordinary dwarven Valkyrie, seed 90176 | Explore across levels, manage inventory and food, revisit an earlier place, and sustain a longer history when survival and the input budget allow. |
+
+The existing explorer limits each run to 250 successful input keys or 15
+minutes. Short setup cases and sustained ordinary play serve different
+purposes; input count does not establish gameplay length. Actual reached
+behaviors, missed targets, valid early endings, and independent replay results
+determine the case descriptions. JavaScript success does not determine
+admission.
+
+All four final recordings matched independent C replays exactly and were
+admitted before JavaScript evaluation. They add **533 screens**, bringing the
+manifest to nine cases and 918 screens.
+
+| Case | Screens / final game turn | Reached behavior and limits |
+| --- | ---: | --- |
+| pet-conversations | 113 / 48 | Hostile jackal growl, pet bark, combat and corpse eating, eating/yip responses, empty target, cancellation, and leaving and returning. No inventory feeding or level transition. |
+| terrain-transitions | 137 / 31 | Ring on/off, stair prompts, airborne pool/lava crossings, grounded avoidance, water entry, item dilution, crawl-out and fountain inspection. No descent, grounded lava entry or fountain drinking. |
+| monster-transformations | 81 / 2 | Equipped soldier becomes a dragon; armor is destroyed and shield, helmet and boots fall. A subsequent attack provokes fatal retaliation before a second transformation. |
+| sustained-journey | 202 / 208 | Ordinary exploration, rotten-food confusion, lamp use, cancellation, searching and combat. Ends alive on D:1; the explorer did not find downstairs and declined the surface exit. |
+
+The soldier setup requested taming, but `dog.c tamedog` rejects human monsters
+after pacifying them. Its actual state was peaceful and non-tame. The recipe
+explicitly enables the debug `monpolycontrol` option; this configuration was
+added during C exploration and is present in both final reproducible runs.
+
+This batch also exposes limits in mission generation. Menu input errors are
+valid recorded inputs but do not establish additional behavioral coverage.
+The ordinary journey reached the intended duration without reaching another
+level. Future missions should use verified command syntax and distinguish
+navigation success from time spent searching; source-guided debug level setup
+can supply deeper-state cases when ordinary navigation misses its target.
+
 ## Monitoring and validation
 
 `scripts/monitor-c-explorers.mjs --runs <run-directory>` serves original

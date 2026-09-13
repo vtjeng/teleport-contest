@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90174,
+      "datetime": "20010620124500",
+      "nethackrc": "OPTIONS=name:Scoutterrain-transitions,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017 \u0017ring of levitation\\n\nPpr\u0017ring of levitation\nPql l<h<nRq <nlPql \u0017pool\n lhlhlRq h h mh l l l lPql \u0017lava\nhlhRq l:\u001bk\u0017fountain\n:.kkjjhhl l"
+    }
+  ]
+}
