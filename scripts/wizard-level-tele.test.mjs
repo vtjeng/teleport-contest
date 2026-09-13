@@ -7,8 +7,9 @@
 // routes, both refusals an ordinary hero meets, the Escape that cancels, and
 // three shapes of echoed line. The assertions here pin what those recordings
 // cannot show -- the refusal class the command seam has to convert, the four
-// answers level_tele() classifies before a destination exists, and the
-// random-number call a confused hero spends at this prompt.
+// answers level_tele() classifies before a destination exists, the numeric
+// special-level schedule, and the random-number call a confused hero spends
+// at this prompt.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -31,7 +32,6 @@ import {
     maybe_lvltport_feedback,
     UnsupportedLevelChangeError,
 } from '../js/do.js';
-import { Is_special } from '../js/dungeon.js';
 import {
     CMD_M_PREFIX, IFBURIED, WIZMODECMD, extcmdlist,
 } from '../js/extcmdlist_data.js';
@@ -288,37 +288,21 @@ test('level-teleport decimal conversion matches the recorder ABI', () => {
         assert.equal(cAtoi(text), expected, text);
 });
 
-test('a numeric special level refuses before scheduling any transition',
+test('a numeric special level schedules through the common destination tail',
     async () => {
         const { state } = schedulableLevelTeleState('2');
+        // The synthetic Oracle entry uses dlevel 2 to keep get_level()'s
+        // destination within the test dungeon while exercising the
+        // source-defined numeric special-level path.
         const special = { proto: 'oracle', dlevel: { dnum: 0, dlevel: 2 } };
         state.specialLevels = [special];
-        assert.equal(Is_special({ dnum: 0, dlevel: 2 }, state), special);
-
-        const before = {
-            utolev: { ...state.u.utolev },
-            utotype: state.u.utotype,
-            gd: {
-                dfr_pre_msg: state.gd?.dfr_pre_msg,
-                dfr_post_msg: state.gd?.dfr_post_msg,
-            },
-        };
-        await assert.rejects(
-            () => level_tele(state),
-            (error) => {
-                assert.equal(
-                    error.reason,
-                    'level_tele() resolving a numeric special-level destination',
-                );
-                return true;
-            },
+        await level_tele(state);
+        assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 2 });
+        assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+        assert.equal(
+            state.gd.dfr_post_msg,
+            'You materialize on a different level!',
         );
-        assert.deepEqual(state.u.utolev, before.utolev);
-        assert.equal(state.u.utotype, before.utotype);
-        assert.deepEqual({
-            dfr_pre_msg: state.gd?.dfr_pre_msg,
-            dfr_post_msg: state.gd?.dfr_post_msg,
-        }, before.gd);
         assert.deepEqual(getRngLog(), []);
     });
 

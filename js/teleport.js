@@ -76,7 +76,6 @@ import {
 } from './const.js';
 import {
     In_hell,
-    Is_special,
     On_W_tower_level,
     depth,
     dunlev_reached,
@@ -1713,8 +1712,9 @@ export function random_teleport_level(state = game) {
 // literal-answer classification, recorder-ABI decimal conversion, topology
 // resolution for an ordinary positive main-dungeon destination, its guards,
 // schedule_goto(), and the confused random_levtport path through
-// random_teleport_level(). Named, non-positive, special-level and other
-// explicitly unsupported destinations stop at their source branch.
+// random_teleport_level(). Named, non-positive and other explicitly
+// unsupported destinations stop at their source branch. Numeric special-level
+// destinations use goto_level()'s source-backed special-level loader.
 //
 // teleport.c:1174-1184's iflags.debug_fuzzer arm is omitted rather than
 // refused, for the reason cmd.c can_do_extcmd()'s fuzzer arm is: nothing in
@@ -1947,21 +1947,9 @@ export async function level_tele(state = game) {
         return;
     }
 
-    // A numeric depth can be occupied by a special level even though
-    // lev_by_name() returned zero. C has no guard here; it proceeds to
-    // schedule_goto() unconditionally. This JS guard refuses special levels
-    // whose loaders are not yet ported. Quest special levels have loaders,
-    // and the procedural Rogue level now has its makelevel() branch, so both
-    // are admitted here. The random_levtport path skips this guard because C
-    // applies no Is_special() check after random_teleport_level().
-    if (!randomPath && Is_special(newlevel, state)
-        && !In_quest(newlevel)
-        && !on_level(newlevel, state.rogue_level)) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() resolving a numeric special-level destination',
-        );
-    }
-
+    // C has no special-level guard here: numeric destinations always reach
+    // schedule_goto(). deferred_goto() then lets goto_level() dispatch the
+    // destination through mklev.c makelevel() and its registered loader.
     schedule_goto(
         newlevel,
         UTOTYPE_NONE,
