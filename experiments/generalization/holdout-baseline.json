@@ -1,0 +1,2281 @@
+{
+  "version": 1,
+  "implementation": "a8890744786a48de9b20926acafa3c16a777dc67",
+  "openedAt": "2026-09-12T23:30:36.884Z",
+  "measurement": "Official local runner with the repository serializer fix, before any holdout-driven game change.",
+  "scorerFiles": {
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/terminal.js": "0978b01c0048ba422cbb8b5c33cec18a1b1505afb1d3a308ee0961316b1b8007",
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c"
+  },
+  "sets": {
+    "development": {
+      "measuredAt": "2026-09-12T23:32:00.472Z",
+      "summary": {
+        "sessions": {
+          "passed": 24,
+          "total": 33,
+          "errors": 0
+        },
+        "screens": {
+          "matched": 7355,
+          "total": 7765
+        },
+        "rngCalls": {
+          "matched": 536167,
+          "total": 610816
+        },
+        "cursors": {
+          "matched": 7480,
+          "total": 7765
+        },
+        "segments": 45,
+        "medianScreens": 98,
+        "minScreens": 23,
+        "maxScreens": 1953,
+        "sessionsOver500Screens": 3,
+        "configuredDebugSessions": 9,
+        "largestThreeScreens": 3500,
+        "meanSessionScreenPercent": 98.02765748400248
+      },
+      "sessions": [
+        {
+          "path": "sessions/seed0004-feeding-pony.session.json",
+          "sha256": "2d9441398ce7dcf35bcff30dbd055f503bf75afc574cdd59cf440c767fa26b57",
+          "segments": [
+            {
+              "seed": 4,
+              "datetime": "20260414173108",
+              "nethackrc": "OPTIONS=symset:DECgraphics\n",
+              "moves": 408,
+              "screens": 409
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 409,
+              "total": 409
+            },
+            "rngCalls": {
+              "matched": 12084,
+              "total": 12084
+            },
+            "cursors": {
+              "matched": 409,
+              "total": 409
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 409,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0006-wizard-water-demon.session.json",
+          "sha256": "bdfe79feeb5f1ab3483f3affcfc6417ce7c442e13d8b802b6a85f720123401c3",
+          "segments": [
+            {
+              "seed": 6,
+              "datetime": "20260503024327",
+              "nethackrc": "OPTIONS=symset:DECgraphics\n",
+              "moves": 122,
+              "screens": 123
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 123,
+              "total": 123
+            },
+            "rngCalls": {
+              "matched": 6736,
+              "total": 6736
+            },
+            "cursors": {
+              "matched": 123,
+              "total": 123
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 123,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0007-rogue-snake-swamp.session.json",
+          "sha256": "61fe76d79a032d78337f0605e376f5303aa63360ee00303f31a5fa0409439411",
+          "segments": [
+            {
+              "seed": 7,
+              "datetime": "20260503025436",
+              "nethackrc": "OPTIONS=symset:DECgraphics\n",
+              "moves": 301,
+              "screens": 302
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 302,
+              "total": 302
+            },
+            "rngCalls": {
+              "matched": 16373,
+              "total": 16373
+            },
+            "cursors": {
+              "matched": 302,
+              "total": 302
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 302,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0012-monk-vault-escort.session.json",
+          "sha256": "d3712a7842a616d91a2d275610ea01b5416202b79812aa42b378f06af1f5e72e",
+          "segments": [
+            {
+              "seed": 12,
+              "datetime": "20260503045501",
+              "nethackrc": "OPTIONS=symset:DECgraphics\n",
+              "moves": 307,
+              "screens": 308
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 307,
+              "total": 308
+            },
+            "rngCalls": {
+              "matched": 13878,
+              "total": 13878
+            },
+            "cursors": {
+              "matched": 307,
+              "total": 308
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 308,
+            "boundary": null,
+            "divergence": {
+              "screen": {
+                "index": 307,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 307,
+                  "key": "k"
+                },
+                "kind": "ch",
+                "row": 0,
+                "column": 31,
+                "cCell": {
+                  "ch": "-",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "rng": {
+                "index": 13878,
+                "cCaller": null,
+                "jsEntry": "rn2(5)=2",
+                "stepIndex": null
+              },
+              "cursor": {
+                "index": 307,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 307,
+                  "key": "k"
+                },
+                "cCursor": [
+                  39,
+                  0,
+                  1
+                ],
+                "jsCursor": [
+                  64,
+                  8,
+                  1
+                ]
+              },
+              "serializeBug": false
+            },
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0013-friday13-save-then-fullmoon-restore.session.json",
+          "sha256": "527d3c5c126c8ea4640100236df2d889ffcbef601903ba20e0d935262e42ef73",
+          "segments": [
+            {
+              "seed": 13,
+              "datetime": "20001013090000",
+              "nethackrc": "OPTIONS=name:Sneaky,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=disclose:yi ya yv yg yc yo\n",
+              "moves": 48,
+              "screens": 49
+            },
+            {
+              "seed": 99999,
+              "datetime": "20001111120000",
+              "nethackrc": "OPTIONS=name:Sneaky,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=disclose:yi ya yv yg yc yo\n",
+              "moves": 49,
+              "screens": 50
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 99,
+              "total": 99
+            },
+            "rngCalls": {
+              "matched": 4804,
+              "total": 4804
+            },
+            "cursors": {
+              "matched": 99,
+              "total": 99
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 99,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0013-rogue-friday13-combat.session.json",
+          "sha256": "b560d381f017f1e4f0a051a3e3a1a536a942b3e4180d4edb55a4594e95a848ca",
+          "segments": [
+            {
+              "seed": 13,
+              "datetime": "20001013090000",
+              "nethackrc": "OPTIONS=name:Sneaky,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=disclose:yi ya yv yg yc yo\n",
+              "moves": 58,
+              "screens": 59
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 59,
+              "total": 59
+            },
+            "rngCalls": {
+              "matched": 4838,
+              "total": 4838
+            },
+            "cursors": {
+              "matched": 59,
+              "total": 59
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 59,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0014-dequa-fountain-explore.session.json",
+          "sha256": "126843633c1a549b633cb0b8dfcd55d32742adabec1fff4fcaa9136dc949e01d",
+          "segments": [
+            {
+              "seed": 14,
+              "datetime": "20260503050437",
+              "nethackrc": "OPTIONS=symset:DECgraphics\nOPTIONS=runmode:walk\n",
+              "moves": 713,
+              "screens": 714
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 595,
+              "total": 714
+            },
+            "rngCalls": {
+              "matched": 36358,
+              "total": 59178
+            },
+            "cursors": {
+              "matched": 595,
+              "total": 714
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 595,
+            "boundary": "unsupported initial-level monster creation: random coordinates outside mklev",
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0015-valk-level2-pit-dog-wait.session.json",
+          "sha256": "96672e20abb286a6e5436403e9850b57461cd5b70333912fcf45745a63b4a302",
+          "segments": [
+            {
+              "seed": 15,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Astrid,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 43,
+              "screens": 44
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 44,
+              "total": 44
+            },
+            "rngCalls": {
+              "matched": 8563,
+              "total": 8563
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 44,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0016-healer-newmoon-eat-zap.session.json",
+          "sha256": "4624c541cd9d68575f36ba38c919a77468fd57b9bee2def3422d13142044b0e4",
+          "segments": [
+            {
+              "seed": 16,
+              "datetime": "20000205090000",
+              "nethackrc": "OPTIONS=name:Healix,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!autopickup,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=disclose:yi ya yv yg yc yo\n",
+              "moves": 35,
+              "screens": 36
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 36
+            },
+            "rngCalls": {
+              "matched": 3656,
+              "total": 3656
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 36
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 36,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0017-samurai-altar-pray.session.json",
+          "sha256": "f481087f915c6a09b3061dbd6c174f174c27915b203043affc9f6b2adaff3045",
+          "segments": [
+            {
+              "seed": 17,
+              "datetime": "20000801190000",
+              "nethackrc": "OPTIONS=role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=autopickup,pickup_types:%\nOPTIONS=!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=runmode:walk\n",
+              "moves": 66,
+              "screens": 67
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 67
+            },
+            "rngCalls": {
+              "matched": 3465,
+              "total": 3465
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 67
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 67,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0030-ten-diverse-deaths.session.json",
+          "sha256": "f19b80b4261aa820589732ef2d17ddbac7c9d5c2033b6673e2a436600d3c1eb6",
+          "segments": [
+            {
+              "seed": 31,
+              "datetime": "20260101120000",
+              "nethackrc": "OPTIONS=name:Quincy,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 78,
+              "screens": 79
+            },
+            {
+              "seed": 32,
+              "datetime": "20260108120000",
+              "nethackrc": "OPTIONS=name:Brigid,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 123,
+              "screens": 124
+            },
+            {
+              "seed": 33,
+              "datetime": "20260115120000",
+              "nethackrc": "OPTIONS=name:Aleric,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 92,
+              "screens": 93
+            },
+            {
+              "seed": 34,
+              "datetime": "20260122120000",
+              "nethackrc": "OPTIONS=name:Beatrix,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 290,
+              "screens": 291
+            },
+            {
+              "seed": 35,
+              "datetime": "20260129120000",
+              "nethackrc": "OPTIONS=name:Caspar,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 197,
+              "screens": 198
+            },
+            {
+              "seed": 36,
+              "datetime": "20260205120000",
+              "nethackrc": "OPTIONS=name:Daxter,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 235,
+              "screens": 236
+            },
+            {
+              "seed": 37,
+              "datetime": "20260212120000",
+              "nethackrc": "OPTIONS=name:Elara,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 252,
+              "screens": 253
+            },
+            {
+              "seed": 38,
+              "datetime": "20260219120000",
+              "nethackrc": "OPTIONS=name:Florian,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 171,
+              "screens": 172
+            },
+            {
+              "seed": 39,
+              "datetime": "20260226120000",
+              "nethackrc": "OPTIONS=name:Galen,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 38,
+              "screens": 39
+            },
+            {
+              "seed": 40,
+              "datetime": "20260305120000",
+              "nethackrc": "OPTIONS=name:Hermione,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 467,
+              "screens": 468
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 1827,
+              "total": 1953
+            },
+            "rngCalls": {
+              "matched": 105252,
+              "total": 105529
+            },
+            "cursors": {
+              "matched": 1928,
+              "total": 1953
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 1953,
+            "boundary": null,
+            "divergence": {
+              "screen": {
+                "index": 1827,
+                "location": {
+                  "segmentIndex": 9,
+                  "stepIndex": 342,
+                  "key": "k"
+                },
+                "kind": "ch",
+                "row": 0,
+                "column": 0,
+                "cCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": "E",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "rng": {
+                "index": 105108,
+                "cEntry": "rn2(32)=8",
+                "cCaller": "m_move(monmove.c:1963)",
+                "jsEntry": "rn2(10)=8",
+                "location": {
+                  "segmentIndex": 9,
+                  "stepIndex": 338,
+                  "key": "u"
+                },
+                "stepIndex": 1823
+              },
+              "cursor": {
+                "index": 1830,
+                "location": {
+                  "segmentIndex": 9,
+                  "stepIndex": 345,
+                  "key": "k"
+                },
+                "cCursor": [
+                  28,
+                  15,
+                  1
+                ],
+                "jsCursor": [
+                  60,
+                  0,
+                  1
+                ]
+              },
+              "serializeBug": false
+            },
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0077-rogue-chargen.session.json",
+          "sha256": "2cf0b6e5e758bf365606277892b2a82c7c69b7d1ae8d1c51c0863a0fc28eebef",
+          "segments": [
+            {
+              "seed": 77,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=disclose:yi ya yv yg yc yo\n",
+              "moves": 32,
+              "screens": 33
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 33
+            },
+            "rngCalls": {
+              "matched": 3242,
+              "total": 3242
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 33
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 33,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0102-ranger-name-cancel.session.json",
+          "sha256": "066e014d0112c99657b612bc6c5bbf3e41e9168f12aaa752cbc595d6073b1516",
+          "segments": [
+            {
+              "seed": 102,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:ricky,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 24,
+              "screens": 25
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 25
+            },
+            "rngCalls": {
+              "matched": 4485,
+              "total": 4485
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 25
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 25,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0103-knight-ride-pony.session.json",
+          "sha256": "13d7c3b742b163e8071dc489e175597c7e869ec0ff361be30d03debc79e75aab",
+          "segments": [
+            {
+              "seed": 103,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Sir,role:Knight,race:human,gender:male,align:lawful\n",
+              "moves": 59,
+              "screens": 60
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 60,
+              "total": 60
+            },
+            "rngCalls": {
+              "matched": 2640,
+              "total": 2640
+            },
+            "cursors": {
+              "matched": 60,
+              "total": 60
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 60,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0104-knight-ride-combat.session.json",
+          "sha256": "794ff8627df3d933c034575fdf5977e47614a44ab4f8dd310ffc65c497353298",
+          "segments": [
+            {
+              "seed": 104,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Sir,role:Knight,race:human,gender:male,align:lawful\n",
+              "moves": 42,
+              "screens": 43
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 43
+            },
+            "rngCalls": {
+              "matched": 3223,
+              "total": 3223
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 43
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 43,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0105-valk-chat-lamp-ration.session.json",
+          "sha256": "054e8e5fbe7421a2d69fbcaaac2943544e22306eea17167b1c019654d7fac247",
+          "segments": [
+            {
+              "seed": 105,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Astrid,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 29,
+              "screens": 30
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 30
+            },
+            "rngCalls": {
+              "matched": 2499,
+              "total": 2499
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 30
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 30,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0107-samurai-twoweapon-enhance.session.json",
+          "sha256": "ef01940de5d7fe5bdfb539d2aaa6ead73ee23d199b4eeb0ceaf20bd3243fd10a",
+          "segments": [
+            {
+              "seed": 107,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Bushi,role:Samurai,race:human,gender:male,align:lawful\n",
+              "moves": 97,
+              "screens": 98
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 98,
+              "total": 98
+            },
+            "rngCalls": {
+              "matched": 2902,
+              "total": 2902
+            },
+            "cursors": {
+              "matched": 98,
+              "total": 98
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 98,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0108-wizard-extcmd-wishlist.session.json",
+          "sha256": "c44daa9dd555a3a8acb5be7a3456e37d1e111c62742cddc1daa8a56c5c401da1",
+          "segments": [
+            {
+              "seed": 108,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:wizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug\n",
+              "moves": 302,
+              "screens": 303
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 286,
+              "total": 303
+            },
+            "rngCalls": {
+              "matched": 3576,
+              "total": 16958
+            },
+            "cursors": {
+              "matched": 300,
+              "total": 303
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 301,
+            "boundary": "simple monster action requires a special monster action",
+            "divergence": {
+              "screen": {
+                "index": 281,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 281,
+                  "key": "\u001b"
+                },
+                "kind": "ch",
+                "row": 18,
+                "column": 41,
+                "cCell": {
+                  "ch": "[",
+                  "color": 3,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": "f",
+                  "color": 15,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "rng": {
+                "index": 3564,
+                "cEntry": "rn2(3)=0",
+                "cCaller": "getbones(bones.c:645)",
+                "jsEntry": "rn2(5)=0",
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 285,
+                  "key": "e"
+                },
+                "stepIndex": 285
+              },
+              "cursor": {
+                "index": 285,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 285,
+                  "key": "e"
+                },
+                "cCursor": [
+                  40,
+                  11,
+                  1
+                ],
+                "jsCursor": [
+                  49,
+                  10,
+                  1
+                ]
+              },
+              "serializeBug": false
+            },
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0200-monk-north-search.session.json",
+          "sha256": "d3d86fbdaf9fb1a90241b39312b77500ed062b1d6d9d966a428be303d5946194",
+          "segments": [
+            {
+              "seed": 200,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Kira,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,pushweapon,showexp,time,color,lit_corridor\nOPTIONS=disclose:yi ya yv yg yc yo\nOPTIONS=suppress_alert:3.3.1\nOPTIONS=msg_window:reversed\n",
+              "moves": 39,
+              "screens": 40
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 40
+            },
+            "rngCalls": {
+              "matched": 3822,
+              "total": 3822
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 40
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 40,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0360-wizard-world-tour.session.json",
+          "sha256": "0afc5bc9b290b5f099d7929556568147ee9329c569e0fcafab6fa058872fb776",
+          "segments": [
+            {
+              "seed": 360,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Magellan,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+              "moves": 832,
+              "screens": 833
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 776,
+              "total": 833
+            },
+            "rngCalls": {
+              "matched": 113103,
+              "total": 120639
+            },
+            "cursors": {
+              "matched": 778,
+              "total": 833
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 780,
+            "boundary": "unsupported level change: makelevel: load_special() has no loader for special level \"Wiz-loca\"",
+            "divergence": {
+              "screen": {
+                "index": 719,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 719,
+                  "key": "_"
+                },
+                "kind": "ch",
+                "row": 0,
+                "column": 0,
+                "cCell": {
+                  "ch": "C",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": "U",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "rng": null,
+              "cursor": {
+                "index": 729,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 729,
+                  "key": "?"
+                },
+                "cCursor": [
+                  18,
+                  16,
+                  1
+                ],
+                "jsCursor": [
+                  32,
+                  10,
+                  1
+                ]
+              },
+              "serializeBug": false
+            },
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0361-archeologist-tour.session.json",
+          "sha256": "f949f581b6348d8fb4a262bee60460496b3acdfd7090ef860bab514388646526",
+          "segments": [
+            {
+              "seed": 361,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Magellan,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+              "moves": 365,
+              "screens": 366
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 307,
+              "total": 366
+            },
+            "rngCalls": {
+              "matched": 23359,
+              "total": 53865
+            },
+            "cursors": {
+              "matched": 307,
+              "total": 366
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 307,
+            "boundary": "unsupported level change: makelevel: load_special() has no loader for special level \"Arc-loca\"",
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0367-priest-quest-tour.session.json",
+          "sha256": "200a92f663fa73313f6e46c8ad6ab12402bb3cd6e2199573d4bb2a344b6bbe5f",
+          "segments": [
+            {
+              "seed": 367,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Cardinal,role:Priest,race:human,gender:female,align:chaotic,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+              "moves": 323,
+              "screens": 324
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 318,
+              "total": 324
+            },
+            "rngCalls": {
+              "matched": 50086,
+              "total": 50125
+            },
+            "cursors": {
+              "matched": 318,
+              "total": 324
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 318,
+            "boundary": "unsupported hero command: an unported branch of this command: the attributes window requires Fire_resistance",
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0373-barbarian-quest-tour.session.json",
+          "sha256": "94ee7bcd403e49045e10ec4ab99d647787a27ba70e62f019c203f9476422425b",
+          "segments": [
+            {
+              "seed": 373,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Conan,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+              "moves": 123,
+              "screens": 124
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 124,
+              "total": 124
+            },
+            "rngCalls": {
+              "matched": 35386,
+              "total": 35386
+            },
+            "cursors": {
+              "matched": 124,
+              "total": 124
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 124,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0383-wizard-hallucinate.session.json",
+          "sha256": "39dd7b3ce25e4dfd4a80ffb240e10920e0ad6bd06b0f1a7ed00374621b2ba7d9",
+          "segments": [
+            {
+              "seed": 383,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Dazz,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+              "moves": 218,
+              "screens": 219
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 203,
+              "total": 219
+            },
+            "rngCalls": {
+              "matched": 16826,
+              "total": 16915
+            },
+            "cursors": {
+              "matched": 203,
+              "total": 219
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 203,
+            "boundary": "simple monster action requires a door trap under a monster",
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0501-priest-cast-read-turn.session.json",
+          "sha256": "932bf5c64ad9a46617b368548f766ea6f2ea1cba9df762c5c26c495d484c49d7",
+          "segments": [
+            {
+              "seed": 501,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:clara,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 27,
+              "screens": 28
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 28
+            },
+            "rngCalls": {
+              "matched": 2238,
+              "total": 2238
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 28
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 28,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed0900-tourist-explore-actions.session.json",
+          "sha256": "22cbeb89aaae602772c5304f3c877d630cd8f6ceed2dd8df48e070ef977dd2c2",
+          "segments": [
+            {
+              "seed": 900,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Touristo,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=playmode:explore\nOPTIONS=!autopickup,!tutorial,pushweapon,showexp,time,color,lit_corridor\nOPTIONS=disclose:yi ya yv yg yc yo\nOPTIONS=suppress_alert:3.3.1\nOPTIONS=msg_window:reversed\nOPTIONS=symset:DECgraphics\n",
+              "moves": 83,
+              "screens": 84
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 84,
+              "total": 84
+            },
+            "rngCalls": {
+              "matched": 2983,
+              "total": 2983
+            },
+            "cursors": {
+              "matched": 84,
+              "total": 84
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 84,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed1150-caveman-explore-move.session.json",
+          "sha256": "44ea8b8f259fc32f55a342ca040c3cbe78821c08bab9a62232bd2e5ac30ae5e6",
+          "segments": [
+            {
+              "seed": 1150,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Grok,role:Caveman,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,pushweapon,showexp,time,color,lit_corridor\nOPTIONS=disclose:yi ya yv yg yc yo\nOPTIONS=suppress_alert:3.3.1\nOPTIONS=msg_window:reversed\nOPTIONS=symset:DECgraphics\nOPTIONS=playmode:explore\n",
+              "moves": 50,
+              "screens": 51
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 51
+            },
+            "rngCalls": {
+              "matched": 3137,
+              "total": 3137
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 51
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 51,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed1500-rogue-explore-move.session.json",
+          "sha256": "bd11da58dc9a14ad72e332dfffa555fee0e920bbc7e8a484e45f37f0a6b07106",
+          "segments": [
+            {
+              "seed": 1500,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:robin,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=disclose:yi ya yv yg yc yo\n",
+              "moves": 39,
+              "screens": 40
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 40
+            },
+            "rngCalls": {
+              "matched": 2768,
+              "total": 2768
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 40
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 40,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed2200-wizard-quaff-zap-read.session.json",
+          "sha256": "3c7251202c33f6c4f15bd7faf212cd414e13379220c0544b30b5f55cea7b0740",
+          "segments": [
+            {
+              "seed": 2200,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:merlin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 229,
+              "screens": 230
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 221,
+              "total": 230
+            },
+            "rngCalls": {
+              "matched": 3018,
+              "total": 3018
+            },
+            "cursors": {
+              "matched": 229,
+              "total": 230
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 230,
+            "boundary": null,
+            "divergence": {
+              "screen": {
+                "index": 158,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 158,
+                  "key": "g"
+                },
+                "kind": "ch",
+                "row": 3,
+                "column": 36,
+                "cCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": ".",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "rng": null,
+              "cursor": {
+                "index": 165,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 165,
+                  "key": " "
+                },
+                "cCursor": [
+                  8,
+                  23,
+                  1
+                ],
+                "jsCursor": [
+                  22,
+                  10,
+                  1
+                ]
+              },
+              "serializeBug": false
+            },
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed2600-wizard-custom-binds.session.json",
+          "sha256": "76e7e5a1174c9af4b71cd6240cf328f919b9651cb3f9e57ecc9512d3ed0d93dd",
+          "segments": [
+            {
+              "seed": 2600,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Binder,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,showexp,time,color,lit_corridor\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nSYMBOLS=S_pool:~,S_fountain:{\nBIND=v:inventory\n",
+              "moves": 37,
+              "screens": 38
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 38
+            },
+            "rngCalls": {
+              "matched": 11647,
+              "total": 11647
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 38
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 38,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed5002-wizard-coverage-pair.session.json",
+          "sha256": "d1eff7fa6c619562051e5f30814638fecd9f695da0704162eda7e445710067e0",
+          "segments": [
+            {
+              "seed": 5002,
+              "datetime": "20260502120000",
+              "nethackrc": "OPTIONS=name:Cleo,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 123,
+              "screens": 124
+            },
+            {
+              "seed": 5003,
+              "datetime": "20260509120000",
+              "nethackrc": "OPTIONS=name:Drake,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 285,
+              "screens": 286
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 410,
+              "total": 410
+            },
+            "rngCalls": {
+              "matched": 12167,
+              "total": 12167
+            },
+            "cursors": {
+              "matched": 410,
+              "total": 410
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 410,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed5006-tourist-stress-disaster.session.json",
+          "sha256": "fd1e26cf62c2a06d3a3e6fc1f25ab77296d5cf848eb71dc8bf6e0c03d1ae49be",
+          "segments": [
+            {
+              "seed": 5006,
+              "datetime": "20260601120000",
+              "nethackrc": "OPTIONS=name:Calamity,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 193,
+              "screens": 194
+            },
+            {
+              "seed": 5007,
+              "datetime": "20260601130000",
+              "nethackrc": "OPTIONS=name:Galahad,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 54,
+              "screens": 55
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 249,
+              "total": 249
+            },
+            "rngCalls": {
+              "matched": 13923,
+              "total": 13923
+            },
+            "cursors": {
+              "matched": 249,
+              "total": 249
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 249,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/seed8000-tourist-starter.session.json",
+          "sha256": "94df57e8ac262c262a04bcd93b6b405ce3563be65911edd53fd8bf9a9414efd0",
+          "segments": [
+            {
+              "seed": 8000,
+              "datetime": "20260401090000",
+              "nethackrc": "OPTIONS=name:Contestant,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=pushweapon,showexp,time,color,suppress_alert:3.3.1\nOPTIONS=symset:DECgraphics\n",
+              "moves": 22,
+              "screens": 23
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 23,
+              "total": 23
+            },
+            "rngCalls": {
+              "matched": 3130,
+              "total": 3130
+            },
+            "cursors": {
+              "matched": 23,
+              "total": 23
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 23,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        }
+      ]
+    },
+    "holdout": {
+      "measuredAt": "2026-09-12T23:31:22.207Z",
+      "summary": {
+        "sessions": {
+          "passed": 2,
+          "total": 11,
+          "errors": 1
+        },
+        "screens": {
+          "matched": 328,
+          "total": 3640
+        },
+        "rngCalls": {
+          "matched": 39048,
+          "total": 182022
+        },
+        "cursors": {
+          "matched": 334,
+          "total": 3640
+        },
+        "segments": 11,
+        "medianScreens": 87,
+        "minScreens": 26,
+        "maxScreens": 1814,
+        "sessionsOver500Screens": 3,
+        "configuredDebugSessions": 4,
+        "largestThreeScreens": 2941,
+        "meanSessionScreenPercent": 32.41394021298068
+      },
+      "sessions": [
+        {
+          "path": "sessions/holdout/seed0002-healer-reflection-drummer.session.json",
+          "sha256": "a2457dbba1dddcefe1ce28e049c0d62a9d0f445de2ce001bd911bff77010ef58",
+          "segments": [
+            {
+              "seed": 2,
+              "datetime": "20260414095828",
+              "nethackrc": "OPTIONS=symset:DECgraphics\n",
+              "moves": 594,
+              "screens": 595
+            }
+          ],
+          "passed": false,
+          "error": "exercise requires encumber_msg",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 595
+            },
+            "rngCalls": {
+              "matched": 0,
+              "total": 27158
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 595
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": null,
+            "boundary": "Replay error: exercise requires encumber_msg",
+            "divergence": null,
+            "scanError": "Error: exercise requires encumber_msg\n    at exerciseAttribute (file://js/attrib.js:951:15)\n    at exercise (file://js/attrib.js:975:44)\n    at exercise (file://js/trap_effects.js:612:48)\n    at thitu (file://js/mthrowu.js:1665:15)\n    at async trapeffect_dart_trap (file://js/trap_effects.js:602:21)\n    at async dotrap (file://js/trap_effects.js:2319:5)\n    at async spoteffects (file://js/hack.js:4921:19)\n    at async domove_core (file://js/hack.js:4142:5)\n    at async domove (file://js/hack.js:3810:5)\n    at async failClosedCommand (file://js/cmd.js:3017:16)"
+          },
+          "source": {
+            "c": [
+              "trap.c trapeffect_dart_trap (1259–1293)",
+              "mthrowu.c thitu (139–151)",
+              "attrib.c exercise (489–518)",
+              "pickup.c encumber_msg (1978+)"
+            ],
+            "js": [
+              "js/trap_effects.js:602 exercise callback omits encumberMessage",
+              "js/mthrowu.js:1665 calls exercise after missile damage",
+              "js/attrib.js:951 rejects missing encumber_msg"
+            ],
+            "finding": "Confirmed caller wiring failure. C exercise calls encumber_msg for strength/constitution after play starts.",
+            "failureInput": 47,
+            "lastMatchingPrefixScreens": 47
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0009-swimmer-mforce.session.json",
+          "sha256": "2f69cda454c39ce651d1e9d67e7ebdbdba2ea139a3a522d55d576854e501d95c",
+          "segments": [
+            {
+              "seed": 9,
+              "datetime": "20260427215729",
+              "nethackrc": "OPTIONS=symset:DECgraphics\n",
+              "moves": 72,
+              "screens": 73
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 73
+            },
+            "rngCalls": {
+              "matched": 3502,
+              "total": 3713
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 73
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 17,
+            "boundary": "unsupported hero move: ordinary decor after unowned prior terrain",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "pickup.c describe_decor (353–425), back_on_ground call at 416"
+            ],
+            "js": [
+              "js/pickup.js:316 ordinaryDecorPlan; guard at 342"
+            ],
+            "finding": "Explicit refusal after a terrain transition. C handles prior pool/lava/ice and updates prev_decor."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0060-orc-rogue-kick-search.session.json",
+          "sha256": "8ba8027e491ff034b6737f4c7dff5ef0730156169a8b328267bdef1946261a52",
+          "segments": [
+            {
+              "seed": 60,
+              "datetime": "20000922140000",
+              "nethackrc": "OPTIONS=name:Shade,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=autopickup,pickup_types:$\nOPTIONS=!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 40,
+              "screens": 41
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 41
+            },
+            "rngCalls": {
+              "matched": 3626,
+              "total": 3626
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 41
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 41,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json",
+          "sha256": "7508f7d19a781b695fb8fb4ac2bb3b42c79c851cc4ac6020e55ef2973a37b6fe",
+          "segments": [
+            {
+              "seed": 101,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:ricky,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 26,
+              "screens": 27
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 27
+            },
+            "rngCalls": {
+              "matched": 2293,
+              "total": 2371
+            },
+            "cursors": {
+              "matched": 5,
+              "total": 27
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 5,
+            "boundary": "unsupported hero command: an unported branch of this command: wield.c reached doquiver_core() with an ordinary inventory item",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "wield.c doquiver_core (512–668), alternate-weapon branch at 611"
+            ],
+            "js": [
+              "js/wield.js:655 doquiver_core; ordinary item refusal at 681"
+            ],
+            "finding": "Explicit refusal before the alternate-weapon confirmation. Existing JS covers empty/cancel/hands only."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0106-priest-extcmd-sweep.session.json",
+          "sha256": "f7fa9c6730c9354f8c85c84b0f17ea1ee1dbeeb4dbcc122f63cd635c1a10fecf",
+          "segments": [
+            {
+              "seed": 106,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Padre,role:Priest,race:human,gender:male,align:lawful\n",
+              "moves": 266,
+              "screens": 267
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 267
+            },
+            "rngCalls": {
+              "matched": 2685,
+              "total": 4194
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 267
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 29,
+            "boundary": "unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "sounds.c dotalk/dochat (1248–1409)",
+              "sounds.c domonnoise MS_BARK (837+)"
+            ],
+            "js": [
+              "js/sounds.js:1050 dochat; target-monster branch remains refused"
+            ],
+            "finding": "Explicit refusal when chatting to a little dog; C dispatches domonnoise."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0116-wizard-wear-shop.session.json",
+          "sha256": "f29c10383b1d4fed3a4cea5e91dd88353721babcb4df289ded967609cdac32c0",
+          "segments": [
+            {
+              "seed": 116,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:merlin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,playmode:debug,showexp,time,color,lit_corridor\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 126,
+              "screens": 127
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 127
+            },
+            "rngCalls": {
+              "matched": 5763,
+              "total": 12562
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 127
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 24,
+            "boundary": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizlevelport, wizgenesis, wizintrinsic, wizmap, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, teleport, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "cmd.c rhack command dispatch",
+              "shk.c dopay (1743+)"
+            ],
+            "js": [
+              "js/cmd.js command admission omits pay"
+            ],
+            "finding": "Explicit command-admission refusal on p. The C response here is the no-shopkeeper payment branch, not proof of shop transaction coverage."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json",
+          "sha256": "ae8273919141d0b4618a177ef50cf8b5639ff785959d18c971c1d8b276b89c38",
+          "segments": [
+            {
+              "seed": 398,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Polly,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!verbose,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\nOPTIONS=symset:DECgraphics\nOPTIONS=playmode:debug\n",
+              "moves": 86,
+              "screens": 87
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 87
+            },
+            "rngCalls": {
+              "matched": 2838,
+              "total": 3026
+            },
+            "cursors": {
+              "matched": 45,
+              "total": 87
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 45,
+            "boundary": "unsupported hero move: trap activation",
+            "divergence": {
+              "screen": {
+                "index": 28,
+                "location": {
+                  "segmentIndex": 0,
+                  "stepIndex": 28,
+                  "key": "f"
+                },
+                "kind": "ch",
+                "row": 0,
+                "column": 0,
+                "cCell": {
+                  "ch": "W",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                },
+                "jsCell": {
+                  "ch": " ",
+                  "color": 8,
+                  "attr": 0,
+                  "decgfx": 0
+                }
+              },
+              "rng": null,
+              "cursor": null,
+              "serializeBug": false
+            },
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "invent.c getobj (1918–1936)",
+              "do.c drop (774–778)",
+              "win/tty/topl.c tty_yn_function"
+            ],
+            "js": [
+              "js/invent.js getobj",
+              "js/do.js drop",
+              "js/getline.js yn_function"
+            ],
+            "finding": "First difference is prompt lifetime at boundary index 28 after dropping item f with !verbose. C retains the drop prompt and JS clears row 0; RNG and cursor still match. Exact clearing owner needs investigation. Later water-trap refusal is not the first defect."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0399-wizard-hallu-actions.session.json",
+          "sha256": "0137f1e9c72140d2a9c5fd6a4a4d6a82ea1f32ee002240faa1f4e2e434b879c7",
+          "segments": [
+            {
+              "seed": 399,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Trippy,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+              "moves": 531,
+              "screens": 532
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 109,
+              "total": 532
+            },
+            "rngCalls": {
+              "matched": 9971,
+              "total": 11409
+            },
+            "cursors": {
+              "matched": 109,
+              "total": 532
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 109,
+            "boundary": "unsupported monster distress state: equipped or attached lycanthrope",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "were.c new_were (96–140), mon_break_armor/possibly_unwield at 129–130"
+            ],
+            "js": [
+              "js/mon.js:2696 equipment/attachment guard before new_were"
+            ],
+            "finding": "Explicit refusal when a lycanthrope carries equipment or has an attachment. C performs armor/weapon updates during transformation."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed0700-samurai-explore-descend.session.json",
+          "sha256": "5bc54c105c781f65bedeb772dad773ba240d57387ce48265de95b9b0f063e3a2",
+          "segments": [
+            {
+              "seed": 700,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:Musashi,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,pushweapon,showexp,time,color,lit_corridor\nOPTIONS=disclose:yi ya yv yg yc yo\nOPTIONS=suppress_alert:3.3.1\nOPTIONS=msg_window:reversed\nOPTIONS=symset:DECgraphics\n",
+              "moves": 50,
+              "screens": 51
+            }
+          ],
+          "passed": true,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 51
+            },
+            "rngCalls": {
+              "matched": 3230,
+              "total": 3230
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 51
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 51,
+            "boundary": null,
+            "divergence": null,
+            "scanError": null
+          }
+        },
+        {
+          "path": "sessions/holdout/seed1800-tourist-eat-throw.session.json",
+          "sha256": "04a7dbea99aa196a3dc50f9d68f0c41a43e1403f311b3181b1ad8a90e9fc2de6",
+          "segments": [
+            {
+              "seed": 1800,
+              "datetime": "20000110090000",
+              "nethackrc": "OPTIONS=name:touristo,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+              "moves": 25,
+              "screens": 26
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 26
+            },
+            "rngCalls": {
+              "matched": 2362,
+              "total": 2458
+            },
+            "cursors": {
+              "matched": 5,
+              "total": 26
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 5,
+            "boundary": "unsupported hero command: an unported branch of this command: eating requires outrumor()",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "eat.c FORTUNE_COOKIE (2522+)",
+              "rumors.c outrumor (529–574)"
+            ],
+            "js": [
+              "js/eat.js:1901 refuses outrumor"
+            ],
+            "finding": "Explicit refusal on eating a fortune cookie; C reads the rumor and presents its paper text."
+          }
+        },
+        {
+          "path": "sessions/holdout/seed4500-knight-coverage.session.json",
+          "sha256": "d85559c25f60eeedd1ec2c9521bb29b50041c327083c83a1e89b2e2bb13d80fd",
+          "segments": [
+            {
+              "seed": 4500,
+              "datetime": "20000601120000",
+              "nethackrc": "OPTIONS=name:Coverage,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!verbose,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,mention_walls\nOPTIONS=horsename:Shadowfax\nOPTIONS=pushweapon,showexp,time,color\nOPTIONS=symset:DECgraphics\nOPTIONS=playmode:debug\n",
+              "moves": 1813,
+              "screens": 1814
+            }
+          ],
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 8,
+              "total": 1814
+            },
+            "rngCalls": {
+              "matched": 2778,
+              "total": 108275
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 1814
+            }
+          },
+          "diagnostic": {
+            "screensEmitted": 8,
+            "boundary": "unsupported hero command: dojump() for the extended command 'jump' is not ported",
+            "divergence": null,
+            "scanError": null
+          },
+          "source": {
+            "c": [
+              "apply.c dojump (1847–1851), jump, is_valid_jump_pos",
+              "cmd.c extended-command dispatch"
+            ],
+            "js": [
+              "js/cmd.js:5136 unported extended-command fallback"
+            ],
+            "finding": "Explicit #jump dispatch refusal after eight captured screens. The remaining 1,806 screens are only an upper bound; later quest/level/spell behavior remains untested behind it."
+          }
+        }
+      ]
+    }
+  },
+  "queue": [
+    {
+      "kind": "source",
+      "sourceFile": "apply.c",
+      "cFile": "apply.c",
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "earliestStep": 8,
+      "remainingScreensUpperBound": 1806,
+      "functionsTotal": 76,
+      "functionsDeclared": 13
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "earliestStep": null,
+      "remainingScreensUpperBound": 595
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "earliestStep": 109,
+      "remainingScreensUpperBound": 423
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0106-priest-extcmd-sweep"
+      ],
+      "earliestStep": 29,
+      "remainingScreensUpperBound": 238
+    },
+    {
+      "kind": "source",
+      "sourceFile": "monmove.c",
+      "cFile": "monmove.c",
+      "luaFile": null,
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "earliestStep": 1823,
+      "remainingScreensUpperBound": 130,
+      "functionsTotal": 52,
+      "functionsDeclared": 51
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "earliestStep": 595,
+      "remainingScreensUpperBound": 119
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "earliestStep": 719,
+      "remainingScreensUpperBound": 114
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0116-wizard-wear-shop"
+      ],
+      "earliestStep": 24,
+      "remainingScreensUpperBound": 103
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed2200-wizard-quaff-zap-read"
+      ],
+      "earliestStep": 158,
+      "remainingScreensUpperBound": 72
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0398-wizard-wandpoly-pile"
+      ],
+      "earliestStep": 28,
+      "remainingScreensUpperBound": 59
+    },
+    {
+      "kind": "source",
+      "sourceFile": "Arc-loca.lua",
+      "cFile": null,
+      "luaFile": "Arc-loca.lua",
+      "sessions": [
+        "seed0361-archeologist-tour"
+      ],
+      "earliestStep": 307,
+      "remainingScreensUpperBound": 59
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0009-swimmer-mforce"
+      ],
+      "earliestStep": 17,
+      "remainingScreensUpperBound": 56
+    },
+    {
+      "kind": "source",
+      "sourceFile": "wield.c",
+      "cFile": "wield.c",
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed0101-ranger-quiver-throw-travel-engrave"
+      ],
+      "earliestStep": 5,
+      "remainingScreensUpperBound": 22,
+      "functionsTotal": 26,
+      "functionsDeclared": 24
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed0108-wizard-extcmd-wishlist"
+      ],
+      "earliestStep": 281,
+      "remainingScreensUpperBound": 22
+    },
+    {
+      "kind": "source",
+      "sourceFile": "rumors.c",
+      "cFile": "rumors.c",
+      "luaFile": null,
+      "sessions": [
+        "holdout/seed1800-tourist-eat-throw"
+      ],
+      "earliestStep": 5,
+      "remainingScreensUpperBound": 21,
+      "functionsTotal": 17,
+      "functionsDeclared": 4
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "earliestStep": 203,
+      "remainingScreensUpperBound": 16
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed0367-priest-quest-tour"
+      ],
+      "earliestStep": 318,
+      "remainingScreensUpperBound": 6
+    },
+    {
+      "kind": "source-investigation",
+      "sourceFile": null,
+      "cFile": null,
+      "luaFile": null,
+      "sessions": [
+        "seed0012-monk-vault-escort"
+      ],
+      "earliestStep": 307,
+      "remainingScreensUpperBound": 1
+    }
+  ]
+}

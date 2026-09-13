@@ -118,8 +118,8 @@ commit>`, so the fixes are inside the recorded range.
   asks.
 - Give reviewers the committed range or the function list, the affected
   areas, relevant sources, prior validation, decided non-issues, and
-  applicable constraints. Require them to read `AGENTS.md`. Prohibit access
-  to `sessions/holdout/`.
+  applicable constraints. Require them to read `AGENTS.md`. The local holdout
+  is open and may be used when relevant to the reviewed behavior.
 - For `/audit-diff-correctness`, use default skill context routing. Add finder
   `audiences` only for exceptions or unusually large context; use `all` only
   for universal constraints.

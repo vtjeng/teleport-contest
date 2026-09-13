@@ -10,7 +10,7 @@ import {
     compareSessionOutputs,
     formatReport,
     isPathWithinDirectory,
-    isSealedHoldoutPath,
+    isLocalHoldoutPath,
     parseArgs,
     runDifferential,
     validateCleanRecipe,
@@ -80,9 +80,9 @@ test('abbreviated user options also replace generated defaults', () => {
     assert.doesNotMatch(recipe.segments[0].nethackrc, /!legacy|!tutorial|!splash_screen/u);
 });
 
-test('rejects direct use of the sealed holdout path', () => {
-    assert.equal(isSealedHoldoutPath('sessions/holdout/example.session.json'), true);
-    assert.equal(isSealedHoldoutPath('/tmp/fresh-recipe.session.json'), false);
+test('rejects direct use of the fixed local holdout path', () => {
+    assert.equal(isLocalHoldoutPath('sessions/holdout/example.session.json'), true);
+    assert.equal(isLocalHoldoutPath('/tmp/fresh-recipe.session.json'), false);
 });
 
 test('sealed-path containment follows outside symlinks', async (t) => {
