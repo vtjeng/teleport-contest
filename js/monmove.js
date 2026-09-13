@@ -3020,10 +3020,8 @@ export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 // every door arm that needs a door trap, amorphous(), can_unlock or a
 // doorbuster, mdig_tunnel(), the engulfed-hero relocation, and
 // maybe_spin_web().  The meatmetal(), meatobj(), meatcorpse() and mpickstuff()
-// object arms are wired below. The ordinary no-object arm of hideunder() is
-// admitted below; object-backed hiders and
-// eels remain refused because their hideunder() branches have different
-// terrain and message behavior.  after_shk_move() (C:1700-1702) is guarded by
+// object arms are wired below. The hideunder() concealment arms are admitted
+// below; hero concealment remains a separate guard. after_shk_move() (C:1700-1702) is guarded by
 // its own unsupported() inside the MMOVE_MOVED / MMOVE_DONE block; the
 // stationary shopkeeper passes MMOVE_NOTHING and does not reach it.
 export async function postmov(
@@ -3273,23 +3271,14 @@ export async function postmov(
         // hides_under() (M1_CONCEAL), so a garter snake, centipede or
         // scorpion reaches this point.
         if (hides_under(species) || species?.mlet === S_EEL) {
-            // mon.c hideunder() is ported for the eel arm only.  A
-            // hides_under() species keeps the answer this file already
-            // derived for the one case where the C function has nothing to
-            // decide: an empty square with no trap holds nothing to hide
-            // under, so hideunder() clears mundetected and returns FALSE.
-            // Every other object-concealing square still stops the scan.
-            const eel = species?.mlet === S_EEL;
-            const emptyHideSquare = !eel
-                && !state.level?.objects?.[monster.mx]?.[monster.my]
-                && !t_at(monster.mx, monster.my, state)
-                && !monster.mtrapped;
-            if (!eel && !emptyHideSquare)
-                unsupported('monster hiding under an object');
             if (monster.mundetected
                 || (!helpless(monster) && random.rn2(5))) {
-                if (eel) hideunder(monster, { state, redraw });
-                else monster.mundetected = 0;
+                await hideunder(monster, {
+                    ...env,
+                    state,
+                    message,
+                    redraw,
+                });
             }
             redraw(monster.mx, monster.my);
         }

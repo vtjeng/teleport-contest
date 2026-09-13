@@ -121,6 +121,7 @@ import {
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     PLNMSG_GROWL,
+    PLNMSG_HIDE_UNDER,
     SUPPRESS_SADDLE,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
@@ -172,6 +173,7 @@ import {
     oname,
     pmname,
     x_monnam,
+    y_monnam,
 } from './do_name.js';
 import { flooreffects, revive_corpse } from './do.js';
 import { cursed_object_at, finish_meating } from './dogmove.js';
@@ -284,6 +286,7 @@ import {
     is_vampshifter,
     is_were,
     likes_lava,
+    locomotion,
     mindless,
     monster_resists_element,
     monsndx,
@@ -503,6 +506,7 @@ import {
     monhaskey,
     onscary,
     youHear,
+    youSee,
     mb_trapped,
     closed_door,
 } from './monmove.js';
@@ -562,6 +566,7 @@ import {
     The,
     vtense,
     xnameFresh,
+    ansimpleoname,
 } from './objnam.js';
 import { obj_resists } from './bury.js';
 import { objdescr_is } from './o_init.js';
@@ -5285,22 +5290,22 @@ export function restrap(monster, env = {}) {
 }
 
 // C ref: mon.c hideunder() (4726-4801). The monster eel and object-concealing
-// arms are covered here; hero concealment and the visible-monster message path
-// remain fail-closed. js/makemon_create.js carries a separate level-creation
-// subset that also owns the object-concealing arm for mklev() and newcham().
+// arms are covered here; hero concealment remains fail-closed. js/makemon_create.js
+// carries a separate level-creation subset that also owns the object-concealing
+// arm for mklev() and newcham().
 //
 // The boundary is `seeit` alone rather than `seeit && undetected`, because C
 // evaluates `seenmon = y_monnam(mtmp)` for every visible monster, whether or
 // not it ends up hidden, and y_monnam() draws randomness for a hallucinating
 // hero. Only the message below it needs `undetected`. movemon_singlemon()
 // tests !canseemon(mtmp) before it calls this, so its own eels never reach the
-// stop; a future caller that can see the monster owes the message, the
-// PLNMSG_HIDE_UNDER last_msg, and gl.last_hider before it lifts the stop.
+// visible-message arm. Other callers can see the monster, so this function
+// owns the message, PLNMSG_HIDE_UNDER last_msg, and gl.last_hider updates.
 //
 // `redraw` defaults to the newsym() C calls. The planning clone overrides it
 // with a no-op, so an omission repaints rather than silently skipping a
 // square the live display owes.
-export function hideunder(monster, env = {}) {
+export async function hideunder(monster, env = {}) {
     const state = env.state ?? game;
     if (monster === state.youmonst) {
         throw new UnsupportedHideError('hero concealment');
@@ -5311,13 +5316,13 @@ export function hideunder(monster, env = {}) {
     }
 
     const seeit = state.in_mklev ? false : canseemon(monster, state);
-    if (seeit) {
-        throw new UnsupportedHideError('concealment the hero can watch');
-    }
 
     const x = monster.mx;
     const y = monster.my;
     let undetected = false;
+    let seenmon = null;
+    let seenobj = null;
+    let locomo = null;
     // C's `(is_u ? u.utrap : mtmp->mtrapped) || ((t = t_at(x, y)) != 0 &&
     // !is_pit(t->ttyp))` skips the lookup for a monster already recorded as
     // trapped. t_at() is a pure lookup, so the skip only spells out that a
@@ -5336,11 +5341,16 @@ export function hideunder(monster, env = {}) {
         undetected = is_pool(x, y, state)
             && !on_level(state.u?.uz, state.water_level)
             && (!state.u?.uinwater || !couldsee(x, y, state));
+        if (seeit) {
+            seenobj = 'the water';
+            locomo = 'dive';
+        }
     } else {
         let object = state.level?.objects?.[x]?.[y] ?? null;
         if (can_hide_under_obj(object, state)
             && (!monster.mtame || !cursed_object_at(x, y, state))
             && !is_pool_or_lava(x, y, state)) {
+            if (seeit) seenobj = ansimpleoname(object, state);
             // C's hider branch skips cockatrice corpses unless the pile has a
             // second object the monster can hide beneath.
             if (!monster_resists_element(monster, STONE_RES, state)) {
@@ -5353,8 +5363,35 @@ export function hideunder(monster, env = {}) {
         }
     }
 
+    // C names the monster before it changes mundetected. Calling y_monnam()
+    // after that assignment would make its canspotmon() check answer "it".
+    if (seeit) seenmon = y_monnam(monster, state, env);
     const oldundetctd = Boolean(monster.mundetected);
     monster.mundetected = undetected ? 1 : 0;
+    if (undetected && seenmon && seenobj) {
+        if (!locomo) locomo = locomotion(monster.data, 'hide');
+        const message = env.message
+            ?? (env.planning ? async () => {} : ttyPline);
+        state.msg_xy = { x, y };
+        try {
+            await message(
+                messageAt(
+                    youSee(`${seenmon} ${locomo} under ${seenobj}.`, state),
+                    x,
+                    y,
+                    state,
+                ),
+                state,
+                env,
+            );
+        } finally {
+            state.msg_xy = null;
+        }
+        state.iflags ??= {};
+        state.iflags.last_msg = PLNMSG_HIDE_UNDER;
+        state.gv ??= {};
+        state.gv.last_hider = monster.m_id;
+    }
     if (undetected !== oldundetctd) (env.redraw ?? newsym)(x, y);
     return undetected;
 }
@@ -5385,8 +5422,8 @@ export function mon_animal_list(construct, state = game) {
 //
 // The lookup and guard are ported whole. Its hideunder() call covers the eel
 // and object-concealing monster state paths above; hero concealment remains a
-// refusal. A hidden monster is never visible through canseemon(), so the
-// visible-monster message path in hideunder() remains outside this span.
+// refusal. A hidden monster is never visible through canseemon(), so this
+// caller reaches hideunder() only for the state-changing concealment paths.
 export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
     const monster = m_at(x, y, state);
     if (monster) {

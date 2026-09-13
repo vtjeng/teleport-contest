@@ -47,6 +47,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
+    PLNMSG_HIDE_UNDER,
     PIT,
     POOL,
     ROOM,
@@ -73,6 +74,7 @@ import {
     AT_NONE,
     AT_WEAP,
     PM_CAVE_SPIDER,
+    PM_COBRA,
     PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
     PM_FOG_CLOUD,
@@ -123,13 +125,13 @@ import {
     POT_HEALING,
     ROCK,
     WAX_CANDLE,
+    STATUE,
 } from '../js/objects.js';
 import { m_avoid_kicked_loc, m_move } from '../js/monmove.js';
 import {
     hideunder,
     minliquid,
     movemon_singlemon,
-    UnsupportedHideError,
 } from '../js/mon.js';
 import {
     create_region,
@@ -1420,13 +1422,13 @@ test('hideunder conceals an unseen eel in an ordinary pool', async () => {
     const redraws = [];
     const env = { state: game, redraw: (x, y) => redraws.push([x, y]) };
 
-    assert.equal(hideunder(target.monster, env), true);
+    assert.equal(await hideunder(target.monster, env), true);
     assert.equal(target.monster.mundetected, 1);
     assert.deepEqual(redraws, [[target.monsterX, target.heroY]]);
 
     // C guards newsym() with `undetected != oldundetctd`, so repeating the
     // same call keeps the eel hidden and repaints nothing.
-    assert.equal(hideunder(target.monster, env), true);
+    assert.equal(await hideunder(target.monster, env), true);
     assert.equal(target.monster.mundetected, 1);
     assert.deepEqual(redraws, [[target.monsterX, target.heroY]]);
 });
@@ -1532,7 +1534,7 @@ test('hideunder applies each eel water and trap predicate', async () => {
         const redraws = [];
 
         assert.equal(
-            hideunder(target.monster, {
+            await hideunder(target.monster, {
                 state: game,
                 redraw: (x, y) => redraws.push([x, y]),
             }),
@@ -1550,29 +1552,70 @@ test('hideunder applies each eel water and trap predicate', async () => {
 
 // mon.c:4784 runs `seenmon = y_monnam(mtmp)` for every visible monster,
 // whether or not it ends up hidden, and y_monnam() draws randomness for a
-// hallucinating hero. The stop therefore covers a visible eel that would fail
-// the water test as well as one that would pass it, and leaves mundetected
-// alone in both. Each case starts from mundetected 0 because display.h
-// _mon_visible() ends in `&& !mon->mundetected`: an eel already hidden is
-// never one the hero can see, whatever the vision array says.
-test('hideunder stops on concealment the hero can watch', async () => {
-    for (const [name, typ] of [['pool', POOL], ['dry square', ROOM]]) {
+// hallucinating hero. A visible eel that hides under water reports the action;
+// a visible eel that cannot hide simply leaves its existing state unchanged.
+// Each case starts from mundetected 0 because display.h _mon_visible() ends in
+// `&& !mon->mundetected`: an eel already hidden is never one the hero can see,
+// whatever the vision array says.
+test('hideunder reports concealment the hero can watch', async () => {
+    for (const [name, typ, expected, expectedMessage] of [
+        ['pool', POOL, true, 'You see the giant eel dive under the water.'],
+        ['dry square', ROOM, false, null],
+    ]) {
         const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
         game.level.at(target.monsterX, target.heroY).typ = typ;
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
         target.monster.mundetected = 0;
+        const messages = [];
 
-        assert.throws(
-            () => hideunder(target.monster, { state: game }),
-            (error) => (
-                error instanceof UnsupportedHideError
-                && error.message === 'hiding reached an unported branch: '
-                    + 'concealment the hero can watch'
-            ),
+        assert.equal(
+            await hideunder(target.monster, {
+                state: game,
+                message: (line) => { messages.push(line); },
+            }),
+            expected,
             name,
         );
-        assert.equal(target.monster.mundetected, 0, name);
+        assert.equal(target.monster.mundetected, expected ? 1 : 0, name);
+        assert.deepEqual(messages, expectedMessage ? [expectedMessage] : [], name);
     }
+});
+
+// C ref: mon.c:4758-4772 and 4784-4798. A visible object-concealing monster
+// names the object before it filters cockatrice corpses, then names itself,
+// emits You_see(), records PLNMSG_HIDE_UNDER/gl.last_hider, and redraws after
+// the message. A cobra on a statue exercises all of those operations.
+test('hideunder reports a visible monster hiding under an object', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_COBRA });
+    const object = floorObject(
+        target.monsterX,
+        target.heroY,
+        9202,
+        STATUE,
+    );
+    installObject(target, object);
+    game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+    target.monster.mundetected = 0;
+    const events = [];
+    const messages = [];
+
+    assert.equal(
+        await hideunder(target.monster, {
+            state: game,
+            message: async (line) => {
+                events.push('message');
+                messages.push(line);
+            },
+            redraw: () => events.push('redraw'),
+        }),
+        true,
+    );
+    assert.deepEqual(messages, ['You see the cobra slither under a statue.']);
+    assert.deepEqual(events, ['message', 'redraw']);
+    assert.equal(target.monster.mundetected, 1);
+    assert.equal(game.iflags.last_msg, PLNMSG_HIDE_UNDER);
+    assert.equal(game.gv.last_hider, target.monster.m_id);
+    assert.equal(game.msg_xy, null);
 });
 
 // C ref: monmove.c:733-734. An awake monster calls wipe_engr_at() before
