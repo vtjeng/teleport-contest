@@ -10,6 +10,7 @@ import {
     D_LOCKED,
     IS_DOOR,
     IS_OBSTRUCTED,
+    OBJ_FREE,
     OBJ_FLOOR,
     POOL,
     SLT_ENCUMBER,

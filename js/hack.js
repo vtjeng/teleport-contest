@@ -198,6 +198,7 @@ import {
     keyForCommand,
 } from './command_bindings.js';
 import { clear_kickedloc } from './dokick.js';
+import { drag_ball, move_bc } from './ball.js';
 import { dig_typ } from './dig.js';
 import {
     a_monnam,
@@ -4065,7 +4066,39 @@ async function domove_core(state = game) {
         }
     }
 
-    if (!await in_out_region(newx, newy, { state })) return;
+    // C ref: hack.c domove_core():2860-2864. drag_ball() runs after the
+    // movement checks and before region entry, because it removes the
+    // attached floor objects before the hero's tentative move. Its output
+    // pointers survive until move_bc() puts the objects back below.
+    const bcControl = { value: 0 };
+    const ballx = { value: 0 };
+    const bally = { value: 0 };
+    const chainx = { value: 0 };
+    const chainy = { value: 0 };
+    const causeDelay = { value: false };
+    if (state.uball) {
+        const dragged = await drag_ball(
+            newx,
+            newy,
+            bcControl,
+            ballx,
+            bally,
+            chainx,
+            chainy,
+            causeDelay,
+            true,
+            state,
+        );
+        if (!dragged) {
+            state.domoveAttempting = 0;
+            return;
+        }
+    }
+
+    if (!await in_out_region(newx, newy, { state })) {
+        state.domoveAttempting = 0;
+        return;
+    }
     u.ux = newx;
     u.uy = newy;
 
@@ -4138,8 +4171,26 @@ async function domove_core(state = game) {
     newsym(oldx, oldy);
     vision_recalc(1);
     newsym(newx, newy);
+    // C ref: hack.c domove_core():2976-2987. The attached objects return
+    // before pickup effects, and dragging interrupts the next two moves only
+    // after spoteffects() has had its chance to pick up the ball or chain.
+    if (state.uball)
+        move_bc(
+            0,
+            bcControl.value,
+            ballx.value,
+            bally.value,
+            chainx.value,
+            chainy.value,
+            state,
+        );
     // C ref: domove_core():2980 spoteffects(TRUE).
     await spoteffects(true, state);
+    if (causeDelay.value) {
+        nomul(-2, state);
+        state.multi_reason = 'dragging an iron ball';
+        state.nomovemsg = '';
+    }
     await runmode_delay_output(state);
     maybe_smudge_engr(oldx, oldy, newx, newy, state);
     state.domoveAttempting = 0;
