@@ -91,7 +91,9 @@ import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
 import { docrt, map_engraving, map_trap } from './display.js';
 import { do_mapping } from './detect.js';
-import { incr_itimeout, make_glib, make_hallucinated } from './potion.js';
+import {
+    incr_itimeout, make_deaf, make_glib, make_hallucinated,
+} from './potion.js';
 
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
 // binding. The temporary clearing of HConfusion and HHallucination keeps
@@ -328,6 +330,11 @@ export async function wiz_intrinsic(state = game) {
 
         if (property === HALLUC) {
             await make_hallucinated(newTimeout, true, 0, state);
+        } else if (property === DEAF) {
+            // wizcmds.c:1030 uses make_deaf() so its transition feedback is
+            // distinct from the generic timeout message used by simple
+            // intrinsic fields.
+            await make_deaf(newTimeout, true, state);
         } else if (property === GLIB) {
             make_glib(newTimeout, state);
             state.disp.botl = true;

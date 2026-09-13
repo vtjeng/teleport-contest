@@ -67,6 +67,7 @@ import { makeplural } from './fruit.js';
 import { carrying } from './invent.js';
 import { game } from './gstate.js';
 import { inv_weight, You_can_move_again, nomul } from './hack.js';
+import { make_deaf, set_itimeout } from './potion.js';
 import {
     candle_light_range,
     get_obj_location,
@@ -501,6 +502,10 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         if (index === HALLUC && timeout > 1) continue;
         if (index === FUMBLING
             && (timeout > 1 || plainOnFootFumbleAdmitted(state))) continue;
+        // timeout.c:752-758 restores one turn before make_deaf() clears the
+        // timeout. Its talk path is planning-aware and has no RNG or other
+        // refusal, so every timed DEAF value is admitted here.
+        if (index === DEAF) continue;
         // timeout.c:784's SLEEPY case has no effect while its timeout remains
         // above one, regardless of whether the source is a worn amulet or an
         // intrinsic flag.  At expiry, the source-bearing and extrinsic cases
@@ -592,6 +597,22 @@ async function decrement_property_timeouts(state, env) {
         const property = state.u.uprops[index];
         if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) === 0) continue;
         if ((--property.intrinsic & TIMEOUT) !== 0) continue;
+        if (index === DEAF) {
+            // timeout.c:752-754. Keep HDeaf nonzero while make_deaf() tests
+            // the old status, then clear it and deliver its source-ordered
+            // feedback through the live or planning message seam.
+            set_itimeout(property, 1);
+            await make_deaf(0, true, state, {
+                message: env.message ?? ttyPline,
+            });
+            state.disp ??= {};
+            state.disp.botl = true;
+            // timeout.c:756-758 leaves an occupation alone while an
+            // extrinsic or role deafness source still keeps Deaf true.
+            if (!deaf(state))
+                await stop_occupation(state, env);
+            continue;
+        }
         if (index === FUMBLING) {
             const random = env.random ?? { rn2, rnd };
             const message = env.message ?? ttyPline;

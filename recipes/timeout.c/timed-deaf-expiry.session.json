@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 97532,
+      "datetime": "20350314112233",
+      "nethackrc": "OPTIONS=name:DeafExpiry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": ".#wizintrinsic\n1j\n .",
+      "comment": "Independent wizard-mode recipe: #wizintrinsic selects one turn of timed deafness, then the final wait reaches timeout.c nh_timeout()'s DEAF expiry arm."
+    }
+  ]
+}

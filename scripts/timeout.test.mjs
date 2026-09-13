@@ -6,6 +6,7 @@ import {
     BLINDED,
     BURN_OBJECT,
     CONFUSION,
+    DEAF,
     FIG_TRANSFORM,
     FLYING,
     FROMOUTSIDE,
@@ -309,6 +310,110 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
             nh_timeout_elapsed_turn(state),
             /a corpse on the floor, but one is rotting at where=undefined/u,
         );
+    });
+
+test('elapsed-turn timeout decrements and expires timed deafness while unaware',
+    async () => {
+        const state = timerState();
+        const uprops = [];
+        // Three is a duration above expiry, matching the rotten-food timeout
+        // branch in eat.c:1830-1847. FROMOUTSIDE proves that the packed
+        // property flags survive timeout.c:670-671's decrement.
+        uprops[DEAF] = { intrinsic: FROMOUTSIDE | 3, extrinsic: 0 };
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+        };
+        // timeout.c calls make_deaf() while Unaware in the selected witness;
+        // this suppresses its talk branch while stop_occupation() still
+        // sees the negative multi-turn state.
+        state.multi = -3;
+        state.nomovemsg = 'You are conscious again.';
+        const messages = [];
+        const env = { message: async (text) => messages.push(text) };
+
+        await nh_timeout_elapsed_turn(state, env);
+        assert.equal(uprops[DEAF].intrinsic, FROMOUTSIDE | 2);
+        await nh_timeout_elapsed_turn(state, env);
+        assert.equal(uprops[DEAF].intrinsic, FROMOUTSIDE | 1);
+        await nh_timeout_elapsed_turn(state, env);
+
+        // timeout.c:752-758 restores one turn before make_deaf(0, TRUE),
+        // which clears only the timeout bits and then marks the status line.
+        assert.equal(uprops[DEAF].intrinsic, FROMOUTSIDE);
+        assert.equal(state.disp.botl, true);
+        assert.deepEqual(messages, []);
+    });
+
+test('timed deafness expiry talks and stops occupation only when hearing returns',
+    async () => {
+        const state = timerState();
+        const uprops = [];
+        // A one-turn DEAF timeout enters timeout.c:752's expiry switch on the
+        // next elapsed turn. The ordinary conscious state enables C's
+        // make_deaf(0, TRUE) feedback and stop_occupation() arm.
+        uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+        };
+        state.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
+        state.multi = 2;
+        state.go = { occupation: () => {}, occtxt: 'reading' };
+        const messages = [];
+
+        await nh_timeout_elapsed_turn(state, {
+            message: async (text) => messages.push(text),
+        });
+
+        assert.equal(uprops[DEAF].intrinsic, 0);
+        assert.deepEqual(messages, [
+            'You can hear again.',
+            'You stop reading.',
+        ]);
+        assert.equal(state.go.occupation, null);
+        assert.equal(state.multi, 0);
+        assert.equal(state.disp.botl, true);
+    });
+
+test('timed deafness expiry keeps occupation while another deafness source remains',
+    async () => {
+        const state = timerState();
+        const uprops = [];
+        // The extrinsic source keeps Deaf true after HDeaf expires, so C's
+        // timeout.c:756 condition skips stop_occupation() and its feedback
+        // remains "You are unable to hear anything.".
+        uprops[DEAF] = { intrinsic: 1, extrinsic: 1 };
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+        };
+        state.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
+        state.multi = 2;
+        const occupation = () => {};
+        state.go = { occupation, occtxt: 'reading' };
+        const messages = [];
+
+        await nh_timeout_elapsed_turn(state, {
+            message: async (text) => messages.push(text),
+        });
+
+        assert.equal(uprops[DEAF].intrinsic, 0);
+        assert.deepEqual(messages, ['You are unable to hear anything.']);
+        assert.equal(state.go.occupation, occupation);
+        assert.equal(state.multi, 2);
     });
 
 test('elapsed-turn timeout upkeep preserves invulnerability short circuit',

@@ -350,7 +350,9 @@ export async function self_invis_message(state = game, env = {}) {
 // When talk is true and the state changes, prints "You can hear again." or
 // "You are unable to hear anything."  The rottenfood fainting callback
 // (Hear_again) calls make_deaf(0, false), clearing the timer silently.
-export function make_deaf(xtime, talk, state = game) {
+// `env.message` lets elapsed-turn planning run this source call without
+// writing the clone's message to the live terminal.
+export async function make_deaf(xtime, talk, state = game, env = {}) {
     const prop = state.u?.uprops?.[DEAF];
     if (!prop) return;
     const old = prop.intrinsic & TIMEOUT;
@@ -369,10 +371,12 @@ export function make_deaf(xtime, talk, state = game) {
         state.disp ??= {};
         state.disp.botl = true;
         if (talk) {
-            // "You can hear again." when clearing, "unable to hear" when setting.
-            // Only fires when talk is true AND the state actually flipped.
-            throw new UnsupportedPotionError(
-                'make_deaf() with talk=true messaging',
+            const message = env.message ?? ttyPline;
+            await message(
+                old && !deaf
+                    ? 'You can hear again.'
+                    : 'You are unable to hear anything.',
+                state,
             );
         }
     }
@@ -1345,15 +1349,16 @@ export function healup(nhp, nxtra, curesick, cureblind, state = game) {
         }
     }
     if (cureblind) {
-        // C clears u.ucreamed, calls make_blinded(0L, TRUE) and
-        // make_deaf(0L, TRUE). Neither is ported. Refuse only mutable timed
-        // blindness, cream, or timed deafness; a worn blindfold is extrinsic
-        // and remains worn after C clears the intrinsic conditions.
+        // C clears u.ucreamed, calls make_blinded(0L, TRUE), and then calls
+        // make_deaf(0L, TRUE). The make_blinded() arm remains unported here;
+        // retain the boundary for every mutable condition it would have to
+        // clear. make_deaf() itself is implemented above, but this synchronous
+        // helper cannot yet await the complete cureblind sequence.
         const timedBlindness = (u.uprops?.[BLINDED]?.intrinsic ?? 0) & TIMEOUT;
         const timedDeafness = (u.uprops?.[DEAF]?.intrinsic ?? 0) & TIMEOUT;
         if (u.ucreamed || timedBlindness || timedDeafness)
             throw new UnsupportedPotionError(
-                'healup() cureblind arm over make_blinded() / make_deaf()',
+                'healup() cureblind arm over make_blinded()',
             );
         // No-op: there is no intrinsic condition for C to clear.
     }
