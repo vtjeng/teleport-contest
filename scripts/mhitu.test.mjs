@@ -1974,12 +1974,12 @@ test('mhitm_ad_phys keeps special and fatal weapon hits fail-closed',
     }), undefined);
 });
 
-test('mhitm_ad_phys stops on the two arms no ported path reaches',
+test('mhitm_ad_phys stops on the one arm no ported path reaches',
     async () => {
-    // uhitm.c:4023, `mattk->aatyp == AT_HUGS && !sticks(pd)`, and the uhitm
-    // arm at :3988. mattacku() refuses AT_HUGS at js/mhitu.js:626 and
-    // damageum() is unported, so these are fail-closed guards rather than
-    // reachable stops. The mhitm arm at :4128 is no longer one of them:
+    // uhitm.c:4023, `mattk->aatyp == AT_HUGS && !sticks(pd)`, is the one
+    // remaining refusal. The hero's own physical arm at :3988 is now reached
+    // by dokick.c's damageum() path. The mhitm arm at :4128 is no longer one
+    // of them:
     // mhitm.c mdamagem() reaches it on every landed monster-versus-monster
     // blow, and the rows at the end of this test cover it.
     const state = await meleeHero();
@@ -2023,8 +2023,13 @@ test('mhitm_ad_phys stops on the two arms no ported path reaches',
     assert.equal(grabbed.hitflags, M_ATTK_HIT);
     state.youmonst.data = ordinary;
 
-    assert.equal(await refused(state.youmonst, hugs, python),
-        "the hero's own physical attack");
+    // uhitm.c:3988-4019 now handles a hero physical attack. It adjusts the
+    // already-rolled damage and leaves hitmsg()/passive() to the caller.
+    const heroKick = physMhm(1);
+    await mhitm_ad_phys(state.youmonst, hugs, python, heroKick, state,
+                        physEnv(state).env);
+    assert.equal(heroKick.damage, 1);
+    assert.equal(heroKick.hitflags, M_ATTK_MISS);
 });
 
 // uhitm.c mhitm_ad_phys():4128-4200, the arm mhitm.c mdamagem() reaches. It

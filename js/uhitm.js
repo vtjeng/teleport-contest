@@ -2190,10 +2190,11 @@ export async function mhitm_ad_phys(
                     ? 0 : Math.trunc((mhm.damage + 1) / 2);
             }
             /* Ring(s) of increase damage apply even when damage is zero. */
-            if (state.u.udaminc > 0) {
-                mhm.damage += state.u.udaminc;
+            const udaminc = state.u.udaminc ?? 0;
+            if (udaminc > 0) {
+                mhm.damage += udaminc;
             } else if (mhm.damage > 0) {
-                mhm.damage += state.u.udaminc;
+                mhm.damage += udaminc;
                 if (mhm.damage < 1) mhm.damage = 1;
             }
         }
