@@ -1399,8 +1399,15 @@ async function throwRangedWeapon(monster, env) {
 // every aatyp arm outside the two melee ones -- refuses from inside mattacku()
 // itself, so this seam adds only the operations that file cannot import.
 function attackHeroWithMattacku(monster, env) {
+    const missileEnv = monsterMissileEnv(monster, env);
     return mattacku(monster, {
         ...env,
+        // mhitu.c's AT_BREA/AT_SPIT arms call breamu()/spitmu() directly.
+        // Those mthrowu.c paths enter m_throw(), so they need the same owner
+        // operations as the AT_WEAP and muse.c callers below. Without this
+        // shared adapter, a live spit reaches m_throw() with no monsterAt
+        // operation and escapes runSegment() as a bare TypeError.
+        ...missileEnv,
         throwRangedWeapon,
         useOffensiveItem,
         unsupported,
