@@ -1,11 +1,12 @@
-// wintty.js -- The live tty window initialization used by startup.
-// C ref: win/tty/wintty.c tty_create_nhwindow().
+// wintty.js -- The live tty window and cursor state used by startup and play.
+// C refs: win/tty/wintty.c tty_create_nhwindow(), tty_curs().
 
 import {
     COLNO,
     MAXWIN,
     MAX_MSG_HISTORY,
     NHW_BASE,
+    NHW_MAP,
     NHW_MESSAGE,
     ROWNO,
     WIN_ERR,
@@ -52,8 +53,8 @@ export function term_startup(state = game) {
 }
 
 // C ref: win/tty/wintty.c tty_create_nhwindow() (850-895). The browser
-// descriptor stores the fields needed by startup and by later resize code;
-// message windows retain the earlier history-size normalization.
+// descriptor stores the fields needed by startup, cursor movement, and later
+// resize code; message windows retain the earlier history-size normalization.
 export function tty_create_nhwindow(type, state = game) {
     const wt = winttyState(state);
     const display = ttyDisplay(state, wt);
@@ -91,9 +92,15 @@ export function tty_create_nhwindow(type, state = game) {
         );
         window.rows = state.iflags.msg_history;
         window.maxrow = window.rows;
+    } else if (type === NHW_MAP) {
+        // wintty.c:914-924.  The map is unbuffered; display.js owns its
+        // glyph grid, while this descriptor retains the source coordinates.
+        window.offy = 1;
+        window.rows = ROWNO;
+        window.cols = COLNO;
     } else {
         throw new Error(
-            'tty_create_nhwindow() only ports the NHW_MESSAGE startup branch',
+            'tty_create_nhwindow() only ports the NHW_MESSAGE and NHW_MAP startup branches',
         );
     }
     wt.wins[id] = window;
@@ -130,6 +137,68 @@ function ttyDisplay(state, wt) {
 function windowAt(wt, id) {
     if (id === WIN_ERR) return null;
     return wt.wins?.[id] ?? null;
+}
+
+function displayCursor(state, wt, display) {
+    if (Number.isFinite(display?.curx) && Number.isFinite(display?.cury)) {
+        return [display.curx, display.cury];
+    }
+    if (Number.isFinite(display?.cursorCol)
+        && Number.isFinite(display?.cursorRow)) {
+        return [display.cursorCol, display.cursorRow];
+    }
+    return [wt.curx ?? 0, wt.cury ?? 0];
+}
+
+// C ref: win/tty/wintty.c tty_curs() (2058-2161).  The browser terminal has
+// one visible movement primitive, so cmov()/nocmov() and their termcap branch
+// selection converge on setCursor(); the source bookkeeping and map clipping
+// happen before that movement and retain the same early return.
+export function tty_curs(window, x, y, state = game, _env = {}) {
+    // HANGUPHANDLING's HUPSKIP() runs before the window lookup and terminal
+    // selection.  The recorder has no signal transport, but a pending
+    // hangup still makes this entry point a no-op as in the C build.
+    if (state.program_state?.done_hup) return;
+
+    const wt = winttyState(state);
+    const cw = windowAt(wt, window);
+    if (window === WIN_ERR || !cw) {
+        throw new Error('tty_curs() received an invalid window');
+    }
+
+    const display = ttyDisplay(state, wt);
+    const [oldx, oldy] = displayCursor(state, wt, display);
+    wt.lastwin = window;
+
+    // C coordinates are 1-based columns within a window and 0-based rows.
+    // `curx` is deliberately stored one column behind the caller's x.
+    cw.curx = x - 1;
+    cw.cury = y;
+
+    let targetX = x - 1 + (cw.offx ?? 0);
+    let targetY = y + (cw.offy ?? 0);
+    if (wt.clipping && window === wt.WIN_MAP) {
+        targetX -= wt.clipx ?? 0;
+        targetY -= wt.clipy ?? 0;
+    }
+
+    if (targetY === oldy && targetX === oldx) return;
+
+    // end_glyphout() only terminates a pending glyph-output run in the C
+    // terminal backend.  Its result is discarded by tty_curs(), and the JS
+    // grid has no buffered glyph stream, so keep the unported boundary
+    // visible while continuing with the source cursor movement.
+    if (cw.type === NHW_MAP)
+        note_unported('wintty.c end_glyphout');
+
+    if (typeof display?.setCursor === 'function') {
+        display.setCursor(targetX, targetY);
+    } else if (display) {
+        display.curx = targetX;
+        display.cury = targetY;
+    }
+    wt.curx = targetX;
+    wt.cury = targetY;
 }
 
 function callTerminalOperation(state, operation, gap, args = []) {

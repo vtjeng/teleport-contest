@@ -14,6 +14,7 @@ import {
     MV_RUN,
     MV_RUSH,
     MV_WALK,
+    NHW_MAP,
     LOOK_ONCE,
     LOOK_QUICK,
     LOOK_TRADITIONAL,
@@ -65,6 +66,7 @@ import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
+import { tty_create_nhwindow, tty_curs } from './wintty.js';
 
 export {
     LOOK_ONCE,
@@ -94,9 +96,14 @@ const GLOC_FILTERTXT = Object.freeze([
 const GETPOS_WHAT_IS_A_LOCATION = 'a monster, object or location';
 
 function cursorAt(x, y, state) {
-    // WIN_MAP uses level coordinates. The TTY window begins below the message
-    // row and map column one is terminal column zero.
-    state.nhDisplay?.setCursor(x - 1, y + 1);
+    // getpos.c calls curs(WIN_MAP, x, y); wintty.c owns the map offset,
+    // clipping, window cursor bookkeeping, and terminal movement.
+    const wt = state.wintty ?? (state.wintty = {});
+    if (!Number.isInteger(wt.WIN_MAP) || !wt.wins?.[wt.WIN_MAP]) {
+        wt.WIN_MAP = tty_create_nhwindow(NHW_MAP, state);
+        wt.wins[wt.WIN_MAP].active = true;
+    }
+    tty_curs(wt.WIN_MAP, x, y, state);
 }
 
 function sign(value) {

@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
     COLNO,
     MAX_MSG_HISTORY,
+    NHW_MAP,
     NHW_MESSAGE,
     NHW_BASE,
     NHW_STATUS,
@@ -23,6 +24,7 @@ import {
     print_vt_soundcode_idx,
     resize_tty,
     tty_create_nhwindow,
+    tty_curs,
     tty_askname,
     tty_init_nhwindows,
     tty_preference_update,
@@ -59,13 +61,88 @@ test('tty_create_nhwindow clamps the live message history size', () => {
     }
 });
 
+test('tty_create_nhwindow keeps the unbuffered map geometry', () => {
+    const state = { wintty: { rows: 24, cols: 80 } };
+    const mapId = tty_create_nhwindow(NHW_MAP, state);
+    assert.deepEqual(state.wintty.wins[mapId], {
+        type: NHW_MAP,
+        flags: 0,
+        active: false,
+        curx: 0,
+        cury: 0,
+        offx: 0,
+        offy: 1,
+        rows: ROWNO,
+        cols: COLNO,
+        maxrow: 0,
+        maxcol: 0,
+    });
+});
+
 test('tty_create_nhwindow stops before unported window types', () => {
     const state = { iflags: { msg_history: 37 } };
     assert.throws(
         () => tty_create_nhwindow(NHW_STATUS, state),
-        /only ports the NHW_MESSAGE startup branch/u,
+        /only ports the NHW_MESSAGE and NHW_MAP startup branches/u,
     );
     assert.equal(state.iflags.msg_history, 37);
+});
+
+test('tty_curs follows map offsets, clipping, bookkeeping, and early return', () => {
+    const movements = [];
+    const display = {
+        cursorCol: 10,
+        cursorRow: 9,
+        setCursor(column, row) {
+            movements.push([column, row]);
+            this.cursorCol = column;
+            this.cursorRow = row;
+        },
+    };
+    const state = {
+        nhDisplay: display,
+        wintty: {
+            WIN_MAP: 0,
+            clipping: true,
+            clipx: 3,
+            clipy: 2,
+            curx: 10,
+            cury: 9,
+            wins: [{
+                type: NHW_MAP,
+                offx: 4,
+                offy: 5,
+                curx: 0,
+                cury: 0,
+            }],
+        },
+    };
+
+    tty_curs(0, 12, 8, state);
+    assert.deepEqual(movements, [[12, 11]]);
+    assert.deepEqual(
+        [state.wintty.lastwin, state.wintty.wins[0].curx,
+            state.wintty.wins[0].cury, state.wintty.curx, state.wintty.cury],
+        [0, 11, 8, 12, 11],
+    );
+
+    // The C early return still updates the selected window's logical cursor,
+    // but emits no second terminal movement or map flush.
+    tty_curs(0, 12, 8, state);
+    assert.deepEqual(movements, [[12, 11]]);
+    assert.deepEqual(
+        [state.wintty.wins[0].curx, state.wintty.wins[0].cury],
+        [11, 8],
+    );
+});
+
+test('tty_curs leaves all state untouched when hangup handling is active', () => {
+    const state = {
+        program_state: { done_hup: true },
+        wintty: { wins: null },
+    };
+    assert.equal(tty_curs(WIN_ERR, 1, 0, state), undefined);
+    assert.deepEqual(state.wintty, { wins: null });
 });
 
 test('VT escape helpers are compile-disabled in the reference build', () => {
