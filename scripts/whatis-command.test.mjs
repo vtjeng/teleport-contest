@@ -20,6 +20,7 @@ import { trapped_chest_at } from '../js/detect.js';
 import { GameMap } from '../js/game.js';
 import {
     getpos,
+    getpos_getvalids_selection,
     LOOK_ONCE,
     LOOK_QUICK,
     LOOK_TRADITIONAL,
@@ -100,6 +101,19 @@ import {
     loadWhatisTrapEngravingListRecipe,
 } from './run-whatis-trap-engraving-lists.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
+
+test('getpos valid selection follows the C x-then-y traversal', async () => {
+    // getpos.c:102-115 visits x from 1 through COLNO - 1, with y from 0
+    // through ROWNO - 1 nested inside it.  The callback is asynchronous in
+    // JavaScript because production jump validation awaits walk_path().
+    const visited = [];
+    const selected = await getpos_getvalids_selection(async (x, y) => {
+        if (visited.length < 4) visited.push([x, y]);
+        return (x === 1 && y === 0) || (x === 2 && y === 1);
+    });
+    assert.deepEqual(visited, [[1, 0], [1, 1], [1, 2], [1, 3]]);
+    assert.deepEqual(selected, [{ x: 1, y: 0 }, { x: 2, y: 1 }]);
+});
 
 test('the default whatis menu preserves pager.c order and accelerators', () => {
     const state = {

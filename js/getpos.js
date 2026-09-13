@@ -40,6 +40,7 @@ import {
     glyph_at,
     glyph_is_cmap,
     glyph_to_cmap,
+    newsym,
 } from './display.js';
 import { game } from './gstate.js';
 import { handle_tip, is_valid_travelpt } from './hack.js';
@@ -104,6 +105,55 @@ function cursorAt(x, y, state) {
         wt.wins[wt.WIN_MAP].active = true;
     }
     tty_curs(wt.WIN_MAP, x, y, state);
+}
+
+// C refs: getpos.c getpos_sethilite() (41-63),
+// selvar.c selection_force_newsyms() (802-810), and display.c newsym_force()
+// (1863-1871).  The jump caller installs getpos_getvalid before entering
+// getpos().  C marks every valid square dirty when that callback changes, so
+// the first flush prints those cells and leaves the tty cursor immediately
+// after the last one in display.c's row-major flush order.  The browser owns a
+// complete grid rather than a gbuf range, so retain the same final cursor as a
+// pending map position while still using newsym() for each forced glyph.
+// C ref: getpos.c getpos_getvalids_selection() (102-115).  The selection
+// object itself is temporary; callers only need the coordinates it contains
+// while they force the corresponding map glyphs.
+export async function getpos_getvalids_selection(valid, state = game) {
+    if (typeof valid !== 'function') return [];
+    const selected = [];
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            if (!await valid(x, y, state)) continue;
+            selected.push({ x, y });
+        }
+    }
+    return selected;
+}
+
+async function forceGetposSelectionRedraw(state) {
+    const valid = state.getpos_getvalid;
+    if (typeof valid !== 'function' || !state.level?.at) return null;
+
+    const selected = await getpos_getvalids_selection(valid, state);
+    for (const { x, y } of selected) {
+        newsym(x, y);
+        // newsym_force() calls newsym() and then sets gnew even when the
+        // glyph itself did not change.  JS newsym() uses the live game
+        // object, which is the state passed to production getpos().
+        const location = state.level.at(x, y);
+        if (location) location.gnew = 1;
+    }
+
+    // flush_glyph_buffer() visits rows first and columns second, unlike the
+    // selection construction loop above.  tty_print_glyph() advances one
+    // column after tty_curs(), hence x + 1 below when the cursor is restored.
+    let last = null;
+    for (const position of selected) {
+        if (!last || position.y > last.y
+            || (position.y === last.y && position.x > last.x))
+            last = position;
+    }
+    return last;
 }
 
 function sign(value) {
@@ -375,8 +425,8 @@ async function auto_describe(cx, cy, state) {
     } catch (e) {
         if (e.name !== 'UnsupportedWhatisError') throw e;
     }
-    await flush_screen(0);
     cursorAt(cx, cy, state);
+    await flush_screen(0);
 }
 
 // C ref: getpos.c known_vibrating_square_at() (422-431). A genuine
@@ -494,16 +544,23 @@ export async function getpos(ccp, force, goal, state = game) {
     state.gg ??= {};
     state.gg.getposx = cx;
     state.gg.getposy = cy;
-    await flush_screen(0);
+    const forcedMapCursor = await forceGetposSelectionRedraw(state);
     cursorAt(cx, cy, state);
+    await flush_screen(0);
+    if (forcedMapCursor) {
+        // tty_print_glyph() leaves the map window one character past the
+        // glyph it just printed.  Route that advance through tty_curs() so
+        // offx/offy, clipping, and both tty cursor records stay source-shaped.
+        cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y, state);
+    }
 
     let result = LOOK_TRADITIONAL;
     try {
         for (;;) {
             if (showGoalMessage) {
                 await ttyPline(`Move cursor to ${target}:`, state);
-                await flush_screen(0);
                 cursorAt(cx, cy, state);
+                await flush_screen(0);
                 showGoalMessage = false;
             } else if (state.iflags?.autodescribe && !messageGiven) {
                 // C getpos.c checks msg_given at the top of the loop, before
