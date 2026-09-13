@@ -33383,6 +33383,59 @@
         "screens": 8357,
         "rng": 629868
       }
+    },
+    {
+      "id": "divergence-pickup-check-here-uchain-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Exclude the chained ball chain from ordinary floor-object counting in check_here.",
+      "cFile": "pickup.c",
+      "sessions": [],
+      "selectionReason": "After the domove ball-wiring fix and a rechecked full fixed-workload queue, holdout/seed4500-knight-coverage remains the highest-ranked candidate at step 517 with up to 1297 remaining screens. Source tracing identifies pickup.c check_here and one missing JS uchain exclusion.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, recorded input index 517 (key h), first mismatch is a screen after the domove ball-wiring fix: C leaves the message row blank, while JavaScript prints You see here an iron chain. C pickup.c check_here() lines 428-456 counts floor objects and explicitly excludes uchain at lines 441-445. The source path is hack.c domove_core() restoring the chain, then spoteffects(TRUE) to pickup.c pickup() lines 724-731 and check_here(FALSE). JavaScript js/pickup.js check_here() around line 1264 counts every floor object at the hero square, despite its existing all_but_uchain() predicate around line 442. RNG and cursor slices already match; the later chained-to-you suffix is a separate naming mismatch outside this fix. Bounded scope: add the source-faithful obj !== state.uchain exclusion in check_here(), preserve all other object counting and pickup callers, and add focused source-pinned coverage.",
+      "spans": [
+        {
+          "name": "check-here-uchain",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "check_here"
+          ]
+        }
+      ],
+      "openedAt": "7e42838765d42fd38fc576330e0aca1d8185d3e9",
+      "openStanding": {
+        "sha": "c50f1ef98db0ecffe2df048f1958db2888f1dea6",
+        "screens": 8357,
+        "rng": 629868
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "check_here",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 517,
+      "activeStanding": {
+        "sha": "c50f1ef98db0ecffe2df048f1958db2888f1dea6",
+        "screens": 8357,
+        "rng": 629868
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 517,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1297
+        }
+      ]
     }
   ]
 }
