@@ -33322,6 +33322,59 @@
         "screens": 8350,
         "rng": 629788
       }
+    },
+    {
+      "id": "divergence-hack-domove-ball-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wire source-ordered ball dragging and movement into ordinary domove_core movement.",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "After the identify-scroll fix and a rechecked full fixed-workload queue, holdout/seed4500-knight-coverage remains the highest-ranked candidate at step 513 with up to 1301 remaining screens. Source tracing identifies hack.c domove_core and existing ball.js helpers as the local wiring defect.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, recorded input index 513 (key l), first post-fix mismatch is a screen: C moves the hero from x=38 to x=39, drags the chain to x=38, and leaves the ball at x=37, producing 0_@. Upstream hack.c domove_core() lines 2860-2864 call drag_ball() before hero movement; lines 2976-2987 call move_bc() after movement and apply the dragging delay. ball.c drag_ball() lines 593-606 selects the chain-only path, and lines 716-725 midpoint case 4 places the chain at x=38. JavaScript js/hack.js domove_core() lines 4068 and 4138 currently update hero coordinates and redraw without calling existing js/ball.js drag_ball() and move_bc() helpers (js/ball.js:181 onward); js/trap.js:1585-1608 still marks drag_ball unported. Production callers are js/cmd.js executeMovement() at 2658 and continued runs through js/allmain.js:534. Bounded fix: wire the existing ball helpers at the two source call sites, including pointer state and cause_delay handling, and add focused source-pinned coverage. Leave unrelated ball callers and trap branches outside scope.",
+      "spans": [
+        {
+          "name": "domove-ball-wiring",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "domove_core"
+          ]
+        }
+      ],
+      "openedAt": "2dab1694200a4e450d06966843e50f759ea8748d",
+      "openStanding": {
+        "sha": "2dab1694200a4e450d06966843e50f759ea8748d",
+        "screens": 8350,
+        "rng": 629788
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove_core",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 513,
+      "activeStanding": {
+        "sha": "2dab1694200a4e450d06966843e50f759ea8748d",
+        "screens": 8350,
+        "rng": 629788
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 513,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1301
+        }
+      ]
     }
   ]
 }
