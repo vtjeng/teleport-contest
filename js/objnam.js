@@ -22,8 +22,8 @@ import {
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
     MALE, NEUTRAL, NON_PM,
     OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT,
-    P_BOW, W_AMUL, W_ARMOR, W_QUIVER, W_RING, W_RINGR, W_SADDLE,
-    W_SWAPWEP, W_TOOL, W_WEP,
+    P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGR,
+    W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
 import {
     fruit_from_indx, fruit_from_name, makeplural, makesingular,
@@ -1077,6 +1077,13 @@ function wornSuffix(obj, type, state) {
     if (!mask) return '';
     const classForSuffix = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
     let suffix = '';
+    // objnam.c:1540-1546. Punishment's ball and chain are named before the
+    // remaining worn-mask phrases; W_BALL takes precedence when both bits
+    // are present, matching C's conditional expression.
+    if ((classForSuffix === BALL_CLASS || classForSuffix === CHAIN_CLASS)
+        && (mask & (W_BALL | W_CHAIN))) {
+        suffix += ` (${mask & W_BALL ? 'chained' : 'attached'} to you)`;
+    }
     if ((classForSuffix === AMULET_CLASS && (mask & W_AMUL))
         || (classForSuffix === ARMOR_CLASS && (mask & W_ARMOR))
         || (classForSuffix === TOOL_CLASS && (mask & (W_TOOL | W_SADDLE)))) {

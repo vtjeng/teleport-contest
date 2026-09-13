@@ -34,6 +34,8 @@ import {
     W_ARM,
     W_ARMG,
     W_ARMH,
+    W_BALL,
+    W_CHAIN,
     W_TOOL,
     W_SWAPWEP,
     W_QUIVER,
@@ -139,6 +141,8 @@ import {
     EGG,
     FAKE_AMULET_OF_YENDOR,
     RIN_ADORNMENT,
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
@@ -930,6 +934,31 @@ test('worn and wielded suffixes follow doname()\'s owornmask branches', () => {
     assert.match(worn(DIAMOND, W_QUIVER), / \(in quiver pouch\)$/u);
     assert.match(worn(DART, W_QUIVER), / \(at the ready\)$/u);
     assert.match(worn(LONG_SWORD, W_QUIVER), / \(at the ready\)$/u);
+});
+
+// C ref: objnam.c doname_base():1540-1546. The BALL_CLASS and CHAIN_CLASS
+// arms identify punishment objects by their W_BALL or W_CHAIN worn bits. The
+// second case also carries W_QUIVER to pin that the later suffix chain still
+// runs after the source branch.
+test('punishment ball and chain names include their tether suffix', () => {
+    const state = namingState();
+    const ball = (owornmask) => donameFresh(
+        // objects.h sets the base ball weight to 480; 481 exercises xname()'s
+        // source branch that prefixes this object with "very".
+        objectOf(state, HEAVY_IRON_BALL, { owornmask, owt: 481 }), state,
+    );
+    const chain = (owornmask) => donameFresh(
+        objectOf(state, IRON_CHAIN, { owornmask }), state,
+    );
+
+    assert.equal(ball(W_BALL), 'a very heavy iron ball (chained to you)');
+    assert.equal(chain(W_CHAIN), 'an iron chain (attached to you)');
+    // C tests W_BALL first, so a malformed object carrying both bits remains
+    // chained; this also pins the source conditional's evaluation order.
+    assert.equal(ball(W_BALL | W_CHAIN),
+        'a very heavy iron ball (chained to you)');
+    assert.equal(chain(W_CHAIN | W_QUIVER),
+        'an iron chain (attached to you) (at the ready)');
 });
 
 // The differential evidence for doname_base()'s ARMOR_CLASS worn arm lives in
