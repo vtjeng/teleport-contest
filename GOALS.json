@@ -32016,6 +32016,131 @@
         "screens": 8066,
         "rng": 587644
       }
+    },
+    {
+      "id": "port-wintty-tty-curs-seed4500",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port wintty.c tty_curs map-window cursor conversion and wire getpos targeting",
+      "cFile": "wintty.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The highest-ranked full-workload candidate is holdout/seed4500-knight-coverage cursor mismatch at step 195. Source tracing identifies the missing wintty.c tty_curs() map-window offset/clipping contract; JS getpos.cursorAt() bypasses this owner.",
+      "detail": "Full 44-session queue candidate holdout/seed4500-knight-coverage has first cursor mismatch at step 195 (C cursor [38,16,1], JS [36,14,1]) after getpos.c getpos() calls curs(WIN_MAP,cx,cy) and flush_screen(0). Source owner is wintty.c tty_curs() lines 2057-2145: it updates the selected window cursor, applies offx/offy map-window offsets and active clipx/clipy, then performs terminal cursor movement. JS getpos.js cursorAt() currently applies only x-1,y+1 directly to nhDisplay, bypassing tty_curs. Port the complete function contract needed by the browser terminal and wire getpos cursor placement through it; preserve existing flush_screen(0) cursor retention and production callers.",
+      "spans": [
+        {
+          "name": "tty_curs",
+          "status": "closed",
+          "closedBy": "840d86087f43073cdeeb0606c4a440c28e26d22a",
+          "functions": [
+            "tty_curs"
+          ]
+        }
+      ],
+      "openedAt": "551c2ded2486c2d2b928b5fd846580910abc045c",
+      "openStanding": {
+        "sha": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14",
+        "screens": 8066,
+        "rng": 587644
+      },
+      "closedAt": "840d86087f43073cdeeb0606c4a440c28e26d22a",
+      "delivered": {
+        "screens": 4,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "tty_curs",
+          "line": 2058,
+          "endLine": 2161,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2058,
+        "to": 2161
+      },
+      "activeStanding": {
+        "sha": "a578f65bdf12d30a7ebbaed7c88eb8dbb94aff14",
+        "screens": 8066,
+        "rng": 587644
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 195,
+          "kind": "cursor",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1619
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tty_curs",
+            "implementation": "js/wintty.js",
+            "symbol": "tty_curs",
+            "sourceReview": "Read the complete upstream win/tty/wintty.c tty_curs() definition at lines 2058-2161. Ported the HANGUPHANDLING early return, invalid-window guard, lastwin selection, source window cursor bookkeeping (curx=x-1, cury=y), offx/offy coordinate projection, CLIPPING map-only clipx/clipy subtraction, unchanged-position early return, NHW_MAP end_glyphout boundary, and terminal movement with the final tty cursor state update. The browser terminal has one setCursor operation, so C cmov()/nocmov() capability selection converges on that operation. The discarded end_glyphout() cleanup is represented by the browser grid's per-cell graphics and color handling, so it adds no input boundary. Compile-disabled print_vt_code2() has no output in the recorder build. Added the source-shaped NHW_MAP descriptor branch required by the production getpos caller.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "cursorAt",
+                "source": "getpos.c getpos() calls curs(WIN_MAP,cx,cy) at lines 851 and 1146; cursorAt routes every initial, redraw, movement, feature, diagnostic, and final targeting cursor through tty_curs."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c getpos() is reached by the production farlook and jump callers; its cursorAt helper is called at all source cursor placement sites in js/getpos.js."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wintty.test.mjs",
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/help-popup-seed7319.session.json",
+              "recordings/getpos.c/terrain-symbol-search-seed22032.session.json",
+              "recordings/apply.c/jump-knight-basic.session.json"
+            ],
+            "checkedAt": "840d86087f43073cdeeb0606c4a440c28e26d22a"
+          }
+        ],
+        "entryPointReview": "The selected range is a helper-only tty window-port range with no independent command or level entry point. Production getpos.c callers enter through js/getpos.js and use cursorAt for every source curs(WIN_MAP,...) placement; the cited existing recordings execute those callers. The selected holdout diagnosis remains a cursor-only mismatch at the jump prompt after the map redraw; no new recording was needed for this helper span.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 231,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1583
+        }
+      ],
+      "closeStanding": {
+        "sha": "840d86087f43073cdeeb0606c4a440c28e26d22a",
+        "screens": 8070,
+        "rng": 587644
+      }
     }
   ]
 }

@@ -1,0 +1,217 @@
+{
+  "version": 1,
+  "sha": "840d86087f43073cdeeb0606c4a440c28e26d22a",
+  "utc": "2026-09-13T06:51:52.048Z",
+  "status": "complete",
+  "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+  "scorerSha256": "55260e2aa72710758548a899af21a4486170d19b6e9d8926a38731eff1e4174a",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "0978b01c0048ba422cbb8b5c33cec18a1b1505afb1d3a308ee0961316b1b8007"
+  },
+  "cases": [
+    {
+      "id": "scout",
+      "recordingSha256": "ea31e55f9ebc16379cbefe89702881d1f22cf2ced0f8bfef3c133621bfbea6b5",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 11,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2502,
+          "total": 2502
+        },
+        "cursors": {
+          "matched": 11,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "journey",
+      "recordingSha256": "3c07e106fe3c51a8899904f75b71a677e32c29f1403055635f6f3908a5548a7d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 6286,
+          "total": 6286
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "containers",
+      "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 152,
+          "total": 173
+        },
+        "rng": {
+          "matched": 2997,
+          "total": 3106
+        },
+        "cursors": {
+          "matched": 152,
+          "total": 173
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "knight-jump-return",
+      "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 83,
+          "total": 87
+        },
+        "rng": {
+          "matched": 4126,
+          "total": 4126
+        },
+        "cursors": {
+          "matched": 85,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "food-quiver-history",
+      "recordingSha256": "dd6ec08a74e8b386cba633817515d23e75a29eab26c337a268163db5a61055a5",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 25,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2870,
+          "total": 2956
+        },
+        "cursors": {
+          "matched": 25,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "pet-conversations",
+      "recordingSha256": "f2d132f205e01414b634ee694eab39eea9b8c4a88ae03ffefc57e099585cbddb",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 113
+        },
+        "rng": {
+          "matched": 2897,
+          "total": 4517
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 113
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "terrain-transitions",
+      "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 137
+        },
+        "rng": {
+          "matched": 2716,
+          "total": 3811
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 137
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monster-transformations",
+      "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 26,
+          "total": 81
+        },
+        "rng": {
+          "matched": 2659,
+          "total": 2779
+        },
+        "cursors": {
+          "matched": 26,
+          "total": 81
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "sustained-journey",
+      "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 202
+        },
+        "rng": {
+          "matched": 6098,
+          "total": 10396
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 202
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 1,
+      "total": 9
+    },
+    "screens": {
+      "matched": 431,
+      "total": 918
+    },
+    "rng": {
+      "matched": 33151,
+      "total": 40479
+    },
+    "cursors": {
+      "matched": 433,
+      "total": 918
+    }
+  }
+}
