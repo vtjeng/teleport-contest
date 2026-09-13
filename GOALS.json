@@ -33007,6 +33007,50 @@
         "screens": 8161,
         "rng": 629482
       }
+    },
+    {
+      "id": "divergence-hack-test-move-lava-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Admit source-equivalent visible lava movement in test_move so swim_move_danger() can issue the C warning and continue walking behavior.",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "After hellfill generator 3 was fixed, the rechecked full fixed-workload queue ranks holdout/seed4500-knight-coverage first at step 327 with up to 1487 remaining screens. Source tracing confirms a local hack.c test_move() branch and a bounded JavaScript admission defect, so this highest-ranked divergence fix is selected.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage, step 327 (input key newline), first mismatch is a stop with no RNG; C screen begins 'You avoid stepping into the molten lava.--More--'. Upstream nethack-c/upstream/src/hack.c test_move() lines 991-1255: LAVAPOOL is type 20, IS_OBSTRUCTED(typ) is typ < POOL, so lava passes test_move() and returns TRUE at line 1254. The warning is source-ordered in swim_move_danger() lines 1885-1921, called by domove_core() lines 2851-2856. JS js/hack.js requireSimpleHeroDestination() lines 1416 and 1800 currently rejects the ordinary lava destination before/around domove_core(); the existing swim_move_danger() implementation follows. Bounded scope: extend the walking-only test_move admission currently limited to is_pool() around lines 1382-1384 to admit swim_move_danger_result() === SWIM_DANGER_AVOID while preserving pushesBoulder and leaving teleport, forced m entry, unseen/non-paranoid lava, ice, furniture, and door branches unchanged. Production callers of test_move() include executeMovement(), domove_core(), findtravelpath(), avoid_trap_andor_region(), there_cmd_menu(), and domouseaction(); the selected path is ordinary executeMovement().",
+      "spans": [],
+      "openedAt": "97bc5cee7b68312361e6915629719c8ba8fcf144",
+      "openStanding": {
+        "sha": "97bc5cee7b68312361e6915629719c8ba8fcf144",
+        "screens": 8161,
+        "rng": 629482
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "test_move",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 327,
+      "activeStanding": {
+        "sha": "97bc5cee7b68312361e6915629719c8ba8fcf144",
+        "screens": 8161,
+        "rng": 629482
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 327,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1487
+        }
+      ]
     }
   ]
 }
