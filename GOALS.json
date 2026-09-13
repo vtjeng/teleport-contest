@@ -31145,7 +31145,7 @@
     {
       "id": "fix-rolling-boulder-blockpoint-seed0014",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Propagate boulder blockPoint lifecycle hooks through rolling-trap placement",
       "cFile": "mkobj.c",
       "sessions": [],
@@ -31154,8 +31154,8 @@
       "spans": [
         {
           "name": "place_object-rolling-boulder-hooks",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "cec643a8f4e302bcdb8b026636877982f6715a09",
           "functions": [
             "place_object",
             "trapeffect_rolling_boulder_trap",
@@ -31169,8 +31169,11 @@
         "screens": 7505,
         "rng": 543153
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cec643a8f4e302bcdb8b026636877982f6715a09",
+      "delivered": {
+        "screens": 4,
+        "rng": 196
+      },
       "function": "place_object",
       "session": "seed0014-dequa-fountain-explore",
       "step": 615,
@@ -31195,7 +31198,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 99
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "cec643a8f4e302bcdb8b026636877982f6715a09",
+        "screens": 7509,
+        "rng": 543349
+      }
     }
   ]
 }
