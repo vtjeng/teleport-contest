@@ -1,0 +1,51 @@
+{
+  "session": "seed0367-priest-quest-tour",
+  "remainingScreensUpperBound": 6,
+  "status": "complete",
+  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "mismatch": {
+    "session": "seed0367-priest-quest-tour",
+    "remainingScreensUpperBound": 6,
+    "step": 318,
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: the attributes window requires Fire_resistance",
+    "unlocatedKinds": [],
+    "recordedSteps": 324
+  },
+  "summary": "At C step 318, debug Ctrl-X opens the Priestess's attributes window. The JavaScript attributes_enlightenment() preflight sees FIRE_RES and throws before the menu is created, while C emits the fire-resistance line and continues. The same C page then reaches shock resistance from blue dragon scale mail, electric item protection, telepathy from the pyramidal amulet, and warning from experience before the already-porting fast, luck, and prayer lines. Port the source-ordered item_resistance_message()/attributes_enlightenment() branches and their source-name helpers so the menu opens and the six remaining screens can continue.",
+  "source": {
+    "file": "insight.c",
+    "functions": ["item_resistance_message", "attributes_enlightenment"],
+    "branch": "In an in-progress wizard/debug game with an unpolymorphed level-20 human Priestess, FIRE_RES and WARNING are intrinsic from the Priest role's experience table, SHOCK_RES is extrinsic from worn blue dragon scale mail, TELEPAT is extrinsic from a pyramidal amulet, and FAST is supplied by equipment. attributes_enlightenment() must append these conditional lines in C order; item_resistance_message(AD_ELEC, ...) must also append the 99% electric item-protection line naming the dragon mail, then preserve the existing magic-cancellation, luck, and can_pray output. The implementation must retain the same branches for heroes without these properties.",
+    "callers": [
+      "nethack-c/upstream/src/insight.c:2007-2019 doattributes() selects BASICENLIGHTENMENT | MAGICENLIGHTENMENT for wizard/debug mode and calls enlightenment(..., ENL_GAMEINPROGRESS)",
+      "nethack-c/upstream/src/cmd.c:1679-1680 extcmdlist[] binds Ctrl-X to doattributes()",
+      "js/cmd.js:3125-3138 runAttributesCommand() supplies the PICK_NONE menu and routes through failClosedCommand() to js/insight.js:1685-1697 doattributes()",
+      "js/cmd.js:4995-4996 and 6120-6124 dispatch the doattributes handler for the command loop and direct command path"
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/insight.c:1467-1483 item_resistance_message() calls u_adtyp_resistance_obj() and item_what(), while :1520-1584 contains the fire, shock, electric-item, telepathy, and warning branches",
+      "js/insight.js:1125-1143 and 1206-1215 currently classify FIRE_RES, SHOCK_RES, TELEPAT, and WARNING as unported preflight stops; :1297-1320 shows the already-porting poison, stealth, magic-cancellation, and fast output shape",
+      "nethack-c/upstream/src/attrib.c:905-975 from_what() resolves experience sources before equipment sources; js/attrib.js:409-458 handles experience but still skips the what_gives()/bare_artifactname equipment branch needed for dragon mail and the amulet",
+      "nethack-c/upstream/src/artifact.c:2372-2424 what_gives() and js/artifacts.js:2730-2771 identify a worn non-artifact or artifact source from the extrinsic mask; js/objnam.js:1730-1740 provides bare_artifactname()",
+      "nethack-c/upstream/src/zap.c:5675-5698 u_adtyp_resistance_obj() and :5735-5777 item_what() provide the 99% protection test and dragon-mail wording; js/zap.js:1472-1514 has the percentage helper but no item_what() implementation",
+      "js/objnam.js:240-256 suit_simple_name() returns dragon mail, and js/objnam.js:1730-1740 ysimple_name()/bare_artifactname() supply the source names used by from_what()"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    ".cache/scan-cache.json rows[file=seed0367-priest-quest-tour.session.json] records screensEmitted 318 of 324 and the exact boundary unsupported hero command: an unported branch of this command: the attributes window requires Fire_resistance at key Ctrl-X.",
+    "sessions/seed0367-priest-quest-tour.session.json segments[0].steps[318] records the C attributes title and page 1; step 319 records the page-2 lines fire resistant because of your experience, shock resistant because of your blue dragon scale mail, protected electric items by your dragon mail, telepathic because of your pyramidal amulet, warned because of your experience, very fast because of worn equipment, zero luck, and cannot safely pray (425). Steps 320-323 show the Escape, search, search, and look screens that remain unreachable after the stop.",
+    "nethack-c/upstream/src/insight.c:1525-1539 emits fire resistance, the AD_ELEC item_resistance_message(), and shock resistance in that order; :1581-1584 emits telepathy and warning. The recorded C page exactly contains those source-ordered lines and no RNG calls on the Ctrl-X step.",
+    "nethack-c/upstream/src/insight.c:1467-1483 defines item_resistance_message(); nethack-c/upstream/src/zap.c:5675-5698 makes blue dragon mail's extrinsic SHOCK_RES give 99% item protection, and :5735-5777 formats its source as 'by your dragon mail'.",
+    "nethack-c/upstream/src/attrib.c:905-961 prioritizes role experience for FIRE_RES and WARNING, then calls what_gives() for equipment-backed SHOCK_RES and TELEPAT. js/attrib.js:421-448 already reproduces the experience and fast source wording, but :451-458 explicitly skips the equipment-source branch.",
+    "js/insight.js:1206-1215 performs the current early property scan and :1125-1143 names FIRE_RES, SHOCK_RES, TELEPAT, and WARNING as refusal branches; js/cmd.js:3125-3138 confirms the refusal occurs before the attributes menu owner can draw a window.",
+    "The smallest general implementation scope is the source-ordered item_resistance_message()/attributes_enlightenment() family in insight.c, with zap.c item_what() and attrib.c from_what() equipment-source wiring as dependencies. The first validation probe should replay this session through Ctrl-X and compare both attributes pages, RNG alignment, and the four post-menu steps; no session-specific condition should be introduced."
+  ]
+}

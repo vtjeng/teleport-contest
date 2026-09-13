@@ -1,0 +1,49 @@
+{
+  "session": "holdout/seed1800-tourist-eat-throw",
+  "remainingScreensUpperBound": 21,
+  "status": "complete",
+  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "mismatch": {
+    "session": "holdout/seed1800-tourist-eat-throw",
+    "remainingScreensUpperBound": 21,
+    "step": 5,
+    "kind": "stop",
+    "function": "outrumor",
+    "functionDeclared": false,
+    "sourceFile": "rumors.c",
+    "cFile": "rumors.c",
+    "luaFile": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: eating requires outrumor()",
+    "unlocatedKinds": [],
+    "recordedSteps": 26
+  },
+  "summary": "At step 5, key b selects the Tourist's fortune cookie and the one-turn meal reaches eat.c fpostfx(), which calls outrumor(bcsign(cookie), BY_COOKIE). The C cookie path calls getrumor() with cookie exclusion disabled, then emits the fortune, It reads:, and the selected rumor; a sighted hero also becomes literate. JS random_text.js already implements getrumor() and its source-order rumor selection, but js/eat.js fpostfx() still throws at the Fortune Cookie arm. Port rumors.c outrumor() and wire that arm with the existing bcsign(), ttyPline(), hero blindness/fainting state, and Wisdom exercise operation.",
+  "source": {
+    "file": "rumors.c",
+    "functions": ["outrumor"],
+    "branch": "BY_COOKIE after a completed, non-corpse Fortune Cookie meal: return silently when the hero is fainted; when blind, print the fortune notice and unreadable warning without drawing a rumor; otherwise call getrumor(bcsign(cookie), exclude_cookie=false), print the fortune notice, It reads:, and the rumor, then let fpostfx() increment literate for a sighted hero.",
+    "callers": [
+      "nethack-c/upstream/src/eat.c fpostfx() (2522-2528) calls outrumor() after consuming a Fortune Cookie and updates u.uconduct.literate",
+      "js/eat.js fpostfx() (1887-1901) is the current production caller and throws UnsupportedEatError at the missing Fortune Cookie arm",
+      "nethack-c/upstream/src/read.c doread() (367-373) is the other C BY_COOKIE caller for a read command; it is outside this recorded eat mismatch"
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/rumors.c getrumor() (117-190) for truth adjustment, random line selection, cookie-marker handling, and exercise(A_WIS)",
+      "js/random_text.js getrumor() (180-241) already matches the generated rumor ranges, cookie-marker stripping, and source-order rn2 calls",
+      "js/obj.js bcsign() (1636-1638) supplies the cookie's blessed/uncursed/cursed truth value",
+      "js/tty_message.js ttyPline() (516-525) supplies the blocking message sequence used by pline()/pline1()",
+      "js/attrib.js exercise() (968-983) must receive the getrumor Wisdom callback so the recorded rn2(19) call is retained",
+      "js/startup_a11y.js heroIsBlind() and js/eat.js is_fainted equivalent u.uhs === FAINTED provide outrumor()'s read guards"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "sessions/holdout/seed1800-tourist-eat-throw.session.json segments[0].steps[5-7] records key b, then spaces dismissing the pending cookie-eating and rumor messages; step 5 records rn2(2)=1 and rn2(24924)=22517 at getrumor(rumors.c:151), followed by rn2(19)=12 at exercise(attrib.c:509).",
+    "sessions/holdout/seed1800-tourist-eat-throw.session.json segments[0].steps[5-7] shows the expected message progression: This fortune cookie is delicious!, then This cookie has a scrap of paper inside.  It reads:, then They say the gods get angry if you kill your dog.; the first line remains visible at step 5 because the preceding message is waiting at --More--.",
+    "nethack-c/upstream/src/rumors.c:529-574 defines outrumor(); its BY_COOKIE branch calls getrumor() before pline(fortune_msg), falls through to pline(\"It reads:\"), and finishes with pline1(line), while lines 539-547 guard fainted and blind reading.",
+    "nethack-c/upstream/src/rumors.c:151-175 defines getrumor()'s truth and Wisdom-exercise draw order; js/random_text.js:195-241 implements the same order and direct replay with the recorded draws selects They say the gods get angry if you kill your dog.",
+    "nethack-c/upstream/src/eat.c:2522-2528 makes fpostfx() the Fortune Cookie caller and increments literate only when !Blind; js/eat.js:2154-2185 invokes fpostfx() after the finished-meal message and before useup(), so this is the smallest production wiring scope.",
+    "js/eat.js:1899-1901 is the exact current refusal: the Fortune Cookie arm comments that outrumor() is missing and throws UnsupportedEatError('outrumor()'); js/random_text.js:178-241 has no exported outrumor() wrapper."
+  ]
+}
