@@ -32145,7 +32145,7 @@
     {
       "id": "port-pager-object-statue-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pager.c do_screen_description object and statue descriptions and wire production whatis lookup",
       "cFile": "pager.c",
       "sessions": [
@@ -32156,8 +32156,8 @@
       "spans": [
         {
           "name": "do_screen_description",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4de609e6fdfa21b43f65db49677781c0433cf5db",
           "functions": [
             "do_screen_description"
           ]
@@ -32169,15 +32169,18 @@
         "screens": 8070,
         "rng": 587644
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4de609e6fdfa21b43f65db49677781c0433cf5db",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_screen_description",
           "line": 1247,
           "endLine": 1630,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -32205,7 +32208,76 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1583
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_screen_description",
+            "implementation": "js/pager.js",
+            "symbol": "do_screen_description",
+            "sourceReview": "Read pager.c do_screen_description() in full at lines 1247-1630, including prefix construction, monster and object class scans, ROCK_CLASS statue handling, venom reinsertion, generic glyph checks, and the looked-at lookat() refinement. The JavaScript object arm preserves the source order and symbol ambiguity, removes the former non-cmap refusal, and retains the existing terrain branches. No unported callee is used by this span; object naming and map glyph metadata are existing ports.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "auto_describe",
+                "source": "getpos.c auto_describe() calls do_screen_description() while moving the farlook cursor and prints firstmatch for automatic target descriptions."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c do_look() calls do_screen_description() after getpos() returns the selected map coordinate."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doclicklook",
+                "source": "cmd.c doclicklook() calls do_screen_description() for the clicklook map coordinate."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/object-map-farlook-wish-drop.session.json"
+            ],
+            "checkedAt": "4de609e6fdfa21b43f65db49677781c0433cf5db"
+          }
+        ],
+        "entryPointReview": "The source entry points are pager.c do_look() for the interactive whatis map, getpos.c auto_describe() for cursor movement and invalid-target notices, and cmd.c doclicklook() for clicklook dispatch. The independent pager recording reaches the production getpos.c auto_describe() path after dropping a wished floor object; scripts/whatis-command.test.mjs also reaches the pager function directly with a source-shaped statue glyph fixture.",
+        "entryPoints": [
+          {
+            "name": "map whatis and automatic cursor description",
+            "functions": [
+              "do_screen_description"
+            ],
+            "recordings": [
+              "recordings/pager.c/object-map-farlook-wish-drop.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 237,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires getlin(\"Set fruit to what?\")",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1577
+        }
+      ],
+      "closeStanding": {
+        "sha": "4de609e6fdfa21b43f65db49677781c0433cf5db",
+        "screens": 8071,
+        "rng": 587644
+      }
     }
   ]
 }
