@@ -2,8 +2,8 @@
 
 Read this file when you append a `SCORE.tsv` row or answer a score question
 from the log. Only the orchestrator appends rows; a span worker states its
-score evidence in its report. The former local holdout is open under `AGENTS.md`
-and is included in the operational fixed workload.
+score evidence in its report. The local-holdout recordings are open under
+`AGENTS.md` and are included in the operational fixed workload.
 Run `node scripts/score-holdout.mjs [--goal <id>]` for the separate historical
 11-session local provenance view; it supplies context alongside ordinary
 development work.
@@ -95,7 +95,8 @@ shows the synthetic local challenge set separately (the historical display
 label is Synthetic local holdout). Each card includes the age of its
 measured commit. Challenge details follow Work by source file; per-case
 accounting remains in the saved evidence. Historical missing session/cursor
-counts remain unknown. Do not show a remote-holdout score.
+counts remain unknown. Dashboard metrics cover the local measures; the remote
+competition score is external to this workspace.
 
 ## Reading the log
 

@@ -220,8 +220,9 @@ and a check that compares it with freshly generated output.
 `frozen/terminal.js` `serialize()` discards attributes (inverse video,
 underline) on leading-space characters. The local copy applies a fix so that
 screens with attributed leading spaces compare correctly. The upstream scorer
-does not have this fix, so local development and holdout scores exceed the
-leaderboard score by a margin that grows with session coverage.
+does not have this fix, so local fixed-development and local-holdout provenance
+scores exceed the leaderboard score by a margin that grows with session
+coverage.
 
 ### Keep the game compatible with the scoring system
 
