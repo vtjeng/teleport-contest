@@ -31773,7 +31773,7 @@
     {
       "id": "div-teleport-level-tele-special-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix teleport.c level_tele positive numeric destination handling for special levels and preserve the source schedule_goto contract",
       "cFile": "teleport.c",
       "sessions": [],
@@ -31782,8 +31782,8 @@
       "spans": [
         {
           "name": "level_tele-special-destination",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "62f4453827afbcea66d3bf62b5831cd297ef4c4f",
           "functions": [
             "level_tele"
           ]
@@ -31795,8 +31795,11 @@
         "screens": 8023,
         "rng": 582980
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "62f4453827afbcea66d3bf62b5831cd297ef4c4f",
+      "delivered": {
+        "screens": 43,
+        "rng": 4664
+      },
       "function": "level_tele",
       "session": "holdout/seed4500-knight-coverage",
       "step": 189,
@@ -31821,7 +31824,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1625
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "62f4453827afbcea66d3bf62b5831cd297ef4c4f",
+        "screens": 8066,
+        "rng": 587644
+      }
     }
   ]
 }
