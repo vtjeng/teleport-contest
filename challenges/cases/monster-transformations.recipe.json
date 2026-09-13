@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90175,
+      "datetime": "20010718150000",
+      "nethackrc": "OPTIONS=name:Scoutmonster-transformati,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,monpolycontrol,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " #wizgenesis\ntame soldier\n#wizwish\nwand of polymorph\nO>\u001bzokred dragon\n        k "
+    }
+  ]
+}

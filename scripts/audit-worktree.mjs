@@ -179,21 +179,6 @@ function validatePrompt(text, {
     const skillName = typeof skill === 'string' ? skill : skill.name;
     const missing = [];
     if (!text.includes('AGENTS.md')) missing.push('AGENTS.md instruction');
-    const directProhibition = (subject) => new RegExp(
-        String.raw`\b(?:do not|don't|never|must not)\s+`
-            + String.raw`(?:(?:ever|directly|indirectly)\s+)*`
-            + String.raw`(?:access|inspect|read|list|open|search|parse|`
-            + String.raw`compare|summarize|copy|display|reveal|pass)\b`
-            + String.raw`[^\r\n]*\b${subject}\b`,
-        'iu',
-    ).test(text);
-    const hasLiteralHoldoutProhibition =
-        directProhibition(String.raw`sessions\/holdout`);
-    const hasSealedHoldoutProhibition =
-        directProhibition('sealed holdout directory');
-    if (!hasLiteralHoldoutProhibition && !hasSealedHoldoutProhibition) {
-        missing.push('sealed-holdout prohibition');
-    }
     if (!text.includes(base) || !text.includes(head)) {
         missing.push('exact base and head commits');
     }

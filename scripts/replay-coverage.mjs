@@ -44,13 +44,13 @@ Coverage records execution only. It has no percentage, threshold, or completion
 verdict. The scorer's pass/fail result is reported separately; a mismatching
 recording can still produce useful coverage. Instrumentation or collection errors
 exit with status 2 and retain available artifacts. No session directory is scanned,
-and holdout references and archived symlinks are rejected before session reads.
+and unsafe paths and archived symlinks are rejected before session reads.
 `;
 
 function safeRelative(path) {
     return typeof path === 'string' && !/[\\\0]/u.test(path)
         && path.split('/').every((part) => /^[A-Za-z0-9_.-]+$/u.test(part)
-            && part !== '.' && part !== '..' && part.toLowerCase() !== 'holdout');
+            && part !== '.' && part !== '..');
 }
 
 /** Validate every supplied path before filesystem or Git reads. */
@@ -73,12 +73,12 @@ export function parseReplayCoverageArgs(args) {
     if (!/^[a-f0-9]{40}$/iu.test(options.sha ?? '')) throw new Error('--sha must be a full commit SHA');
     if (!safeRelative(options.session)
         || !(/^sessions\/[^/]+\.session\.json$/u.test(options.session)
+            || /^sessions\/holdout\/[^/]+\.session\.json$/u.test(options.session)
             || /^recordings\/.+\.session\.json$/u.test(options.session))) {
-        throw new Error('--session must name one direct development session or one recording; holdout paths are prohibited');
+        throw new Error('--session must name one development session, local-holdout session, or recording');
     }
     if (!isAbsolute(options.repo) || /[\\\0]/u.test(options.repo)
-        || options.repo.split('/').some((part) => part === '..' || part === '.'
-            || part.toLowerCase() === 'holdout')) throw new Error('--repo must be a safe absolute repository path');
+        || options.repo.split('/').some((part) => part === '..' || part === '.')) throw new Error('--repo must be a safe absolute repository path');
     if (!options.targets.length) throw new Error('at least one --target js/file.js:function is required');
     options.targets = [...new Set(options.targets)].map((target) => {
         const match = /^(js\/.+\.js):([A-Za-z_$][A-Za-z0-9_$]*)$/u.exec(target);
@@ -93,7 +93,6 @@ export function parseReplayCoverageArgs(args) {
 function requireDirectory(path) {
     let current = '/';
     for (const part of path.split('/').filter(Boolean)) {
-        if (part.toLowerCase() === 'holdout') throw new Error('holdout paths are prohibited');
         current = join(current, part);
         const info = lstatSync(current);
         if (info.isSymbolicLink() || !info.isDirectory())

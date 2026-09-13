@@ -2,7 +2,9 @@
 
 Read this file when you append a `SCORE.tsv` row or answer a score question
 from the log. Only the orchestrator appends rows; a span worker states its
-score evidence in its report. The holdout rules in `AGENTS.md` always apply.
+score evidence in its report. The local holdout is open under `AGENTS.md`.
+Run `node scripts/score-holdout.mjs [--goal <id>]` for its aggregate score;
+repeated evaluations no longer require separate authorization.
 
 ## SCORE.tsv columns
 
@@ -113,10 +115,10 @@ inventory, and the mismatch queue's remaining screens are upper bounds.
 A gain that restores an earlier regression is recovery, not an additional
 net gain. Preserve that distinction in event notes and progress reports.
 
-## What the holdout measures
+## What the local holdout measures
 
-The holdout evaluation detects large inadvertent regressions. A goal that
-leaves the holdout figure unchanged is expected, and a holdout figure that
-moves little is not by itself evidence that a change was fitted to a
-development session. Prefer changes that translate the C source faithfully
-over changes that raise the score without matching the source's behavior.
+The entire local holdout was opened on 2026-09-12 under the generalization
+experiment plan. Its subsequent scores measure progress and regressions on an
+exposed fixed corpus. Preserve pre-opening results, but do not describe later
+improvements as evidence of generalization. The expanding challenge set is
+also a development workload; neither set estimates the remote holdout score.

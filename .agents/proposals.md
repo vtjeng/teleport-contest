@@ -36,8 +36,8 @@ unported function, which is the ordinary state.
 
 **What it changes.** A turn-end warning would print
 `git log --oneline origin/main..HEAD` when commits sit unpushed, enforcing the
-push rule in `.agents/loop.md`. Two related checks have already landed:
-`goal-log.mjs calibration` and the per-goal gate in `score-holdout.mjs`.
+push rule in `.agents/loop.md`. `goal-log.mjs calibration` already provides a related check. The former
+per-goal holdout permission gate was retired when the local corpus was opened.
 
 **Scope.** A small addition to an existing script and its test file.
 

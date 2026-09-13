@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90176,
+      "datetime": "20010822161500",
+      "nethackrc": "OPTIONS=name:Scoutsustained-journey,role:Valkyrie,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " i 3h2l>10hj5h18h2hhhhh>5l4k5h5j 5h  5h hhhhhh10h3l4k>>l>l>l>l>l>j>h>h>h>h>h>j>l>l>l>l>l>j>h>h>h>h>h>j>l>l>l>l>l>kl>l>l>l>l>l>l>l>l>l>l>l>l>l>l>l>l>l>\u000f2lk<\n2lk<k2l<ned i\n<n2hj24hj25h25lae20sa\u001b25h25l l "
+    }
+  ]
+}

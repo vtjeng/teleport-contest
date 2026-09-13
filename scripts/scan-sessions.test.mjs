@@ -26,6 +26,7 @@ import {
     loadScanRows,
     main,
     recordedTopLine,
+    scanRecordedSession,
     silentDivergence,
     stopStepIndex,
     supportedCommands,
@@ -187,26 +188,23 @@ function stepAt(row, column, glyph, key = null) {
     return { key, cursor: [column, row, 1], screen: screenWith(row, column, glyph) };
 }
 
-test('the scan is pinned to the development set', () => {
-    // AGENTS.md permits only score-holdout.mjs to touch sessions/holdout/.
-    // This scan reads session contents, so its directory must be fixed rather
-    // than supplied by a caller.
+test('the default scan uses the development directory', () => {
+    // Default development scans retain their historical corpus.
     assert.ok(DEVELOPMENT_DIR.endsWith('/sessions'));
-    assert.ok(!DEVELOPMENT_DIR.includes('holdout'));
 });
 
-test('main rejects every argument outside its two options', async () => {
+test('main rejects paths and unknown options', async () => {
     await assert.rejects(
         () => main(['sessions/holdout']),
-        /only --json and --debug-full-replay/,
+        /only --json, --debug-full-replay, and --include-holdout/,
     );
     await assert.rejects(
         () => main(['--json', '--sessions=/tmp/elsewhere']),
-        /only --json and --debug-full-replay/,
+        /only --json, --debug-full-replay, and --include-holdout/,
     );
     await assert.rejects(
         () => main(['--by=screens']),
-        /only --json and --debug-full-replay/,
+        /only --json, --debug-full-replay, and --include-holdout/,
     );
 });
 
@@ -606,4 +604,41 @@ test('isSerializeBugMismatch rejects attr mismatch on non-space', () => {
 
 test('isSerializeBugMismatch returns false for null', () => {
     assert.equal(isSerializeBugMismatch(null), false);
+});
+
+
+test('combined scans retain corpus prefixes and separate caches', async (t) => {
+    const f = scanCacheFixture(t);
+    mkdirSync(join(f.root, 'sessions', 'holdout'));
+    // Eleven synthetic recordings preserve the fixed holdout count. Reusing
+    // a development basename proves that corpus identity cannot collide.
+    const holdoutFiles = f.files.slice(0, 11).map(file => 'holdout/' + file);
+    for (const file of holdoutFiles)
+        writeFileSync(join(f.root, 'sessions', file), '{}\n');
+    f.git('add', '--', ...holdoutFiles.map(file => 'sessions/' + file));
+    f.git('commit', '--quiet', '-m', 'Add disposable local holdout');
+    const development = await loadScanRows(f.root, f.replay);
+    const combined = await loadScanRows(f.root, f.replay, { includeHoldout: true });
+    assert.deepEqual(combined.map(row => row.file), [...f.files, ...holdoutFiles]);
+    assert.deepEqual(await loadScanRows(f.root, f.replay), development);
+    assert.deepEqual(await loadScanRows(f.root, f.replay, { includeHoldout: true }), combined);
+    // An uncommitted holdout edit invalidates only the combined cache.
+    writeFileSync(join(f.root, 'sessions', holdoutFiles[0]), '{"changed":true}\n');
+    assert.deepEqual(await loadScanRows(f.root, f.replay), development);
+    assert.notDeepEqual(await loadScanRows(f.root, f.replay, { includeHoldout: true }), combined);
+    rmSync(join(f.root, 'sessions', holdoutFiles[0]));
+    await assert.rejects(() => loadScanRows(f.root, f.replay, { includeHoldout: true }),
+        /local holdout count changed/);
+});
+
+test('a replay exception retains corpus size without inventing a failure step', async () => {
+    // Two segments establish that total size includes the unvisited suffix.
+    const data = { segments: [{ steps: [{}, {}] }, { steps: [{}] }] };
+    const row = await scanRecordedSession('holdout/runtime-error.session.json', data,
+        async () => { throw new Error('missing source operation'); });
+    assert.equal(row.recordedSteps, 3); // All recorded boundaries, across both segments.
+    assert.equal(row.screensEmitted, null);
+    assert.equal(row.divergence, null);
+    assert.match(row.boundary, /missing source operation/);
+    assert.match(row.scanError, /Error: missing source operation/);
 });

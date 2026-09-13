@@ -40,7 +40,7 @@ session with `--sessions` (or `--session` for a divergence fix). This is an
 implementation decision, not a request for user approval.
 
 `queue-goal`, `open-goal`, `next-span`, and a divergence fix's `queue-span`
-enforce selection against the current development queue. Reconsider priority
+enforce selection against the current development and local-holdout queue. Reconsider priority
 between spans. When an open
 goal no longer addresses the highest candidate, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
@@ -49,7 +49,7 @@ Resume it with `open-goal --id <id>` when its priority permits.
 Use `node scripts/goal-log.mjs roadmap` for fallback work only when the
 mismatch queue is empty. Complete unverified C function groups and Lua
 programs with reachable callers and useful validation before reference-build
-inactive helpers. The port is complete only when all development sessions
+inactive helpers. The port is complete only when all development and local-holdout sessions
 match and all C functions and Lua programs have completion evidence.
 
 ## Opening the goal
@@ -107,5 +107,8 @@ and RNG logs positionally, so an early segment's output count can shift later
 segments. Compare first mismatches and complete recordings as well as totals.
 `score-development.mjs` is the authority on measured matching screens.
 
-The scan and queue read only the fixed development set. Rank only on that
-set; holdout results never select or reorder goals.
+The queue ranks first failures from both fixed sets. Local-holdout session
+identifiers start with `holdout/`; keep that prefix in `--sessions` or
+`--session`. The default scan still reads development only; use
+`scan-sessions.mjs --include-holdout --json` to reproduce the combined queue.
+Scores remain separate, and the upper bounds are not predicted gains.

@@ -450,23 +450,23 @@ test('Lua CLI plans all top-level source and requires an explicit implementation
 
 test('selection is checked when queueing, opening, and requesting either a new or existing span', (t) => {
     const f = fixture(t);
-    f.refuses(/development mismatches remain/u, 'queue-goal', '--id', 'unrelated',
+    f.refuses(/fixed-corpus mismatches remain/u, 'queue-goal', '--id', 'unrelated',
         '--kind', 'file-port', '--c-file', 'unrelated.c', '--summary', 'Unrelated helper work');
     assert.deepEqual(f.goals(), []);
     f.queue();
     queueC(f, 'unrelated', 'unrelated.c');
     f.queue('widget.c');
-    f.refuses(/development mismatches remain/u, 'open-goal', '--id', 'unrelated');
+    f.refuses(/fixed-corpus mismatches remain/u, 'open-goal', '--id', 'unrelated');
     assert.equal(f.goals()[0].status, 'queued');
     queueC(f);
     f.cli('open-goal', '--id', 'widget');
     f.queue('unrelated.c');
-    f.refuses(/development mismatches remain/u, 'next-span', '--goal', 'widget');
+    f.refuses(/fixed-corpus mismatches remain/u, 'next-span', '--goal', 'widget');
     assert.deepEqual(f.goals()[1].spans, []);
     f.queue('widget.c');
     f.cli('next-span', '--goal', 'widget');
     f.queue('unrelated.c');
-    f.refuses(/development mismatches remain/u, 'next-span', '--goal', 'widget');
+    f.refuses(/fixed-corpus mismatches remain/u, 'next-span', '--goal', 'widget');
     assert.equal(f.goals()[1].spans.length, 1); // The already-queued span is preserved.
 });
 
@@ -486,7 +486,7 @@ test('queue-span cannot bypass source planning or divergence selection checks', 
         '--goal', 'widget-fix', '--name', 'helper-fix', '--functions', 'helper');
     f.cli('open-goal', '--id', 'widget-fix');
     f.queue('unrelated.c');
-    f.refuses(/development mismatches remain/u, 'queue-span',
+    f.refuses(/fixed-corpus mismatches remain/u, 'queue-span',
         '--goal', 'widget-fix', '--name', 'helper-fix', '--functions', 'helper');
     assert.deepEqual(f.goals()[1].spans, []);
 
@@ -523,7 +523,7 @@ test('parking preserves spans, rechecks priorities on resume, and excludes other
         screensMatched: OTHER_GOAL_END.screens, rngMatched: OTHER_GOAL_END.rng,
     } }); // The following goal's closing measurement excludes the parked goal.
     f.cli('close-goal', '--goal', 'other-fix');
-    f.refuses(/development mismatches remain/u, 'open-goal', '--id', 'widget');
+    f.refuses(/fixed-corpus mismatches remain/u, 'open-goal', '--id', 'widget');
     assert.equal(f.goals()[0].status, 'parked');
 
     f.queue('widget.c');

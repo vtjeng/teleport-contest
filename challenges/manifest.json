@@ -62,6 +62,145 @@
       "recipeSha256": "2b18a553ddc19b712808b16161b3674b422597c9234bbe89b5cbd93aa5a4df1d",
       "recording": "challenges/cases/containers.session.json",
       "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d"
+    },
+    {
+      "id": "knight-jump-return",
+      "title": "Jump, revisit, and return",
+      "outcome": "Ordinary Knight attempts jumping around a pet, then jumps from a changed position, inspects inventory and returns to the upstairs tile.",
+      "playmode": "ordinary",
+      "sourcePointers": [
+        "apply.c dojump, jump, check_jump and is_valid_jump_pos: physical jumping, destination constraints, obstacles and repeated position changes."
+      ],
+      "gameTurns": 40,
+      "mission": "Ordinary Knight attempts a legal knight-move jump, walks back, inspects inventory, attempts another jump under a changed position, and explores toward stairs if reachable",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 86,
+      "boundaries": 87,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/knight-jump-return.recipe.json",
+      "recipeSha256": "3e0f5aee7d181dd92de06174d3b653b28035b5296ba89a95c692f43bff15c113",
+      "recording": "challenges/cases/knight-jump-return.session.json",
+      "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e"
+    },
+    {
+      "id": "food-quiver-history",
+      "title": "Cookie, fire, and re-quiver",
+      "outcome": "Debug setup supplies a boomerang; ordinary actions read a fortune cookie, cancel and complete quivering, fire and retrieve the projectile, and re-quiver it.",
+      "playmode": "debug setup",
+      "sourcePointers": [
+        "eat.c fpostfx FORTUNE_COOKIE and rumors.c outrumor: eating and reading the cookie.",
+        "wield.c doquiver_core: cancelled and successful inventory selection, clearing and refilling the quiver.",
+        "dothrow.c dofire and throwit: firing and retrieving a boomerang."
+      ],
+      "gameTurns": 6,
+      "mission": "Debug setup, then ordinarily eat a fortune cookie, inspect inventory, quiver a projectile, throw/fire it, retrieve it, and re-quiver with a cancelled selection before success.",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 49,
+      "boundaries": 50,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/food-quiver-history.recipe.json",
+      "recipeSha256": "c931944b0a8efb28b0008070e8afa1fe922439004007f8ca1f22b1411b7f6aa4",
+      "recording": "challenges/cases/food-quiver-history.session.json",
+      "recordingSha256": "dd6ec08a74e8b386cba633817515d23e75a29eab26c337a268163db5a61055a5"
+    },
+    {
+      "id": "pet-conversations",
+      "title": "Chat before and after pet activity",
+      "gameTurns": 48,
+      "outcome": "Talked to a hostile jackal and a pet dog; observed growl, bark, eating and yip responses around pet combat, a corpse meal, movement away and return, empty targeting and cancellation. No inventory feeding or level transition.",
+      "sourcePointers": [
+        "First evaluation at accc55ad: 23/113 screens, then js/sounds.js domonnoise refuses the jackal target. C sounds.c domonnoise MS_BARK (837–853) supplies the growl; later pet states remain behind this stop.",
+        "sounds.c dotalk and domonnoise: direction cancellation, empty targets, eating pets, and MS_BARK responses (lines 837–853 and 1246–1408).",
+        "dogmove.c dog_eat and dog_move: corpse meals and pet attacks before later chat."
+      ],
+      "playmode": "ordinary",
+      "mission": "Talk to a pet when adjacent, move away and return, try another direction and an empty square, and interact with another reachable creature; include repeat/cancel and pet-state history if available",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 112,
+      "boundaries": 113,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/pet-conversations.recipe.json",
+      "recording": "challenges/cases/pet-conversations.session.json",
+      "recipeSha256": "43604cc2ca69536f12bdb5834d9eab23a78fd4627641bb5e771efc5c1b6f81a3",
+      "recordingSha256": "f2d132f205e01414b634ee694eab39eea9b8c4a88ae03ffefc57e099585cbddb"
+    },
+    {
+      "id": "terrain-transitions",
+      "title": "Levitation, liquids, and return to ground",
+      "gameTurns": 31,
+      "outcome": "Debug setup supplied levitation equipment and terrain. Ordinary play toggled levitation, tried stairs, crossed pool and lava while airborne, avoided liquids while grounded, entered water and crawled out with item dilution, then inspected a fountain. Did not locate downstairs or drink from the fountain.",
+      "sourcePointers": [
+        "First evaluation at accc55ad: 49/137 screens, then js/do_wear.js Ring_on refuses its RIN_LEVITATION branch (674–677). C do_wear.c Ring_on (1306–1315) calls float_up and spoteffects or updates blocked flight.",
+        "do_wear.c Ring_on, Ring_off_or_gone and Ring_off; trap.c float_up and float_down: wearing and removing levitation equipment.",
+        "hack.c swim_move_danger and avoid_moving_on_liquid; trap.c drown: grounded water entry, escape and liquid avoidance.",
+        "objnam.c wizterrainwish: debug terrain setup; pager.c do_look: feature inspection."
+      ],
+      "playmode": "debug setup",
+      "mission": "Use debug wishes to set up a noncursed levitation ring and investigate terrain transitions, putting on and removing it, crossing features, and trying stairs where achievable",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 136,
+      "boundaries": 137,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/terrain-transitions.recipe.json",
+      "recording": "challenges/cases/terrain-transitions.session.json",
+      "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+      "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9"
+    },
+    {
+      "id": "monster-transformations",
+      "title": "Equipped soldier becomes a dragon",
+      "gameTurns": 2,
+      "outcome": "Debug setup requested a tame soldier; C pacified it but refused taming. With monpolycontrol configured, an ordinary wand zap transformed it into a red dragon, destroying armor and dropping shield, helmet and boots. A subsequent attack provoked fatal retaliation; a second transformation was not reached.",
+      "sourcePointers": [
+        "First evaluation at accc55ad: 26/81 screens, then js/read.js create_particular_parse rejects the tame prefix (745–753). C read.c create_particular_parse (3196–3207) sets disposition; create_particular_creation calls tamedog. Transformation behavior is later in the C recording.",
+        "read.c create_particular_creation and dog.c tamedog: a human soldier becomes peaceful but is not tamed (dog.c line 1245).",
+        "zap.c bhitm and mon.c newcham: a wand changes the equipped soldier into a red dragon; monpolycontrol supplies the requested form.",
+        "worn.c mon_break_armor (line 1177): armor destruction and incompatible equipment drops; mhitu.c mattacku: fatal retaliation."
+      ],
+      "playmode": "debug setup",
+      "mission": "Create tame humanoid monsters, exercise polymorph with equipment, and interact after transformation.",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 80,
+      "boundaries": 81,
+      "reproducibility": "Independent C replay matched every parsed segment exactly.",
+      "recipe": "challenges/cases/monster-transformations.recipe.json",
+      "recording": "challenges/cases/monster-transformations.session.json",
+      "recipeSha256": "b3cc9553ecf4aad3dfcceb7118d99b6f191bd2f9d1c53a9786ff0608f466d395",
+      "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b"
+    },
+    {
+      "id": "sustained-journey",
+      "title": "Food, lamp, and sustained exploration",
+      "outcome": "Ordinary Valkyrie revisited rooms and a corridor, ate rotten food and became confused, lit an oil lamp, canceled an equipment prompt, searched and fought monsters. Ended alive at turn 208 on D:1; did not find downstairs and declined the surface exit.",
+      "sourcePointers": [
+        "First evaluation at accc55ad: 5/202 screens, then js/cmd.js rhack refuses counted movement (5341–5361). C cmd.c parse/rhack and allmain.c moveloop_core (515–531) retain and repeat the command through lookaround and domove.",
+        "eat.c rottenfood and doeat: rotten-food confusion during a longer ordinary game.",
+        "apply.c use_lamp and doapply: lighting a carried oil lamp; do.c doup and dodown: stair attempts and declined surface exit.",
+        "dogmove.c dog_move and mon.c movemon: pet and monster turns during searches, exploration and combat."
+      ],
+      "playmode": "ordinary",
+      "gameTurns": 208,
+      "mission": "Sustain purposeful ordinary play: explore to another dungeon level, carry/use food or equipment, manage inventory, return to an earlier place and resume exploration, with some cancellations/repeated commands and long enough history to change hunger/pet/monster state.",
+      "generator": "c-explorer-pilot-v1",
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "inputs": 201,
+      "boundaries": 202,
+      "reproducibility": "Independent C replay matched the complete parsed recording.",
+      "recipe": "challenges/cases/sustained-journey.recipe.json",
+      "recording": "challenges/cases/sustained-journey.session.json",
+      "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+      "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea"
     }
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 76391,
+      "datetime": "20010314110000",
+      "nethackrc": "OPTIONS=name:Scoutknight-jump-return,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " #jump\nlj\nlj.\u001bljj.llhi i h #jump\n ljj. hjhohhhjhhhhhhhhhhhhjjljlllll#jump\nllk.llllkllk"
+    }
+  ]
+}

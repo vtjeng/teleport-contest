@@ -10,7 +10,7 @@ const ID = /^[a-z0-9][a-z0-9-]*$/u;
 const METRICS = ['sessions', 'screens', 'rng', 'cursors'];
 
 // Validate every component before opening a file. Neither traversal nor a
-// symlink inside challenges/ may redirect a tool into the sealed holdout.
+// symlink inside challenges/ may substitute a recording from another corpus.
 export function challengePath(root, relative) {
     if (typeof relative !== 'string' || !/^challenges\/[a-zA-Z0-9._/-]+$/u.test(relative)
         || relative.split('/').some(part => !part || part === '.' || part === '..'))
