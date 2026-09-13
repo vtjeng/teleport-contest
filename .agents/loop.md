@@ -195,7 +195,9 @@ start the next as a slot becomes available. Keep only one investigator per
 session; reuse partial findings when continuing an investigation.
 
 Give each investigator its session, remaining-screen count, examined commit,
-queue entry, existing artifacts, and any partial cache entry. It reads source
+queue entry, existing artifacts, and any partial cache entry. Require it to read
+`.agents/selection.md`, "Investigation cache", for the exact field names and
+types; do not substitute an abbreviated schema in the handoff. It reads source
 and artifacts and may replay its assigned session under `.agents/validation.md`.
 Read source at the examined commit with `git show` or an existing worktree;
 do not mix findings from a changing working tree into that commit's evidence.
@@ -209,7 +211,10 @@ scorer.
 
 Have each investigator write its result in the schema in `.agents/selection.md`
 to a temporary file beside its assigned cache file, then rename it into place
-before sending its completion message. Include the assigned count and cache
+before sending its completion message. Call `readInvestigation(root, queueEntry)`
+from `scripts/investigation-cache.mjs` with the assigned session and count and
+require a `complete` or `partial` status. Repair a malformed result from its
+existing findings without repeating the investigation. Include the assigned count and cache
 path in the message; the orchestrator publishes results as `.agents/selection.md`
 specifies. If a scan changes the count during investigation, stop or finish
 the old assignment before starting its replacement; do not accept its old

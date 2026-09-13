@@ -83,4 +83,6 @@ test('malformed or misassigned results cannot masquerade as completed investigat
     writeFileSync(join(root, 'investigations', `${entry.session}.json`), '{');
     assert.equal(readInvestigation(root, entry).status, 'invalid');
     assert.equal(readInvestigation(root, { ...entry, session: '../outside' }).status, 'invalid');
+    // A missing session must not be coerced into a literal "undefined" ID.
+    assert.equal(readInvestigation(root, { ...entry, session: undefined }).status, 'invalid');
 });

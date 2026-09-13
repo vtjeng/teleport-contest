@@ -29,7 +29,8 @@ function validRecord(record, session) {
 export function readInvestigation(root, entry) {
     // Saved scans also reach this reader. Accept only canonical workload IDs,
     // preserving the holdout prefix without allowing paths outside the cache.
-    if (!/^(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*$/u.test(entry.session))
+    if (!text(entry.session)
+        || !/^(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*$/u.test(entry.session))
         return { status: 'invalid' };
     const path = `investigations/${entry.session}.json`;
     let record;
