@@ -5348,6 +5348,14 @@ function _buildScreenOutput(cursorOnHero = true) {
         ? [display.cursorCol, display.cursorRow]
         : null;
     const statusRows = game._renderedStatusLayouts ?? statusLayouts();
+    // botl.c bot() leaves the physical status window untouched while
+    // gb.bot_disabled is raised.  Keep those cells across the canonical
+    // rebuild so a prompt preserves an already-painted status, while a
+    // full-screen menu that cleared it remains blank.
+    const savedStatusCells = game.gb?.bot_disabled === true && display.grid
+        ? display.grid.slice(display.rows - statusRows.length)
+            .map((row) => row.map((cell) => ({ ...cell })))
+        : null;
     const viewport = mapViewport(display.rows, statusRows.length);
 
     // Render into the canonical terminal grid.
@@ -5406,7 +5414,27 @@ function _buildScreenOutput(cursorOnHero = true) {
                 );
             }
         }
-        writeStatusRows(display, statusRows);
+        // C's flush_screen() still redraws the map while botl.c bot() returns
+        // early with gb.bot_disabled.  Keep that suppression visible in the
+        // rebuilt terminal: repainting the cached status layouts here would
+        // put the covered status rows back underneath a getlin prompt.
+        if (game.gb?.bot_disabled !== true)
+            writeStatusRows(display, statusRows);
+        else if (savedStatusCells) {
+            const firstRow = display.rows - savedStatusCells.length;
+            for (let row = 0; row < savedStatusCells.length; ++row) {
+                for (let column = 0; column < display.cols; ++column) {
+                    const cell = savedStatusCells[row][column];
+                    display.setCell(
+                        column,
+                        firstRow + row,
+                        cell.ch,
+                        cell.color,
+                        cell.attr,
+                    );
+                }
+            }
+        }
         // display.c flush_screen():2261-2263 moves the cursor only for a
         // nonzero cursor_on_u. Restore the TTY cursor after clearScreen() for
         // the mode used by getpos.c and tmp_at().

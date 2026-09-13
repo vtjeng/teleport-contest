@@ -88,6 +88,25 @@ test('getlin restores an outer suppression rather than clearing it',
         assert.equal(state.gb.bot_disabled, true);
     });
 
+// C ref: display.c flush_screen() rebuilds the map while botl.c bot() returns
+// early under gb.bot_disabled. The rebuild must carry the physical status
+// cells through, because a prompt such as #levelchange leaves them painted.
+test('getlin redraw preserves already-painted status rows', async () => {
+    const state = windowState('hi\r');
+    state.u = { ux: 1, uy: 1 };
+    // Two rows are the default tty status window on a 24-row terminal.
+    state._renderedStatusLayouts = [{ text: '' }, { text: '' }];
+    state.nhDisplay.setCell(0, 22, 'S', 4, 2);
+    state.nhDisplay.setCell(0, 23, 'T', 4, 2);
+    state.disp = { botlx: true };
+
+    assert.equal(await getlin('For what?', state), 'hi');
+    assert.equal(state.nhDisplay.grid[22][0].ch, 'S');
+    assert.equal(state.nhDisplay.grid[23][0].ch, 'T');
+    // botl.c leaves the dirty flag pending until the wrapper lowers the flag.
+    assert.equal(state.disp.botlx, true);
+});
+
 // The wrappers only suppress the status rows for callers that go through them,
 // so who imports what is part of the behaviour. C gets this for free:
 // select_menu() is the entry every core caller already uses, and only
