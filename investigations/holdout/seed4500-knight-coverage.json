@@ -1,12 +1,12 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1289,
+  "remainingScreensUpperBound": 1273,
   "status": "complete",
-  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "commit": "2197a60fcd29556e827a4b3a28fdac64e86ad4f7",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1289,
-    "step": 525,
+    "remainingScreensUpperBound": 1273,
+    "step": 541,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,36 +14,35 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "elapsed-turn nh_timeout requires no active property timeout at index 16",
+    "message": "unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported",
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The boundary is the unported timed DEAF branch of nh_timeout, not the food interaction that creates it. In the assigned recording, eat.c rottenfood() draws the source-matching cascade and sets HDeaf to rnd(10)=3 while negative multi makes the hero Unaware. The first two elapsed turns only decrement this timeout; at step 525 the third elapsed turn reaches the DEAF expiry branch, where timeout.c sets HDeaf to 1, calls make_deaf(0, TRUE), marks botl, and stops an occupation only if Deaf is then false. The JavaScript preflight rejects active property index 16 and decrement_property_timeouts() has no DEAF branch. Because this witness expires while Unaware, make_deaf() suppresses its talk path; the later step-526 Hear_again callback still performs its independent rn2(2) draw. The bounded fix belongs in js/timeout.js and should remain source-general rather than identifying this seed or input.",
+  "summary": "The current boundary is the missing wizcmds.c wiz_identify() command. The assigned recording types #wizidentify and confirms it with Return at step 541; C sets iflags.override_ID to the command key (falling back to Ctrl-I), calls display_inventory(NULL, FALSE), then clears the temporary override and returns ECMD_OK. This witness has no unidentified inventory items, so invent.c display_pickinv() adds the Debug Identify title and '(all items are permanently identified already)', opens its display-only PICK_NONE menu, and waits for the next Escape. JavaScript has the extcmdlist row but no wiz_identify() export, no doextcmd() dispatch or direct-key rhack() arm, and its display_pickinv() rejects the non-reply multi-item path as an unsupported partial inventory. The source owner is a file-port of wizcmds.c wiz_identify() with the display-only wizard-ID branch wired through invent.js; the current mismatch does not require RNG or turn processing and must not be keyed to this session.",
   "source": {
-    "file": "timeout.c",
-    "functions": ["nh_timeout"],
-    "branch": "At timeout.c:669-671, an active timed DEAF property (index 16) is decremented each elapsed turn; on expiry the DEAF case at :752-758 sets HDeaf to 1, calls make_deaf(0, TRUE), marks botl, and stops an occupation only when Deaf is now false. In this witness eat.c:1830-1847 rottenfood() sets HDeaf to rnd(10)=3 and negative multi, so expiry occurs while Unaware. JS preflight_nh_timeout_elapsed_turn() rejects index 16 and decrement_property_timeouts() has no DEAF case.",
+    "file": "wizcmds.c",
+    "functions": ["wiz_identify"],
+    "branch": "For wizard=true, wizcmds.c:50-65 assigns iflags.override_ID from cmd_from_func(wiz_identify), falls back to C('I') when no binding exists, calls display_inventory(NULL, FALSE), clears override_ID, and returns ECMD_OK. In this recording the inventory is nonempty but count_unidentified() is zero, so invent.c:3057-3417 takes the wizid display branch at :3222-3236, adds 'Debug Identify' and '(all items are permanently identified already)', then select_menu(PICK_NONE) waits for the following Escape; no inventory mutation, RNG, or elapsed turn occurs.",
     "callers": [
-      "nethack-c/upstream/src/allmain.c:269-274 moveloop_core() calls nh_timeout() once per hero turn; js/allmain.js:683-821 finishElapsedTurn() and :1095-1172 advanceElapsedTurn() own the live and planned calls.",
-      "nethack-c/upstream/src/eat.c:1811-1851 rottenfood() sets HDeaf and negative multi; js/eat.js:800-866 already mirrors this trigger.",
-      "nethack-c/upstream/src/eat.c:1800-1809 Hear_again() runs from unmul after the negative-multi countdown; js/eat.js:788-798 is already wired as state.afternmv."
+      "nethack-c/upstream/src/cmd.c:1963-1964 binds Ctrl-I and the wizidentify extended-command row to wiz_identify(); js/extcmdlist_data.js:164 already carries the row.",
+      "js/cmd.js:4886-5142 owns # extended-command lookup and dispatch but its switch has no wiz_identify case; js/cmd.js:1794-1805 and :5181-5260 own direct-key admission and lookup, while the direct rhack command arms at :5871-5925 have no wizidentify branch."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/potion.c:443-457 and js/potion.js:349-379 make_deaf(); Unaware must suppress talk at DEAF expiry in this witness.",
-      "nethack-c/upstream/src/allmain.c:684-696 and js/allmain.js:368-386 stop_occupation(); timeout.c calls it only if !Deaf.",
-      "nethack-c/upstream/include/youprop.h:399 plus nethack-c/upstream/src/trap.c:6776-6786; js/trap.js:1115-1127 and js/eat.js:330-335 define Unaware from negative multi and the conscious-again nomovemsg.",
-      "nethack-c/upstream/src/eat.c:1800-1809 and step 526 own the later Hear_again() rn2(2) wake callback.",
-      "js/timeout.js:462-521, :590-639 and js/allmain.js:1095-1172 are the preflight, decrement, and planned-turn clone seams; the clone preserves uprops, multi, and nomovemsg."
+      "nethack-c/upstream/src/invent.c:3057-3417 display_pickinv() and :3427-3455 display_inventory(); js/invent.js:980-1113 and :1115-1121 contain the partial port. The current JS multi-item path throws when want_reply is false at :1053-1055, so it cannot render the witness's display-only wizid menu.",
+      "nethack-c/upstream/src/invent.c:3222-3251 and js/invent.js:1556-1562 count_unidentified()/not_fully_identified() decide the title and the all-items-already-identified line. The helper is present in JS; the missing state is the wizard-ID branch around display_pickinv().",
+      "nethack-c/upstream/src/windows.c select_menu() and nethack-c/upstream/src/win/tty/wintty.c PICK_NONE handling; js/windows.js:107-139 and js/tty_menu.js:1041-1142 already provide a display-only menu that ignores selectors and closes on Escape/Return.",
+      "nethack-c/upstream/src/cmd.c:3682-3695 can_do_extcmd() and js/cmd.js:4793-4809 gate WIZMODECMD rows by wizard mode; the witness is playmode:debug, so this guard should admit the row before dispatch.",
+      "For the nonzero unidentified-count branch, invent.c:3226-3251 and :3385-3407 use iflags.override_ID, display_pickinv() item selection, identify(), identify_pack(), and objnam.c naming overrides; js/invent.js:1577-1626 and js/objnam.js:335-368 already expose related helpers but that selection branch is not reached by this recording."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json identifies step 525 as the first stop for this session, with message 'elapsed-turn nh_timeout requires no active property timeout at index 16', 525 emitted screens, 1814 recorded steps, and no unlocated kinds.",
-    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 step 525 has key 'g', message 'Blecch!  Rotten food!  The world spins and goes dark.--More--', and the source-order RNG cascade rnd(2)=2 at next_ident, rn2(7)=0 and rn2(4)=1,3, rn2(3)=0, rnd(10)=3 through rottenfood(), followed by ambient elapsed-turn draws.",
-    "nethack-c/upstream/src/eat.c:1811-1851 and js/eat.js:800-866 show the already source-faithful rottenfood() trigger, including the duration-3 DEAF timeout and negative multi.",
-    "nethack-c/upstream/src/timeout.c:669-671,752-758 defines the missing active-timeout decrement and DEAF expiry behavior.",
-    "js/timeout.js:462-521 refuses an active timeout at property index 16, while :590-639 has no DEAF expiry case.",
-    "nethack-c/upstream/src/eat.c:1800-1809 and session step 526 show the delayed Hear_again() callback, including rn2(2)=1 and 'You are conscious again.' after the three-turn negative-multi countdown.",
-    "The proposed scope is a general DEAF elapsed-turn branch and preflight admission, with no session-specific seed, input, expected screen, or replay-position condition."
+    ".cache/scan-cache.json at SHA 2197a60fcd29556e827a4b3a28fdac64e86ad4f7 reports 541 emitted screens, 1814 recorded steps, and the boundary 'unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported'; the queue upper bound is 1273 and there are no unlocated kinds.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 529-541 contain '#wizidentify\\n'; steps 530-540 build the exact command text, and step 541's Return produces the C screen lines 'Debug Identify', '(all items are permanently identified already)', and '(end)' with no RNG entry.",
+    "nethack-c/upstream/src/wizcmds.c:48-66 defines the missing source function and its temporary override_ID lifetime; nethack-c/upstream/src/cmd.c:1963-1964 confirms both the Ctrl-I binding and extended-command row.",
+    "nethack-c/upstream/src/invent.c:3130-3138 skips the single-item shortcut for wizid, :3222-3236 builds the exact zero-unidentified display lines, and :3379-3417 invokes select_menu(PICK_NONE) through the ordinary display_inventory() return path.",
+    "js/cmd.js:5136-5141 currently raises the reported default dispatch refusal; js/cmd.js:1794-1805 omits wizidentify from direct-key admission and :5871-5925 omits its direct handler. js/wizcmds.js has no wiz_identify export.",
+    "js/invent.js:1053-1055 explicitly refuses every multi-item display when want_reply is false, while js/windows.js:122-139 and js/tty_menu.js:1041-1142 already support the PICK_NONE display-only interaction needed after the command is wired.",
+    "The implementation scope is source-general wizard-mode command admission, temporary override_ID handling, and the display-only zero-unidentified inventory branch; no seed, input string, expected screen, or replay-position special case is indicated."
   ]
 }
