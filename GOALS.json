@@ -33142,7 +33142,18 @@
       "sessions": [],
       "selectionReason": "After the multi-object wish fix, the refreshed full fixed-workload queue ranks holdout/seed4500-knight-coverage first at step 474 with up to 1340 remaining screens. Source tracing identifies the local spell.c study_book success branch and a bounded JavaScript refusal, so this highest-ranked divergence is selected.",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, step 474 input r then j; C prints You begin to memorize the runes. and You learn the detect food spell, with rnd(20)=13 at spell.c:599. read.c:doread() lines 557-609 admits the sighted spellbook and calls study_book() at 608. spell.c:study_book() lines 537-601 computes read_ability=14 for the Knight level-15 intelligence-7 witness, succeeds on rnd(20)=13, then lines 630-640 clear in_use, print begin-to-memorize, store spbook.book/o_id, set occupation learn, and return. spell.c:learn() lines 378-436 advances the occupation, writes detect-food level-2 with retention KEEN+1, increments spestudied, and prints the learn message; makeknown() follows lines 438-447 and context clears at 450-462. JS js/read.js studyTooHardSpellbook() lines 262-277 consumes rnd(20) then throws UnsupportedReadError(successful spellbook study); js/spell.js study_book() lines 195-222 only covers an earlier known-healing refresh prefix and lacks learn(). Production path is cmd.js doread() lines 3352-3353/5032-5033 -> read.js -> spell.js. Bounded scope: successful fresh ordinary spellbook study and learn callback; leave dull, Wizard confirmation, blessed/cursed, confused, novel/blank/Dead-book, refresh, and failed-difficulty branches closed.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "spell-study-learn-success",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "study_book",
+            "learn",
+            "doread"
+          ]
+        }
+      ],
       "openedAt": "54c0af3a5992b130b9de06d2143a6b13798571c8",
       "openStanding": {
         "sha": "54c0af3a5992b130b9de06d2143a6b13798571c8",
