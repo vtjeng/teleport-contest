@@ -112,9 +112,10 @@ the fixed 44-session workload.
 
 The queue ranks first failures from the fixed workload. The former local
 holdout is an ordinary part of that workload: goal-log accepts identifiers such
-as `holdout/seed4500-knight-coverage` in `--sessions` or `--session`, and the
-prefix must be preserved. These are queue identifiers (`holdout/<name>`), not
-filesystem paths; `--development-scan` still takes a saved scan JSON artifact.
+as `holdout/seed4500-knight-coverage` and explicit paths such as
+`sessions/holdout/seed4500-knight-coverage.session.json` in `--sessions` or
+`--session`, storing the canonical queue ID with its `holdout/` prefix.
+`--development-scan` still takes a saved scan JSON artifact.
 The upper bounds are not predicted gains. Challenge
 failures are synthetic local challenge diagnostics kept outside queue
 candidates. The remote competition holdout is outside this workspace.
