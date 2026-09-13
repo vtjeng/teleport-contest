@@ -32141,6 +32141,62 @@
         "screens": 8070,
         "rng": 587644
       }
+    },
+    {
+      "id": "port-pager-object-statue-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port pager.c do_screen_description object and statue descriptions and wire production whatis lookup",
+      "cFile": "pager.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The authoritative full 44-session queue ranks holdout/seed4500-knight-coverage first at screen step 231. Existing source tracing identifies pager.c do_screen_description()/lookat() object glyph handling: C describes the selected plains-centaur statue, while js/pager.js rejects non-cmap glyphs before look_at_object(). The pager.js production path is already reached from apply.js through getpos.js auto_describe(); port the complete selected C function and its required object/statue branch, preserving existing cursor behavior.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "3db6e4881173d3fbe42e03046408df79a28fd8b0",
+      "openStanding": {
+        "sha": "840d86087f43073cdeeb0606c4a440c28e26d22a",
+        "screens": 8070,
+        "rng": 587644
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_screen_description",
+          "line": 1247,
+          "endLine": 1630,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1247,
+        "to": 1630
+      },
+      "activeStanding": {
+        "sha": "840d86087f43073cdeeb0606c4a440c28e26d22a",
+        "screens": 8070,
+        "rng": 587644
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 231,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1583
+        }
+      ]
     }
   ]
 }
