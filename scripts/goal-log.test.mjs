@@ -400,6 +400,8 @@ function scoreRow(sha, screens, rng) {
         utc: '2026-08-08T00:00:00.000Z',
         sha,
         event: 'goal',
+        sessions_passed: '44',
+        sessions_total: '44',
         screens_matched: String(screens),
         screens_total: '7765',
         rng_matched: String(rng),

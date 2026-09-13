@@ -178,10 +178,13 @@ console.log(JSON.stringify({ results }));
 `);
     for (const file of ['isaac64.js', 'terminal.js', 'storage.js'])
         write(`frozen/${file}`, '// Scorer overlay fixture.\n');
-    // Match the fixed direct development set without any real session data.
+    // Match the fixed development workload without any real session data.
     const sessionPaths = Array.from({ length: 33 }, (_, index) =>
         `sessions/fixture-${index}.session.json`);
     for (const file of sessionPaths) json(file, {});
+    const holdoutPaths = Array.from({ length: 11 }, (_, index) =>
+        `sessions/holdout/fixture-${index}.session.json`);
+    for (const file of holdoutPaths) json(file, {});
     json('GOALS.json', { goals: [] });
     write('SCORE.tsv', `${COLUMNS.join('\t')}\n`);
     // Same-name JavaScript is deliberately present before evidence exists.
@@ -220,7 +223,8 @@ console.log(JSON.stringify({ results }));
     };
     const head = () => git('rev-parse', 'HEAD');
     const score = ({ screens, rng }) => appendRow({
-        sha: head(), event: 'span', screens_matched: screens, rng_matched: rng,
+        sha: head(), event: 'span', sessions_passed: 44, sessions_total: 44,
+        screens_matched: screens, rng_matched: rng,
     }, join(root, 'SCORE.tsv'));
     const queue = (...sources) => {
         const candidates = sources.map((sourceFile) => ({
@@ -285,7 +289,8 @@ console.log(JSON.stringify({ results }));
         json('.cache/evidence.json', value);
         return cli('record-evidence', '--goal', goal, '--evidence', '.cache/evidence.json');
     };
-    commit('package.json', '.gitignore', 'scripts', 'js', 'frozen', ...sessionPaths);
+    commit('package.json', '.gitignore', 'scripts', 'js', 'frozen',
+        ...sessionPaths, ...holdoutPaths);
     score(BASELINE);
     queue('widget.c');
     return { root, write, json, cli, refuses, goals, checkpoint, evidence, record,
@@ -614,7 +619,8 @@ test('metadata-only commits reuse an equivalent SCORE event without scoring', (t
 test('committed scoring inputs invalidate a cached measurement and an earlier SCORE row', async (t) => {
     // Each path belongs to a different dependency copied or executed by the scorer.
     for (const path of ['js/widget.js', 'frozen/terminal.js',
-        'scripts/scoring-workspace.mjs', 'scripts/score-development.mjs',
+        'scripts/scoring-workspace.mjs', 'scripts/fixed-workload.mjs',
+        'scripts/score-development.mjs',
         'scripts/local-tmpdir.mjs', 'package.json', 'sessions/fixture-0.session.json']) {
         await t.test(path, (subtest) => {
             const f = fixture(subtest);
