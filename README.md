@@ -71,15 +71,17 @@ If your plans don't fit in either category, you can select "other" and reach out
 ```
 # First, set your category to one of: agentic, transpiled, other .
 bash frozen/set-category.sh <CATEGORY>
-# Score locally against the complete fixed workload (33 regular + 11 opened local-holdout sessions)
+# Measure the complete fixed workload (33 regular + 11 opened local-holdout sessions)
 node scripts/score-development.mjs
+# Commit the changes, then run the complete validation gate
+npm run checkpoint
 ```
 
 Out of the box, the skeleton scores partial credit on
 `seed8000-tourist-starter` — its `fastforward.js` replay nails most
 of the early-game PRNG and the first dozen-or-so screens. That's
 your hello world: getting it from "partial" to "full pass," and
-then taking on the other 87 sessions.
+then taking on the other 43 fixed-workload sessions.
 
 ## What's in this repo
 
@@ -311,15 +313,15 @@ Two channels are scored, both required:
 - **P (PRNG):** every `rn2`/`rnd`/`d`/`rn1`/`rne`/`rnz`/`rnl` call
   must return the same value in the same order as C.
 - **S (Screen):** the 24×80 terminal output at each input boundary
-  must match C's display, byte-for-byte (after a small charset and
-  SGR canonicalization that forgives the terminal's many ways of
-  saying "draw a space").
+  must match C's decoded cell grid (after charset and SGR
+  canonicalization that forgives equivalent ways of drawing a space).
 
-**Scoring is per-step, screens-only.** Your score is the count of
-steps where the captured 24×80 grid matches C's exactly (character +
-color + attribute + cursor position). The fixed workload supplies the
-local development denominator; any remote competition score is reported
-separately by the judge.
+**Scoring is per-step and screen-based.** Your score is the count of
+steps where the captured 24×80 cell grid and cursor position match C's
+exactly (character, color, and attribute for each cell). Cursor matches
+are also reported as a separate diagnostic count. The fixed workload
+supplies the local development denominator; any remote competition score
+is reported separately by the judge.
 
 PRNG match is the structural prerequisite — if your PRNG diverges
 from C's, the game state diverges and screens can't match — but
@@ -328,7 +330,7 @@ your PRNG match percentage as advisory progress.
 
 ### What's frozen
 
-Two files in your fork are overlaid from the canonical copy before
+Three files in your fork are overlaid from the canonical copy before
 every scoring run:
 
 | File | Why frozen |

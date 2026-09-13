@@ -24,6 +24,11 @@ const LUA_PARENT = /^(.+) src=([A-Za-z0-9_.-]+\.lua):(\d+) parent=(.+)$/u;
 const NAMED_FUNCTION = /\b([A-Za-z_][A-Za-z0-9_]*)\(\)/gu;
 const MISSING_LOADER = /\bno loader for (?:special level )?["']([A-Za-z0-9_.-]+)["']/u;
 
+export const USAGE = `Usage: node scripts/mismatch-queue.mjs [--json] [--scan <path>]
+
+Print the ranked queue from the fixed 44-session scan. Use --scan with a
+saved scan artifact to avoid replaying the workload.`;
+
 export function parseCaller(caller) {
     const match = caller ? CALLER.exec(caller.trim()) : null;
     if (!match) return null;
@@ -232,19 +237,31 @@ export function formatQueue(queue) {
     return lines.join('\n');
 }
 
-function main(args) {
+export function parseArgs(args) {
     let json = false;
     let scanPath = null;
     for (let index = 0; index < args.length; index += 1) {
+        if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
+            return { help: true };
         if (args[index] === '--json') json = true;
         else if (args[index] === '--scan') {
             scanPath = args[++index];
             if (!scanPath || scanPath.startsWith('--')) throw new Error('--scan requires a path');
         } else throw new Error(`unexpected argument: ${args[index]}`);
     }
-    const queue = scanPath ? loadMismatchQueue(JSON.parse(readFileSync(scanPath, 'utf8')))
+    return { help: false, json, scanPath };
+}
+
+export function main(args) {
+    const options = parseArgs(args);
+    if (options.help) {
+        console.log(USAGE);
+        return;
+    }
+    const queue = options.scanPath
+        ? loadMismatchQueue(JSON.parse(readFileSync(options.scanPath, 'utf8')))
         : loadMismatchQueue();
-    console.log(json ? JSON.stringify(queue, null, 2) : formatQueue(queue));
+    console.log(options.json ? JSON.stringify(queue, null, 2) : formatQueue(queue));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

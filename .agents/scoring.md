@@ -5,8 +5,8 @@ from the log. Only the orchestrator appends rows; a span worker states its
 score evidence in its report. The local-holdout recordings are open under
 `AGENTS.md` and are included in the operational fixed workload.
 Run `node scripts/score-holdout.mjs [--goal <id>]` for the separate historical
-11-session local provenance view; it supplies context alongside ordinary
-development work.
+11-session local provenance view; the optional goal is an output label, not a
+permission gate. It supplies context alongside ordinary development work.
 The operational development score is the fixed 44-session workload, including
 the files under `sessions/holdout/`.
 
@@ -39,12 +39,14 @@ outside a goal close.
 A scoring run does not append a row. Challenge evaluations use the explicit
 import procedure below.
 
-1. Commit your changes before measuring a new score. Record the measured
-   commit in the row's `sha` column.
+1. Commit your changes before measuring a new score. Record the commit whose
+   game and scoring inputs produced the figures in the row's `sha` column.
    For fixed-development figures, open the `summary.json` path printed after
-   `Results:` by `npm run checkpoint`. Check that `allPassed` is `true`
-   and `commit` matches the commit you are closing. Use its `score` values
-   for the figures and `executionCommit` for the row's `sha`.
+   `Results:` by `npm run checkpoint`. Check that `allPassed` is `true` and
+   `commit` matches the commit you are closing. Use its `score` values for the
+   figures and `executionCommit` for the row's `sha`: they are normally equal,
+   but a reused checkpoint may validate a newer bookkeeping commit against
+   evidence executed at an earlier commit.
 2. Generate the note:
    `node scripts/score-log.mjs --generate-note event=<event> [label=<id>]
    screens_matched=<n> screens_total=<n> rng_matched=<n> rng_total=<n>

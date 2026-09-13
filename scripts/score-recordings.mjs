@@ -21,6 +21,14 @@ import {
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const RECORDINGS_DIR = join(PROJECT_ROOT, 'recordings');
+export const USAGE = 'Usage: node scripts/score-recordings.mjs';
+
+export function parseArgs(args) {
+    if (args.length === 0) return { help: false };
+    if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
+        return { help: true };
+    throw new Error(USAGE);
+}
 
 /** Every `*.session.json` under `root`, relative to it, sorted. */
 export function listRecordings(root = RECORDINGS_DIR) {
@@ -67,7 +75,10 @@ export function formatSummary(totals) {
 }
 
 async function main(args) {
-    if (args.length !== 0) throw new Error('arguments are not accepted');
+    if (parseArgs(args).help) {
+        console.log(USAGE);
+        return;
+    }
     const recordings = listRecordings();
     if (recordings.length === 0) {
         console.log('recordings: none under recordings/');

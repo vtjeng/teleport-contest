@@ -37,8 +37,8 @@ Then it compares positionally:
 | Channel | Compared how |
 |---|---|
 | **PRNG** | Every entry in `rngLog` is positionally checked against the C trace. Format and ordering are exact. |
-| **Screen** | Every entry in `screens` is decoded into a 24×80 cell grid and cell-compared against the recorded C frame. Two encodings that produce the same pixels match. |
-| **Cursor** | Tiebreaker only — match if you can. |
+| **Screen** | Every entry in `screens` is decoded into a 24×80 cell grid and cell-compared against the recorded C frame. The cursor must also match for the screen to count. Two encodings that produce the same cells match. |
+| **Cursor** | Compared with each screen and reported separately as a diagnostic count. |
 | **Animation frames** | **Supplemental, not part of ranking.** If your port calls `await game.animationFrame()` between intermediate display states (zap beams, thrown objects, hurtle steps, runmode-walk travel), each captured frame is positionally checked against C's. Reported on the leaderboard as a separate `Anim%` column. See "Animation frames" below. |
 
 **Partial credit:** your score is the number of steps where the
@@ -74,7 +74,7 @@ That's all. **The recorded screens, cursors, and RNG calls are not
 passed in** — you can't peek at the answer key. You have to actually
 port the game.
 
-## `opts.storage` — cross-segment persistence
+## `input.storage` — cross-segment persistence
 
 Save files, bones, the record/scoreboard file, and any other game
 state that must survive across segments of a session — or across a
@@ -92,7 +92,7 @@ save state written during segment 1 is readable during segment 2.
 The browser at `/play/<owner>/` passes a `localStorage`-backed view
 namespaced to `vfs:<owner>:` so save files written from the page
 survive a reload (and don't collide with other forks' saves). Both
-contexts use the same shape, so a port that honors `opts.storage`
+contexts use the same shape, so a port that honors `input.storage`
 gets correct multi-segment scoring and browser save/restore from one
 implementation.
 
@@ -188,8 +188,9 @@ C-side recordings carry).
 
 ### `getCursors()`
 
-Currently scored as a tiebreaker only — match it if you can; not
-required for a session to pass.
+Cursor position is checked with each screen: a cursor mismatch prevents that
+screen from matching. The scorer also reports cursor matches separately so a
+port can distinguish cell differences from cursor differences.
 
 ### Animation frames — supplemental, optional
 
@@ -246,7 +247,7 @@ every step's entry is empty and your official score is unaffected.
 
 ## What's frozen
 
-Two files in your fork are overlaid from the canonical copy before
+Three files in your fork are overlaid from the canonical copy before
 every scoring run:
 
 | File | Why frozen |

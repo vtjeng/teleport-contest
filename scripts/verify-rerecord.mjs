@@ -3,7 +3,7 @@
 // to the canonical version, ignoring the binary build-date string in
 // screen output (a known artifact of rebuilding the recorder binary).
 //
-// Usage: node scripts/verify-rerecord.mjs [session-glob]
+// Usage: node scripts/verify-rerecord.mjs [--session <id>]
 
 import { promises as fs } from 'node:fs';
 import { spawn } from 'node:child_process';
@@ -11,10 +11,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 
+import { fixedWorkload } from './fixed-workload.mjs';
+
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(SCRIPT_DIR, '..');
-const SESSIONS_DIR = path.join(TEMPLATE_ROOT, 'sessions');
 const RECORD = path.join(SCRIPT_DIR, 'record-session.mjs');
+const USAGE = 'Usage: node scripts/verify-rerecord.mjs [--session <id>]';
 
 // Strip recording-environment artifacts from screen output so
 // recordings made from different machines / build clocks can compare.
@@ -87,26 +89,44 @@ async function recordOne(input, output) {
     });
 }
 
+function sessionId(file, holdout = false) {
+    const name = file.replace(/\.session\.json$/u, '');
+    return holdout ? `holdout/${name}` : name;
+}
+
+function parseArgs(args) {
+    if (args.length === 0) return { session: null };
+    if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
+        return { help: true };
+    if (args.length === 2 && args[0] === '--session' && args[1]
+        && !args[1].startsWith('--')) return { session: args[1] };
+    throw new Error(USAGE);
+}
+
+function workloadEntries(session) {
+    const workload = fixedWorkload(TEMPLATE_ROOT);
+    const entries = [
+        ...workload.publicFiles.map((file) => ({
+            id: sessionId(file), label: 'development',
+            full: path.join(TEMPLATE_ROOT, 'sessions', file),
+        })),
+        ...workload.holdoutFiles.map((file) => ({
+            id: sessionId(file, true), label: 'local-holdout',
+            full: path.join(TEMPLATE_ROOT, 'sessions', 'holdout', file),
+        })),
+    ];
+    if (session && !entries.some((entry) => entry.id === session))
+        throw new Error(`unknown fixed-workload session: ${session}`);
+    return entries.filter((entry) => !session || entry.id === session);
+}
+
 async function main() {
-    const argv = process.argv.slice(2);
-    const filter = argv[0];
-    // Verify across the public contest sessions and (when available)
-    // the held-out judge sessions. Held-out lives outside the contest
-    // template inside the maud monorepo.
-    const HELD_OUT_DIR = path.resolve(TEMPLATE_ROOT, '..', '..', 'judge', 'sessions', 'held-out');
-    const dirs = [{ label: 'public', path: SESSIONS_DIR }];
-    try {
-        const st = await fs.stat(HELD_OUT_DIR);
-        if (st.isDirectory()) dirs.push({ label: 'held-out', path: HELD_OUT_DIR });
-    } catch {}
-    const all = [];
-    for (const d of dirs) {
-        const names = (await fs.readdir(d.path))
-            .filter((n) => n.endsWith('.session.json'))
-            .filter((n) => !filter || n.includes(filter))
-            .sort();
-        for (const name of names) all.push({ label: d.label, name, full: path.join(d.path, name) });
+    const options = parseArgs(process.argv.slice(2));
+    if (options.help) {
+        console.log(USAGE);
+        return;
     }
+    const all = workloadEntries(options.session);
 
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'verify-rerecord-'));
     let pass = 0;
@@ -115,8 +135,8 @@ async function main() {
     try {
         for (const entry of all) {
             const input = entry.full;
-            const output = path.join(tmpDir, entry.label + '-' + entry.name);
-            const display = `[${entry.label}] ${entry.name}`;
+            const output = path.join(tmpDir, `${entry.id.replaceAll('/', '--')}.session.json`);
+            const display = `[${entry.label}] ${entry.id}`;
             process.stdout.write(`[..] ${display} `);
             // Skip jsGroundTruth sessions — those are recorded by the
             // JS port and not by the C recorder, so the recorder under

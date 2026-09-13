@@ -395,10 +395,9 @@ test('each caller names the C function it would reach for a monster in the path'
     // zap.c bhit() returns the monster and leaves the caller to decide what
     // hits it: dothrow.c throwit_mon_hit():1492 reaches thitmonst(), and
     // throw_gold():2712 reaches dokick.c ghitm(). The port has neither, so the
-    // two callers stop -- and which name each stop carries is the whole
-    // deliverable of the slice that moved these refusals out of bhit(),
-    // because the boundary census .agents/selection.md ranks goals with reads
-    // that name. Nothing else in the passing suite asserts either string:
+    // two callers stop -- and each name identifies the source function that
+    // still owns the missing behavior. Nothing else in the passing suite
+    // asserts either string:
     // every throw, fire and gold matrix sets pettype:none precisely so no
     // segment reaches a monster.
     //
