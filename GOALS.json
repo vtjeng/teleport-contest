@@ -30783,6 +30783,62 @@
         "screens": 7481,
         "rng": 536444
       }
+    },
+    {
+      "id": "div-makemon-runtime-nonmain-seed0014",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Admit runtime random monster creation on non-main dungeon levels",
+      "cFile": "makemon.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "The rechecked queue ranks seed0014 step 595 first; source tracing shows an existing runtime makemon implementation incorrectly rejects a valid Gnomish Mines level, making this a focused admission divergence.",
+      "detail": "Development session seed0014-dequa-fountain-explore, first mismatch queue step 595 (the next input step 596 '.' reaches the failing runtime call) on Gnomish Mines dnum=1 depth 5->6. C allmain.c:166 maybe_generate_rnd_mon() draws rn2(70)=0; moveloop_core() lines 236-239 invokes makemon.c:1171-1178 makemon(NULL,0,0,NO_MM_FLAGS), which calls makemon_rnd_goodpos() at 1087-1088 (rn1(77,2), rn2(21)), weighted rndmonst_adj() at 1650+, then newmonhp()/m_initinv(). JS allmain.js:386-414 maybe_generate_rnd_mon() is called from finishElapsedTurn() 761-768 and advanceElapsedTurn() 1099-1124/1248-1274, invoking makemon_runtime(); js/makemon_create.js:1312-1347 preflightCreation() rejects runtimeRandomCall unless isMainDungeonLevel() (dnum===0 at 742-754), producing random coordinates outside mklev. Existing makemon_rnd_goodpos, runtime makemon, weighted species, and inventory tail are already implemented; smallest fix is source-aligned admission for non-main runtime random coordinates. If a later species or inventory branch fails, queue that as a bounded makemon.c port. No holdout data inspected.",
+      "spans": [
+        {
+          "name": "makemon-runtime-nonmain",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "makemon",
+            "makemon_rnd_goodpos"
+          ]
+        }
+      ],
+      "openedAt": "aa873ca2e347c052db3075556b29d348a7c66b1a",
+      "openStanding": {
+        "sha": "aa873ca2e347c052db3075556b29d348a7c66b1a",
+        "screens": 7481,
+        "rng": 536444
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 595,
+      "activeStanding": {
+        "sha": "aa873ca2e347c052db3075556b29d348a7c66b1a",
+        "screens": 7481,
+        "rng": 536444
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 595,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: random coordinates outside mklev",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 119
+        }
+      ]
     }
   ]
 }
