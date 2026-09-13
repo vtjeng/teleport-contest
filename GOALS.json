@@ -31773,20 +31773,46 @@
     {
       "id": "div-teleport-level-tele-special-seed4500",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Fix teleport.c level_tele positive numeric destination handling for special levels and preserve the source schedule_goto contract",
       "cFile": "teleport.c",
       "sessions": [],
       "selectionReason": "The full queue recheck after closing apply.c still ranks teleport.c level_tele() for holdout/seed4500-knight-coverage first (step 189, upper bound 1625), above all other candidates. The investigator’s source trace is verified against upstream teleport.c and js/teleport.js.",
       "detail": "The refreshed full 44-session queue still ranks holdout/seed4500-knight-coverage first at step 189 after the jump span. Source tracing identifies teleport.c level_tele(): the wizard debug sequence at steps 187-189 enters level teleport, answers 5, and C parses the positive number, resolves get_level() at lines 1417 onward, then unconditionally calls schedule_goto() at lines 1426-1428. js/teleport.js level_tele() reaches the same numeric path but throws UnsupportedLevelChangeError at its Is_special() guard around lines 1952-1962 before schedule_goto(). Production path is cmd.js wizlevelport -> runLevelTeleCommand() -> wizcmds.js wiz_level_tele() -> teleport.js level_tele(); preserve separate refusals for named/non-positive destinations, menus, random *, and other explicitly unported branches. Removing the guard must be validated against the downstream level loader and source contracts rather than treated as sufficient by itself.",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "19831aec52ace0527bdec8a4a706d9185ac41700",
+      "openStanding": {
+        "sha": "c6cf6fa94264543be688acbb8ec78f3130e1933b",
+        "screens": 8023,
+        "rng": 582980
+      },
       "closedAt": null,
       "delivered": null,
       "function": "level_tele",
       "session": "holdout/seed4500-knight-coverage",
-      "step": 189
+      "step": 189,
+      "activeStanding": {
+        "sha": "c6cf6fa94264543be688acbb8ec78f3130e1933b",
+        "screens": 8023,
+        "rng": 582980
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 189,
+          "kind": "stop",
+          "function": "level_tele",
+          "functionDeclared": true,
+          "sourceFile": "teleport.c",
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: level_tele() resolving a numeric special-level destination",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1625
+        }
+      ]
     }
   ]
 }
