@@ -11,6 +11,7 @@ import {
 import {
     A_WIS,
     CMDQ_KEY,
+    CONFUSION,
     COLNO,
     CORR,
     CQ_REPEAT,
@@ -21,6 +22,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     GETOBJ_PROMPT,
+    OBJ_FLOOR,
     ROOMOFFSET,
     ROWNO,
     SCORR,
@@ -34,7 +36,10 @@ import {
     SCR_ENCHANT_WEAPON,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
+    SCR_PUNISHMENT,
     SCR_TELEPORTATION,
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
     QUARTERSTAFF,
     SPBOOK_CLASS,
     SPE_DETECT_FOOD,
@@ -42,7 +47,12 @@ import {
     SPE_FORCE_BOLT,
     SPE_HEALING,
 } from '../js/objects.js';
-import { doread, read_ok, UnsupportedReadError } from '../js/read.js';
+import {
+    doread,
+    read_ok,
+    seffect_punishment,
+    UnsupportedReadError,
+} from '../js/read.js';
 import { getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
 import { initRng } from '../js/rng.js';
@@ -373,6 +383,72 @@ test('an ordinary enchant-weapon scroll raises the wielded weapon', async () => 
         replay.getRngSlices()[38],
         ['rn2(19)=0'],
     );
+});
+
+test('a punishment scroll attaches a ball and chain, then grows the ball',
+    async () => {
+    // The opened holdout reaches read.c seffect_punishment() at step 491.
+    // Its first scroll is an uncursed stack of three; replay through step 492
+    // includes the disappearance prompt, ball-and-chain creation, and the
+    // following monster response.
+    const replay = await runSegment(holdoutPrefix(492));
+    assert.equal(game.uball?.otyp, HEAVY_IRON_BALL);
+    assert.equal(game.uchain?.otyp, IRON_CHAIN);
+    assert.equal(game.uball?.where, OBJ_FLOOR);
+    assert.equal(game.uchain?.where, OBJ_FLOOR);
+    assert.equal(game.uball?.owt, 480);
+    assert.equal(game.u.bc_order, 1); // BCPOS_CHAIN
+    assert.equal(game._pending_message,
+        'You are being punished for your misbehavior!  The newt misses!');
+    assert.deepEqual(replay.getRngSlices()[492], [
+        'rnd(1000)=277',
+        'rnd(2)=1',
+        'rn2(100)=75',
+        'rn2(80)=25',
+        'rn2(80)=26',
+        'rn2(1000)=678',
+        'rnd(1000)=467',
+        'rnd(2)=1',
+        'rn2(100)=65',
+        'rn2(80)=73',
+        'rn2(80)=55',
+        'rn2(1000)=638',
+        'rn2(19)=18',
+        'rn2(5)=0',
+        'rnd(20)=14',
+    ]);
+
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_PUNISHMENT) scroll = scroll.nobj;
+    assert.equal(scroll?.quan, 2);
+    const weightBefore = game.uball.owt;
+    // The pending monster line is cleared before the direct doread() call;
+    // the second space dismisses the disappearance line.
+    for (const key of ' i  ') game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+    assert.equal(game.uball.owt, weightBefore + 160);
+    assert.equal(scroll.quan, 1);
+    assert.equal(game._pending_message, 'Your iron ball gets heavier.');
+    assert.equal(game.gk.known, true);
+
+    // read.c seffect_punishment() returns after the guilt line for both
+    // confused and blessed scrolls, without changing the attached ball.
+    const guiltWeight = game.uball.owt;
+    const oldConfusion = game.u.uprops[CONFUSION].intrinsic;
+    game.u.uprops[CONFUSION].intrinsic = 1;
+    await seffect_punishment({
+        otyp: SCR_PUNISHMENT,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+    }, game);
+    game.u.uprops[CONFUSION].intrinsic = oldConfusion;
+    await seffect_punishment({
+        otyp: SCR_PUNISHMENT,
+        oclass: SCROLL_CLASS,
+        blessed: true,
+    }, game);
+    assert.equal(game.uball.owt, guiltWeight);
+    assert.match(game._pending_message, /You feel guilty\.$/u);
 });
 
 test('an unknown identify scroll reports a fully identified remaining pack',

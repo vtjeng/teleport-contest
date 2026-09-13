@@ -41,6 +41,9 @@ import {
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
     SPE_LIM,
+    W_BALL,
+    W_CHAIN,
+    WT_IRON_BALL_INCR,
     ismnum,
 } from './const.js';
 import {
@@ -69,13 +72,18 @@ import {
     is_female,
     is_male,
     can_chant,
+    amorphous,
+    is_whirly,
     name_to_monplus,
+    unsolid,
     unique_corpstat,
 } from './mondata.js';
 import { makemon_runtime } from './makemon_create.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
     BRASS_LANTERN,
+    BALL_CLASS,
+    CHAIN_CLASS,
     MAGIC_LAMP,
     OIL_LAMP,
     RING_CLASS,
@@ -86,6 +94,7 @@ import {
     WAND_CLASS,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
+    SCR_PUNISHMENT,
     SCR_REMOVE_CURSE,
     SCR_TELEPORTATION,
     DUNCE_CAP,
@@ -97,7 +106,13 @@ import {
     SPBOOK_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { is_flammable, is_weptool, objectType } from './obj.js';
+import {
+    is_flammable,
+    is_weptool,
+    mkobj,
+    objectType,
+    place_object,
+} from './obj.js';
 import { not_fully_identified } from './objnam.js';
 import { acurr, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
@@ -107,13 +122,15 @@ import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn2, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { newsym } from './display.js';
 import { trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
     study_book_preflight,
 } from './spell.js';
-import { destroy_arm, some_armor } from './do_wear.js';
+import { destroy_arm, some_armor, setwornEnv } from './do_wear.js';
+import { setworn } from './worn.js';
 import { chwepon } from './wield.js';
 
 // A selected scroll or spellbook enters doread()'s effect arms. Raising before
@@ -317,13 +334,96 @@ async function studyTooHardSpellbook(spellbook, state) {
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
 // uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
 // remaining inventory is already fully identified, an ordinary positive
-// enchant-weapon scroll, and the fresh-known healing-book refresh decline.
+// enchant-weapon scroll, the source-reachable solid-human punishment-scroll
+// arms, and the fresh-known healing-book refresh decline.
 // The other admitted paths are a sighted,
 // non-hallucinating wizard reading a blessed teleportation scroll while
 // confused, and the calm ordinary teleportation-scroll path. The former
 // proceeds through seffect_teleportation() into level_tele(), which handles
 // the confused random_levtport path; the latter reaches teleport.c:scrolltele().
 // Every other selected object stops before C's scroll->pickup_prev write.
+
+function solidPunishmentTarget(state) {
+    const species = state.youmonst?.data;
+    // read.c:3036-3044 has separate amorphous, whirly and unsolid fall-away
+    // arms. They are outside this divergence, as is placement while swallowed;
+    // admit only the solid, visible first-read arm here. A previously attached
+    // ball is handled by punish() before these checks and needs no species test.
+    return !propertyActive(BLINDED, state)
+        && !state.u?.uswallow
+        && species
+        && !amorphous(species)
+        && !is_whirly(species)
+        && !unsolid(species);
+}
+
+function punishmentReadAdmitted(scroll, confused, state) {
+    if (scroll.oclass !== SCROLL_CLASS || scroll.otyp !== SCR_PUNISHMENT)
+        return false;
+    // doread()'s blind guard at read.c:561-575 allows a scroll only after its
+    // description has been seen. The guilty and repeated-ball arms do not
+    // need the blind ball-and-chain display setup; the first creation arm
+    // remains sighted.
+    if (propertyActive(BLINDED, state)
+        && !confused && !scroll.blessed && !state.uball) return false;
+    if (confused || scroll.blessed || state.uball) return true;
+    return solidPunishmentTarget(state);
+}
+
+// C ref: read.c punish() (3019-3062), plus the solid, non-swallowed
+// placebc_core() arm required by its scroll caller. Reuse-ball, fall-away,
+// swallowed and blind display branches remain outside this divergence.
+export async function punish(scroll, state = game) {
+    const cursedLevy = scroll?.cursed ? 1 : 0;
+
+    await ttyPline('You are being punished for your misbehavior!', state);
+    if (state.uball) {
+        await ttyPline('Your iron ball gets heavier.', state);
+        state.uball.owt += WT_IRON_BALL_INCR * (1 + cursedLevy);
+        return;
+    }
+
+    if (!solidPunishmentTarget(state)) {
+        throw new UnsupportedReadError(
+            'punish() fall-away, swallowed, or blind branch',
+        );
+    }
+
+    // C makes and wears the chain before making and wearing the ball. mkobj()
+    // owns the exact rnd(1000), next_ident() and erosion draw sequence for each
+    // generic class; setworn() owns the state.uball/state.uchain pointers.
+    const chain = mkobj(CHAIN_CLASS, true, { state });
+    setworn(chain, W_CHAIN, setwornEnv(state));
+    const ball = mkobj(BALL_CLASS, true, { state });
+    setworn(ball, W_BALL, setwornEnv(state));
+
+    // placebc_core(): ball first establishes BCPOS_CHAIN, then chain is placed
+    // above it. The glyph is sampled before newsym() paints the objects.
+    place_object(ball, state.u.ux, state.u.uy, { state });
+    state.u.bc_order = 1; // BCPOS_CHAIN from ball.c:108.
+    place_object(chain, state.u.ux, state.u.uy, { state });
+    const glyph = state.level.at(state.u.ux, state.u.uy).glyph;
+    state.u.bglyph = glyph;
+    state.u.cglyph = glyph;
+    newsym(state.u.ux, state.u.uy);
+    // punish() calls newsym() again after placebc(); preserve that source call.
+    newsym(state.u.ux, state.u.uy);
+}
+
+// C ref: read.c seffect_punishment() (1976-1988). The effect is known as soon
+// as read, while blessed or confused scrolls stop after the guilt message and
+// leave the scroll for doread() to consume.
+export async function seffect_punishment(scroll, state = game) {
+    if (scroll?.otyp !== SCR_PUNISHMENT || scroll.oclass !== SCROLL_CLASS)
+        throw new UnsupportedReadError('the selected punishment-scroll branch');
+    state.gk.known = true;
+    if (scroll.blessed || propertyActive(CONFUSION, state)) {
+        await ttyPline('You feel guilty.', state);
+        return;
+    }
+    await punish(scroll, state);
+}
+
 export async function doread(state = game) {
     state.gk ??= {};
     state.gk.known = false;
@@ -377,10 +477,12 @@ export async function doread(state = game) {
         && scroll.otyp === SCR_REMOVE_CURSE && scroll.cursed
         && !propertyActive(BLINDED, state)
         && can_chant(state.youmonst, state);
+    const punishment = punishmentReadAdmitted(scroll, confused, state);
     if (!mapping && !identify && !destroyArmor
         && !knownHealing && !tooHardBook
         && !enchantWeapon
-        && !confusedTeleport && !calmTeleport && !removeCurse) {
+        && !confusedTeleport && !calmTeleport && !removeCurse
+        && !punishment) {
         throw new UnsupportedReadError('the selected readable object branch');
     }
 
@@ -411,7 +513,8 @@ export async function doread(state = game) {
     );
     if (confused) {
         await ttyPline(
-            'Being confused, you mispronounce the magic words...',
+            `Being confused, you ${can_chant(state.youmonst, state)
+                ? 'mispronounce' : 'misunderstand'} the magic words...`,
             state,
         );
     }
@@ -567,7 +670,7 @@ export async function seffect_magic_mapping(scroll, state = game) {
 
 // C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
 // SCR_DESTROY_ARMOR, SCR_ENCHANT_WEAPON, SCR_MAGIC_MAPPING,
-// SCR_REMOVE_CURSE, and SCR_TELEPORTATION. C returns `sobj ? 0 : 1`:
+// SCR_REMOVE_CURSE, SCR_TELEPORTATION and SCR_PUNISHMENT. C returns `sobj ? 0 : 1`:
 // 0 when the scroll still exists (caller handles useup), 1 when the effect
 // consumed it.  seffect_remove_curse(), seffect_teleportation(), and
 // seffect_magic_mapping() never consume the scroll, so those paths return 0.
@@ -576,7 +679,8 @@ export async function seffects(scroll, state = game) {
         && scroll.otyp !== SCR_DESTROY_ARMOR
         && scroll.otyp !== SCR_ENCHANT_WEAPON
         && scroll.otyp !== SCR_REMOVE_CURSE
-        && scroll.otyp !== SCR_TELEPORTATION) {
+        && scroll.otyp !== SCR_TELEPORTATION
+        && scroll.otyp !== SCR_PUNISHMENT) {
         throw new UnsupportedReadError('the selected scroll effect');
     }
     if (objectType(scroll, state).oc_magic)
@@ -600,6 +704,10 @@ export async function seffects(scroll, state = game) {
     }
     if (scroll.otyp === SCR_TELEPORTATION) {
         await seffect_teleportation(scroll, state);
+        return 0;
+    }
+    if (scroll.otyp === SCR_PUNISHMENT) {
+        await seffect_punishment(scroll, state);
         return 0;
     }
     await seffect_magic_mapping(scroll, state);
