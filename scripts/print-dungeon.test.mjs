@@ -29,6 +29,9 @@ import {
 } from '../js/do.js';
 import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
+import { objects_globals_init } from '../js/objects.js';
+import { init_artifacts } from '../js/artifacts.js';
+import { init_objects } from '../js/o_init.js';
 import { enableRngLog, initRng } from '../js/rng.js';
 import { level_tele } from '../js/teleport.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
@@ -49,6 +52,7 @@ function printDungeonState({ heroLevel, selectIndex } = {}) {
     state.flags = { verbose: true };
     state.u = {
         uz: heroLevel ?? { dnum: 0, dlevel: 1 },
+        uachieved: [],
         uprops: Array.from(
             { length: LAST_PROP + 1 },
             () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
@@ -115,6 +119,12 @@ function printDungeonState({ heroLevel, selectIndex } = {}) {
         state.nhDisplay.pushKey(0x1b);
     }
 
+    objects_globals_init(state);
+    state.context = { ident: 1 };
+    state.flags.initalign = 0;
+    state.urole = { mnum: 0, questarti: 0 };
+    init_objects(state, () => 0);
+    init_artifacts(state);
     return state;
 }
 
@@ -388,12 +398,17 @@ test('level_tele "?" cancelled returns without scheduling', async () => {
     assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 1 });
 });
 
-// The endgame-amulet branch (C:1234-1246) is behind a fail-closed boundary.
-test('level_tele "?" endgame selection throws', async () => {
+// The endgame-amulet branch (C:1234-1246) equips the wizard before the
+// deferred destination is scheduled.
+test('level_tele "?" endgame selection equips the Amulet and schedules', async () => {
     const state = printDungeonState({ selectIndex: 0 });
     state.u.uz0 = { dnum: 0, dlevel: 1 };
     state.u.utolev = { dnum: 0, dlevel: 1 };
     state.u.utotype = UTOTYPE_NONE;
+    state.u.uhave = {};
+    // prinv() normally observes the generated object. Keep this focused menu
+    // fixture's discovery ledger empty while asserting the teleport effects.
+    state.gd = { distantname: 1 };
     state.u.utrap = 0;
     state.u.usteed = null;
 
@@ -413,13 +428,10 @@ test('level_tele "?" endgame selection throws', async () => {
 
     initRng(42);
     enableRngLog();
-    await assert.rejects(
-        () => level_tele(state),
-        (error) => {
-            assert.ok(error instanceof UnsupportedLevelChangeError);
-            return true;
-        },
-    );
+    await level_tele(state);
+    assert.equal(state.u.uhave.amulet, 1);
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(state.u.utolev, { dnum: 1, dlevel: 3 });
 });
 
 // C: teleport.c:1301-1302 runs buried_ball_to_punishment() unconditionally

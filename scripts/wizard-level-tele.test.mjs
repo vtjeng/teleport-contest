@@ -24,6 +24,7 @@ import {
     CONFUSION,
     ECMD_OK,
     LAST_PROP,
+    LEVITATION,
     UTOTYPE_DEFERRED,
     UTOTYPE_NONE,
 } from '../js/const.js';
@@ -107,8 +108,8 @@ function levelTeleState(keys, { confused = false, wizard = true, seed = 1 } = {
     return { state, reads };
 }
 
-function schedulableLevelTeleState(answer) {
-    const fixture = levelTeleState(`${answer}\n`);
+function schedulableLevelTeleState(answer, options = {}) {
+    const fixture = levelTeleState(`${answer}\n`, options);
     const { state } = fixture;
     state.flags.verbose = true;
     state.u.uz = { dnum: 0, dlevel: 1 };
@@ -121,6 +122,7 @@ function schedulableLevelTeleState(answer) {
         depth_start: 1,
         num_dunlevs: 10,
         ledger_start: 0,
+        flags: { hellish: false },
     }];
     state.branches = [];
     state.specialLevels = [];
@@ -230,31 +232,46 @@ test('an Escape over a typed answer repaints instead of cancelling',
         ]);
     });
 
-// teleport.c:1213-1249. Each answer below leaves level_tele() through a path
-// this slice does not port, and each has to stop rather than guess.
-for (const [answer, reason] of [
-    // 1213-1214: "*" jumps to random_levtport.
-    ['*', 'level_tele() random_levtport for "*"'],
-    // The same tail for a name, which lev_by_name() rather than atoi()
-    // would answer.
-    ['sokoban', 'level_tele() resolving a non-positive or named destination'],
-    // An empty line: C's strcmp() tests all fail, so it reaches the same
-    // tail rather than cancelling.
-    ['', 'level_tele() resolving a non-positive or named destination'],
-]) {
-    test(`the answer ${JSON.stringify(answer)} stops the level teleport`,
-        async () => {
-            const { state } = levelTeleState(`${answer}\n`);
-            await assert.rejects(
-                () => level_tele(state),
-                (error) => {
-                    assert.ok(error instanceof UnsupportedLevelChangeError);
-                    assert.equal(error.reason, reason);
-                    return true;
-                },
-            );
-        });
-}
+test('an asterisk chooses a random destination', async () => {
+    // teleport.c:1213-1214 sends "*" to random_levtport().  Seed 2 keeps
+    // this independent from the prompt tests while making the destination
+    // reproducible: rn2(5)=3 and rn2(3)=0 select depth 2.
+    const { state } = schedulableLevelTeleState('*', { seed: 2 });
+    await level_tele(state);
+    assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 2 });
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(getRngLog(), ['rn2(5)=3', 'rn2(3)=0']);
+});
+
+test('a named special level supplies the destination depth', async () => {
+    // teleport.c:1227 calls lev_by_name() before atoi().  The fixture gives
+    // the Oracle a ledger entry, so the named answer exercises that source
+    // branch and then follows the ordinary deferred-arrival tail.
+    const { state } = schedulableLevelTeleState('oracle');
+    state.specialLevels = [
+        { proto: 'oracle', dlevel: { dnum: 0, dlevel: 2 } },
+    ];
+    await level_tele(state);
+    assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 2 });
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(getRngLog(), []);
+});
+
+test('ten invalid answers fall back to a random destination', async () => {
+    // teleport.c:1249-1251 stops prompting after ten failed conversions and
+    // calls random_levtport().  The fixture supplies the ten independent
+    // empty lines; the eleventh branch therefore needs no withheld input.
+    const { state } = schedulableLevelTeleState('', { seed: 2 });
+    state.nhDisplay = new GameDisplay(null);
+    state.nhDisplay.onEmptyQueue = () => {
+        throw new Error('the retry loop asked for a withheld key');
+    };
+    for (let i = 0; i < 10; i++) state.nhDisplay.pushKey('\n'.charCodeAt(0));
+    await level_tele(state);
+    assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 2 });
+    assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+    assert.deepEqual(getRngLog(), ['rn2(5)=3', 'rn2(3)=0']);
+});
 
 test('a positive decimal schedules a deferred level teleport without drawing',
     async () => {
@@ -337,19 +354,60 @@ test('a trap other than a buried ball does not block numeric scheduling',
         assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
     });
 
+test('a negative level lets a levitating hero return to the surface',
+    async () => {
+        // teleport.c:1325-1361 handles Cloud 9 before the common escape tail.
+        // Levitation takes the source's survivable branch, so no death call
+        // or destination-generation work follows it.
+        const { state } = schedulableLevelTeleState('-9');
+        state.u.uprops[LEVITATION].intrinsic = 1;
+        for (let i = 0; i < 10; i++) state.nhDisplay.pushKey('\n'.charCodeAt(0));
+        await level_tele(state);
+        assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+        assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 0 });
+        assert.equal(state.gd.dfr_post_msg,
+            'You materialize on a different level!');
+        assert.equal(game.nhDisplay.topMessage, 'float gently down to earth.');
+    });
+
+test('the endgame arm translates a negative offset to its bottom level',
+    async () => {
+        // teleport.c:1308-1318 keeps an endgame hero in the Astral dungeon
+        // and adds the negative offset to its level limit.
+        const { state } = schedulableLevelTeleState('-1');
+        state.u.uz = { dnum: 0, dlevel: 5 };
+        state.astral_level = { dnum: 0, dlevel: 1 };
+        await level_tele(state);
+        assert.deepEqual(state.u.utolev, { dnum: 0, dlevel: 9 });
+        assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+        assert.deepEqual(getRngLog(), []);
+    });
+
+test('declining the Nowhere confirmation leaves the level unchanged',
+    async () => {
+        // teleport.c:1253-1255 asks before the suicide sequence and returns
+        // immediately when ynq() answers anything other than 'y'.
+        const { state } = schedulableLevelTeleState('0');
+        state.nhDisplay.pushKey('n'.charCodeAt(0));
+        await level_tele(state);
+        assert.equal(state.u.utotype, UTOTYPE_NONE);
+        assert.deepEqual(getRngLog(), []);
+    });
+
 test('the exact main-dungeon bottom boundary enters the Gehennom path',
     async () => {
         const { state } = schedulableLevelTeleState('11');
-        await assert.rejects(
-            () => level_tele(state),
-            (error) => {
-                assert.equal(
-                    error.reason,
-                    'level_tele() finding the entrance to Gehennom',
-                );
-                return true;
-            },
+        // dungeon.c:1949-1953 find_hell() assigns the Valley entrance.  A
+        // distinct dungeon makes the destination assignment observable.
+        state.valley_level = { dnum: 1, dlevel: 1 };
+        await level_tele(state);
+        assert.deepEqual(state.u.utolev, { dnum: 1, dlevel: 1 });
+        assert.equal(state.u.utotype, UTOTYPE_DEFERRED);
+        assert.equal(
+            state.gd.dfr_post_msg,
+            'You materialize on a different level!',
         );
+        assert.deepEqual(getRngLog(), []);
     });
 
 test('the same-level clamp uses here when requested depth equals deepest',
@@ -422,42 +480,37 @@ test('a confused hero spends one rnl(5) before the Escape test', async () => {
     assert.deepEqual(getRngLog(), []);
 });
 
-test("the 'm' prefix stops before print_dungeon()", async () => {
+test("the 'm' prefix opens the level menu", async () => {
     // teleport.c:1196-1202. The row carries CMD_M_PREFIX, so 'm ^V' reaches
     // level_tele() with iflags.menu_requested set and skips the prompt
     // entirely. C clears the flag before the wizard test, and so must this
     // port, or a later prompt would inherit it.
-    const { state, reads } = levelTeleState(ESCAPE_KEY);
+    const { state, reads } = schedulableLevelTeleState(ESCAPE_KEY);
+    state.dungeons[0].dname = 'The Dungeons of Doom';
     state.iflags.menu_requested = true;
-    await assert.rejects(
-        () => level_tele(state),
-        (error) => {
-            assert.equal(
-                error.reason,
-                "level_tele() reaching print_dungeon() for the 'm' prefix",
-            );
-            return true;
-        },
-    );
+    state.nhDisplay = new GameDisplay(null);
+    state.nhDisplay.onEmptyQueue = () => {
+        throw new Error('the level menu asked for a withheld key');
+    };
+    state.nhDisplay.pushKey('\n'.charCodeAt(0));
+    await level_tele(state);
     assert.equal(state.iflags.menu_requested, false);
-    // No prompt was issued, so no key was read.
-    assert.deepEqual(reads, []);
+    // The menu consumes the completion key, while no level schedule is
+    // created after cancellation.
+    assert.equal(state.u.utotype, UTOTYPE_NONE);
+    assert.equal(reads.length, 1);
 });
 
-test('level_tele() stops for a hero who is not in wizard mode', async () => {
-    // teleport.c:1185-1190. Both arms an ordinary hero takes are unported,
-    // and teleport.c level_tele_trap() is the caller that reaches them.
+test('level_tele() disorients a non-wizard hero with the Amulet', async () => {
+    // teleport.c:1185-1190 applies this guard before any random draw or
+    // prompt.  The ordinary non-wizard scroll path therefore returns after
+    // printing the source-defined message when the hero has the Amulet.
     const { state, reads } = levelTeleState(ESCAPE_KEY, { wizard: false });
-    await assert.rejects(
-        () => level_tele(state),
-        (error) => {
-            assert.equal(
-                error.reason,
-                'level_tele() for a hero who is not in wizard mode',
-            );
-            return true;
-        },
-    );
+    state.u.uhave = { amulet: true };
+    await level_tele(state);
+    assert.equal(game.nhDisplay.topMessage,
+        'You feel very disoriented for a moment.');
+    assert.deepEqual(getRngLog(), []);
     assert.deepEqual(reads, []);
 });
 

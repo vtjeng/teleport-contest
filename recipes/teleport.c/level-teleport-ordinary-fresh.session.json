@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 581237,
+      "datetime": "20370918112233",
+      "nethackrc": "OPTIONS=name:ValleyProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u00161\n",
+      "comment": "Independent wizard-mode numeric level teleport through wiz_level_tele() to an ordinary Dungeons of Doom level. The seed, clock, character, and input were chosen for this teleport.c source entry point."
+    }
+  ]
+}

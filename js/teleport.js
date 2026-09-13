@@ -19,6 +19,7 @@ import {
     CC_UNSHUFFLED,
     COLNO,
     CONFUSION,
+    DIED,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -26,6 +27,7 @@ import {
     D_CLOSED,
     D_LOCKED,
     DOOR,
+    KILLED_BY,
     DRAWBRIDGE_UP,
     GP_ALLOW_U,
     GP_ALLOW_XY,
@@ -46,6 +48,7 @@ import {
     MON_FLOOR,
     MOAT,
     NO_TRAP,
+    NO_KILLER_PREFIX,
     OBJ_FREE,
     POOL,
     RLOC_MSG,
@@ -76,6 +79,7 @@ import {
 } from './const.js';
 import {
     In_hell,
+    assign_level,
     On_W_tower_level,
     depth,
     dunlev_reached,
@@ -86,6 +90,7 @@ import {
     on_level,
     print_dungeon,
     single_level_branch,
+    surface,
     u_on_newpos,
 } from './dungeon.js';
 import {
@@ -126,6 +131,7 @@ import {
     is_dlord,
     is_dprince,
     is_rider,
+    is_silent,
     passes_walls,
 } from './mondata.js';
 import { is_home_elemental } from './makemon.js';
@@ -178,7 +184,11 @@ import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
 import { make_blinded } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
-import { deltrap, fill_pit, reset_utrap, t_at, unconscious }
+import { verbalize } from './pline.js';
+import { set_voice } from './sounds.js';
+import { u_left_shop } from './shk.js';
+import { note_unported } from './unported.js';
+import { deltrap, fill_pit, Flying, reset_utrap, t_at, unconscious }
     from './trap.js';
 import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
@@ -1708,248 +1718,349 @@ export function random_teleport_level(state = game) {
     return nlev;
 }
 
-// C ref: teleport.c level_tele() (1164-1424). Covered here: the prompt and
-// literal-answer classification, recorder-ABI decimal conversion, topology
-// resolution for an ordinary positive main-dungeon destination, its guards,
-// schedule_goto(), and the confused random_levtport path through
-// random_teleport_level(). Named, non-positive and other explicitly
-// unsupported destinations stop at their source branch. Numeric special-level
-// destinations use goto_level()'s source-backed special-level loader.
-//
-// teleport.c:1174-1184's iflags.debug_fuzzer arm is omitted rather than
-// refused, for the reason cmd.c can_do_extcmd()'s fuzzer arm is: nothing in
-// this port writes that flag.
+// C ref: teleport.c level_tele() (1164-1424). Keep the source order because
+// controlled, involuntary, menu, heaven, and Gehennom destinations all share
+// the same deferred-arrival tail.
+function levelInEndgame(level, state) {
+    return Boolean(level && state.astral_level
+        && level.dnum === state.astral_level.dnum);
+}
+
+function levelInQuest(level, state) {
+    return Boolean(level && Number.isInteger(state.quest_dnum)
+        && level.dnum === state.quest_dnum);
+}
+
+function levelInMines(level, state) {
+    return Boolean(level && Number.isInteger(state.mines_dnum)
+        && level.dnum === state.mines_dnum);
+}
+
+function levelInSokoban(level, state) {
+    return Boolean(level && Number.isInteger(state.sokoban_dnum)
+        && level.dnum === state.sokoban_dnum);
+}
+
+// C ref: dungeon.c find_hell() (1949-1953). This helper has no independent
+// return value; it assigns the Valley of the Dead entrance to its argument.
+function findHell(level, state) {
+    if (!state.valley_level || !Number.isInteger(state.valley_level.dnum)) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() find_hell() without valley_level',
+        );
+    }
+    level.dnum = state.valley_level.dnum;
+    level.dlevel = 1;
+}
+
+function killerForLevelTele(state) {
+    state.killer ??= { name: '', format: KILLED_BY };
+    state.killer.name ??= '';
+    state.killer.format ??= KILLED_BY;
+    return state.killer;
+}
+
+async function levelTeleMenu(state) {
+    const dest = await print_dungeon(state);
+    if (!dest) return null;
+    const newlevel = { dnum: dest.dnum, dlevel: dest.dlevel };
+
+    // teleport.c:1234-1246. Wizard menu travel to any endgame level gets the
+    // Amulet before schedule_goto() runs when the hero does not have it.
+    if (levelInEndgame(newlevel, state)
+        && !levelInEndgame(state.u.uz, state)
+        && !state.u.uhave?.amulet) {
+        let amu = mksobj(
+            AMULET_OF_YENDOR,
+            true,
+            false,
+            objectGenerationEnv({ state }),
+        );
+        if (amu) {
+            amu = addinv(amu, {
+                state,
+                hooks: {
+                    addSpecialInventoryEffects: addinvAmuletEffects,
+                    updateInventory: () => {},
+                },
+            });
+            await prinv('Endgame prerequisite:', amu, 0, { state });
+        }
+    }
+    return { newlevel, newlev: dest.playerlev };
+}
+
 export async function level_tele(state = game) {
-    // Two guards need `!wizard` and so cannot fire for the port's only
-    // caller, wizcmds.c wiz_level_tele(): 1185-1189's "You feel very
-    // disoriented for a moment." and 1190's `(Teleport_control && !Stunned)
-    // || wizard`, whose else arm is the random_levtport label. Neither of
-    // their operands has a side effect, so collapsing both to this one
-    // refusal changes no random-number call and no output. teleport.c
-    // level_tele_trap() is the caller that reaches them, and it is unported.
-    if (!state.wizard) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() for a hero who is not in wizard mode',
-        );
-    }
-
+    const u = state.u;
+    const iflags = state.iflags ?? (state.iflags = {});
+    const flags = state.flags ?? (state.flags = {});
+    const killer = killerForLevelTele(state);
     let newlev;
-    let randomPath = false;
+    let newlevel = { dnum: 0, dlevel: 0 };
+    let escape_by_flying = null;
+    let force_dest = false;
 
-    const qbuf = 'To what level do you want to teleport?';
-    // C counts prompts in `trycnt` and appends
-    // " [type a number, name, or ? for a menu]" when `++trycnt == 2`. Only
-    // the do/while at 1250 starts that second pass, and its condition reads
-    // the `newlev` that lev_by_name() and atoi() produce, so the refusal at
-    // the end of this function precedes it and the suffix is unreachable.
-    if (state.iflags?.menu_requested) {
-        state.iflags.menu_requested = false;
-        // 1196-1202: wizard mode's `m ^V` skips the prompt entirely and
-        // jumps to the levTport_menu label, which is print_dungeon().
-        throw new UnsupportedLevelChangeError(
-            "level_tele() reaching print_dungeon() for the 'm' prefix",
+    // teleport.c:1174-1183. The fuzzer selects an attached, non-Astral
+    // dungeon and schedules its first random level.
+    if (iflags.debug_fuzzer) {
+        const nDungeons = state.n_dgns ?? state.dungeons.length;
+        do {
+            newlevel.dnum = rn2(nDungeons);
+        } while (newlevel.dnum === state.astral_level?.dnum
+            || state.dungeons[newlevel.dnum]?.flags?.unconnected
+            || !state.dungeons[newlevel.dnum]?.num_dunlevs);
+        newlevel.dlevel = 1 + rn2(
+            dunlevs_in_dungeon(newlevel, state),
         );
-    }
-    // C's `*buf = '\0'` before getlin() matters only under EDIT_GETLIN, which
-    // include/config.h:655 leaves undefined, so tty_getlin() ignores whatever
-    // the buffer held and this port has nothing to clear.
-    const buf = await getlin(qbuf, state);
-    if (buf === '*') {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() random_levtport for "*"',
-        );
-    }
-    // rnl() is drawn only for a confused hero, so an unconfused one costs no
-    // randomness. The draw comes before the Escape test below, which is why a
-    // confused hero can be sent elsewhere by a keystroke meant to cancel.
-    if (Confusion(state) && rnl(5)) {
-        await ttyPline('Oops...', state);
-        randomPath = true;
+        assign_level(u.ucamefrom, u.uz);
+        schedule_goto(newlevel, UTOTYPE_NONE, null, null, state);
+        return;
     }
 
-    if (randomPath) {
-        // C label: random_levtport (teleport.c:1293-1298). Picks a random
-        // level and returns early if it matches the current depth.
+    // teleport.c:1185-1188. These restrictions apply before controlled
+    // teleport input is considered.
+    if ((u.uhave?.amulet || levelInEndgame(u.uz, state)
+        || levelInSokoban(u.uz, state)) && !state.wizard) {
+        await ttyPline('You feel very disoriented for a moment.', state);
+        return;
+    }
+
+    const controlled = (Teleport_control_prop(state) && !Stunned_prop(state))
+        || Boolean(state.wizard);
+    if (!controlled) {
+        // teleport.c:1292-1298. Involuntary level teleport skips getlin().
         newlev = random_teleport_level(state);
-        if (newlev === depth(state.u.uz, state)) {
+        if (newlev === depth(u.uz, state)) {
             await ttyPline('You shudder for a moment.', state);
             return;
         }
     } else {
-        // Prompt-path validation (inside C's `if ((Teleport_control &&
-        // !Stunned) || wizard)` block, lines 1218-1291).
-        if (buf === '\x1B') return; /* cancelled */
-        // 1221: `wizard && !strcmp(buf, "?")`, whose first operand this
-        // function has already established.
-        if (buf === '?') {
-            // C: levTport_menu label (1225-1247). print_dungeon(TRUE) shows
-            // a selectable dungeon overview; force_dest = TRUE skips all the
-            // numeric-answer validation below and goes straight to
-            // schedule_goto.
-            const dest = await print_dungeon(state);
-            if (!dest) return;  // C: `if (!newlev) return;`
+        let trycnt = 0;
+        let random_levtport = false;
+        let buf = '';
+        let qbuf = 'To what level do you want to teleport?';
 
-            const newlevel = { dnum: dest.dnum, dlevel: dest.dlevel };
-            // C:1234-1246 endgame-amulet branch: when the selected level is
-            // in the endgame and the hero is not, wizard mode conjures the
-            // Amulet of Yendor. This bounded port takes the Plane-of-Fire
-            // destination; other endgame selections remain fail-closed.
-            const inEndgame = newlevel.dnum === state.astral_level?.dnum;
-            const heroInEndgame =
-                state.u.uz.dnum === state.astral_level?.dnum;
-            const enteringFire = on_level(newlevel, state.fire_level);
-            if (inEndgame && !heroInEndgame && !enteringFire) {
-                throw new UnsupportedLevelChangeError(
-                    'level_tele() endgame destination outside Plane of Fire',
-                );
+        // teleport.c:1195-1247. A requested wizard menu jumps to its label;
+        // controlled non-wizard input clears the flag and still prompts.
+        if (iflags.menu_requested) {
+            iflags.menu_requested = false;
+            if (state.wizard) {
+                const menu = await levelTeleMenu(state);
+                if (!menu) return;
+                newlevel = menu.newlevel;
+                newlev = menu.newlev;
+                force_dest = true;
             }
-            if (inEndgame && !heroInEndgame && enteringFire) {
-                // C:1234-1246. A wizard leaving the ordinary dungeon for
-                // Endgame receives the Amulet when it is not already held.
-                // addinv() owns the inventory letter and OBJ_INVENT state;
-                // its hook supplies addinv_core1()'s uhave/achievement arm.
-                if (!state.u.uhave.amulet) {
-                    let amu = mksobj(
-                        AMULET_OF_YENDOR,
-                        true,
-                        false,
-                        objectGenerationEnv({ state }),
-                    );
-                    if (amu) {
-                        amu = addinv(amu, {
-                            state,
-                            hooks: {
-                                addSpecialInventoryEffects:
-                                    addinvAmuletEffects,
-                                updateInventory: () => {},
-                            },
-                        });
-                        await prinv(
-                            'Endgame prerequisite:',
-                            amu,
-                            0,
-                            { state },
-                        );
-                    }
+        }
+
+        if (!force_dest) {
+            do {
+                if (++trycnt === 2) {
+                    qbuf += state.wizard
+                        ? ' [type a number, name, or ? for a menu]'
+                        : ' [type a number or name]';
                 }
+                // EDIT_GETLIN is disabled in the reference build, so C's
+                // buffer clear has no observable counterpart.
+                buf = await getlin(qbuf, state);
+                if (buf === '*') {
+                    random_levtport = true;
+                    break;
+                }
+                // C evaluates this before Escape, so confused Escape still
+                // consumes rnl(5) and can become a random teleport.
+                if (Confusion(state) && rnl(5)) {
+                    await ttyPline('Oops...', state);
+                    random_levtport = true;
+                    break;
+                }
+                if (buf === '\x1B') return;
+                if (state.wizard && buf === '?') {
+                    const menu = await levelTeleMenu(state);
+                    if (!menu) return;
+                    newlevel = menu.newlevel;
+                    newlev = menu.newlev;
+                    force_dest = true;
+                    break;
+                }
+                newlev = lev_by_name(buf, state);
+                if (!newlev) newlev = cAtoi(buf);
+            } while (!newlev
+                && !/^[0-9]/u.test(buf)
+                && (buf[0] !== '-' || !/^[0-9]/u.test(buf[1] ?? ''))
+                && trycnt < 10);
+        }
+
+        if (random_levtport || (!force_dest && trycnt >= 10 && !newlev)) {
+            newlev = random_teleport_level(state);
+            if (newlev === depth(u.uz, state)) {
+                await ttyPline('You shudder for a moment.', state);
+                return;
             }
-            // C:1301-1302 buried_ball_to_punishment() runs unconditionally,
-            // outside any !force_dest guard.
-            if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
-                throw new UnsupportedLevelChangeError(
-                    'level_tele() with the hero tethered to a buried ball',
+        } else if (!force_dest && newlev === 0) {
+            // teleport.c:1253-1272. The C confirmation and death call are
+            // retained; end.c owns the final death decision.
+            const { ynq } = await import('./lock.js');
+            if (await ynq('Go to Nowhere.  Are you sure?', state) !== 'y')
+                return;
+            const silent = is_silent(state.youmonst?.data);
+            await ttyPline(
+                `${silent ? 'You writhe' : 'You scream'} in agony as your body begins to warp...`,
+                state,
+            );
+            note_unported('window.c display_nhwindow');
+            await ttyPline('You cease to exist.', state);
+            if (state.gi?.invent || state.invent) {
+                await ttyPline(
+                    `Your possessions land on the ${surface(u.ux, u.uy, state)} with a thud.`,
+                    state,
                 );
             }
-            // force_dest = TRUE: skip single_level_branch, In_quest,
-            // next_to_u, In_endgame, negative-level heaven, find_hell, and
-            // get_level.
-            schedule_goto(
-                newlevel,
-                UTOTYPE_NONE,
-                null,
-                state.flags?.verbose
-                    ? 'You materialize on a different level!'
-                    : null,
+            killer.format = NO_KILLER_PREFIX;
+            killer.name = 'committed suicide';
+            const { done } = await import('./end.js');
+            await done(DIED, state);
+            await ttyPline('An energized cloud of dust begins to coalesce.', state);
+            await ttyPline(
+                `Your body rematerializes${state.gi?.invent || state.invent
+                    ? ', and you gather up all your possessions' : ''}.`,
                 state,
             );
             return;
         }
-        const namedLevel = lev_by_name(buf, state);
-        newlev = namedLevel || cAtoi(buf);
 
-        // C keeps negative answers for the common tail, where endgame
-        // destinations are resolved as offsets. Only the zero/Nowhere arm
-        // and named destinations remain outside this bounded port.
-        if (namedLevel || newlev === 0) {
-            throw new UnsupportedLevelChangeError(
-                'level_tele() resolving a non-positive or named destination',
-            );
-        }
-
-        if (single_level_branch(state.u.uz, state)) {
+        if (!force_dest && newlev > 0 && single_level_branch(u.uz, state)) {
             await ttyPline('You shudder for a moment.', state);
             return;
         }
-        // C ref: teleport.c:1282-1291. In the Quest the status line shows
-        // "Home 1", "Home 2", etc., relative depths, so a controlled-teleport
-        // answer is relative too. Convert it to the absolute depth the common
-        // tail expects by adding depth_start - 1.
-        if (Number.isInteger(state.quest_dnum)
-            && state.u.uz.dnum === state.quest_dnum
-            && newlev > 0) {
-            newlev = newlev
-                + state.dungeons[state.u.uz.dnum].depth_start - 1;
+        if (!force_dest && levelInQuest(u.uz, state) && newlev > 0) {
+            newlev += state.dungeons[u.uz.dnum].depth_start - 1;
         }
     }
 
-    // Common tail (teleport.c:1301-1428): both the prompt path and the
-    // random_levtport path reach here.  force_dest is FALSE for both.
-    if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
+    // Common tail (teleport.c:1301-1428). buried_ball_to_punishment() owns
+    // object extraction and punishment state, and remains an explicit gap.
+    if (u.utrap && u.utraptype === TT_BURIEDBALL) {
+        note_unported('dig.c buried_ball_to_punishment');
         throw new UnsupportedLevelChangeError(
             'level_tele() with the hero tethered to a buried ball',
         );
     }
-    if (!next_to_u(state)) {
+    if (!force_dest && !next_to_u(state)) {
         await ttyPline('You shudder for a moment.', state);
         return;
     }
-    if (state.astral_level
-        && state.u.uz.dnum === state.astral_level.dnum) {
-        // C ref: teleport.c:1308-1320. Endgame level numbers are entered as
-        // negative offsets from the bottom of the endgame dungeon: -1 is the
-        // level immediately above the bottom, -2 the next one, and so on.
-        // Unlike the ordinary negative-level path below, this stays inside
-        // the current dungeon and schedules the destination normally.
-        const llimit = dunlevs_in_dungeon(state.u.uz, state);
+    if (levelInEndgame(u.uz, state)) {
+        // teleport.c:1308-1318. Endgame level numbers are negative offsets
+        // from the bottom of the endgame dungeon.
+        const llimit = dunlevs_in_dungeon(u.uz, state);
         if (newlev >= 0 || newlev <= -llimit) {
             await ttyPline("You can't get there from here.", state);
             return;
         }
-        const newlevel = {
-            dnum: state.u.uz.dnum,
-            dlevel: llimit + newlev,
-        };
-        schedule_goto(
-            newlevel,
-            UTOTYPE_NONE,
-            null,
-            // C's endgame arm schedules with no deferred materialization
-            // message; the ordinary tail supplies that optional message.
-            null,
-            state,
-        );
+        newlevel = { dnum: u.uz.dnum, dlevel: llimit + newlev };
+        schedule_goto(newlevel, UTOTYPE_NONE, null, null, state);
         return;
     }
 
-    const newlevel = { dnum: 0, dlevel: 0 };
-    if (state.medusa_level
-        && state.u.uz.dnum === state.medusa_level.dnum
-        && newlev >= state.dungeons[state.u.uz.dnum].depth_start
-                     + state.dungeons[state.u.uz.dnum].num_dunlevs) {
-        throw new UnsupportedLevelChangeError(
-            'level_tele() finding the entrance to Gehennom',
-        );
+    killer.name = '';
+
+    if (iflags.debug_fuzzer && newlev < 0) {
+        newlev = random_teleport_level(state);
+        if (newlev === depth(u.uz, state)) {
+            await ttyPline('You shudder for a moment.', state);
+            return;
+        }
     }
 
-    // For an ordinary level of the main dungeon, qbranch is the Sanctum and
-    // `deepest` is used only by the same-level error wording below. The
-    // invocation clamp is guarded by !wizard and cannot fire here.
-    const qbranch = state.sanctum_level;
-    const deepest = state.dungeons[qbranch.dnum].depth_start
-        + state.dungeons[qbranch.dnum].num_dunlevs - 1;
-    get_level(newlevel, newlev, state);
-
-    if (on_level(newlevel, state.u.uz) && newlev !== depth(state.u.uz, state)) {
-        await ttyPline(
-            `You can't get there from ${newlev > deepest ? 'anywhere' : 'here'}.`,
-            state,
-        );
-        return;
+    // teleport.c:1325-1361. Negative destinations leave through heaven or
+    // the clouds. Shop debt is settled before departure.
+    if (newlev < 0 && !force_dest) {
+        if (u.ushops0?.[0]) {
+            state.in_mklev = true;
+            try {
+                await u_left_shop(u.ushops0, true, state);
+            } finally {
+                // teleport.c:1331-1335 writes FALSE after settling the bill;
+                // retain that assignment even when the JS callee reports a
+                // boundary while unwinding.
+                state.in_mklev = false;
+            }
+            u.ushops0[0] = 0;
+            if (u.ushops?.length) u.ushops[0] = 0;
+        }
+        if (newlev <= -10) {
+            await ttyPline('You arrive in heaven.', state);
+            set_voice(null, 0, 80, 0, state);
+            await verbalize('Thou art early, but we\'ll admit thee.', state);
+            killer.format = NO_KILLER_PREFIX;
+            killer.name = 'went to heaven prematurely';
+        } else if (newlev === -9) {
+            await ttyPline('You feel deliriously happy.', state);
+            await ttyPline('(In fact, you\'re on Cloud 9!)', state);
+            note_unported('window.c display_nhwindow');
+        } else {
+            await ttyPline('You are now high above the clouds...', state);
+        }
+        if (killer.name) {
+            // The heaven destination is already fatal and remains pending.
+        } else if (Levitation_prop(state)) {
+            escape_by_flying = 'float gently down to earth';
+        } else if (Flying(state)) {
+            escape_by_flying = 'fly down to the ground';
+        } else {
+            await ttyPline('Unfortunately, you don\'t know how to fly.', state);
+            await ttyPline('You plummet a few thousand feet to your death.', state);
+            killer.name = `teleported out of the dungeon and fell to ${flags.female ? 'her' : 'his'} death`;
+            killer.format = NO_KILLER_PREFIX;
+        }
     }
 
-    // C has no special-level guard here: numeric destinations always reach
-    // schedule_goto(). deferred_goto() then lets goto_level() dispatch the
-    // destination through mklev.c makelevel() and its registered loader.
+    if (killer.name) {
+        const savedLevel = { ...u.uz };
+        u.uz.dnum = 0;
+        u.uz.dlevel = newlev <= -10 ? -10 : 0;
+        const { done } = await import('./end.js');
+        await done(DIED, state);
+        assign_level(u.uz, savedLevel);
+        escape_by_flying = 'find yourself back on the surface';
+    }
+
+    if (escape_by_flying) {
+        await ttyPline(`${escape_by_flying}.`, state);
+        newlevel = { dnum: 0, dlevel: 0 };
+    } else if (!force_dest
+        && u.uz.dnum === state.medusa_level?.dnum
+        && newlev >= state.dungeons[u.uz.dnum].depth_start
+            + dunlevs_in_dungeon(u.uz, state)) {
+        // teleport.c:1388-1391 calls find_hell(), whose source body assigns
+        // the Valley of the Dead entrance at depth 1.
+        findHell(newlevel, state);
+    } else if (!force_dest) {
+        const qbranch = levelInQuest(u.uz, state)
+            ? state.qstart_level
+            : levelInMines(u.uz, state)
+                ? state.mineend_level
+                : state.sanctum_level;
+        const qbranchLevel = qbranch ?? u.uz;
+        const deepest = state.dungeons[qbranchLevel.dnum].depth_start
+            + dunlevs_in_dungeon(qbranchLevel, state) - 1;
+        if (!state.wizard && In_hell(u.uz, state)
+            && !u.uevent?.invoked && newlev >= deepest) {
+            newlev = deepest - 1;
+            await ttyPline('Sorry...', state);
+        }
+        if (levelInQuest(u.uz, state) && newlev < depth(state.qstart_level, state))
+            newlev = depth(state.qstart_level, state);
+        get_level(newlevel, newlev, state);
+        if (on_level(newlevel, u.uz) && newlev !== depth(u.uz, state)) {
+            await ttyPline(
+                `You can't get there from ${newlev > deepest ? 'anywhere' : 'here'}.`,
+                state,
+            );
+            return;
+        }
+    }
     schedule_goto(
         newlevel,
         UTOTYPE_NONE,
