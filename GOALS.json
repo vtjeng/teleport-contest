@@ -31511,7 +31511,21 @@
       ],
       "selectionReason": "The full fixed 44-session mismatch queue ranks holdout/seed4500-knight-coverage apply.c dojump() first at step 8 with a remaining-screen upper bound of 1806; the prior seed0014 dokick goal was parked after its span closed because it ranked below this candidate.",
       "detail": "Queue source owner is apply.c: dojump() at lines 1847-1851 delegates to jump(0) at 1988-2160. The self-contained family includes check_jump(), is_valid_jump_pos(), get_valid_jump_position(), display_jump_positions(), and jump(), whose source-order path checks physical-jump prerequisites, prompts through getpos(), validates doors/boulders/visibility/path, resolves traps and same-square landings, calls hurtle_jump()/teleds(), updates movement and hunger, and returns the ECMD result. Existing JS has no dojump/jump implementation; command_bindings.js binds j to jump but cmd.js doextcmd() has no dojump case and currently raises the unported extended-command boundary. Port the complete family and wire the jump command through its production dispatcher, preserving source-called unported gaps where return values are discarded.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "dojump..jump",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dojump",
+            "check_jump",
+            "is_valid_jump_pos",
+            "get_valid_jump_position",
+            "display_jump_positions",
+            "jump"
+          ]
+        }
+      ],
       "openedAt": "c14b60122c73cd3ebfd60624e7a224f28435ca79",
       "openStanding": {
         "sha": "0cb74fa48b483901552e8473cd08bf18ed28909f",
