@@ -32153,7 +32153,16 @@
       ],
       "selectionReason": "The authoritative full 44-session queue ranks holdout/seed4500-knight-coverage first at screen step 231. Existing source tracing identifies pager.c do_screen_description()/lookat() object glyph handling: C describes the selected plains-centaur statue, while js/pager.js rejects non-cmap glyphs before look_at_object(). The pager.js production path is already reached from apply.js through getpos.js auto_describe(); port the complete selected C function and its required object/statue branch, preserving existing cursor behavior.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "do_screen_description",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "do_screen_description"
+          ]
+        }
+      ],
       "openedAt": "3db6e4881173d3fbe42e03046408df79a28fd8b0",
       "openStanding": {
         "sha": "840d86087f43073cdeeb0606c4a440c28e26d22a",
