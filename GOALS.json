@@ -31834,7 +31834,7 @@
     {
       "id": "port-dothrow-hurtle-step195-seed4500",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port dothrow path traversal and hurtle movement used by physical jump landing",
       "cFile": "dothrow.c",
       "sessions": [
@@ -31843,8 +31843,12 @@
       "selectionReason": "The refreshed full 44-session queue's top candidate is holdout/seed4500-knight-coverage at step 195 with upper bound 1619. The bounded read-only investigator traced that unlocated stop to dothrow.c walk_path(), hurtle_jump(), and hurtle_step(), which the newly ported apply.c jump calls before teleds(); no lower-ranked candidate is being selected.",
       "detail": "The queue candidate is source-investigation because it had no owner annotation. Source trace against the named session and upstream identifies apply.c jump() line 2152 calling dothrow.c walk_path(), whose callback hurtle_jump() and hurtle_step() update positions, redraw, apply terrain/trap effects, handle obstacles/monsters, wakeups, damage, range, and EWwalking/I_SPECIAL. js/apply.js jumpLandingPath() currently calls note_unported('dothrow.c hurtle_jump/hurtle_step') and substitutes jumpWalkPath() before teleport.js teleds(); js/dothrow.js has no walk_path/hurtle_jump/hurtle_step exports. Port the complete source-ordered family walk_path through hurtle_step, wire the jump validation/landing path to it, preserve required ball.c drag_ball()/move_bc() contracts, and remove the marker/fallback. Later hurtle()/mhurtle() definitions remain outside this bounded span.",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "80c2354d46cc848d7579421a0a9b26f5d5d9c8de",
+      "openStanding": {
+        "sha": "62f4453827afbcea66d3bf62b5831cd297ef4c4f",
+        "screens": 8066,
+        "rng": 587644
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -31873,7 +31877,29 @@
       "range": {
         "from": 656,
         "to": 976
-      }
+      },
+      "activeStanding": {
+        "sha": "62f4453827afbcea66d3bf62b5831cd297ef4c4f",
+        "screens": 8066,
+        "rng": 587644
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 195,
+          "kind": "cursor",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1619
+        }
+      ]
     }
   ]
 }
