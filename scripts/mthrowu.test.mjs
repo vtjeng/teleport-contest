@@ -12,6 +12,7 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     NO_WEAPON_WANTED,
+    OBJ_DELETED,
     OBJ_FLOOR,
     ROOM,
     STONE,
@@ -33,6 +34,7 @@ import { observe_object } from '../js/o_init.js';
 import { killer_xname, mshot_xname } from '../js/objnam.js';
 import {
     ARROW,
+    BLINDING_VENOM,
     BOULDER,
     BOW,
     ORCISH_DAGGER,
@@ -401,6 +403,92 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
             ['rnd', 3], ['rnd', 20], ['rn2', 2],
         ]);
         assert.equal(temporaryDisplay.at(-1)?.[0], -7);
+    });
+
+test('m_throw sends blinding venom through thitu and deletes it on a miss',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        // One adjacent square reaches the hero with no intermediate flight
+        // checks. This pins m_throw()'s BLINDING_VENOM thitu(8, 0) arm.
+        const subject = attacker(state, state.u.ux + 1, y, state.u.ux, y);
+        const venom = mksobj(BLINDING_VENOM, false, false, { state });
+        clearRow(state, state.u.ux, subject.mx, y);
+        const messages = [];
+        const draws = [];
+        const random = {
+            rn2: (bound) => {
+                draws.push(['rn2', bound]);
+                // The force-hit check runs after thitu() misses. The final
+                // rn2(100) belongs to zap.c obj_resists() in delobj().
+                if (bound === 5 || bound === 100) return 4;
+                return assert.fail(`unexpected rn2(${bound})`);
+            },
+            rnd: (bound) => {
+                draws.push(['rnd', bound]);
+                // rnd(20)=20 misses a starting hero's AC plus tlev 8.
+                if (bound === 20) return 20;
+                return assert.fail(`unexpected rnd(${bound})`);
+            },
+            d: () => assert.fail('blinding venom does not roll d()'),
+        };
+
+        await m_throw(subject, subject.mx, y, -1, 0, 1, venom, {
+            state,
+            random,
+            canSeeMonster: () => false,
+            canSeeSquare: () => false,
+            monsterAt: () => null,
+            objectToGlyph: () => 777,
+            temporaryDisplay: async () => {},
+            delayOutput: async () => {},
+            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
+            observeObject: () => {},
+            extractObject: (obj) => obj_extract_self(obj, { state }),
+            setMonsterNotWielded: (monster, obj) =>
+                setmnotwielded(monster, obj, { state }),
+            damageValue: () => assert.fail(
+                'BLINDING_VENOM uses thitu(8, 0), not weapon damage',
+            ),
+            hitHero: (hitv, damage, obj) => thitu(
+                hitv,
+                damage,
+                obj,
+                null,
+                state,
+                {
+                    random,
+                    message: (text) => { messages.push(text); },
+                    losehp,
+                    exercise: (index, increase, exerciseState) => exercise(
+                        index,
+                        increase,
+                        exerciseState,
+                        random,
+                        { encumberMessage: async () => {} },
+                    ),
+                    unsupported: (reason) => assert.fail(reason),
+                },
+            ),
+            stopOccupation: async () => {},
+            shouldMulch: () => assert.fail('venom is deleted before mulching'),
+            shipsAway: () => assert.fail('venom is deleted before shipping'),
+            floorEffects: () => assert.fail('venom is never placed on floor'),
+            placeObject: () => assert.fail('venom is never placed on floor'),
+            passiveObject: () => assert.fail('venom is never placed on floor'),
+            stackObject: () => assert.fail('venom is never placed on floor'),
+            message: (text) => { messages.push(text); },
+            unsupported: (reason) => assert.fail(reason),
+        });
+
+        assert.deepEqual(messages, ['A splash of venom misses you.']);
+        assert.deepEqual(draws, [
+            ['rnd', 20],
+            ['rn2', 5],
+            ['rn2', 100],
+        ]);
+        assert.equal(venom.where, OBJ_DELETED);
+        assert.equal(state.gt.thrownobj, null);
     });
 
 test('m_throw miss lets the missile continue flying and drop at range end',

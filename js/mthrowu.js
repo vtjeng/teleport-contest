@@ -25,6 +25,7 @@ import {
     DEAF,
     DISP_END,
     DISP_FLASH,
+    EYE,
     EDOG,
     FUMBLING,
     HALF_PHDAM,
@@ -64,6 +65,7 @@ import {
     SLT_ENCUMBER,
     STONE_RES,
     STUNNED,
+    TIMEOUT,
     W_NONDIGGABLE,
     W_WEP,
     WT_IRON_BALL_INCR,
@@ -76,7 +78,15 @@ import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { calc_capacity, end_running, nomul, rounddiv } from './hack.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
-import { hands_obj, hold_another_object, obfree, obj_extract_self, stackobj, add_to_minv } from './invent.js';
+import {
+    add_to_minv,
+    delobj,
+    hands_obj,
+    hold_another_object,
+    obfree,
+    obj_extract_self,
+    stackobj,
+} from './invent.js';
 import {
     multishot_class_bonus,
     omon_adj,
@@ -111,7 +121,19 @@ import {
     is_prince,
     monsndx,
 } from './mondata.js';
-import { AD_ACID, AD_BLND, AD_DRST, AD_SLEE, AT_SPIT, AT_WEAP, MZ_TINY, PM_MONK, PM_ROGUE } from './monsters.js';
+import {
+    AD_ACID,
+    AD_BLND,
+    AD_DRST,
+    AD_SLEE,
+    AT_SPIT,
+    AT_WEAP,
+    MZ_TINY,
+    PM_CYCLOPS,
+    PM_FLOATING_EYE,
+    PM_MONK,
+    PM_ROGUE,
+} from './monsters.js';
 // closed_door() belongs to monmove.c, and js/monmove.js imports lined_up()
 // back for m_move()'s item search. Both sides of that cycle are hoisted
 // function declarations, which an ES module cycle initializes before either
@@ -203,9 +225,11 @@ import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { exclam, hit, miss } from './zap.js';
 import { harmless_missile, shipsAway } from './dothrow.js';
 import { observe_object, discover_object } from './o_init.js';
-import { potionhit } from './potion.js';
+import { make_blinded, potionhit } from './potion.js';
 import { munstone } from './muse.js';
 import { dropy, flooreffects } from './do.js';
+import { makeplural } from './fruit.js';
+import { body_part } from './polyself.js';
 import { shade_miss } from './uhitm.js';
 import { is_lava, is_pool } from './trap.js';
 import { obj_sheds_light } from './light.js';
@@ -472,9 +496,8 @@ function u_catch_thrown_obj(obj, env) {
     return false;
 }
 
-// C ref: mthrowu.c drop_throw() (162-196), ordinary surviving object arm.
-// Operations are resolved before the first floor write so an incomplete live
-// adapter cannot strand a free missile after the hit.
+// C ref: mthrowu.c drop_throw() (162-196). Ordinary missiles land through the
+// floor-operation arm; venom is consumed by the special deletion arm.
 export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
@@ -493,6 +516,14 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
 
     if (obj.otyp === CREAM_PIE || obj.oclass === VENOM_CLASS
         || (ohit && obj.otyp === EGG)) {
+        if (obj.oclass === VENOM_CLASS) {
+            // C ref: mthrowu.c:174-176. Venom is created free rather than
+            // carried, and every flight outcome consumes it immediately.
+            delobj(obj, env);
+            state.gt ??= {};
+            state.gt.thrownobj = null;
+            return true;
+        }
         return refuseRanged(env, 'destroyed special monster missile');
     }
     if (ohit && shouldMulch(obj, env))
@@ -787,7 +818,7 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
     return false;
 }
 
-// C ref: mthrowu.c m_throw() (572-844), ordinary untethered weapon hit and
+// C ref: mthrowu.c m_throw() (572-844), ordinary untethered missile hit and
 // miss. A stack is split before flight so one missile leaves per call.
 // A miss lets the missile continue flying and drop at range expiry or terrain.
 // Alternate flight, interception, catch, special-object, death, floor-effect,
@@ -829,8 +860,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 
     // C ref: muse.c use_offensive()'s MUSE_POT_* case is the other live
     // caller; it hands over a potion, whose hero-hit arm at 698-701 calls
-    // potionhit(). Every other object class still refuses.
-    if (obj.oclass !== WEAPON_CLASS && obj.oclass !== POTION_CLASS)
+    // potionhit(). Venom is the other source-supported special class.
+    if (obj.oclass !== WEAPON_CLASS
+        && obj.oclass !== POTION_CLASS
+        && obj.oclass !== VENOM_CLASS)
         return refuseRanged(env, 'monster special missile action');
     if (obj.cursed || obj.greased)
         return refuseRanged(env, 'cursed or greased monster missile flight');
@@ -892,9 +925,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     let return_flightpath = false;
 
     let hit = false;
-    // C leaves the loop by `break` from three arms; two are ported. The weapon
-    // arm settles the object through drop_throw(), the potion arm through
-    // potionhit()'s obfree().
+    let blindinc = 0;
+    // C leaves the loop by `break` from three arms. Weapon and venom paths
+    // settle through drop_throw(); the potion arm uses potionhit()'s obfree().
     let settled = false;
     while (range-- > 0) {
         singleobj.ox = state.gb.bhitpos.x += dx;
@@ -936,28 +969,36 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 break;
             }
             if (singleobj.otyp === EGG
-                || singleobj.otyp === CREAM_PIE
-                || singleobj.otyp === BLINDING_VENOM) {
+                || singleobj.otyp === CREAM_PIE) {
                 return refuseRanged(env, 'special monster missile hit');
             }
 
-            let damage = damageValue(singleobj, state.youmonst, env);
-            let hitv = 3 - distmin(
-                state.u.ux,
-                state.u.uy,
-                monster.mx,
-                monster.my,
-            );
-            if (hitv < -4) hitv = -4;
-            if (is_elf(monster.data)
-                && objectType(singleobj, state).oc_skill === -P_BOW) {
-                return refuseRanged(env, 'elven monster shooting bonus');
+            let damage;
+            let hitv;
+            if (singleobj.otyp === BLINDING_VENOM) {
+                // C ref: mthrowu.c:701-702. Spit venom uses thitu(8, 0)
+                // and therefore skips weapon damage and its RNG draws.
+                damage = 0;
+                hitv = 8;
+            } else {
+                damage = damageValue(singleobj, state.youmonst, env);
+                hitv = 3 - distmin(
+                    state.u.ux,
+                    state.u.uy,
+                    monster.mx,
+                    monster.my,
+                );
+                if (hitv < -4) hitv = -4;
+                if (is_elf(monster.data)
+                    && objectType(singleobj, state).oc_skill === -P_BOW) {
+                    return refuseRanged(env, 'elven monster shooting bonus');
+                }
+                if (bigmonst(state.youmonst.data)) hitv++;
+                hitv += 8 + singleobj.spe;
+                if (damage < 1) damage = 1;
+                if (singleobj.otyp !== ACID_VENOM)
+                    damage = maybeHalfPhysical(damage, state);
             }
-            if (bigmonst(state.youmonst.data)) hitv++;
-            hitv += 8 + singleobj.spe;
-            if (damage < 1) damage = 1;
-            if (singleobj.otyp !== ACID_VENOM)
-                damage = maybeHalfPhysical(damage, state);
             hit = Boolean(await hitHero(hitv, damage, singleobj, env));
             // C thitu() calls losehp(), whose lethal done() path is NORETURN.
             // The JavaScript end-game path returns after setting gameover so
@@ -966,6 +1007,24 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             // would pass the same floor object to drop_throw() a second time.
             if (state.program_state?.gameover)
                 return 0;
+            if (hit && singleobj.otyp === BLINDING_VENOM
+                && can_blnd(null, state.youmonst, AT_SPIT, singleobj, state)) {
+                blindinc = random.rnd(25);
+                if (typeof env.message === 'function') {
+                    if (heroIsBlind(state)) {
+                        let eyes = body_part(EYE, state.youmonst);
+                        const pmidx = state.youmonst.data?.pmidx;
+                        if (pmidx !== PM_CYCLOPS && pmidx !== PM_FLOATING_EYE)
+                            eyes = makeplural(eyes);
+                        await env.message(
+                            `Your ${eyes} ${vtense(eyes, 'sting')}.`,
+                            state,
+                        );
+                    } else {
+                        await env.message('The venom blinds you.', state);
+                    }
+                }
+            }
             await stopOccupation(state, env);
             if (hit) {
                 if (!tethered_weapon) {
@@ -1061,6 +1120,12 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         await temporaryDisplay(DISP_END, 0, state);
     }
     state.mesg_given = 0;
+    if (blindinc) {
+        state.u.ucreamed = Math.trunc(state.u.ucreamed ?? 0) + blindinc;
+        const blinded = state.u.uprops?.[BLINDED];
+        const blindedTimeout = Math.trunc(blinded?.intrinsic ?? 0) & TIMEOUT;
+        await make_blinded(blindedTimeout + blindinc, false, state);
+    }
     state.gt.thrownobj = null;
     return 0;
 }
@@ -1264,8 +1329,17 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
             break;
         }
         if (!random.rn2(BOLT_LIM - distmin(mtmp.mx, mtmp.my, tx, ty))) {
-            if (canseemon(mtmp, state))
-                note_unported('pline.c pline'); /* "%s spits venom!" */
+            if (canseemon(mtmp, state)) {
+                if (typeof env.message === 'function') {
+                    await env.message(
+                        `${capitalizedMonsterName(mtmp, state)} spits venom!`,
+                        state,
+                        env,
+                    );
+                } else {
+                    note_unported('pline.c pline'); /* "%s spits venom!" */
+                }
+            }
             if (!utarg) {
                 state.gm ??= {};
                 state.gm.mtarget = mtarg;

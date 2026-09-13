@@ -71,7 +71,6 @@ import {
     AT_CLAW,
     AT_GAZE,
     AT_NONE,
-    AT_SPIT,
     AT_WEAP,
     PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
@@ -3785,53 +3784,27 @@ test('an in-range monster with a ranged attack stops the scan', async () => {
     // C ref: monmove.c:965-975 with mhitu.c mattacku(). A monster that only
     // believes it is near the hero still reaches mattacku(), where the range2
     // arms are AT_BREA's breamu(), AT_SPIT's spitmu() and AT_GAZE's gazemu().
-    // None is ported, and dochug()'s gate used to admit an adjacent attacker
-    // only, so these three passed through in silence.
+    // Gaze remains unported, while spit now reaches mthrowu.c's venom path.
+    // dochug()'s gate used to admit an adjacent attacker only, so the ranged
+    // arms previously passed through in silence.
     // `slot` is the mattk index the ranged attack occupies. The first three
     // rows put it at index 0, where mattacku()'s loop finds it on its first
     // pass. The fourth puts it in the last slot, which is what makes the
     // six-slot fixture below load-bearing: the loop has to walk every slot
     // C allocates to reach it.
-    // AT_BREA and AT_SPIT are now ported (breamu/spitmu) up to their named
-    // missile boundary; AT_GAZE still rejects at its own source seam.
+    // AT_BREA and AT_SPIT are now ported (breamu/spitmu) through their
+    // missile paths; AT_GAZE still rejects at its own source seam.
     for (const [name, aatyp, reason, slot] of [
-        ['spit', AT_SPIT, 'monster special missile action', 0],
         ['gaze', AT_GAZE, 'a monster gazing at the hero', 0],
     ]) {
         const target = await prepareSelectedAction();
         // The fixture leaves exactly one legal step. Closing it makes
         // mfndpos() find no candidate, so m_move() returns MMOVE_NOMOVES and
         // dochug() reaches its standard-attack gate with the monster at a
-        // ranged distance from the hero: in range, and not adjacent. The gaze
-        // case keeps the three-square fixture; the spit case moves both target
-        // and hero to make its source roll deterministic.
+        // ranged distance from the hero: in range, and not adjacent.
         const step = game.level.at(target.destinationX, target.heroY);
-        if (aatyp === AT_SPIT) {
-            // Keep the remembered target seven squares away so C's
-            // rn2(BOLT_LIM - distmin(...)) has a one-valued bound. A frozen
-            // blocker occupies the only step, which leaves the attacker's
-            // line of fire open while mfndpos() finds no move.
-            target.monster.mux = target.monster.mx + 7;
-            game.u.ux = game.u.ux0 = target.monster.mux;
-            for (let x = target.monster.mx; x <= target.monster.mux; ++x) {
-                const location = game.level.at(x, target.heroY);
-                location.typ = ROOM;
-                location.flags = location.doormask = 0;
-                location.wall_info = 0;
-                recalc_block_point(x, target.heroY, game);
-            }
-            const blocker = ordinaryMonster(
-                PM_GIANT_RAT,
-                target.destinationX,
-                target.heroY,
-                { movement: 0, mcanmove: false, m_id: 9002 },
-            );
-            target.monster.nmon = blocker;
-            game.level.monsters[target.destinationX][target.heroY] = blocker;
-        } else {
-            step.typ = STONE;
-            step.flags = step.doormask = 0;
-        }
+        step.typ = STONE;
+        step.flags = step.doormask = 0;
         // permonst.h:48 gives every species NATTK slots and mhitu.c
         // mattacku():581 indexes all six through getmattk(), so the unused
         // ones are spelled out rather than left off the end. A fixture that
