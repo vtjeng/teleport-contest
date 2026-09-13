@@ -25,16 +25,16 @@ terminal screens, and cursor positions the game produced.
 
 The 44-session fixed development workload consists of the 33 regular files
 directly under `sessions/` and the 11 files directly under `sessions/holdout/`.
-The directories preserve provenance and historical score labels, but the
-holdout files are now ordinary development inputs: default scans, mismatch
-selection, checkpoint scoring, and completion evidence include all 44. List
-each directory directly; do not use recursive discovery or move recordings
-between sets. The direct-listing rule is a traversal safeguard for any future
-nested session directories; it is not a restriction on the open local-holdout
-files.
+The directories preserve provenance and historical score labels, and all 44
+files are ordinary development inputs for default scans, mismatch selection,
+checkpoint scoring, and completion evidence. List each directory directly and
+keep recordings in their existing directories. The direct-listing rule is a
+traversal safeguard for any future nested session directories; it keeps the
+open local-holdout files in scope.
 
 The user authorized opening the entire local holdout on 2026-09-12. The local
-`sessions/holdout/` directory is neither protected nor sealed. The pre-exposure
+`sessions/holdout/` corpus is open for inspection, replay, comparison, and
+discussion as part of the fixed 44-session workload. The pre-exposure
 implementation is `a8890744786a48de9b20926acafa3c16a777dc67`;
 `experiments/generalization/plan.md` records the diagnosis and source handoff.
 Agents may inspect, replay, compare, and discuss every local-holdout session,
@@ -45,9 +45,9 @@ recorded files and choose independent inputs for new reproductions. Do not
 special-case a session or its seed, inputs, expected output, or replay position.
 
 The current `challenges/manifest.json` is frozen as synthetic local challenge
-set `v1`. Evaluate it from saved artifacts after implementation changes, but do
-not feed its failures into the fixed mismatch queue or treat them as evidence
-about the remote competition holdout. Put future challenge cases in a new
+set `v1`. Evaluate it from saved artifacts after implementation changes; keep
+its failures as supplementary diagnostics outside the fixed mismatch queue and
+remote competition evidence. Put future challenge cases in a new
 versioned manifest. Preserve historical Development, Local holdout, and
 Challenges rows and labels; the dashboard combines the historical Development
 and Local holdout measures into one Development set series and keeps the
@@ -143,13 +143,11 @@ the session. Recheck restrictions when the permission profile changes.
 - Choose JavaScript module and function names that make the corresponding C or
   Lua code easy to find. If the JavaScript structure differs substantially,
   add a comment naming the original file and function.
-- Do not special-case a recorded session or any value taken from one. This
-  includes its identity, seed, date and time, input sequence, replay position,
-  expected output, totals across all sessions, random-number log, and screen
-  contents.
-- Implement from the C function, not from observed output. A message, screen,
-  or recorded trace can help locate the upstream function but does not define
-  its behavior.
+- Generalize behavior across inputs and derive it from the C function. Use a
+  message, screen, or recorded trace to locate the upstream branch; the C
+  source defines behavior for every valid input. Keep session identities,
+  seeds, inputs, expected outputs, totals, random-number logs, and screens as
+  test data rather than special cases.
 
 ### Port whole source units and wire their callers
 
@@ -157,12 +155,12 @@ the session. Recheck restrictions when the permission profile changes.
    definition order, including existing partial implementations. Select the
    whole function or self-contained family responsible for the current
    mismatch as `.agents/selection.md` specifies. A Lua port covers the whole
-   program, including top-level statements. A declaration is not evidence of
-   complete behavior; skip a unit only when recorded source, caller, and
-   validation evidence establishes completion.
+   program, including top-level statements. Count a source unit as complete
+   after recorded source, caller, and validation evidence establish completion.
 2. Wire each ported function or Lua program where the source calls it, in
-   the same span. A function that exists only in JavaScript, or a caller the
-   source does not have, is a defect.
+   the same span. Match every JavaScript function and caller to its source site.
+   Keep each implementation and caller aligned with a corresponding source
+   site.
 3. When a ported function calls a C function that is not ported yet, port the
    callee in the same span if the C uses its return value. If the C discards
    the result, record the gap and skip the call:
@@ -240,9 +238,9 @@ leaderboard score by a margin that grows with session coverage.
 
 ## Validate completed work
 
-A unit test shows that one function works in isolation but not that the running
-game reaches it or produces the complete result. The port's oracle is recorded
-play: the 44-session fixed workload, and the recordings corpus under
+A unit test establishes individual function behavior. Recorded play verifies
+runtime reachability and complete results: the 44-session fixed workload, and
+the recordings corpus under
 `recordings/`, which the patched C program made from the recipes under
 `recipes/`. `npm run checkpoint` replays both and fails when a recording stops
 matching.

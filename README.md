@@ -87,15 +87,12 @@ Three things, layered like the Dungeons of Doom themselves.
 
 ### 1. A skeleton port of NetHack 5.0
 
-A minimal JavaScript implementation that runs through the first short
-tourist game (`seed8000-tourist-starter`) far enough to render a few
-recognizable screens. It does NOT pass that session yet — chargen is
-unimplemented, and the skeleton "fakes" the early game by replaying a
-hardcoded sequence of PRNG draws read out of the recorded session
-(see `js/fastforward.js`). It's enough scaffolding to see the engine
-move; it's not enough to score. Treat it as the surface layer:
-gentle, well-mapped, populated almost entirely with grid bugs. You
-will have to dig.
+A minimal JavaScript implementation runs through the first short tourist game
+(`seed8000-tourist-starter`) far enough to render recognizable screens and earn
+partial credit. Chargen is pending, and the skeleton "fakes" the early game by
+replaying a hardcoded sequence of PRNG draws read out of the recorded session
+(see `js/fastforward.js`). It provides a visible surface while the source-backed
+engine grows: gentle, well-mapped, populated almost entirely with grid bugs.
 
 **Where the code lives:**
 
@@ -211,10 +208,9 @@ github.com/NetHack/NetHack), applies the six patches into
 `nethack-c/recorder/install/games/lib/nethackdir/nethack`. The
 `recorder/` directory is gitignored — it's built artifact, not source.
 
-You do NOT need to do this to enter the contest. The 44 fixed-workload
-sessions in `sessions/` and `sessions/holdout/` were recorded with this build and ship ready to score
-against. Build the recorder only if you want to record your own
-debugging sessions or generate supplemental coverage (see
+The 44 fixed-workload sessions in `sessions/` and `sessions/holdout/` were
+recorded with this build and ship ready to score against. Build the recorder
+when you want to record debugging sessions or generate supplemental coverage (see
 `PROMPT.md` Parts 2 and 4).
 
 Requires: `clang` (not gcc — see below), `make`, `bison`, `flex`.
@@ -263,9 +259,7 @@ same 24×80 terminal screen the C reference produced? Each matching
 screen is one point. The fixed workload is the local maximum used for
 development scoring.
 
-A session that diverges at step 50 still earns 50 screen points;
-you don't have to pass a whole session to score, and you don't have
-to start at the beginning to make progress. Each step's screen is
+A session that diverges at step 50 still earns 50 screen points. Each step's screen is
 checked independently after the recorded input has been replayed up
 to that point.
 

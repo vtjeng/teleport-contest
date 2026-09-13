@@ -88,6 +88,6 @@ input boundary; pipe stdout to a file to capture the visual stream.
 
 Stitching these into the same `.session.json` format the judge
 consumes is left as an exercise — the format is documented in
-`docs/API.md`. Most contestants don't need to: they play the public
-sessions in `sessions/` and watch where their JS port diverges
-from the recorded screens.
+`docs/API.md`. Score all 44 fixed-workload sessions under `sessions/` and
+`sessions/holdout/` to locate divergence; build output is useful for custom
+sessions.

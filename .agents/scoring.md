@@ -5,7 +5,8 @@ from the log. Only the orchestrator appends rows; a span worker states its
 score evidence in its report. The former local holdout is open under `AGENTS.md`
 and is included in the operational fixed workload.
 Run `node scripts/score-holdout.mjs [--goal <id>]` for the separate historical
-holdout view; this view does not gate ordinary development work.
+11-session local provenance view; it supplies context alongside ordinary
+development work.
 The operational development score is the fixed 44-session workload, including
 the files under `sessions/holdout/`.
 
@@ -98,10 +99,10 @@ counts remain unknown. Do not show a remote-holdout score.
 
 ## Reading the log
 
-Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
-or `--since <sha>`. Do not answer a score question by scanning `SCORE.tsv`
-directly: the raw rows do not reflect supersession or carry the last holdout
-figure forward.
+Answer score questions with `node scripts/score-log.mjs --latest [event]`,
+`--standing`, or `--since <sha>`; these views apply supersession and carry the
+last holdout figure forward. The raw `SCORE.tsv` rows remain the append-only
+source record.
 
 Two facts affect how figures compare across rows and against the leaderboard:
 

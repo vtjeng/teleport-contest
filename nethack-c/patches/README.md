@@ -29,10 +29,9 @@ for p in ../patches/*.patch; do patch -p1 < "$p"; done
 # ...build per sys/unix/Makefile.unix
 ```
 
-## What's NOT in here
+## Patch scope
 
-These patches are **only what the contest needs**. They produce a
-build whose externally-observable PRNG sequence and screen output
-are deterministic. They do **not** add internal debugging hooks
-(event_log, midlog, mapstate hashing, etc.) — those are
-teleport-internal aids that would leak the porting strategy.
+These patches cover the deterministic output and observability the contest
+needs. They produce a build whose externally observable PRNG sequence and
+screen output are deterministic. Internal debugging hooks (event_log, midlog,
+mapstate hashing, and related aids) remain in the teleport-internal tooling.

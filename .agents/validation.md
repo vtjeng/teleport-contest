@@ -4,9 +4,9 @@ Read this file when implementing gameplay or running recordings, differentials,
 scans, or browser checks. The fixed 44-session workload includes the 33 regular
 recordings and the 11 recordings under `sessions/holdout/`. Those formerly
 held-out files are open, ordinary development inputs for scans, mismatch
-selection, replay, recording comparison, and checkpoint scoring. They remain
-recorded inputs, so tools must not modify them. The remote competition holdout
-is a separate unavailable corpus.
+selection, replay, recording comparison, and checkpoint scoring. Treat all
+fixed-workload recordings as read-only source data while preserving them in
+place. The remote competition holdout is outside this workspace.
 
 ## Routine validation
 
@@ -147,12 +147,11 @@ Keep blocked recipes and revisit their named dependencies when those land.
 A fresh differential records a case with the patched C program and replays the
 same inputs with the JavaScript port. Its input is a **recipe**, as
 `.agents/glossary.md` defines it: a session file holding replay inputs only,
-never recorded `steps`. These recording tools reject fixed-workload recording
-paths as recipe inputs because a recipe must contain inputs only, never recorded
-answers. That rule applies to both session directories and preserves
-independent fresh cases; it does not restrict inspection, replay, comparison,
-or scoring of the open local holdout. Inspect or replay fixed recordings with
-the scan or scorer.
+with no recorded `steps`. These recording tools accept input-only recipes;
+fixed-workload recordings contain recorded answers and therefore remain source
+data rather than recipe inputs. This applies to both session directories and
+preserves independent fresh cases. Inspect or replay fixed recordings with the
+scan or scorer.
 
 - One case: `node scripts/diff-fresh.mjs --seed 42 --moves 'jjj' --role
   Valkyrie --race human --gender female --align neutral`, or

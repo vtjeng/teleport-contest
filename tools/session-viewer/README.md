@@ -33,8 +33,8 @@ python3 -m http.server 8080
 
 Pick a session from the dropdown, which lists the 33 regular development
 sessions named in `sessions/manifest.json`. The 11 opened local-holdout
-recordings are part of the fixed workload but are not in that manifest; use
-the file picker labeled `or load file…` to load one from disk.
+recordings are also part of the fixed workload; load one with the file picker
+labeled `or load file…`.
 The viewer then:
 
 1. Fetches the session.

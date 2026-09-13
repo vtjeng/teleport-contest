@@ -153,9 +153,21 @@ function findGoal(store, id) {
     return goal;
 }
 
+/** Accept canonical queue IDs and explicit fixed-workload session paths. */
+export function sessionIdentifier(value) {
+    const normalized = value.replaceAll('\\', '/');
+    const marker = '/sessions/';
+    const relative = normalized.startsWith('sessions/')
+        ? normalized.slice('sessions/'.length)
+        : normalized.includes(marker)
+            ? normalized.slice(normalized.lastIndexOf(marker) + marker.length)
+            : normalized;
+    return relative.replace(/\.session\.json$/u, '');
+}
+
 function commaSeparated(value) {
     return value
-        ? value.split(',').map((entry) => entry.trim()).filter(Boolean)
+        ? value.split(',').map((entry) => entry.trim()).filter(Boolean).map(sessionIdentifier)
         : [];
 }
 
@@ -440,11 +452,12 @@ const COMMAND_HELP = {
                   Omitted bounds select the start/end of the C file.
   lua-port        --lua-file <name.lua>
                   Covers the whole Lua program, including top-level statements.
-  divergence-fix  --c-file <name.c> --function <name> --session <session>
+  divergence-fix  --c-file <name.c> --function <name> --session <id-or-path>
                   [--step <input-step>]
+                  (--session accepts IDs or paths such as sessions/holdout/<name>.session.json.)
 
 Optional for all kinds:
-  --sessions <a,b,...>        Related fixed-workload session IDs (including holdout/).
+  --sessions <a,b,...>        Related fixed-workload IDs or paths (including holdout/<name>).
   --selection-reason <text>  Source-based reason for choosing this goal.
   --detail <text>            Supporting source and mismatch evidence.
   --development-scan <path>  Use a saved fixed-workload scan for selection.
@@ -581,7 +594,7 @@ function newGoal(options) {
     } else {
         required(options, ['function', 'session']);
         goal.function = options.function;
-        goal.session = options.session;
+        goal.session = sessionIdentifier(options.session);
         if (options.step !== undefined) goal.step = Number(options.step);
     }
     return goal;

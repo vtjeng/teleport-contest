@@ -96,8 +96,8 @@ contexts use the same shape, so a port that honors `opts.storage`
 gets correct multi-segment scoring and browser save/restore from one
 implementation.
 
-If your port doesn't have save/restore yet, just ignore `storage`;
-the field sits unused and your single-segment scoring is unaffected.
+Storage is optional for single-segment scoring; implementations without
+save/restore can leave the field unused.
 
 ## Per-segment isolation
 

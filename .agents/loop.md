@@ -115,10 +115,9 @@ The orchestrator repeats without returning to the user between steps:
    and watch the new run before the current span closes. The `gh`
    commands require `gh repo set-default vtjeng/teleport-contest`; run
    it if `gh run list` shows unfamiliar runs.
-4. Run `npm run quality` yourself; no worker reports it. It prints the
-   unreviewed debt for information, and nothing in that output forces a
-   review. Decide whether a correctness review is warranted by
-   `.agents/review.md`, "When a correctness review is warranted".
+4. Run `npm run quality` yourself as the orchestrator check. Its output is
+   informational; decide review eligibility using `.agents/review.md`,
+   "When a correctness review is warranted".
 5. For a C or Lua source port, verify the worker's `.cache/span-evidence.json`
    against the source, production callers, and execution artifacts. Record
    it with `goal-log.mjs record-evidence` as `.agents/validation.md` specifies.

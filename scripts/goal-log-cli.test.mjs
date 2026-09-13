@@ -12,6 +12,16 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import { appendRow, COLUMNS } from './score-log.mjs';
+import { sessionIdentifier } from './goal-log.mjs';
+
+test('goal-log canonicalizes fixed-workload IDs and explicit session paths', () => {
+    assert.equal(sessionIdentifier('holdout/seed4500-knight-coverage'),
+        'holdout/seed4500-knight-coverage');
+    assert.equal(sessionIdentifier('sessions/holdout/seed4500-knight-coverage.session.json'),
+        'holdout/seed4500-knight-coverage');
+    assert.equal(sessionIdentifier('/work/tree/sessions/holdout/example.session.json'),
+        'holdout/example');
+});
 
 const SCRIPT_ROOT = dirname(fileURLToPath(import.meta.url));
 const QUEUE_MODULE = new URL('./mismatch-queue.mjs', import.meta.url).href;

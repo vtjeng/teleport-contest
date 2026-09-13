@@ -116,5 +116,5 @@ as `holdout/seed4500-knight-coverage` in `--sessions` or `--session`, and the
 prefix must be preserved. These are queue identifiers (`holdout/<name>`), not
 filesystem paths; `--development-scan` still takes a saved scan JSON artifact.
 The upper bounds are not predicted gains. Challenge
-failures are synthetic local challenge diagnostics and are not queue
-candidates. The remote competition holdout is separate and unavailable.
+failures are synthetic local challenge diagnostics kept outside queue
+candidates. The remote competition holdout is outside this workspace.
