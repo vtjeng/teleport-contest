@@ -31499,6 +31499,71 @@
         "rng": 582529
       },
       "parkedReason": "Reconsidered against the full 44-session mismatch queue: holdout/seed4500-knight-coverage apply.c dojump() ranks above the remaining seed0014 work; preserve this completed span for later resumption."
+    },
+    {
+      "id": "port-apply-jump-holdout-seed4500",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port physical jump command and its source-defined path validation, landing, trap, hunger, and movement behavior",
+      "cFile": "apply.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The full fixed 44-session mismatch queue ranks holdout/seed4500-knight-coverage apply.c dojump() first at step 8 with a remaining-screen upper bound of 1806; the prior seed0014 dokick goal was parked after its span closed because it ranked below this candidate.",
+      "detail": "Queue source owner is apply.c: dojump() at lines 1847-1851 delegates to jump(0) at 1988-2160. The self-contained family includes check_jump(), is_valid_jump_pos(), get_valid_jump_position(), display_jump_positions(), and jump(), whose source-order path checks physical-jump prerequisites, prompts through getpos(), validates doors/boulders/visibility/path, resolves traps and same-square landings, calls hurtle_jump()/teleds(), updates movement and hunger, and returns the ECMD result. Existing JS has no dojump/jump implementation; command_bindings.js binds j to jump but cmd.js doextcmd() has no dojump case and currently raises the unported extended-command boundary. Port the complete family and wire the jump command through its production dispatcher, preserving source-called unported gaps where return values are discarded.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dojump",
+          "line": 1847,
+          "endLine": 1861,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "check_jump",
+          "line": 1862,
+          "endLine": 1892,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "is_valid_jump_pos",
+          "line": 1893,
+          "endLine": 1958,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "get_valid_jump_position",
+          "line": 1959,
+          "endLine": 1966,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_jump_positions",
+          "line": 1967,
+          "endLine": 1987,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "jump",
+          "line": 1988,
+          "endLine": 2166,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1847,
+        "to": 2166
+      }
     }
   ]
 }
