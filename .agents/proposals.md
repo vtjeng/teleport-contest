@@ -86,10 +86,11 @@ workload sessions across several workspace copies, run one
 `scripts/score-holdout.mjs` calls the same three helpers and could take the
 sharded path later.
 
-**What prompted it.** On a 5-core/10-thread host, the pre-opening 33-session
-measurement of `score-development.mjs` took 19.7 s, of which about 8 s was
-replay. `frozen/ps_test_runner.mjs:464` spawns one worker per session
-sequentially, so the current 44-session workload imports the `js/` graph one
+**What prompted it.** On a 5-core/10-thread host, the pre-opening
+33-session measurement of `score-development.mjs` took 19.7 s, of which about
+8 s was replay. These figures describe the earlier workload; the current
+fixed workload has 44 sessions. `frozen/ps_test_runner.mjs:464` spawns one
+worker per session sequentially, so each run imports the `js/` graph one
 process at a time.
 Every span worker pays this cost on each `npm run checkpoint`.
 

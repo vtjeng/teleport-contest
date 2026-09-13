@@ -24,8 +24,9 @@ For each session, scoring runs:
 
 ```
 games = []
+storage = createSessionStorage()
 for segment in session.segments:
-    games.push(await runSegment(segment))
+    games.push(await runSegment({ ...segment, storage }))
 
 screens  = games.flatMap(game => game.getScreens())
 rngLog   = games.flatMap(game => game.getRngLog())
@@ -70,9 +71,9 @@ tiebreaker.
 }
 ```
 
-That's all. **The recorded screens, cursors, and RNG calls are not
-passed in** — you can't peek at the answer key. You have to actually
-port the game.
+The harness supplies the segment input and storage object. It computes the
+recorded screens, cursors, and RNG calls separately, so the port must produce
+them through gameplay.
 
 ## `input.storage` — cross-segment persistence
 

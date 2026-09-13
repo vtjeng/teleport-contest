@@ -15,6 +15,8 @@ what the JS port has to match.
 
 ## Apply
 
+Run the following commands from the repository root:
+
 ```bash
 bash ../build-recorder.sh    # one-shot: clones submodule, applies patches, builds
 ```

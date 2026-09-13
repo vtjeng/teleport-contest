@@ -24,9 +24,9 @@ added to the remote pool and re-scored across all submissions; they
 do not retroactively invalidate prior passes, they just create more
 room at the top of the leaderboard.
 
-The 44 fixed-workload recordings shipped in this repository are not changed by
-escalation. They remain the self-test set you score against locally; the 11
-files formerly called local holdout are part of that workload.
+The 44 fixed-workload recordings shipped in this repository remain the local
+self-test set throughout the escalation. It includes 33 files under
+`sessions/` and 11 files under `sessions/holdout/`.
 
 ### Phase 1 freeze
 

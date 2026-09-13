@@ -117,8 +117,9 @@ differ.
 The scoring runner `frozen/ps_test_runner.mjs` writes a
 `.cache/session-results.json` advisory file. When this file exists,
 each session in the dropdown shows a ✓/✗/· prefix and a tooltip with
-its `RNG` (PRNG-call) and `Screen` match counts. Run `npm run score`
-to refresh it. Without the advisory file, the prefixes all read `·`.
+its `RNG` (PRNG-call) and `Screen` match counts. Run
+`node scripts/score-development.mjs` to refresh it for the complete fixed
+workload. Without the advisory file, the prefixes all read `·`.
 
 ## URL state
 
