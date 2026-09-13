@@ -32529,6 +32529,69 @@
         "screens": 8126,
         "rng": 588441
       }
+    },
+    {
+      "id": "fix-mhitu-invulnerable-seed4500",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix monster attack refusal during hero invulnerability",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The refreshed fixed 44-session mismatch queue ranks holdout/seed4500-knight-coverage first at step 292. Read-only source tracing identifies a bounded u.uinvulnerable return in mhitu.c:mattacku(), with the JavaScript refusal localized to js/mhitu.js.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage stops at input step 292 with simple monster action requires a monster balking at an invulnerable hero. Upstream monmove.c dochug() lines 965-977 calls mhitu.c mattacku() for an in-range hostile monster with attacks and a positive-HP hero; mhitu.c mattacku() returns false immediately when u.uinvulnerable is set after successful prayer. JS js/mhitu.js:mattacku() around line 798 currently throws UnsupportedSimpleMonsterActionError at this branch. Production path is allmain.js preflightSimpleMonsterActions -> unported_monster_actions.js runSimpleMonsterAction/attackHeroWithMattacku -> monmove.js dochug() attack gate -> mhitu.js mattacku(). Keep the existing mattacku preamble and leave monmove.js:m_balks_at_approaching() unchanged. Investigator used only the explicit session path and existing checkpoint artifact; no files or score artifacts were changed.",
+      "spans": [
+        {
+          "name": "mhitu-invulnerable",
+          "status": "closed",
+          "closedBy": "2149a76afedcbd5615a76b82427f72ac7eea4331",
+          "functions": [
+            "mattacku"
+          ]
+        }
+      ],
+      "openedAt": "bdedadfc2ede53fcfbd92eab77656ef5fa2a8e76",
+      "openStanding": {
+        "sha": "bdedadfc2ede53fcfbd92eab77656ef5fa2a8e76",
+        "screens": 8126,
+        "rng": 588441
+      },
+      "closedAt": "2149a76afedcbd5615a76b82427f72ac7eea4331",
+      "delivered": {
+        "screens": 1,
+        "rng": 100
+      },
+      "function": "mattacku",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 292,
+      "activeStanding": {
+        "sha": "bdedadfc2ede53fcfbd92eab77656ef5fa2a8e76",
+        "screens": 8126,
+        "rng": 588441
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 292,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a monster balking at an invulnerable hero",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1522
+        }
+      ],
+      "closeStanding": {
+        "sha": "2149a76afedcbd5615a76b82427f72ac7eea4331",
+        "screens": 8127,
+        "rng": 588541
+      }
     }
   ]
 }
