@@ -185,11 +185,8 @@ export function tty_curs(window, x, y, state = game, _env = {}) {
     if (targetY === oldy && targetX === oldx) return;
 
     // end_glyphout() only terminates a pending glyph-output run in the C
-    // terminal backend.  Its result is discarded by tty_curs(), and the JS
-    // grid has no buffered glyph stream, so keep the unported boundary
-    // visible while continuing with the source cursor movement.
-    if (cw.type === NHW_MAP)
-        note_unported('wintty.c end_glyphout');
+    // terminal backend.  The JS grid applies glyph graphics and color per
+    // cell, so there is no buffered stream to close at this boundary.
 
     if (typeof display?.setCursor === 'function') {
         display.setCursor(targetX, targetY);
