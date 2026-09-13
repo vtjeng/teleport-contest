@@ -196,11 +196,14 @@ test('rolling-boulder traps create symmetric source launch geometry', () => {
         {
             state,
             random,
-            hooks: objectGenerationHooks({
+            // The production mktrap() caller supplies only its display
+            // seam. The rolling launch must compose the object lifecycle
+            // hooks before place_object() handles the boulder.
+            hooks: {
                 newsym(x, y) {
                     calls.push(['newsym', x, y]);
                 },
-            }),
+            },
         },
     );
 

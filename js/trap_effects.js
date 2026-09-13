@@ -1686,7 +1686,7 @@ export function force_launch_placement(state = game) {
     const lp = state.launchplace;
     if (lp?.obj) {
         lp.obj.otrapped = 0;
-        place_object(lp.obj, lp.x, lp.y, { state });
+        place_object(lp.obj, lp.x, lp.y, objectGenerationEnv({ state }));
     }
 }
 

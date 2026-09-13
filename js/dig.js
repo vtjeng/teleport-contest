@@ -38,6 +38,7 @@ import {
     W_NONDIGGABLE,
 } from './const.js';
 import { game } from './gstate.js';
+import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
 import { in_town } from './hack.js';
@@ -190,6 +191,7 @@ async function draft_message(unexpected, env) {
 export async function mdig_tunnel(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rnd: () => 1, rn2: () => 0 };
+    const objectEnv = objectGenerationEnv({ ...rawEnv, state, random });
     const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? (() => {}));
     const message = rawEnv.planning
         ? async () => {}
@@ -270,20 +272,26 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
         setTerrain(location, ROOM, 0);
         if (pile && pile < 5) {
             const fruits = [APPLE, ORANGE, PEAR, BANANA, EUCALYPTUS_LEAF];
-            mksobj_at(fruits[random.rnd(fruits.length) - 1], x, y, true, false, {
-                ...rawEnv,
-                state,
-                random,
-            });
+            mksobj_at(
+                fruits[random.rnd(fruits.length) - 1],
+                x,
+                y,
+                true,
+                false,
+                objectEnv,
+            );
         }
     } else {
         setTerrain(location, CORR, 0);
         if (pile && pile < 5) {
-            mksobj_at(pile === 1 ? BOULDER : ROCK, x, y, true, false, {
-                ...rawEnv,
-                state,
-                random,
-            });
+            mksobj_at(
+                pile === 1 ? BOULDER : ROCK,
+                x,
+                y,
+                true,
+                false,
+                objectEnv,
+            );
         }
     }
     redraw(x, y);

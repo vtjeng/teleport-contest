@@ -214,6 +214,7 @@ import {
     sobj_at,
     weight,
 } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import {
     an, bare_artifactname, safe_qbuf, ansimpleoname, the, xnameFresh,
     donameFresh, Tobjnam,
@@ -406,11 +407,15 @@ function findRandomLaunchCoordinate(trap, env) {
 function makeRollingBoulderLaunch(trap, x, y, env) {
     const launch = findRandomLaunchCoordinate(trap, env) ?? { x, y };
     if (launch.x !== x || launch.y !== y) {
-        const boulder = mksobj(BOULDER, true, false, env);
+        // mkroll_launch() creates a boulder through mkobj.c's object
+        // lifecycle.  Carry the caller's hooks while supplying the
+        // block/extract hooks required by place_object()/stackobj().
+        const objectEnv = objectGenerationEnv(env);
+        const boulder = mksobj(BOULDER, true, false, objectEnv);
         boulder.quan = 1;
-        boulder.owt = weight(boulder, env);
-        place_object(boulder, launch.x, launch.y, env);
-        stackobj(boulder, env);
+        boulder.owt = weight(boulder, objectEnv);
+        place_object(boulder, launch.x, launch.y, objectEnv);
+        stackobj(boulder, objectEnv);
     }
     trap.launch.x = launch.x;
     trap.launch.y = launch.y;

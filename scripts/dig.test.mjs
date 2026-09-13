@@ -31,7 +31,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object, sobj_at } from '../js/obj.js';
 import {
     PM_CAVE_SPIDER,
     PM_DWARF,
@@ -41,6 +41,7 @@ import {
 } from '../js/monsters.js';
 import {
     AXE,
+    BOULDER,
     CORPSE,
     DWARVISH_MATTOCK,
     LONG_SWORD,
@@ -489,6 +490,38 @@ for (const [label, options, expected] of [
             'the wall is dug away');
     });
 }
+
+test('mdig_tunnel supplies object hooks for a boulder on stone', async () => {
+    await tunnelGame('');
+    const { x, y } = firstWall();
+    // dig.c's non-wall arm drops a boulder when rnd(12) returns one. Setting
+    // the terrain directly reaches that source branch without depending on a
+    // particular generated level layout.
+    game.level.at(x, y).typ = STONE;
+    const dwarf = newMonster({ data: game.mons[PM_DWARF], mx: x, my: y });
+    const drawn = [];
+    const random = {
+        rnd: (bound) => {
+            drawn.push(['rnd', bound]);
+            return 1;
+        },
+        rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+        rn1: (bound) => assert.fail(`unexpected rn1(${bound})`),
+        rne: (bound) => assert.fail(`unexpected rne(${bound})`),
+    };
+
+    const died = await mdig_tunnel(dwarf, {
+        state: game,
+        random,
+        message: async () => {},
+        redraw: () => {},
+    });
+
+    assert.equal(died, false);
+    assert.deepEqual(drawn, [['rnd', 12], ['rnd', 2]]);
+    const boulder = sobj_at(BOULDER, x, y, game);
+    assert.ok(boulder, 'digging stone should place the rolled boulder');
+});
 
 // --- is_digging ---
 // C ref: dig.c is_digging() (195-201). Returns true when the hero is
