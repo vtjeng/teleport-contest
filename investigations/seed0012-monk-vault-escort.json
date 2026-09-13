@@ -1,0 +1,45 @@
+{
+  "session": "seed0012-monk-vault-escort",
+  "remainingScreensUpperBound": 1,
+  "status": "complete",
+  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "mismatch": {
+    "session": "seed0012-monk-vault-escort",
+    "remainingScreensUpperBound": 1,
+    "step": 307,
+    "kind": "screen",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "message": null,
+    "unlocatedKinds": ["rng"],
+    "recordedSteps": 308
+  },
+  "summary": "At the final key k, C completes a vault-guard cleanup and prints `Suddenly, the guard disappears.` with a --More-- prompt; JS reaches the same map state and cursor location but omits that message. The source owner is vault.c gd_move_cleanup(): its synchronous C pline is called from JS without awaiting the injected asynchronous tty message, so the turn returns before the top line and More cursor are rendered.",
+  "source": {
+    "file": "vault.c",
+    "functions": ["gd_move_cleanup", "gd_move", "restfakecorr", "clear_fcorr"],
+    "branch": "A peaceful vault guard has completed its escort or is parked after leaving the temporary corridor; gd_move() enters gd_move_cleanup(), which saves the former guard square, parks the guard, restores the vault, removes as much fake corridor as possible, and, when the former square remains visible (or the hero remains in the corridor) and the guard was visible, emits `Suddenly, the guard disappears.`. The JS cleanup calls env.message without awaiting it, while its async gd_move() caller returns to the monster turn and screen capture.",
+    "callers": [
+      "nethack-c/upstream/src/vault.c:gd_move() calls gd_move_cleanup() from the dead/off-map/done branch, the no-gold outside-vault branch, and the confused-disappearance/newpos branches.",
+      "nethack-c/upstream/src/monmove.c:m_move() dispatches vault guards to gd_move() during the monster turn.",
+      "js/monmove.js:m_move() dispatches monster.isgd to await gd_move(monster, env), the production caller that must wait for cleanup output."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/vault.c:clear_fcorr(), parkguard(), wallify_vault(), and restfakecorr() establish the cleanup state before the visibility test.",
+      "js/vault.js:gd_move_cleanup() calls clear_fcorr()/parkguard()/wallify_vault()/restfakecorr() and then env.message(); ttyPline() is asynchronous and owns the terminal top-line/--More-- update.",
+      "js/tty_message.js:ttyPline() and writePendingTtyMessagePrompt() must complete before the recorder captures the final screen and cursor."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/scan-cache.json row[file=seed0012-monk-vault-escort.session.json] records commit 4fd9503f1467079e78ebd5b262efabbb9ef90433, step 307, remainingScreensUpperBound 1, C cell '-' at row 0 column 31 versus JS blank, and C cursor [39,0,1] versus JS cursor [64,8,1].",
+    ".git/checkpoint-results/4fd9503f1467079e78ebd5b262efabbb9ef90433/run-UBoQjx/session-results.json records this session at screens 307/308, cellsOnly 307/308, cursors 307/308, and RNG 13878/13878; the final mismatch is output/cursor only.",
+    "sessions/seed0012-monk-vault-escort.session.json segments[0].steps[306-307] records the visible guard at the former corridor endpoint before key k and C step 307's `Suddenly, the guard disappears.--More--`; the C final map otherwise places the hero at [64,8].",
+    "nethack-c/upstream/src/vault.c:834-866 saves x/y, calls canspotmon(), parkguard(), wallify_vault(), restfakecorr(), then conditionally calls pline(`Suddenly, %s disappears.`) before returning; js/vault.js:404-420 mirrors that branch but calls env.message() without await.",
+    "js/monmove.js:3399-3414 awaits gd_move() for isgd monsters, so making gd_move_cleanup() asynchronous and propagating await through its helper callers is the minimal source-aligned scope; no additional RNG or map behavior is indicated by the matched RNG and cell counts."
+  ]
+}

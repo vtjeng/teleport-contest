@@ -1,0 +1,49 @@
+{
+  "session": "holdout/seed4500-knight-coverage",
+  "remainingScreensUpperBound": 1289,
+  "status": "complete",
+  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "mismatch": {
+    "session": "holdout/seed4500-knight-coverage",
+    "remainingScreensUpperBound": 1289,
+    "step": 525,
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "message": "elapsed-turn nh_timeout requires no active property timeout at index 16",
+    "unlocatedKinds": [],
+    "recordedSteps": 1814
+  },
+  "summary": "The boundary is the unported timed DEAF branch of nh_timeout, not the food interaction that creates it. In the assigned recording, eat.c rottenfood() draws the source-matching cascade and sets HDeaf to rnd(10)=3 while negative multi makes the hero Unaware. The first two elapsed turns only decrement this timeout; at step 525 the third elapsed turn reaches the DEAF expiry branch, where timeout.c sets HDeaf to 1, calls make_deaf(0, TRUE), marks botl, and stops an occupation only if Deaf is then false. The JavaScript preflight rejects active property index 16 and decrement_property_timeouts() has no DEAF branch. Because this witness expires while Unaware, make_deaf() suppresses its talk path; the later step-526 Hear_again callback still performs its independent rn2(2) draw. The bounded fix belongs in js/timeout.js and should remain source-general rather than identifying this seed or input.",
+  "source": {
+    "file": "timeout.c",
+    "functions": ["nh_timeout"],
+    "branch": "At timeout.c:669-671, an active timed DEAF property (index 16) is decremented each elapsed turn; on expiry the DEAF case at :752-758 sets HDeaf to 1, calls make_deaf(0, TRUE), marks botl, and stops an occupation only when Deaf is now false. In this witness eat.c:1830-1847 rottenfood() sets HDeaf to rnd(10)=3 and negative multi, so expiry occurs while Unaware. JS preflight_nh_timeout_elapsed_turn() rejects index 16 and decrement_property_timeouts() has no DEAF case.",
+    "callers": [
+      "nethack-c/upstream/src/allmain.c:269-274 moveloop_core() calls nh_timeout() once per hero turn; js/allmain.js:683-821 finishElapsedTurn() and :1095-1172 advanceElapsedTurn() own the live and planned calls.",
+      "nethack-c/upstream/src/eat.c:1811-1851 rottenfood() sets HDeaf and negative multi; js/eat.js:800-866 already mirrors this trigger.",
+      "nethack-c/upstream/src/eat.c:1800-1809 Hear_again() runs from unmul after the negative-multi countdown; js/eat.js:788-798 is already wired as state.afternmv."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/potion.c:443-457 and js/potion.js:349-379 make_deaf(); Unaware must suppress talk at DEAF expiry in this witness.",
+      "nethack-c/upstream/src/allmain.c:684-696 and js/allmain.js:368-386 stop_occupation(); timeout.c calls it only if !Deaf.",
+      "nethack-c/upstream/include/youprop.h:399 plus nethack-c/upstream/src/trap.c:6776-6786; js/trap.js:1115-1127 and js/eat.js:330-335 define Unaware from negative multi and the conscious-again nomovemsg.",
+      "nethack-c/upstream/src/eat.c:1800-1809 and step 526 own the later Hear_again() rn2(2) wake callback.",
+      "js/timeout.js:462-521, :590-639 and js/allmain.js:1095-1172 are the preflight, decrement, and planned-turn clone seams; the clone preserves uprops, multi, and nomovemsg."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/scan-cache.json identifies step 525 as the first stop for this session, with message 'elapsed-turn nh_timeout requires no active property timeout at index 16', 525 emitted screens, 1814 recorded steps, and no unlocated kinds.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 step 525 has key 'g', message 'Blecch!  Rotten food!  The world spins and goes dark.--More--', and the source-order RNG cascade rnd(2)=2 at next_ident, rn2(7)=0 and rn2(4)=1,3, rn2(3)=0, rnd(10)=3 through rottenfood(), followed by ambient elapsed-turn draws.",
+    "nethack-c/upstream/src/eat.c:1811-1851 and js/eat.js:800-866 show the already source-faithful rottenfood() trigger, including the duration-3 DEAF timeout and negative multi.",
+    "nethack-c/upstream/src/timeout.c:669-671,752-758 defines the missing active-timeout decrement and DEAF expiry behavior.",
+    "js/timeout.js:462-521 refuses an active timeout at property index 16, while :590-639 has no DEAF expiry case.",
+    "nethack-c/upstream/src/eat.c:1800-1809 and session step 526 show the delayed Hear_again() callback, including rn2(2)=1 and 'You are conscious again.' after the three-turn negative-multi countdown.",
+    "The proposed scope is a general DEAF elapsed-turn branch and preflight admission, with no session-specific seed, input, expected screen, or replay-position condition."
+  ]
+}
