@@ -33136,7 +33136,7 @@
     {
       "id": "divergence-spell-study-success-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement successful fresh ordinary spellbook study and its learn occupation while preserving C delay, messages, slot state, retention, makeknown, and context cleanup.",
       "cFile": "spell.c",
       "sessions": [],
@@ -33145,8 +33145,8 @@
       "spans": [
         {
           "name": "spell-study-learn-success",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c9c3abd9ba2413365e126d64924d7a5ed5e746d9",
           "functions": [
             "study_book",
             "learn",
@@ -33160,8 +33160,11 @@
         "screens": 8308,
         "rng": 629527
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c9c3abd9ba2413365e126d64924d7a5ed5e746d9",
+      "delivered": {
+        "screens": 17,
+        "rng": 138
+      },
       "function": "study_book",
       "session": "holdout/seed4500-knight-coverage",
       "step": 474,
@@ -33186,7 +33189,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1340
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c9c3abd9ba2413365e126d64924d7a5ed5e746d9",
+        "screens": 8325,
+        "rng": 629665
+      }
     }
   ]
 }
