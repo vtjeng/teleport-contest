@@ -31267,6 +31267,50 @@
         "screens": 7838,
         "rng": 582442
       }
+    },
+    {
+      "id": "fix-uhitm-attack-checks-invisible-seed0014",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Handle unseen-monster attack checks and invisible-marker reveal",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "Highest-ranked development-only mismatch after 830e33b1: seed0014 step 620 reaches the existing uhitm.js unseen-monster attack refusal; source tracing identifies uhitm.c attack_checks as the owner.",
+      "detail": "C uhitm.c attack_checks lines 230-252 handles an unseen target when the glyph is neither warning nor invisible: it prints the Wait message, calls map_invisible at gb.bhitpos, may set_ustuck for an unseen mimic, wakes the monster, and consumes the movement before hitum. Production JS is hack.js domove() -> domove_attackmon_at() -> uhitm.js do_attack() -> attack_checks(); js/uhitm.js:505-511 currently throws UnsupportedHeroMoveBoundaryError. Existing helpers map_invisible, wakeup, set_ustuck, and m_next2u are available; pass live state and the injected message callback. Fix only this source-backed attack-check branch.",
+      "spans": [],
+      "openedAt": "399e5e730afff53e550f94ab622d14595ab99f4c",
+      "openStanding": {
+        "sha": "399e5e730afff53e550f94ab622d14595ab99f4c",
+        "screens": 7838,
+        "rng": 582442
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "attack_checks",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 620,
+      "activeStanding": {
+        "sha": "399e5e730afff53e550f94ab622d14595ab99f4c",
+        "screens": 7838,
+        "rng": 582442
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 620,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: attacking an unseen monster (invisible marker path)",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 94
+        }
+      ]
     }
   ]
 }
