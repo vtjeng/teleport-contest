@@ -32278,6 +32278,69 @@
         "screens": 8071,
         "rng": 587644
       }
+    },
+    {
+      "id": "fix-options-doset-simple-menu-seed4500",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Implement doset_simple_menu compound-option prompt",
+      "cFile": "options.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The full 44-session queue still ranks holdout/seed4500-knight-coverage first at step 237; options.c doset_simple_menu() owns the generic compound-option prompt and JavaScript still refuses it.",
+      "detail": "First unresolved stop after pager object and cursor fixes: C prompts Set fruit to what? through doset_simple_menu() and continues, while JavaScript throws UnsupportedOptionMenuError. The explicit fixed-workload path canonicalizes to holdout/seed4500-knight-coverage.",
+      "spans": [
+        {
+          "name": "doset-simple-menu-prompt",
+          "status": "closed",
+          "closedBy": "b5a5d38aecb2919d4748903957576c3b2e82a79d",
+          "functions": [
+            "doset_simple_menu"
+          ]
+        }
+      ],
+      "openedAt": "0fcecb57127633a75df57d9ad4b073c6a972a402",
+      "openStanding": {
+        "sha": "4de609e6fdfa21b43f65db49677781c0433cf5db",
+        "screens": 8071,
+        "rng": 587644
+      },
+      "closedAt": "b5a5d38aecb2919d4748903957576c3b2e82a79d",
+      "delivered": {
+        "screens": -237,
+        "rng": -7893
+      },
+      "function": "doset_simple_menu",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 237,
+      "activeStanding": {
+        "sha": "4de609e6fdfa21b43f65db49677781c0433cf5db",
+        "screens": 8071,
+        "rng": 587644
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 237,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: the options menu requires getlin(\"Set fruit to what?\")",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1577
+        }
+      ],
+      "closeStanding": {
+        "sha": "b5a5d38aecb2919d4748903957576c3b2e82a79d",
+        "screens": 7834,
+        "rng": 579751
+      }
     }
   ]
 }
