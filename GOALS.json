@@ -33199,7 +33199,7 @@
     {
       "id": "divergence-read-punishment-scroll-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement the source-reachable punishment-scroll read path, including punishment dispatch and first/repeated iron-ball behavior, while preserving pager and RNG order.",
       "cFile": "read.c",
       "sessions": [],
@@ -33208,8 +33208,8 @@
       "spans": [
         {
           "name": "punishment-scroll-read",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4f98237aa1c8e95ebd99658ef82fbd9497cfdb2b",
           "functions": [
             "doread",
             "seffect_punishment",
@@ -33223,8 +33223,11 @@
         "screens": 8325,
         "rng": 629665
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4f98237aa1c8e95ebd99658ef82fbd9497cfdb2b",
+      "delivered": {
+        "screens": 3,
+        "rng": 16
+      },
       "function": "doread",
       "session": "holdout/seed4500-knight-coverage",
       "step": 491,
@@ -33249,7 +33252,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1323
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "4f98237aa1c8e95ebd99658ef82fbd9497cfdb2b",
+        "screens": 8328,
+        "rng": 629681
+      }
     }
   ]
 }
