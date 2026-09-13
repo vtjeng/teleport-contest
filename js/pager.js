@@ -28,6 +28,8 @@ import {
     OBJ_FLOOR,
     PICK_ONE,
     ROWNO,
+    SYM_BOULDER,
+    TER_OBJ,
     TER_MON,
     Upolyd,
     Ugender,
@@ -46,6 +48,7 @@ import {
     glyph_is_cmap,
     glyph_is_monster,
     glyph_is_object,
+    glyph_is_statue,
     glyph_is_trap,
     glyph_to_cmap,
     glyph_to_trap,
@@ -64,6 +67,7 @@ import { HELP_TEXT_FILES } from './help_data.js';
 import { display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
+import { S_invisible } from './monsters.js';
 import { ok_to_quest } from './quest.js';
 import {
     an,
@@ -73,9 +77,16 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { SLIME_MOLD } from './objects.js';
-import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
+    CMAP_EXPLANATIONS,
+    MONSTER_CLASS_EXPLANATIONS,
+    OBJCLASS_EXPLANATIONS,
+} from './symbol_data.js';
+import {
+    MAXMCLASSES,
+    MAXOCLASSES,
     MAXPCHARS,
+    SYM_OFF_X,
     S_brupstair,
     S_cloud,
     S_corr,
@@ -101,7 +112,13 @@ import {
     S_sw_tl,
     S_sw_br,
     cmap_symbol_byte,
+    monster_class_symbol,
+    object_class_symbol,
 } from './symbols.js';
+import {
+    ROCK_CLASS,
+    VENOM_CLASS,
+} from './objects.js';
 import { NO_COLOR } from './terminal.js';
 import { rn2 } from './rng.js';
 import { describeMonster } from './startup_a11y.js';
@@ -236,6 +253,109 @@ function look_at_object(glyph, x, y, state) {
         );
     }
     return distant_name(object, donameFresh, state);
+}
+
+// C ref: pager.c do_screen_description()'s monster/object symbol passes. A
+// statue uses the monster symbol for its species, so both classes are kept in
+// the generic list before look_at_object() supplies the instance description.
+function describe_object_glyph(cc, glyph, state) {
+    const glyphinfo = map_glyphinfo(glyph, state);
+    const symbolByte = glyphinfo.ttychar;
+    const prefix = `${visibleGlyphCharacter(glyphinfo)}        `;
+    let found = 0;
+    let firstmatch = 'unknown';
+    let out = prefix;
+    let needToLook = false;
+    let skippedVenom = false;
+
+    if (!state.iflags?.terrainmode
+        || (state.iflags.terrainmode & TER_MON) !== 0) {
+        for (let index = 1; index < MAXMCLASSES; ++index) {
+            // S_invisible has no useful generic explanation here and is
+            // deliberately excluded by pager.c.
+            if (index === S_invisible) continue;
+            const explanation = MONSTER_CLASS_EXPLANATIONS[index];
+            if (!explanation
+                || monster_class_symbol(index, state).ttychar !== symbolByte)
+                continue;
+            needToLook = true;
+            const described = an(explanation);
+            if (!found) {
+                out += described;
+                firstmatch = explanation;
+                found = 1;
+            } else {
+                const appended = appendDescription(out, described);
+                if (appended !== out) {
+                    out = appended;
+                    ++found;
+                }
+            }
+        }
+    }
+
+    if (!state.iflags?.terrainmode
+        || (state.iflags.terrainmode & TER_OBJ) !== 0) {
+        const boulderSymbol = state.gs?.showsyms?.[
+            SYM_OFF_X + SYM_BOULDER
+        ] || object_class_symbol(ROCK_CLASS, state).ttychar;
+        for (let index = 1; index < MAXOCLASSES; ++index) {
+            const matches = index === ROCK_CLASS
+                ? (glyph_is_statue(glyph) || symbolByte === boulderSymbol)
+                : object_class_symbol(index, state).ttychar === symbolByte;
+            if (!matches) continue;
+            let explanation = OBJCLASS_EXPLANATIONS[index];
+            if (!explanation) continue;
+            if (index === ROCK_CLASS
+                && explanation === 'boulder or statue') {
+                if (symbolByte === boulderSymbol) explanation = 'boulder';
+                else if (glyph_is_statue(glyph)) explanation = 'statue';
+                else continue;
+            }
+            needToLook = true;
+            if (index === VENOM_CLASS) {
+                skippedVenom = true;
+                continue;
+            }
+            const described = an(explanation);
+            if (!found) {
+                out += described;
+                firstmatch = explanation;
+                found = 1;
+            } else {
+                const appended = appendDescription(out, described);
+                if (appended !== out) {
+                    out = appended;
+                    ++found;
+                }
+            }
+        }
+    }
+
+    if (skippedVenom && found < 2) {
+        const explanation = OBJCLASS_EXPLANATIONS[VENOM_CLASS];
+        const described = an(explanation);
+        if (!found) {
+            out += described;
+            firstmatch = explanation;
+            found = 1;
+        } else {
+            const appended = appendDescription(out, described);
+            if (appended !== out) {
+                out = appended;
+                ++found;
+            }
+        }
+    }
+
+    if (found > 4) out = `${prefix}can be many things`;
+    if (found > 1 || needToLook) {
+        const detail = look_at_object(glyph, cc.x, cc.y, state);
+        firstmatch = detail;
+        out += ` (${detail})`;
+        found = 1;
+    }
+    return { found, out, firstmatch };
 }
 
 // C ref: pager.c look_region_nearby(). The x=0 column is not playable, while
@@ -628,6 +748,8 @@ export function do_screen_description(cc, looked, sym, state = game) {
             firstmatch: detail,
         };
     }
+    if (glyph_is_object(glyph))
+        return describe_object_glyph(cc, glyph, state);
     if (!glyph_is_cmap(glyph))
         throw new UnsupportedWhatisError('a non-terrain map glyph');
     const glyphinfo = map_glyphinfo(glyph, state);

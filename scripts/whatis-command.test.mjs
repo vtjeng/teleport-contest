@@ -10,6 +10,7 @@ import {
     DOOR,
     GRAVE,
     HEADSTONE,
+    OBJ_FLOOR,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     TRAPNUM,
@@ -37,6 +38,7 @@ import {
     glyph_is_trap,
     glyph_to_trap,
     map_glyphinfo,
+    statue_to_glyph,
     trap_to_glyph,
 } from '../js/display.js';
 import {
@@ -51,8 +53,20 @@ import {
     GLYPH_RIDDEN_FEM_OFF,
     GLYPH_RIDDEN_MALE_OFF,
 } from '../js/glyph_offsets.js';
-import { NUMMONS } from '../js/monsters.js';
-import { CHEST, POT_WATER } from '../js/objects.js';
+import {
+    NUMMONS,
+    PM_PLAINS_CENTAUR,
+    monst_globals_init,
+} from '../js/monsters.js';
+import {
+    CHEST,
+    POT_WATER,
+    ROCK_CLASS,
+    STATUE,
+    objects_globals_init,
+} from '../js/objects.js';
+import { init_objects } from '../js/o_init.js';
+import { newObject } from '../js/obj.js';
 import {
     do_screen_description,
     add_quoted_engraving,
@@ -256,6 +270,56 @@ function terrainDescription(cmap, flags = 0) {
     const state = terrainDescriptionState(cmap, flags);
     return do_screen_description({ x: 3, y: 4 }, true, 0, state);
 }
+
+function statueDescription() {
+    // A statue is rendered with its species' monster symbol. pager.c first
+    // reports both matching classes, then look_at_object() names the statue.
+    const state = {
+        astral_level: { dnum: 0, dlevel: 0 },
+        branches: [],
+        context: {},
+        dungeons: [{ ledger_start: 0, num_dunlevs: 20 }],
+        flags: {},
+        gz: { zombify: false },
+        iflags: { terrainmode: 0 },
+        level: new GameMap(),
+        moves: 1,
+        quest_dnum: 1,
+        rogue_level: { dnum: 0, dlevel: 0 },
+        sanctum_level: { dnum: 0, dlevel: 0 },
+        specialLevels: [],
+        u: { ux: 40, uy: 10, ulevel: 1, uz: { dnum: 0, dlevel: 1 } },
+    };
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
+    );
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    const statue = newObject({
+        corpsenm: PM_PLAINS_CENTAUR,
+        dknown: true,
+        oclass: ROCK_CLASS,
+        otyp: STATUE,
+        ox: 3,
+        oy: 4,
+        quan: 1,
+        where: OBJ_FLOOR,
+    });
+    state.level.objects[3][4] = statue;
+    state.level.at = (x, y) => x === 3 && y === 4
+        ? { disp_glyph: { glyph: statue_to_glyph(statue, state) } }
+        : undefined;
+    return do_screen_description({ x: 3, y: 4 }, true, 0, state);
+}
+
+test('statue glyph keeps monster and object classes before species refinement', () => {
+    assert.deepEqual(statueDescription(), {
+        found: 1,
+        out: 'C        a centaur or a statue (a statue of a plains centaur)',
+        firstmatch: 'a statue of a plains centaur',
+    });
+});
 
 test('branch stairs retain the symbol ambiguity and specific terrain', () => {
     // DECgraphics gives S_upstair and S_brupstair the '<' byte while its
