@@ -33268,7 +33268,19 @@
       "sessions": [],
       "selectionReason": "After the punishment-scroll fix, the refreshed full fixed-workload queue ranks holdout/seed4500-knight-coverage first at step 494 with up to 1320 remaining screens. Source tracing identifies the read.c identify branch and a bounded JS refusal plus invent.c dependency, so this highest-ranked divergence is selected.",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, step 494 selects inventory letter l, an unknown sighted uncursed SCR_IDENTIFY scroll of quantity 1; C first showed it at step 472 as a scroll labeled DAIYEN FOOELS. read.c doread() lines 598-646 clears pickup_prev, increments literacy, sets in_use, and emits the disappearance pager. seffects() exercises Wisdom at line 2200 (recorded rn2(19)=2); seffect_identify() lines 2055-2099 consumes the scroll, prints This is an identify scroll., discovers its type, awards more_experienced(0,10) with rn2(19)=12, then draws rn2(5)=0 and rn2(5)=3 to obtain cval=3. invent.c identify_pack() lines 2635-2655 and 2698-2730 takes automatic-all for three incompletely identified possessions and updates their full-ID flags, producing the subsequent inventory screens. JS js/read.js doread() lines 457-461 rejects this case via remainingPackIsFullyIdentified(); seffect_identify() lines 648-653 repeats the restriction. Removing only those checks reaches js/invent.js identify_pack() lines 1562-1570, which currently throws. Bounded scope: implement the automatic-all identify_pack path and required fully_identify_obj/identify updates, then admit unknown identify scrolls through both read checks; preserve source RNG/messages/inventory refresh. Leave other identify modes and unrelated scroll effects outside scope.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "identify-scroll-pack",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "seffect_identify",
+            "identify_pack",
+            "identify",
+            "fully_identify_obj"
+          ]
+        }
+      ],
       "openedAt": "097eafd35e59745c30d82ab85d9f010c3173ef3d",
       "openStanding": {
         "sha": "097eafd35e59745c30d82ab85d9f010c3173ef3d",
