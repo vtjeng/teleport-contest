@@ -33387,7 +33387,7 @@
     {
       "id": "divergence-pickup-check-here-uchain-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Exclude the chained ball chain from ordinary floor-object counting in check_here.",
       "cFile": "pickup.c",
       "sessions": [],
@@ -33396,8 +33396,8 @@
       "spans": [
         {
           "name": "check-here-uchain",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b8bb47864b6a6f13629203504fb9c4988d4188eb",
           "functions": [
             "check_here"
           ]
@@ -33409,8 +33409,11 @@
         "screens": 8357,
         "rng": 629868
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b8bb47864b6a6f13629203504fb9c4988d4188eb",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "check_here",
       "session": "holdout/seed4500-knight-coverage",
       "step": 517,
@@ -33435,7 +33438,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1297
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "b8bb47864b6a6f13629203504fb9c4988d4188eb",
+        "screens": 8358,
+        "rng": 629868
+      }
     }
   ]
 }
