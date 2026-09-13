@@ -477,9 +477,6 @@ export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
 //
 // Remaining unsupported arms:
 //   198-199  engulfing_u(): ported, returns false immediately.
-//   230-252  a target the hero cannot spot that is not hidden under something
-//            or disguised. Prints "Wait! There's something there you can't
-//            see!", marks the square, and calls wakeup before returning TRUE.
 //   308-324  paranoid_query() for a peaceful target, and the Stormbringer
 //            override above it.
 export async function attack_checks(mtmp, wep, state = game, env = {}) {
@@ -496,8 +493,9 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     }
 
     // 220: cache the shown glyph for the visibility and mimic tests below.
-    const glyph = glyph_at(
-        state.bhitpos?.x ?? mtmp.mx, state.bhitpos?.y ?? mtmp.my, state);
+    // hack.c stores the destination in gb.bhitpos before calling do_attack().
+    const bhitpos = state.gb?.bhitpos ?? { x: mtmp.mx, y: mtmp.my };
+    const glyph = glyph_at(bhitpos.x, bhitpos.y, state);
 
     // glyph_is_warning() is constantly false in this port: a warning glyph
     // needs a warning level this port never raises.
@@ -507,7 +505,24 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
         && !glyph_is_invisible(glyph)
         && !(!(heroIsBlind(state)) && mtmp.mundetected
             && hides_under(mtmp.data))) {
-        unsupported('attacking an unseen monster (invisible marker path)');
+        const message = requireAttackOperation(env, 'message');
+        await message(
+            `Wait!  There's ${something} there you can't see!`,
+            state,
+        );
+        map_invisible(bhitpos.x, bhitpos.y, state);
+        // An unseen mimic is treated as though the hero stumbled onto a
+        // visible mimic, including the source's adjacent-sticking check.
+        if (M_AP_TYPE(mtmp)
+            && !propertyPresent(state.u, PROT_FROM_SHAPE_CHANGERS)
+            && !state.u.ustuck && !mtmp.mflee
+            && dmgtype(mtmp.data, AD_STCK)
+            && m_next2u(mtmp, state)) {
+            set_ustuck(mtmp, state);
+        }
+        // C passes TRUE so the attempted attack wakes and angers the target.
+        await wakeup(mtmp, true, { ...env, state });
+        return true;
     }
 
     // 254-266: a mimicking target the hero cannot sense.

@@ -24,7 +24,11 @@ import {
     STUNNED,
 } from '../js/const.js';
 import { l_monnam } from '../js/do_name.js';
-import { glyph_at } from '../js/display.js';
+import {
+    GLYPH_INVISIBLE,
+    glyph_at,
+    glyph_is_invisible,
+} from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { is_undead } from '../js/mondata.js';
@@ -178,9 +182,6 @@ test('attack_checks stops on each state it cannot report', async () => {
             mtmp.mx = 0;
             mtmp.my = 0;
         }],
-        ['attacking an unseen monster (invisible marker path)', (mtmp) => {
-            mtmp.mx = 0; mtmp.my = 0;
-        }],
         // uhitm.c:308-324 confirmation for a peaceful target still stops.
         ['confirming an attack on a peaceful monster', (mtmp) => {
             mtmp.mpeaceful = 1;
@@ -196,6 +197,41 @@ test('attack_checks stops on each state it cannot report', async () => {
             reason,
         );
     }
+});
+
+// uhitm.c:230-252. An unseen target on an ordinary glyph is announced,
+// remembered as an invisible monster, and woken before the attempted attack
+// consumes the move. `minvis` keeps the adjacent test physically visible while
+// making canspotmon() false, which isolates this source branch.
+test('attack_checks marks and wakes an unseen target', async () => {
+    await hero();
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const unseen = target(PM_LICHEN, {
+        mx: x,
+        my: y,
+        minvis: 1,
+        msleeping: 1,
+        mstrategy: STRAT_WAITMASK | 0x40,
+    });
+    (game.gb ??= {}).bhitpos = { x, y };
+    const messages = [];
+    const result = await attack_checks(unseen, game.uwep, game, {
+        unsupported(reason) { throw new Error(reason); },
+        message(message) { messages.push(message); },
+    });
+
+    assert.equal(result, true);
+    assert.deepEqual(messages, [
+        "Wait!  There's something there you can't see!",
+    ]);
+    assert.equal(unseen.msleeping, 0);
+    assert.equal(unseen.mstrategy, 0x40);
+    assert.equal(
+        game.level.at(x, y).remembered_glyph.glyph,
+        GLYPH_INVISIBLE,
+    );
+    assert.equal(glyph_is_invisible(glyph_at(x, y, game)), true);
 });
 
 // uhitm.c:201-214 returns FALSE above every arm below it, and that position is
@@ -1196,7 +1232,7 @@ test('attack_checks mimic branch calls stumble_onto_mimic and returns true',
         place_monster(mimic, mimic.mx, mimic.my, game);
 
         // Set bhitpos so glyph_at reads the mimic's square.
-        game.bhitpos = { x: mimic.mx, y: mimic.my };
+        (game.gb ??= {}).bhitpos = { x: mimic.mx, y: mimic.my };
 
         const messages = [];
         const env = {
@@ -1242,7 +1278,7 @@ test('attack_checks reveals a mimic at an invisible-marker square',
         assert.ok(glyph_is_invisible(
             glyph_at(mimic.mx, mimic.my, game)));
 
-        game.bhitpos = { x: mimic.mx, y: mimic.my };
+        (game.gb ??= {}).bhitpos = { x: mimic.mx, y: mimic.my };
         const env = {
             unsupported(reason) { throw new Error(reason); },
             message(msg) { /* swallow messages */ },
@@ -1267,7 +1303,7 @@ test('attack_checks wakes a sensed disguised monster and allows attack',
         // Give the hero Detect_monsters so sensemon(mtmp) is true.
         game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
 
-        game.bhitpos = { x: mimic.mx, y: mimic.my };
+        (game.gb ??= {}).bhitpos = { x: mimic.mx, y: mimic.my };
         const env = {
             unsupported(reason) { throw new Error(reason); },
             message(msg) { /* swallow messages */ },
