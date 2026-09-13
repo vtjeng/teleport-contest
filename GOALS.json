@@ -31514,8 +31514,8 @@
       "spans": [
         {
           "name": "dojump..jump",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d47cb7bd41222eee48d5a5635a039fa138fec85a",
           "functions": [
             "dojump",
             "check_jump",
@@ -31539,43 +31539,43 @@
           "name": "dojump",
           "line": 1847,
           "endLine": 1861,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "check_jump",
           "line": 1862,
           "endLine": 1892,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "is_valid_jump_pos",
           "line": 1893,
           "endLine": 1958,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "get_valid_jump_position",
           "line": 1959,
           "endLine": 1966,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_jump_positions",
           "line": 1967,
           "endLine": 1987,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "jump",
           "line": 1988,
           "endLine": 2166,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -31603,7 +31603,147 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1806
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dojump",
+            "implementation": "js/apply.js",
+            "symbol": "dojump",
+            "sourceReview": "Read apply.c:1847-1851 completely. The command wrapper delegates physical jumping to jump(0), and the JS dispatcher reaches that wrapper from the #jump extcmd row. The wrapper has no independent random draw or output, but its delegated command is covered by the matching jump recording.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches the extcmdlist row named #jump to dojump(); js/cmd.js selects the dojump case after tty_get_ext_cmd()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/jump-knight-basic.session.json"
+            ],
+            "checkedAt": "d47cb7bd41222eee48d5a5635a039fa138fec85a"
+          },
+          {
+            "name": "check_jump",
+            "implementation": "js/apply.js",
+            "symbol": "check_jump",
+            "sourceReview": "Read apply.c:1860-1883 completely and preserved predicate order: Passes_walls, solid-wall rejection, closed-door rejection, open-door trajectory restrictions, and the giant boulder exception. The predicate makes no random draw, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "is_valid_jump_pos",
+                "source": "apply.c is_valid_jump_pos() calls walk_path(..., check_jump, ...); js/is_valid_jump_pos uses the source-shaped Bresenham callback walk."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply-jump.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d47cb7bd41222eee48d5a5635a039fa138fec85a"
+          },
+          {
+            "name": "is_valid_jump_pos",
+            "implementation": "js/apply.js",
+            "symbol": "is_valid_jump_pos",
+            "sourceReview": "Read apply.c:1885-1954 completely and preserved the Knight distance restriction, magic distance limit, isok and cansee checks, doorway trajectory classification and rejection, Bresenham obstacle walk, and showmsg-only diagnostics in source order. The showmsg path writes messages, so this is impure for evidence purposes.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "jump",
+                "source": "apply.c jump() calls is_valid_jump_pos(cc.x, cc.y, magic, TRUE) after getpos(); js/jump makes the same validation call after its targeting loop."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "get_valid_jump_position",
+                "source": "apply.c get_valid_jump_position() calls is_valid_jump_pos(..., FALSE); js/get_valid_jump_position preserves that no-message validation call."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/jump-knight-basic.session.json"
+            ],
+            "checkedAt": "d47cb7bd41222eee48d5a5635a039fa138fec85a"
+          },
+          {
+            "name": "get_valid_jump_position",
+            "implementation": "js/apply.js",
+            "symbol": "get_valid_jump_position",
+            "sourceReview": "Read apply.c:1959-1964 completely and preserved the isok, ACCESSIBLE-or-Passes_walls, and no-message is_valid_jump_pos conjunction. It makes no random draw, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "display_jump_positions",
+                "source": "apply.c display_jump_positions() tests get_valid_jump_position() for each offset in its -4..4 map loop; js/display_jump_positions does the same loop."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply-jump.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d47cb7bd41222eee48d5a5635a039fa138fec85a"
+          },
+          {
+            "name": "display_jump_positions",
+            "implementation": "js/apply.js",
+            "symbol": "display_jump_positions",
+            "sourceReview": "Read apply.c:1967-1986 completely and preserved DISP_BEAM with the good-position glyph, the inclusive -4..4 nested coordinate loops, the u_at exclusion, and DISP_END cleanup. Screen writes make this impure.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "jump",
+                "source": "apply.c jump() installs display_jump_positions through getpos_sethilite(); js/jump opens the transient display before getpos and closes it in finally."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/jump-knight-basic.session.json"
+            ],
+            "checkedAt": "d47cb7bd41222eee48d5a5635a039fa138fec85a"
+          },
+          {
+            "name": "jump",
+            "implementation": "js/apply.js",
+            "symbol": "jump",
+            "sourceReview": "Read apply.c:1988-2163 completely and preserved source-order guards, spell fallback, targeting prompt, destination validation, trap escape branches, same-square trap behavior, range/path landing, teleds relocation, nomul/multi reason, hunger draw, and ECMD results. The landing callback family hurtle_jump/hurtle_step remains recorded with note_unported because dothrow.c is outside this span; clear-path movement and teleds landing effects are retained for the selected entry path.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "dojump",
+                "source": "apply.c dojump() returns jump(0); js/dojump delegates to jump(0) for the #jump command."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/jump-knight-basic.session.json"
+            ],
+            "checkedAt": "d47cb7bd41222eee48d5a5635a039fa138fec85a"
+          }
+        ],
+        "entryPointReview": "The selected source range has one command entry point: #jump/dojump, which delegates to jump(0). The independent recipe uses a Knight, enters #jump, selects a visible two-east/one-south Knight destination, and reaches the display, validation, path, relocation, and hunger tail. The holdout's later prompts also exercised cancellation and same-square validation, while the source-pinned tests cover solid-wall, closed-door, accessibility, and open-door predicate outcomes.",
+        "entryPoints": [
+          {
+            "name": "#jump",
+            "functions": [
+              "dojump",
+              "check_jump",
+              "is_valid_jump_pos",
+              "get_valid_jump_position",
+              "display_jump_positions",
+              "jump"
+            ],
+            "recordings": [
+              "recordings/apply.c/jump-knight-basic.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
