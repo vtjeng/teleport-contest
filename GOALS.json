@@ -33517,7 +33517,16 @@
       ],
       "selectionReason": "The refreshed full 44-session queue ranks holdout/seed4500-knight-coverage first at step 525 with 1289 remaining screens. Its complete cache at investigations/holdout/seed4500-knight-coverage.json traces the stop to timeout.c nh_timeout() and js/timeout.js, so this is the first per-session candidate with a valid completed investigation.",
       "detail": "The fixed-workload session holdout/seed4500-knight-coverage reaches step 525 after eat.c rottenfood() sets HDeaf to 3 while Unaware. C timeout.c nh_timeout() decrements active property timeouts at lines 669-671; its DEAF expiry arm at lines 752-758 sets HDeaf to 1, calls make_deaf(0, TRUE), marks botl, and stops an occupation only when Deaf is false. JS timeout.js preflight_nh_timeout_elapsed_turn() rejects active property index 16 and decrement_property_timeouts() has no DEAF case. Production callers are allmain.c moveloop_core() and js/allmain.js finishElapsedTurn()/advanceElapsedTurn(); the bounded fix is general timeout.js behavior with no seed or input condition.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "nh-timeout-deaf-expiry",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nh_timeout"
+          ]
+        }
+      ],
       "openedAt": "9c241e0d3df00e3444e1b1c0293744851881b038",
       "openStanding": {
         "sha": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
