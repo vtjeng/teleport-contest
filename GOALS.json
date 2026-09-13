@@ -33326,7 +33326,7 @@
     {
       "id": "divergence-hack-domove-ball-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire source-ordered ball dragging and movement into ordinary domove_core movement.",
       "cFile": "hack.c",
       "sessions": [],
@@ -33335,8 +33335,8 @@
       "spans": [
         {
           "name": "domove-ball-wiring",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c50f1ef98db0ecffe2df048f1958db2888f1dea6",
           "functions": [
             "domove_core"
           ]
@@ -33348,8 +33348,11 @@
         "screens": 8350,
         "rng": 629788
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c50f1ef98db0ecffe2df048f1958db2888f1dea6",
+      "delivered": {
+        "screens": 7,
+        "rng": 80
+      },
       "function": "domove_core",
       "session": "holdout/seed4500-knight-coverage",
       "step": 513,
@@ -33374,7 +33377,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1301
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c50f1ef98db0ecffe2df048f1958db2888f1dea6",
+        "screens": 8357,
+        "rng": 629868
+      }
     }
   ]
 }
