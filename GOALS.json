@@ -31503,7 +31503,7 @@
     {
       "id": "port-apply-jump-holdout-seed4500",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port physical jump command and its source-defined path validation, landing, trap, hunger, and movement behavior",
       "cFile": "apply.c",
       "sessions": [
@@ -31512,8 +31512,12 @@
       "selectionReason": "The full fixed 44-session mismatch queue ranks holdout/seed4500-knight-coverage apply.c dojump() first at step 8 with a remaining-screen upper bound of 1806; the prior seed0014 dokick goal was parked after its span closed because it ranked below this candidate.",
       "detail": "Queue source owner is apply.c: dojump() at lines 1847-1851 delegates to jump(0) at 1988-2160. The self-contained family includes check_jump(), is_valid_jump_pos(), get_valid_jump_position(), display_jump_positions(), and jump(), whose source-order path checks physical-jump prerequisites, prompts through getpos(), validates doors/boulders/visibility/path, resolves traps and same-square landings, calls hurtle_jump()/teleds(), updates movement and hunger, and returns the ECMD result. Existing JS has no dojump/jump implementation; command_bindings.js binds j to jump but cmd.js doextcmd() has no dojump case and currently raises the unported extended-command boundary. Port the complete family and wire the jump command through its production dispatcher, preserving source-called unported gaps where return values are discarded.",
       "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c14b60122c73cd3ebfd60624e7a224f28435ca79",
+      "openStanding": {
+        "sha": "0cb74fa48b483901552e8473cd08bf18ed28909f",
+        "screens": 7842,
+        "rng": 582529
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -31563,7 +31567,29 @@
       "range": {
         "from": 1847,
         "to": 2166
-      }
+      },
+      "activeStanding": {
+        "sha": "0cb74fa48b483901552e8473cd08bf18ed28909f",
+        "screens": 7842,
+        "rng": 582529
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 8,
+          "kind": "stop",
+          "function": "dojump",
+          "functionDeclared": false,
+          "sourceFile": "apply.c",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: dojump() for the extended command 'jump' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1806
+        }
+      ]
     }
   ]
 }
