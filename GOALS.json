@@ -31329,6 +31329,76 @@
         "screens": 7841,
         "rng": 582475
       }
+    },
+    {
+      "id": "port-dokick-monster-arm-seed0014",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port dokick monster-arm damage, attack, and movement behavior",
+      "cFile": "dokick.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "Highest-ranked development-only source candidate after c784a298: seed0014 step 623 reaches dokick.c monster arm, currently refused in js/dokick.js. The smallest self-contained range includes kickdmg(), maybe_kick_monster(), and kick_monster().",
+      "detail": "Upstream nethack-c/upstream/src/dokick.c kickdmg() lines 34-123 applies kick damage/passive effects; maybe_kick_monster() lines 126-143 sets gb.bhitpos, forcefight, attack_checks, and overexertion; kick_monster() lines 146-487 handles levitation miss, hidden target reveal, polymorphed and ordinary kick attacks, martial recoil, passive damage, and kill handling. Production JS js/dokick.js dokick() identifies the target and currently throws at its monster arm around lines 585-588; js/uhitm.js now implements attack_checks. Port these complete C functions and wire their callers, removing the refusal only for behavior covered by the selected range.",
+      "spans": [],
+      "openedAt": "fd56fa4ff0a5d9fca105b4882d8eba93fd31ea2d",
+      "openStanding": {
+        "sha": "fd56fa4ff0a5d9fca105b4882d8eba93fd31ea2d",
+        "screens": 7841,
+        "rng": 582475
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "kickdmg",
+          "line": 34,
+          "endLine": 125,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "maybe_kick_monster",
+          "line": 126,
+          "endLine": 145,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "kick_monster",
+          "line": 146,
+          "endLine": 294,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 34,
+        "to": 294
+      },
+      "activeStanding": {
+        "sha": "fd56fa4ff0a5d9fca105b4882d8eba93fd31ea2d",
+        "screens": 7841,
+        "rng": 582475
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 623,
+          "kind": "stop",
+          "function": "dokick",
+          "functionDeclared": true,
+          "sourceFile": "dokick.c",
+          "cFile": "dokick.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: kicking reached an unported branch: dokick()'s monster arm, which needs maybe_kick_monster() and kick_monster()",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 91
+        }
+      ]
     }
   ]
 }
