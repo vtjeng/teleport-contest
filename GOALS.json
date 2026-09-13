@@ -30718,6 +30718,63 @@
         "screens": 7479,
         "rng": 536444
       }
+    },
+    {
+      "id": "div-hack-domove-vision-redraw-seed0030",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix ordinary hero movement vision/display redraw after domove_core()",
+      "cFile": "hack.c",
+      "sessions": [
+        "seed0030-ten-diverse-deaths"
+      ],
+      "selectionReason": "The rechecked queue ranks seed0030 step 1830 first; source tracing identifies an existing ordinary domove_core -> vision_recalc -> newsym path, so this is a focused implemented-behavior divergence rather than a broad vision port.",
+      "detail": "Development session seed0030-ten-diverse-deaths, segment 9, global step 1830, screen mismatch during successful hero movement key k. Upstream owner is hack.c domove_core() lines 2964-2973: after moving, C repaints the old square and calls vision_recalc(1), revealing four new rows; vision.c ordinary update loop lines 739-790 and final hero repaint 850 call newsym(). Display path is display.c newsym() lines 917-1099 through _map_location(), map_background()/back_to_glyph() lines 279-287 and 2286-2427. Production JS is already wired hack.js domove() 3809-3811 -> domove_core() 3820+ -> vision_recalc() 4133-4140 -> vision.js 654-834 -> display.js newsym() 3120+ and back_to_glyph() 2209-2340. Scope is the ordinary vision/display redraw path only; no blind, pit, underwater, rogue, x-ray, or advanced vision branches. No holdout data inspected.",
+      "spans": [
+        {
+          "name": "domove-vision-redraw",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "domove_core",
+            "vision_recalc",
+            "newsym"
+          ]
+        }
+      ],
+      "openedAt": "47444d3ce951c2f62ec86c0fdf3b5af90a474d66",
+      "openStanding": {
+        "sha": "b24d2fe6e0cae5c08ccd5191adb0c42b7f65d04d",
+        "screens": 7479,
+        "rng": 536444
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove_core",
+      "session": "seed0030-ten-diverse-deaths",
+      "step": 1830,
+      "activeStanding": {
+        "sha": "b24d2fe6e0cae5c08ccd5191adb0c42b7f65d04d",
+        "screens": 7479,
+        "rng": 536444
+      },
+      "openMismatches": [
+        {
+          "session": "seed0030-ten-diverse-deaths",
+          "step": 1830,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1953,
+          "remainingScreensUpperBound": 123
+        }
+      ]
     }
   ]
 }
