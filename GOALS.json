@@ -32351,7 +32351,16 @@
       "sessions": [],
       "selectionReason": "The refreshed fixed-workload queue ranks holdout/seed4500-knight-coverage first with a screen mismatch at step 237. Source tracing compares options.c doset_simple_menu()'s getlin call with win/tty/getline.c hooked_tty_getlin(): C's custompline() and flush_screen() leave the status rows blank while the JavaScript getline path leaves the previous status lines visible. This source-local owner explains the highest-ranked mismatch.",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, input step 237 (key a). The first screen mismatch is at recorded screen index 237, row 22 column 0: C has a blank cell and JavaScript has the W of the prior status line; C and JavaScript match through the options menu prompt at step 236. Upstream options.c doset_simple_menu() lines 8664-8683 calls getlin(\"Set fruit to what?\"). windows.c getlin() lines 1868-1902 delegates to win_getlin(), and win/tty/getline.c hooked_tty_getlin() lines 53-67 sets TOPLINE_SPECIAL_PROMPT then sends custompline() through flush_screen() with gb.bot_disabled. JavaScript owners are js/options.js doset_simple_menu(), js/windows.js getlin(), and js/getline.js hooked_tty_getlin(); the latter flushes but does not clear the stale status rows before showing the prompt. Preserve message history and prompt cleanup while aligning the prompt redraw. Fresh replay currently reaches 274 screens and then stops at the later source boundary simple monster action requires monster special missile action.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "align-getlin-prompt-redraw",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "hooked_tty_getlin"
+          ]
+        }
+      ],
       "openedAt": "c832a6f489c1bd7573dfbf66996d38c5b2d9e467",
       "openStanding": {
         "sha": "c832a6f489c1bd7573dfbf66996d38c5b2d9e467",
