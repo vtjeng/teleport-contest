@@ -31208,7 +31208,7 @@
     {
       "id": "fix-muse-bullwhip-dropy-seed0014",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Propagate bullwhip dropy lifecycle hooks to ordinary floor placement",
       "cFile": "muse.c",
       "sessions": [],
@@ -31217,8 +31217,8 @@
       "spans": [
         {
           "name": "use_misc-bullwhip-dropy-hooks",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "830e33b18ac4f4159ec3a797715a521e2f4e8c47",
           "functions": [
             "use_misc",
             "dropy",
@@ -31232,8 +31232,11 @@
         "screens": 7837,
         "rng": 582397
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "830e33b18ac4f4159ec3a797715a521e2f4e8c47",
+      "delivered": {
+        "screens": 1,
+        "rng": 45
+      },
       "function": "use_misc",
       "session": "seed0014-dequa-fountain-explore",
       "step": 619,
@@ -31258,7 +31261,12 @@
           "recordedSteps": 714,
           "remainingScreensUpperBound": 95
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "830e33b18ac4f4159ec3a797715a521e2f4e8c47",
+        "screens": 7838,
+        "rng": 582442
+      }
     }
   ]
 }
