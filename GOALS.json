@@ -32412,7 +32412,18 @@
       "sessions": [],
       "selectionReason": "The refreshed fixed-workload queue ranks holdout/seed4500-knight-coverage first. The read-only source investigation traces the boundary to mthrowu.c and identifies a bounded venom-class branch.",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage stops at input step 274 after the cobra message The cobra spits venom! It misses. Source mthrowu.c drop_throw() lines 162-196 frees VENOM_CLASS, m_throw() lines 572-844 admits the class and handles flight, and spitmm() lines 1016-1077 creates BLINDING_VENOM and calls m_throw() at 1050-1056. The recorded branch includes spitmm, three m_throw flight draws, and thitu rnd(20)=20. Production callers are mhitu.c spitmm through js/mhitu.js and the monster missile adapter in js/unported_monster_actions.js. Implement the venom class, blinding-venom thitu(8,0) branch, post-hit blindness, and cleanup without changing callers.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mthrowu-venom-class",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "drop_throw",
+            "m_throw",
+            "spitmm"
+          ]
+        }
+      ],
       "openedAt": "7c24ab4dcefd60696ef67d027547fc2291e1c109",
       "openStanding": {
         "sha": "274410d39236f03bf16682d1d15c25c4c273eaf1",
