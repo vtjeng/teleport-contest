@@ -274,7 +274,7 @@ import {
     glyphrep_to_custom_map_entries,
     inspect_glyphrep,
 } from './glyphs.js';
-import { choose_classes_menu, select_menu } from './windows.js';
+import { choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
 
@@ -8414,6 +8414,9 @@ const OPTION_SET_HANDLERS = Object.freeze({
     cond_: (state, _optidx, negated, opts) => pfxfn_cond_(
         state, negated, opts,
     ),
+    fruit: (state, _optidx, negated, opts) => optfn_fruit(
+        state, DO_SET, negated, opts, undefined,
+    ),
     monsters: (state, optidx, negated, opts) => optfn_monsters(
         state, optidx, DO_SET, negated, opts,
     ),
@@ -8635,8 +8638,8 @@ export async function reset_needed_visuals(state) {
 // Three of C's tests are left out because nothing above can make them false.
 // doset_simple_menu() writes `abuf[0] = '\0'` and only its getlin() arm can put
 // an ESC there, so the `abuf[0] != '\033'` half of its preference_update()
-// guard always holds once that arm is refused; its `k >= 0` half excludes the
-// help pick, which doset_simple_menu() refuses before calling this.  C's
+// guard depends on the prompt answer; its `k >= 0` half excludes the help pick,
+// which doset_simple_menu() refuses before calling this.  C's
 // `allopt[k].has_handler && allopt[k].optfn` needs the second test because
 // optlist.h leaves a handler-less entry's optfn null; every allopt[] entry this
 // port generates carries one, so has_handler decides alone.
@@ -8660,9 +8663,20 @@ async function applyOptionMenuPick(state, option, helpers) {
         // menus.  Its only reader is #saveoptions, which this port does not
         // have, so there is no array to write.
     } else {
-        throw new UnsupportedOptionMenuError(
-            `getlin("Set ${option.name} to what?")`,
+        // options.c clears abuf before getlin(), then copies the answer behind
+        // the option name before handing the complete statement to
+        // parseoptions().  getlin() returns the same '\x1b' sentinel C stores
+        // for an escaped prompt, so keep it out of both parseoptions() and
+        // preference_update().
+        const answer = await getlin(
+            `Set ${option.name} to what?`, state,
         );
+        if (answer !== '\x1b') {
+            await parseoptions(
+                state, `${option.name}:${answer}`, false, false, helpers,
+            );
+        }
+        if (answer === '\x1b') return;
     }
     if (wc_supported(option.name) || wc2_supported(option.name))
         preference_update(state, option.name);

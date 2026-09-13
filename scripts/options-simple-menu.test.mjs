@@ -92,6 +92,13 @@ function clearTopline(state) {
     if (state.nhDisplay) state.nhDisplay.topMessage = '';
 }
 
+// Queue one answer for windows.c getlin(), whose tty implementation accepts
+// carriage return as a line terminator.
+function queueLine(state, text) {
+    for (const ch of text) state.nhDisplay.pushKey(ch.charCodeAt(0));
+    state.nhDisplay.pushKey(13); // carriage return ends the typed line
+}
+
 // putmesg() writes C's top line straight to the terminal; this port hands it
 // to the window port as topMessage and paints it at the next flush.
 function topline() {
@@ -351,49 +358,65 @@ test('menu_tab_sep stops the simple menu before it is built', async () => {
     );
 });
 
-// C ref: options.c doset_simple_menu()'s three unported picks. Each refusal
-// has to come between select_menu() answering and anything that would apply
-// the pick, so the game is exactly as the player left it.
-test('an unported pick stops before the menu applies it', async () => {
+// C ref: options.c doset_simple_menu()'s generic compound-option arm. The
+// selected fruit row has no handler, so C asks getlin() for a value and sends
+// the resulting `fruit:value` statement back through parseoptions().
+test('a handler-less compound pick prompts and applies its value', async () => {
     const state = await startSimpleGame(STOCK);
     const items = dosetSimpleMenuItems(state, menuHelpers());
-    // -1 is the help toggle; 'fruit' and 'statuslines' are the two compound
-    // rows this menu shows whose has_handler is false, so C prompts for a
-    // replacement value with getlin(); 'symset' has a handler, but no
-    // do_handler arm is ported for it.
-    const refusals = [
-        [-1, "doset_simple_menu()'s 'show help' toggle"],
-        [rowFor(items, 'fruit').value, 'getlin("Set fruit to what?")'],
-        [rowFor(items, 'statuslines').value,
-            'getlin("Set statuslines to what?")'],
-        [rowFor(items, 'symset').value,
-            "optfn_symset()'s do_handler request"],
-    ];
-    for (const [pick, what] of refusals) {
-        // The trio below does not intersect what two of these arms would
-        // write: the symset arm writes state.gs, and every arm that got as far
-        // as a message would write the top line. Snapshot those too, so the
-        // assertion covers the state each refusal is actually placed to
-        // protect rather than three fields none of them touches.
-        const before = {
-            flags: { ...state.flags }, iflags: { ...state.iflags },
-            fruit: state.svp.pl_fruit,
-            gs: JSON.stringify(state.gs ?? null),
-            topline: state._ttyToplines ?? '',
-        };
-        await assert.rejects(
-            doset_simple_menu(state, menuHelpers({ menu: () => pick })),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === what,
-            what,
+    const fruitRow = rowFor(items, 'fruit');
+    const prompts = [];
+    clearTopline(state);
+    queueLine(state, 'mango'); // a fresh fruit name for optfn_fruit(DO_SET)
+    const result = await doset_simple_menu(state, menuHelpers({
+        menu: (_items, prompt, how) => {
+            prompts.push({ prompt, how });
+            return fruitRow.value;
+        },
+    }));
+    assert.equal(result, 1);
+    assert.deepEqual(prompts, [{ prompt: 'Options', how: PICK_ONE }]);
+    assert.equal(state.svp.pl_fruit, 'mango');
+    assert.equal(state.gb.bot_disabled, false);
+});
+
+// C ref: the same generic arm's `if (abuf[0] != '\033')` guard. Escape leaves
+// the selected option unchanged while still returning one picked menu item,
+// so doset_simple() can offer the menu again.
+test('escaping a handler-less compound prompt leaves its value unchanged',
+    async () => {
+        const state = await startSimpleGame(STOCK);
+        const items = dosetSimpleMenuItems(state, menuHelpers());
+        const fruitRow = rowFor(items, 'fruit');
+        const before = state.svp.pl_fruit;
+        clearTopline(state);
+        state.nhDisplay.pushKey(27); // Escape cancels getlin()
+        assert.equal(
+            await doset_simple_menu(state, menuHelpers({
+                menu: () => fruitRow.value,
+            })),
+            1,
         );
-        assert.deepEqual({
-            gs: JSON.stringify(state.gs ?? null),
-            topline: state._ttyToplines ?? '',
-            flags: { ...state.flags }, iflags: { ...state.iflags },
-            fruit: state.svp.pl_fruit,
-        }, before, what);
-    }
+        assert.equal(state.svp.pl_fruit, before);
+        assert.equal(state.gb.bot_disabled, false);
+    });
+
+// C ref: options.c doset_simple_menu()'s generic arm delegates the typed
+// statement to parseoptions(); an option whose do_set handler is still absent
+// therefore reports that later refusal only after getlin() has completed.
+test('a generic prompt reaches the remaining option parser refusal', async () => {
+    const state = await startSimpleGame(STOCK);
+    const items = dosetSimpleMenuItems(state, menuHelpers());
+    const statuslinesRow = rowFor(items, 'statuslines');
+    clearTopline(state);
+    queueLine(state, '3'); // statuslines has no interactive do_set handler
+    await assert.rejects(
+        doset_simple_menu(state, menuHelpers({
+            menu: () => statuslinesRow.value,
+        })),
+        (error) => error instanceof UnsupportedOptionMenuError
+            && error.what === "optfn_statuslines()'s do_set request",
+    );
 });
 
 // C ref: options.c doset_simple(). select_menu() answers 0 for a commit that

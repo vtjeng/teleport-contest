@@ -29,7 +29,7 @@ import {
 import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
-    COULD_SEE, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
+    COULD_SEE, ECMD_OK, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
     MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL, PICK_ANY,
     SYM_NOTHING,
 } from '../js/const.js';
@@ -735,7 +735,7 @@ test('doset() applies its picks in menu order and answers ECMD_OK',
         assert.match(status, /Xp:1\/0 T:1$/u);
     });
 
-test('doset() stops on the picks whose handlers are unported', async () => {
+test('doset() continues past a cancelled generic compound prompt', async () => {
     const state = await startStockGame();
     // HELP_IDX is SIZE(allopt), and the '?' entry's a_int is one more again.
     await assert.rejects(
@@ -745,14 +745,17 @@ test('doset() stops on the picks whose handlers are unported', async () => {
         (error) => error instanceof UnsupportedOptionMenuError
             && error.what === 'display_file(OPTMENUHELP)',
     );
-    // 'boulder' is a compound option with no handler, so doset() would prompt
-    // for a replacement value with getlin().
+    // 'boulder' is a compound option with no handler, so doset() prompts for a
+    // replacement value with getlin(). Escape leaves it unchanged and lets
+    // the menu finish, as options.c:8951-8952 specifies.
     assert.equal(allopt[optionIndex('boulder')].has_handler, false);
-    await assert.rejects(
-        doset(state, menuHelpers([
+    clearTopline(state);
+    state.nhDisplay.pushKey(27); // Escape cancels the generic value prompt
+    assert.equal(
+        await doset(state, menuHelpers([
             { value: menuValue('boulder'), count: -1 },
         ])),
-        (error) => error.what === 'getlin("Set boulder to what?")',
+        ECMD_OK,
     );
     // 'runmode' is a compound option with a handler this port has not written.
     assert.equal(allopt[optionIndex('runmode')].has_handler, true);
