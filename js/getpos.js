@@ -5,7 +5,12 @@
 import {
     MAXTCHARS,
     COLNO,
-    GPCOORDS_NONE,
+    GFILTER_NONE,
+    GLOC_DOOR,
+    GLOC_EXPLORE,
+    GLOC_INTERESTING,
+    GLOC_MONS,
+    GLOC_OBJS,
     MV_RUN,
     MV_RUSH,
     MV_WALK,
@@ -14,6 +19,10 @@ import {
     LOOK_TRADITIONAL,
     LOOK_VERBOSE,
     ROWNO,
+    TER_DETECT,
+    TER_MAP,
+    TER_MON,
+    TER_OBJ,
     TIP_GETPOS,
     VIBRATING_SQUARE,
     quitchars,
@@ -22,9 +31,10 @@ import {
     createCommandBindingModel,
     keyForCommand,
 } from './command_bindings.js';
-import { movecmd } from './cmd.js';
+import { movecmd, redraw_cmd } from './cmd.js';
 import {
     back_to_glyph,
+    docrt,
     flush_screen,
     glyph_at,
     glyph_is_cmap,
@@ -53,6 +63,7 @@ import {
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 
 export {
@@ -62,13 +73,25 @@ export {
     LOOK_VERBOSE,
 };
 
-export class UnsupportedGetposError extends Error {
-    constructor(reason) {
-        super(`unsupported getpos: ${reason}`);
-        this.name = 'UnsupportedGetposError';
-        this.reason = reason;
-    }
-}
+// C ref: getpos.c gloc_descr[][] and gloc_filtertxt[] (117-134). These are
+// kept beside the help functions because the source uses the same indexed
+// tables for every line in the popup.
+const GLOC_DESCR = Object.freeze([
+    ['any monsters', 'monster', 'next/previous monster', 'monsters'],
+    ['any items', 'item', 'next/previous object', 'objects'],
+    ['any doors', 'door', 'next/previous door or doorway',
+        'doors or doorways'],
+    ['any unexplored areas', 'unexplored area', 'unexplored location',
+        'locations next to unexplored locations'],
+    ['anything interesting', 'interesting thing', 'anything interesting',
+        'anything interesting'],
+    ['any valid locations', 'valid location', 'valid location',
+        'valid locations'],
+]);
+const GLOC_FILTERTXT = Object.freeze([
+    '', ' in view', ' in this area',
+]);
+const GETPOS_WHAT_IS_A_LOCATION = 'a monster, object or location';
 
 function cursorAt(x, y, state) {
     // WIN_MAP uses level coordinates. The TTY window begins below the message
@@ -112,6 +135,193 @@ function pickResultForKey(key, state) {
             return result;
     }
     return null;
+}
+
+function getposCommandText(command, state) {
+    state.commandBindings ??= createCommandBindingModel(state);
+    return visctrl(keyForCommand(state.commandBindings, command));
+}
+
+function getposSpecialKeyText(name, state) {
+    state.commandBindings ??= createCommandBindingModel(state);
+    return visctrl(state.commandBindings.specialKeys?.[name] ?? 0);
+}
+
+// C ref: getpos.c getpos_help_keyxhelp() (137-161). The explore wording and
+// menu-specific filter shortening are source-ordered because they affect the
+// popup's line wrapping and therefore its terminal geometry.
+function getpos_help_keyxhelp(tmpwin, k1, k2, gloc, state = game) {
+    let moveCursorTo = 'move the cursor to ';
+    let filterText = GLOC_FILTERTXT[state.iflags?.getloc_filter
+        ?? GFILTER_NONE] ?? '';
+    if (gloc === GLOC_EXPLORE) {
+        moveCursorTo = 'move the cursor next to an ';
+        if (state.iflags?.getloc_usemenu)
+            filterText = filterText.replace('this area', 'area');
+    }
+    const useMenu = Boolean(state.iflags?.getloc_usemenu);
+    const description = GLOC_DESCR[gloc]?.[2 + Number(useMenu)] ?? '';
+    const line = `Use '${k1}'/'${k2}' to ${useMenu ? 'get a menu of '
+        : moveCursorTo}${description}${filterText}.`;
+    tmpwin.push(line);
+}
+
+// C ref: getpos.c getpos_refresh() (750-766). The JavaScript TTY menu helper
+// restores a partial popup at dismissal; docrt() then performs C's full map
+// refresh before getpos() puts the targeting cursor back.
+async function getpos_refresh(state = game) {
+    // docrt() owns the module-level game, which is the production state passed
+    // through cmd.js. The state parameter keeps this helper's source-shaped
+    // caller signature explicit for focused getpos tests.
+    if (state !== game)
+        throw new Error('getpos_refresh requires the module-level game');
+    await docrt();
+}
+
+// C ref: getpos.c getpos_help() (165-307). NHW_MENU text consumes the next
+// Space, Return, or Escape through dmore(), then getpos_refresh() is called by
+// getpos() so the targeting cursor and map remain visible.
+async function getpos_help(force, goal, state = game) {
+    const fastMoveMode = ['8 units at a time', 'skipping same glyphs'];
+    const terrainmode = state.iflags?.terrainmode ?? 0;
+    const lines = [];
+
+    lines.push(
+        `Use '${getposCommandText('movewest', state)}', `
+        + `'${getposCommandText('movesouth', state)}', `
+        + `'${getposCommandText('movenorth', state)}', `
+        + `'${getposCommandText('moveeast', state)}' to move the cursor to `
+        + `${goal}.`,
+    );
+    lines.push(
+        `Use '${getposCommandText('runwest', state)}', `
+        + `'${getposCommandText('runsouth', state)}', `
+        + `'${getposCommandText('runnorth', state)}', `
+        + `'${getposCommandText('runeast', state)}' to fast-move the cursor, `
+        + `${fastMoveMode[Number(Boolean(state.iflags?.getloc_moveskip))]}.`,
+    );
+    lines.push(
+        `(or prefix normal move with '${getposCommandText('run', state)}' `
+        + `or '${getposCommandText('rush', state)}' to fast-move)`,
+    );
+    lines.push("Or enter a background symbol (ex. '<').");
+    lines.push(
+        `Use '${getposSpecialKeyText('getpos.self', state)}' to move the cursor `
+        + 'on yourself.',
+    );
+
+    if (!terrainmode || (terrainmode & TER_MON) !== 0) {
+        getpos_help_keyxhelp(
+            lines,
+            getposSpecialKeyText('getpos.mon.next', state),
+            getposSpecialKeyText('getpos.mon.prev', state),
+            GLOC_MONS,
+            state,
+        );
+    }
+    if (goal !== 'a monster'
+        && (!terrainmode || (terrainmode & TER_OBJ) !== 0)) {
+        getpos_help_keyxhelp(
+            lines,
+            getposSpecialKeyText('getpos.obj.next', state),
+            getposSpecialKeyText('getpos.obj.prev', state),
+            GLOC_OBJS,
+            state,
+        );
+    }
+    if (goal !== 'a monster'
+        && (!terrainmode || (terrainmode & TER_MAP) !== 0)) {
+        getpos_help_keyxhelp(
+            lines,
+            getposSpecialKeyText('getpos.door.next', state),
+            getposSpecialKeyText('getpos.door.prev', state),
+            GLOC_DOOR,
+            state,
+        );
+        getpos_help_keyxhelp(
+            lines,
+            getposSpecialKeyText('getpos.unexplored.next', state),
+            getposSpecialKeyText('getpos.unexplored.prev', state),
+            GLOC_EXPLORE,
+            state,
+        );
+        getpos_help_keyxhelp(
+            lines,
+            getposSpecialKeyText('getpos.all.next', state),
+            getposSpecialKeyText('getpos.all.prev', state),
+            GLOC_INTERESTING,
+            state,
+        );
+    }
+    lines.push(
+        `Use '${getposSpecialKeyText('getpos.moveskip', state)}' to change `
+        + `fast-move mode to ${fastMoveMode[Number(!Boolean(
+            state.iflags?.getloc_moveskip,
+        ))]}.`,
+    );
+    if (!terrainmode || (terrainmode & TER_DETECT) === 0) {
+        lines.push(
+            `Use '${getposSpecialKeyText('getpos.menu', state)}' to toggle menu `
+            + 'listing for possible targets.',
+        );
+        lines.push(
+            `Use '${getposSpecialKeyText('getpos.filter', state)}' to change the `
+            + 'mode of limiting possible targets.',
+        );
+    }
+    if (!terrainmode) {
+        if (state.getpos_getvalid) {
+            lines.push(
+                `Use '${getposSpecialKeyText('getpos.valid.next', state)}' or `
+                + `'${getposSpecialKeyText('getpos.valid.prev', state)}' to move `
+                + 'to valid locations.',
+            );
+        }
+        if (state.getpos_hilitefunc) {
+            lines.push(
+                `Use '${getposSpecialKeyText('getpos.valid', state)}' to `
+                + 'toggle marking of valid locations.',
+            );
+        }
+        lines.push(
+            `Use '${getposSpecialKeyText('getpos.autodescribe', state)}' to `
+            + 'toggle automatic description.',
+        );
+
+        // C compares this pointer with pager.c's static string, so use the
+        // same value for the JavaScript pager caller.
+        const doingWhatIs = goal === GETPOS_WHAT_IS_A_LOCATION;
+        const pick = doingWhatIs
+            ? `'${getposSpecialKeyText('getpos.pick', state)}' or `
+                + `'${getposSpecialKeyText('getpos.pick.quick', state)}' or `
+                + `'${getposSpecialKeyText('getpos.pick.once', state)}' or `
+                + `'${getposSpecialKeyText('getpos.pick.verbose', state)}'`
+            : `'${getposSpecialKeyText('getpos.pick', state)}'`;
+        lines.push(`Type a ${pick} when you are at the right place.`);
+        if (doingWhatIs) {
+            lines.push(
+                `  '${getposSpecialKeyText('getpos.pick.verbose', state)}' `
+                + 'describe current spot, show \'more info\', move to '
+                + 'another spot.',
+            );
+            lines.push(
+                `  '${getposSpecialKeyText('getpos.pick', state)}' describe `
+                + `current spot,${state.flags?.help && !force
+                    ? " prompt if 'more info'," : ''} move to another spot;`,
+            );
+            lines.push(
+                `  '${getposSpecialKeyText('getpos.pick.quick', state)}' `
+                + 'describe current spot, move to another spot;',
+            );
+            lines.push(
+                `  '${getposSpecialKeyText('getpos.pick.once', state)}' `
+                + 'describe current spot, stop looking at things;',
+            );
+        }
+    }
+    if (!force) lines.push("Type Space or Escape when you're done.");
+    lines.push('');
+    await displayTtyMenuTextWindow(state, lines);
 }
 
 // C ref: getpos.c truncate_to_map() (729-748). JavaScript returns the two
@@ -249,14 +459,6 @@ function findTerrainFeature(key, cx, cy, state) {
 export async function getpos(ccp, force, goal, state = game) {
     // C ref: force=TRUE keeps the loop running on unrecognized keys
     // instead of exiting. For valid session input the behavior is identical.
-    if (state.iflags?.remember_getpos
-        || state.iflags?.getloc_moveskip
-        || state.iflags?.autodescribe === false
-        || (state.iflags?.getpos_coords
-            && state.iflags.getpos_coords !== GPCOORDS_NONE)) {
-        throw new UnsupportedGetposError('non-default location settings');
-    }
-
     const savedDirection = {
         dx: state.u.dx,
         dy: state.u.dy,
@@ -331,6 +533,21 @@ export async function getpos(ccp, force, goal, state = game) {
                 state.gg.getposy = cy;
                 clearTtyMessageWindow(state);
                 messageGiven = false;
+                continue;
+            }
+            // C ref: getpos.c getpos() help/redraw branch (945-954). A help
+            // window is dismissed before getpos_refresh() repaints the map;
+            // both paths then restore the targeting prompt and cursor.
+            const helpKey = state.commandBindings.specialKeys?.['getpos.help'];
+            if (key === helpKey || redraw_cmd(key, state)) {
+                if (key === helpKey)
+                    await getpos_help(force, target, state);
+                await getpos_refresh(state);
+                state.gg.getposx = cx;
+                state.gg.getposy = cy;
+                cursorAt(cx, cy, state);
+                showGoalMessage = true;
+                await flush_screen(0);
                 continue;
             }
             if (key === '#') {

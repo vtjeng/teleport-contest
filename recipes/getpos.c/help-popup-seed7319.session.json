@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7319,
+      "datetime": "20310405060708",
+      "nethackrc": "OPTIONS=name:GetposHelpFresh,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "_?\n\u001b"
+    }
+  ]
+}
