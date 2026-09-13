@@ -32592,6 +32592,143 @@
         "screens": 8127,
         "rng": 588541
       }
+    },
+    {
+      "id": "port-pray-pleased-seed4500",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port pleased() prayer reward handling",
+      "cFile": "pray.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The refreshed fixed 44-session mismatch queue ranks pray.c first at input step 293. The named unported pleased() function is the direct C owner of the prayer reward branch, and the existing pray-command goal explicitly left it outside its closed scope.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage reaches input step 293 after the prayer succeeds, then stops at the unported pleased() branch. Upstream nethack-c/upstream/src/pray.c pleased(aligntyp) is defined at lines 1071 onward and emits the deity satisfaction message before selecting the source reward branch; js/pray.js prayer_done() currently throws UnsupportedPrayerError(\"pleased()\") for this path. Production caller is pray.c prayer_done() after the delayed prayer callback from js/pray.js prayer_done(), reached through allmain.js negative-multi completion. Port the complete pleased() function in source order, preserving RNG/evaluation order and recording unported callees only where their return/output/state is not needed by the selected branch. Use the existing explicit fixed-workload session for diagnosis; create an independent recipe/recording for entry-point evidence if required by the source-port workflow.",
+      "spans": [
+        {
+          "name": "pleased",
+          "status": "closed",
+          "closedBy": "bc1e08031bd8f274110cbce7d09a4b9a1dfd5af6",
+          "functions": [
+            "pleased"
+          ]
+        }
+      ],
+      "openedAt": "2dc2430a7eb36bc0b47f779f5ad305a03e54da91",
+      "openStanding": {
+        "sha": "2dc2430a7eb36bc0b47f779f5ad305a03e54da91",
+        "screens": 8127,
+        "rng": 588541
+      },
+      "closedAt": "bc1e08031bd8f274110cbce7d09a4b9a1dfd5af6",
+      "delivered": {
+        "screens": 23,
+        "rng": 9360
+      },
+      "functions": [
+        {
+          "name": "pleased",
+          "line": 1071,
+          "endLine": 1386,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1071,
+        "to": 1386
+      },
+      "activeStanding": {
+        "sha": "2dc2430a7eb36bc0b47f779f5ad305a03e54da91",
+        "screens": 8127,
+        "rng": 588541
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 293,
+          "kind": "stop",
+          "function": "pleased",
+          "functionDeclared": false,
+          "sourceFile": "pray.c",
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": null,
+          "message": "a delayed action reached prayer reached an unported branch: pleased()",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1521
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pleased",
+            "implementation": "js/pray.js",
+            "symbol": "pleased",
+            "sourceReview": "Read pray.c:1071-1386 in full and checked the satisfaction wording, off-deity alignment return, low-record adjustment, action RNG and non-altar clamp, action override for records below STRIDENT, all first-switch fallthroughs, pat-on-head RNG branches 0/1/3/2/4/5/7/8/default, blessing and erosion ordering, tune state updates, recovery state updates, cursed-inventory iteration and opposite-alignment-helm exclusion, gift priority and protection increments, prayer timeout RNG and post-100000 throttle. The source helpers fix_worst_trouble, SetVoice, Soundeffect, You_hear, record_achievement, gcrownu, give_spell and impossible remain explicit note_unported gaps where their results or effects are outside this span; pray_revive and water_prayer are similarly noted by prayer_done when their discarded return values are reached. Removed the pleased refusal and preserved C evaluation and RNG order.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:2333-2340"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "unmul",
+                "source": "hack.c:4177-4208"
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "runUnmulAtTurnBoundary",
+                "source": "allmain.c:382-384"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/pleased-wizard-debug.session.json"
+            ],
+            "checkedAt": "bc1e08031bd8f274110cbce7d09a4b9a1dfd5af6"
+          }
+        ],
+        "entryPointReview": "The selected source range contains the pleased() reward helper, reached from prayer_done() after a coaligned successful prayer. The production route is dopray() -> state.afternmv -> allmain.js/hack.js unmul() -> prayer_done() -> pleased(). The independent recipe uses wizard-mode confirmation and force prompts to reach that route and covers the satisfaction and final prayer timer path; reward branches requiring unported source helpers remain documented in sourceReview.",
+        "entryPoints": [
+          {
+            "name": "pleased",
+            "functions": [
+              "pleased"
+            ],
+            "recordings": [
+              "recordings/pray.c/pleased-wizard-debug.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 316,
+          "kind": "stop",
+          "function": "level_tele",
+          "functionDeclared": true,
+          "sourceFile": "teleport.c",
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: level_tele() finding the entrance to Gehennom",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1498
+        }
+      ],
+      "closeStanding": {
+        "sha": "bc1e08031bd8f274110cbce7d09a4b9a1dfd5af6",
+        "screens": 8150,
+        "rng": 597901
+      }
     }
   ]
 }
