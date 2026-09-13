@@ -199,6 +199,7 @@ import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from '
 import { body_part } from './polyself.js';
 import {
     extract_from_minvent, bimanual, find_mac, mon_adjust_speed,
+    mon_set_minvis,
 } from './worn.js';
 import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
@@ -1412,7 +1413,6 @@ export async function mloot_container(mon, container, vismon, rawEnv = {}) {
 //
 // Unported callees whose results the C discards:
 //   mon.c m_useup       -- consumed object stays in monster inventory
-//   worn.c mon_set_minvis   -- visibility flag change skipped
 //   mon.c newcham           -- polymorph skipped
 //   worm.c worm_move        -- worm segment relocation skipped
 export async function use_misc(mtmp, selection, state, env = {}) {
@@ -1479,7 +1479,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         }
         // format monster's name before altering its visibility
         const nambuf = monsterCommonName(mtmp, state);
-        note_unported('worn.c mon_set_minvis');
+        mon_set_minvis(mtmp, Boolean(otmp.cursed), state);
         if (vismon && mtmp.minvis) { /* was seen, now invisible */
             if (canSpotMonster(mtmp, state)) {
                 await ttyPline(messageAt(
