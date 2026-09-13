@@ -68,6 +68,7 @@ import {
     xnameFresh,
     yname,
     Yname2,
+    Yobjnam2,
     obj_is_pname,
 } from '../js/objnam.js';
 import {
@@ -2163,6 +2164,20 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+});
+
+// objnam.c yobjnam() (2262-2276) and Yobjnam2() (2280-2285). pleased()
+// uses the capitalized possessive form for its weapon glow messages.
+test('Yobjnam2 combines ownership, counts, and verb agreement', () => {
+    const state = namingState();
+    const lamp = objectOf(state, OIL_LAMP, {
+        dknown: true, where: OBJ_INVENT,
+    });
+
+    assert.equal(Yobjnam2(lamp, 'drop', state), 'Your lamp drops');
+    lamp.quan = 2;
+    assert.equal(Yobjnam2(lamp, 'drop', state), 'Your 2 lamps drop');
+    assert.equal(Yobjnam2(lamp, null, state), 'Your 2 lamps');
 });
 
 test('Tobjnam uses the supplied naming catalogs for its article', () => {

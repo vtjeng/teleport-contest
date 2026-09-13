@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 450123,
+      "datetime": "20310405112233",
+      "nethackrc": "OPTIONS=name:PleasedProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "comment": "Independent wizard-mode prayer reaches prayer_done()'s coaligned successful arm and pleased() after the confirmation and force prompts.",
+      "moves": " #pray\ny y   "
+    }
+  ]
+}

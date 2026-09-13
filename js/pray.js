@@ -9,10 +9,10 @@
 //        and align_gname() (2530).
 //
 // prayer_done() covers its head and the gp.p_type == 0 arm; angrygods() covers
-// cases 0 and 1 of its switch and the trailing rnz(300). pleased(),
-// water_prayer(), pray_revive(), godvoice(), gods_angry() and everything the
-// remaining angrygods() cases reach are not ported, and each site that would
-// enter one stops by name.
+// cases 0 and 1 of its switch and the trailing rnz(300). water_prayer(),
+// pray_revive(), and everything the remaining angrygods() cases reach remain
+// source gaps. pleased() is ported below; its calls to source helpers that
+// still lack a running-game owner are recorded with note_unported().
 
 import {
     A_CHAOTIC,
@@ -22,6 +22,7 @@ import {
     A_NONE,
     A_STR,
     A_WIS,
+    AM_SHRINE,
     AM_MASK,
     Amask2align,
     BLINDED,
@@ -30,15 +31,21 @@ import {
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
+    FAST,
+    FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
     HUNGRY,
     HVY_ENCUMBER,
+    INTRINSIC,
     IS_ALTAR,
+    LARGEST_INT,
     IS_OBSTRUCTED,
     PARANOID_CONFIRM,
     PARANOID_PRAY,
     PASSES_WALLS,
+    PLNMSG_OBJ_GLOWS,
+    PROTECTION,
     SCORR,
     SDOOR,
     SICK,
@@ -47,6 +54,8 @@ import {
     STRANGLED,
     STUNNED,
     TIMEOUT,
+    TELEPAT,
+    STEALTH,
     TT_BURIEDBALL,
     TT_LAVA,
     UNCHANGING,
@@ -57,8 +66,8 @@ import {
     isok,
     ismnum,
 } from './const.js';
-import { confers_luck } from './artifacts.js';
-import { adjattrib } from './attrib.js';
+import { confers_luck, hcolor } from './artifacts.js';
+import { adjalign, adjattrib } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { xlev_to_rank } from './display.js';
 import { stuck_ring, unchanger } from './do_wear.js';
@@ -76,7 +85,7 @@ import {
     throws_rocks,
 } from './mondata.js';
 import { AD_BLND, AT_ENGL } from './monsters.js';
-import { sobj_at } from './obj.js';
+import { is_weptool, sobj_at, uncurse } from './obj.js';
 import {
     BOULDER,
     FUMBLE_BOOTS,
@@ -86,16 +95,25 @@ import {
     LOADSTONE,
     RIN_LEVITATION,
     SADDLE,
+    WEAPON_CLASS,
 } from './objects.js';
 import { region_danger } from './region.js';
-import { losexp } from './exper.js';
-import { rn2, rnz } from './rng.js';
+import { losexp, pluslvl } from './exper.js';
+import { rn1, rn2, rnl, rnz } from './rng.js';
 import { Punished } from './steed.js';
 import { is_pool_or_lava } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { welded } from './wield.js';
 import { bimanual, which_armor } from './worn.js';
+import { encumber_msg } from './pickup.js';
+import { init_uhunger } from './u_init.js';
+import { make_blinded } from './potion.js';
+import { see_monsters } from './display.js';
+import { update_inventory } from './invent.js';
+import { an, otense, yname, Yobjnam2 } from './objnam.js';
+import { verbalize } from './pline.js';
+import { note_unported } from './unported.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
@@ -528,10 +546,8 @@ export async function dopray(state = game) {
 }
 
 // C ref: pray.c prayer_done() (2276-2343), the ga.afternmv callback dopray()
-// installs. Restricted to the head and the gp.p_type == 0 arm: a fresh hero
-// carries u.ublesscnt 300 from u_init.c:1005 and can_pray() answers 0 for
-// every prayer that finds no trouble, so that is the arm ordinary play
-// reaches. Each of the other five stops by name.
+// installs. The p_type 0 arm remains the only fully wired failure path here;
+// the p_type 3 arm reaches pleased(), whose complete source branch is below.
 //
 // C's return value distinguishes the Inhell arm from the rest, and only
 // moveloop_core()'s occupation loop reads an afternmv result; unmul() discards
@@ -576,8 +592,306 @@ export async function prayer_done(state = game) {
         throw new UnsupportedPrayerError("prayer_done()'s p_type 2 arm");
     } else {
         // Coaligned and in good standing: pray_revive(), water_prayer(TRUE)
-        // and pleased(), which is the whole reward half of pray.c.
-        throw new UnsupportedPrayerError('pleased()');
+        // and pleased(), which is the whole reward half of pray.c. The altar
+        // helpers return values that this arm discards, so retain their source
+        // gaps and continue to pleased().
+        if (on_altar(state)) {
+            note_unported('pray.c pray_revive');
+            note_unported('pray.c water_prayer');
+        }
+        await pleased(state.gp.p_aligntyp, state);
+    }
+}
+
+// C ref: pray.c pleased() (1071-1386). A successful prayer first reports the
+// deity's satisfaction, then chooses a trouble repair, blessing, recovery, or
+// divine gift. The source helpers that are still outside the port are recorded
+// at their call sites; their branches retain source order and RNG draws.
+export async function pleased(g_align, state = game) {
+    const { u } = state;
+    state.iflags ??= {};
+    state.disp ??= {};
+    let trouble = in_trouble(state);
+    let pat_on_head = 0;
+    let kick_on_butt;
+    const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+
+    const satisfaction = u.ualign.record >= 14
+        ? (Hallucination(state) ? 'pleased as punch' : 'well-pleased')
+        : u.ualign.record >= STRIDENT
+            ? (Hallucination(state) ? 'ticklish' : 'pleased')
+            : (Hallucination(state) ? 'full' : 'satisfied');
+    await ttyPline(
+        `You feel that ${align_gname(g_align, state)} is ${satisfaction}.`,
+        state,
+    );
+
+    /* not your deity */
+    if (on_altar(state) && state.gp.p_aligntyp !== u.ualign.type) {
+        adjalign(-1, state);
+        return;
+    } else if (u.ualign.record < 2 && trouble <= 0) {
+        adjalign(1, state);
+    }
+
+    if (!trouble && u.ualign.record >= 14) {
+        /* if hero was in trouble, but got better, no special favor */
+        if (state.gp.p_trouble === 0) pat_on_head = 1;
+    } else {
+        let action;
+        let prayer_luck;
+        /* Keep Luck at -1 or above so the rn1() bound stays positive. */
+        prayer_luck = Math.max(luck, -1);
+        action = rn1(
+            prayer_luck + (on_altar(state)
+                ? 3 + Number(Boolean(
+                    state.level.at(u.ux, u.uy).altarmask & AM_SHRINE,
+                ))
+                : 2),
+            1,
+        );
+        if (!on_altar(state)) action = Math.min(action, 3);
+        if (u.ualign.record < STRIDENT)
+            action = (u.ualign.record > 0 || !rnl(2)) ? 1 : 0;
+
+        switch (Math.min(action, 5)) {
+        case 5:
+            pat_on_head = 1;
+            // FALLTHROUGH
+        case 4:
+            // fix_worst_trouble() returns void, but its state and output are
+            // not yet ported. Do not fabricate a repair or a loop here.
+            note_unported('pray.c fix_worst_trouble');
+            break;
+        case 3:
+            note_unported('pray.c fix_worst_trouble');
+            // FALLTHROUGH
+        case 2:
+            // The unported repair would be the loop's only state change. The
+            // source loop is therefore represented by its explicit gap.
+            note_unported('pray.c fix_worst_trouble');
+            break;
+        case 1:
+            if (trouble > 0)
+                note_unported('pray.c fix_worst_trouble');
+            break;
+        case 0:
+            break;
+        default:
+            break;
+        }
+    }
+
+    /* A pat on the head is only possible once all troubles are gone. */
+    if (pat_on_head) {
+        switch (rn2((luck + 6) >> 1)) {
+        case 0:
+            break;
+        case 1: {
+            const weapon = u.uwep;
+            if (weapon && (welded(weapon, state)
+                || weapon.oclass === WEAPON_CLASS
+                || is_weptool(weapon, state))) {
+                let repair_buf = '';
+                if (weapon.oeroded || weapon.oeroded2)
+                    repair_buf = ` and ${otense(weapon, 'are')} now as good as new`;
+
+                if (weapon.cursed) {
+                    if (!heroIsBlind(state)) {
+                        await ttyPline(
+                            `${Yobjnam2(weapon, 'softly glow', state)} ${hcolor('amber', state)}${repair_buf}.`,
+                            state,
+                        );
+                        state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
+                    } else {
+                        await ttyPline(
+                            `You feel the power of ${u_gname(state)} over ${yname(weapon, state)}.`,
+                            state,
+                        );
+                    }
+                    await uncurse(weapon, { state });
+                    weapon.bknown = 1;
+                    repair_buf = '';
+                } else if (!weapon.blessed) {
+                    if (!heroIsBlind(state)) {
+                        await ttyPline(
+                            `${Yobjnam2(weapon, 'softly glow', state)} with ${an(hcolor('light blue', state))} aura${repair_buf}.`,
+                            state,
+                        );
+                        state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
+                    } else {
+                        await ttyPline(
+                            `You feel the blessing of ${u_gname(state)} over ${yname(weapon, state)}.`,
+                            state,
+                        );
+                    }
+                    await uncurse(weapon, { state });
+                    weapon.blessed = true;
+                    weapon.bknown = 1;
+                    repair_buf = '';
+                }
+
+                if (weapon.oeroded || weapon.oeroded2) {
+                    weapon.oeroded = 0;
+                    weapon.oeroded2 = 0;
+                    if (repair_buf)
+                        await ttyPline(
+                            `${Yobjnam2(weapon, null, state)} ${otense(
+                                weapon, heroIsBlind(state) ? 'feel' : 'look',
+                            )} as good as new!`, state,
+                        );
+                }
+                update_inventory({ state });
+            }
+            break;
+        }
+        case 3:
+            // Two tune hints are source branches; only the sound and
+            // achievement interfaces remain gaps. Once both hints are heard,
+            // C falls through to the ordinary recovery branch.
+            if (!u.uevent.uopened_dbridge && !u.uevent.gehennom_entered) {
+                if (u.uevent.uheard_tune < 1) {
+                    await godvoice(g_align, null, state);
+                    note_unported('pray.c SetVoice');
+                    await verbalize(
+                        `Hark, ${is_human(state.youmonst?.data)
+                            ? 'mortal' : 'creature'}!`,
+                        state,
+                    );
+                    note_unported('pray.c SetVoice');
+                    await verbalize(
+                        'To enter the castle, thou must play the right tune!',
+                        state,
+                    );
+                    u.uevent.uheard_tune++;
+                    break;
+                } else if (u.uevent.uheard_tune < 2) {
+                    note_unported('pray.c Soundeffect');
+                    note_unported('pray.c You_hear');
+                    await ttyPline(`It sounds like:  "${state.svt?.tune ?? ''}".`, state);
+                    u.uevent.uheard_tune++;
+                    note_unported('pray.c record_achievement');
+                    break;
+                }
+            }
+            // FALLTHROUGH
+        case 2:
+            if (!heroIsBlind(state))
+                await ttyPline(
+                    `You are surrounded by ${an(hcolor('golden', state))} glow.`,
+                    state,
+                );
+            /* If a prior level was lost, regain one level first. */
+            if (u.ulevel < u.ulevelmax) {
+                u.ulevelmax -= 1;
+                await pluslvl(false, state, { message: ttyPline });
+            } else {
+                u.uhpmax += 5;
+                if (u.uhpmax > u.uhppeak) u.uhppeak = u.uhpmax;
+                if (Upolyd(u)) u.mhmax += 5;
+            }
+            u.uhp = u.uhpmax;
+            if (Upolyd(u)) u.mh = u.mhmax;
+            if (u.acurr.a[A_STR] < u.amax.a[A_STR]) {
+                u.acurr.a[A_STR] = u.amax.a[A_STR];
+                state.disp.botl = true;
+                await encumber_msg(state);
+            }
+            if (u.uhunger < 900) init_uhunger(state);
+            if (u.uluck < 0) u.uluck = 0;
+            u.ucreamed = 0;
+            await make_blinded(0, true, state);
+            state.disp.botl = true;
+            break;
+        case 4: {
+            let any = 0;
+            if (heroIsBlind(state))
+                await ttyPline(`You feel the power of ${u_gname(state)}.`, state);
+            else
+                await ttyPline(
+                    `You are surrounded by ${an(hcolor('light blue', state))} aura.`,
+                    state,
+                );
+            for (let object = state.invent; object; object = object.nobj) {
+                if (object.cursed
+                    && (object !== u.uarmh
+                        || u.uarmh.otyp !== HELM_OF_OPPOSITE_ALIGNMENT)) {
+                    if (!heroIsBlind(state)) {
+                        await ttyPline(
+                            `${Yobjnam2(object, null, state)} ${hcolor('amber', state)}.`,
+                            state,
+                        );
+                        state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
+                        object.bknown = 1;
+                        ++any;
+                    }
+                    await uncurse(object, { state });
+                }
+            }
+            if (any) update_inventory({ state });
+            break;
+        }
+        case 5: {
+            await godvoice(
+                u.ualign.type,
+                'Thou hast pleased me with thy progress,',
+                state,
+            );
+            const grant = (property, label) => {
+                const prop = u.uprops[property];
+                prop.intrinsic ??= 0;
+                if (!(prop.intrinsic & INTRINSIC)) {
+                    prop.intrinsic |= FROMOUTSIDE;
+                    return label;
+                }
+                return null;
+            };
+            const gift = grant(TELEPAT, 'Telepathy')
+                ?? grant(FAST, 'Speed')
+                ?? grant(STEALTH, 'Stealth');
+            if (gift) {
+                await ttyPline(`"and thus I grant thee the gift of ${gift}!"`, state);
+                if (gift === 'Telepathy' && heroIsBlind(state)) see_monsters(state);
+            } else {
+                const prop = u.uprops[PROTECTION];
+                prop.intrinsic ??= 0;
+                if (!(prop.intrinsic & INTRINSIC)) {
+                    prop.intrinsic |= FROMOUTSIDE;
+                    if (!u.ublessed) u.ublessed = rn1(3, 2);
+                } else {
+                    u.ublessed++;
+                }
+                await ttyPline('"and thus I grant thee the gift of my protection!"', state);
+            }
+            await verbalize('Use it wisely in my name!', state);
+            break;
+        }
+        case 7:
+        case 8:
+            if (u.ualign.record >= 20 && !u.uevent.uhand_of_elbereth) {
+                note_unported('pray.c gcrownu');
+                break;
+            }
+            // FALLTHROUGH
+        case 6:
+            note_unported('pray.c give_spell');
+            break;
+        default:
+            note_unported('pray.c impossible');
+            break;
+        }
+    }
+
+    u.ublesscnt = rnz(350);
+    kick_on_butt = u.uevent.udemigod ? 1 : 0;
+    if (u.uevent.uhand_of_elbereth) kick_on_butt++;
+    if (kick_on_butt) u.ublesscnt += kick_on_butt * rnz(1000);
+
+    if ((state.moves ?? 0) > 100000) {
+        let incr = Math.trunc(((state.moves ?? 0) - 100000) / 100);
+        const largest = LARGEST_INT - u.ublesscnt;
+        if (incr > largest) incr = largest;
+        u.ublesscnt += incr;
     }
 }
 

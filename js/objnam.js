@@ -1,7 +1,7 @@
 // Runtime object naming for the early movement, pet, trap, and combat paths.
 // C refs: objnam.c xname(), corpse_xname(), minimal_xname(), simpleonames(),
-// doname(), distant_name(), cxname(), The(), aobjnam(), otense(), singular(),
-// yname() and Yname2().
+// doname(), distant_name(), cxname(), The(), aobjnam(), yobjnam(), Yobjnam2(),
+// otense(), singular(), yname() and Yname2().
 //
 // objnam.c is split across two files. Its wish-parsing group lives in
 // js/objnam_readobjnam.js: readobjnam() and its five-function chain,
@@ -1431,6 +1431,25 @@ export function aobjnam(otmp, verb, state = game) {
     if (verb)
         bp = `${bp} ${otense(otmp, verb)}`;
     return bp;
+}
+
+// C ref: objnam.c yobjnam() (2262-2276). Combines aobjnam() with the
+// possessive prefix used by yname(), retaining counts for plural objects.
+export function yobjnam(obj, verb, state = game) {
+    const s = aobjnam(obj, verb, state);
+
+    if (!carried(obj)
+        || !obj_is_pname(obj, state)
+        || obj.oartifact >= ART_ORB_OF_DETECTION) {
+        return `${shk_your(obj, state)}${s}`;
+    }
+    return s;
+}
+
+// C ref: objnam.c Yobjnam2() (2280-2285). Capitalized yobjnam().
+export function Yobjnam2(obj, verb, state = game) {
+    const s = yobjnam(obj, verb, state);
+    return highc(s[0]) + s.slice(1);
 }
 
 // C ref: objnam.c Tobjnam() (2288-2299). Its own comment: "like aobjnam, but

@@ -2795,7 +2795,7 @@ const hcolors = Object.freeze([
 ]);
 
 // C ref: do_name.c hcolor() (1460-1466).
-function hcolor(colorpref, state) {
+export function hcolor(colorpref, state) {
     const halluc = (state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
         || (state.u?.uprops?.[HALLUC]?.extrinsic ?? 0) !== 0;
     return (halluc || !colorpref)

@@ -913,16 +913,16 @@ test('angrygods() raises u.ublesscnt to rnz(300) but never lowers it',
         assert.equal(game.u.ublesscnt, untouched);
     });
 
-// Everything prayer_done() does not own stops by name, at the arm C would
-// have taken. Each row leaves the hero exactly where can_pray() would.
-test('prayer_done() refuses every arm outside gp.p_type 0', async () => {
+// Every prayer_done() arm that remains outside this span still stops by name,
+// at the arm C would have taken. The successful p_type 3 arm now runs
+// pleased() through its production caller.
+test('prayer_done() runs pleased() and refuses the remaining arms', async () => {
     await startedGame();
     for (const [p_type, pattern] of [
         [-2, /Moloch arm/u],
         [-1, /undead arm/u],
         [1, /p_type 1 arm/u],
         [2, /p_type 2 arm/u],
-        [3, /pleased\(\)/u],
     ]) {
         game.gp = { p_type, p_aligntyp: A_LAWFUL };
         game.u.uinvulnerable = true;
@@ -931,6 +931,17 @@ test('prayer_done() refuses every arm outside gp.p_type 0', async () => {
         // shimmering light dopray() raised is gone even on a refused arm.
         assert.equal(game.u.uinvulnerable, false, `p_type ${p_type}`);
     }
+
+    // pray.c:2340 reaches pleased() for a coaligned successful prayer. The
+    // fresh hero has no trouble and a zero alignment record, so this checks
+    // the satisfaction line and final rnz(350) timer without selecting a
+    // source helper that remains outside the span.
+    game.gp = { p_type: 3, p_aligntyp: A_LAWFUL, p_trouble: 0 };
+    game.u.ublesscnt = 0;
+    await prayer_done(game);
+    assert.equal(game.u.uinvulnerable, false);
+    assert.ok(game.u.ublesscnt > 0);
+    assert.equal(game._pending_message, 'You feel that Tyr is satisfied.');
 
     // pray.c:2308 puts Gehennom ahead of every p_type but -2 and -1.
     // dungeon.c In_hell() reads the dungeon's `hellish` flag, which
@@ -963,12 +974,14 @@ test('prayer_done() refuses every arm outside gp.p_type 0', async () => {
         // The ported path prints, so clear the line each pass or the next
         // message stops for a --More-- no key answers.
         clearTtyMessageWindow(game);
-        await prayer_done(game).catch((error) => {
+        for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+        const error = await prayer_done(game).catch((error) => error);
+        if (error) {
             // angrygods() can still refuse whichever case its rn2() draws;
             // what must not happen is the water_prayer() stop.
             assert.ok(error instanceof UnsupportedPrayerError, name);
             assert.doesNotMatch(error.message, /water_prayer/u, name);
-        });
+        }
     }
     here.typ = wasTyp;
     here.altarmask = wasMask;
