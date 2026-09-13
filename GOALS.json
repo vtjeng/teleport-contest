@@ -33195,6 +33195,50 @@
         "screens": 8325,
         "rng": 629665
       }
+    },
+    {
+      "id": "divergence-read-punishment-scroll-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Implement the source-reachable punishment-scroll read path, including punishment dispatch and first/repeated iron-ball behavior, while preserving pager and RNG order.",
+      "cFile": "read.c",
+      "sessions": [],
+      "selectionReason": "After the successful spellbook-study fix, the refreshed full fixed-workload queue ranks holdout/seed4500-knight-coverage first at step 491 with up to 1323 remaining screens. Source tracing identifies a local read.c punishment-scroll branch and a bounded JS refusal, so this highest-ranked divergence is selected.",
+      "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, step 491 input i selects the first scroll from the wished stack of three punishment scrolls; C later identifies the remaining stack as two uncursed punishment scrolls. read.c doread() lines 354-362 reset pickup_prev, call getobj, and then lines 598-645 increment literate conduct, set in_use, emit the disappearance pager, dispatch seffects, and consume the scroll. seffects() exercises Wisdom at lines 2194-2200 (witness rn2(19)=9), dispatches SCR_PUNISHMENT at 2276-2278, and seffect_punishment() lines 1976-1988 sets known then calls punish() for this unconfused/unblessed witness. punish() lines 3019-3062 prints the guilt message, creates/wears chain and ball on the first solid-human read, places/redraws them, and on a repeated uncursed read increases ball weight by WT_IRON_BALL_INCR=160 without new object creation. JS js/read.js doread() lines 327-385 currently rejects punishment at line 384 before pickup_prev, conduct, in_use, pager, seffects, or consumption; seffects() also lacks the punishment dispatch at lines 574-581. Production path is cmd.js runReadCommand() lines 3348-3353 -> doread dispatch 5032-5033 -> read command result 5589-5600. Bounded scope: admit SCR_PUNISHMENT, add seffect_punishment(), and implement scroll-reachable punish() arms for blessed/confused guilty return, first solid-human chain/ball creation, and repeated uncursed/cursed weight increase; preserve pager boundary and RNG order. Leave reuse_ball, amorphous/whirly/unsolid fall-away, swallowed placement, and unrelated punishment callers outside this witness.",
+      "spans": [],
+      "openedAt": "f2da27a0743aac6b9095abecf5a0f151c3e5362b",
+      "openStanding": {
+        "sha": "f2da27a0743aac6b9095abecf5a0f151c3e5362b",
+        "screens": 8325,
+        "rng": 629665
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doread",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 491,
+      "activeStanding": {
+        "sha": "f2da27a0743aac6b9095abecf5a0f151c3e5362b",
+        "screens": 8325,
+        "rng": 629665
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 491,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1323
+        }
+      ]
     }
   ]
 }
