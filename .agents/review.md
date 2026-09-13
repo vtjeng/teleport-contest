@@ -58,7 +58,7 @@ Three manual attestations, recorded in `auditMetrics.readiness`, are also
 required:
 
 - **boundary** (the field keeps its historical name): name the functions or
-  the committed range under review, and state which recording, development
+  the committed range under review, and state which recording, fixed-workload
   session, or source-pinned test executes each function, or that none does.
 - **sourceReview**: confirm that every function in scope was traced against
   upstream C or Lua, covering state and PRNG order, and that every

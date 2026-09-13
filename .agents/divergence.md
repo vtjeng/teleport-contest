@@ -37,14 +37,17 @@ with:
 
 ```sh
 node frozen/ps_test_runner.mjs \
-  --worker-session=sessions/<development-session>.session.json
+  --worker-session=sessions/<name>.session.json
 ```
+
+For an opened local-holdout recording, use its explicit fixed-workload path:
+`sessions/holdout/<name>.session.json`.
 
 Queue the goal with `node scripts/goal-log.mjs queue-goal --kind
 divergence-fix`, naming the C file, the function, the session, and the step.
 Put the record in its `--detail`:
 
-- the development session, segment, and input step;
+- the fixed-workload session, segment, and input step;
 - whether the first mismatch is screen or RNG, and its position;
 - the exact upstream C file, function, branch, and preconditions;
 - the JavaScript owner suspected of causing the mismatch.

@@ -2,11 +2,11 @@
 
 Read this file when implementing gameplay or running recordings, differentials,
 scans, or browser checks. The fixed 44-session workload includes the 33 regular
-recordings and the 11 recordings under `sessions/holdout/`. Those formerly
-held-out files are open, ordinary development inputs for scans, mismatch
-selection, replay, recording comparison, and checkpoint scoring. Treat all
-fixed-workload recordings as read-only source data while preserving them in
-place. The remote competition holdout is outside this workspace.
+recordings and the 11 recordings under `sessions/holdout/`. The local-holdout
+files are open, ordinary development inputs for scans, mismatch selection,
+replay, recording comparison, and checkpoint scoring. Treat all fixed-workload
+recordings as read-only source data while preserving them in place. The remote
+competition holdout is outside this workspace.
 
 ## Routine validation
 
@@ -120,14 +120,14 @@ A planned entry point may have an empty recording array while blocked; the
 goal cannot close until every listed entry point has a matching recording.
 
 `record-evidence` checks the schema, source and implementation declarations,
-and that caller, test, and recording references exist. These checks do not
-prove the written assertions: the orchestrator verifies complete behavior,
-runtime reachability, and that the cited recordings execute the claimed
-functions. Evidence references are regular files within this worktree and are
-restricted to their declared evidence roots; absolute paths, traversal, and
-symlinks are rejected. This evidence-path check is about provenance and file
-integrity, not access to the open local-holdout recordings. Evidence is stored
-in `GOALS.json`; do not retain a separate report.
+and that caller, test, and recording references exist. These checks establish
+the references; the orchestrator verifies complete behavior, runtime
+reachability, and that the cited recordings execute the claimed functions.
+Evidence references use regular files within their declared evidence roots and
+the path checks protect provenance and file integrity. The open local-holdout
+recordings remain available for fixed-workload diagnosis and scoring; evidence
+itself stays under its declared roots. Evidence is stored in `GOALS.json`; keep
+the durable record there.
 
 `close-span` requires evidence for every planned source unit. `close-goal`
 also requires all spans closed and complete entry-point coverage. Both

@@ -51,7 +51,7 @@ mismatch queue is empty. Complete unverified C function groups and Lua
 programs with reachable callers and useful validation before reference-build
 inactive helpers. The port is complete only when all 44 fixed-workload
 sessions match and all C functions and Lua programs have completion evidence.
-Synthetic local-holdout results are reported separately and do not replace
+Synthetic local challenge results are reported separately and supplement
 source completion evidence.
 
 ## Opening the goal
@@ -110,12 +110,13 @@ segments. Compare first mismatches and complete recordings as well as totals.
 `score-development.mjs` is the authority on measured matching screens across
 the fixed 44-session workload.
 
-The queue ranks first failures from the fixed workload. The former local
-holdout is an ordinary part of that workload: goal-log accepts identifiers such
-as `holdout/seed4500-knight-coverage` and explicit paths such as
+The queue ranks first failures from the fixed workload. The local-holdout
+recordings are ordinary entries in that workload: goal-log accepts identifiers
+such as `holdout/seed4500-knight-coverage` and explicit paths such as
 `sessions/holdout/seed4500-knight-coverage.session.json` in `--sessions` or
 `--session`, storing the canonical queue ID with its `holdout/` prefix.
-`--development-scan` still takes a saved scan JSON artifact.
+`--development-scan` takes a saved scan JSON artifact; `--sessions` and
+`--session` take workload identifiers or explicit session paths.
 The upper bounds are not predicted gains. Challenge
 failures are synthetic local challenge diagnostics kept outside queue
 candidates. The remote competition holdout is outside this workspace.

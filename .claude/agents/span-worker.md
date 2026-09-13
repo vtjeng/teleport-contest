@@ -54,8 +54,8 @@ Beyond code and tests:
 Do not run formal review passes or launch reviewer skills. If the span
 needs one, say so in your report.
 
-The former local holdout is open and is part of the 44-session fixed workload
-under `AGENTS.md`. Inspect and replay its sessions when the span needs them;
+The local-holdout recordings are open and are part of the 44-session fixed
+workload under `AGENTS.md`. Inspect and replay them when the span needs them;
 default scans, mismatch selection, and checkpoint scoring include all 44.
 Leave `scripts/score-holdout.mjs` and aggregate score bookkeeping to the
 orchestrator; implement behavior from the C source. The remote competition

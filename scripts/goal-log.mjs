@@ -629,7 +629,8 @@ export function recordEvidence(goal, evidence, head) {
 
 function readEvidence(path) {
     // Worker evidence is an ephemeral JSON file in this worktree's cache.
-    // Restrict the input before reading it; no session path is accepted.
+    // Evidence paths belong to .cache; workload identifiers and explicit
+    // session paths belong to --sessions/--session.
     if (!/^\.cache\/[A-Za-z0-9_.-]+\.json$/u.test(path))
         throw new Error('--evidence must name a JSON file directly under .cache/');
     if (lstatSync(join(PROJECT_ROOT, '.cache')).isSymbolicLink()
@@ -640,6 +641,8 @@ function readEvidence(path) {
 }
 
 function readDevelopmentScan(path) {
+    // This option reads a saved scan artifact. Session identifiers and explicit
+    // session paths belong to --sessions/--session, not --development-scan.
     const resolved = path.startsWith('/') ? path : join(PROJECT_ROOT, path);
     const normalized = resolved.replaceAll('\\', '/');
     const cacheRoot = `${PROJECT_ROOT}/.cache/`;
