@@ -30847,6 +30847,71 @@
         "screens": 7501,
         "rng": 543153
       }
+    },
+    {
+      "id": "port-getpos-terrain-symbol-search-seed0360",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port getpos() generic terrain-symbol search and not-found diagnostic",
+      "cFile": "getpos.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The development-only queue ranks seed0360 step 719 first among eligible development sessions. Source tracing identifies the partial generic terrain-symbol branch of getpos.c:getpos() as the owner; this bounded file-port slice precedes unrelated later gaps.",
+      "detail": "Development session seed0360-wizard-world-tour, segment 0, zero-based input step 719 key '_' inside cmd.c:dotravel() forced getpos(&cc, TRUE, ...). Upstream getpos.c:1039-1116 matches '_' as a generic terrain symbol, scans current/remembered/seen glyphs, finds no altar, and prints Can't find dungeon feature '_'. JS js/getpos.js:getpos() handles only the special '>' search at 264-287, then falls into force-mode unknown-direction diagnostic at 323-341. Production caller is js/cmd.js:dotravel() -> js/getpos.js:getpos(); hack.js and monster movement are downstream. Port the generic terrain-symbol search branch and not-found message with C scan order and cursor/message behavior. Steps 724 repeats the same branch; later '?' help remains separate. No holdout data inspected.",
+      "spans": [
+        {
+          "name": "getpos",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "getpos"
+          ]
+        }
+      ],
+      "openedAt": "50c49faf6d24c9ac59466afdb96280f1f54840c9",
+      "openStanding": {
+        "sha": "50c49faf6d24c9ac59466afdb96280f1f54840c9",
+        "screens": 7501,
+        "rng": 543153
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "getpos",
+          "line": 771,
+          "endLine": 1170,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 771,
+        "to": 1170
+      },
+      "activeStanding": {
+        "sha": "50c49faf6d24c9ac59466afdb96280f1f54840c9",
+        "screens": 7501,
+        "rng": 543153
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 719,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 114
+        }
+      ]
     }
   ]
 }
