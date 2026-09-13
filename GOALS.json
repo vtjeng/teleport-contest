@@ -33262,7 +33262,7 @@
     {
       "id": "divergence-read-identify-pack-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement the unknown identify-scroll automatic inventory-identification path and preserve its source-ordered discovery, exercise, and inventory updates.",
       "cFile": "read.c",
       "sessions": [],
@@ -33271,8 +33271,8 @@
       "spans": [
         {
           "name": "identify-scroll-pack",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8d7f7cde63ee2b8c2f7f9d52dd20b3f97e28f556",
           "functions": [
             "seffect_identify",
             "identify_pack",
@@ -33287,8 +33287,11 @@
         "screens": 8328,
         "rng": 629681
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8d7f7cde63ee2b8c2f7f9d52dd20b3f97e28f556",
+      "delivered": {
+        "screens": 22,
+        "rng": 107
+      },
       "function": "seffect_identify",
       "session": "holdout/seed4500-knight-coverage",
       "step": 494,
@@ -33313,7 +33316,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1320
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "8d7f7cde63ee2b8c2f7f9d52dd20b3f97e28f556",
+        "screens": 8350,
+        "rng": 629788
+      }
     }
   ]
 }
