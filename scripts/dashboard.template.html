@@ -481,7 +481,7 @@ canvas {
 .history-addition { width: 6px; height: 6px; margin: 0 2px; background: var(--ink-muted); transform: rotate(45deg); }
 .score-inspection { position: sticky; top: 0; z-index: 5; background: var(--surface-card); padding: 8px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
 .readout-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
-#progressReadout { display: grid; grid-template-columns: minmax(max-content, 1fr) max-content max-content max-content max-content max-content minmax(max-content, 1fr); column-gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
+#progressReadout { display: grid; grid-template-columns: minmax(min-content, 1fr) max-content max-content max-content max-content max-content minmax(max-content, 1fr); column-gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
 .score-readout-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; align-items: baseline; padding: 3px 0; }
 .score-readout-row strong { padding-right: 8px; }
 .score-readout-row > span { text-align: right; }
@@ -805,36 +805,47 @@ canvas {
   border: 1px solid var(--phase-audit);
 }
 
-#queueTable {
-  table-layout: fixed;
-  width: 100%;
-  min-width: 44rem;
+#queueDisclosure summary { cursor: pointer; overflow-wrap: anywhere; }
+#queueDisclosure summary:focus-visible {
+  outline: 2px solid var(--ink-secondary);
+  outline-offset: 2px;
 }
-
-#queueTable col:nth-child(1) { width: 23%; }
-#queueTable col:nth-child(2) { width: 10%; }
-#queueTable col:nth-child(3) { width: 9%; }
-#queueTable col:nth-child(4) { width: 43%; }
-#queueTable col:nth-child(5) { width: 15%; }
-
-/* Let the whole finding fit in a phone viewport when scrolling sideways. */
-#queueTable td:first-child,
-#queueTable th:first-child { left: auto; }
-
-/* Keep an unavailable step readable without changing the pinned name column. */
-#queueTable td:nth-child(2),
-#queueTable th:nth-child(2) { white-space: normal; }
-
-#queueTable td:nth-child(4),
-#queueTable th:nth-child(4) {
-  text-align: left;
-  white-space: normal;
-  overflow-wrap: anywhere;
+#queueDisclosure > summary { min-height: 44px; padding: 12px 0; }
+#queueDisclosure > summary .section-title { display: inline; }
+#queueCount {
+  margin-left: 12px;
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
 }
-
+#queueDisclosure > .subtitle { margin: 8px 0 16px; }
+#queueEntries { overflow-wrap: anywhere; }
+.queue-entry + .queue-entry { border-top: 1px solid var(--border); }
+.queue-entry > summary { padding: 16px 0; font-size: 13px; }
+.queue-session { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.queue-overview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin-top: 6px;
+  color: var(--ink-secondary);
+}
+.queue-remaining { font-variant-numeric: tabular-nums; }
 .investigation-status { font-weight: 600; }
-.investigation-summary { margin-top: 4px; line-height: 1.5; }
-.investigation-source { margin-top: 4px; color: var(--ink-secondary); }
+.queue-finding { max-width: 75ch; padding-bottom: 20px; font-size: 14px; }
+.investigation-summary { line-height: 1.65; }
+.investigation-source { margin-top: 8px; color: var(--ink-secondary); }
+.queue-mismatch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin-top: 12px;
+  color: var(--ink-secondary);
+}
+.queue-mismatch > div { display: flex; gap: 6px; }
+.queue-mismatch dt { font-weight: 600; }
 
 .goal-table tr.in-progress td {
   --tint: color-mix(in srgb, var(--goal-in-progress) 6%, transparent);
@@ -930,15 +941,11 @@ canvas {
 
 <section class="diagnostics">
   <h2 class="section-title">Diagnostics and history</h2>
-<div class="section">
-  <h3 class="section-title">Mismatch queue</h3>
+<details class="section" id="queueDisclosure">
+  <summary><h3 class="section-title">Mismatch queue<span id="queueCount"></span></h3></summary>
   <p class="subtitle">Sessions ordered by remaining screens. Work starts with the first completed investigation. Listed screens are upper bounds on recovery.</p>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="queueTable"></table>
-    </div>
-  </div>
-</div>
+  <div class="chart-wrap" id="queueEntries"></div>
+</details>
 
 <div class="section">
   <h3 class="section-title">Goal timeline</h3>
@@ -1083,16 +1090,18 @@ document.getElementById('stats').innerHTML = [
 })();
 // --- Mismatch queue ---
 (function() {
-  const table = document.getElementById('queueTable');
+  const entries = document.getElementById('queueEntries');
+  const count = document.getElementById('queueCount');
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
     const message = QUEUE?.roadmapFallbackAllowed === true
       ? 'Every development session matches.' : 'Mismatch queue unavailable; completion is unknown.';
-    table.outerHTML = '<p class="table-note">' + message + '</p>';
+    count.textContent = QUEUE?.roadmapFallbackAllowed === true ? 'All sessions match' : 'Unavailable';
+    entries.innerHTML = '<p class="table-note">' + message + '</p>';
     return;
   }
-  let html = '<colgroup><col><col><col><col><col></colgroup>'
-    + '<thead><tr><th>Session</th><th>First mismatch</th><th>Kind</th><th>Investigation</th><th>Screens after mismatch</th></tr></thead><tbody>';
+  count.textContent = QUEUE.sessions.length + (QUEUE.sessions.length === 1 ? ' session' : ' sessions');
+  let html = '';
   const stepOrder = step => step == null ? Infinity : step;
   const rows = [...QUEUE.sessions].sort((a, b) => b.remainingScreensUpperBound - a.remainingScreensUpperBound
     || stepOrder(a.step) - stepOrder(b.step)
@@ -1106,24 +1115,24 @@ document.getElementById('stats').innerHTML = [
       invalid: 'Investigation file incomplete or unreadable',
     })[investigation?.status] || 'No investigation result';
     const source = result?.source;
-    const findings = '<div class="investigation-status">' + status + '</div>'
-      + (result ? '<div class="investigation-summary">' + esc(result.summary) + '</div>' : '')
+    const findings = (result ? '<p class="investigation-summary">' + esc(result.summary) + '</p>' : '')
       + (source ? '<div class="investigation-source">Source: ' + esc(source.file)
         + (source.functions.length ? ' · ' + esc(source.functions.join(', ')) : '') + '</div>' : '');
     const where = entry.sourceFile
-      ? '<span title="' + esc(entry.sourceFile + (entry.line ? ':' + entry.line : '')) + '">'
-        + esc(entry.function ? entry.function + '() in ' : '') + esc(entry.sourceFile) + '</span>'
-      : '<span title="' + esc(entry.message || '') + '">unresolved</span>';
-    html += '<tr>'
-      + '<td title="' + esc(entry.session) + '">' + esc(entry.session.replace(/^seed/, '')) + '</td>'
-      + '<td>step ' + (entry.step ?? 'unknown') + '</td>'
-      + '<td>' + esc(entry.kind) + '</td>'
-      + '<td>' + findings + '<div class="investigation-source">Mismatch site: ' + where + '</div></td>'
-      + '<td>' + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps + '</td>'
-      + '</tr>';
+      ? esc((entry.function ? entry.function + '() in ' : '') + entry.sourceFile
+        + (entry.line ? ':' + entry.line : ''))
+      : 'unresolved' + (entry.message ? ' · ' + esc(entry.message) : '');
+    html += '<details class="queue-entry"><summary>'
+      + '<span class="queue-session">' + esc(entry.session) + '</span>'
+      + '<span class="queue-overview"><span class="queue-remaining">'
+      + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps + ' screens remaining</span>'
+      + '<span class="investigation-status">' + status + '</span></span></summary>'
+      + '<div class="queue-finding">' + findings
+      + '<dl class="queue-mismatch"><div><dt>First mismatch</dt><dd>step ' + (entry.step ?? 'unknown') + '</dd></div>'
+      + '<div><dt>Kind</dt><dd>' + esc(entry.kind) + '</dd></div></dl>'
+      + '<div class="investigation-source">Mismatch site: ' + where + '</div></div></details>';
   });
-  html += '</tbody>';
-  table.innerHTML = html;
+  entries.innerHTML = html;
 })();
 
 // --- Current work and source files ---

@@ -375,19 +375,20 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
             { sourceFile: null, sessions: ['unknown-owner'], remainingScreensUpperBound: 4 },
         ],
     };
-    const element = renderDashboard(sourceDashboardData(), queue).get('queueTable');
-    const table = element.innerHTML;
-    assert.match(table, /title="hack\.c:42">test_move\(\) in hack\.c</u);
-    assert.match(table, /title="Arc-loca\.lua">Arc-loca\.lua</u);
-    assert.match(table, /step unknown/u);
-    assert.match(table, /title="Find &lt;source> &amp; &quot;caller&quot;">unresolved</u);
-    assert.match(table, /<th>Investigation<\/th>/u);
-    assert.equal((table.match(/No investigation result/gu) || []).length, 3);
-    assert.match(table, /<th>Screens after mismatch<\/th>/u);
-    assert.match(table, /<td>8 of 10<\/td>/u);
+    const rendered = renderDashboard(sourceDashboardData(), queue);
+    const entries = rendered.get('queueEntries').innerHTML;
+    assert.equal(rendered.get('queueCount').textContent, '3 sessions');
+    assert.match(entries, /Mismatch site: test_move\(\) in hack\.c:42</u);
+    assert.match(entries, /Mismatch site: Arc-loca\.lua</u);
+    assert.match(entries, /step unknown/u);
+    assert.match(entries, /unresolved · Find &lt;source> &amp; &quot;caller&quot;</u);
+    const summaries = [...entries.matchAll(/<summary>(.*?)<\/summary>/gu)].map(match => match[1]);
+    assert.equal(summaries.length, 3);
+    assert.ok(summaries.every(summary => summary.includes('No investigation result')));
+    assert.match(summaries[0], /movement[\s\S]*8 of 10 screens remaining/u);
     // Rows follow per-session remaining counts even though quest fails earlier.
-    assert.match(table, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
-    assert.doesNotMatch(table, /Every development session matches/u);
+    assert.match(entries, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
+    assert.doesNotMatch(entries, /Every development session matches/u);
 });
 
 test('the queue shows current findings and explicit missing, partial, and stale states', () => {
@@ -406,31 +407,38 @@ test('the queue shows current findings and explicit missing, partial, and stale 
     }));
     const queue = { sessions: [...sessions].reverse(), candidates: [...sessions].reverse()
         .map(entry => ({ sessions: [entry.session] })) };
-    const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').innerHTML;
-    assert.match(table, /missing[\s\S]*complete[\s\S]*partial[\s\S]*stale[\s\S]*invalid/u);
-    assert.match(table, /No investigation result/u);
-    assert.match(table, /Complete investigation/u);
-    assert.match(table, /Partial investigation/u);
-    assert.match(table, /Needs investigation · remaining-screen count changed/u);
-    assert.match(table, /Investigation file incomplete or unreadable/u);
-    assert.match(table, /complete finding &lt;tag> &amp; &quot;quote&quot;/u);
-    assert.match(table, /Source: hack\.c · test_move/u);
-    assert.doesNotMatch(table, /<tag>/u);
+    const entries = renderDashboard(sourceDashboardData(), queue).get('queueEntries').innerHTML;
+    assert.match(entries, /missing[\s\S]*complete[\s\S]*partial[\s\S]*stale[\s\S]*invalid/u);
+    const summaries = [...entries.matchAll(/<summary>(.*?)<\/summary>/gu)].map(match => match[1]);
+    assert.match(summaries[0], /No investigation result/u);
+    assert.match(summaries[1], /Complete investigation/u);
+    assert.match(summaries[2], /Partial investigation/u);
+    assert.match(summaries[3], /Needs investigation · remaining-screen count changed/u);
+    assert.match(summaries[4], /Investigation file incomplete or unreadable/u);
+    // Findings stay in the expanded body, keeping the queue scannable on phones.
+    assert.ok(summaries.every(summary => !summary.includes('finding')));
+    assert.match(entries, /complete finding &lt;tag> &amp; &quot;quote&quot;/u);
+    assert.match(entries, /Source: hack\.c · test_move/u);
+    assert.doesNotMatch(entries, /<tag>/u);
 });
 
 test('an unavailable mismatch queue differs from a confirmed empty queue', () => {
     // Null is the builder's failure value; absent sessions and an empty scan
     // without fallback permission also provide no evidence of completion.
     for (const queue of [null, {}, { sessions: [], roadmapFallbackAllowed: false }]) {
-        const table = renderDashboard(sourceDashboardData(), queue).get('queueTable').outerHTML;
-        assert.match(table, /Mismatch queue unavailable; completion is unknown/u);
-        assert.doesNotMatch(table, /Every development session matches/u);
+        const rendered = renderDashboard(sourceDashboardData(), queue);
+        assert.equal(rendered.get('queueCount').textContent, 'Unavailable');
+        const entries = rendered.get('queueEntries').innerHTML;
+        assert.match(entries, /Mismatch queue unavailable; completion is unknown/u);
+        assert.doesNotMatch(entries, /Every development session matches/u);
     }
-    const table = renderDashboard(sourceDashboardData(), {
+    const rendered = renderDashboard(sourceDashboardData(), {
         sessions: [], candidates: [], roadmapFallbackAllowed: true,
-    }).get('queueTable').outerHTML;
-    assert.match(table, /Every development session matches/u);
-    assert.doesNotMatch(table, /unavailable|unknown/u);
+    });
+    assert.equal(rendered.get('queueCount').textContent, 'All sessions match');
+    const entries = rendered.get('queueEntries').innerHTML;
+    assert.match(entries, /Every development session matches/u);
+    assert.doesNotMatch(entries, /unavailable|unknown/u);
 });
 
 function sourceFileRows(table) {
