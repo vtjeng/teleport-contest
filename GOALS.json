@@ -33074,7 +33074,7 @@
     {
       "id": "divergence-objnam-multi-object-wish-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit wizard wishes naming an explicit count greater than one of a mergeable object while preserving source-ordered lookup and creation draws.",
       "cFile": "objnam.c",
       "sessions": [],
@@ -33083,8 +33083,8 @@
       "spans": [
         {
           "name": "named-mergeable-count-wish",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e8a08cc82dbd15568c76919950d376e5c095a2d4",
           "functions": [
             "readobjnam",
             "makewish"
@@ -33097,8 +33097,11 @@
         "screens": 8206,
         "rng": 629511
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e8a08cc82dbd15568c76919950d376e5c095a2d4",
+      "delivered": {
+        "screens": 102,
+        "rng": 16
+      },
       "function": "readobjnam",
       "session": "holdout/seed4500-knight-coverage",
       "step": 372,
@@ -33123,7 +33126,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1442
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "e8a08cc82dbd15568c76919950d376e5c095a2d4",
+        "screens": 8308,
+        "rng": 629527
+      }
     }
   ]
 }
