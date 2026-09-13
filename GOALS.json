@@ -33448,7 +33448,7 @@
     {
       "id": "divergence-objnam-ball-chain-suffix-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Render source-equivalent chained ball and chain suffixes in object names.",
       "cFile": "objnam.c",
       "sessions": [],
@@ -33457,8 +33457,8 @@
       "spans": [
         {
           "name": "ball-chain-name-suffix",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
           "functions": [
             "doname_base"
           ]
@@ -33470,8 +33470,11 @@
         "screens": 8358,
         "rng": 629868
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "doname_base",
       "session": "holdout/seed4500-knight-coverage",
       "step": 518,
@@ -33496,7 +33499,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1296
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+        "screens": 8359,
+        "rng": 629868
+      }
     }
   ]
 }
