@@ -123,7 +123,7 @@ import { more_experienced } from './exper.js';
 import { rn2, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { newsym } from './display.js';
-import { trycall } from './do.js';
+import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
@@ -398,7 +398,18 @@ export async function punish(scroll, state = game) {
     setworn(ball, W_BALL, setwornEnv(state));
 
     // placebc_core(): ball first establishes BCPOS_CHAIN, then chain is placed
-    // above it. The glyph is sampled before newsym() paints the objects.
+    // above it. The source checks floor effects before either object is placed;
+    // the existing ordinary-floor implementation covers this witness and
+    // fails closed on its other square-specific arms.
+    const floorEffects = {
+        state,
+        unsupported: (reason) => {
+            throw new UnsupportedReadError(`punish() floor effect: ${reason}`);
+        },
+    };
+    flooreffects(chain, state.u.ux, state.u.uy, '', floorEffects);
+    flooreffects(ball, state.u.ux, state.u.uy, '', floorEffects);
+    // The glyph is sampled before newsym() paints the objects.
     place_object(ball, state.u.ux, state.u.uy, { state });
     state.u.bc_order = 1; // BCPOS_CHAIN from ball.c:108.
     place_object(chain, state.u.ux, state.u.uy, { state });
