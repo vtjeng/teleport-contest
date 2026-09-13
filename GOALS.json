@@ -31503,7 +31503,7 @@
     {
       "id": "port-apply-jump-holdout-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port physical jump command and its source-defined path validation, landing, trap, hunger, and movement behavior",
       "cFile": "apply.c",
       "sessions": [
@@ -31532,8 +31532,11 @@
         "screens": 7842,
         "rng": 582529
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c6cf6fa94264543be688acbb8ec78f3130e1933b",
+      "delivered": {
+        "screens": 181,
+        "rng": 451
+      },
       "functions": [
         {
           "name": "dojump",
@@ -31743,6 +31746,28 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 189,
+          "kind": "stop",
+          "function": "level_tele",
+          "functionDeclared": true,
+          "sourceFile": "teleport.c",
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported level change: level_tele() resolving a numeric special-level destination",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1625
+        }
+      ],
+      "closeStanding": {
+        "sha": "c6cf6fa94264543be688acbb8ec78f3130e1933b",
+        "screens": 8023,
+        "rng": 582980
       }
     }
   ]
