@@ -160,7 +160,36 @@ export function standing(rows) {
     // standing instead of disappearing behind the previous successful row.
     const challenges = latestNonEmpty(
         rows, 'challenge_evaluation', (row) => row.event === 'challenge');
-    return { development, holdout, challenges };
+    return {
+        development,
+        holdout,
+        fixedDevelopment: combineFixedDevelopment(development, holdout),
+        challenges,
+    };
+}
+
+// Historical rows keep public development and local-holdout metrics in their
+// own columns. New operational rows may state the already-combined 44-session
+// score in the development columns. This normalized view lets CLI consumers
+// report the operational figure without rewriting older rows.
+export function combineFixedDevelopment(development, holdout) {
+    if (development?.sessions_total === '44') return development;
+    if (!development || !holdout || development.sha !== holdout.sha) return null;
+    const sum = (left, right) => {
+        if (left === '' || right === '') return '';
+        return String(Number(left) + Number(right));
+    };
+    return {
+        ...development,
+        sessions_passed: sum(development.sessions_passed, holdout.holdout_sessions_passed),
+        sessions_total: sum(development.sessions_total, holdout.holdout_sessions_total),
+        screens_matched: sum(development.screens_matched, holdout.holdout_screens_matched),
+        screens_total: sum(development.screens_total, holdout.holdout_screens_total),
+        rng_matched: sum(development.rng_matched, holdout.holdout_rng_matched),
+        rng_total: sum(development.rng_total, holdout.holdout_rng_total),
+        cursors_matched: sum(development.cursors_matched, holdout.holdout_cursors_matched),
+        cursors_total: sum(development.cursors_total, holdout.holdout_cursors_total),
+    };
 }
 
 function latestNonEmpty(rows, column, predicate = () => true) {
@@ -323,8 +352,11 @@ function main(args) {
             throw new Error(`unknown event: ${event}`);
         console.log(formatRow(latestRow(rows, event)));
     } else if (mode === '--standing') {
-        const { development, holdout, challenges } = standing(rows);
-        console.log(`development (${development?.sha ?? 'none'}): `
+        const { development, holdout, fixedDevelopment, challenges } = standing(rows);
+        console.log(`fixed development (${fixedDevelopment?.sha ?? 'none'}): `
+            + `${fixedDevelopment?.screens_matched}/${fixedDevelopment?.screens_total} `
+            + `screens, ${fixedDevelopment?.rng_matched}/${fixedDevelopment?.rng_total} rng`);
+        console.log(`public development (${development?.sha ?? 'none'}): `
             + `${development?.screens_matched}/${development?.screens_total} `
             + `screens, ${development?.rng_matched}/${development?.rng_total} rng`);
         console.log(`holdout (${holdout?.sha ?? 'none'}): `

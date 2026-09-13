@@ -27,7 +27,7 @@ The orchestrator repeats without returning to the user between steps:
 
    a. Read `node scripts/goal-log.mjs --current --detail`. Existing queued
       or parked work still needs to satisfy the current mismatch queue.
-   b. Run `node scripts/mismatch-queue.mjs`. When every development session
+   b. Run `node scripts/mismatch-queue.mjs`. When every fixed-workload session
       matches and `node scripts/goal-log.mjs roadmap` lists no unverified
       C function or Lua program, the port is complete: stop the loop and
       notify the user. Otherwise choose the goal by the order in
@@ -124,15 +124,15 @@ The orchestrator repeats without returning to the user between steps:
    it with `goal-log.mjs record-evidence` as `.agents/validation.md` specifies.
    Close the span with `goal-log.mjs close-span` and append its
    `SCORE.tsv` row in the commit that records closure in `GOALS.json`. The
-   row's SHA and figures come from step 3. Refresh the mismatch queue and
-   report first-mismatch movement and newly matching recordings alongside
-   the development score. Continue at step 2.
+   row's SHA and figures come from step 3. Refresh the fixed-workload mismatch
+   queue and report first-mismatch movement and newly matching recordings
+   alongside the fixed development score. Continue at step 2.
 6. Before closing a source port, verify its `entryPointReview` and every
    entry point's matching recording. A blocked recipe leaves that entry
    point unfinished. Run checkpoint if its summary does not describe HEAD.
-   Then run the local-holdout evaluation and append the goal's score
-   row at the measured commit before `goal-log.mjs close-goal`. Commit the
-   closure and continue at step 1.
+   Then evaluate synthetic local holdout `v1`, retain its saved artifact, and
+   append the goal's fixed-development score row at the measured commit before
+   `goal-log.mjs close-goal`. Commit the closure and continue at step 1.
 
 When a goal's final span worker hands off a passing checkpoint, start
 `node scripts/mismatch-queue.mjs` before steps 4 through 6. Run that queue refresh

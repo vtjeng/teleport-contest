@@ -23,40 +23,37 @@ The patched C program records games as session files. Each file contains the
 seed, date and time, options, and player inputs, and the random-number calls,
 terminal screens, and cursor positions the game produced.
 
-The session files directly under `sessions/` are the development sessions.
-Agents may inspect and replay them to find mismatches and detect regressions.
-When a session reveals a mismatch, determine the correct behavior from the C
-source and patches before changing the JavaScript port.
-
-Use explicit session paths. The fixed sets remain the 33 regular files directly
-under `sessions/` and the 11 regular files directly under `sessions/holdout/`.
-List each directory directly; do not use recursive discovery or move recordings
-between sets. Keep their scores separate.
-
-## Opened local holdout
+The 44-session fixed development workload consists of the 33 regular files
+directly under `sessions/` and the 11 files directly under `sessions/holdout/`.
+The directories preserve provenance and historical score labels, but the
+holdout files are now ordinary development inputs: default scans, mismatch
+selection, checkpoint scoring, and completion evidence include all 44. List
+each directory directly; do not use recursive discovery or move recordings
+between sets.
 
 The user authorized opening the entire local holdout on 2026-09-12. The
 pre-exposure implementation is `a8890744786a48de9b20926acafa3c16a777dc67`;
 `experiments/generalization/plan.md` records the diagnosis and source handoff.
 Agents may inspect, replay, compare, and discuss every local-holdout session,
 including through workers and review tools. The remote competition holdout
-remains separate and unavailable.
+remains separate and unavailable. Use exposed holdout failures to locate
+missing behavior, then implement from the C source and patches. Preserve the
+recorded files and choose independent inputs for new reproductions. Do not
+special-case a session or its seed, inputs, expected output, or replay position.
 
-Use local-holdout failures to locate missing behavior, then implement from the
-C source and patches. Preserve the recorded files and choose independent inputs
-for new reproductions and challenges. Do not special-case a session or its
-seed, inputs, expected output, or replay position.
+The current `challenges/manifest.json` is frozen as synthetic local holdout
+`v1`. Evaluate it from saved artifacts after implementation changes, but do not
+feed its failures into the fixed mismatch queue or treat it as remote-holdout
+evidence. Put future challenge cases in a new versioned manifest. Preserve
+historical Development, Local holdout, and Challenges rows and labels; the
+dashboard distinguishes their historical series from the operational fixed and
+synthetic-local-holdout measures.
 
-Local-holdout measurements after opening describe progress on an exposed fixed
-corpus. They no longer test generalization to unseen games. Preserve historical
-scores and the Development, Local holdout, and Challenges labels. Challenge
-scores describe their expanding workload, not the remote holdout's distribution.
-
-`node scripts/scan-sessions.mjs --include-holdout --json` diagnoses both fixed
-sets. The mismatch queue uses this combined scan; the score scripts still report
-the two sets separately. `score-holdout.mjs` remains the orchestrator's aggregate
-bookkeeping command at goal closure. Workers may replay individual sessions
-but leave aggregate score recording to the orchestrator.
+`node scripts/scan-sessions.mjs --json` diagnoses the fixed 44-session
+workload. `score-development.mjs` is its aggregate scorer. The separate
+`score-holdout.mjs` evaluator remains available for provenance and historical
+comparison, while workers leave all aggregate score recording to the
+orchestrator.
 
 ## Read the instructions for your task
 
@@ -79,7 +76,7 @@ completes one span per run.
 | Complete one span as a loop worker | `.claude/agents/span-worker.md` |
 | Commit game implementation | `.agents/validation.md` |
 | Append a `SCORE.tsv` event row or read a holdout result (orchestrator only) | `.agents/scoring.md` |
-| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
+| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local-holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Decide whether a correctness review is warranted, or run or record one (orchestrator only) | `.agents/review.md` and the skill it names for that review |
 
 ## Local command execution
@@ -240,7 +237,7 @@ leaderboard score by a margin that grows with session coverage.
 
 A unit test shows that one function works in isolation but not that the running
 game reaches it or produces the complete result. The port's oracle is recorded
-play: the 33 development sessions, and the recordings corpus under
+play: the 44-session fixed workload, and the recordings corpus under
 `recordings/`, which the patched C program made from the recipes under
 `recipes/`. `npm run checkpoint` replays both and fails when a recording stops
 matching.
@@ -254,7 +251,7 @@ When a recipe's recording diverges inside another source file, leave the recipe
 under `recipes/<source-file>/` with a comment naming the blocking function, and
 record it once that function lands. A span that completes an entry point
 records its recipe before closing; a span closes without a new recording when
-neither the development sessions nor the recordings lost a match.
+neither the fixed-workload sessions nor the recordings lost a match.
 
 Before closing a source port or one of its spans, record completion evidence with
 `goal-log.mjs record-evidence` as `.agents/validation.md`, "Source completion
@@ -327,8 +324,7 @@ every staged path belongs to the commit.
 `.agents/loop.md` describes a loop that alternates implementation and review
 without returning to the user. Stop and ask only for:
 
-- a change to which sessions belong to the development and holdout sets;
-- a complete port: every development and local-holdout session matches and
+- a complete port: every fixed-workload session matches and
   `node scripts/goal-log.mjs roadmap` lists no unverified C function or Lua
   program;
 - a decision not covered by this file or any file it references.

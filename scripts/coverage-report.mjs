@@ -14,8 +14,8 @@
 // What it does say is worth knowing. The port has two independent oracles:
 //
 //   tests   `npm test`, which asserts behavior directly.
-//   score   `scripts/score-development.mjs`, which replays 33 recorded C
-//           sessions and compares every random-number call and screen
+//   score   `scripts/score-development.mjs`, which replays the 44-session
+//           fixed workload and compares every random-number call and screen
 //           positionally.
 //
 // A js/ line the score executes is pinned by the strongest oracle here. A line

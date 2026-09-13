@@ -7,37 +7,43 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { readRows, standing } from './score-log.mjs';
-import { PROJECT_ROOT, listSessionFiles } from './scoring-workspace.mjs';
+import { PROJECT_ROOT } from './scoring-workspace.mjs';
+import {
+    EXPECTED_FIXED_WORKLOAD_COUNT,
+    fixedWorkload,
+} from './fixed-workload.mjs';
 
 // These are the inputs copied into the scoring workspace and the code that
 // builds it. Goal metadata and checkpoint's other checks do not affect replay.
 const SCORE_PATHS = [
     'js/', 'frozen/', 'package.json', 'scripts/score-development.mjs',
     'scripts/scoring-workspace.mjs', 'scripts/local-tmpdir.mjs',
-    'scripts/development-standing.mjs', 'scripts/score-log.mjs',
+    'scripts/development-standing.mjs', 'scripts/fixed-workload.mjs',
+    'scripts/score-log.mjs',
 ];
 const CACHE_NAME = 'development-standing.json';
-const CACHE_VERSION = 1; // First cache with clean-input and successful-run evidence.
-export const EXPECTED_DEVELOPMENT_COUNT = 33; // The fixed, reviewed development set.
+const CACHE_VERSION = 2; // The fixed workload now includes local holdout.
+// The fixed workload is 33 historical development sessions plus the 11
+// sessions whose former holdout boundary is now opened for implementation.
+export const EXPECTED_DEVELOPMENT_COUNT = EXPECTED_FIXED_WORKLOAD_COUNT;
 
 function git(root, args) {
     return execFileSync('git', ['--literal-pathspecs', ...args],
         { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
-function scorePaths(files) {
-    // Exact direct filenames keep every Git operation out of the sealed set.
-    return [...SCORE_PATHS, ...files.map(file => `sessions/${file}`)];
+function scorePaths(sources) {
+    return [...SCORE_PATHS, ...sources.map(file => `sessions/${file}`)];
 }
 
 export function developmentInputs(root = PROJECT_ROOT) {
-    const files = listSessionFiles(join(root, 'sessions'));
-    if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
-        throw new Error('development count changed');
+    const workload = fixedWorkload(root);
+    const files = workload.scoringEntries.map(entry => entry.target);
+    const sources = workload.scoringEntries.map(entry => entry.source);
     const sha = git(root, ['rev-parse', 'HEAD']);
     const clean = git(root, ['status', '--porcelain=v1', '-z',
-        '--untracked-files=all', '--ignored=matching', '--', ...scorePaths(files)]) === '';
-    return { sha, files, clean };
+        '--untracked-files=all', '--ignored=matching', '--', ...scorePaths(sources)]) === '';
+    return { sha, files, sources, clean };
 }
 
 function sameFiles(left, right) {
@@ -47,7 +53,8 @@ function sameFiles(left, right) {
 
 export function sameDevelopmentInputs(before, after) {
     return before.clean && after.clean && before.sha === after.sha
-        && sameFiles(before.files, after.files);
+        && sameFiles(before.files, after.files)
+        && sameFiles(before.sources, after.sources);
 }
 
 function validStanding(value) {
@@ -82,7 +89,7 @@ function equivalentStanding(score, inputs, root) {
     if (!validStanding(score)) return null;
     try {
         const sha = git(root, ['rev-parse', '--verify', `${score.sha}^{commit}`]);
-        git(root, ['diff', '--quiet', sha, inputs.sha, '--', ...scorePaths(inputs.files)]);
+        git(root, ['diff', '--quiet', sha, inputs.sha, '--', ...scorePaths(inputs.sources)]);
         return { ...score, sha };
     } catch {
         // A missing commit or changed scoring input requires a fresh run.
@@ -110,11 +117,13 @@ export function currentDevelopmentStanding(root = PROJECT_ROOT) {
         const { development } = standing(readRows(join(root, 'SCORE.tsv')));
         // Event rows already name their measured commit. Reuse one only after
         // proving that every scoring input is identical to the current tree.
-        score = equivalentStanding(development && {
+        score = development?.sessions_total === String(EXPECTED_DEVELOPMENT_COUNT)
+            ? equivalentStanding({
             sha: development.sha,
             screens: development.screens_matched === '' ? NaN : Number(development.screens_matched),
             rng: development.rng_matched === '' ? NaN : Number(development.rng_matched),
-        }, inputs, root);
+        }, inputs, root)
+            : null;
     }
     if (!score) {
         console.error(`Measuring development score at ${inputs.sha.slice(0, 7)} for the goal boundary.`);

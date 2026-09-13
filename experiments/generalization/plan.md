@@ -6,21 +6,26 @@ fixes and GOALS.json. This agent owns challenge generation, scoring, dashboard
 integration, and the eventual local-holdout diagnosis and source pointers.
 The user authorized the next phase on 2026-09-12: opening the entire local
 holdout, diagnosing its workload and first failures, and handing source pointers
-to the main agent. The diagnosis is isolated from ongoing game changes.
+to the main agent. That corpus is now part of the fixed development workload;
+the challenge manifest is the synthetic local holdout. The diagnosis is
+isolated from ongoing game changes.
 
 ## Objectives and sequence
 
-Explain why development progress has transferred poorly to the local holdout,
-then use an expanding challenge set to keep finding missing behavior. There is
-no separate synthetic holdout. Challenge scores describe the generated workload;
-they do not estimate the remote competition's score.
+Explain why development progress transferred poorly to the local holdout, then
+use the frozen challenge manifest as a synthetic local holdout to keep finding
+missing behavior. The remote competition holdout remains separate and
+unavailable; neither local corpus estimates its score.
 
-The agreed sequence is to integrate challenge scoring and monitoring, then
-open the entire local holdout for diagnosis and continued development. Rewrite
-the holdout instructions at that transition, record the exposure boundary,
-and leave the files at their current paths. The main agent must be able to
-follow source pointers from the diagnosis without conflicting access rules or
-a second game-implementation loop. No repair budget has been agreed here.
+The agreed sequence was to integrate challenge scoring and monitoring, then
+open the entire local holdout for diagnosis and continued development. The
+policy transition keeps the files at their current paths, makes all 44 recorded
+sessions one fixed implementation workload, and freezes the existing challenge
+manifest as synthetic local holdout `v1`. Future challenge additions use a new
+versioned manifest and do not alter this evidence history. The main agent must
+be able to follow source pointers from the diagnosis without conflicting access
+rules or a second game-implementation loop. No repair budget has been agreed
+here.
 
 The user requested this work in one session. The experiment branch isolates
 changes until each chunk is tested. The main working agent has acknowledged
@@ -153,24 +158,29 @@ elapsed gameplay turns.
 
 Before a new case's JavaScript failures guide fixes, save its first evaluation
 at a committed implementation. Preserve it after the case starts passing.
-Recordings are immutable; extend `challenges/manifest.json` with new IDs and
-files under `challenges/cases/`. A correction gets a new ID and an explanation;
+Recordings are immutable. The current `challenges/manifest.json` is frozen as
+synthetic local holdout `v1`; a future case goes in a new versioned manifest
+with its own evaluation history. A correction gets a new ID and an explanation;
 keep the original measurement history. Intentionally failing challenges remain
 outside the passing `recordings/` regression corpus.
 
 ## Scoring and dashboard
 
-`SCORE.tsv` remains the aggregate history. Development, local holdout, and
-challenges have separate fields. A challenge row links an immutable evaluation
+`SCORE.tsv` remains the aggregate history. Historical public development,
+local-holdout provenance, fixed development, and synthetic-local-holdout
+measurements retain separate meanings even when a row carries more than one
+family of fields. A challenge row links an immutable evaluation
 under `challenges/evaluations/` and identifies its exact case-set digest. The
 artifact records the implementation SHA, measurement time, scorer digest,
 individual results, and totals. The digest covers sorted IDs and recording
 hashes; descriptive metadata does not change the measured case set.
 
-The dashboard shows **Development**, **Local holdout**, and **Challenges**
-in the same format, each with the age of its measured commit. Challenge
-details appear below Work by source file. Three history charts share a time window and minimap, with the corpus labels
-retained. There is no remote-holdout score on the dashboard.
+The dashboard shows **Fixed development** and **Synthetic local holdout** as the
+operational measures, with **Public development** and **Local holdout** kept as
+historical series. Each measured card shows the age of its commit. Challenge
+details appear below Work by source file. Four history charts share a time
+window and minimap, with the corpus labels retained. There is no remote-holdout
+score on the dashboard.
 
 Show matched/total screens and fully matching/total sessions. RNG and cursors
 remain available as detail. Historical local-holdout rows lack session and
@@ -265,8 +275,9 @@ with pets and other monsters, terrain transitions in both directions, ordinary
 versus equipped monster transformations, verbose versus quiet prompts, and
 short versus sustained play. Mix focused cases with sequences that cross these
 families. Record whether the C game actually reached the mission, including
-missed targets and valid early endings. These are expanding development
-challenges, not a claimed proxy distribution for the remote competition set.
+missed targets and valid early endings. These were the expanding development
+challenges that led to the frozen synthetic-local-holdout policy; they are not
+a claimed proxy distribution for the remote competition set.
 
 ## Second challenge batch
 

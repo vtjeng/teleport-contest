@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Each development session's first known mismatch and its source owner, read
+// Each fixed-workload session's first known mismatch and its source owner, read
 // from `scripts/scan-sessions.mjs --json`. Declaration counts are inventory;
 // they do not establish whether an implementation is complete or reachable.
 //
@@ -180,7 +180,7 @@ export function assertGoalSelection(queue, goal) {
 
 function runScan() {
     const scan = join(PROJECT_ROOT, 'scripts', 'scan-sessions.mjs');
-    const run = spawnSync(process.execPath, [scan, '--json', '--include-holdout'], {
+    const run = spawnSync(process.execPath, [scan, '--json'], {
         cwd: PROJECT_ROOT,
         encoding: 'utf8',
         maxBuffer: 64 * 1024 * 1024,
@@ -202,7 +202,7 @@ export function loadMismatchQueue(scan = runScan()) {
 }
 
 export function formatQueue(queue) {
-    const lines = ['Mismatch queue (development and local-holdout sessions, first known mismatch):'];
+    const lines = ['Mismatch queue (fixed 44-session workload, first known mismatch):'];
     if (queue.sessions.length === 0) lines.push('  every session matches');
     for (const entry of queue.sessions) {
         const where = entry.sourceFile

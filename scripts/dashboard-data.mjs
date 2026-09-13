@@ -153,6 +153,57 @@ function scoreFromRow(row, prefixes) {
   return score;
 }
 
+function addMetric(left, right) {
+  if (!left || !right) return null;
+  return { matched: left.matched + right.matched, total: left.total + right.total };
+}
+
+// Before the policy transition, SCORE.tsv stores public development and local
+// holdout measurements in separate column families. After it, a development
+// row may carry the 44-session fixed score directly. Accept both forms so the
+// dashboard can show one continuous operational measure without rewriting the
+// append-only historical ledger.
+function fixedScoreFromStanding(development, holdout) {
+  if (development?.sessions_total === '44') {
+    const score = scoreFromRow(development, {
+      sessions: 'sessions', screens: 'screens', rng: 'rng', cursors: 'cursors',
+    });
+    score.sessions = metricFromRow(development, 'sessions', 'sessions_passed');
+    return score;
+  }
+  if (!development || !holdout) {
+    return {
+      status: 'unmeasured', sha: null, utc: null, commitUtc: null,
+      sessions: null, screens: null, rng: null, cursors: null,
+    };
+  }
+  const sameCommit = development.sha === holdout.sha;
+  const score = {
+    status: sameCommit ? 'measured' : 'stale',
+    sha: sameCommit ? fullShaFor(development) : fullShaFor(development),
+    utc: development.utc || holdout.utc || null,
+    commitUtc: commitBySha.get(fullShaFor(development))?.committedAt || null,
+    sessions: addMetric(
+      metricFromRow(development, 'sessions', 'sessions_passed'),
+      metricFromRow(holdout, 'holdout_sessions', 'holdout_sessions_passed'),
+    ),
+    screens: addMetric(
+      metricFromRow(development, 'screens'),
+      metricFromRow(holdout, 'holdout_screens'),
+    ),
+    rng: addMetric(
+      metricFromRow(development, 'rng'),
+      metricFromRow(holdout, 'holdout_rng'),
+    ),
+    cursors: addMetric(
+      metricFromRow(development, 'cursors'),
+      metricFromRow(holdout, 'holdout_cursors'),
+    ),
+  };
+  score.freshForCommit = Boolean(score.sha && score.sha === headFullSha);
+  return score;
+}
+
 const scoreStanding = standing(scoreRows);
 const developmentScore = scoreFromRow(scoreStanding.development, {
   sessions: 'sessions', screens: 'screens', rng: 'rng', cursors: 'cursors',
@@ -161,6 +212,15 @@ const localHoldoutScore = scoreFromRow(scoreStanding.holdout, {
   sessions: 'holdout_sessions', screens: 'holdout_screens',
   rng: 'holdout_rng', cursors: 'holdout_cursors',
 });
+const fixedDevelopmentScore = fixedScoreFromStanding(
+  scoreStanding.development, scoreStanding.holdout,
+);
+if (fixedDevelopmentScore.sha && fixedDevelopmentScore.sha !== headFullSha) {
+  fixedDevelopmentScore.status = 'stale';
+}
+fixedDevelopmentScore.freshForCommit = Boolean(
+  fixedDevelopmentScore.sha && fixedDevelopmentScore.sha === headFullSha,
+);
 
 developmentScore.sessions = metricFromRow(
   scoreStanding.development, 'sessions', 'sessions_passed',
@@ -185,10 +245,12 @@ const scores = {
   headSha: headFullSha,
   development: developmentScore,
   localHoldout: localHoldoutScore,
+  fixedDevelopment: fixedDevelopmentScore,
 };
 
 const challenges = challengeDashboard(process.cwd(), scoreRows, headFullSha);
 challenges.commitUtc = commitBySha.get(challenges.sha)?.committedAt || null;
+challenges.role = 'synthetic-local-holdout';
 
 // Extracts the goal name from a SCORE note. Both the goal timeline and the
 // progress chart label their entries with it.
@@ -515,7 +577,8 @@ for (let i = 0; i < goals.length; i++) {
 // --- Saved screen measurements, including spans and divergence fixes ---
 
 const progress = scoreEvents
-  .filter(e => e.screensMatched !== null && e.screensTotal !== null)
+  .filter(e => e.screensMatched !== null && e.screensTotal !== null
+    && e.sessionsTotal !== 44)
   .map(e => ({
     utc: Number.isFinite(Date.parse(e.recordedUtc)) ? new Date(e.recordedUtc).toISOString() : e.utc?.toISOString() ?? null,
     utcSource: e.utcSource,
@@ -539,6 +602,37 @@ for (let i = 1; i < progress.length; i++) {
 }
 if (progress.length) progress[0].screensDelta = null;
 
+const fixedDevelopmentHistory = scoreEvents
+  .filter(e => e.sessionsTotal === 44
+    && e.screensMatched !== null && e.screensTotal !== null)
+  .map(event => ({
+    utc: Number.isFinite(Date.parse(event.recordedUtc))
+      ? new Date(event.recordedUtc).toISOString() : event.utc?.toISOString() ?? null,
+    sha: event.sha, screens: event.screensMatched,
+    screensTotal: event.screensTotal, rng: event.rngMatched,
+    rngTotal: event.rngTotal, sessions: event.sessionsPassed,
+    sessionsTotal: event.sessionsTotal, note: event.note,
+  }))
+  .filter(point => point.utc)
+  .sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
+
+// The transition can be rendered before the first new 44-session SCORE row:
+// combine the latest paired historical measurements as its initial point.
+if (fixedDevelopmentHistory.length === 0 && fixedDevelopmentScore.screens
+  && fixedDevelopmentScore.utc) {
+  fixedDevelopmentHistory.push({
+    utc: fixedDevelopmentScore.utc,
+    sha: fixedDevelopmentScore.sha,
+    screens: fixedDevelopmentScore.screens.matched,
+    screensTotal: fixedDevelopmentScore.screens.total,
+    rng: fixedDevelopmentScore.rng?.matched ?? null,
+    rngTotal: fixedDevelopmentScore.rng?.total ?? null,
+    sessions: fixedDevelopmentScore.sessions?.matched ?? null,
+    sessionsTotal: fixedDevelopmentScore.sessions?.total ?? null,
+    note: 'Fixed development workload baseline.',
+  });
+}
+
 const localHoldoutHistory = scoreEvents
   .filter(event => event.holdoutScreensMatched !== null && event.holdoutScreensTotal !== null)
   .map(event => ({
@@ -550,9 +644,10 @@ const localHoldoutHistory = scoreEvents
   .filter(point => point.utc)
   .sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
 const scoreHistory = [
-  { id: 'development', title: 'Development', points: progress },
-  { id: 'localHoldout', title: 'Local holdout', points: localHoldoutHistory },
-  { id: 'challenges', title: 'Challenges', points: challenges.history,
+  { id: 'fixedDevelopment', title: 'Fixed development', points: fixedDevelopmentHistory },
+  { id: 'development', title: 'Public development (historical)', points: progress },
+  { id: 'localHoldout', title: 'Local holdout (historical)', points: localHoldoutHistory },
+  { id: 'syntheticHoldout', title: 'Synthetic local holdout', points: challenges.history,
     error: challenges.status === 'failed' ? challenges.error : null },
 ];
 

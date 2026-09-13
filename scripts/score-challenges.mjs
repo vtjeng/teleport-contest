@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Evaluate the expanding challenges at committed HEAD, then explicitly record
+// Evaluate the frozen synthetic-local-holdout cases at committed HEAD, then explicitly record
 // the immutable artifact in SCORE.tsv. Dashboard builds never invoke this tool.
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';

@@ -64,9 +64,10 @@ export function createCheckpointWorkspace(root, commit) {
         registered = true;
         const sparse = git(workspace, ['rev-parse', '--git-path', 'info/sparse-checkout']);
         mkdirSync(dirname(sparse), { recursive: true });
-        // Development sessions live directly under sessions/. No session
-        // subdirectory (including the sealed set) is ever materialized.
-        writeFileSync(sparse, '/*\n!/sessions/*/\n');
+        // The fixed workload includes direct development sessions and the
+        // opened local-holdout directory. Other nested session directories
+        // remain excluded from checkpoint scoring.
+        writeFileSync(sparse, '/*\n!/sessions/*/\n/sessions/holdout/\n/sessions/holdout/*\n');
         git(workspace, ['read-tree', '-mu', commit]);
         git(workspace, ['-c', `submodule.${C_PATH}.url=${localC}`,
             '-c', 'protocol.file.allow=always', 'submodule', 'update',

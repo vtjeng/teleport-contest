@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-// Replays the development sessions and reports where the JavaScript port stops
+// Replays the fixed session workload and reports where the JavaScript port stops
 // and where it diverges from the C recording. `scripts/mismatch-queue.mjs`
 // reads the `--json` output to build the goal selection queue.
 //
-// Default scans use the fixed development set. --include-holdout adds the
-// opened local holdout, preserving holdout/ in each session identifier.
+// The fixed workload includes the 33 historical development sessions and the
+// 11 opened local-holdout sessions, preserving holdout/ in each identifier.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -28,7 +28,8 @@ import { runSegment } from '../js/jsmain.js';
 import { Terminal } from '../js/terminal.js';
 import { Terminal as FrozenTerminal } from '../frozen/terminal.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
-import { PROJECT_ROOT, listSessionFiles } from './scoring-workspace.mjs';
+import { PROJECT_ROOT } from './scoring-workspace.mjs';
+import { fixedWorkload } from './fixed-workload.mjs';
 
 // The judge replaces js/terminal.js with frozen/terminal.js before scoring,
 // and only the frozen copy defines serialize(), the method js/jsmain.js's
@@ -47,17 +48,13 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
 export const DEVELOPMENT_DIR = join(PROJECT_ROOT, 'sessions');
 
-// Preserve the historical split even though both corpora are now open.
-const EXPECTED_DEVELOPMENT_COUNT = 33;
-const EXPECTED_HOLDOUT_COUNT = 11;
-
 // tty rows 1 through 21 are the map. Row 0 is the top line and rows 22 and 23
 // are the status lines, so a cursor on any of those three is not waiting for a
 // command.
 const FIRST_MAP_ROW = 1;
 const LAST_MAP_ROW = 21;
 
-// The hero's glyph in the default symbol set, which every development session
+// The hero's glyph in the default symbol set, which every fixed-workload session
 // uses. A polymorphed or engulfed hero draws something else; that case reports
 // as ambiguous rather than as a command, because misreading it as a command
 // would invent debt.
@@ -81,21 +78,12 @@ function sameFiles(left, right) {
         && left.every((file, index) => file === right[index]);
 }
 
-function scanFiles(root, includeHoldout) {
-    const files = listSessionFiles(join(root, 'sessions'));
-    if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
-        throw new Error('development count changed');
-    if (includeHoldout) {
-        const holdout = listSessionFiles(join(root, 'sessions', 'holdout'));
-        if (holdout.length !== EXPECTED_HOLDOUT_COUNT)
-            throw new Error('local holdout count changed');
-        files.push(...holdout.map(file => 'holdout/' + file));
-    }
-    return files;
+function scanFiles(root) {
+    return fixedWorkload(root).scanFiles;
 }
 
-function scanInputsUnchanged(root, sha, files, includeHoldout) {
-    if (!sameFiles(scanFiles(root, includeHoldout), files)) return false;
+function scanInputsUnchanged(root, sha, files) {
+    if (!sameFiles(scanFiles(root), files)) return false;
     // Check only the selected corpora, plus every replay input. Include
     // untracked source, index changes, and an uncommitted merge.
     const status = execFileSync('git', [
@@ -124,19 +112,19 @@ function readScanCache(path, sha, files) {
 // cache lifecycle without replaying real games. The CLI always uses this
 // repository and the selected fixed corpora through loadAnnotatedRows().
 export async function loadScanRows(root, replay, {
-    forceReplay = false, includeHoldout = false,
+    forceReplay = false,
 } = {}) {
-    const files = scanFiles(root, includeHoldout);
+    const files = scanFiles(root);
     const sha = repositoryHead(root);
-    const cacheable = scanInputsUnchanged(root, sha, files, includeHoldout);
+    const cacheable = scanInputsUnchanged(root, sha, files);
     const cacheDir = join(root, '.cache');
-    const cachePath = join(cacheDir, includeHoldout ? 'scan-cache-with-holdout.json' : 'scan-cache.json');
+    const cachePath = join(cacheDir, 'scan-cache.json');
     if (cacheable && !forceReplay) {
         const cached = readScanCache(cachePath, sha, files);
-        if (cached && scanInputsUnchanged(root, sha, files, includeHoldout)) return cached;
+        if (cached && scanInputsUnchanged(root, sha, files)) return cached;
     }
     const rows = await replay(files);
-    if (cacheable && scanInputsUnchanged(root, sha, files, includeHoldout)) {
+    if (cacheable && scanInputsUnchanged(root, sha, files)) {
         mkdirSync(cacheDir, { recursive: true });
         writeFileSync(cachePath, JSON.stringify({
             version: SCAN_CACHE_VERSION, sha, files, rows,
@@ -794,27 +782,27 @@ function report(rows) {
 export async function main(args) {
     if (args.includes('--help')) {
         console.log(
-            'Usage: node scripts/scan-sessions.mjs [--json] [--include-holdout] [--debug-full-replay]\n'
+            'Usage: node scripts/scan-sessions.mjs [--json] [--debug-full-replay]\n'
             + '\n  --json                   emit per-session rows in'
             + ' machine-readable form.'
             + '\n  --debug-full-replay      force a fresh replay even when'
             + ' .cache/scan-cache.json\n'
             + '                           matches clean replay inputs at HEAD.'
             + ' For debugging only.'
-            + '\n  --include-holdout        also scan the 11 opened local-holdout sessions.'
-            + '\n\nWithout --include-holdout, scan only the 33 direct development sessions.',
+            + '\n\nScans the fixed 44-session workload: direct development sessions and'
+            + ' sessions/holdout/.',
         );
         return undefined;
     }
     const rejected = args.find((arg) => arg !== '--json'
-        && arg !== '--debug-full-replay' && arg !== '--include-holdout');
+        && arg !== '--debug-full-replay');
     if (rejected !== undefined) {
-        throw new Error('only --json, --debug-full-replay, and --include-holdout are accepted');
+        throw new Error('only --json and --debug-full-replay are accepted');
     }
     const json = args.includes('--json');
     const forceReplay = args.includes('--debug-full-replay');
 
-    const rows = await loadAnnotatedRows({ forceReplay, includeHoldout: args.includes('--include-holdout') });
+    const rows = await loadAnnotatedRows({ forceReplay });
 
     if (json) {
         console.log(JSON.stringify({ rows }, null, 2));

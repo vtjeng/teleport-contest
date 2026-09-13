@@ -190,6 +190,27 @@ test('standing carries the last stated holdout figure forward', () => {
     assert.equal(holdout.holdout_screens_matched, '139');
 });
 
+test('standing exposes a combined fixed workload for paired measurements', () => {
+    const row = scoreRow({
+        utc: '2026-08-04', sha: 'dddd444', event: 'goal',
+        sessions_passed: '24', sessions_total: '33',
+        screens_matched: '7355', screens_total: '7765',
+        rng_matched: '500000', rng_total: '610816',
+        cursors_matched: '7355', cursors_total: '7765',
+        holdout_sessions_passed: '2', holdout_sessions_total: '11',
+        holdout_screens_matched: '328', holdout_screens_total: '3640',
+        holdout_rng_matched: '39048', holdout_rng_total: '182022',
+        holdout_cursors_matched: '334', holdout_cursors_total: '3640',
+    });
+    const { fixedDevelopment } = standing(readRows(writeFixture(
+        'standing-fixed.tsv', `${COLUMNS.join('\t')}\n${row}`,
+    )));
+    assert.equal(fixedDevelopment.sessions_passed, '26');
+    assert.equal(fixedDevelopment.sessions_total, '44');
+    assert.equal(fixedDevelopment.screens_matched, '7683');
+    assert.equal(fixedDevelopment.screens_total, '11405');
+});
+
 test('challenge rows cannot replace development or holdout standings', () => {
     const challenge = scoreRow({
         utc: '2026-08-03', sha: 'dddd444', event: 'challenge',

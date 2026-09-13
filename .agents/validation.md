@@ -1,8 +1,9 @@
 # Validation
 
 Read this file when implementing gameplay or running recordings, differentials,
-scans, or browser checks. The access rules in `AGENTS.md` for
-`sessions/holdout/` apply to every tool named here.
+scans, or browser checks. The fixed 44-session workload includes
+`sessions/holdout/`; its files are read-only recorded inputs for every tool
+named here.
 
 ## Routine validation
 
@@ -33,7 +34,8 @@ scans, or browser checks. The access rules in `AGENTS.md` for
   output to a unique `teleport-checkpoint-<run>/<label>.log` path in the system
   temporary directory and prints the path and last 20 lines.
   `npm run checkpoint -- --verbose` prints everything. Two of its checks
-  replay recorded play: the development score over `sessions/`, and the
+  replay recorded play: the fixed development score over `sessions/` and
+  `sessions/holdout/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
   matching.
 - The agent that starts checkpoint owns the command through completion and

@@ -20,6 +20,7 @@ const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 assert.equal(readFileSync('tracked.txt', 'utf8'), 'committed input\\n');
 assert.equal(readFileSync('nethack-c/upstream/input.c', 'utf8'), 'committed C\\n');
 assert.equal(existsSync('sessions/development.session.json'), true);
+assert.equal(existsSync('sessions/holdout/holdout.session.json'), true);
 assert.equal(existsSync('sessions/excluded-fixture'), false);
 const commit = git('rev-parse', 'HEAD');
 const reuseIndex = process.argv.indexOf('--reuse');
@@ -83,8 +84,10 @@ function fixture(t) {
     writeFileSync(join(root, 'package.json'), JSON.stringify({ type: 'module',
         scripts: { checkpoint: 'node scripts/checkpoint.mjs' } }));
     git(root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', cRoot, 'nethack-c/upstream');
-    // A nested synthetic session directory tests the exclusion rule without
-    // ever creating or accessing a real holdout directory.
+    // The promoted local holdout is included, while unrelated nested session
+    // directories remain excluded from the checkpoint worktree.
+    mkdirSync(join(root, 'sessions/holdout'), { recursive: true });
+    writeFileSync(join(root, 'sessions/holdout/holdout.session.json'), '{}\n');
     mkdirSync(join(root, 'sessions/excluded-fixture'), { recursive: true });
     writeFileSync(join(root, 'sessions/development.session.json'), '{}\n');
     writeFileSync(join(root, 'sessions/excluded-fixture/sentinel'), 'excluded\n');

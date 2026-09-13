@@ -21,7 +21,7 @@ on a `js/` file that no quality area owns.
 
 ## When a correctness review is warranted
 
-Recorded play is the port's oracle: the development sessions and the
+Recorded play is the port's oracle: the fixed-workload sessions and the
 recordings under `recordings/` replay on every checkpoint, and a mismatch they
 find goes to the mismatch queue, not to a review. A review reads code the
 oracle does not reach. Run one in these three cases:
@@ -36,7 +36,7 @@ oracle does not reach. Run one in these three cases:
 - The user asks for one.
 
 Do not schedule a review by elapsed commits or changed lines, and do not run
-one for a span that neither the development sessions nor the recordings
+one for a span that neither the fixed-workload sessions nor the recordings
 contradicted.
 
 Three other passes have their own occasions. Run one `/simplify-codebase` pass over

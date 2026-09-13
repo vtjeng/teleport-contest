@@ -33,8 +33,12 @@ export function createScoringWorkspace(sessionDir, files) {
         cpSync(join(PROJECT_ROOT, 'package.json'), join(targetRoot, 'package.json'));
         mkdirSync(join(targetRoot, 'sessions'));
 
-        for (const file of files) {
-            cpSync(join(sessionDir, file), join(targetRoot, 'sessions', file));
+        for (const entry of files) {
+            const source = typeof entry === 'string' ? entry : entry.source;
+            const target = typeof entry === 'string' ? entry : entry.target;
+            const targetPath = join(targetRoot, 'sessions', target);
+            mkdirSync(dirname(targetPath), { recursive: true });
+            cpSync(join(sessionDir, source), targetPath);
         }
         for (const file of FROZEN_FILES) {
             cpSync(join(targetRoot, 'frozen', file), join(targetRoot, 'js', file));

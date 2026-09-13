@@ -47,12 +47,18 @@ function scanCacheFixture(t) {
         'package.json', '.gitignore'];
     for (const file of tracked) writeFileSync(join(root, file), '{}\n');
     writeFileSync(join(root, '.gitignore'), '.cache/\n');
-    // Match the production split's 33 direct development files. Their bodies
-    // need no game data: the replay callback returns observable fixture rows.
+    // Match the production fixed workload: 33 direct development files and
+    // 11 files in the opened local-holdout directory. Their bodies need no
+    // game data: the replay callback returns observable fixture rows.
     const files = Array.from({ length: 33 }, (_, index) =>
         `case-${String(index).padStart(2, '0')}.session.json`);
     for (const file of files) writeFileSync(join(root, 'sessions', file), '{}\n');
-    git('add', '--', ...tracked, ...files.map(file => `sessions/${file}`));
+    const holdoutFiles = files.slice(0, 11);
+    mkdirSync(join(root, 'sessions', 'holdout'));
+    for (const file of holdoutFiles)
+        writeFileSync(join(root, 'sessions', 'holdout', file), '{}\n');
+    git('add', '--', ...tracked, ...files.map(file => `sessions/${file}`),
+        ...holdoutFiles.map(file => `sessions/holdout/${file}`));
     git('commit', '--quiet', '-m', 'Create disposable scan inputs');
     let replays = 0;
     const replay = async (names) => {
@@ -119,7 +125,7 @@ test('legacy scan caches cannot establish that their inputs were clean', async (
     writeFileSync(f.cache, JSON.stringify({
         sha: f.git('rev-parse', 'HEAD'), rows: [{ file: 'stale' }],
     }));
-    assert.equal((await loadScanRows(f.root, f.replay)).length, f.files.length);
+    assert.equal((await loadScanRows(f.root, f.replay)).length, 44);
     assert.equal(f.replays(), 1);
 });
 
@@ -196,15 +202,15 @@ test('the default scan uses the development directory', () => {
 test('main rejects paths and unknown options', async () => {
     await assert.rejects(
         () => main(['sessions/holdout']),
-        /only --json, --debug-full-replay, and --include-holdout/,
+        /only --json and --debug-full-replay are accepted/,
     );
     await assert.rejects(
         () => main(['--json', '--sessions=/tmp/elsewhere']),
-        /only --json, --debug-full-replay, and --include-holdout/,
+        /only --json and --debug-full-replay are accepted/,
     );
     await assert.rejects(
         () => main(['--by=screens']),
-        /only --json, --debug-full-replay, and --include-holdout/,
+        /only --json and --debug-full-replay are accepted/,
     );
 });
 
@@ -607,27 +613,18 @@ test('isSerializeBugMismatch returns false for null', () => {
 });
 
 
-test('combined scans retain corpus prefixes and separate caches', async (t) => {
+test('fixed scans retain corpus prefixes in one cache', async (t) => {
     const f = scanCacheFixture(t);
-    mkdirSync(join(f.root, 'sessions', 'holdout'));
-    // Eleven synthetic recordings preserve the fixed holdout count. Reusing
-    // a development basename proves that corpus identity cannot collide.
+    // Reusing a development basename proves that corpus identity cannot collide.
     const holdoutFiles = f.files.slice(0, 11).map(file => 'holdout/' + file);
-    for (const file of holdoutFiles)
-        writeFileSync(join(f.root, 'sessions', file), '{}\n');
-    f.git('add', '--', ...holdoutFiles.map(file => 'sessions/' + file));
-    f.git('commit', '--quiet', '-m', 'Add disposable local holdout');
-    const development = await loadScanRows(f.root, f.replay);
-    const combined = await loadScanRows(f.root, f.replay, { includeHoldout: true });
-    assert.deepEqual(combined.map(row => row.file), [...f.files, ...holdoutFiles]);
-    assert.deepEqual(await loadScanRows(f.root, f.replay), development);
-    assert.deepEqual(await loadScanRows(f.root, f.replay, { includeHoldout: true }), combined);
-    // An uncommitted holdout edit invalidates only the combined cache.
+    const fixed = await loadScanRows(f.root, f.replay);
+    assert.deepEqual(fixed.map(row => row.file), [...f.files, ...holdoutFiles]);
+    assert.deepEqual(await loadScanRows(f.root, f.replay), fixed);
+    // An uncommitted holdout edit invalidates the same fixed-workload cache.
     writeFileSync(join(f.root, 'sessions', holdoutFiles[0]), '{"changed":true}\n');
-    assert.deepEqual(await loadScanRows(f.root, f.replay), development);
-    assert.notDeepEqual(await loadScanRows(f.root, f.replay, { includeHoldout: true }), combined);
+    assert.notDeepEqual(await loadScanRows(f.root, f.replay), fixed);
     rmSync(join(f.root, 'sessions', holdoutFiles[0]));
-    await assert.rejects(() => loadScanRows(f.root, f.replay, { includeHoldout: true }),
+    await assert.rejects(() => loadScanRows(f.root, f.replay),
         /local holdout count changed/);
 });
 

@@ -25,7 +25,7 @@ function main() {
     encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
   });
 
-  // The mismatch queue replays the development sessions, which takes about
+  // The mismatch queue replays the fixed development workload, which takes about
   // a quarter of a minute when the scan cache misses.
   let queueData = 'null';
   try {

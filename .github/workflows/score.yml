@@ -26,7 +26,7 @@ jobs:
           npm test
           npm run check:objects
 
-      - name: Score development sessions
+      - name: Score fixed development workload
         run: |
           node scripts/score-development.mjs \
             2>score-stderr.txt | tee score-stdout.txt
@@ -106,7 +106,7 @@ jobs:
               fs.appendFileSync(
                 process.env.GITHUB_STEP_SUMMARY,
                 [
-                  '## Development score',
+                  '## Fixed development score',
                   '',
                   ...display.map(line => '- ' + line),
                 ].join('\n') + '\n',

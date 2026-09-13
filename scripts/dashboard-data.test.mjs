@@ -219,11 +219,15 @@ function sourceDashboardData(workGoals = []) {
             medianTotalMin: null, medianGoalSelectionMin: null,
         },
         goals: [], progress: [], workGoals,
-        scoreHistory: ['Development', 'Local holdout', 'Challenges'].map((title, index) => ({
-            id: ['development', 'localHoldout', 'challenges'][index], title, points: [],
+        scoreHistory: ['Fixed development', 'Public development (historical)',
+            'Local holdout (historical)', 'Synthetic local holdout'].map((title, index) => ({
+            id: ['fixedDevelopment', 'development', 'localHoldout', 'syntheticHoldout'][index],
+            title, points: [],
         })),
         scores: {
             headSha: null,
+            fixedDevelopment: { status: 'unmeasured', sha: null, utc: null,
+                sessions: null, screens: null, rng: null, cursors: null },
             development: { status: 'unmeasured', sha: null, utc: null,
                 sessions: null, screens: null, rng: null, cursors: null },
             localHoldout: { status: 'unmeasured', sha: null, utc: null,
@@ -240,6 +244,13 @@ test('score cards share one format and show commit ages without hashes', () => {
     const data = sourceDashboardData();
     data.scores = {
         headSha: 'a'.repeat(40),
+        fixedDevelopment: {
+            status: 'measured', sha: 'b'.repeat(40), utc: '2026-01-01T00:00:00Z',
+            sessions: { matched: 4, total: 6 },
+            screens: { matched: 12, total: 16 },
+            rng: { matched: 14, total: 16 },
+            cursors: { matched: 3, total: 4 },
+        },
         development: {
             status: 'measured', sha: 'b'.repeat(40), utc: '2026-01-01T00:00:00Z',
             sessions: { matched: 3, total: 4 },
@@ -274,7 +285,9 @@ test('score cards share one format and show commit ages without hashes', () => {
     const rendered = renderDashboard(data);
     const stats = rendered.get('stats').innerHTML;
     assert.deepEqual([...stats.matchAll(/class="score-card-title">([^<]+)/gu)]
-        .map(match => match[1]), ['Development', 'Local holdout', 'Challenges']);
+        .map(match => match[1]), [
+            'Fixed development', 'Synthetic local holdout', 'Public development (historical)',
+        ]);
     assert.match(stats, /Commit 1h 0m ago/u);
     assert.match(stats, />80.0%</u);
     assert.match(stats, />66.7%</u);
@@ -319,6 +332,9 @@ test('score rows expose named development and local holdout measures', () => {
     }));
     assert.deepEqual(data.scores.development.screens, { matched: 8, total: 10 });
     assert.deepEqual(data.scores.localHoldout.screens, { matched: 4, total: 6 });
+    assert.deepEqual(data.scores.fixedDevelopment.screens, { matched: 12, total: 16 });
+    assert.deepEqual(data.scores.fixedDevelopment.rng, { matched: 14, total: 16 });
+    assert.deepEqual(data.scores.fixedDevelopment.sessions, { matched: 4, total: 6 });
     assert.deepEqual(data.scores.development.sessions, { matched: 3, total: 4 });
     assert.deepEqual(data.scores.localHoldout.sessions, { matched: 1, total: 2 });
     assert.deepEqual(data.scores.development.cursors, { matched: 7, total: 8 });
@@ -712,7 +728,7 @@ test('dashboard separates closed goals and labels inferred timing', () => {
             .map((bar) => [bar.goal, bar.top, bar.height]),
         [[0, 7, 7], [1, 16, 7]],
     );
-    // One legend explains the measures shared by all three histories.
+    // One legend explains the measures shared by all four histories.
     const legend = rendered.get('progressLegend').innerHTML;
     assert.match(legend, /Matched[\s\S]*Total[\s\S]*Cases added/u);
     assert.doesNotMatch(legend, /Logged|Commit/u);
@@ -963,7 +979,7 @@ test('progress points carry what the chart readout shows', () => {
 
     const rendered = renderDashboard(data);
     // Twenty minutes of goals is less than the week the chart opens on, so it
-    // shows all three and the range control shows All.
+    // shows all four and the range control shows All.
     assert.equal(rendered.get('progressWindow').value, 'all');
     assert.equal(
         rendered.get('progressRange').textContent,
@@ -980,8 +996,8 @@ test('progress points carry what the chart readout shows', () => {
     const [, x, y, width, height] = rendered.get('progressMinimap').ops
         .find(([operation]) => operation === 'strokeRect');
     assert.deepEqual([x, y, width], [52.5, 0.5, 1000 - 52 - 16]);
-    // The single selection spans three 44px traces and excludes their date labels.
-    assert.equal(height, 3 * 44 - 1);
+    // The single selection spans four 44px traces and excludes their date labels.
+    assert.equal(height, 4 * 44 - 1);
 });
 
 test('score histories include intermediate progress without inventing holdout measurements', () => {
@@ -1008,7 +1024,8 @@ test('score histories include intermediate progress without inventing holdout me
     const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
         cwd: fixture, encoding: 'utf8',
     }));
-    const [development, holdout, challenges] = data.scoreHistory;
+    const [fixed, development, holdout, challenges] = data.scoreHistory;
+    assert.equal(fixed.points.length, 1);
     assert.deepEqual(development.points.map(point => point.screens), hits);
     assert.deepEqual(development.points.map(point => point.utc), dates.map(date => new Date(date).toISOString()));
     assert.equal(holdout.points.length, 1);

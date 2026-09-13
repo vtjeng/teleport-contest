@@ -12,6 +12,7 @@ import {
     parseRunnerBundle,
 } from './scoring-workspace.mjs';
 import { developmentInputs, cacheDevelopmentStanding } from './development-standing.mjs';
+import { fixedWorkload } from './fixed-workload.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DEVELOPMENT_DIR = join(PROJECT_ROOT, 'sessions');
@@ -20,9 +21,9 @@ async function main(args) {
     if (args.length !== 0) throw new Error('arguments are not accepted');
 
     const inputs = developmentInputs();
-    const { files } = inputs;
+    const { scoringEntries } = fixedWorkload();
 
-    const tempRoot = createScoringWorkspace(DEVELOPMENT_DIR, files);
+    const tempRoot = createScoringWorkspace(DEVELOPMENT_DIR, scoringEntries);
     try {
         const child = runScorer(tempRoot);
         const stderr = (child.stderr || '')
