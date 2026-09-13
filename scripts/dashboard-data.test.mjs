@@ -219,9 +219,8 @@ function sourceDashboardData(workGoals = []) {
             medianTotalMin: null, medianGoalSelectionMin: null,
         },
         goals: [], progress: [], workGoals,
-        scoreHistory: ['Fixed development', 'Public development (historical)',
-            'Local holdout (historical)', 'Synthetic local holdout'].map((title, index) => ({
-            id: ['fixedDevelopment', 'development', 'localHoldout', 'syntheticHoldout'][index],
+        scoreHistory: ['Development set', 'Synthetic local holdout'].map((title, index) => ({
+            id: ['developmentSet', 'syntheticHoldout'][index],
             title, points: [],
         })),
         scores: {
@@ -281,16 +280,16 @@ test('score cards share one format and show commit ages without hashes', () => {
         }],
     };
     // The measured commit is one hour old even though its ledger row is older.
-    data.scores.development.commitUtc = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    data.scores.fixedDevelopment.commitUtc = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const rendered = renderDashboard(data);
     const stats = rendered.get('stats').innerHTML;
     assert.deepEqual([...stats.matchAll(/class="score-card-title">([^<]+)/gu)]
         .map(match => match[1]), [
-            'Fixed development', 'Synthetic local holdout', 'Public development (historical)',
+            'Development set', 'Synthetic local holdout',
         ]);
     assert.match(stats, /Commit 1h 0m ago/u);
-    assert.match(stats, />80.0%</u);
-    assert.match(stats, />66.7%</u);
+    assert.match(stats, />75.0%</u);
+    assert.match(stats, />87.5%</u);
     assert.match(stats, />Failed</u);
     assert.match(stats, /runner failed: &lt;details&gt;/u);
     assert.doesNotMatch(stats, /Incomplete|combined only|Cases evaluated|Manifest|bbbbbbb|ccccccc|ddddddd/u);
@@ -728,7 +727,7 @@ test('dashboard separates closed goals and labels inferred timing', () => {
             .map((bar) => [bar.goal, bar.top, bar.height]),
         [[0, 7, 7], [1, 16, 7]],
     );
-    // One legend explains the measures shared by all four histories.
+    // One legend explains the measures shared by both score histories.
     const legend = rendered.get('progressLegend').innerHTML;
     assert.match(legend, /Matched[\s\S]*Total[\s\S]*Cases added/u);
     assert.doesNotMatch(legend, /Logged|Commit/u);
@@ -942,15 +941,18 @@ test('progress points carry what the chart readout shows', () => {
         SCORE_HEADER,
         scoreRow({
             utc: '2026-01-01T00:10:00Z', sha: first, event: 'goal',
-            screens: 40, note: 'alpha closes. Second sentence.',
+            screens: 40, holdoutScreens: 0, holdoutScreensTotal: 10,
+            note: 'alpha closes. Second sentence.',
         }),
         scoreRow({
             utc: '2026-01-01T00:20:00Z', sha: second, event: 'goal',
-            screens: 55, note: 'beta closes. Second sentence.',
+            screens: 55, holdoutScreens: 0, holdoutScreensTotal: 10,
+            note: 'beta closes. Second sentence.',
         }),
         scoreRow({
             utc: '2026-01-01T00:30:00Z', sha: third, event: 'goal',
-            screens: 55, note: 'gamma closes. Second sentence.',
+            screens: 55, holdoutScreens: 0, holdoutScreensTotal: 10,
+            note: 'gamma closes. Second sentence.',
         }),
         '',
     ].join('\n'));
@@ -979,7 +981,7 @@ test('progress points carry what the chart readout shows', () => {
 
     const rendered = renderDashboard(data);
     // Twenty minutes of goals is less than the week the chart opens on, so it
-    // shows all four and the range control shows All.
+    // shows all measurements and the range control shows All.
     assert.equal(rendered.get('progressWindow').value, 'all');
     assert.equal(
         rendered.get('progressRange').textContent,
@@ -996,11 +998,11 @@ test('progress points carry what the chart readout shows', () => {
     const [, x, y, width, height] = rendered.get('progressMinimap').ops
         .find(([operation]) => operation === 'strokeRect');
     assert.deepEqual([x, y, width], [52.5, 0.5, 1000 - 52 - 16]);
-    // The single selection spans four 44px traces and excludes their date labels.
-    assert.equal(height, 4 * 44 - 1);
+    // The single selection spans two 44px traces and excludes their date labels.
+    assert.equal(height, 2 * 44 - 1);
 });
 
-test('score histories include intermediate progress without inventing holdout measurements', () => {
+test('score history sums public and holdout progress into one development set', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-history-'));
     git(fixture, ['init', '--quiet']);
     git(fixture, ['config', 'user.name', 'Dashboard Test']);
@@ -1024,18 +1026,15 @@ test('score histories include intermediate progress without inventing holdout me
     const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
         cwd: fixture, encoding: 'utf8',
     }));
-    const [fixed, development, holdout, challenges] = data.scoreHistory;
-    assert.equal(fixed.points.length, 1);
+    const [development, challenges] = data.scoreHistory;
+    assert.equal(development.title, 'Development set');
     assert.deepEqual(development.points.map(point => point.screens), hits);
+    assert.deepEqual(development.points.map(point => point.screensTotal), [200, 200, 200]);
     assert.deepEqual(development.points.map(point => point.utc), dates.map(date => new Date(date).toISOString()));
-    assert.equal(holdout.points.length, 1);
-    assert.equal(holdout.points[0].screens, 0);
-    assert.equal(holdout.points[0].utc, development.points[0].utc);
     assert.deepEqual(challenges.points, []);
     const rendered = renderDashboard(data);
     const readout = rendered.get('progressReadout').innerHTML.replace(/<[^>]*>/gu, '');
-    assert.match(readout, /55\/100·55.0%/);
-    assert.match(readout, /0\/100·0.0%/);
+    assert.match(readout, /55\/200·27.5%/);
     assert.match(readout, /ago/);
     assert.doesNotMatch(readout, /earlier/);
 });
@@ -1060,6 +1059,8 @@ test('the chart opens on the last week of measurements', () => {
             sha,
             event: 'goal',
             screens: 10 * (i + 1),
+            holdoutScreens: 0,
+            holdoutScreensTotal: 10,
             note: `goal${i} closes.`,
         })),
         '',

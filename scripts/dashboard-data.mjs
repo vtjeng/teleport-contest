@@ -602,19 +602,72 @@ for (let i = 1; i < progress.length; i++) {
 }
 if (progress.length) progress[0].screensDelta = null;
 
-const fixedDevelopmentHistory = scoreEvents
-  .filter(e => e.sessionsTotal === 44
-    && e.screensMatched !== null && e.screensTotal !== null)
-  .map(event => ({
-    utc: Number.isFinite(Date.parse(event.recordedUtc))
-      ? new Date(event.recordedUtc).toISOString() : event.utc?.toISOString() ?? null,
-    sha: event.sha, screens: event.screensMatched,
-    screensTotal: event.screensTotal, rng: event.rngMatched,
-    rngTotal: event.rngTotal, sessions: event.sessionsPassed,
-    sessionsTotal: event.sessionsTotal, note: event.note,
-  }))
-  .filter(point => point.utc)
-  .sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
+function historyUtc(event) {
+  if (Number.isFinite(Date.parse(event.recordedUtc)))
+    return new Date(event.recordedUtc).toISOString();
+  return event.utc && Number.isFinite(event.utc.getTime()) ? event.utc.toISOString() : null;
+}
+
+function eventMetric(event, matchedKey, totalKey) {
+  return event[matchedKey] !== null && event[totalKey] !== null
+    ? { matched: event[matchedKey], total: event[totalKey] } : null;
+}
+
+function historyPoint(event, metrics) {
+  const utc = historyUtc(event);
+  return utc ? { utc, sha: event.sha, ...metrics, note: event.note } : null;
+}
+
+// The operational chart starts when both historical corpora can be measured.
+// After that first paired row, carry the last holdout measurement forward and
+// add it to each later public-development row. This gives one honest history
+// for the combined development set without rewriting the append-only ledger.
+let latestHoldout = null;
+const fixedDevelopmentHistory = [];
+for (const event of scoreEvents) {
+  if (event.holdoutScreensMatched !== null && event.holdoutScreensTotal !== null) {
+    latestHoldout = {
+      sessions: eventMetric(event, 'holdoutSessionsPassed', 'holdoutSessionsTotal'),
+      screens: eventMetric(event, 'holdoutScreensMatched', 'holdoutScreensTotal'),
+      rng: eventMetric(event, 'holdoutRngMatched', 'holdoutRngTotal'),
+      cursors: eventMetric(event, 'holdoutCursorsMatched', 'holdoutCursorsTotal'),
+    };
+  }
+
+  const publicMetrics = {
+    sessions: eventMetric(event, 'sessionsPassed', 'sessionsTotal'),
+    screens: eventMetric(event, 'screensMatched', 'screensTotal'),
+    rng: eventMetric(event, 'rngMatched', 'rngTotal'),
+    cursors: eventMetric(event, 'cursorsMatched', 'cursorsTotal'),
+  };
+  let metrics;
+  if (event.sessionsTotal === 44) {
+    metrics = publicMetrics;
+  } else if (latestHoldout && publicMetrics.screens) {
+    metrics = {
+      sessions: addMetric(publicMetrics.sessions, latestHoldout.sessions),
+      screens: addMetric(publicMetrics.screens, latestHoldout.screens),
+      rng: addMetric(publicMetrics.rng, latestHoldout.rng),
+      cursors: addMetric(publicMetrics.cursors, latestHoldout.cursors),
+    };
+  } else {
+    continue;
+  }
+  if (metrics.screens) {
+    const point = historyPoint(event, {
+      screens: metrics.screens.matched,
+      screensTotal: metrics.screens.total,
+      rng: metrics.rng?.matched ?? null,
+      rngTotal: metrics.rng?.total ?? null,
+      cursors: metrics.cursors?.matched ?? null,
+      cursorsTotal: metrics.cursors?.total ?? null,
+      sessions: metrics.sessions?.matched ?? null,
+      sessionsTotal: metrics.sessions?.total ?? null,
+    });
+    if (point) fixedDevelopmentHistory.push(point);
+  }
+}
+fixedDevelopmentHistory.sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
 
 // The transition can be rendered before the first new 44-session SCORE row:
 // combine the latest paired historical measurements as its initial point.
@@ -633,20 +686,8 @@ if (fixedDevelopmentHistory.length === 0 && fixedDevelopmentScore.screens
   });
 }
 
-const localHoldoutHistory = scoreEvents
-  .filter(event => event.holdoutScreensMatched !== null && event.holdoutScreensTotal !== null)
-  .map(event => ({
-    utc: Number.isFinite(Date.parse(event.recordedUtc))
-      ? new Date(event.recordedUtc).toISOString() : event.utc?.toISOString() ?? null,
-    sha: event.sha, screens: event.holdoutScreensMatched,
-    screensTotal: event.holdoutScreensTotal, note: event.note,
-  }))
-  .filter(point => point.utc)
-  .sort((a, b) => Date.parse(a.utc) - Date.parse(b.utc));
 const scoreHistory = [
-  { id: 'fixedDevelopment', title: 'Fixed development', points: fixedDevelopmentHistory },
-  { id: 'development', title: 'Public development (historical)', points: progress },
-  { id: 'localHoldout', title: 'Local holdout (historical)', points: localHoldoutHistory },
+  { id: 'developmentSet', title: 'Development set', points: fixedDevelopmentHistory },
   { id: 'syntheticHoldout', title: 'Synthetic local holdout', points: challenges.history,
     error: challenges.status === 'failed' ? challenges.error : null },
 ];

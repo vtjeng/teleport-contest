@@ -175,12 +175,13 @@ artifact records the implementation SHA, measurement time, scorer digest,
 individual results, and totals. The digest covers sorted IDs and recording
 hashes; descriptive metadata does not change the measured case set.
 
-The dashboard shows **Fixed development** and **Synthetic local holdout** as the
-operational measures, with **Public development** and **Local holdout** kept as
-historical series. Each measured card shows the age of its commit. Challenge
-details appear below Work by source file. Four history charts share a time
-window and minimap, with the corpus labels retained. There is no remote-holdout
-score on the dashboard.
+The dashboard shows **Development set** and **Synthetic local holdout**. The
+Development set history sums the historical public-development and local-
+holdout measurements into one series; the physical corpus labels remain in
+the ledger and provenance tools. Each measured card shows the age of its
+commit. Challenge details appear below Work by source file. Two history charts
+share a time window and minimap. There is no remote-holdout score on the
+dashboard.
 
 Show matched/total screens and fully matching/total sessions. RNG and cursors
 remain available as detail. Historical local-holdout rows lack session and

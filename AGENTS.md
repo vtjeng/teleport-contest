@@ -46,8 +46,9 @@ The current `challenges/manifest.json` is frozen as synthetic local holdout
 feed its failures into the fixed mismatch queue or treat it as remote-holdout
 evidence. Put future challenge cases in a new versioned manifest. Preserve
 historical Development, Local holdout, and Challenges rows and labels; the
-dashboard distinguishes their historical series from the operational fixed and
-synthetic-local-holdout measures.
+dashboard combines the historical Development and Local holdout measures
+into one Development set series and keeps the synthetic-local-holdout measure
+separate.
 
 `node scripts/scan-sessions.mjs --json` diagnoses the fixed 44-session
 workload. `score-development.mjs` is its aggregate scorer. The separate

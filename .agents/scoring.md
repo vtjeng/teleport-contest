@@ -86,12 +86,13 @@ denominators. Dashboard builds read saved evidence; they do not run challenge
 evaluations. A failed or older measurement retains its failure status or
 measured commit age. Synthetic failures never enter the fixed mismatch queue.
 
-The dashboard shows the operational Fixed development and Synthetic local
-holdout measures, plus the historical Public development and Local holdout
-series for continuity. Each card includes the age of its measured commit.
-Challenge details follow Work by source file; per-case accounting remains in
-the saved evidence. Historical missing session/cursor counts remain unknown.
-Do not show a remote-holdout score.
+The dashboard shows one combined Development set measure: it sums the
+historical public-development and local-holdout measurements, carrying the
+latest holdout measurement forward after the holdout is first recorded. It
+shows Synthetic local holdout separately. Each card includes the age of its
+measured commit. Challenge details follow Work by source file; per-case
+accounting remains in the saved evidence. Historical missing session/cursor
+counts remain unknown. Do not show a remote-holdout score.
 
 ## Reading the log
 

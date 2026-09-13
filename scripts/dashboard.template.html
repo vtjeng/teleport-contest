@@ -451,7 +451,7 @@ canvas {
   touch-action: pan-y;
 }
 
-#progressChart.is-panning {
+#developmentChart.is-panning {
   cursor: grabbing;
 }
 
@@ -884,12 +884,10 @@ canvas {
       <div class="readout-heading"><time id="progressReadoutDate"></time><button type="button" class="chart-reset" id="progressClearPin" disabled>Unpin</button></div>
       <div id="progressReadout" aria-live="polite"></div>
     </div>
-    <div class="history-plot"><h3>Fixed development</h3><canvas id="fixedChart" class="score-history-canvas" tabindex="0"></canvas></div>
-    <div class="history-plot"><h3>Public development (historical)</h3><canvas id="progressChart" class="score-history-canvas" tabindex="0"></canvas></div>
-    <div class="history-plot"><h3>Local holdout (historical)</h3><canvas id="holdoutChart" class="score-history-canvas" tabindex="0"></canvas></div>
+    <div class="history-plot"><h3>Development set</h3><canvas id="developmentChart" class="score-history-canvas" tabindex="0"></canvas></div>
     <div class="history-plot"><h3>Synthetic local holdout</h3><canvas id="challengeChart" class="score-history-canvas" tabindex="0"></canvas></div>
     <div class="history-navigator">
-      <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the fixed development workload, historical public and local-holdout scores, and the synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
+      <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
     </div>
     <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom.</p>
   </div>
@@ -1003,9 +1001,8 @@ const scoreMetric = metric => metric
 const challengeData = DATA.challenges;
 const challengeCases = challengeData.cases || [];
 document.getElementById('stats').innerHTML = [
-  ['Fixed development', scores.fixedDevelopment],
+  ['Development set', scores.fixedDevelopment],
   ['Synthetic local holdout', { ...challengeData, ...challengeData.totals }],
-  ['Public development (historical)', scores.development],
 ].map(([title, score]) => {
   const value = score.status === 'failed' ? 'Failed'
     : score.screens ? pct(score.screens.matched, score.screens.total) : 'Unmeasured';
@@ -1198,9 +1195,9 @@ document.getElementById('stats').innerHTML = [
   table.innerHTML = html + '</tbody>';
 })();
 
-// --- Four score histories with one time window and navigator ---
+// --- Two score histories with one time window and navigator ---
 (function() {
-  const canvasIds = ['fixedChart', 'progressChart', 'holdoutChart', 'challengeChart'];
+  const canvasIds = ['developmentChart', 'challengeChart'];
   const series = DATA.scoreHistory.map((entry, index) => ({ ...entry,
     canvas: document.getElementById(canvasIds[index]),
     points: entry.points.map(point => ({ ...point, time: Date.parse(point.utc) }))
@@ -1214,7 +1211,7 @@ document.getElementById('stats').innerHTML = [
   const clearPin = document.getElementById('progressClearPin');
   const modes = ['screens', 'percent'].map(id => document.getElementById('progressMode-' + id));
   const DAY = 86400000, HOUR = DAY / 24, MIN_SPAN = 20 * 60000;
-  const MINI_ROW = 44, MINI_H = MINI_ROW * 4 + 20;
+  const MINI_ROW = 44, MINI_H = MINI_ROW * 2 + 20;
   const pad = { left: 52, right: 16, top: 10, bottom: 24 };
   const times = [...new Set(series.flatMap(entry => entry.points.map(point => point.time)))].sort((a, b) => a - b);
   const first = times[0] ?? Date.parse(DATA.summary.generatedAt);
