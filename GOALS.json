@@ -33011,7 +33011,7 @@
     {
       "id": "divergence-hack-test-move-lava-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit source-equivalent visible lava movement in test_move so swim_move_danger() can issue the C warning and continue walking behavior.",
       "cFile": "hack.c",
       "sessions": [],
@@ -33020,8 +33020,8 @@
       "spans": [
         {
           "name": "test-move-lava-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "806452eac0e1239084ffc858ff88d86c132755f9",
           "functions": [
             "test_move",
             "swim_move_danger",
@@ -33035,8 +33035,11 @@
         "screens": 8161,
         "rng": 629482
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "806452eac0e1239084ffc858ff88d86c132755f9",
+      "delivered": {
+        "screens": 45,
+        "rng": 29
+      },
       "function": "test_move",
       "session": "holdout/seed4500-knight-coverage",
       "step": 327,
@@ -33061,7 +33064,12 @@
           "recordedSteps": 1814,
           "remainingScreensUpperBound": 1487
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "806452eac0e1239084ffc858ff88d86c132755f9",
+        "screens": 8206,
+        "rng": 629511
+      }
     }
   ]
 }
