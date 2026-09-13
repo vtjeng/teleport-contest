@@ -1,0 +1,44 @@
+{
+  "session": "holdout/seed0116-wizard-wear-shop",
+  "remainingScreensUpperBound": 103,
+  "status": "complete",
+  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "mismatch": {
+    "session": "holdout/seed0116-wizard-wear-shop",
+    "remainingScreensUpperBound": 103,
+    "step": 24,
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizlevelport, wizgenesis, wizintrinsic, wizmap, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, teleport, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+    "unlocatedKinds": [],
+    "recordedSteps": 127
+  },
+  "summary": "At step 24 the recorded p key resolves to pay. C dispatches shk.c dopay(), whose no-shopkeeper guard at lines 1782-1784 emits the recorded message and returns ECMD_OK. JavaScript rejects pay in js/cmd.js admitParsedCommand() before the command dispatch, so this is a missing command-admission and dopay source path rather than a wear or wield mismatch.",
+  "source": {
+    "file": "shk.c",
+    "functions": ["dopay"],
+    "branch": "The pay command targets no shopkeeper: C dopay() reaches its no-shopkeeper guard at lines 1782-1784, emits the recorded message, and returns ECMD_OK. Command admission and dispatch must reach this branch before the broader payment paths are implemented.",
+    "callers": [
+      "nethack-c/upstream/src/cmd.c:1795-1796 extcmdlist pay row and rhack() dispatch",
+      "js/cmd.js:admitParsedCommand(), rhack(), and extcmd dispatch for the pay key"
+    ],
+    "dependencies": [
+      "shk.c next_shkp(), m_next2u(), canspotmon(), and inhishop() guards",
+      "The observed branch needs hidden_gold(), Blind/Blind_telepat state, the no-shopkeeper message, and ECMD_OK",
+      "The full dopay() source unit later needs inventory, getpos(), payment transfer, shopkeeper state, and billing-menu helpers",
+      "js/shk.js currently exposes paybill() cleanup but has no dopay()"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "sessions/holdout/seed0116-wizard-wear-shop.session.json segment 0 records key p at step 24, the no-shopkeeper message, 127 recorded steps, and 103 remaining screens.",
+    ".cache/session-results.json and .cache/scan-cache-with-holdout.json record 24 emitted screens before the pay boundary and no earlier mismatch.",
+    "nethack-c/upstream/src/shk.c:1743-1784 shows dopay() clearing multi, detecting no shopkeeper, emitting the recorded message, and returning ECMD_OK; nethack-c/upstream/src/cmd.c:1795-1796 binds p to dopay().",
+    "js/cmd.js:1794-1859 omits pay from command admission, so the parsed p key hits the repeated-command boundary; js/shk.js has paybill() cleanup but no dopay() handler."
+  ]
+}

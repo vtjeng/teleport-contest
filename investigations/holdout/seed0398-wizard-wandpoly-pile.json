@@ -1,0 +1,48 @@
+{
+  "session": "holdout/seed0398-wizard-wandpoly-pile",
+  "remainingScreensUpperBound": 59,
+  "status": "complete",
+  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "mismatch": {
+    "session": "holdout/seed0398-wizard-wandpoly-pile",
+    "remainingScreensUpperBound": 59,
+    "step": 28,
+    "kind": "screen",
+    "function": "tty_yn_function",
+    "functionDeclared": true,
+    "sourceFile": "js/getline.js",
+    "cFile": "nethack-c/upstream/win/tty/topl.c",
+    "luaFile": null,
+    "line": 414,
+    "message": "At step 28, C keeps the answered unrestricted getobj() prompt on row 0 (cCell W); JS clears row 0 because tty_yn_function() does not set _pending_message when resp is null, so jsCell is blank.",
+    "unlocatedKinds": [],
+    "recordedSteps": 87
+  },
+  "summary": "The first divergence is the answered drop prompt at step 28. C invent.c:getobj() calls tty_yn_function() with resp == NULL; topl.c:421-427 prints the unrestricted prompt, reads f, and jumps to clean_up, where topl.c:533-548 rewrites gt.toplines and leaves the one-line message window uncleared. JS js/getline.js:414 leaves state._pending_message empty for resp === null, so js/display.js:_buildScreenOutput() clears row 0 on the next flush. There is no RNG or cursor mismatch at this step. This is a source-traced divergence fix in the unrestricted tty_yn_function() cleanup. Once corrected, the replay reaches a separate unsupported trap activation at step 45; after that boundary, step 48 exercises zap.c's immediate wand-of-polymorph and bhitpile/object-pile path, while explode.c is not reached by the first mismatch.",
+  "source": {
+    "file": "topl.c",
+    "functions": ["tty_yn_function()"],
+    "branch": "topl.c:421-427 is the resp == NULL arm: it prints the unrestricted prompt, reads one key, and jumps to clean_up. topl.c:533-548 rewrites gt.toplines, sets TOPLINE_NON_EMPTY, and does not clear a one-line WIN_MESSAGE window; js/getline.js:414 skips the corresponding _pending_message assignment when resp === null.",
+    "callers": [
+      "src/invent.c:getobj() builds 'What do you want to drop? [a-o or ?*]' and calls yn_function(qbuf, NULL, '\\0', FALSE).",
+      "src/do.c:dodrop() calls drop(getobj(...)); js/do.js:dodrop() and js/invent.js:getobj() are the JavaScript caller chain.",
+      "js/cmd.js:yn_function() dispatches to js/getline.js:tty_yn_function()."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/invent.c:getobj() supplies the unrestricted drop prompt.",
+      "nethack-c/upstream/src/do.c:dodrop() and js/do.js:dodrop() enter the prompt path.",
+      "js/display.js:_buildScreenOutput() rebuilds row 0 from state._pending_message and exposes the missing assignment.",
+      "nethack-c/upstream/win/tty/topl.c:tty_yn_function() cleanup and js/getline.js:tty_yn_function() must preserve the source prompt lifecycle."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/scan-cache.json identifies this canonical row at commit cc1b4453d14fd4a0e995170e3842ad622790c8, screensEmitted 45, recordedSteps 87, and a screen mismatch at step 28: C row 0 column 0 is W while JS is blank.",
+    "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json segments[0].steps[28] records key f, the C prompt 'What do you want to drop? [a-o or ?*]', six post-command RNG calls, and cursor [53,4,1]; it records no RNG or cursor divergence at the first mismatching step.",
+    "nethack-c/upstream/win/tty/topl.c:421-427 prints the resp == NULL prompt and jumps to clean_up; :533-548 rewrites gt.toplines, sets TOPLINE_NON_EMPTY, and only clears WIN_MESSAGE when cury is nonzero.",
+    "js/getline.js:392-415 rewrites the answered toplines but assigns state._pending_message only when resp !== null; js/display.js:5339-5389 clears the grid and paints row 0 from that pending message.",
+    "nethack-c/upstream/src/invent.c:1919-1935 confirms getobj() passes a NULL response set for the drop prompt, and nethack-c/upstream/src/do.c:27-42 confirms dodrop() is the entry point.",
+    "The same session's step 45 records trap.c:1610 rn2(5)=3 and 'A gush of water hits you!' before the later JS trap activation boundary; step 48 records weffects(zap.c:3448) and the obj_resists/obj_shudders/mkobj/do_osshock pile sequence for the next probe."
+  ],
+  "nextProbe": "Apply the source-faithful resp == NULL prompt retention in tty_yn_function(), then compare this session through step 28. The next independent boundary is hero trap activation at step 45; after it, probe zap.c's immediate polymorph wand and bhitpile/object-pile behavior at step 48."
+}

@@ -1,0 +1,46 @@
+{
+  "session": "holdout/seed0002-healer-reflection-drummer",
+  "remainingScreensUpperBound": 595,
+  "status": "complete",
+  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "mismatch": {
+    "session": "holdout/seed0002-healer-reflection-drummer",
+    "step": null,
+    "kind": "stop",
+    "function": "exercise",
+    "functionDeclared": true,
+    "sourceFile": "attrib.c",
+    "cFile": "attrib.c",
+    "luaFile": null,
+    "line": null,
+    "message": "Replay error: exercise requires encumber_msg",
+    "unlocatedKinds": [],
+    "recordedSteps": 595,
+    "remainingScreensUpperBound": 595
+  },
+  "summary": "At segment 0, recorded step 47 (input move index 46, space), a dart trap hits the healer. C's mthrowu.c thitu() generic-hit branch loses nonlethal damage and calls exercise(A_STR, FALSE); attrib.c exercise() then calls encumber_msg() because play has begun. The JavaScript trap_effects.js caller omits encumberMessage from thitu()'s exercise callback, so attrib.js throws before the recorded exercise call can complete. This is a caller-wiring divergence in trap.c's trapeffect_dart_trap() path.",
+  "source": {
+    "file": "trap.c",
+    "functions": [
+      "trapeffect_dart_trap"
+    ],
+    "branch": "Hero arm (mtmp == &gy.youmonst), first DART_TRAP activation, ordinary unpoisoned dart, thitu() hit, nonlethal damage, moves > 0, and a non-polymorphed hero; the generic mthrowu.c thitu() branch reaches exercise(A_STR, FALSE).",
+    "callers": [
+      "mthrowu.c thitu():139-151",
+      "js/trap_effects.js trapeffect_dart_trap():574-615"
+    ],
+    "dependencies": [
+      "attrib.c exercise():488-517",
+      "pickup.c encumber_msg():1978-2019",
+      "hack.c near_capacity()/calc_capacity():4372-4387"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The original queue entry is the stop at an unknown step with message 'Replay error: exercise requires encumber_msg'; the examined commit is cc1b4453d14fd4a0e995170e3842ad622790c8a5 and the queue count is 595.",
+    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 47 has key space, screen prefix 'A little dart shoots out at you!  You are hit by a little dart.', and RNG entries rn2(6)=2 at trap.c:1273, rnd(20)=9 at mthrowu.c:106, and rn2(2)=1 at attrib.c:509.",
+    "nethack-c/upstream/src/trap.c:1259-1293 creates and fires the hero dart, then calls thitu(); nethack-c/upstream/src/mthrowu.c:139-151 calls exercise(A_STR, FALSE) after losehp() on the ordinary hit branch.",
+    "nethack-c/upstream/src/attrib.c:488-517 shows that exercise() calls encumber_msg() whenever moves > 0 and the index is A_STR or A_CON. nethack-c/upstream/src/pickup.c:1978-2019 owns encumber_msg(), whose direct capacity dependency is nethack-c/upstream/src/hack.c:4372-4387.",
+    "js/trap_effects.js:602-615 supplies thitu()'s exercise callback without encumberMessage; js/mthrowu.js:1632-1634 and :1731-1739 consume that callback on the post-damage A_STR path; js/attrib.js:937-951 throws the observed error before rn2(2)."
+  ]
+}

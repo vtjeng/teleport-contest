@@ -1,0 +1,47 @@
+{
+  "session": "seed2200-wizard-quaff-zap-read",
+  "remainingScreensUpperBound": 72,
+  "status": "complete",
+  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "mismatch": {
+    "session": "seed2200-wizard-quaff-zap-read",
+    "remainingScreensUpperBound": 72,
+    "step": 158,
+    "kind": "screen",
+    "function": "option_help",
+    "functionDeclared": true,
+    "sourceFile": "options.c",
+    "cFile": "options.c",
+    "luaFile": null,
+    "line": "9461-9549",
+    "message": "C option_help() wraps an absolute HOME-derived config path; JavaScript renders the contract-safe .nethackrc basename, first differing at row 3, column 36 (C blank, JS period), with RNG aligned.",
+    "unlocatedKinds": [],
+    "recordedSteps": 230
+  },
+  "summary": "The session reaches the help menu's options-help item at step 158. C options.c option_help() interpolates get_configfile() into its intro line. On UNIX, cfgfiles.c fopen_config_file() chooses $HOME/.nethackrc and records that absolute path, which the C recorder exposes as the visible prefix /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/resul on a wrapped row. The replay input supplies configuration text only and contains no HOME or configuration-path field. JavaScript therefore keeps the default basename .nethackrc in cfgfiles.js, so its optionHelpLines() puts a period at the first differing cell. The extra C row shifts later pages, accounting for the remaining screen mismatches and the step-165 cursor mismatch. Hardcoding the recorded host path would violate the replay contract; this divergence is machine-local and has no portable gameplay fix.",
+  "source": {
+    "file": "options.c",
+    "functions": ["option_help", "get_configfile", "fopen_config_file"],
+    "branch": "Normal-play option_help() intro rendering through cfgfiles.c's UNIX HOME/.nethackrc selection; JavaScript's text-backed segment contract has no HOME/path value and intentionally retains .nethackrc.",
+    "callers": [
+      "nethack-c/upstream/src/cmd.c command table maps '?' to dohelp (lines 1734-1735)",
+      "nethack-c/upstream/src/pager.c dohelp() selects option_help() for menu item 7 (lines 2829-2898)",
+      "js/cmd.js runHelpCommand() dispatches to js/pager.js dohelp() (lines 3256-3259)",
+      "js/pager.js dohelp() dynamically imports and calls js/options.js option_help() for choice 7 (lines 1274-1322)"
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/cfgfiles.c get_configfile()/fopen_config_file() (lines 143-146, 223-370)",
+      "js/cfgfiles.js get_configfile()/fopen_config_file() (lines 53-140)",
+      "nethack-c/upstream/win/tty/wintty.c tty_putstr()/process_text_window()/tty_display_nhwindow() (lines 1771-1947, 2225-2450)",
+      "js/tty_menu.js ttyMenuTextData()/displayTtyTextWindow() (lines 240-325, 742-824)"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/scan-cache.json rows[file=seed2200-wizard-quaff-zap-read.session.json] records screensEmitted=230, first screen divergence at segment 0 step 158 key g row 3 column 36 (C space, JavaScript period), aligned RNG, and a later cursor divergence at step 165 (C [8,23,1], JavaScript [22,10,1]).",
+    ".git/checkpoint-results/cc1b4453d14fd4a0e995170e3842ad622790c8a5/run-cLC7Rj/session-results.json results[session=seed2200-wizard-quaff-zap-read.session.json] records RNG 3018/3018, screens 221/230, cells 221/230, and cursors 229/230 at the assigned commit.",
+    "sessions/seed2200-wizard-quaff-zap-read.session.json segments[0] has only seed, datetime, nethackrc, moves, and steps; it contains no HOME or configuration pathname. segments[0].steps[158] contains the C wrapped prefix /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/resul.",
+    "nethack-c/upstream/src/options.c:9461-9549 formats get_configfile() into option_help() output; nethack-c/upstream/src/cfgfiles.c:223-370 constructs and stores $HOME/.nethackrc on UNIX; nethack-c/upstream/win/tty/wintty.c:2225-2450 compresses and splits the over-width line.",
+    "js/options.js:7103-7133 interpolates js/cfgfiles.js:get_configfile(); js/cfgfiles.js:53-140 keeps the text-backed replay's contract-safe .nethackrc basename when no path is supplied."
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
+  "remainingScreensUpperBound": 22,
+  "status": "complete",
+  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "mismatch": {
+    "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
+    "remainingScreensUpperBound": 22,
+    "step": 5,
+    "kind": "stop",
+    "function": "doquiver_core",
+    "functionDeclared": true,
+    "sourceFile": "wield.c",
+    "cFile": "wield.c",
+    "luaFile": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: wield.c reached doquiver_core() with an ordinary inventory item",
+    "unlocatedKinds": [],
+    "recordedSteps": 27
+  },
+  "summary": "The opening Q command reaches doquiver_core() after getobj() accepts inventory letter b. In this Ranger start, b is the alternate weapon (a bow), so C takes doquiver_core()'s uswapwep branch: with a singleton non-dual-wielded item it asks \"That is your alternate weapon. Ready it instead?\", then the recorded y answer clears uswapwep, sets the bow in uquiver, prints \"b - a +1 bow (at the ready).\", and returns ECMD_OK without random calls or time. JS implements only the inventory-empty, cancelled-prompt, and hands_obj arms, then throws at js/wield.js:680-682 for every ordinary item, so the fail-closed boundary stops at step 5. The later C steps confirm the state transition: t prompts, d supplies direction, and l throws an arrow by hand because the bow is now quivered. The source-faithful fix belongs to wield.c doquiver_core(); it must preserve the alternate-weapon confirmation, slot changes, inventory print, result bits, and the separate fire caller. Generalizing beyond this witness also needs a shared ynq path and pair_of() semantics; neither should be inferred from the witness's singleton bow.",
+  "source": {
+    "file": "wield.c",
+    "functions": ["doquiver_core", "dowieldquiver"],
+    "branch": "doquiver_core() ordinary-item path when newquiver == uswapwep: confirm alternate weapon, clear W_SWAPWEP, place the item in W_QUIVER, print inventory feedback, and return ECMD_OK unless unwielding a weapon or ending two-weapon combat costs a turn",
+    "callers": [
+      "cmd.c extcmds[] entry 'Q' -> dowieldquiver() (nethack-c/upstream/src/cmd.c:1814-1815)",
+      "dothrow.c dofire() -> doquiver_core(\"fire\") when fire must manually fill an empty quiver (nethack-c/upstream/src/dothrow.c:543-555)",
+      "js/cmd.js command dispatch 'quiver' -> dowieldquiver() (js/cmd.js:5786-5799)",
+      "js/dothrow.js dofire() -> doquiver_core('fire') after its empty-quiver arms (js/dothrow.js:897-900)"
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/invent.c getobj() and prinv(); js/invent.js getobj() and prinv()",
+      "nethack-c/upstream/src/cmd.c ynq()/yn_function() and ECMD result handling; js/cmd.js yn_function() and failClosedCommand()",
+      "nethack-c/upstream/src/objnam.c simpleonames(), is_plural(), otense(), and obj.h pair_of(); js/objnam.js simpleonames(), is_plural(), and otense() (pair_of() is currently private in js/potion.js)",
+      "nethack-c/upstream/src/worn.c setworn(); js/worn.js setuswapwep(), setuqwep(), and setworn()",
+      "wield.c ready_ok(), untwoweapon(), and the alternate-slot state uswapwep/uquiver",
+      "nethack-c/upstream/src/dothrow.c dofire() and js/dothrow.js dofire() for the \"fire\" verb caller"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/scan-cache.json rows[file=holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json] at cc1b4453d14fd4a0e995170e3842ad622790c8a5 records screensEmitted 5 of recordedSteps 27, step 5 key b, and the doquiver_core ordinary-inventory boundary.",
+    "sessions/holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json segments[0].steps[4:7] records Q's ready prompt, b's alternate-weapon confirmation, and y's \"b - a +1 bow (at the ready).\" result; all three steps have zero RNG entries.",
+    "nethack-c/upstream/src/wield.c:611-679 has the uswapwep confirmation, setuswapwep(NULL), common quivering label, setuqwep(), prinv(), and ECMD_TIME/ECMD_OK tail; the witness uses its singleton path at lines 631-650 and 652-678.",
+    "js/wield.js:647-683 wires dowieldquiver() but doquiver_core() stops after the hands_obj arm at lines 668-677 and throws UnsupportedWieldError at lines 680-682 for the branch the C recording reaches.",
+    "nethack-c/upstream/src/cmd.c:1814-1815 and js/cmd.js:5034-5037, 5786-5799 show Q's command registration and the JavaScript result/reset/time wrapper; nethack-c/upstream/src/dothrow.c:543-555 and js/dothrow.js:897-900 show dofire()'s second doquiver_core() caller.",
+    "nethack-c/upstream/src/invent.c:1778-1825 and js/invent.js:691-717 show queued inventory-letter selection, while js/objnam.js:855-859, 1412-1429 and js/worn.js:598-604 provide the existing naming and slot operations needed by the singleton alternate branch."
+  ],
+  "nextProbe": "After implementing the uswapwep singleton branch, replay this witness through step 9 and compare the bow quiver message, zero-RNG slot transition, and the subsequent hand-thrown-arrow branch. Then probe y/n/q responses and a stacked alternate weapon: those branches exercise ynq, splitobj/finish_splitting, pair_of, untwoweapon(), and the ECMD_TIME result tail that this session does not reach."
+}

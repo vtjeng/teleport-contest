@@ -1,0 +1,42 @@
+{
+  "session": "seed0014-dequa-fountain-explore",
+  "remainingScreensUpperBound": 90,
+  "status": "complete",
+  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "mismatch": {
+    "session": "seed0014-dequa-fountain-explore",
+    "remainingScreensUpperBound": 90,
+    "step": 624,
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null,
+    "message": "unsupported hero move: first bash message",
+    "unlocatedKinds": [],
+    "recordedSteps": 714
+  },
+  "summary": "The movement command h enters a monster square after a kick. C do_attack() clears gu.unweapon, emits the verbose bare-hand bash message, and continues into exercise(A_STR), u_wipe_engr(3), and hitum(). JS clears state.unweapon but throws at the first bash message, so the queue stops before the recorded hitum() and passive/monster-turn RNG. The missing behavior is the source-faithful message branch plus continuation; no new random call belongs to the message itself.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": ["do_attack"],
+    "branch": "A hero movement command enters a monster square after a kick; the verbose bare-hand bash message is emitted, then exercise(A_STR), u_wipe_engr(3), and hitum() continue. The JavaScript branch clears state.unweapon but stops at the message refusal.",
+    "callers": [
+      "js/uhitm.js:do_attack() is reached by the ordinary movement attack path in js/hack.js and js/cmd.js",
+      "nethack-c/upstream/src/uhitm.c:do_attack() is dispatched from the hero movement attack path"
+    ],
+    "dependencies": [
+      "js/uhitm.js: exercise(), u_wipe_engr(), hitum(), and passive/monster-turn continuation",
+      "nethack-c/upstream/src/uhitm.c:539-550 and hitum() continuation"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/scan-cache.json rows[file=seed0014-dequa-fountain-explore.session.json] records commit cc1b4453d14fd4a0e995170e3842ad622790c8a5, step 624, and remainingScreensUpperBound 90.",
+    "sessions/seed0014-dequa-fountain-explore.session.json segments[0].steps[624] records key h (movewest), cursor [70,0,1], and the C bare-hand bash message before the later hitum(), passive(), and monster-action RNG calls.",
+    "nethack-c/upstream/src/uhitm.c:539-550 prints the conditional bare-hand bash message and continues into exercise(A_STR), u_wipe_engr(3), and hitum(); js/uhitm.js:782-788 clears state.unweapon and then refuses at the first bash message.",
+    "The smallest general scope is the source-faithful message branch and continuation in do_attack(); no random draw belongs to the message itself, and no session-specific value is required."
+  ]
+}
