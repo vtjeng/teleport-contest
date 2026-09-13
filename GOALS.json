@@ -31214,7 +31214,18 @@
       "sessions": [],
       "selectionReason": "Highest-ranked development-only mismatch after cec643a8: seed0014 step 619 reaches muse.c use_misc bullwhip disarm and do.c dropy/dropz, where JS lacks the C newsym, encumber_msg, and remove_object contracts.",
       "detail": "C muse.c use_misc lines 2549-2607 selects bullwhip where_to==2 and calls dropy(obj); do.c dropz lines 807-842 performs ordinary floor placement then newsym and encumber_msg. JS muse.js use_misc passes only {state} at the bullwhip dropy call; js/do.js dropz requires newsym, encumberMessage, and extractExternalObject. js/display.js newsym, js/pickup.js encumber_msg, and js/obj.js remove_object are the existing production hooks. Fix only this caller boundary; do not broaden do.js fallback.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "use_misc-bullwhip-dropy-hooks",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "use_misc",
+            "dropy",
+            "dropz"
+          ]
+        }
+      ],
       "openedAt": "6b91d833e828105bea610815ef7ec74918bd4345",
       "openStanding": {
         "sha": "6b91d833e828105bea610815ef7ec74918bd4345",
