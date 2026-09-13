@@ -32869,6 +32869,58 @@
         "screens": 8156,
         "rng": 612292
       }
+    },
+    {
+      "id": "unsupported-level-change-hellfill-generator-3-not-ported",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the hellfill.lua level-filler dispatch and generator 3 solid maze arm, preserving source-ordered random draws, level initialization, stair setup, and populatemaze behavior.",
+      "luaFile": "hellfill.lua",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The full fixed-workload mismatch queue ranks holdout/seed4500-knight-coverage first at step 322 with up to 1492 remaining screens. Source tracing identifies dat/hellfill.lua hells[3] as the first stop; the existing JS maze bridge and common tail are already implemented, so this Lua source goal is the highest-ranked source owner.",
+      "detail": "Investigation at fa3cd450: dat/hellfill.lua lines 346-351 define hells[3] as solidfill with mazelevel/noflip and des.level_init({ style = 'maze', wallthick = 1 }); lines 431-432 select it via rn2(7)=2. mklev.c lines 1267-1274 dispatch fill_lvl hellfill; mkmaze.c lines 1126-1195 load the Lua program and create_maze() lines 950-962 consumes rnd(4) when corrwid is omitted. The explicit session step 322 records rn2(7)=2, rnd(4)=1, maze0xy(), then walkfrom() draws. JS js/hell_levels.js:65-73 currently refuses generator 3 while hellfill() common tail is present. Keep generators 1, 2, 4, and 6 out of this bounded span; preserve the omitted corrwid so the C-equivalent rnd(4) remains in order.",
+      "spans": [],
+      "openedAt": "fa3cd4505709ed8de67c21ddaabcb0b56baefcd3",
+      "openStanding": {
+        "sha": "fa3cd4505709ed8de67c21ddaabcb0b56baefcd3",
+        "screens": 8156,
+        "rng": 612292
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hellfill.lua",
+          "line": 1,
+          "endLine": 443,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "fa3cd4505709ed8de67c21ddaabcb0b56baefcd3",
+        "screens": 8156,
+        "rng": 612292
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 322,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported level change: hellfill generator 3 not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1492
+        }
+      ]
     }
   ]
 }
