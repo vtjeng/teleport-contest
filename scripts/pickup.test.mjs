@@ -63,6 +63,7 @@ import {
     autopick,
     autopick_testobj,
     check_autopickup_exceptions,
+    check_here,
     describe_decor,
     observe_pickup_object,
     pickup,
@@ -83,6 +84,7 @@ import {
     FIGURINE,
     LEATHER_GLOVES,
     GOLD_PIECE,
+    IRON_CHAIN,
     RIN_PROTECTION,
     SACK,
     SCR_IDENTIFY,
@@ -1687,6 +1689,21 @@ test('a punished hero finds only the chain on the square', async () => {
     state.uchain = chain;
     assert.equal(await pickup(0, state), 0);
     assert.equal(chain.where, OBJ_FLOOR);
+    assert.equal(state._ttyToplines, '');
+});
+
+// C ref: pickup.c check_here() (428-456) excludes uchain while counting the
+// floor objects. With only the chained object present, ct stays zero and C
+// calls read_engr_at() instead of look_here().
+test('check_here does not describe the chained object by itself', async () => {
+    const state = await heroOnAnEmptySquare();
+    const chain = typedObjectUnderHero(state, IRON_CHAIN);
+    state.uchain = chain;
+
+    await check_here(false, state);
+
+    assert.equal(chain.where, OBJ_FLOOR);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], chain);
     assert.equal(state._ttyToplines, '');
 });
 

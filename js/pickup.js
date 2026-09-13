@@ -1258,9 +1258,9 @@ export async function pickup(what, state = game) {
     return n_tried > 0 ? 1 : 0;
 }
 
-// C ref: pickup.c check_here(), reached from domove() through spoteffects()
-// and pickup(). uchain has no ported owner, so every object on the square
-// counts, as it does for an unpunished hero.
+// C ref: pickup.c check_here() (428-456), reached from domove() through
+// spoteffects() and pickup(). The ball chain is restored before this call but
+// does not count as an object for the look_here() decision.
 export async function check_here(picked_some, state = game) {
     let lookhereFlags = picked_some
         ? LOOKHERE_PICKED_SOME : LOOKHERE_NOFLAGS;
@@ -1271,7 +1271,7 @@ export async function check_here(picked_some, state = game) {
     for (let obj = state.level?.objects?.[state.u.ux]?.[state.u.uy] ?? null;
         obj;
         obj = obj.nexthere) {
-        ++count;
+        if (obj !== state.uchain) ++count;
     }
 
     if (count) {
