@@ -30984,6 +30984,79 @@
         "screens": 7503,
         "rng": 543153
       }
+    },
+    {
+      "id": "port-getpos-help-seed0360",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port getpos help popup and refresh wiring for forced travel target selection",
+      "cFile": "getpos.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The refreshed development queue still ranks seed0360 step 729 first. Source tracing identifies getpos.c getpos() lines 945-951 calling getpos_help(TRUE, goal) and getpos_refresh() for '?'; getpos_help_keyxhelp() and getpos_help() are missing from js/getpos.js, so this whole source family owns the mismatch.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "getpos_help_keyxhelp..getpos_help",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "getpos_help_keyxhelp",
+            "getpos_help"
+          ]
+        }
+      ],
+      "openedAt": "99bce66e01faad5d27cbb7e7ff8f06e465ed1cc3",
+      "openStanding": {
+        "sha": "99bce66e01faad5d27cbb7e7ff8f06e465ed1cc3",
+        "screens": 7503,
+        "rng": 543153
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "getpos_help_keyxhelp",
+          "line": 137,
+          "endLine": 166,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "getpos_help",
+          "line": 167,
+          "endLine": 311,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 137,
+        "to": 311
+      },
+      "activeStanding": {
+        "sha": "99bce66e01faad5d27cbb7e7ff8f06e465ed1cc3",
+        "screens": 7503,
+        "rng": 543153
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 729,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 104
+        }
+      ]
     }
   ]
 }
