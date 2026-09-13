@@ -86,7 +86,8 @@ import {
     W_QUIVER,
 } from './const.js';
 import {
-    ART_MJOLLNIR, confers_luck, set_artifact_intrinsic, touch_artifact,
+    ART_MJOLLNIR, confers_luck, discover_artifact, set_artifact_intrinsic,
+    touch_artifact,
 } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { cmdq_clear, cmdq_pop, yn_function } from './cmd.js';
@@ -94,7 +95,7 @@ import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
 import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
-import { observe_object } from './o_init.js';
+import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
 import { ttyPline, tty_message_menu } from './tty_message.js';
 import {
@@ -162,6 +163,7 @@ import {
     SLIME_MOLD,
     SPE_BOOK_OF_THE_DEAD,
     SPBOOK_CLASS,
+    STATUE,
     TIN,
     TOOL_CLASS,
     VENOM_CLASS,
@@ -202,6 +204,7 @@ import {
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
+import { note_unported } from './unported.js';
 import {
     inhishop,
     inside_shop,
@@ -1559,21 +1562,66 @@ export function count_unidentified(objchn, state = game) {
     return unidCount;
 }
 
-// C ref: invent.c identify_pack() (2710-2744), restricted to the branch
-// where no carried object still needs identification. The selection and
-// automatic-identification branches have no running-game owner in this slice.
+// C ref: invent.c set_cknown_lknown() (2624-2635). Containers and statues
+// expose their contents and tins expose their contents' type when the object
+// itself is fully identified.
+export function set_cknown_lknown(obj) {
+    if (isContainer(obj) || obj.otyp === STATUE) {
+        obj.cknown = true;
+        obj.lknown = true;
+    } else if (obj.otyp === TIN) {
+        obj.cknown = true;
+    }
+}
+
+// C ref: invent.c fully_identify_obj() (2637-2650). This mutates only the
+// object's knowledge flags; identify() owns the immediate inventory message.
+export function fully_identify_obj(obj, state = game) {
+    // hack.h makeknown() expands to discover_object(otyp, TRUE, TRUE, TRUE).
+    discover_object(obj.otyp, true, true, true, state);
+    if (obj.oartifact)
+        discover_artifact(obj.oartifact, state);
+    observe_object(obj, state);
+    obj.known = true;
+    obj.bknown = true;
+    obj.rknown = true;
+    set_cknown_lknown(obj);
+    if (obj.otyp === EGG && obj.corpsenm !== NON_PM)
+        note_unported('timeout.c learn_egg_type');
+}
+
+// C ref: invent.c identify() (2653-2657). The callback returns one so its
+// caller can count identified objects; prinv() is awaited because the C
+// callback emits its message before identify_pack() continues.
+export async function identify(obj, state = game) {
+    fully_identify_obj(obj, state);
+    await prinv(null, obj, 0, { state });
+    return 1;
+}
+
+// C ref: invent.c identify_pack() (2710-2744). The automatic-all branch is
+// used by an ordinary identify scroll when its cval covers the remaining
+// incomplete objects. Interactive selection remains outside this span.
 export async function identify_pack(idLimit, learningId, state = game) {
     const unidCount = count_unidentified(inventoryHead(state), state);
-    if (unidCount) {
+    if (!unidCount) {
+        await ttyPline(
+            `You have already identified ${learningId ? 'the rest' : 'all'} `
+            + 'of your possessions.',
+            state,
+        );
+    } else if (!idLimit || idLimit >= unidCount) {
+        let remaining = unidCount;
+        for (let obj = inventoryHead(state); obj; obj = obj.nobj) {
+            if (!not_fully_identified(obj, state)) continue;
+            await identify(obj, state);
+            if (--remaining < 1) break;
+        }
+    } else {
         throw new UnsupportedObjectOperationError(
             `identify_pack(${idLimit}) with ${unidCount} unidentified object(s)`,
         );
     }
-    await ttyPline(
-        `You have already identified ${learningId ? 'the rest' : 'all'} `
-        + 'of your possessions.',
-        state,
-    );
     update_inventory({ state });
 }
 

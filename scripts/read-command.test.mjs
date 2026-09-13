@@ -502,6 +502,31 @@ test('an unknown identify scroll reports a fully identified remaining pack',
     );
 });
 
+test('an unknown identify scroll identifies an incomplete pack in order',
+    async () => {
+    // The opened holdout reaches read.c seffect_identify() at step 494 with
+    // two incomplete spellbooks remaining after the selected scroll is used.
+    // The recorded cval is 3, so invent.c identify_pack() takes its
+    // automatic-all branch and prints the three inventory entries in order.
+    const replay = await runSegment(holdoutPrefix(497));
+    assert.deepEqual(
+        inventorySnapshot().filter((obj) => not_fully_identified(obj, game)),
+        [],
+    );
+    assert.deepEqual(replay.getRngSlices()[494], [
+        'rn2(19)=2',
+        'rn2(19)=12',
+        'rn2(5)=0',
+        'rn2(5)=3',
+    ]);
+    assert.deepEqual(replay.getRngSlices()[495], []);
+    assert.deepEqual(replay.getRngSlices()[496], []);
+    assert.equal(
+        pendingTopLine(),
+        'k - an uncursed spellbook of detect monsters.',
+    );
+});
+
 test('a confused blessed teleport scroll reaches level_tele and schedules goto',
     async () => {
     const segment = loadReadConfusedTeleportRecipe().segments[0];

@@ -113,7 +113,6 @@ import {
     objectType,
     place_object,
 } from './obj.js';
-import { not_fully_identified } from './objnam.js';
 import { acurr, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
 import { In_W_tower, Is_special } from './dungeon.js';
@@ -176,16 +175,6 @@ export function charge_ok(obj) {
         return GETOBJ_EXCLUDE;
     }
     return GETOBJ_EXCLUDE_SELECTABLE;
-}
-
-function remainingPackIsFullyIdentified(selected, state) {
-    let remaining = 0;
-    for (let obj = state.invent; obj; obj = obj.nobj) {
-        if (obj === selected) continue;
-        ++remaining;
-        if (not_fully_identified(obj, state)) return false;
-    }
-    return remaining > 0;
 }
 
 function propertyActive(property, state) {
@@ -332,8 +321,8 @@ async function studyTooHardSpellbook(spellbook, state) {
 }
 
 // C ref: read.c doread() (347-646), restricted after getobj() to the known,
-// uncursed magic-mapping scroll, an ordinary unknown identify scroll whose
-// remaining inventory is already fully identified, an ordinary positive
+// uncursed magic-mapping scroll, an ordinary unknown identify scroll, an
+// ordinary positive
 // enchant-weapon scroll, the source-reachable solid-human punishment-scroll
 // arms, and the fresh-known healing-book refresh decline.
 // The other admitted paths are a sighted,
@@ -457,8 +446,7 @@ export async function doread(state = game) {
     const identify = ordinaryScroll
         && scroll.otyp === SCR_IDENTIFY
         && !objectType(scroll, state).oc_name_known
-        && scroll.quan === 1
-        && remainingPackIsFullyIdentified(scroll, state);
+        && scroll.quan === 1;
     const destroyArmor = ordinaryScroll
         && scroll.otyp === SCR_DESTROY_ARMOR
         && !objectType(scroll, state).oc_name_known
@@ -640,16 +628,13 @@ export function learnscrolltyp(scrolltyp, state = game) {
 }
 
 // C ref: read.c seffect_identify() (2055-2099), restricted to an unknown,
-// sighted, unconfused, unblessed, uncursed identify scroll with a nonempty,
-// fully identified remaining pack. Both ordinary-scroll rn2(5) outcomes are
-// retained because the zero result spends a second rn2(5) before the same
-// zero-unidentified identify_pack() arm.
+// sighted, unconfused, unblessed, uncursed identify scroll. Both ordinary-scroll
+// rn2(5) outcomes are retained because the zero result spends a second rn2(5).
 export async function seffect_identify(scroll, state = game) {
     if (scroll.otyp !== SCR_IDENTIFY || scroll.oclass !== SCROLL_CLASS
         || scroll.blessed || scroll.cursed
         || objectType(scroll, state).oc_name_known
-        || scroll.quan !== 1
-        || !remainingPackIsFullyIdentified(scroll, state)) {
+        || scroll.quan !== 1) {
         throw new UnsupportedReadError('the selected identify-scroll branch');
     }
 
