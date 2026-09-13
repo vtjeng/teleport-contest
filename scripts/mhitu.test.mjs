@@ -564,46 +564,26 @@ test('mattacku adjusts the differential for the states C names', async () => {
     state.multi = 0;
 });
 
-test('an adjacent attacker still balks at an invulnerable hero', async () => {
-    // The case the sibling test's comment once said could not happen. Prayer
-    // is the only thing that sets u.uinvulnerable, and it leaves gm.multi
-    // negative; hack.c:4161 nomul() returns at `gm.multi < nval` before the
-    // line that clears the flag, so mattacku()'s preamble calling nomul(0)
-    // clears nothing and an adjacent attacker reaches mhitu.c:743 exactly as
-    // a distant one does.
+test('mattacku returns without attacking an invulnerable hero', async () => {
+    // mhitu.c:mattacku():743-755 returns zero while prayer makes the hero
+    // invulnerable. The return consumes no random draw and emits no message;
+    // this fixture keeps the attacker at range, where C's branch has no
+    // message arm, as in the fixed-workload witness.
     const state = await meleeHero();
-    const adjacent = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    const distant = meleeAttacker(state, PM_SEWER_RAT, 4, 0);
     state.u.uinvulnerable = true;
     state.multi = -3;
-    await assert.rejects(
-        () => mattacku(adjacent, meleeEnv(state, [17]).env),
-        (error) => error.reason === 'a monster balking at an invulnerable hero',
-    );
-    // The flag survives, which is what distinguishes this from the preamble
-    // having cleared it and the refusal firing for another reason.
+    const result = meleeEnv(state, [17]);
+    assert.equal(await mattacku(distant, result.env), false);
+    assert.deepEqual(result.bounds, []);
+    assert.deepEqual(result.lines, []);
+    // The flag and helpless turn survive the early return.
     assert.equal(state.u.uinvulnerable, true);
     assert.equal(state.multi, -3);
 });
 
 test('mattacku refuses each arm the slice leaves unported', async () => {
     const state = await meleeHero();
-    // mhitu.c:743-755, the invulnerable hero. A monster four or more squares
-    // away reaches it because mattacku()'s preamble never calls nomul() for
-    // it. A closer attacker reaches it too whenever gm.multi is negative,
-    // which is the only state that sets u.uinvulnerable in the first place:
-    // hack.c:4161 nomul() returns at `gm.multi < nval` before the line that
-    // clears the flag, and prayer leaves gm.multi negative throughout. The
-    // adjacent case below is the one that matters, and an earlier version of
-    // this comment claimed it could not happen.
-    const distant = meleeAttacker(state, PM_SEWER_RAT, 4, 0);
-    state.u.uinvulnerable = true;
-    await assert.rejects(
-        () => mattacku(distant, meleeEnv(state, [17]).env),
-        (error) => error.reason === 'a monster balking at an invulnerable hero',
-    );
-
-    state.u.uinvulnerable = false;
-
     // mhitu.c:955-993, summonmu(). A were-creature next to the hero
     // triggers the were-creature summoning arm before it strikes.
     const were = meleeAttacker(state, PM_WERERAT, 0, 1);

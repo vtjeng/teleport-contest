@@ -1394,10 +1394,10 @@ async function throwRangedWeapon(monster, env) {
 }
 
 // The dochug() operation that mhitu.c mattacku() sits behind. Everything it
-// still refuses -- the hero-concealment blocks, summonmu(), u.uinvulnerable,
-// use_offensive()'s arms outside the hurled potion, wildmiss(), hitmu() and
-// every aatyp arm outside the two melee ones -- refuses from inside mattacku()
-// itself, so this seam adds only the operations that file cannot import.
+// still refuses -- the hero-concealment blocks, summonmu(), use_offensive()'s
+// arms outside the hurled potion, wildmiss(), hitmu() and every aatyp arm
+// outside the two melee ones -- refuses from inside mattacku() itself, so this
+// seam adds only the operations that file cannot import.
 function attackHeroWithMattacku(monster, env) {
     const missileEnv = monsterMissileEnv(monster, env);
     return mattacku(monster, {
