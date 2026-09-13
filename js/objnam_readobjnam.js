@@ -384,15 +384,14 @@ export function wishymatch(u_str, o_str, retry_inverted) {
     return false;
 }
 
-// A wish this port cannot grant yet.  Every refusal below names the C line it
-// stands at.  Whether a refusal stands before or after its branch's draw
-// follows from whether it has to read the object's type.  objnam.c:5037's
+// A wish this port cannot grant yet. Every refusal below names the C line it
+// stands at. Whether a refusal stands before or after its branch's draw
+// follows from whether it has to read the object's type. objnam.c:5037's
 // mkobj() arm settles the type in the draw itself, so the two refusals that
 // read it -- requireSimpleRandomWishedObject() and
 // requireSingleWishedObject() -- stand after that draw, and a wish they refuse
-// has already spent random numbers.  Every other refusal, including
-// requireSingleWishedObject() on the mksobj() arm where the player named the
-// type, stands before its branch's draw and spends none.
+// has already spent random numbers. Explicit named types are admitted through
+// the wizard quantity arm before mksobj(), as C does.
 export class UnsupportedWishError extends Error {
     constructor(reason, buf) {
         super(`unsupported wish: ${reason}`);
@@ -1456,9 +1455,11 @@ function requireSupportedChestSetup(d) {
 // until readobjnam_postparse3() has matched it, so the one draw that match
 // makes has already happened -- it is the draw C makes, in C's order, and no
 // later one follows it.
-// The stack boundary.  objnam.c:5071-5083's wizard arm assigns otmp->quan from
-// d.cnt, and nothing has yet checked the inventory line hold_another_object()
-// prints for a stack, so a wish that would set quan above 1 stops.
+// The stack boundary for a wish that names only a class. objnam.c:5071-5083's
+// wizard arm assigns otmp->quan from d.cnt, so an explicit named type is
+// admitted and receives the requested stack. A class wish still needs the type
+// selected by mkobj() before this guard can inspect oc_merge; its refusal
+// therefore remains after that draw.
 //
 // Both operands have to be read here rather than beside the qualifier guard.
 // d.cnt is not settled until readobjnam_postparse1() has run: "pair of " doubles
@@ -1469,10 +1470,6 @@ function requireSupportedChestSetup(d) {
 // "pair of speed boots" reaches d.cnt 2 and still produces the single pair C
 // produces, so refusing on the count alone would stop a wish C completes.
 //
-// For a wish that names a type this stands after postparse3()'s lookup, which
-// is the one draw C makes in the same place, and before mksobj(), so no draw
-// follows the stop.  For a wish that names only a class the type is not known
-// until mkobj() has drawn it, so there it stands after that draw.
 function requireSingleWishedObject(d, type, state) {
     if (d.cnt > 1 && type.oc_merge && state.wizard) {
         throw new UnsupportedWishError('a wish for more than one object',
@@ -1704,11 +1701,10 @@ function readobjnam_typfnd(d, normalized) {
         d.oclass = state.objects[d.typ].oc_class;
 
     requireWizardWish(d, state);
-    // The two arms of objnam.c:5037 are screened by different pairs, and only
-    // requireSingleWishedObject() is in both.  A wish that named a type is
-    // checked here, before mksobj() draws, so a refused wish still spends no
-    // random number.  A wish that named only a class has no type to read until
-    // mkobj() has drawn one, so its pair runs after the draw, below.  There
+    // The two arms of objnam.c:5037 are screened by different pairs. A wish
+    // that names a type can enter mksobj() immediately. A wish that names only
+    // a class has no type to read until mkobj() has drawn one, so its
+    // requireSingleWishedObject() check runs after the draw, below. There
     // requireSimpleRandomWishedObject() replaces requireSimpleWishedObject():
     // the type names the latter refuses -- a container, a unique, a slime mold
     // -- are what a player may spell, and a draw needs only the five
@@ -1717,7 +1713,6 @@ function readobjnam_typfnd(d, normalized) {
     const named = d.typ !== 0;
     if (named) {
         requireSimpleWishedObject(d, objectType(d.typ, state), state);
-        requireSingleWishedObject(d, objectType(d.typ, state), state);
     }
 
     /*

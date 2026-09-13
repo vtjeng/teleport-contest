@@ -52,6 +52,7 @@ import {
     CLOAK_OF_MAGIC_RESISTANCE,
     COIN_CLASS,
     CORPSE,
+    DAGGER,
     CREAM_PIE,
     DUNCE_CAP,
     DWARVISH_MATTOCK,
@@ -119,6 +120,7 @@ import {
     SCR_CHARGING,
     SCR_MAGIC_MAPPING,
     SCR_MAIL,
+    SCR_PUNISHMENT,
     SHIELD_OF_REFLECTION,
     SHORT_SWORD,
     SILVER_SABER,
@@ -790,8 +792,8 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
     const state = wishState();
     for (const text of [
         // readobjnam_preparse() consumes a qualifier the typfnd: tail cannot
-        // apply.  A count is not here: it is refused after the lookup instead,
-        // which the stack test below covers.
+        // apply. Counts for mergeable named types are admitted by the wizard
+        // quantity arm; the class-only count refusal is covered below.
         'rustproof long sword', 'wet towel', 'partly eaten food ration',
         // One string per remaining UNSUPPORTED_WISH_FIELDS entry with a
         // visible effect, because a field dropped from that object leaves the
@@ -1023,26 +1025,47 @@ test('readobjnam makes the named mimic corpse used by pet quickmimic', () => {
     assert.equal(giant.corpsenm, PM_GIANT_MIMIC);
 });
 
-test('readobjnam refuses a count above one', () => {
+test('readobjnam admits an explicit named count and retains class refusal', () => {
     const state = wishState();
-    // objnam.c:5071-5083's wizard arm assigns otmp->quan directly, but no
-    // recorded case covers the inventory line a stack produces, so a count
-    // stops here.  A count of one reaches the same object as no count at all.
-    const many = wish(state, '3 daggers');
-    assert.equal(many.refusal, 'a wish for more than one object');
-    // The stop stands after readobjnam_postparse3()'s lookup, because
-    // oc_merge is not knowable until the type is.  objects.h gives DAGGER
-    // oc_prob 30, so the lookup draws rn2(31) -- the one draw C makes in the
-    // same place, with none after it.
-    assert.deepEqual(many.draws, ['rn2(31)']);
+    // objnam.c:5071-5084's wizard arm assigns otmp->quan directly after
+    // mksobj(). The explicit scroll name reaches the sole candidate with
+    // rn2(16), next_ident() consumes rnd(2), and the scroll BUC roll consumes
+    // rn2(4); the mock returns C's recorded nonzero branches so no extra BUC
+    // draw is introduced.
+    const many = wish(state, '3 scrolls of punishment', (draws) => ({
+        rn2: (bound) => {
+            draws.push(`rn2(${bound})`);
+            return bound - 1;
+        },
+        rnd: (bound) => {
+            draws.push(`rnd(${bound})`);
+            return bound;
+        },
+        rn1: (bound, offset) => {
+            draws.push(`rn1(${bound},${offset})`);
+            return bound + offset - 1;
+        },
+        rne: (bound) => {
+            draws.push(`rne(${bound})`);
+            return bound;
+        },
+        rnz: (bound) => {
+            draws.push(`rnz(${bound})`);
+            return bound;
+        },
+    }));
+    assert.equal(many.obj.otyp, SCR_PUNISHMENT);
+    assert.equal(many.obj.quan, 3);
+    assert.deepEqual(many.draws, ['rn2(16)', 'rnd(2)', 'rn2(4)']);
+
+    // A count of one reaches the same object as no count at all.
     for (const text of ['a long sword', 'the long sword', '1 long sword'])
         assert.equal(wish(state, text).obj.otyp, LONG_SWORD, text);
 
     // The other arm of objnam.c:5037.  "potions" leaves a class word and no
     // type, so nothing can read oc_merge until mkobj() has drawn one; the same
-    // guard therefore stands after that draw, and a refused class wish has
-    // already spent random numbers where a refused named one spends the lookup
-    // draw alone.
+    // guard therefore stands after that draw. A refused class wish has already
+    // spent random numbers before the count is inspected.
     const drawn = wish(state, '3 potions');
     assert.equal(drawn.refusal, 'a wish for more than one object');
     assert.notDeepEqual(drawn.draws, []);
@@ -1053,16 +1076,14 @@ test('readobjnam refuses a count above one', () => {
 
 // The count a plural name produces, which readobjnam_preparse() never sees.
 // objnam.c:4408 doubles d.cnt for "pair of " and 4423-4433's makesingular()
-// block raises it from 1 to 2, both inside readobjnam_postparse1(), so a guard
-// reading d.cnt before that call sees 1.  Both forms below reached
-// hold_another_object() with quan 2 until the stack guard moved after the
-// lookup.
-test('readobjnam refuses the count a plural name produces', () => {
+// block raises it from 1 to 2, both inside readobjnam_postparse1(). The wizard
+// quantity arm then keeps that count for mergeable named types.
+test('readobjnam keeps the count a plural name produces', () => {
     const state = wishState();
     for (const text of ['daggers', 'the daggers']) {
         const plural = wish(state, text);
-        assert.equal(plural.refusal, 'a wish for more than one object', text);
-        assert.deepEqual(plural.draws, ['rn2(31)'], text);
+        assert.equal(plural.obj.otyp, DAGGER, text);
+        assert.equal(plural.obj.quan, 2, text);
     }
     // But the count alone does not decide it.  "pair of " doubles d.cnt for
     // boots too, and objnam.c:5071-5083 leaves quan alone for a type that does
