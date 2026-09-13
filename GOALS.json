@@ -33509,7 +33509,7 @@
     {
       "id": "div-timeout-nh-timeout-deaf-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Implement timeout.c nh_timeout() timed DEAF decrement and expiry behavior through the elapsed-turn caller.",
       "cFile": "timeout.c",
       "sessions": [
@@ -33520,8 +33520,8 @@
       "spans": [
         {
           "name": "nh-timeout-deaf-expiry",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2197a60fcd29556e827a4b3a28fdac64e86ad4f7",
           "functions": [
             "nh_timeout"
           ]
@@ -33533,8 +33533,11 @@
         "screens": 8359,
         "rng": 629868
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2197a60fcd29556e827a4b3a28fdac64e86ad4f7",
+      "delivered": {
+        "screens": 16,
+        "rng": 33
+      },
       "function": "nh_timeout",
       "session": "holdout/seed4500-knight-coverage",
       "step": 525,
@@ -33614,7 +33617,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "2197a60fcd29556e827a4b3a28fdac64e86ad4f7",
+        "screens": 8375,
+        "rng": 629901
+      }
     }
   ]
 }
