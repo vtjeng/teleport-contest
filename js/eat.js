@@ -50,6 +50,7 @@ import {
     SATIATED,
     SHOCK_RES,
     SICK,
+    SICK_RES,
     SICK_VOMITABLE,
     SLEEP_RES,
     SLIMED,
@@ -105,6 +106,7 @@ import {
     carnivorous,
     cantvomit,
     control_teleport,
+    defended,
     dmgtype,
     flesh_petrifies,
     herbivorous,
@@ -122,7 +124,7 @@ import {
     is_undead,
     olfaction,
 } from './mondata.js';
-import { AD_ACID, AT_BREA } from './monsters.js';
+import { AD_ACID, AD_DISE, AT_BREA } from './monsters.js';
 import { monflee } from './monmove.js';
 import {
     AD_HALU,
@@ -323,6 +325,15 @@ function hungerProperty(state, index) {
 function propertyActive(state, index) {
     const property = hungerProperty(state, index);
     return Boolean(property.intrinsic || property.extrinsic);
+}
+
+// C ref: youprop.h Sick_resistance (67-70). In addition to the intrinsic and
+// extrinsic property bits, a wielded sickness-defending artifact or green
+// dragon armor (through mondata.c defended()) confers this resistance.
+function sickResistance(state) {
+    const property = hungerProperty(state, SICK_RES);
+    return Boolean(property.intrinsic || property.extrinsic
+        || defended(state.youmonst, AD_DISE, state));
 }
 
 // C ref: youprop.h:399 Unaware. js/trap.js unconscious() carries the pending-
@@ -1800,14 +1811,19 @@ async function eatcorpse(otmp, state) {
         }
 
     /* now any corpse left too long will make you mildly ill */
-    } else if (rotted > 3) {
-        // C's condition is `(rotted > 5L || (rotted > 3L && rn2(5)))
-        // && !Sick_resistance`, and the taint stop above already covers
-        // `rotted > 5`. The stop precedes the rn2(5) draw because
-        // Sick_resistance carries a defended(&gy.youmonst, AD_DISE) term that
-        // needs mondata.c defended(), so the arm cannot be decided yet.
-        throw new UnsupportedEatError(
-            "eatcorpse()'s mildly sickening rotted corpse",
+    } else if ((rotted > 5 || (rotted > 3 && rn2(5)))
+               && !sickResistance(state)) {
+        tp++;
+        await ttyPline(
+            `${hungerProperty(state, SICK).intrinsic ? 'You feel very sick.'
+                : 'You feel sick.'}`,
+            state,
+        );
+        await losehp(
+            rnd(8),
+            !glob ? 'cadaver' : 'rotted glob',
+            KILLED_BY_AN,
+            state,
         );
     }
 

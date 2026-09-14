@@ -237,6 +237,25 @@ test('an acidic corpse burns the hero and silences the taste line',
         assert.ok(game.u.uhp >= 25 && game.u.uhp <= 39, `${game.u.uhp}`);
     });
 
+test('a mildly rotten corpse sickens and deals cadaver damage', async () => {
+    // eat.c:1939-1942. A 90-turn-old corpse gives rotted > 3 and <= 5 for
+    // this replay's rn2(20)=7, so the rn2(5) gate and rnd(8) damage draw are
+    // both exercised without entering the earlier tainted-corpse return.
+    const result = await eatRetypedCorpse(BARBARIAN, (corpse) => {
+        corpse.age = game.moves - 90;
+        game.u.uhp = 40;
+        game.u.uhpmax = 40;
+    });
+    assert.equal(result.stopped, null, `${result.stopped?.message}`);
+    assert.equal(result.topLine, 'You feel sick.');
+    assert.equal(result.draws, 3,
+        'rn2(20), rn2(5), and rnd(8) are the only draws before losehp()');
+    // The replay's rnd(8)=8 is the source-selected damage value, leaving the
+    // nonlethal 40-point test hero at 32 hit points.
+    assert.equal(result.before.uhp, 40);
+    assert.equal(game.u.uhp, 32);
+});
+
 // Each row is the exact top line and the exact number of random-number calls
 // one retyped corpse produces. The pair is what separates the arms of
 // eatcorpse()'s chain from each other: two arms that print the same line draw

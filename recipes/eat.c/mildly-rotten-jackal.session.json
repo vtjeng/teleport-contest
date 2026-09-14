@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independently selected seed 9940354 starts a Barbarian beside a jackal. The recipe kills and picks up that corpse, searches for 70 turns, then eats it while the C rot draw leaves it in the mildly sickening range.",
+  "segments": [
+    {
+      "seed": 9940354,
+      "datetime": "20261210100000",
+      "nethackrc": "OPTIONS=name:CadaverSpan,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": "  nFll l,ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssee    "
+    }
+  ]
+}
