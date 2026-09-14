@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 8410357,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:SinkPilot,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": "jqy",
+    "comment": "Independent normal-game seed selected from 8410000-8410999 with scanSeeds; 15 of 1000 starts have a sink within 12 cardinal room steps. One step south reaches the sink, q/y enters fountain.c drinksink(), and fate 3 creates a sewer rat through makemon.c's generic runtime branches."
+  }]
+}

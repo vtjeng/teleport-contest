@@ -1,10 +1,10 @@
-// fountain.js -- drinking from and dipping into fountains.
+// fountain.js -- drinking from and dipping into fountains and sinks.
 // C ref: src/fountain.c floating_above() (18-32), dowatersnakes() (38-60),
 //        dowaterdemon() (64-90), dowaternymph() (93-116),
 //        dogushforth() (119-131) and gush() (133-161),
 //        dofindgem() (163-176), dryup() (201-239),
 //        drinkfountain() (243-390), dipfountain() (394-554),
-//        wash_hands() (557-577).
+//        wash_hands() (557-577), breaksink() (581-591), drinksink() (595-712).
 
 import {
     ARM,
@@ -14,6 +14,7 @@ import {
     ER_GREASED,
     ER_NOTHING,
     FINGER,
+    FOUNTAIN,
     G_GONE,
     GLIB,
     HALLUC,
@@ -25,34 +26,41 @@ import {
     KILLED_BY_AN,
     LEVITATION,
     MM_NOMSG,
+    M_SEEN_FIRE,
     POISON_RES,
     POOL,
     ROOM,
     SDOOR,
+    S_LRING,
     TIMEOUT,
+    UNCHANGING,
     isok,
     nothing_seems_to_happen,
 } from './const.js';
-import { exercise, poison_strdmg } from './attrib.js';
+import { acurr, exercise, poison_strdmg } from './attrib.js';
 import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
 } from './display.js';
-import { hliquid, a_monnam } from './do_name.js';
+import { hcolor, hliquid, a_monnam } from './do_name.js';
 import { level_difficulty, dunlevs_in_dungeon, dunlev } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
+import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
-import { in_town } from './hack.js';
+import { in_town, losehp } from './hack.js';
 import { distmin } from './hacklib.js';
-import { update_inventory, delobj, money_cnt } from './invent.js';
+import { update_inventory, delobj, money_cnt, obfree } from './invent.js';
 import { makemon_runtime } from './makemon_create.js';
-import { mhis, mhe } from './mondata.js';
+import { mhis, mhe, monstseesu, monstunseesu } from './mondata.js';
+import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
-import { heroIsBlind } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import {
-    PM_KNIGHT, PM_WATER_DEMON, PM_WATER_MOCCASIN, PM_WATER_NYMPH,
+    PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
+    PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { mkgold, mksobj_at, rnd_class, sobj_at } from './obj.js';
+import { mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, sobj_at } from './obj.js';
+import { observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
@@ -63,8 +71,11 @@ import { t_at, deltrap, reset_utrap } from './trap.js';
 import { water_damage } from './trap_water_damage.js';
 import { ttyPline } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
+import { note_unported } from './unported.js';
+import { Fire_resistance } from './zap.js';
 import {
-    BOULDER, DILITHIUM_CRYSTAL, LUCKSTONE, COIN_CLASS,
+    BOULDER, DILITHIUM_CRYSTAL, LUCKSTONE, COIN_CLASS, OBJ_DESCR,
+    POTION_CLASS, POT_WATER, RING_CLASS,
 } from './objects.js';
 
 // ── Fail-closed error ──
@@ -840,4 +851,169 @@ export async function wash_hands(state = game, env = {}) {
         res = ER_GREASED;
     }
     return res;
+}
+
+// C ref: fountain.c breaksink() (581-591). struct rm's looted and
+// blessedftn fields alias flags and horizontal in GameMap.
+export async function breaksink(x, y, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    if (cansee(x, y, state) || (state.u.ux === x && state.u.uy === y))
+        await message('The pipes break!  Water spurts out!', state);
+    set_levltyp(x, y, FOUNTAIN, { ...env, state });
+    const location = state.level.at(x, y);
+    location.flags = 0;
+    location.horizontal = 0;
+    SET_FOUNTAIN_LOOTED(x, y, state);
+    newsym(x, y);
+}
+
+// C ref: fountain.c drinksink() (595-712). Called after dodrink()'s sink
+// prompt. Keep the separate default-temperature draws: hot skips rn2(2).
+export async function drinksink(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const makeMonster = env.makeMonster ?? makemon_runtime;
+    const { ux: x, uy: y } = state.u;
+    const hallucination = Boolean(state.u.uprops[HALLUC]?.intrinsic)
+        && !(state.u.uprops[HALLUC_RES]?.intrinsic
+            || state.u.uprops[HALLUC_RES]?.extrinsic);
+    const liquidEnv = { state, displayRandom: env.displayRandom };
+
+    if (Levitation(state)) {
+        await floating_above('sink', state, env);
+        return;
+    }
+    const fate = random.rn2(20);
+    switch (fate) {
+    case 0:
+        await message(`You take a sip of very cold ${hliquid('water', liquidEnv)}.`, state);
+        break;
+    case 1:
+        await message(`You take a sip of very warm ${hliquid('water', liquidEnv)}.`, state);
+        break;
+    case 2:
+        await message(`You take a sip of scalding hot ${hliquid('water', liquidEnv)}.`, state);
+        if (Fire_resistance(state)) {
+            await message('It seems quite tasty.', state);
+            monstseesu(M_SEEN_FIRE, state);
+        } else {
+            await losehp(random.rnd(6), 'sipping boiling water', KILLED_BY,
+                state, { ...env, message });
+            monstunseesu(M_SEEN_FIRE, state);
+        }
+        break;
+    case 3:
+        if (state.mvitals[PM_SEWER_RAT].mvflags & G_GONE) {
+            await message('The sink seems quite dirty.', state);
+        } else {
+            const monster = await makeMonster(state.mons[PM_SEWER_RAT],
+                x, y, MM_NOMSG, { ...env, state, random });
+            if (monster) {
+                const name = heroIsBlind(state) || !canSpotMonster(monster, state)
+                    ? 'something squirmy' : a_monnam(monster, { state });
+                await message(`Eek!  There's ${name} in the sink!`, state);
+            }
+        }
+        break;
+    case 4: {
+        let potion;
+        for (;;) {
+            potion = mkobj(POTION_CLASS, false, { ...env, state, random });
+            if (potion.otyp !== POT_WATER) break;
+            obfree(potion, null, { ...env, state });
+        }
+        potion.cursed = potion.blessed = 0;
+        const color = heroIsBlind(state) ? 'odd'
+            : hcolor(OBJ_DESCR(objectType(potion, state), state), state,
+                { displayRandom: env.displayRandom });
+        await message(`Some ${color} liquid flows from the faucet.`, state);
+        if (!(heroIsBlind(state) || hallucination))
+            observe_object(potion, state);
+        ++potion.quan; // C avoids freeing this temporary potion in useup().
+        potion.fromsink = 1;
+        const { dopotion } = await import('./potion.js');
+        await dopotion(potion, state);
+        obfree(potion, null, { ...env, state });
+        break;
+    }
+    case 5: {
+        const location = state.level.at(x, y);
+        if (!(location.flags & S_LRING)) {
+            await message('You find a ring in the sink!', state);
+            mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
+            location.flags |= S_LRING;
+            await exercise(A_WIS, true, state, random,
+                { encumberMessage: env.encumberMessage });
+            newsym(x, y);
+        } else {
+            await message(`Some dirty ${hliquid('water', liquidEnv)} backs up in the drain.`, state);
+        }
+        break;
+    }
+    case 6:
+        await breaksink(x, y, state, env);
+        break;
+    case 7:
+        await message(`The ${hliquid('water', liquidEnv)} moves as though of its own will!`, state);
+        if ((state.mvitals[PM_WATER_ELEMENTAL].mvflags & G_GONE)
+            || !await makeMonster(state.mons[PM_WATER_ELEMENTAL], x, y,
+                MM_NOMSG, { ...env, state, random })) {
+            await message('But it quiets down.', state);
+        }
+        break;
+    case 8:
+        await message(`Yuk, this ${hliquid('water', liquidEnv)} tastes awful.`, state);
+        more_experienced(1, 0, state);
+        await newexplevel(state, { ...env, message, random });
+        break;
+    case 9: {
+        await message('Gaggg... this tastes like sewage!  You vomit.', state);
+        const { morehungry, vomit } = await import('./eat.js');
+        const { endRunning } = await import('./hack.js');
+        await morehungry(random.rn1(30 - acurr(state, A_CON), 11), state, {
+            ...env,
+            message,
+            endRunning: env.endRunning ?? endRunning,
+            statusRefresh: env.statusRefresh ?? (() => bot()),
+        });
+        vomit(state);
+        break;
+    }
+    case 10:
+        await message(`This ${hliquid('water', liquidEnv)} contains toxic wastes!`, state);
+        if (!(state.u.uprops[UNCHANGING]?.intrinsic
+            || state.u.uprops[UNCHANGING]?.extrinsic)) {
+            await message('You undergo a freakish metamorphosis!', state);
+            // The existing polyself implementation covers controlled changes;
+            // this source call uses POLY_NOFLAGS and discards its result.
+            note_unported('polyself.c polyself');
+        }
+        break;
+    case 11:
+    case 12: {
+        // Soundeffect() is a no-op in the recorder's nosound backend.
+        const heard = youHear(
+            fate === 11 ? 'clanking from the pipes...'
+                : 'snatches of song from among the sewers...', state);
+        if (heard) await message(heard, state);
+        break;
+    }
+    case 13:
+        await message('Ew, what a stench!', state);
+        // Positive-damage gas clouds are not ported. C discards this return.
+        note_unported('region.c create_gas_cloud');
+        break;
+    case 19:
+        if (hallucination) {
+            await message('From the murky drain, a hand reaches up... --oops--', state);
+            break;
+        }
+        // Fall through to the ordinary temperature choice.
+    default: {
+        const temperature = random.rn2(3)
+            ? (random.rn2(2) ? 'cold' : 'warm') : 'hot';
+        await message(`You take a sip of ${temperature} ${hliquid('water', liquidEnv)}.`, state);
+        break;
+    }
+    }
 }

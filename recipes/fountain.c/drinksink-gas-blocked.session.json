@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8410088,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:SinkPilot,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "hhhhhqy ",
+      "comment": "Blocked by region.c create_gas_cloud()'s positive-damage callbacks. drinksink fate 13 names the discarded call with note_unported. Keep this independently scanned recipe until gas damage is ported."
+    }
+  ]
+}

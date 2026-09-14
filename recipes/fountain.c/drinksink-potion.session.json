@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8410866,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:SinkPilot,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "j.qy   ",
+      "comment": "Independent normal-game sink from the 8410000-8410999 scan (15 nearby sinks in 1000 starts). One rest turn selects fate 4 and a potion of sickness; the Healer's resistance and immunity exercise dopotion without damage. Three spaces dismiss the source messages."
+    }
+  ]
+}
