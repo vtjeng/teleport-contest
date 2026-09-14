@@ -35090,8 +35090,8 @@
       "spans": [
         {
           "name": "maybe_turn_mon_iter..doturn",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4ce84b51b5fcea74fd540e92725443156e388c2a",
           "functions": [
             "maybe_turn_mon_iter",
             "doturn"
@@ -35111,15 +35111,15 @@
           "name": "maybe_turn_mon_iter",
           "line": 2347,
           "endLine": 2413,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doturn",
           "line": 2414,
           "endLine": 2489,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -35202,7 +35202,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "maybe_turn_mon_iter",
+            "implementation": "js/pray.js",
+            "symbol": "maybe_turn_mon_iter",
+            "sourceReview": "Read nethack-c/upstream/src/pray.c maybe_turn_mon_iter() lines 2347-2405 in full. The implementation preserves the couldsee and squared-distance gates, hostile undead/vampire-shifter/high-level-demon filter, wake-up write, one-per-command Confusion message counter, TELL resistance, the fallthrough xlev ladder for lich/ghost/vampire/wraith/mummy/zombie, the NOTELL resistance, chaotic pacification with set_malign(), killed(), and the monflee() fallback in source order. killed() and monflee() discard their C return values; their existing downstream owners and boundaries remain in effect.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "doturn",
+                "source": "pray.c doturn():2467 calls iter_mons(maybe_turn_mon_iter); js/pray.js doturn() performs the same living, on-map cached-next traversal and awaits this callback in list order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/turn-knight-fresh.session.json"
+            ],
+            "checkedAt": "4ce84b51b5fcea74fd540e92725443156e388c2a"
+          },
+          {
+            "name": "doturn",
+            "implementation": "js/pray.js",
+            "symbol": "doturn",
+            "sourceReview": "Read nethack-c/upstream/src/pray.c doturn() lines 2407-2489 in full. The implementation preserves the PM_CLERIC/PM_KNIGHT role gate and known turn-undead spell fallback, first-use gnostic conduct increment, halu_gname(), can_chant() and Strangled message/ECMD gates, undead/demon current-form and anger refusal with discarded wizard.c aggravate() recorded by note_unported(), the Gehennom phrasing and discarded aggravate(), the chant message, Wisdom exercise, turn range and message counter statics, monster iteration, negative nomul duration, multi reason, and You_can_move_again wake message. The existing spell, exercise, resistance, flee, kill, set_malign, and command-boundary owners are called in C order without substituting a return value.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] registers #turn as doturn; js/cmd.js doextcmd() dispatches the resolved doturn function and returns its ECMD_* result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/turn-knight-fresh.session.json"
+            ],
+            "checkedAt": "4ce84b51b5fcea74fd540e92725443156e388c2a"
+          }
+        ],
+        "entryPointReview": "The selected gameplay entry point is the #turn extended command. js/extcmdlist_data.js registers turn with the doturn handler, js/cmd.js doextcmd() dispatches it, and the independent lawful Knight recording reaches the ordinary chant, Wisdom exercise, monster iteration, and negative multi setup. The focused tests also reach the non-role spell fallback, undead-form and anger refusal arms, and Gehennom refusal arm.",
+        "entryPoints": [
+          {
+            "name": "#turn command",
+            "functions": [
+              "maybe_turn_mon_iter",
+              "doturn"
+            ],
+            "recordings": [
+              "recordings/pray.c/turn-knight-fresh.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
