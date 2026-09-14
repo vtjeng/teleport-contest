@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450207,
+    "datetime": "20310405060727",
+    "nethackrc": "OPTIONS=name:ArmorEquipped,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".[\u001b",
+    "comment": "Reaches invent.c doprarm() with the Valkyrie's worn armor and dismisses the equipment menu."
+  }]
+}

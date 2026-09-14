@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450206,
+    "datetime": "20310405060726",
+    "nethackrc": "OPTIONS=name:SplitTester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+    "moves": "  #wizwish\n3 food ration\nmiaI1 z\u001b",
+    "comment": "Reaches invent.c adjust_split() through the production item-actions menu, then splits the wished ration stack and assigns the new slot."
+  }]
+}

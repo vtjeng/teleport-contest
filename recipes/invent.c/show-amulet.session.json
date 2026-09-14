@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450205,
+    "datetime": "20310405060725",
+    "nethackrc": "OPTIONS=name:AmuletReporter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".#seeamulet\u001b",
+    "comment": "Reaches invent.c dopramulet() through #seeamulet on an unworn starting inventory."
+  }]
+}

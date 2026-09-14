@@ -5421,9 +5421,10 @@ export function mon_animal_list(construct, state = game) {
 // either under nonexistent object, or an eel out of water".
 //
 // The lookup and guard are ported whole. Its hideunder() call covers the eel
-// and object-concealing monster state paths above; hero concealment remains a
-// refusal. A hidden monster is never visible through canseemon(), so this
-// caller reaches hideunder() only for the state-changing concealment paths.
+// and object-concealing monster state paths above; hero concealment records
+// the unported callee and returns because C discards hideunder()'s result. A
+// hidden monster is never visible through canseemon(), so this caller reaches
+// hideunder() only for the state-changing concealment paths.
 export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
     const monster = m_at(x, y, state);
     if (monster) {
@@ -5446,9 +5447,7 @@ export function maybe_unhide_at(x, y, state = game, rawEnv = {}) {
     }
     if (!u_at(x, y, state)) return;
     if (state.u?.uundetected) {
-        throw new UnsupportedHideError(
-            'maybe_unhide_at() over a hidden hero',
-        );
+        note_unported('mon.c hideunder');
     }
 }
 

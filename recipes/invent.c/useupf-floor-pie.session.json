@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450203,
+    "datetime": "20310405060723",
+    "nethackrc": "OPTIONS=name:UseupfTester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+    "moves": "  #wizwish\ncream pie\nd a#sit\u001b",
+    "comment": "Reaches invent.c useupf() through the production #drop and #sit path after a debug wish."
+  }]
+}

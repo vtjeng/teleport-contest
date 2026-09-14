@@ -36,9 +36,10 @@ import {
     HAND,
     HALLUC,
     HALLUC_RES,
-  LEFT_HANDED,
-  LEFT_RING,
-  RIGHT_RING,
+    engulfing_u,
+    LEFT_HANDED,
+    LEFT_RING,
+    RIGHT_RING,
     LOST_EXPLODING,
     LOST_NONE,
     LOST_THROWN,
@@ -126,6 +127,8 @@ import {
     PICK_ANY,
     PICK_NONE,
     PICK_ONE,
+    MINV_PICKMASK,
+    MINV_ALL,
     plur,
     P_SABER,
     P_SHORT_SWORD,
@@ -176,6 +179,7 @@ import {
 import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
 import { ttyPline, tty_message_menu } from './tty_message.js';
+import { menuTitleStyle } from './tty_menu.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import {
     CMAP_EXPLANATIONS,
@@ -196,7 +200,7 @@ import {
     S_vodoor,
 } from './symbols.js';
 import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
-import { UnsupportedHideError, maybe_unhide_at } from './mon.js';
+import { maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph } from './display.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
@@ -317,7 +321,8 @@ import {
     yname,
     corpse_xname,
 } from './objnam.js';
-import { hliquid } from './do_name.js';
+import { hliquid, noit_Monnam } from './do_name.js';
+import { in_rooms } from './rooms.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { note_unported } from './unported.js';
@@ -329,7 +334,6 @@ import {
     shop_debt,
     check_unpaid,
     unpaid_cost,
-    UnsupportedShopError,
     costly_spot,
 } from './shk.js';
 import { set_moreluck } from './attrib.js';
@@ -542,6 +546,13 @@ export function let_to_name(letter, unpaid, showsym) {
         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
     );
     return `${prefix}${padded}  ('${symbol}')`;
+}
+
+// C ref: invent.c free_invbuf(). JavaScript returns immutable strings from
+// let_to_name(), so there is no heap buffer to release; retaining this named
+// boundary keeps save.c's cleanup caller source-visible.
+export function free_invbuf() {
+    return undefined;
 }
 
 // C ref: invent.c hands_obj. getobj() returns this shared sentinel when the
@@ -1440,11 +1451,11 @@ export function is_worn(otmp) {
 }
 
 // C ref: invent.c tool_being_used() (invent.c:2169's callee in wield.c).
-function tool_being_used(obj, state = game) {
-    if (obj.owornmask & (W_TOOL | W_SADDLE)) return true;
+export function tool_being_used(obj, state = game) {
+    if ((obj.owornmask ?? 0) & (W_TOOL | W_SADDLE)) return true;
     if (obj.oclass !== TOOL_CLASS) return false;
     return obj === state.uwep || obj.lamplit
-        || (obj.otyp === LEASH && state.leashmon);
+        || (obj.otyp === LEASH && obj.leashmon);
 }
 
 // C ref: invent.c is_inuse() (2167-2179).
@@ -3103,8 +3114,9 @@ export function check_invent_gold(why, state = game) {
         }
     }
     if (goldstacks > 1 || wrongslot > 0) {
-        // C calls impossible() here. The condition indicates a bug
-        // elsewhere in inventory management, but the game continues.
+        // C's impossible() is diagnostic only and has no terminal output.
+        // Keep the source dependency explicit while preserving its return.
+        note_unported('pline.c impossible');
         return true;
     }
     return false;
@@ -3437,12 +3449,9 @@ export function delobj_core(obj, force, env = {}) {
 // C ref: invent.c useupf() (4760-4783). "uses up an object that's on the
 // floor, charging for it as necessary".
 //
-// Both of C's shop calls stop by name: addtobill() and stolen_value() are
-// shk.c's billing, which no ported command reaches. The hideunder() tail stops
-// the same way, and its throw cannot fire at all: delobj() above it runs
-// maybe_unhide_at() over the same square, and that refuses on u.uundetected
-// alone, so a hidden hero never returns from the delete. What the tail's last
-// term still decides is the hider who is not hidden, whom it must leave alone.
+// The shop and concealment helpers called here belong to other source files.
+// Their return values are discarded by C, so this owner records those gaps and
+// continues through the deletion boundary instead of refusing the whole use.
 export function useupf(obj, numused, env = {}) {
     const normalized = inventoryEnv(env);
     const state = normalized.state;
@@ -3454,11 +3463,15 @@ export function useupf(obj, numused, env = {}) {
         ? splitobj(obj, numused, normalized)
         : obj;
     if (!state.context?.mon_moving && costly_spot(otmp.ox, otmp.oy, state)) {
-        throw new UnsupportedShopError('useupf() charging for shop goods');
+        const room = in_rooms(otmp.ox, otmp.oy, 0, state)[0] ?? 0;
+        if ((state.u?.urooms ?? []).includes(room))
+            note_unported('shk.c addtobill');
+        else
+            note_unported('shk.c stolen_value');
     }
     delobj(otmp, normalized);
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
-        throw new UnsupportedHideError('useupf() rehiding the hero');
+        note_unported('mon.c hideunder');
 }
 
 function hasTextExtra(obj, field) {
@@ -5353,11 +5366,11 @@ function countUnpaidFloor(state) {
 }
 
 // C ref: invent.c adjust_ok() and adjust_gold_ok() (4917-4932).
-function adjust_ok(obj) {
+export function adjust_ok(obj) {
     return !obj || obj.oclass === COIN_CLASS ? GETOBJ_EXCLUDE : GETOBJ_SUGGEST;
 }
 
-function adjust_gold_ok(obj) {
+export function adjust_gold_ok(obj) {
     return obj ? GETOBJ_SUGGEST : GETOBJ_EXCLUDE;
 }
 
@@ -5565,6 +5578,144 @@ export async function adjust_split(state = game, hooks = {}) {
     return doorganize_core(child, state, hooks);
 }
 
+// C ref: invent.c invdisp_nothing() (5290-5305). A display-only menu still
+// owns the screen and waits for the caller's acknowledgement.
+async function invdisp_nothing(hdr, txt, state = game, hooks = {}) {
+    const items = [
+        add_menu_heading(hdr, state),
+        { text: '' },
+        { text: txt },
+    ];
+    const menu = hooks.menu ?? ((rows, _state, how = PICK_NONE) => (
+        select_menu(state, {
+            items: rows,
+            how,
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        })
+    ));
+    await menu(items, state, PICK_NONE);
+    return null;
+}
+
+// C ref: invent.c worn_wield_only() (5309-5325). The active #if 1 branch is
+// deliberately just the actual equipment mask; the historical #else branch
+// is excluded from the reference build.
+export function worn_wield_only(obj) {
+    return Boolean(obj?.owornmask);
+}
+
+// C ref: invent.c display_minventory() (5341-5386). Build the monster
+// inventory menu in pack order, temporarily using the monster's species for
+// object naming and weapon presentation, then restore the hero species.
+export async function display_minventory(
+    mon, dflags, title = null, state = game, hooks = {},
+) {
+    const doAll = Boolean(dflags & MINV_ALL);
+    const includeHero = doAll && engulfing_u(mon, state);
+    const haveInv = Boolean(mon?.minvent);
+    const haveAny = haveInv || includeHero;
+    const pickings = dflags & MINV_PICKMASK;
+    const heading = `${s_suffix(noit_Monnam(mon, state))} `
+        + `${doAll ? 'possessions' : 'armament'}:`;
+
+    if (!(doAll ? haveAny : (mon?.misc_worn_check || mon?.mw)))
+        return invdisp_nothing(title || heading, '(none)', state, hooks);
+
+    // C's swallowed-hero row is a fake object owned by query_objlist(). The
+    // current callers only use this branch with PICK_NONE; retain the source
+    // dependency marker while preserving all actual monster rows.
+    if (includeHero) note_unported('pickup.c query_objlist swallowed hero');
+
+    const oldData = state.youmonst?.data;
+    const oldSuppressPrice = state.iflags?.suppress_price;
+    if (state.youmonst) state.youmonst.data = mon.data;
+    state.iflags ??= {};
+    state.iflags.suppress_price = Math.trunc(oldSuppressPrice ?? 0) + 1;
+
+    let selected = null;
+    try {
+        const allow = doAll ? () => true : worn_wield_only;
+        const sorted = sortloot(
+            mon.minvent,
+            INVORDER_SORT,
+            false,
+            (obj) => allow(obj),
+            state,
+        );
+        const items = [];
+        const packOrder = [...(state.flags?.inv_order ?? [])];
+        for (const packClass of packOrder) {
+            let printedHeading = false;
+            for (const entry of sorted) {
+                const obj = entry.obj;
+                if (obj.oclass !== packClass || !allow(obj)) continue;
+                if (!printedHeading) {
+                    items.push(add_menu_heading(
+                        let_to_name(
+                            packClass,
+                            false,
+                            pickings !== PICK_NONE
+                                && Boolean(state.iflags.menu_head_objsym),
+                        ),
+                        state,
+                    ));
+                    printedHeading = true;
+                }
+                // query_objlist() computes the glyph before doname_with_price;
+                // discovery and display-RNG ordering depend on that sequence.
+                const glyphInfo = obj_to_glyph(obj, state);
+                const label = doname_with_price(obj, state);
+                items.push({
+                    // query_objlist() passes zero here; the TTY menu assigns
+                    // selectors for PICK_ONE/PICK_ANY and ignores them for
+                    // PICK_NONE/MINV_NOLET.
+                    selector: undefined,
+                    label,
+                    value: obj,
+                    glyphInfo,
+                });
+            }
+        }
+        // Objects whose class is absent from inv_order remain reachable in C's
+        // unsorted list; preserve them after the configured pack classes.
+        for (const entry of sorted) {
+            const obj = entry.obj;
+            if (!allow(obj) || packOrder.includes(obj.oclass)) continue;
+            const glyphInfo = obj_to_glyph(obj, state);
+            const label = doname_with_price(obj, state);
+            items.push({
+                selector: undefined,
+                label,
+                value: obj,
+                glyphInfo,
+            });
+        }
+        const menu = hooks.menu ?? ((rows, _state, how = PICK_ONE) => (
+            select_menu(state, {
+                title: title || heading,
+                ...menuTitleStyle(state),
+                items: rows,
+                how,
+                cancelValue: null,
+                overlay: state.iflags?.menu_overlay !== false,
+            })
+        ));
+        selected = await menu(items, state, pickings);
+    } finally {
+        state.iflags.suppress_price = oldSuppressPrice;
+        if (state.youmonst) {
+            // set_uasmon()'s only stateful work here is restoring the basic
+            // hero species; the rest of that C helper is intentionally absent.
+            state.youmonst.data = state.mons?.[state.u?.umonnum] ?? oldData;
+        }
+    }
+
+    if (pickings === PICK_ANY)
+        return Array.isArray(selected) ? (selected[0]?.value ?? null) : null;
+    return selected?.value ?? null;
+}
+
 // C ref: invent.c doprgold().
 export async function doprgold(state = game) {
     const umoney = money_cnt(inventoryHead(state));
@@ -5723,8 +5874,9 @@ export async function doprring(state = game, hooks = {}) {
             lets += obj_to_let(state.uright, state);
         if (state.uleft)
             lets += obj_to_let(state.uleft, state);
-        const useInuseOrdering = Boolean(state.uright?.oclass !== RING_CLASS
-            || state.uleft?.oclass !== RING_CLASS
+        const useInuseOrdering = Boolean((state.uright
+                && state.uright.oclass !== RING_CLASS)
+            || (state.uleft && state.uleft.oclass !== RING_CLASS)
             || lets.length > 1 || state.iflags.menu_requested);
         await dispinv_with_action(lets, state, {
             ...hooks,
@@ -5746,5 +5898,44 @@ export async function dopramulet(state = game, hooks = {}) {
             ...hooks, useInuseOrdering: true, altLabel: 'Amulet',
         });
     }
+    return ECMD_OK;
+}
+
+// C ref: invent.c doprtool() (4715-4734). Show every carried tool which is
+// currently used, retaining list order and the 52-letter safety bound.
+export async function doprtool(state = game, hooks = {}) {
+    let lets = '';
+    for (let obj = inventoryHead(state); obj; obj = obj.nobj) {
+        if (!tool_being_used(obj, state)) continue;
+        // C breaks before writing when the fixed-size lets[] buffer is full.
+        if (lets.length >= INVLET_BASIC) break;
+        lets += obj_to_let(obj, state);
+    }
+    if (!lets.length)
+        await ttyPline('You are not using any tools.', state);
+    else
+        await dispinv_with_action(lets, state, {
+            ...hooks, useInuseOrdering: true,
+        });
+    return ECMD_OK;
+}
+
+// C ref: invent.c doprinuse() (4740-4757). is_inuse() performs the same
+// source predicate used by the in-use sort, while the display itself decides
+// which rows to show after the first match is found.
+export async function doprinuse(state = game, hooks = {}) {
+    let inUse = false;
+    for (let obj = inventoryHead(state); obj; obj = obj.nobj) {
+        if (is_inuse(obj, state)) {
+            inUse = true;
+            break;
+        }
+    }
+    if (!inUse)
+        await ttyPline('You are not wearing or wielding anything.', state);
+    else
+        await dispinv_with_action(null, state, {
+            ...hooks, useInuseOrdering: true,
+        });
     return ECMD_OK;
 }

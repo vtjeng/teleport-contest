@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450204,
+    "datetime": "20310405060724",
+    "nethackrc": "OPTIONS=name:RingReporter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".#seerings\u001b",
+    "comment": "Reaches invent.c doprring() through #seerings on an empty ring set."
+  }]
+}

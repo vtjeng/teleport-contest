@@ -8,19 +8,34 @@ import {
     CQ_CANNED,
     OBJ_CONTAINED,
     OBJ_INVENT,
+    OBJ_MINVENT,
+    MINV_ALL,
+    PICK_NONE,
+    GETOBJ_EXCLUDE,
+    GETOBJ_SUGGEST,
+    W_SADDLE,
+    W_WEP,
 } from '../js/const.js';
 import {
     count_buc,
     count_contents,
     count_unpaid,
     dounpaid,
+    doprinuse,
+    doprtool,
+    adjust_gold_ok,
+    adjust_ok,
     display_inventory,
+    display_minventory,
     display_pickinv,
     display_used_invlets,
+    free_invbuf,
     initializeInventory,
     repopulate_perminvent,
     tally_BUCX,
     this_type_only,
+    tool_being_used,
+    worn_wield_only,
 } from '../js/invent.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { init_objects } from '../js/o_init.js';
@@ -30,11 +45,14 @@ import {
     FOOD_CLASS,
     FOOD_RATION,
     GOLD_PIECE,
+    LONG_SWORD,
+    OIL_LAMP,
     SACK,
     objects_globals_init,
     TOOL_CLASS,
 } from '../js/objects.js';
-import { PM_CLERIC } from '../js/monsters.js';
+import { monst_globals_init, PM_CLERIC, PM_NEWT } from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 
 function stateFixture() {
     const state = {
@@ -57,6 +75,9 @@ function stateFixture() {
     };
     objects_globals_init(state);
     init_objects(state, () => 0);
+    monst_globals_init(state);
+    state.u.umonnum = PM_NEWT;
+    state.youmonst = { data: state.mons[PM_NEWT] };
     initializeInventory(state);
     return state;
 }
@@ -215,4 +236,83 @@ test('dounpaid reports floor-only unpaid objects through its message owner', asy
     assert.deepEqual(messages, [
         "You aren't carrying any unpaid items but there is 1 on the floor.",
     ]);
+});
+
+test('worn_wield_only follows the active monster inventory filter', () => {
+    // invent.c worn_wield_only(): the compiled #if 1 arm tests only
+    // obj->owornmask, so an unworn weapon is excluded just like a food item.
+    assert.equal(worn_wield_only({ owornmask: 0 }), false);
+    assert.equal(worn_wield_only({ owornmask: W_WEP }), true);
+    assert.equal(worn_wield_only({ owornmask: W_SADDLE }), true);
+});
+
+test('tool_being_used and adjust filters preserve their source predicates', () => {
+    const state = stateFixture();
+    const lamp = object(OIL_LAMP, state, { lamplit: true });
+    const sword = object(LONG_SWORD, state);
+    assert.equal(tool_being_used(lamp, state), true);
+    assert.equal(tool_being_used(sword, state), false);
+    assert.equal(tool_being_used({ ...lamp, lamplit: false }, state), false);
+    assert.equal(adjust_ok(null), GETOBJ_EXCLUDE);
+    assert.equal(adjust_ok(sword), GETOBJ_SUGGEST);
+    assert.equal(adjust_gold_ok(null), GETOBJ_EXCLUDE);
+    assert.equal(adjust_gold_ok({ oclass: COIN_CLASS }), GETOBJ_SUGGEST);
+});
+
+test('doprtool and doprinuse route their source-selected rows to menus', async () => {
+    const state = stateFixture();
+    state.iflags.menu_requested = true;
+    const lamp = object(OIL_LAMP, state, {
+        invlet: 'a', lamplit: true, owornmask: 0,
+    });
+    const sword = object(LONG_SWORD, state, {
+        invlet: 'b', owornmask: W_WEP,
+    });
+    lamp.nobj = sword;
+    state.invent = lamp;
+    const menus = [];
+    const menu = async (items, _state, how) => {
+        menus.push({ items, how });
+        return null;
+    };
+
+    assert.equal(await doprtool(state, { menu }), 0);
+    assert.equal(menus.at(-1).how, 1); // forced menu uses PICK_ONE.
+    assert.equal(menus.at(-1).items.some((item) => item.value === lamp.invlet), true);
+
+    assert.equal(await doprinuse(state, { menu }), 0);
+    assert.equal(menus.at(-1).how, 1);
+    assert.equal(menus.at(-1).items.some((item) => item.value === sword.invlet), true);
+});
+
+test('display_minventory names monster possessions under temporary species data', async () => {
+    const state = stateFixture();
+    const lamp = object(OIL_LAMP, state, {
+        where: OBJ_MINVENT, invlet: 'a', ocarry: null,
+    });
+    const monster = newMonster({
+        data: state.mons[PM_NEWT],
+        minvent: lamp,
+        misc_worn_check: 0,
+        mw: null,
+    });
+    lamp.ocarry = monster;
+    const originalData = state.youmonst.data;
+    let shown;
+    const selected = await display_minventory(
+        monster, MINV_ALL | PICK_NONE, null, state,
+        { menu: (items, _state, how) => {
+            shown = { items, how };
+            return null;
+        } },
+    );
+    assert.equal(selected, null);
+    assert.equal(shown.how, PICK_NONE);
+    assert.equal(shown.items.some((item) => item.value === lamp), true);
+    assert.equal(shown.items.some((item) => item.label?.includes('lamp')), true);
+    assert.equal(state.youmonst.data, originalData);
+});
+
+test('free_invbuf remains a source-named cleanup boundary for immutable strings', () => {
+    assert.equal(free_invbuf(), undefined);
 });

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450202,
+    "datetime": "20310405060722",
+    "nethackrc": "OPTIONS=name:ToolReporter,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".#seetools\u001b",
+    "comment": "Reaches invent.c tool_being_used() and doprtool() through #seetools and dismisses the menu."
+  }]
+}

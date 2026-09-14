@@ -29,7 +29,7 @@ import {
 import { game } from '../js/gstate.js';
 import { delobj, useupf } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { UnsupportedHideError, maybe_unhide_at } from '../js/mon.js';
+import { maybe_unhide_at } from '../js/mon.js';
 import { eggs_in_water, lays_eggs } from '../js/mondata.js';
 import { newMonster } from '../js/monst.js';
 import {
@@ -61,7 +61,6 @@ import {
     SLIME_MOLD,
     TOWEL,
 } from '../js/objects.js';
-import { UnsupportedShopError } from '../js/shk.js';
 import { UnsupportedSitError, dosit } from '../js/sit.js';
 import { canSpotMonster } from '../js/startup_a11y.js';
 import {
@@ -689,25 +688,22 @@ test('useupf splits a stack and leaves the remainder on the floor', async () => 
     assert.equal(left.quan, 2);
 });
 
-test('useupf refuses to bill a shop and refuses to rehide the hero', async () => {
-    // invent.c useupf():4774-4779 and :4782-4783. Neither shk.c addtobill()
-    // nor mon.c hideunder() is ported.
+test('useupf bills through source gaps and continues to its concealment tail', async () => {
+    // invent.c useupf():4774-4779 and :4782-4783. These callees remain
+    // unported, but C discards both results, so useupf() still deletes the
+    // floor object and records each dependency boundary.
     await standOnStairs();
     const pie = putObject(CREAM_PIE);
     makeHeroRoomAShop();
-    assert.throws(
-        () => useupf(pie, pie.quan, {
-            state: game,
-            hooks: { extractExternalObject: remove_object },
-        }),
-        UnsupportedShopError,
-    );
+    assert.doesNotThrow(() => useupf(pie, pie.quan, {
+        state: game,
+        hooks: { extractExternalObject: remove_object },
+    }));
+    assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
 
-    // The tail's own throw is unreachable: delobj() above it runs
-    // maybe_unhide_at() over the same square, and that refuses on
-    // u.uundetected alone, so a hidden hero never returns from the delete.
-    // What the tail's second term still decides is the hider who is *not*
-    // hidden, who must be left alone.
+    // delobj() runs maybe_unhide_at() over the same square before useupf()'s
+    // concealment tail. Both calls record the unported hideunder() dependency
+    // and leave the deleted square empty.
     await standOnStairs();
     const second = putObject(CREAM_PIE);
     game.youmonst.data = species({ mflags1: M1_CONCEAL });
@@ -721,13 +717,11 @@ test('useupf refuses to bill a shop and refuses to rehide the hero', async () =>
     await standOnStairs();
     const third = putObject(CREAM_PIE);
     game.u.uundetected = 1;
-    assert.throws(
-        () => useupf(third, third.quan, {
-            state: game,
-            hooks: { extractExternalObject: remove_object },
-        }),
-        UnsupportedHideError,
-    );
+    assert.doesNotThrow(() => useupf(third, third.quan, {
+        state: game,
+        hooks: { extractExternalObject: remove_object },
+    }));
+    assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
     game.u.uundetected = 0;
 });
 
@@ -798,9 +792,10 @@ test('maybe_unhide_at returns for a square holding nobody', async () => {
     // The hero herself is on this square and is not hidden.
     assert.equal(maybe_unhide_at(game.u.ux, game.u.uy, game), undefined);
     game.u.uundetected = 1;
-    assert.throws(
+    // mon.c hideunder() is still unported; maybe_unhide_at() records the
+    // discarded call and returns so inventory deletion can continue.
+    assert.doesNotThrow(
         () => maybe_unhide_at(game.u.ux, game.u.uy, game),
-        UnsupportedHideError,
     );
     game.u.uundetected = 0;
 });

@@ -262,8 +262,10 @@ import {
     dolook,
     dopramulet,
     doprarm,
+    doprinuse,
     doprgold,
     doprring,
+    doprtool,
     doprwep,
     carrying,
     getobj,
@@ -1802,7 +1804,8 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'fire', 'throw',
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
-    'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
+    'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
+    'seeall', 'seetools', 'teleport',
     'overview',
     'inventtype', 'adjust', 'altadjust',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
@@ -5037,8 +5040,14 @@ async function doextcmd(key, state) {
     case 'doprarm':
         await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
         return ECMD_OK;
+    case 'doprinuse':
+        await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
     case 'doprring':
         await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
+        return ECMD_OK;
+    case 'doprtool':
+        await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
         return ECMD_OK;
     case 'dopramulet':
         await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));

@@ -21,7 +21,7 @@ import {
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
     MALE, NEUTRAL, NON_PM,
-    OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT,
+    OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT, OBJ_MINVENT,
     P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGR,
     W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
@@ -1660,7 +1660,8 @@ export function doname_with_price(
     { currencyName } = {},
 ) {
     if (obj.where !== OBJ_FLOOR) {
-        if (obj.where !== OBJ_CONTAINED && obj.where !== OBJ_INVENT)
+        if (obj.where !== OBJ_CONTAINED && obj.where !== OBJ_INVENT
+            && obj.where !== OBJ_MINVENT)
             unsupported('non-floor price suffix', obj);
         preflightDoname(obj, objectType(obj, state), state);
         // For OBJ_INVENT items (e.g. worn hero items being stolen by a nymph),
