@@ -44268,6 +44268,119 @@
         "screens": 9218,
         "rng": 652872
       }
+    },
+    {
+      "id": "pilot-timeout-nh-timeout-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete once-per-turn hero timeout upkeep with source-ordered property expiry and a live-only planning handoff.",
+      "cFile": "timeout.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "Authorized seed-worker pilot continuation: the assigned seed reaches missing nh_timeout confusion expiry; implement the whole C function and consumed-return eating_dangerous_corpse dependency.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "nh_timeout",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nh_timeout"
+          ]
+        }
+      ],
+      "openedAt": "5469a290ac453dacc4670bf5b7bca490d2a6d02d",
+      "openStanding": {
+        "sha": "fb4847f69925d23eb2d588e108edf99e18b36a46",
+        "screens": 9218,
+        "rng": 652872
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "nh_timeout",
+          "line": 588,
+          "endLine": 950,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 588,
+        "to": 950
+      },
+      "activeStanding": {
+        "sha": "fb4847f69925d23eb2d588e108edf99e18b36a46",
+        "screens": 9218,
+        "rng": 652872
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 263,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed-turn nh_timeout requires no active property timeout at index 14",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 332,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 332,
+              "status": "complete",
+              "commit": "e4301c9d680c462f4000473983f936d0cd18bfae",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 332,
+                "step": 263,
+                "kind": "stop",
+                "function": "nh_timeout",
+                "functionDeclared": true,
+                "sourceFile": "timeout.c",
+                "cFile": "timeout.c",
+                "luaFile": null,
+                "line": 588,
+                "message": "elapsed-turn nh_timeout requires no active property timeout at index 14",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "The complete booze effect moves the first stop from step 241 to 263 without a prior screen or RNG mismatch. Confusion then reaches its final timed turn. timeout.c nh_timeout restores HConfusion to 1, calls make_confused(0, TRUE), and stops the occupation if confusion cleared; JavaScript has no expiry arm and refuses this property before the turn. This is missing source behavior in the partial nh_timeout implementation, not a planning-only divergence.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "nh_timeout"
+                ],
+                "branch": "Read the whole timeout.c nh_timeout function, 588-948. The observed branch is CONFUSION expiry at 730-735. The full unit also owns basal luck, invulnerability, condition dialogues, polymorph/cream/spell-protection/gallop clocks, the entire property-expiry switch, and run_timers. The existing JavaScript admits only selected property cases, so completion cannot be limited to the observed confusion branch.",
+                "callers": [
+                  "C allmain.c moveloop_core calls nh_timeout in once-per-turn upkeep. js/allmain.js finishElapsedTurn invokes js/timeout.js nh_timeout_elapsed_turn during both live upkeep and burdened planning; preflight_nh_timeout_elapsed_turn also runs before committing live movement."
+                ],
+                "dependencies": [
+                  "potion.c make_confused is already implemented but needs the same planning-safe message argument that make_deaf already accepts. Other existing expiry callees have live display/vision/RNG paths that require isolation before clone admission.",
+                  "eat.c eating_dangerous_corpse, 475-494, is a required consumed-return dependency. It reads active eatfood occupation, context.victual.piece, CORPSE and LOW_PM, carried/obj_here identity and acidic/flesh_petrifies. Existing invent.c obj_here and the monster predicates are pure and available; no invent.js edit is needed.",
+                  "Existing consumed-return helpers include stone_luck, carrying, find_delayed_killer, acurr, name_to_mon, type_is_pname, hcolor/Monnam, stuck_in_wall, region_danger, inv_weight and unconscious. Each must be checked against its full source contract.",
+                  "Unported discarded-return callees in the whole unit must be recorded through note_unported at their exact source call sites. Existing correct countdown branches must remain intact; no new Unsupported error is authorized."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Focused fresh-process scan on e4301c9d source state reproduced screensEmitted=263 of 595, divergence=null and the index-14 timeout refusal. Remaining bound: 595-263=332. The reference line at the stop says the hero feels less confused.",
+                "The current js/timeout.js preflight admits CONFUSION only above one turn, and decrement_property_timeouts has no CONFUSION arm. Thus removing only its guard would incorrectly fall into the wounded-leg cleanup.",
+                "Coordinator approved the whole nh_timeout unit and distinct eating_dangerous_corpse section in shared eat.js. Peer owns tin_variety_txt, which this span leaves unchanged. Display/planner extensions are being traced and coordinated separately before edits."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
