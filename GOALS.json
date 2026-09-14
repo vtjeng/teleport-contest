@@ -33623,6 +33623,116 @@
         "screens": 8375,
         "rng": 629901
       }
+    },
+    {
+      "id": "port-wiz-identify-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port wizcmds.c wiz_identify() and wire the wizard-mode display-only inventory path.",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Selected holdout/seed4500-knight-coverage as the first per-session candidate with a valid completed investigation: remainingScreensUpperBound 1273 at step 541, cache investigations/holdout/seed4500-knight-coverage.json, source-traced owner wizcmds.c:wiz_identify().",
+      "detail": "At wizcmds.c:50-65, wizard mode sets iflags.override_ID from cmd_from_func(wiz_identify) (fallback Ctrl-I), calls display_inventory(NULL, FALSE), clears the override, and returns ECMD_OK. The witness reaches this through #wizidentify with zero unidentified items, so invent.c:3222-3236 renders the Debug Identify and already-identified lines, then PICK_NONE waits without a turn or RNG. Wire cmd.c bindings through js/cmd.js and js/wizcmds.js, and complete the display-only branch in js/invent.js while preserving existing windows/tty menu behavior.",
+      "spans": [],
+      "openedAt": "7700007be69ac3f6c0bfd9311c8d254c1b5d7469",
+      "openStanding": {
+        "sha": "7700007be69ac3f6c0bfd9311c8d254c1b5d7469",
+        "screens": 8375,
+        "rng": 629901
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_identify",
+          "line": 50,
+          "endLine": 72,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 50,
+        "to": 72
+      },
+      "activeStanding": {
+        "sha": "7700007be69ac3f6c0bfd9311c8d254c1b5d7469",
+        "screens": 8375,
+        "rng": 629901
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 541,
+          "kind": "stop",
+          "function": "wiz_identify",
+          "functionDeclared": false,
+          "sourceFile": "wizcmds.c",
+          "cFile": "wizcmds.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1273,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1273,
+              "status": "complete",
+              "commit": "2197a60fcd29556e827a4b3a28fdac64e86ad4f7",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1273,
+                "step": 541,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The current boundary is the missing wizcmds.c wiz_identify() command. The assigned recording types #wizidentify and confirms it with Return at step 541; C sets iflags.override_ID to the command key (falling back to Ctrl-I), calls display_inventory(NULL, FALSE), then clears the temporary override and returns ECMD_OK. This witness has no unidentified inventory items, so invent.c display_pickinv() adds the Debug Identify title and '(all items are permanently identified already)', opens its display-only PICK_NONE menu, and waits for the next Escape. JavaScript has the extcmdlist row but no wiz_identify() export, no doextcmd() dispatch or direct-key rhack() arm, and its display_pickinv() rejects the non-reply multi-item path as an unsupported partial inventory. The source owner is a file-port of wizcmds.c wiz_identify() with the display-only wizard-ID branch wired through invent.js; the current mismatch does not require RNG or turn processing and must not be keyed to this session.",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "wiz_identify"
+                ],
+                "branch": "For wizard=true, wizcmds.c:50-65 assigns iflags.override_ID from cmd_from_func(wiz_identify), falls back to C('I') when no binding exists, calls display_inventory(NULL, FALSE), clears override_ID, and returns ECMD_OK. In this recording the inventory is nonempty but count_unidentified() is zero, so invent.c:3057-3417 takes the wizid display branch at :3222-3236, adds 'Debug Identify' and '(all items are permanently identified already)', then select_menu(PICK_NONE) waits for the following Escape; no inventory mutation, RNG, or elapsed turn occurs.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1963-1964 binds Ctrl-I and the wizidentify extended-command row to wiz_identify(); js/extcmdlist_data.js:164 already carries the row.",
+                  "js/cmd.js:4886-5142 owns # extended-command lookup and dispatch but its switch has no wiz_identify case; js/cmd.js:1794-1805 and :5181-5260 own direct-key admission and lookup, while the direct rhack command arms at :5871-5925 have no wizidentify branch."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/invent.c:3057-3417 display_pickinv() and :3427-3455 display_inventory(); js/invent.js:980-1113 and :1115-1121 contain the partial port. The current JS multi-item path throws when want_reply is false at :1053-1055, so it cannot render the witness's display-only wizid menu.",
+                  "nethack-c/upstream/src/invent.c:3222-3251 and js/invent.js:1556-1562 count_unidentified()/not_fully_identified() decide the title and the all-items-already-identified line. The helper is present in JS; the missing state is the wizard-ID branch around display_pickinv().",
+                  "nethack-c/upstream/src/windows.c select_menu() and nethack-c/upstream/src/win/tty/wintty.c PICK_NONE handling; js/windows.js:107-139 and js/tty_menu.js:1041-1142 already provide a display-only menu that ignores selectors and closes on Escape/Return.",
+                  "nethack-c/upstream/src/cmd.c:3682-3695 can_do_extcmd() and js/cmd.js:4793-4809 gate WIZMODECMD rows by wizard mode; the witness is playmode:debug, so this guard should admit the row before dispatch.",
+                  "For the nonzero unidentified-count branch, invent.c:3226-3251 and :3385-3407 use iflags.override_ID, display_pickinv() item selection, identify(), identify_pack(), and objnam.c naming overrides; js/invent.js:1577-1626 and js/objnam.js:335-368 already expose related helpers but that selection branch is not reached by this recording."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json at SHA 2197a60fcd29556e827a4b3a28fdac64e86ad4f7 reports 541 emitted screens, 1814 recorded steps, and the boundary 'unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported'; the queue upper bound is 1273 and there are no unlocated kinds.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 529-541 contain '#wizidentify\\n'; steps 530-540 build the exact command text, and step 541's Return produces the C screen lines 'Debug Identify', '(all items are permanently identified already)', and '(end)' with no RNG entry.",
+                "nethack-c/upstream/src/wizcmds.c:48-66 defines the missing source function and its temporary override_ID lifetime; nethack-c/upstream/src/cmd.c:1963-1964 confirms both the Ctrl-I binding and extended-command row.",
+                "nethack-c/upstream/src/invent.c:3130-3138 skips the single-item shortcut for wizid, :3222-3236 builds the exact zero-unidentified display lines, and :3379-3417 invokes select_menu(PICK_NONE) through the ordinary display_inventory() return path.",
+                "js/cmd.js:5136-5141 currently raises the reported default dispatch refusal; js/cmd.js:1794-1805 omits wizidentify from direct-key admission and :5871-5925 omits its direct handler. js/wizcmds.js has no wiz_identify export.",
+                "js/invent.js:1053-1055 explicitly refuses every multi-item display when want_reply is false, while js/windows.js:122-139 and js/tty_menu.js:1041-1142 already support the PICK_NONE display-only interaction needed after the command is wired.",
+                "The implementation scope is source-general wizard-mode command admission, temporary override_ID handling, and the display-only zero-unidentified inventory branch; no seed, input string, expected screen, or replay-position special case is indicated."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
