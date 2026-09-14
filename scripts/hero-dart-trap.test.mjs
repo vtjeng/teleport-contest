@@ -371,3 +371,45 @@ test('seed0004 dart trap step 235 matches C reference counts and game state',
         assert.equal(trap.tseen, true, 'trap is now seen after firing');
         assert.equal(trap.once, true, 'trap has been triggered');
     });
+
+test('seed0002 dart trap hit forwards encumber_msg through thitu exercise',
+    async () => {
+        // The open holdout reaches trap.c trapeffect_dart_trap() at input
+        // step 47. Its nonlethal hit enters mthrowu.c thitu(), whose
+        // exercise(A_STR, FALSE) at mthrowu.c:151 calls attrib.c
+        // encumber_msg() after the rn2(2) draw at attrib.c:509.
+        const fs = await import('node:fs');
+        const segment = JSON.parse(fs.readFileSync(
+            'sessions/holdout/seed0002-healer-reflection-drummer.session.json',
+            'utf8',
+        )).segments[0];
+        const movesThroughHit = segment.moves.slice(0, 47);
+        const replay = await runSegment({
+            ...segment,
+            moves: movesThroughHit,
+        });
+        const cStepsThroughHit = segment.steps.slice(0, 48);
+        const sourceRng = cStepsThroughHit.flatMap(
+            (step) => step.rng ?? [],
+        ).map((entry) => entry.replace(/\s+@.*$/u, ''));
+        const actualRng = replay.getRngLog();
+
+        // 47 input keys produce the initial frame plus one frame at each
+        // input boundary; the expected count comes from the C recording.
+        assert.equal(
+            replay.getScreens().length,
+            cStepsThroughHit.length,
+            'C and JS capture the same boundaries through the hit',
+        );
+        assert.deepEqual(
+            actualRng,
+            sourceRng,
+            'C and JS consume the same draws, including exercise(A_STR)',
+        );
+        assert.ok(
+            cStepsThroughHit[47].rng.some(
+                (entry) => entry.includes('@ exercise(attrib.c:509)'),
+            ),
+            'the selected C boundary contains attrib.c exercise()',
+        );
+    });

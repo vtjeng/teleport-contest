@@ -611,6 +611,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
                 losehp: (n, knam, k_format) => losehp(n, knam, k_format, state),
                 exercise: (index, increase) => exercise(
                     index, increase, state, random,
+                    { encumberMessage: (subject) => encumber_msg(subject) },
                 ),
             },
         );
