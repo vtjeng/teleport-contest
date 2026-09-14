@@ -33638,8 +33638,8 @@
       "spans": [
         {
           "name": "wiz_identify",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5fe1e89bdbae7c18355290568ebd1dce6fdcec7c",
           "functions": [
             "wiz_identify"
           ]
@@ -33658,8 +33658,8 @@
           "name": "wiz_identify",
           "line": 50,
           "endLine": 72,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -33741,7 +33741,51 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wiz_identify",
+            "implementation": "js/wizcmds.js",
+            "symbol": "wiz_identify",
+            "sourceReview": "Read wizcmds.c:50-72 in full. The wizard arm resolves cmd_from_func(wiz_identify) with C('I') as its fallback, stores that key in iflags.override_ID while calling display_inventory(NULL, FALSE), clears the override after the display, and returns ECMD_OK. The non-wizard arm prints the unavailable-command message and also returns ECMD_OK. The display_pickinv dependency now covers the wizard zero-item PICK_NONE menu, incomplete-item PICK_ANY menu, object filtering, and identification updates; no unported callee is used on this path.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches the extcmdlist row whose ef_funct is wiz_identify."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c rhack() handles the direct command-table binding and dispatches the wizidentify row after can_do_extcmd()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-identify.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json",
+              "recordings/wizcmds.c/wizidentify-direct.session.json"
+            ],
+            "checkedAt": "5fe1e89bdbae7c18355290568ebd1dce6fdcec7c"
+          }
+        ],
+        "entryPointReview": "The selected range contains one command entry point, wiz_identify(). Both production command routes are covered: the #wizidentify extended-command prompt and the direct Ctrl-I command-table binding. Each route reaches display_inventory() and dismisses its display-only menu without consuming a turn.",
+        "entryPoints": [
+          {
+            "name": "wizidentify command",
+            "functions": [
+              "wiz_identify"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json",
+              "recordings/wizcmds.c/wizidentify-direct.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
