@@ -3002,13 +3002,24 @@ export function dmonsfree(state = game) {
     return removed;
 }
 
-function initializeGender(monster, ptr, mmflags, random) {
+function initializeGender(monster, ptr, mmflags, random, state) {
     const femaleok = !is_male(ptr) && !is_neuter(ptr);
     const maleok = !is_female(ptr) && !is_neuter(ptr);
     if (is_female(ptr) || ((mmflags & MM_FEMALE) && femaleok)) {
         monster.female = true;
     } else if (is_male(ptr) || ((mmflags & MM_MALE) && maleok)) {
         monster.female = false;
+    } else if (ptr.msound === MS_LEADER
+               && state.urole?.ldrnum === ptr.pmidx) {
+        // C ref: makemon.c:1267-1271.  role_init() has already selected and
+        // stored a quest leader's gender for the pager; creation reuses it
+        // instead of drawing a second random gender.
+        monster.female = Boolean(state.svq?.quest_status?.ldrgend);
+    } else if (ptr.msound === MS_NEMESIS
+               && state.urole?.neminum === ptr.pmidx) {
+        // C ref: makemon.c:1267-1273.  A quest nemesis that can have any
+        // gender uses role_init()'s saved choice, so this branch is drawless.
+        monster.female = Boolean(state.svq?.quest_status?.nemgend);
     } else {
         monster.female = femaleok ? Boolean(random.rn2(2)) : false;
     }
@@ -3668,7 +3679,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         state.svq.quest_status.leader_m_id = monster.m_id;
     }
     newmonhp(monster, mndx, normalized);
-    initializeGender(monster, ptr, mmflags, random);
+    initializeGender(monster, ptr, mmflags, random, state);
 
     // C ref: makemon.c:1281-1293.  Monsters created on certain levels
     // start knowing about traps there, and locations where monsters are

@@ -1,7 +1,7 @@
 // quest_levels.js — Quest and special level definitions.
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
-//         dat/Arc-loca.lua,
+//         dat/Arc-loca.lua, dat/Arc-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
@@ -19,6 +19,7 @@ import {
     PM_GIANT_EEL,
     PM_HUMAN_ZOMBIE,
     PM_LORD_CARNARVON,
+    PM_MINION_OF_HUHETOTL,
     PM_NALZOK,
     PM_OGRE,
     PM_ORACLE,
@@ -41,7 +42,8 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import {
-    BULLWHIP, CHAIN_MAIL, CHEST, FEDORA, HELM_OF_BRILLIANCE, LUCKSTONE,
+    BULLWHIP, CHAIN_MAIL, CHEST, CRYSTAL_BALL, FEDORA, HELM_OF_BRILLIANCE,
+    LUCKSTONE,
     MACE, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
@@ -816,6 +818,85 @@ async function arcLoca(des, state) {
     des.monster('M');
 }
 
+// C ref: dat/Arc-goal.lua. Map-based quest goal level for the Archeologist.
+// The Tomb of the Toltec Kings has a central temple, the Orb of Detection,
+// rolling boulder and random traps, snakes, and mummies.
+async function arcGoal(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel');
+    des.map([
+        '                                                                            ',
+        '                                  ---------                                 ',
+        '                                  |..|.|..|                                 ',
+        '                       -----------|..S.S..|-----------                      ',
+        '                       |.|........|+-|.|-+|........|.|                      ',
+        '                       |.S........S..|.|..S........S.|                      ',
+        '                       |.|........|..|.|..|........|.|                      ',
+        '                    ------------------+------------------                   ',
+        '                    |..|..........|.......|..........|..|                   ',
+        '                    |..|..........+.......|..........S..|                   ',
+        '                    |..S..........|.......+..........|..|                   ',
+        '                    |..|..........|.......|..........|..|                   ',
+        '                    ------------------+------------------                   ',
+        '                       |.|........|..|.|..|........|.|                      ',
+        '                       |.S........S..|.|..S........S.|                      ',
+        '                       |.|........|+-|.|-+|........|.|                      ',
+        '                       -----------|..S.S..|-----------                      ',
+        '                                  |..|.|..|                                 ',
+        '                                  ---------                                 ',
+        '                                                                            ',
+    ]);
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'lit');
+    des.region(selection_area(35, 2, 36, 3), 'unlit');
+    des.region(selection_area(40, 2, 41, 3), 'unlit');
+    des.region(selection_area(24, 4, 24, 6), 'unlit');
+    des.region(selection_area(26, 4, 33, 6), 'lit');
+    des.region(selection_area(38, 2, 38, 6), 'unlit');
+    des.region(selection_area(43, 4, 50, 6), 'lit');
+    des.region(selection_area(52, 4, 52, 6), 'unlit');
+    des.region(selection_area(35, 5, 36, 6), 'unlit');
+    des.region(selection_area(40, 5, 41, 6), 'unlit');
+    des.region(selection_area(21, 8, 22, 11), 'unlit');
+    des.region(selection_area(24, 8, 33, 11), 'lit');
+    des.region(selection_area(35, 8, 41, 11), 'unlit');
+    des.region(selection_area(43, 8, 52, 11), 'lit');
+    des.region(selection_area(54, 8, 55, 11), 'unlit');
+    des.region(selection_area(24, 13, 24, 15), 'unlit');
+    des.region(selection_area(26, 13, 33, 15), 'unlit');
+    des.region(selection_area(35, 13, 36, 14), 'unlit');
+    des.region(selection_area(35, 16, 36, 17), 'unlit');
+    des.region(selection_area(38, 13, 38, 17), 'unlit');
+    des.region(selection_area(40, 13, 41, 14), 'unlit');
+    des.region(selection_area(40, 16, 41, 17), 'unlit');
+    des.region({ region: [43, 13, 50, 15], lit: 0, type: 'temple', filled: 2 });
+    des.region(selection_area(52, 13, 52, 15), 'unlit');
+
+    // Stairs and non-diggable walls
+    des.stair({ dir: 'up', coord: [38, 10] });
+    des.non_diggable(selection_area(0, 0, 75, 19));
+
+    // The unattended altar of Huhetotl and the named Orb of Detection.
+    des.altar({ x: 50, y: 14, align: 'chaos', type: 'altar' });
+    des.object({
+        id: CRYSTAL_BALL, coord: [50, 14],
+        buc: 'blessed', spe: 5, name: 'The Orb of Detection',
+    });
+    for (let i = 0; i < 14; ++i) des.object();
+
+    // Random traps and the fixed rolling boulder.
+    for (let i = 0; i < 6; ++i) des.trap();
+    des.trap({ type: 'rolling boulder', coord: [46, 14] });
+
+    // Minion of Huhetotl, snakes, human mummies, and one random mummy-class
+    // monster, in the source descriptor order.
+    des.monster({ id: PM_MINION_OF_HUHETOTL, coord: [50, 14] });
+    for (let i = 0; i < 18; ++i) des.monster('S');
+    for (let i = 0; i < 8; ++i) des.monster('human mummy');
+    des.monster('M');
+}
+
 // C ref: dat/Pri-strt.lua. Map-based quest start level for the Priest.
 // The Arch Priest's besieged temple with corridors, human zombies outside.
 async function priStrt(des, state) {
@@ -1511,6 +1592,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Bar-loca': barLoca,
     'Arc-strt': arcStrt,
     'Arc-loca': arcLoca,
+    'Arc-goal': arcGoal,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
