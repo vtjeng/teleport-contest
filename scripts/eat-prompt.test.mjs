@@ -397,21 +397,21 @@ test('the hands answer decides whether getobj prompts at all', async () => {
     // being typed.
 
     // GETOBJ_SUGGEST puts "- " in front of the letters and sets allownone, so
-    // the prompt is offered even though no object was suggested. With nothing
-    // after the '-', the trailing space is taken back off.
+    // the prompt is offered even though no object was suggested. The trailing
+    // space is retained in _pending_message through tty_yn_function() cleanup.
     assert.equal(
         await promptFor(GETOBJ_SUGGEST),
-        'What do you want to eat? [- or ?*]',
+        'What do you want to eat? [- or ?*] ',
     );
-    // With the Valkyrie's four slots suggested too, that space survives.
+    // With the Valkyrie's four slots suggested too, the same space survives.
     assert.equal(
         await promptFor(GETOBJ_SUGGEST, GETOBJ_SUGGEST),
-        'What do you want to eat? [- abcd or ?*]',
+        'What do you want to eat? [- abcd or ?*] ',
     );
     // GETOBJ_DOWNPLAY sets allownone without advertising '-'.
     assert.equal(
         await promptFor(GETOBJ_DOWNPLAY),
-        'What do you want to eat? [*]',
+        'What do you want to eat? [*] ',
     );
     // GETOBJ_EXCLUDE_NONINVENT clears forceprompt and counts an inaccessible
     // alternative, which is what puts "else" into the message.
@@ -429,7 +429,7 @@ test('the hands answer decides whether getobj prompts at all', async () => {
     // the prompt appears with no letters at all.
     assert.equal(
         await promptFor(GETOBJ_EXCLUDE, GETOBJ_DOWNPLAY),
-        'What do you want to eat? [*]',
+        'What do you want to eat? [*] ',
     );
 });
 

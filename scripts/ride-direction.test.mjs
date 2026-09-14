@@ -28,7 +28,11 @@ import {
     quitchars,
 } from '../js/const.js';
 import { PM_GRID_BUG } from '../js/monsters.js';
-import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
+import {
+    TOPLINE_EMPTY,
+    TOPLINE_NEED_MORE,
+    TOPLINE_NON_EMPTY,
+} from '../js/tty_message.js';
 import { doride } from '../js/steed.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -610,15 +614,41 @@ test('yn_function returns its key and records an unrestricted repeat answer',
             await yn_function('In what direction?', null, '\0', false, game),
             'l'.charCodeAt(0),
         );
+        // topl.c:533-548 leaves a one-line unrestricted prompt visible through
+        // clean_up, so the renderer must retain its prompt for the next flush.
+        assert.equal(game._pending_message, 'In what direction? ');
+        assert.equal(game.nhDisplay.toplin, TOPLINE_NON_EMPTY);
         // pager.c dowhatdoes() uses this unrestricted, addcmdq-TRUE shape.
         // cmd.c records the raw byte in CQ_REPEAT after the prompt answers.
         assert.equal(
             await yn_function('What command?', null, '\0', true, game),
             'l'.charCodeAt(0),
         );
+        assert.equal(game._pending_message, 'What command? ');
+        assert.equal(game.nhDisplay.toplin, TOPLINE_NON_EMPTY);
         const repeated = cmdq_peek(CQ_REPEAT, game);
         assert.equal(repeated?.typ, CMDQ_KEY);
         assert.equal(repeated?.key, 'l'.charCodeAt(0));
+    } finally {
+        display.readKey = readKey;
+    }
+});
+
+test('an answered wrapped unrestricted prompt is cleared by tty cleanup',
+    async () => {
+    await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
+    const display = game.nhDisplay;
+    const readKey = display.readKey;
+    display.readKey = async () => 'l'.charCodeAt(0);
+    try {
+        // 79 characters plus tty_yn_function()'s trailing space reach column
+        // 80, which advances cury before topl.c:547 clears WIN_MESSAGE.
+        await yn_function('x'.repeat(display.cols - 1), null, '\0', false, game);
+        assert.equal(game._pending_message, '');
+        assert.equal(display.toplin, TOPLINE_EMPTY);
+        assert.equal(display.cursorCol, 0);
+        assert.equal(display.cursorRow, 0);
+        assert.ok(display.grid[0].every(({ ch }) => ch === ' '));
     } finally {
         display.readKey = readKey;
     }

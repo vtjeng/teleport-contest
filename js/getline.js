@@ -76,8 +76,7 @@ let suppress_history = false;
 // at topl.c:322 on the row it leaves, and once at topl.c:340, where
 // `if (cw->curx == 0) cl_end()` wipes the whole row it moved onto.  Only the
 // first is ported, so the port leaves the old map row visible to the right of a
-// wrapped prompt.  Nothing reaches the arm yet, because the only caller that
-// wraps is the default arm below and no ported prompt runs past column 79.
+// wrapped prompt.  Production callers do not run past column 79.
 // Porting the second cl_end() belongs with tty_clear_nhwindow(WIN_MESSAGE)'s
 // docorner() repair: both are wrapped-prompt
 // rendering and neither can be validated against a C recording without the
@@ -395,27 +394,23 @@ export async function tty_yn_function(query, resp, def, state = game) {
     display.toplines = state._ttyToplines;
     display.topMessage = state._ttyToplines;
     // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
-    // commented out in favour of rewriting gt.toplines.  The prompt stays on
-    // the physical line, and js/display.js _buildScreenOutput() repaints row 0
-    // from _pending_message, so the restricted arm has to leave it there or
-    // the next flush erases an answered prompt C keeps.  TOPLINE_NON_EMPTY is
-    // what stops the next message treating that line as one awaiting
-    // --More--, exactly as topl.c update_topl():262 does.
+    // commented out in favour of rewriting gt.toplines. A one-line prompt
+    // stays on the physical line, and js/display.js _buildScreenOutput()
+    // repaints row 0 from _pending_message. TOPLINE_NON_EMPTY is what stops
+    // the next message treating that line as one awaiting --More--, exactly
+    // as topl.c update_topl():262 does.
     //
-    // C keeps the unrestricted arm's prompt on the line in the same way, and
-    // the port does not: getdir() clears it immediately, and the eat prompt's
-    // recorded sessions and its two focused tests are pinned to the '' this
-    // arm has always written.  Correcting that belongs with whichever slice
-    // next owns invent.c getobj().  A fresh differential now measures the
-    // difference rather than only predicting it: the QUALITY.json deferral
-    // getobj-prompt-leaves-the-top-line-in-c-only carries the case, a take-off
-    // answered at the prompt whose delay lets runmode_delay_output() flush an
-    // animation frame while C is still showing the query.
-    if (resp !== null) state._pending_message = prompt;
-    display.toplin = TOPLINE_NON_EMPTY;
-    // `if (wins[WIN_MESSAGE]->cury) tty_clear_nhwindow(WIN_MESSAGE)` closes
-    // clean_up.  cury is nonzero only for a prompt that wrapped onto a second
-    // row, and no ported query is long enough, so that arm has no owner here.
+    // topl.c:547 clears WIN_MESSAGE when cury is nonzero. display.cursorRow
+    // tracks that same wrapped-prompt state, so retain the source cleanup for
+    // long prompts before deciding whether the answered line remains pending.
+    if (display.cursorRow > 0) {
+        clearMessageWindow(display);
+        state._pending_message = '';
+        display.toplin = TOPLINE_EMPTY;
+    } else {
+        state._pending_message = prompt;
+        display.toplin = TOPLINE_NON_EMPTY;
+    }
     return q;
 }
 
