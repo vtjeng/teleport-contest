@@ -1451,7 +1451,7 @@ export function Stone_resistance(state) {
     return Boolean(p?.intrinsic || p?.extrinsic);
 }
 
-function spec_applies(weap, mtmp, state = game) {
+function spec_applies(weap, mtmp, state = game, env = {}) {
     if (!(weap.spfx & (SPFX_DBONUS | SPFX_ATTK)))
         return (weap.attk.adtyp === AD_PHYS);
 
@@ -1492,7 +1492,7 @@ function spec_applies(weap, mtmp, state = game) {
         case AD_MAGM:
         case AD_STUN:
             return !(yours ? Antimagic(state)
-                           : (rn2(100) < ptr.mr));
+                           : ((env.random?.rn2 ?? rn2)(100) < ptr.mr));
         case AD_DRST:
             return !(yours ? Poison_resistance(state)
                            : monster_resists_element(mtmp, POISON_RES, state));
@@ -1531,13 +1531,13 @@ export function spec_m2(otmp, state = game) {
 }
 
 // C ref: artifact.c spec_abon() (1076-1089). Special attack bonus (to-hit).
-export function spec_abon(otmp, mon, state = game) {
+export function spec_abon(otmp, mon, state = game, env = {}) {
     const weap = get_artifact(otmp, state);
     /* no need for an extra check for `NO_ATTK' because this will
        always return 0 for any artifact which has that attribute */
     if (weap !== state.artilist[ART_NONARTIFACT]
-            && weap.attk.damn && spec_applies(weap, mon, state))
-        return rnd(weap.attk.damn);
+            && weap.attk.damn && spec_applies(weap, mon, state, env))
+        return (env.random?.rnd ?? rnd)(weap.attk.damn);
     return 0;
 }
 

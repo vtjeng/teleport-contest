@@ -831,21 +831,23 @@ export async function hit(str, mtmp, force, state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     await message(
         `${The(str, state)} ${vtense(str, 'hit')} `
-        + `${verbosely ? monsterCommonName(mtmp, state) : 'it'}${force}`,
+        + `${verbosely ? monsterCommonName(mtmp, state, 0, rawEnv) : 'it'}${force}`,
         state,
         rawEnv,
     );
 }
 
 // C ref: zap.c miss() (3570-3576). Message when a zap or missile misses.
-export async function miss(str, mtmp, state = game) {
-    await ttyPline(
+export async function miss(str, mtmp, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    await message(
         `${The(str, state)} ${vtense(str, 'miss')} `
         + `${((cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
                || canSpotMonster(mtmp, state))
               && state.flags?.verbose)
-            ? monsterCommonName(mtmp, state) : 'it'}.`,
+            ? monsterCommonName(mtmp, state, 0, env) : 'it'}.`,
         state,
+        env,
     );
 }
 

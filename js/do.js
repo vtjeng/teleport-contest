@@ -186,6 +186,7 @@ import { cloneIsaacContext, createCoreRandom, rn2, rnd } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot } from './shk.js';
+import { ship_object } from './dokick.js';
 import {
     stairway_at,
     stairway_find_from,
@@ -878,12 +879,8 @@ export function preflight_dropx(obj, env = {}) {
     const location = state.level?.at(x, y);
     if (!location)
         throw new UnsupportedDropError('non-ordinary terrain');
-    // dropx() runs ship_object() before its altar arm. dokick.c down_gate()
-    // selects only a down staircase or ladder; an up stairway returns
-    // MIGR_NOWHERE and reaches the ordinary drop tail.
+    // A down gate is handled by dropx() before the ordinary floor tail.
     const stway = stairway_at(x, y, state);
-    if (stway && !stway.up)
-        throw new UnsupportedDropError('shipping down stairs or a ladder');
     if (IS_ALTAR(location.typ))
         throw new UnsupportedDropError('an altar');
     // sellobj() handles billing when an object lands on a shop square. Its
@@ -908,11 +905,10 @@ export function preflight_dropx(obj, env = {}) {
     // flooreffects() has it.
     if (obj.otyp === BOULDER)
         throw new UnsupportedDropError('a boulder landing on the floor');
-    // A doorway and an up stairway add no flooreffects() branch. They are
-    // admitted for the live decorated-pile differential, while every other
-    // special terrain remains at this boundary.
+    // Doorways and stairways add no flooreffects() branch when shipping
+    // leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
-        && location.typ !== DOOR && !stway?.up) {
+        && location.typ !== DOOR && !stway) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
     if (engr_at(x, y, state))
@@ -987,13 +983,14 @@ function consumeDropAdmission(obj, env, admission) {
     return admission.normalized;
 }
 
-// C ref: do.c dropx() (785-797). ship_object() and doaltarobj() are absent
-// because preflight_dropx() admits neither a down gate nor an altar. An up
-// stairway makes down_gate() return MIGR_NOWHERE, so ship_object() is inert.
+// C ref: do.c dropx() (785-797). The altar arm remains owned by the admission
+// boundary; shipping now precedes the ordinary drop tail as it does in C.
 export async function dropx(obj, env = {}, prepared = null) {
     const admission = prepared ?? preflight_dropx(obj, env);
     const normalized = consumeDropAdmission(obj, env, admission);
     freeinv(obj, normalized);
+    const { ux, uy } = normalized.state.u;
+    if (await ship_object(obj, ux, uy, false, normalized)) return;
     await dropzAdmitted(obj, normalized);
 }
 

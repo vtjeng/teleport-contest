@@ -3190,7 +3190,7 @@ export async function wake_nearto(x, y, distance, rawEnv = {}) {
 // boulder or a door stops blocking it once it is recognized. does_block() is
 // asked again afterwards so that a square blocked by something else as well --
 // a real boulder lying there, a cloud -- keeps its block.
-export function seemimic(mtmp, state = game) {
+export function seemimic(mtmp, state = game, env = {}) {
     const is_blocker_appear = is_lightblocker_mappear(mtmp);
 
     if (has_mcorpsenm(mtmp))
@@ -3205,9 +3205,9 @@ export function seemimic(mtmp, state = game) {
     if (is_blocker_appear
         && !does_block(mtmp.mx, mtmp.my, state.level.at(mtmp.mx, mtmp.my),
                        state))
-        unblock_point(mtmp.mx, mtmp.my, state);
+        (env.unblockPoint ?? unblock_point)(mtmp.mx, mtmp.my, state);
 
-    newsym(mtmp.mx, mtmp.my);
+    (env.newsym ?? newsym)(mtmp.mx, mtmp.my);
 }
 
 function restoreWereShapeSynchronously(monster, state, rawEnv) {

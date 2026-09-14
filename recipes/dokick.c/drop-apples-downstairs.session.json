@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent wizard teleport to the down stairs discovered in the first preselected seed 8450001. Of six pre-drop wait counts 0-5 inspected, four waits first selected migration; no pile is present. Drops starting apples.",
+  "segments": [
+    {
+      "seed": 8450001,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:MissileImpact,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!autopickup,!debug_mongen,!acoustics,!safe_wait\n",
+      "moves": ".\u0014  llllllllllllllllllllljjjjjjjjjj.....dj"
+    }
+  ]
+}

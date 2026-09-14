@@ -935,16 +935,18 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         assert.deepEqual(draws(), []);
     });
 
-test('throwit() ships an object down a staircase but not down a hole it '
+test('throwit() ships an object down a ladder but not down a hole it '
     + 'cannot see', async () => {
     // dokick.c down_gate(), which ship_object() (dothrow.c:1819) asks first.
-    // A down staircase under the landing square answers yes on its own.
+    // A ladder always ships; unlike stairs, it has no rn2(3) stay-here roll.
     const stairs = arena();
-    stairs.stairs = { sx: 9, sy: 4, up: false, next: null };
-    await assert.rejects(
-        () => throwit(item(stairs, DAGGER), 0, false, null, stairs),
-        /ship_object/u,
-    );
+    stairs.stairs = { sx: 9, sy: 4, up: false, isladder: true,
+        tolev: { dnum: 0, dlevel: 2 }, next: null };
+    const shipped = item(stairs, DAGGER);
+    await throwit(shipped, 0, false, null, stairs);
+    assert.equal(stairs.gm.migrating_objs, shipped);
+    assert.deepEqual([shipped.ox, shipped.oy], [0, 2]);
+    assert.deepEqual(pileAt(stairs, 9, 4), []);
     // An up staircase is not a way down, so the missile lands on it.
     const up = arena();
     up.stairs = { sx: 9, sy: 4, up: true, next: null };
@@ -960,11 +962,13 @@ test('throwit() ships an object down a staircase but not down a hole it '
     assert.deepEqual(pileAt(hidden, 9, 4), [overIt]);
     // Once it is seen the same trapdoor takes the missile away.
     const seen = arena();
+    seen.dungeons = [{ num_dunlevs: 10 }];
     seen.level.traps = [{ tx: 9, ty: 4, ttyp: TRAPDOOR, tseen: true }];
-    await assert.rejects(
-        () => throwit(item(seen, DAGGER), 0, false, null, seen),
-        /ship_object/u,
-    );
+    const atHole = item(seen, DAGGER);
+    await throwit(atHole, 0, false, null, seen);
+    assert.ok(draws().includes('rn2(3)'), 'a seen hole asks whether to ship');
+    assert.ok(seen.gm?.migrating_objs === atHole
+        || pileAt(seen, 9, 4).includes(atHole));
 });
 
 test('throwit() hands an unpaid missile to the shopkeeper', async () => {

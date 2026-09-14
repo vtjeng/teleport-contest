@@ -363,12 +363,8 @@ function resistsStoning(monster) {
 }
 
 // C ref: weapon.c hitval() (148-187). The "to hit" bonus a wielded object
-// gives against one target. Pure: it reads objects[], the object and the
-// target and nothing else.
-//
-// The artifact arm (weapon.c:184-185) needs artifact.c spec_abon(), which has
-// no port, so an artifact weapon stops here rather than silently losing its
-// bonus. Every other arm is complete.
+// gives against one target. Ordinary objects use no randomness; artifacts
+// call spec_abon(), including its resistance and attack-bonus draws.
 export function hitval(otmp, mon, state = game, env = {}) {
     let tmp = 0;
     const ptr = mon.data;
@@ -395,7 +391,7 @@ export function hitval(otmp, mon, state = game, env = {}) {
     if (is_pick(otmp, state) && passes_walls(ptr) && thick_skinned(ptr))
         tmp += 2;
 
-    if (otmp.oartifact) tmp += spec_abon(otmp, mon, state);
+    if (otmp.oartifact) tmp += spec_abon(otmp, mon, state, env);
     return tmp;
 }
 

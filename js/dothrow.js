@@ -259,7 +259,7 @@ import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { rn1, rn2, rnl, rnd } from './rng.js';
 import { hitval } from './weapon.js';
-import { stairway_at } from './stairs.js';
+import { ship_object } from './dokick.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
     Flying,
@@ -1429,8 +1429,9 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
     obj_no_longer_held(obj);
     /* snuff_candle(): bhit() stops for a lit object before it can get here */
-    if (shipsAway(bx, by, state)) {
-        throw new UnsupportedThrowError('ship_object()');
+    if (!mon && await ship_object(obj, bx, by, false, { state })) {
+        state.thrownobj = null;
+        return;
     }
     state.thrownobj = null;
     place_object(obj, bx, by, { state });
@@ -1576,17 +1577,6 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     return 0;
 }
 
-// C ref: dokick.c down_gate() (1942-1975), reduced to the question
-// ship_object() asks it first: is there anywhere below this square for a
-// falling object to go? Everything ship_object() then does is unported, so
-// the caller stops when the answer is yes.
-export function shipsAway(x, y, state) {
-    const stway = stairway_at(x, y, state);
-    if (stway && !stway.up) return true;
-    const ttmp = t_at(x, y, state);
-    return Boolean(ttmp && ttmp.tseen && is_hole(ttmp.ttyp));
-}
-
 // C ref: dothrow.c harmless_missile() (1220-1248). A pure predicate: TRUE when
 // the thrown object is too soft, light, or fragile to cause meaningful noise
 // or damage when it hits iron bars. Used by hit_bars() to select the sound
@@ -1663,7 +1653,7 @@ export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
     default:
         if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
             || obj.oclass === GEM_CLASS)
-            tmp += hitval(obj, mon, state);
+            tmp += hitval(obj, mon, state, rawEnv);
         break;
     }
     return tmp;
@@ -1767,8 +1757,9 @@ async function throw_gold(obj, state = game) {
                    has already woken and angered the monster. */
                 throw new UnsupportedThrowError('ghitm()');
             } else {
-                if (shipsAway(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
-                    throw new UnsupportedThrowError('ship_object()');
+                if (await ship_object(obj, state.gb.bhitpos.x,
+                    state.gb.bhitpos.y, false, { state }))
+                    return ECMD_TIME;
             }
         }
     }

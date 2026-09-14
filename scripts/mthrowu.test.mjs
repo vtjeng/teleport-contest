@@ -6,6 +6,7 @@ import {
     COULD_SEE,
     D_CLOSED,
     DOOR,
+    IN_SIGHT,
     LAVAWALL,
     MOAT,
     M_AP_MONSTER,
@@ -20,13 +21,14 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { acurr, exercise } from '../js/attrib.js';
+import { ART_MAGICBANE, spec_abon } from '../js/artifacts.js';
 import { flooreffects } from '../js/do.js';
-import { should_mulch_missile } from '../js/dothrow.js';
+import { omon_adj, should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GIANT_RAT, PM_STONE_GIANT, PM_URUK_HAI } from '../js/monsters.js';
+import { PM_GIANT_RAT, PM_NEWT, PM_STONE_GIANT, PM_URUK_HAI } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
     from '../js/obj.js';
@@ -37,6 +39,8 @@ import {
     BLINDING_VENOM,
     BOULDER,
     BOW,
+    CREAM_PIE,
+    EGG,
     ORCISH_DAGGER,
     ORCISH_ARROW,
     ORCISH_BOW,
@@ -48,7 +52,7 @@ import {
 import {
     blocking_terrain, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
-    m_useup, monmulti, monshoot, m_throw, thitu, thrwmu,
+    drop_throw, m_useup, monmulti, monshoot, m_throw, ohitmon, thitu, thrwmu,
 } from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
@@ -71,6 +75,127 @@ async function hero() {
     });
     return game;
 }
+
+async function impactCase({ visible = false, type = ORCISH_DAGGER,
+    missRoll = false } = {}) {
+    const state = await hero();
+    const target = newMonster({ data: state.mons[PM_GIANT_RAT], m_id: 9123,
+        mx: state.u.ux + 1, my: state.u.uy, mhp: 40, mhpmax: 40,
+        mcansee: true, mcanmove: true });
+    if (missRoll) target.data = { ...target.data, ac: -10 };
+    state.gb = { ...state.gb, bhitpos: { x: target.mx, y: target.my } };
+    state.gm = { ...state.gm, marcher: null, mtarget: null };
+    state.context.mon_moving = true;
+    state.viz_array[target.my][target.mx] = visible ? IN_SIGHT : 0;
+    const object = mksobj(type, false, false, { state });
+    object.corpsenm = PM_NEWT;
+    const messages = [], draws = [], settlement = [];
+    const env = { state,
+        random: {
+            rn2: (n) => { draws.push(['rn2', n]); return 1; },
+            rnd: (n) => { draws.push(['rnd', n]); return missRoll && n === 20 ? 20 : 1; },
+            d: (n) => n,
+        },
+        message: (text) => { messages.push(text); },
+        canSpotMonster: () => visible,
+        shouldMulch: () => false,
+        monsterAt: () => target,
+        floorEffects: () => false,
+        placeObject: () => { settlement.push('place'); },
+        passiveObject: () => { settlement.push('passive'); },
+        stackObject: () => { settlement.push('stack'); },
+    };
+    return { state, target, object, messages, draws, settlement, env };
+}
+
+test('ohitmon gives unseen hit and miss feedback without touching the live tty', async () => {
+    for (const missRoll of [false, true]) {
+        const c = await impactCase({ missRoll });
+        const prior = c.state._ttyToplines;
+        assert.equal(Boolean(await ohitmon(c.target, c.object, 1, true, c.env)), !missRoll);
+        assert.deepEqual(c.messages, [missRoll ? 'It is missed.' : 'It is hit.']);
+        assert.equal(c.state._ttyToplines, prior);
+        assert.deepEqual(c.settlement, missRoll ? [] : ['place', 'passive', 'stack']);
+    }
+});
+
+test('ohitmon suppresses unseen feedback for a designated monster target', async () => {
+    const c = await impactCase();
+    c.state.gm.mtarget = c.target;
+    await ohitmon(c.target, c.object, 1, true, c.env);
+    assert.deepEqual(c.messages, []);
+});
+
+test('ohitmon reports known and unknown eggs, then deletes them on impact', async () => {
+    for (const known of [false, true]) {
+        const c = await impactCase({ visible: true, type: EGG });
+        c.object.known = known;
+        await ohitmon(c.target, c.object, 1, true, c.env);
+        assert.deepEqual(c.messages,
+            [`Splat!  The giant rat is hit with ${known ? 'a newt' : 'an'} egg!`]);
+        assert.equal(c.object.where, OBJ_DELETED);
+        assert.deepEqual(c.settlement, []);
+        assert.deepEqual(c.draws.at(-1), ['rn2', 100], 'delobj calls obj_resists');
+    }
+});
+
+test('ohitmon blinds with a pie and caps the duration at the C seven-bit maximum', async () => {
+    const c = await impactCase({ visible: true, type: CREAM_PIE });
+    c.target.mblinded = 120;
+    await ohitmon(c.target, c.object, 1, true, c.env);
+    assert.equal(c.messages.at(-1), 'The giant rat is blinded by the pie.');
+    assert.equal(c.target.mcansee, 0);
+    assert.equal(c.target.mblinded, 127);
+    assert.equal(c.object.where, OBJ_DELETED);
+    assert.deepEqual(c.draws.slice(-2), [['rnd', 25], ['rn2', 100]]);
+});
+
+test('drop_throw consumes a mulched missile and respects a consumed floor effect', async () => {
+    for (const mulch of [true, false]) {
+        const c = await impactCase();
+        c.state.gt.thrownobj = c.object;
+        const env = { ...c.env, shouldMulch: () => mulch, floorEffects: () => true };
+        assert.equal(await drop_throw(c.object, 1, c.target.mx, c.target.my, env), true);
+        assert.equal(c.state.gt.thrownobj, null);
+        assert.deepEqual(c.settlement, []);
+        assert.deepEqual(c.draws, mulch ? [['rn2', 100]] : []);
+        if (mulch) assert.equal(c.object.where, OBJ_DELETED);
+    }
+});
+
+test('artifact to-hit dependencies use the supplied resistance and bonus RNG', async () => {
+    const c = await impactCase();
+    const coreBefore = structuredClone(c.state.coreCtx);
+    c.object.oartifact = ART_MAGICBANE;
+    c.target.data = { ...c.target.data, mr: 0 };
+    assert.equal(spec_abon(c.object, c.target, c.state, c.env), 1);
+    assert.deepEqual(c.draws, [['rn2', 100], ['rnd', 3]]);
+    c.draws.length = 0;
+    const withArtifact = omon_adj(c.target, c.object, false, c.env);
+    c.object.oartifact = 0;
+    const withoutArtifact = omon_adj(c.target, c.object, false, c.env);
+    assert.equal(withArtifact - withoutArtifact, 1);
+    assert.deepEqual(c.draws, [['rn2', 100], ['rnd', 3]]);
+    assert.deepEqual(c.state.coreCtx, coreBefore);
+});
+
+test('ohitmon routes mimic revelation through supplied display operations', async () => {
+    const c = await impactCase();
+    c.target.m_ap_type = M_AP_OBJECT;
+    c.target.mappearance = BOULDER;
+    const operations = [];
+    await ohitmon(c.target, c.object, 1, true, { ...c.env,
+        unblockPoint: (x, y, state) => {
+            assert.equal(state, c.state);
+            operations.push(['unblock', x, y]);
+        },
+        newsym: (x, y) => { operations.push(['newsym', x, y]); },
+    });
+    assert.equal(c.target.m_ap_type, M_AP_NOTHING);
+    assert.equal(c.target.mappearance, 0);
+    assert.deepEqual(operations,
+        [['unblock', c.target.mx, c.target.my], ['newsym', c.target.mx, c.target.my]]);
+});
 
 // A monster whose square and believed hero position the caller sets. Only the
 // fields linedup() and m_lined_up() read are filled in.
@@ -356,7 +481,6 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
             shouldMulch: (obj) => should_mulch_missile(obj, state, {
                 unsupported: (reason) => assert.fail(reason),
             }),
-            shipsAway: () => false,
             floorEffects: (obj, x, atY, verb) => flooreffects(
                 obj,
                 x,
@@ -472,7 +596,6 @@ test('m_throw sends blinding venom through thitu and deletes it on a miss',
             ),
             stopOccupation: async () => {},
             shouldMulch: () => assert.fail('venom is deleted before mulching'),
-            shipsAway: () => assert.fail('venom is deleted before shipping'),
             floorEffects: () => assert.fail('venom is never placed on floor'),
             placeObject: () => assert.fail('venom is never placed on floor'),
             passiveObject: () => assert.fail('venom is never placed on floor'),
@@ -578,7 +701,6 @@ test('m_throw miss lets the missile continue flying and drop at range end',
             shouldMulch: (obj) => should_mulch_missile(obj, state, {
                 unsupported: (reason) => assert.fail(reason),
             }),
-            shipsAway: () => false,
             floorEffects: (obj, x, atY, verb) => flooreffects(
                 obj,
                 x,
@@ -683,7 +805,6 @@ test('m_throw stops after a lethal hit has settled the transit object',
                 },
                 stopOccupation: async () => { stopOccupationCalls++; },
                 shouldMulch: () => assert.fail('lethal hit must skip drop_throw'),
-                shipsAway: () => assert.fail('lethal hit must skip drop_throw'),
                 floorEffects: () => assert.fail('lethal hit must skip drop_throw'),
                 placeObject: () => assert.fail('lethal hit must skip drop_throw'),
                 passiveObject: () => assert.fail('lethal hit must skip drop_throw'),
@@ -757,7 +878,6 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
             hitHero: () => assert.fail('a potion does not reach thitu()'),
             stopOccupation: async () => {},
             shouldMulch: () => assert.fail('a potion never mulches'),
-            shipsAway: () => false,
             floorEffects: () => assert.fail('a potion never lands'),
             placeObject: () => assert.fail('a potion is used up, not placed'),
             passiveObject: () => assert.fail('a potion never lands'),

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked by win/tty/topl.c update_topl/redotoplin: JS ttyPlineCore stores an unwrapped line without painting it immediately. A subsequent tmp_at on an unseen square does not flush it before nh_delay_output. Gameplay RNG and all input-boundary screens/cursors match; animation boundary 112 lacks the C hit/miss message. Independent OPTIONS=blind variation of the visible interception; keep unrecorded until the tty owner lands.",
+  "segments": [
+    {
+      "seed": 8450001,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:MissileImpact,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!autopickup,!debug_mongen,!acoustics,!safe_wait\nOPTIONS=blind\n",
+      "moves": ".\u0007mountain centaur\n\u0007shrieker\n\u0007shrieker\n\u0007shrieker\n\u0007shrieker\n\u0007shrieker\n\u0007shrieker\n\u0007shrieker\n\u0014  hhh.. . . . . . . . . "
+    }
+  ]
+}

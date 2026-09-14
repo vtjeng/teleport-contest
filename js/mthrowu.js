@@ -49,6 +49,7 @@ import {
     Upolyd,
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
+    NEUTRAL,
     PET_MISSILE_RANGE2,
     POISON_RES,
     POTHIT_MONST_THROW,
@@ -93,6 +94,8 @@ import {
     should_mulch_missile,
 } from './dothrow.js';
 import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
+import { m_at } from './monst.js';
+import { down_gate, ship_object } from './dokick.js';
 import {
     amorphous,
     bigmonst,
@@ -223,20 +226,23 @@ import { dmgval, mon_wield_item, select_rwep } from './weapon.js';
 import { spec_abon } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { exclam, hit, miss } from './zap.js';
-import { harmless_missile, shipsAway } from './dothrow.js';
+import { harmless_missile } from './dothrow.js';
 import { observe_object, discover_object } from './o_init.js';
 import { make_blinded, potionhit } from './potion.js';
 import { munstone } from './muse.js';
 import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
 import { body_part } from './polyself.js';
-import { shade_miss } from './uhitm.js';
+import { passive_obj, shade_miss } from './uhitm.js';
 import { is_lava, is_pool } from './trap.js';
 import { obj_sheds_light } from './light.js';
 import {
     capitalizedMonsterName,
     monsterCommonName,
     some_mon_nam,
+    Monnam,
+    mon_nam,
+    hliquid,
 } from './do_name.js';
 import { canSpotMonster } from './startup_a11y.js';
 
@@ -496,8 +502,7 @@ function u_catch_thrown_obj(obj, env) {
     return false;
 }
 
-// C ref: mthrowu.c drop_throw() (162-196). Ordinary missiles land through the
-// floor-operation arm; venom is consumed by the special deletion arm.
+// C ref: mthrowu.c drop_throw() (162-196).
 export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
@@ -507,40 +512,35 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
             state,
             actionEnv,
         ));
-    const shipsAway = requireRangedOperation(env, 'shipsAway');
-    const monsterAt = requireRangedOperation(env, 'monsterAt');
-    const floorEffects = requireRangedOperation(env, 'floorEffects');
-    const placeObject = requireRangedOperation(env, 'placeObject');
-    const passiveObject = requireRangedOperation(env, 'passiveObject');
-    const stackObject = requireRangedOperation(env, 'stackObject');
-
-    if (obj.otyp === CREAM_PIE || obj.oclass === VENOM_CLASS
-        || (ohit && obj.otyp === EGG)) {
-        if (obj.oclass === VENOM_CLASS) {
-            // C ref: mthrowu.c:174-176. Venom is created free rather than
-            // carried, and every flight outcome consumes it immediately.
-            delobj(obj, env);
-            state.gt ??= {};
-            state.gt.thrownobj = null;
-            return true;
+    const monsterAt = env.monsterAt ?? m_at;
+    const floorEffects = env.floorEffects ?? flooreffects;
+    const placeObject = env.placeObject ?? place_object;
+    const passiveObject = env.passiveObject
+        ?? ((target, missile, attack, actionEnv) =>
+            passive_obj(target, missile, attack, state, actionEnv));
+    const stackObject = env.stackObject ?? stackobj;
+    let broken = obj.otyp === CREAM_PIE || obj.oclass === VENOM_CLASS
+        || Boolean(ohit && obj.otyp === EGG);
+    if (!broken) broken = Boolean(ohit && shouldMulch(obj, env));
+    if (broken) {
+        delobj(obj, env);
+    } else {
+        if (down_gate(x, y, state) !== -1)
+            broken = await ship_object(obj, x, y, false, env);
+        if (!broken) {
+            let monster = monsterAt(x, y, state);
+            broken = Boolean(floorEffects(obj, x, y, 'fall', env));
+            if (!broken) {
+                placeObject(obj, x, y, env);
+                if (!monster && u_at(x, y, state)) monster = state.youmonst;
+                if (monster && ohit) await passiveObject(monster, obj, null, env);
+                stackObject(obj, env);
+            }
         }
-        return refuseRanged(env, 'destroyed special monster missile');
     }
-    if (ohit && shouldMulch(obj, env))
-        return refuseRanged(env, 'destroyed monster missile');
-    if (shipsAway(x, y, state))
-        return refuseRanged(env, 'monster missile shipping through a down gate');
-
-    let monster = monsterAt(x, y, state);
-    if (floorEffects(obj, x, y, 'fall', env))
-        return refuseRanged(env, 'monster missile floor effect');
-    placeObject(obj, x, y, env);
-    if (!monster && u_at(x, y, state)) monster = state.youmonst;
-    if (monster && ohit) await passiveObject(monster, obj, null, env);
-    stackObject(obj, env);
     state.gt ??= {};
     state.gt.thrownobj = null;
-    return false;
+    return broken;
 }
 
 // C ref: mthrowu.c monmulti() (201-259). Compute the number of missiles in a
@@ -610,6 +610,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
     const env = { ...rawEnv, state, random };
+    const message = env.message ?? ttyPline;
 
     let damage, tmp;
     const mon_launcher = state.gm?.marcher
@@ -625,7 +626,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
     if (vis)
         observe_object(otmp, state);
 
-    tmp = 5 + find_mac(mtmp, state) + omon_adj(mtmp, otmp, false, { state, random });
+    tmp = 5 + find_mac(mtmp, state) + omon_adj(mtmp, otmp, false, env);
     /* High level monsters will be more likely to hit */
     /* This check applies only if this monster is the target
      * the archer was aiming at. */
@@ -633,14 +634,14 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         if (state.gm.marcher.m_lev > 5)
             tmp += state.gm.marcher.m_lev - 5;
         if (mon_launcher && mon_launcher.oartifact)
-            tmp += spec_abon(mon_launcher, mtmp, state);
+            tmp += spec_abon(mon_launcher, mtmp, state, env);
     }
     if (tmp < random.rnd(20)) {
         if (!ismimic) {
             if (vis)
-                await miss(distant_name(otmp, mshot_xname, state), mtmp, state);
+                await miss(distant_name(otmp, mshot_xname, state), mtmp, state, env);
             else if (verbose && !state.gm?.mtarget)
-                note_unported('pline.c pline'); /* "It is missed." */
+                await message('It is missed.', state, env);
         }
         if (!range) { /* Last position; object drops */
             await drop_throw(otmp, 0, mtmp.mx, mtmp.my, env);
@@ -648,7 +649,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
         }
     } else if (otmp.oclass === POTION_CLASS) {
         if (ismimic)
-            seemimic(mtmp, state);
+            seemimic(mtmp, state, env);
         mtmp.msleeping = 0;
         /* probably thrown by a monster rather than 'other', but the
            distinction only matters when hitting the hero */
@@ -665,18 +666,20 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
             damage = 0;
 
         if (ismimic)
-            seemimic(mtmp, state);
+            seemimic(mtmp, state, env);
         mtmp.msleeping = 0;
         note_unported('sounds.c Soundeffect'); /* Soundeffect(se_splat_egg, 35) */
         if (vis) {
             if (otmp.otyp === EGG) {
-                note_unported('pline.c pline'); /* "Splat! %s is hit with %s egg!" */
+                await message(`Splat!  ${Monnam(mtmp, state, env)} is hit with `
+                    + `${otmp.known ? an(state.mons[otmp.corpsenm].pmnames[NEUTRAL]) : 'an'} egg!`,
+                state, env);
             } else {
                 let how;
                 if (!harmless)
                     how = exclam(damage); /* "!" or "." */
                 else
-                    how = ` but passes harmlessly through ${mhim(mtmp)}.`;
+                    how = ` but passes harmlessly through ${mhim(mtmp).slice(0, 9)}.`;
                 await hit(
                     distant_name(otmp, mshot_xname, state),
                     mtmp,
@@ -686,18 +689,19 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
                 );
             }
         } else if (verbose && !state.gm?.mtarget)
-            note_unported('pline.c pline'); /* "%s%s is hit%s" */
+            await message(`${otmp.otyp === EGG ? 'Splat!  ' : ''}`
+                + `${Monnam(mtmp, state, env)} is hit${exclam(damage)}`, state, env);
 
         if (otmp.opoisoned && isPoisonable(otmp, state)) {
             if (monster_resists_element(mtmp, POISON_RES, state)) {
                 if (vis)
-                    note_unported('pline.c pline'); /* "The poison doesn't seem to affect %s." */
+                    await message(`The poison doesn't seem to affect ${mon_nam(mtmp, state, env)}.`, state, env);
             } else {
                 if (random.rn2(30)) {
                     damage += random.rnd(6);
                 } else {
                     if (vis)
-                        note_unported('pline.c pline'); /* "The poison was deadly..." */
+                        await message('The poison was deadly...', state, env);
                     damage = mtmp.mhp;
                 }
             }
@@ -708,23 +712,23 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
 
             /* note: extra silver damage is handled by dmgval() */
             if (vis) {
-                let m_name = monsterCommonName(mtmp, state);
+                let m_name = mon_nam(mtmp, state, env);
                 if (flesh) /* s_suffix returns a modifiable buffer */
                     m_name = s_suffix(m_name) + ' flesh';
-                note_unported('pline.c pline'); /* "The silver sears %s!" */
+                await message(`The silver sears ${m_name}!`, state, env);
             } else if (verbose && !state.gm?.mtarget) {
-                note_unported('pline.c pline'); /* "%s is seared!" */
+                await message(`${flesh ? 'Its flesh' : 'It'} is seared!`, state, env);
             }
         }
         if (otmp.otyp === ACID_VENOM && cansee(mtmp.mx, mtmp.my, state)) {
             if (monster_resists_element(mtmp, ACID_RES, state)) {
                 if (vis || (verbose && !state.gm?.mtarget))
-                    note_unported('pline.c pline'); /* "%s is unaffected." */
+                    await message(`${Monnam(mtmp, state, env)} is unaffected.`, state, env);
             } else {
                 if (vis)
-                    note_unported('pline.c pline'); /* "The %s burns %s!" */
+                    await message(`The ${hliquid('acid', { state, displayRandom: env.displayRandom })} burns ${mon_nam(mtmp, state, env)}!`, state, env);
                 else if (verbose && !state.gm?.mtarget)
-                    note_unported('pline.c pline'); /* "It is burned!" */
+                    await message('It is burned!', state, env);
             }
         }
         if (otmp.otyp === EGG
@@ -744,7 +748,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
                         || is_vampshifter(mtmp)
                         || !canSpotMonster(mtmp, state)
                         ? 'destroyed' : 'killed';
-                    const killMessage = `${capitalizedMonsterName(mtmp, state)}`
+                    const killMessage = `${Monnam(mtmp, state, env)}`
                         + ` is ${fate}!`;
                     if (typeof env.message === 'function')
                         await env.message(killMessage, state, env);
@@ -767,9 +771,12 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
             && can_blnd(null, mtmp,
                         (otmp.otyp === BLINDING_VENOM) ? AT_SPIT
                                                        : AT_WEAP,
-                        otmp)) {
+                        otmp, state)) {
             if (vis && mtmp.mcansee)
-                note_unported('pline.c pline'); /* "%s is blinded by %s." */
+                await message(`${Monnam(mtmp, state, env)} is blinded by `
+                    + `${the(otmp.oclass === VENOM_CLASS ? 'venom'
+                        : otmp.otyp === CREAM_PIE ? 'pie' : xnameFresh(otmp, state))}.`,
+                state, env);
             mtmp.mcansee = 0;
             tmp = (mtmp.mblinded | 0) + random.rnd(25) + 20;
             if (tmp > 127)
@@ -850,9 +857,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const damageValue = requireRangedOperation(env, 'damageValue');
     const hitHero = requireRangedOperation(env, 'hitHero');
     const stopOccupation = requireRangedOperation(env, 'stopOccupation');
-    // drop_throw() resolves its remaining seven dependencies at entry.
+    // drop_throw() uses these bound floor and inventory operations.
     requireRangedOperation(env, 'shouldMulch');
-    requireRangedOperation(env, 'shipsAway');
     requireRangedOperation(env, 'floorEffects');
     requireRangedOperation(env, 'placeObject');
     requireRangedOperation(env, 'passiveObject');
@@ -1114,7 +1120,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     await temporaryDisplay(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     await delayOutput(state);
     if (return_flightpath) {
-        return_from_mtoss(monster, singleobj, tethered_weapon, state, random);
+        await return_from_mtoss(monster, singleobj, tethered_weapon, state, random, env);
         // monster could be DEADMONSTER now
     } else {
         await temporaryDisplay(DISP_END, 0, state);
@@ -1134,7 +1140,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 // throw of a returning weapon (Aklys / Mjollnir). Handles the return flight
 // animation, the message, re-equipping the weapon, and the case where the
 // return goes wrong (weapon hits thrower or drops).
-export function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = { rn2, rnd }) {
+export async function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = { rn2, rnd }, rawEnv = {}) {
+    const env = { ...rawEnv, state, random };
     const impaired = (magr.mconf || magr.mstun || magr.mblinded);
     let notcaught = false;
     let hits_thrower_flag = false;
@@ -1204,20 +1211,14 @@ export function return_from_mtoss(magr, otmp, tethered_weapon, state = game, ran
         }
         if (notcaught) {
             note_unported('apply.c snuff_candle'); /* (void) snuff_candle() */
-            if (shipsAway(x, y, state)) {
-                // C calls ship_object() whose result is used in a condition.
-                // ship_object returns FALSE when there is no down gate, which
-                // shipsAway tests for. When there IS a down gate, we skip the
-                // full shipping logic.
-                note_unported('dokick.c ship_object');
-            } else {
-                if (flooreffects(otmp, x, y, 'drop', { state })) {
+            if (!await ship_object(otmp, x, y, false, env)) {
+                if (flooreffects(otmp, x, y, 'drop', env)) {
                     if (cansee(x, y, state))
                         note_unported('display.c newsym');
                     return;
                 }
-                place_object(otmp, x, y, { state });
-                stackobj(otmp, { state });
+                place_object(otmp, x, y, env);
+                stackobj(otmp, env);
             }
             if (!Deaf(state) && !state.u?.uinwater) {
                 if (is_pool(x, y, state)
