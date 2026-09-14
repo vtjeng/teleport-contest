@@ -35565,6 +35565,472 @@
         "screens": 8525,
         "rng": 630073
       }
+    },
+    {
+      "id": "port-do_name-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port do_name.c naming commands and source-faithful object naming",
+      "cFile": "do_name.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Highest-ranked fixed-workload mismatch after do.c wipe closure; queue step 685 is a known do_name.c source owner with 1129 remaining screens.",
+      "detail": "Queue at 9419dc40: holdout/seed4500-knight-coverage step 685, unsupported object naming option a in docallcmd(). Port the complete do_name.c source in C order, wiring each caller and preserving later unported boundaries.",
+      "spans": [
+        {
+          "name": "nextmbuf..namefloorobj",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nextmbuf",
+            "new_mgivenname",
+            "free_mgivenname",
+            "new_oname",
+            "free_oname",
+            "safe_oname",
+            "name_from_player",
+            "christen_monst",
+            "alreadynamed",
+            "do_mgivenname",
+            "do_oname",
+            "oname",
+            "objtyp_is_callable",
+            "name_ok",
+            "call_ok",
+            "docallcmd",
+            "docall_xname",
+            "docall",
+            "namefloorobj"
+          ]
+        }
+      ],
+      "openedAt": "9419dc40d44835603f86301605a7960f19d19e0d",
+      "openStanding": {
+        "sha": "9419dc40d44835603f86301605a7960f19d19e0d",
+        "screens": 8525,
+        "rng": 630073
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "nextmbuf",
+          "line": 20,
+          "endLine": 30,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "new_mgivenname",
+          "line": 31,
+          "endLine": 50,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "free_mgivenname",
+          "line": 51,
+          "endLine": 60,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "new_oname",
+          "line": 61,
+          "endLine": 80,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "free_oname",
+          "line": 81,
+          "endLine": 94,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "safe_oname",
+          "line": 95,
+          "endLine": 104,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "name_from_player",
+          "line": 105,
+          "endLine": 132,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "christen_monst",
+          "line": 133,
+          "endLine": 157,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "alreadynamed",
+          "line": 158,
+          "endLine": 198,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_mgivenname",
+          "line": 199,
+          "endLine": 289,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_oname",
+          "line": 290,
+          "endLine": 371,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "oname",
+          "line": 372,
+          "endLine": 428,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "objtyp_is_callable",
+          "line": 429,
+          "endLine": 466,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "name_ok",
+          "line": 467,
+          "endLine": 479,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "call_ok",
+          "line": 480,
+          "endLine": 498,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "docallcmd",
+          "line": 499,
+          "endLine": 604,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "docall_xname",
+          "line": 605,
+          "endLine": 635,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "docall",
+          "line": 636,
+          "endLine": 678,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "namefloorobj",
+          "line": 679,
+          "endLine": 771,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "rndghostname",
+          "line": 772,
+          "endLine": 826,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "x_monnam",
+          "line": 827,
+          "endLine": 1034,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "l_monnam",
+          "line": 1035,
+          "endLine": 1041,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mon_nam",
+          "line": 1042,
+          "endLine": 1053,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "noit_mon_nam",
+          "line": 1054,
+          "endLine": 1064,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "some_mon_nam",
+          "line": 1065,
+          "endLine": 1073,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "Monnam",
+          "line": 1074,
+          "endLine": 1082,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "noit_Monnam",
+          "line": 1083,
+          "endLine": 1091,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "Some_Monnam",
+          "line": 1092,
+          "endLine": 1101,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "noname_monnam",
+          "line": 1102,
+          "endLine": 1109,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "m_monnam",
+          "line": 1110,
+          "endLine": 1116,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "y_monnam",
+          "line": 1117,
+          "endLine": 1132,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "YMonnam",
+          "line": 1133,
+          "endLine": 1141,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "Adjmonnam",
+          "line": 1142,
+          "endLine": 1151,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "a_monnam",
+          "line": 1152,
+          "endLine": 1158,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "Amonnam",
+          "line": 1159,
+          "endLine": 1169,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "distant_monnam",
+          "line": 1170,
+          "endLine": 1190,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mon_nam_too",
+          "line": 1191,
+          "endLine": 1220,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "monverbself",
+          "line": 1221,
+          "endLine": 1253,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "minimal_monnam",
+          "line": 1254,
+          "endLine": 1288,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "Mgender",
+          "line": 1289,
+          "endLine": 1302,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "pmname",
+          "line": 1303,
+          "endLine": 1312,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mon_pmname",
+          "line": 1313,
+          "endLine": 1320,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "obj_pmname",
+          "line": 1321,
+          "endLine": 1368,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "bogusmon",
+          "line": 1369,
+          "endLine": 1388,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "rndmonnam",
+          "line": 1389,
+          "endLine": 1414,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "bogon_is_pname",
+          "line": 1415,
+          "endLine": 1423,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "roguename",
+          "line": 1424,
+          "endLine": 1460,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "hcolor",
+          "line": 1461,
+          "endLine": 1469,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "rndcolor",
+          "line": 1470,
+          "endLine": 1492,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "hliquid",
+          "line": 1493,
+          "endLine": 1525,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "coyotename",
+          "line": 1526,
+          "endLine": 1537,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "rndorcname",
+          "line": 1538,
+          "endLine": 1556,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "christen_orc",
+          "line": 1557,
+          "endLine": 1610,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "noveltitle",
+          "line": 1611,
+          "endLine": 1626,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "lookup_novel",
+          "line": 1627,
+          "endLine": 1664,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 20,
+        "to": 1664
+      },
+      "activeStanding": {
+        "sha": "9419dc40d44835603f86301605a7960f19d19e0d",
+        "screens": 8525,
+        "rng": 630073
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 685,
+          "kind": "stop",
+          "function": "docallcmd",
+          "functionDeclared": true,
+          "sourceFile": "do_name.c",
+          "cFile": "do_name.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: naming an object type requires docallcmd() naming option 'a'",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1129,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 1150
+          }
+        }
+      ]
     }
   ]
 }
