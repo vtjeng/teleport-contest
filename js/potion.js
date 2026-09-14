@@ -11,8 +11,8 @@
 //        potionbreathe() (1931-2118), make_blinded() (261-331),
 //        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
-// dodrink() is the #quaff command entry point. Branches for strangled,
-// fountain/sink, underwater, worn-potion, milky/smoky are fail-closed;
+// dodrink() is the #quaff command entry point. Branches for underwater,
+// worn-potion, and milky/smoky potions are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_CONFUSION, POT_SICKNESS,
@@ -88,7 +88,7 @@ import { heal_legs, trycall } from './do.js';
 import { Amonnam, capitalizedMonsterName } from './do_name.js';
 import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
-import { drinkfountain } from './fountain.js';
+import { drinkfountain, drinksink } from './fountain.js';
 import { more_experienced } from './exper.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
@@ -173,7 +173,7 @@ export class UnsupportedPotionError extends Error {
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
 // ported: the 20 potion types besides POT_CONFUSION, POT_SICKNESS, POT_SPEED,
 // POT_OIL, POT_FRUIT_JUICE, and POT_PARALYSIS, and the
-// strangled, fountain, sink, underwater, worn-potion, milky and smoky
+// underwater, worn-potion, milky and smoky
 // branches of dodrink().
 export class UnsupportedQuaffError extends Error {
     constructor(reason) {
@@ -947,7 +947,7 @@ function Hallucination(state) {
 
 // C ref: potion.c dopotion() (618-641). Called by dodrink() after the potion
 // has been selected and milky/smoky checks have passed.
-async function dopotion(otmp, state = game) {
+export async function dopotion(otmp, state = game) {
     otmp.in_use = true;
     state.gp.potion_nothing = 0;
     state.gp.potion_unkn = 0;
@@ -978,9 +978,7 @@ async function dopotion(otmp, state = game) {
 // C ref: potion.c dodrink() (526-615). The #quaff command entry point.
 //
 // Fail-closed branches:
-// - Strangled: the hero cannot drink while strangled.
-// - Fountain, sink, underwater: the hero is not near these features on the
-//   speed-potion path this slice ports.
+// - Underwater: drinking the water surrounding the hero.
 // - Worn-potion (owornmask): splitobj/remove_worn_item for worn potions.
 // - Milky potion: ghost_from_bottle().
 // - Smoky potion: djinni_from_bottle().
@@ -999,8 +997,7 @@ export async function dodrink(state = game) {
     let drink_ok_extra = 0;
 
     // C ref: potion.c:540-569. Fountain, sink, and underwater checks are
-    // guarded by !iflags.menu_requested (i.e. no 'm' prefix). Fail-closed
-    // because the speed-potion validation path does not exercise any of them.
+    // guarded by !iflags.menu_requested (i.e. no 'm' prefix).
     if (!state.iflags.menu_requested) {
         // C ref: potion.c:542-549. Fountain on the hero's square.
         const typ = state.level.at(hero.ux, hero.uy).typ;
@@ -1018,9 +1015,15 @@ export async function dodrink(state = game) {
             }
             ++drink_ok_extra;
         }
-        // C ref: potion.c:552-554. Kitchen sink on the hero's square.
-        if (IS_SINK(typ)) {
-            throw new UnsupportedQuaffError('the sink prompt in dodrink()');
+        // C ref: potion.c:552-559. Kitchen sink on the hero's square.
+        if (IS_SINK(typ) && can_reach_floor(false, state)) {
+            const { y_n } = await import('./cmd.js');
+            if (await y_n('Drink from the sink?', state)
+                === 'y'.charCodeAt(0)) {
+                await drinksink(state);
+                return ECMD_TIME;
+            }
+            ++drink_ok_extra;
         }
         // C ref: potion.c:562-564. Surrounded by water.
         if (hero.uinwater && !hero.uswallow) {
