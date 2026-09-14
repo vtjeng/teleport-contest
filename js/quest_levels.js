@@ -1,7 +1,8 @@
 // quest_levels.js — Quest and special level definitions.
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
-//         dat/Arc-loca.lua, dat/Arc-goal.lua,
+//         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
+//         dat/Arc-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
@@ -818,6 +819,53 @@ async function arcLoca(des, state) {
     des.monster('M');
 }
 
+// C ref: dat/Arc-filb.lua. Six ordinary rooms used for Archeologist quest
+// levels at or below Arc-loca, with source-order objects, traps, monsters,
+// stairs, and randomly connected corridors.
+async function arcFilb(des) {
+    des.room({ type: 'ordinary', contents() {
+        des.stair('up');
+        des.object();
+        des.monster('M');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.monster('M');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.object();
+        des.monster('M');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.stair('down');
+        des.object();
+        des.trap();
+        des.monster('S');
+        des.monster('human mummy');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.trap();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.monster('S');
+    }});
+
+    des.random_corridors();
+}
+
 // C ref: dat/Arc-goal.lua. Map-based quest goal level for the Archeologist.
 // The Tomb of the Toltec Kings has a central temple, the Orb of Detection,
 // rolling boulder and random traps, snakes, and mummies.
@@ -1592,6 +1640,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Bar-loca': barLoca,
     'Arc-strt': arcStrt,
     'Arc-loca': arcLoca,
+    'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,

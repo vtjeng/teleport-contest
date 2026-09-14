@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 915827,
+      "datetime": "20390318164520",
+      "nethackrc": "OPTIONS=name:ArcFilbFreshB,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": "   n#levelchange\n20\n                   \u0016?\n z  \u00164\n"
+    }
+  ],
+  "comment": "Independent Arc-filb variation: a different seed, timestamp, and female Archeologist use the same short menu-plus-Home-4 route, exercising the filler loader with a character variation."
+}
