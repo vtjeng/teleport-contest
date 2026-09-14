@@ -33635,7 +33635,16 @@
       ],
       "selectionReason": "Selected holdout/seed4500-knight-coverage as the first per-session candidate with a valid completed investigation: remainingScreensUpperBound 1273 at step 541, cache investigations/holdout/seed4500-knight-coverage.json, source-traced owner wizcmds.c:wiz_identify().",
       "detail": "At wizcmds.c:50-65, wizard mode sets iflags.override_ID from cmd_from_func(wiz_identify) (fallback Ctrl-I), calls display_inventory(NULL, FALSE), clears the override, and returns ECMD_OK. The witness reaches this through #wizidentify with zero unidentified items, so invent.c:3222-3236 renders the Debug Identify and already-identified lines, then PICK_NONE waits without a turn or RNG. Wire cmd.c bindings through js/cmd.js and js/wizcmds.js, and complete the display-only branch in js/invent.js while preserving existing windows/tty menu behavior.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "wiz_identify",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "wiz_identify"
+          ]
+        }
+      ],
       "openedAt": "7700007be69ac3f6c0bfd9311c8d254c1b5d7469",
       "openStanding": {
         "sha": "7700007be69ac3f6c0bfd9311c8d254c1b5d7469",
