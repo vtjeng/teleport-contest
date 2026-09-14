@@ -33627,7 +33627,7 @@
     {
       "id": "port-wiz-identify-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wizcmds.c wiz_identify() and wire the wizard-mode display-only inventory path.",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -33651,8 +33651,11 @@
         "screens": 8375,
         "rng": 629901
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "17f73b2d3b8581ce2ebe6207254403fcfcaf7af9",
+      "delivered": {
+        "screens": 38,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "wiz_identify",
@@ -33785,6 +33788,80 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 579,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed-turn nh_timeout requires no active property timeout at index 11",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1235,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1235,
+              "status": "complete",
+              "commit": "5fe1e89bdbae7c18355290568ebd1dce6fdcec7c",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1235,
+                "step": 579,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "elapsed-turn nh_timeout requires no active property timeout at index 11",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The current boundary is timeout.c nh_timeout() processing the timed INVULNERABLE property at index 11. Steps 574-577 of the assigned recording use #wizintrinsic to set invulnerable and very fast to 30; step 579 is the first elapsed move afterward. C decrements the timed property in nh_timeout() but has no case for INVULNERABLE, so this countdown and its expiry are source inert. The existing JavaScript preflight rejects index 11 before the turn, while its generic expiry fallback would also need to avoid heal_legs() and stop_occupation(). The ordinary prayer flag u.uinvulnerable is a separate field and its early-return guard must remain. This is a source-general timeout divergence fix, with no seed or replay-position special case.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "nh_timeout"
+                ],
+                "branch": "When u.uprops[INVULNERABLE].intrinsic has a TIMEOUT value and u.uinvulnerable is false, nh_timeout() reaches the per-property loop at lines 669-671, decrements the timeout, and falls through the expiry switch because no case INVULNERABLE exists. The current witness has a value of 30 established by #wizintrinsic, so step 579 takes the non-expiring decrement path; the expiry path must remain a no-op as well.",
+                "callers": [
+                  "nethack-c/upstream/src/allmain.c:273 calls nh_timeout() once after the per-turn monster and hero work; js/allmain.js:811 calls nh_timeout_elapsed_turn() and js/allmain.js:1162 preflights the same elapsed-turn work.",
+                  "js/allmain.js:796-811 performs the live timeout call after the movement and regeneration phases, preserving the source ordering that the current boundary reaches."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/wizcmds.c:1008-1078 selects simple properties through incr_itimeout(); js/wizcmds.js:334-379 mirrors that producer and writes INVULNERABLE (js/const.js:2437, numeric index 11) into u.uprops.",
+                  "nethack-c/upstream/include/prop.h:29 and js/const.js:2437 identify INVULNERABLE as property 11; nethack-c/upstream/include/youprop.h:73 defines Invulnerable from that timed property, while nethack-c/upstream/include/you.h:435 defines u.uinvulnerable separately for prayer protection.",
+                  "js/timeout.js:463-523 is the rejecting preflight and js/timeout.js:595-660 is the countdown/expiry implementation; admit timed INVULNERABLE there and give its expiry an explicit source-inert path before the generic heal_legs() fallback.",
+                  "The timed property is consumed by ordinary property checks such as js/explode.js:571-574, so the fix must decrement the property while preserving the active-property state and must not clear or conflate it with the prayer flag."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                ".cache/scan-cache.json has SHA 5fe1e89bdbae7c18355290568ebd1dce6fdcec7c and the assigned row reports 579 emitted screens, 1814 recorded steps, and boundary elapsed-turn nh_timeout requires no active property timeout at index 11; its upper bound is 1235.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 574-577 show the wizard intrinsic menu selections a and r, then the C message Timeout for invulnerable set to 30.  Timeout for very fast set to 30.; step 579 key k (movenorth) emits the seven recorded RNG calls and reaches T:98 before the JavaScript preflight refuses.",
+                "nethack-c/upstream/src/timeout.c:621-622 returns only for the separate u.uinvulnerable prayer flag; lines 669-671 decrement every timed property and lines 673-944 contain no case INVULNERABLE. The direct search rg -n case INVULNERABLE nethack-c/upstream/src/timeout.c produced no matches.",
+                "nethack-c/upstream/src/wizcmds.c:973-1008 maps the first menu item to property INVULNERABLE and adds the default 30-turn timeout; nethack-c/upstream/src/prop.h:29 and nethack-c/upstream/include/youprop.h:73 pin index 11 and its timed-property meaning.",
+                "js/timeout.js:492-523 currently throws no active property timeout at index 11, and js/timeout.js:595-659 sends an unrecognized expiring property to heal_legs()/stop_occupation(); the actionable scope is admission plus a source-inert index-11 expiry branch.",
+                "The required behavior is source-general: preserve timeout decrement, active-property consumers, RNG order, and the separate prayer early return for every timed INVULNERABLE value; do not key it to seed 4500, the Knight role, or step 579."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "17f73b2d3b8581ce2ebe6207254403fcfcaf7af9",
+        "screens": 8413,
+        "rng": 629901
       }
     }
   ]
