@@ -43,6 +43,7 @@ import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BEARTRAP,
+    BELL_OF_OPENING,
     BLINDING_VENOM,
     BRASS_LANTERN,
     BROADSWORD,
@@ -73,6 +74,8 @@ import {
     GAUNTLETS_OF_DEXTERITY,
     GAUNTLETS_OF_POWER,
     GEM_CLASS,
+    GLOB_OF_GRAY_OOZE,
+    GOLD_PIECE,
     GRAPPLING_HOOK,
     GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
@@ -159,9 +162,10 @@ import {
 import { name_to_monplus } from '../js/mondata.js';
 import {
     PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_RED_DRAGON, PM_SMALL_MIMIC,
-    PM_YELLOW_DRAGON,
+    PM_NEWT, PM_YELLOW_DRAGON,
     monst_globals_init, reset_mvitals,
 } from '../js/monsters.js';
+import { tin_variety_txt } from '../js/eat.js';
 import { mksobj } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -554,6 +558,49 @@ test('readobjnam_parse_charges leaves a one-character name alone', () => {
     assert.equal(d.spesgn, 0);
 });
 
+test('tin_variety_txt recognizes source tin prefixes', () => {
+    const variety = {};
+    assert.equal(tin_variety_txt('rotten newt meat', variety), 7);
+    assert.equal(variety.value, 0);
+    assert.equal(tin_variety_txt('homemade newt meat', variety), 9);
+    assert.equal(variety.value, 1);
+    assert.equal(tin_variety_txt('rotten', variety), 0);
+    assert.equal(variety.value, -1);
+    variety.value = 42;
+    assert.equal(tin_variety_txt('', variety), 0);
+    assert.equal(variety.value, -1);
+    variety.value = 42;
+    assert.equal(tin_variety_txt('', null), 0);
+    assert.equal(variety.value, 42);
+    assert.equal(tin_variety_txt('', undefined), 0);
+    assert.equal(variety.value, 42);
+});
+
+test('readobjnam_postparse1 carries tin contents and variety state', () => {
+    const state = wishState();
+    const d = readobjnam_init('tin of rotten newt meat', state);
+    d.bp = 'tin of rotten newt meat';
+    d.cnt = 1;
+    const action = readobjnam_postparse1(
+        d, { state, random: recordingRandom([]) },
+    );
+    assert.equal(action, 2);
+    assert.equal(d.typ, TIN);
+    assert.equal(d.tvariety, 0);
+    assert.equal(d.tmp, 7);
+    assert.equal(d.mntmp, PM_NEWT);
+
+    const spinach = readobjnam_init('tin of spinach', state);
+    spinach.bp = 'tin of spinach';
+    spinach.cnt = 1;
+    // The earlier " of spinach" rewrite truncates d.bp to "tin" before
+    // this function reaches the tin-of branch; postparse2/3 resolves it.
+    assert.equal(readobjnam_postparse1(spinach, { state }), 0);
+    assert.equal(spinach.bp, 'tin');
+    assert.equal(spinach.contents, 2);
+    assert.equal(spinach.mntmp, NON_PM);
+});
+
 // What a wish needs on top of wishState() before it can build a figurine or a
 // statue: mkobj.c mksobj() picks the monster with makemon.c rndmonnum(), which
 // reads dungeon.c level_difficulty() and svm.mvitals.  Depth 1 of a
@@ -808,9 +855,7 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
         // would turn into a corpse.
         'newt corpse',
         // Types whose fine tuning is unported.
-        'glob of gray ooze', 'tin of newt meat', 'gold piece',
-        // A unique object, which mksobj() would make an artifact.
-        'Amulet of Yendor',
+        'tin of newt meat',
         // And a name that matches nothing, which C answers by printing
         // "Nothing fitting that description exists in the game." and asking
         // again.
@@ -820,6 +865,20 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
         assert.ok(refusal, `${text} is refused`);
         assert.deepEqual(draws, [], `${text} draws nothing`);
     }
+});
+
+test('readobjnam lets a wizard wish for the unique Bell of Opening', () => {
+    const state = wishState();
+    const draws = [];
+    const bell = readobjnam('blessed bell of opening', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom(draws) }));
+    // objnam.c:4999-5023 only substitutes unique types outside wizard mode;
+    // the wizard typfnd path proceeds into mkobj.c mksobj(). Bell of Opening
+    // has no artifact entry, so mksobj() consumes only next_ident() here.
+    assert.equal(bell.otyp, BELL_OF_OPENING);
+    assert.equal(bell.spe, 3);
+    assert.equal(bell.blessed, true);
+    assert.deepEqual(draws, ['rn2(1)', 'rnd(2)']);
 });
 
 // objnam.c:5094-5120, 5191-5253 and 5255-5268: the enchantment sign, the
@@ -1320,15 +1379,38 @@ test('readobjnam follows the name-reshaping branches', () => {
     // space, so one embedded in a word is not it.
     assert.equal(wish(state, 'brassAmulet of Yendor').refusal,
                  'a wish no lookup resolves');
+    // 4597-4615 strips " amulet" into a bounded scratch buffer and calls
+    // rnd_otyp_by_namedesc(). The fixture shifts descriptions as o_init.c
+    // does in the comparison setup, so "square" selects the preceding row.
+    assert.equal(resolved('square amulet'), AMULET_VERSUS_POISON);
     // 4502-4511: "paperback" and "paperback book" are the novel; anything
     // else after it returns a null object instead.
     assert.equal(resolved('paperback'), SPE_NOVEL);
     assert.equal(resolved('paperback book'), SPE_NOVEL);
-    assert.equal(wish(state, 'paperback spellbook').refusal,
-                 'readobjnam action 3');
+    assert.equal(wish(state, 'paperback spellbook').obj, null);
     // 4283-4306: the fake Amulet is reached by prefixing its description.
     assert.equal(resolved('imitation Amulet of Yendor'),
                  FAKE_AMULET_OF_YENDOR);
+});
+
+test('readobjnam returns gold and resolves object class symbols', () => {
+    const state = wishState();
+    for (const text of ['gold', 'money', 'coin', 'zorkmid', '$100']) {
+        const { obj } = wish(state, text);
+        assert.equal(obj.otyp, GOLD_PIECE, text);
+        assert.equal(obj.oclass, COIN_CLASS, text);
+        assert.equal(state.disp.botl, true, text);
+    }
+    const ordinary = wishState();
+    ordinary.wizard = false;
+    assert.equal(wish(ordinary, '6000 gold').obj.quan, 5000);
+    // objnam.c:4547-4551 accepts the compiled-in '/' class symbol and jumps
+    // to `any:` without drawing rn2(sizeof wrpsym).
+    const wand = wish(state, '/');
+    assert.equal(wand.obj.oclass, WAND_CLASS);
+    assert.equal(wand.draws.includes('rn2(13)'), false);
+    // An unowned symbol follows the ordinary lookup and reaches null.
+    assert.equal(wish(state, ';').refusal, 'a wish no lookup resolves');
 });
 
 test('readobjnam keeps a monster name out of six object names', () => {
@@ -1367,7 +1449,8 @@ test('readobjnam keeps a monster name out of six object names', () => {
                  GAUNTLETS_OF_POWER);
     // 4374-4386 takes a tin before the "<foo> of <monster>" split does, so
     // "tin of newt meat" is a tin rather than a newt.
-    assert.equal(reason('tin of newt meat'), 'a tin wish');
+    assert.equal(reason('tin of newt meat'),
+                 'a wish for a corpse, statue, figurine, egg or tin');
     // A bare monster name leaves no referent, so 4425-4429 puts the name back
     // and forgets the monster; the lookup then fails on its own.
     assert.equal(reason('newt'),
@@ -1431,8 +1514,10 @@ test('readobjnam gives a wizard a disarmed trap object', () => {
     assert.equal(direct.obj.otyp, BEARTRAP);
     assert.equal(direct.draws[0], 'rnd(2)'); // no lookup draw
     assert.equal(wish(state, 'landmine object').obj.otyp, LAND_MINE);
+    // action 5 reaches the unported wiztrap: caller arm; the existing
+    // readobjnam backstop reports that returned action without drawing.
     assert.equal(wish(state, 'bear trap trap').refusal,
-                 'a wizard-mode trap wish');
+                 'readobjnam action 5');
 });
 
 test('readobjnam honors the count for a mergeable type', () => {
@@ -1446,32 +1531,36 @@ test('readobjnam honors the count for a mergeable type', () => {
     assert.ok(draws.includes('rn1(6,6)'), 'mksobj() rolled a stack');
 });
 
-test('readobjnam refuses each glob spelling', () => {
+test('readobjnam canonicalizes each glob spelling', () => {
     const state = wishState();
-    // objnam.c:4340-4345 recognizes six shapes, and all of them draw rn1() at
-    // 4354 for a monster type it cannot resolve.
+    timeout_globals_init(state);
+    // objnam.c:4340-4362 recognizes six shapes. An unqualified glob draws
+    // rn1(PM_BLACK_PUDDING - PM_GRAY_OOZE, PM_GRAY_OOZE), then all forms use
+    // the canonical object name for the lookup.
     for (const text of [
         'glob', 'gray ooze glob', 'globs', 'gray ooze globs',
         'glob of gray ooze', 'globs of gray ooze',
     ]) {
-        const { refusal, draws } = wish(state, text);
-        assert.equal(refusal, 'a glob wish', text);
-        assert.deepEqual(draws, [], text);
+        const { obj, draws } = wish(state, text);
+        assert.equal(obj.otyp, GLOB_OF_GRAY_OOZE, text);
+        assert.equal(obj.oclass, FOOD_CLASS, text);
+        // name_to_mon() recognizes the explicit gray ooze forms before the
+        // random fallback; only an unqualified spelling consumes rn1().
+        if (text === 'glob' || text === 'globs')
+            assert.equal(draws[0], 'rn1(3,206)', text);
+        else
+            assert.notEqual(draws[0], 'rn1(3,206)', text);
     }
 });
 
 test('readobjnam refuses the branches that leave the typfnd tail', () => {
     const state = wishState();
     const reason = (text) => wish(state, text).refusal;
-    // objnam.c:4531-4544, gold, which returns its object before typfnd:.
-    for (const text of ['gold', 'money', 'coin', 'zorkmid', '$100'])
-        assert.equal(reason(text), 'a wish for gold', text);
-    // 4547-4551, a single character, which is either a class symbol or
-    // nothing at all.
-    assert.equal(reason('/'), 'a one-character wish');
-    // 4374-4386, a tin, and 4686-4714, a worthless glass gem.
+    // 4374-4386 now parses tins; the typfnd corpsenm switch remains outside
+    // this span and refuses a named tin after that source branch returns 2.
     assert.equal(reason('tin of spinach'),
                  'a wish for a corpse, statue, figurine, egg or tin');
+    // 4686-4714, a worthless glass gem, remains outside this span.
     assert.equal(reason('worthless piece of blue glass'), 'a glass-gem wish');
     // 4152-4174's corpse/statue/figurine gender hack.
     assert.equal(reason('statue of a gnome'),

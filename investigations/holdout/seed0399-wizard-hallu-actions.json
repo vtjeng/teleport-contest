@@ -1,12 +1,11 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
-  "remainingScreensUpperBound": 423,
+  "remainingScreensUpperBound": 232,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "remainingScreensUpperBound": 423,
-    "step": 109,
+    "step": 300,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,43 +13,36 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported monster distress state: equipped or attached lycanthrope",
+    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for a unique object",
     "unlocatedKinds": [],
-    "recordedSteps": 532
+    "recordedSteps": 532,
+    "remainingScreensUpperBound": 232
   },
-  "summary": "At step 109, key T (takeoff) spends a turn and enters C's once-per-turn monster distress loop. The focused JavaScript state has one were-form monster, PM_HUMAN_WEREWOLF (pmidx 263), at monster-list index 26; it carries a potion of speed (POT_SPEED 302) in minvent. C were_change() draws rn2(50)=29 for this daytime human-form lycanthrope, so the 1-in-50 conversion test fails and new_were() is not called. JS preflightNewWere() runs before that chance draw and throws on any minvent, producing the queue boundary. Move that preflight to the successful-change path while retaining it in new_were(); the failed chance must consume only rn2(50) and then reach the recorded movement and turn draws.",
+  "summary": "At step 300 a wizard's named unique-object wish is stopped by an obsolete blanket guard in readobjnam, although mksobj already handles unique finalization. Removing that guard exposes missing special-item inventory effects in invent.c addinv_core1. Complete that whole source unit, remove its injected achievement hooks and obsolete preflight refusals, and keep the wish caller aligned with C.",
   "source": {
-    "file": "were.c",
+    "file": "invent.c",
     "functions": [
-      "were_change",
-      "new_were",
-      "counter_were"
+      "addinv_core1"
     ],
-    "branch": "nethack-c/upstream/src/were.c:14-18 tests the human-form lycanthrope chance and calls new_were() only when !rn2(50) succeeds in this daytime setup. The stop trace records rn2(50)=29, so C skips new_were() and does not inspect the monster inventory on this turn. js/mon.js:3332-3340 calls preflightNewWere() before drawing rn2(50), and js/mon.js:2701-2706 rejects the observed minvent with the boundary message.",
+    "branch": "invent.c:960-1005 adjusts inventory effects before insertion: coins, four invocation objects, quest artifacts and artifact intrinsics, then Mines/Sokoban prizes. The recorded Bell wish reaches the invocation-object path. objnam.c:4999-5023 substitutes unique types only outside wizard mode; js/objnam_readobjnam.js requireSimpleWishedObject incorrectly refuses every named unique type before the existing mksobj path.",
     "callers": [
-      "nethack-c/upstream/src/mon.c:mcalcdistress() and m_calcdistress() (1174-1198) iterate monsters and call were_change() after regeneration",
-      "nethack-c/upstream/src/allmain.c:moveloop_core() (222-234) resets gw.were_changes, calls mcalcdistress(), and then consumes mcalcmove() movement draws",
-      "js/mon.js:mcalcdistress() and m_calcdistress() (3384-3467) invoke the wereChange callback in the same once-per-turn position",
-      "js/allmain.js:finishElapsedTurn() (713-735) invokes mcalcdistress() and then mcalcmove() during an elapsed command",
-      "js/allmain.js:advanceElapsedTurn() (1095-1124) runs the planning clone and converts the distress refusal to UnsupportedTurnBoundaryError",
-      "js/allmain.js:moveloop_core() (1289-1301) enters advanceElapsedTurn() when context.move is true"
+      "js/invent.js beginAddinv invokes addinv_core1 before inventory insertion, corresponding to invent.c addinv_core0 at1082. Both synchronous addinv and addinv_runtime use beginAddinv.",
+      "zap.c makewish:6314-6422 calls readobjnam then hold_another_object; js/zap.js makewish follows that path. The independent Bell recipe reaches the production wizard command, parser, object generation and addinv_core1.",
+      "teleport.c level_tele:1234-1246 creates and adds an Amulet for endgame level teleport; js/teleport.js levelTeleMenu has a duplicated injected Amulet effect that must be removed when invent owns it.",
+      "zap.c poly_obj:1912 calls addinv_core1 directly for an in-place inventory replacement. poly_obj has no JavaScript implementation; this is a future caller, not an existing wired route or a completion claim."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/were.c:new_were() (95-138) mutates the form only after were_change() succeeds; a successful transformation then calls mon_break_armor() and possibly_unwield()",
-      "nethack-c/upstream/src/were.c:counter_were() (47-65) maps PM_HUMAN_WEREWOLF to PM_WEREWOLF",
-      "nethack-c/upstream/src/worn.c:mon_break_armor() and nethack-c/upstream/src/weapon.c:possibly_unwield() are downstream of a successful new_were() call",
-      "js/mon.js:preflightNewWere(), new_were(), and were_change() (2684-2761, 3316-3347) contain the premature inventory refusal and the chance draw",
-      "js/monsters.js:949 defines PM_HUMAN_WEREWOLF (pmidx 263) with neutral name werewolf; js/objects.js:377 defines POT_SPEED as object type 302",
-      "nethack-c/upstream/src/mon.c:mcalcmove() (1126-1168) and js/mon.js:mcalcmove() consume the post-distress rn2(12) movement draws that follow the failed chance"
+      "mkobj.c mksobj:1177-1258 and js/obj.js mksobj already perform unique-object artifact finalization before weight; the named-unique parser refusal is obsolete admission, not a newly implemented readobjnam branch.",
+      "questpgr.js is_quest_artifact and artifacts.js set_artifact_intrinsic are existing callees. Retain the latter's unrelated display refusals as explicit downstream gaps.",
+      "insight.js record_achievement exists and must be called directly for invocation objects and both prizes, preserving achievement -> tracking-id reset -> nomerge order.",
+      "quest.c artitouch is an unported void callee; record note_unported rather than invent its pager, discovery, quest status or exercise effects. Unported void pline.c impossible diagnostics also remain explicit gaps."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json identifies this session at commit cc1b4453d14fd4a0e995170e3842ad622790c8a5, step 109, with 423 remaining screens and the boundary unsupported monster distress state: equipped or attached lycanthrope.",
-    "sessions/holdout/seed0399-wizard-hallu-actions.session.json segments[0].steps[109] records key T, message You were wearing an uncursed +0 cloak of magic resistance., and the first RNG entry rn2(50)=29 @ were_change(were.c:17); the same step then records the mcalcmove rn2(12) entries and later turn draws.",
-    "A focused replay of the exact recorded input prefix through step 109 stops at the same UnsupportedTurnBoundaryError before the live turn; the replay and state witness are saved in .cache/investigation-seed0399-wizard-hallu-actions.json.",
-    "The focused replay state has a single relevant monster at list index 26 with pmidx 263, human-form data, and minvent containing object type 302 (potion of speed); it has no worn mask, leash, steed, or stuck attachment. This identifies minvent as the immediate refusal predicate.",
-    "nethack-c/upstream/src/were.c:14-18 evaluates the human-form chance before new_were(), while js/mon.js:3332-3340 preflights before rn2(); the nonzero C draw proves that the inventory-bearing new_were() path is not reached at this stop.",
-    "nethack-c/upstream/src/mon.c:1174-1198 and allmain.c:222-234 place were_change() before mcalcmove(); no mhitu.c/mattacku() call occurs in the step-109 RNG trace, so monster attack and polyself branches are outside this mismatch."
+    "Corrected A1 checkpoint59aedc79 and subsequent unchanged-seed scan at e43d1b18 both place seed0399 at300 of532 screens, remaining232, with unsupported wish: a wish for a unique object. Baseline gold stop162 was resolved by A1.",
+    "Coordinator read full invent.c addinv_core1 and its live beginAddinv caller, and verified the worker's immutable source snapshots19a6b847,2b6f160d,52c2cdf6. The final correction removes the internal quest-artifact refusal and preflight projection, performs the source-owned questart write, and calls existing record_achievement for prizes.",
+    "Worker's corrected independent Bell differential at52c2cdf6 matches2609 RNG calls,28 complete screens/attributes,28 cursors and0 animation frames. Focused inventory tests cover all four invocation flags/achievements, both prize tails and the quest-artifact state prefix.",
+    "Historical port-invent-seed4500 evidence marked addinv_core1 complete while it still depended on injected hooks. Refresh the source evidence for this changed unit; do not treat the old attestation as proof the missing effects were implemented."
   ]
 }

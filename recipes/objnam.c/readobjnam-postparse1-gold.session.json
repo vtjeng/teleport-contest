@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 910273,
+      "datetime": "20310807122000",
+      "nethackrc": "OPTIONS=name:GoldProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\ngold\nq",
+      "comment": "An independently chosen debug wish reaches readobjnam_postparse1() through the production wizard wish parser and its gold return arm."
+    }
+  ]
+}

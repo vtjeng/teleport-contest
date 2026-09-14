@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ACH_AMUL,
+    ACH_BELL,
+    ACH_BOOK,
+    ACH_CNDL,
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     A_CON,
@@ -1693,22 +1697,13 @@ test('Mines prize records its achievement and merges after pickup', () => {
         nomerge: true,
         o_id: prizeId,
     });
-    const achievements = [];
-    const result = addinv(prize, {
-        state,
-        hooks: {
-            recordAchievement(achievement) {
-                assert.equal(state.context.achieveo.mines_prize_oid, prizeId);
-                assert.equal(prize.nomerge, true);
-                achievements.push(achievement);
-            },
-        },
-    });
+    state.u.uachieved = [];
+    const result = addinv(prize, { state });
 
     assert.equal(result, carried);
     assert.equal(carried.quan, 2);
     assert.equal(prize.where, OBJ_DELETED);
-    assert.deepEqual(achievements, [ACH_MINE_PRIZE]);
+    assert.deepEqual(state.u.uachieved, [ACH_MINE_PRIZE]);
     assert.equal(state.context.achieveo.mines_prize_oid, 0);
 });
 
@@ -1725,28 +1720,23 @@ test('Sokoban prize clears tracking and its temporary nomerge flag', () => {
         nomerge: true,
         o_id: prizeId,
     });
-    const achievements = [];
+    state.u.uachieved = [];
 
-    assert.equal(addinv(prize, {
-        state,
-        hooks: {
-            recordAchievement: (achievement) => achievements.push(achievement),
-        },
-    }), prize);
-    assert.deepEqual(achievements, [ACH_SOKO_PRIZE]);
+    assert.equal(addinv(prize, { state }), prize);
+    assert.deepEqual(state.u.uachieved, [ACH_SOKO_PRIZE]);
     assert.equal(state.context.achieveo.soko_prize_oid, 0);
     assert.equal(prize.nomerge, false);
     assert.equal(prize.where, OBJ_INVENT);
 });
 
-test('special-prize achievement seam is checked before addinv mutation', () => {
+test('special-prize achievement is direct and source-ordered', () => {
     const state = initializedState();
-    // A nonzero ID activates the prize path whose missing seam must fail.
     const prizeId = 901;
     state.context.achieveo = {
         mines_prize_oid: 0,
         soko_prize_oid: prizeId,
     };
+    state.u.uachieved = [];
     const prize = instance(BAG_OF_HOLDING, state, {
         how_lost: LOST_THROWN,
         no_charge: true,
@@ -1754,17 +1744,13 @@ test('special-prize achievement seam is checked before addinv mutation', () => {
         o_id: prizeId,
     });
 
-    assert.throws(
-        () => addinv(prize, { state }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'recordAchievement',
-    );
-    assert.equal(state.invent, null);
-    assert.equal(state.context.achieveo.soko_prize_oid, prizeId);
-    assert.equal(prize.how_lost, LOST_THROWN);
-    assert.equal(prize.no_charge, true);
-    assert.equal(prize.nomerge, true);
-    assert.equal(prize.where, OBJ_FREE);
+    assert.equal(addinv(prize, { state }), prize);
+    assert.deepEqual(state.u.uachieved, [ACH_SOKO_PRIZE]);
+    assert.equal(state.context.achieveo.soko_prize_oid, 0);
+    assert.equal(prize.how_lost, 0);
+    assert.equal(prize.no_charge, false);
+    assert.equal(prize.nomerge, false);
+    assert.equal(prize.where, OBJ_INVENT);
 });
 
 test('addinv_nomerge restores its flag when a seam rejects insertion', () => {
@@ -2590,25 +2576,33 @@ test('taking an artifact into inventory grants its carried intrinsics', () => {
     addinv(saber, { state });
     assert.deepEqual(state.u.uprops.map((prop) => prop.extrinsic), before);
 
-    // The four types above the artifact arm keep their own seam: each sets a
-    // u.uhave flag and records an achievement, neither of which is ported.
-    for (const otyp of [AMULET_OF_YENDOR, CANDELABRUM_OF_INVOCATION,
-                        BELL_OF_OPENING, SPE_BOOK_OF_THE_DEAD]) {
-        assert.throws(
-            () => addinv(instance(otyp, state), { state }),
-            /addSpecialInventoryEffects/u,
-            String(otyp),
-        );
+    // invent.c addinv_core1() sets each invocation object's u.uhave bit and
+    // records its achievement before addinv_core0() inserts the object.
+    state.u.uhave = {};
+    state.u.uachieved = [];
+    const specialObjects = [
+        [AMULET_OF_YENDOR, 'amulet', ACH_AMUL],
+        [CANDELABRUM_OF_INVOCATION, 'menorah', ACH_CNDL],
+        [BELL_OF_OPENING, 'bell', ACH_BELL],
+        [SPE_BOOK_OF_THE_DEAD, 'book', ACH_BOOK],
+    ];
+    for (const [otyp, haveField, achievement] of specialObjects) {
+        const object = instance(otyp, state);
+        assert.equal(addinv(object, { state }), object, String(otyp));
+        assert.equal(state.u.uhave[haveField], 1, String(otyp));
+        assert.deepEqual(state.u.uachieved, [
+            ...specialObjects
+                .slice(0, specialObjects.findIndex(([type]) => type === otyp) + 1)
+                .map(([, , ach]) => ach),
+        ], String(otyp));
     }
 });
 
-// invent.c addinv_core1() (985-990) raises u.uhave.questart and calls
-// artitouch() for the hero's own quest artifact.  Neither is ported, so the
-// port refuses -- and the refusal has to leave the object as it found it.
-// addinv_core0() reaches addinv_core1() only after clearing no_charge and
-// how_lost, so preflight_addinv() carries the test, the way it already carries
-// the four special otyps beside it in the same if/else chain.
-test('a quest artifact is refused before addinv changes the object', () => {
+// invent.c addinv_core1() (984-1000) raises the quest-artifact duplicate
+// diagnostic, sets u.uhave.questart, calls the void artitouch(), then applies
+// set_artifact_intrinsic(). The artitouch() effects remain an explicit gap,
+// while the source-owned state and artifact intrinsic update continue.
+test('a quest artifact updates addinv state before inventory insertion', () => {
     // The Knight's questarti is 25 (js/roles.js:158), the Magic Mirror of
     // Merlin, whose base type is MIRROR (artilist.h:255-258).
     const state = artifactHolderState(A_LAWFUL, ART_MAGIC_MIRROR_OF_MERLIN);
@@ -2616,18 +2610,22 @@ test('a quest artifact is refused before addinv changes the object', () => {
         how_lost: LOST_THROWN,
         oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
     });
-    assert.throws(() => preflight_addinv(mirror, { state }),
-                  /quest artifact held/u);
-    assert.throws(() => addinv(mirror, { state }), /quest artifact held/u);
-    // addinv_core0()'s own writes are what the projection stands in front of:
-    // invent.c:1067-1071 clears how_lost, and the port does it in beginAddinv()
-    // between the preflight and addinv_core1().
-    assert.equal(mirror.how_lost, LOST_THROWN);
+    state.u.uhave = {};
+    state.u.uachieved = [];
+    assert.equal(preflight_addinv(mirror, { state }).object, mirror);
+    assert.throws(
+        () => addinv(mirror, { state }),
+        /artifact display requires/u,
+    );
+    // addinv_core1() has already performed its source-order quest-artifact
+    // writes when the existing set_artifact_intrinsic() display gap stops.
+    assert.equal(state.u.uhave.questart, 1);
+    assert.equal(mirror.how_lost, 0);
     assert.equal(mirror.where, OBJ_FREE);
     assert.equal(state.invent, null);
 
-    // Grayswandir is nobody's quest artifact, so the same preflight admits it
-    // and the object still reaches inventory.
+    // Grayswandir is nobody's quest artifact, so the same path admits it and
+    // the object still reaches inventory without the quest-artifact mark.
     const saber = instance(SILVER_SABER, state, {
         oartifact: ART_GRAYSWANDIR,
     });

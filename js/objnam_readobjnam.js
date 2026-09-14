@@ -13,19 +13,23 @@ import {
 } from './artifacts.js';
 import {
     CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_NEUTER, CORPSTAT_RANDOM,
-    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, ONAME_WISH, SPE_LIM,
-    ismnum,
+    BEAR_TRAP, FEMALE, GOLD_SYM, LANDMINE, LOW_PM, MALE,
+    NEUTRAL, NON_PM, ONAME_WISH, SPE_LIM, ismnum,
 } from './const.js';
 import { lookup_novel, oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { digit, fuzzymatch, lcase, lowc, mungspaces, strstri } from './hacklib.js';
+import { tin_variety_txt } from './eat.js';
 import { delete_contents } from './invent.js';
+import { def_char_to_objclass } from './drawing.js';
 import {
     is_female, is_male, is_neuter, name_to_monplus,
+    name_to_mon,
 } from './mondata.js';
 import {
-    PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_LARGE_MIMIC, PM_SMALL_MIMIC,
+    PM_BLACK_PUDDING, PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_GRAY_OOZE,
+    PM_LARGE_MIMIC, PM_SMALL_MIMIC,
     PM_YELLOW_DRAGON,
 } from './monsters.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
@@ -35,6 +39,7 @@ import {
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn1, rn2, rnd } from './rng.js';
+import { trapname } from './trap.js';
 import {
     ACID_VENOM,
     AMULET_CLASS,
@@ -72,6 +77,7 @@ import {
     GEM_CLASS,
     GLOB_OF_BLACK_PUDDING,
     GLOB_OF_GRAY_OOZE,
+    GOLD_PIECE,
     GRAPPLING_HOOK,
     GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
@@ -79,6 +85,7 @@ import {
     HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
     HORN_OF_PLENTY,
+    ILLOBJ_CLASS,
     IRON_CHAIN,
     IRON_SHOES,
     KATANA,
@@ -821,7 +828,9 @@ export function readobjnam_preparse(d, state) {
 // fall through to readobjnam_postparse2(), 1 for `srch:`, 2 for `typfnd:`, 3
 // to return d.otmp, 4 for `any:` and 5 for `wiztrap:`.
 export function readobjnam_postparse1(d, env) {
-    const { state } = env;
+    const normalized = wishEnv(env);
+    const { state } = normalized;
+    const random = wishRandom(normalized);
     let p;
 
     /* now we have the actual name, as delivered by xname, say
@@ -908,16 +917,40 @@ export function readobjnam_postparse1(d, env) {
 
     /* Intercept pudding globs here; they're a valid wish target,
      * but we need them to not get treated like a corpse.
+     * If a count is specified, it magnifies weight rather than quantity.
      */
     /* check for "glob", "<foo> glob", and "glob of <foo>" */
-    if (strcmpiEqual(d.bp, 'glob') || endsWithFold(d.bp, ' glob')
+    const globOf = strstri(d.bp, 'glob of ');
+    const globsOf = strstri(d.bp, 'globs of ');
+    const isGlob = strcmpiEqual(d.bp, 'glob') || endsWithFold(d.bp, ' glob')
         || strcmpiEqual(d.bp, 'globs') || endsWithFold(d.bp, ' globs')
-        || strstri(d.bp, 'glob of ') >= 0
-        || strstri(d.bp, 'globs of ') >= 0) {
-        // objnam.c:4340-4362 picks a random pudding with rn1() at 4354 when
-        // the monster name does not resolve, and every glob is a FOOD_CLASS
-        // object outside this port's boundary.
-        throw new UnsupportedWishError('a glob wish', origbp(d));
+        || globOf >= 0 || globsOf >= 0;
+    if (isGlob) {
+        let monsterName = d.bp;
+        const phrase = globOf >= 0 ? globOf : globsOf;
+        if (phrase >= 0) {
+            const of = strstri(d.bp.slice(phrase), ' of ');
+            monsterName = d.bp.slice(phrase + of + 4);
+        }
+        d.mntmp = name_to_mon(monsterName, { state });
+        /* if we didn't recognize monster type, pick a valid one at random */
+        if (d.mntmp === NON_PM)
+            d.mntmp = random.rn1(
+                PM_BLACK_PUDDING - PM_GRAY_OOZE, PM_GRAY_OOZE,
+            );
+        /* normally makesingular() would do this, but the canonical form is
+           already singular here */
+        if (d.cnt < 2 && strstri(d.bp, 'globs') >= 0)
+            d.cnt = 2;
+        /* name_to_mon() accepts variants such as "grey ooze"; use the
+           canonical monster spelling for the object lookup */
+        d.globbuf = `glob of ${state.mons[d.mntmp].pmnames[NEUTRAL]}`;
+        d.bp = d.globbuf;
+        d.mntmp = NON_PM; /* not useful for "glob of <foo>" lookup */
+        d.oclass = FOOD_CLASS;
+        d.actualn = d.bp;
+        d.dn = null;
+        return 1; /*goto srch;*/
     } else {
         /*
          * Find corpse type using "of" (figurine of an orc, tin of orc meat).
@@ -927,10 +960,24 @@ export function readobjnam_postparse1(d, env) {
         if (strstri(d.bp, 'wand ') < 0 && strstri(d.bp, 'spellbook ') < 0
             && strstri(d.bp, 'gauntlets ') < 0 && strstri(d.bp, 'gloves ') < 0
             && strstri(d.bp, 'finger ') < 0) {
-            if (strstri(d.bp, 'tin of ') >= 0) {
-                // objnam.c:4374-4386.  tin_variety_txt() is unported and a tin
-                // is outside this port's boundary.
-                throw new UnsupportedWishError('a tin wish', origbp(d));
+            if ((p = strstri(d.bp, 'tin of ')) >= 0) {
+                if (strcmpiEqual(d.bp.slice(p + 7), 'spinach')) {
+                    d.contents = TIN_SPINACH;
+                    d.mntmp = NON_PM;
+                } else {
+                    const tinv = { value: -1 };
+                    d.tmp = tin_variety_txt(d.bp.slice(p + 7), tinv);
+                    d.tinv = tinv.value;
+                    d.tvariety = d.tinv;
+                    const found = name_to_monplus(
+                        d.bp.slice(p + 7 + d.tmp),
+                        { state, gender: d.mgend },
+                    );
+                    d.mntmp = found.mnum;
+                    d.mgend = found.gender;
+                }
+                d.typ = TIN;
+                return 2; /*goto typfnd;*/
             } else if ((p = strstri(d.bp, ' of ')) >= 0) {
                 const found = name_to_monplus(d.bp.slice(p + 4),
                                               { state, gender: d.mgend });
@@ -1064,18 +1111,26 @@ export function readobjnam_postparse1(d, env) {
     if (endsWithFold(d.bp, 'gold piece') || endsWithFold(d.bp, 'zorkmid')
         || strcmpiEqual(d.bp, 'gold') || strcmpiEqual(d.bp, 'money')
         || strcmpiEqual(d.bp, 'coin') || d.bp[0] === GOLD_SYM) {
-        // objnam.c:4531-4544 builds gold with mksobj() and returns it without
-        // reaching typfnd:, which is outside this port's boundary.
-        throw new UnsupportedWishError('a wish for gold', origbp(d));
+        if (d.cnt > 5000 && !state.wizard)
+            d.cnt = 5000;
+        else if (d.cnt < 1)
+            d.cnt = 1;
+        d.otmp = mksobj(GOLD_PIECE, false, false, normalized);
+        d.otmp.quan = d.cnt;
+        d.otmp.owt = weight(d.otmp, normalized);
+        state.disp ??= {};
+        state.disp.botl = true;
+        return 3; /*return otmp;*/
     }
 
     /* check for single character object class code ("/" for wand, &c) */
     if (d.bp.length === 1) {
-        // objnam.c:4547-4551.  def_char_to_objclass() is unported, and both
-        // outcomes are outside the boundary: a class symbol reaches `any:`
-        // with no type, and no objects[] name or description is one character
-        // long, so anything else matches nothing.
-        throw new UnsupportedWishError('a one-character wish', origbp(d));
+        const objectClass = def_char_to_objclass(d.bp[0]);
+        if (objectClass < MAXOCLASSES && objectClass > ILLOBJ_CLASS
+            && (objectClass !== VENOM_CLASS || state.wizard)) {
+            d.oclass = objectClass;
+            return 4; /*goto any;*/
+        }
     }
 
     /* Search for class names: XXXXX potion, scroll of XXXXX.
@@ -1123,11 +1178,19 @@ export function readobjnam_postparse1(d, env) {
                         d.typ = AMULET_VERSUS_POISON;
                         return 2; /*goto typfnd;*/
                     }
-                    // objnam.c:4605-4615 strips " amulet" and calls
-                    // rnd_otyp_by_namedesc(amubuf, AMULET_CLASS, 0), which
-                    // draws; refuse before it.
-                    throw new UnsupportedWishError('a "<shape> amulet" wish',
-                                                   origbp(d));
+                    /* check for "<shape> amulet" without changing d.bp */
+                    const length = d.bp.length - j;
+                    const shapeLength = length > 0 && d.bp[length - 1] === ' '
+                        ? length - 1 : length;
+                    const amubuf = d.bp.slice(0, shapeLength)
+                        .slice(0, 255);
+                    const objectType = rnd_otyp_by_namedesc(
+                        amubuf, AMULET_CLASS, 0, normalized,
+                    );
+                    if (objectType !== STRANGE_OBJECT) {
+                        d.typ = objectType;
+                        return 2; /*goto typfnd;*/
+                    }
                 }
                 d.actualn = d.dn = d.bp;
                 return 1; /*goto srch;*/
@@ -1154,8 +1217,8 @@ export function readobjnam_postparse1(d, env) {
             } else if (d.trapped === 1 || zp !== '') {
                 // objnam.c:4653-4658 goes to wiztrap:, where wizterrainwish()
                 // builds a trap rather than an object.
-                throw new UnsupportedWishError('a wizard-mode trap wish',
-                                               origbp(d));
+                d.bp = trapname(beartrap ? BEAR_TRAP : LANDMINE, true);
+                return 5; /*goto wiztrap;*/
             }
             /* [no prefix or suffix; we're going to end up matching
                the object name and getting a disarmed trap object] */
@@ -1520,15 +1583,10 @@ function isMimicCorpseSpecies(mndx) {
         || mndx === PM_GIANT_MIMIC;
 }
 
-function requireSimpleWishedObject(d, type, state) {
+function requireSimpleWishedObject(d) {
     const refuse = (reason) => {
         throw new UnsupportedWishError(reason, origbp(d));
     };
-    if (type.oc_unique) {
-        /* mksobj() makes an oc_unique type an artifact, which
-           objnam.c:5348-5357 then measures with rn2(nartifact_exist()). */
-        refuse('a wish for a unique object');
-    }
     switch (d.typ) {
     /* The five types objnam.c:5206-5245's corpsenm switch owns, plus the slime
        mold beside them in the spe switch.  Naming one of these is how a wish
@@ -1601,6 +1659,9 @@ export function readobjnam(bp, no_wish, env = {}) {
         label = readobjnam_lookup(d, normalized);
     }
 
+    if (label === 'result')
+        return d.otmp;
+
     if (label === 'any') {
         /* any: */
         // objnam.c:4994-4996.  wrpsym[] has 13 entries and C indexes it with
@@ -1626,6 +1687,10 @@ function readobjnam_lookup(d, normalized) {
     requireSimpleWishQualifiers(d);
 
     let action = readobjnam_postparse1(d, normalized);
+    if (action === 3)
+        return 'result'; /* return d.otmp */
+    if (action === 4)
+        return 'any'; /* goto any */
     // This refusal stands here rather than at typfnd:, because
     // readobjnam_postparse3() would otherwise draw first for a named monster
     // carrier -- "gnome corpse" spends rn2(1) on CORPSE before its monster
@@ -1635,7 +1700,7 @@ function readobjnam_lookup(d, normalized) {
     const carrierRemainder = d.bp === ''
         || ['corpse', 'statue', 'figurine', 'egg', 'tin'].some((name) =>
             strcmpiEqual(d.bp, name) || strncmpiIsPrefix(d.bp, `${name} `));
-    if (d.mntmp >= LOW_PM
+    if (action !== 2 && d.mntmp >= LOW_PM
         && !isMimicCorpseSpecies(d.mntmp)
         && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
         && carrierRemainder) {
@@ -1706,13 +1771,13 @@ function readobjnam_typfnd(d, normalized) {
     // a class has no type to read until mkobj() has drawn one, so its
     // requireSingleWishedObject() check runs after the draw, below. There
     // requireSimpleRandomWishedObject() replaces requireSimpleWishedObject():
-    // the type names the latter refuses -- a container, a unique, a slime mold
-    // -- are what a player may spell, and a draw needs only the five
+    // the type names the latter refuses -- a container or slime mold -- are
+    // what a player may spell, and a draw needs only the five
     // monster-carrying types screened.  A drawn slime mold is granted where a
     // named one is refused.
     const named = d.typ !== 0;
     if (named) {
-        requireSimpleWishedObject(d, objectType(d.typ, state), state);
+        requireSimpleWishedObject(d);
     }
 
     /*
