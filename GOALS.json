@@ -46251,7 +46251,16 @@
       ],
       "selectionReason": "User-authorized seed-worker pilot: integrate the completed seed0002 lane payment delivery at step353, remaining upper bound242. The valid investigations/holdout/seed0002-healer-reflection-drummer.json traces whole shk.c dopay and required billing, container, lookup and naming helpers. Other workers continue independently.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "dopay",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dopay"
+          ]
+        }
+      ],
       "openedAt": "ff10d8082f75e5f0826f1d04c41f1450bb7f58d2",
       "openStanding": {
         "sha": "64b6730a5cd59a413a97bde86c93012e5741d06a",
