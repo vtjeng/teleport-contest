@@ -819,6 +819,53 @@ async function arcLoca(des, state) {
     des.monster('M');
 }
 
+// C ref: dat/Arc-fila.lua. Six ordinary rooms used for Archeologist quest
+// levels above Arc-loca, with source-order objects, traps, monsters, stairs,
+// and randomly connected corridors.
+async function arcFila(des) {
+    des.room({ type: 'ordinary', contents() {
+        des.stair('up');
+        des.object();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.object();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.stair('down');
+        des.object();
+        des.trap();
+        des.monster('S');
+        des.monster('human mummy');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.trap();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.monster('S');
+    }});
+
+    des.random_corridors();
+}
+
 // C ref: dat/Arc-filb.lua. Six ordinary rooms used for Archeologist quest
 // levels at or below Arc-loca, with source-order objects, traps, monsters,
 // stairs, and randomly connected corridors.
@@ -1640,6 +1687,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Bar-loca': barLoca,
     'Arc-strt': arcStrt,
     'Arc-loca': arcLoca,
+    'Arc-fila': arcFila,
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Pri-strt': priStrt,
