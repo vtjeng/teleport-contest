@@ -1686,11 +1686,11 @@ export function omon_adj(mon, obj, mon_notices, rawEnv = {}) {
 // no part of this port has translated:
 //
 // - unsplitobj(), for a self-throw of a stack the prompt's count had split.
-//   Dead in this port rather than merely untaken: C reaches getobj() with
-//   GETOBJ_ALLOWCNT and splits inside it, but js/invent.js getobj() raises on
-//   the first digit of a count, so no split object ever arrives here. The test
-//   is written out because C's comment calls it essential for gold, and it
-//   becomes live with the slice that ports the count path.
+//   C reaches getobj() with GETOBJ_ALLOWCNT and splits inside it; the current
+//   dothrow caller still stops before this recovery arm, so no split object
+//   reaches it through a recorded throw yet. The test is written out because
+//   C's comment calls it essential for gold, and it becomes live when that
+//   caller's remaining throw branches land.
 // - mondata.c digests(), for the message a swallowed hero sees. do_name.c
 //   mon_nam() names the engulfer and digests() decides whether the gold
 //   disappears into it or into its entrails. js/do.js drop() stops on the same

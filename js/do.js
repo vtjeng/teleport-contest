@@ -41,6 +41,7 @@ import {
     LFILE_EXISTS,
     LOST_DROPPED,
     MAGIC_PORTAL,
+    MENU_TRADITIONAL,
     OBJ_INVENT,
     OBJ_FLOOR,
     OBJ_FREE,
@@ -133,6 +134,7 @@ import {
 import {
     any_obj_ok,
     freeinv,
+    ggetobj,
     getobj,
     mergable,
     preflight_update_inventory,
@@ -654,12 +656,24 @@ export async function dodrop(state = game) {
         // what they bracket.
         throw new UnsupportedDropError('sellobj_state() inside a shop');
     }
-    result = await drop(
-        await getobj(
-            'drop', any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
-        ),
-        state,
-    );
+    if (state.flags?.menu_style === MENU_TRADITIONAL) {
+        // do.c keeps the traditional class-and-item interaction on ggetobj();
+        // full and combination menus use their own menu_drop() path, which
+        // remains outside this source span.
+        result = await ggetobj(
+            'drop', async (obj, current) => drop(obj, current),
+            0, false, null, state,
+        );
+        if (result <= 0)
+            throw new UnsupportedDropError(`menu_drop(${result})`);
+    } else {
+        result = await drop(
+            await getobj(
+                'drop', any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+            ),
+            state,
+        );
+    }
     // do.c:37-38's second `if (*u.ushops)` reads the same value, which the
     // drop cannot change; the arm above has already stopped every hero it
     // would be true for.

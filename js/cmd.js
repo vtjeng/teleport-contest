@@ -265,7 +265,6 @@ import {
     getobj,
     hands_obj,
     UnsupportedFeatureDescriptionError,
-    UnsupportedObjectPromptError,
 } from './invent.js';
 import {
     doattributes,
@@ -2813,7 +2812,6 @@ export function failClosedCommandRefusals() {
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
-        UnsupportedObjectPromptError,
         // read.c doread() raises this after getobj() returns an object and
         // before pickup_prev or any reading effect changes state. Cancellation
         // completes normally, so only selected objects reach this refusal.

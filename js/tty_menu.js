@@ -1059,6 +1059,8 @@ async function selectOneTtyMenu(state, spec) {
     let pageIndex = 0;
     let rendered = renderTtyMenu(state, workingSpec, pageIndex);
     let pendingCount = null;
+    const selectedValue = (value, count = pendingCount) => spec.returnCount
+        ? { value, count: count ?? -1 } : value;
     for (;;) {
         const code = await nhgetch(state);
         const incoming = keyCharacter(code);
@@ -1076,7 +1078,7 @@ async function selectOneTtyMenu(state, spec) {
                 continue;
             }
             await dismissTtyMenu(state, rendered);
-            return explicit.value;
+            return selectedValue(explicit.value);
         }
 
         const mapping = menuCommandMapping(state, incoming);
@@ -1086,7 +1088,7 @@ async function selectOneTtyMenu(state, spec) {
         // dispatcher maps it before its fallback group-accelerator branch.
         if (groupChoices.has(ch)) {
             await dismissTtyMenu(state, rendered);
-            return groupChoices.get(ch);
+            return selectedValue(groupChoices.get(ch));
         }
 
         if (ch === '\0' || ch === '\x1b') {
@@ -1113,6 +1115,7 @@ async function selectOneTtyMenu(state, spec) {
                 continue;
             }
             const searchText = await tty_getlin(SEARCH_PROMPT, state);
+            const searchCount = pendingCount;
             pendingCount = null;
             if (searchText && searchText[0] !== '\x1B') {
                 const pattern = `*${searchText}*`;
@@ -1120,7 +1123,7 @@ async function selectOneTtyMenu(state, spec) {
                     .find((entry) => pmatchi(pattern, entry.text));
                 if (match) {
                     await dismissTtyMenu(state, rendered);
-                    return match.value;
+                    return selectedValue(match.value, searchCount);
                 }
             }
             restoreMenuInputCursor(state, rendered);

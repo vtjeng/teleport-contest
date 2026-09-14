@@ -132,9 +132,12 @@ import {
     preflight_look_here,
     prinv,
     sortloot,
+    ckvalidcat,
+    safeq_shortxprname,
+    safeq_xprname,
+    set_safeq_context,
     update_inventory,
     will_feel_cockatrice,
-    xprname,
 } from './invent.js';
 import {
     bigmonst, is_rider, nohands, nolimbs, notake, throws_rocks,
@@ -1765,9 +1768,9 @@ export async function use_container(obj, held, more_containers, state) {
                     used = 1;
                 } else {
                     // in_container rejected the item; C calls unsplitobj()
-                    // here to undo a count-based split, but getobj throws
-                    // on count entry (get_count not ported), so no split
-                    // can have occurred.
+                    // here to undo a count-based split. The current path does
+                    // not yet wire that recovery helper, so the split context
+                    // remains for the caller's existing boundary.
                 }
             }
         }
@@ -1882,48 +1885,6 @@ function add_valid_menu_class(c, state) {
             }
         }
     }
-}
-
-// C ref: invent.c:2136-2139.  ckvalidcat() delegates to pickup.c
-// allow_category() (522-592).  For the take-out path the filter state is
-// set by query_classes(); askchain() checks it when bycat is true.
-function ckvalidcat(otmp, state) {
-    // allow_category(): if no filters are active, reject (the
-    // ParanoidAutoAll arm is not ported).
-    if (!state.gc?.class_filter && !state.gs?.shop_filter
-        && !state.gb?.bucx_filter && !state.gp?.picked_filter)
-        return false;
-    // Coins with an explicit class filter (C: 535-536).
-    if (otmp.oclass === COIN_CLASS && state.gc?.class_filter)
-        return (state.gv?.valid_menu_classes ?? '').includes(
-            String.fromCharCode(COIN_CLASS));
-    // BUC: class filter (C: 560-562).
-    if (state.gc?.class_filter
-        && !(state.gv?.valid_menu_classes ?? '').includes(
-            String.fromCharCode(otmp.oclass)))
-        return false;
-    // Unpaid filter (C: 565-567).
-    if (state.gs?.shop_filter && !otmp.unpaid
-        && !(hasContents(otmp) && count_unpaid(otmp.cobj) > 0))
-        return false;
-    // BUC filter (C: 569-586).
-    if (state.gb?.bucx_filter) {
-        let bucx;
-        if (otmp.oclass === COIN_CLASS) {
-            bucx = state.flags?.goldX ? 'X' : 'U';
-        } else {
-            bucx = !otmp.bknown ? 'X'
-                : otmp.blessed ? 'B'
-                    : otmp.cursed ? 'C'
-                        : 'U';
-        }
-        if (!(state.gv?.valid_menu_classes ?? '').includes(bucx))
-            return false;
-    }
-    // Picked filter (C: 588-589).
-    if (state.gp?.picked_filter && !otmp.pickup_prev)
-        return false;
-    return true;
 }
 
 // C ref: pickup.c:522-592. Kept as a named callback because query_objlist()
@@ -2524,7 +2485,7 @@ async function out_container(obj, state) {
 // C ref: invent.c:2377-2541.
 // ---------------------------------------------------------------
 
-async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
+export async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
     const take_out = (word === 'take out');
     const put_in   = (word === 'put in');
     const nodot    = (word === 'nodot' || word === 'drop'
@@ -2607,13 +2568,14 @@ async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
                     first = false;
                 }
                 const namefn = ininv
-                    ? (o) => xprname(
-                        o, null, String.fromCharCode(ilet), !nodot,
-                        0, 0, state)
+                    ? safeq_xprname
                     : (o) => donameFresh(o, state);
+                if (ininv)
+                    set_safeq_context(String.fromCharCode(ilet), !nodot);
                 const qbuf = safe_qbuf(
                     qpfx, '?', otmp, namefn,
-                    (o) => donameFresh(o, state), 'item', state);
+                    ininv ? safeq_shortxprname : (o) => donameFresh(o, state),
+                    'item', state);
                 // Prompt: yn with possible count ('#') (C: 2467-2470).
                 const resp = await yn_function(
                     qbuf,

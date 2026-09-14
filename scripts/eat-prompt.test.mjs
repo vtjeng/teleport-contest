@@ -310,9 +310,10 @@ test('the menu answers to the eat prompt reach display_pickinv',
         assert.equal(boundary, null,
             `'${key}' at eat prompt should not hit a boundary`);
     }
-    // '-' reaches mime_action(), whose " or " arm draws rn2(2).
+    // '-' reaches mime_action(), which emits C's present-participle feedback.
     const hands = await boundaryFor(segment, '.e-');
-    assert.match(hands?.message ?? '', /mime_action\(\)/);
+    assert.equal(hands, null);
+    assert.equal(topLine(), 'You mime eating something.');
 });
 
 test('a gold answer is judged on the callback, not on the letter',

@@ -7,11 +7,17 @@ import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     BLINDED,
+    BUC_BLESSED,
+    BUC_CURSED,
+    BUC_UNCURSED,
+    BUC_UNKNOWN,
     BUFSZ,
+    CMDQ_INT,
     CMDQ_KEY,
     CMDQ_USER_INPUT,
     CONTAINED_SYM,
     CQ_CANNED,
+    CQ_REPEAT,
     ECMD_OK,
     FINGERTIP,
     FUMBLING,
@@ -75,7 +81,10 @@ import {
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
+    GC_SAVEHIST,
     HANDS_SYM,
+    LARGEST_INT,
+    MENU_TRADITIONAL,
     Never_mind,
     quitchars,
     silly_thing_to,
@@ -92,6 +101,8 @@ import {
     W_ACCESSORY,
     W_ARMOR,
     W_QUIVER,
+    W_SADDLE,
+    W_TOOL,
     W_SWAPWEP,
     W_WEAPONS,
     W_WEP,
@@ -104,16 +115,20 @@ import {
     WORN_HELMET,
     WORN_SHIELD,
     WORN_SHIRT,
+    ALL_FINISHED,
 } from './const.js';
 import {
     ART_MJOLLNIR, confers_luck, discover_artifact, set_artifact_intrinsic,
     touch_artifact,
 } from './artifacts.js';
 import { obj_resists } from './bury.js';
-import { cmdq_clear, cmdq_pop, yn_function } from './cmd.js';
+import {
+    cmdq_add_int, cmdq_add_key, cmdq_clear, cmdq_pop, get_count, readchar,
+    yn_function,
+} from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, visctrl } from './hacklib.js';
+import { digit, ing_suffix, visctrl } from './hacklib.js';
 import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
@@ -151,11 +166,13 @@ import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { displayTtyMenuTextWindow, menuTitleStyle } from './tty_menu.js';
-import { select_menu } from './windows.js';
-import { rn2_on_display_rng } from './rng.js';
+import { getlin, select_menu } from './windows.js';
+import { def_char_to_objclass } from './drawing.js';
+import { rn2, rn2_on_display_rng } from './rng.js';
 import {
     AMULET_OF_YENDOR,
     AKLYS,
+    AMULET_CLASS,
     ARMOR_CLASS,
     BAG_OF_TRICKS,
     BELL_OF_OPENING,
@@ -187,6 +204,7 @@ import {
     POTION_CLASS,
     POT_WATER,
     ROCK,
+    RING_CLASS,
     SCR_BLANK_PAPER,
     SCR_MAIL,
     SCR_SCARE_MONSTER,
@@ -203,6 +221,7 @@ import {
     VENOM_CLASS,
     WAR_HAMMER,
     WEAPON_CLASS,
+    FAKE_AMULET_OF_YENDOR,
     WOODEN_FLUTE,
     WOODEN_HARP,
 } from './objects.js';
@@ -225,8 +244,10 @@ import {
     objectType,
     place_object,
     preflightWeight,
+    set_bknown,
     sobj_at as object_sobj_at,
     splitobj,
+    carried,
     weight,
 } from './obj.js';
 import { get_obj_location } from './light.js';
@@ -240,6 +261,7 @@ import {
     not_fully_identified,
     vtense,
     xnameFresh,
+    ansimpleoname,
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -256,6 +278,7 @@ import {
 } from './shk.js';
 import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
+import { welded } from './wield.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
@@ -371,16 +394,6 @@ export function let_to_name(letter, unpaid, showsym) {
         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
     );
     return `${padded}  ('${symbol}')`;
-}
-
-// Thrown where invent.c getobj() reaches an arm this port has not
-// implemented. Every stop names the C function or option that is missing.
-export class UnsupportedObjectPromptError extends Error {
-    constructor(reason) {
-        super(`the object prompt requires ${reason}`);
-        this.name = 'UnsupportedObjectPromptError';
-        this.reason = reason;
-    }
 }
 
 // C ref: invent.c hands_obj. getobj() returns this shared sentinel when the
@@ -805,6 +818,53 @@ function getobj_hands_txt(action, state) {
     }
 }
 
+// C ref: invent.c splittable() (1664-1671). A welded weapon and a cursed
+// loadstone must remain one object when a count is applied to the stack.
+function splittable(obj, state = game) {
+    return !((obj.otyp === LOADSTONE && obj.cursed)
+        || (obj === state.uwep && welded(obj, state)));
+}
+
+// C ref: invent.c taking_off() (1672-1677).
+function taking_off(action) {
+    return action === 'take off' || action === 'remove';
+}
+
+// C ref: invent.c mime_action() (1678-1709). The C routine builds the
+// present-participle of the action and optionally chooses one of two object
+// prepositions. `ttyPline` is asynchronous in this port, so callers await
+// this otherwise direct translation.
+async function mime_action(action, state = game) {
+    let buf = String(action);
+    let sfx = '';
+    let pfx = '';
+    const onThe = buf.indexOf(' on the ');
+    if (onThe >= 0) {
+        // C replaces the separator by NUL and keeps the remainder beginning
+        // at the separator's space: "on the ...".
+        sfx = buf.slice(onThe + 1);
+        buf = buf.slice(0, onThe);
+    }
+    if ((buf.startsWith('rub the ') && buf.slice(8).includes(' on'))
+        || (buf.startsWith('dip ') && buf.slice(4).includes(' into'))) {
+        // C's buf[3] = '\0'; pfx = &buf[4], leaving the verb in buf.
+        pfx = buf.slice(4);
+        buf = buf.slice(0, 3);
+    }
+    let bp = buf.indexOf(' or ');
+    if (bp >= 0) {
+        const first = buf.slice(0, bp);
+        const second = buf.slice(bp + 4);
+        buf = rn2(2) ? first : second;
+    }
+    const pfxText = pfx ? ` ${pfx}` : '';
+    const sfxText = sfx ? ` ${sfx}` : '';
+    await ttyPline(
+        `You mime ${ing_suffix(buf)}${pfxText} something${sfxText}.`,
+        state,
+    );
+}
+
 // C ref: invent.c getobj() (1751-2088). Answers the object the player chose,
 // null where C returns 0, and hands_obj where C returns &hands_obj.
 //
@@ -814,35 +874,41 @@ function getobj_hands_txt(action, state) {
 // any_obj_ok() above, apply_ok() and eat_ok() are still plain functions, so the
 // await is what lets one set of call sites serve both kinds.
 //
-// Four of C's inputs cannot arrive. gi.in_doagain is always false, because
-// #repeat and its ^A binding are unported and do_repeat() is the only writer
-// of that flag; cmdq_add_key(CQ_REPEAT) has no CQ_REPEAT queue to add to for
-// the same reason; flags.invlet_constant is checked below because reassign()
-// is unported; and iflags.force_invmenu stops rather than take an untested
-// arm. The '-' hands answer stops when allownone is false. The '?' and '*'
-// menus follow the general C computation (redo_menu); display_pickinv()
-// stops when both xtra_choice and allowxtra are truthy (the hands-in-menu
-// feature).
-//
-// The fifth, C's cmdq_pop() at 1779, now has a queue to read. Itemactions
-// queues a command followed by the selected object's inventory letter, so
-// the CMDQ_KEY lookup arm is live. Count and user-input nodes still have no
-// ported producer; an unexpected node retains the fail-closed boundary.
+// The command queue, repeat reader, count reader, inventory reassigner, and
+// forced inventory menu are all live here. Itemactions queues a command
+// followed by the selected object's inventory letter, so the CMDQ_KEY lookup
+// arm is live too.
 //
 // GETOBJ_PROMPT does not stop: its only effect is the `forceprompt` term that
 // steers the "You don't have anything to <foo>." return below. GETOBJ_ALLOWCNT
-// does not stop on arrival either. C reads it at four points -- invent.c:1807
-// for a queued count, :1940 for a typed digit, :1981 and :1996 for a menu
-// selection's count -- and the first, third and fourth sit behind arms that
-// already stop, so the digit at :1940 is where this port's refusal sits.
+// does not stop on arrival either. C reads it for queued counts, typed digits,
+// and counts returned by an inventory menu.
 export async function getobj(word, obj_ok, ctrlflags, state = game) {
+    const allowcnt = (ctrlflags & GETOBJ_ALLOWCNT) !== 0;
+    let cnt = 0;
+    let cntgiven = false;
     let queued = cmdq_pop(state);
     // C's CMDQ_USER_INPUT marker means that this prompt reads a fresh object
     // selection while later canned answers remain in the queue.
     if (queued?.typ === CMDQ_USER_INPUT) queued = null;
+    if (queued?.typ === CMDQ_INT) {
+        if (!allowcnt) {
+            cmdq_clear(CQ_CANNED, state);
+            return null;
+        }
+        cnt = Math.trunc(queued.value ?? 0);
+        cntgiven = true;
+        queued = cmdq_pop(state);
+        // C's `goto need_more_cq` falls through to the interactive prompt
+        // when the count is not followed by a key node.  A user-input marker
+        // has the same effect while preserving later canned input.
+        if (queued?.typ === CMDQ_USER_INPUT) queued = null;
+    }
     if (queued) {
         if (queued.typ === CMDQ_KEY) {
-            if (queued.key === HANDS_SYM) {
+            const key = typeof queued.key === 'number'
+                ? String.fromCharCode(queued.key) : queued.key;
+            if (key === HANDS_SYM) {
                 const suitability = await obj_ok(null, state);
                 if (suitability === GETOBJ_SUGGEST
                     || suitability === GETOBJ_DOWNPLAY) {
@@ -850,10 +916,23 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                 }
             } else {
                 for (let item = inventoryHead(state); item; item = item.nobj) {
-                    if (item.invlet !== queued.key) continue;
+                    if (item.invlet !== key) continue;
                     const suitability = await obj_ok(item, state);
                     if (suitability === GETOBJ_SUGGEST
                         || suitability === GETOBJ_DOWNPLAY) {
+                        if (cntgiven) {
+                            // invent.c clears cntgiven for an invalid or
+                            // complete queued count before split_otmp; that
+                            // returns the original stack unchanged.
+                            if (cnt < 1 || item.quan <= cnt) {
+                                cntgiven = false;
+                            } else {
+                                if (splittable(item, state))
+                                    return splitobj(item, cnt, { state });
+                                if (item.otyp === LOADSTONE && item.cursed)
+                                    item.corpsenm = cnt;
+                            }
+                        }
                         return item;
                     }
                 }
@@ -864,19 +943,17 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             return null;
         }
         cmdq_clear(CQ_CANNED, state);
-        throw new UnsupportedObjectPromptError(
-            'the object prompt has an unsupported queued answer',
-        );
+        return null;
     }
     let otmp = null;
     let ilet = '';
+    let oneloop = false;
     // C's bp starts at buf and the hands/self arm may advance it past a "- "
     // prefix; the letters it then collects are what `lets` copies and
     // compactify() rewrites, so the two halves are kept apart here.
     const prefix = [];
     const letters = [];
     const altlets = [];
-    const allowcnt = (ctrlflags & GETOBJ_ALLOWCNT) !== 0;
     let forceprompt = (ctrlflags & GETOBJ_PROMPT) !== 0;
     let allownone = false;
     /* counts GETOBJ_EXCLUDE_INACCESS items to decide between "you don't have
@@ -908,7 +985,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
     }
 
     if (!state.flags.invlet_constant)
-        throw new UnsupportedObjectPromptError('reassign()');
+        reassign(state);
 
     /* force invent to be in invlet order before collecting candidate
        inventory letters */
@@ -967,26 +1044,42 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         return null;
     }
     for (;;) {
-        let qbuf = `What do you want to ${word}?`;
-        if (state.iflags.force_invmenu)
-            throw new UnsupportedObjectPromptError('iflags.force_invmenu');
-        qbuf += buf ? ` [${buf} or ?*]` : ' [*]';
-        ilet = String.fromCharCode(
-            await yn_function(qbuf, null, '\0', false, state),
-        );
+        cnt = 0;
+        cntgiven = false;
+        const qbuf = `What do you want to ${word}?`;
+        if (state.in_doagain) {
+            // C's repeat path reads the next raw answer with readchar(),
+            // after the canned queue has been exhausted.
+            ilet = String.fromCharCode(await readchar(state));
+        } else if (state.iflags.force_invmenu) {
+            ilet = oneloop ? '' : (lets || altletsStr ? '?' : '*');
+            oneloop = true;
+        } else {
+            const prompt = qbuf + (buf ? ` [${buf} or ?*]` : ' [*]');
+            ilet = String.fromCharCode(
+                await yn_function(prompt, null, '\0', false, state),
+            );
+        }
 
         if (digit(ilet)) {
             if (!allowcnt) {
                 await ttyPline('No count allowed with this command.', state);
                 continue;
             }
-            // invent.c:1944 answers a digit with get_count(), which reads the
-            // rest of the number off the terminal and echoes it, and whose
-            // count then reaches splitobj() at :2082. Neither is ported, so a
-            // digit typed at a prompt that allows a count stops here -- after
-            // the prompt has drawn and the digit has been read, which is where
-            // C first consults `allowcnt` too.
-            throw new UnsupportedObjectPromptError('get_count() and splitobj()');
+            const countOut = { value: 0 };
+            const counted = await get_count(
+                null,
+                ilet.charCodeAt(0),
+                LARGEST_INT,
+                countOut,
+                GC_SAVEHIST,
+                state,
+            );
+            ilet = String.fromCharCode(counted.key);
+            if (countOut.value) {
+                cnt = countOut.value;
+                cntgiven = true;
+            }
         }
         if (quitchars.includes(ilet)) {
             if (state.flags.verbose) await ttyPline(Never_mind, state);
@@ -997,7 +1090,8 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             // admitted hands/self. Engraving is the first interactive caller
             // to do so; callers that exclude hands keep the older refusal.
             if (allownone) return hands_obj;
-            throw new UnsupportedObjectPromptError('mime_action()');
+            await mime_action(word, state);
+            return null;
         }
         // C ref: invent.c getobj() redo_menu (1960-2001). Unified handling
         // for '?' (suggested subset) and '*' (full inventory) menu requests.
@@ -1012,9 +1106,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                 if (ilet === '?' && !lets && altletsStr)
                     allowed_choices = altletsStr;
 
-                // C:1972 -- menuquery and qbuf are cleared; C:1973-1975
-                // builds a menuquery only when iflags.force_invmenu, which
-                // the for(;;) above already rejects.
+                // C clears qbuf before display_pickinv(). Forced menus use
+                // the prompt as their menu query; the JS menu owner already
+                // displays the same title through the enclosing prompt.
                 const menuquery = null;
 
                 // C:1976-1978 -- compute the hands description when the
@@ -1027,30 +1121,37 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
 
                 const picked = await display_pickinv(
                     allowed_choices, handsbuf, menuquery,
-                    allownone, true, state,
+                    allownone, true, state, { allowcnt },
                 );
                 if (!picked) {
-                    // C:1983-1985 -- oneloop check. oneloop is set only
-                    // by the iflags.force_invmenu arm, which throws above,
-                    // so it is always false here and we continue.
+                    // C:1983-1985 -- a forced menu is one-shot; an ordinary
+                    // menu cancellation returns to the object prompt.
+                    if (oneloop) return null;
                     break; // break inner, continue outer for(;;)
                 }
-                if (picked === HANDS_SYM)
+                if (allowcnt && typeof picked === 'object'
+                    && Object.hasOwn(picked, 'value')) {
+                    if (picked.count >= 0) {
+                        cnt = picked.count;
+                        cntgiven = true;
+                    }
+                    ilet = picked.value;
+                } else {
+                    ilet = picked;
+                }
+                if (ilet === HANDS_SYM)
                     return hands_obj;
-                if (picked === '\x1b') {
+                if (ilet === '\x1b') {
                     if (state.flags.verbose) await ttyPline(Never_mind, state);
                     return null;
                 }
                 // C:1994-1995 -- goto redo_menu when the player picks
                 // '?' or '*' inside the menu.
-                if (picked === '*' || picked === '?') {
-                    ilet = picked;
+                if (ilet === '*' || ilet === '?') {
                     continue; // redo_menu
                 }
-                // C:1996-1999 -- allowcnt/ctmp count path. The count arm
-                // already throws at the digit check above, so ctmp is
-                // never written and cntgiven stays false.
-                ilet = picked;
+                // C:1996-1999 -- display_pickinv() returns the selected
+                // letter and, when allowcnt is set, its menu count.
                 break;
             }
             // When the inner loop broke without assigning ilet (the !picked
@@ -1069,20 +1170,49 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
                 await ttyPline(`You cannot ${word} gold.`, state);
                 return null;
             }
-            /* the LRS arm below reads cntgiven, which stays FALSE: C's three
-               writers of it are the queued count at :1809, get_count() at
-               :1947 and the menu count at :1998, and all three sit behind an
-               arm that stops. */
+            if (cntgiven && cnt <= 0) {
+                if (cnt < 0)
+                    await ttyPline(
+                        'The LRS would be very interested to know you have that much.',
+                        state,
+                    );
+                return null;
+            }
         }
-        /* the "can only throw one at a time" arm reads cntgiven too. */
+        if (cntgiven && word === 'throw') {
+            const coins = otmp?.oclass === COIN_CLASS;
+            if (cnt === 0 || !otmp) return null;
+            if (cnt > 1 && (!coins || cnt > otmp.quan)) {
+                if (cnt > otmp.quan) {
+                    const suffix = !coins && otmp.quan > 1
+                        ? ' and can only throw one at a time' : '';
+                    await ttyPline(
+                        `You only have ${otmp.quan}${suffix}.`, state,
+                    );
+                } else {
+                    await ttyPline('You can only throw one at a time.', state);
+                }
+                continue;
+            }
+        }
         state.disp.botl = true; /* May have changed the amount of money */
-        /* cmdq_add_int()/cmdq_add_key(CQ_REPEAT): no CQ_REPEAT queue */
+        if (otmp && !state.in_doagain) {
+            if (cntgiven && cnt > 0) cmdq_add_int(CQ_REPEAT, cnt, state);
+            cmdq_add_key(CQ_REPEAT, ilet, state);
+        }
         /* verify the chosen object */
         if (!otmp) {
             await ttyPline("You don't have that object.", state);
             continue;
         }
-        /* C's `cnt < 0L || otmp->quan < cnt` needs a count as well. */
+        if (cntgiven && (cnt < 0 || otmp.quan < cnt)) {
+            await ttyPline(
+                `You don't have that many! You have only ${otmp.quan}.`,
+                state,
+            );
+            if (state.in_doagain) return null;
+            continue;
+        }
         break;
     }
     if ((await obj_ok(otmp, state)) === GETOBJ_EXCLUDE) {
@@ -1091,25 +1221,332 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         // COIN_CLASS and the gold arm above returns first, any_obj_ok()
         // excludes nothing that is carried, and apply_ok(), takeoff_ok() and
         // wear_ok() exclude what the player can still type by hand.
-        await silly_thing(word, state);
+        await silly_thing(word, otmp, state);
         return null;
     }
-    /* split_otmp: cntgiven is never set, for the reason the LRS arm gives. */
+    if (cntgiven) {
+        if (cnt === 0) return null;
+        if (cnt !== otmp.quan) {
+            if (splittable(otmp, state))
+                otmp = splitobj(otmp, cnt, { state });
+            else if (otmp.otyp === LOADSTONE && otmp.cursed)
+                otmp.corpsenm = cnt;
+        }
+    }
     return otmp;
 }
 
-// C ref: invent.c silly_thing() (2093-2131). Its OBSOLETE_HANDLING block at
-// 2097-2122 is compiled out -- nothing in the tree defines that macro -- so
-// the live body is a two-arm choice, and C's `word` is the verb the prompt
-// asked with.
-//
-// The arm this leaves out is the Amulet of Yendor's, which needs word ==
-// "call". do_name.c docallcmd() supplies that word only after its own
-// getobj() callback has accepted the item; C's `otmp` parameter exists only
-// for that arm and is left out with it. The other C caller of the same format
-// string is read.c:559.
-async function silly_thing(word, state) {
-    await ttyPline(silly_thing_to.replace('%s', word), state);
+// C ref: invent.c silly_thing() (2094-2135). OBSOLETE_HANDLING is disabled in
+// the upstream build; the live body only has the Amulet exception and the
+// generic feedback string.
+async function silly_thing(word, otmp, state = game) {
+    if (word === 'call'
+        && (otmp?.otyp === AMULET_OF_YENDOR
+            || (otmp?.otyp === FAKE_AMULET_OF_YENDOR && !otmp.known))) {
+        await ttyPline("The Amulet doesn't like being called names.", state);
+    } else {
+        await ttyPline(silly_thing_to.replace('%s', word), state);
+    }
+}
+
+// C ref: invent.c ckvalidcat() (2136-2142). This callback is also used by
+// pickup.c's category filters; the state fields are the JS equivalents of
+// pickup.c's valid_menu_classes and filter flags.
+export function ckvalidcat(otmp, state = game) {
+    if (!state.gc?.class_filter && !state.gs?.shop_filter
+        && !state.gb?.bucx_filter && !state.gp?.picked_filter)
+        return false;
+    const classes = state.gv?.valid_menu_classes ?? '';
+    // C explicitly accepts or rejects coins on the class filter and returns
+    // before applying unpaid or BUC filters.
+    if (otmp.oclass === COIN_CLASS && state.gc?.class_filter)
+        return classes.includes(String.fromCharCode(COIN_CLASS));
+    if (state.urole?.mnum === PM_CLERIC && !otmp.bknown)
+        set_bknown(otmp, 1, { state });
+    if (state.gc?.class_filter
+        && !classes.includes(String.fromCharCode(otmp.oclass))) return false;
+    if (state.gs?.shop_filter && !otmp.unpaid
+        && !(hasContents(otmp) && count_unpaid(otmp.cobj) > 0)) return false;
+    if (state.gb?.bucx_filter) {
+        const bucx = otmp.oclass === COIN_CLASS
+            ? (state.flags?.goldX ? 'X' : 'U')
+            : (!otmp.bknown ? 'X'
+                : otmp.blessed ? 'B' : otmp.cursed ? 'C' : 'U');
+        if (!classes.includes(bucx)) return false;
+    }
+    return !state.gp?.picked_filter || Boolean(otmp.pickup_prev);
+}
+
+// C ref: invent.c ckunpaid() (2143-2148).
+export function ckunpaid(otmp) {
+    return Boolean(otmp.unpaid
+        || (hasContents(otmp) && count_unpaid(otmp.cobj)));
+}
+
+// C ref: invent.c is_worn() (2156-2166).
+export function is_worn(otmp) {
+    return Boolean(otmp?.owornmask
+        && (otmp.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE | W_WEAPONS)));
+}
+
+// C ref: invent.c tool_being_used() (invent.c:2169's callee in wield.c).
+function tool_being_used(obj, state = game) {
+    if (obj.owornmask & (W_TOOL | W_SADDLE)) return true;
+    if (obj.oclass !== TOOL_CLASS) return false;
+    return obj === state.uwep || obj.lamplit
+        || (obj.otyp === LEASH && state.leashmon);
+}
+
+// C ref: invent.c is_inuse() (2167-2179).
+export function is_inuse(obj, state = game) {
+    return Boolean(carried(obj) && (is_worn(obj) || tool_being_used(obj, state)));
+}
+
+// C ref: invent.c safeq_xprname()/safeq_shortxprname() (2180-2201). C keeps
+// these two fields in a static context while askchain invokes safe_qbuf().
+const safeq_xprn_ctx = { let: '\0', dot: false };
+export function set_safeq_context(invlet, dot) {
+    safeq_xprn_ctx.let = invlet;
+    safeq_xprn_ctx.dot = Boolean(dot);
+}
+export function safeq_xprname(obj, state = game) {
+    return xprname(obj, null, safeq_xprn_ctx.let, safeq_xprn_ctx.dot, 0, 0, state);
+}
+export function safeq_shortxprname(obj, state = game) {
+    return xprname(
+        obj,
+        ansimpleoname(obj, state),
+        safeq_xprn_ctx.let,
+        safeq_xprn_ctx.dot,
+        0,
+        0,
+        state,
+    );
+}
+
+function collect_obj_classes_invent(head, filter, state) {
+    const result = [];
+    for (let obj = head; obj; obj = obj.nobj) {
+        if (filter && !filter(obj, state)) continue;
+        const symbol = String.fromCharCode(
+            DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + obj.oclass],
+        );
+        if (!result.includes(symbol)) result.push(symbol);
+    }
+    return result;
+}
+
+function count_buc_invent(head, type, filter, state) {
+    let count = 0;
+    for (let obj = head; obj; obj = obj.nobj) {
+        if (state.urole?.mnum === PM_CLERIC)
+            obj.bknown = obj.oclass !== COIN_CLASS;
+        if (filter && !filter(obj, state)) continue;
+        if (obj.oclass === COIN_CLASS) {
+            if (type === (state.flags?.goldX ? BUC_UNKNOWN : BUC_UNCURSED))
+                count++;
+            continue;
+        }
+        const actual = !obj.bknown ? BUC_UNKNOWN
+            : obj.blessed ? BUC_BLESSED
+                : obj.cursed ? BUC_CURSED : BUC_UNCURSED;
+        if (actual === type) count++;
+    }
+    return count;
+}
+
+function count_justpicked_invent(head) {
+    let count = 0;
+    for (let obj = head; obj; obj = obj.nobj)
+        if (obj.pickup_prev) count++;
+    return count;
+}
+
+// C ref: invent.c ggetobj() (2202-2376). The interactive class selector is
+// used by Drop, Identify, and Takeoff. Its askchain implementation remains in
+// pickup.js (the C owner of that routine); a dynamic import keeps this module's
+// existing invent/pickup dependency cycle out of initialization.
+export async function ggetobj(
+    word,
+    fn,
+    mx,
+    combo,
+    resultflags = null,
+    state = game,
+) {
+    const setResultFlags = (value) => {
+        if (resultflags && typeof resultflags === 'object')
+            resultflags.value = value;
+    };
+    if (!inventoryHead(state)) {
+        await ttyPline(`You have nothing to ${word}.`, state);
+        setResultFlags(ALL_FINISHED);
+        return 0;
+    }
+
+    setResultFlags(0);
+    state.gv ??= {};
+    state.gc ??= {};
+    state.gb ??= {};
+    state.gs ??= {};
+    state.gp ??= {};
+    state.gv.valid_menu_classes = '';
+    state.gc.class_filter = false;
+    state.gb.bucx_filter = false;
+    state.gs.shop_filter = false;
+    state.gp.picked_filter = false;
+    let ckfn = null;
+    let ofilter = null;
+    const takeoff = taking_off(word);
+    const ident = word === 'identify';
+    if (takeoff) ofilter = is_worn;
+    else if (ident) ofilter = (obj, current) => not_fully_identified(obj, current);
+
+    const ilets = collect_obj_classes_invent(
+        inventoryHead(state), ofilter, state,
+    );
+    const unpaid = count_unpaid(inventoryHead(state));
+    if (ident && ilets.length === 0) return -1;
+    ilets.push(' ');
+    if (unpaid) ilets.push('u');
+    if (count_buc_invent(inventoryHead(state), BUC_BLESSED, ofilter, state))
+        ilets.push('B');
+    if (count_buc_invent(inventoryHead(state), BUC_UNCURSED, ofilter, state))
+        ilets.push('U');
+    if (count_buc_invent(inventoryHead(state), BUC_CURSED, ofilter, state))
+        ilets.push('C');
+    if (count_buc_invent(inventoryHead(state), BUC_UNKNOWN, ofilter, state))
+        ilets.push('X');
+    if (count_justpicked_invent(inventoryHead(state))) ilets.push('P');
+    ilets.push('a', 'i');
+    if (!combo) ilets.push('m');
+
+    let buf = '';
+    for (;;) {
+        const line = await getlin(
+            `What kinds of thing do you want to ${word}? [${ilets.join('')}]`,
+            state,
+        );
+        buf = String(line ?? '');
+        if (buf.charCodeAt(0) === 0x1B) return 0;
+        if (buf.includes('i')) {
+            let ailets = '';
+            if (ofilter) {
+                for (let obj = inventoryHead(state); obj; obj = obj.nobj) {
+                    if (ofilter(obj, state) && !ailets.includes(obj.invlet))
+                        ailets += obj.invlet;
+                }
+            }
+            const displayed = await display_inventory(ailets, true, state);
+            if (displayed === '\x1b') return 0;
+            continue;
+        }
+        break;
+    }
+
+    let extra = '';
+    if (takeoff) {
+        for (const obj of [state.uwep, state.uswapwep, state.uquiver]) {
+            if (obj) {
+                const cls = String.fromCharCode(obj.oclass);
+                if (!extra.includes(cls)) extra += cls;
+            }
+        }
+    }
+
+    let allflag = false;
+    let m_seen = false;
+    let olets = '';
+    for (const sym of buf) {
+        if (sym === ' ') continue;
+        const oc = def_char_to_objclass(sym);
+        if (takeoff && oc !== MAXOCLASSES
+            && !extra.includes(String.fromCharCode(oc))) {
+            const removable = String.fromCharCode(ARMOR_CLASS)
+                + String.fromCharCode(WEAPON_CLASS)
+                + String.fromCharCode(RING_CLASS)
+                + String.fromCharCode(AMULET_CLASS)
+                + String.fromCharCode(TOOL_CLASS);
+            if (!removable.includes(String.fromCharCode(oc))) {
+                await ttyPline('Not applicable.', state);
+                return 0;
+            }
+            if (oc === ARMOR_CLASS && !wearing_armor(state)) {
+                await noarmor(false, state);
+                return 0;
+            }
+            if (oc === WEAPON_CLASS
+                && !state.uwep && !state.uswapwep && !state.uquiver) {
+                await ttyPline('You are not wielding anything.', state);
+                return 0;
+            }
+            if (oc === RING_CLASS && !state.uright && !state.uleft) {
+                await ttyPline('You are not wearing rings.', state);
+                return 0;
+            }
+            if (oc === AMULET_CLASS && !state.uamul) {
+                await ttyPline('You are not wearing an amulet.', state);
+                return 0;
+            }
+            if (oc === TOOL_CLASS && !state.ublindf) {
+                await ttyPline('You are not wearing a blindfold.', state);
+                return 0;
+            }
+        }
+        if (sym === 'a') allflag = true;
+        else if (sym === 'A') continue;
+        else if (sym === 'u') {
+            state.gv ??= {};
+            state.gv.valid_menu_classes ??= '';
+            if (!state.gv.valid_menu_classes.includes('u'))
+                state.gv.valid_menu_classes += 'u';
+            state.gs ??= {};
+            state.gs.shop_filter = true;
+            ckfn = ckunpaid;
+        } else if ('BUCXP'.includes(sym)) {
+            state.gv ??= {};
+            state.gv.valid_menu_classes ??= '';
+            if (!state.gv.valid_menu_classes.includes(sym))
+                state.gv.valid_menu_classes += sym;
+            state.gb ??= {};
+            state.gb.bucx_filter = true;
+            if (sym === 'P') {
+                state.gp ??= {};
+                state.gp.picked_filter = true;
+            } else {
+                state.gc ??= {};
+                state.gc.class_filter = true;
+            }
+            ckfn = ckvalidcat;
+        } else if (sym === 'm') {
+            m_seen = true;
+        } else if (oc === MAXOCLASSES) {
+            await ttyPline(`You don't have any ${sym}'s.`, state);
+        } else {
+            const classChar = String.fromCharCode(oc);
+            if (!olets.includes(classChar)) {
+                state.gv ??= {};
+                state.gv.valid_menu_classes ??= '';
+                if (!state.gv.valid_menu_classes.includes(classChar))
+                    state.gv.valid_menu_classes += classChar;
+                olets += classChar;
+            }
+        }
+    }
+
+    if (m_seen)
+        return (allflag || (!olets && ckfn !== ckunpaid && ckfn !== ckvalidcat))
+            ? -2 : -3;
+    if (state.flags?.menu_style !== MENU_TRADITIONAL && combo && !allflag)
+        return 0;
+
+    const { askchain } = await import('./pickup.js');
+    const count = await askchain(
+        'invent', olets, allflag, fn, ckfn, mx, word, state,
+    );
+    if (combo && allflag)
+        setResultFlags((resultflags?.value ?? 0) | ALL_FINISHED);
+    return count;
 }
 
 // compactify() and invletter_value() are staticfn in invent.c and have no
@@ -1120,13 +1557,23 @@ async function silly_thing(word, state) {
 // order, so neither is covered for its whole input range by a recorded case.
 export const _getobjInternals = Object.freeze({
     compactify,
+    ckunpaid,
+    ckvalidcat,
     getobj_hands_txt,
     inuse_classify,
     invletter_value,
+    is_inuse,
+    is_worn,
     loot_classify,
     loot_xname,
     reorder_invent,
+    safeq_shortxprname,
+    safeq_xprname,
+    silly_thing,
     sortloot_cmp,
+    splittable,
+    taking_off,
+    mime_action,
     unsortloot,
 });
 
@@ -1134,8 +1581,8 @@ export const _getobjInternals = Object.freeze({
 // and the ordinary throw `*` reach it), the bounded one-item suggested subset
 // from getobj() (`?`), and the partial-inventory branch (equipment display
 // commands pass a `lets` filter). The wizard-identify display-only branch also
-// builds its PICK_NONE or PICK_ANY menu here; extra-choice and non-default
-// sort branches remain unported.
+// builds its PICK_NONE or PICK_ANY menu here; extra-choice is represented by
+// the hands/self row and non-default sort branches remain unported.
 export async function display_pickinv(
     lets,
     xtra_choice,
@@ -1143,22 +1590,18 @@ export async function display_pickinv(
     allowxtra,
     want_reply,
     state = game,
-    { menu } = {},
+    { menu, allowcnt = false } = {},
 ) {
     // C ref: invent.c display_pickinv() usextra (3084). C computes
     // usextra = (xtra_choice && allowxtra); when only one is set the
     // other side is inert. The hands menu entry needs both a description
     // (xtra_choice) and permission (allowxtra) to appear.
-    if (xtra_choice && allowxtra)
-        throw new UnsupportedFeatureDescriptionError('a partial inventory');
     const wizid = Boolean(state.wizard && state.iflags?.override_ID);
-    if (!lets && (state.iflags.force_invmenu || state.iflags.menu_requested)
-        && !wizid)
-        throw new UnsupportedFeatureDescriptionError('a forced inventory menu');
+    const usextra = Boolean(xtra_choice && allowxtra);
     if (state.flags.sortloot === 'i' || state.flags.sortloot === 'f')
         throw new UnsupportedFeatureDescriptionError('a reordered inventory');
     if (!state.flags.invlet_constant)
-        throw new UnsupportedFeatureDescriptionError('reassign()');
+        reassign(state);
     if (!state.flags.sortpack)
         throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
     if (!state.invent) {
@@ -1179,7 +1622,7 @@ export async function display_pickinv(
     }
     // C skips the single-item message-line shortcut for a full inventory and
     // for wizard identify, even when exactly one object remains.
-    if (n === 1 && (!lets || wizid)) n++;
+    if (usextra || (n === 1 && (!lets || wizid))) n++;
 
     // C ref: invent.c display_pickinv() single-item message-line path.
     // When only one item matches and no menu is forced, show it with
@@ -1189,6 +1632,24 @@ export async function display_pickinv(
         let match = null;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
             if (!lets || lets.includes(otmp.invlet)) { match = otmp; break; }
+        }
+        if (usextra) {
+            const mesg = xprname(
+                null,
+                xtra_choice,
+                HANDS_SYM,
+                true,
+                0,
+                0,
+                state,
+            );
+            const response = await tty_message_menu(
+                HANDS_SYM.charCodeAt(0), PICK_ONE, mesg, state,
+            );
+            const selected = response
+                ? String.fromCharCode(response) : null;
+            return allowcnt && selected
+                ? { value: selected, count: -1 } : selected;
         }
         if (match) {
             const mesg = xprname(
@@ -1206,7 +1667,10 @@ export async function display_pickinv(
                 mesg,
                 state,
             );
-            return want_reply && response ? String.fromCharCode(response) : null;
+            const selected = want_reply && response
+                ? String.fromCharCode(response) : null;
+            return allowcnt && selected
+                ? { value: selected, count: -1 } : selected;
         }
         return null;
     }
@@ -1228,6 +1692,7 @@ export async function display_pickinv(
             }
             : item)),
         how,
+        returnCount: Boolean(allowcnt),
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     }));
@@ -1271,6 +1736,15 @@ export async function display_pickinv(
             gotsomething = true;
         }
     }
+    if (xtra_choice && allowxtra
+        && (!lets || lets.includes(HANDS_SYM))) {
+        items.push({
+            selector: HANDS_SYM,
+            label: xtra_choice,
+            value: HANDS_SYM,
+        });
+        gotsomething = true;
+    }
     for (const oclass of state.flags.inv_order) {
         let classcount = 0;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
@@ -1303,6 +1777,10 @@ export async function display_pickinv(
     if (query)
         throw new UnsupportedFeatureDescriptionError('a menu prompt');
     const selected = await menuOwner(items, state, menuHow);
+    if (!wizid && allowcnt && selected
+        && typeof selected === 'object' && !Array.isArray(selected)
+        && Object.hasOwn(selected, 'value'))
+        return selected;
     if (!wizid) return selected;
 
     // C clears override_ID before applying a PICK_ANY selection. The command
@@ -1861,7 +2339,8 @@ export async function identify(obj, state = game) {
 
 // C ref: invent.c identify_pack() (2710-2744). The automatic-all branch is
 // used by an ordinary identify scroll when its cval covers the remaining
-// incomplete objects. Interactive selection remains outside this span.
+// incomplete objects. Traditional finite selection routes through the
+// ggetobj() port; the full-menu query_objlist() fallback remains unported.
 export async function identify_pack(idLimit, learningId, state = game) {
     const unidCount = count_unidentified(inventoryHead(state), state);
     if (!unidCount) {
@@ -1876,6 +2355,21 @@ export async function identify_pack(idLimit, learningId, state = game) {
             if (!not_fully_identified(obj, state)) continue;
             await identify(obj, state);
             if (--remaining < 1) break;
+        }
+    } else if (state.flags?.menu_style === MENU_TRADITIONAL) {
+        let remaining = idLimit;
+        let selected = 0;
+        do {
+            selected = await ggetobj(
+                'identify', identify, remaining, false, null, state,
+            );
+            if (selected < 0) break;
+            remaining -= selected;
+        } while (remaining > 0);
+        if (selected === 0 || selected < -1) {
+            throw new UnsupportedObjectOperationError(
+                `identify_pack menu_identify(${idLimit})`,
+            );
         }
     } else {
         throw new UnsupportedObjectOperationError(

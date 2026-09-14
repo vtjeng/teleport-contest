@@ -196,9 +196,8 @@ test('canletgo lets go of everything else', async () => {
 });
 
 // C ref: do.c canletgo() (688-695), the loadstone message and the corpsenm
-// kludge getobj() shares with it. The count getobj() would have parked in
-// corpsenm is zero here, because get_count() is unported, so only the verb and
-// the quantity move.
+// kludge getobj() shares with it. A count at the drop prompt is consumed by
+// invent.c get_count() before the selected object is handed to canletgo().
 test('the cursed loadstone message names the verb and the count', async () => {
     for (const [word, quan, expected] of [
         // "drop" is not "throw", so the kludge does not fire whatever the
@@ -738,11 +737,11 @@ test('a drop with verbose off lands the object and says nothing', async () => {
 });
 
 // C ref: invent.c getobj() (1937-1949). C consults `allowcnt` only once a
-// digit has been typed, so the prompt has to draw first and only then does
-// the unported get_count() stop the command.
-test('a count at the drop prompt stops after the prompt has drawn', async () => {
+// digit has been typed, so the prompt draws first and get_count() consumes the
+// count terminator before the incomplete input segment ends.
+test('a count at the drop prompt is read after the prompt draws', async () => {
     const { boundary, state } = await playDrop('d2');
-    assert.match(boundary.message, /get_count\(\) and splitobj\(\)/u);
+    assert.equal(boundary, null);
     // Four suggested letters stay uncompacted; invent.c:1908 only calls
     // compactify() above five. The digit is the echo yn_function() made
     // before get_count() would have read the rest of the number.
