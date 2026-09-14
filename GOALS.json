@@ -44083,7 +44083,7 @@
     {
       "id": "pilot-invent-addinv-core1-seed0399",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete source-owned inventory admission effects and remove obsolete unique-wish admission and injected achievement hooks.",
       "cFile": "invent.c",
       "sessions": [
@@ -44098,8 +44098,11 @@
         "screens": 9105,
         "rng": 652844
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fb4847f69925d23eb2d588e108edf99e18b36a46",
+      "delivered": {
+        "screens": 113,
+        "rng": 28
+      },
       "functions": [
         {
           "name": "addinv_core1",
@@ -44237,6 +44240,33 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 413,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 119,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "previousRemainingScreensUpperBound": 232
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "fb4847f69925d23eb2d588e108edf99e18b36a46",
+        "screens": 9218,
+        "rng": 652872
       }
     }
   ]
