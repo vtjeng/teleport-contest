@@ -45193,7 +45193,16 @@
       ],
       "selectionReason": "Authorized independent seed-worker pilot: finish the already assigned immutable Arc-goal span before its next Arc-filb span. Current seed0361 first mismatch314, upper52, is Arc-filb per investigations/seed0361-archeologist-tour.json; Arc-goal is the separate source-traced missing loader at317/Home5, not the first mismatch owner. Preserve that distinction and integrate the completed whole program without waiting for another worker.",
       "detail": "Whole dat/Arc-goal.lua6-115, production registration, and required existing makemon gender helper correction at C1259-1279. The original assumption that first mismatch314 was Arc-goal was corrected during implementation; independent direct-menu recipes reach and fully validate Arc-goal without that earlier filler dependency.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "Arc-goal.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Arc-goal.lua"
+          ]
+        }
+      ],
       "openedAt": "f31fc99efc883d26b504b918f9ad9d1cb68e4aab",
       "openStanding": {
         "sha": "4be69da348feae60e37c1a28d839daf4fe26ec75",
