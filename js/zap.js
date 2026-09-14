@@ -28,6 +28,10 @@
 
 import { artifact_origin } from './artifacts.js';
 import {
+    ACH_AMUL,
+    ACH_BELL,
+    ACH_BOOK,
+    ACH_CNDL,
     ACID_RES,
     AC_VALUE,
     ANTIMAGIC,
@@ -195,6 +199,9 @@ import {
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
+    AMULET_OF_YENDOR,
+    BELL_OF_OPENING,
+    CANDELABRUM_OF_INVOCATION,
     CORPSE,
     DWARVISH_CLOAK,
     HEAVY_IRON_BALL,
@@ -205,6 +212,7 @@ import {
     ROCK,
     SCROLL_CLASS,
     SPBOOK_CLASS,
+    SPE_BOOK_OF_THE_DEAD,
     SPE_DIG,
     SPE_EXTRA_HEALING,
     SPE_FINGER_OF_DEATH,
@@ -273,6 +281,7 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { hits_bars } from './mthrowu.js';
 import { note_unported } from './unported.js';
+import { record_achievement } from './insight.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
@@ -283,6 +292,27 @@ export class UnsupportedZapError extends Error {
         super(`zapping a wand requires ${branch}`);
         this.name = 'UnsupportedZapError';
         this.branch = branch;
+    }
+}
+
+// C ref: invent.c addinv_core1() (960-1002), called by makewish() through
+// hold_another_object(). The inventory substrate keeps this source branch
+// behind an explicit hook because other callers have different ownership for
+// achievement and special-item state. A wish owns all four writes here.
+function addinvWishSpecialEffects(obj, env) {
+    const state = env.state;
+    if (obj.otyp === AMULET_OF_YENDOR) {
+        state.u.uhave.amulet = 1;
+        record_achievement(ACH_AMUL, state);
+    } else if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
+        state.u.uhave.menorah = 1;
+        record_achievement(ACH_CNDL, state);
+    } else if (obj.otyp === BELL_OF_OPENING) {
+        state.u.uhave.bell = 1;
+        record_achievement(ACH_BELL, state);
+    } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
+        state.u.uhave.book = 1;
+        record_achievement(ACH_BOOK, state);
     }
 }
 
@@ -1076,6 +1106,7 @@ export async function makewish(state = game) {
     const holdEnv = {
         state,
         hooks: {
+            addSpecialInventoryEffects: addinvWishSpecialEffects,
             encumberMessage: encumber_msg,
             // do.c dropz() -> stackobj() -> invent.c merged() reaches
             // mkobj.c obj_extract_self() for the pile member the landing

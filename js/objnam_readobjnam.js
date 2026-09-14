@@ -1583,15 +1583,10 @@ function isMimicCorpseSpecies(mndx) {
         || mndx === PM_GIANT_MIMIC;
 }
 
-function requireSimpleWishedObject(d, type, state) {
+function requireSimpleWishedObject(d) {
     const refuse = (reason) => {
         throw new UnsupportedWishError(reason, origbp(d));
     };
-    if (type.oc_unique) {
-        /* mksobj() makes an oc_unique type an artifact, which
-           objnam.c:5348-5357 then measures with rn2(nartifact_exist()). */
-        refuse('a wish for a unique object');
-    }
     switch (d.typ) {
     /* The five types objnam.c:5206-5245's corpsenm switch owns, plus the slime
        mold beside them in the spe switch.  Naming one of these is how a wish
@@ -1776,13 +1771,13 @@ function readobjnam_typfnd(d, normalized) {
     // a class has no type to read until mkobj() has drawn one, so its
     // requireSingleWishedObject() check runs after the draw, below. There
     // requireSimpleRandomWishedObject() replaces requireSimpleWishedObject():
-    // the type names the latter refuses -- a container, a unique, a slime mold
-    // -- are what a player may spell, and a draw needs only the five
+    // the type names the latter refuses -- a container or slime mold -- are
+    // what a player may spell, and a draw needs only the five
     // monster-carrying types screened.  A drawn slime mold is granted where a
     // named one is refused.
     const named = d.typ !== 0;
     if (named) {
-        requireSimpleWishedObject(d, objectType(d.typ, state), state);
+        requireSimpleWishedObject(d);
     }
 
     /*

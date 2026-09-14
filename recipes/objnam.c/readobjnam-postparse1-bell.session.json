@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4471091,
+      "datetime": "20291105071500",
+      "nethackrc": "OPTIONS=name:BellProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017blessed bell of opening\n."
+    }
+  ],
+  "comment": "An independently chosen debug wish reaches readobjnam()'s unique Bell typfnd path, then makewish() hold_another_object() and invent.c addinv_core1() special-item effects."
+}

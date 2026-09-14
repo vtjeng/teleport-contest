@@ -43,6 +43,7 @@ import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BEARTRAP,
+    BELL_OF_OPENING,
     BLINDING_VENOM,
     BRASS_LANTERN,
     BROADSWORD,
@@ -850,8 +851,6 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
         'newt corpse',
         // Types whose fine tuning is unported.
         'tin of newt meat',
-        // A unique object, which mksobj() would make an artifact.
-        'Amulet of Yendor',
         // And a name that matches nothing, which C answers by printing
         // "Nothing fitting that description exists in the game." and asking
         // again.
@@ -861,6 +860,20 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
         assert.ok(refusal, `${text} is refused`);
         assert.deepEqual(draws, [], `${text} draws nothing`);
     }
+});
+
+test('readobjnam lets a wizard wish for the unique Bell of Opening', () => {
+    const state = wishState();
+    const draws = [];
+    const bell = readobjnam('blessed bell of opening', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom(draws) }));
+    // objnam.c:4999-5023 only substitutes unique types outside wizard mode;
+    // the wizard typfnd path proceeds into mkobj.c mksobj(). Bell of Opening
+    // has no artifact entry, so mksobj() consumes only next_ident() here.
+    assert.equal(bell.otyp, BELL_OF_OPENING);
+    assert.equal(bell.spe, 3);
+    assert.equal(bell.blessed, true);
+    assert.deepEqual(draws, ['rn2(1)', 'rnd(2)']);
 });
 
 // objnam.c:5094-5120, 5191-5253 and 5255-5268: the enchantment sign, the
