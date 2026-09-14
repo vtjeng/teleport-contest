@@ -43572,7 +43572,7 @@
           "line": 4240,
           "endLine": 4665,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -43663,7 +43663,44 @@
         "screens": 8936,
         "rng": 651740
       },
-      "parkedReason": "Pilot integration deferred pending correction of a newly introduced UnsupportedWishError throw in readobjnam_lookup and complete recording-comparison evidence. Worker A continues independently; ready worker B turn-planning delivery can integrate meanwhile."
+      "parkedReason": "Pilot integration deferred pending correction of a newly introduced UnsupportedWishError throw in readobjnam_lookup and complete recording-comparison evidence. Worker A continues independently; ready worker B turn-planning delivery can integrate meanwhile.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "readobjnam_postparse1",
+            "implementation": "js/objnam_readobjnam.js",
+            "symbol": "readobjnam_postparse1",
+            "sourceReview": "Coordinator compared the complete objnam.c definition at 4240-4663 and the integrated source: named/called/labeled and spinach truncation; real/fake Amulet selection; pairs and sets; all glob spellings, canonicalization and source rn1 fallback; tin contents and varieties; monster names and gender; singularization and alternate spellings; grey spell/armour rewrites; dragon scales; holy/unholy water; paperback/null result; unlabeled paper; orange; gold aliases, count limits, mksobj, weight and botl; single-character classes and wizard venom; class prefix/suffix and amulet shape selection; wizard bear-trap/land-mine object-versus-trap return action. The obsolete helper refusals are removed. Correction 17b7940f removes the new action-5 throw site; downstream unported wizterrainwish and named monster-carrier fine tuning remain outside this helper, behind pre-existing driver refusals, with no claim of complete readobjnam driver behavior. Required return-valued eat.c tin_variety_txt (1405-1421) is fully source-compared in js/eat.js: it is pure with respect to game state, RNG and output, writes the output parameter -1 whenever both pointers are non-null including an empty string, scans the source TIN_VARIETIES excluding the terminator, matches case-insensitively with a required following space, and returns consumed length or zero. Its live caller is objnam.c:4386 / js/objnam_readobjnam.js readobjnam_postparse1; scripts/objnam-readobjnam.test.mjs pins recognized prefixes, no-match, empty input and missing output-pointer behavior. Separate immutable corrections e0454b1b and 6eef5091 repair and test the empty-string C-pointer distinction. The corrected integrated parser tests passed. This evidence records the dependency verification without counting tin_variety_txt as an objnam.c source unit.",
+            "callers": [
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam_lookup",
+                "source": "Production readobjnam() lookup chain corresponding to objnam.c readobjnam() lines 4927-4994."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam-readobjnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-postparse1-gold.session.json"
+            ],
+            "checkedAt": "b9c62a63ee179505809c598a0e4b2043f1a3fce0"
+          }
+        ],
+        "entryPointReview": "The range has one production parser entry point, reached by the wizard wish command through cmd.js runWishCommand -> wizcmds.js wiz_wish -> zap.js makewish -> readobjnam -> readobjnam_lookup -> readobjnam_postparse1. The independent gold recipe reaches the helper and the early object-return arm: strict differential matched 2662 RNG values, 18 complete screens including cells/attributes, 18 cursors and zero animation frames. Its committed recording passed the worker checkpoint, and the combined checkpoint will verify it with the other seed's changes. Pure tin_variety_txt is a consumed-return dependency without an independent command entry point; source-pinned tests cover it and the helper's other branches. No Bell follow-up code or evidence is included in this completion claim.",
+        "entryPoints": [
+          {
+            "name": "wizard wish parser",
+            "functions": [
+              "readobjnam_postparse1"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-postparse1-gold.session.json"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "pilot-div-immobility-planning-seed0002",
