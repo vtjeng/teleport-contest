@@ -1,42 +1,44 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 280,
+  "remainingScreensUpperBound": 251,
   "status": "complete",
-  "commit": "dfb7a5e25f0837e7089dbfe5591e1269695eaf1d",
+  "commit": "9707e5dc8fa84863a36d94d1ac8166c2e097265d",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 280,
-    "step": 315,
+    "remainingScreensUpperBound": 251,
+    "step": 344,
     "kind": "boundary",
-    "function": "peffect_healing",
+    "function": "pick_obj",
     "functionDeclared": false,
-    "sourceFile": "potion.c",
-    "cFile": "potion.c",
+    "sourceFile": "pickup.c",
+    "cFile": "pickup.c",
     "luaFile": null,
-    "line": 1119,
-    "message": "quaffing requires peffect_healing()",
+    "line": 1897,
+    "message": "pickup() from a shop floor",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "The complete missile-impact/shipping delivery removes the prior unseen-hit screen mismatch. The refreshed worker branch matches all emitted screens, cursors and RNG through screen 315, then refuses a healing-potion quaff. peffects has only an UnsupportedQuaffError for this type, so the next source unit is whole peffect_healing, with the partial healup helper and cure callers inspected in the same span.",
+  "summary": "Healing quaff now completes and the assigned seed matches through344screens. Its next stop is a shop-floor pickup guard. C pick_obj must extract the object, temporarily set the object's shop, bill it before inventory merging, restore the hero's shop string, add inventory and then handle remote burglary. JavaScript folds only extraction/addinv into pickup_object and refuses shop stock before selection; the actionable unit is whole pick_obj with addtobill and billing dependencies.",
   "source": {
-    "file": "potion.c",
+    "file": "pickup.c",
     "functions": [
-      "peffect_healing"
+      "pick_obj"
     ],
-    "branch": "potion.c:1119–1125 prints You feel better, rolls d(4+2*bcsign,4), adds eight HP, selects the max-HP increment and sickness/blindness cures by beatitude, calls healup, then exercises constitution. JS potion.js:949–950 refuses the entire POT_HEALING arm.",
+    "branch": "Read pickup.c pick_obj:1897–1945 and pickup_object:1803–1888. robshop is !u.uswallow && otmp!=uball && costly_spot(object coordinates). C addtobill at1929 precedes addinv at1934 so unpaid state controls merging; remote_burglary follows inventory insertion. JS pickup:1225–1228 refuses costly_spot and its folded pickup_object body omits the billing branch.",
     "callers": [
-      "runSegment -> quaff command -> potion.js dodrink -> dopotion -> peffects. C potion.c:1395–1397 dispatches POT_HEALING to peffect_healing; JS peffects currently throws at the corresponding case."
+      "runSegment -> pickup command (comma) -> pickup -> pickup_object -> pick_obj; C pickup:784 calls pickup_object, whose1877 call assigns the pick_obj result before pickup_prinv.",
+      "JS pickup_object currently directly extracts, redraws and calls addinv_runtime; replace that folded helper with a source-shaped pick_obj and remove the shop-only caller stand-in once billing is wired."
     ],
     "dependencies": [
-      "healup C1428–1458 already implements polymorph/normal HP and peak HP bookkeeping, but its cureblind/curesick branches are obsolete refusals. Complete its source calls and propagate await through the existing potion, self-zap and artifact callers.",
-      "Inspect make_blinded C261–331, make_deaf C443–457, make_vomiting C245–254, make_sick C140–196 and exercise. Existing partial helpers are not completion evidence; preserve source order, vision effects and unconscious message suppression. Missing discarded-return callees can remain explicit note_unported gaps; consumed-return dependencies cannot be replaced by invented values."
+      "shk.c addtobill:3490–3601 is absent. Its required consumed helpers include billable:3451–3487, contained_cost:2995–3047 and set_cost:3148 onward; existing get_cost/get_pricing_units/onbill/contained_gold/count_unpaid must be checked rather than assumed complete.",
+      "Source billing helpers add_one_tobill, add_to_billobjs, bill_box_content, picked_container and append_honorific preserve bill entries, unpaid state, nested containers and quote RNG. Inspect costly_gold and existing remote_burglary; missing discarded-return calls may remain explicit gaps, but consumed billing results must be real.",
+      "Inventory preflight currently runs before billing and projects merges. Verify that source-ordered unpaid changes and actual addinv return remain correct, without inventing a separate billing state or running billing RNG/output speculatively. Existing partial addinv/lift/corpse caller boundaries remain independently owned."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Fresh-process scanRecordedSession of the exact synchronized dfb7a5e2 branch reports screensEmitted=315, recordedSteps=595, divergence=null, boundary=quaffing requires peffect_healing(), behavioral.at=315. The previous screen269 ohitmon message now matches.",
-    "Read potion.c peffect_healing:1119–1125, the peffects dispatch:1395–1397, and healup:1428–1458. Inspected the matching JS dispatch and partial helper; the first stop is missing behavior, not an ordering defect in an implemented function.",
-    "11 focused B5 test files and scoped ESLint pass after the clean normal main refresh. The two refresh conflicts resolved only known unused imports; no game logic was manually merged."
+    "Fresh-process scan of the source state committed as9707e5dc reports screensEmitted=344, recordedSteps=595, divergence=null, behavioral.at=344 and boundary pickup() from a shop floor. The next reference message is the shopkeeper's quoted50-zorkmid silver-shield price; the trace owner is addtobill's in-inventory message, not a generic screen renderer.",
+    "Read whole pickup C672–910 to identify the JS-only shop guard, then whole pickup_object and pick_obj. Read addtobill/billable/add_one_tobill/bill_box_content and the start of contained_cost; the incomplete billing group is a source port, not an ordering-only divergence fix.",
+    "B6 focused195tests, scoped lint and four independent healing recordings pass. No B7 implementation was present when this investigation was recorded."
   ]
 }

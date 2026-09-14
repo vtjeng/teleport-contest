@@ -44953,7 +44953,7 @@
     {
       "id": "pilot-potion-healing-seed0002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port healing potion effects and source-ordered cure helpers",
       "cFile": "potion.c",
       "sessions": [
@@ -44964,8 +44964,8 @@
       "spans": [
         {
           "name": "peffect_healing",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4be69da348feae60e37c1a28d839daf4fe26ec75",
           "functions": [
             "peffect_healing"
           ]
@@ -44977,8 +44977,11 @@
         "screens": 9277,
         "rng": 663843
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+      "delivered": {
+        "screens": 29,
+        "rng": 4376
+      },
       "functions": [
         {
           "name": "peffect_healing",
@@ -45107,6 +45110,76 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 344,
+          "kind": "stop",
+          "function": "pickup",
+          "functionDeclared": true,
+          "sourceFile": "pickup.c",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() from a shop floor",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 251,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 251,
+              "status": "complete",
+              "commit": "9707e5dc8fa84863a36d94d1ac8166c2e097265d",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 251,
+                "step": 344,
+                "kind": "boundary",
+                "function": "pick_obj",
+                "functionDeclared": false,
+                "sourceFile": "pickup.c",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": 1897,
+                "message": "pickup() from a shop floor",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "Healing quaff now completes and the assigned seed matches through344screens. Its next stop is a shop-floor pickup guard. C pick_obj must extract the object, temporarily set the object's shop, bill it before inventory merging, restore the hero's shop string, add inventory and then handle remote burglary. JavaScript folds only extraction/addinv into pickup_object and refuses shop stock before selection; the actionable unit is whole pick_obj with addtobill and billing dependencies.",
+              "source": {
+                "file": "pickup.c",
+                "functions": [
+                  "pick_obj"
+                ],
+                "branch": "Read pickup.c pick_obj:1897–1945 and pickup_object:1803–1888. robshop is !u.uswallow && otmp!=uball && costly_spot(object coordinates). C addtobill at1929 precedes addinv at1934 so unpaid state controls merging; remote_burglary follows inventory insertion. JS pickup:1225–1228 refuses costly_spot and its folded pickup_object body omits the billing branch.",
+                "callers": [
+                  "runSegment -> pickup command (comma) -> pickup -> pickup_object -> pick_obj; C pickup:784 calls pickup_object, whose1877 call assigns the pick_obj result before pickup_prinv.",
+                  "JS pickup_object currently directly extracts, redraws and calls addinv_runtime; replace that folded helper with a source-shaped pick_obj and remove the shop-only caller stand-in once billing is wired."
+                ],
+                "dependencies": [
+                  "shk.c addtobill:3490–3601 is absent. Its required consumed helpers include billable:3451–3487, contained_cost:2995–3047 and set_cost:3148 onward; existing get_cost/get_pricing_units/onbill/contained_gold/count_unpaid must be checked rather than assumed complete.",
+                  "Source billing helpers add_one_tobill, add_to_billobjs, bill_box_content, picked_container and append_honorific preserve bill entries, unpaid state, nested containers and quote RNG. Inspect costly_gold and existing remote_burglary; missing discarded-return calls may remain explicit gaps, but consumed billing results must be real.",
+                  "Inventory preflight currently runs before billing and projects merges. Verify that source-ordered unpaid changes and actual addinv return remain correct, without inventing a separate billing state or running billing RNG/output speculatively. Existing partial addinv/lift/corpse caller boundaries remain independently owned."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scan of the source state committed as9707e5dc reports screensEmitted=344, recordedSteps=595, divergence=null, behavioral.at=344 and boundary pickup() from a shop floor. The next reference message is the shopkeeper's quoted50-zorkmid silver-shield price; the trace owner is addtobill's in-inventory message, not a generic screen renderer.",
+                "Read whole pickup C672–910 to identify the JS-only shop guard, then whole pickup_object and pick_obj. Read addtobill/billable/add_one_tobill/bill_box_content and the start of contained_cost; the incomplete billing group is a source port, not an ordering-only divergence fix.",
+                "B6 focused195tests, scoped lint and four independent healing recordings pass. No B7 implementation was present when this investigation was recorded."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+        "screens": 9306,
+        "rng": 668219
       }
     }
   ]
