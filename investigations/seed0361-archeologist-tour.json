@@ -1,51 +1,43 @@
 {
   "session": "seed0361-archeologist-tour",
-  "remainingScreensUpperBound": 33,
+  "remainingScreensUpperBound": 6,
   "status": "complete",
-  "commit": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+  "commit": "6369a93eff1bde89dc9d15feedaa7ff2b1ea8298",
   "mismatch": {
     "session": "seed0361-archeologist-tour",
-    "step": 333,
-    "kind": "rng",
-    "function": "shuffle",
+    "step": 360,
+    "kind": "stop",
+    "function": null,
     "functionDeclared": false,
-    "sourceFile": "nhlib.lua",
+    "sourceFile": null,
     "cFile": null,
-    "luaFile": "nhlib.lua",
-    "line": 19,
-    "helper": {
-      "function": "random",
-      "luaFile": "nhlib.lua",
-      "line": 8
-    },
-    "message": null,
+    "luaFile": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: the attributes window requires Halluc_resistance",
     "unlocatedKinds": [],
     "recordedSteps": 366,
-    "remainingScreensUpperBound": 33
+    "remainingScreensUpperBound": 6
   },
-  "summary": "After Arc-filb loads, the first RNG mismatch is at zero-based step333 while level-teleporting from Home5 to Home2. makelevel selects Arc-fila above the locate level, but its loader is absent and generation falls through to ordinary rooms. Port the whole Arc-fila.lua program and register it. The fresh-differential display calls this step334 because that report is one-based.",
+  "summary": "All Archeologist level loaders now match. The first stop is the attributes command at zero-based step360: attributes_enlightenment refuses Halluc_resistance before rendering the magic attributes. This is missing behavior in a partial C function, so complete the whole attributes_enlightenment source unit, not isolated property branches.",
   "source": {
-    "file": "nethack-c/upstream/dat/Arc-fila.lua",
+    "file": "nethack-c/upstream/src/insight.c",
     "functions": [
-      "Arc-fila.lua"
+      "attributes_enlightenment"
     ],
-    "branch": "Whole program lines1-59: six ordinary rooms with ordered callbacks; up stair in room1, down stair in room4; nine objects, four traps, six snake-class monsters and one named human mummy; final random_corridors call.",
+    "branch": "Whole attributes_enlightenment1487–2005, including the Halluc_resistance branch1559–1561 and every later property/capability/final-status branch. The selected command is wizard or explore Ctrl-X with MAGICENLIGHTENMENT.",
     "callers": [
-      "mklev.c:1275–1285 makelevel compares quest depth with the locate level and selects role-specific fila or filb, then calls makemaz.",
-      "js/mklev.js:689–706 makelevel computes Arc-fila for Home2 because it is above the locate level, but calls makemaz only if the registry has that prototype.",
-      "ensureSpecialLevelLoaders loads QUEST_LEVEL_LOADERS; makemaz -> load_special executes the registered room program and applies postprocessing."
+      "insight.c doattributes2010–2020 adds MAGICENLIGHTENMENT in wizard/explore mode and calls enlightenment.",
+      "insight.c enlightenment416–422 dispatches attributes_enlightenment for magic disclosure; js/insight.js doattributes -> enlightenment -> attributes_enlightenment is the existing production route."
     ],
     "dependencies": [
-      "Reuse the existing des.room contents callbacks and random_corridors special-level API. Preserve descriptor and random-call order.",
-      "Arc-loca, Arc-goal and Arc-filb now exist; only the missing fila registration explains this transition's skipped Lua shuffle and room generation."
+      "Verify attrib.c from_what and every consumed-return property/naming helper across the complete source function; port missing consumed-return behavior, retaining only allowed discarded-return gaps.",
+      "The existing JavaScript UNPORTED_ENLIGHTENMENT_PROPERTIES guards identify missing branches, not completed implementations. Whole-source evidence and independent matching entrypoint recordings are required."
     ]
   },
-  "goalKind": "lua-port",
+  "goalKind": "file-port",
   "evidence": [
-    "Checkpoint39a33c46 run-stgA7m passes all gates; its refreshed queue reports RNG step333, upper33, nhlib.lua shuffle line19.",
-    "Read fixed recording raw steps331–333: Ctrl-V,2,Enter; steps[333] produces Home2 and begins getbones, Lua alignment shuffle and build_room calls. The earlier Home4 and Home5 transitions now pass.",
-    "Read all dat/Arc-fila.lua lines1-59 and compared every descriptor with the worker's immutable ad6f7fb4 implementation. The source owner is the omitted filler program, not the shared shuffle helper.",
-    "Worker independently designed two short Arc-loca-menu then Home2 routes, with different seeds/dates and character gender. Both match all33892RNG100screens/cursors0animations on its candidate; integration and full validation remain separate requirements.",
-    "Canonical mismatch-queue indices are zero-based. diff-fresh formatReport adds one for display; retain333 in queue/cache fields rather than copying its printed334."
+    "Checkpoint6369a93e run-ehAf46 passes all gates and all200recordings; queue moves first mismatch333→360 and remaining upper bound33→6.",
+    "Coordinator read C1487–1600,1990–2020 and enlightenment405–425, and traced the existing JavaScript property guard and dispatch. Halluc_resistance is the first missing branch, not the complete implementation scope.",
+    "Worker branch commits7eafcb45,2a382c70,22bb8f7b add some missing branches but leave the C function partial; they remain unaccepted work in progress pending whole-function completion."
   ]
 }

@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-    A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR,
-    OBJ_FREE, OBJ_INVENT, OBJ_ONBILL, ROOM, ROOMOFFSET, SHOPBASE,
+    A_CHA, BILLSZ, COST_CONTENTS, DEAF, HALLUC, LAVAPOOL, MON_MIGRATING,
+    NORMAL_SPEED, OBJ_BURIED, OBJ_CONTAINED, OBJ_DELETED, OBJ_FLOOR,
+    OBJ_FREE, OBJ_INVENT, OBJ_MINVENT, OBJ_ONBILL, ROOM, ROOMOFFSET, SHOPBASE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_SHOPKEEPER, PM_TOURIST } from '../js/monsters.js';
+import { PM_GIANT_RAT, PM_SHOPKEEPER, PM_TOURIST } from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
 import { bill_dummy_object, mksobj_at, newObject } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -21,6 +23,9 @@ import { SHTYPES } from '../js/shtypes_data.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 
 async function shop() {
+    // Independent seed/date initialize the catalogs. Each test replaces the
+    // relevant shop state; the keeper's positive HP and ID avoid death and
+    // unknown-price branches unless the test explicitly selects one.
     await runSegment({ seed: 5501234, datetime: '20330607081011',
         nethackrc: 'OPTIONS=name:Billing,role:Valkyrie,race:human,gender:female,'
             + 'align:neutral,!legacy,!tutorial,!splash_screen,pettype:none',
@@ -332,4 +337,89 @@ test('monster planning owns its bill arrays, bill-object chain, room links and d
     assert.equal(eshk.billct, 2);
     assert.deepEqual(eshk.bill_p, billBefore);
     assert.deepEqual(state.displayCtx, rngBefore);
+});
+
+test('planned shopkeeper death cannot settle live buried or migrating objects', async () => {
+    const { state } = await shop();
+    for (const column of state.level.monsters) column.fill(null);
+    for (const column of state.level.objects) column.fill(null);
+    state.level.objlist = null;
+    state.level.traps = [];
+    state.level.regions = [];
+    state.u.umovement = 0;
+    state.u.utotype = 0;
+    state.u.ustuck = state.u.usteed = null;
+    state.context.bypasses = false;
+    if (state.context.victual) state.context.victual.piece = null;
+    if (state.context.tin) state.context.tin.tin = null;
+    state.go ??= {};
+    state.go.occupation = null;
+    state.head_engr = null;
+    for (const row of state.viz_array) row.fill(0);
+
+    // A small interior shop, away from map edges. Fatal lava exercises the
+    // real movemon/minliquid/mondead path without combat or injected callbacks.
+    state.u.ux = state.u.ux0 = 10;
+    state.u.uy = state.u.uy0 = 10;
+    const room = state.level.rooms[0];
+    Object.assign(room, { lx: 7, hx: 10, ly: 9, hy: 11, rtype: SHOPBASE });
+    for (let x = room.lx; x <= room.hx; ++x)
+        for (let y = room.ly; y <= room.hy; ++y)
+            Object.assign(state.level.at(x, y), {
+                typ: ROOM, roomno: ROOMOFFSET, edge: false,
+            });
+    state.level.at(8, 10).typ = LAVAPOOL;
+    const keeper = newMonster({ data: state.mons[PM_SHOPKEEPER],
+        mnum: PM_SHOPKEEPER, m_id: state.context.ident++, mx: 8, my: 10,
+        // Five HP ensures lava is fatal; one ration admits a monster action.
+        mhp: 5, mhpmax: 5, movement: NORMAL_SPEED,
+        m_lev: state.mons[PM_SHOPKEEPER].mlevel, mcanmove: true, mcansee: true,
+        isshk: true, mpeaceful: true, minvent: null,
+        // mon.c logdeadmon omits a second live-log entry for revived keepers.
+        // A first death would stop at the existing unported live-log branch.
+        mrevived: true });
+    const buried = object(state, DART, {
+        unpaid: 1, no_charge: true, where: OBJ_BURIED, ox: 9, oy: 10,
+    });
+    const migrant = newMonster({ data: state.mons[PM_GIANT_RAT],
+        mnum: PM_GIANT_RAT, m_id: state.context.ident++,
+        // Migrating monsters are off-map; their carried objects remain billed.
+        mx: 0, my: 0, mstate: MON_MIGRATING, mhp: 5, mhpmax: 5 });
+    const carried = object(state, DART, {
+        unpaid: 1, where: OBJ_MINVENT, ocarry: migrant,
+    });
+    migrant.minvent = carried;
+    // One bill entry per dart, using the source base price of two zorkmids.
+    const bill = [buried, carried].map(obj => ({
+        bo_id: obj.o_id, bquan: obj.quan, price: 2, useup: false,
+    }));
+    keeper.mextra = { eshk: { shoproom: ROOMOFFSET, shoptype: SHOPBASE,
+        shoplevel: { ...state.u.uz }, shk: { x: 7, y: 10 }, shd: { x: 7, y: 9 },
+        bill, bill_p: bill, billct: bill.length, credit: 0, debit: 0, loan: 0,
+        surcharge: false, shknam: 'Testkeeper' } };
+    room.resident = keeper;
+    state.level.monlist = keeper;
+    state.level.monsters[8][10] = keeper;
+    state.level.buriedobjlist = buried;
+    state.gm ??= {};
+    state.gm.migrating_mons = migrant;
+    state.gb ??= {};
+    state.gb.billobjs = null;
+    const shops = [...state.u.ushops];
+    const billBefore = structuredClone(bill);
+
+    const result = await preflightSimpleMonsterActions(state);
+
+    assert.equal(result.upkeepCount, 1); // The admitted monster ration completed.
+    assert.equal(buried.unpaid, 1);
+    assert.equal(buried.no_charge, true);
+    assert.equal(carried.unpaid, 1);
+    assert.deepEqual(state.u.ushops, shops);
+    assert.equal(state.level.buriedobjlist, buried);
+    assert.equal(state.gm.migrating_mons, migrant);
+    assert.equal(carried.ocarry, migrant);
+    assert.equal(migrant.minvent, carried);
+    assert.equal(room.resident, keeper);
+    assert.equal(keeper.mhp, 5);
+    assert.deepEqual(bill, billBefore);
 });

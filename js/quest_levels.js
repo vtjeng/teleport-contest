@@ -1,7 +1,7 @@
 // quest_levels.js — Quest and special level definitions.
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
-//         dat/Arc-loca.lua, dat/Arc-filb.lua,
+//         dat/Arc-loca.lua, dat/Arc-fila.lua, dat/Arc-filb.lua,
 //         dat/Arc-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
@@ -817,6 +817,53 @@ async function arcLoca(des, state) {
     des.monster('M');
     for (let i = 0; i < 7; ++i) des.monster('human mummy');
     des.monster('M');
+}
+
+// C ref: dat/Arc-fila.lua. Six ordinary rooms used for Archeologist quest
+// levels above Arc-loca, with source-order objects, traps, monsters, stairs,
+// and randomly connected corridors.
+async function arcFila(des) {
+    des.room({ type: 'ordinary', contents() {
+        des.stair('up');
+        des.object();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.object();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.stair('down');
+        des.object();
+        des.trap();
+        des.monster('S');
+        des.monster('human mummy');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.trap();
+        des.monster('S');
+    }});
+
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.monster('S');
+    }});
+
+    des.random_corridors();
 }
 
 // C ref: dat/Arc-filb.lua. Six ordinary rooms used for Archeologist quest
@@ -1640,6 +1687,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Bar-loca': barLoca,
     'Arc-strt': arcStrt,
     'Arc-loca': arcLoca,
+    'Arc-fila': arcFila,
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
     'Pri-strt': priStrt,

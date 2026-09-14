@@ -467,9 +467,9 @@ function cloneMonster(monster) {
     };
 }
 
-// Copy every object on this level's floor, in the hero's inventory, and in
-// every monster's pack. A monster picking an item up splits a stack, unlinks
-// it from the pile and the level list, and merges it into its own inventory;
+// Copy objects on the floor, buried on this level, on shop bills, in the hero's
+// inventory, and in resident or migrating monsters' packs. Pickup splits a
+// stack, unlinks it from the pile and level list, and merges it into inventory;
 // a newly created threat can also finish the hero's meal. Without these
 // copies the dry run would empty the live square or change a live carried
 // stack. C has no counterpart: the dry run is this port's own device for
@@ -480,8 +480,9 @@ function cloneMonster(monster) {
 // object writes objects[].oc_encountered, svd.disco[] and artiexist[].found,
 // which the spread would otherwise share.
 //
-// The buried list stays shared because no admitted action digs. Hero inventory
-// must be cloned too: a runtime-created threat can stop an eating occupation,
+// A revived shopkeeper can die during an admitted plan. shk.c shkgone/setpaid
+// then clear charges on buried objects and migrating monsters' inventories.
+// Hero inventory must be cloned too: a threat can stop an eating occupation,
 // and maybe_finished_meal(TRUE) can consume context.victual.piece. That pointer
 // and every top-level worn/inventory pointer must name this same copied graph.
 //
@@ -490,8 +491,8 @@ function cloneMonster(monster) {
 // through the monster map rather than the object map. The matching guard in
 // the walk keeps a carrier out of the object queue; it changes no result on
 // its own, since the remap already discriminates on `where`, and it exists so
-// that no `newObject({ ...monster })` is ever built. The three root families
-// are the level object list, hero inventory, and each monster's minvent. The
+// that no `newObject({ ...monster })` is ever built. Every object root below
+// shares one map, preserving aliases between bills and inventories. The
 // coordinate grid needs no separate floor-object root because obj.js keeps it
 // in step with the level list: place_object() writes both and remove_object()
 // refuses an object missing from either.
@@ -502,6 +503,7 @@ function cloneObjects(state, monsterMap) {
         if (obj && !objectMap.has(obj)) pending.push(obj);
     };
     enqueue(state.level?.objlist);
+    enqueue(state.level?.buriedobjlist);
     enqueue(state.invent);
     enqueue(state.gb?.billobjs);
     for (const monster of monsterMap.keys()) enqueue(monster.minvent);
@@ -527,10 +529,11 @@ function cloneObjects(state, monsterMap) {
 
 function planningState(state) {
     const monsterMap = new Map();
-    for (let monster = state.level?.monlist ?? null;
-        monster;
-        monster = monster.nmon) {
-        monsterMap.set(monster, cloneMonster(monster));
+    for (const head of [state.level?.monlist, state.gm?.migrating_mons]) {
+        for (let monster = head; monster && !monsterMap.has(monster);
+            monster = monster.nmon) {
+            monsterMap.set(monster, cloneMonster(monster));
+        }
     }
     const objectMap = cloneObjects(state, monsterMap);
     const context = structuredClone(state.context);
@@ -578,6 +581,7 @@ function planningState(state) {
                 (column) => column.map(clonedObject),
             ),
             objlist: clonedObject(state.level.objlist),
+            buriedobjlist: clonedObject(state.level.buriedobjlist),
             flags: { ...state.level.flags },
             monlist: monsterMap.get(state.level.monlist) ?? null,
             rooms: state.level.rooms.map(room => ({
@@ -611,6 +615,8 @@ function planningState(state) {
     );
     const hero = {
         ...state.u,
+        // shkgone removes the dead resident's room from this array in place.
+        ushops: state.u?.ushops ? [...state.u.ushops] : state.u?.ushops,
         abon: [...(state.u?.abon ?? [])],
         acurr: state.u?.acurr
             ? { ...state.u.acurr, a: [...state.u.acurr.a] }
@@ -731,6 +737,10 @@ function planningState(state) {
             billobjs: objectMap.get(state.gb.billobjs) ?? null,
         } : state.gb,
         gg: { ...state.gg },
+        gm: state.gm ? {
+            ...state.gm,
+            migrating_mons: monsterMap.get(state.gm.migrating_mons) ?? null,
+        } : state.gm,
         gn: { ...(state.gn ?? {}) },
         gl: state.gl ? {
             ...state.gl,
