@@ -754,15 +754,6 @@ test('object-pile exclusions stop before names, output, or engraving',
                 expected: /outside the two-to-four-item window/u,
             },
             {
-                name: 'blind cockatrice pile',
-                build: () => pileLookState({
-                    blind: true,
-                    first: CORPSE,
-                    firstOverrides: { corpsenm: PM_COCKATRICE },
-                }),
-                expected: /blind object-pile menu/u,
-            },
-            {
                 name: 'mention-decor pile',
                 build: () => pileLookState(),
                 prepare: ({ state }) => { state.flags.mention_decor = true; },
@@ -850,6 +841,29 @@ test('object-pile exclusions stop before names, output, or engraving',
             assert.deepEqual(events, [], specimen.name);
             assert.equal(built.head.dknown, false, specimen.name);
         }
+    });
+
+test('a blind object pile uses the tactile heading before petrification',
+    async () => {
+    const built = pileLookState({
+        blind: true,
+        first: CORPSE,
+        firstOverrides: { corpsenm: PM_COCKATRICE },
+    });
+    const events = [];
+
+    await look_here(2, LOOKHERE_NOFLAGS, built.state, {
+        message: (text) => events.push(['message', text]),
+        displayObjectPile: (lines) => events.push(['display', lines]),
+        readEngraving: () => events.push(['engraving']),
+    });
+
+    assert.deepEqual(events, [
+        ['message', 'You try to feel what is lying here on the floor.'],
+        ['display', ['Things you feel here:', 'a cockatrice corpse...']],
+        ['message', 'Touching the cockatrice corpse is a fatal mistake...'],
+        ['engraving'],
+    ]);
     });
 
 test('an unseen trap under a pile changes nothing look_here() prints',

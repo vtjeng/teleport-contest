@@ -2368,8 +2368,8 @@ test('simple hero movement admits every furniture square', async () => {
 // invent.c look_here() computes dfeature_at() unconditionally and prints its
 // line above "You see here" when the square holds exactly one object.
 // dfeature_at() (4037-4097) reaches the cmap for a fountain, throne, sink and
-// grave, and stairs_description() for a staircase; its altar arm needs
-// a_gname(), which has no owner, so an altar holding an object still stops.
+// grave, stairs_description() for a staircase, and the altar deity formatter
+// for an altar holding an object.
 test('a furniture square with one object prints its dfeature line',
     async () => {
         for (const [label, line, decorate] of [
@@ -2436,7 +2436,7 @@ test('a furniture square with one object prints its dfeature line',
         }
     });
 
-test('an altar holding an object stops for a_gname()', async () => {
+test('an altar holding an object prints its deity description', async () => {
     const { destination, x, y } = await prepareHeroMoveAdmission();
     destination.typ = ALTAR;
     game.flags.pickup = false;
@@ -2449,17 +2449,12 @@ test('an altar holding an object stops for a_gname()', async () => {
         dknown: true,
     };
 
-    // The seam refuses this before look_here() can reach dfeature_at()'s
-    // a_gname() arm, and it raises the movement class rather than letting
-    // UnsupportedFeatureDescriptionError travel. js/cmd.js runs domove()
-    // inside failClosedCommand(), so either class would end the segment, but
-    // js/jsmain.js breaks directly on the movement class and reaches the other
-    // only through that wrapper. The assertion is therefore on the class the
-    // hero-move seam raises.
-    await assert.rejects(
-        domove(game),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && error.message.includes('terrain feature description'),
+    game.nhDisplay.pushKey(commandKeyCode(' '));
+    await domove(game);
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.match(
+        game._ttyToplines ?? '',
+        /^There is an altar to Moloch \(unaligned\) here\./u,
     );
 });
 
@@ -2471,8 +2466,7 @@ test('an altar holding an object stops for a_gname()', async () => {
 // turn one through u.uroleplay.blind, so it was not hypothetical.
 // invent.c:4210-4211 drops the dfeature line when it repeats the surface,
 // which is why the fountain row expects no second line and the grave row does.
-// An altar is the one admitted square that still stops, one guard below, for
-// dfeature_at()'s a_gname(); the test above owns that row.
+// An altar's deity description is included in the furniture cases above.
 test('a blind hero feels the surface named under one object', async () => {
     for (const [label, surf, feature, decorate] of [
         ['fountain', 'fountain', null, (destination) => {

@@ -4,7 +4,6 @@ import {
     A_CON,
     A_DEX,
     A_STR,
-    ALTAR,
     ARTICLE_NONE,
     ARTICLE_THE,
     ARTICLE_YOUR,
@@ -1534,18 +1533,9 @@ export function requireSimpleHeroDestination(
         );
     }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
-    // it before "You see here" when the square holds exactly one object. Both
-    // dfeature_at() and stairs_description() are ported, so every admitted
-    // terrain but one reaches its own owner. ALTAR has no answer yet:
-    // dfeature_at() throws for a_gname() rather than diverging, and that class
-    // is refused here rather than left to escape. js/cmd.js runs domove()
-    // inside failClosedCommand(), so the class ends the segment on its last
-    // matching screen instead of aborting the run.
-    if (floorObject && !noPickMove && location.typ === ALTAR) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'terrain feature description',
-        );
-    }
+    // it before "You see here" when the square holds exactly one object.
+    // dfeature_at() owns the altar deity description, so altar squares follow
+    // the same movement path as the other furniture features.
     // spoteffects() triggers the trap under the hero after the move commits,
     // so everything trap.c dotrap() cannot answer has to be asked here, while
     // refusing still costs nothing. preflight_dotrap() is that question and

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450178,
+    "datetime": "20310405060713",
+    "nethackrc": "OPTIONS=name:GoldReporter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".$",
+    "comment": "Reaches invent.c doprgold() through #showgold."
+  }]
+}

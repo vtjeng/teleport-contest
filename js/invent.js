@@ -6,6 +6,10 @@ import { calc_capacity, inv_cnt, near_capacity } from './hack.js';
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
+    A_CHAOTIC,
+    A_LAWFUL,
+    A_NEUTRAL,
+    A_NONE,
     BLINDED,
     BUC_BLESSED,
     BUC_CURSED,
@@ -24,6 +28,8 @@ import {
     SIGNAL_NOMENU,
     USE_INVLET,
     ECMD_OK,
+    ECMD_CANCEL,
+    ECMD_FAIL,
     FINGERTIP,
     FUMBLING,
     GOLD_SYM,
@@ -51,8 +57,14 @@ import {
     D_BROKEN,
     D_ISOPEN,
     D_NODOOR,
+    DB_ICE,
+    DB_UNDER,
     DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
     CORR,
+    ICE,
+    LAVAPOOL,
+    LAVAWALL,
     IRONBARS,
     IS_ALTAR,
     IS_DOOR,
@@ -62,6 +74,10 @@ import {
     IS_THRONE,
     ROOM,
     TREE,
+    MOAT,
+    POOL,
+    WATER,
+    MELT_ICE_AWAY,
     P_BOW,
     P_CROSSBOW,
     P_DAGGER,
@@ -79,6 +95,7 @@ import {
     LOOKHERE_PICKED_SOME,
     LOOKHERE_SKIP_DFEATURE,
     GETOBJ_ALLOWCNT,
+    GETOBJ_NOFLAGS,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
@@ -90,11 +107,22 @@ import {
     HANDS_SYM,
     LARGEST_INT,
     MENU_TRADITIONAL,
+    MENU_FULL,
+    MENU_PARTIAL,
+    UNPAID_TYPES,
+    BILLED_TYPES,
+    INCLUDE_VENOM,
+    JUSTPICKED,
     Never_mind,
     quitchars,
     silly_thing_to,
     STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
+    CXN_ARTICLE,
+    CXN_PFX_THE,
+    AM_SANCTUM,
+    AM_SHRINE,
+    Amask2align,
     PICK_ANY,
     PICK_NONE,
     PICK_ONE,
@@ -138,10 +166,15 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, ing_suffix, s_suffix, visctrl } from './hacklib.js';
-import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
+import { digit, dist2, ing_suffix, letter, s_suffix, visctrl } from './hacklib.js';
+import {
+    LOW_PM,
+    PM_ARCHEOLOGIST,
+    PM_CLERIC,
+    PM_SAMURAI,
+} from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import { ttyPline, tty_message_menu } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import {
@@ -162,7 +195,7 @@ import {
     S_vodbridge,
     S_vodoor,
 } from './symbols.js';
-import { hides_under, touch_petrifies } from './mondata.js';
+import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
 import { UnsupportedHideError, maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph } from './display.js';
 import { fingers_or_gloves } from './do_wear.js';
@@ -170,11 +203,13 @@ import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool, t_at } from './trap.js';
+import { is_lava, is_pool, t_at, Levitation } from './trap.js';
 import { hidden_gold } from './vault.js';
+import { cansee } from './vision.js';
+import { spot_time_left } from './timeout.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
-import { surface } from './dungeon.js';
+import { on_level, surface } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -201,6 +236,7 @@ import {
     FROST_HORN,
     GEM_CLASS,
     GEMSTONE,
+    GOLD_PIECE,
     GLASS,
     HORN_OF_PLENTY,
     LEASH,
@@ -239,6 +275,7 @@ import {
 import {
     UnsupportedObjectOperationError,
     curseFreeObject,
+    clear_splitobjs,
     dealloc_obj,
     erosionMatters,
     extract_nobj,
@@ -278,7 +315,9 @@ import {
     xnameFresh,
     ansimpleoname,
     yname,
+    corpse_xname,
 } from './objnam.js';
+import { hliquid } from './do_name.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { note_unported } from './unported.js';
@@ -317,13 +356,96 @@ export function nxtobj(obj, type, by_nexthere) {
 }
 
 // Thrown where invent.c reads a terrain description this port has not reached
-// yet. dfeature_at() is otherwise a complete translation, so every stop below
-// names the C helper that is missing rather than the caller that hit it.
+// yet. dfeature_at() is source-shaped for its admitted terrain cases, so every
+// stop below names the C helper that is missing rather than the caller that hit it.
 export class UnsupportedFeatureDescriptionError extends Error {
     constructor(helper) {
         super(`feature description requires ${helper}`);
         this.name = 'UnsupportedFeatureDescriptionError';
         this.helper = helper;
+    }
+}
+
+// C ref: pager.c waterbody_name() and ice_descr() (560-649). These helpers
+// are used by invent.c's terrain description, so keep the source's distance
+// and timer thresholds here rather than substituting surface().
+function iceWaterbodyName(x, y, state) {
+    const typ = state.level?.at(x, y)?.typ;
+    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !Boolean(
+            state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+        )
+        && !state.program_state?.gameover;
+    if (typ === LAVAPOOL) return `molten ${hliquid('lava', { state })}`;
+    if (typ === ICE
+        || (typ === DRAWBRIDGE_UP
+            && ((state.level?.at(x, y)?.flags ?? 0) & DB_UNDER) === DB_ICE)) {
+        return hallucinating ? `frozen ${hliquid('water', { state })}` : 'ice';
+    }
+    if (typ === POOL) return `pool of ${hliquid('water', { state })}`;
+    if (typ === MOAT) {
+        if (hallucinating) return `deep ${hliquid('water', { state })}`;
+        const level = state.u?.uz;
+        if (on_level(level, state.medusa_level)) return 'shallow sea';
+        if (on_level(level, state.juiblex_level)) return 'swamp';
+        if (state.urole?.mnum === PM_SAMURAI
+            && on_level(level, state.qstart_level)) return 'pond';
+        return 'moat';
+    }
+    if (typ === WATER) {
+        return on_level(state.u?.uz, state.water_level)
+            ? 'limitless water' : `wall of ${hliquid('water', { state })}`;
+    }
+    if (typ === LAVAWALL) return `wall of ${hliquid('lava', { state })}`;
+    return 'water';
+}
+
+function ice_descr(x, y, state) {
+    const icetyp = ['solid', 'sturdy', 'steady', 'unsteady', 'thin', 'slushy'];
+    state.iflags ??= {};
+    state.iflags.ice_rating = -1;
+    const location = state.level?.at(x, y);
+    const surfaceIsIce = location?.typ === ICE
+        || (location?.typ === DRAWBRIDGE_UP
+            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
+    if (!surfaceIsIce) return `[ice:${location?.typ ?? 0}?]`;
+
+    const range = Math.max(Math.trunc(state.u?.xray_range ?? 0), 2);
+    const nearDistance = range * range * 2 - range;
+    const distant = dist2(x, y, state.u.ux, state.u.uy) > nearDistance;
+    const unseen = !cansee(x, y, state)
+        && (!u_at(x, y, state) || Levitation(state));
+    if ((distant || unseen) && !state.gd?.decor_levitate_override)
+        return iceWaterbodyName(x, y, state);
+
+    let timeLeft = 0;
+    if (state.gt && state.svt) {
+        timeLeft = spot_time_left(x, y, MELT_ICE_AWAY, state);
+    }
+    const rating = !timeLeft ? 0
+        : timeLeft > 1000 ? 1
+            : timeLeft > 100 ? 2
+                : timeLeft > 50 ? 3
+                    : timeLeft > 14 ? 4 : 5;
+    state.iflags.ice_rating = rating;
+    return `${icetyp[rating]} ${iceWaterbodyName(x, y, state)}`;
+}
+
+function altarDeityName(alignment, state) {
+    const name = alignment === A_LAWFUL ? state.urole?.lgod
+        : alignment === A_NEUTRAL ? state.urole?.ngod
+            : alignment === A_CHAOTIC ? state.urole?.cgod : 'Moloch';
+    return String(name ?? 'someone').replace(/^_/u, '');
+}
+
+function alignmentName(alignment) {
+    switch (alignment) {
+    case A_CHAOTIC: return 'chaotic';
+    case A_NEUTRAL: return 'neutral';
+    case A_LAWFUL: return 'lawful';
+    case A_NONE: return 'unaligned';
+    default: return 'unknown';
     }
 }
 
@@ -365,16 +487,19 @@ export function dfeature_at(x, y, state = game) {
     } else if (is_lava(x, y, state)) {
         cmap = S_lava;
     } else if (is_ice(x, y, state)) {
-        // C calls ice_descr(), which distinguishes solid from thin ice.
-        throw new UnsupportedFeatureDescriptionError('ice_descr()');
+        dfeature = ice_descr(x, y, state);
     } else if (is_pool(x, y, state)) {
         dfeature = 'pool of water';
     } else if (IS_SINK(ltyp)) {
         cmap = S_sink;
     } else if (IS_ALTAR(ltyp)) {
-        // C composes "altar to <deity> (<alignment>)" from a_gname() and
-        // align_str(), neither of which is ported.
-        throw new UnsupportedFeatureDescriptionError('a_gname()');
+        const altarAlignment = Amask2align(
+            (lev.altarmask ?? 0) & ~AM_SHRINE,
+        );
+        dfeature = `${(lev.altarmask & AM_SANCTUM) ? 'high ' : ''}altar to `
+            + `${altarDeityName(altarAlignment, state)} (${alignmentName(
+                altarAlignment,
+            )})`;
     } else if (stairway_at(x, y, state)) {
         dfeature = stairs_description(stairway_at(x, y, state), true, state);
     } else if (ltyp === DRAWBRIDGE_DOWN) {
@@ -2241,6 +2366,29 @@ export function will_feel_cockatrice(otmp, force_touch, state = game) {
         && touch_petrifies(state.mons[otmp.corpsenm]));
 }
 
+// C ref: invent.c feel_cockatrice(). The final killer_xname()/instapetrify()
+// call is a trap.c side effect; record that dependency after preserving the
+// warning, as other petrification callers do in this port.
+export async function feel_cockatrice(
+    otmp, force_touch, state = game, { message } = {},
+) {
+    if (!will_feel_cockatrice(otmp, force_touch, state)) return;
+
+    const corpseName = corpse_xname(otmp, null, CXN_PFX_THE, state);
+    const pline = message ?? ttyPline;
+    if (poly_when_stoned(state.youmonst?.data, state)) {
+        const hands = makeplural(body_part(HAND, state.youmonst));
+        await pline(`You touched ${corpseName} with your bare ${hands}.`, state);
+    } else {
+        await pline(`Touching ${corpseName} is a fatal mistake...`, state);
+    }
+
+    // killer_xname() feeds the unported instapetrify() call and has no result
+    // visible before that call, so leave both source operations at the same
+    // dependency boundary rather than inventing a second state owner.
+    note_unported('trap.c instapetrify');
+}
+
 // C ref: youprop.h:65 Stone_resistance, which is
 // (HStone_resistance || EStone_resistance) and carries no `blocked` term --
 // unlike Blind() at :103, which does. js/pickup.js reads the same macro for
@@ -2292,11 +2440,6 @@ export function preflight_look_here(
         if (skip_objects && pickedSome) {
             throw new UnsupportedFeatureDescriptionError(
                 'the picked-some skipped-pile count',
-            );
-        }
-        if (blind) {
-            throw new UnsupportedFeatureDescriptionError(
-                'a blind object-pile menu',
             );
         }
         if (state.flags.mention_decor) {
@@ -2372,8 +2515,6 @@ export function preflight_look_here(
         );
     }
     if (otmp && !hasPile && !skip_objects) {
-        if (will_feel_cockatrice(otmp, false, state))
-            throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
         if (withShopPrice)
             assertPricedObjectNameable(otmp, state);
         else
@@ -2397,14 +2538,12 @@ export function preflight_look_here(
 
 // C ref: invent.c look_here(). Covers a hero standing on an admitted square,
 // sighted or blind: the terrain feature line, the engraving read, and the
-// no-object, single-object, ordinary two-to-four-object menu, or sighted
-// pile-limit count. Visible-region and seen-trap descriptions remain
-// fail-closed before output. A sighted decorated pile includes its
-// dfeature_at() line in either output path. Blindness is not excluded from the
-// first two outcomes; a pile reached while blind stops before its tactile
-// preamble because feel_cockatrice() and the tactile menu belong to a later
-// slice. A liquid square, engraving, non-triggering pile outside two through
-// four, or picked-some count likewise stops before output.
+// no-object, single-object, ordinary two-to-four-object menu, or pile-limit
+// count. Visible-region and seen-trap descriptions remain fail-closed before
+// output. A decorated pile includes its dfeature_at() line in either output
+// path; a blind pile uses the source's tactile heading and cockatrice warning.
+// A liquid square, engraving, non-triggering pile outside two through four, or
+// picked-some count likewise stops before output.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
@@ -2481,7 +2620,23 @@ export async function look_here(
         const countName = obj_cnt === 2 ? 'two'
             : obj_cnt < 5 ? 'a few'
                 : obj_cnt < 10 ? 'several' : 'many';
-        await message(`There are ${countName} objects here.`, state);
+        const countText = obj_cnt === 1 && otmp.quan === 1
+            ? `There is ${pickedSome ? 'another' : 'an'} object here.`
+            : `There are ${countName}${pickedSome ? ' more' : ''} objects here.`;
+        await message(countText, state);
+        for (let object = otmp; object; object = object.nexthere) {
+            if (object.otyp !== CORPSE
+                || !will_feel_cockatrice(object, false, state)) continue;
+            const article = object.quan > 1 ? "They're" : "It's";
+            await message(
+                `${obj_cnt > 1 ? 'Including' : article} `
+                + `${corpse_xname(object, null, CXN_ARTICLE, state)}`
+                + `${poly_when_stoned(state.youmonst?.data, state) ? '' : ', unfortunately'}.`,
+                state,
+            );
+            await feel_cockatrice(object, false, state, { message });
+            break;
+        }
         return blind;
     }
     if (otmp.nexthere) {
@@ -2489,14 +2644,24 @@ export async function look_here(
             throw new TypeError('look_here needs an object-pile display owner');
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
-        lines.push(`${pickedSome
-            ? 'Other things' : 'Things'} that are here:`);
+        lines.push(`${pickedSome ? 'Other things' : 'Things'} ${blind ? 'you feel' : 'that are'} here:`);
+        let feltCockatrice = null;
         for (let object = otmp; object; object = object.nexthere) {
-            lines.push(withShopPrice
+            const canFeelCockatrice = object.otyp === CORPSE
+                && will_feel_cockatrice(object, false, state);
+            lines.push(canFeelCockatrice
+                ? `${donameFresh(object, state)}...`
+                : withShopPrice
                 ? doname_with_price(object, state, { currencyName: currency })
                 : donameFresh(object, state));
+            if (canFeelCockatrice) {
+                feltCockatrice = object;
+                break;
+            }
         }
         await displayObjectPile(lines, state);
+        if (feltCockatrice)
+            await feel_cockatrice(feltCockatrice, false, state, { message });
         await readEngraving(state);
         return blind;
     }
@@ -2507,6 +2672,8 @@ export async function look_here(
         : donameFresh(otmp, state);
     await message(`You ${verb} here ${namedObject}.`, state);
     state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
+    if (otmp.otyp === CORPSE)
+        await feel_cockatrice(otmp, false, state, { message });
     return blind;
 }
 
@@ -3396,9 +3563,9 @@ export function mergable(otmp, obj, env = {}) {
         if (obj.corpsenm !== otmp.corpsenm) return false;
     }
     if (obj.otyp === EGG && (obj.timed || otmp.timed)) return false;
-    if (obj.otyp === CORPSE && obj.corpsenm >= 0) {
-        const isReviver = requiredHook(normalized, 'isReviver', obj);
-        if (isReviver(obj.corpsenm, normalized)) return false;
+    if (obj.otyp === CORPSE && otmp.corpsenm >= LOW_PM) {
+        const isReviver = requiredHook(normalized, 'isReviver', otmp);
+        if (isReviver(otmp.corpsenm, normalized)) return false;
     }
     if (isCandle(obj)
         && Math.trunc(obj.age / 25) !== Math.trunc(otmp.age / 25)) {
@@ -5012,6 +5179,392 @@ export function this_type_only(obj, state = game) {
     return result;
 }
 
+// C ref: invent.c dotypeinv() (3827-4031), the #inventtype command. The
+// category and object menus retain their existing pickup owners; this wrapper
+// owns the source's visible class list, special BUC filters, title, and reset
+// of the temporary getobj context.
+export async function dotypeinv(state = game, hooks = {}) {
+    const prompt = 'What type of object do you want an inventory of?';
+    state.gt ??= {};
+    state.gt.this_type = 0;
+    state.gt.this_title = null;
+    const inventory = inventoryHead(state);
+    const billx = false; // shop bill display is not yet a live inventory owner.
+    if (!inventory && !billx) {
+        await ttyPline("You aren't carrying anything.", state);
+        state.gt.this_type = 0;
+        state.gt.this_title = null;
+        return ECMD_OK;
+    }
+
+    const uCarried = count_unpaid(inventory);
+    const uFloor = countUnpaidFloor(state);
+    const uBuried = count_unpaid(state.level?.buriedobjlist ?? null);
+    const anyUnpaid = uCarried + uFloor + uBuried;
+    const { bcnt, ucnt, ccnt, xcnt, jcnt } = tally_BUCX(inventory, false, state);
+    let traditional = true;
+    let selectedType = null;
+    let classes = [];
+    let choices = [];
+
+    if (state.flags?.menu_style !== MENU_TRADITIONAL
+        && (state.flags?.menu_style === MENU_FULL
+            || state.flags?.menu_style === MENU_PARTIAL)) {
+        traditional = false;
+        let qflags = UNPAID_TYPES | BILLED_TYPES | INCLUDE_VENOM;
+        if (billx) qflags |= BILLED_TYPES;
+        if (bcnt) qflags |= BUC_BLESSED;
+        if (ucnt) qflags |= BUC_UNCURSED;
+        if (ccnt) qflags |= BUC_CURSED;
+        if (xcnt) qflags |= BUC_UNKNOWN;
+        if (jcnt) qflags |= JUSTPICKED;
+        const { query_category } = await import('./pickup.js');
+        const result = await query_category(prompt, inventory, qflags, state);
+        if (!result.n) return resetDotypeContext(state);
+        selectedType = result.pick_list[0]?.value ?? null;
+        state.gt.this_type = selectedType;
+    } else {
+        classes = collect_obj_classes_invent(inventory, null, state);
+        if (anyUnpaid || billx || bcnt + ccnt + ucnt + xcnt || jcnt)
+            classes.push(' ');
+        if (anyUnpaid) classes.push('u');
+        if (billx) classes.push('x');
+        if (bcnt) classes.push('B');
+        if (ucnt) classes.push('U');
+        if (ccnt) classes.push('C');
+        if (xcnt) classes.push('X');
+        if (jcnt) classes.push('P');
+        const classCount = classes.length;
+        choices = [...classes];
+        // C appends hidden valid answers after ESC for yn_function().
+        choices.push('\x1b');
+        for (const special of ['u', 'x', 'B', 'U', 'C', 'X', 'P'])
+            if (!classes.includes(special)) choices.push(special);
+        for (let i = 0; i < MAXOCLASSES; ++i) {
+            const symbol = String.fromCharCode(
+                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + i],
+            );
+            if (!classes.includes(symbol)) choices.push(symbol);
+        }
+        if (classCount > 1) {
+            const answer = await yn_function(
+                prompt, choices.join(''), '\0', true, state,
+            );
+            selectedType = answer ? String.fromCharCode(answer) : '\0';
+            if (selectedType === '\0') {
+                return resetDotypeContext(state);
+            }
+        } else if (anyUnpaid) selectedType = 'u';
+        else if (billx) selectedType = 'x';
+        else selectedType = classes[0] ?? '\0';
+    }
+
+    if (selectedType === 'x' || (selectedType === 'X' && billx && !xcnt)) {
+        if (billx) {
+            note_unported('invent.c doinvbill');
+        } else {
+            await ttyPline(
+                `No used-up objects${anyUnpaid ? ' on your shopping bill' : ''}.`,
+                state,
+            );
+        }
+        return resetDotypeContext(state);
+    }
+    if (selectedType === 'u'
+        || (selectedType === 'U' && anyUnpaid && !ucnt)) {
+        if (anyUnpaid) await dounpaid(uCarried, uFloor, uBuried, state, hooks);
+        else await ttyPline('You are not carrying any unpaid objects.', state);
+        return resetDotypeContext(state);
+    }
+
+    let oclass;
+    if ('BUCXP'.includes(selectedType)) oclass = selectedType;
+    else oclass = def_char_to_objclass(selectedType);
+    let before = '';
+    let after = '';
+    switch (selectedType) {
+    case 'B': before = 'known to be blessed '; break;
+    case 'U': before = 'known to be uncursed '; break;
+    case 'C': before = 'known to be cursed '; break;
+    case 'X': after = ' whose blessed/uncursed/cursed status is unknown'; break;
+    case 'P': after = ' that were just picked up'; break;
+    default: before = 'such '; break;
+    }
+    if (traditional) {
+        // C's visible list has all ordinary classes before the hidden suffix;
+        // membership in the latter means a valid but empty category.
+        const visible = classesBeforeEscape(choices);
+        if (!visible.includes(selectedType)
+            && !(selectedType && visible.includes(
+                String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass]),
+            ))) {
+            await ttyPline(
+                `You have no ${before}objects${after}.`, state,
+            );
+            return resetDotypeContext(state);
+        }
+        state.gt.this_type = oclass;
+    }
+    if ('BUCXP'.includes(selectedType)) {
+        const titleText = (`Items ${before || after}`).replace(/\s+/gu, ' ').trim();
+        state.gt.this_title = `${titleText}:`;
+    }
+
+    const { query_objlist } = await import('./pickup.js');
+    const result = await query_objlist(
+        inventory,
+        (state.flags?.invlet_constant ? USE_INVLET : 0)
+            | INVORDER_SORT | INCLUDE_VENOM,
+        (obj) => this_type_only(obj, state),
+        state,
+        state.gt.this_title ?? undefined,
+    );
+    if (result.n > 0) {
+        const object = result.pick_list[0]?.obj;
+        if (object) await itemactions(object, state, hooks);
+    }
+    return resetDotypeContext(state);
+}
+
+function resetDotypeContext(state) {
+    state.gt.this_type = 0;
+    state.gt.this_title = null;
+    return ECMD_OK;
+}
+
+function classesBeforeEscape(choices) {
+    const index = choices.indexOf('\x1b');
+    return index >= 0 ? choices.slice(0, index) : choices;
+}
+
+function countUnpaidFloor(state) {
+    const seen = new Set();
+    let count = 0;
+    for (const column of state.level?.objects ?? []) {
+        for (const head of column ?? []) {
+            for (let object = head; object; object = object.nexthere) {
+                if (seen.has(object)) continue;
+                seen.add(object);
+                if (object.unpaid) ++count;
+            }
+        }
+    }
+    return count;
+}
+
+// C ref: invent.c adjust_ok() and adjust_gold_ok() (4917-4932).
+function adjust_ok(obj) {
+    return !obj || obj.oclass === COIN_CLASS ? GETOBJ_EXCLUDE : GETOBJ_SUGGEST;
+}
+
+function adjust_gold_ok(obj) {
+    return obj ? GETOBJ_SUGGEST : GETOBJ_EXCLUDE;
+}
+
+// C ref: invent.c doorganize_core() (5068-5290). The inventory list is a
+// singly-linked nobj chain; extraction and reinsertion therefore update the
+// state head explicitly at each source call site.
+async function doorganize_core(obj, state = game, hooks = {}) {
+    if (!obj) return ECMD_CANCEL;
+
+    const isgold = obj.oclass === COIN_CLASS;
+    let splitting = null;
+    let bumped = null;
+    for (let current = inventoryHead(state); current; current = current.nobj) {
+        if (current.nobj === obj) {
+            if (current.invlet === obj.invlet) splitting = current;
+            break;
+        }
+    }
+
+    // C starts with '$a-zA-Z#' (or a blank in place of '$' for non-gold),
+    // then removes occupied slots that cannot merge with the selected stack.
+    const lets = [isgold ? GOLD_SYM : ''];
+    for (let code = 97; code <= 122; ++code) lets.push(String.fromCharCode(code));
+    for (let code = 65; code <= 90; ++code) lets.push(String.fromCharCode(code));
+    lets.push(''); // overflow slot, filled below when it is in use
+    if (!state.flags?.invlet_constant) {
+        const count = inv_cnt(false, state);
+        const limit = count + (splitting ? 1 : 2);
+        if (limit < INVLET_BASIC) lets.length = limit;
+    }
+    for (let current = inventoryHead(state); current; current = current.nobj) {
+        if (current === obj || mergable(current, obj, { state, hooks })) continue;
+        const index = inventoryIndex(current.invlet);
+        if (index >= 0) lets[index + 1] = '';
+        else if (current.invlet === NOINVSYM) lets[INVLET_BASIC + 1] = NOINVSYM;
+    }
+    const compact = lets.filter((letterValue) => letterValue !== '').join('');
+    const available = [...compact, '\0'];
+    if (compact.length > 5) compactify(available);
+    available.pop();
+    const qbuf = `${splitting ? `Split ${obj.quan}` : 'Adjust letter'} to what `
+        + `[${available.join('')}]${inventoryHead(state) ? ' (? see used letters)' : ''}?`;
+
+    let letValue;
+    let everMind = false;
+    for (let tryCount = 1; ; ++tryCount) {
+        letValue = isgold
+            ? GOLD_SYM
+            : String.fromCharCode(await yn_function(qbuf, null, '\0', true, state));
+        if (letValue === '?' || letValue === '*') {
+            const displayed = await display_used_invlets(
+                splitting ? obj.invlet : 0,
+                state,
+                hooks,
+            );
+            if (!displayed) continue;
+            letValue = displayed;
+            if (letValue === '\x1b') {
+                if (splitting) merged(splitting, obj, { state, hooks });
+                if (!everMind) await ttyPline(Never_mind, state);
+                return ECMD_OK;
+            }
+        }
+        if (quitchars.includes(letValue)
+            || (splitting && letValue === obj.invlet)) {
+            if (splitting) merged(splitting, obj, { state, hooks });
+            if (!everMind) await ttyPline(Never_mind, state);
+            return ECMD_OK;
+        }
+        if (letValue === GOLD_SYM && !isgold) {
+            await ttyPline(`Only gold coins may be moved into the '${GOLD_SYM}' slot.`, state);
+            everMind = true;
+            return ECMD_OK;
+        }
+        if ((letter(letValue) && letValue !== '@')
+            || (available.includes(letValue) && letValue !== '-')) break;
+        if (tryCount === 5) {
+            if (splitting) merged(splitting, obj, { state, hooks });
+            if (!everMind) await ttyPline(Never_mind, state);
+            return ECMD_OK;
+        }
+        await ttyPline('Select an inventory slot letter.', state);
+    }
+
+    const collect = letValue === obj.invlet;
+    let adjType = collect ? 'Collecting:' : splitting ? 'Splitting:' : 'Moving:';
+    state.invent = extract_nobj(obj, inventoryHead(state));
+    for (let current = inventoryHead(state); current; ) {
+        const next = current.nobj;
+        const currentName = oname(current);
+        const objectName = oname(obj);
+        if (collect) {
+            if ((!currentName || (objectName && currentName === objectName))
+                && merged(current, obj, { state, hooks })) {
+                obj = current;
+                const afterCurrent = obj.nobj;
+                state.invent = extract_nobj(obj, inventoryHead(state));
+                current = afterCurrent;
+                continue;
+            }
+        } else if (current.invlet === letValue) {
+            if ((!currentName || (objectName && currentName === objectName))
+                && merged(current, obj, { state, hooks })) {
+                adjType = 'Merging:';
+                obj = current;
+                state.invent = extract_nobj(obj, inventoryHead(state));
+                break;
+            }
+            if (!splitting) {
+                adjType = 'Swapping:';
+                current.invlet = obj.invlet;
+            } else {
+                const savedName = objectName;
+                if (savedName && !obj.oartifact && obj.oextra)
+                    delete obj.oextra.oname;
+                if (savedName && !mergable(current, obj, { state, hooks })) {
+                    obj.oextra ??= {};
+                    obj.oextra.oname = savedName;
+                }
+                if (merged(current, obj, { state, hooks })) {
+                    adjType = 'Splitting and merging:';
+                    obj = current;
+                    state.invent = extract_nobj(obj, inventoryHead(state));
+                } else if (inv_cnt(false, state) >= INVLET_BASIC) {
+                    merged(splitting, obj, { state, hooks });
+                    await ttyPline('Your pack is too full.', state);
+                    return ECMD_OK;
+                } else {
+                    bumped = current;
+                    state.invent = extract_nobj(bumped, inventoryHead(state));
+                }
+            }
+            break;
+        }
+        current = next;
+    }
+    obj.invlet = letValue;
+    obj.nobj = inventoryHead(state);
+    obj.where = OBJ_INVENT;
+    state.invent = obj;
+    reorder_invent(state);
+    if (bumped) {
+        assigninvlet(bumped, state);
+        bumped.nobj = inventoryHead(state);
+        bumped.where = OBJ_INVENT;
+        state.invent = bumped;
+        reorder_invent(state);
+    }
+    await prinv(adjType, obj, 0, { state, hooks });
+    if (bumped) await prinv('Moving:', bumped, 0, { state, hooks });
+    if (splitting) clear_splitobjs(state);
+    update_inventory({ state, hooks });
+    return ECMD_OK;
+}
+
+// C ref: invent.c doorganize() and adjust_split() (4981-5065).
+export async function doorganize(state = game, hooks = {}) {
+    const inventory = inventoryHead(state);
+    if (!inventory || (inventory.oclass === COIN_CLASS
+        && inventory.invlet === GOLD_SYM && !inventory.nobj)) {
+        await ttyPline(
+            `You aren't carrying anything ${inventory ? 'adjustable' : 'to adjust'}.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+    if (!state.flags?.invlet_constant) reassign(state);
+    const filter = check_invent_gold('adjust', state) ? adjust_gold_ok : adjust_ok;
+    const obj = await getobj(
+        'adjust', filter, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+    );
+    return doorganize_core(obj, state, hooks);
+}
+
+export async function adjust_split(state = game, hooks = {}) {
+    const obj = await getobj('split', adjust_ok, GETOBJ_NOFLAGS, state);
+    if (!obj || obj.quan < 2 || obj.otyp === GOLD_PIECE) return ECMD_FAIL;
+    let splitAmount = obj.quan === 2 ? 1 : 0;
+    if (obj.quan > 2) {
+        const first = await yn_function('Split off how many?', null, '\0', true, state);
+        const firstDigit = String.fromCharCode(first);
+        if (!digit(firstDigit)) {
+            await ttyPline(Never_mind, state);
+            return ECMD_CANCEL;
+        }
+        const count = { value: 0 };
+        const result = await get_count(
+            null, first, 0, count, GC_ECHOFIRST | GC_CONDHIST, state,
+        );
+        const answer = result.key ? String.fromCharCode(result.key) : '';
+        if (!answer || answer === '\x1b' || !quitchars.includes(answer)) {
+            await ttyPline(Never_mind, state);
+            return ECMD_CANCEL;
+        }
+        splitAmount = count.value;
+    }
+    if (splitAmount < 1 || splitAmount >= obj.quan) {
+        await ttyPline(
+            `Amount to split from current stack must ${splitAmount < 1 ? 'be at least 1.' : `be less than ${obj.quan}.`}`,
+            state,
+        );
+        return ECMD_CANCEL;
+    }
+    const child = splitobj(obj, splitAmount, { state, hooks });
+    return doorganize_core(child, state, hooks);
+}
+
 // C ref: invent.c doprgold().
 export async function doprgold(state = game) {
     const umoney = money_cnt(inventoryHead(state));
@@ -5042,6 +5595,11 @@ export async function doprgold(state = game) {
         }
     }
     await shopper_financial_report(state);
+    if (umoney && state.iflags?.menu_requested)
+        await dispinv_with_action(GOLD_SYM, state, {
+            useInvlet: false,
+        });
+    return ECMD_OK;
 }
 
 // C ref: shk.c shopper_financial_report(). Reports shop credit and debt.
@@ -5092,9 +5650,9 @@ export async function doprwep(state = game, hooks = {}) {
         const { empty_handed } = await import('./wield.js');
         await ttyPline(`You are ${empty_handed(state)}.`, state);
     } else if (!state.iflags.menu_requested) {
-        await prinv(null, state.uwep, 0);
+        await prinv(null, state.uwep, 0, { state });
         if (state.u.twoweap)
-            await prinv(null, state.uswapwep, 0);
+            await prinv(null, state.uswapwep, 0, { state });
     } else {
         let lets = '';
         lets += obj_to_let(state.uwep, state);
@@ -5120,7 +5678,7 @@ async function noarmor(report_uskin, state) {
             uskinname = uskinname.slice(7);
         const dragonIdx = uskinname.indexOf(' dragon ');
         if (dragonIdx >= 0)
-            uskinname = uskinname.slice(0, dragonIdx) + uskinname.slice(dragonIdx + 7);
+            uskinname = uskinname.slice(0, dragonIdx) + uskinname.slice(dragonIdx + 8);
         await ttyPline(
             `You are not wearing armor but have ${uskinname} embedded in your skin.`,
             state,

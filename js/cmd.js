@@ -255,6 +255,9 @@ import {
 } from './hacklib.js';
 import {
     ddoinv,
+    dotypeinv,
+    doorganize,
+    adjust_split,
     doperminv,
     dolook,
     dopramulet,
@@ -1801,6 +1804,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
     'overview',
+    'inventtype', 'adjust', 'altadjust',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
@@ -4998,6 +5002,12 @@ async function doextcmd(key, state) {
         return await dooverview(state);
     case 'ddoinv':
         return await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK;
+    case 'dotypeinv':
+        return await failClosedCommand(key, state, () => dotypeinv(state));
+    case 'doorganize':
+        return await failClosedCommand(key, state, () => doorganize(state));
+    case 'adjust_split':
+        return await failClosedCommand(key, state, () => adjust_split(state));
     case 'doperminv':
         return await doperminv(state);
     case 'dovspell':

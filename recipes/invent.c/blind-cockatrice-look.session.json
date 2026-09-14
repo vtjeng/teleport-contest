@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Exercises invent.c feel_cockatrice() through a blind hero's #look at a wished cockatrice corpse. Recording is blocked before the look by objnam.c rnd_otyp_by_namedesc() while creating the wished corpse; keep this recipe and record it when that dependency lands.",
+  "segments": [{
+    "seed": 450181,
+    "datetime": "20310405060716",
+    "nethackrc": "OPTIONS=name:FeelTester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug,blind\n",
+    "moves": "  #wizwish\ncockatrice corpse\n#drop\na#look\n"
+  }]
+}

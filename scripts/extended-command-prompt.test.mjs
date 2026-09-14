@@ -499,43 +499,19 @@ test('an unknown extended command answers with the initiator and the text',
     assert.equal(topLine(), '');
 });
 
-test('a named command with no ported handler stops the segment, not the key',
+test('the #adjust handler moves the selected inventory slot',
     async () => {
-    // cmd.c doextcmd()'s switch dispatches the handlers this port owns and
-    // throws on the rest. '#adjust' is an ordinary non-WIZMODECMD row, so
-    // extcmds_match() finds it and can_do_extcmd() admits it; only the switch
-    // refuses. Borrow an existing segment's seed and options because this
-    // check exercises dispatch refusal, not the command's option menu.
+    // cmd.c doextcmd() admits '#adjust' as an ordinary non-WIZMODECMD row.
+    // The source organizer reads a source slot and destination slot after the
+    // extended-command name; this case moves the starting inventory's `a`
+    // object to `z`.
     const base = segmentFor(`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`);
-    const moves = `.${EXTCMD_KEY}adjust${NEWLINE_KEY}`;
-    let boundary = null;
+    const moves = `.${EXTCMD_KEY}adjust${NEWLINE_KEY}az`;
     const replay = await runSegment(
-        { ...base, moves }, { onBoundary: (error) => { boundary = error; } },
+        { ...base, moves },
     );
-
-    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(
-        boundary.message,
-        /the extended command 'adjust' is not ported/u,
-    );
-
-    // resetCommandVars() runs before the throw, so the turn is given up
-    // rather than half-spent.
-    assert.equal(game.context.move, 0);
-    assert.equal(game.context.run, 0);
-    assert.equal(game.multi, 0);
-    assert.equal(topLine(), '');
-
-    // What the pre-dispatch boundaries promise does not hold here. They stop
-    // before the command runs, so restoring the parsed command reproduces the
-    // same refusal; this one stops after hooked_tty_getlin() has already eaten
-    // "adjust\n". pendingCommand therefore names '#' alone, which on a retry
-    // would reopen an empty prompt rather than repeat the command.
-    assert.equal(game.context.pendingCommand?.key, EXTCMD_KEY.charCodeAt(0));
-    // A segment that runs to the end records one screen per key plus the one
-    // the game starts on. The refusal paints nothing, so this one is short by
-    // exactly the screen the command would have drawn.
-    assert.equal(replay.getScreens().length, moves.length);
+    assert.ok(replay.getScreens().length >= moves.length);
+    assert.match(topLine(), /^Moving: z - /u);
 });
 
 test('extended spellings share the four newly ported direct handlers',

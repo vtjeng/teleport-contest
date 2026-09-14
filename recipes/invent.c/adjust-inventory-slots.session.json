@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450173,
+    "datetime": "20310405060708",
+    "nethackrc": "OPTIONS=name:Adjuster,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".#adjust\naz",
+    "comment": "Reaches invent.c doorganize() and doorganize_core() through #adjust; selects the first slot and moves it to z."
+  }]
+}

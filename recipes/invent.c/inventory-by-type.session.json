@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450174,
+    "datetime": "20310405060709",
+    "nethackrc": "OPTIONS=name:TypeLister,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".#inventtype\n\u001b",
+    "comment": "Reaches invent.c dotypeinv() through #inventtype and cancels its category menu after it is drawn."
+  }]
+}

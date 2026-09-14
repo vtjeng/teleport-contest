@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450180,
+    "datetime": "20310405060715",
+    "nethackrc": "OPTIONS=name:ArmorReporter,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".[",
+    "comment": "Reaches invent.c noarmor() through #seearmor."
+  }]
+}

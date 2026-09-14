@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450179,
+    "datetime": "20310405060714",
+    "nethackrc": "OPTIONS=name:WeaponReporter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".)",
+    "comment": "Reaches invent.c doprwep() through #seeweapon."
+  }]
+}

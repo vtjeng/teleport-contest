@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 450175,
+    "datetime": "20310405060710",
+    "nethackrc": "OPTIONS=name:Looker,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+    "moves": ".#look\n",
+    "comment": "Reaches invent.c dolook() and look_here() through #look on the starting square."
+  }]
+}
