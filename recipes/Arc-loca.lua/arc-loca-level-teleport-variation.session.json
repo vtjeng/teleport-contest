@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 777331,
+      "datetime": "20370704153045",
+      "nethackrc": "OPTIONS=name:ArcFreshB,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": ".#levelchange\n20\n                   \u0016?\n z"
+    }
+  ],
+  "comment": "Independent Arc-loca loader variation: a different seed, timestamp, and female Archeologist use the same short menu route, providing a behavior-relevant character variation without reusing fixed-session input."
+}
