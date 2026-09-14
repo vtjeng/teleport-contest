@@ -37531,8 +37531,8 @@
         },
         {
           "name": "askchain..free_pickinv_cache",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f516a7c10def7e64e59c579d68eb90bf83b08907",
           "functions": [
             "askchain",
             "reroll_menu",
@@ -37947,126 +37947,126 @@
           "line": 2377,
           "endLine": 2551,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "reroll_menu",
           "line": 2552,
           "endLine": 2623,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "set_cknown_lknown",
           "line": 2624,
           "endLine": 2636,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "fully_identify_obj",
           "line": 2637,
           "endLine": 2650,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "identify",
           "line": 2651,
           "endLine": 2659,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "menu_identify",
           "line": 2660,
           "endLine": 2697,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "count_unidentified",
           "line": 2698,
           "endLine": 2710,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "identify_pack",
           "line": 2711,
           "endLine": 2749,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "learn_unseen_invent",
           "line": 2750,
           "endLine": 2781,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "update_inventory",
           "line": 2782,
           "endLine": 2813,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doperminv",
           "line": 2814,
           "endLine": 2860,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "obj_to_let",
           "line": 2861,
           "endLine": 2874,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "prinv",
           "line": 2875,
           "endLine": 2894,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "xprname",
           "line": 2895,
           "endLine": 2963,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dispinv_with_action",
           "line": 2964,
           "endLine": 3005,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "ddoinv",
           "line": 3006,
           "endLine": 3020,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "find_unpaid",
           "line": 3021,
           "endLine": 3043,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "free_pickinv_cache",
           "line": 3044,
           "endLine": 3056,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_pickinv",
@@ -39719,10 +39719,478 @@
             "recordings": [],
             "inactiveReason": "The fixed recordings use full or combination inventory menus and do not select the traditional ggetobj path; the source-pinned empty-inventory result and caller wiring cover the reachable helper boundary. Full-menu menu_drop/menu_identify and pickup askchain count handling remain outside this span.",
             "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "askchain",
+            "implementation": "js/invent.js",
+            "symbol": "askchain",
+            "sourceReview": "Read invent.c:2377-2551 completely. Preserves taking-off, identify, take-out, put-in and nodot predicates; class/category filtering; sorted snapshot versus live chain traversal; safe_qbuf context; counted stack splitting and unsplitting; callback result, container-gone, max-count, quit and final message order. The imported pickup implementation was removed and ggetobj/traditional_loot now call this owner.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() calls askchain() for traditional selection; js/invent.js ggetobj passes the live inventory head and callback."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "traditional_loot",
+                "source": "pickup.c:traditional_loot() calls askchain() for traditional container actions; js/pickup.js imports the invent.c owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/askchain-put-in-traditional.session.json"
+            ],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "reroll_menu",
+            "implementation": "js/startup_reroll.js",
+            "symbol": "reroll_menu",
+            "sourceReview": "Read invent.c:2552-2623 completely. Startup menu item order, inventory glyph/name evaluation order, temporary distant-name and override-ID counters, selection/cancel fallback, reroll increment, and boolean result are implemented in js/startup_reroll.js and re-exported from js/invent.js.",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "newgame",
+                "source": "allmain.c:newgame() calls reroll_menu() while the reroll startup option is active; js/allmain.js awaits the re-exported implementation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/startup-reroll.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/reroll-menu-archeologist.session.json"
+            ],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "set_cknown_lknown",
+            "implementation": "js/invent.js",
+            "symbol": "set_cknown_lknown",
+            "sourceReview": "Read invent.c:2624-2636 completely. Container/statue cknown+lknown and tin cknown assignments preserve the source branches.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "fully_identify_obj",
+                "source": "invent.c:fully_identify_obj() calls set_cknown_lknown(); js/invent.js preserves the call after known flags and artifact observation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates this identification flag helper; its source-pinned inventory test covers container, statue, tin, and ordinary branches.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "fully_identify_obj",
+            "implementation": "js/invent.js",
+            "symbol": "fully_identify_obj",
+            "sourceReview": "Read invent.c:2637-2650 completely. makeknown, artifact discovery, object observation, all known flags, container/statue/tin flags, and the discarded timeout.c learn_egg_type() callee are preserved; note_unported records only that discarded result.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "identify",
+                "source": "invent.c:identify() calls fully_identify_obj(); js/invent.js identifies the selected object before prinv()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording selects a live unidentified object through the recorder; its source-pinned inventory test covers all known-flag and artifact branches. The discarded timeout.c learn_egg_type() result is recorded with note_unported().",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "identify",
+            "implementation": "js/invent.js",
+            "symbol": "identify",
+            "sourceReview": "Read invent.c:2651-2659 completely. The callback fully identifies first, then prints immediate feedback and returns one.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "identify_pack",
+                "source": "invent.c:identify_pack() calls identify() in its all-items and traditional/menu selection branches; js/invent.js awaits the callback."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "menu_identify",
+                "source": "invent.c:menu_identify() calls identify() for each selected menu item; js/invent.js uses the same bounded loop."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "display_pickinv",
+                "source": "wizcmds.c:wiz_identify() reaches display_pickinv() and its selected-item identify callback; js/invent.js routes the wizard display through identify_pack()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/wiz-identify.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json"
+            ],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "menu_identify",
+            "implementation": "js/invent.js",
+            "symbol": "menu_identify",
+            "sourceReview": "Read invent.c:2660-2697 completely. Query flags, first/next prompt text, id-limit truncation, wait ordering, ESC/no-eligible/retry messages, and identification callback order are preserved.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "identify_pack",
+                "source": "invent.c:identify_pack() falls through to menu_identify() after traditional ggetobj returns zero or a negative result; js/invent.js invokes the menu fallback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json"
+            ],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "count_unidentified",
+            "implementation": "js/invent.js",
+            "symbol": "count_unidentified",
+            "sourceReview": "Read invent.c:2698-2710 completely. Traverses the object chain once and counts only not_fully_identified objects; no RNG, output, or game-state mutation.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "identify_pack",
+                "source": "invent.c:identify_pack() counts gi.invent before choosing all, traditional, or menu identification; js/invent.js counts the live inventory chain."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "display_pickinv",
+                "source": "invent.c:display_pickinv() uses count_unidentified() for wizard identification admission; js/invent.js uses the same count when constructing that display."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json"
+            ],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "identify_pack",
+            "implementation": "js/invent.js",
+            "symbol": "identify_pack",
+            "sourceReview": "Read invent.c:2711-2749 completely. Empty-pack message, all-items branch, traditional ggetobj loop, menu fallback, and final update_inventory order are preserved.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:seffects() calls identify_pack() for a scroll of identify; js/read.js passes the scroll limit and learning flag."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "display_pickinv",
+                "source": "wizcmds.c:wiz_identify() uses the inventory identification path; js/invent.js display selection dispatches identify_pack()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json"
+            ],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "learn_unseen_invent",
+            "implementation": "js/invent.js",
+            "symbol": "learn_unseen_invent",
+            "sourceReview": "Read invent.c:2750-2781 completely. Blind sanity return, deferred dknown/bknown/role/scroll checks, xname side effects, addinv_core2 reaction, and conditional inventory refresh are preserved.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "toggle_blindness",
+                "source": "potion.c:toggle_blindness() calls learn_unseen_invent() after sight returns; js/potion.js awaits the inventory learning pass."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Blindf_off",
+                "source": "do_wear.c:Blindf_off() reaches potion.c toggle_blindness() and its sight-restoration inventory learning; js/do_wear.js awaits that path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/blindf-on.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording regains sight with a deferred unseen inventory object; blindfold, take-off, and wipe source-pinned tests cover the caller and role/scroll gates.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "update_inventory",
+            "implementation": "js/invent.js",
+            "symbol": "update_inventory",
+            "sourceReview": "Read invent.c:2782-2813 completely. Move-loop and suppress-map guards, suppress_price save/zero/restore, and win_update_inventory(0) hook order are preserved.",
+            "callers": [
+              {
+                "path": "js/moveloop_preamble.js",
+                "symbol": "moveloop_preamble",
+                "source": "allmain.c:moveloop_preamble() calls update_inventory() at the move-loop boundary; js/moveloop_preamble.js passes the active state and window hook."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "identify_pack",
+                "source": "invent.c:identify_pack() calls update_inventory() after identification; js/invent.js refreshes through the central helper."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "toggle_blindness",
+                "source": "potion.c:toggle_blindness() updates the persistent inventory after learning sight; js/potion.js uses update_inventory()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates the persistent-window update hook; source-pinned inventory tests cover move-loop, suppress-map, and suppress-price gates.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "doperminv",
+            "implementation": "js/invent.js",
+            "symbol": "doperminv",
+            "sourceReview": "Read invent.c:2814-2860 completely. Capability, option, empty-pack, and enabled-window branches preserve exact messages and nonzero update hook; command registry and dispatcher are wired.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:doextcmd() dispatches the perminv extended command to doperminv(); js/cmd.js includes the source-named switch case."
+              },
+              {
+                "path": "js/extcmdlist_data.js",
+                "symbol": "extcmdlist",
+                "source": "cmd.c:extcmdlist[] registers #perminv; js/extcmdlist_data.js registers doperminv with the same command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The recorder TTY build has no WC_PERM_INVENT window capability, so only its exact unsupported/disabled/empty branches can execute; source-pinned tests cover all gates and the injected hook branch.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "obj_to_let",
+            "implementation": "js/invent.js",
+            "symbol": "obj_to_let",
+            "sourceReview": "Read invent.c:2861-2874 completely. Constant-letter guard, NOINVSYM assignment, reassign call, and return value are preserved.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "prinv",
+                "source": "invent.c:prinv() calls obj_to_let() before xprname(); js/invent.js preserves the assignment and reassign path."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "doprwep",
+                "source": "invent.c equipment display callers pass object letters to dispinv_with_action(); js/invent.js obtains them with obj_to_let()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates nonconstant inventory-letter reassignment; source-pinned inventory tests cover both constant and changing-letter branches.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "prinv",
+            "implementation": "js/invent.js",
+            "symbol": "prinv",
+            "sourceReview": "Read invent.c:2875-2894 completely. Prefix spacing, partial-total text, verbose guard, xprname arguments, and message order are preserved.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "identify",
+                "source": "invent.c:identify() calls prinv() for immediate feedback; js/invent.js awaits the central message helper."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup_prinv",
+                "source": "pickup.c:pickup_prinv() calls prinv() for carried-item feedback; js/pickup.js imports the invent.c owner."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dowear",
+                "source": "do_wear.c:dowear() calls prinv() after a worn object enters inventory; js/do_wear.js awaits prinv()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates the partial-total/verbose combinations; source-pinned inventory and existing pickup tests cover source formatting and message order.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "xprname",
+            "implementation": "js/invent.js",
+            "symbol": "xprname",
+            "sourceReview": "Read invent.c:2895-2963 completely. Temporary quantity override/restore, alternate text, inventory-letter selection, price suffix currency call order, width clamp, and period/tab formatting are preserved.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "prinv",
+                "source": "invent.c:prinv() formats the object through xprname(); js/invent.js passes the source quantity and dot flags."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "display_pickinv",
+                "source": "invent.c:display_pickinv() formats each inventory row through xprname(); js/invent.js uses the same formatter for menu rows."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates every price and tab-format branch; source-pinned inventory tests pin ordinary, partial, total, currency, and tab output.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "dispinv_with_action",
+            "implementation": "js/invent.js",
+            "symbol": "dispinv_with_action",
+            "sourceReview": "Read invent.c:2964-3005 completely. Saves/restores sortloot, force_invmenu, and in-use header state; sets source ordering and calls display_inventory with the selected letters.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doprwep",
+                "source": "invent.c:doprwep() calls dispinv_with_action() with weapon letters and in-use ordering; js/invent.js passes the matching action options."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "doprarm",
+                "source": "invent.c:doprarm() calls dispinv_with_action() with armor letters; js/invent.js uses the source display action."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "doprring",
+                "source": "invent.c:doprring() calls dispinv_with_action() with ring letters; js/invent.js preserves the in-use display."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "dopramulet",
+                "source": "invent.c:dopramulet() calls dispinv_with_action() with the amulet letter; js/invent.js preserves flag restoration."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates each equipment display action; source-pinned inventory tests cover in-use ordering and restoration of display flags.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "ddoinv",
+            "implementation": "js/invent.js",
+            "symbol": "ddoinv",
+            "sourceReview": "Read invent.c:3006-3020 completely. Calls dispinv_with_action with no letter filter and returns its command result.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runInventoryCommand",
+                "source": "cmd.c:doextcmd()/command dispatch reaches ddoinv() for the i inventory command; js/cmd.js runInventoryCommand awaits the source-named helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording invokes the bare i inventory command in this span; source-pinned inventory tests cover its delegation and command return.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "find_unpaid",
+            "implementation": "js/invent.js",
+            "symbol": "find_unpaid",
+            "sourceReview": "Read invent.c:3021-3043 completely. Performs source-order sibling traversal, recursively scans container contents, and returns successive unpaid objects through the last-found output cursor.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "find_unpaid",
+                "source": "invent.c:dounpaid() calls find_unpaid() recursively while producing the unpaid-object list; the JavaScript dounpaid caller remains outside the recorder build."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "free_pickinv_cache",
+            "implementation": "js/invent.js",
+            "symbol": "free_pickinv_cache",
+            "sourceReview": "Read invent.c:3044-3056 completely. Destroys any cached pick-inventory window and resets the cache handle to WIN_ERR; JavaScript exposes the destructor hook and invalidates the handle.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "really_done",
+                "source": "end.c:really_done() calls free_pickinv_cache() while tearing down the native pick-inventory cache; the JavaScript TTY renderer has no native cache window and exposes the explicit destructor seam."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The JavaScript TTY renderer has no persistent native pick-inventory window to destroy; the source-pinned cache test covers the explicit destructor seam and WIN_ERR invalidation.",
+            "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
           }
         ],
-        "entryPointReview": "The selected invent.c range is helper and inventory-selection support. Its production entry points are existing getobj callers and the newly wired traditional dodrop and finite identify_pack paths; the range has no standalone command entry point requiring a new recipe. ggetobj delegates to pickup.c askchain, whose independent count boundary remains named in its owner.",
-        "entryPoints": []
+        "entryPointReview": "The selected invent.c range contains two executable entry points covered by fresh recordings: traditional container selection reaches askchain() through pickup.c traditional_loot(), and startup reroll reaches reroll_menu() through allmain.c newgame(). The remaining units are inventory-selection, identification, display, and teardown helpers reached by existing command/caller wiring; their recorder-inaccessible or non-isolating branches are source-pinned and named per function above. The current fixed holdout mismatch remains outside this span at the unsupported doorganize()/adjust command.",
+        "entryPoints": [
+          {
+            "name": "traditional container selection",
+            "functions": [
+              "askchain"
+            ],
+            "recordings": [
+              "recordings/invent.c/askchain-put-in-traditional.session.json"
+            ]
+          },
+          {
+            "name": "startup reroll menu",
+            "functions": [
+              "reroll_menu"
+            ],
+            "recordings": [
+              "recordings/invent.c/reroll-menu-archeologist.session.json"
+            ]
+          }
+        ]
       }
     }
   ]
