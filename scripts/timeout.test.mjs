@@ -13,6 +13,7 @@ import {
     FUMBLING,
     HATCH_EGG,
     ICE,
+    INVULNERABLE,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -447,6 +448,62 @@ test('elapsed-turn timeout upkeep preserves invulnerability short circuit',
         await nh_timeout_elapsed_turn(state);
         assert.equal(uprops[WOUNDED_LEGS].intrinsic, 4);
     });
+
+test('timed INVULNERABLE counts down with source-inert expiry', async () => {
+    const state = timerState();
+    const occupation = () => {};
+    const uprops = [];
+    // Three turns exercises both nonzero decrements and the zero transition;
+    // FROMOUTSIDE verifies that timeout.c's packed intrinsic flags survive.
+    uprops[INVULNERABLE] = { intrinsic: FROMOUTSIDE | 3, extrinsic: 0 };
+    state.go = { occupation };
+    state.u = {
+        uinvulnerable: false,
+        mtimedone: 0,
+        ucreamed: 0,
+        usptime: 0,
+        ugallop: 0,
+        uprops,
+    };
+    const messages = [];
+    const draws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(['rn2', bound]);
+            throw new Error('timed INVULNERABLE expiry must not draw');
+        },
+        rnd(bound) {
+            draws.push(['rnd', bound]);
+            throw new Error('timed INVULNERABLE expiry must not draw');
+        },
+    };
+
+    await nh_timeout_elapsed_turn(state, {
+        random,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(uprops[INVULNERABLE].intrinsic, FROMOUTSIDE | 2);
+    assert.equal(Boolean(uprops[INVULNERABLE].intrinsic), true);
+
+    await nh_timeout_elapsed_turn(state, {
+        random,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(uprops[INVULNERABLE].intrinsic, FROMOUTSIDE | 1);
+
+    await nh_timeout_elapsed_turn(state, {
+        random,
+        message: async (text) => messages.push(text),
+    });
+    // timeout.c:670-673 decrements the timed value, then its switch has no
+    // INVULNERABLE row. Expiry therefore leaves the packed permanent bit and
+    // active-property consumer state alone without cleanup or feedback.
+    assert.equal(uprops[INVULNERABLE].intrinsic, FROMOUTSIDE);
+    assert.equal(Boolean(uprops[INVULNERABLE].intrinsic), true);
+    assert.equal(state.go.occupation, occupation);
+    assert.deepEqual(messages, []);
+    assert.deepEqual(draws, []);
+});
 
 test('elapsed-turn timeout upkeep decrements non-expiring confusion',
     async () => {

@@ -26,6 +26,7 @@ import {
     HALLUC,
     HALLUC_RES,
     ICE,
+    INVULNERABLE,
     isok,
     LEVITATION,
     MAX_EGG_HATCH_TIME,
@@ -500,6 +501,10 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         // HALLUC's timeout expiry still needs make_hallucinated(), but its
         // ordinary decrement is source-inert while more than one turn remains.
         if (index === HALLUC && timeout > 1) continue;
+        // timeout.c has no INVULNERABLE case in its expiry switch. A timed
+        // property therefore decrements to zero without feedback or cleanup;
+        // this is distinct from u.uinvulnerable's early return above.
+        if (index === INVULNERABLE) continue;
         if (index === FUMBLING
             && (timeout > 1 || plainOnFootFumbleAdmitted(state))) continue;
         // timeout.c:752-758 restores one turn before make_deaf() clears the
@@ -587,8 +592,9 @@ async function sleep_dialogue(state, env = {}) {
 // nonzero and runs the switch on each one that reaches zero. An invulnerable
 // hero never arrives, because the caller returns first exactly as
 // timeout.c:621 does; every other hero has been through the preflight. The
-// admitted rows here are WOUNDED_LEGS, the plain on-foot FUMBLING arm,
-// source-inert SLEEPY, and the non-expiring CONFUSION/HALLUC countdowns.
+// admitted rows here are INVULNERABLE's source-inert expiry, WOUNDED_LEGS,
+// the plain on-foot FUMBLING arm, source-inert SLEEPY, and the non-expiring
+// CONFUSION/HALLUC countdowns.
 //
 // C reads find_delayed_killer() at 672 before switching, but only its STONED,
 // SLIMED and SICK cases use the result and none of the three is admitted here.
@@ -613,6 +619,9 @@ async function decrement_property_timeouts(state, env) {
                 await stop_occupation(state, env);
             continue;
         }
+        // timeout.c has no INVULNERABLE case. Its timed intrinsic still loses
+        // one turn above, but expiry has no message, RNG draw, or state change.
+        if (index === INVULNERABLE) continue;
         if (index === FUMBLING) {
             const random = env.random ?? { rn2, rnd };
             const message = env.message ?? ttyPline;

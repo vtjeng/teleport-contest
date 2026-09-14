@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7704504,
+      "datetime": "20310912091500",
+      "nethackrc": "OPTIONS=name:Invuln,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizintrinsic\na\n kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+    }
+  ],
+  "comment": "Independent wizard-mode #wizintrinsic case. Selection a gives only the timed INVULNERABLE property, then 30 movement keys drive timeout.c nh_timeout() through nonzero countdown and expiry without the unrelated very-fast property."
+}
