@@ -872,7 +872,7 @@ function mk_knox_portal(x, y) {
     const source = sourceIsEnd2 ? br.end2 : br.end1;
 
     /* Already set or 2/3 chance of deferring until a later level. */
-    if (source.dnum < g.n_dgns || rn2(3)) return;
+    if (source.dnum < g.n_dgns || (rn2(3) && !g.wizard)) return;
 
     const u_depth = depth(g.u.uz);
     if (!(g.u.uz.dnum === g.oracle_level.dnum /* in main dungeon */
@@ -7502,6 +7502,7 @@ export {
     get_room_loc,
     inside_room,
     is_ok_location,
+    mk_knox_portal,
     occupied,
     place_branch,
     somex,
