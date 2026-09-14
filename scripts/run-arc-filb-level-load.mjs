@@ -32,6 +32,7 @@ function linkedCount(head, next) {
 export async function verifyArcFilbSegment(segment) {
     await runSegment(segment);
 
+    // Both fixture seeds place the quest at dnum 3; Home4 exercises filb.
     assert.equal(game.u.uz.dnum, 3);
     assert.equal(game.u.uz.dlevel, 4);
     // The runtime keeps an empty sentinel after the six source rooms.
@@ -42,6 +43,8 @@ export async function verifyArcFilbSegment(segment) {
     assert.ok(game.level.rooms
         .filter(({ rtype }) => rtype !== undefined)
         .every(({ rtype }) => rtype === 0));
+    // Arc-filb.lua descriptors request four traps, seven monsters, nine
+    // objects and two stairs. Other generation effects may add floor objects.
     assert.equal(game.level.traps.length, 4);
     assert.equal(linkedCount(game.level.monlist, 'nmon'), 7);
     assert.ok(linkedCount(game.level.objlist, 'nobj') >= 9);
