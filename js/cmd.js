@@ -2924,10 +2924,10 @@ export function failClosedCommandRefusals() {
         // nor already called something.
         UnsupportedItemDestructionError,
         UnsupportedPotionError,
-        // potion.c dodrink()/dopotion()/peffects() raises this for the 22
-        // potion types besides POT_SPEED and for the strangled, sink,
-        // underwater, worn-potion, milky and smoky branches of dodrink()
-        // that this port has not reached.
+        // potion.c dodrink()/dopotion()/peffects() raises this for the
+        // unported potion effects and for the strangled, sink, underwater,
+        // worn-potion, milky and smoky branches of dodrink() that this port
+        // has not reached.
         UnsupportedQuaffError,
         // fountain.c drinkfountain(), dowaterdemon(), dipfountain(),
         // and dryup() raise this for the fountain-effect arms this port

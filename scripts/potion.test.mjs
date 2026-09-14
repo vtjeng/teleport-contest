@@ -14,7 +14,8 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
     A_CON, A_DEX, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, HALLUC,
-    HALLUC_RES, INVIS, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS, SLEEP_RES,
+    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
+    SLEEP_RES,
     TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
@@ -161,6 +162,84 @@ function vaporPotion(otyp) {
     obj.dknown = true;
     return obj;
 }
+
+// potion.c peffect_paralysis():881-898. The ordinary floor arm must emit its
+// feet message before rn1(10, 25), then set both continuation fields before
+// exercise(A_DEX, FALSE). The recorded rn2 results pin that source order.
+test('quaffing paralysis freezes floor-bound feet and exercises Dexterity',
+    async () => {
+    await startedGame(771024, 'ParalysisFloor');
+    const potion = vaporPotion(POT_PARALYSIS);
+    game.u.uprops[FREE_ACTION].intrinsic = 0;
+    game.u.uprops[FREE_ACTION].extrinsic = 0;
+    game.u.uprops[LEVITATION].intrinsic = 0;
+    game.u.uprops[LEVITATION].extrinsic = 0;
+    game.u.uprops[LEVITATION].blocked = 0;
+    game.u.usteed = null;
+    // The selected seed starts on a stair; choose the first room square so
+    // this source-pinned test exercises the ordinary floor branch.
+    const room = game.level.rooms.find(({ lx, hx, ly, hy }) =>
+        lx < hx && ly < hy);
+    assert.ok(room);
+    game.u.ux = room.lx;
+    game.u.uy = room.ly;
+    clearTopline();
+    enableRngLog();
+    const before = game.u.aexe[A_DEX];
+
+    assert.equal(await peffects(potion, game), -1);
+
+    const draws = getRngLog();
+    assert.equal(draws.length, 2);
+    const duration = Number(/^rn2\(10\)=(\d+)$/u.exec(draws[0])?.[1]);
+    const dexLoss = Number(/^rn2\(2\)=(\d+)$/u.exec(draws[1])?.[1]);
+    assert.ok(Number.isInteger(duration));
+    assert.ok(Number.isInteger(dexLoss));
+    assert.equal(toplines(), 'Your feet are frozen to the floor!');
+    assert.equal(game.multi, -(25 + duration));
+    assert.equal(game.multi_reason, 'frozen by a potion');
+    assert.equal(game.nomovemsg, 'You can move again.');
+    assert.equal(game.u.aexe[A_DEX], before - dexLoss);
+});
+
+// potion.c peffect_paralysis():883-897. The Free_action, levitation, and
+// steed gates change only the message; the latter two still take the same
+// duration and Dexterity-exercise tail as the ordinary floor arm.
+test('paralysis preserves its Free_action, levitation, and steed messages',
+    async () => {
+    await startedGame(771025, 'ParalysisGates');
+    const potion = vaporPotion(POT_PARALYSIS);
+
+    game.u.uprops[FREE_ACTION].intrinsic = FROMOUTSIDE;
+    game.u.uprops[FREE_ACTION].extrinsic = 0;
+    game.u.uprops[LEVITATION].intrinsic = 0;
+    game.u.uprops[LEVITATION].extrinsic = 0;
+    game.u.uprops[LEVITATION].blocked = 0;
+    game.u.usteed = null;
+    clearTopline();
+    enableRngLog();
+    await peffects(potion, game);
+    assert.equal(toplines(), 'You stiffen momentarily.');
+    assert.deepEqual(getRngLog(), []);
+    assert.equal(game.multi ?? 0, 0);
+
+    game.u.uprops[FREE_ACTION].intrinsic = 0;
+    game.u.uprops[LEVITATION].intrinsic = FROMOUTSIDE;
+    clearTopline();
+    enableRngLog();
+    await peffects(potion, game);
+    assert.equal(toplines(), 'You are motionlessly suspended.');
+    assert.equal(getRngLog().length, 2);
+
+    game.u.uprops[LEVITATION].intrinsic = 0;
+    game.u.usteed = {};
+    clearTopline();
+    enableRngLog();
+    await peffects(potion, game);
+    assert.equal(toplines(), 'You are frozen in place!');
+    assert.equal(getRngLog().length, 2);
+    game.u.usteed = null;
+});
 
 test('potion.c still labels the arms this port refuses and none it skips',
     () => {

@@ -3,6 +3,7 @@
 //        dopotion() (618-641), peffects() (1333-1425),
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_confusion() (1014-1027),
+//        peffect_paralysis() (881-898),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
@@ -15,9 +16,9 @@
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_OIL, and the
-// POT_FRUIT_JUICE arm of peffect_see_invisible() are ported. The other 21
-// arms throw
+// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_OIL, the
+// POT_FRUIT_JUICE arm of peffect_see_invisible(), and the ordinary
+// POT_PARALYSIS arm are ported. The other 20 arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -41,6 +42,7 @@ import {
     FACE,
     FAST,
     FAINTED,
+    FOOT,
     FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
@@ -57,6 +59,8 @@ import {
     INVIS,
     IS_FOUNTAIN,
     IS_SINK,
+    Is_airlevel,
+    Is_waterlevel,
     KILLED_BY,
     KILLED_BY_AN,
     FIXED_ABIL,
@@ -110,7 +114,8 @@ import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { burn_away_slime } from './timeout.js';
-import { unconscious } from './trap.js';
+import { Levitation, unconscious } from './trap.js';
+import { surface } from './dungeon.js';
 import { cansee, vision_recalc } from './vision.js';
 import { Cold_resistance, Fire_resistance, makewish } from './zap.js';
 import {
@@ -166,8 +171,8 @@ export class UnsupportedPotionError extends Error {
 }
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported: the 21 potion types besides POT_CONFUSION, POT_SICKNESS, POT_SPEED,
-// POT_OIL, and POT_FRUIT_JUICE, and the
+// ported: the 20 potion types besides POT_CONFUSION, POT_SICKNESS, POT_SPEED,
+// POT_OIL, POT_FRUIT_JUICE, and POT_PARALYSIS, and the
 // strangled, fountain, sink, underwater, worn-potion, milky and smoky
 // branches of dodrink().
 export class UnsupportedQuaffError extends Error {
@@ -819,6 +824,39 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
     }
 }
 
+// C ref: potion.c peffect_paralysis() (881-898). A Free_action hero only
+// stiffens momentarily. Every other case reports where the hero is held,
+// spends the source-ordered rn1() duration, stores the interruption reason
+// and completion message for unmul(), and exercises Dexterity downward.
+async function peffect_paralysis(otmp, state = game) {
+    if (Free_action(state)) {
+        await ttyPline('You stiffen momentarily.', state);
+        return;
+    }
+
+    const hero = state.u;
+    if (Levitation(state)
+        || Is_airlevel(hero.uz)
+        || Is_waterlevel(hero.uz)) {
+        await ttyPline('You are motionlessly suspended.', state);
+    } else if (hero.usteed) {
+        await ttyPline('You are frozen in place!', state);
+    } else {
+        await ttyPline(
+            `Your ${makeplural(body_part(FOOT, state.youmonst))} are frozen`
+                + ` to the ${surface(hero.ux, hero.uy, state)}!`,
+            state,
+        );
+    }
+
+    // C evaluates rn1() as nomul()'s argument before writing either
+    // multi_reason or nomovemsg. bcsign() supplies the blessed/cursed offset.
+    nomul(-(rn1(10, 25 - 12 * bcsign(otmp))), state);
+    state.multi_reason = 'frozen by a potion';
+    state.nomovemsg = You_can_move_again;
+    await exercise(A_DEX, false, state);
+}
+
 // ---------------------------------------------------------------------------
 // peffects / dopotion / dodrink
 // C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
@@ -850,7 +888,8 @@ export async function peffects(otmp, state = game) {
         await peffect_see_invisible(otmp, state);
         break;
     case POT_PARALYSIS:
-        throw new UnsupportedQuaffError('peffect_paralysis()');
+        await peffect_paralysis(otmp, state);
+        break;
     case POT_SLEEPING:
         throw new UnsupportedQuaffError('peffect_sleeping()');
     case POT_MONSTER_DETECTION:

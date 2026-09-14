@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 914117,
+      "datetime": "20310102083945",
+      "nethackrc": "OPTIONS=name:ParalysisPort,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed potion of paralysis\nhqe"
+    }
+  ],
+  "comment": "Independently selected debug wish and quaff case for potion.c peffect_paralysis(): the wished uncursed potion reaches the ordinary floor branch through dodrink(), dopotion(), and peffects()."
+}
