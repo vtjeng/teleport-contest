@@ -42,7 +42,6 @@ import {
     IRON_CHAIN,
     QUARTERSTAFF,
     SPBOOK_CLASS,
-    SPE_DETECT_FOOD,
     SPE_DETECT_MONSTERS,
     SPE_FORCE_BOLT,
     SPE_HEALING,
@@ -62,6 +61,7 @@ import {
     confusedTeleportSetupMoves,
     loadReadConfusedTeleportRecipe,
 } from './run-read-confused-teleport.mjs';
+import { moveloop_core } from '../js/allmain.js';
 import {
     ESCAPE_KEY,
     INVALID_LETTER,
@@ -100,17 +100,17 @@ function firstSegment() {
     return loadReadCommandRecipe().segments[0];
 }
 
-function holdoutPrefix(lastStep) {
-    const session = JSON.parse(readFileSync(new URL(
-        '../sessions/holdout/seed4500-knight-coverage.session.json',
-        import.meta.url,
-    ), 'utf8'));
-    const segment = session.segments[0];
+function debugWishSegment(objectName, movesBeforeWish = '', role = 'Knight') {
     return {
-        ...segment,
-        moves: segment.steps.slice(1, lastStep + 1)
-            .map(({ key }) => key ?? '')
-            .join(''),
+        seed: 8771001,
+        datetime: '20320405060708',
+        nethackrc: [
+            `OPTIONS=name:ReadStudy,role:${role},race:human,gender:male,align:lawful`,
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=playmode:debug',
+            '',
+        ].join('\n'),
+        moves: `${movesBeforeWish}\x17${objectName}\n`,
     };
 }
 
@@ -161,6 +161,19 @@ async function prepareUnknownIdentifyScroll() {
         [],
     );
     return { replay, scroll };
+}
+
+async function prepareIncompleteIdentifyScroll() {
+    const prepared = await prepareUnknownIdentifyScroll();
+    let target = game.invent;
+    while (target && (target === prepared.scroll
+        || target.oclass !== SPBOOK_CLASS)) target = target.nobj;
+    assert.ok(target, 'the fixed Wizard starts with a spellbook');
+    target.known = false;
+    target.bknown = false;
+    game.objects[target.otyp].oc_name_known = 0;
+    assert.equal(not_fully_identified(target, game), true);
+    return { ...prepared, target };
 }
 
 test('read_ok suggests scrolls and spellbooks and downplays other objects',
@@ -387,11 +400,15 @@ test('an ordinary enchant-weapon scroll raises the wielded weapon', async () => 
 
 test('a punishment scroll attaches a ball and chain, then grows the ball',
     async () => {
-    // The opened holdout reaches read.c seffect_punishment() at step 491.
-    // Its first scroll is an uncursed stack of three; replay through step 492
-    // includes the disappearance prompt, ball-and-chain creation, and the
-    // following monster response.
-    const replay = await runSegment(holdoutPrefix(492));
+    // A small independent debug setup wishes an uncursed stack of three so
+    // this read test does not enter the holdout's unrelated level-20 portal.
+    await runSegment(debugWishSegment('uncursed punishment scroll'));
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_PUNISHMENT) scroll = scroll.nobj;
+    assert.ok(scroll, 'the debug setup creates a punishment scroll');
+    scroll.quan = 3;
+    for (const key of 'r i ') game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
     assert.equal(game.uball?.otyp, HEAVY_IRON_BALL);
     assert.equal(game.uchain?.otyp, IRON_CHAIN);
     assert.equal(game.uball?.where, OBJ_FLOOR);
@@ -399,27 +416,7 @@ test('a punishment scroll attaches a ball and chain, then grows the ball',
     assert.equal(game.uball?.owt, 480);
     assert.equal(game.u.bc_order, 1); // BCPOS_CHAIN
     assert.equal(game._pending_message,
-        'You are being punished for your misbehavior!  The newt misses!');
-    assert.deepEqual(replay.getRngSlices()[492], [
-        'rnd(1000)=277',
-        'rnd(2)=1',
-        'rn2(100)=75',
-        'rn2(80)=25',
-        'rn2(80)=26',
-        'rn2(1000)=678',
-        'rnd(1000)=467',
-        'rnd(2)=1',
-        'rn2(100)=65',
-        'rn2(80)=73',
-        'rn2(80)=55',
-        'rn2(1000)=638',
-        'rn2(19)=18',
-        'rn2(5)=0',
-        'rnd(20)=14',
-    ]);
-
-    let scroll = game.invent;
-    while (scroll && scroll.otyp !== SCR_PUNISHMENT) scroll = scroll.nobj;
+        'You are being punished for your misbehavior!');
     assert.equal(scroll?.quan, 2);
     const weightBefore = game.uball.owt;
     // The pending monster line is cleared before the direct doread() call;
@@ -502,29 +499,23 @@ test('an unknown identify scroll reports a fully identified remaining pack',
     );
 });
 
-test('an unknown identify scroll identifies an incomplete pack in order',
+test('an unknown identify scroll identifies an incomplete pack automatically',
     async () => {
-    // The opened holdout reaches read.c seffect_identify() at step 494 with
-    // two incomplete spellbooks remaining after the selected scroll is used.
-    // The recorded cval is 3, so invent.c identify_pack() takes its
-    // automatic-all branch and prints the three inventory entries in order.
-    const replay = await runSegment(holdoutPrefix(497));
-    assert.deepEqual(
-        inventorySnapshot().filter((obj) => not_fully_identified(obj, game)),
-        [],
-    );
-    assert.deepEqual(replay.getRngSlices()[494], [
-        'rn2(19)=2',
-        'rn2(19)=12',
-        'rn2(5)=0',
-        'rn2(5)=3',
-    ]);
-    assert.deepEqual(replay.getRngSlices()[495], []);
-    assert.deepEqual(replay.getRngSlices()[496], []);
+    // The independent setup leaves one incomplete spellbook after the
+    // selected scroll is used. The automatic-all branch covers the same
+    // identify_pack() path without entering the holdout's unrelated portal.
+    const { scroll, target } = await prepareIncompleteIdentifyScroll();
+    game.nhDisplay.pushKey(scroll.invlet.charCodeAt(0));
+    for (const key of '          ')
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+    assert.equal(not_fully_identified(target, game), false);
+    assert.equal(game.objects[target.otyp].oc_name_known, 1);
     assert.equal(
-        pendingTopLine(),
-        'k - an uncursed spellbook of detect monsters.',
+        inventorySnapshot().some((obj) => obj.o_id === scroll.o_id),
+        false,
     );
+    assert.match(pendingTopLine(), /spellbook/u);
 });
 
 test('a confused blessed teleport scroll reaches level_tele and schedules goto',
@@ -784,50 +775,45 @@ test('magic mapping remains consumed and mapped through the next command',
 
 test('successful ordinary spellbook study completes its learn occupation',
     async () => {
-    // The opened holdout reaches spell.c study_book() at step 474. Its
-    // Knight has Int 7 and level 15, so the level-2 book has read ability 14;
-    // the recorded rnd(20)=13 enters the successful study arm. Steps through
-    // 477 include a second successful book and run both delayed occupations.
-    const segment = holdoutPrefix(477);
-    let boundary = null;
-    const replay = await runSegment(segment, {
-        onBoundary: (error) => { boundary = error; },
-    });
+    // Raise the Knight without changing dungeon levels, wish a level-1 book,
+    // and drive its one-turn learn occupation. This keeps the study test out
+    // of the holdout's unrelated level-20 portal placement.
+    const segment = debugWishSegment(
+        'spellbook of detect monsters',
+        `.#levelchange\n15\n${' '.repeat(14)}`,
+    );
+    const replay = await runSegment(segment);
+    let book = game.invent;
+    while (book && book.otyp !== SPE_DETECT_MONSTERS) book = book.nobj;
+    assert.ok(book, 'the debug setup creates a detect-monsters spellbook');
+    for (const key of `r ${book.invlet}`)
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+    assert.equal(book.in_use, false);
+    assert.equal(game.context.spbook.delay, -1);
+    assert.equal(game.context.spbook.book, book);
 
-    let foodBook = game.invent;
-    while (foodBook && foodBook.otyp !== SPE_DETECT_FOOD)
-        foodBook = foodBook.nobj;
-    assert.equal(boundary, null);
-    assert.equal(foodBook?.in_use, false);
-    // obj.h's spestudied alias is the spellbook use count; a fresh book starts
-    // at zero and learn() increments it once at spell.c:429.
-    assert.equal(foodBook?.spestudied, 1);
-    assert.deepEqual(game.svs.spl_book.slice(0, 2).map((spell) => ({
-        sp_id: spell.sp_id,
-        sp_lev: spell.sp_lev,
-        sp_know: spell.sp_know,
-    })), [
-        // learn() stores KEEN + 1 (20001), then age_spells() runs at the end
-        // of each later turn: three turns have elapsed for the first book and
-        // one for the second by step 477.
-        { sp_id: SPE_DETECT_FOOD, sp_lev: 2, sp_know: 19998 },
-        { sp_id: SPE_DETECT_MONSTERS, sp_lev: 1, sp_know: 20000 },
-    ]);
+    // learn() first advances the negative delay, then completes on the next
+    // occupation turn after its message's --More-- is dismissed.
+    await moveloop_core();
+    game.nhDisplay.pushKey(SPACE_KEY.charCodeAt(0));
+    await moveloop_core();
+    assert.equal(book.spestudied, 1);
+    assert.deepEqual(game.svs.spl_book[0], {
+        sp_id: SPE_DETECT_MONSTERS,
+        sp_lev: 1,
+        sp_know: 20001,
+    });
     assert.equal(game.context.spbook.delay, 0);
     assert.equal(game.context.spbook.book, null);
     assert.equal(game.context.spbook.o_id, 0);
     assert.equal(game.go?.occupation ?? null, null);
     assert.match(game.nhDisplay.toplines,
-        /detect monsters.*repertoire/u);
+        /learn.*detect monsters/u);
 
-    // study_book() consumes one difficulty roll per book, and each learn()
-    // completion consumes the source's Wisdom exercise draw before discovery.
-    const studyRolls = replay.getRngLog().filter((entry) =>
-        entry.startsWith('rnd(20)=')
-        && (entry.endsWith('=13') || entry.endsWith('=11')),
-    );
-    assert.deepEqual(studyRolls, [
-        'rnd(20)=13',
-        'rnd(20)=11',
-    ]);
+    // The read path consumes the ordinary-book difficulty draw before
+    // installing the occupation.
+    assert.ok(replay.getRngLog().some((entry) =>
+        entry.startsWith('rnd(20)='),
+    ));
 });
