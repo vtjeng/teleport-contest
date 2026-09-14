@@ -34534,6 +34534,105 @@
         "screens": 8463,
         "rng": 630041
       }
+    },
+    {
+      "id": "div-topl-tty-yn-unrestricted-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Preserve answered unrestricted object prompts through tty_yn_function cleanup",
+      "cFile": "topl.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Selected holdout/seed4500-knight-coverage at remainingScreensUpperBound 1193, the first session in per-session queue order with a valid complete investigation at investigations/holdout/seed4500-knight-coverage.json; its source-traced owner is topl.c tty_yn_function. Other lower-ranked sessions remain investigated in the background.",
+      "detail": "At step 621, C's unrestricted resp == NULL tty_yn_function path retains the answered one-line prompt after Escape because topl.c cleanup rewrites gt.toplines and leaves WIN_MESSAGE visible when cury is zero. js/getline.js tty_yn_function skips state._pending_message for resp === null, so display.js clears row 0. Scope is source-general prompt retention, preserving existing cury and wrapped-prompt cleanup.",
+      "spans": [],
+      "openedAt": "5d17434cc6fedc8b533d57660b9a65b7c453ce3b",
+      "openStanding": {
+        "sha": "5d17434cc6fedc8b533d57660b9a65b7c453ce3b",
+        "screens": 8463,
+        "rng": 630041
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "tty_yn_function",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 621,
+      "activeStanding": {
+        "sha": "5d17434cc6fedc8b533d57660b9a65b7c453ce3b",
+        "screens": 8463,
+        "rng": 630041
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 621,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1193,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1193,
+              "status": "complete",
+              "commit": "bb0449507becc8da64b355c7acbf68f355500a27",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1193,
+                "step": 621,
+                "kind": "screen",
+                "function": "tty_yn_function",
+                "functionDeclared": true,
+                "sourceFile": "js/getline.js",
+                "cFile": "nethack-c/upstream/win/tty/topl.c",
+                "luaFile": null,
+                "line": 414,
+                "message": "At step 621, C keeps the answered unrestricted getobj() prompt on row 0 (cCell W); JS clears row 0 because tty_yn_function() does not set _pending_message when resp is null, so jsCell is blank.",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The overview command now matches through its dismissal; the next divergence is the answered unrestricted object prompt after #dip. C invent.c:getobj() calls topl.c:tty_yn_function() with resp == NULL, and topl.c cleanup rewrites gt.toplines while leaving a one-line WIN_MESSAGE prompt visible after Escape. js/getline.js:tty_yn_function() writes the answered toplines but only retains _pending_message for restricted prompts, so the next screen clears row 0 (C W versus JS space). This is a source-general topl.c divergence fix for unrestricted prompt retention, reached here through potion.c dodip(), not a seed-specific overview issue.",
+              "source": {
+                "file": "topl.c",
+                "functions": [
+                  "tty_yn_function"
+                ],
+                "branch": "The resp == NULL arm at topl.c:421-427 prints the unrestricted prompt, reads one key, and jumps to clean_up. topl.c:533-548 rewrites gt.toplines, sets TOPLINE_NON_EMPTY, and only clears WIN_MESSAGE when cury is nonzero; this one-line prompt therefore remains visible after Escape. js/getline.js:392-415 mirrors cleanup but skips state._pending_message when resp === null, allowing the next display rebuild to erase the prompt.",
+                "callers": [
+                  "nethack-c/upstream/src/potion.c:2267-2281 dodip() calls invent.c:getobj(\"dip\", ..., GETOBJ_PROMPT); js/potion.js:1384-1400 and js/cmd.js:3342-3347 provide the corresponding production chain.",
+                  "nethack-c/upstream/src/invent.c:1916-1935 builds the unrestricted object prompt and calls yn_function(qbuf, NULL, '\\0', FALSE); js/invent.js:823-830 calls js/cmd.js:808-853 yn_function(), which dispatches to js/getline.js:286-419 tty_yn_function().",
+                  "nethack-c/upstream/src/cmd.c:3810-3815 handles dodip()'s ECMD_CANCEL with reset_cmd_vars(), which does not clear the answered one-line prompt; js/cmd.js:6190-6203 handles the same cancellation and likewise leaves the cleanup to the TTY state."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/win/tty/topl.c:421-427 and :533-548 define the unrestricted prompt and cleanup lifecycle; js/getline.js:392-415 is the ported counterpart and line 414 is the missing assignment.",
+                  "js/display.js:_buildScreenOutput() repaints row 0 from state._pending_message, so retaining the answered unrestricted prompt is required for the recorded C cell; no RNG or game-state change is involved.",
+                  "nethack-c/upstream/src/invent.c:1950-1953 returns NULL on the Escape quitchar with !verbose, so this witness emits no Never_mind message; js/invent.js:824-848 returns null through the same cancellation arm.",
+                  "The fix must preserve the existing cury/wrapped-prompt clear behavior and callers that explicitly clear an answered prompt; the current witness is the short unrestricted getobj() branch reached by #dip."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                ".cache/scan-cache.json SHA bb0449507becc8da64b355c7acbf68f355500a27 reports the assigned row at step 621, kind screen, with remaining-screen upper bound 1193; the first differing cell is row 0 column 0, C W versus JS space, both color 8 and attr 0.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 616-620 enter #dip and record the unrestricted prompt What do you want to dip? [a-km or ?*]; step 621 is Escape and retains that prompt in C at row 0 while the map and status remain unchanged.",
+                "nethack-c/upstream/win/tty/topl.c:421-427 takes the resp == NULL path, and :533-548 rewrites gt.toplines, sets TOPLINE_NON_EMPTY, and does not call tty_clear_nhwindow() for a one-line prompt because WIN_MESSAGE cury is zero.",
+                "nethack-c/upstream/src/invent.c:1919-1935 and :1950-1953 establish the getobj prompt and Escape cancellation; nethack-c/upstream/src/potion.c:2267-2281 establishes dodip() as the production caller.",
+                "js/getline.js:392-415 rewrites the answered prompt but assigns state._pending_message only when resp !== null; js/display.js rebuilds row 0 from that field, exposing the C W versus JS space mismatch.",
+                "The actionable scope is source-general unrestricted tty_yn_function() prompt retention and its TTY cleanup contract; do not special-case the Knight, seed 4500, #dip text, or replay step."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
