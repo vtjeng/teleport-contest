@@ -55,7 +55,7 @@ export function initializeQuestPagerLua(random = rn2) {
 
 // C ref: questpgr.c ldrname().  Returns the leader's name, prefixed with
 // "the " when it is not a proper name.
-function ldrname(state) {
+export function ldrname(state) {
     const leader = state.mons?.[state.urole?.ldrnum];
     const name = leader?.pmnames?.[NEUTRAL];
     if (!name) return 'your leader';

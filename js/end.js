@@ -136,7 +136,8 @@ import { canSpotMonster } from './startup_a11y.js';
 import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
-    depth, dunlev, on_level, recalc_mapseen, single_level_branch,
+    depth, dunlev, on_level, recalc_mapseen, show_overview,
+    single_level_branch,
 } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
@@ -930,53 +931,6 @@ async function show_conduct(final, state) {
     await displayTtyMenuTextWindow(state, menuLines(lines));
 }
 
-// C ref: dungeon.c show_overview()/print_mapseen(). The ordinary final death
-// disclosure needs only the visited ordinary levels and the current level's
-// not-yet-created final resting place. Branches, annotations, and endgame
-// levels remain outside this bounded slice.
-async function show_overview(how, state) {
-    recalc_mapseen(state);
-    const entries = (state.svm?.mapseenchn ?? []).filter((entry) => (
-        !In_endgame(entry.lev, state)
-    ));
-    const lines = [];
-    let lastDungeon = null;
-    for (const entry of entries) {
-        const dnum = entry.lev.dnum;
-        if (dnum !== lastDungeon) {
-            const dungeon = state.dungeons?.[dnum];
-            if (!dungeon)
-                throw new UnsupportedEndOfGameError('overview unknown dungeon');
-            const reached = Math.trunc(dungeon.dunlev_ureached ?? 0);
-            const first = dungeon.depth_start;
-            const header = reached === dungeon.entry_lev
-                ? `${dungeon.dname}:`
-                : `${dungeon.dname}: levels ${first} to `
-                    + `${first + reached - 1}`;
-            lines.push(add_menu_heading(header, state));
-            lastDungeon = dnum;
-        }
-
-        const level = depth(entry.lev, state);
-        let text = `   Level ${level}:`;
-        if (on_level(state.u.uz, entry.lev)) text += ' <- You were here.';
-        lines.push({ text });
-
-        if (how === DIED && on_level(state.u.uz, entry.lev)) {
-            lines.push({ text: '      Final resting place for' });
-            lines.push({
-                text: `         you, ${formatkiller(how, true, state)}.`,
-            });
-        }
-    }
-    await select_menu(state, {
-        lines,
-        how: PICK_NONE,
-        cancelValue: null,
-        overlay: state.iflags?.menu_overlay !== false,
-    });
-}
-
 // C ref: end.c disclose() (619-699). Walks each disclosure category in order.
 async function disclose(how, taken, state) {
     if (state.invent && !disclosureStopprint(state)) {
@@ -1055,7 +1009,12 @@ async function disclose(how, taken, state) {
             true,
             state,
         ) : defquery;
-        if (c === KEY_Y) await show_overview(how, state);
+        if (c === KEY_Y) {
+            // C ref: end.c disclose():696. Final disclosure passes 1 for a
+            // living ending (escape, ascension, panic) and 2 for death;
+            // `how` remains the death reason for the current level row.
+            await show_overview(how >= PANICKED ? 1 : 2, how, state);
+        }
         if (c === KEY_Q) discloseStop(state);
     }
 }

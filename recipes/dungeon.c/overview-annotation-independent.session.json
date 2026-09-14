@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7715,
+      "datetime": "20310516134455",
+      "nethackrc": "OPTIONS=name:OverviewAnnotateProbe,role:Knight,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\n",
+      "moves": "\u0016#overview\na\u001b"
+    }
+  ],
+  "comment": "Independent Knight startup selects the current level from m-prefixed #overview, then dismisses the annotation prompt with Escape. This exercises query_annotation through the PICK_ONE menu."
+}

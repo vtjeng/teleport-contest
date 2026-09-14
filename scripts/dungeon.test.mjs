@@ -45,6 +45,10 @@ import {
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
+    BR_NO_END1,
+    BR_NO_END2,
+    BR_PORTAL,
+    BR_STAIR,
     Can_dig_down,
     Can_fall_thru,
     Can_rise_up,
@@ -52,6 +56,7 @@ import {
     ceiling,
     depth,
     endgamelevelname,
+    br_string2,
     find_mapseen,
     find_level,
     induced_align,
@@ -63,6 +68,8 @@ import {
     level_range,
     maxledgerno,
     on_level,
+    interest_mapseen,
+    print_mapseen,
     recalc_mapseen,
     room_discovered,
     surface,
@@ -70,6 +77,9 @@ import {
     UnsupportedEarthSenseError,
     update_lastseentyp,
     update_mapseen_for,
+    seen_string,
+    shop_string,
+    tunesuffix,
 } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -468,6 +478,128 @@ test('endgamelevelname matches dungeon.c plane names and fallback', () => {
             'unknown plane #0',
         ],
     );
+});
+
+test('overview helper strings match dungeon.c source branches', () => {
+    // dungeon.c:3365-3382 uses packed counts 0, 1, 2 and 3 and the exact
+    // vowels[] table from decl.c:111 for the singular article.
+    assert.deepEqual(
+        [0, 1, 1, 2, 3, 4].map((count, index) => seen_string(
+            count, ['altar', 'altar', 'throne', 'shop', 'grave', 'sink'][index],
+        )),
+        ['no', 'an', 'a', 'some', 'many', '(unknown)'],
+    );
+
+    // dungeon.c:3385-3405 distinguishes all branch directions and seals a
+    // quest portal after qexpelled has been set.
+    const state = {
+        quest_dnum: 2,
+        u: { uevent: { qexpelled: true } },
+    };
+    assert.equal(br_string2({ type: BR_PORTAL, end2: { dnum: 2 } }, state),
+        'Sealed portal');
+    assert.equal(br_string2({ type: BR_PORTAL, end2: { dnum: 1 } }, state),
+        'Portal');
+    assert.equal(br_string2({ type: BR_NO_END1 }, state), 'Connection');
+    assert.equal(br_string2({ type: BR_NO_END2, end1_up: true }, state),
+        'One way stairs up');
+    assert.equal(br_string2({ type: BR_NO_END2, end1_up: false }, state),
+        'One way stairs down');
+    assert.equal(br_string2({ type: BR_STAIR, end1_up: true }, state),
+        'Stairs up');
+    assert.equal(br_string2({ type: BR_STAIR, end1_up: false }, state),
+        'Stairs down');
+    assert.equal(br_string2({ type: 99 }, state), '(unknown)');
+
+    // dungeon.c:3439-3457 uses SHOPBASE-1 for an unattended shop and then
+    // prefers generated annotations over full shop names.
+    assert.equal(shop_string(SHOPBASE - 1), 'untended shop');
+    assert.equal(shop_string(SHOPBASE), 'general store');
+    assert.equal(shop_string(SHOPBASE + 1), 'armor shop');
+    assert.equal(shop_string(999), 'shop?');
+});
+
+test('tunesuffix follows the Castle tune knowledge states', () => {
+    // dungeon.c:3459-3475 emits no suffix without both remembered Castle
+    // state and heard tune; value 1 uses the generic five-note description.
+    const mapseen = { flags: { castletune: 1 } };
+    assert.equal(tunesuffix(mapseen, {
+        u: { uevent: { uheard_tune: 0 } },
+    }), '');
+    assert.equal(tunesuffix(mapseen, {
+        u: { uevent: { uheard_tune: 1 } },
+    }), ' (play 5-note tune to open or close drawbridge)');
+    assert.equal(tunesuffix(mapseen, {
+        tune: 'ABCDE',
+        u: { uevent: { uheard_tune: 2 } },
+    }), ' (play notes "ABCDE" to open or close drawbridge)');
+});
+
+test('print_mapseen emits source-ordered overview rows', () => {
+    // dungeon.c:3516-3734. This synthetic ordinary level exercises the
+    // heading, feature summary, Castle annotation, branch description, and
+    // m-prefix selector while keeping all values independently chosen.
+    const state = {
+        dungeons: [{
+            dname: 'The Dungeons of Doom', depth_start: 1, entry_lev: 1,
+            dunlev_ureached: 5,
+        }, { dname: 'The Gnomish Mines', depth_start: 5, entry_lev: 1 }],
+        quest_dnum: 9,
+        knox_level: { dnum: 9, dlevel: 1 },
+        u: {
+            uz: { dnum: 0, dlevel: 3 },
+            uevent: { uheard_tune: 1 },
+            ualign: { type: 0 },
+        },
+        svt: { tune: 'ABCDE' },
+        branches: [{ end1: { dnum: 0, dlevel: 1 },
+            end2: { dnum: 0, dlevel: 3 } }],
+        specialLevels: [],
+        flags: {},
+        iflags: {},
+        svm: {},
+    };
+    const rows = [];
+    print_mapseen(rows, {
+        lev: { dnum: 0, dlevel: 3 },
+        feat: { nshop: 1, shoptype: SHOPBASE + 1 },
+        flags: { castle: 1, castletune: 1 },
+        custom: 'Castle approach',
+        br: {
+            type: BR_STAIR,
+            end1_up: true,
+            end2: { dnum: 1, dlevel: 2 },
+        },
+        final_resting_place: null,
+    }, 0, 0, true, state);
+    assert.deepEqual(rows.map((row) => row.text ?? row.label), [
+        'The Dungeons of Doom: levels 1 to 5',
+        '   Level 3: "Castle approach" <- You are here.',
+        '      An armor shop.',
+        '      The castle (play 5-note tune to open or close drawbridge).',
+        '      Stairs up to The Gnomish Mines, level 6.',
+    ]);
+});
+
+test('interest_mapseen filters tutorial, unreachable, and deepest levels', () => {
+    // dungeon.c:2880-2938. The current level and the deepest reached level
+    // stay visible; tutorial records are visible only while in tutorial.
+    const state = {
+        tutorial_dnum: 3,
+        sokoban_dnum: 4,
+        astral_level: { dnum: 5, dlevel: 1 },
+        u: { uz: { dnum: 0, dlevel: 1 } },
+        dungeons: [{ dunlev_ureached: 4 }],
+    };
+    assert.equal(interest_mapseen({ lev: { dnum: 0, dlevel: 1 } }, state), true);
+    assert.equal(interest_mapseen({ lev: { dnum: 0, dlevel: 4 } }, state), true);
+    assert.equal(interest_mapseen({ lev: { dnum: 0, dlevel: 2 } }, state), false);
+    assert.equal(interest_mapseen({
+        lev: { dnum: 0, dlevel: 2 }, flags: { notreachable: 1 },
+    }, state), false);
+    assert.equal(interest_mapseen({ lev: { dnum: 3, dlevel: 1 } }, state), false);
+    state.u.uz = { dnum: 3, dlevel: 1 };
+    assert.equal(interest_mapseen({ lev: { dnum: 3, dlevel: 1 } }, state), true);
 });
 
 test('generated dungeon data exactly matches the pinned Lua table', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7714,
+      "datetime": "20310415123344",
+      "nethackrc": "OPTIONS=name:OverviewMenuProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\n",
+      "moves": "\u0016#overview\n\u001b"
+    }
+  ],
+  "comment": "Independent Knight startup and m-prefixed #overview command, dismissed with Escape. The selector mode exercises PICK_ONE while leaving the level annotation unchanged."
+}

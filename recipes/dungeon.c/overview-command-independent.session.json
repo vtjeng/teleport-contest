@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7713,
+      "datetime": "20310314112233",
+      "nethackrc": "OPTIONS=name:OverviewProbe,role:Knight,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\n",
+      "moves": "#overview\n\u001b"
+    }
+  ],
+  "comment": "Independent Knight startup and ordinary #overview command, dismissed with Escape. The seed and clock are separate from the holdout witness."
+}

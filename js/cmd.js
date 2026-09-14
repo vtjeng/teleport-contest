@@ -239,6 +239,7 @@ import { game } from './gstate.js';
 import { getnow } from './calendar.js';
 import { getpos } from './getpos.js';
 import {
+    dooverview,
     donamelevel,
     ledger_no,
     on_level,
@@ -1801,6 +1802,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
+    'overview',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
@@ -5000,6 +5002,10 @@ async function doextcmd(key, state) {
         return await runLookCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'doattributes':
         return await runAttributesCommand(key, state) ? ECMD_TIME : ECMD_OK;
+    case 'dooverview':
+        // C ref: dungeon.c dooverview(), which returns ECMD_OK after the
+        // overview menu has been dismissed.
+        return await dooverview(state);
     case 'ddoinv':
         return await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'dovspell':
@@ -6137,6 +6143,14 @@ export async function rhack(key, state = game) {
             const elapsed = await runAttributesCommand(key, state);
             resetCommandVars(state);
             if (elapsed) commandTookTime(state);
+            return;
+        }
+        if (command === 'overview') {
+            const result = await dooverview(state);
+            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (result & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'look') {

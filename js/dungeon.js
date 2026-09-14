@@ -9,6 +9,7 @@ import {
     AGGRAVATE_MONSTER,
     ALTAR,
     AM_MASK,
+    Amask2align,
     Align2amask,
     BLINDED,
     CLOUD,
@@ -20,6 +21,7 @@ import {
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     ECMD_OK,
+    ASCENDED,
     CORR,
     DELPHI,
     FLYING,
@@ -45,6 +47,7 @@ import {
     MSA_NONE,
     MOAT,
     PICK_ONE,
+    PICK_NONE,
     FOUNTAIN,
     GRAVE,
     ROWNO,
@@ -63,8 +66,10 @@ import {
     VISITED,
     has_mcorpsenm,
     isok,
+    plur,
 } from './const.js';
 import { PM_DWARF } from './monsters.js';
+import { SHTYPES } from './shtypes_data.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_nearby_objects } from './display.js';
@@ -75,6 +80,10 @@ import { mungspaces, strstri } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
 import { within_bounded_area } from './rect.js';
+import { an } from './objnam.js';
+import { formatkiller } from './topten.js';
+import { ldrname } from './questpgr.js';
+import { align_gname } from './pray.js';
 // js/rooms.js reaches this file through js/hack.js, which this file already
 // imports. Both sides use the other's exports only inside function bodies, so
 // the cycle resolves.
@@ -1756,6 +1765,346 @@ function emptyMapseenFlags() {
     };
 }
 
+// C ref: dungeon.c interest_mapseen() (2880-2938). A level is interesting
+// when it carries remembered features, a branch, an annotation, a special
+// annotation, bones, or the deepest reached level of its dungeon. Tutorial
+// and endgame visibility follow the same dungeon-number tests as C's macros.
+export function interest_mapseen(mptr, state = game) {
+    if (on_level(state.u?.uz, mptr?.lev)) return true;
+    if (!mptr || mptr.flags?.notreachable || mptr.flags?.forgot)
+        return false;
+
+    const tutorialDnum = state.tutorial_dnum;
+    const inTutorial = Number.isInteger(tutorialDnum)
+        && state.u?.uz?.dnum === tutorialDnum;
+    const mapseenTutorial = Number.isInteger(tutorialDnum)
+        && mptr.lev?.dnum === tutorialDnum;
+    if (inTutorial) return mapseenTutorial;
+    if (mapseenTutorial) return false;
+
+    const flags = mptr.flags ?? {};
+    if (flags.oracle || flags.bigroom || flags.roguelevel
+        || flags.castle || flags.valley || flags.msanctum
+        || flags.vibrating_square || flags.quest_summons
+        || flags.questing) {
+        return true;
+    }
+
+    const inSokoban = mptr.lev?.dnum === state.sokoban_dnum;
+    if (inSokoban
+        && (state.u?.uz?.dnum === state.sokoban_dnum
+            || !flags.sokosolved)) {
+        return true;
+    }
+
+    const inEndgame = state.astral_level
+        && mptr.lev?.dnum === state.astral_level.dnum;
+    if (state.u?.uz && state.astral_level
+        && state.u.uz.dnum === state.astral_level.dnum) {
+        return Boolean(inEndgame);
+    }
+
+    const feat = mptr.feat ?? {};
+    const interestingFeature = feat.nfount || feat.nsink || feat.nthrone
+        || feat.naltar || feat.ngrave || feat.ntree || feat.nshop
+        || feat.ntemple;
+    const knownBones = mptr.final_resting_place
+        && (flags.knownbones || state.wizard);
+    const deepest = state.dungeons?.[mptr.lev?.dnum]?.dunlev_ureached;
+    return Boolean(interestingFeature || knownBones || mptr.custom || mptr.br
+        || mptr.lev?.dlevel === deepest);
+}
+
+// C ref: dungeon.c dooverview() (3294-3301). The command's m-prefix is
+// represented by iflags.menu_requested and changes the overview into a
+// selectable menu whose chosen level can be annotated.
+export async function dooverview(state = game) {
+    await show_overview(state.iflags?.menu_requested ? -1 : 0, 0, state);
+    state.iflags ??= {};
+    state.iflags.menu_requested = false;
+    return ECMD_OK;
+}
+
+function in_endgame_level(level, state) {
+    return Boolean(state.astral_level && level
+        && level.dnum === state.astral_level.dnum);
+}
+
+function in_sokoban_level(level, state) {
+    return Boolean(level && Number.isInteger(state.sokoban_dnum)
+        && level.dnum === state.sokoban_dnum);
+}
+
+function menu_items(win) {
+    if (Array.isArray(win)) return win;
+    win.items ??= [];
+    return win.items;
+}
+
+// C ref: dungeon.c show_overview() (3303-3341). A menu window receives
+// headings, level rows, annotations, and branch details in mapseen order.
+// `reason` matters only for final-death disclosure and remains threaded even
+// when ordinary #overview passes zero.
+export async function show_overview(why, reason = 0, state = game) {
+    recalc_mapseen(state);
+    const win = { items: [] };
+    const lastdun = { value: -1 };
+
+    if (in_endgame_level(state.u?.uz, state))
+        traverse_mapseenchn(1, win, why, reason, lastdun, state);
+    if (why > 0 || !in_endgame_level(state.u?.uz, state))
+        traverse_mapseenchn(0, win, why, reason, lastdun, state);
+
+    state._captureMenuItems?.(win.items);
+    const selected = await select_menu(state, {
+        items: win.items,
+        how: why !== -1 ? PICK_NONE : PICK_ONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected !== null && selected !== undefined) {
+        const ledger = selected - 1;
+        const lev = {
+            dnum: ledger_to_dnum(ledger, state),
+            dlevel: ledger_to_dlev(ledger, state),
+        };
+        await query_annotation(lev, state);
+    }
+}
+
+// C ref: dungeon.c traverse_mapseenchn() (3344-3363). `lastdun` is an
+// out-parameter in C; the object wrapper preserves that update between the
+// endgame and ordinary-dungeon traversals.
+export function traverse_mapseenchn(
+    viewendgame, win, why, reason, lastdun, state = game,
+) {
+    const marker = typeof lastdun === 'object' ? lastdun : { value: lastdun };
+    for (const mptr of state.svm?.mapseenchn ?? []) {
+        if (Boolean(viewendgame) !== in_endgame_level(mptr.lev, state))
+            continue;
+        if (why !== 0 || interest_mapseen(mptr, state)) {
+            const showheader = mptr.lev.dnum !== marker.value;
+            print_mapseen(win, mptr, why, reason, showheader, state);
+            marker.value = mptr.lev.dnum;
+        }
+    }
+    return marker.value;
+}
+
+// C ref: dungeon.c seen_string() (3365-3382). Counts are packed into four
+// values by mapseen data, and the article for one object follows C's vowels
+// table exactly.
+export function seen_string(x, obj = '') {
+    switch (x) {
+    case 0: return 'no';
+    case 1: return 'aeiouAEIOU'.includes(obj[0] ?? '') ? 'an' : 'a';
+    case 2: return 'some';
+    case 3: return 'many';
+    default: return '(unknown)';
+    }
+}
+
+// C ref: dungeon.c br_string2() (3385-3405). The quest portal is reported as
+// sealed after expulsion even though its branch type remains a portal.
+export function br_string2(br, state = game) {
+    const closedPortal = br?.end2?.dnum === state.quest_dnum
+        && state.u?.uevent?.qexpelled;
+    switch (br?.type) {
+    case BR_PORTAL: return closedPortal ? 'Sealed portal' : 'Portal';
+    case BR_NO_END1: return 'Connection';
+    case BR_NO_END2: return br.end1_up
+        ? 'One way stairs up' : 'One way stairs down';
+    case BR_STAIR: return br.end1_up ? 'Stairs up' : 'Stairs down';
+    default: return '(unknown)';
+    }
+}
+
+// C ref: dungeon.c shop_string() (3439-3457). rtype is the room type, so its
+// shop-table index is offset by SHOPBASE; SHOPBASE-1 denotes an unattended
+// shop.
+export function shop_string(rtype) {
+    const shoptype = rtype - SHOPBASE;
+    if (shoptype < 0) return 'untended shop';
+    const shop = SHTYPES[shoptype];
+    return shop?.annotation || shop?.name || 'shop?';
+}
+
+// C ref: dungeon.c tunesuffix() (3459-3475). The C output buffer is returned
+// as a string here; callers still append it only when the Castle tune is both
+// remembered and heard.
+export function tunesuffix(mptr, state = game) {
+    if (!mptr?.flags?.castletune || !state.u?.uevent?.uheard_tune)
+        return '';
+    const notes = state.u.uevent.uheard_tune === 2
+        ? `notes "${state.svt?.tune ?? state.tune ?? ''}"`
+        : '5-note tune';
+    return ` (play ${notes} to open or close drawbridge)`;
+}
+
+function cemeteryEntries(value) {
+    if (Array.isArray(value)) return value;
+    const entries = [];
+    for (let current = value; current; current = current.next)
+        entries.push(current);
+    return entries;
+}
+
+function appendInterest(items, feature) {
+    items.push({ text: feature });
+}
+
+// C ref: dungeon.c print_mapseen() (3516-3734). All display-only rows are
+// collected as menu lines; level rows carry a value only for the m-prefixed
+// selectable overview, which matches C's zeroany handling for other modes.
+export function print_mapseen(
+    win, mptr, final, how, printdun, state = game,
+) {
+    const items = menu_items(win);
+    const dnum = mptr.lev.dnum;
+    const dungeon = state.dungeons?.[dnum];
+    if (!dungeon)
+        throw new Error(`print_mapseen: unknown dungeon ${dnum}`);
+    const depthstart = dnum === state.quest_dnum
+        || dnum === state.knox_level?.dnum
+        ? 1 : dungeon.depth_start;
+
+    if (printdun) {
+        let header;
+        const reached = Math.trunc(dungeon.dunlev_ureached ?? 0);
+        if (reached === dungeon.entry_lev || in_endgame_level(mptr.lev, state)) {
+            header = `${dungeon.dname}:`;
+        } else if (builds_up(mptr.lev, state)) {
+            header = `${dungeon.dname}: levels ${depthstart
+                + dungeon.entry_lev - 1} up to ${depthstart + reached - 1}`;
+        } else {
+            header = `${dungeon.dname}: levels ${depthstart} to `
+                + `${depthstart + reached - 1}`;
+        }
+        items.push(add_menu_heading(header, state));
+    }
+
+    const levelNumber = depthstart + mptr.lev.dlevel - 1;
+    const levelName = in_endgame_level(mptr.lev, state)
+        ? endgamelevelname(levelNumber) : `Level ${levelNumber}`;
+    let levelText = `${final !== -1 ? '   ' : ''}${levelName}:`;
+    if (state.wizard) {
+        const slev = Is_special(mptr.lev, state);
+        if (slev) levelText += ` [${slev.proto}]`;
+    }
+    if (mptr.custom) levelText += ` "${mptr.custom}"`;
+    if (on_level(state.u?.uz, mptr.lev)) {
+        const here = final <= 0 || (final === 1 && how === ASCENDED)
+            ? 'are' : (final === 1 && how === ESCAPED) ? 'left from' : 'were';
+        levelText += ` <- You ${here} here.`;
+    }
+    if (final === -1) {
+        items.push({
+            value: ledger_no(mptr.lev, state) + 1,
+            label: levelText,
+        });
+    } else {
+        items.push({ text: levelText });
+    }
+
+    const flags = mptr.flags ?? {};
+    const feat = mptr.feat ?? {};
+    if (flags.forgot) return;
+
+    const featureCount = feat.nfount || feat.nsink || feat.nthrone
+        || feat.naltar || feat.ngrave || feat.ntree || feat.nshop
+        || feat.ntemple;
+    if (featureCount) {
+        let buf = '';
+        let i = 0;
+        const comma = () => (i++ > 0 ? ', ' : '      ');
+        const addN = (name, count) => {
+            if (count) buf += `${comma()}${seen_string(count, name)} ${name}${plur(count)}`;
+        };
+        const add2 = (name, count, name2, count2) => {
+            if (count && count2) {
+                buf += `${comma()}${seen_string(count, name)} ${name}${plur(count)}`
+                    + ` and ${seen_string(count2, name2)} ${name2}${plur(count2)}`;
+            } else if (count) addN(name, count);
+            else if (count2) addN(name2, count2);
+        };
+        if (feat.nshop > 0) {
+            if (feat.nshop > 1) addN('shop', feat.nshop);
+            else buf += `${comma()}${an(shop_string(feat.shoptype))}`;
+        }
+        if (feat.naltar > 0 || feat.ntemple > 0) {
+            add2('temple', feat.ntemple, 'altar', feat.naltar);
+            const atmp = feat.msalign === 3 ? 4 : feat.msalign;
+            if (Amask2align(atmp) === state.u?.ualign?.type)
+                buf += ` to ${align_gname(state.u.ualign.type, state)}`;
+        }
+        addN('throne', feat.nthrone);
+        addN('fountain', feat.nfount);
+        addN('sink', feat.nsink);
+        addN('grave', feat.ngrave);
+        addN('tree', feat.ntree);
+        if (buf) {
+            buf = buf.slice(0, 6) + buf[6].toUpperCase() + buf.slice(7) + '.';
+            appendInterest(items, buf);
+        }
+    }
+
+    let annotation = '';
+    if (flags.oracle) annotation = '      Oracle of Delphi.';
+    else if (in_sokoban_level(mptr.lev, state))
+        annotation = `      ${flags.sokosolved ? 'Solved' : 'Unsolved'}.`;
+    else if (flags.bigroom) annotation = '      A very big room.';
+    else if (flags.roguelevel) annotation = '      A primitive area.';
+    else if (on_level(mptr.lev, state.qstart_level)) {
+        annotation = `      Home${flags.notreachable ? ' (no way back...)' : ''}.`;
+        if (state.u?.uevent?.qcompleted)
+            annotation = `      Completed quest for ${ldrname(state)}.`;
+        else if (flags.questing)
+            annotation = `      Given quest by ${ldrname(state)}.`;
+    } else if (flags.ludios) annotation = '      Fort Ludios.';
+    else if (flags.castle)
+        annotation = `      The castle${tunesuffix(mptr, state)}.`;
+    else if (flags.valley) annotation = '      Valley of the Dead.';
+    else if (flags.vibrating_square)
+        annotation = "      Gateway to Moloch's Sanctum.";
+    else if (flags.msanctum) annotation = "      Moloch's Sanctum.";
+    if (annotation) appendInterest(items, annotation);
+    if (flags.quest_summons)
+        appendInterest(items, `      Summoned by ${ldrname(state)}.`);
+
+    if (mptr.br) {
+        let branchText = `      ${br_string2(mptr.br, state)} to `
+            + `${state.dungeons[mptr.br.end2.dnum].dname}`;
+        if (mptr.br.end1_up && !in_endgame_level(mptr.br.end2, state))
+            branchText += `, level ${depth(mptr.br.end2, state)}`;
+        appendInterest(items, `${branchText}.`);
+    }
+
+    if (mptr.final_resting_place || final > 0) {
+        const entries = cemeteryEntries(mptr.final_resting_place);
+        const diedHere = final === 2 && on_level(state.u?.uz, mptr.lev);
+        let knownCount = diedHere ? 1 : 0;
+        for (const entry of entries) {
+            if (entry.bonesknown || state.wizard || final > 0) ++knownCount;
+        }
+        if (knownCount) {
+            appendInterest(items, '      Final resting place for');
+            if (diedHere) {
+                let killer = formatkiller(how, true, state)
+                    .replaceAll(' himself', ' yourself')
+                    .replaceAll(' herself', ' yourself')
+                    .replaceAll(' his ', ' your ')
+                    .replaceAll(' her ', ' your ');
+                appendInterest(items, `         you, ${killer}${--knownCount ? ',' : '.'}`);
+            }
+            for (const entry of entries) {
+                if (entry.bonesknown || state.wizard || final > 0)
+                    appendInterest(items, `         ${entry.who}, ${entry.how}`
+                        + `${--knownCount ? ',' : '.'}`);
+            }
+        }
+    }
+}
+
 // C ref: dungeon.c query_annotation() (2499-2567).
 // Asks the player to annotate a dungeon level. When lev is null, uses the
 // current level. The describe_level path (for annotating a different level)
@@ -1814,12 +2163,10 @@ async function query_annotation(lev, state = game) {
 
 // C ref: dungeon.c donamelevel() (2571-2577).
 // #annotate command -- add a custom name to the current level.
-// The iflags.menu_requested branch (dooverview) is out of scope.
+// The m-prefixed branch delegates to dooverview(), as in dungeon.c.
 export async function donamelevel(state = game) {
     if (state.iflags?.menu_requested) {
-        throw new Error(
-            'donamelevel: iflags.menu_requested (dooverview) is not ported',
-        );
+        return dooverview(state);
     }
     await query_annotation(null, state);
     return ECMD_OK;

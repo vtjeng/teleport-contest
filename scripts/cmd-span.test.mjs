@@ -29,6 +29,7 @@ import {
     TREE,
 } from '../js/const.js';
 import { AUTOCOMP_ADJ, AUTOCOMPLETE } from '../js/extcmdlist_data.js';
+import { commandForKey } from '../js/command_bindings.js';
 import {
     cmdq_add_dir,
     cmdq_add_int,
@@ -270,6 +271,9 @@ test('special keys, autocomplete options, mouse locks, and source reset state', 
     assert.match(sbuf.str, /AUTOCOMPLETE=#\n/u);
 
     commands_init(state);
+    // cmd.c commands_init():2775 binds M-O (0xCF) to the overview command;
+    // rhack() admits that bound command before its direct dispatch arm.
+    assert.equal(commandForKey(state.commandBindings, 0xCF), 'overview');
     const before = [...state.commandBindings.mouseButtons];
     lock_mouse_buttons(true, state);
     assert.deepEqual(state.commandBindings.mouseButtons, [null, null]);
