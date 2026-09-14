@@ -41350,7 +41350,7 @@
     {
       "id": "port-mkroom-shop-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mkroom.c mkshop room selection and shop-type roll",
       "cFile": "mkroom.c",
       "sessions": [
@@ -41361,8 +41361,8 @@
       "spans": [
         {
           "name": "mkshop",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ec7ccd2377ae74bfd15e9f39301aa1adbef4c3a9",
           "functions": [
             "mkshop"
           ]
@@ -41374,15 +41374,18 @@
         "screens": 8612,
         "rng": 630596
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ec7ccd2377ae74bfd15e9f39301aa1adbef4c3a9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mkshop",
           "line": 95,
           "endLine": 219,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -41460,7 +41463,121 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mkshop",
+            "implementation": "js/mkroom.js",
+            "symbol": "mkshop",
+            "sourceReview": "Read nethack-c/upstream/src/mkroom.c:95-219 in full and matched the wizard SHOPTYPE dispatch (including special-room returns, default object-class symbols, general/food aliases, and unknown-value fallback), room scan and nonzero-door wizard eligibility, staircase and invalid-shape filters, border lighting, one rnd(100) cumulative walk, random big-room wand/book rewrite, rtype assignment, topologize, and FILL_NORMAL handoff in source order. The mkswamp() call is intentionally skipped because its return is discarded and the callee remains unported; js/mkroom.js records note_unported('mkroom.c mkswamp').",
+            "callers": [
+              {
+                "path": "js/mkroom.js",
+                "symbol": "do_mkroom",
+                "source": "mkroom.c:52-55 do_mkroom() calls mkshop() for roomtype >= SHOPBASE"
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:1344-1351 makelevel() dispatches do_mkroom(SHOPBASE), including the wizard SHOPTYPE presence branch"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-shop.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/shop-entry-seed9701133.session.json"
+            ],
+            "checkedAt": "ec7ccd2377ae74bfd15e9f39301aa1adbef4c3a9"
+          }
+        ],
+        "entryPointReview": "mkshop() has one production entry point: mklev.js makelevel() dispatches do_mkroom(SHOPBASE), whose mkroom.js dispatcher calls mkshop(). The wizard SHOPTYPE branches are reached through that same dispatcher; special-room branches delegate to the existing mkzoo()/mktemple() implementations, while the source mkswamp() branch is recorded as unported because that callee is outside this span.",
+        "entryPoints": [
+          {
+            "name": "SHOPBASE special-room generation",
+            "functions": [
+              "mkshop"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/shop-entry-seed9701133.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 772,
+          "kind": "rng",
+          "function": "mkshop",
+          "functionDeclared": true,
+          "sourceFile": "mkroom.c",
+          "cFile": "mkroom.c",
+          "luaFile": null,
+          "line": 193,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1042,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1042,
+              "status": "complete",
+              "commit": "8558244d75d50626b3b5be79d7bd07d0732c6acb",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1042,
+                "step": 772,
+                "kind": "rng",
+                "function": "mkshop",
+                "functionDeclared": true,
+                "sourceFile": "mkroom.c",
+                "cFile": "mkroom.c",
+                "luaFile": null,
+                "line": 193,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "mkroom.c mkshop owns the current same-count RNG boundary. C reaches mkshop()'s single rnd(100) shop-type roll at line 193, while JavaScript consumes a later rn2(7) instead, showing that its mkshop() search returned before the roll. The C pre-roll branch includes wizard-mode SHOPTYPE handling and admits any nonzero-door room when that environment value is present; js/mkroom.js currently searches only one-door rooms and omits that branch. Port the complete mkshop() pre-roll selection and preserve its ordinary-room filters, lighting, probability walk, big-room override, topologize, and FILL_NORMAL handoff.",
+              "source": {
+                "file": "mkroom.c",
+                "functions": [
+                  "mkshop"
+                ],
+                "branch": "In mkshop(), wizard mode first reads SHOPTYPE: recognized symbols dispatch to another special-room maker and return, while unset or unrecognized values leave i < 0. The room scan then accepts an ordinary room with no stairs and a valid shop shape when doorct == 1, or when wizard mode has a non-null SHOPTYPE and doorct != 0. After a candidate is found, a dark room is lit, i < 0 consumes exactly rnd(100), big rooms rewrite wand/book shops to general stores, then rtype, topology, and FILL_NORMAL are set.",
+                "callers": [
+                  "nethack-c/upstream/src/mklev.c:1344-1351 makelevel() selects SHOPBASE and calls do_mkroom(), which calls mkroom.c mkshop().",
+                  "js/mklev.js:769-780 makelevel() selects SHOPBASE and calls js/mkroom.js do_mkroom(), whose SHOPBASE arm calls mkshop()."
+                ],
+                "dependencies": [
+                  "mkroom.c has_dnstairs(), has_upstairs(), invalid_shop_shape(), and isbig() provide the candidate filters and type override; js/mkroom.js contains their current counterparts.",
+                  "mkroom.c topologize() and FILL_NORMAL mark the chosen room before the makelevel() tail; js/mklev.js:838-840 fill_special_room() then reaches js/shknam.js stock_room() for shop stocking and shopkeeper setup.",
+                  "nethack-c/upstream/src/options.c:6848-6856 nh_getenv() and :3490 debug-mode wizard state determine the environment-sensitive SHOPTYPE precondition; the JavaScript state exposes state.wizard but currently has no equivalent mkshop branch.",
+                  "js/shtypes_data.js SHTYPES is the source-order probability table consumed by the single rnd(100) walk; no probability-table change is indicated by this boundary."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json at commit 8558244d75d50626b3b5be79d7bd07d0732c6acb reports the assigned row's first divergence at step 772: C rnd(100)=24 from mkshop(mkroom.c:193), versus JS rn2(7)=1; recordedSteps is 1814, giving the queue upper bound 1042.",
+                "nethack-c/upstream/src/mkroom.c:101-177 implements SHOPTYPE dispatch and the ordinary-room search; :180-215 performs lighting, rnd(100), isbig() rewriting, topologize(), and FILL_NORMAL.",
+                "js/mkroom.js:346-393 implements the matching tail but tests candidate.doorct === 1 unconditionally and has no SHOPTYPE branch, so it can return before random.rnd(100); the next observed JS draw is consistent with makelevel()'s later fillable-room countdown.",
+                "The production path is source-general: mklev.c makelevel() -> do_mkroom(SHOPBASE) -> mkshop(), mirrored by js/mklev.js -> js/mkroom.js; the actionable scope is mkshop() and its existing helper/dependency wiring, with no session-specific values."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "ec7ccd2377ae74bfd15e9f39301aa1adbef4c3a9",
+        "screens": 8612,
+        "rng": 630596
+      }
     }
   ]
 }
