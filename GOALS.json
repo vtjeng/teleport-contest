@@ -43850,6 +43850,121 @@
         "screens": 8945,
         "rng": 652047
       }
+    },
+    {
+      "id": "pilot-potion-booze-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete booze potion effect and its production quaff dispatch.",
+      "cFile": "potion.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "User-authorized independent seed-worker pilot: the ready seed0002 delivery addresses step241, remaining354, investigated in investigations/holdout/seed0002-healer-reflection-drummer.json. Whole potion.c peffect_booze is the source owner; seed0399 follow-up is still completing required inventory source branches.",
+      "detail": "Whole potion.c771-792: hunger-scaled confusion, dilution, healing, nutrition, wisdom exercise and cursed direct multi assignment; includes source-correct local Hallucination predicate, focused source-pinned tests and three independent BUC recordings.",
+      "spans": [
+        {
+          "name": "peffect_booze",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "peffect_booze"
+          ]
+        }
+      ],
+      "openedAt": "d934b24548bfc1247b187bff2e05bf2d5d2e2c00",
+      "openStanding": {
+        "sha": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
+        "screens": 9083,
+        "rng": 652070
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_booze",
+          "line": 771,
+          "endLine": 794,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 771,
+        "to": 794
+      },
+      "activeStanding": {
+        "sha": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
+        "screens": 9083,
+        "rng": 652070
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 241,
+          "kind": "stop",
+          "function": "peffect_booze",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_booze()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 354,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 354,
+              "status": "complete",
+              "commit": "39e83d4f9873b1ebb03e9a567351c8b1c2013387",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 354,
+                "step": 241,
+                "kind": "stop",
+                "function": "peffect_booze",
+                "functionDeclared": false,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": 771,
+                "message": "quaffing requires peffect_booze()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "The immobility planning correction passes the dressing callback and moves the first stop from step232 to241 with no prior screen or RNG mismatch. Quaffing the selected booze potion reaches peffects(POT_BOOZE), whose JavaScript dispatcher explicitly refuses peffect_booze. The source owner is the entire potion.c peffect_booze function, not only the observed taste line.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "peffect_booze"
+                ],
+                "branch": "Read potion.c:771-792 completely. Increment potion_unkn, diluted/hallucinatory taste, nonblessed confusion using d(2+u.uhs,8) before nutrition, nondiluted healup(1,0,FALSE,FALSE), BUC-scaled nutrition, newuhs(FALSE), Wisdom abuse, then cursed message/direct multi=-rnd(15)/headache nomovemsg. Direct assignment is not nomul and must not reset running, invulnerability, usleep, existing multi_reason or callback.",
+                "callers": [
+                  "js/cmd.js quaff dispatch -> js/potion.js dodrink -> dopotion -> peffects -> POT_BOOZE arm; C potion.c peffects:1346-1348 invokes peffect_booze and falls through to the shared return/tail.",
+                  "fountain.c drinksink's random non-water potion can also select booze and calls the same dopotion entry."
+                ],
+                "dependencies": [
+                  "potion.c make_confused:89-104 and itimeout_incr preserve source timeout arithmetic and state transition flags.",
+                  "potion.c healup:1428-1458 supports both ordinary and polymorphed HP arithmetic for this call's false cure flags.",
+                  "eat.c newuhs:3362-3510 receives existing message/end-running/status hooks; its separate unported fainting/starvation/death branches are not newly claimed complete.",
+                  "attrib.c exercise:489-516 supports Wisdom's rn2(2) without the physical encumbrance callback.",
+                  "youprop.h Hallucination:115-120 consumes both intrinsic and extrinsic HALLUC_RES, not HALLUC.blocked. The existing potion-local predicate needs correction for the whole source branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "A fresh focused scan of the source state committed as39e83d4f returned screensEmitted241 of595, divergence=null and quaffing requires peffect_booze(). The remaining screen bound is595-241=354.",
+                "The potion.c peffects switch carries an UnsupportedQuaffError for POT_BOOZE instead of the C function; this is missing source behavior, unlike the preceding planning-only divergence.",
+                "The planned write set is js/potion.js, scripts/potion.test.mjs and independent potion.c recipes/recordings. No edit to eat.js is required."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
