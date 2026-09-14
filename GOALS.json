@@ -41234,7 +41234,7 @@
     {
       "id": "div-do-goto-level-punished-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix goto_level() punished-hero ball-and-chain transit and arrival behavior",
       "cFile": "do.c",
       "sessions": [
@@ -41245,8 +41245,8 @@
       "spans": [
         {
           "name": "goto_level_punished_ball_chain",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7b12be198dea5a75bb08a448061730a5557ff005",
           "functions": [
             "goto_level",
             "unplacebc",
@@ -41262,8 +41262,11 @@
         "screens": 8612,
         "rng": 630101
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7b12be198dea5a75bb08a448061730a5557ff005",
+      "delivered": {
+        "screens": 0,
+        "rng": 495
+      },
       "function": "goto_level",
       "session": "holdout/seed4500-knight-coverage",
       "step": 772,
@@ -41337,7 +41340,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "7b12be198dea5a75bb08a448061730a5557ff005",
+        "screens": 8612,
+        "rng": 630596
+      }
     }
   ]
 }
