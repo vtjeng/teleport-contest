@@ -45446,7 +45446,7 @@
     {
       "id": "pilot-arc-filb-seed0361",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the Archeologist lower quest filler rooms and corridors",
       "luaFile": "Arc-filb.lua",
       "sessions": [
@@ -45457,8 +45457,8 @@
       "spans": [
         {
           "name": "Arc-filb.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
           "functions": [
             "Arc-filb.lua"
           ]
@@ -45470,8 +45470,11 @@
         "screens": 9311,
         "rng": 668358
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+      "delivered": {
+        "screens": 17,
+        "rng": 10880
+      },
       "functions": [
         {
           "name": "Arc-filb.lua",
@@ -45621,6 +45624,88 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 333,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 33,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 33,
+              "status": "complete",
+              "commit": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 333,
+                "kind": "rng",
+                "function": "shuffle",
+                "functionDeclared": false,
+                "sourceFile": "nhlib.lua",
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                },
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 33
+              },
+              "summary": "After Arc-filb loads, the first RNG mismatch is at zero-based step333 while level-teleporting from Home5 to Home2. makelevel selects Arc-fila above the locate level, but its loader is absent and generation falls through to ordinary rooms. Port the whole Arc-fila.lua program and register it. The fresh-differential display calls this step334 because that report is one-based.",
+              "source": {
+                "file": "nethack-c/upstream/dat/Arc-fila.lua",
+                "functions": [
+                  "Arc-fila.lua"
+                ],
+                "branch": "Whole program lines1-59: six ordinary rooms with ordered callbacks; up stair in room1, down stair in room4; nine objects, four traps, six snake-class monsters and one named human mummy; final random_corridors call.",
+                "callers": [
+                  "mklev.c:1275–1285 makelevel compares quest depth with the locate level and selects role-specific fila or filb, then calls makemaz.",
+                  "js/mklev.js:689–706 makelevel computes Arc-fila for Home2 because it is above the locate level, but calls makemaz only if the registry has that prototype.",
+                  "ensureSpecialLevelLoaders loads QUEST_LEVEL_LOADERS; makemaz -> load_special executes the registered room program and applies postprocessing."
+                ],
+                "dependencies": [
+                  "Reuse the existing des.room contents callbacks and random_corridors special-level API. Preserve descriptor and random-call order.",
+                  "Arc-loca, Arc-goal and Arc-filb now exist; only the missing fila registration explains this transition's skipped Lua shuffle and room generation."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Checkpoint39a33c46 run-stgA7m passes all gates; its refreshed queue reports RNG step333, upper33, nhlib.lua shuffle line19.",
+                "Read fixed recording raw steps331–333: Ctrl-V,2,Enter; steps[333] produces Home2 and begins getbones, Lua alignment shuffle and build_room calls. The earlier Home4 and Home5 transitions now pass.",
+                "Read all dat/Arc-fila.lua lines1-59 and compared every descriptor with the worker's immutable ad6f7fb4 implementation. The source owner is the omitted filler program, not the shared shuffle helper.",
+                "Worker independently designed two short Arc-loca-menu then Home2 routes, with different seeds/dates and character gender. Both match all33892RNG100screens/cursors0animations on its candidate; integration and full validation remain separate requirements.",
+                "Canonical mismatch-queue indices are zero-based. diff-fresh formatReport adds one for display; retain333 in queue/cache fields rather than copying its printed334."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+        "screens": 9328,
+        "rng": 679238
       }
     }
   ]

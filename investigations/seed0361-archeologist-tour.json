@@ -1,11 +1,11 @@
 {
   "session": "seed0361-archeologist-tour",
-  "remainingScreensUpperBound": 52,
+  "remainingScreensUpperBound": 33,
   "status": "complete",
-  "commit": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+  "commit": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
   "mismatch": {
     "session": "seed0361-archeologist-tour",
-    "step": 314,
+    "step": 333,
     "kind": "rng",
     "function": "shuffle",
     "functionDeclared": false,
@@ -21,31 +21,31 @@
     "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 366,
-    "remainingScreensUpperBound": 52
+    "remainingScreensUpperBound": 33
   },
-  "summary": "After Arc-loca loads, the first mismatch is at step 314 while entering Home 4, an Archeologist quest filler level. makelevel computes Arc-filb but finds no registered loader, falls through to ordinary generation, and skips the Lua alignment shuffle and room program. Port the whole Arc-filb.lua program and register it. The later Arc-goal missing-loader refusal at step 317 is a separate boundary, not the owner of the first mismatch.",
+  "summary": "After Arc-filb loads, the first RNG mismatch is at zero-based step333 while level-teleporting from Home5 to Home2. makelevel selects Arc-fila above the locate level, but its loader is absent and generation falls through to ordinary rooms. Port the whole Arc-fila.lua program and register it. The fresh-differential display calls this step334 because that report is one-based.",
   "source": {
-    "file": "nethack-c/upstream/dat/Arc-filb.lua",
+    "file": "nethack-c/upstream/dat/Arc-fila.lua",
     "functions": [
-      "Arc-filb.lua"
+      "Arc-fila.lua"
     ],
-    "branch": "Whole top-level program: six ordinary rooms with ordered callbacks, up stair in the first room, down stair in the fourth, nine objects, four traps, three mummy-class and three snake-class monsters plus a human mummy; random_corridors follows the rooms.",
+    "branch": "Whole program lines1-59: six ordinary rooms with ordered callbacks; up stair in room1, down stair in room4; nine objects, four traps, six snake-class monsters and one named human mummy; final random_corridors call.",
     "callers": [
-      "mklev.c:1275–1285 makelevel selects the role quest filler with loca-level comparison, then calls makemaz.",
-      "js/mklev.js:689–706 makelevel computes the role-specific fillName and calls makemaz only if SPECIAL_LEVEL_LOADERS contains it. Missing Arc-filb currently falls through to ordinary generation.",
-      "js/quest_levels.js QUEST_LEVEL_LOADERS supplies quest registrations to ensureSpecialLevelLoaders; Arc-filb is absent at the examined commit.",
-      "makemaz -> load_special -> special-level API executes the room callbacks and random_corridors; Lua initialization shuffles align before this program."
+      "mklev.c:1275–1285 makelevel compares quest depth with the locate level and selects role-specific fila or filb, then calls makemaz.",
+      "js/mklev.js:689–706 makelevel computes Arc-fila for Home2 because it is above the locate level, but calls makemaz only if the registry has that prototype.",
+      "ensureSpecialLevelLoaders loads QUEST_LEVEL_LOADERS; makemaz -> load_special executes the registered room program and applies postprocessing."
     ],
     "dependencies": [
-      "Reuse the existing des.room contents callback and random_corridors special-level API, preserving Lua operation and RNG order.",
-      "Mummy and snake class descriptors map to existing source-derived monster class constants. Do not hard-code generated room positions or recorded outputs."
+      "Reuse the existing des.room contents callbacks and random_corridors special-level API. Preserve descriptor and random-call order.",
+      "Arc-loca, Arc-goal and Arc-filb now exist; only the missing fila registration explains this transition's skipped Lua shuffle and room generation."
     ]
   },
   "goalKind": "lua-port",
   "evidence": [
-    "Passing checkpoint 7109bae7 run-b54Gy6 and its refreshed mismatch queue report step 314 RNG, nhlib.lua shuffle line 19, 52 remaining screens; this source helper identifies skipped initialization, not the owning level program.",
-    "Read the exact fixed C recording steps 312–317: Ctrl-V, level 4, Enter at 314 produce Home 4 and room-generation RNG; the next Ctrl-V, level 5, Enter reach Home 5 at 317. The Arc-goal refusal is later.",
-    "Read all of dat/Arc-filb.lua lines 1–62 and the JavaScript quest filler dispatch. Missing Arc-filb registration explains the earlier shuffle and room-generation mismatch.",
-    "Arc-loca is complete at this candidate with two independent short wizard-level-change recordings. An earlier coordinator assumption that step 314 was Arc-goal initialization was incorrect; the worker already implementing Arc-goal should finish its immutable source span, then take Arc-filb as the next disjoint goal."
+    "Checkpoint39a33c46 run-stgA7m passes all gates; its refreshed queue reports RNG step333, upper33, nhlib.lua shuffle line19.",
+    "Read fixed recording raw steps331–333: Ctrl-V,2,Enter; steps[333] produces Home2 and begins getbones, Lua alignment shuffle and build_room calls. The earlier Home4 and Home5 transitions now pass.",
+    "Read all dat/Arc-fila.lua lines1-59 and compared every descriptor with the worker's immutable ad6f7fb4 implementation. The source owner is the omitted filler program, not the shared shuffle helper.",
+    "Worker independently designed two short Arc-loca-menu then Home2 routes, with different seeds/dates and character gender. Both match all33892RNG100screens/cursors0animations on its candidate; integration and full validation remain separate requirements.",
+    "Canonical mismatch-queue indices are zero-based. diff-fresh formatReport adds one for display; retain333 in queue/cache fields rather than copying its printed334."
   ]
 }
