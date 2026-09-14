@@ -35643,6 +35643,16 @@
             "coyotename",
             "rndorcname"
           ]
+        },
+        {
+          "name": "christen_orc..lookup_novel",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "christen_orc",
+            "noveltitle",
+            "lookup_novel"
+          ]
         }
       ],
       "openedAt": "9419dc40d44835603f86301605a7960f19d19e0d",
