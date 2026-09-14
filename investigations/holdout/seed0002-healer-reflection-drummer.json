@@ -1,44 +1,42 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 326,
+  "remainingScreensUpperBound": 280,
   "status": "complete",
-  "commit": "74b67d7fa49064251fa1fb6fe4bac53df1df19ea",
+  "commit": "dfb7a5e25f0837e7089dbfe5591e1269695eaf1d",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 326,
-    "step": 269,
-    "kind": "screen",
-    "function": "ohitmon",
-    "functionDeclared": true,
-    "sourceFile": "mthrowu.c",
-    "cFile": "mthrowu.c",
+    "remainingScreensUpperBound": 280,
+    "step": 315,
+    "kind": "boundary",
+    "function": "peffect_healing",
+    "functionDeclared": false,
+    "sourceFile": "potion.c",
+    "cFile": "potion.c",
     "luaFile": null,
-    "line": 321,
-    "message": "C prints \"It is hit.\"; JavaScript omits the verbose unseen-target message.",
+    "line": 1119,
+    "message": "quaffing requires peffect_healing()",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "Whole nh_timeout moves the assigned seed beyond its prior step-263 stop. The next first mismatch is screen269 after a repeated search command: C reports an unseen monster hit by a missile, while JavaScript suppresses the line. Core RNG and cursor streams match through the emitted315 screens. A later peffect_healing refusal at315 is not the first mismatch. Missing pline branches make ohitmon partial source behavior, so this requires a whole-function file port rather than a one-line divergence fix.",
+  "summary": "The complete missile-impact/shipping delivery removes the prior unseen-hit screen mismatch. The refreshed worker branch matches all emitted screens, cursors and RNG through screen 315, then refuses a healing-potion quaff. peffects has only an UnsupportedQuaffError for this type, so the next source unit is whole peffect_healing, with the partial healup helper and cure callers inspected in the same span.",
   "source": {
-    "file": "mthrowu.c",
+    "file": "potion.c",
     "functions": [
-      "ohitmon"
+      "peffect_healing"
     ],
-    "branch": "Read mthrowu.c ohitmon:321-502 and current js/mthrowu.js ohitmon. The observed branch is C400-401: !vis && verbose && !gm.mtarget prints Monnam(target) plus exclam(damage). The current JS replaces this with note_unported('pline.c pline'). Other pline gaps remain in misses, visible eggs, poison, silver, acid and blinding; they belong to the same selected whole function.",
+    "branch": "potion.c:1119–1125 prints You feel better, rolls d(4+2*bcsign,4), adds eight HP, selects the max-HP increment and sickness/blindness cures by beatitude, calls healup, then exercises constitution. JS potion.js:949–950 refuses the entire POT_HEALING arm.",
     "callers": [
-      "C mthrowu.c m_throw:679-685 calls ohitmon for a monster in the missile path, with verbose TRUE and remaining range. JS m_throw:938-944 reaches exported ohitmon through the existing projectile collision branch.",
-      "The reference step269 includes m_throw:798 RNG followed by ohitmon:350 rnd(20)=9 and weapon.c dmgval:265 rnd(3)=2; the resulting C line is \"It is hit.\". This locates the missing branch independently of the later quaff stop."
+      "runSegment -> quaff command -> potion.js dodrink -> dopotion -> peffects. C potion.c:1395–1397 dispatches POT_HEALING to peffect_healing; JS peffects currently throws at the corresponding case."
     ],
     "dependencies": [
-      "Consumed-return helpers already declared include find_mac, omon_adj, spec_abon, dmgval, stone_missile, passes_rocks, monster resistance macros, munstone, can_blnd, drop_throw and source naming helpers. Whole-function implementation must inspect their actual contracts and preserve source evaluation/RNG order.",
-      "The existing note_unported('trap.c minstapetrify') represents an unported discarded-return callee. Keep permitted callee gaps explicit; do not use note_unported for available pline/message formatting.",
-      "Live and planning callers require message/RNG/display isolation. Trace m_throw and its caller environments before adding feedback; no callback or global RNG should run twice."
+      "healup C1428–1458 already implements polymorph/normal HP and peak HP bookkeeping, but its cureblind/curesick branches are obsolete refusals. Complete its source calls and propagate await through the existing potion, self-zap and artifact callers.",
+      "Inspect make_blinded C261–331, make_deaf C443–457, make_vomiting C245–254, make_sick C140–196 and exercise. Existing partial helpers are not completion evidence; preserve source order, vision effects and unconscious message suppression. Missing discarded-return callees can remain explicit note_unported gaps; consumed-return dependencies cannot be replaced by invented values."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Fresh-process scan of worker B's source state now committed as74b67d7f produced screensEmitted315 of595, firstScreenMismatch269,row0,column0 (C'I',JS' '), rngMismatch=null,cursorMismatch=null.",
-    "Inspected reference steps263-272 and the step269 RNG owners. The old confusion-expiry line matches at263; the missile hit is the first new screen difference.",
-    "Inspected every ohitmon source branch; JavaScript has a declared body with missing message branches, not a complete function with an ordering-only defect. Proposed write set js/mthrowu.js plus focused tests/recipes/recordings; source-required expansions will be coordinated."
+    "Fresh-process scanRecordedSession of the exact synchronized dfb7a5e2 branch reports screensEmitted=315, recordedSteps=595, divergence=null, boundary=quaffing requires peffect_healing(), behavioral.at=315. The previous screen269 ohitmon message now matches.",
+    "Read potion.c peffect_healing:1119–1125, the peffects dispatch:1395–1397, and healup:1428–1458. Inspected the matching JS dispatch and partial helper; the first stop is missing behavior, not an ordering defect in an implemented function.",
+    "11 focused B5 test files and scoped ESLint pass after the clean normal main refresh. The two refresh conflicts resolved only known unused imports; no game logic was manually merged."
   ]
 }
