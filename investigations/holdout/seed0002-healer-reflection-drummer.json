@@ -1,54 +1,46 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 363,
+  "remainingScreensUpperBound": 354,
   "status": "complete",
-  "commit": "24d32a739a1d61c49a1654aeb94bcade6ccd1645",
+  "commit": "39e83d4f9873b1ebb03e9a567351c8b1c2013387",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 363,
-    "step": 232,
+    "remainingScreensUpperBound": 354,
+    "step": 241,
     "kind": "stop",
-    "function": "moveloop_core",
-    "functionDeclared": true,
-    "sourceFile": "allmain.c",
-    "cFile": "allmain.c",
+    "function": "peffect_booze",
+    "functionDeclared": false,
+    "sourceFile": "potion.c",
+    "cFile": "potion.c",
     "luaFile": null,
-    "line": 380,
-    "message": "elapsed turn reached burdened multi-cycle immobility countdown",
+    "line": 771,
+    "message": "quaffing requires peffect_booze()",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "The sink port moves the first stop from step 184 to step 232. At input index 231 (key x), the player chooses chain mail from the wear prompt. C finishes the five-turn dressing delay, prints 'You finish your dressing maneuver.', and accepts inventory at step 233. JavaScript stops before its burdened elapsed-turn plan can count down negative multi. The live state at the refusal is moves=238, multi=-5, multi_reason='dressing up', afternmv=Armor_on, u.umovement=18, near_capacity=1, and worn inventory item x is CHAIN_MAIL (otyp 128, weight 300, W_ARM). The scan reports no prior screen or RNG divergence. Refined source comparison confirms that the live JavaScript countdown, unmul call and callback dispatch already follow C; only the JavaScript-only planning adapter refuses this valid path. This is a divergence fix in existing planning, superseding the initial file-port classification. Other missing moveloop_core branches are separate source gaps.",
+  "summary": "The immobility planning correction passes the dressing callback and moves the first stop from step232 to241 with no prior screen or RNG mismatch. Quaffing the selected booze potion reaches peffects(POT_BOOZE), whose JavaScript dispatcher explicitly refuses peffect_booze. The source owner is the entire potion.c peffect_booze function, not only the observed taste line.",
   "source": {
-    "file": "allmain.c",
+    "file": "potion.c",
     "functions": [
-      "moveloop_core"
+      "peffect_booze"
     ],
-    "branch": "Read the entire C function at allmain.c:177-564. The elapsed-time loop at 202-390 repeatedly scans monsters and allocates turns while u.umovement<NORMAL_SPEED. Lines 379-388 handle every gm.multi<0 state: runmode_delay_output(), increment multi, unmul(NULL) at zero, then deferred_goto() if unmul scheduled a level change. This fix preserves that existing live implementation and repairs its JavaScript-only planning contract. The generic fix must cover every delayed callback, not only Armor_on. It does not establish whole moveloop_core completion or absorb unrelated unported calls.",
+    "branch": "Read potion.c:771-792 completely. Increment potion_unkn, diluted/hallucinatory taste, nonblessed confusion using d(2+u.uhs,8) before nutrition, nondiluted healup(1,0,FALSE,FALSE), BUC-scaled nutrition, newuhs(FALSE), Wisdom abuse, then cursed message/direct multi=-rnd(15)/headache nomovemsg. Direct assignment is not nomul and must not reset running, invulnerability, usleep, existing multi_reason or callback.",
     "callers": [
-      "js/jsmain.js replay loop -> js/allmain.js moveloop_core():1289 -> advanceElapsedTurn():1093 -> preflightSimpleMonsterActions() -> finishElapsedTurn(planning:true):682",
-      "do_wear.c accessory_or_armor_on():2374-2404 sets worn chain mail, ga.afternmv=Armor_on, nomul(-objects[otyp].oc_delay), multi_reason and nomovemsg; js/do_wear.js:2845-2854 follows that setup",
-      "allmain.c moveloop_core():379-388 -> hack.c runmode_delay_output()/unmul(NULL) -> do_wear.c Armor_on()"
+      "js/cmd.js quaff dispatch -> js/potion.js dodrink -> dopotion -> peffects -> POT_BOOZE arm; C potion.c peffects:1346-1348 invokes peffect_booze and falls through to the shared return/tail.",
+      "fountain.c drinksink's random non-water potion can also select booze and calls the same dopotion entry."
     ],
     "dependencies": [
-      "js/unported_monster_actions.js planningState():520 and preflightSimpleMonsterActions():1798 clone the state and RNG; planSimpleMonsterTurn():1864 calls finishElapsedTurn through the advanceRound callback",
-      "js/allmain.js advanceElapsedTurn():1093-1110 selects the full planning path when projected_capacity>0; finishElapsedTurn():945-952 explicitly refuses any negative multi on that clone",
-      "hack.c unmul():4177-4211 resets delay/message state, clears ga.afternmv before invoking the callback, and discards the callback's return; js/hack.js unmul():1068-1096 currently prints via ttyPline",
-      "hack.c runmode_delay_output() owns animation frames; js/hack.js:4212 calls curs_on_u(), which refuses nonglobal state, so merely removing the planning guard would be unsafe",
-      "do_wear.c Armor_on():887 is the observed callback; other valid delayed actions use other afternmv callbacks and must not be special-cased",
-      "hack.c overexert_hp() retains a separate existing refusal whose comment cites this same missing burdened countdown; it is not the first failing operation in this recording"
+      "potion.c make_confused:89-104 and itimeout_incr preserve source timeout arithmetic and state transition flags.",
+      "potion.c healup:1428-1458 supports both ordinary and polymorphed HP arithmetic for this call's false cure flags.",
+      "eat.c newuhs:3362-3510 receives existing message/end-running/status hooks; its separate unported fainting/starvation/death branches are not newly claimed complete.",
+      "attrib.c exercise:489-516 supports Wisdom's rn2(2) without the physical encumbrance callback.",
+      "youprop.h Hallucination:115-120 consumes both intrinsic and extrinsic HALLUC_RES, not HALLUC.blocked. The existing potion-local predicate needs correction for the whole source branch."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "At committed 24d32a739a1d61c49a1654aeb94bcade6ccd1645, scanSession('holdout/seed0002-healer-reflection-drummer.session.json') in a fresh Node process reports screensEmitted=232, recordedSteps=595, divergence=null, and the burdened immobility boundary. Remaining screens upper bound is 595-232=363.",
-    "The read-only fixed recording has step 231 key W and the wear prompt, step 232 key x and the dressing-completion message with six elapsed-turn groups of C RNG calls, then step 233 key i and inventory. Those inputs locate the source branch; a new recipe must choose independent state and inputs.",
-    "A second focused replay inspected the live state at refusal: moves 238, multi -5, capacity 1, afternmv Armor_on, u.umovement 18, item x otyp128/weight300/owornmask1. JavaScript's last live message is still 'What do you want to wear? [x or ?*] x'.",
-    "js/allmain.js finishElapsedTurn explicitly calls elapsedTurnBoundary('burdened multi-cycle immobility countdown') when planning and multi<0. Its live branch below already follows the C countdown, but the planning branch is deliberately absent.",
-    "The clone adapter is JavaScript scaffolding, not a second C phase. Its new behavior must leave live state, message output, animation frames and both RNG streams unchanged during planning; callback effects can also change encumbrance before the next allocation.",
-    "scripts/allmain-turn.test.mjs:1593-1640 currently asserts that this planning case refuses, so that obsolete expectation must be replaced when the source path is ported. The unrelated region/search/overexertion refusal cases remain separately scoped.",
-    "No game code changed in the investigation commits. The sink delivery's checkpoint is attached to commit 24d32a73 and passed at 2026-09-14T20:01:51.126Z.",
-    "The coordinator's independent read-only survey verified the planning-only cause at a113b962, whose game code is identical to 24d32a73. A continuation plan must not repeat preflightSimpleMonsterActions's NORMAL_SPEED debit. It must stop before a due unmul, replay the validated prefix live, then replan remaining allocations from actual callback effects.",
-    "Callback-owner evidence supports live execution rather than f(planned): eat.c Hear_again's existing JavaScript uses global rn2(2); do_wear.c Boots_on uses global rnd(20); pray.c prayer_done uses global rnz(250) and planningState does not deep-clone gp. The correction can avoid changes to those source owners by invoking callbacks only on the live game."
+    "A fresh focused scan of the source state committed as39e83d4f returned screensEmitted241 of595, divergence=null and quaffing requires peffect_booze(). The remaining screen bound is595-241=354.",
+    "The potion.c peffects switch carries an UnsupportedQuaffError for POT_BOOZE instead of the C function; this is missing source behavior, unlike the preceding planning-only divergence.",
+    "The planned write set is js/potion.js, scripts/potion.test.mjs and independent potion.c recipes/recordings. No edit to eat.js is required."
   ]
 }
