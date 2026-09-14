@@ -33,6 +33,7 @@ import {
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     OVERLOADED,
+    SEARCHING,
     SLEEPY,
     SLT_ENCUMBER,
     W_AMUL,
@@ -938,6 +939,24 @@ test('attributes enlightenment reports Halluc_resistance and its source',
             'because of the silver dragon scale mail',
         )), 'wizard source wording identifies the worn scales');
     });
+
+// insight.c:1612-1613. The Searching property is reported in the same
+// production attributes window after Halluc_resistance and keeps wizard-mode
+// source wording through attrib.c from_what().
+test('attributes enlightenment reports automatic searching', async () => {
+    const state = await readyExploreGame();
+    state.wizard = true;
+    state.u.uprops[SEARCHING] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const lines = attributeSection(
+        await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
+    );
+    assert.ok(lines.some((line) => line.includes('automatic searching')),
+        'the Searching branch is emitted');
+});
 
 // insight.c:1509-1513. piousness() names how far the record has moved, and the
 // sign of the record picks you_are() over you_have(). No role starts with a

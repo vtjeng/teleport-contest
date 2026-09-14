@@ -1141,7 +1141,6 @@ const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
     [WARNING, 'Warning'],
     [WARN_OF_MON, 'Warn_of_mon'],
     [WARN_UNDEAD, 'Undead_warning'],
-    [SEARCHING, 'Searching'],
     [CLAIRVOYANT, 'Clairvoyant'],
     [INFRAVISION, 'Infravision'],
     [DETECT_MONSTERS, 'Detect_monsters'],
@@ -1302,6 +1301,12 @@ async function attributes_enlightenment(final, state, lines) {
     if (hasProperty(state, HALLUC_RES))
         enl_msg(lines, final, You_, 'resist', 'resisted',
             ' hallucinations', from_what(HALLUC_RES, state));
+
+    // C ref: insight.c:1612-1613. Searching is an intrinsic or extrinsic
+    // property, and from_what() supplies its wizard-mode source wording.
+    if (hasProperty(state, SEARCHING))
+        you_have(lines, final, 'automatic searching',
+            from_what(SEARCHING, state));
 
     if (hasProperty(state, INFRAVISION))
         you_have(lines, final, 'infravision', '');
