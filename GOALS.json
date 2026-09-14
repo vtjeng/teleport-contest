@@ -44949,6 +44949,108 @@
         "screens": 9277,
         "rng": 663843
       }
+    },
+    {
+      "id": "pilot-potion-healing-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port healing potion effects and source-ordered cure helpers",
+      "cFile": "potion.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "Authorized independent seed-worker pilot: the seed0002 first stop at 315 is missing peffect_healing. Its immutable worker delivery can integrate while other seeds continue.",
+      "detail": "Validated 7109bae7 queue: step 315 stop, 280 remaining screens. Source potion.c1119-1125; healup1428-1458 cure calls and existing async callers are required dependencies. Investigation cache at count280 is current.",
+      "spans": [],
+      "openedAt": "2f6fa7b7df6a64e126b3e3a0d1013bbc68c3ffb3",
+      "openStanding": {
+        "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+        "screens": 9277,
+        "rng": 663843
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_healing",
+          "line": 1119,
+          "endLine": 1127,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1119,
+        "to": 1127
+      },
+      "activeStanding": {
+        "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+        "screens": 9277,
+        "rng": 663843
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 315,
+          "kind": "stop",
+          "function": "peffect_healing",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_healing()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 280,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 280,
+              "status": "complete",
+              "commit": "dfb7a5e25f0837e7089dbfe5591e1269695eaf1d",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 280,
+                "step": 315,
+                "kind": "boundary",
+                "function": "peffect_healing",
+                "functionDeclared": false,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": 1119,
+                "message": "quaffing requires peffect_healing()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "The complete missile-impact/shipping delivery removes the prior unseen-hit screen mismatch. The refreshed worker branch matches all emitted screens, cursors and RNG through screen 315, then refuses a healing-potion quaff. peffects has only an UnsupportedQuaffError for this type, so the next source unit is whole peffect_healing, with the partial healup helper and cure callers inspected in the same span.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "peffect_healing"
+                ],
+                "branch": "potion.c:1119–1125 prints You feel better, rolls d(4+2*bcsign,4), adds eight HP, selects the max-HP increment and sickness/blindness cures by beatitude, calls healup, then exercises constitution. JS potion.js:949–950 refuses the entire POT_HEALING arm.",
+                "callers": [
+                  "runSegment -> quaff command -> potion.js dodrink -> dopotion -> peffects. C potion.c:1395–1397 dispatches POT_HEALING to peffect_healing; JS peffects currently throws at the corresponding case."
+                ],
+                "dependencies": [
+                  "healup C1428–1458 already implements polymorph/normal HP and peak HP bookkeeping, but its cureblind/curesick branches are obsolete refusals. Complete its source calls and propagate await through the existing potion, self-zap and artifact callers.",
+                  "Inspect make_blinded C261–331, make_deaf C443–457, make_vomiting C245–254, make_sick C140–196 and exercise. Existing partial helpers are not completion evidence; preserve source order, vision effects and unconscious message suppression. Missing discarded-return callees can remain explicit note_unported gaps; consumed-return dependencies cannot be replaced by invented values."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scanRecordedSession of the exact synchronized dfb7a5e2 branch reports screensEmitted=315, recordedSteps=595, divergence=null, boundary=quaffing requires peffect_healing(), behavioral.at=315. The previous screen269 ohitmon message now matches.",
+                "Read potion.c peffect_healing:1119–1125, the peffects dispatch:1395–1397, and healup:1428–1458. Inspected the matching JS dispatch and partial helper; the first stop is missing behavior, not an ordering defect in an implemented function.",
+                "11 focused B5 test files and scoped ESLint pass after the clean normal main refresh. The two refresh conflicts resolved only known unused imports; no game logic was manually merged."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
