@@ -27,6 +27,7 @@
   --goal-boundary: #e0762a;
   --goal-in-progress: #1baf7a;
   --goal-paused: #c99000;
+  --goal-parked-hatch: #ffffff;
 
   /* Matched screens use ink; totals use a quieter dashed line. Reserve
      colours for work kinds and states elsewhere on the page. */
@@ -541,9 +542,10 @@ canvas {
 }
 
 .day-bar.parked, .legend-swatch.parked {
-  border-bottom: 2px dashed var(--ink-primary);
+  background-image: repeating-linear-gradient(135deg,
+    var(--goal-parked-hatch) 0 2px, transparent 2px 8px);
 }
-.legend-swatch.parked { background: var(--goal-paused); }
+.legend-swatch.parked { background-color: var(--goal-paused); }
 
 /* Goals that share time stack in lanes; the script sets each stacked bar's
    top and height inline. The legend shows the stack in two greys so that it
