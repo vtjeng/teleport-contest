@@ -1065,7 +1065,7 @@ export function preflight_projected_random_arrival_pickup(state) {
 //
 // The two lines pickup.c runs around pick_obj() that this port does not:
 // disp.botl for gold, because invent.c addinv_core1() sets the same flag on
-// the same object a moment later and js/invent.js addinvCore1() already
+// the same object a moment later and js/invent.js addinv_core1() already
 // carries it; and fix_ghostly_obj(), which needs an object read from a bones
 // file, and getbones() never loads one.
 async function pickup_object(obj, count, telekinesis, env, plan) {

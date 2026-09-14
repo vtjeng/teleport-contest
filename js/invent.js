@@ -2089,7 +2089,7 @@ function preflightFreeinvCore(obj, env) {
     return { confersLuck };
 }
 
-function freeinvCore(obj, env, facts) {
+function freeinv_core(obj, env, facts) {
     if (obj.oclass === COIN_CLASS) {
         env.state.disp ??= {};
         env.state.disp.botl = true;
@@ -2129,7 +2129,7 @@ export function freeinv(obj, env = {}) {
     const facts = preflightFreeinvCore(obj, normalized);
     normalized.state.invent = extract_nobj(obj, inventoryHead(normalized.state));
     obj.pickup_prev = false;
-    freeinvCore(obj, normalized, facts);
+    freeinv_core(obj, normalized, facts);
     update_inventory(normalized);
     return obj;
 }
@@ -2955,7 +2955,7 @@ function specialPrize(obj, state) {
     return null;
 }
 
-function addinvCore1(obj, env, facts) {
+function addinv_core1(obj, env, facts) {
     if (obj.oclass === COIN_CLASS) {
         env.state.disp ??= {};
         env.state.disp.botl = true;
@@ -2992,7 +2992,7 @@ function preflightAddinvCores(obj, env) {
         || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
         requiredHook(env, 'addSpecialInventoryEffects', obj);
     } else if (obj.oartifact && is_quest_artifact(obj, env.state)) {
-        // The next arm of the same if/else chain in addinvCore1(), projected
+        // The next arm of the same if/else chain in addinv_core1(), projected
         // here for the reason the four otyps above are: addinv() clears
         // no_charge and how_lost before addinv_core1() runs, so the refusal
         // raised there would stop with the object already changed.
@@ -3012,7 +3012,7 @@ function preflightAddinvCores(obj, env) {
     return { confersLuck, prize };
 }
 
-function addinvCore2(obj, env, facts) {
+function addinv_core2(obj, env, facts) {
     if (obj.otyp === LUCKSTONE || obj.oartifact) {
         if (facts.confersLuck)
             set_moreluck(env.state);
@@ -3276,7 +3276,7 @@ function beginAddinv(obj, env, prepared) {
         resetJustPicked(inventoryHead(state));
     }
 
-    addinvCore1(obj, normalized, addinvFacts);
+    addinv_core1(obj, normalized, addinvFacts);
     return {
         addinvFacts,
         carryEffects,
@@ -3329,14 +3329,14 @@ function finishAddinv(context, obj, inserted, updatePermInvent = true) {
         && shouldAutoquiver(obj, state))
         setQuiver(obj, normalized);
     obj.pickup_prev = true;
-    addinvCore2(obj, normalized, addinvFacts);
+    addinv_core2(obj, normalized, addinvFacts);
     carry_obj_effects(obj, normalized, carryEffects);
     if (updatePermInvent) update_inventory(normalized);
     return obj;
 }
 
 // C ref: invent.c addinv_core0().
-function addinvCore0(
+function addinv_core0(
     obj, env = {}, prepared = null, updatePermInvent,
     otherObj = null,
 ) {
@@ -3368,7 +3368,7 @@ function addinvCore0(
 
 // C ref: invent.c addinv().
 export function addinv(obj, env = {}, prepared = null) {
-    return addinvCore0(obj, env, prepared, true);
+    return addinv_core0(obj, env, prepared, true);
 }
 
 // C ref: invent.c addinv_before().  Throw-and-return keeps the object's
@@ -3376,7 +3376,7 @@ export function addinv(obj, env = {}, prepared = null) {
 // the source's predecessor search and still permits normal fallback when the
 // requested successor is absent.
 export function addinv_before(obj, otherObj, env = {}) {
-    return addinvCore0(obj, env, null, true, otherObj);
+    return addinv_core0(obj, env, null, true, otherObj);
 }
 
 // Live counterpart of addinv_core0().  It leaves the synchronous API to
