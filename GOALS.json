@@ -34089,6 +34089,180 @@
         "screens": 8448,
         "rng": 630041
       }
+    },
+    {
+      "id": "port-dungeon-overview-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port dungeon.c dooverview() and its mapseen overview rendering helpers, menu paths, and command wiring.",
+      "cFile": "dungeon.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Selected holdout/seed4500-knight-coverage as the first per-session candidate with a valid completed investigation: remainingScreensUpperBound 1200 at step 614, cache investigations/holdout/seed4500-knight-coverage.json, source-traced owner dungeon.c:dooverview() and its overview helper family.",
+      "detail": "At dungeon.c:3294-3728, ordinary #overview calls show_overview(0,0), recalculates mapseen, filters entries with interest_mapseen(), renders source-ordered headings and annotations through print_mapseen(), and waits in PICK_NONE; m-prefixed overview uses PICK_ONE and query_annotation. The current witness has levels 1, 25, and 40 and dismisses with Escape. Wire the existing overview command row and M-O binding through js/cmd.js and js/dungeon.js, replacing the final-disclosure-only helper in js/end.js only where normal overview behavior requires it. Include dooverview, show_overview, traverse_mapseenchn, interest_mapseen, seen_string, br_string2, endgamelevelname, shop_string, tunesuffix, and print_mapseen in source order, with required mapseen/menu callers and dependencies.",
+      "spans": [],
+      "openedAt": "1c01cf0783a473a0010d4029e3223dac5c5b0d6e",
+      "openStanding": {
+        "sha": "1c01cf0783a473a0010d4029e3223dac5c5b0d6e",
+        "screens": 8448,
+        "rng": 630041
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dooverview",
+          "line": 3294,
+          "endLine": 3304,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "show_overview",
+          "line": 3305,
+          "endLine": 3343,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "traverse_mapseenchn",
+          "line": 3344,
+          "endLine": 3367,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seen_string",
+          "line": 3368,
+          "endLine": 3387,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "br_string2",
+          "line": 3388,
+          "endLine": 3409,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "endgamelevelname",
+          "line": 3410,
+          "endLine": 3440,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "shop_string",
+          "line": 3441,
+          "endLine": 3459,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tunesuffix",
+          "line": 3460,
+          "endLine": 3515,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "print_mapseen",
+          "line": 3516,
+          "endLine": 3735,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3294,
+        "to": 3735
+      },
+      "activeStanding": {
+        "sha": "1c01cf0783a473a0010d4029e3223dac5c5b0d6e",
+        "screens": 8448,
+        "rng": 630041
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 614,
+          "kind": "stop",
+          "function": "dooverview",
+          "functionDeclared": false,
+          "sourceFile": "dungeon.c",
+          "cFile": "dungeon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: dooverview() for the extended command 'overview' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1200,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1200,
+              "status": "complete",
+              "commit": "b943474ea93b67358453598cbbe943ff3848fe2d",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1200,
+                "step": 614,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: dooverview() for the extended command 'overview' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The new boundary is the missing dungeon.c dooverview() command. The assigned recording types #overview and at step 614 commits it with Return; C calls show_overview(0,0), recalculates mapseen, builds the Dungeons of Doom menu with Level 1/25/40, waits in PICK_NONE, and the next Escape dismisses it. JavaScript already has the extcmd row and M-O binding, but ADMITTED_COMMANDS, doextcmd dispatch, direct rhack handling, and the source-general overview renderer are missing. The existing end.js final-disclosure helper is explicitly partial and cannot supply normal overview branches. This is a source-general dungeon.c file-port with mapseen/menu wiring, not a seed-specific fix.",
+              "source": {
+                "file": "dungeon.c",
+                "functions": [
+                  "dooverview",
+                  "show_overview",
+                  "traverse_mapseenchn",
+                  "interest_mapseen",
+                  "seen_string",
+                  "br_string2",
+                  "shop_string",
+                  "tunesuffix",
+                  "print_mapseen"
+                ],
+                "branch": "For an ordinary in-progress #overview, iflags.menu_requested is false, so dooverview() calls show_overview(0,0), recalc_mapseen(), traverses non-endgame mapseen entries whose interest_mapseen() is true, renders source-ordered dungeon headings and level/feature/annotation/branch lines with print_mapseen(), then selects PICK_NONE. An m-prefixed overview uses why=-1 and PICK_ONE, assigning ledger values and routing a selected level to query_annotation(); the current witness takes the plain display-only branch and dismisses it with Escape.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1785-1791 and :2775 bind dooverview() to the overview extended-command row/Ctrl-O and M-O; js/extcmdlist_data.js:93 and js/command_bindings.js:30 carry those bindings.",
+                  "nethack-c/upstream/src/dungeon.c:2571-2577 donamelevel() calls dooverview() when iflags.menu_requested; js/dungeon.js:1815-1826 currently refuses that branch.",
+                  "nethack-c/upstream/src/cmd.c:3727-3748 calls the resolved handler and the ECMD_OK result returns to the command loop; js/cmd.js:4892-5151 and :5189+ own extended/direct dispatch and currently omit dooverview."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/dungeon.c:3303-3728 show_overview/traverse/print_mapseen plus :2878-2923 interest_mapseen provide the menu data and filtering; js/dungeon.js:1958-2004 has only the current ordinary recalc_mapseen slice, while js/end.js:933-978 is a final-disclosure-only partial helper.",
+                  "nethack-c/upstream/src/dungeon.c:3367-3476 seen_string(), br_string2(), endgamelevelname(), shop_string(), and tunesuffix() supply pure text and branch annotations; js/dungeon.js:558-571 already ports endgamelevelname(), but the other overview helpers are absent.",
+                  "js/windows.js:77-82 add_menu_heading() and :122+ select_menu(), together with js/tty_menu.js:1449-1452 PICK_NONE handling, supply the display-only menu and Escape dismissal; use the source ordering and menu headings.",
+                  "nethack-c/upstream/src/cmd.c:1785-1791 sets CMD_M_PREFIX, so wiring must preserve iflags.menu_requested: plain #overview is PICK_NONE while m#overview is PICK_ONE and may call the existing js/dungeon.js query_annotation() current/different-level paths."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json SHA b943474ea93b67358453598cbbe943ff3848fe2d and its assigned row report 614 emitted screens, 1814 recorded steps, and boundary unsupported hero command: dooverview() for the extended command 'overview' is not ported; the remaining-screen upper bound is 1200.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 indexes 605-613 type #overview; index 614 key newline emits inverse heading The Dungeons of Doom: levels 1 to 25, Level 1: <- You are here., Level 25:, Level 40:, and (end), with no RNG; index 615 Escape dismisses it.",
+                "nethack-c/upstream/src/dungeon.c:3292-3340 defines dooverview/show_overview: normal why=0 uses recalc_mapseen and PICK_NONE; an m-prefix uses why=-1 and PICK_ONE with query_annotation.",
+                "nethack-c/upstream/src/dungeon.c:3342-3728 defines traversal/filter/text/menu helper family; :2878-2923 interest_mapseen defines source-general inclusion rules.",
+                "js/cmd.js:1794-1805 excludes overview, :4892-5151 has no dooverview case and currently throws the reported refusal, and :5892+ has no direct overview arm; the extcmd row and M-O binding already exist.",
+                "js/end.js:933-978 explicitly limits its show_overview() to final ordinary-level disclosure and omits branches, annotations, and endgame; it cannot stand in for normal dungeon.c overview.",
+                "The implementation scope is source-general C behavior and production dispatch/menu wiring; do not special-case seed 4500, Knight role, input text, expected headings, or replay step."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
