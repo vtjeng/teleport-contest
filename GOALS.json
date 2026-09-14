@@ -35345,7 +35345,7 @@
     {
       "id": "port-do-wipeoff-dowipe-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do.c wipeoff and dowipe occupation behavior",
       "cFile": "do.c",
       "sessions": [
@@ -35356,8 +35356,8 @@
       "spans": [
         {
           "name": "wipeoff..dowipe",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "544275525f28ae7e86c8620bc12d345ee4140610",
           "functions": [
             "wipeoff",
             "dowipe"
@@ -35370,22 +35370,25 @@
         "screens": 8504,
         "rng": 630066
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "544275525f28ae7e86c8620bc12d345ee4140610",
+      "delivered": {
+        "screens": 21,
+        "rng": 7
+      },
       "functions": [
         {
           "name": "wipeoff",
           "line": 2361,
           "endLine": 2389,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dowipe",
           "line": 2390,
           "endLine": 2407,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -35467,7 +35470,101 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "wipeoff",
+            "implementation": "js/do.js",
+            "symbol": "wipeoff",
+            "sourceReview": "Read nethack-c/upstream/src/do.c wipeoff() lines 2361-2385 in full. The implementation preserves the unsigned cream delta and BlindedTimeout delta as independent values, each clamped to four before decrementing; tests full HBlinded after incr_itimeout() before choosing the glop-off, face-feels-clean, or still-busy return; preserves message and state-update order; honors gulp_blnd_check()'s boolean; and calls set_itimeout(), make_blinded(), and the existing blindness owner only in the source glop-off branch. No random call or replacement return value is introduced.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dowipe",
+                "source": "do.c dowipe() lines 2391-2403 calls set_occupation(wipeoff, ...); js/do.js dowipe() installs wipeoff() through js/cmd.js set_occupation()."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c moveloop_core() lines 485-509 invokes go.occupation() at the turn boundary; js/allmain.js runs the installed wipeoff callback and clears it when the callback returns zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wipe-occupation.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/wipe-occupation.session.json"
+            ],
+            "checkedAt": "544275525f28ae7e86c8620bc12d345ee4140610"
+          },
+          {
+            "name": "dowipe",
+            "implementation": "js/do.js",
+            "symbol": "dowipe",
+            "sourceReview": "Read nethack-c/upstream/src/do.c dowipe() lines 2388-2404 in full. The implementation preserves the u.ucreamed truth test, body_part(FACE) evaluation, untimed set_occupation(wipeoff, buf, 0) call, clean-face Your() message, and ECMD_TIME result in source order. The former exact-timeout, human-form, blindness, hallucination, engulfment, and occupied-slot guards are removed because C has no such conditions in this function.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() resolves the wipe row and dispatches its function; js/cmd.js doextcmd() case dowipe calls dowipe(state) through failClosedCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wipe-occupation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/wipe-clean-face.session.json",
+              "recordings/do.c/wipe-occupation.session.json"
+            ],
+            "checkedAt": "544275525f28ae7e86c8620bc12d345ee4140610"
+          }
+        ],
+        "entryPointReview": "The selected entry point is the wipe extended command. js/extcmdlist_data.js registers wipe -> dowipe, js/cmd.js doextcmd() dispatches it, and js/cmd.js set_occupation() connects the dirty-face arm to js/allmain.js's occupation turn boundary. The independent clean-face recording reaches dowipe()'s Your face is already clean. arm; the independent dirty-face recording reaches dowipe(), timeout.c's elapsed-turn decrement, wipeoff(), sight restoration, occupation completion, and the return to command input. Focused source-pinned tests cover the independent clamp values, full HBlinded flag test, clean-face output, and continuation return.",
+        "entryPoints": [
+          {
+            "name": "#wipe command",
+            "functions": [
+              "dowipe",
+              "wipeoff"
+            ],
+            "recordings": [
+              "recordings/do.c/wipe-clean-face.session.json",
+              "recordings/do.c/wipe-occupation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 685,
+          "kind": "stop",
+          "function": "docallcmd",
+          "functionDeclared": true,
+          "sourceFile": "do_name.c",
+          "cFile": "do_name.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: naming an object type requires docallcmd() naming option 'a'",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1129,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 1150
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "544275525f28ae7e86c8620bc12d345ee4140610",
+        "screens": 8525,
+        "rng": 630073
+      }
     }
   ]
 }
