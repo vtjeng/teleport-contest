@@ -127,7 +127,7 @@ import { objectType } from './obj.js';
 import {
     DUNCE_CAP, GAUNTLETS_OF_POWER, HELM_OF_OPPOSITE_ALIGNMENT, LUCKSTONE,
 } from './objects.js';
-import { the, ysimple_name } from './objnam.js';
+import { bare_artifactname, the, ysimple_name } from './objnam.js';
 // js/polyself.js imports exercise() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import { body_part } from './polyself.js';
@@ -450,18 +450,18 @@ export function from_what(propidx, state = game) {
         }
 
         // C ref: artifact.c what_gives() identifies the worn or carried object
-        // providing an extrinsic property. Non-artifacts use ysimple_name();
-        // the artifact-only bare_artifactname() formatting remains a gap.
+        // providing an extrinsic property. C uses ysimple_name() for ordinary
+        // objects and objnam.c bare_artifactname() for artifacts.
         if (state.wizard && (u.uprops?.[propidx]?.extrinsic ?? 0) !== 0) {
             const sourceObject = what_gives(propidx, state);
-            if (sourceObject && !sourceObject.oartifact) {
+            if (sourceObject) {
                 return from_what_trim(
-                    ` because of ${ysimple_name(sourceObject, state)}`,
+                    ` because of ${sourceObject.oartifact
+                        ? bare_artifactname(sourceObject, state)
+                        : ysimple_name(sourceObject, state)}`,
                     propidx,
                 );
             }
-            if (sourceObject?.oartifact)
-                note_unported('objnam.c bare_artifactname');
         }
 
         // C ref: youprop.h:96 Blindfolded = EBlinded (W_TOOL)
@@ -492,10 +492,7 @@ export function from_what(propidx, state = game) {
             const BBlinded = propBlind.blocked ?? 0;
             if (BBlinded && state.ublindf
                 && state.ublindf.oartifact === ART_EYES_OF_THE_OVERWORLD) {
-                // bare_artifactname for an artifact: lowercased artiname
-                note_unported('objnam.c bare_artifactname');
-                // The C would return ` because of ${bare_artifactname(ublindf)}`
-                // but bare_artifactname is not ported; fall through to empty.
+                return ` because of ${bare_artifactname(state.ublindf, state)}`;
             }
             break;
         }

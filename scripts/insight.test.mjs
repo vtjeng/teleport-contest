@@ -20,6 +20,10 @@ import {
     size_str,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
+import { from_what } from '../js/attrib.js';
+import {
+    ART_GRAYSWANDIR,
+} from '../js/artifacts.js';
 import {
     BASICENLIGHTENMENT,
     ENL_GAMEINPROGRESS,
@@ -41,6 +45,7 @@ import {
     SLT_ENCUMBER,
     W_AMUL,
     W_ARMOR,
+    W_WEP,
 } from '../js/const.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -943,6 +948,28 @@ test('attributes enlightenment reports Halluc_resistance and its source',
         )), 'wizard source wording identifies the worn scales');
     });
 
+// attrib.c:953-957 delegates artifact wording to objnam.c
+// bare_artifactname(). Grayswandir is the artifact in the fixed seed0361
+// attributes window; the direct state below pins that source branch without
+// coupling the unit test to a recorded input sequence.
+test('from_what names an artifact source', async () => {
+    const state = await readyExploreGame();
+    const weapon = {
+        otyp: LONG_SWORD,
+        oartifact: ART_GRAYSWANDIR,
+        owornmask: W_WEP,
+        quan: 1,
+        nobj: state.invent,
+    };
+    state.invent = weapon;
+    state.uwep = weapon;
+    state.wizard = true;
+    state.u.uprops[HALLUC_RES] = {
+        intrinsic: 0, extrinsic: W_WEP, blocked: 0,
+    };
+    assert.equal(from_what(HALLUC_RES, state), ' because of Grayswandir');
+});
+
 // insight.c:1612-1613. The Searching property is reported in the same
 // production attributes window after Halluc_resistance and keeps wizard-mode
 // source wording through attrib.c from_what().
@@ -981,9 +1008,10 @@ test('attributes enlightenment reports reflection', async () => {
 // adjacent capability branches and keep their source order in the report.
 test('attributes enlightenment reports adjacent capabilities', async () => {
     const state = await readyExploreGame();
-    state.u.uprops[FREE_ACTION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    state.u.uprops[FIXED_ABIL] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    state.u.uprops[LIFESAVED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    // youprop.h defines all three branches from their extrinsic bits.
+    state.u.uprops[FREE_ACTION] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
+    state.u.uprops[FIXED_ABIL] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
+    state.u.uprops[LIFESAVED] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
     const lines = attributeSection(
         await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
     );
@@ -1102,44 +1130,36 @@ test('the bones reminder chooses between its three arms', async () => {
     );
 });
 
-// Each stop below reads something outside u.uprops, so a table row built on
-// the property alone would let its line slip through and print a window C
-// would have filled differently.
-test('the magic half stops on conditions no property records', async () => {
+// Each case below reaches a branch whose predicate reads more than a single
+// u.uprops bit. The complete attributes_enlightenment() port emits the C line
+// and keeps processing the remainder of the window.
+test('the magic half reports extended attributes', async () => {
     const state = await readyExploreGame();
-    const branchOf = async () => {
-        try {
-            await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
-        } catch (error) {
-            assert.ok(error instanceof UnsupportedEnlightenmentError);
-            return error.branch;
-        }
-        return null;
-    };
-    assert.equal(await branchOf(), null, 'the plain hero reaches the window');
+    const linesOf = () => enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
+    assert.ok((await linesOf()).includes('Attributes:'));
 
     // youprop.h:69 adds defended(&gy.youmonst, AD_DISE), which artifact.c:663
     // answers for green dragon scales and for no other armor.
     state.uarm = { otyp: GREEN_DRAGON_SCALE_MAIL, owornmask: W_ARM };
-    assert.equal(await branchOf(), 'Sick_resistance');
+    assert.ok((await linesOf()).some((line) => line.includes('immune to sickness')));
     state.uarm = { otyp: GREEN_DRAGON_SCALES, owornmask: W_ARM };
-    assert.equal(await branchOf(), 'Sick_resistance');
+    assert.ok((await linesOf()).some((line) => line.includes('immune to sickness')));
     state.uarm = null;
 
     // zap.c u_adtyp_resistance_obj()'s 90% arm, which needs no property at all.
     state.uarmc = { otyp: DWARVISH_CLOAK, owornmask: W_ARMC };
-    assert.equal(await branchOf(), 'item_resistance_message()');
+    assert.ok((await linesOf()).some((line) => line.includes('protected from')));
     state.uarmc = null;
 
     // insight.c:1926 `carrying(LUCKSTONE) || stone_luck(TRUE)`. A luckstone
     // moves neither u.uluck nor u.moreluck, so only the scan finds it.
     state.invent = { otyp: LUCKSTONE, quan: 1, nobj: state.invent };
-    assert.equal(await branchOf(), 'the luck-does-not-time-out lines');
+    assert.ok((await linesOf()).some((line) => line.includes('not time out')));
     state.invent = state.invent.nobj;
 
     // youprop.h:275-281 reads the permonst for Breathless and Amphibious.
     state.youmonst.data.mflags1 |= M1_BREATHLESS;
-    assert.equal(await branchOf(), 'Breathless and Amphibious');
+    assert.ok((await linesOf()).some((line) => line.includes('survive without air')));
     state.youmonst.data.mflags1 &= ~M1_BREATHLESS;
 
     // youprop.h:27 Fire_resistance is (HFire_resistance || EFire_resistance),
@@ -1149,72 +1169,77 @@ test('the magic half stops on conditions no property records', async () => {
         state.u.uprops[FIRE_RES] = {
             intrinsic: 0, extrinsic: 0, blocked: 0, [field]: 1,
         };
-        assert.equal(await branchOf(), 'Fire_resistance', field);
+        assert.ok((await linesOf()).some((line) => line.includes('fire resistant')), field);
     }
     state.u.uprops[FIRE_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
 
     // insight.c:1688 and :1707 fire on the blocked field alone, which
     // hasProperty()'s intrinsic-or-extrinsic answer would miss. Levitation is
     // where that shows: a hero carrying only the blocking term walks past
-    // status_enlightenment()'s row and lands here.
+    // status_enlightenment()'s row and still produces a complete window.
     state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 1 };
-    assert.equal(await branchOf(), 'BLevitation');
+    assert.ok((await linesOf()).includes('Attributes:'));
     state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
 
     // insight.c:1975-1997 prints nothing while the game is in progress and the
     // hero has never died, so the count alone decides.
     state.u.umortality = 1;
-    assert.equal(await branchOf(), 'the have-been-killed line');
+    assert.ok((await linesOf()).some((line) => line.includes('have been killed')));
     state.u.umortality = 0;
 
     // insight.c:1770, :1782 and :1784 each print their own enlght_combatinc()
     // line, so any one of the three counters alone has to stop the window.
     for (const field of ['uhitinc', 'udaminc', 'uspellprot']) {
         state.u[field] = 1;
-        assert.equal(await branchOf(), 'enlght_combatinc()', field);
+        assert.ok((await linesOf()).some((line) => line.includes('bonus')), field);
         state.u[field] = 0;
     }
 
     // youprop.h:407 Half_gas_damage needs a damp or wet towel: obj.h reads the
     // enchantment, so a dry one worn over the eyes prints nothing.
     state.ublindf = { otyp: TOWEL, spe: 0 };
-    assert.equal(await branchOf(), null, 'a dry towel damps no gas');
+    assert.ok(!(await linesOf()).some((line) => line.includes('poison gas')),
+        'a dry towel damps no gas');
     state.ublindf.spe = 1;
-    assert.equal(await branchOf(), 'the poison-gas line');
+    assert.ok((await linesOf()).some((line) => line.includes('poison gas')));
     state.ublindf = null;
 
     // insight.c:1879 needs the form and the gender together, so neither term
     // alone may stop the window.
     state.youmonst.data.mflags1 |= M1_OVIPAROUS;
-    assert.equal(await branchOf(), null, 'an egg-laying form on a male hero');
+    assert.ok(!(await linesOf()).some((line) => line.includes('lay eggs')),
+        'an egg-laying form on a male hero');
     state.flags.female = true;
-    assert.equal(await branchOf(), 'the lay-eggs line');
+    assert.ok((await linesOf()).some((line) => line.includes('lay eggs')));
     state.youmonst.data.mflags1 &= ~M1_OVIPAROUS;
-    assert.equal(await branchOf(), null, 'a female hero who lays no eggs');
+    assert.ok(!(await linesOf()).some((line) => line.includes('lay eggs')),
+        'a female hero who lays no eggs');
     state.flags.female = false;
 
     // youprop.h:404 Hate_silver is a lycanthrope *or* a form that hates
     // silver; mondata.c hates_silver() counts every demon.
     state.youmonst.data.mflags2 |= M2_DEMON;
-    assert.equal(await branchOf(), 'the harmed-by-silver line');
+    assert.ok((await linesOf()).some((line) => line.includes('harmed by silver')));
     state.youmonst.data.mflags2 &= ~M2_DEMON;
 
     // you.h:464 `#define Luck (u.uluck + u.moreluck)`, and insight.c:1918
     // reports u.moreluck on its own, so either field alone has to stop.
     for (const field of ['uluck', 'moreluck']) {
         state.u[field] = 1;
-        assert.equal(await branchOf(), 'the luck lines', field);
+        assert.ok((await linesOf()).some((line) => line.includes('lucky')), field);
         state.u[field] = 0;
     }
 
     // insight.c:1815-1830 needs both a known spell and armor that changes the
     // casting chance, so neither term alone may stop the window.
     state.uarm = { otyp: RING_MAIL, owornmask: W_ARM };
-    assert.equal(await branchOf(), null, 'metallic armor with no spells');
+    assert.ok(!(await linesOf()).some((line) => line.includes('spell casting')),
+        'metallic armor with no spells');
     state.svs.spl_book[0] = { sp_id: 1, sp_lev: 1, sp_know: 100 };
-    assert.equal(await branchOf(), 'the spell-casting line');
+    assert.ok((await linesOf()).some((line) => line.includes('spell casting')));
     state.uarm = null;
-    assert.equal(await branchOf(), null, 'a spell with no armor to blame');
+    assert.ok(!(await linesOf()).some((line) => line.includes('spell casting')),
+        'a spell with no armor to blame');
 });
 
 // insight.c adds numeric annotations in debug mode at eleven sites across
