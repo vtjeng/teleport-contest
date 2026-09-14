@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4711711,
+      "datetime": "20030418103000",
+      "nethackrc": "OPTIONS=name:RerollArc,role:Archeologist,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    }
+  ]
+}

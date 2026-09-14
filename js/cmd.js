@@ -255,6 +255,7 @@ import {
 } from './hacklib.js';
 import {
     ddoinv,
+    doperminv,
     dolook,
     dopramulet,
     doprarm,
@@ -4997,6 +4998,8 @@ async function doextcmd(key, state) {
         return await dooverview(state);
     case 'ddoinv':
         return await runInventoryCommand(key, state) ? ECMD_TIME : ECMD_OK;
+    case 'doperminv':
+        return await doperminv(state);
     case 'dovspell':
         return await runShowspellsCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'dodiscovered':

@@ -114,7 +114,6 @@ import {
 } from './hack.js';
 import {
     INVLET_BASIC,
-    NOINVSYM,
     add_to_container,
     addinv_runtime,
     freeinv,
@@ -133,9 +132,7 @@ import {
     prinv,
     sortloot,
     ckvalidcat,
-    safeq_shortxprname,
-    safeq_xprname,
-    set_safeq_context,
+    askchain,
     update_inventory,
     will_feel_cockatrice,
 } from './invent.js';
@@ -2478,169 +2475,6 @@ async function out_container(obj, state) {
         await bot();
     }
     return 1;
-}
-
-// ---------------------------------------------------------------
-// askchain
-// C ref: invent.c:2377-2541.
-// ---------------------------------------------------------------
-
-export async function askchain(objchn, olets, allflag, fn, ckfn, mx, word, state) {
-    const take_out = (word === 'take out');
-    const put_in   = (word === 'put in');
-    const nodot    = (word === 'nodot' || word === 'drop'
-        || word === 'identify' || word === 'take out' || word === 'put in');
-    const ininv    = (objchn === 'invent'); // see caller convention below
-    const bycat    = menu_class_present('u', state)
-        || menu_class_present('B', state) || menu_class_present('U', state)
-        || menu_class_present('C', state) || menu_class_present('X', state)
-        || menu_class_present('P', state);
-
-    // C uses objchn as a pointer to the list head; we pass an accessor
-    // string ('invent' or 'cobj') and read the live head each iteration
-    // because the list can change under us (e.g., addinv moves items).
-    function getListHead() {
-        if (ininv) return state.invent;
-        return state.gc?.current_container?.cobj ?? null;
-    }
-
-    // sortloot() on the list (C: 2407-2408).
-    const sorted = sortloot(
-        getListHead(), SORTLOOT_INVLET, false, null, state);
-
-    let cnt = 0, dud = 0;
-    let first = true;
-    let oletIdx = 0; // index into olets string
-    const oletStr = olets ?? '';
-
-    // nextclass loop (C: 2416-2528).
-    for (;;) {
-        let ilet = 'a'.charCodeAt(0) - 1;
-        const listHead = getListHead();
-        if (listHead && listHead.oclass === COIN_CLASS)
-            ilet--;
-
-        // Walk sorted array, skip already-processed objects.
-        // C uses bypass bits; JS uses a Set of processed object identities.
-        const processed = new Set();
-
-        for (const entry of sorted) {
-            const otmp_candidate = entry.obj;
-            if (processed.has(otmp_candidate)) continue;
-            // Verify the object is still in the list.
-            let found = false;
-            for (let cur = getListHead(); cur; cur = cur.nobj) {
-                if (cur === otmp_candidate) { found = true; break; }
-            }
-            if (!found) continue;
-
-            processed.add(otmp_candidate);
-            let otmp = otmp_candidate;
-
-            if (ilet === 'z'.charCodeAt(0))
-                ilet = 'A'.charCodeAt(0);
-            else if (ilet === 'Z'.charCodeAt(0))
-                ilet = NOINVSYM.charCodeAt(0);
-            else
-                ilet++;
-
-            // Class filter (C: 2440-2441).
-            if (oletStr.length > 0 && oletIdx < oletStr.length
-                && otmp.oclass !== oletStr.charCodeAt(oletIdx))
-                continue;
-            // Takeoff/identify filters are not relevant for take-out.
-            // ckfn filter (C: 2446-2447).
-            if (ckfn && !ckfn(otmp, state))
-                continue;
-            // BUC/category filter (C: 2448-2449).
-            if (bycat && !ckvalidcat(otmp, state))
-                continue;
-
-            let sym;
-            if (!allflag) {
-                // Build prompt (C: 2450-2470).
-                let qpfx = '';
-                if (first) {
-                    if (take_out || put_in) {
-                        qpfx = word.charAt(0).toUpperCase()
-                            + word.slice(1) + ': ';
-                    }
-                    first = false;
-                }
-                const namefn = ininv
-                    ? safeq_xprname
-                    : (o) => donameFresh(o, state);
-                if (ininv)
-                    set_safeq_context(String.fromCharCode(ilet), !nodot);
-                const qbuf = safe_qbuf(
-                    qpfx, '?', otmp, namefn,
-                    ininv ? safeq_shortxprname : (o) => donameFresh(o, state),
-                    'item', state);
-                // Prompt: yn with possible count ('#') (C: 2467-2470).
-                const resp = await yn_function(
-                    qbuf,
-                    otmp.quan < 2 ? 'ynaq' : 'ynNaq',
-                    'n', false, state,
-                );
-                sym = String.fromCharCode(resp);
-            } else {
-                sym = 'y';
-            }
-
-            const otmpo = otmp;
-            if (sym === '#') {
-                // Count entry not ported for this slice.
-                throw new UnsupportedPickupError(
-                    'askchain: count (#) entry');
-            }
-
-            switch (sym) {
-            case 'a':
-                allflag = 1;
-                // fall through
-            case 'y': {
-                const tmp = await fn(otmp, state);
-                if (tmp <= 0) {
-                    if (container_gone(fn, state)) {
-                        otmp = null;
-                    } else if (otmp && otmp !== otmpo) {
-                        // splitobj happened but action rejected; unsplitobj
-                        // is not ported for this path.
-                    }
-                    if (tmp < 0) {
-                        // goto ret
-                        return cnt;
-                    }
-                }
-                cnt += tmp;
-                if (mx > 0 && --mx === 0) return cnt;
-                // C FALLTHROUGH to 'n' — dud counts items offered.
-            }
-            // falls through
-            case 'n':
-                if (nodot) dud++;
-                break;
-            case 'q':
-                return cnt;
-            default:
-                break;
-            }
-        }
-
-        // Advance to next class letter (C: 2527-2528).
-        if (oletStr.length > 0 && oletIdx < oletStr.length) {
-            oletIdx++;
-            if (oletIdx < oletStr.length) continue;
-        }
-        break;
-    }
-
-    if (dud || cnt)
-        await ttyPline('That was all.', state);
-    else if (!dud && !cnt)
-        await ttyPline('No applicable objects.', state);
-
-    return cnt;
 }
 
 // ---------------------------------------------------------------

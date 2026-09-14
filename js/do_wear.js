@@ -968,7 +968,7 @@ async function Blindf_on(obj, state = game) {
     }
 
     if (changed) {
-        toggle_blindness(state);
+        await toggle_blindness(state);
     }
 }
 
@@ -1033,7 +1033,7 @@ async function Blindf_off(otmp, state = game) {
         }
     }
     if (changed) {
-        toggle_blindness(state);
+        await toggle_blindness(state);
     }
 }
 

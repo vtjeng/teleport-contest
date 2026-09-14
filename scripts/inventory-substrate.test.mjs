@@ -50,6 +50,8 @@ import {
     WORN_SHIRT,
     W_QUIVER,
     W_WEP,
+    WIN_ERR,
+    WC_PERM_INVENT,
 } from '../js/const.js';
 import {
     dropy,
@@ -66,14 +68,18 @@ import {
     addinv_before,
     addinv_runtime,
     addinv_nomerge,
+    askchain,
     assigninvlet,
     carrying,
     carrying_stoning_corpse,
     consume_obj_charge,
     currency,
     delete_contents,
+    dispinv_with_action,
+    doperminv,
     delallobj,
     freeinv,
+    find_unpaid,
     hold_another_object,
     INVLET_BASIC,
     initializeInventory,
@@ -92,6 +98,9 @@ import {
     reassign,
     resetInventory,
     stackobj,
+    count_unidentified,
+    free_pickinv_cache,
+    set_cknown_lknown,
     sortloot,
     unsortloot,
     _getobjInternals,
@@ -159,6 +168,7 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     SPE_NOVEL,
     TALLOW_CANDLE,
+    TIN,
     HORN_OF_PLENTY,
     MAGIC_FLUTE,
     TOWEL,
@@ -2172,6 +2182,140 @@ test('obj_to_let answers the letter assigned to the object', () => {
     assert.equal(state.lastinvnr, 1);
 });
 
+test('askchain revisits the sorted snapshot for each object class', async () => {
+    const state = carryingState();
+    const lamp = instance(OIL_LAMP, state);
+    const apple = instance(APPLE, state);
+    addinv(lamp, { state });
+    addinv(apple, { state });
+    const selected = [];
+    const classes = String.fromCharCode(lamp.oclass)
+        + String.fromCharCode(apple.oclass);
+
+    assert.equal(
+        await askchain(
+            'invent', classes, true,
+            (obj) => { selected.push(obj); return 1; },
+            null, 0, 'drop', state,
+        ),
+        2,
+    );
+    assert.deepEqual(selected, [lamp, apple]);
+});
+
+// invent.c set_cknown_lknown(), count_unidentified(), find_unpaid(), and
+// free_pickinv_cache() (2624-2635, 2698-2708, 3021-3056).
+test('knowledge and unpaid traversals follow source ownership rules', () => {
+    const state = carryingState();
+    const sack = instance(SACK, state, { known: true });
+    const tin = instance(TIN, state, { known: true, cknown: false });
+    const lamp = instance(OIL_LAMP, state, { known: true });
+    set_cknown_lknown(sack);
+    set_cknown_lknown(tin);
+    set_cknown_lknown(lamp);
+    assert.equal(sack.cknown, true);
+    assert.equal(sack.lknown, true);
+    assert.equal(tin.cknown, true);
+    assert.equal(tin.lknown, false);
+    assert.equal(lamp.cknown, false);
+
+    const unidentified = instance(OIL_LAMP, state, {
+        known: false, dknown: true, bknown: false, rknown: false,
+    });
+    const identified = instance(OIL_LAMP, state, {
+        known: true, dknown: true, bknown: true, rknown: true,
+    });
+    state.objects[OIL_LAMP].oc_name_known = true;
+    unidentified.nobj = identified;
+    assert.equal(count_unidentified(unidentified, state), 1);
+
+    const nestedUnpaid = instance(SACK, state, { unpaid: true });
+    const nestedTail = instance(OIL_LAMP, state, { unpaid: true });
+    nestedUnpaid.cobj = nestedTail;
+    const topUnpaid = instance(OIL_LAMP, state, { unpaid: true });
+    nestedUnpaid.nobj = topUnpaid;
+    const cursor = { value: null };
+    assert.equal(find_unpaid(nestedUnpaid, cursor), nestedUnpaid);
+    assert.equal(cursor.value, nestedUnpaid);
+    assert.equal(find_unpaid(nestedUnpaid, cursor), nestedTail);
+    assert.equal(cursor.value, nestedTail);
+    assert.equal(find_unpaid(nestedUnpaid, cursor), topUnpaid);
+    assert.equal(find_unpaid(nestedUnpaid, cursor), null);
+    assert.equal(cursor.value, null);
+});
+
+test('free_pickinv_cache destroys and invalidates a cached window', () => {
+    const state = { gc: { cached_pickinv_win: 12 } };
+    const destroyed = [];
+    assert.equal(
+        free_pickinv_cache(state, {
+            destroyWindow: (id) => destroyed.push(id),
+        }),
+        WIN_ERR,
+    );
+    assert.deepEqual(destroyed, [12]);
+    assert.equal(free_pickinv_cache(state), WIN_ERR);
+});
+
+test('doperminv follows capability, option, and empty-pack gates', async () => {
+    const unsupported = { flags: {}, iflags: {} };
+    await doperminv(unsupported);
+    assert.equal(
+        unsupported._ttyToplines,
+        "Persistent inventory display is not supported by 'tty'.",
+    );
+
+    const disabled = {
+        flags: {}, iflags: {}, wincap: WC_PERM_INVENT,
+    };
+    await doperminv(disabled);
+    assert.equal(
+        disabled._ttyToplines,
+        "Persistent inventory ('perm_invent' option) is not presently enabled.",
+    );
+
+    const empty = {
+        flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
+    };
+    await doperminv(empty);
+    assert.equal(empty._ttyToplines, 'Persistent inventory display is empty.');
+
+    const calls = [];
+    const capable = {
+        flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
+        invent: { nobj: null },
+    };
+    assert.equal(
+        await doperminv(capable, { updateInventory: (key) => calls.push(key) }),
+        0,
+    );
+    assert.deepEqual(calls, [1]);
+});
+
+test('dispinv_with_action uses source in-use ordering and restores flags', async () => {
+    const state = carryingState();
+    monst_globals_init(state);
+    state.youmonst = { data: state.mons[PM_KNIGHT] };
+    state.flags.sortpack = true;
+    state.iflags.menu_requested = true;
+    const weapon = instance(LONG_SWORD, state, { owornmask: W_WEP });
+    addinv(weapon, { state });
+    state.uwep = weapon;
+    let menuItems;
+    const result = await dispinv_with_action(null, state, {
+        useInuseOrdering: true,
+        menu: (items) => {
+            menuItems = items;
+            return null;
+        },
+    });
+    assert.equal(result, 0);
+    assert.equal(state.flags.sortloot, undefined);
+    assert.equal(state.iflags.force_invmenu, undefined);
+    assert.equal(menuItems[0].text, 'Inventory in use');
+    assert.equal(menuItems[1].value, weapon.invlet);
+});
+
 test('reassign puts gold first and letters the remaining chain in order', () => {
     const state = carryingState();
     const lamp = instance(OIL_LAMP, state);
@@ -2246,11 +2390,21 @@ test('xprname formats the inventory line', () => {
     addinv(arrows, { state });
     assert.equal(xprname(arrows, null, 'b', true, 0, 3, state), 'b - 3 arrows.');
     assert.equal(arrows.quan, 7);
-    // The shop price column is the only other shape C formats, and it stops.
-    assert.throws(() => xprname(lamp, null, 'a', true, 10, 0, state),
-                  UnsupportedObjectOperationError);
-    assert.throws(() => xprname(lamp, 'total', '*', true, 0, 0, state),
-                  UnsupportedObjectOperationError);
+    // The shop price column uses a 45-column name field when menu_tab_sep
+    // is off.  A '*' line is the same shape with cost zero.
+    assert.equal(
+        xprname(lamp, null, 'a', true, 10, 0, state),
+        `q - ${'a lamp'.padEnd(45)}     10 zorkmids`,
+    );
+    assert.equal(
+        xprname(lamp, 'total', '*', true, 0, 0, state),
+        `q - ${'total'.padEnd(45)}      0 zorkmids`,
+    );
+    state.iflags.menu_tab_sep = true;
+    assert.equal(
+        xprname(lamp, null, 'a', true, 10, 0, state),
+        'q - a lamp\t    10 zorkmids',
+    );
 });
 
 // invent.c prinv() (2869-2890).

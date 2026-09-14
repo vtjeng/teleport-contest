@@ -446,7 +446,7 @@ export async function make_blinded(xtime, talk, state = game) {
 
     set_itimeout(prop, xtime);
     if (uCouldSee !== canSeeNow)
-        toggle_blindness(state);
+        await toggle_blindness(state);
 }
 
 // C ref: youprop.h:399 Unaware. trap.c unconscious() owns the pending-message
@@ -958,7 +958,7 @@ export async function dodrink(state = game) {
 //   The Stinging local is checked for the see_monsters() gate (the condition
 //   is cheap and wrong to skip) but the Sting_effects() call itself is
 //   refused, since no ported session wields that artifact.
-export function toggle_blindness(state = game) {
+export async function toggle_blindness(state = game) {
     const hero = state.u;
 
     // C ref: potion.c:338. Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L).
@@ -992,7 +992,7 @@ export function toggle_blindness(state = game) {
     // C ref: potion.c:362-363. learn_unseen_invent() marks dknown on objects
     // the hero picked up while blind. Fires only when the hero regains sight.
     if (!heroIsBlind(state)) {
-        learn_unseen_invent(state);
+        await learn_unseen_invent(state);
     }
 }
 

@@ -272,8 +272,7 @@ async function hooked_tty_getlin(query, hook, state) {
 // clean_up.  With a response set, the prompt names the allowed keys and their
 // default and a loop rejects everything else.
 //
-// Three parts of the restricted arm have no ported reader and stop instead,
-// each where C reads them out of `resp` and so before the prompt paints:
+// Three parts of the restricted arm retain source-specific handling here:
 //   a set holding '#', which turns digits into a count in yn_number;
 //   a set holding an uppercase letter, which suppresses lowc() on the answer;
 //   a set holding <esc>, whose tail names responses the prompt hides.
@@ -286,8 +285,10 @@ export async function tty_yn_function(query, resp, def, state = game) {
     const display = state.nhDisplay;
     if (!display) throw new Error('a yn prompt requires an initialized display');
 
-    // yn_number is only read back by the restricted arm's '#' count handling,
-    // which is refused below, so the port keeps no field for it.
+    // C's file-global yn_number is scoped to one tty_yn_function() call. Keep
+    // the equivalent on the game state so askchain() can consume a counted
+    // response after yn_function() returns '#'.
+    state.yn_number = 0;
     if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
         await dismissPendingTtyMessage(state);
     // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
@@ -303,11 +304,6 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // trailing space is already in the string, "in case of reprompt".
     let prompt;
     if (resp !== null) {
-        if (resp.includes('#')) {
-            throw new UnsupportedGetlinBoundaryError(
-                'tty_yn_function() counting digits into yn_number',
-            );
-        }
         /* normally we force lowercase, but if any uppercase letters
            are present in the allowed response, preserve case */
         if (/[A-Z]/u.test(resp)) {
@@ -377,20 +373,64 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 q = defByte;
                 break;
             }
-            // digit_ok is `allow_num && digit(q)`, and allow_num is false on
-            // every set that reaches here, so it and the '#' count arm below
-            // it are both constantly false: a '#' answered to a set without
-            // '#' fails this test and rings instead.
-            if (!resp.includes(String.fromCharCode(q))) {
+            const allowNum = resp.includes('#');
+            const digitOk = allowNum && q >= 0x30 && q <= 0x39;
+            if (!resp.includes(String.fromCharCode(q)) && !digitOk) {
                 // tty_nhbell(), which writes no cell and moves no cursor.
                 q = 0;
+            } else if (q === 0x23 || digitOk) {
+                // topl.c:478-529. A digit or '#' starts a count. The first
+                // digit is part of the count, then digits continue until a
+                // terminator. A positive count returns '#' and is exposed as
+                // state.yn_number; zero and malformed counts follow C's no or
+                // reprompt paths respectively.
+                let value = q === 0x23 ? 0 : q - 0x30;
+                let digitLength = q === 0x23 ? 0 : 1;
+                let invalid = false;
+                for (;;) {
+                    const z = await readchar(state);
+                    const lower = !preserveCase && z >= 0x41 && z <= 0x5A
+                        ? z | 0x20 : z;
+                    if (lower >= 0x30 && lower <= 0x39) {
+                        value = value * 10 + lower - 0x30;
+                        digitLength++;
+                        if (!Number.isSafeInteger(value)) {
+                            invalid = true;
+                            break;
+                        }
+                    } else if (lower === 0x79
+                        || quitchars.includes(String.fromCharCode(lower))) {
+                        if (lower === ESC) invalid = true;
+                        break;
+                    } else if (lower === ERASE_CHAR || lower === BACKSPACE) {
+                        if (digitLength <= 0) {
+                            invalid = true;
+                            break;
+                        }
+                        value = Math.trunc(value / 10);
+                        digitLength--;
+                    } else {
+                        invalid = true;
+                        break;
+                    }
+                }
+                if (invalid || value < 0) {
+                    q = 0;
+                } else if (value === 0) {
+                    q = 0x6e; // 'n'
+                } else {
+                    state.yn_number = value;
+                    q = 0x23; // '#'
+                }
             }
         } while (!q);
     }
 
     // clean_up: gt.toplines is rewritten as the prompt followed by the key,
     // so message recall shows the answered prompt rather than the bare query.
-    state._ttyToplines = `${prompt}${key2txt(q)}`;
+    const answerText = state.yn_number
+        ? `#${state.yn_number}` : key2txt(q);
+    state._ttyToplines = `${prompt}${answerText}`;
     display.toplines = state._ttyToplines;
     display.topMessage = state._ttyToplines;
     // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
