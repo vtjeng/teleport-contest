@@ -44303,8 +44303,8 @@
           "name": "nh_timeout",
           "line": 588,
           "endLine": 950,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -44380,7 +44380,59 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "nh_timeout",
+            "implementation": "js/timeout.js",
+            "symbol": "nh_timeout",
+            "sourceReview": "Read the entire timeout.c nh_timeout, lines 588-948, plus its property macros in youprop.h. Preserved basal-luck ordering before invulnerability; condition-dialogue positions; polymorph, cream, spell-protection and gallop clocks; the complete property-index-ordered decrement/expiry switch; delayed-killer lookup for every expiry; run_timers last. Levitation clears a simultaneous one-turn Flying before its index. Confusion/Stunned read only intrinsic, resistance/source-only properties ignore blocked, Flying includes a flying steed, and warning expiry clears both pointer and index. Required consumed-return eating_dangerous_corpse is newly ported whole. Reviewed existing stone_luck/carrying, find_delayed_killer, acurr, name_to_mon/name_to_monplus, type_is_pname, hcolor/Monnam, stuck_in_wall/blocked_boulder, region_danger, inv_weight and unconscious dependencies and used their existing source implementations. Existing partial callee boundaries (make_blinded, float_down, spoteffects, timer callbacks) remain with their owners. Removed obsolete hero scalar/property refusals and renamed the partial nh_timeout_elapsed_turn entry to source name nh_timeout; retained the separate due-object-timer preflight. No new Unsupported class or throw site. Coordinator checked the full timeout.c definition, property-index order, C eating_dangerous_corpse, make_glib and toggle_displacement definitions, the changed allmain/planner callers, and the source-pinned handoff tests at immutable 74b67d7f. Worker A's tin_variety_txt and this delivery's eating_dangerous_corpse merged automatically in eat.js; both source owners remain present. Discarded-return gaps: timeout.c stoned_dialogue; timeout.c slime_dialogue; timeout.c vomiting_dialogue; timeout.c choke_dialogue; timeout.c sickness_dialogue; timeout.c levitation_dialogue; timeout.c phaze_dialogue; timeout.c region_dialogue; were.c you_unwere; end.c dealloc_killer; timeout.c done_timeout; timeout.c slimed_to_death; potion.c make_vomiting; potion.c make_sick; potion.c make_stunned; display.c set_mimic_blocking; do_wear.c wielding_corpse; timeout.c slip_or_trip outside the existing plain on-foot branch; pickup.c deferred_decor. Required and changed callee evidence: eating_dangerous_corpse in js/eat.js: Read eat.c:475-494 whole. Pure predicate: active eatfood function identity, context.victual.piece, CORPSE, corpsenm>=LOW_PM, carried or exact obj_here floor identity, then acidic or flesh_petrifies (including Medusa). Reads only; no RNG, output or state mutation. Reuses source-defined pure macros and obj_here. Production callers: js/timeout.js nh_timeout: timeout.c nh_timeout:816 and830 consume the result to extend temporary acid/stone resistance while a dangerous corpse meal remains active. decrement_property_timeouts is the source switch factored inside nh_timeout.. make_confused in js/potion.js: Re-read potion.c:89-105 whole. Added only the caller-owned message environment so planned ordinary expiry is silent. Preserves Unaware, old entire intrinsic, Hallucination wording, status invalidation and set_itimeout flag preservation. Production callers: js/timeout.js nh_timeout: timeout.c nh_timeout:730-735 sets HConfusion to1 then make_confused(0,TRUE), followed by stop_occupation only if intrinsic clears.; js/potion.js peffect_booze: potion.c:779 uses existing make_confused to add nonblessed booze duration.. make_glib in js/potion.js: Read potion.c:460-468 whole. Preserved the unusual C boolean expression (!Glib ^ !!xtime), which sets botl when old/new truth values agree, and uses the entire intrinsic, including flags. Calls existing update_inventory after set_itimeout when gloves are worn. Removed the former missing inventory update. Updated obsolete tests that asserted the opposite XOR behavior; new cases cover all truth-value pairs, FROMOUTSIDE and glove/no-glove refresh. Production callers: js/timeout.js nh_timeout: timeout.c:935 GLIB expiry calls make_glib(0).; js/wizcmds.js wiz_intrinsic: wizcmds.c:1064-1068 starts the timed property through make_glib before the tested elapsed turn.. toggle_displacement in js/do_wear.js: Re-read do_wear.c:148-178 whole. Existing visibility/discovery logic retained; exported the existing helper for the source timeout caller and corrected You_feel's Unaware prefix. Null-object expiry gives feedback without discovery RNG; tests retain worn-object guards and discovery coverage. Production callers: js/timeout.js nh_timeout: timeout.c:861-863 calls toggle_displacement(NULL,0,FALSE) when displacement clears.; js/do_wear.js Cloak_on: do_wear.c:344 calls the same existing helper when donning a displacement cloak..",
+            "callers": [
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c moveloop_core:273 invokes nh_timeout once per allocated turn. runSegment -> moveloop_core -> advanceElapsedTurn -> finishElapsedTurn reaches the function. The clone stops before live-only timeout effects; live execution then clones the actual result to validate only the same-allocation tail, retaining the earlier mvl_wtcap and not repeating allocation, moves++, track, timeout or action debit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/eat.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/polyself-transform.test.mjs",
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/confusion-expiry.session.json",
+              "recordings/timeout.c/burdened-confusion-expiry.session.json",
+              "recordings/timeout.c/hallucination-expiry.session.json",
+              "recordings/timeout.c/burdened-hallucination-expiry.session.json",
+              "recordings/timeout.c/glib-expiry.session.json",
+              "recordings/timeout.c/displacement-expiry.session.json"
+            ],
+            "checkedAt": "b7642592729e66b611881375171d59815db9182e"
+          }
+        ],
+        "entryPointReview": "The selected whole nh_timeout unit has one once-per-turn upkeep entry, reached by every elapsed command; property variants exercise its newly wired helpers. The six independent recordings cover confusion and hallucination with unburdened/burdened variants, worn-glove Glib expiry, and timed displacement. eating_dangerous_corpse is a pure helper-only dependency, with source-pinned tests and production caller evidence. This does not claim completion of the whole moveloop_core or any unported callee. Live-only timeout callees are not invoked on clones. Message/RNG-safe countdowns retain clone execution. A beforeTimeout marker carries the already allocated prefix; live nh_timeout runs once, then a dedicated preflightElapsedTurnTail clones actual post-timeout state without monster scans/preamble/debit/allocation. The tail retains pre-timeout capacity for regen/overexertion, but hunger/exercise call near_capacity on their current state. Negative-multi callback release remains live, and later allocations replan with consumeHeroRation:false. Gameover is checked immediately after timeout. Existing refusal classes are converted at the elapsed-turn boundary; unexpected errors are not swallowed. No display.js/invent.js output-only seam was needed. node scripts/run-hero-timeouts.mjs: PASS;6 segments,15898PRNG calls,221screens,221cursors,0animation frames. Runtime assertions verify intended capacity, expired property and exact helper messages; Glib also verifies worn gloves and no wielded weapon. Full/partial ration, exact-ration release, multi-allocation continuation, callback consuming RNG once, refused tail retaining completed prefix only; polymorph-expiry clone snapshot unchanged, real polyman callback runs once, callback removes burden but old wtcap still suppresses regen, gameover callback skips remaining upkeep. Gameover is a controlled callback assertion, not a fresh lethal-timeout recording. Blocked recipes retained with source owners: recipes/timeout.c/hallucination-expiry-sighted.session.json: earlier display.c map_object/display.h obj_to_glyph hallucinated floor-object glyph mismatch; no matching recording.; recipes/timeout.c/hallucination-expiry-gas-region.session.json: same earlier glyph discrepancy and existing allmain region-tail planning refusal.; recipes/timeout.c/glib-expiry-weapon.session.json: earlier allmain.c:271-272 do_wear.c glibr weapon-drop message/state missing; empty-handed variation reaches timeout.",
+        "entryPoints": [
+          {
+            "name": "once-per-turn hero timeout upkeep",
+            "functions": [
+              "nh_timeout"
+            ],
+            "recordings": [
+              "recordings/timeout.c/confusion-expiry.session.json",
+              "recordings/timeout.c/burdened-confusion-expiry.session.json",
+              "recordings/timeout.c/hallucination-expiry.session.json",
+              "recordings/timeout.c/burdened-hallucination-expiry.session.json",
+              "recordings/timeout.c/glib-expiry.session.json",
+              "recordings/timeout.c/displacement-expiry.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
