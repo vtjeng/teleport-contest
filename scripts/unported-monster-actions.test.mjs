@@ -4134,9 +4134,9 @@ test('a planned pickup raises the naming class the turn must convert',
         // distant_name()'s near branch is the one that formats through
         // doname(); the far branch never reaches preflightObjectName().
         game.u.xray_range = 3;
-        // objnam.c's shop price suffix is unported. Any guarded branch of
-        // preflightObjectName() would serve; this is the cheapest to set.
-        dagger.unpaid = true;
+        // User-assigned type names remain an unported xname branch; unpaid
+        // prices now have their real source owner and must not refuse here.
+        game.objects[DAGGER].oc_uname = 'needle';
 
         await assert.rejects(
             preflightSimpleMonsterActions(game),

@@ -340,6 +340,9 @@ import {
     check_unpaid,
     unpaid_cost,
     costly_spot,
+    addtobill,
+    obfree_shop_bill,
+    picked_container,
 } from './shk.js';
 import { set_moreluck } from './attrib.js';
 import { is_pole } from './worn.js';
@@ -2733,6 +2736,7 @@ function requiredHook(env, name, obj) {
 // resetPick(obj, env). obfreeShopBill(obj, merge, env) returns 'retained' when
 // the shop moves obj to OBJ_ONBILL, 'billed' when it merged an existing bill
 // entry, or 'unbilled' when normal deletion and price adjustment should run.
+// 'preserved' is obfree's diagnostic return when the merge target lacks a bill.
 // Merge effects: mergeLightSources(obj, target, env),
 // mergeWornMasks(target, obj, env). absorbGlob(target, obj, env) owns
 // mkobj.c obj_absorb(), including globby_bill_fixup(), timeout recombination,
@@ -3337,9 +3341,10 @@ function preflightObjectExtraction(obj, env) {
         break;
     case OBJ_FLOOR:
     case OBJ_MIGRATING:
-    case OBJ_ONBILL:
         requiredHook(env, 'extractExternalObject', obj);
         break;
+    case OBJ_ONBILL:
+        break; // obj_extract_self owns the gb.billobjs chain below.
     case OBJ_BURIED:
         validateBuriedChain(env.state, obj);
         break;
@@ -3384,7 +3389,6 @@ export function obj_extract_self(obj, env = {}) {
         return obj;
     case OBJ_FLOOR:
     case OBJ_MIGRATING:
-    case OBJ_ONBILL:
         requiredHook(normalized, 'extractExternalObject', obj)(obj, normalized);
         if (obj.where !== OBJ_FREE)
             throw new Error('extractExternalObject must leave object OBJ_FREE');
@@ -3393,6 +3397,11 @@ export function obj_extract_self(obj, env = {}) {
                 'extractExternalObject must clear object chain links',
             );
         }
+        return obj;
+    case OBJ_ONBILL:
+        normalized.state.gb.billobjs = extract_nobj(
+            obj, normalized.state.gb.billobjs,
+        );
         return obj;
     default:
         throw new RangeError(`obj_extract_self: invalid where=${obj.where}`);
@@ -3456,7 +3465,7 @@ export function delobj_core(obj, force, env = {}) {
 // The shop and concealment helpers called here belong to other source files.
 // Their return values are discarded by C, so this owner records those gaps and
 // continues through the deletion boundary instead of refusing the whole use.
-export function useupf(obj, numused, env = {}) {
+export async function useupf(obj, numused, env = {}) {
     const normalized = inventoryEnv(env);
     const state = normalized.state;
     const at_u = u_at(obj.ox, obj.oy, state);
@@ -3469,7 +3478,7 @@ export function useupf(obj, numused, env = {}) {
     if (!state.context?.mon_moving && costly_spot(otmp.ox, otmp.oy, state)) {
         const room = in_rooms(otmp.ox, otmp.oy, 0, state)[0] ?? 0;
         if ((state.u?.urooms ?? []).includes(room))
-            note_unported('shk.c addtobill');
+            await addtobill(otmp, false, false, false, state, normalized);
         else
             note_unported('shk.c stolen_value');
     }
@@ -3687,8 +3696,6 @@ function preflightObfree(obj, merge, env) {
         const lock = env.state.xlock ?? env.state.context?.xlock;
         if (lock?.box === obj) requiredHook(env, 'resetPick', obj);
     }
-    if (obj.unpaid || merge?.unpaid || obj.where === OBJ_ONBILL)
-        requiredHook(env, 'obfreeShopBill', obj);
     for (let contents = obj.cobj; contents; contents = contents.nobj)
         preflightObfree(contents, null, env);
 }
@@ -3711,9 +3718,8 @@ function comparisonWillDiscover(otmp, obj, state) {
             && !isCleric(state));
 }
 
-// C ref: shk.c obfree(). The general shop bill is not ported; encountering a
-// billed object fails at that seam. Owned startup objects still preserve the
-// source's o_id-based price adjustment when stacks merge.
+// C ref: shk.c obfree(). The bill-entry branch lives in shk.js; ownership
+// cleanup uses the same lifecycle operations as ordinary inventory objects.
 export function obfree(obj, merge = null, rawEnv = {}) {
     const env = inventoryEnv(rawEnv);
     preflightObfree(obj, merge, env);
@@ -3742,11 +3748,12 @@ export function obfree(obj, merge = null, rawEnv = {}) {
 
     let shopDisposition = null;
     if (obj.unpaid || merge?.unpaid || obj.where === OBJ_ONBILL) {
-        const disposition = requiredHook(env, 'obfreeShopBill', obj)(
+        const disposition = (env.hooks.obfreeShopBill ?? obfree_shop_bill)(
             obj,
             merge,
             env,
         );
+        if (disposition === 'preserved') return;
         if (disposition === 'retained') {
             if (merge)
                 throw new Error('obfreeShopBill cannot retain a merged object');
@@ -4061,11 +4068,7 @@ function resetJustPicked(head) {
 }
 
 function clearContainedNoCharge(container) {
-    for (let obj = container.cobj; obj; obj = obj.nobj) {
-        if (obj.oclass !== COIN_CLASS)
-            obj.no_charge = false;
-        if (obj.cobj) clearContainedNoCharge(obj);
-    }
+    picked_container(container);
 }
 
 function specialPrize(obj, state) {
@@ -5040,7 +5043,8 @@ const CURRENCIES = Object.freeze([
 ]);
 
 export function currency(amount, state = game, env = {}) {
-    const displayRandom = env.displayRandom ?? rn2_on_display_rng;
+    const displayRandom = env.displayRandom
+        ?? ((range) => rn2_on_display_rng(range, state));
     const res = isHallucinating({ state })
         ? CURRENCIES[displayRandom(CURRENCIES.length)]
         : 'zorkmid';

@@ -42,7 +42,6 @@ import {
     NON_PM,
     NOT_HUNGRY,
     NO_SPELL,
-    OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
     OVERLOADED,
@@ -100,7 +99,6 @@ import {
     CORPSE,
     DAGGER,
     OIL_LAMP,
-    ROCK,
     SACK,
     TOOL_CLASS,
 } from '../js/objects.js';
@@ -111,7 +109,6 @@ import {
     place_object,
 } from '../js/obj.js';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
-import { UnsupportedMonsterPickupOperationError } from '../js/steal.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
@@ -2776,15 +2773,13 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
     async () => {
         for (const [name, buildObject, refusal] of [
             [
-                // objnam.c's shop price suffix is unported. Any guarded branch
-                // of doname() would serve; this is the cheapest to set, and it
-                // is the same one the sibling case in
-                // scripts/unported-monster-actions.test.mjs uses.
+                // A user-assigned type name still reaches preflightXname's
+                // unported branch. The former unpaid-price guard is gone.
                 'naming',
-                (x, y) => Object.assign(
-                    fetchedFloorObject(x, y, DAGGER, 9301),
-                    { unpaid: true },
-                ),
+                (x, y) => {
+                    game.objects[DAGGER].oc_uname = 'needle';
+                    return fetchedFloorObject(x, y, DAGGER, 9301);
+                },
                 UnsupportedObjectNameError,
             ],
             [
@@ -2799,23 +2794,6 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
                     { quan: 2, owt: 20, unpaid: true },
                 ),
                 UnsupportedObjectOperationError,
-            ],
-            [
-                // steal.c mpickobj() bills a container whose contents are
-                // unpaid as well as an unpaid object, and count_unpaid() is
-                // what reads the difference. The sack itself is paid for, so
-                // the name formats and the refusal lands one owner further on.
-                'pickup',
-                (x, y) => {
-                    const sack = fetchedFloorObject(x, y, SACK, 9303);
-                    const inside = fetchedFloorObject(0, 0, ROCK, 9304);
-                    inside.where = OBJ_CONTAINED;
-                    inside.unpaid = true;
-                    inside.v = sack;
-                    sack.cobj = inside;
-                    return sack;
-                },
-                UnsupportedMonsterPickupOperationError,
             ],
         ]) {
             const replay = await prepareFetchingPet(buildObject);

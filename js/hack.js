@@ -363,11 +363,14 @@ import { enexto, goodpos, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
+    addtobill,
     block_door,
     block_entry,
     costly_spot,
+    onshopbill,
     preflight_shop_transition,
     shop_keeper,
+    subfrombill,
     UnsupportedShopError,
 } from './shk.js';
 import {
@@ -2199,12 +2202,14 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     } else {
         newsym(sx, sy);
     }
-    // 217-240. These calls have no return value, so they are recorded as
-    // allowed gaps until the shop billing owner lands.
+    // 217-240. Crossing the free spot can add or remove the boulder's bill.
+    let shkp;
     if (env.costly && !costly_spot(rx, ry, state)) {
-        note_unported('shk.c addtobill');
-    } else if (!env.costly && costly_spot(rx, ry, state) && otmp.unpaid) {
-        note_unported('shk.c onshopbill/subfrombill');
+        await addtobill(otmp, false, false, false, state, env);
+    } else if (!env.costly && costly_spot(rx, ry, state) && otmp.unpaid
+        && (shkp = shop_keeper(in_rooms(rx, ry, SHOPBASE, state)[0], state))
+        && onshopbill(otmp, shkp, true)) {
+        subfrombill(otmp, shkp, state, env);
     } else if (otmp.unpaid) {
         note_unported('shk.c find_objowner/stolen_value');
     }

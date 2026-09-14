@@ -428,12 +428,25 @@ function clonedRandom(state) {
 }
 
 function cloneMonster(monster) {
+    const sourceShop = monster.mextra?.eshk;
+    const bill = Array.isArray(sourceShop?.bill)
+        ? sourceShop.bill.map(entry => ({ ...entry })) : sourceShop?.bill;
+    const eshk = sourceShop ? {
+        ...sourceShop,
+        bill,
+        // bill_p normally aliases bill after entering a shop. Preserve that
+        // alias while isolating subfrombill/obfree's in-place entry updates.
+        bill_p: sourceShop.bill_p === sourceShop.bill ? bill
+            : Array.isArray(sourceShop.bill_p)
+                ? sourceShop.bill_p.map(entry => ({ ...entry })) : sourceShop.bill_p,
+    } : sourceShop;
     return {
         ...monster,
         mgoal: monster.mgoal ? { ...monster.mgoal } : monster.mgoal,
         mtrack: monster.mtrack?.map((position) => ({ ...position })),
         mextra: monster.mextra ? {
             ...monster.mextra,
+            eshk,
             edog: monster.mextra.edog ? {
                 ...monster.mextra.edog,
                 ogoal: { ...monster.mextra.edog.ogoal },
@@ -490,6 +503,7 @@ function cloneObjects(state, monsterMap) {
     };
     enqueue(state.level?.objlist);
     enqueue(state.invent);
+    enqueue(state.gb?.billobjs);
     for (const monster of monsterMap.keys()) enqueue(monster.minvent);
     while (pending.length) {
         const original = pending.pop();
@@ -566,6 +580,10 @@ function planningState(state) {
             objlist: clonedObject(state.level.objlist),
             flags: { ...state.level.flags },
             monlist: monsterMap.get(state.level.monlist) ?? null,
+            rooms: state.level.rooms.map(room => ({
+                ...room,
+                resident: monsterMap.get(room.resident) ?? room.resident,
+            })),
             regions: state.level.regions.map((region) => ({
                 ...region,
                 monsters: [...(region.monsters ?? [])],
@@ -710,6 +728,7 @@ function planningState(state) {
         gb: state.gb ? {
             ...state.gb,
             bhitpos: { ...(state.gb.bhitpos ?? {}) },
+            billobjs: objectMap.get(state.gb.billobjs) ?? null,
         } : state.gb,
         gg: { ...state.gg },
         gn: { ...(state.gn ?? {}) },

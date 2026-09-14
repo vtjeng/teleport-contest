@@ -125,7 +125,7 @@ test('ordinary migration clears charges and transfers the live monster', () => {
 
     assert.deepEqual(events, [['newsym', MONSTER_X, MONSTER_Y]]);
     assert.equal(container.no_charge, false);
-    assert.equal(containedItem.no_charge, false);
+    assert.equal(containedItem.no_charge, 0); // shk.c picked_container clears it.
     assert.equal(containedCoin.no_charge, true);
     assert.equal(state.level.monlist, follower);
     assert.equal(state.gm.migrating_mons, monster);

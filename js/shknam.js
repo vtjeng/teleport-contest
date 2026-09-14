@@ -19,6 +19,7 @@ import {
     PL_NSIZ,
     ROOM,
     ROOMOFFSET,
+    SHOPBASE,
     SDOOR,
     ismnum,
 } from './const.js';
@@ -45,6 +46,7 @@ import {
     FOOD_CLASS,
     MAXOCLASSES,
     NUM_OBJECTS,
+    RANDOM_CLASS,
     SCR_CHARGING,
     SPE_NOVEL,
     TIN,
@@ -63,6 +65,23 @@ import {
 } from './shtypes_data.js';
 
 const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
+
+// C ref: shknam.c saleable() (805-825).
+export function saleable(shkp, obj, state = game) {
+    const shop = SHTYPES[shkp.mextra.eshk.shoptype - SHOPBASE];
+    if (shop.symb === RANDOM_CLASS) return true;
+    for (const entry of shop.iprobs) {
+        if (!entry.iprob) break;
+        if (entry.itype === VEGETARIAN_CLASS) {
+            if (veggy_item(obj, 0, state)) return true;
+        } else if (entry.itype < 0
+            ? entry.itype === -obj.otyp
+            : entry.itype === obj.oclass) {
+            return true;
+        }
+    }
+    return false;
+}
 
 // C ref: shknam.c shkname() (856-900). The preliminary monster name is
 // overwritten for a shopkeeper, but its display-RNG draws still occur.

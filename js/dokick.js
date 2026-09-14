@@ -127,7 +127,7 @@ import { encumber_msg } from './pickup.js';
 import { ok_to_quest } from './quest.js';
 import { d, rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { is_unpaid } from './shk.js';
+import { is_unpaid, picked_container } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import { is_pool, t_at } from './trap.js';
@@ -1013,7 +1013,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
     }
     if (unpaid || shop_floor_obj) {
         note_unported('shk.c stolen_value');
-        if (container) note_unported('shk.c picked_container');
+        if (container) picked_container(obj);
         if (obj.oclass !== COIN_CLASS) obj.no_charge = 0;
     }
     if (obj.owornmask) remove_worn_item(obj, true, state);

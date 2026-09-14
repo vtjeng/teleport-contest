@@ -87,6 +87,7 @@ import { body_part, poly_gender } from './polyself.js';
 import { cansee, couldsee } from './vision.js';
 import { priestname } from './priest.js';
 import { shkname } from './shknam.js';
+import { alter_cost } from './shk.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
@@ -290,7 +291,7 @@ export function oname(obj, name, oflgs, env = {}) {
             note_unported('artifact.c set_artifact_intrinsic()');
         /* if obj is owned by a shop, increase your bill */
         if (obj.unpaid)
-            note_unported('shk.c alter_cost()');
+            alter_cost(obj, 0, state);
         if (via_naming) {
             // do_name.c:414-424 violates illiteracy conduct and writes a
             // livelog event. The counter is gameplay state; the file event is

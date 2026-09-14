@@ -679,7 +679,7 @@ test('useupf splits a stack and leaves the remainder on the floor', async () => 
     // eat.c done_eating(), which passes 1, reaches the split.
     await standOnStairs();
     const pile = putObject(FOOD_RATION, { quan: 3 });
-    useupf(pile, 1, {
+    await useupf(pile, 1, {
         state: game,
         hooks: { extractExternalObject: remove_object },
     });
@@ -688,14 +688,13 @@ test('useupf splits a stack and leaves the remainder on the floor', async () => 
     assert.equal(left.quan, 2);
 });
 
-test('useupf bills through source gaps and continues to its concealment tail', async () => {
-    // invent.c useupf():4774-4779 and :4782-4783. These callees remain
-    // unported, but C discards both results, so useupf() still deletes the
-    // floor object and records each dependency boundary.
+test('useupf awaits shop billing and continues to its concealment tail', async () => {
+    // invent.c useupf():4774-4779 and :4782-4783. The shop call now completes
+    // before deletion; hideunder remains a discarded-return source gap.
     await standOnStairs();
     const pie = putObject(CREAM_PIE);
     makeHeroRoomAShop();
-    assert.doesNotThrow(() => useupf(pie, pie.quan, {
+    await assert.doesNotReject(() => useupf(pie, pie.quan, {
         state: game,
         hooks: { extractExternalObject: remove_object },
     }));
@@ -708,7 +707,7 @@ test('useupf bills through source gaps and continues to its concealment tail', a
     const second = putObject(CREAM_PIE);
     game.youmonst.data = species({ mflags1: M1_CONCEAL });
     game.u.uundetected = 0;
-    useupf(second, second.quan, {
+    await useupf(second, second.quan, {
         state: game,
         hooks: { extractExternalObject: remove_object },
     });
@@ -717,7 +716,7 @@ test('useupf bills through source gaps and continues to its concealment tail', a
     await standOnStairs();
     const third = putObject(CREAM_PIE);
     game.u.uundetected = 1;
-    assert.doesNotThrow(() => useupf(third, third.quan, {
+    await assert.doesNotReject(() => useupf(third, third.quan, {
         state: game,
         hooks: { extractExternalObject: remove_object },
     }));

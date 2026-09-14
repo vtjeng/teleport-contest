@@ -51,7 +51,7 @@ import { distant_name, donameFresh, doname_with_price, yname } from './objnam.js
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
 import { rn2 } from './rng.js';
-import { costly_spot } from './shk.js';
+import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
 import {
     canSeeMonster as canSeeMonsterOnMap,
     canSpotMonster,
@@ -82,6 +82,8 @@ function pickupEnv(rawEnv = {}) {
             dead_species(species, includeGone, env),
         attachFigurineTimer: (obj, env) =>
             attach_fig_transform_timeout(obj, env),
+        findObjectOwner: (obj, x, y, env) => find_objowner(obj, x, y, env.state),
+        subFromBill: (obj, owner, env) => subfrombill(obj, owner, env.state, env),
         ...(rawEnv.hooks ?? {}),
     };
     const suppliedVisibility = rawEnv.canSeeMonster
@@ -533,8 +535,8 @@ export async function steal(mtmp, state = game, env = {}) {
     // set mavenge so knights won't suffer alignment penalty
     mtmp.mavenge = 1;
 
-    // C: if (otmp->unpaid) subfrombill(otmp, shop_keeper(*u.ushops));
-    // Shop billing for stolen items is unported; no session exercises it.
+    if (otmp.unpaid)
+        subfrombill(otmp, shop_keeper(state.u.ushops[0], state), state, env);
 
     freeinv(otmp, { state });
 

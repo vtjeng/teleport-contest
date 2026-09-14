@@ -203,7 +203,7 @@ export async function dosit(state = game) {
                 // mkobj.c remove_object() owns. A cream pie carries no
                 // timer, light source, worn mask or shop bill, so obfree()
                 // needs no hook of its own.
-                useupf(obj, obj.quan, {
+                await useupf(obj, obj.quan, {
                     state,
                     hooks: { extractExternalObject: remove_object },
                 });

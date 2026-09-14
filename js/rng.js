@@ -143,9 +143,9 @@ export function rn2(x) {
 
 // C ref: rn2_on_display_rng(x) — a separate stream for cosmetic choices.
 // Display calls are absent from the recorder's ordinary core RNG log.
-export function rn2_on_display_rng(x) {
+export function rn2_on_display_rng(x, state = game) {
     if (x <= 0) return 0;
-    const val = isaac64_next_uint64(game.displayCtx);
+    const val = isaac64_next_uint64(state.displayCtx);
     return Number(val % BigInt(x));
 }
 

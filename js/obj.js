@@ -11,6 +11,7 @@ import {
     CORPSTAT_MALE,
     CORPSTAT_NEUTER,
     COST_DEGRD,
+    COST_SINGLEOBJ,
     COLNO,
     DB_ICE,
     DB_UNDER,
@@ -186,10 +187,15 @@ import { note_unported } from './unported.js';
 // modules already form a runtime cycle through invent.js; all of these reads
 // occur inside functions, after both modules have initialized.
 import {
+    addtobill,
+    alter_cost,
     costly_adjacent,
     costly_spot,
     find_objowner,
     onshopbill,
+    shop_keeper,
+    subfrombill,
+    unpaid_cost,
 } from './shk.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
@@ -1068,25 +1074,19 @@ export function unknwn_contnr_contents(obj) {
 
 // C ref: mkobj.c bill_dummy_object() (712-751). Creates a dummy copy of otmp
 // and places it on the shop bill so that billing remembers the original state
-// of an object being altered (eaten, charged, etc.). Shop billing functions
-// (unpaid_cost, subfrombill, addtobill, alter_cost) are in shk.c and not yet
-// ported; their calls are recorded as gaps.
-export function bill_dummy_object(otmp, env = {}) {
+// of an object being altered (eaten, charged, etc.).
+export async function bill_dummy_object(otmp, env = {}) {
     const normalized = lifecycleEnv(env);
-    // C: cost = unpaid_cost(otmp, COST_SINGLEOBJ) when otmp->unpaid.
-    // unpaid_cost (shk.c) return value feeds alter_cost (also unported),
-    // so the billing block is skipped as a unit.
+    const state = normalized.state;
+    let cost = 0;
     if (otmp.unpaid) {
-        note_unported('shk.c unpaid_cost');
-        note_unported('shk.c subfrombill');
+        cost = unpaid_cost(otmp, COST_SINGLEOBJ, state);
+        subfrombill(otmp, shop_keeper(state.u.ushops[0], state), state, normalized);
     }
     // C: dummy = newobj(); *dummy = *otmp; then override specific fields.
     // Copy otmp's properties first so nextoid sees the correct otyp/oclass.
     const dummy = newObject();
     Object.assign(dummy, otmp);
-    dummy.nobj = null;
-    dummy.v = null;       // clears nexthere/ocontainer/ocarry union
-    dummy.cobj = null;
     dummy.oextra = null;
     dummy.where = OBJ_FREE;
     dummy.o_id = nextoid(otmp, dummy, normalized);
@@ -1098,10 +1098,9 @@ export function bill_dummy_object(otmp, env = {}) {
     if (isCandle(dummy))
         dummy.lamplit = false;
     dummy.owornmask = 0; /* dummy object is not worn */
-    // C: addtobill(dummy, FALSE, TRUE, TRUE); -- shk.c, not ported.
-    note_unported('shk.c addtobill');
-    // C: if (cost && dummy->where != OBJ_DELETED) alter_cost(dummy, -cost);
-    // alter_cost is void/discarded and in shk.c, not ported.
+    await addtobill(dummy, false, true, true, normalized.state, normalized);
+    if (cost && dummy.where !== OBJ_DELETED)
+        alter_cost(dummy, -cost, state, normalized);
     // no_charge is only valid for some locations.
     otmp.no_charge = otmp.where === OBJ_FLOOR
         || otmp.where === OBJ_CONTAINED;
@@ -3263,10 +3262,8 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
         obj.blessed = horn.blessed;
         obj.cursed = horn.cursed;
         obj.owt = weight(obj, env);
-        // C: if (horn->unpaid) addtobill(obj, FALSE, FALSE, tipping)
-        // addtobill() is in shk.c and not yet ported.
         if (horn.unpaid)
-            note_unported('shk.c addtobill');
+            await addtobill(obj, false, false, tipping, state, env);
         // C: iflags.suppress_price++
         state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
         if (!tipping) {
