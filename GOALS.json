@@ -44518,7 +44518,16 @@
       ],
       "selectionReason": "User-authorized independent seed-worker pilot: worker B follows holdout/seed0002-healer-reflection-drummer without waiting for worker A. Valid investigation investigations/holdout/seed0002-healer-reflection-drummer.json at remaining-screen upper bound 326 traces screen269 to mthrowu.c ohitmon; implement the whole function and required drop_throw/shipping callees. Other seed assignments remain independent.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "ohitmon",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "ohitmon"
+          ]
+        }
+      ],
       "openedAt": "093bc31ee9fd1f82b56d4c008f84ce6879f6f1e9",
       "openStanding": {
         "sha": "093bc31ee9fd1f82b56d4c008f84ce6879f6f1e9",
