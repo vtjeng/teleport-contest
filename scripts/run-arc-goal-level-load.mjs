@@ -51,6 +51,8 @@ function nonDiggableCount() {
 export async function verifyArcGoalSegment(segment) {
     await runSegment(segment);
 
+    // Both independent fixture seeds place the quest branch at dnum 3 and
+    // Arc-goal at its sixth level; these are fixture outcomes, not port constants.
     assert.equal(game.u.uz.dnum, 3);
     assert.equal(game.u.uz.dlevel, 6);
     assert.equal(game.level.flags.is_maze_lev, true);
@@ -58,6 +60,8 @@ export async function verifyArcGoalSegment(segment) {
         game.level.rooms.filter(({ rtype }) => rtype === TEMPLE).length,
         1,
     );
+    // Arc-goal.lua requests seven traps, 28 monsters, 15 objects, one altar
+    // and one stair. The object lower bound permits other generation effects.
     assert.equal(game.level.traps.length, 7);
     assert.equal(linkedCount(game.level.monlist, 'nmon'), 28);
     assert.ok(linkedCount(game.level.objlist, 'nobj') >= 15);

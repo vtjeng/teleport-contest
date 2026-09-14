@@ -45217,7 +45217,7 @@
           "line": 1,
           "endLine": 115,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -45301,7 +45301,62 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Arc-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "arcGoal",
+            "sourceReview": "Complete dat/Arc-goal.lua top-level program, lines 6-115: 20 map rows of 76 columns; 24 regions; mazelevel; one up stair; whole-map non-diggable selection; filled temple; chaos altar; named blessed Orb of Detection spe 5; fourteen random objects; six random traps plus rolling boulder; Minion of Huhetotl; eighteen snakes; eight human mummies; one random mummy-class monster. Descriptor order, coordinates, and random calls are preserved. Coordinator independently read the whole Lua program, all new descriptors and registration, whole makemon gender decision, existing role_init gender initialization and the changed makemon caller. Both leader and nemesis reuse saved source state after explicit gender flags and before the random fallback. No general makemon completion is claimed. Two independently chosen short wizard-menu routes (seeds665431/889123, distinct dates and character genders) recorded25376 matching RNG calls and87 screens/cursors; no animations. Focused loader and makemon tests plus scoped lint passed on039b2c00; root will rerun combined validation. Required dependency: existing initializeGender now receives explicit state, uses quest leader/nemesis identity and role_init's saved gender, matching makemon.c1259-1279; fixed source flags retain priority. Existing makemon production caller passes its normalized state. Coordinator quality and full lint passed; 126 actual named loader/makemon tests passed on the combined integration tree.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Resolves the registered loader, creates the descriptor API, invokes it, and finalizes the level."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "Loads the quest registrations before special-level creation."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Registers the Arc-goal.lua program in the production quest loader table."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "fixup_level_locations",
+                "source": "Maps the Archeologist quest goal to the Arc-goal prototype."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/arc-goal-level-load.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Arc-goal.lua/arc-goal-level-teleport.session.json",
+              "recordings/Arc-goal.lua/arc-goal-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "4aa4a5cbe0bd0c2f3678c524c4f48a8776bb2438"
+          }
+        ],
+        "entryPointReview": "The selected whole Lua program has one level-generation entry point. Both independent short wizard-menu recipes enter Arc-goal through makelevel/makemaz/load_special and verify the generated level; both saved C recordings match completely on the worker candidate. Common-prefix length is not used as proof of independent case selection.",
+        "entryPoints": [
+          {
+            "name": "Arc-goal.lua",
+            "functions": [
+              "Arc-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Arc-goal.lua/arc-goal-level-teleport.session.json",
+              "recordings/Arc-goal.lua/arc-goal-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
