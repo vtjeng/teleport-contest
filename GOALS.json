@@ -41588,7 +41588,16 @@
       "sessions": [],
       "selectionReason": "The refreshed full queue ranks holdout/seed4500-knight-coverage first at step 772 with 1042 remaining screens. Its valid completed cache investigations/holdout/seed4500-knight-coverage.json traces the annotated mkroom.c mkshop RNG boundary to the earlier mklev.c mk_knox_portal owner; this is the first session with a valid investigation, and the source-backed divergence scope is the wizard-gated rn2(3) condition.",
       "detail": "Queue entry: holdout/seed4500-knight-coverage, step 772, kind rng, annotated mkroom.c:193, remainingScreensUpperBound 1042. Source trace: nethack-c/upstream/src/mklev.c:2624-2659 mk_knox_portal short-circuits the rn2(3) deferral when wizard is true; js/mklev.js:872-882 currently evaluates rn2(3) without the !wizard gate, shifting the stream before mkshop. Correct the precondition only; the later place_branch UnsupportedSpecialRoomError remains a separate boundary.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mk_knox_portal",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mk_knox_portal"
+          ]
+        }
+      ],
       "openedAt": "efceab95ee38c24f111e4c455230f80e68d1f612",
       "openStanding": {
         "sha": "efceab95ee38c24f111e4c455230f80e68d1f612",
