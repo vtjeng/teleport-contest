@@ -37588,6 +37588,32 @@
             "doprwep",
             "noarmor"
           ]
+        },
+        {
+          "name": "doprarm..display_minventory",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "doprarm",
+            "doprring",
+            "dopramulet",
+            "tool_being_used",
+            "doprtool",
+            "doprinuse",
+            "useupf",
+            "let_to_name",
+            "free_invbuf",
+            "reassign",
+            "check_invent_gold",
+            "adjust_ok",
+            "adjust_gold_ok",
+            "doorganize",
+            "adjust_split",
+            "doorganize_core",
+            "invdisp_nothing",
+            "worn_wield_only",
+            "display_minventory"
+          ]
         }
       ],
       "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
