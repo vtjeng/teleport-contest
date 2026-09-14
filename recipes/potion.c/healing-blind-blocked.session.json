@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent potion.c healing variation. The first mismatch is wizcmds.c wiz_intrinsic's BLINDED setup: C calls make_blinded and says A cloud of darkness falls upon you, while JS uses its generic timeout message. Later quaff also reaches make_blinded's existing general timed-blindness-restoration refusal. This recipe does not establish completion of either callee.",
+  "segments": [
+    {
+      "seed": 8460017,
+      "datetime": "20320516102347",
+      "nethackrc": "OPTIONS=name:HealingPilot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed potion of healing\n#wizintrinsic\n50i\n qe "
+    }
+  ]
+}

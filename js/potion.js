@@ -16,7 +16,7 @@
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_OIL, the
+// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_HEALING, POT_OIL, the
 // POT_FRUIT_JUICE arm of peffect_see_invisible(), and the ordinary
 // POT_PARALYSIS arm are ported. The other arms throw
 // UnsupportedQuaffError.
@@ -430,14 +430,10 @@ export async function make_blinded(xtime, talk, state = game) {
         && state.urace?.noun === 'human'
         && !(state.u.uprops?.[HALLUC]?.intrinsic
             || state.u.uprops?.[HALLUC]?.extrinsic);
-    // C no-op: xtime=0 on a sighted hero with no blindness timeout.
-    // Carrot eating calls make_blinded(ucreamed, TRUE); when ucreamed=0
-    // and the hero is sighted, C probes u_could_see=true, can_see_now=true
-    // and returns immediately.
-    const sightedNoop = xtime === 0
-        && old === 0
-        && !heroIsBlind(state);
-    if (!silentBlindnessIncrease && !restoresWipedSight && !sightedNoop) {
+    // C makes no transition when both old and xtime are zero, including
+    // permanent and blindfold blindness: those sources remain in place.
+    const unchangedTimeout = xtime === 0 && old === 0;
+    if (!silentBlindnessIncrease && !restoresWipedSight && !unchangedTimeout) {
         throw new UnsupportedPotionError(
             'make_blinded() outside the ordinary cream-pie transitions',
         );
@@ -550,7 +546,7 @@ async function peffect_booze(otmp, state = game) {
             d(2 + state.u.uhs, 8),
         ), false, state);
     }
-    if (!otmp.odiluted) healup(1, 0, false, false, state);
+    if (!otmp.odiluted) await healup(1, 0, false, false, state);
     state.u.uhunger += 10 * (2 + bcsign(otmp));
     const { newuhs } = await import('./eat.js');
     await newuhs(false, state, {
@@ -888,6 +884,16 @@ async function peffect_paralysis(otmp, state = game) {
     await exercise(A_DEX, false, state);
 }
 
+// C ref: potion.c peffect_healing() (1119-1125).
+async function peffect_healing(otmp, state = game) {
+    await ttyPline('You feel better.', state);
+    await healup(8 + d(4 + 2 * bcsign(otmp), 4), !otmp.cursed ? 1 : 0,
+        Boolean(otmp.blessed), !otmp.cursed, state);
+    await exercise(A_CON, true, state, { rn2 }, {
+        encumberMessage: encumber_msg,
+    });
+}
+
 // ---------------------------------------------------------------------------
 // peffects / dopotion / dodrink
 // C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
@@ -947,7 +953,8 @@ export async function peffects(otmp, state = game) {
     case POT_GAIN_LEVEL:
         throw new UnsupportedQuaffError('peffect_gain_level()');
     case POT_HEALING:
-        throw new UnsupportedQuaffError('peffect_healing()');
+        await peffect_healing(otmp, state);
+        break;
     case POT_EXTRA_HEALING:
         throw new UnsupportedQuaffError('peffect_extra_healing()');
     case POT_FULL_HEALING:
@@ -1485,9 +1492,9 @@ export async function potionbreathe(obj, state = game, env = {}) {
 
 // C ref: potion.c healup() (1428-1458). Heals the hero's hit points and
 // optionally cures sickness and blindness. nhp is the hit-point gain, nxtra
-// is an extra max-HP boost when the hero is already at full HP, curesick and
+// is an extra max-HP boost when healing exceeds maximum HP, curesick and
 // cureblind gate make_sick(0) and make_blinded(0) respectively.
-export function healup(nhp, nxtra, curesick, cureblind, state = game) {
+export async function healup(nhp, nxtra, curesick, cureblind, state = game) {
     const u = state.u;
     if (nhp) {
         if (Upolyd(u)) {
@@ -1504,25 +1511,14 @@ export function healup(nhp, nxtra, curesick, cureblind, state = game) {
         }
     }
     if (cureblind) {
-        // C clears u.ucreamed, calls make_blinded(0L, TRUE), and then calls
-        // make_deaf(0L, TRUE). The make_blinded() arm remains unported here;
-        // retain the boundary for every mutable condition it would have to
-        // clear. make_deaf() itself is implemented above, but this synchronous
-        // helper cannot yet await the complete cureblind sequence.
-        const timedBlindness = (u.uprops?.[BLINDED]?.intrinsic ?? 0) & TIMEOUT;
-        const timedDeafness = (u.uprops?.[DEAF]?.intrinsic ?? 0) & TIMEOUT;
-        if (u.ucreamed || timedBlindness || timedDeafness)
-            throw new UnsupportedPotionError(
-                'healup() cureblind arm over make_blinded()',
-            );
-        // No-op: there is no intrinsic condition for C to clear.
+        u.ucreamed = 0;
+        await make_blinded(0, true, state);
+        await make_deaf(0, true, state);
     }
     if (curesick) {
-        // C calls make_vomiting(0L, TRUE) and make_sick(0L, ...). Neither is
-        // ported.
-        throw new UnsupportedPotionError(
-            'healup() curesick arm over make_vomiting() / make_sick()',
-        );
+        // Both C callees return void and are not yet implemented.
+        note_unported('potion.c make_vomiting');
+        note_unported('potion.c make_sick');
     }
     state.disp = state.disp || {};
     state.disp.botl = true;
