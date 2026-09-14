@@ -43540,7 +43540,7 @@
     {
       "id": "pilot-objnam-postparse1-seed0399",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete readobjnam_postparse1 wish parsing and its required tin-variety callee.",
       "cFile": "objnam.c",
       "sessions": [
@@ -43551,8 +43551,8 @@
       "spans": [
         {
           "name": "readobjnam_postparse1",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
           "functions": [
             "readobjnam_postparse1"
           ]
@@ -43564,8 +43564,11 @@
         "screens": 8936,
         "rng": 651740
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
+      "delivered": {
+        "screens": 138,
+        "rng": 23
+      },
       "functions": [
         {
           "name": "readobjnam_postparse1",
@@ -43700,6 +43703,33 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 300,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for a unique object",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 232,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "previousRemainingScreensUpperBound": 370
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
+        "screens": 9083,
+        "rng": 652070
       }
     },
     {
