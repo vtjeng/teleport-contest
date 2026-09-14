@@ -45719,7 +45719,16 @@
       ],
       "selectionReason": "Authorized independent seed-worker pilot: seed0361 first RNG mismatch333, upper33, is missing Arc-fila registration per current completed investigations/seed0361-archeologist-tour.json. Integrate its immutable ready delivery while B continues independently.",
       "detail": "Whole dat/Arc-fila.lua1-59 and production filler dispatch. At raw steps333 the hero enters Home2, above Arc-loca, and the absent fila loader skips Lua initialization and room callbacks. Two independent matching recorded routes reach this entry point. diff-fresh prints334 because its display is one-based; canonical queue step is333.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "Arc-fila.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Arc-fila.lua"
+          ]
+        }
+      ],
       "openedAt": "11b2d9d707e0391d65c554200628d5e4237194ca",
       "openStanding": {
         "sha": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
