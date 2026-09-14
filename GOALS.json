@@ -34538,7 +34538,7 @@
     {
       "id": "div-topl-tty-yn-unrestricted-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve answered unrestricted object prompts through tty_yn_function cleanup",
       "cFile": "topl.c",
       "sessions": [
@@ -34562,8 +34562,11 @@
         "screens": 8463,
         "rng": 630041
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9fc0cc243d5553761502690845a952528001b232",
+      "delivered": {
+        "screens": 7,
+        "rng": 0
+      },
       "function": "tty_yn_function",
       "session": "holdout/seed4500-knight-coverage",
       "step": 621,
@@ -34641,7 +34644,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "9fc0cc243d5553761502690845a952528001b232",
+        "screens": 8470,
+        "rng": 630041
+      }
     }
   ]
 }
