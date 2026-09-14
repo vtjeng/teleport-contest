@@ -1,46 +1,44 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 354,
+  "remainingScreensUpperBound": 332,
   "status": "complete",
-  "commit": "39e83d4f9873b1ebb03e9a567351c8b1c2013387",
+  "commit": "e4301c9d680c462f4000473983f936d0cd18bfae",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 354,
-    "step": 241,
+    "remainingScreensUpperBound": 332,
+    "step": 263,
     "kind": "stop",
-    "function": "peffect_booze",
-    "functionDeclared": false,
-    "sourceFile": "potion.c",
-    "cFile": "potion.c",
+    "function": "nh_timeout",
+    "functionDeclared": true,
+    "sourceFile": "timeout.c",
+    "cFile": "timeout.c",
     "luaFile": null,
-    "line": 771,
-    "message": "quaffing requires peffect_booze()",
+    "line": 588,
+    "message": "elapsed-turn nh_timeout requires no active property timeout at index 14",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "The immobility planning correction passes the dressing callback and moves the first stop from step232 to241 with no prior screen or RNG mismatch. Quaffing the selected booze potion reaches peffects(POT_BOOZE), whose JavaScript dispatcher explicitly refuses peffect_booze. The source owner is the entire potion.c peffect_booze function, not only the observed taste line.",
+  "summary": "The complete booze effect moves the first stop from step 241 to 263 without a prior screen or RNG mismatch. Confusion then reaches its final timed turn. timeout.c nh_timeout restores HConfusion to 1, calls make_confused(0, TRUE), and stops the occupation if confusion cleared; JavaScript has no expiry arm and refuses this property before the turn. This is missing source behavior in the partial nh_timeout implementation, not a planning-only divergence.",
   "source": {
-    "file": "potion.c",
+    "file": "timeout.c",
     "functions": [
-      "peffect_booze"
+      "nh_timeout"
     ],
-    "branch": "Read potion.c:771-792 completely. Increment potion_unkn, diluted/hallucinatory taste, nonblessed confusion using d(2+u.uhs,8) before nutrition, nondiluted healup(1,0,FALSE,FALSE), BUC-scaled nutrition, newuhs(FALSE), Wisdom abuse, then cursed message/direct multi=-rnd(15)/headache nomovemsg. Direct assignment is not nomul and must not reset running, invulnerability, usleep, existing multi_reason or callback.",
+    "branch": "Read the whole timeout.c nh_timeout function, 588-948. The observed branch is CONFUSION expiry at 730-735. The full unit also owns basal luck, invulnerability, condition dialogues, polymorph/cream/spell-protection/gallop clocks, the entire property-expiry switch, and run_timers. The existing JavaScript admits only selected property cases, so completion cannot be limited to the observed confusion branch.",
     "callers": [
-      "js/cmd.js quaff dispatch -> js/potion.js dodrink -> dopotion -> peffects -> POT_BOOZE arm; C potion.c peffects:1346-1348 invokes peffect_booze and falls through to the shared return/tail.",
-      "fountain.c drinksink's random non-water potion can also select booze and calls the same dopotion entry."
+      "C allmain.c moveloop_core calls nh_timeout in once-per-turn upkeep. js/allmain.js finishElapsedTurn invokes js/timeout.js nh_timeout_elapsed_turn during both live upkeep and burdened planning; preflight_nh_timeout_elapsed_turn also runs before committing live movement."
     ],
     "dependencies": [
-      "potion.c make_confused:89-104 and itimeout_incr preserve source timeout arithmetic and state transition flags.",
-      "potion.c healup:1428-1458 supports both ordinary and polymorphed HP arithmetic for this call's false cure flags.",
-      "eat.c newuhs:3362-3510 receives existing message/end-running/status hooks; its separate unported fainting/starvation/death branches are not newly claimed complete.",
-      "attrib.c exercise:489-516 supports Wisdom's rn2(2) without the physical encumbrance callback.",
-      "youprop.h Hallucination:115-120 consumes both intrinsic and extrinsic HALLUC_RES, not HALLUC.blocked. The existing potion-local predicate needs correction for the whole source branch."
+      "potion.c make_confused is already implemented but needs the same planning-safe message argument that make_deaf already accepts. Other existing expiry callees have live display/vision/RNG paths that require isolation before clone admission.",
+      "eat.c eating_dangerous_corpse, 475-494, is a required consumed-return dependency. It reads active eatfood occupation, context.victual.piece, CORPSE and LOW_PM, carried/obj_here identity and acidic/flesh_petrifies. Existing invent.c obj_here and the monster predicates are pure and available; no invent.js edit is needed.",
+      "Existing consumed-return helpers include stone_luck, carrying, find_delayed_killer, acurr, name_to_mon, type_is_pname, hcolor/Monnam, stuck_in_wall, region_danger, inv_weight and unconscious. Each must be checked against its full source contract.",
+      "Unported discarded-return callees in the whole unit must be recorded through note_unported at their exact source call sites. Existing correct countdown branches must remain intact; no new Unsupported error is authorized."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "A fresh focused scan of the source state committed as39e83d4f returned screensEmitted241 of595, divergence=null and quaffing requires peffect_booze(). The remaining screen bound is595-241=354.",
-    "The potion.c peffects switch carries an UnsupportedQuaffError for POT_BOOZE instead of the C function; this is missing source behavior, unlike the preceding planning-only divergence.",
-    "The planned write set is js/potion.js, scripts/potion.test.mjs and independent potion.c recipes/recordings. No edit to eat.js is required."
+    "Focused fresh-process scan on e4301c9d source state reproduced screensEmitted=263 of 595, divergence=null and the index-14 timeout refusal. Remaining bound: 595-263=332. The reference line at the stop says the hero feels less confused.",
+    "The current js/timeout.js preflight admits CONFUSION only above one turn, and decrement_property_timeouts has no CONFUSION arm. Thus removing only its guard would incorrectly fall into the wounded-leg cleanup.",
+    "Coordinator approved the whole nh_timeout unit and distinct eating_dangerous_corpse section in shared eat.js. Peer owns tin_variety_txt, which this span leaves unchanged. Display/planner extensions are being traced and coordinated separately before edits."
   ]
 }
