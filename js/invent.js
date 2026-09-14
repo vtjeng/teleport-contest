@@ -1198,7 +1198,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         state.disp.botl = true; /* May have changed the amount of money */
         if (otmp && !state.in_doagain) {
             if (cntgiven && cnt > 0) cmdq_add_int(CQ_REPEAT, cnt, state);
-            cmdq_add_key(CQ_REPEAT, ilet, state);
+            // cmdq_add_key() stores the raw C key byte. Keep the queue's
+            // numeric representation even though the prompt uses strings.
+            cmdq_add_key(CQ_REPEAT, ilet.charCodeAt(0), state);
         }
         /* verify the chosen object */
         if (!otmp) {

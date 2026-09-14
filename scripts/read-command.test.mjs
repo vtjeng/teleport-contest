@@ -646,9 +646,11 @@ test('declining a fresh known healing spellbook refresh takes no turn',
         game._pending_message,
         /^Refresh your memory anyway\? \[yn\] \(n\) /u,
     );
+    // invent.c getobj() records the selected inventory key before the
+    // refresh question's y_n() answer, so the replay sequence begins with g.
     assert.deepEqual(cmdq_peek(CQ_REPEAT, game), {
         typ: CMDQ_KEY,
-        key: 'n'.charCodeAt(0),
+        key: HEALING_BOOK_LETTER.charCodeAt(0),
     });
 });
 
@@ -682,9 +684,11 @@ test('accepting a known healing refresh stops before study state', async () => {
     assert.equal(game.context.spbook.book, null);
     assert.equal(book.in_use, false);
     assert.equal(game.go?.occupation ?? null, null);
+    // The selected book key precedes the accepted refresh answer in C's
+    // repeat queue.
     assert.deepEqual(cmdq_peek(CQ_REPEAT, game), {
         typ: CMDQ_KEY,
-        key: 'y'.charCodeAt(0),
+        key: HEALING_BOOK_LETTER.charCodeAt(0),
     });
 });
 
