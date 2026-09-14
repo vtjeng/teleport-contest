@@ -540,6 +540,11 @@ canvas {
   background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, var(--goal-in-progress) 3px, var(--goal-in-progress) 6px);
 }
 
+.day-bar.parked, .legend-swatch.parked {
+  border-bottom: 2px dashed var(--ink-primary);
+}
+.legend-swatch.parked { background: var(--goal-paused); }
+
 /* Goals that share time stack in lanes; the script sets each stacked bar's
    top and height inline. The legend shows the stack in two greys so that it
    names no kind. */
@@ -786,6 +791,18 @@ canvas {
   border: 1px solid var(--audit-accent);
 }
 
+/* Parked work keeps its source stripe. Hatching and a text label distinguish
+   it from both completed work and the running goal's green tint. */
+.goal-table tr.parked td {
+  --parked-hatch: color-mix(in srgb, var(--goal-paused) 9%, transparent);
+  background-image: repeating-linear-gradient(135deg,
+    var(--parked-hatch) 0 2px, transparent 2px 8px);
+}
+.goal-table tr.parked:hover td {
+  --parked-hatch: color-mix(in srgb, var(--goal-paused) 16%, transparent);
+}
+.parked-label { color: var(--ink-secondary); font-weight: 600; }
+
 #queueDisclosure summary { cursor: pointer; overflow-wrap: anywhere; }
 #queueDisclosure summary:focus-visible {
   outline: 2px solid var(--ink-secondary);
@@ -944,7 +961,7 @@ canvas {
 
 <div class="section">
   <h3 class="section-title">Goal timeline</h3>
-  <p class="subtitle">Goal intervals from lifecycle records, commits, and score records. Pale bars have estimated start times.</p>
+  <p class="subtitle">Goal intervals from lifecycle records, commits, and score records. Pale bars have estimated start times. Parked bars stop at their last recorded work.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -1592,13 +1609,14 @@ document.getElementById('stats').innerHTML = [
     '<div class="legend-item"><div class="legend-swatch split" style="--bar:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
   ).join('')
     + '<div class="legend-item"><div class="legend-swatch hatched"></div>in progress</div>'
+    + '<div class="legend-item"><div class="legend-swatch parked"></div>parked</div>'
     + '<div class="legend-item"><div class="legend-swatch stacked"></div>goals overlapping, stacked</div>';
 
   function dayStart(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
   function span(g) {
     return {
-      open: new Date(g.openTime).getTime(),
-      close: g.status === 'in-progress' ? builtAt : new Date(g.closeTime).getTime(),
+      open: Date.parse(g.openTime),
+      close: g.status === 'in-progress' ? builtAt : Date.parse(g.closeTime),
     };
   }
 
@@ -1650,6 +1668,7 @@ document.getElementById('stats').innerHTML = [
       const g = DATA.goals[bar.index];
       const cls = 'day-bar ' + g.kind
         + (g.status === 'in-progress' ? ' in-progress' : '')
+        + (g.status === 'parked' ? ' parked' : '')
         + (observedOpenTime(g) ? '' : ' inferred');
       let box = 'left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%';
       if (bar.lanes > 1) {
@@ -1676,7 +1695,7 @@ document.getElementById('stats').innerHTML = [
       const o = span(other);
       return o.open < close && open < o.close;
     });
-    readout.innerHTML = '<div>' + esc(g.name) + '</div><div>'
+    readout.innerHTML = '<div>' + (g.status === 'parked' ? 'Parked · ' : '') + esc(g.name) + '</div><div>'
       + stamp(open) + (inferred ? '\u2020' : '') + ' \u2013 ' + (g.status === 'in-progress' ? 'in progress' : stamp(close))
       + ' \u00b7 ' + fmt((close - open) / 60000)
       + (g.screensDelta == null ? '' : ' \u00b7 ' + fmtDelta(g.screensDelta) + ' screens')
@@ -1701,9 +1720,9 @@ document.getElementById('stats').innerHTML = [
 
   const table = document.getElementById('goalTable');
   const allGoals = [...DATA.goals].reverse();
-  const goals = allGoals.filter(g => g.status === 'in-progress' || (g.totalMin > 0 && g.totalMin < 1440));
+  const goals = allGoals.filter(g => ['in-progress', 'parked'].includes(g.status) || (g.totalMin > 0 && g.totalMin < 1440));
   const hidden = allGoals.length - goals.length;
-  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '') + '. † = inferred start time.';
+  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '') + '. Hatched rows are parked. † = inferred start time.';
 
   const observedOpenTime = goal => ['open-commit', 'goal-record'].includes(goal.openTimeSource);
 
@@ -1724,11 +1743,12 @@ document.getElementById('stats').innerHTML = [
         : g.name;
 
     const deltaCell = fmtDelta(g.screensDelta);
-    const trClasses = [kind ? 'kind-' + kind : '', g.status === 'in-progress' ? 'in-progress' : ''].filter(Boolean);
+    const trClasses = [kind ? 'kind-' + kind : '', ['in-progress', 'parked'].includes(g.status) ? g.status : ''].filter(Boolean);
     const trClass = trClasses.length ? ' class="' + trClasses.join(' ') + '"' : '';
 
-    const startCell = fmtDate(g.openTime) + (observedOpenTime(g) ? '' : ' †');
-    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td></tr>';
+    const startCell = fmtDate(g.openTime) + (g.openTime && !observedOpenTime(g) ? ' †' : '');
+    const parkedLabel = g.status === 'parked' ? '<span class="parked-label">Parked · </span>' : '';
+    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + parkedLabel + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td></tr>';
   });
 
   html += '</tbody>';

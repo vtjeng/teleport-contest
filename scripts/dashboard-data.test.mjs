@@ -662,11 +662,12 @@ test('dashboard separates closed goals and labels inferred timing', () => {
         cwd: fixture,
         encoding: 'utf8',
     }));
-    assert.equal(data.goals.length, 5);
+    assert.equal(data.goals.length, 6); // Five timed goals plus the undated parked record.
     assert.equal(data.summary.totalGoals, 4);
     assert.equal(data.summary.inProgressGoals, 1);
 
-    const [legacy, alpha, orphan, empty, beta] = data.goals;
+    const [legacy, alpha, orphan, empty, beta] = data.goals.filter(goal => goal.status !== 'parked');
+    assert.equal(data.goals.find(goal => goal.name === 'paused-investigation').totalMin, null);
     assert.equal(legacy.kind, 'boundary');
     assert.equal(alpha.kind, 'file-port');
     assert.equal(alpha.cFile, 'alpha.c');
@@ -850,6 +851,88 @@ test('goal lifecycle records suppress score milestones and phantom open goals', 
     assert.equal(data.goals[1].openTimeSource, 'goal-record');
     assert.equal(data.goals[1].openTime, '2026-01-01T00:20:00.000Z');
     assert.equal(data.goals[1].screensDelta, 10);
+});
+
+test('parked goals retain their work without extending into later goals', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-parked-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    // Cross midnight, then park before a different goal starts. The older
+    // score deliberately predates openedAt, as it can in the real register.
+    const baseline = commit(fixture, 'Baseline', '2026-01-02T22:00:00Z');
+    const opening = commit(fixture, 'Open inventory goal', '2026-01-02T23:40:00Z');
+    commit(fixture, 'Queue inventory span', '2026-01-02T23:45:00Z');
+    const parking = commit(fixture, 'Finish inventory span', '2026-01-03T05:20:00Z');
+    const nextOpen = commit(fixture, 'Open next goal', '2026-01-03T05:30:00Z');
+    const nextClose = commit(fixture, 'Finish next goal', '2026-01-03T06:00:00Z');
+    // Distinct standings detect attribution of the next goal's gains to the
+    // parked goal, and prevent inserting a parked row from changing deltas.
+    const before = { sha: baseline, screens: 10, rng: 20 };
+    const parked = { sha: parking, screens: 25, rng: 40 };
+    const after = { sha: nextClose, screens: 30, rng: 50 };
+    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify({ goals: [
+        { id: 'inventory', kind: 'file-port', status: 'parked', openedAt: opening,
+            activeStanding: before, openStanding: before, parkedStanding: parked,
+            parkedReason: 'A level transition takes priority.',
+            // One completed span has no Queue commit; the unstarted queued
+            // span must not count as work completed before parking.
+            spans: [{ status: 'closed' }, { status: 'closed' }, { status: 'queued' }] },
+        // Legacy parking has no end boundary. Keep its history row without
+        // inventing an interval or forcing the other goals into score fallback.
+        { id: 'legacy', kind: 'file-port', status: 'parked', openedAt: baseline,
+            spans: [] },
+        { id: 'next', kind: 'divergence-fix', status: 'closed', openedAt: nextOpen,
+            closedAt: nextClose, closeStanding: after, spans: [] },
+        { id: 'running', kind: 'file-port', status: 'open', openedAt: nextClose,
+            spans: [] },
+    ] }));
+    writeFileSync(join(fixture, 'SCORE.tsv'), [SCORE_HEADER,
+        scoreRow({ utc: '2026-01-03T05:20:00Z', ...parked, event: 'span', note: 'inventory span' }),
+        scoreRow({ utc: '2026-01-03T06:00:00Z', ...after, event: 'goal', note: 'next closes.' }),
+        '',
+    ].join('\n'));
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture, encoding: 'utf8',
+    }));
+    const inventory = data.goals.find(goal => goal.name === 'inventory');
+    assert.equal(inventory?.status, 'parked');
+    assert.equal(inventory.openTime, '2026-01-02T23:40:00.000Z');
+    assert.equal(inventory.closeTime, '2026-01-03T05:20:00.000Z');
+    assert.equal(inventory.totalMin, 340); // 20 minutes before midnight plus 5 h 20.
+    assert.equal(inventory.screensDelta, parked.screens - before.screens);
+    assert.equal(inventory.sliceCount, 2); // Both recorded completions, regardless of commit titles.
+    assert.equal(data.goals.find(goal => goal.name === 'next').screensDelta,
+        after.screens - parked.screens);
+    const legacy = data.goals.find(goal => goal.name === 'legacy');
+    assert.equal(legacy.status, 'parked');
+    assert.equal(legacy.closeTime, null);
+    assert.equal(legacy.totalMin, null);
+    assert.equal(data.summary.totalGoals, 1); // Only the closed goal.
+    assert.equal(data.summary.inProgressGoals, 1); // Only the running goal.
+    // Build a day later: the parked interval must remain at its recorded end.
+    data.summary.generatedAt = '2026-01-04T12:00:00Z';
+    const rendered = renderDashboard(data);
+    const bars = timelineBars(rendered.get('timeline').innerHTML)
+        .filter(bar => data.goals[bar.goal].name === 'inventory');
+    assert.ok(bars.length > 0);
+    assert.ok(bars.every(bar => bar.classes.includes('parked')
+        && !bar.classes.includes('in-progress')));
+    // The total visible width across midnight is 340 minutes of a 24-hour row.
+    assert.ok(Math.abs(bars.reduce((sum, bar) => sum + bar.width, 0) - 340 / 1440 * 100) < 1e-9);
+    assert.match(rendered.get('goalTable').innerHTML, /Parked[\s\S]*inventory/u);
+    assert.match(rendered.get('goalTable').innerHTML, /Parked[\s\S]*legacy/u);
+
+    // When only parked records survive in the register, older closed work
+    // still comes from SCORE.tsv. Parking must not suppress that history.
+    const register = JSON.parse(readFileSync(join(fixture, 'GOALS.json'), 'utf8'));
+    register.goals = register.goals.filter(goal => goal.status === 'parked');
+    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify(register));
+    const historical = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture, encoding: 'utf8',
+    }));
+    assert.equal(historical.goals.find(goal => goal.name === 'next')?.status, 'closed');
+    assert.equal(historical.goals.find(goal => goal.name === 'inventory')?.status, 'parked');
 });
 
 test('in-progress phase provenance follows each recorded boundary', () => {

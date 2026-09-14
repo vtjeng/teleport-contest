@@ -280,9 +280,12 @@ if (existsSync('GOALS.json')) {
 }
 
 const lifecycleRecords = [...goalRecords.values()]
-  .filter(record => record.status === 'closed' || record.status === 'open');
-const hasCompleteLifecycle = lifecycleRecords.length > 0
+  .filter(record => ['closed', 'open', 'parked'].includes(record.status));
+const hasCompleteLifecycle = lifecycleRecords.some(record => record.status !== 'parked')
   && lifecycleRecords.every(record => {
+    // Older parked records may lack a boundary. They still belong in history,
+    // with unknown timing, without discarding the other goals' lifecycle data.
+    if (record.status === 'parked') return true;
     const opened = commitBySha.get(fullShaFor({ sha: record.openedAt }));
     const closed = record.status === 'open'
       || commitBySha.get(fullShaFor({ sha: record.closedAt }));
@@ -298,29 +301,31 @@ const scoreGoals = rawScoreGoals.filter((sg, i) =>
 const scoreSlices = scoreEvents.filter(e => e.event === 'slice' || e.event === 'span');
 
 const goals = [];
+const lifecycleGoals = [];
 
-if (hasCompleteLifecycle) {
+if (hasCompleteLifecycle || lifecycleRecords.some(record => record.status === 'parked')) {
   const records = lifecycleRecords
+    .filter(record => hasCompleteLifecycle || record.status === 'parked')
     .map(record => {
       const initialOpenCommit = commitBySha.get(fullShaFor({ sha: record.openedAt }));
-      // A parked goal's activeStanding is the boundary at which it resumed.
-      // For an uninterrupted goal, openedAt is the lifecycle boundary; the
-      // standing SHA can predate the Open commit when no new score exists yet.
-      const resumed = Boolean(record.parkedStanding);
-      const openCommit = resumed
-        ? commitBySha.get(fullShaFor({ sha: record.activeStanding?.sha }))
-          ?? initialOpenCommit
-        : initialOpenCommit;
+      const activeCommit = commitBySha.get(fullShaFor({ sha: record.activeStanding?.sha }));
+      // On resumption activeStanding advances past the original opening. On
+      // first parking it can still point to a score from before openedAt.
+      const resumed = Boolean(record.parkedStanding && activeCommit
+        && initialOpenCommit && activeCommit.time > initialOpenCommit.time);
+      const openCommit = resumed ? activeCommit : initialOpenCommit;
       return {
         record,
         openCommit,
         resumed,
         closeCommit: record.status === 'closed'
           ? commitBySha.get(fullShaFor({ sha: record.closedAt }))
-          : null,
+          : record.status === 'parked'
+            ? commitBySha.get(fullShaFor({ sha: record.parkedStanding?.sha }))
+            : null,
       };
     })
-    .sort((left, right) => left.openCommit.time - right.openCommit.time);
+    .sort((left, right) => (left.openCommit?.time ?? 0) - (right.openCommit?.time ?? 0));
 
   function scoreForClose(closeCommit) {
     if (!closeCommit) return null;
@@ -392,40 +397,54 @@ if (hasCompleteLifecycle) {
 
   let previousCloseTime = null;
   for (const { record, openCommit, resumed, closeCommit } of records) {
-    const openTime = openCommit.time;
-    const closeTime = closeCommit?.time ?? null;
+    const openTime = openCommit?.time ?? null;
+    // A reused standing can predate opening; it cannot establish a worked
+    // interval for a parked goal.
+    const closeTime = record.status === 'parked' && openTime && closeCommit?.time < openTime
+      ? null : closeCommit?.time ?? null;
     const score = scoreForClose(closeCommit);
-    const latestScore = latestScoreBefore(closeTime ?? new Date());
-    const phases = phaseDetails(openTime, closeTime);
+    const latestScore = closeTime || record.status === 'open'
+      ? latestScoreBefore(closeTime ?? new Date()) : null;
+    // A missing parking boundary is unknown, not an interval ending today.
+    const phases = openTime && (closeTime || record.status === 'open')
+      ? phaseDetails(openTime, closeTime)
+      : { slices: [], totalSliceSelectionMin: 0, totalSliceDurationMin: 0 };
     const lastSlice = phases.slices.at(-1);
     const lastSliceClose = lastSlice?.closeTimeSource === 'score-slice'
       ? new Date(lastSlice.closeTime) : null;
-    const verificationMin = closeTime && lastSliceClose
+    const verificationMin = record.status === 'closed' && closeTime && lastSliceClose
       ? (closeTime - lastSliceClose) / 60000 : null;
-    const goalSelectionMin = previousCloseTime && !resumed
+    const goalSelectionMin = previousCloseTime && openTime && !resumed
       ? (openTime - previousCloseTime) / 60000 : null;
     const screens = record.status === 'closed'
       ? record.closeStanding?.screens ?? score?.screensMatched ?? latestScore?.screensMatched ?? null
-      : null;
+      : record.status === 'parked' ? record.parkedStanding?.screens ?? null : null;
     const rng = record.status === 'closed'
       ? record.closeStanding?.rng ?? score?.rngMatched ?? latestScore?.rngMatched ?? null
-      : null;
+      : record.status === 'parked' ? record.parkedStanding?.rng ?? null : null;
 
-    goals.push({
+    lifecycleGoals.push({
       name: record.id,
-      status: record.status === 'open' ? 'in-progress' : 'closed',
-      openTime: openTime.toISOString(),
-      openTimeSource: 'goal-record',
+      status: record.status === 'open' ? 'in-progress' : record.status,
+      openTime: openTime?.toISOString() ?? null,
+      openTimeSource: openTime ? 'goal-record' : 'unknown',
       closeTime: closeTime?.toISOString() ?? null,
-      closeTimeSource: closeTime ? 'goal-record' : 'current-time-inferred',
-      totalMin: closeTime
+      closeTimeSource: record.status === 'parked'
+        ? closeTime ? 'parked-standing' : 'unknown'
+        : closeTime ? 'goal-record' : 'current-time-inferred',
+      totalMin: openTime && closeTime
         ? Math.round((closeTime - openTime) / 60000 * 10) / 10
-        : Math.round((new Date() - openTime) / 60000 * 10) / 10,
+        : record.status === 'open'
+          ? Math.round((new Date() - openTime) / 60000 * 10) / 10 : null,
       goalSelectionMin: goalSelectionMin !== null ? Math.round(goalSelectionMin * 10) / 10 : null,
       sliceSelectionMin: Math.round(phases.totalSliceSelectionMin * 10) / 10,
       implementationMin: Math.round(phases.totalSliceDurationMin * 10) / 10,
       verificationMin: verificationMin !== null ? Math.round(verificationMin * 10) / 10 : null,
-      sliceCount: phases.slices.length,
+      // Some spans were queued in Open commits whose titles omit "queue".
+      // Parked goals retain the completed spans in the register itself.
+      sliceCount: record.status === 'parked'
+        ? (record.spans ?? []).filter(span => span.status === 'closed').length
+        : phases.slices.length,
       slices: phases.slices,
       goalSelectionObserved: goalSelectionMin !== null,
       sliceSelectionObserved: phases.slices.length > 0
@@ -433,12 +452,13 @@ if (hasCompleteLifecycle) {
       implementationObserved: phases.slices.length > 0
         && phases.slices.every(slice => slice.closeTimeSource === 'score-slice'),
       verificationObserved: verificationMin !== null,
-      totalObserved: Boolean(closeTime),
+      totalObserved: Boolean(openTime && closeTime),
       timingObserved: Boolean(closeTime) && phases.slices.length > 0
         && phases.slices.every(slice => slice.closeTimeSource === 'score-slice'),
       eventType: score?.event ?? (record.kind === 'divergence-fix' ? 'divergence' : 'goal'),
       audits: auditCommits.filter(commit =>
-        commit.time >= openTime && (!closeTime || commit.time <= closeTime)
+        openTime && (closeTime || record.status === 'open')
+        && commit.time >= openTime && (!closeTime || commit.time <= closeTime)
       ).map(commit => ({ time: commit.time.toISOString(), message: commit.message })),
       screens,
       screensTotal: score?.screensTotal ?? latestScore?.screensTotal ?? null,
@@ -446,14 +466,23 @@ if (hasCompleteLifecycle) {
       rngTotal: score?.rngTotal ?? latestScore?.rngTotal ?? null,
       sessions: score?.sessionsPassed ?? latestScore?.sessionsPassed ?? null,
       sessionsTotal: score?.sessionsTotal ?? latestScore?.sessionsTotal ?? null,
+      // Parking records its own starting and ending standings. Keep those
+      // gains even when the preceding history row has no measured score.
+      ...(record.status === 'parked' ? {
+        screensDelta: screens !== null
+          && (record.activeStanding ?? record.openStanding)?.screens != null
+          ? screens - (record.activeStanding ?? record.openStanding).screens : null,
+      } : {}),
     });
     if (closeTime) previousCloseTime = closeTime;
   }
-} else {
+}
+if (!hasCompleteLifecycle) {
 for (let gi = 0; gi < scoreGoals.length; gi++) {
   const sg = scoreGoals[gi];
 
   const name = goalNameFromNote(sg.note);
+  if (goalRecords.get(name)?.status === 'parked') continue;
 
   // Find close commit by SHA
   const closeCommit = commitBySha.get(fullShaFor({ sha: sg.sha }));
@@ -558,6 +587,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
 
   goals.push({
     name,
+    status: 'closed',
     openTime: openTime.toISOString(),
     openTimeSource,
     closeTime: closeTime.toISOString(),
@@ -610,6 +640,7 @@ for (const open of inProgressOpens) {
   const goalMatch = name.match(/^Open\s+(?:the\s+)?(.+?)(?:\s+goal)?$/i);
   if (goalMatch) name = goalMatch[1];
   name = name.replace(/\s*\(.*$/, '').replace(/,.*$/, '').trim();
+  if (goalRecords.get(name)?.status === 'parked') continue;
 
   const now = new Date();
   const openTime = open.time;
@@ -693,6 +724,9 @@ for (const open of inProgressOpens) {
 }
 }
 
+goals.push(...lifecycleGoals);
+goals.sort((left, right) => (Date.parse(left.openTime) || 0) - (Date.parse(right.openTime) || 0));
+
 function completionCounts(record) {
   const functions = record?.functions ?? [];
   const verified = completedFunctionNames(record);
@@ -726,13 +760,13 @@ const workGoals = [...goalRecords.values()]
   }));
 
 // --- Compute per-goal screen deltas ---
-for (let i = 0; i < goals.length; i++) {
-  if (goals[i].screens !== null) {
-    const prevScreens = i > 0 && goals[i - 1].screens !== null ? goals[i - 1].screens : 0;
-    goals[i].screensDelta = goals[i].screens - prevScreens;
-  } else {
-    goals[i].screensDelta = null;
+let previousScreens = 0;
+for (const goal of goals) {
+  if (goal.screensDelta === undefined) {
+    goal.screensDelta = goal.screens !== null ? goal.screens - previousScreens : null;
   }
+  // An older parked row without a score must not reset the next goal's baseline.
+  if (goal.screens !== null) previousScreens = goal.screens;
 }
 
 // --- Saved screen measurements, including spans and divergence fixes ---
@@ -865,7 +899,7 @@ const standaloneAudits = auditCommits
 // --- Summary ---
 
 const latest = progress[progress.length - 1];
-const closedGoals = goals.filter((goal) => goal.status !== 'in-progress');
+const closedGoals = goals.filter((goal) => goal.status === 'closed');
 const recentGoals = closedGoals.slice(-20);
 const recentObservedGoals = recentGoals.filter(
   (goal) => goal.implementationObserved,
@@ -891,7 +925,7 @@ const summary = {
   dataset: 'development',
   generatedAt: new Date().toISOString(),
   totalGoals: closedGoals.length,
-  inProgressGoals: goals.length - closedGoals.length,
+  inProgressGoals: goals.filter(goal => goal.status === 'in-progress').length,
   screens: latest?.screens,
   screensTotal: latest?.screensTotal,
   screensPct: latest ? (latest.screens / latest.screensTotal * 100).toFixed(1) : null,
