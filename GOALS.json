@@ -45743,7 +45743,7 @@
           "line": 1,
           "endLine": 59,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -45827,7 +45827,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Arc-fila.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "arcFila",
+            "sourceReview": "Complete dat/Arc-fila.lua top-level program in source order: six ordinary rooms; up stair in room one; down stair in room four; nine random objects; four random traps; six S-class monster descriptors plus one named human mummy; and random_corridors. The JavaScript descriptor order matches every source contents callback and preserves the final corridor call. Coordinator read the complete Lua program (lines1-59), every JavaScript descriptor, registration and the shared quest-filler dispatch. Compared the newly added arcFila callbacks independently with source: each of the six rooms has a snake-class monster, room4 also has a human mummy, and random_corridors follows the final room. Two independently chosen wizard-menu then Home2 routes match33892RNG100screens/cursors0animations. Existing runtime verifier checks actual quest dnum/dlevel, six ordinary rooms, traps, monster/object lower bounds and stairs.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "Selects the role-specific fila prototype for quest levels above the locate level and dispatches it through makemaz()."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "Resolves the Arc-fila prototype and calls load_special() for the Lua loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Looks up the registered loader, creates the special-level API, invokes arcFila, and applies level post-processing."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "Loads QUEST_LEVEL_LOADERS into the production special-level loader table before dispatch."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Registers the Arc-fila.lua program under the production Arc-fila prototype name."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/arc-fila-level-load.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Arc-fila.lua/arc-fila-level-teleport.session.json",
+              "recordings/Arc-fila.lua/arc-fila-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "c058631f475d071ddc7439f4205ebb671aa22c70"
+          }
+        ],
+        "entryPointReview": "Both fresh recipes were designed independently from the Arc-loca wizard-menu route: each starts a new Archeologist with its own seed and date, selects Arc-loca, then requests Home 2 with the level-teleport command so makelevel selects Arc-fila. The variation changes both the seed/date and character gender; neither recipe copies the fixed seed0361 route.",
+        "entryPoints": [
+          {
+            "name": "Arc-fila.lua",
+            "functions": [
+              "Arc-fila.lua"
+            ],
+            "recordings": [
+              "recordings/Arc-fila.lua/arc-fila-level-teleport.session.json",
+              "recordings/Arc-fila.lua/arc-fila-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

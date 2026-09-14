@@ -8,6 +8,8 @@ import {
 
 test('Arc-fila recipes are independent clean input-only sessions', () => {
     const recipes = loadArcFilaRecipes();
+    // Independent fixture seeds/dates and genders. The suffix selects Arc-loca,
+    // dismisses its arrival messages, then level-teleports to Home2.
     assert.equal(recipes.length, 2);
     assert.deepEqual(recipes.map(({ segments: [segment] }) => [
         segment.seed,

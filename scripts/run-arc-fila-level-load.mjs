@@ -32,6 +32,7 @@ function linkedCount(head, next) {
 export async function verifyArcFilaSegment(segment) {
     await runSegment(segment);
 
+    // Both fixture seeds place the quest at dnum 3; Home2 exercises fila.
     assert.equal(game.u.uz.dnum, 3);
     assert.equal(game.u.uz.dlevel, 2);
     // The runtime keeps an empty sentinel after the six source rooms.
@@ -42,6 +43,7 @@ export async function verifyArcFilaSegment(segment) {
     assert.ok(game.level.rooms
         .filter(({ rtype }) => rtype !== undefined)
         .every(({ rtype }) => rtype === 0));
+    // Arc-fila.lua requests four traps, nine objects and two stairs.
     assert.equal(game.level.traps.length, 4);
     // Class-based S descriptors can create an additional random monster;
     // source accounting is six S descriptors plus one named mummy.
