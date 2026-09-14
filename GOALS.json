@@ -43665,7 +43665,16 @@
       "sessions": [],
       "selectionReason": "User-authorized independent seed-worker pilot: worker B has a ready source-traced fix at holdout/seed0002-healer-reflection-drummer step232, 363 remaining screens. Integration of worker A is temporarily deferred for a concrete correction; this ready delivery proceeds without waiting. investigations/holdout/seed0002-healer-reflection-drummer.json identifies the existing live countdown and the JS-only planning refusal.",
       "detail": "At baseline f1cafd53 the session stops at step232 while burdened and dressing, multi=-5 and afternmv=Armor_on. C allmain.c moveloop_core379-388 counts down and invokes unmul at zero. js/allmain.js live finishElapsedTurn already implements that path, but its planning-only guard rejects it. The general fix plans a validated prefix, executes the live callback once, and replans remaining allocations without another NORMAL_SPEED debit. JS owners: finishElapsedTurn, advanceElapsedTurn, preflightSimpleMonsterActions and planSimpleMonsterTurn.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "immobility-planning",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "moveloop_core"
+          ]
+        }
+      ],
       "openedAt": "f7c80ce6d2f4acbe84177294c90210516ba014fe",
       "openStanding": {
         "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
