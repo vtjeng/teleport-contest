@@ -34093,7 +34093,7 @@
     {
       "id": "port-dungeon-overview-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port dungeon.c dooverview() and its mapseen overview rendering helpers, menu paths, and command wiring.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -34104,8 +34104,8 @@
       "spans": [
         {
           "name": "dooverview..print_mapseen",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "bb0449507becc8da64b355c7acbf68f355500a27",
           "functions": [
             "dooverview",
             "show_overview",
@@ -34125,71 +34125,74 @@
         "screens": 8448,
         "rng": 630041
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bb0449507becc8da64b355c7acbf68f355500a27",
+      "delivered": {
+        "screens": 15,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dooverview",
           "line": 3294,
           "endLine": 3304,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "show_overview",
           "line": 3305,
           "endLine": 3343,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "traverse_mapseenchn",
           "line": 3344,
           "endLine": 3367,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "seen_string",
           "line": 3368,
           "endLine": 3387,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "br_string2",
           "line": 3388,
           "endLine": 3409,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "endgamelevelname",
           "line": 3410,
           "endLine": 3440,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "shop_string",
           "line": 3441,
           "endLine": 3459,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "tunesuffix",
           "line": 3460,
           "endLine": 3515,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "print_mapseen",
           "line": 3516,
           "endLine": 3735,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -34279,7 +34282,258 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dooverview",
+            "implementation": "js/dungeon.js",
+            "symbol": "dooverview",
+            "sourceReview": "Read dungeon.c:3294-3301 in full. dooverview() chooses why=-1 when iflags.menu_requested is set, calls show_overview(why, 0), clears menu_requested after the display, and returns ECMD_OK. The JavaScript command, extended-command, direct-key, and donamelevel paths now reach this implementation; no refusal or injected substitute remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] registers the overview row at :1785-1791 and doextcmd() dispatches its dooverview handler through the resolved function table."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c commands_init():2775 binds M-O and extcmdlist[] binds Ctrl-O; rhack():3682-3818 resolves the command and dispatches dooverview(), then applies the ECMD_OK reset."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "donamelevel",
+                "source": "dungeon.c donamelevel():2571-2577 calls dooverview() when iflags.menu_requested is set by the m-prefix."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dungeon.test.mjs",
+              "scripts/cmd-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/overview-command-independent.session.json",
+              "recordings/dungeon.c/overview-menu-independent.session.json",
+              "recordings/dungeon.c/overview-annotation-independent.session.json"
+            ],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "show_overview",
+            "implementation": "js/dungeon.js",
+            "symbol": "show_overview",
+            "sourceReview": "Read dungeon.c:3303-3341 in full. show_overview() lazily recalculates mapseen, starts one menu, traverses endgame levels before ordinary levels when appropriate while preserving lastdun, ends the menu, uses PICK_NONE for normal/final disclosure and PICK_ONE for why=-1, converts a selected ledger value back to dnum/dlevel, and calls query_annotation(). The JavaScript implementation preserves those branches and menu state through windows.select_menu(); no unported callee is used on the selected paths.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "dooverview",
+                "source": "dungeon.c dooverview():3298 calls show_overview(0,0) normally or show_overview(-1,0) for the m-prefix."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c disclose():696 calls show_overview((how >= PANICKED) ? 1 : 2, how) for final disclosure; the JavaScript caller now passes the same why/reason pair."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/overview-command-independent.session.json",
+              "recordings/dungeon.c/overview-menu-independent.session.json",
+              "recordings/dungeon.c/overview-annotation-independent.session.json"
+            ],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "traverse_mapseenchn",
+            "implementation": "js/dungeon.js",
+            "symbol": "traverse_mapseenchn",
+            "sourceReview": "Read dungeon.c:3344-3363 in full. traverse_mapseenchn() scans the source-ordered mapseen chain, selects only the requested endgame branch, applies interest_mapseen() for normal why=0, computes a new dungeon heading from lastdun, prints each selected record, and updates lastdun after printing. The JavaScript implementation keeps the out-parameter across both passes and includes the source-general interest_mapseen() filtering rules.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "show_overview",
+                "source": "dungeon.c show_overview():3319-3324 invokes traverse_mapseenchn() first for endgame and then for the ordinary branch, passing the same lastdun pointer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/overview-command-independent.session.json",
+              "recordings/dungeon.c/overview-menu-independent.session.json",
+              "recordings/dungeon.c/overview-annotation-independent.session.json"
+            ],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "seen_string",
+            "implementation": "js/dungeon.js",
+            "symbol": "seen_string",
+            "sourceReview": "Read dungeon.c:3368-3382 in full. seen_string() is pure and returns no, an/a based on the vowels table, some, many, or (unknown) for the packed feature count without output, RNG, or state mutation. The JavaScript switch matches all five source outcomes.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "print_mapseen",
+                "source": "dungeon.c print_mapseen():3469-3491 reaches seen_string() through ADDNTOBUF and ADD2NTOBUF while building feature summaries."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "br_string2",
+            "implementation": "js/dungeon.js",
+            "symbol": "br_string2",
+            "sourceReview": "Read dungeon.c:3385-3405 in full. br_string2() is pure: it checks the quest portal/qexpelled special case and returns the exact text for BR_PORTAL, BR_NO_END1, BR_NO_END2, BR_STAIR, or (unknown), with no output, RNG, or state mutation. The JavaScript implementation preserves the source case order and text.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "print_mapseen",
+                "source": "dungeon.c print_mapseen():3598-3611 calls br_string2() when a remembered branch is printed."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "endgamelevelname",
+            "implementation": "js/dungeon.js",
+            "symbol": "endgamelevelname",
+            "sourceReview": "Read dungeon.c:3410-3437 in full. endgamelevelname() is pure and maps -5 to Astral Plane, -4 through -1 to Plane of Water/Fire/Air/Earth, and every other index to unknown plane #N. The existing JavaScript implementation retains the source fallback and has no output, RNG, or state mutation.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "print_mapseen",
+                "source": "dungeon.c print_mapseen():3551-3555 calls endgamelevelname() for endgame level rows."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "shop_string",
+            "implementation": "js/dungeon.js",
+            "symbol": "shop_string",
+            "sourceReview": "Read dungeon.c:3439-3457 in full. shop_string() is pure and subtracts SHOPBASE, returns untended shop for a negative index, then prefers the shop annotation, the shop name, and finally shop?; it performs no output, RNG, or state mutation. The JavaScript implementation reads the generated SHTYPES data in that same order.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "print_mapseen",
+                "source": "dungeon.c print_mapseen():3478-3483 calls shop_string() for the single remembered shop feature before passing it through an()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "tunesuffix",
+            "implementation": "js/dungeon.js",
+            "symbol": "tunesuffix",
+            "sourceReview": "Read dungeon.c:3459-3475 in full. tunesuffix() is pure and emits an empty suffix unless castletune and uheard_tune are both set; heard state 1 uses 5-note tune and state 2 includes svt.tune in the notes string, then appends the exact drawbridge instruction. The JavaScript function returns the same string without output, RNG, or state mutation.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "print_mapseen",
+                "source": "dungeon.c print_mapseen():3584-3587 calls tunesuffix() while rendering the Castle annotation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          },
+          {
+            "name": "print_mapseen",
+            "implementation": "js/dungeon.js",
+            "symbol": "print_mapseen",
+            "sourceReview": "Read dungeon.c:3516-3735 in full. print_mapseen() preserves quest/Knox depth starts, dungeon heading ranges, endgame names, wizard proto names, custom annotations, current-level wording for ordinary and final disclosure, forgotten-level early return, packed feature summaries and alignment text, all mutually exclusive special annotations plus quest summons, branch direction and target level, and cemetery/final-resting-place disclosure with source killer rephrasing. It retains source evaluation order and uses only the existing menu, topology, naming, and killer-format helpers; obsolete final-disclosure-only rendering was removed from end.js.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "traverse_mapseenchn",
+                "source": "dungeon.c traverse_mapseenchn():3358-3361 invokes print_mapseen() for each selected mapseen entry and updates lastdun afterward."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/overview-command-independent.session.json",
+              "recordings/dungeon.c/overview-menu-independent.session.json",
+              "recordings/dungeon.c/overview-annotation-independent.session.json"
+            ],
+            "checkedAt": "bb0449507becc8da64b355c7acbf68f355500a27"
+          }
+        ],
+        "entryPointReview": "The selected range has one command entry point, dooverview(), with three production routes: ordinary #overview, m-prefixed #overview through donamelevel() and the direct command table bindings Ctrl-O/M-O. The ordinary and m-prefixed routes are covered by independent matching recordings; the direct M-O binding is asserted by cmd-span tests and exercised with a raw 0xCF production-loop probe. The recorder recipe transport cannot represent a raw 0xCF byte as a single UTF-8 character, so that probe remains a focused test rather than a committed recording. show_overview() is also reached by final end.c disclosure through end.js with the source why/reason mapping.",
+        "entryPoints": [
+          {
+            "name": "overview command",
+            "functions": [
+              "dooverview",
+              "show_overview",
+              "traverse_mapseenchn",
+              "print_mapseen"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/overview-command-independent.session.json",
+              "recordings/dungeon.c/overview-menu-independent.session.json",
+              "recordings/dungeon.c/overview-annotation-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 621,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1193,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 1200
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "bb0449507becc8da64b355c7acbf68f355500a27",
+        "screens": 8463,
+        "rng": 630041
+      }
     }
   ]
 }
