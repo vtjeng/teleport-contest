@@ -33986,7 +33986,16 @@
       "sessions": [],
       "selectionReason": "Selected holdout/seed4500-knight-coverage as the first per-session candidate with a valid completed investigation at unchanged remainingScreensUpperBound 1235; cache investigations/holdout/seed4500-knight-coverage.json remains valid by the count-only rule and its source-traced owner is timeout.c:nh_timeout().",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, input step 579 (key k/movenorth) now reaches a timed FAST property at index 64 after the prior INVULNERABLE fix. The first mismatch remains an elapsed-turn nh_timeout behavioral stop: C timeout.c:725-729 decrements FAST and, when Very_fast is false, emits You feel yourself slow down. with an optional a bit; JavaScript js/timeout.js currently admits only selected timeout branches and sends FAST expiry to the generic heal_legs()/stop_occupation() fallback. Preserve the separate prayer u.uinvulnerable early return, source-ordered timeout decrement, Fast/Very_fast state, message seam, and planning/live callers in js/allmain.js.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "nh_timeout_fast",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nh_timeout"
+          ]
+        }
+      ],
       "openedAt": "484778bc84e404c8e01aa906cba3dbfa95d088e4",
       "openStanding": {
         "sha": "e99f598cca725f6e39b7d74f4f0a56cbeb188707",
