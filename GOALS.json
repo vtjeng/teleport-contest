@@ -37471,6 +37471,39 @@
             "reorder_invent",
             "merge_choice"
           ]
+        },
+        {
+          "name": "merged..obj_here",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "merged",
+            "addinv_core1",
+            "addinv_core2",
+            "addinv_core0",
+            "addinv",
+            "addinv_before",
+            "addinv_nomerge",
+            "carry_obj_effects",
+            "hold_another_object",
+            "useupall",
+            "useup",
+            "consume_obj_charge",
+            "freeinv_core",
+            "freeinv",
+            "delallobj",
+            "delobj",
+            "delobj_core",
+            "sobj_at",
+            "nxtobj",
+            "carrying",
+            "carrying_stoning_corpse",
+            "currency",
+            "u_carried_gloves",
+            "u_have_novel",
+            "o_on",
+            "obj_here"
+          ]
         }
       ],
       "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
