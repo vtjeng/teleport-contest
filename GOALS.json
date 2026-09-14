@@ -33980,7 +33980,7 @@
     {
       "id": "div-timeout-fast-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix timed FAST expiry in timeout.c nh_timeout() so the elapsed-turn slowdown message and state follow C.",
       "cFile": "timeout.c",
       "sessions": [],
@@ -34002,8 +34002,11 @@
         "screens": 8413,
         "rng": 629901
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c51127af3b4b7041258a708bf2cd222758ce7f3c",
+      "delivered": {
+        "screens": 35,
+        "rng": 140
+      },
       "function": "nh_timeout",
       "session": "holdout/seed4500-knight-coverage",
       "step": 579,
@@ -34080,7 +34083,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "c51127af3b4b7041258a708bf2cd222758ce7f3c",
+        "screens": 8448,
+        "rng": 630041
+      }
     }
   ]
 }

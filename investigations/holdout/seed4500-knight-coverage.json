@@ -1,12 +1,12 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1235,
+  "remainingScreensUpperBound": 1200,
   "status": "complete",
-  "commit": "5fe1e89bdbae7c18355290568ebd1dce6fdcec7c",
+  "commit": "b943474ea93b67358453598cbbe943ff3848fe2d",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1235,
-    "step": 579,
+    "remainingScreensUpperBound": 1200,
+    "step": 614,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,35 +14,45 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "elapsed-turn nh_timeout requires no active property timeout at index 11",
+    "message": "unsupported hero command: dooverview() for the extended command 'overview' is not ported",
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The current boundary is timeout.c nh_timeout() processing the timed INVULNERABLE property at index 11. Steps 574-577 of the assigned recording use #wizintrinsic to set invulnerable and very fast to 30; step 579 is the first elapsed move afterward. C decrements the timed property in nh_timeout() but has no case for INVULNERABLE, so this countdown and its expiry are source inert. The existing JavaScript preflight rejects index 11 before the turn, while its generic expiry fallback would also need to avoid heal_legs() and stop_occupation(). The ordinary prayer flag u.uinvulnerable is a separate field and its early-return guard must remain. This is a source-general timeout divergence fix, with no seed or replay-position special case.",
+  "summary": "The new boundary is the missing dungeon.c dooverview() command. The assigned recording types #overview and at step 614 commits it with Return; C calls show_overview(0,0), recalculates mapseen, builds the Dungeons of Doom menu with Level 1/25/40, waits in PICK_NONE, and the next Escape dismisses it. JavaScript already has the extcmd row and M-O binding, but ADMITTED_COMMANDS, doextcmd dispatch, direct rhack handling, and the source-general overview renderer are missing. The existing end.js final-disclosure helper is explicitly partial and cannot supply normal overview branches. This is a source-general dungeon.c file-port with mapseen/menu wiring, not a seed-specific fix.",
   "source": {
-    "file": "timeout.c",
+    "file": "dungeon.c",
     "functions": [
-      "nh_timeout"
+      "dooverview",
+      "show_overview",
+      "traverse_mapseenchn",
+      "interest_mapseen",
+      "seen_string",
+      "br_string2",
+      "shop_string",
+      "tunesuffix",
+      "print_mapseen"
     ],
-    "branch": "When u.uprops[INVULNERABLE].intrinsic has a TIMEOUT value and u.uinvulnerable is false, nh_timeout() reaches the per-property loop at lines 669-671, decrements the timeout, and falls through the expiry switch because no case INVULNERABLE exists. The current witness has a value of 30 established by #wizintrinsic, so step 579 takes the non-expiring decrement path; the expiry path must remain a no-op as well.",
+    "branch": "For an ordinary in-progress #overview, iflags.menu_requested is false, so dooverview() calls show_overview(0,0), recalc_mapseen(), traverses non-endgame mapseen entries whose interest_mapseen() is true, renders source-ordered dungeon headings and level/feature/annotation/branch lines with print_mapseen(), then selects PICK_NONE. An m-prefixed overview uses why=-1 and PICK_ONE, assigning ledger values and routing a selected level to query_annotation(); the current witness takes the plain display-only branch and dismisses it with Escape.",
     "callers": [
-      "nethack-c/upstream/src/allmain.c:273 calls nh_timeout() once after the per-turn monster and hero work; js/allmain.js:811 calls nh_timeout_elapsed_turn() and js/allmain.js:1162 preflights the same elapsed-turn work.",
-      "js/allmain.js:796-811 performs the live timeout call after the movement and regeneration phases, preserving the source ordering that the current boundary reaches."
+      "nethack-c/upstream/src/cmd.c:1785-1791 and :2775 bind dooverview() to the overview extended-command row/Ctrl-O and M-O; js/extcmdlist_data.js:93 and js/command_bindings.js:30 carry those bindings.",
+      "nethack-c/upstream/src/dungeon.c:2571-2577 donamelevel() calls dooverview() when iflags.menu_requested; js/dungeon.js:1815-1826 currently refuses that branch.",
+      "nethack-c/upstream/src/cmd.c:3727-3748 calls the resolved handler and the ECMD_OK result returns to the command loop; js/cmd.js:4892-5151 and :5189+ own extended/direct dispatch and currently omit dooverview."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/wizcmds.c:1008-1078 selects simple properties through incr_itimeout(); js/wizcmds.js:334-379 mirrors that producer and writes INVULNERABLE (js/const.js:2437, numeric index 11) into u.uprops.",
-      "nethack-c/upstream/include/prop.h:29 and js/const.js:2437 identify INVULNERABLE as property 11; nethack-c/upstream/include/youprop.h:73 defines Invulnerable from that timed property, while nethack-c/upstream/include/you.h:435 defines u.uinvulnerable separately for prayer protection.",
-      "js/timeout.js:463-523 is the rejecting preflight and js/timeout.js:595-660 is the countdown/expiry implementation; admit timed INVULNERABLE there and give its expiry an explicit source-inert path before the generic heal_legs() fallback.",
-      "The timed property is consumed by ordinary property checks such as js/explode.js:571-574, so the fix must decrement the property while preserving the active-property state and must not clear or conflate it with the prayer flag."
+      "nethack-c/upstream/src/dungeon.c:3303-3728 show_overview/traverse/print_mapseen plus :2878-2923 interest_mapseen provide the menu data and filtering; js/dungeon.js:1958-2004 has only the current ordinary recalc_mapseen slice, while js/end.js:933-978 is a final-disclosure-only partial helper.",
+      "nethack-c/upstream/src/dungeon.c:3367-3476 seen_string(), br_string2(), endgamelevelname(), shop_string(), and tunesuffix() supply pure text and branch annotations; js/dungeon.js:558-571 already ports endgamelevelname(), but the other overview helpers are absent.",
+      "js/windows.js:77-82 add_menu_heading() and :122+ select_menu(), together with js/tty_menu.js:1449-1452 PICK_NONE handling, supply the display-only menu and Escape dismissal; use the source ordering and menu headings.",
+      "nethack-c/upstream/src/cmd.c:1785-1791 sets CMD_M_PREFIX, so wiring must preserve iflags.menu_requested: plain #overview is PICK_NONE while m#overview is PICK_ONE and may call the existing js/dungeon.js query_annotation() current/different-level paths."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json has SHA 5fe1e89bdbae7c18355290568ebd1dce6fdcec7c and the assigned row reports 579 emitted screens, 1814 recorded steps, and boundary elapsed-turn nh_timeout requires no active property timeout at index 11; its upper bound is 1235.",
-    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 574-577 show the wizard intrinsic menu selections a and r, then the C message Timeout for invulnerable set to 30.  Timeout for very fast set to 30.; step 579 key k (movenorth) emits the seven recorded RNG calls and reaches T:98 before the JavaScript preflight refuses.",
-    "nethack-c/upstream/src/timeout.c:621-622 returns only for the separate u.uinvulnerable prayer flag; lines 669-671 decrement every timed property and lines 673-944 contain no case INVULNERABLE. The direct search rg -n case INVULNERABLE nethack-c/upstream/src/timeout.c produced no matches.",
-    "nethack-c/upstream/src/wizcmds.c:973-1008 maps the first menu item to property INVULNERABLE and adds the default 30-turn timeout; nethack-c/upstream/src/prop.h:29 and nethack-c/upstream/include/youprop.h:73 pin index 11 and its timed-property meaning.",
-    "js/timeout.js:492-523 currently throws no active property timeout at index 11, and js/timeout.js:595-659 sends an unrecognized expiring property to heal_legs()/stop_occupation(); the actionable scope is admission plus a source-inert index-11 expiry branch.",
-    "The required behavior is source-general: preserve timeout decrement, active-property consumers, RNG order, and the separate prayer early return for every timed INVULNERABLE value; do not key it to seed 4500, the Knight role, or step 579."
+    ".cache/scan-cache.json SHA b943474ea93b67358453598cbbe943ff3848fe2d and its assigned row report 614 emitted screens, 1814 recorded steps, and boundary unsupported hero command: dooverview() for the extended command 'overview' is not ported; the remaining-screen upper bound is 1200.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 indexes 605-613 type #overview; index 614 key newline emits inverse heading The Dungeons of Doom: levels 1 to 25, Level 1: <- You are here., Level 25:, Level 40:, and (end), with no RNG; index 615 Escape dismisses it.",
+    "nethack-c/upstream/src/dungeon.c:3292-3340 defines dooverview/show_overview: normal why=0 uses recalc_mapseen and PICK_NONE; an m-prefix uses why=-1 and PICK_ONE with query_annotation.",
+    "nethack-c/upstream/src/dungeon.c:3342-3728 defines traversal/filter/text/menu helper family; :2878-2923 interest_mapseen defines source-general inclusion rules.",
+    "js/cmd.js:1794-1805 excludes overview, :4892-5151 has no dooverview case and currently throws the reported refusal, and :5892+ has no direct overview arm; the extcmd row and M-O binding already exist.",
+    "js/end.js:933-978 explicitly limits its show_overview() to final ordinary-level disclosure and omits branches, annotations, and endgame; it cannot stand in for normal dungeon.c overview.",
+    "The implementation scope is source-general C behavior and production dispatch/menu wiring; do not special-case seed 4500, Knight role, input text, expected headings, or replay step."
   ]
 }
