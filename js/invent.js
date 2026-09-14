@@ -174,7 +174,7 @@ import {
     PM_SAMURAI,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
-import { body_part, mbodypart } from './polyself.js';
+import { body_part } from './polyself.js';
 import { ttyPline, tty_message_menu } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import {
