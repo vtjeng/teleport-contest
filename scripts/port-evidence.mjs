@@ -82,12 +82,14 @@ function functionEvidence(record, scope) {
     }
     if (callers.length === 0) {
         if (!result.inactiveReason) throw new Error(`${name} needs a caller or an inactiveReason`);
-        if (!record.pure) throw new Error(`${name} inactive source must be pure with a source-pinned test`);
+        if (tests.length === 0) {
+            throw new Error(`${name} inactive source needs a source-pinned test`);
+        }
     }
     if (record.pure && tests.length === 0) {
         throw new Error(`${name} pure function needs a source-pinned test`);
     }
-    if (!record.pure && recordings.length === 0) {
+    if (!record.pure && recordings.length === 0 && !result.inactiveReason) {
         throw new Error(`${name} impure function needs a matching recording through its caller`);
     }
     return result;

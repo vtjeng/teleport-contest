@@ -34665,8 +34665,8 @@
       "spans": [
         {
           "name": "can_advance..enhance_weapon_skill",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9564954fe1f71dd805c397639b73814d3d22dca0",
           "functions": [
             "can_advance",
             "could_advance",
@@ -34692,49 +34692,49 @@
           "line": 1156,
           "endLine": 1172,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "could_advance",
           "line": 1173,
           "endLine": 1186,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "peaked_skill",
           "line": 1187,
           "endLine": 1197,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "skill_advance",
           "line": 1198,
           "endLine": 1228,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "add_skills_to_menu",
           "line": 1229,
           "endLine": 1305,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "show_skills",
           "line": 1306,
           "endLine": 1328,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "enhance_weapon_skill",
           "line": 1329,
           "endLine": 1413,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -34818,7 +34818,183 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "can_advance",
+            "implementation": "js/weapon.js",
+            "symbol": "can_advance",
+            "sourceReview": "Read weapon.c:1156-1170 in full. The implementation preserves the restricted, maximum, and total advancement guards before the wizard speedy shortcut, then checks practice and slots in source order. It performs no random draw, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "enhance_weapon_skill",
+                "source": "weapon.c enhance_weapon_skill():1349, 1397 calls can_advance() for its eligibility scan and repeat check."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "weapon_insight",
+                "source": "insight.c:1326 and :1437-1439 call can_advance(FALSE) while describing the hero's skills and weapon readiness."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/weapon.test.mjs",
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          },
+          {
+            "name": "could_advance",
+            "implementation": "js/weapon.js",
+            "symbol": "could_advance",
+            "sourceReview": "Read weapon.c:1173-1182 in full. The implementation preserves the restricted, maximum, and total advancement guards and tests practice without consulting weapon slots, with no random draw, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "enhance_weapon_skill",
+                "source": "weapon.c enhance_weapon_skill():1351 calls could_advance() to annotate a skill that needs more slots."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "add_skills_to_menu",
+                "source": "weapon.c add_skills_to_menu():1270 calls could_advance() when assigning the '*' prefix."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          },
+          {
+            "name": "peaked_skill",
+            "implementation": "js/weapon.js",
+            "symbol": "peaked_skill",
+            "sourceReview": "Read weapon.c:1187-1195 in full. The implementation checks only restriction, current-versus-maximum level, and sufficient practice, preserving the source's omission of skills_advanced. It performs no random draw, output, or state mutation.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "enhance_weapon_skill",
+                "source": "weapon.c enhance_weapon_skill():1353 calls peaked_skill() to annotate a skill that has reached its ceiling."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "add_skills_to_menu",
+                "source": "weapon.c add_skills_to_menu():1272 calls peaked_skill() when assigning the '#' prefix."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          },
+          {
+            "name": "skill_advance",
+            "implementation": "js/weapon.js",
+            "symbol": "skill_advance",
+            "sourceReview": "Read weapon.c:1198-1213 in full. The implementation consumes slots, increments the skill, appends the source skill index to skill_record, emits the most-or-more message, and invokes skill_based_spellbook_id() for spell skills in source order. No callee result is substituted or discarded where the source observes it.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "enhance_weapon_skill",
+                "source": "weapon.c enhance_weapon_skill():1394 calls skill_advance() for the selected menu item's one-based a_int minus one."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/weapon.c/enhance-speedy-debug-knight.session.json"
+            ],
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          },
+          {
+            "name": "add_skills_to_menu",
+            "implementation": "js/weapon.js",
+            "symbol": "add_skills_to_menu",
+            "sourceReview": "Read weapon.c:1229-1302 in full. The implementation computes the longest unrestricted skill name, writes all three headings before restricted-skill filtering, preserves prefix eligibility order, wizard and ordinary column formats, menu-tab refusal, and one-based selectable values. It performs menu output through the caller-owned entries and no random draw.",
+            "callers": [
+              {
+                "path": "js/weapon.js",
+                "symbol": "enhance_weapon_skill",
+                "source": "weapon.c enhance_weapon_skill():1380 calls add_skills_to_menu() with selectable and speedy values after its counters and legends."
+              },
+              {
+                "path": "js/weapon.js",
+                "symbol": "show_skills",
+                "source": "weapon.c show_skills():1314 calls add_skills_to_menu(FALSE,FALSE) before ending and dismissing its menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/weapon.c/enhance-speedy-debug-knight.session.json"
+            ],
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          },
+          {
+            "name": "enhance_weapon_skill",
+            "implementation": "js/weapon.js",
+            "symbol": "enhance_weapon_skill",
+            "sourceReview": "Read weapon.c:1329-1407 in full. The implementation marks TIP_ENHANCE, asks the wizard speedy question with y_n's character-code result, scans eligibility counters, writes legends and menus, uses PICK_ONE or PICK_NONE, advances the selected skill, reports further eligibility, repeats speedy menus, and returns ECMD_OK. The command dispatcher supplies the production select_menu, y_n, and message owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEnhanceCommand",
+                "source": "cmd.c extcmdlist[] registers #enhance at :1716-1717; js/cmd.js dispatches the resolved command through runEnhanceCommand(), which supplies select_menu(), y_n(), and ttyPline()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/weapon.c/enhance-speedy-debug-knight.session.json"
+            ],
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          },
+          {
+            "name": "show_skills",
+            "implementation": "js/weapon.js",
+            "symbol": "show_skills",
+            "sourceReview": "Read weapon.c:1306-1318 in full. show_skills() writes the Skills: disclosure line, creates a standard menu, reuses add_skills_to_menu(FALSE, FALSE), waits with PICK_NONE and an empty prompt, then destroys the menu. The JavaScript owner preserves this order and exposes the DUMPLOG-only helper for direct source-pinned testing.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/enhance-command.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "Only caller end.c:602 is inside #ifdef DUMPLOG (end.c:546-612); recorder builds remove DUMPLOG.",
+            "checkedAt": "9564954fe1f71dd805c397639b73814d3d22dca0"
+          }
+        ],
+        "entryPointReview": "The gameplay entry point is #enhance through js/cmd.js runEnhanceCommand(), registered by js/extcmdlist_data.js and cmd.c extcmdlist[]. The independent debug Knight recording reaches the wizard y_n speedy branch, selects a skill, observes skill_advance's message, rebuilds the menu, and dismisses it. show_skills() is a separate DUMPLOG-only helper called by end.c dump_everything() under #ifdef DUMPLOG; the recorder/reference build excludes that branch, so no production gameplay caller or matching recording exists for it.",
+        "entryPoints": [
+          {
+            "name": "#enhance command",
+            "functions": [
+              "can_advance",
+              "could_advance",
+              "peaked_skill",
+              "skill_advance",
+              "add_skills_to_menu",
+              "enhance_weapon_skill"
+            ],
+            "recordings": [
+              "recordings/weapon.c/enhance-speedy-debug-knight.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

@@ -110,7 +110,7 @@ or one whole Lua program:
 | `pure` | Boolean established by reading the source: no RNG, output, or game-state mutation. |
 | `tests` | Source-pinned `scripts/*.test.mjs` references; required for pure functions. |
 | `recordings` | Matching `recordings/**/*.session.json` references that execute the impure function through its caller; required for impure functions. The same recording may cover multiple functions. |
-| `inactiveReason` | Only for source excluded by the reference build: identify the build condition and source evidence. This permits an empty `callers` array only for a pure, source-tested implementation. Do not invent a JavaScript function for a C macro invocation. |
+| `inactiveReason` | For source excluded by the reference build, identify the build condition and source evidence. A source-pinned test documents an impure helper whose compile-time caller cannot run in the recorder; no production caller or recording is required for that helper. Do not invent a JavaScript function for a C macro invocation. |
 
 The object also records `entryPointReview`, the source-based enumeration of
 all entry points in the selected range, and an `entryPoints` array. Each

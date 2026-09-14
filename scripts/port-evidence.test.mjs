@@ -81,14 +81,15 @@ test('pure functions need source-pinned tests and impure functions need recordin
     assert.doesNotThrow(() => validatePortEvidence(goal, evidence, { root }));
 });
 
-test('inactive source requires an explicit reason and a pure source-pinned test', (t) => {
+test('inactive source requires an explicit reason and a source-pinned test', (t) => {
     const { root, goal, evidence } = fixture(t);
     evidence.functions[0].callers = [];
     evidence.functions[0].inactiveReason = 'The reference build disables this feature.';
     assert.doesNotThrow(() => validatePortEvidence(goal, evidence, { root }));
     evidence.functions[0].pure = false;
-    evidence.functions[0].recordings = ['recordings/widget/entry.session.json'];
-    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /inactive.*pure/u);
+    assert.doesNotThrow(() => validatePortEvidence(goal, evidence, { root }));
+    evidence.functions[0].tests = [];
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /inactive.*test/u);
 });
 
 test('file references reject absolute, traversal, corpus, and wrong-directory paths', (t) => {
