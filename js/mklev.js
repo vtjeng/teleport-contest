@@ -18,6 +18,7 @@ import {
     dungeon_branch,
     find_level,
     init_mapseen,
+    insert_branch,
     level_difficulty,
     on_level,
 } from './dungeon.js';
@@ -858,9 +859,9 @@ async function makelevel(specialLevelLoader = null) {
 // staircase, and the branch is deferred from level to level until one deep
 // enough accepts it.
 //
-// The placement itself stops: insert_branch() rewrites the branch list and
-// place_branch() puts a MAGIC_PORTAL trap on the map, and no level above depth
-// ten can reach either, so what runs here is the deferral and its rn2(3).
+// C calls insert_branch() before place_branch() so Fort Ludios becomes a
+// reachable portal from the accepted vault level. The source endpoint starts
+// as the sentinel dungeon number and remains deferred until this branch runs.
 function mk_knox_portal(x, y) {
     const g = game;
     const br = dungeon_branch('Fort Ludios', g);
@@ -881,9 +882,11 @@ function mk_knox_portal(x, y) {
           && u_depth < depth(g.medusa_level))) /* above Medusa */
         return;
 
-    throw new UnsupportedSpecialRoomError(
-        `mk_knox_portal() placing the Fort Ludios portal at <${x},${y}>`,
-    );
+    // C ref: mklev.c:2654-2659. Replace the bogus source endpoint, restore
+    // branch ordering, and place the portal at the vault's selected corner.
+    Object.assign(source, g.u.uz);
+    insert_branch(br, true, g);
+    place_branch(br, x, y);
 }
 
 // C ref: mklev.c makerooms()

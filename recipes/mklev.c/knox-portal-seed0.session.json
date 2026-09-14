@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 0,
+      "datetime": "20310914091500",
+      "nethackrc": "OPTIONS=name:KnoxPortal,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "comment": "The independently selected seed 0 reaches ordinary D:12 through wizard level teleport. D:12 is below Medusa and can realize a vault; wizard mode accepts mk_knox_portal() after its rn2(3) draw, so the recipe exercises source endpoint correction, branch reinsertion, and MAGIC_PORTAL placement.",
+      "moves": ".\u001612\n"
+    }
+  ]
+}
