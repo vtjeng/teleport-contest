@@ -119,6 +119,7 @@ import {
     freeinv,
     carrying,
     count_unpaid,
+    tally_BUCX,
     dfeature_at,
     getobj,
     merge_choice,
@@ -1912,25 +1913,6 @@ function collect_obj_classes(objs, here, filter) {
         otmp = here ? otmp.nexthere : otmp.nobj;
     }
     return { ilets, itemcount };
-}
-
-// C ref: invent.c:3580-3616. tally_BUCX().
-function tally_BUCX(list, by_nexthere, state) {
-    let bcnt = 0, ucnt = 0, ccnt = 0, xcnt = 0, ocnt = 0, jcnt = 0;
-    for (let obj = list; obj; obj = by_nexthere ? obj.nexthere : obj.nobj) {
-        // Role_if(PM_CLERIC) bknown assignment is not ported.
-        if (obj.pickup_prev) jcnt++;
-        if (obj.oclass === COIN_CLASS) {
-            if (state.flags?.goldX) xcnt++;
-            else ucnt++;
-            continue;
-        }
-        if (!obj.bknown) xcnt++;
-        else if (obj.blessed) bcnt++;
-        else if (obj.cursed) ccnt++;
-        else ucnt++;
-    }
-    return { bcnt, ucnt, ccnt, xcnt, ocnt, jcnt };
 }
 
 // C ref: pickup.c:140-261. query_classes().

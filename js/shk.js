@@ -13,6 +13,8 @@ import {
     ANY_SHOP,
     ACH_SHOP,
     BUFSZ,
+    COST_CONTENTS,
+    COST_SINGLEOBJ,
     CONFLICT,
     DETECT_MONSTERS,
     DEAF,
@@ -1701,23 +1703,74 @@ function next_shkp(shopkeeper, withbill, state) {
 }
 
 // C ref: shk.c onbill() (1135-1155). C returns the bill entry; this returns it
-// or null, which is the same test for every ported caller. eshk.bill_p is
-// never filled, so the search finds nothing. C's two impossible() calls are
-// diagnostics: the "paid obj on bill" one cannot be reached while the bill is
-// empty, and the "unpaid obj" one is suppressed by every ported caller's
-// silent=true.
-function onbill(obj, shopkeeper, silent) {
+// or null, which is the same test for every ported caller. C's two impossible
+// calls are diagnostics: the "paid obj on bill" one cannot be reached while
+// the bill is empty, and the "unpaid obj" one is suppressed by every ported
+// caller's silent=true.
+export function onbill(obj, shopkeeper, silent) {
     const eshkp = shopkeeper?.mextra?.eshk;
     if (eshkp) {
         for (let ct = 0; ct < eshkp.billct; ++ct) {
-            const bp = eshkp.bill_p[ct];
-            if (bp.bo_id === obj.o_id) return bp;
+            const bp = (eshkp.bill_p ?? [])[ct];
+            if (bp && bp.bo_id === obj.o_id) return bp;
         }
     }
     if (obj.unpaid && !silent) {
         throw new UnsupportedShopError('onbill() reporting a stray unpaid item');
     }
     return null;
+}
+
+// C ref: shk.c unpaid_cost() (3260-3305). Bill entries store a per-unit
+// price and a billed quantity; the inventory display asks for either one
+// object or the complete stack. The caller supplies the object known to be
+// unpaid, so a missing bill remains an explicit source diagnostic.
+function containedUnpaidCost(obj, shopkeeper) {
+    let amount = 0;
+    let found = false;
+    for (let child = obj.cobj; child; child = child.nobj) {
+        if (child.oclass === COIN_CLASS) continue;
+        const bill = onbill(child, shopkeeper, true);
+        if (bill) {
+            found = true;
+            amount += Math.trunc(bill.price ?? 0)
+                * Math.trunc(child.quan ?? 1);
+        }
+        if (hasContents(child)) {
+            const nested = containedUnpaidCost(child, shopkeeper);
+            amount += nested.amount;
+            found ||= nested.found;
+        }
+    }
+    return { amount, found };
+}
+
+export function unpaid_cost(obj, costType = 0, state = game) {
+    let amount = 0;
+    let found = null;
+    for (const room of state.u?.ushops ?? []) {
+        if (!room) continue;
+        const shopkeeper = shop_keeper(room, state);
+        if (!shopkeeper) continue;
+        const bill = onbill(obj, shopkeeper, true);
+        if (bill) {
+            found = bill;
+            amount = Math.trunc(bill.price ?? 0);
+            if (costType !== COST_SINGLEOBJ)
+                amount *= Math.trunc(obj.quan ?? 1);
+        }
+        if (costType === COST_CONTENTS && hasContents(obj)) {
+            // contained_cost() stays with the current shopkeeper; recurse on
+            // that keeper instead of restarting the u.ushops scan per child.
+            const nested = containedUnpaidCost(obj, shopkeeper);
+            amount = (found ? amount : 0) + nested.amount;
+            found ||= nested.found ? bill : null;
+        }
+        if (found || (!obj.unpaid && amount)) break;
+    }
+    if (obj.unpaid && !found)
+        note_unported('shk.c unpaid_cost: object was not on a bill');
+    return amount;
 }
 
 // C ref: shk.c onshopbill() (1160-1163). Expose only the boolean answer; the

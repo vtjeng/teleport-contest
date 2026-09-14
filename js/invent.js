@@ -16,6 +16,7 @@ import {
     CMDQ_KEY,
     CMDQ_USER_INPUT,
     CONTAINED_SYM,
+    COST_NOCONTENTS,
     CQ_CANNED,
     CQ_REPEAT,
     INVORDER_SORT,
@@ -97,6 +98,7 @@ import {
     PICK_ANY,
     PICK_NONE,
     PICK_ONE,
+    plur,
     P_SABER,
     P_SHORT_SWORD,
     Upolyd,
@@ -119,6 +121,8 @@ import {
     WORN_HELMET,
     WORN_SHIELD,
     WORN_SHIRT,
+    INV_IN_USE,
+    INV_SHOW_GOLD,
     WIN_ERR,
     WC_PERM_INVENT,
     ALL_FINISHED,
@@ -134,7 +138,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, ing_suffix, visctrl } from './hacklib.js';
+import { digit, ing_suffix, s_suffix, visctrl } from './hacklib.js';
 import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
@@ -172,8 +176,8 @@ import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
-import { displayTtyMenuTextWindow, menuTitleStyle } from './tty_menu.js';
-import { getlin, select_menu } from './windows.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
+import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { def_char_to_objclass } from './drawing.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 import {
@@ -256,6 +260,7 @@ import {
     splitobj,
     unsplitobj,
     carried,
+    unknwn_contnr_contents,
     weight,
 } from './obj.js';
 import { get_obj_location } from './light.js';
@@ -266,6 +271,7 @@ import {
     cxname,
     donameFresh,
     doname_with_price,
+    distant_name,
     not_fully_identified,
     safe_qbuf,
     vtense,
@@ -283,6 +289,7 @@ import {
     shop_keeper,
     shop_debt,
     check_unpaid,
+    unpaid_cost,
     UnsupportedShopError,
     costly_spot,
 } from './shk.js';
@@ -393,22 +400,23 @@ const CLASS_NAMES = Object.freeze([
     'Gems/Stones', 'Boulders/Statues', 'Iron balls', 'Chains', 'Venoms',
 ]);
 
-// C ref: invent.c let_to_name(). Covers the object-class headings the
-// inventory menu asks for. The CONTAINED_SYM heading and the unpaid prefix
-// belong to callers the port does not reach.
+// C ref: invent.c let_to_name(). Converts an object class or the contained
+// item pseudo-class to the heading used by inventory and billing menus.
 export function let_to_name(letter, unpaid, showsym) {
     // C's parameter is named `let`, which JavaScript reserves.
-    if (unpaid) throw new UnsupportedFeatureDescriptionError('unpaid headings');
     const oclass = (letter >= 1 && letter < MAXOCLASSES) ? letter : 0;
-    const class_name = CLASS_NAMES[oclass] ?? CLASS_NAMES[ILLOBJ_CLASS];
-    if (!oclass || !showsym) return class_name;
+    const class_name = letter === CONTAINED_SYM ? 'Bagged/Boxed items'
+        : CLASS_NAMES[oclass] ?? CLASS_NAMES[ILLOBJ_CLASS];
+    const prefix = unpaid ? 'Unpaid ' : '';
+    if (!oclass || !showsym)
+        return `${prefix}${class_name}`;
     // The loop pads short names through byte column seven, then ocsymfmt
     // contributes two more spaces and the quoted compiled-in class symbol.
     const padded = class_name.padEnd(7, ' ');
     const symbol = String.fromCharCode(
         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
     );
-    return `${padded}  ('${symbol}')`;
+    return `${prefix}${padded}  ('${symbol}')`;
 }
 
 // C ref: invent.c hands_obj. getobj() returns this shared sentinel when the
@@ -1353,7 +1361,9 @@ function collect_obj_classes_invent(head, filter, state) {
     return result;
 }
 
-function count_buc_invent(head, type, filter, state) {
+// C ref: invent.c count_buc() (3548-3579). Priests identify bless/curse
+// status as they inspect an object; coins follow the goldX classification.
+export function count_buc(head, type, filter = null, state = game) {
     let count = 0;
     for (let obj = head; obj; obj = obj.nobj) {
         if (state.urole?.mnum === PM_CLERIC)
@@ -1370,6 +1380,29 @@ function count_buc_invent(head, type, filter, state) {
         if (actual === type) count++;
     }
     return count;
+}
+
+// C ref: invent.c tally_BUCX() (3580-3619). Counts each top-level object
+// exactly once, following either nobj or nexthere, while preserving the
+// priest and goldX side effects and the just-picked counter.
+export function tally_BUCX(
+    head, by_nexthere = false, state = game,
+) {
+    const result = { bcnt: 0, ucnt: 0, ccnt: 0, xcnt: 0, ocnt: 0, jcnt: 0 };
+    for (let obj = head; obj;
+        obj = by_nexthere ? obj.nexthere : obj.nobj) {
+        if (state.urole?.mnum === PM_CLERIC)
+            obj.bknown = obj.oclass !== COIN_CLASS;
+        if (obj.pickup_prev) ++result.jcnt;
+        if (obj.oclass === COIN_CLASS) {
+            if (state.flags?.goldX) ++result.xcnt;
+            else ++result.ucnt;
+        } else if (!obj.bknown) ++result.xcnt;
+        else if (obj.blessed) ++result.bcnt;
+        else if (obj.cursed) ++result.ccnt;
+        else ++result.ucnt;
+    }
+    return result;
 }
 
 function count_justpicked_invent(head) {
@@ -1587,13 +1620,13 @@ export async function ggetobj(
     if (ident && ilets.length === 0) return -1;
     ilets.push(' ');
     if (unpaid) ilets.push('u');
-    if (count_buc_invent(inventoryHead(state), BUC_BLESSED, ofilter, state))
+    if (count_buc(inventoryHead(state), BUC_BLESSED, ofilter, state))
         ilets.push('B');
-    if (count_buc_invent(inventoryHead(state), BUC_UNCURSED, ofilter, state))
+    if (count_buc(inventoryHead(state), BUC_UNCURSED, ofilter, state))
         ilets.push('U');
-    if (count_buc_invent(inventoryHead(state), BUC_CURSED, ofilter, state))
+    if (count_buc(inventoryHead(state), BUC_CURSED, ofilter, state))
         ilets.push('C');
-    if (count_buc_invent(inventoryHead(state), BUC_UNKNOWN, ofilter, state))
+    if (count_buc(inventoryHead(state), BUC_UNKNOWN, ofilter, state))
         ilets.push('X');
     if (count_justpicked_invent(inventoryHead(state))) ilets.push('P');
     ilets.push('a', 'i');
@@ -1767,171 +1800,120 @@ export async function display_pickinv(
     allowxtra,
     want_reply,
     state = game,
-    { menu, allowcnt = false } = {},
+    { menu, allowcnt = false, permanent = false } = {},
 ) {
-    // C ref: invent.c display_pickinv() usextra (3084). C computes
-    // usextra = (xtra_choice && allowxtra); when only one is set the
-    // other side is inert. The hands menu entry needs both a description
-    // (xtra_choice) and permission (allowxtra) to appear.
+    const requestedLets = lets && String(lets).length ? String(lets) : null;
     const wizid = Boolean(state.wizard && state.iflags?.override_ID);
     const usextra = Boolean(xtra_choice && allowxtra);
-    const inuseOnly = state.flags.sortloot === 'i';
-    if (state.flags.sortloot === 'f')
-        throw new UnsupportedFeatureDescriptionError('a loot-sorted inventory');
-    if (!state.flags.invlet_constant)
-        reassign(state);
-    if (!state.flags.sortpack && !inuseOnly)
-        throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
-    if (!state.invent) {
+    const doingPermInvent = Boolean(permanent);
+    const mode = Number(state.iflags?.perminv_mode ?? 0);
+    const inuseOnly = doingPermInvent
+        ? Boolean(mode & INV_IN_USE)
+        : state.flags.sortloot === 'i';
+    const showGold = !doingPermInvent || Boolean(mode & INV_SHOW_GOLD);
+
+    // C ref: invent.c display_pickinv() (3084-3111).  The native permanent
+    // inventory window is represented by the explicit `permanent` caller
+    // flag; all other calls use the cached menu window.
+    let n = doingPermInvent && !requestedLets && !want_reply ? 2
+        : requestedLets ? requestedLets.length
+            : !state.invent ? 0 : !state.invent.nobj ? 1 : 2;
+    if (usextra || (n === 1 && (!requestedLets || wizid))) ++n;
+    if (n === 0) {
         await ttyPline('Not carrying anything.', state);
         return null;
     }
+    if (!state.flags.invlet_constant)
+        reassign(state);
 
-    // C ref: invent.c display_pickinv() n-count.  With a lets filter, n is
-    // the number of matching letters; without, n is 0/1/2+ of the full pack.
-    let n;
-    if (lets) {
-        n = lets.length;
-    } else {
-        n = !state.invent ? 0 : !state.invent.nobj ? 1 : 2;
-    }
-    // C skips the single-item message-line shortcut for a full inventory and
-    // for wizard identify, even when exactly one object remains.
-    if (usextra || (n === 1 && (!lets || wizid))) n++;
-
-    // C ref: invent.c display_pickinv() single-item message-line path.
-    // When only one item matches and no menu is forced, show it with
-    // xprname on the message line. C returns the invlet when want_reply
-    // is true; otherwise 0, which the caller reads as "no selection."
-    if (n === 1 && !state.iflags.force_invmenu && !state.iflags.menu_requested) {
+    // C ref: invent.c display_pickinv() (3160-3183).  The single-item arm
+    // uses a message-line menu, including PICK_NONE for display-only calls.
+    if (n === 1 && !state.iflags.force_invmenu
+        && !state.iflags.menu_requested) {
         let match = null;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
-            if (!lets || lets.includes(otmp.invlet)) { match = otmp; break; }
+            if (!requestedLets || requestedLets.includes(otmp.invlet)) {
+                match = otmp;
+                break;
+            }
         }
         if (usextra) {
-            const mesg = xprname(
-                null,
-                xtra_choice,
-                HANDS_SYM,
-                true,
-                0,
-                0,
-                state,
-            );
+            const mesg = xprname(null, xtra_choice, HANDS_SYM, true,
+                0, 0, state);
             const response = await tty_message_menu(
-                HANDS_SYM.charCodeAt(0), PICK_ONE, mesg, state,
-            );
-            const selected = response
-                ? String.fromCharCode(response) : null;
-            return allowcnt && selected
-                ? { value: selected, count: -1 } : selected;
+                HANDS_SYM.charCodeAt(0), PICK_ONE, mesg, state);
+            const selected = response ? String.fromCharCode(response) : null;
+            return allowcnt && selected ? { value: selected, count: -1 }
+                : selected;
         }
-        if (match) {
-            const mesg = xprname(
-                match,
-                null,
-                lets ? lets[0] : match.invlet,
-                true,
-                0,
-                0,
-                state,
-            );
-            const response = await tty_message_menu(
-                match.invlet.charCodeAt(0),
-                want_reply ? PICK_ONE : PICK_NONE,
-                mesg,
-                state,
-            );
-            const selected = want_reply && response
-                ? String.fromCharCode(response) : null;
-            return allowcnt && selected
-                ? { value: selected, count: -1 } : selected;
-        }
-        return null;
+        if (!match) return null;
+        const mesg = xprname(match, null,
+            requestedLets ? requestedLets[0] : match.invlet,
+            true, 0, 0, state);
+        const response = await tty_message_menu(
+            match.invlet.charCodeAt(0), want_reply ? PICK_ONE : PICK_NONE,
+            mesg, state,
+        );
+        const selected = want_reply && response
+            ? String.fromCharCode(response) : null;
+        return allowcnt && selected ? { value: selected, count: -1 }
+            : selected;
     }
 
-    // The multi-item menu path requires both a menu owner and want_reply,
-    // except for wizard identify, whose display-only menu is PICK_NONE (when
-    // every item is already identified) or PICK_ANY (when choices exist).
-    if (!want_reply && !wizid)
-        throw new UnsupportedFeatureDescriptionError('a partial inventory');
-    const unidCount = wizid
-        ? count_unidentified(inventoryHead(state), state) : 0;
-    const menuHow = wizid ? (unidCount ? PICK_ANY : PICK_NONE) : PICK_ONE;
+    const unidCount = wizid ? count_unidentified(inventoryHead(state), state) : 0;
+    const menuHow = wizid ? (unidCount ? PICK_ANY : PICK_NONE)
+        : want_reply ? PICK_ONE : PICK_NONE;
     const menuOwner = menu ?? ((items, _state, how = PICK_ONE) => select_menu(state, {
-        items: items.map((item) => (item.heading
-            ? {
-                ...item,
-                attr: menuTitleStyle(state).titleAttr,
-                color: menuTitleStyle(state).titleColor,
-            }
-            : item)),
+        title: query && String(query).length ? query : undefined,
+        items,
         how,
         returnCount: Boolean(allowcnt),
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     }));
 
-    // Formatting a name marks its type discovered, so every object is checked
-    // for an unported naming branch before any of them is formatted. Without
-    // this, a pack whose fifth item cannot be named would leave the first
-    // four discovered and still refuse the command.
+    // C's name and glyph calls can mutate discovery and consume display RNG.
     for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
-        if (lets && !lets.includes(otmp.invlet)) continue;
+        if (requestedLets && !requestedLets.includes(otmp.invlet)) continue;
         if (wizid && !not_fully_identified(otmp, state)) continue;
         assertObjectNameable(otmp, state);
     }
 
-    // sortloot() with SORTLOOT_INVLET|SORTLOOT_PACK keeps invent order, and
-    // the class walk below is what groups it, exactly as C's nextclass loop
-    // does over flags.inv_order.
+    let sortflags = state.flags.sortloot === 'f'
+        ? SORTLOOT_LOOT : SORTLOOT_INVLET;
+    if (state.flags.sortpack) sortflags |= SORTLOOT_PACK;
+    if (inuseOnly) sortflags = SORTLOOT_INUSE;
+    const fake = !state.uwep && inuseOnly ? {
+        invlet: HANDS_SYM, oclass: ILLOBJ_CLASS, otyp: 0,
+        owornmask: W_WEP, where: OBJ_INVENT, nobj: null,
+    } : null;
+    if (fake) fake.nobj = state.invent;
+    const sortedinvent = sortloot(fake ?? inventoryHead(state), sortflags,
+        false, inuseOnly ? (obj) => is_inuse(obj, state) : null, state);
+    if (fake) {
+        // sortloot()'s filter accepts the synthetic wielded-hands object only
+        // because it carries the same worn and ownership fields as C's copy.
+        const found = sortedinvent.some((entry) => entry.obj === fake);
+        if (!found) sortedinvent.push({
+            obj: fake, str: null, indx: -1, orderclass: 3,
+            subclass: 0, disco: 0, inuse: 12,
+        });
+        sortedinvent.sort((left, right) => sortloot_cmp(
+            left, right, SORTLOOT_INUSE, state,
+        ));
+    }
+
     const items = [];
     let gotsomething = false;
+    let skippedGold = false;
     const wizidFakeobj = wizid ? Object.freeze({}) : null;
-    let inuseFakeobj = null;
-    let sortedInuse = null;
-    if (inuseOnly) {
-        sortedInuse = sortloot(
-            inventoryHead(state),
-            SORTLOOT_INUSE,
-            false,
-            (obj) => is_inuse(obj, state),
-            state,
-        );
-        // invent.c inserts a synthetic wielded-hands row when no primary
-        // weapon exists, then removes it from the linked list after sorting.
-        if (!state.uwep) {
-            inuseFakeobj = {
-                invlet: HANDS_SYM,
-                oclass: ILLOBJ_CLASS,
-                otyp: 0,
-                owornmask: W_WEP,
-                where: OBJ_INVENT,
-                nobj: null,
-            };
-            sortedInuse.push({
-                obj: inuseFakeobj,
-                str: null,
-                indx: -1,
-                orderclass: 3,
-                subclass: 0,
-                disco: 0,
-                inuse: 12,
-            });
-            sortedInuse.sort((left, right) => sortloot_cmp(
-                left, right, SORTLOOT_INUSE, state,
-            ));
-        }
-    }
     if (wizid) {
         let title = 'Debug Identify';
         if (unidCount)
             title += ` -- unidentified or partially identified item${unidCount === 1 ? '' : 's'}`;
         items.push({ text: title });
         if (!unidCount) {
-            items.push({
-                text: '(all items are permanently identified already)',
-            });
+            items.push({ text: '(all items are permanently identified already)' });
             gotsomething = true;
         } else {
             let label = `select ${unidCount === 1 ? 'it' : 'any or all of them'} to permanently identify`;
@@ -1942,105 +1924,112 @@ export async function display_pickinv(
                 groupSelector: String.fromCharCode(state.iflags.override_ID),
                 label,
                 value: wizidFakeobj,
+                skipinvert: true,
             });
             gotsomething = true;
         }
-    }
-    if (xtra_choice && allowxtra
-        && (!lets || lets.includes(HANDS_SYM))) {
-        items.push({
-            selector: HANDS_SYM,
-            label: xtra_choice,
-            value: HANDS_SYM,
-        });
+    } else if (usextra) {
+        items.push({ selector: HANDS_SYM, label: xtra_choice, value: HANDS_SYM });
         gotsomething = true;
     }
+
     if (inuseOnly) {
         let previousOrderclass = 0;
         let inuseCount = 0;
-        for (const entry of sortedInuse) {
+        const headers = state.inuseHeaders ?? [
+            '', 'Miscellaneous', 'Worn Armor',
+            'Wielded/Readied Weapons', 'Accessories',
+        ];
+        for (const entry of sortedinvent) {
             const otmp = entry.obj;
-            if (lets && !lets.includes(otmp.invlet)) continue;
+            if (requestedLets && !requestedLets.includes(otmp.invlet)) continue;
             if (!inuseCount++) {
-                items.push({
-                    text: state.inuseHeader ?? 'Inventory in use',
-                    heading: true,
-                });
+                items.push(add_menu_heading(
+                    doingPermInvent ? 'In use' : 'Inventory in use', state));
             }
             if (entry.orderclass !== previousOrderclass) {
-                const headers = state.inuseHeaders ?? [
-                    '', 'Miscellaneous', 'Worn Armor',
-                    'Wielded/Readied Weapons', 'Accessories',
-                ];
-                items.push({
-                    text: headers[entry.orderclass] ?? '',
-                    heading: true,
-                });
+                items.push(add_menu_heading(headers[entry.orderclass] ?? '', state));
                 previousOrderclass = entry.orderclass;
             }
-            if (otmp === inuseFakeobj) {
-                const hands = `${state.uarmg ? 'gloved' : 'bare'} `
-                    + `${makeplural(body_part(HAND, state.youmonst))}`
-                    + ' (no weapon)';
+            if (otmp === fake) {
                 items.push({
                     selector: HANDS_SYM,
-                    label: hands,
+                    label: `${state.uarmg ? 'gloved' : 'bare'} ${makeplural(body_part(HAND, state.youmonst))} (no weapon)`,
                     value: HANDS_SYM,
                 });
             } else {
-                assertObjectNameable(otmp, state);
                 const glyphInfo = obj_to_glyph(otmp, state);
                 items.push({
                     selector: otmp.invlet,
                     label: donameFresh(otmp, state),
-                    value: otmp.invlet,
+                    value: wizid ? otmp : otmp.invlet,
                     glyphInfo,
                 });
             }
             gotsomething = true;
         }
-    }
-    for (const oclass of (inuseOnly ? [] : state.flags.inv_order)) {
-        let classcount = 0;
-        for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
-            if (otmp.oclass !== oclass) continue;
-            if (lets && !lets.includes(otmp.invlet)) continue;
-            if (wizid && !not_fully_identified(otmp, state)) continue;
-            if (!classcount) {
+    } else {
+        // invent.c walks flags.inv_order, then makes a final pass over its
+        // private venom_inv class so wizard-created venom remains displayable
+        // without becoming a normal inventory-class choice.
+        const classes = [
+            ...(state.flags.inv_order ?? []), VENOM_CLASS,
+        ];
+        const classPasses = state.flags.sortpack ? classes : [null];
+        for (const oclass of classPasses) {
+            let classcount = 0;
+            for (const entry of sortedinvent) {
+                const otmp = entry.obj;
+                if (oclass !== null && otmp.oclass !== oclass) continue;
+                if (requestedLets && !requestedLets.includes(otmp.invlet)) continue;
+                if (wizid && !not_fully_identified(otmp, state)) continue;
+                if (doingPermInvent && !showGold && otmp.invlet === GOLD_SYM
+                    && !otmp.owornmask) {
+                    skippedGold = true;
+                    continue;
+                }
+                if (state.flags.sortpack && !classcount++) {
+                    items.push(add_menu_heading(
+                        let_to_name(oclass, false,
+                            want_reply && state.iflags.menu_head_objsym), state));
+                }
+                const glyphInfo = obj_to_glyph(otmp, state);
                 items.push({
-                    text: let_to_name(
-                        oclass,
-                        false,
-                        want_reply && state.iflags.menu_head_objsym,
-                    ),
-                    heading: true,
+                    selector: otmp.invlet,
+                    label: donameFresh(otmp, state),
+                    value: wizid ? otmp : otmp.invlet,
+                    glyphInfo,
                 });
-                classcount++;
+                gotsomething = true;
             }
-            // display_pickinv() computes the glyph before doname().  That
-            // order is observable under hallucination because both can draw
-            // from the display RNG.
-            const glyphInfo = obj_to_glyph(otmp, state);
-            items.push({
-                selector: otmp.invlet,
-                label: donameFresh(otmp, state),
-                value: wizid ? otmp : otmp.invlet,
-                glyphInfo,
-            });
         }
     }
-    if (query)
-        throw new UnsupportedFeatureDescriptionError('a menu prompt');
+    if (state.iflags.force_invmenu && want_reply && !wizid) {
+        let selector = null;
+        let label = null;
+        if ((allowxtra && !usextra)
+            || (requestedLets && requestedLets.length < inv_cnt(true, state))) {
+            selector = '*'; label = '(list everything)';
+        } else if (!requestedLets) {
+            selector = '?'; label = '(list likely candidates)';
+        }
+        if (selector) {
+            items.push(add_menu_heading('Special', state));
+            items.push({ selector, label, value: selector });
+            gotsomething = true;
+        }
+    }
+    if (doingPermInvent && !requestedLets && !gotsomething) {
+        items.push({
+            text: inuseOnly ? 'Not using any items'
+                : skippedGold ? 'Only carrying gold' : 'Not carrying anything',
+        });
+    }
     const selected = await menuOwner(items, state, menuHow);
     if (!wizid && allowcnt && selected
         && typeof selected === 'object' && !Array.isArray(selected)
-        && Object.hasOwn(selected, 'value'))
-        return selected;
+        && Object.hasOwn(selected, 'value')) return selected;
     if (!wizid) return selected;
-
-    // C clears override_ID before applying a PICK_ANY selection. The command
-    // owner also clears it in its finally block for cancellation and the
-    // display-only zero-unidentified branch.
     if (!Array.isArray(selected) || selected.length === 0) return null;
     state.iflags.override_ID = 0;
     let allId = false;
@@ -2057,12 +2046,75 @@ export async function display_pickinv(
     return null;
 }
 
-// C ref: invent.c display_inventory(). Its queued-key branch needs a command
-// queue, which is not ported; nothing can push one yet.
-export async function display_inventory(lets, want_reply, state, hooks) {
+// C ref: invent.c display_inventory() (3428-3455).  A queued inventory key
+// is consumed before any window is opened; the queue may contain a raw key
+// from itemactions_pushkeys(), so preserve the source's class-symbol filter.
+export async function display_inventory(lets, want_reply, state = game, hooks = {}) {
+    const queued = cmdq_pop(state);
+    if (queued) {
+        if (queued.typ === CMDQ_KEY) {
+            const key = String.fromCharCode(queued.key);
+            for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+                const symbol = String.fromCharCode(
+                    DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + otmp.oclass],
+                );
+                if (otmp.invlet === key
+                    && (!lets || !String(lets).length
+                        || String(lets).includes(symbol))) return key;
+            }
+        }
+        cmdq_clear(CQ_CANNED, state);
+        return null;
+    }
+    return display_pickinv(lets, null, null, false, want_reply, state, hooks);
+}
+
+// C ref: invent.c repopulate_perminvent() (3456-3466). When the permanent
+// inventory window asks for a refresh, display_pickinv() keeps the empty and
+// display-only paths alive so the window removes stale rows.
+export async function repopulate_perminvent(state = game, hooks = {}) {
     return display_pickinv(
-        lets, null, null, false, want_reply, state, hooks,
+        null, null, null, false, false, state,
+        { ...hooks, permanent: true },
     );
+}
+
+// C ref: invent.c display_used_invlets() (3467-3525). The menu lists every
+// occupied inventory letter except avoidlet, preserving class headings when
+// sortpack is enabled and returning the selected letter or null on cancel.
+export async function display_used_invlets(
+    avoidlet = '\0', state = game, hooks = {},
+) {
+    if (!inventoryHead(state)) return null;
+    const items = [];
+    const classes = state.flags.sortpack ? state.flags.inv_order : [null];
+    for (const oclass of classes) {
+        let classcount = 0;
+        for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+            if (oclass !== null && otmp.oclass !== oclass) continue;
+            if (otmp.invlet === avoidlet) continue;
+            if (state.flags.sortpack && !classcount++)
+                items.push(add_menu_heading(
+                    let_to_name(oclass, false, false), state));
+            assertObjectNameable(otmp, state);
+            // C computes the glyph before doname() while building this menu.
+            const glyphInfo = obj_to_glyph(otmp, state);
+            items.push({
+                selector: otmp.invlet,
+                label: donameFresh(otmp, state),
+                value: otmp.invlet,
+                glyphInfo,
+            });
+        }
+    }
+    const menu = hooks.menu ?? ((rows, _state, how = PICK_ONE) => select_menu(state, {
+        title: 'Inventory letters used:',
+        items: rows,
+        how,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    }));
+    return menu(items, state, PICK_ONE);
 }
 
 // C ref: invent.c dispinv_with_action() (2964-3002). When lets has
@@ -4823,6 +4875,141 @@ export function count_unpaid(list) {
         if (obj.cobj) count += count_unpaid(obj.cobj);
     }
     return count;
+}
+
+// C ref: invent.c dounpaid() (3654-3792). Build the same unpaid-object text
+// window, including contained-object disclosure and floor/buried notices.
+// `displayTextWindow` is injectable for focused callers while production uses
+// the shared TTY text-window owner.
+export async function dounpaid(
+    count, floorcount, buriedcount, state = game, hooks = {},
+) {
+    let object = null;
+    let marker = null;
+    let container = null;
+    const extraCount = Math.trunc(floorcount ?? 0) + Math.trunc(buriedcount ?? 0);
+    if (count === 1 && extraCount === 0) {
+        object = find_unpaid(inventoryHead(state), { value: null });
+        container = object ? unknwn_contnr_contents(object) : null;
+    }
+    const formatName = (obj) => distant_name(
+        obj, (value, current) => donameFresh(value, current), state,
+    );
+    const withSuppressedPrice = (fn) => {
+        state.iflags ??= {};
+        const old = state.iflags.suppress_price;
+        state.iflags.suppress_price = Math.trunc(old ?? 0) + 1;
+        try { return fn(); } finally { state.iflags.suppress_price = old; }
+    };
+    if (object && !container) {
+        const cost = unpaid_cost(object, COST_NOCONTENTS, state);
+        const text = withSuppressedPrice(() => xprname(
+            object,
+            formatName(object),
+            carried(object) ? object.invlet : CONTAINED_SYM,
+            true,
+            cost,
+            0,
+            state,
+        ));
+        await ttyPline(text, state);
+        return;
+    }
+
+    if (!state.flags.invlet_constant)
+        reassign(state);
+    const lines = [];
+    let totalCost = 0;
+    let numSoFar = 0;
+    const classes = state.flags.sortpack ? state.flags.inv_order : [null];
+    for (const oclass of classes) {
+        let classcount = 0;
+        for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+            if (oclass !== null && otmp.oclass !== oclass) continue;
+            if (!otmp.unpaid) continue;
+            if (state.flags.sortpack && !classcount++)
+                lines.push(let_to_name(oclass, true, false));
+            const cost = unpaid_cost(otmp, COST_NOCONTENTS, state);
+            totalCost += cost;
+            const text = withSuppressedPrice(() => xprname(
+                otmp, formatName(otmp), otmp.invlet, true, cost, 0, state,
+            ));
+            lines.push(text);
+            ++numSoFar;
+        }
+    }
+    if (count > numSoFar) {
+        if (state.flags.sortpack) lines.push(let_to_name(CONTAINED_SYM, true, false));
+        for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+            if (!hasContents(otmp)) continue;
+            let containedCost = 0;
+            marker = { value: null };
+            while ((object = find_unpaid(otmp.cobj, marker))) {
+                const cost = unpaid_cost(object, COST_NOCONTENTS, state);
+                totalCost += cost;
+                containedCost += cost;
+                if (otmp.cknown) {
+                    lines.push(withSuppressedPrice(() => xprname(
+                        object, formatName(object), CONTAINED_SYM, true,
+                        cost, 0, state,
+                    )));
+                }
+            }
+            if (!otmp.cknown) {
+                const containerName = s_suffix(xnameFresh(otmp, state));
+                lines.push(withSuppressedPrice(() => xprname(
+                    null, `${containerName} contents`, CONTAINED_SYM, true,
+                    containedCost, 0, state,
+                )));
+            }
+        }
+    }
+    if (count > 0) {
+        lines.push('');
+        lines.push(xprname(null, 'Total:', '*', false, totalCost, 0, state));
+    }
+    if (extraCount > 0) {
+        const verb = extraCount > 1 ? 'are' : 'is';
+        const where = buriedcount === 0 ? 'on the floor'
+            : floorcount === 0 ? 'under the floor' : 'on or under the floor';
+        if (!count) {
+            const message = hooks.message ?? ttyPline;
+            await message(
+                `You aren't carrying any unpaid items but there ${verb} `
+                + `${extraCount} ${where}.`, state,
+            );
+        } else {
+            lines.push('');
+            lines.push(`(There ${verb} ${extraCount} more unpaid object${plur(extraCount)} ${where}.)`);
+        }
+    }
+    if (count > 0) {
+        const displayTextWindow = hooks.displayTextWindow
+            ?? ((rows) => displayTtyMenuTextWindow(state, rows));
+        await displayTextWindow(lines, state);
+    }
+}
+
+// C ref: invent.c this_type_only() (3793-3826). `state.gt.this_type` is the
+// JavaScript storage for the C global getobj context used by dotypeinv().
+export function this_type_only(obj, state = game) {
+    const thisType = state.gt?.this_type ?? state.this_type ?? 0;
+    let result = obj.oclass === thisType;
+    if (thisType === 'P') {
+        result = Boolean(obj.pickup_prev);
+    } else if (obj.oclass === COIN_CLASS) {
+        if (thisType && 'BUCX'.includes(thisType))
+            result = thisType === (state.flags?.goldX ? 'X' : 'U');
+    } else {
+        switch (thisType) {
+        case 'B': result = Boolean(obj.bknown && obj.blessed); break;
+        case 'U': result = Boolean(obj.bknown && !obj.blessed && !obj.cursed); break;
+        case 'C': result = Boolean(obj.bknown && obj.cursed); break;
+        case 'X': result = !obj.bknown; break;
+        default: break;
+        }
+    }
+    return result;
 }
 
 // C ref: invent.c doprgold().
