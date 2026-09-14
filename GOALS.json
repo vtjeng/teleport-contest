@@ -43659,7 +43659,7 @@
     {
       "id": "pilot-div-immobility-planning-seed0002",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Repair planning of live immobility countdowns and resume after delayed-action callbacks without a second movement debit.",
       "cFile": "allmain.c",
       "sessions": [],
@@ -43668,8 +43668,8 @@
       "spans": [
         {
           "name": "immobility-planning",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0d21fb528a34b78019d1f29a7f71bffdf9e62b13",
           "functions": [
             "moveloop_core"
           ]
@@ -43681,8 +43681,11 @@
         "screens": 8936,
         "rng": 651740
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0d21fb528a34b78019d1f29a7f71bffdf9e62b13",
+      "delivered": {
+        "screens": 9,
+        "rng": 307
+      },
       "function": "moveloop_core",
       "session": "holdout/seed0002-healer-reflection-drummer",
       "step": 232,
@@ -43765,7 +43768,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "0d21fb528a34b78019d1f29a7f71bffdf9e62b13",
+        "screens": 8945,
+        "rng": 652047
+      }
     }
   ]
 }
