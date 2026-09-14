@@ -34549,8 +34549,8 @@
       "spans": [
         {
           "name": "tty_yn_function-unrestricted-cleanup",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "bfe59d5ea2f14986c6097b33ca7c30aa202dba81",
           "functions": [
             "tty_yn_function"
           ]
