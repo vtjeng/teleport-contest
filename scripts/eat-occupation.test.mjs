@@ -738,11 +738,11 @@ test('fprefx names the spot a food ration hits when the hero is hungry',
             [200, false, 'This food really hits the spot!'],
             [201, false, 'This satiates your stomach!'],
             [699, false, 'This satiates your stomach!'],
-            [700, false, ''],
+            [700, false, 'What do you want to eat? [d or ?*] '],
             [200, true, null] /* "Oh wow, like, superior, man" */,
             [201, true, 'This satiates your stomach!'],
             [699, true, 'This satiates your stomach!'],
-            [700, true, ''],
+            [700, true, 'What do you want to eat? [d or ?*] '],
         ]) {
             await runSegment({ ...segment, moves: '.' });
             game.u.uhunger = uhunger;
@@ -756,8 +756,8 @@ test('fprefx names the spot a food ration hits when the hero is hungry',
                 continue;
             }
             await eat();
-            // getobj() clears the top line once the letter answers it, so
-            // whatever is pending now is fprefx()'s own message.
+            // fprefx() replaces the answered getobj() prompt when it emits a
+            // message; when it says nothing, C leaves that prompt pending.
             assert.equal(game._pending_message, expected, label);
         }
     });
