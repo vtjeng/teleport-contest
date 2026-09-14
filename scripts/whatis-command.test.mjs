@@ -59,7 +59,9 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import {
+    BALL_CLASS,
     CHEST,
+    HEAVY_IRON_BALL,
     POT_WATER,
     ROCK_CLASS,
     STATUE,
@@ -171,6 +173,36 @@ test('self_lookat names the ordinary human Wizard from C state', () => {
         },
     };
     assert.equal(self_lookat(state), 'human wizard called merlin');
+});
+
+test('self_lookat appends the punished hero ball from C state', () => {
+    const state = {
+        // These values select self_lookat()'s unpolymorphed, unmounted,
+        // untrapped branch while the ball pointer selects Punished.
+        flags: { female: false },
+        plname: 'merlin',
+        u: { umonnum: 343, umonster: 343 },
+        urace: { adj: 'human' },
+        mons: {
+            // monsters.h PM_WIZARD has male, female, and neutral names.
+            343: { pmnames: ['wizard', 'wizard', 'wizard'] },
+        },
+        iflags: {},
+    };
+    // The catalog makes ansimpleoname() source-faithful for this object.
+    objects_globals_init(state);
+    state.uball = newObject({
+        // HEAVY_IRON_BALL is the standard punishment object in objects.h.
+        otyp: HEAVY_IRON_BALL,
+        oclass: BALL_CLASS,
+        quan: 1,
+        owt: 480,
+        dknown: true,
+    });
+    assert.equal(
+        self_lookat(state),
+        'human wizard called merlin, chained to a heavy iron ball',
+    );
 });
 
 test('the getpos tip is shown once and records TIP_GETPOS', async () => {

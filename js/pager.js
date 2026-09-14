@@ -85,6 +85,7 @@ import { S_invisible } from './monsters.js';
 import { ok_to_quest } from './quest.js';
 import {
     an,
+    ansimpleoname,
     distant_name,
     donameFresh,
     singular,
@@ -232,8 +233,8 @@ function menuLines(state) {
     return [...items.slice(0, 3), { text: '' }, ...items.slice(3)];
 }
 
-// C ref: pager.c self_lookat() (657-702). The current goal reaches the
-// unpolymorphed, unmounted, untrapped, visible human Wizard branch.
+// C ref: pager.c self_lookat() (108-133). The current implementation reaches
+// the unpolymorphed branch, including the punished hero's ball description.
 export function self_lookat(state = game) {
     if (Upolyd(state.u)
         || state.u?.usteed
@@ -249,7 +250,12 @@ export function self_lookat(state = game) {
     const race = state.urace?.adj;
     if (!race)
         throw new UnsupportedWhatisError('a hero race without an adjective');
-    return `${race} ${pmname(species, Ugender(state))} called ${state.plname}`;
+    const description = `${race} ${pmname(species, Ugender(state))} called ${state.plname}`;
+    // pager.c:self_lookat() uses Punished (u.uball != 0) and formats the
+    // attached object with ansimpleoname() after the ordinary description.
+    return state.uball
+        ? `${description}, chained to ${ansimpleoname(state.uball, state)}`
+        : description;
 }
 
 // C ref: pager.c look_at_monster(), through the ordinary live-monster branch
