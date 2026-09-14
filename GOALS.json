@@ -35079,7 +35079,7 @@
     {
       "id": "port-pray-doturn-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pray.c monster turning command and its source-faithful turn dispatch.",
       "cFile": "pray.c",
       "sessions": [
@@ -35104,8 +35104,11 @@
         "screens": 8483,
         "rng": 630041
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c9e40ade6893be6ef6c0c380355312e541331191",
+      "delivered": {
+        "screens": 21,
+        "rng": 25
+      },
       "functions": [
         {
           "name": "maybe_turn_mon_iter",
@@ -35261,6 +35264,82 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 664,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: wiping the hero's face requires a clean occupation slot and matching three-turn blindness",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1150,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1150,
+              "status": "complete",
+              "commit": "4ce84b51b5fcea74fd540e92725443156e388c2a",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1150,
+                "step": 664,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: wiping the hero's face requires a clean occupation slot and matching three-turn blindness",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The new boundary is the clean-face arm of do.c dowipe(). At step 664 the assigned recording enters #wipe after the prior turn command, with no cream on the hero; C prints Your face is already clean. and returns ECMD_TIME. JavaScript reaches the existing dowipe() owner but requires a clean occupation slot and an exact three-turn ordinary human blindness state before it can run, so it raises the wiping-the-face refusal instead of taking C's clean branch. Port the complete do.c wipeoff()/dowipe() family: dowipe() must start wipeoff() whenever u.ucreamed is nonzero regardless of the narrow ordinary-state predicate, and must print the body-part clean message when it is zero; wipeoff() must clamp and decrement cream/blindness independently, distinguish glop-off from face-feels-clean, and keep the occupation active while cream remains. This is source-general do.c file-port scope.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "wipeoff",
+                  "dowipe"
+                ],
+                "branch": "dowipe() is the #wipe entrypoint. If u.ucreamed is nonzero it installs wipeoff() as an untimed occupation and returns ECMD_TIME; if u.ucreamed is zero it prints Your \"%s is already clean.\" using body_part(FACE) and still returns ECMD_TIME. Each wipeoff() callback clamps u.ucreamed and BlindedTimeout to four, decrements each, then prints You've got the glop off. and clears ucreamed when HBlinded reaches zero, prints Your \"%s feels clean now.\" when blindness remains but cream reaches zero, or returns 1 to continue the occupation. These source branches apply across valid hero forms and blindness states; the current JS exact-three-turn human guard is only a narrow partial path.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:30 declares dowipe(), and :1941 binds the wipe extended-command row; js/extcmdlist_data.js:155 carries wipe -> dowipe.",
+                  "js/cmd.js:5092-5093 dispatches dowipe() through failClosedCommand(), while js/cmd.js:2964-2969 registers UnsupportedWipeError for the current partial branch; the row is already admitted and only the do.c owner needs widening.",
+                  "nethack-c/upstream/src/do.c:2390-2404 dowipe() installs wipeoff(); js/cmd.js:set_occupation()/timed_occupation() (525-541, 508-511) and the allmain turn boundary run that callback across subsequent turns."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/do.c:2361-2385 wipeoff() depends on HBlinded timeout arithmetic, body_part(FACE), gulp_blnd_check(), set_itimeout(), make_blinded(), and the occupation return convention; js/do.js:297-319 has only the exact two-turn subset and js/potion.js:306-447 plus js/mhitu.js provide the timeout/blindness helpers.",
+                  "nethack-c/upstream/src/do.c:2390-2404 dowipe() depends on set_occupation() and body_part(FACE); js/do.js:322-337 and js/cmd.js:525-541 already provide the production seam but dowipe() currently adds unsupported ordinaryWipeState() and occupation guards absent from C.",
+                  "The source callback is consumed by allmain.c negative/occupation turn processing; js/cmd.js timed_occupation() decrements state.multi and invokes state.timedOccFn, so preserve its return value, occtxt, and the exact one-turn/continuation behavior.",
+                  "The current js/do.js ordinaryWipeState() additionally gates human, unpolymorphed, unengulfed, non-hallucinating, unblocked blindness and exact timeout values; these conditions must remain only where they correspond to a real C branch, rather than blocking the clean-face dowipe() arm witnessed here.",
+                  "js/tty_message.js ttyPline() owns the C Your()/pline() output, and js/polyself.js/body-part helpers supply the current face wording; retain C's output ordering before occupation completion or the next command."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json SHA 4ce84b51b5fcea74fd540e92725443156e388c2a reports the assigned row at step 664, kind stop, with remainingScreensUpperBound 1150 and the exact wiping-the-face refusal; recordedSteps is 1814.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 659-664 enter #wipe; step 664 key newline has zero RNG and the C screen begins Your face is already clean., proving the u.ucreamed == 0 dowipe() arm rather than wipeoff().",
+                "nethack-c/upstream/src/do.c:2361-2385 defines wipeoff() and :2388-2404 defines dowipe(); C dowipe() has no exact three-turn blindness, human, polymorph, hallucination, or occupation-slot precondition when the face is already clean.",
+                "js/do.js:297-337 shows the partial port: ordinaryWipeState(state, 2) rejects wipeoff(), ordinaryWipeState(state, 3) rejects dowipe(), and dowipe() has no C clean-face message branch. js/cmd.js:5092-5093 confirms the production command dispatch is already present.",
+                "The actionable scope is the source-general do.c wipeoff()/dowipe() family and its existing occupation/blindness helpers; do not special-case seed 4500, the Knight role, #wipe, the clean-face text, or replay step 664."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "c9e40ade6893be6ef6c0c380355312e541331191",
+        "screens": 8504,
+        "rng": 630066
       }
     }
   ]
