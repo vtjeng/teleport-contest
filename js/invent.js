@@ -152,6 +152,7 @@ import { surface } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { displayTtyMenuTextWindow, menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
+import { rn2_on_display_rng } from './rng.js';
 import {
     AMULET_OF_YENDOR,
     AKLYS,
@@ -192,6 +193,7 @@ import {
     SCROLL_CLASS,
     SLIME_MOLD,
     SPE_BOOK_OF_THE_DEAD,
+    SPE_NOVEL,
     SPBOOK_CLASS,
     STATUE,
     TIN,
@@ -219,9 +221,11 @@ import {
     is_missile,
     is_spear,
     is_wet_towel,
+    is_gloves,
     objectType,
     place_object,
     preflightWeight,
+    sobj_at as object_sobj_at,
     splitobj,
     weight,
 } from './obj.js';
@@ -246,6 +250,7 @@ import {
     same_price,
     shop_keeper,
     shop_debt,
+    check_unpaid,
     UnsupportedShopError,
     costly_spot,
 } from './shk.js';
@@ -1372,6 +1377,54 @@ export function carrying_stoning_corpse(state = game) {
     return null;
 }
 
+// C ref: invent.c u_carried_gloves() (1533-1545).  uarmg is the worn-gloves
+// pointer; when it is unset, C falls back to the first gloves object in the
+// inventory chain.
+export function u_carried_gloves(state = game) {
+    if (state.uarmg) return state.uarmg;
+    for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj) {
+        if (is_gloves(otmp, state)) return otmp;
+    }
+    return null;
+}
+
+// C ref: invent.c u_have_novel() (1548-1557).  This is a plain inventory
+// traversal and deliberately does not inspect the spellbook's contents.
+export function u_have_novel(state = game) {
+    return carrying(SPE_NOVEL, state);
+}
+
+// C ref: invent.c o_on() (1560-1573).  Search each sibling before recursively
+// descending into its contents, preserving the depth-first source order.
+export function o_on(id, objchn) {
+    for (let obj = objchn; obj; obj = obj.nobj) {
+        if (obj.o_id === id) return obj;
+        if (hasContents(obj)) {
+            const found = o_on(id, obj.cobj);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+// C ref: invent.c obj_here() (1576-1588).  Floor piles use nexthere links;
+// identity, rather than object type or id, is the predicate.
+export function obj_here(obj, x, y, state = game) {
+    for (let current = state.level?.objects?.[x]?.[y] ?? null;
+        current;
+        current = current.nexthere) {
+        if (current === obj) return true;
+    }
+    return false;
+}
+
+// C ref: invent.c sobj_at() (1465-1475).  The object module owns the same
+// floor-grid primitive for its mkobj.c callers; expose that implementation
+// here too so invent.c callers can use its source-named entry point.
+export function sobj_at(otyp, x, y, state = game) {
+    return object_sobj_at(otyp, x, y, state);
+}
+
 // C ref: invent.c will_feel_cockatrice(). A sighted hero without forced touch
 // never feels a corpse, whatever it is, so feel_cockatrice() is a no-op there.
 export function will_feel_cockatrice(otmp, force_touch, state = game) {
@@ -2216,6 +2269,25 @@ export function obj_extract_self(obj, env = {}) {
 // remains on the bill)".
 export function delobj(obj, env = {}) {
     delobj_core(obj, false, env);
+}
+
+// C ref: invent.c delallobj() (1405-1426).  Deleting the ball can rewrite the
+// punishment chain, so the next floor link is read only after unpunish(), just
+// as in C.  A drawbridge leaves the chain itself behind while deleting every
+// other object at the square.
+export function delallobj(x, y, env = {}) {
+    const normalized = inventoryEnv(env);
+    const { state } = normalized;
+    let obj = state.level?.objects?.[x]?.[y] ?? null;
+    while (obj) {
+        if (obj === state.uball) {
+            requiredHook(normalized, 'unpunish', obj)(normalized);
+        }
+        const next = obj.nexthere;
+        if (obj !== state.uchain)
+            delobj(obj, normalized);
+        obj = next;
+    }
 }
 
 // C ref: invent.c delobj_core() (1435-1462). `force` is TRUE only when
@@ -3228,6 +3300,21 @@ function insertInventoryObject(obj, previous, state) {
     obj.where = OBJ_INVENT;
 }
 
+// C ref: addinv_core0()'s other_obj arm.  The source searches for the
+// predecessor explicitly, so an object that is already the chain head does
+// not match this arm and falls through to normal merge/insertion handling.
+function insertInventoryObjectBefore(obj, otherObj, state) {
+    if (!otherObj) return false;
+    for (let current = inventoryHead(state); current; current = current.nobj) {
+        if (current.nobj !== otherObj) continue;
+        obj.nobj = otherObj;
+        current.nobj = obj;
+        obj.where = OBJ_INVENT;
+        return true;
+    }
+    return false;
+}
+
 function finishAddinv(context, obj, inserted, updatePermInvent = true) {
     const {
         addinvFacts,
@@ -3237,6 +3324,7 @@ function finishAddinv(context, obj, inserted, updatePermInvent = true) {
         willConsiderAutoquiver,
     } = context;
     if (inserted
+        && !context.insertedBefore
         && willConsiderAutoquiver
         && shouldAutoquiver(obj, state))
         setQuiver(obj, normalized);
@@ -3250,12 +3338,16 @@ function finishAddinv(context, obj, inserted, updatePermInvent = true) {
 // C ref: invent.c addinv_core0().
 function addinvCore0(
     obj, env = {}, prepared = null, updatePermInvent,
+    otherObj = null,
 ) {
     const context = beginAddinv(obj, env, prepared);
     if (!context) return null;
     const { normalized, state } = context;
     let inserted = false;
-    if (state.uquiver && merged(state.uquiver, obj, normalized)) {
+    if (insertInventoryObjectBefore(obj, otherObj, state)) {
+        inserted = true;
+        context.insertedBefore = true;
+    } else if (state.uquiver && merged(state.uquiver, obj, normalized)) {
         obj = state.uquiver;
     } else {
         let previous = null;
@@ -3279,6 +3371,14 @@ export function addinv(obj, env = {}, prepared = null) {
     return addinvCore0(obj, env, prepared, true);
 }
 
+// C ref: invent.c addinv_before().  Throw-and-return keeps the object's
+// original inventory position when !fixinv is active; the helper preserves
+// the source's predecessor search and still permits normal fallback when the
+// requested successor is absent.
+export function addinv_before(obj, otherObj, env = {}) {
+    return addinvCore0(obj, env, null, true, otherObj);
+}
+
 // Live counterpart of addinv_core0().  It leaves the synchronous API to
 // generation and startup callers while allowing invent.c merged()'s pline()
 // to suspend before obfree() and the addinv_core0() tail.  Every live caller
@@ -3287,6 +3387,7 @@ export function addinv(obj, env = {}, prepared = null) {
 // order.
 async function addinvCore0Runtime(
     obj, env = {}, prepared = null, updatePermInvent,
+    otherObj = null,
 ) {
     const context = beginAddinv(obj, env, prepared);
     if (!context) return null;
@@ -3294,7 +3395,10 @@ async function addinvCore0Runtime(
     let inserted;
     let mergedObject;
 
-    if (state.uquiver) {
+    if (insertInventoryObjectBefore(obj, otherObj, state)) {
+        inserted = true;
+        context.insertedBefore = true;
+    } else if (state.uquiver) {
         mergedObject = mergedRuntime(state.uquiver, obj, normalized);
         if (isThenable(mergedObject))
             mergedObject = await mergedObject;
@@ -3729,6 +3833,17 @@ export function useup(obj, env = {}) {
     }
 }
 
+// C ref: invent.c consume_obj_charge() (1336-1347).  The optional billing
+// check precedes the decrement, and a known charged object refreshes the
+// permanent inventory immediately after the write.
+export function consume_obj_charge(obj, maybe_unpaid, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (maybe_unpaid) check_unpaid(obj, normalized.state);
+    obj.spe -= 1;
+    if (obj.known) update_inventory(normalized);
+    return obj;
+}
+
 export function resetInventory(env = {}) {
     const normalized = inventoryEnv(env);
     requireInventoryRefresh(normalized);
@@ -3743,12 +3858,37 @@ export function resetInventory(env = {}) {
 }
 
 // C ref: invent.c currency(). Hallucination picks a random name from
-// currencies[] through ROLL_FROM(), which draws from the display RNG; that
-// branch is not ported, so a hallucinating hero stops here.
-export function currency(amount, state = game) {
-    if (isHallucinating({ state }))
-        throw new UnsupportedFeatureDescriptionError('hallucinated currency');
-    const res = 'zorkmid';
+// currencies[] through ROLL_FROM(), which draws from the display RNG.  Keep
+// this stream separate from gameplay RNG; callers may inject it for tests.
+const CURRENCIES = Object.freeze([
+    'Altarian Dollar',
+    'Ankh-Morpork Dollar',
+    'auric',
+    'buckazoid',
+    'cirbozoid',
+    'credit chit',
+    'cubit',
+    'Flanian Pobble Bead',
+    'fretzer',
+    'imperial credit',
+    'Hong Kong Luna Dollar',
+    'kongbuck',
+    'nanite',
+    'quatloo',
+    'simoleon',
+    'solari',
+    'spacebuck',
+    'sporebuck',
+    'Triganic Pu',
+    'woolong',
+    'zorkmid',
+]);
+
+export function currency(amount, state = game, env = {}) {
+    const displayRandom = env.displayRandom ?? rn2_on_display_rng;
+    const res = isHallucinating({ state })
+        ? CURRENCIES[displayRandom(CURRENCIES.length)]
+        : 'zorkmid';
     return amount !== 1 ? makeplural(res) : res;
 }
 

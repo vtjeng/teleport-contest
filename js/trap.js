@@ -185,7 +185,9 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { sgn, upstart } from './hacklib.js';
-import { stackobj, getobj, useup, delete_contents, delobj } from './invent.js';
+import {
+    stackobj, getobj, useup, consume_obj_charge, delete_contents, delobj,
+} from './invent.js';
 import { get_obj_location } from './light.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { set_malign } from './makemon.js';
@@ -1791,8 +1793,8 @@ async function disarm_squeaky_board(ttmp, state = game) {
 
     /* successfully used oil or grease to fix squeaky board */
     if (obj.otyp === CAN_OF_GREASE) {
-        // C: consume_obj_charge(obj, TRUE). invent.c, not ported.
-        note_unported('invent.c consume_obj_charge');
+        // C: consume_obj_charge(obj, TRUE). invent.c.
+        consume_obj_charge(obj, true, { state });
     } else {
         useup(obj, state); /* oil */
         // C: makeknown(POT_OIL) => discover_object(POT_OIL, true, true, true).

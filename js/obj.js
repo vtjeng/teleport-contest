@@ -116,7 +116,8 @@ import { near_capacity } from './hack.js';
 import { strstri, strsubst } from './hacklib.js';
 import {
     add_to_container, container_weight, hold_another_object, mergable, merged,
-    nxtobj, obfree, obj_extract_self, update_inventory, useupall,
+    consume_obj_charge, nxtobj, obfree, obj_extract_self, update_inventory,
+    useupall,
 } from './invent.js';
 import { confers_luck } from './artifacts.js';
 // attrib.js imports objectType from this file; both sides use the other's
@@ -3234,9 +3235,9 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
         let obj;
         let what;
 
-        // C: consume_obj_charge(horn, !tipping) -- invent.c, not ported.
+        // C: consume_obj_charge(horn, !tipping) -- invent.c.
         // Decrements horn->spe and optionally bills the hero.
-        note_unported('invent.c consume_obj_charge');
+        consume_obj_charge(horn, !tipping, env);
         if (!rn2(13)) {
             obj = mkobj(POTION_CLASS, false, env);
             if (objectType(obj, state).oc_magic) {

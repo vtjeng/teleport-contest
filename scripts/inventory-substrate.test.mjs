@@ -63,10 +63,16 @@ import {
     add_to_buried,
     add_to_container,
     addinv,
+    addinv_before,
     addinv_runtime,
     addinv_nomerge,
     assigninvlet,
+    carrying,
+    carrying_stoning_corpse,
+    consume_obj_charge,
+    currency,
     delete_contents,
+    delallobj,
     freeinv,
     hold_another_object,
     INVLET_BASIC,
@@ -90,9 +96,14 @@ import {
     unsortloot,
     _getobjInternals,
     update_inventory,
+    u_carried_gloves,
+    u_have_novel,
     useupall,
     will_feel_cockatrice,
     xprname,
+    o_on,
+    obj_here,
+    sobj_at,
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import { oname } from '../js/do_name.js';
@@ -130,6 +141,7 @@ import {
     GLOB_OF_GRAY_OOZE,
     GOLD_PIECE,
     HEAVY_IRON_BALL,
+    LEATHER_GLOVES,
     LUCKSTONE,
     AMULET_OF_ESP,
     AMULET_OF_YENDOR,
@@ -145,6 +157,7 @@ import {
     SCR_SCARE_MONSTER,
     SILVER_SABER,
     SPE_BOOK_OF_THE_DEAD,
+    SPE_NOVEL,
     TALLOW_CANDLE,
     HORN_OF_PLENTY,
     MAGIC_FLUTE,
@@ -339,6 +352,102 @@ test('nxtobj starts after its object and follows the selected source chain',
         assert.equal(nxtobj(floorCorpse, CORPSE, true), null);
         assert.equal(nxtobj(ownerCorpse, CORPSE, false), null);
     });
+
+test('addinv_before inserts immediately before an existing successor', () => {
+    const state = initializedState();
+    const first = instance(APPLE, state);
+    const successor = instance(ROCK, state);
+    addinv(first, { state });
+    addinv(successor, { state });
+
+    const returned = instance(FOOD_RATION, state, { invlet: 'q' });
+    assert.equal(addinv_before(returned, successor, { state }), returned);
+    assert.deepEqual(inventoryObjects(state), [first, returned, successor]);
+    assert.equal(returned.where, OBJ_INVENT);
+    assert.equal(returned.invlet, 'q');
+});
+
+test('inventory lookup helpers follow source chain order', () => {
+    const state = initializedState();
+    const gloves = instance(LEATHER_GLOVES, state);
+    const novel = instance(SPE_NOVEL, state);
+    addinv(gloves, { state });
+    addinv(novel, { state });
+
+    assert.equal(u_carried_gloves(state), gloves);
+    state.uarmg = novel;
+    assert.equal(u_carried_gloves(state), novel);
+    assert.equal(u_have_novel(state), novel);
+
+    const container = instance(SACK, state);
+    const sibling = instance(APPLE, state);
+    const nested = instance(ROCK, state);
+    container.o_id = 10;
+    sibling.o_id = 11;
+    nested.o_id = 12;
+    container.cobj = nested;
+    nested.nobj = null;
+    container.nobj = sibling;
+    assert.equal(o_on(nested.o_id, container), nested);
+    assert.equal(o_on(sibling.o_id, container), sibling);
+    assert.equal(o_on(999999, container), null);
+});
+
+test('carrying helpers return the first matching inventory object', () => {
+    const state = initializedState();
+    monst_globals_init(state);
+    const ordinary = instance(APPLE, state);
+    const corpse = instance(CORPSE, state, {
+        corpsenm: PM_COCKATRICE,
+        owt: PLACEHOLDER_CORPSE_WEIGHT,
+    });
+    addinv(ordinary, { state });
+    addinv(corpse, { state });
+    assert.equal(carrying(APPLE, state), ordinary);
+    assert.equal(carrying_stoning_corpse(state), corpse);
+    assert.equal(carrying(ROCK, state), null);
+});
+
+test('floor lookup helpers use identity and nexthere chains', () => {
+    const state = initializedState();
+    state.level = new GameMap();
+    const first = instance(APPLE, state);
+    const second = instance(ROCK, state);
+    place_object(first, 10, 5, { state });
+    place_object(second, 10, 5, { state });
+
+    assert.equal(obj_here(first, 10, 5, state), true);
+    assert.equal(obj_here(second, 10, 5, state), true);
+    assert.equal(obj_here(first, 11, 5, state), false);
+    assert.equal(sobj_at(APPLE, 10, 5, state), first);
+    assert.equal(sobj_at(ROCK, 10, 5, state), second);
+});
+
+test('delallobj deletes a floor pile while preserving its skipped chain', () => {
+    const state = initializedState();
+    state.level = new GameMap();
+    const first = instance(APPLE, state);
+    const chain = instance(ROCK, state);
+    const last = instance(FOOD_RATION, state);
+    place_object(first, 10, 5, { state });
+    place_object(chain, 10, 5, { state });
+    place_object(last, 10, 5, { state });
+    state.uchain = chain;
+
+    delallobj(10, 5, {
+        state,
+        random: { rn2: () => 99 },
+        redraw: () => {},
+        hooks: {
+            extractExternalObject(obj) {
+                remove_object(obj, { state });
+            },
+        },
+    });
+    assert.equal(first.where, OBJ_DELETED);
+    assert.equal(last.where, OBJ_DELETED);
+    assert.equal(chain.where, OBJ_FLOOR);
+});
 
 test('addinv assigns stable letters, keeps chain order, and merges stacks', () => {
     const state = initializedState();
@@ -1976,6 +2085,46 @@ test('money_cnt returns the first coin stack like the source invariant', () => {
     const malformedSecond = instance(GOLD_PIECE, state, { quan: 75 });
     first.nobj = malformedSecond;
     assert.equal(money_cnt(first), 25);
+});
+
+test('consume_obj_charge bills before decrementing and refreshes known items',
+    () => {
+        const state = initializedState();
+        const horn = instance(HORN_OF_PLENTY, state, {
+            known: true,
+            spe: 3,
+        });
+        let refreshed = 0;
+        state.program_state.in_moveloop = 1;
+        consume_obj_charge(horn, false, {
+            state,
+            hooks: { updateInventory: () => { refreshed += 1; } },
+        });
+        assert.equal(horn.spe, 2);
+        assert.equal(refreshed, 1);
+
+        const unpaid = instance(HORN_OF_PLENTY, state, {
+            known: false,
+            spe: 1,
+            unpaid: true,
+        });
+        state.u.ushops = [];
+        consume_obj_charge(unpaid, true, { state });
+        assert.equal(unpaid.spe, 0);
+    });
+
+test('currency uses the display stream for hallucinated names', () => {
+    const state = initializedState();
+    state.u.uprops[HALLUC].intrinsic = 1;
+    let bound = null;
+    assert.equal(currency(1, state, {
+        displayRandom: (limit) => {
+            bound = limit;
+            return 2;
+        },
+    }), 'auric');
+    assert.equal(bound, 21);
+    assert.equal(currency(2, initializedState()), 'zorkmids');
 });
 
 test('resetInventory deletes each object and restores first-letter state', () => {

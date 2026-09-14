@@ -126,7 +126,7 @@ import { MAXMCLASSES } from './symbols.js';
 import { enexto } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { update_inventory } from './invent.js';
+import { consume_obj_charge, update_inventory } from './invent.js';
 import { canseemon } from './vision.js';
 
 function generationState(env = {}) {
@@ -1177,9 +1177,9 @@ export async function bagotricks(bag, tipping, state = game) {
         let creatcnt = 1;
         let seecount = 0;
 
-        // C: consume_obj_charge(bag, !tipping) -- invent.c, not ported.
+        // C: consume_obj_charge(bag, !tipping) -- invent.c.
         // Decrements bag->spe and optionally bills the hero.
-        note_unported('invent.c consume_obj_charge');
+        consume_obj_charge(bag, !tipping, { state });
 
         if (!rn2(23))
             creatcnt += rnd(7);

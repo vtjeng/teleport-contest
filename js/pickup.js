@@ -51,6 +51,7 @@ import {
     MENU_PARTIAL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
+    nothing_seems_to_happen,
     OBJ_FLOOR,
     OBJ_MINVENT,
     PICK_ANY,
@@ -141,7 +142,7 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, hasContents, isBox, isContainer, obj_no_longer_held,
+    carried, hasContents, hornoplenty, isBox, isContainer, obj_no_longer_held,
     remove_object, set_bknown, splitobj, unsplitobj, weight,
 } from './obj.js';
 import { get_obj_location } from './light.js';
@@ -161,7 +162,9 @@ import {
     ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
-import { costly_spot, pick_pick, sellobj_state } from './shk.js';
+import {
+    check_unpaid_usage, costly_spot, pick_pick, sellobj_state,
+} from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { is_lava, is_pool, t_at, chest_trap } from './trap.js';
@@ -3168,10 +3171,10 @@ async function tipcontainer_gettarget(box, state) {
 // C ref: pickup.c tipcontainer_checks() (3953-4055). Returns TIPCHECK_OK
 // when the box can be tipped, a non-zero TIPCHECK code otherwise.
 //
-// Handles: lknown discovery (3972-3976), locked message (3978-3980), and
-// empty container message (4047-4050). Locked, trapped, bag-of-tricks,
-// horn-of-plenty, and Schrodinger branches throw because their helpers
-// are unported.
+// Handles: lknown discovery (3972-3976), locked message (3978-3980), the
+// charged bag/horn loop (3993-4032), and empty container message
+// (4047-4050). Locked, trapped, shop billing, and Schrodinger branches still
+// stop at their own source subsystem boundaries.
 async function tipcontainer_checks(box, targetbox, allowempty, state) {
     // pickup.c:3962-3967. Undiscovered bag of tricks as destination:
     // apply it once before trying to tip source box.
@@ -3208,14 +3211,49 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
     }
 
     // pickup.c:3993-4032. Bag of tricks or horn of plenty tipping loop.
-    // bagotricks() and hornoplenty() are ported, but the loop requires
-    // consume_obj_charge() (invent.c) to decrement spe; without it the
-    // loop condition (box->spe > 0) never becomes false. The surrounding
-    // shop billing (addtobill, subfrombill) is also unported.
+    // The source handles shop billing around this loop; leave that boundary
+    // before mutating a floor-owned box while carried containers proceed.
     if (box.otyp === BAG_OF_TRICKS || box.otyp === HORN_OF_PLENTY) {
-        throw new UnsupportedPickupError(
-            'tipcontainer_checks: bag/horn tipping loop (consume_obj_charge)',
-        );
+        if (targetbox
+            && (await tipcontainer_checks(targetbox, null, true, state))
+                !== TIPCHECK_OK) {
+            return TIPCHECK_CANNOT;
+        }
+        const location = get_obj_location(box, 0, state);
+        if (location) {
+            box.ox = location.x;
+            box.oy = location.y;
+        }
+        const maybeshopgoods = !carried(box)
+            && costly_spot(box.ox, box.oy, state);
+        if (maybeshopgoods && !box.no_charge) {
+            throw new UnsupportedPickupError(
+                'tipcontainer_checks: shop addtobill/subfrombill',
+            );
+        }
+
+        const oldSpe = box.spe;
+        let totalSeen = 0;
+        do {
+            if (box.otyp === BAG_OF_TRICKS) {
+                const result = await bagotricks(box, true, state);
+                totalSeen += result.seecount;
+            } else {
+                await hornoplenty(box, true, targetbox, { state });
+            }
+        } while (box.spe > 0);
+
+        if (box.spe < oldSpe) {
+            if (box.otyp === BAG_OF_TRICKS && !totalSeen)
+                await ttyPline(nothing_seems_to_happen, state);
+            // C restores the count while checking the eventual shop charge,
+            // then marks the container empty.
+            box.spe = oldSpe;
+            check_unpaid_usage(box, true, state);
+            box.spe = 0;
+            box.cknown = 1;
+        }
+        return TIPCHECK_CANNOT;
     }
 
     // pickup.c:4034-4045. Schrodinger's box.
