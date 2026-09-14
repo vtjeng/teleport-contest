@@ -33867,7 +33867,7 @@
     {
       "id": "div-timeout-invulnerable-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix timed INVULNERABLE handling in timeout.c nh_timeout() so elapsed turns decrement the property without a generic expiry side effect.",
       "cFile": "timeout.c",
       "sessions": [],
@@ -33889,8 +33889,11 @@
         "screens": 8413,
         "rng": 629901
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e99f598cca725f6e39b7d74f4f0a56cbeb188707",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "nh_timeout",
       "session": "holdout/seed4500-knight-coverage",
       "step": 579,
@@ -33967,7 +33970,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "e99f598cca725f6e39b7d74f4f0a56cbeb188707",
+        "screens": 8413,
+        "rng": 629901
+      }
     }
   ]
 }
