@@ -4116,36 +4116,29 @@ function addinv_core1(obj, env, facts) {
         state.u.uhave.book = 1;
         record_achievement(ACH_BOOK, state);
     } else if (obj.oartifact) {
-        if (is_quest_artifact(obj, env.state)) {
-            // invent.c:986-989 sets u.uhave.questart and calls artitouch().
-            throw new UnsupportedObjectOperationError('quest artifact held',
-                                                      obj);
+        if (is_quest_artifact(obj, state)) {
+            if (state.u.uhave?.questart)
+                note_unported('pline.c impossible');
+            state.u.uhave.questart = 1;
+            // quest.c artitouch() has no return value; its pager, discovery,
+            // quest-status, and exercise effects remain an explicit gap.
+            note_unported('quest.c artitouch');
         }
-        set_artifact_intrinsic(obj, true, W_ART, env.state);
+        set_artifact_intrinsic(obj, true, W_ART, state);
     }
 
     // C ref: invent.c addinv_core1().  Special-level creation sets nomerge
-    // only until the tracked prize reaches the hero's inventory.
+    // only until the tracked prize reaches the hero's inventory. The source
+    // calls record_achievement() directly before clearing the tracking id.
     if (facts.prize) {
-        requiredHook(env, 'recordAchievement', obj)(
-            facts.prize.achievement,
-            env,
-        );
-        env.state.context.achieveo[facts.prize.oidField] = 0;
+        record_achievement(facts.prize.achievement, state);
+        state.context.achieveo[facts.prize.oidField] = 0;
         obj.nomerge = false;
     }
 }
 
 function preflightAddinvCores(obj, env) {
-    if (obj.oartifact && is_quest_artifact(obj, env.state)) {
-        // The next arm of the same if/else chain in addinv_core1(), projected
-        // here for the reason the four otyps above are: addinv() clears
-        // no_charge and how_lost before addinv_core1() runs, so the refusal
-        // raised there would stop with the object already changed.
-        throw new UnsupportedObjectOperationError('quest artifact held', obj);
-    }
     const prize = specialPrize(obj, env.state);
-    if (prize) requiredHook(env, 'recordAchievement', obj);
     const confersLuck = obj.otyp === LUCKSTONE
         || (Boolean(obj.oartifact) && confers_luck(obj, env.state));
     if (env.state.urole?.filecode === 'Arc'
