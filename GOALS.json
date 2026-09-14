@@ -43288,15 +43288,15 @@
           "name": "breaksink",
           "line": 581,
           "endLine": 594,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "drinksink",
           "line": 595,
           "endLine": 715,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -43375,7 +43375,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "breaksink",
+            "implementation": "js/fountain.js",
+            "symbol": "breaksink",
+            "sourceReview": "Read fountain.c:581-591 completely. Preserved cansee-or-u_at message visibility, set_levltyp conversion and feature counts, clearing the rm.looted/flags and blessedftn/horizontal aliases, setting F_LOOTED, and newsym. No RNG and no skipped callee. Runtime drinksink fate 6 is wired; the other C callers in fountain.c dipsink and dig.c digactualhole are unported entry points and are outside this span. No obsolete breaksink placeholder existed.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:661-663 drinksink case 6 invokes breaksink at the hero square"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinksink-break.session.json"
+            ],
+            "checkedAt": "2e9928ae5aabbbf6c92758bcb0049c52c7640aa4"
+          },
+          {
+            "name": "drinksink",
+            "implementation": "js/fountain.js",
+            "symbol": "drinksink",
+            "sourceReview": "Read fountain.c:595-712 completely and compared all switch cases and the fallthrough default. Levitation is checked before rn2(20); scalding preserves the fire-resistance observation branch and rnd(6) damage; summons preserve extinction short-circuiting, MM_NOMSG and visibility-dependent naming; the potion loop rejects water with obfree before retry, clears BUC, observes only when sighted/nonhallucinating, increments the temporary quantity, sets fromsink, invokes existing dopotion, and frees it. Ring loot uses the existing flags alias and source-ordered Wisdom exercise. Experience, Constitution-dependent hunger/vomit, Unchanging, You_hear and hallucinated hand branches preserve their source order. Default temperature calls rn2(3) then rn2(2) only when needed; hallucinated liquid/color naming uses display RNG. Soundeffect is inactive under the reference nosound backend. Allowed discarded-return gaps: note_unported('polyself.c polyself') for the unported POLY_NOFLAGS branch and note_unported('region.c create_gas_cloud') for unported positive gas damage. Existing dopotion/peffects retains its separate unported potion-effect boundaries; a full-healing blocked recipe records that dependency. Existing floating_above and vomit retain their separate rare unported branches. The old sink UnsupportedQuaffError guard was removed from dodrink; no new refusal or substitute was added. Read makemon.c:1144-1508 and its generic inventory tail for the consumed-return summon dependency; js/makemon_create.js now admits sewer-rat/water-elemental MM_NOMSG calls at the hero and the elemental species. Its existing generic placement, HP, inventory, and runtime display match both fresh C recordings.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:552-559: reachable sink, can_reach_floor(FALSE), y_n prompt, drinksink, ECMD_TIME; js/cmd.js runQuaffCommand dispatches quaff to dodrink"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinksink-sewer-rat.session.json",
+              "recordings/fountain.c/drinksink-water-elemental.session.json",
+              "recordings/fountain.c/drinksink-cold.session.json",
+              "recordings/fountain.c/drinksink-warm.session.json",
+              "recordings/fountain.c/drinksink-scalding.session.json",
+              "recordings/fountain.c/drinksink-song.session.json",
+              "recordings/fountain.c/drinksink-experience.session.json",
+              "recordings/fountain.c/drinksink-vomiting.session.json",
+              "recordings/fountain.c/drinksink-ring.session.json",
+              "recordings/fountain.c/drinksink-break.session.json",
+              "recordings/fountain.c/drinksink-potion.session.json"
+            ],
+            "checkedAt": "2e9928ae5aabbbf6c92758bcb0049c52c7640aa4"
+          }
+        ],
+        "entryPointReview": "The selected fountain.c range has one command entry point: quaff while standing on a reachable sink, answer yes. All drinksink outcomes share that entry point. breaksink is a helper exercised through drinksink fate 6, not a separate command. Declining the sink prompt has its own matching recording and continues to getobj without consuming a turn. The full function is translated; two discarded missing callees and existing deeper potion/levitation/vomit boundaries are documented rather than counted as separately completed source units.",
+        "entryPoints": [
+          {
+            "name": "quaff from a sink",
+            "functions": [
+              "drinksink",
+              "breaksink"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinksink-sewer-rat.session.json",
+              "recordings/fountain.c/drinksink-water-elemental.session.json",
+              "recordings/fountain.c/drinksink-cold.session.json",
+              "recordings/fountain.c/drinksink-warm.session.json",
+              "recordings/fountain.c/drinksink-scalding.session.json",
+              "recordings/fountain.c/drinksink-song.session.json",
+              "recordings/fountain.c/drinksink-experience.session.json",
+              "recordings/fountain.c/drinksink-vomiting.session.json",
+              "recordings/fountain.c/drinksink-ring.session.json",
+              "recordings/fountain.c/drinksink-break.session.json",
+              "recordings/fountain.c/drinksink-potion.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
