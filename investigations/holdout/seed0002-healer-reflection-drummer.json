@@ -1,47 +1,54 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 411,
+  "remainingScreensUpperBound": 363,
   "status": "complete",
-  "commit": "c99273539a288d06d2d379583b59f0735fef7143",
+  "commit": "24d32a739a1d61c49a1654aeb94bcade6ccd1645",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 411,
-    "step": 184,
+    "remainingScreensUpperBound": 363,
+    "step": 232,
     "kind": "stop",
-    "function": "dodrink",
+    "function": "moveloop_core",
     "functionDeclared": true,
-    "sourceFile": "potion.c",
-    "cFile": "potion.c",
+    "sourceFile": "allmain.c",
+    "cFile": "allmain.c",
     "luaFile": null,
-    "line": null,
-    "message": "Replay error: an unported branch of this command: quaffing requires the sink prompt in dodrink()",
+    "line": 380,
+    "message": "elapsed turn reached burdened multi-cycle immobility countdown",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "At segment 0, recorded step 184 (input move index 183, key q), the hero is standing on a sink and the C prompt is \"Drink from the sink? [yn] (n)\". The current JavaScript potion.c dodrink() branch stops before drawing that prompt. The next recorded answer at step 185 is y; C then enters fountain.c drinksink(), whose ordinary nonlevitating switch takes rn2(20)=15 and falls through its default arm, consumes rn2(3)=2 and rn2(2)=0, and prints \"You take a sip of warm water.\". The bounded source handoff is fountain.c drinksink() plus potion.c dodrink()'s sink prompt/call seam; sink fates, levitation, and hallucination arms outside this recorded branch remain out of scope.",
+  "summary": "The sink port moves the first stop from step 184 to step 232. At input index 231 (key x), the player chooses chain mail from the wear prompt. C finishes the five-turn dressing delay, prints 'You finish your dressing maneuver.', and accepts inventory at step 233. JavaScript stops before its burdened elapsed-turn plan can count down negative multi. The live state at the refusal is moves=238, multi=-5, multi_reason='dressing up', afternmv=Armor_on, u.umovement=18, near_capacity=1, and worn inventory item x is CHAIN_MAIL (otyp 128, weight 300, W_ARM). The scan reports no prior screen or RNG divergence. Refined source comparison confirms that the live JavaScript countdown, unmul call and callback dispatch already follow C; only the JavaScript-only planning adapter refuses this valid path. This is a divergence fix in existing planning, superseding the initial file-port classification. Other missing moveloop_core branches are separate source gaps.",
   "source": {
-    "file": "fountain.c",
+    "file": "allmain.c",
     "functions": [
-      "drinksink"
+      "moveloop_core"
     ],
-    "branch": "Ordinary sink drink after potion.c dodrink() confirms can_reach_floor() and the hero answers y, with Levitation false: drinksink() takes the default switch arm for rn2(20)=15, then rn2(3)=2 and rn2(2)=0 choose warm, hliquid(\"water\") remains water, and the command spends one turn. Other sink fates, levitation, and hallucination branches are outside this bounded probe.",
+    "branch": "Read the entire C function at allmain.c:177-564. The elapsed-time loop at 202-390 repeatedly scans monsters and allocates turns while u.umovement<NORMAL_SPEED. Lines 379-388 handle every gm.multi<0 state: runmode_delay_output(), increment multi, unmul(NULL) at zero, then deferred_goto() if unmul scheduled a level change. This fix preserves that existing live implementation and repairs its JavaScript-only planning contract. The generic fix must cover every delayed callback, not only Armor_on. It does not establish whole moveloop_core completion or absorb unrelated unported calls.",
     "callers": [
-      "potion.c dodrink():526-615 (sink prompt and drinksink() call at 552-558)",
-      "js/potion.js dodrink():987-1067 (current sink seam at 1021-1024)",
-      "js/cmd.js runQuaffCommand():3334-3339"
+      "js/jsmain.js replay loop -> js/allmain.js moveloop_core():1289 -> advanceElapsedTurn():1093 -> preflightSimpleMonsterActions() -> finishElapsedTurn(planning:true):682",
+      "do_wear.c accessory_or_armor_on():2374-2404 sets worn chain mail, ga.afternmv=Armor_on, nomul(-objects[otyp].oc_delay), multi_reason and nomovemsg; js/do_wear.js:2845-2854 follows that setup",
+      "allmain.c moveloop_core():379-388 -> hack.c runmode_delay_output()/unmul(NULL) -> do_wear.c Armor_on()"
     ],
     "dependencies": [
-      "potion.c can_reach_floor()/y_n() sink seam:552-558",
-      "do_name.c hliquid():1491-1510",
-      "rnd.c rn2():93-101"
+      "js/unported_monster_actions.js planningState():520 and preflightSimpleMonsterActions():1798 clone the state and RNG; planSimpleMonsterTurn():1864 calls finishElapsedTurn through the advanceRound callback",
+      "js/allmain.js advanceElapsedTurn():1093-1110 selects the full planning path when projected_capacity>0; finishElapsedTurn():945-952 explicitly refuses any negative multi on that clone",
+      "hack.c unmul():4177-4211 resets delay/message state, clears ga.afternmv before invoking the callback, and discards the callback's return; js/hack.js unmul():1068-1096 currently prints via ttyPline",
+      "hack.c runmode_delay_output() owns animation frames; js/hack.js:4212 calls curs_on_u(), which refuses nonglobal state, so merely removing the planning guard would be unsafe",
+      "do_wear.c Armor_on():887 is the observed callback; other valid delayed actions use other afternmv callbacks and must not be special-cased",
+      "hack.c overexert_hp() retains a separate existing refusal whose comment cites this same missing burdened countdown; it is not the first failing operation in this recording"
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "The refreshed queue count is 411 for this target at commit c99273539a288d06d2d379583b59f0735fef7143; recordedSteps is 595 and the first stop is step 184, so 595 - 184 = 411. Its original boundary is \"Replay error: an unported branch of this command: quaffing requires the sink prompt in dodrink()\" with function dodrink declared in potion.c.",
-    "The explicit session file shows segment 0 step 184 with key q and \"Drink from the sink? [yn] (n)\", followed by step 185 key y with \"You take a sip of warm water.\" and RNG entries rn2(20)=15 at drinksink(fountain.c:604), rn2(3)=2 and rn2(2)=0 at drinksink(fountain.c:709).",
-    "nethack-c/upstream/src/potion.c:526-615 checks the sink at 552-559, asks y_n(\"Drink from the sink?\"), and calls drinksink() on y; nethack-c/upstream/src/fountain.c:595-712 defines the sink behavior and its default warm/cold/hot message arm at 708-710.",
-    "The target fate is the nonlevitating default arm: fountain.c:604 receives 15 (not cases 0-13 or 19), then line 709 receives 2 and line 709 receives 0, producing \"warm\"; do_name.c hliquid():1491-1510 returns the ordinary water name without a display-RNG substitution.",
-    "js/potion.js:1021-1024 currently throws UnsupportedQuaffError(\"the sink prompt in dodrink()\") before y_n or drinksink; js/fountain.js implements drinkfountain() but has no drinksink() export, leaving the fountain.c source owner unported."
+    "At committed 24d32a739a1d61c49a1654aeb94bcade6ccd1645, scanSession('holdout/seed0002-healer-reflection-drummer.session.json') in a fresh Node process reports screensEmitted=232, recordedSteps=595, divergence=null, and the burdened immobility boundary. Remaining screens upper bound is 595-232=363.",
+    "The read-only fixed recording has step 231 key W and the wear prompt, step 232 key x and the dressing-completion message with six elapsed-turn groups of C RNG calls, then step 233 key i and inventory. Those inputs locate the source branch; a new recipe must choose independent state and inputs.",
+    "A second focused replay inspected the live state at refusal: moves 238, multi -5, capacity 1, afternmv Armor_on, u.umovement 18, item x otyp128/weight300/owornmask1. JavaScript's last live message is still 'What do you want to wear? [x or ?*] x'.",
+    "js/allmain.js finishElapsedTurn explicitly calls elapsedTurnBoundary('burdened multi-cycle immobility countdown') when planning and multi<0. Its live branch below already follows the C countdown, but the planning branch is deliberately absent.",
+    "The clone adapter is JavaScript scaffolding, not a second C phase. Its new behavior must leave live state, message output, animation frames and both RNG streams unchanged during planning; callback effects can also change encumbrance before the next allocation.",
+    "scripts/allmain-turn.test.mjs:1593-1640 currently asserts that this planning case refuses, so that obsolete expectation must be replaced when the source path is ported. The unrelated region/search/overexertion refusal cases remain separately scoped.",
+    "No game code changed in the investigation commits. The sink delivery's checkpoint is attached to commit 24d32a73 and passed at 2026-09-14T20:01:51.126Z.",
+    "The coordinator's independent read-only survey verified the planning-only cause at a113b962, whose game code is identical to 24d32a73. A continuation plan must not repeat preflightSimpleMonsterActions's NORMAL_SPEED debit. It must stop before a due unmul, replay the validated prefix live, then replan remaining allocations from actual callback effects.",
+    "Callback-owner evidence supports live execution rather than f(planned): eat.c Hear_again's existing JavaScript uses global rn2(2); do_wear.c Boots_on uses global rnd(20); pray.c prayer_done uses global rnz(250) and planningState does not deep-clone gp. The correction can avoid changes to those source owners by invoking callbacks only on the live game."
   ]
 }

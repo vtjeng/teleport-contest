@@ -326,6 +326,7 @@ import {
     PM_WATCH_CAPTAIN,
     PM_WATCHMAN,
     PM_WATER_DEMON,
+    PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
     PM_WHITE_UNICORN,
@@ -1290,6 +1291,7 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && species.pmidx !== PM_YELLOW_LIGHT
             && species.pmidx !== PM_BLACK_LIGHT
             && species.pmidx !== PM_WATER_DEMON
+            && species.pmidx !== PM_WATER_ELEMENTAL
             && species.pmidx !== PM_WATER_MOCCASIN
             && species.pmidx !== PM_WATER_NYMPH
             // The eel-concealment goal needs an active, unconcealed eel, and
@@ -1368,12 +1370,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;
-    // fountain.c dowaterdemon(), dowatersnakes(), and dowaternymph() create
-    // one of these species near the hero with MM_NOMSG, the same runtime shape.
+    // fountain.c dowaterdemon(), dowatersnakes(), dowaternymph(), and drinksink()
+    // create these species near the hero with MM_NOMSG. Sewer rats and water
+    // elementals use the generic HP, inventory, and runtime-display branches.
     const fountainCreatureCall = !state.in_mklev
         && (ptr?.pmidx === PM_WATER_DEMON
             || ptr?.pmidx === PM_WATER_MOCCASIN
-            || ptr?.pmidx === PM_WATER_NYMPH)
+            || ptr?.pmidx === PM_WATER_NYMPH
+            || ptr?.pmidx === PM_SEWER_RAT
+            || ptr?.pmidx === PM_WATER_ELEMENTAL)
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;

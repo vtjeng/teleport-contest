@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8410392,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:SinkPilot,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "k...............qy ",
+      "comment": "Blocked by polyself.c polyself(POLY_NOFLAGS), whose random transformation path is not ported. drinksink fate 10 records that discarded call. Seed came from the independent 8410000-8410999 scan."
+    }
+  ]
+}

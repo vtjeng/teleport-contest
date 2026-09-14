@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent debug setup acquires chain mail, making this Healer burdened, then wears it. Reaches allmain.c moveloop_core's negative-multi countdown and hack.c unmul through do_wear.c Armor_on. The selected seed was chosen before inspection; debug mode does not change the tested countdown branch.",
+  "segments": [{
+    "seed": 8420013,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:DelayPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": "\u0017uncursed chain mail\n Wl"
+  }]
+}

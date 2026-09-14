@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8410288,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:SinkPilot,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "kkqy",
+      "comment": "Independent normal-game sink from the 8410000-8410999 scan (15 nearby sinks in 1000 starts). Fate 12 calls You_hear with the sewer-song message."
+    }
+  ]
+}
