@@ -43252,6 +43252,120 @@
         "screens": 8888,
         "rng": 650244
       }
+    },
+    {
+      "id": "pilot-fountain-drinksink-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port whole sink drinking and sink breaking behavior with the potion.c drinking caller.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "User-authorized seed-worker pilot assigns holdout/seed0002-healer-reflection-drummer to worker B independently of global priority. At baseline 93a08808 this session has 411 remaining screens; investigations/holdout/seed0002-healer-reflection-drummer.json traces potion.c dodrink to fountain.c drinksink. Include adjacent breaksink and whole drinksink, with required caller/dependency wiring.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "a29a90cbfadf10adecc49eb4c6e6364e2bacca0f",
+      "openStanding": {
+        "sha": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+        "screens": 8888,
+        "rng": 650244
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "breaksink",
+          "line": 581,
+          "endLine": 594,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "drinksink",
+          "line": 595,
+          "endLine": 715,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 581,
+        "to": 715
+      },
+      "activeStanding": {
+        "sha": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+        "screens": 8888,
+        "rng": 650244
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 184,
+          "kind": "stop",
+          "function": "dodrink",
+          "functionDeclared": true,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires the sink prompt in dodrink()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 411,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 411,
+              "status": "complete",
+              "commit": "c99273539a288d06d2d379583b59f0735fef7143",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 411,
+                "step": 184,
+                "kind": "stop",
+                "function": "dodrink",
+                "functionDeclared": true,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null,
+                "message": "Replay error: an unported branch of this command: quaffing requires the sink prompt in dodrink()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "At segment 0, recorded step 184 (input move index 183, key q), the hero is standing on a sink and the C prompt is \"Drink from the sink? [yn] (n)\". The current JavaScript potion.c dodrink() branch stops before drawing that prompt. The next recorded answer at step 185 is y; C then enters fountain.c drinksink(), whose ordinary nonlevitating switch takes rn2(20)=15 and falls through its default arm, consumes rn2(3)=2 and rn2(2)=0, and prints \"You take a sip of warm water.\". The bounded source handoff is fountain.c drinksink() plus potion.c dodrink()'s sink prompt/call seam; sink fates, levitation, and hallucination arms outside this recorded branch remain out of scope.",
+              "source": {
+                "file": "fountain.c",
+                "functions": [
+                  "drinksink"
+                ],
+                "branch": "Ordinary sink drink after potion.c dodrink() confirms can_reach_floor() and the hero answers y, with Levitation false: drinksink() takes the default switch arm for rn2(20)=15, then rn2(3)=2 and rn2(2)=0 choose warm, hliquid(\"water\") remains water, and the command spends one turn. Other sink fates, levitation, and hallucination branches are outside this bounded probe.",
+                "callers": [
+                  "potion.c dodrink():526-615 (sink prompt and drinksink() call at 552-558)",
+                  "js/potion.js dodrink():987-1067 (current sink seam at 1021-1024)",
+                  "js/cmd.js runQuaffCommand():3334-3339"
+                ],
+                "dependencies": [
+                  "potion.c can_reach_floor()/y_n() sink seam:552-558",
+                  "do_name.c hliquid():1491-1510",
+                  "rnd.c rn2():93-101"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The refreshed queue count is 411 for this target at commit c99273539a288d06d2d379583b59f0735fef7143; recordedSteps is 595 and the first stop is step 184, so 595 - 184 = 411. Its original boundary is \"Replay error: an unported branch of this command: quaffing requires the sink prompt in dodrink()\" with function dodrink declared in potion.c.",
+                "The explicit session file shows segment 0 step 184 with key q and \"Drink from the sink? [yn] (n)\", followed by step 185 key y with \"You take a sip of warm water.\" and RNG entries rn2(20)=15 at drinksink(fountain.c:604), rn2(3)=2 and rn2(2)=0 at drinksink(fountain.c:709).",
+                "nethack-c/upstream/src/potion.c:526-615 checks the sink at 552-559, asks y_n(\"Drink from the sink?\"), and calls drinksink() on y; nethack-c/upstream/src/fountain.c:595-712 defines the sink behavior and its default warm/cold/hot message arm at 708-710.",
+                "The target fate is the nonlevitating default arm: fountain.c:604 receives 15 (not cases 0-13 or 19), then line 709 receives 2 and line 709 receives 0, producing \"warm\"; do_name.c hliquid():1491-1510 returns the ordinary water name without a display-RNG substitution.",
+                "js/potion.js:1021-1024 currently throws UnsupportedQuaffError(\"the sink prompt in dodrink()\") before y_n or drinksink; js/fountain.js implements drinkfountain() but has no drinksink() export, leaving the fountain.c source owner unported."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
