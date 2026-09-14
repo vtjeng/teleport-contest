@@ -1,6 +1,7 @@
 // quest_levels.js — Quest and special level definitions.
 // C refs: dat/Bar-strt.lua, dat/Bar-fila.lua, dat/Bar-filb.lua,
 //         dat/Bar-goal.lua, dat/Bar-loca.lua, dat/Arc-strt.lua,
+//         dat/Arc-loca.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
 //         dat/Wiz-strt.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
@@ -690,6 +691,129 @@ async function arcStrt(des, state) {
     des.monster({ class: S_MUMMY, coord: [20, 17] });
     des.monster({ class: S_SNAKE, coord: [67, 2] });
     des.monster({ class: S_SNAKE, coord: [10, 19] });
+}
+
+// C ref: dat/Arc-loca.lua. Map-based quest locate level for the Archeologist.
+// The Tomb of the Toltec Kings has three temples, random treasure, traps,
+// snakes, and mummies around its fixed maze map.
+async function arcLoca(des, state) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'hardfloor');
+    des.map([
+        '............................................................................',
+        '............................................................................',
+        '............................................................................',
+        '........................-------------------------------.....................',
+        '........................|....|.S......................|.....................',
+        '........................|....|.|.|+------------------.|.....................',
+        '........................|....|.|.|.|.........|......|.|.....................',
+        '........................|....|.|.|.|.........|......|.|.....................',
+        '........................|---+-.|.|.|..---....+......|.|.....................',
+        '........................|....|.|.|.---|.|....|......|.|.....................',
+        '........................|....S.|.|.+..S.|--S-----S--|.|.....................',
+        '........................|....|.|.|.---|.|....|......+.|.....................',
+        '........................|---+-.|.|.|..---....|.------.|.....................',
+        '........................|....|.|.|.|.........|.|....+.|.....................',
+        '........................|....|.|.|.|.........|+|....|-|.....................',
+        '........................|....|.|.|------------+------.S.....................',
+        '........................|....|.S......................|.....................',
+        '........................-------------------------------.....................',
+        '............................................................................',
+        '............................................................................',
+    ]);
+
+    // Dungeon Description
+    des.region(selection_area(0, 0, 75, 19), 'lit');
+    des.region({ region: [25, 4, 28, 7], lit: 1, type: 'temple', filled: 2 });
+    des.region({ region: [25, 9, 28, 11], lit: 0, type: 'temple', filled: 2 });
+    des.region({ region: [25, 13, 28, 16], lit: 1, type: 'temple', filled: 2 });
+    des.region(selection_area(30, 4, 30, 16), 'lit');
+    des.region(selection_area(32, 4, 32, 16), 'unlit');
+    des.region({
+        region: [33, 4, 53, 4], lit: 0, type: 'ordinary', irregular: 1,
+    });
+    des.region(selection_area(36, 10, 37, 10), 'unlit');
+    des.region(selection_area(39, 9, 39, 11), 'unlit');
+    des.region({
+        region: [36, 6, 42, 8], lit: 0, type: 'ordinary', irregular: 1,
+    });
+    des.region({
+        region: [36, 12, 42, 14], lit: 0, type: 'ordinary', irregular: 1,
+    });
+    des.region(selection_area(46, 6, 51, 9), 'unlit');
+    des.region({
+        region: [46, 11, 49, 11], lit: 0, type: 'ordinary', irregular: 1,
+    });
+    des.region(selection_area(48, 13, 51, 14), 'unlit');
+
+    // Doors
+    des.door({ state: 'closed', coord: [31, 4] });
+    des.door({ state: 'closed', coord: [28, 8] });
+    des.door({ state: 'locked', coord: [29, 10] });
+    des.door({ state: 'closed', coord: [28, 12] });
+    des.door({ state: 'closed', coord: [31, 16] });
+    des.door({ state: 'locked', coord: [34, 5] });
+    des.door({ state: 'locked', coord: [35, 10] });
+    des.door({ state: 'locked', coord: [38, 10] });
+    des.door({ state: 'closed', coord: [43, 10] });
+    des.door({ state: 'closed', coord: [45, 8] });
+    des.door({ state: 'locked', coord: [46, 14] });
+    des.door({ state: 'locked', coord: [46, 15] });
+    des.door({ state: 'locked', coord: [49, 10] });
+    des.door({ state: 'locked', coord: [52, 11] });
+    des.door({ state: 'closed', coord: [52, 13] });
+    des.door({ state: 'closed', coord: [54, 15] });
+
+    // Stairs
+    des.stair({ dir: 'up', coord: [3, 17] });
+    des.stair({ dir: 'down', coord: [39, 10] });
+
+    // Three unattended altars use nhlib.lua's shuffled alignment table.
+    des.altar({ x: 26, y: 5, align: state.specialLevelAlign[0], type: 'altar' });
+    des.altar({ x: 26, y: 10, align: state.specialLevelAlign[1], type: 'altar' });
+    des.altar({ x: 26, y: 15, align: state.specialLevelAlign[2], type: 'altar' });
+
+    // Non diggable walls
+    des.non_diggable(selection_area(0, 0, 75, 19));
+
+    // Objects
+    for (let i = 0; i < 15; ++i) des.object();
+
+    // Treasure?
+    for (let i = 0; i < 4; ++i)
+        des.engraving({ type: 'engrave', text: 'X marks the spot.' });
+
+    // Random traps
+    des.trap('spiked pit', 24, 2);
+    des.trap('spiked pit', 37, 0);
+    des.trap('spiked pit', 23, 5);
+    des.trap('spiked pit', 26, 19);
+    des.trap('spiked pit', 55, 10);
+    des.trap('spiked pit', 55, 8);
+    des.trap('pit', 51, 1);
+    des.trap('pit', 23, 18);
+    des.trap('pit', 31, 18);
+    des.trap('pit', 48, 19);
+    des.trap('pit', 55, 15);
+    des.trap('magic', 60, 4);
+    des.trap('statue', 72, 7);
+    des.trap('statue');
+    des.trap('statue');
+    des.trap('anti magic', 64, 12);
+    des.trap('sleep gas');
+    des.trap('sleep gas');
+    des.trap('dart');
+    des.trap('dart');
+    des.trap('dart');
+    des.trap('rolling boulder', 32, 10);
+    des.trap('rolling boulder', 40, 16);
+
+    // Random monsters: 18 snakes, a random mummy-class monster, seven named
+    // human mummies, and a random mummy-class monster.
+    for (let i = 0; i < 18; ++i) des.monster('S');
+    des.monster('M');
+    for (let i = 0; i < 7; ++i) des.monster('human mummy');
+    des.monster('M');
 }
 
 // C ref: dat/Pri-strt.lua. Map-based quest start level for the Priest.
@@ -1386,6 +1510,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Bar-goal': barGoal,
     'Bar-loca': barLoca,
     'Arc-strt': arcStrt,
+    'Arc-loca': arcLoca,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
