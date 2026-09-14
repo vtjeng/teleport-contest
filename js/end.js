@@ -63,7 +63,6 @@ import {
     PARANOID_QUIT,
     PICK_ONE,
     PANICKED,
-    PICK_NONE,
     PARANOID_BONES,
     PARANOID_DIE,
     PLNMSG_OK_DONT_DIE,
@@ -90,7 +89,7 @@ import {
 import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
 import { schedule_goto } from './do.js';
-import { pmname } from './do_name.js';
+import { m_monnam, pmname } from './do_name.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
@@ -128,7 +127,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { enlightenment } from './insight.js';
-import { add_menu_heading, select_menu } from './windows.js';
+import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
 } from './tty_menu.js';
@@ -136,7 +135,7 @@ import { canSpotMonster } from './startup_a11y.js';
 import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
-    depth, dunlev, on_level, recalc_mapseen, show_overview,
+    depth, dunlev, show_overview,
     single_level_branch,
 } from './dungeon.js';
 import { makeplural } from './fruit.js';
@@ -298,10 +297,9 @@ async function savelife(how, state = game) {
 // #if 0 in C (pager.c:140) and returns the empty string; skipped here.
 // mark_synch() is tty_mark_synch(), an fflush() with no JS counterpart.
 //
-// The priest/minion branch still throws UnsupportedEndOfGameError because it
-// needs m_monnam from do_name.c. Every other branch is ported, including the
-// shopkeeper naming path, imitator/shapechanger path, ghosts with given names,
-// the multi_reason fixup, and ugrave_arise.
+// The priest/minion branch uses m_monnam from do_name.c. Every other branch is
+// ported, including the shopkeeper naming path, imitator/shapechanger path,
+// ghosts with given names, the multi_reason fixup, and ugrave_arise.
 export async function done_in_by(mtmp, how, state = game) {
     const mons = state.mons;
     const mptr = mtmp.data;
@@ -393,11 +391,9 @@ export async function done_in_by(mtmp, how, state = game) {
         buf += `${honorific}${shknm}, the shopkeeper`;
         state.killer.format = KILLED_BY;
     } else if (mtmp.ispriest || mtmp.isminion) {
-        // m_monnam() lives in do_name.c and handles "invisible" and
-        // Hallucination overrides for priests and minions. Not ported.
-        throw new UnsupportedEndOfGameError(
-            'done_in_by() for a priest or minion (needs m_monnam from do_name.c)',
-        );
+        // m_monnam() suppresses the article, invisible marker, and
+        // hallucination for priests and minions, as end.c requires here.
+        buf += m_monnam(mtmp, state);
     } else {
         buf += pmname(mptr, gender(mtmp));
         if (has_mgivenname(mtmp)) {

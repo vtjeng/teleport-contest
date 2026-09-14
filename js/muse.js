@@ -177,6 +177,7 @@ import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
 import { encumber_msg } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
+import { HCOLORS } from './random_text_data.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
@@ -3207,24 +3208,7 @@ export function green_mon(mon, state = game) {
 
 /* Hallucination color table for hcolor(), matching do_name.c hcolor()
    (1461-1466). Returns the color name, or a random hallucinated one. */
-const hcolors = Object.freeze([
-    'ultraviolet', 'infrared', 'bluish-orange', 'reddish-green', 'dark white',
-    'light black', 'sky blue-pink', 'pinkish-cyan', 'indigo-chartreuse',
-    'salty', 'sweet', 'sour', 'bitter', 'umami',
-    'striped', 'spiral', 'swirly', 'plaid', 'checkered', 'argyle', 'paisley',
-    'blotchy', 'guernsey-spotted', 'polka-dotted', 'square', 'round',
-    'triangular', 'cabernet', 'sangria', 'fuchsia', 'wisteria', 'lemon-lime',
-    'strawberry-banana', 'peppermint', 'romantic', 'incandescent',
-    'octarine',
-    'excitingly dull', 'mauve', 'electric',
-    'neon', 'fluorescent', 'phosphorescent', 'translucent', 'opaque',
-    'psychedelic', 'iridescent', 'rainbow-colored', 'polychromatic',
-    'colorless', 'colorless green',
-    'dancing', 'singing', 'loving', 'loudy', 'noisy', 'clattery', 'silent',
-    'apocyan', 'infra-pink', 'opalescent', 'violant', 'tuneless',
-    'viridian', 'aureolin', 'cinnabar', 'purpurin', 'gamboge', 'madder',
-    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
-]);
+const hcolors = HCOLORS;
 
 /* C ref: do_name.c hcolor(). Local copy for muse_unslime. */
 function hcolor(colorpref, state) {

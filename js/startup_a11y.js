@@ -6,6 +6,7 @@
 import {
     ALTAR,
     AIR,
+    ARTICLE_NONE,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_MASK,
@@ -91,11 +92,12 @@ import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import {
     capitalizedMonsterName,
+    coyotename,
+    distant_monnam,
     hliquid,
     pmname,
     rndmonnam,
 } from './do_name.js';
-import { s_suffix } from './hacklib.js';
 import {
     fruit_from_indx,
     makeplural,
@@ -160,7 +162,7 @@ import {
 } from './objects.js';
 import {
     M1_MINDLESS,
-    PM_GHOST,
+    PM_COYOTE,
     PM_SAMURAI,
     S_EEL,
     S_MIMIC,
@@ -759,29 +761,6 @@ function speciesName(monster) {
     return names[monster.female ? 1 : 0] ?? names[2] ?? 'monster';
 }
 
-function monsterBaseName(monster, called) {
-    // C ref: do_name.c:x_monnam() shopkeeper arm, reached by
-    // distant_monnam() with no article.  nameshk() stores a leading marker
-    // for some names' gender/proper-name metadata; shkname() strips it before
-    // returning the name to the player.  A monster-shaped appearance bypasses
-    // this arm and is described from its apparent species instead.
-    const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
-    const storedShopkeeperName = monster.mextra?.eshk?.shknam;
-    if (monster.isshk
-        && !appearance
-        && typeof storedShopkeeperName === 'string'
-        && storedShopkeeperName.length) {
-        return /^[A-Za-z]/u.test(storedShopkeeperName)
-            ? storedShopkeeperName
-            : storedShopkeeperName.slice(1);
-    }
-    const given = monster.mextra?.mgivenname ?? monster.mgivenname;
-    if (given && monster.data?.pmidx === PM_GHOST)
-        return `${s_suffix(given)} ghost`;
-    if (given) return called ? `${speciesName(monster)} called ${given}` : given;
-    return speciesName(monster);
-}
-
 function heroHallucinating(state) {
     return Boolean(state?.u?.uprops?.[HALLUC]?.intrinsic)
         && !propertyActive(state.u, HALLUC_RES);
@@ -1001,15 +980,21 @@ export function describeMonster(monster, env = {}) {
     let text = hallucinating
         ? rndmonnam({
             state,
-            random: env.random,
+            random: env.displayRandom,
             files: env.files,
         })
-        : monsterBaseName(namedMonster, true);
-    if (!hallucinating
-        && !heroIsBlind(state ?? {})
-        && (monster.misc_worn_check & W_SADDLE)) {
-        text = `saddled ${text}`;
-    }
+        : namedMonster.data?.pmidx === PM_COYOTE
+            ? coyotename(namedMonster, [], state, env)
+        : distant_monnam(
+            namedMonster,
+            ARTICLE_NONE,
+            undefined,
+            state,
+            // pager.c reaches this helper only after selecting a monster
+            // glyph, so its description is an intentional name lookup even
+            // when the lightweight fixture has no map visibility state.
+            { ...env, canSpotMonster: env.canSpotMonster ?? (() => true) },
+        );
     if (monster.minvis) text = `invisible ${text}`;
     if (!hallucinating && monster.mtame) text = `tame ${text}`;
     else if (!hallucinating && monster.mpeaceful) text = `peaceful ${text}`;
@@ -1565,7 +1550,7 @@ function visibleSubjectAt(x, y, state) {
                 oy: y,
             }, state);
         }
-        return describeMonster(monster);
+        return describeMonster(monster, { state });
     }
 
     if (!floorCovered(location)) {

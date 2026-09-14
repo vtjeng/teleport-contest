@@ -132,6 +132,7 @@ import {
 } from './const.js';
 import { see_monsters } from './display.js';
 import { obj_pmname } from './do_name.js';
+import { HCOLORS } from './random_text_data.js';
 import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
@@ -1521,24 +1522,7 @@ function Hallucination(state) {
 // C ref: do_name.c hcolor() (1461-1466). Returns `colorpref` when the hero
 // is not hallucinating; otherwise picks a random color from the hallucination
 // table using the display RNG.
-const hcolors = Object.freeze([
-    'ultraviolet', 'infrared', 'bluish-orange', 'reddish-green', 'dark white',
-    'light black', 'sky blue-pink', 'pinkish-cyan', 'indigo-chartreuse',
-    'salty', 'sweet', 'sour', 'bitter', 'umami',
-    'striped', 'spiral', 'swirly', 'plaid', 'checkered', 'argyle', 'paisley',
-    'blotchy', 'guernsey-spotted', 'polka-dotted', 'square', 'round',
-    'triangular', 'cabernet', 'sangria', 'fuchsia', 'wisteria', 'lemon-lime',
-    'strawberry-banana', 'peppermint', 'romantic', 'incandescent',
-    'octarine',
-    'excitingly dull', 'mauve', 'electric',
-    'neon', 'fluorescent', 'phosphorescent', 'translucent', 'opaque',
-    'psychedelic', 'iridescent', 'rainbow-colored', 'polychromatic',
-    'colorless', 'colorless green',
-    'dancing', 'singing', 'loving', 'loudy', 'noisy', 'clattery', 'silent',
-    'apocyan', 'infra-pink', 'opalescent', 'violant', 'tuneless',
-    'viridian', 'aureolin', 'cinnabar', 'purpurin', 'gamboge', 'madder',
-    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
-]);
+const hcolors = HCOLORS;
 
 function hcolor(colorpref, state) {
     return (Hallucination(state) || !colorpref)

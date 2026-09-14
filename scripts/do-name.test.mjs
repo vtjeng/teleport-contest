@@ -4,8 +4,8 @@ import test from 'node:test';
 import { SUPPRESS_NAME } from '../js/const.js';
 import {
     Amonnam,
+    Adjmonnam,
     a_monnam,
-    a_monnam_unsupported,
     alreadynamed,
     bogon_is_pname,
     bogusmon,
@@ -15,25 +15,46 @@ import {
     free_mgivenname,
     free_oname,
     lookup_novel,
+    l_monnam,
     Monnam,
+    Mgender,
+    minimal_monnam,
     mon_nam_too,
+    m_monnam,
+    mon_pmname,
     monsterCommonName,
     monsterPossessive,
     new_mgivenname,
     new_oname,
     nextmbuf,
+    noname_monnam,
     noveltitle,
     obj_pmname,
     oname,
+    pmname,
+    roguename,
+    rndcolor,
+    rndghostname,
     rndmonnam,
+    rndorcname,
     safe_oname,
     SIR_TERRY_NOVELS,
-    UnsupportedMonsterNameError,
+    YMonnam,
+    y_monnam,
+    noit_mon_nam,
+    noit_Monnam,
+    some_mon_nam,
+    Some_Monnam,
+    hcolor,
+    hliquid,
+    coyotename,
+    distant_monnam,
     x_monnam,
 } from '../js/do_name.js';
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     ARTICLE_A,
+    ARTICLE_NONE,
     ARTICLE_THE,
     BLINDED,
     CORPSTAT_FEMALE,
@@ -44,6 +65,8 @@ import {
     DETECT_MONSTERS,
     HALLUC,
     HALLUC_RES,
+    FEMALE,
+    MALE,
     M_AP_MONSTER,
     MD_PAD_BOGONS,
     OBJ_FREE,
@@ -76,6 +99,8 @@ import {
     PM_DEATH,
     PM_GHOST,
     PM_GNOME_RULER,
+    PM_HIGH_CLERIC,
+    PM_LONG_WORM,
     PM_NEWT,
     PM_SHOPKEEPER,
     SPECIAL_PM,
@@ -164,15 +189,13 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
             'Your pony',
         );
 
-        // The mask is checked the way x_monnam()'s is, so the two partial
-        // spellings of one C function agree on an unported flag. A port of
-        // do_name.c noname_monnam() (1104-1107) would pass SUPPRESS_NAME, and
-        // C's do_name at :872 answers the species where the given-name line
-        // here would answer the name; the refusal is what keeps that from
-        // being a silent wrong string.
-        assert.throws(
-            () => monsterCommonName(monster, state, SUPPRESS_NAME),
-            UnsupportedMonsterNameError,
+        // do_name.c noname_monnam() (1102-1105) passes SUPPRESS_NAME into
+        // x_monnam(); after the visibility gate, C therefore returns the
+        // species while omitting the assigned name.
+        state.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+        assert.equal(
+            monsterCommonName(monster, state, SUPPRESS_NAME),
+            'the pony',
         );
     });
 
@@ -459,10 +482,8 @@ test('Amonnam preserves gender, invisibility, appearance, and display RNG', () =
     assert.deepEqual(displayDraws, []);
 });
 
-test('a_monnam_unsupported isolates only invalid monster appearances', () => {
-    // a_monnam_unsupported() exists so hack.c moverock_core() can refuse an
-    // appearance with no species before a_monnam() spends a display draw.
-    // Priests, minions, shopkeepers and player monsters now use x_monnam(),
+test('a_monnam wires every source naming branch through x_monnam', () => {
+    // Priests, minions, shopkeepers and player monsters all use x_monnam(),
     // exactly as do_name.c a_monnam() does.
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },
@@ -497,35 +518,12 @@ test('a_monnam_unsupported isolates only invalid monster appearances', () => {
             },
             unsupported: false,
         },
-        // ...and the first index past the catalogue is refused. The port
-        // keeps monst.c's terminator entry at mons[NUMMONS], so the first
-        // index that names nothing is mons.length, which is NUMMONS + 1.
-        {
-            monster: {
-                ...newt(), m_ap_type: M_AP_MONSTER, mappearance: state.mons.length,
-            },
-            unsupported: true,
-        },
     ];
-    for (const [index, { monster, unsupported }] of rows.entries()) {
-        assert.equal(
-            a_monnam_unsupported(monster, state),
-            unsupported,
-            `row ${index}: predicate`,
+    for (const [index, { monster }] of rows.entries())
+        assert.doesNotThrow(
+            () => a_monnam(monster, { state }),
+            `row ${index}: a_monnam formats`,
         );
-        if (unsupported) {
-            assert.throws(
-                () => a_monnam(monster, { state }),
-                UnsupportedMonsterNameError,
-                `row ${index}: a_monnam refuses`,
-            );
-        } else {
-            assert.doesNotThrow(
-                () => a_monnam(monster, { state }),
-                `row ${index}: a_monnam formats`,
-            );
-        }
-    }
 });
 
 test('x_monnam formats priest, shopkeeper and player monster names', () => {
@@ -1058,4 +1056,204 @@ test('mon_nam_too swaps a second reference for a reflexive pronoun', () => {
     // hallucinating" row.
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     assert.equal(mon_nam_too(mon, mon, state, env), 'themselves');
+});
+
+test('the remaining do_name monster wrappers preserve source article rules', () => {
+    const state = { u: { uprops: [], uroleplay: { blind: false } } };
+    monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
+    const monster = {
+        data: state.mons[PM_GNOME_RULER],
+        female: true,
+        mtame: 1,
+        misc_worn_check: W_SADDLE,
+        mextra: { mgivenname: 'Fido' },
+    };
+
+    // do_name.c:1035-1139. Named monsters suppress saddles, and each
+    // sentence wrapper changes only the first character after naming.
+    assert.equal(l_monnam(monster, state), 'gnome queen called Fido');
+    assert.equal(mon_nam_too(monster, { ...monster }, state, {
+        canSpotMonster: () => true,
+    }), 'Fido');
+    assert.equal(noit_mon_nam(monster, state), 'Fido');
+    assert.equal(noit_Monnam(monster, state), 'Fido');
+    assert.equal(some_mon_nam(monster, state), 'Fido');
+    assert.equal(Some_Monnam(monster, state), 'Fido');
+    assert.equal(y_monnam(monster, state), 'Fido');
+    assert.equal(YMonnam(monster, state), 'Fido');
+    assert.equal(Adjmonnam(monster, 'angry', state), 'The angry Fido');
+    assert.equal(m_monnam(monster, state), 'saddled gnome queen');
+
+    // noname_monnam() suppresses the given name only after the visibility
+    // gate.  The source's ARTICLE_A therefore yields the gendered species.
+    assert.equal(noname_monnam(monster, ARTICLE_A, state), 'a saddled gnome queen');
+});
+
+test('Mgender, pmname, and mon_pmname follow C gender fallback', () => {
+    const state = {
+        u: { uprops: [], umonnum: PM_GHOST, umonster: PM_NEWT, mfemale: 1 },
+        flags: { female: 0 },
+    };
+    monst_globals_init(state);
+    state.youmonst = {};
+    // Mgender() reads the current polymorphed form for gy.youmonst.
+    assert.equal(Mgender(state.youmonst, state), FEMALE);
+    state.u.umonnum = PM_NEWT;
+    state.u.umonster = PM_NEWT;
+    assert.equal(Mgender(state.youmonst, state), MALE);
+
+    // pmname() falls back to the neutral slot for an invalid or absent
+    // sex-specific row. PM_NEWT has only its neutral "newt" spelling.
+    const newt = state.mons[PM_NEWT];
+    assert.equal(pmname(newt, -1), 'newt');
+    assert.equal(pmname(newt, 1), 'newt');
+    assert.equal(mon_pmname({ data: newt, female: true }, state), 'newt');
+    assert.equal(mon_pmname({ data: state.mons[PM_GNOME_RULER], female: true }, state), 'gnome queen');
+});
+
+test('minimal_monnam and distant_monnam preserve diagnostic branches', () => {
+    const state = {
+        u: { uprops: [], ux: 1, uy: 1, uz: { dnum: 1, dlevel: 1 } },
+        astral_level: { dnum: 1, dlevel: 1 },
+        level: { monsters: [] },
+    };
+    monst_globals_init(state);
+    assert.equal(minimal_monnam(null, false, state), '[Null monster]');
+    assert.equal(minimal_monnam({ data: null }, false, state), '[Null mon->data]');
+    const worm = {
+        data: state.mons[PM_LONG_WORM],
+        mx: 4,
+        my: 5,
+        m_id: 17,
+        mtame: 1,
+        cham: PM_NEWT,
+    };
+    // C's level.monsters[x][y] pointer differs from the worm pointer here, so
+    // ckloc selects the long-worm-tail diagnostic and does not append cham.
+    assert.equal(minimal_monnam(worm, true, state), 'long worm tail <4,5>');
+    const ordinary = {
+        data: state.mons[PM_NEWT], mx: 2, my: 3, mp: 0,
+        m_id: 18, mpeaceful: 1, cham: PM_GNOME_RULER,
+    };
+    assert.equal(
+        minimal_monnam(ordinary, false, state),
+        'peaceful newt <2,3>{gnome king}',
+    );
+
+    const high = {
+        data: state.mons[PM_HIGH_CLERIC], female: false, mx: 5, my: 5,
+    };
+    // do_name.c conceals a remote Astral high priest as rank only, but allows
+    // the normal x_monnam() result on an adjacent square.
+    const remote = [];
+    assert.equal(distant_monnam(high, ARTICLE_THE, remote, state), 'the high priest');
+    assert.equal(remote[0], 'the high priest');
+    high.mx = 2;
+    high.my = 1;
+    assert.equal(distant_monnam(high, ARTICLE_NONE, [], state, {
+        canSpotMonster: () => true,
+    }), 'high priest');
+});
+
+test('hallucination colors and liquids retain source tables and draws', () => {
+    const state = { u: { uprops: [] }, program_state: {} };
+    monst_globals_init(state);
+    let draws = 0;
+    assert.equal(hcolor('blue', state, {
+        displayRandom: () => { draws++; return 0; },
+    }), 'blue');
+    assert.equal(draws, 0);
+    state.u.uprops[HALLUC] = { intrinsic: 1 };
+    assert.equal(hcolor('blue', state, {
+        displayRandom(bound) {
+            assert.equal(bound, 74); // do_name.c hcolors[] has 74 entries.
+            draws++;
+            return 0;
+        },
+    }), 'ultraviolet');
+    assert.equal(draws, 1);
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 1 };
+    assert.equal(hcolor('blue', state, {
+        displayRandom: () => { throw new Error('extrinsic hallucination must not draw'); },
+    }), 'blue');
+    state.u.uprops[HALLUC] = { intrinsic: 1 };
+    const colorDraws = [];
+    assert.equal(rndcolor({ u: { uprops: [] } }, {
+        random: (bound) => {
+            colorDraws.push(['gameplay', bound]);
+            return 8;
+        },
+    }), 'colorless');
+    assert.equal(rndcolor(state, {
+        random: (bound) => {
+            colorDraws.push(['gameplay', bound]);
+            return 0;
+        },
+        displayRandom: (bound) => {
+            colorDraws.push(['display', bound]);
+            return 1;
+        },
+    }), 'infrared');
+    assert.deepEqual(colorDraws, [
+        ['gameplay', 16], ['gameplay', 16], ['display', 74],
+    ]);
+    assert.equal(hliquid('water', {
+        state,
+        displayRandom(bound) {
+            assert.equal(bound, 41); // 40 hliquids plus the preferred value.
+            return 40; // C's final slot preserves a non-hallucinatory default.
+        },
+    }), 'water');
+    state.program_state.gameover = true;
+    assert.equal(hliquid('water', {
+        state,
+        displayRandom: () => { throw new Error('gameover must not draw'); },
+    }), 'water');
+});
+
+test('random ghost, Rogue, coyote, and orc names preserve C draw order', () => {
+    const ghostDraws = [];
+    assert.equal(rndghostname({
+        state: { plname: 'Hero' },
+        random: { rn2(bound) { ghostDraws.push(bound); return bound === 7 ? 1 : 0; } },
+    }), 'Adri');
+    assert.deepEqual(ghostDraws, [7, 34]);
+    assert.equal(roguename({ environment: { ROGUEOPTS: 'fruit=apple,name=Red,score=1' } }), 'Red');
+    let rogueDraw = 0;
+    assert.equal(roguename({}, (bound) => {
+        ++rogueDraw;
+        return bound === 3 ? 0 : 1;
+    }), 'Glenn Wichman');
+    assert.equal(rogueDraw, 1);
+
+    const state = { u: { uprops: [] } };
+    monst_globals_init(state);
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
+    const coyote = {
+        data: state.mons[PM_NEWT], m_id: 1, mcan: false,
+        mextra: { mgivenname: 'Fido' },
+    };
+    const coyoteOut = [];
+    assert.equal(
+        coyotename(coyote, coyoteOut, state),
+        'newt called Fido - Road-Runnerus Digestus',
+    );
+    assert.equal(coyoteOut[0], 'newt called Fido - Road-Runnerus Digestus');
+    coyote.mcan = true;
+    assert.equal(coyotename(coyote, {}, state), 'newt called Fido - Canis latrans');
+
+    const draws = [];
+    const random = {
+        rn1(a, b) { draws.push(['rn1', a, b]); return 2; },
+        rn2(bound) {
+            draws.push(['rn2', bound]);
+            return bound === 30 ? 1 : 0;
+        },
+    };
+    assert.equal(rndorcname(random), 'agor');
+    assert.deepEqual(draws, [
+        ['rn1', 2, 3], ['rn2', 2], ['rn2', 4],
+        ['rn2', 30], ['rn2', 11],
+    ]);
 });

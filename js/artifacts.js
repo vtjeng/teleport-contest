@@ -94,6 +94,7 @@ import {
     NECK,
 } from './const.js';
 import { game } from './gstate.js';
+import { HCOLORS } from './random_text_data.js';
 import {
     AT_MAGC,
     LOW_PM,
@@ -2779,25 +2780,13 @@ export function glow_color(arti_indx, state = game) {
 }
 
 // Hallucination color table (shared with do_name.c hcolor).
-const hcolors = Object.freeze([
-    'ultraviolet', 'infrared', 'bluish-orange',
-    'reddish-green', 'dark white', 'light black', 'sky blue-Loss',
-    'pinkish-cyan', 'indigo-Loss', 'colorless',
-    'white', 'black', 'hot pink', 'chartreuse', 'periwinkle',
-    'mellow yellow', 'sarcoline', 'incarnadine', 'sinoper',
-    'zinnober', 'smaragdine', 'woad', 'watchet',
-    'keppel', 'feldgrau', 'glaucous', 'gamboge',
-    'falun red', 'aureolin', 'celadon', 'erin', 'coquelicot',
-    'nattier blue', 'mikado yellow', 'amaranth', 'viridian',
-    'feldgrau', 'amaranth', 'zinnober', 'smaragdine',
-    'coquelicot', 'glaucous', 'gamboge',
-    'bistre', 'ecru', 'fulvous', 'tekhelet', 'selective yellow',
-]);
+const hcolors = HCOLORS;
 
 // C ref: do_name.c hcolor() (1460-1466).
 export function hcolor(colorpref, state) {
     const halluc = (state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) !== 0
-        || (state.u?.uprops?.[HALLUC]?.extrinsic ?? 0) !== 0;
+        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic);
     return (halluc || !colorpref)
         ? hcolors[rn2_on_display_rng(hcolors.length)]
         : colorpref;

@@ -1110,7 +1110,7 @@ test('postmov separates the dart line gate from the seetrap gate', async () => {
     // cansee() of the square is true, so thitm() writes its line.
     assert.deepEqual(
         messages,
-        ['The giant rat is almost hit by a dart!'],
+        ['The invisible giant rat is almost hit by a dart!'],
     );
     assert.equal(state.level.traps[0].tseen, false);
 });

@@ -11,6 +11,7 @@ import {
 } from '../js/const.js';
 import { random_engraving } from '../js/random_engraving.js';
 import {
+    HCOLORS,
     HLIQUIDS,
     RANDOM_TEXT_FILES,
     RANDOM_TEXT_FILE_HASHES,
@@ -75,6 +76,7 @@ test('generated random-text data matches the pinned source and byte layout', () 
     const generated = buildRandomTextFiles();
     const tables = buildDoNameTables();
     assert.deepEqual(generated, RANDOM_TEXT_FILES);
+    assert.deepEqual(tables.hcolors, HCOLORS);
     assert.deepEqual(tables.hliquids, HLIQUIDS);
     const doNameSource = readFileSync(
         new URL('../nethack-c/upstream/src/do_name.c', import.meta.url),
@@ -84,6 +86,18 @@ test('generated random-text data matches the pinned source and byte layout', () 
         /static\s+NEARDATA\s+const\s+char\s+\*const\s+hliquids\[\]\s*=\s*\{([\s\S]*?)\n\};/u,
     )?.[1];
     assert.ok(liquidBody);
+    const colorBody = doNameSource.match(
+        /static\s+NEARDATA\s+const\s+char\s+\*const\s+hcolors\[\]\s*=\s*\{([\s\S]*?)\n\};/u,
+    )?.[1];
+    assert.ok(colorBody);
+    const sourceColors = [...colorBody
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/\/\/[^\n]*/gu, '')
+        .matchAll(/"((?:\\.|[^"\\])*)"/gu)]
+        .map((match) => JSON.parse(`"${match[1]}"`));
+    assert.deepEqual(HCOLORS, sourceColors);
+    assert.equal(HCOLORS.length, 74);
+    assert.equal(HCOLORS[8], 'indigo-chartreuse');
     const uncommentedLiquidBody = liquidBody
         .replace(/\/\*[\s\S]*?\*\//gu, '')
         .replace(/\/\/[^\n]*/gu, '');

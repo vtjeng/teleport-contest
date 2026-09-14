@@ -546,7 +546,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
             : `eats ${objName}`;
         await message(
             messageAt(
-                `${capitalizedAlwaysVisibleMonsterName(mtmp, state)}`
+                `${capitalizedAlwaysVisibleMonsterName(mtmp, state, rawEnv)}`
                 + ` ${action}.`,
                 mtmp.mx,
                 mtmp.my,
@@ -1610,7 +1610,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             const message = env.message ?? ttyPline;
             await message(
                 messageAt(
-                    `${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                    `${capitalizedAlwaysVisibleMonsterName(monster, state, env)}`
                     + ` ${vtense(null, locomotion(monster.data, 'step'))}`
                     + ' reluctantly '
                     + ((is_flyer(monster.data) || is_floater(monster.data))

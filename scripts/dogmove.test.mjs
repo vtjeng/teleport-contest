@@ -39,7 +39,6 @@ import {
     pet_ranged_attk,
     score_targ,
 } from '../js/dogmove.js';
-import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';
@@ -1661,6 +1660,7 @@ test('dog_move reports a cursed landing seen before movement', async () => {
     // when the first answered FALSE, so a pet seen at its origin asks once.
     assert.deepEqual(events, [
         'see:5,5',
+        'see:6,5',
         'report:6,5',
     ]);
     // This state sets no level.flags.hero_memory, so dogmove.c:1302 keeps o at
@@ -1763,7 +1763,7 @@ test('dog_move will not name a pile on a level that keeps no hero memory',
         ]);
     });
 
-test('dog_move stops rather than name a hallucinated pet', async () => {
+test('dog_move names a hallucinated pet with the source random name', async () => {
     const { state, monster, destination } = rememberedPileState();
     // youprop.h:120 Hallucination: the intrinsic timeout with no resistance.
     state.u.uprops[HALLUC] = { intrinsic: 1000 };
@@ -1773,20 +1773,22 @@ test('dog_move stops rather than name a hallucinated pet', async () => {
     // not: noit_mon_nam() (do_name.c:1056-1058) passes x_monnam() no
     // SUPPRESS_HALLUCINATION, so :950-955 replaces "your little dog" with
     // rndmonnam()'s bogus name and draws from the display RNG to choose it.
-    // js/do_name.js has no bogus-name arm, so it refuses instead, and the
-    // refusal has to precede the message rather than print a wrong one.
-    await assert.rejects(
-        () => dog_move(monster, false, cursedStepEnv(
-            state,
-            destination,
-            {
-                message: () => assert.fail(
-                    'the refusal precedes the cursed-step line',
-                ),
-            },
-        )),
-        (error) => error instanceof UnsupportedMonsterNameError
-            && error.reason === "noit_Monnam()'s hallucinated bogus name",
+    const lines = [];
+    const result = await dog_move(monster, false, cursedStepEnv(
+        state,
+        destination,
+        {
+            message: async (text) => { lines.push(text); },
+            // x_monnam() owns this display-only draw; keep it separate from
+            // movementEnv()'s gameplay RNG while selecting killer bee.
+            displayRandom: (bound) => Math.min(1, bound - 1),
+        },
+    ));
+    assert.equal(result, MMOVE_MOVED);
+    assert.equal(lines.length, 1);
+    assert.equal(
+        lines[0],
+        'Your killer bee steps reluctantly onto something.',
     );
 });
 
