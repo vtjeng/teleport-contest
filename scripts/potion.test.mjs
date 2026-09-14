@@ -13,9 +13,9 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, HALLUC,
+    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, HALLUC,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
-    SLEEP_RES,
+    SATIATED, SLEEP_RES, WEAK,
     TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
@@ -66,6 +66,7 @@ import {
     speed_up,
 } from '../js/potion.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
+import { loadQuaffBoozeRecipes, verifyBoozeSegment } from './run-quaff-confusion.mjs';
 
 const POTION_TYPES = Object.freeze({
     POT_GAIN_ABILITY,
@@ -931,6 +932,118 @@ test('make_confused updates only status transitions and clears with feedback',
     assert.equal(toplines(), '');
     assert.equal(game.disp.botl, true);
 });
+
+// potion.c:771-792. Confusion uses the hunger status before nutrition is
+// added; dilution suppresses healing but not nutrition, and blessed booze
+// skips confusion entirely. C assigns multi directly for the cursed tail.
+test('booze preserves source order across beatitude, hunger and dilution',
+    async () => {
+        for (const row of [
+            // Nutrition stays within each status band so newuhs's separate
+            // transition messages cannot hide peffect_booze's own order.
+            { name: 'blessed', blessed: true, cursed: false,
+                hunger: 900, hungerState: NOT_HUNGRY, diluted: false },
+            { name: 'uncursed', blessed: false, cursed: false,
+                hunger: 900, hungerState: NOT_HUNGRY, diluted: false },
+            { name: 'uncursed diluted', blessed: false, cursed: false,
+                hunger: 900, hungerState: NOT_HUNGRY, diluted: true },
+            { name: 'cursed diluted weak', blessed: false, cursed: true,
+                hunger: 20, hungerState: WEAK, diluted: true },
+            { name: 'hallucinating satiated form', blessed: false, cursed: false,
+                hunger: 1100, hungerState: SATIATED, diluted: false,
+                hallucinating: true, polymorphed: true },
+            // youprop.h:119-120 suppresses hallucination for either source
+            // of resistance, without consulting HALLUC.blocked.
+            { name: 'intrinsic hallucination resistance', blessed: true,
+                cursed: false, hunger: 900, hungerState: NOT_HUNGRY,
+                diluted: false, hallucinating: true, resistance: 'intrinsic' },
+            { name: 'extrinsic hallucination resistance', blessed: true,
+                cursed: false, hunger: 900, hungerState: NOT_HUNGRY,
+                diluted: false, hallucinating: true, resistance: 'extrinsic' },
+        ]) {
+            // Independent initial state, not copied from the failing session.
+            await startedGame(8430001, 'BoozeBranches');
+            const potion = vaporPotion(POT_BOOZE);
+            potion.blessed = row.blessed;
+            potion.cursed = row.cursed;
+            potion.odiluted = row.diluted;
+            game.u.uhunger = row.hunger;
+            game.u.uhs = row.hungerState;
+            game.u.uprops[HALLUC].intrinsic = row.hallucinating ? 40 : 0;
+            game.u.uprops[HALLUC_RES].intrinsic = 0;
+            game.u.uprops[HALLUC_RES].extrinsic = 0;
+            if (row.resistance)
+                game.u.uprops[HALLUC_RES][row.resistance] = FROMOUTSIDE;
+            game.u.uprops[CONFUSION].intrinsic = 7; // Extend an existing timeout.
+            game.u.aexe[A_WIS] = 0; // Below exercise's saturation threshold.
+            game.u.uhp = game.u.uhpmax - 2; // Healing can add its one point.
+            if (row.polymorphed) {
+                // healup's form branch compares umonnum with umonster; its
+                // arithmetic needs no species-dependent operation.
+                game.u.umonnum = game.u.umonster + 1;
+                game.u.mh = 6;
+                game.u.mhmax = 10;
+            }
+            const hpBefore = game.u.uhp;
+            game.gp.potion_unkn = 4; // Increment, do not reset this counter.
+            game.multi = 9; // Positive multi distinguishes assignment from nomul.
+            game.multi_reason = 'existing counted action';
+            game.u.uinvulnerable = true;
+            game.u.usleep = 3;
+            game.context.run = 1;
+            clearTopline();
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+            enableRngLog();
+
+            assert.equal(await peffects(potion, game), -1, row.name);
+
+            const draws = [...getRngLog()];
+            let confusion = 7;
+            if (!row.blessed) {
+                const dice = 2 + row.hungerState;
+                const rolled = Number(new RegExp(`^d\\(${dice},8\\)=(\\d+)$`,
+                    'u').exec(draws.shift())?.[1]);
+                assert.ok(rolled >= dice && rolled <= dice * 8, row.name);
+                confusion += rolled;
+            }
+            const wisdomLoss = Number(/^rn2\(2\)=(\d+)$/u
+                .exec(draws.shift())?.[1]);
+            assert.ok(wisdomLoss === 0 || wisdomLoss === 1, row.name);
+            assert.equal(game.u.aexe[A_WIS], 0 - wisdomLoss, row.name);
+            if (row.cursed) {
+                const duration = Number(/^rnd\(15\)=(\d+)$/u
+                    .exec(draws.shift())?.[1]);
+                assert.ok(duration >= 1 && duration <= 15, row.name);
+                assert.equal(game.multi, -duration, row.name);
+                assert.equal(game.nomovemsg, 'You awake with a headache.');
+            } else {
+                assert.equal(game.multi, 9, row.name);
+            }
+            assert.deepEqual(draws, [], 'no extra RNG call');
+            assert.equal(game.u.uprops[CONFUSION].intrinsic, confusion);
+            assert.equal(game.gp.potion_unkn, 5);
+            assert.equal(game.u.uhunger, row.hunger
+                + 10 * (2 + Number(row.blessed) - Number(row.cursed)));
+            assert.equal(game.u.uhp, hpBefore
+                + (!row.diluted && !row.polymorphed ? 1 : 0));
+            if (row.polymorphed) assert.equal(game.u.mh, 7);
+            assert.equal(game.multi_reason, 'existing counted action');
+            assert.equal(game.u.uinvulnerable, true);
+            assert.equal(game.u.usleep, 3);
+            assert.equal(game.context.run, 1);
+            const taste = row.hallucinating && !row.resistance
+                ? 'dandelion wine' : 'liquid fire';
+            assert.ok(toplines().includes(row.cursed ? 'You pass out.'
+                : `Ooph!  This tastes like ${row.diluted ? 'watered down ' : ''}${taste}!`));
+        }
+    });
+
+test('fresh booze recipes consume the potion and finish the delayed action',
+    async () => {
+        for (const { recipe } of loadQuaffBoozeRecipes()) {
+            for (const input of recipe.segments) await verifyBoozeSegment(input);
+        }
+    });
 
 test('a sober confusion potion prints its message and draws its timeout',
     async () => {

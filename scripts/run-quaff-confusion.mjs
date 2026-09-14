@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Record and replay potion.c peffect_confusion() through the quaff command.
+// Record and replay potion.c confusion and booze through the quaff command.
 // Every segment contains replay inputs only; runFreshMatrix() records new C
 // output in an isolated workspace before comparing the JavaScript port.
 //
@@ -16,6 +16,12 @@
 // its fresh-differential obligation under
 // quaff-confusion-hallucinating-feedback.
 
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { CONFUSION } from '../js/const.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { POT_BOOZE } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -65,13 +71,43 @@ export function loadQuaffConfusionRecipe() {
     }, 'quaff confusion recipe');
 }
 
+// The independent seed was selected before inspection, without a seed scan.
+// Beatitude alone varies these three recipes. Newlines dismiss the taste
+// message and decline the type-naming prompt so the elapsed action completes.
+export function loadQuaffBoozeRecipes() {
+    return ['blessed', 'uncursed', 'cursed'].map((beatitude) => ({
+        label: `quaff ${beatitude} booze`,
+        recipe: JSON.parse(readFileSync(new URL(
+            `../recipes/potion.c/booze-${beatitude}.session.json`,
+            import.meta.url,
+        ), 'utf8')),
+    }));
+}
+
+export async function verifyBoozeSegment(input) {
+    if (!input.moves.includes('potion of booze')) return;
+    let boundary;
+    await runSegment(input, { onBoundary: (error) => { boundary = error; } });
+    assert.equal(boundary, undefined);
+    for (let object = game.invent; object; object = object.nobj)
+        assert.notEqual(object.otyp, POT_BOOZE, 'dopotion consumed the dose');
+    const blessed = input.moves.includes('blessed potion of booze');
+    assert.equal(game.u.uprops[CONFUSION].intrinsic > 0, !blessed);
+    assert.equal(game.multi, 0, 'the full delayed action completed');
+    if (input.moves.includes('\u0017cursed')) {
+        assert.equal(game.nomovemsg, null);
+        assert.match(game._ttyToplines, /You awake with a headache\./u);
+    }
+}
+
 export async function runQuaffConfusionMatrix() {
     return runFreshMatrix({
         entries: [{
             label: 'quaff confusion',
             recipe: loadQuaffConfusionRecipe(),
-        }],
-        summaryLabel: 'QUAFF CONFUSION',
+        }, ...loadQuaffBoozeRecipes()],
+        summaryLabel: 'QUAFF CONFUSION AND BOOZE',
+        verifySegment: verifyBoozeSegment,
         // Debug games leave saves in the recorder installation, so each must
         // run in a separately cleared chunk.
         chunkLimit: 1,

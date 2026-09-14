@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c peffect_booze recipe. Debug wish supplies uncursed booze, then quaff reaches dodrink -> dopotion -> peffects. Beatitude varies confusion, nutrition and the cursed direct-multi pass-out tail. Seed selected before inspection; no seed scan.",
+  "segments": [
+    {
+      "seed": 8430019,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:BoozePilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017uncursed potion of booze\nqm\n\n"
+    }
+  ]
+}

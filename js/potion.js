@@ -2,7 +2,7 @@
 // C ref: src/potion.c dodrink() (526-615), drink_ok() (505-521),
 //        dopotion() (618-641), peffects() (1333-1425),
 //        make_confused() (89-104), self_invis_message() (471-478),
-//        peffect_confusion() (1014-1027),
+//        peffect_booze() (771-792), peffect_confusion() (1014-1027),
 //        peffect_paralysis() (881-898),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
@@ -15,10 +15,10 @@
 // worn-potion, and milky/smoky potions are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 26 potion types; POT_CONFUSION, POT_SICKNESS,
+// peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
 // POT_SPEED (with spell alias SPE_HASTE_SELF), POT_OIL, the
 // POT_FRUIT_JUICE arm of peffect_see_invisible(), and the ordinary
-// POT_PARALYSIS arm are ported. The other 20 arms throw
+// POT_PARALYSIS arm are ported. The other arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -537,6 +537,37 @@ export async function make_hallucinated(
     return true;
 }
 
+// C ref: potion.c peffect_booze() (771-792).
+async function peffect_booze(otmp, state = game) {
+    state.gp.potion_unkn++;
+    await ttyPline(`Ooph!  This tastes like ${otmp.odiluted
+        ? 'watered down ' : ''}${Hallucination(state)
+        ? 'dandelion wine' : 'liquid fire'}!`, state);
+    if (!otmp.blessed) {
+        // C reads u.uhs before adding the potion's nutrition.
+        await make_confused(itimeout_incr(
+            state.u.uprops[CONFUSION].intrinsic,
+            d(2 + state.u.uhs, 8),
+        ), false, state);
+    }
+    if (!otmp.odiluted) healup(1, 0, false, false, state);
+    state.u.uhunger += 10 * (2 + bcsign(otmp));
+    const { newuhs } = await import('./eat.js');
+    await newuhs(false, state, {
+        message: ttyPline,
+        endRunning,
+        statusRefresh: () => bot(),
+    });
+    await exercise(A_WIS, false, state);
+    if (otmp.cursed) {
+        await ttyPline('You pass out.', state);
+        // This is C's direct assignment, not nomul(): do not clear running,
+        // invulnerability, usleep or an existing multi_reason/callback.
+        state.multi = -rnd(15);
+        state.nomovemsg = 'You awake with a headache.';
+    }
+}
+
 // ---------------------------------------------------------------------------
 // peffect_confusion
 // C ref: potion.c peffect_confusion() (1014-1027).
@@ -876,7 +907,8 @@ export async function peffects(otmp, state = game) {
     case POT_WATER:
         throw new UnsupportedQuaffError('peffect_water()');
     case POT_BOOZE:
-        throw new UnsupportedQuaffError('peffect_booze()');
+        await peffect_booze(otmp, state);
+        break;
     case POT_ENLIGHTENMENT:
         throw new UnsupportedQuaffError('peffect_enlightenment()');
     case SPE_INVISIBILITY:
@@ -938,11 +970,13 @@ export async function peffects(otmp, state = game) {
     return -1;
 }
 
-// C ref: youprop.h:119-120 Hallucination, the bare HALLUC intrinsic minus
-// the blocked term. Local because each file that needs it defines its own.
+// C ref: youprop.h:115-120. A hallucination timeout is effective only without
+// intrinsic or extrinsic hallucination resistance.
 function Hallucination(state) {
     const prop = state.u?.uprops?.[HALLUC];
-    return Boolean(prop?.intrinsic && !prop?.blocked);
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(prop?.intrinsic
+        && !(resistance?.intrinsic || resistance?.extrinsic));
 }
 
 // C ref: potion.c dopotion() (618-641). Called by dodrink() after the potion
