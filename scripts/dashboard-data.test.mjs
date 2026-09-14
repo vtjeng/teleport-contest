@@ -737,11 +737,8 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assert.deepEqual(sourceFileRows(sourceWorkTable).get('beta.c'), ['1', '', '', '0', '1']);
     // Orphan has inferred timing (†); alpha has observed timing (no †)
     assert.match(orphanRow, /20m\s†/u);
-    assert.match(orphanRow, /Working time: 20/u);
-    assert.match(alphaRow, /Working time: 20/u);
     assert.doesNotMatch(alphaRow, /25m\s†/u);
-    assert.match(betaRow, /<td>10m<\/td>/u);
-    assert.match(betaRow, /Goal selection: 10/u);
+    assert.doesNotMatch(table, /Goal sel|Goal selection|phase-bar/u);
 
     // 03:00 on the fixture's day keeps every goal, including the one still
     // open, inside the timeline's window.
@@ -923,14 +920,8 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     let mixedTableRow = renderDashboard(inferredGoal).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
-    assert.match(
-        mixedTableRow,
-        /<td>5m<\/td>/u,
-    );
-    assert.match(
-        mixedTableRow,
-        /title="Goal selection: 5m"/u,
-    );
+    assert.ok(mixedTableRow);
+    assert.doesNotMatch(mixedTableRow, /Goal selection|phase-bar/u);
 
     // Date-only UTC in slice: its SHA still resolves, so utcSource is 'commit'
     // and sliceSelectionObserved is true.
@@ -950,14 +941,8 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     mixedTableRow = renderDashboard(inferredSlice).get('goalTable')
         .innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
-    assert.match(
-        mixedTableRow,
-        /<td>5m<\/td>/u,
-    );
-    assert.match(
-        mixedTableRow,
-        /title="Goal selection: 5m"/u,
-    );
+    assert.ok(mixedTableRow);
+    assert.doesNotMatch(mixedTableRow, /Goal selection|phase-bar/u);
 
     // Both prior goal and slice have date-only UTC, but both SHAs resolve,
     // so all utcSources are 'commit' and everything is observed.
@@ -975,7 +960,8 @@ test('in-progress phase provenance follows each recorded boundary', () => {
     const rendered = renderDashboard(inferredData);
     const row = rendered.get('goalTable').innerHTML.split('</tr>')
         .find((candidate) => candidate.includes('running'));
-    assert.match(row, /5m<\/td>/u);
+    assert.ok(row);
+    assert.doesNotMatch(row, /Goal selection|phase-bar/u);
     assert.ok(!timelineBar(inferredData, builtAt, 'running').classes.includes('inferred'));
 });
 
