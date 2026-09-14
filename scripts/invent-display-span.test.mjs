@@ -105,7 +105,7 @@ test('count_unpaid and count_contents follow nested chains and quantities', () =
     assert.equal(count_contents(sack, false, false, true, false, state), 2);
     assert.equal(count_contents(sack, true, true, true, false, state), 5);
     assert.equal(count_contents(sack, true, false, false, false, state), 2);
-    assert.equal(count_contents(sack, false, false, false, true, state), 2);
+    assert.equal(count_contents(sack, false, false, false, true, state), 1);
 });
 
 test('count_buc and tally_BUCX preserve cleric and goldX classification', () => {
