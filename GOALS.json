@@ -42245,7 +42245,16 @@
       "sessions": [],
       "selectionReason": "The authoritative queue ranks holdout/seed4500-knight-coverage first at 1025, but its valid cache owner teleport.c teleds is already a completed source goal and its remaining same-count screen annotation has no unverified source span; the next actionable session with a complete valid investigation is holdout/seed0002-healer-reflection-drummer at 595. Its cache identifies trap.c trapeffect_dart_trap as the source-local callback wiring owner.",
       "detail": "Queue entry: holdout/seed0002-healer-reflection-drummer, original stop at recorded step 47 with message Replay error: exercise requires encumber_msg, remainingScreensUpperBound 595. C trap.c trapeffect_dart_trap -> mthrowu.c thitu() -> attrib.c exercise() calls encumber_msg() after a nonlethal dart hit; js/trap_effects.js trapeffect_dart_trap supplies thitu() without encumberMessage, so js/attrib.js stops before the C exercise draw. Existing encumberMessage and near_capacity helpers are dependencies; implement callback wiring without session-specific behavior.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "trapeffect_dart_trap",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_dart_trap"
+          ]
+        }
+      ],
       "openedAt": "2354460c049b6bc88a24286e4b1d01483c2adeb0",
       "openStanding": {
         "sha": "2354460c049b6bc88a24286e4b1d01483c2adeb0",
