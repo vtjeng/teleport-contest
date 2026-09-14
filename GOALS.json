@@ -37573,8 +37573,8 @@
         },
         {
           "name": "dotypeinv..noarmor",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7",
           "functions": [
             "dotypeinv",
             "dfeature_at",
@@ -38177,78 +38177,78 @@
           "name": "dotypeinv",
           "line": 3827,
           "endLine": 4036,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dfeature_at",
           "line": 4037,
           "endLine": 4103,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "look_here",
           "line": 4104,
           "endLine": 4318,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dolook",
           "line": 4319,
           "endLine": 4333,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "will_feel_cockatrice",
           "line": 4334,
           "endLine": 4342,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "feel_cockatrice",
           "line": 4343,
           "endLine": 4365,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "stackobj",
           "line": 4366,
           "endLine": 4378,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mergable",
           "line": 4379,
           "endLine": 4502,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doprgold",
           "line": 4503,
           "endLine": 4549,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doprwep",
           "line": 4550,
           "endLine": 4577,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "noarmor",
           "line": 4578,
           "endLine": 4600,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doprarm",
@@ -38331,35 +38331,35 @@
           "name": "adjust_ok",
           "line": 4917,
           "endLine": 4926,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "adjust_gold_ok",
           "line": 4927,
           "endLine": 4980,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "doorganize",
           "line": 4981,
           "endLine": 5007,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "adjust_split",
           "line": 5008,
           "endLine": 5067,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "doorganize_core",
           "line": 5068,
           "endLine": 5289,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
@@ -40414,26 +40414,330 @@
             "recordings": [],
             "inactiveReason": "The only C production caller is dotypeinv() query_objlist(), which is not yet wired in the JavaScript command path; the source-pinned test covers class, P, B, C, and coin classification.",
             "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
-          }
-        ],
-        "entryPointReview": "The selected invent.c range contains two executable entry points covered by fresh recordings: traditional container selection reaches askchain() through pickup.c traditional_loot(), and startup reroll reaches reroll_menu() through allmain.c newgame(). The remaining units are inventory-selection, identification, display, and teardown helpers reached by existing command/caller wiring; their recorder-inaccessible or non-isolating branches are source-pinned and named per function above. The current fixed holdout mismatch remains outside this span at the unsupported doorganize()/adjust command.",
-        "entryPoints": [
+          },
           {
-            "name": "traditional container selection",
-            "functions": [
-              "askchain"
+            "name": "dotypeinv",
+            "implementation": "js/invent.js",
+            "symbol": "dotypeinv",
+            "sourceReview": "Read invent.c dotypeinv() in full. Ported the traditional and full or partial category selection branches, BUC and unpaid filters, title construction, object-list dispatch, item action, and temporary gt context reset in source order. The live bill branch remains at the doinvbill dependency boundary.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches the extcmd row named inventtype to dotypeinv()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs",
+              "scripts/extended-command-prompt.test.mjs"
             ],
             "recordings": [
-              "recordings/invent.c/askchain-put-in-traditional.session.json"
+              "recordings/invent.c/inventory-by-type.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "dfeature_at",
+            "implementation": "js/invent.js",
+            "symbol": "dfeature_at",
+            "sourceReview": "Read invent.c dfeature_at() in full. Preserved the source branch order for doors and drawbridges, furniture, lava and ice, pools, altars, stairs, graves, trees, and iron bars; implemented the ice description and altar deity and alignment formatting dependencies used by this range.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "look_here",
+                "source": "invent.c look_here() calls dfeature_at() before blind or object output."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "startupStairDecor",
+                "source": "pickup.c describe_decor() checks the startup stair feature through dfeature_at()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/cmd.test.mjs",
+              "scripts/stairs.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/look-command-empty-square.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "look_here",
+            "implementation": "js/invent.js",
+            "symbol": "look_here",
+            "sourceReview": "Read invent.c look_here() in full. Preserved region and seen-trap ordering, terrain and blind tactile messages, engraving timing, pile-limit counts, single-object output, object-pile display, and cockatrice tactile warning order. Remaining fail-closed guards identify unported callers outside this span.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "dolook",
+                "source": "invent.c dolook() invokes look_here(0, LOOKHERE_NOFLAGS)."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "check_here",
+                "source": "pickup.c check_here() invokes look_here() for objects left on the floor after pickup."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/look-command-empty-square.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "dolook",
+            "implementation": "js/invent.js",
+            "symbol": "dolook",
+            "sourceReview": "Read invent.c dolook() in full. The command calls look_here with zero object count and no flags and returns its result while the command dispatcher supplies the message and engraving owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runLookCommand",
+                "source": "cmd.c command handling dispatches the look command to invent.c dolook()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches the extcmd row named look to dolook()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/look-command-empty-square.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "will_feel_cockatrice",
+            "implementation": "js/invent.js",
+            "symbol": "will_feel_cockatrice",
+            "sourceReview": "Read invent.c will_feel_cockatrice() in full. This pure predicate keeps the blind or forced-touch gate, glove and stone-resistance exclusions, corpse type check, and touch-petrifies species check.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "feel_cockatrice",
+                "source": "invent.c feel_cockatrice() first calls will_feel_cockatrice()."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c query_objlist() uses will_feel_cockatrice() while sorting a tactile object menu."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "feel_cockatrice",
+            "implementation": "js/invent.js",
+            "symbol": "feel_cockatrice",
+            "sourceReview": "Read invent.c feel_cockatrice() in full. Preserved predicate, corpse naming, polymorph-safe bare-hand message, and source order; killer_xname() and instapetrify() remain explicitly recorded at the trap.c dependency boundary. The independent blind-wish recipe is retained under recipes/invent.c but cannot record because objnam.c rnd_otyp_by_namedesc() diverges while creating the corpse.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "look_here",
+                "source": "invent.c look_here() calls feel_cockatrice() in skip-count, object-pile, and single-object corpse branches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The reference build cannot reach the blind wished-cockatrice recording because the setup diverges earlier in objnam.c rnd_otyp_by_namedesc(); the source-pinned tactile test covers the warning branch, and trap.c instapetrify remains unported after that warning.",
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "stackobj",
+            "implementation": "js/invent.js",
+            "symbol": "stackobj",
+            "sourceReview": "Read invent.c stackobj() in full. The port scans the remembered floor pile in source order, preserves the newly placed object as the merge survivor, and delegates merged object lifecycle to its existing owner.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c throwit() places a landed object and calls stackobj()."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "do.c dropz() places a dropped object and calls stackobj()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/monster-missile-drop-mulching.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "mergable",
+            "implementation": "js/invent.js",
+            "symbol": "mergable",
+            "sourceReview": "Read invent.c mergable() in full. Preserved all metadata, erosion, corpse and egg timer, reviver, candle, oil, billing, named-object, mail, artifact, and perception gates with source evaluation order; the target corpse's corpsenm is used for the reviver test.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize_core",
+                "source": "invent.c doorganize_core() filters candidate destination slots through mergable()."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c landing setup uses stackobj(), whose merged() path is gated by mergable()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/monster-missile-drop-mulching.session.json",
+              "recordings/invent.c/adjust-inventory-slots.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "doprgold",
+            "implementation": "js/invent.js",
+            "symbol": "doprgold",
+            "sourceReview": "Read invent.c doprgold() in full. Preserved known wallet and hidden-gold reporting, verbose versus terse messages, shopper report, menu-requested gold display, and ECMD_OK return.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches #showgold to doprgold()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/invent.c/show-gold.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "doprwep",
+            "implementation": "js/invent.js",
+            "symbol": "doprwep",
+            "sourceReview": "Read invent.c doprwep() in full. Preserved empty-hand, ordinary prinv, two-weapon, and menu-requested wielded or swap or quiver display branches and ECMD_OK return.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches #seeweapon to doprwep()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/invent.c/show-weapon.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "noarmor",
+            "implementation": "js/invent.js",
+            "symbol": "noarmor",
+            "sourceReview": "Read invent.c noarmor() in full. Preserved the no-armor message and skin armor report, including source's set-of and dragon-name shortening and the report_uskin gate.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doprarm",
+                "source": "invent.c doprarm() calls noarmor(TRUE) when wearing_armor() is false."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/invent.c/show-armor.session.json"
+            ],
+            "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          }
+        ],
+        "entryPointReview": "The selected source range exposes #inventtype (dotypeinv), #look and movement/pickup look_here paths, #showgold (doprgold), #seeweapon (doprwep), and #seearmor (doprarm/noarmor). stackobj() and mergable() are helpers reached by drop and throw inventory paths; feel_cockatrice() is a tactile helper whose independent setup remains blocked in objnam.c.",
+        "entryPoints": [
+          {
+            "name": "#inventtype",
+            "functions": [
+              "dotypeinv"
+            ],
+            "recordings": [
+              "recordings/invent.c/inventory-by-type.session.json"
             ]
           },
           {
-            "name": "startup reroll menu",
+            "name": "#look",
             "functions": [
-              "reroll_menu"
+              "dolook",
+              "look_here",
+              "dfeature_at"
             ],
             "recordings": [
-              "recordings/invent.c/reroll-menu-archeologist.session.json"
+              "recordings/invent.c/look-command-empty-square.session.json"
+            ]
+          },
+          {
+            "name": "#showgold",
+            "functions": [
+              "doprgold"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-gold.session.json"
+            ]
+          },
+          {
+            "name": "#seeweapon",
+            "functions": [
+              "doprwep"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-weapon.session.json"
+            ]
+          },
+          {
+            "name": "#seearmor",
+            "functions": [
+              "noarmor"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-armor.session.json"
+            ]
+          },
+          {
+            "name": "#adjust",
+            "functions": [
+              "mergable"
+            ],
+            "recordings": [
+              "recordings/invent.c/adjust-inventory-slots.session.json"
+            ]
+          },
+          {
+            "name": "floor object stacking",
+            "functions": [
+              "stackobj",
+              "mergable"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/monster-missile-drop-mulching.session.json"
             ]
           }
         ]
