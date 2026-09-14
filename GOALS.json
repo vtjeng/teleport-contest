@@ -34101,7 +34101,24 @@
       ],
       "selectionReason": "Selected holdout/seed4500-knight-coverage as the first per-session candidate with a valid completed investigation: remainingScreensUpperBound 1200 at step 614, cache investigations/holdout/seed4500-knight-coverage.json, source-traced owner dungeon.c:dooverview() and its overview helper family.",
       "detail": "At dungeon.c:3294-3728, ordinary #overview calls show_overview(0,0), recalculates mapseen, filters entries with interest_mapseen(), renders source-ordered headings and annotations through print_mapseen(), and waits in PICK_NONE; m-prefixed overview uses PICK_ONE and query_annotation. The current witness has levels 1, 25, and 40 and dismisses with Escape. Wire the existing overview command row and M-O binding through js/cmd.js and js/dungeon.js, replacing the final-disclosure-only helper in js/end.js only where normal overview behavior requires it. Include dooverview, show_overview, traverse_mapseenchn, interest_mapseen, seen_string, br_string2, endgamelevelname, shop_string, tunesuffix, and print_mapseen in source order, with required mapseen/menu callers and dependencies.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "dooverview..print_mapseen",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dooverview",
+            "show_overview",
+            "traverse_mapseenchn",
+            "seen_string",
+            "br_string2",
+            "endgamelevelname",
+            "shop_string",
+            "tunesuffix",
+            "print_mapseen"
+          ]
+        }
+      ],
       "openedAt": "1c01cf0783a473a0010d4029e3223dac5c5b0d6e",
       "openStanding": {
         "sha": "1c01cf0783a473a0010d4029e3223dac5c5b0d6e",
