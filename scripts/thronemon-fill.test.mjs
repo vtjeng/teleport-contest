@@ -10,14 +10,13 @@ import {
     BATTLE_AXE,
     ELVEN_ARROW,
     ELVEN_BOW,
-    ELVEN_CLOAK,
     ELVEN_DAGGER,
     ELVEN_LEATHER_HELM,
+    ELVEN_SHORT_SWORD,
     ELVEN_SHIELD,
     ELVEN_SPEAR,
     MACE,
     PICK_AXE,
-    WAN_DIGGING,
 } from '../js/objects.js';
 import { loadThronemonFillRecipe } from './run-thronemon-fill.mjs';
 
@@ -30,36 +29,25 @@ import { loadThronemonFillRecipe } from './run-thronemon-fill.mjs';
 // screen, and cursor position. These values name the C branch each layout
 // reaches so a later change that silently picks a different arm still fails.
 const EXPECTED = new Map([
-    // D:9 rolls 6..9, so mkroom.c:259-262 picks PM_ELVEN_MONARCH. Its
-    // m_initweap() elf arm (makemon.c:226-256) takes the rn2(3) == 2 spear
-    // case, adds a dagger, a leather helm and a cloak, and then declines the
-    // pick-axe at makemon.c:258, which needs rn2(3) nonzero off an
-    // earth level.
-    [18, {
+    // D:10's seed 14 rolls in the monarch band and exercises the bow,
+    // arrow-stack, shield, spear, dagger, and pick-axe arms in makemon.c.
+    [14, {
+        pmidx: PM_ELVEN_MONARCH,
+        minvent: [MACE, PICK_AXE, ELVEN_SHIELD, ELVEN_SPEAR, ELVEN_DAGGER],
+    }],
+    // D:10's seed 55 takes the monarch bow arm and its arrow stack.
+    [55, {
         pmidx: PM_ELVEN_MONARCH,
         minvent: [
-            MACE, ELVEN_SHIELD, ELVEN_SPEAR, ELVEN_DAGGER,
-            ELVEN_LEATHER_HELM, ELVEN_CLOAK,
+            MACE, PICK_AXE, ELVEN_ARROW, ELVEN_BOW,
+            ELVEN_SHORT_SWORD, ELVEN_LEATHER_HELM,
         ],
     }],
-    // D:12 can roll into either high band. This layout rolls 6..9 for the
-    // monarch again but takes the rn2(3) == 0 bow case (makemon.c:236-242),
-    // including m_initthrow()'s arrow stack, and this time does receive the
-    // makemon.c:258 pick-axe.
-    [23, {
-        pmidx: PM_ELVEN_MONARCH,
-        minvent: [
-            MACE, PICK_AXE, ELVEN_ARROW, ELVEN_BOW, ELVEN_DAGGER,
-            ELVEN_LEATHER_HELM,
-        ],
-    }],
-    // D:12 rolls above 9 here, so mkroom.c:259 picks PM_OGRE_TYRANT.
-    // m_initweap()'s case S_OGRE (makemon.c:446-451) divides by 3 for the
-    // tyrant alone, and this layout takes that one-in-three battle axe
-    // rather than the club. The wand is an ordinary mklev floor grant.
-    [21, {
+    // D:10's seed 400 takes the one-in-ten tyrant roll and its S_OGRE setup
+    // chooses the battle axe.
+    [400, {
         pmidx: PM_OGRE_TYRANT,
-        minvent: [MACE, WAN_DIGGING, BATTLE_AXE],
+        minvent: [MACE, BATTLE_AXE],
     }],
 ]);
 

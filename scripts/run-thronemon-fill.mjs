@@ -51,27 +51,32 @@ function thronePort(seed, destination) {
 }
 
 // mkroom.c's C selector reads level_difficulty(), which dungeon.c:2036
-// returns as depth(&u.uz) for an ordinary main-dungeon level, so the
-// destination bounds the roll: D:9 can only reach PM_ELVEN_MONARCH's 6..9
-// band, while D:12 can reach both it and PM_OGRE_TYRANT's 10..12 band.
-// Seeds come from a port-only scan (scripts/scan-port.mjs) over seeds 1-200
-// at D:9, which kept 12 monarch layouts, and seeds 1-400 at D:12, which kept
-// 9 tyrant and 11 monarch layouts; the first of each is used here.
+// returns as depth(&u.uz) for an ordinary main-dungeon level. Both witnesses
+// use D:10: it reaches the monarch's 6..9 band and the tyrant's one roll at
+// 10, while remaining above the Knox portal's strict `depth > 10` gate. The
+// earlier D:12 monarch witness could enter a vault and then reach the still
+// unsupported mk_knox_portal() placement path after the wizard deferral fix,
+// before fill_zoo() seats its ruler.
 export const EXPECTED_RULERS = new Map([
-    [18, PM_ELVEN_MONARCH],
-    [23, PM_ELVEN_MONARCH],
-    [21, PM_OGRE_TYRANT],
+    [14, PM_ELVEN_MONARCH],
+    [55, PM_ELVEN_MONARCH],
+    [400, PM_OGRE_TYRANT],
 ]);
 
 export function loadThronemonFillRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: [
-            // D:9 cannot roll above 9, so its Court ruler is the monarch.
-            thronePort(18, 9),
-            // D:12 reaches both high arms. These two layouts separate them.
-            thronePort(23, 12),
-            thronePort(21, 12),
+            // D:10's roll for seed 14 takes the monarch arm and its
+            // pick-axe, shield, spear, and dagger setup in makemon.c.
+            thronePort(14, 10),
+            // This independent D:10 layout takes the other monarch weapon
+            // branch, including its elven arrow stack.
+            thronePort(55, 10),
+            // D:10's roll for seed 400 takes the tyrant arm and its
+            // battle-axe branch. Keeping both levels at depth 10 avoids Knox
+            // placement.
+            thronePort(400, 10),
         ],
     }, 'throne-room ruler recipe');
 }
