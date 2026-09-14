@@ -12,7 +12,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { COLUMNS } from './score-log.mjs';
-import { escapeJsonForScript } from './build-dashboard.mjs';
+import { escapeJsonForScript, injectDashboardData } from './build-dashboard.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
@@ -1143,6 +1143,18 @@ test('dashboard builder injects data into a standalone HTML file', () => {
     assert.match(html, /<title>NetHack Port<\/title>/u);
     assert.doesNotMatch(html, /DATA_PLACEHOLDER/u);
     assert.match(html, /"inProgressGoals"\s*:\s*\d+/u);
+});
+
+test('dashboard builder preserves replacement-pattern text in injected JSON', () => {
+    const html = injectDashboardData(
+        '<script>const DATA = /*DATA_PLACEHOLDER*/null; '
+            + 'const QUEUE = /*QUEUE_PLACEHOLDER*/null;</script>',
+        '{"branch":"\'$\'; otherwise !fixinv"}',
+        '{"branch":"\'$\'; otherwise !fixinv"}',
+    );
+    assert.equal((html.match(/<script>/gu) || []).length, 1);
+    assert.equal((html.match(/<\/script>/gu) || []).length, 1);
+    assert.match(html, /"branch":"'\$'; otherwise !fixinv"/u);
 });
 
 test('dashboard JSON escapes script closing markup', () => {

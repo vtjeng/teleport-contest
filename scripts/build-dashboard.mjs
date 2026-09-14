@@ -20,6 +20,14 @@ export function escapeJsonForScript(json) {
     .replaceAll('\u2029', '\\u2029');
 }
 
+export function injectDashboardData(template, data, queueData) {
+  // Use replacer callbacks because JSON can contain `$'`, `$&`, and other
+  // replacement-pattern sequences that String.replace() would interpret.
+  return template
+    .replace('/*DATA_PLACEHOLDER*/null', () => escapeJsonForScript(data))
+    .replace('/*QUEUE_PLACEHOLDER*/null', () => escapeJsonForScript(queueData));
+}
+
 function main() {
   const data = execSync('node scripts/dashboard-data.mjs', {
     encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
@@ -38,9 +46,7 @@ function main() {
 
   const template = readFileSync(join(__dirname, 'dashboard.template.html'), 'utf8');
 
-  const html = template
-    .replace('/*DATA_PLACEHOLDER*/null', escapeJsonForScript(data))
-    .replace('/*QUEUE_PLACEHOLDER*/null', escapeJsonForScript(queueData.trim()));
+  const html = injectDashboardData(template, data, queueData.trim());
 
   const outPath = process.argv[2] || 'dashboard.html';
   writeFileSync(outPath, html);
