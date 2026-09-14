@@ -943,19 +943,19 @@ export async function finishElapsedTurn(
     // what spends them. runmode_delay_output() draws one animation frame per
     // turn, exactly as it does for a run.
     if ((state.multi ?? 0) < 0) {
-        // A burdened hero's planning clone runs this whole block before the
-        // live pass does, the way the `burdened multi-cycle region upkeep`
-        // guard above does: counting on the clone would spend a turn of the
-        // wait twice and print its release message from a state that is thrown
-        // away.
-        if (planning)
-            elapsedTurnBoundary('burdened multi-cycle immobility countdown');
-        await runmode_delay_output(state);
+        // Count elapsed turns on the clone, but leave animation, the release
+        // message and arbitrary afternmv callbacks to the live pass. A due
+        // unmul ends this plan: after replaying the validated prefix, the
+        // coordinator plans any remaining movement from the callback's real
+        // result, including changes to burden, speed or the level.
+        if (!planning) await runmode_delay_output(state);
         if (++state.multi === 0) { /* finished yet? */
+            if (planning) return { beforeUnmul: true };
             await runUnmulAtTurnBoundary(state);
             /* if unmul caused a level change, take it now */
             if (state.u.utotype)
                 elapsedTurnBoundary('a level change deferred by unmul()');
+            return { afterUnmul: true };
         }
     }
 }
@@ -1085,16 +1085,14 @@ async function moveElapsedTurnMonster(monster, env) {
     });
 }
 
-// C ref: allmain.c moveloop_core(), elapsed turn. Monster movement can require
-// multiple complete list scans while the hero lacks a ration. A fast hero's
-// retained ration ends the scan even when a fast pet could act again;
-// once-per-turn upkeep waits until both sides are out. This serves the first
-// elapsed command and every subsequent elapsed command.
-async function advanceElapsedTurn(state) {
+// Validate a movement prefix without running a due unmul callback. Resuming
+// after that callback must not debit another hero ration.
+async function planElapsedTurn(state, { consumeHeroRation = true } = {}) {
     const initialCapacity = projected_capacity(state);
     let preflight;
     try {
         preflight = await preflightSimpleMonsterActions(state, {
+            consumeHeroRation,
             advanceRound: (planned, planningRandom) => finishElapsedTurn(
                 planned,
                 planningRandom,
@@ -1169,6 +1167,16 @@ async function advanceElapsedTurn(state) {
             throw boundary;
         }
     }
+    return { ...preflight, initialCapacity };
+}
+
+// C ref: allmain.c moveloop_core(), elapsed turn. Monster movement can require
+// multiple complete list scans while the hero lacks a ration. A fast hero's
+// retained ration ends the scan even when a fast pet could act again;
+// once-per-turn upkeep waits until both sides are out. This serves the first
+// elapsed command and every subsequent elapsed command.
+async function advanceElapsedTurn(state) {
+    let preflight = await planElapsedTurn(state);
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
@@ -1251,8 +1259,9 @@ async function advanceElapsedTurn(state) {
         }
         if (runsOncePerTurnUpkeep) {
             ++upkeepCount;
+            let afterUnmul;
             try {
-                await finishElapsedTurn(state, random);
+                afterUnmul = (await finishElapsedTurn(state, random))?.afterUnmul;
             } catch (error) {
                 // The same conversion the two preflights above take, for the
                 // one refusal a preflight cannot decide: the live monster scan
@@ -1268,9 +1277,23 @@ async function advanceElapsedTurn(state) {
                 boundary.reason = error.reason;
                 throw boundary;
             }
+            if (state.program_state?.gameover) return;
+            if (preflight.beforeUnmul
+                && upkeepCount === preflight.upkeepCount && !afterUnmul) {
+                throw new Error(
+                    'elapsed-turn preflight disagreed with live delayed action',
+                );
+            }
+            if (afterUnmul && state.u.umovement < NORMAL_SPEED) {
+                preflight = await planElapsedTurn(state, {
+                    consumeHeroRation: false,
+                });
+                upkeepCount = 0;
+            }
         }
     } while (state.u.umovement < NORMAL_SPEED);
-    if (initialCapacity > 0 && upkeepCount !== preflight.upkeepCount) {
+    if (preflight.initialCapacity > 0
+        && upkeepCount !== preflight.upkeepCount) {
         throw new Error(
             'elapsed-turn preflight disagreed with live allocation count',
         );

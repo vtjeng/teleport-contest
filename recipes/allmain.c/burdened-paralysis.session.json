@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent variation immobilizes a burdened hero without an afternmv callback. Quaffing paralysis after acquiring heavy chain mail reaches allmain.c's countdown and hack.c unmul's release message without donning armor.",
+  "segments": [{
+    "seed": 8420013,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:DelayPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": "\u0017uncursed chain mail\n \u0017uncursed potion of paralysis\nqm "
+  }]
+}
