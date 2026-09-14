@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 913510,
+      "datetime": "20320418112233",
+      "nethackrc": "OPTIONS=name:TypeProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,playmode:debug\nOPTIONS=pettype:none\n",
+      "comment": "Independent debug #name probe: wish a potion into inventory, then choose it and assign a type name. This reaches docallcmd(), docall_xname(), docall(), and name_from_player() through production dispatch.",
+      "moves": "  #wizwish\npotion of healing\n#name\noatype probe\n"
+    }
+  ]
+}

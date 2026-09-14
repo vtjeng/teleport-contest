@@ -4,6 +4,7 @@
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
+    A_CHA,
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
@@ -11,12 +12,16 @@ import {
     AUGMENT_IT,
     BLINDED,
     BOGUSMONFILE,
+    CMDQ_KEY,
+    CQ_CANNED,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
     CORPSTAT_RANDOM,
     ECMD_OK,
     EXACT_NAME,
+    GETOBJ_NOFLAGS,
+    GETOBJ_PROMPT,
     In_endgame,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -24,13 +29,20 @@ import {
     FEMALE,
     HALLUC,
     HALLUC_RES,
+    HAND,
+    INFRAVISION,
     ismnum,
     MALE,
     MD_PAD_BOGONS,
     M_AP_MONSTER,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
+    M_AP_TYPE,
     M_AP_TYPMASK,
+    MS_ANIMAL,
     NEUTRAL,
     NUM_MGENDERS,
+    ONAME_KNOW_ARTI,
     ONAME_SKIP_INVUPD,
     ONAME_VIA_NAMING,
     PICK_ONE,
@@ -43,13 +55,36 @@ import {
     SUPPRESS_NAME,
     SUPPRESS_SADDLE,
     NON_PM,
+    OBJ_FREE,
     OBJ_INVENT,
     W_SADDLE,
     engulfing_u,
+    has_ebones,
+    has_mgivenname,
     has_oname,
+    helpless,
+    isok,
+    u_at,
+    SEE_INVIS,
+    DEAF,
 } from './const.js';
-import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
-import { flush_screen, rank_of } from './display.js';
+import {
+    artifact_exists,
+    artifact_name,
+    exist_artifact,
+    restrict_name,
+} from './artifacts.js';
+import {
+    flush_screen,
+    glyph_at,
+    glyph_is_object,
+    glyph_is_swallow,
+    rank_of,
+    vobj_at,
+} from './display.js';
+import { getpos } from './getpos.js';
+import { body_part, poly_gender } from './polyself.js';
+import { cansee, couldsee } from './vision.js';
 import { priestname } from './priest.js';
 import { shkname } from './shknam.js';
 import { fruit_from_name, makeplural } from './fruit.js';
@@ -57,16 +92,21 @@ import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
+    fuzzymatch,
     mungspaces,
     s_suffix,
+    strstri,
     upstart,
 } from './hacklib.js';
-import { carrying, update_inventory } from './invent.js';
+import { carrying, getobj, update_inventory } from './invent.js';
 import {
     gender,
     humanoid,
     is_animal,
     is_mplayer,
+    is_rider,
+    mhe,
+    mhis,
     mindless,
     pronoun_gender,
     type_is_pname,
@@ -79,11 +119,12 @@ import {
     PM_ALIGNED_CLERIC,
     PM_CLERIC,
     PM_GHOST,
+    PM_JUIBLEX,
     PM_SHOPKEEPER,
     PM_WIZARD_OF_YENDOR,
     SPECIAL_PM,
 } from './monsters.js';
-import { UnsupportedObjectOperationError, carried, objectType } from './obj.js';
+import { carried, dealloc_obj, objectType } from './obj.js';
 import {
     discover_object,
     undiscover_object,
@@ -92,20 +133,29 @@ import {
     AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, COIN_CLASS,
     CORPSE, FAKE_AMULET_OF_YENDOR, FIGURINE, FOOD_CLASS,
     GEM_CLASS, HEAVY_IRON_BALL, OBJ_DESCR, POTION_CLASS,
-    RING_CLASS, SCROLL_CLASS,
+    RING_CLASS, SCROLL_CLASS, STRANGE_OBJECT,
     SPBOOK_CLASS, SPE_NOVEL, STATUE, TIN, TOOL_CLASS, TOWEL,
     VENOM_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from './objects.js';
-import { an, just_an, safe_qbuf, simpleonames, vtense, xnameFresh } from './objnam.js';
+import {
+    an, is_plural, just_an, safe_qbuf, simpleonames, The, vtense,
+    xnameFresh, Ysimple_name2,
+} from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
-import { rn1, rn2, rn2_on_display_rng } from './rng.js';
+import { rn1, rn2, rn2_on_display_rng, rnd_on_display_rng } from './rng.js';
 import { getlin } from './windows.js';
+import { note_unported } from './unported.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
+import { verbalize } from './pline.js';
+import { wipeout_text } from './engrave.js';
+import { acurr } from './attrib.js';
+import { hides_under } from './mondata.js';
 // display.h canspotmon() (129). js/startup_a11y.js owns it and imports
 // capitalizedMonsterName() from this file, so the two modules form a cycle.
 // Neither uses the other's binding while its module body evaluates, which is
 // what an ES module cycle requires; js/obj.js and this file already form one.
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 
@@ -146,37 +196,61 @@ const GHOST_NAMES = Object.freeze([
     'Murphy',
 ]);
 
-// C ref: do_name.c new_oname() (60-77). C's two halves are an allocation and a
-// deallocation. Only the second survives translation: for a nonzero length C
-// frees the old name and allocates a buffer that oname() then copies into,
-// which in JavaScript is the assignment alone, so all this half owes is that
-// oextra exists to assign into.
+// C ref: do_name.c nextmbuf() (20-27), new_mgivenname() (31-47), and
+// free_mgivenname() (51-57). Strings supply the storage C gets from alloc().
+const NEXT_MBUF = Array.from({ length: 5 }, () => '');
+let nextMbufIndex = 0;
+
+export function nextmbuf() {
+    nextMbufIndex = (nextMbufIndex + 1) % NEXT_MBUF.length;
+    return NEXT_MBUF[nextMbufIndex];
+}
+
+export function new_mgivenname(mon, lth) {
+    if (lth) {
+        mon.mextra ??= {};
+        free_mgivenname(mon);
+    } else if (has_mgivenname(mon)) {
+        free_mgivenname(mon);
+    }
+}
+
+export function free_mgivenname(mon) {
+    if (has_mgivenname(mon)) {
+        if (mon.mextra) delete mon.mextra.mgivenname;
+        delete mon.mgivenname;
+    }
+}
+
+// C ref: do_name.c new_oname() (60-77). C retains oextra and releases a prior
+// string before assigning the replacement.
 export function new_oname(obj, lth) {
     if (lth) {
-        /* allocate oextra if necessary; otherwise get rid of old name */
         obj.oextra ??= {};
+        free_oname(obj);
     } else {
-        /* zero length: the new name is empty; get rid of the old name */
         if (has_oname(obj)) free_oname(obj);
     }
 }
 
-// C ref: do_name.c free_oname() (80-88). C keeps oextra and clears the name
-// field; deleting the property is this port's empty ONAME.
+// C ref: do_name.c free_oname() (80-88). C keeps oextra and clears ONAME.
 export function free_oname(obj) {
-    if (has_oname(obj)) delete obj.oextra.oname;
+    if (has_oname(obj)) {
+        if (obj.oextra) delete obj.oextra.oname;
+        delete obj.oname;
+    }
+}
+
+// C ref: do_name.c safe_oname() (95-100).
+export function safe_oname(obj) {
+    return obj?.oextra?.oname ?? obj?.oname ?? '';
 }
 
 // C ref: do_name.c oname() (371-426). Assigns a player-given or artifact name
 // and, when the name belongs to an artifact of this object's type, turns the
-// object into that artifact through artifact_exists().
-//
-// Four arms below the artifact test stop this port. Each needs a caller that
-// readobjnam()'s wish -- oname()'s only live caller -- cannot be: the wished
-// object is fresh from mksobj(), so it is neither wielded nor secondary-wielded
-// nor owned by a shop, and ONAME_WISH carries no ONAME_VIA_NAMING bit. The
-// fifth, update_inventory(), needs the object to be in inventory, and a wish
-// reaches hold_another_object() only after this returns.
+// object into that artifact through artifact_exists(). Unported side effects
+// retain their source order through note_unported() while gameplay state that
+// the JavaScript port owns is updated here.
 export function oname(obj, name, oflgs, env = {}) {
     const state = env.state ?? game;
     const via_naming = (oflgs & ONAME_VIA_NAMING) !== 0;
@@ -204,54 +278,49 @@ export function oname(obj, name, oflgs, env = {}) {
     if (lth) artifact_exists(obj, text, true, oflgs, state);
     if (obj.oartifact) {
         /* can't dual-wield with artifact as secondary weapon */
-        if (obj === state.uswapwep)
-            throw new UnsupportedObjectOperationError('untwoweapon()', obj);
-        /* activate warning if you've just named your weapon "Sting" */
-        if (obj === state.uwep) {
-            throw new UnsupportedObjectOperationError(
-                'set_artifact_intrinsic()', obj,
-            );
+        if (obj === state.uswapwep) {
+            state.u.twoweap = false;
+            note_unported('wield.c untwoweapon() message');
         }
+        /* activate warning if you've just named your weapon "Sting" */
+        if (obj === state.uwep)
+            note_unported('artifact.c set_artifact_intrinsic()');
         /* if obj is owned by a shop, increase your bill */
         if (obj.unpaid)
-            throw new UnsupportedObjectOperationError('alter_cost()', obj);
+            note_unported('shk.c alter_cost()');
         if (via_naming) {
             // do_name.c:414-424 violates illiteracy conduct and writes a
-            // livelog event. The conduct counter is saved state, so the arm
-            // cannot be skipped the way a livelog-only arm can.
-            throw new UnsupportedObjectOperationError(
-                'naming-conduct livelog', obj,
-            );
+            // livelog event. The counter is gameplay state; the file event is
+            // outside the browser port.
+            state.u.uconduct ??= {};
+            state.u.uconduct.literate = Math.trunc(
+                state.u.uconduct.literate ?? 0,
+            ) + 1;
+            note_unported('do_name.c livelog_printf()');
         }
     }
-    if (carried(obj) && !skip_inv_update) {
-        throw new UnsupportedObjectOperationError(
-            'update_inventory() after naming', obj,
-        );
-    }
+    if (carried(obj) && !skip_inv_update)
+        update_inventory({ state });
     return obj;
 }
 
 export function christen_monst(monster, name, env = {}) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('christen_monst requires a monster instance');
-    const updateInventory = env.updateInventory;
-    if (monster.mleashed && typeof updateInventory !== 'function') {
-        throw new Error(
-            'christen_monst requires update_inventory for a leashed monster',
-        );
-    }
     const bytes = encodeUtf8ByteString(String(name ?? ''));
-    if (!bytes.length) {
-        if (monster.mextra) delete monster.mextra.mgivenname;
-        if (monster.mleashed) updateInventory(env);
-        return monster;
+    const lth = bytes.length ? bytes.length + 1 : 0;
+    const clipped = lth > PL_PSIZ
+        ? decodeUtf8ByteString(bytes.slice(0, PL_PSIZ - 1))
+        : String(name ?? '');
+    new_mgivenname(monster, lth > PL_PSIZ ? PL_PSIZ : lth);
+    if (lth) {
+        monster.mextra ??= {};
+        monster.mextra.mgivenname = clipped;
     }
-    monster.mextra ??= {};
-    monster.mextra.mgivenname = decodeUtf8ByteString(
-        bytes.slice(0, PL_PSIZ - 1),
-    );
-    if (monster.mleashed) updateInventory(env);
+    if (monster.mleashed) {
+        if (typeof env.updateInventory === 'function') env.updateInventory(env);
+        else update_inventory({ state: env.state ?? game });
+    }
     return monster;
 }
 
@@ -305,7 +374,6 @@ export function christen_orc(monster, gang, other, env = {}) {
     return name.length < 256 ? christen_monst(monster, name, env) : monster;
 }
 
-// An object-naming prompt this port cannot open yet.
 // C ref: do_name.c objtyp_is_callable() (429-463). Returns true when the
 // object type can be given a type-name by the player.
 export function objtyp_is_callable(otyp, state = game) {
@@ -357,11 +425,158 @@ export function call_ok(obj, state = game) {
     return GETOBJ_SUGGEST;
 }
 
-export class UnsupportedObjectNamingError extends Error {
-    constructor(reason) {
-        super(`naming an object type requires ${reason}`);
-        this.name = 'UnsupportedObjectNamingError';
-        this.reason = reason;
+// C ref: do_name.c alreadynamed() (158-195). This is async only because the
+// JavaScript terminal's pline() waits at a message boundary.
+export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
+    if (!usrbuf) {
+        const nameNotTitle = has_mgivenname(monster)
+            || type_is_pname(monster.data)
+            || monster.isshk;
+        await ttyPline(
+            `${upstart(monnambuf)} would rather keep `
+            + `${is_rider(monster.data) ? 'its' : mhis(monster, { state })} `
+            + `existing ${nameNotTitle ? 'name' : 'title'}.`,
+            state,
+        );
+        return true;
+    }
+
+    let match = fuzzymatch(usrbuf, monnambuf, ' -_', true);
+    const invisibleName = strstri(monnambuf, 'invisible ');
+    const ofName = strstri(monnambuf, ' of ');
+    if (!match && monnambuf.toLowerCase().startsWith('the '))
+        match = fuzzymatch(usrbuf, monnambuf.slice(4), ' -_', true);
+    if (!match && invisibleName >= 0)
+        match = fuzzymatch(usrbuf, monnambuf.slice(invisibleName + 10), ' -_', true);
+    if (!match && ofName >= 0)
+        match = fuzzymatch(usrbuf, monnambuf.slice(ofName + 4), ' -_', true);
+    if (match) {
+        if (is_rider(monster.data)) {
+            await ttyPline(`${upstart(monnambuf)} is already called that.`, state);
+        } else {
+            await ttyPline(
+                `${upstart(mhe(monster, { state }))} is already called ${monnambuf}.`,
+                state,
+            );
+        }
+        return true;
+    }
+
+    if (monster.data === state.mons?.[PM_JUIBLEX]
+        && strstri(monnambuf, 'Juiblex')
+        && usrbuf.toLowerCase() === 'jubilex') {
+        await ttyPline(
+            `${upstart(monnambuf)} doesn't like being called ${usrbuf}.`,
+            state,
+        );
+        return true;
+    }
+    return false;
+}
+
+function beautiful(state) {
+    const cha = acurr(state, A_CHA);
+    const feminine = poly_gender(state) === FEMALE;
+    if (cha >= 25) return 'sublime';
+    if (cha >= 19) return 'splendorous';
+    if (cha >= 16) return feminine ? 'beautiful' : 'handsome';
+    if (cha >= 14) return feminine ? 'winsome' : 'amiable';
+    if (cha >= 11) return 'cute';
+    if (cha >= 9) return 'plain';
+    if (cha >= 6) return 'homely';
+    if (cha >= 4) return 'ugly';
+    return 'hideous';
+}
+
+function see_with_infrared(monster, state) {
+    if (heroIsBlind(state) || !namingPropertyActive(state, INFRAVISION))
+        return false;
+    if (!(monster.data?.mflags3 & 0x0200)) return false;
+    return couldsee(monster.mx, monster.my, state);
+}
+
+// C ref: do_name.c do_mgivenname() (199-282).
+export async function do_mgivenname(state = game) {
+    if (namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES)) {
+        await ttyPline('You would never recognize it anyway.', state);
+        return;
+    }
+
+    const cc = { x: state.u.ux, y: state.u.uy };
+    if (await getpos(cc, false, 'the monster you want to name', state) < 0
+        || !isok(cc.x, cc.y)) return;
+
+    let monster = null;
+    let doSwallow = false;
+    if (u_at(cc.x, cc.y, state)) {
+        if (state.u.usteed && canSpotMonster(state.u.usteed, state)) {
+            monster = state.u.usteed;
+        } else {
+            await ttyPline(
+                `This ${beautiful(state)} creature is called ${state.plname}`
+                + ' and cannot be renamed.',
+                state,
+            );
+            return;
+        }
+    } else {
+        // m_at() is a direct coordinate lookup; importing monst.js here would
+        // add a cycle through the command dispatcher, so use the level index.
+        monster = state.level?.monsters?.[cc.x]?.[cc.y] ?? null;
+    }
+
+    if (!monster && state.u.uswallow) {
+        const glyph = glyph_at(cc.x, cc.y, state);
+        if (glyph_is_swallow(glyph)) {
+            monster = state.u.ustuck;
+            doSwallow = true;
+        }
+    }
+
+    const seeInvisible = namingPropertyActive(state, SEE_INVIS);
+    const appearance = monster ? M_AP_TYPE(monster) : 0;
+    if (!doSwallow && (!monster
+        || (!sensesMonster(monster, state)
+            && (!(cansee(cc.x, cc.y, state)
+                || see_with_infrared(monster, state))
+                || monster.mundetected
+                || appearance === M_AP_FURNITURE
+                || appearance === M_AP_OBJECT
+                || (monster.minvis && !seeInvisible))))) {
+        await ttyPline('I see no monster there.', state);
+        return;
+    }
+
+    const monnambuf = monsterCommonName(monster, state);
+    const buf = await name_from_player(
+        `What do you want to call ${monnambuf}?`,
+        has_mgivenname(monster) ? monster.mextra?.mgivenname : null,
+        state,
+    );
+    if (buf == null) return;
+
+    if ((monster.data?.geno & G_UNIQ) && !monster.ispriest) {
+        if (!await alreadynamed(monster, monnambuf, buf, state))
+            await ttyPline(`${upstart(monnambuf)} doesn't like being called names!`, state);
+    } else if (monster.isshk
+        && !namingPropertyActive(state, DEAF)
+        && !helpless(monster)
+        && (monster.data?.msound ?? 0) > MS_ANIMAL) {
+        if (!await alreadynamed(monster, monnambuf, buf, state)) {
+            // SetVoice() is a TTY sound no-op in this build.
+            await verbalize(`I'm ${shkname(monster, state)}, not ${buf}.`, state);
+        }
+    } else if (monster.ispriest || monster.isminion || monster.isshk
+        || monster.data === state.mons?.[PM_GHOST]
+        || has_ebones(monster)) {
+        if (!await alreadynamed(monster, monnambuf, buf, state))
+            await ttyPline(
+                `${upstart(monnambuf)} will not accept the name ${buf}.`,
+                state,
+            );
+    } else {
+        christen_monst(monster, buf, { state });
     }
 }
 
@@ -371,10 +586,21 @@ export class UnsupportedObjectNamingError extends Error {
 // 'q' (555), which falls through to case 'q': break (559-562) and returns
 // ECMD_OK (600).
 //
-// The cmdq_pop() / command-queue path (511-518) is not exercised and is left
-// as a boundary. The naming options (m, i, o, f, d, a) each dispatch to
-// their own handler and are left as boundaries for future slices.
 export async function docallcmd(state) {
+    // A canned key bypasses menu creation, exactly as cmdq_pop()'s early arm
+    // does in C. Importing here keeps the existing cmd/do_name cycle lazy.
+    const { cmdq_clear, cmdq_pop } = await import('./cmd.js');
+    const queued = cmdq_pop(state);
+    let queuedChoice = null;
+    if (queued) {
+        if (queued.typ === CMDQ_KEY) {
+            queuedChoice = typeof queued.key === 'number'
+                ? String.fromCharCode(queued.key)
+                : String(queued.key);
+        } else {
+            cmdq_clear(CQ_CANNED, state);
+        }
+    }
     /* if player wants a,b,c instead of i,o when looting, do that here too */
     const abc = Boolean(state.flags?.lootabc);
 
@@ -423,7 +649,7 @@ export async function docallcmd(state) {
         },
     );
 
-    const choice = await select_menu(state, {
+    const choice = queuedChoice ?? await select_menu(state, {
         title: 'What do you want to name?',
         ...menuTitleStyle(state),
         items,
@@ -439,15 +665,38 @@ export async function docallcmd(state) {
     default:
     case 'q':
         break;
-    case 'm': /* name a visible monster */
-    case 'i': /* name an individual object in inventory */
-    case 'o': /* name a type of object in inventory */
-    case 'f': /* name a type of object visible on the floor */
-    case 'd': /* name a type of object on the discoveries list */
-    case 'a': /* annotate level */
-        throw new UnsupportedObjectNamingError(
-            `docallcmd() naming option '${ch}'`,
-        );
+    case 'm':
+        await do_mgivenname(state);
+        break;
+    case 'i': {
+        const obj = await getobj('name', name_ok, GETOBJ_PROMPT, state);
+        if (obj) await do_oname(obj, state);
+        break;
+    }
+    case 'o': {
+        const obj = await getobj('call', call_ok, GETOBJ_NOFLAGS, state);
+        if (obj) {
+            // xname() observes an item picked up while blind, as in C.
+            xnameFresh(obj, state);
+            if (!obj.dknown) {
+                await ttyPline('You would never recognize another one.', state);
+            } else {
+                await docall(obj, state);
+            }
+        }
+        break;
+    }
+    case 'f':
+        await namefloorobj(state);
+        break;
+    case 'd':
+        note_unported('o_init.c rename_disco()');
+        break;
+    case 'a': {
+        const { donamelevel } = await import('./dungeon.js');
+        await donamelevel(state);
+        break;
+    }
     }
     return ECMD_OK;
 }
@@ -455,7 +704,7 @@ export async function docallcmd(state) {
 // C ref: do_name.c docall_xname() (604-633). For safe_qbuf(): strips cosmetic
 // attributes from a temporary copy of obj so the "Call <thing>:" prompt shows
 // a clean base name.
-function docall_xname(obj, state = game) {
+export function docall_xname(obj, state = game) {
     // Build a shallow temp copy; clear cosmetic fields that doname()/xname()
     // would format but that distract from the base type name.
     const otemp = { ...obj, oextra: null, quan: 1 };
@@ -482,9 +731,8 @@ function docall_xname(obj, state = game) {
 }
 
 // C ref: do_name.c name_from_player() (104-128). Wraps getlin() with
-// mungspaces() and PL_PSIZ truncation. Returns the trimmed string, or null
-// when the player cancels (empty input or ESC).
-async function name_from_player(prompt, defres, state = game) {
+// mungspaces() and PL_PSIZ byte truncation. Returns null for empty or ESC.
+export async function name_from_player(prompt, defres, state = game) {
     let outbuf = '';
     // EDIT_GETLIN: pass defres as preloaded text (not compiled in standard
     // tty, so this branch is dormant; kept for source fidelity).
@@ -495,8 +743,9 @@ async function name_from_player(prompt, defres, state = game) {
 
     /* strip leading and trailing spaces, condense internal sequences */
     outbuf = mungspaces(outbuf);
-    if (outbuf.length >= PL_PSIZ)
-        outbuf = outbuf.slice(0, PL_PSIZ - 1);
+    const bytes = encodeUtf8ByteString(outbuf);
+    if (bytes.length >= PL_PSIZ)
+        outbuf = decodeUtf8ByteString(bytes.slice(0, PL_PSIZ - 1));
     return outbuf;
 }
 
@@ -539,6 +788,132 @@ export async function docall(obj, state = game) {
     }
     if (obj.where === OBJ_INVENT || carrying(obj.otyp, state))
         update_inventory({ state });
+}
+
+// C ref: do_name.c do_oname() (290-369). This is the command-side object
+// naming path; oname() owns the shared object mutation and artifact ownership.
+export async function do_oname(obj, state = game) {
+    let objtyp = STRANGE_OBJECT;
+    if (obj.otyp === SPE_NOVEL) {
+        await ttyPline(`${Ysimple_name2(obj, state)} already has a published name.`, state);
+        return;
+    }
+
+    const qbuf = safe_qbuf(
+        `What do you want to name ${is_plural(obj) ? 'these' : 'this'} `,
+        '?', obj, xnameFresh, simpleonames, 'item', state,
+    );
+    const buf = await name_from_player(qbuf, safe_oname(obj), state);
+    if (buf == null) return;
+
+    if (obj.oartifact) {
+        await ttyPline(
+            `${safe_oname(obj) || 'The artifact'} resists the attempt.`,
+            state,
+        );
+        return;
+    }
+
+    const artifactType = {};
+    const aname = artifact_name(buf, artifactType, true, state);
+    objtyp = artifactType.otyp ?? STRANGE_OBJECT;
+    let finalName = buf;
+    if (aname && (restrict_name(obj, aname, state)
+        || exist_artifact(obj.otyp, aname, state))) {
+        finalName = aname;
+        const original = finalName;
+        const offset = finalName.toLowerCase().startsWith('the ') ? 4 : 0;
+        do {
+            const prefix = finalName.slice(0, offset);
+            const target = finalName.slice(offset);
+            finalName = prefix + wipeout_text(target, rnd_on_display_rng(2), 0, {
+                random: { rn2: rn2_on_display_rng, rnd: rn2 },
+            });
+        } while (finalName === original);
+        await ttyPline(`While engraving, your ${body_part(HAND, state.youmonst)} slips.`, state);
+        await displayPendingTtyMessageWindow(state);
+        await ttyPline(`You engrave: "${finalName}".`, state);
+        state.u.uconduct ??= {};
+        state.u.uconduct.literate = Math.trunc(state.u.uconduct.literate ?? 0) + 1;
+    } else if (obj.otyp === objtyp) {
+        // artifact_name() set objtyp only when it returned a canonical name.
+        // The no-name case leaves the user's spelling intact.
+        if (aname) finalName = aname;
+    }
+
+    oname(obj, finalName,
+        ONAME_VIA_NAMING | ONAME_KNOW_ARTI, { state });
+}
+
+// C ref: do_name.c namefloorobj() (678-771). The floor object may be a
+// temporary reconstruction returned by pager.c's object_from_map().
+export async function namefloorobj(state = game) {
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const overUnder = state.u.uundetected && hides_under(state.youmonst?.data)
+        ? 'over' : 'under';
+    const goal = `object on map (or '.' for one ${overUnder} you)`;
+    if (await getpos(cc, false, goal, state) < 0 || cc.x <= 0) return;
+
+    let obj = null;
+    let fakeobj = false;
+    if (u_at(cc.x, cc.y, state)) {
+        obj = vobj_at(state.u.ux, state.u.uy, state);
+    } else {
+        const glyph = glyph_at(cc.x, cc.y, state);
+        if (glyph_is_object(glyph)) {
+            const pager = await import('./pager.js');
+            const mapped = pager.object_from_map(glyph, cc.x, cc.y, state);
+            obj = mapped.object;
+            fakeobj = mapped.fakeobj;
+        }
+    }
+    if (!obj) {
+        await ttyPline(
+            `There doesn't seem to be any object ${u_at(cc.x, cc.y, state) ? 'under you' : 'there'}.`,
+            state,
+        );
+        return;
+    }
+
+    const buf = obj.otyp !== STRANGE_OBJECT
+        ? simpleonames(obj, state)
+        : state.obj_descr?.[STRANGE_OBJECT]?.oc_name ?? 'glorkum';
+    const usePlural = (obj.quan ?? 1) > 1;
+    if (namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES)) {
+        const female = poly_gender(state) === FEMALE;
+        const names = [
+            female ? state.urole?.name?.f : null,
+            rank_of(rn2_on_display_rng(30) + 1, state.urole?.mnum, female, state),
+            bogusmon({ state }).name,
+            null,
+            roguename(state),
+            'Wibbly Wobbly',
+        ];
+        names[0] ??= state.urole?.name?.m ?? 'Adventurer';
+        names[3] = names[2];
+        await ttyPline(
+            `${The(buf, state)} ${usePlural ? 'decide' : 'decides'} to call you "${names[rn2_on_display_rng(6)]}."`,
+            state,
+        );
+    } else if (call_ok(obj, state) === GETOBJ_EXCLUDE) {
+        await ttyPline(
+            `${usePlural ? 'Those' : 'That'} ${buf} ${usePlural ? "can't" : "can't"} be assigned a type name.`,
+            state,
+        );
+    } else if (!obj.dknown) {
+        await ttyPline(
+            `You don't know ${usePlural ? 'those' : 'that'} ${buf} well enough to name ${usePlural ? 'them' : 'it'}.`,
+            state,
+        );
+    } else {
+        await docall(obj, state);
+    }
+
+    if (fakeobj) {
+        obj.where = OBJ_FREE;
+        dealloc_obj(obj, { state });
+    }
 }
 
 // A monster name this port cannot format yet.
@@ -845,6 +1220,8 @@ export function x_monnam(
     state = game,
     env = {},
 ) {
+    // C obtains its reusable output slot before the first early return.
+    nextmbuf();
     if (monster === state.youmonst) return 'you';
     const mdat = monster.data;
 
@@ -1042,6 +1419,8 @@ export function capitalizedAlwaysVisibleMonsterName(
 // normal owner is supplied here; an explicit caller override remains intact.
 export function mon_nam_too(mon, other_mon, state = game, env = {}) {
     if (mon !== other_mon) return monsterCommonName(mon, state);
+    // do_name.c takes a fresh nextmbuf() slot for the reflexive result.
+    nextmbuf();
     switch (pronoun_gender(mon, PRONOUN_HALLU, {
         canSpotMonster,
         ...env,

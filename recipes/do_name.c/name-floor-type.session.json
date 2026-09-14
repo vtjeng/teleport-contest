@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 913511,
+      "datetime": "20320418112233",
+      "nethackrc": "OPTIONS=name:FloorProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,playmode:debug\nOPTIONS=pettype:none\n",
+      "comment": "Independent debug #name probe: wish a potion, drop it under the hero, and assign its floor type a name. This reaches namefloorobj() and docall() through production dispatch.",
+      "moves": "  #wizwish\npotion of healing\nd n#name\nf.identify floor\n"
+    }
+  ]
+}

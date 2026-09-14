@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 913507,
+      "datetime": "20320418112233",
+      "nethackrc": "OPTIONS=name:NameProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none\n",
+      "comment": "Independent ordinary #name probe: choose the monster naming entry, then cancel getpos at the starting square. This reaches do_mgivenname() and its source-visible self naming response.",
+      "moves": "#name\nm\u001b"
+    }
+  ]
+}

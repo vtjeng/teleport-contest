@@ -171,7 +171,6 @@ import {
     docallcmd,
     mon_nam,
     x_monnam,
-    UnsupportedObjectNamingError,
 } from './do_name.js';
 import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './obj.js';
 import { doloot, dotip, UnsupportedPickupError } from './pickup.js';
@@ -2934,7 +2933,6 @@ export function failClosedCommandRefusals() {
         // (containers, scrolls, spellbooks, potions, lit items) whose
         // water-damage paths are not yet ported.
         WaterDamageError,
-        UnsupportedObjectNamingError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
         // Fumbling and autoquiver arms. A wish heavy or numerous enough to

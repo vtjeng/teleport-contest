@@ -6,20 +6,27 @@ import {
     Amonnam,
     a_monnam,
     a_monnam_unsupported,
+    alreadynamed,
     bogon_is_pname,
     bogusmon,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
     christen_monst,
+    free_mgivenname,
+    free_oname,
     lookup_novel,
     Monnam,
     mon_nam_too,
     monsterCommonName,
     monsterPossessive,
+    new_mgivenname,
+    new_oname,
+    nextmbuf,
     noveltitle,
     obj_pmname,
     oname,
     rndmonnam,
+    safe_oname,
     SIR_TERRY_NOVELS,
     UnsupportedMonsterNameError,
     x_monnam,
@@ -66,6 +73,7 @@ import {
     PM_ALIGNED_CLERIC,
     PM_ARCHEOLOGIST,
     PM_CLERIC,
+    PM_DEATH,
     PM_GHOST,
     PM_GNOME_RULER,
     PM_NEWT,
@@ -872,16 +880,41 @@ test('christen_monst refreshes a leashed name after rename and removal', () => {
     assert.deepEqual(observed, ['Rover', '']);
 });
 
-test('christen_monst preflights a leashed inventory refresh', () => {
+test('christen_monst updates a leashed name without an injected hook', () => {
     const monster = {
         mleashed: true,
         mextra: { mgivenname: 'Fido' },
     };
-    assert.throws(
-        () => christen_monst(monster, 'Rover'),
-        /requires update_inventory/,
-    );
-    assert.equal(monster.mextra.mgivenname, 'Fido');
+    assert.equal(christen_monst(monster, 'Rover'), monster);
+    assert.equal(monster.mextra.mgivenname, 'Rover');
+});
+
+// do_name.c:20-100. The five-buffer helper rotates through five reusable
+// slots, while the name allocators retain their extra record and replace only
+// the selected name field.
+test('name storage helpers preserve source allocation and clearing rules', () => {
+    assert.equal(nextmbuf(), '');
+    const monster = { mextra: { mgivenname: 'Fido', other: 7 } };
+    new_mgivenname(monster, 6);
+    assert.equal(monster.mextra.mgivenname, undefined);
+    monster.mextra.mgivenname = 'Rover';
+    free_mgivenname(monster);
+    assert.equal(monster.mextra.mgivenname, undefined);
+    assert.equal(monster.mextra.other, 7);
+
+    const object = { oextra: { oname: 'old', other: 9 } };
+    new_oname(object, 5);
+    assert.equal(safe_oname(object), '');
+    object.oextra.oname = 'new';
+    free_oname(object);
+    assert.equal(safe_oname(object), '');
+    assert.equal(object.oextra.other, 9);
+});
+
+test('alreadynamed leaves an unrelated name available', async () => {
+    const state = { u: { uprops: [] }, mons: [] };
+    const rider = { data: { pmidx: PM_DEATH }, mextra: {} };
+    assert.equal(await alreadynamed(rider, 'Death', 'Mortal', state), false);
 });
 
 // do_name.c oname() and new_oname(). objnam.c readobjnam() is the only live
@@ -961,12 +994,10 @@ test('oname truncates a name at PL_PSIZ and stops on a held object', () => {
     assert.equal(obj.oextra.oname.slice(0, 31), `a${'é'.repeat(30)}`);
     assert.equal(obj.oextra.oname.charCodeAt(31), 0xDCC3);
 
-    // 424-425 refreshes the inventory window for an object the hero holds; a
-    // wish reaches hold_another_object() only after oname() has returned, so
-    // no ported caller carries one and the arm stops.
+    // 424-425 refreshes the inventory window for an object the hero holds.
     const held = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_INVENT };
-    assert.throws(() => oname(held, 'Fido', ONAME_WISH, { state }),
-                  /update_inventory/u);
+    assert.equal(oname(held, 'Fido', ONAME_WISH, { state }), held);
+    assert.equal(held.oextra.oname, 'Fido');
 });
 
 // do_name.c mon_nam_too() (1189-1216). mhitm.c missmm() and hitmm() name the

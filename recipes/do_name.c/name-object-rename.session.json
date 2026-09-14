@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 913509,
+      "datetime": "20320418112233",
+      "nethackrc": "OPTIONS=name:ObjectRename,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none\n",
+      "comment": "Independent ordinary #name probe: choose an inventory object and assign it a player name. This reaches do_oname() and oname() through the production command dispatcher.",
+      "moves": "#name\niaprobe item\n"
+    }
+  ]
+}

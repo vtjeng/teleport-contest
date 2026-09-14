@@ -17,7 +17,7 @@ import {
     HALLUC_RES, INVIS, POTHIT_MONST_THROW, SEE_INVIS, SLEEP_RES, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
-import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
+import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
@@ -715,7 +715,6 @@ test('the potion refusals are ones the command seam converts', () => {
     // segment with nothing failing.
     const listed = failClosedCommandRefusals();
     assert.ok(listed.includes(UnsupportedPotionError));
-    assert.ok(listed.includes(UnsupportedObjectNamingError));
     // UnsupportedQuaffError is raised by dodrink/dopotion/peffects for
     // unported branches. Dropping it would lose every screen the quaff
     // command earned before the refusal.

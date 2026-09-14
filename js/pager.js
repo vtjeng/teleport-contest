@@ -16,6 +16,9 @@ import {
     GPCOORDS_NONE,
     HALLUC,
     HALLUC_RES,
+    M_AP_F_DKNOWN,
+    M_AP_OBJECT,
+    M_AP_TYPMASK,
     ICE,
     Is_airlevel,
     Is_waterlevel,
@@ -26,6 +29,7 @@ import {
     WATER,
     NEUTRAL,
     OBJ_FLOOR,
+    OBJ_FREE,
     PICK_ONE,
     ROWNO,
     SYM_BOULDER,
@@ -33,12 +37,20 @@ import {
     TER_MON,
     Upolyd,
     Ugender,
+    has_mcorpsenm,
+    MCORPSENM,
     u_at,
 } from './const.js';
 import { hliquid, pmname } from './do_name.js';
 import { trapped_chest_at, trapped_door_at } from './detect.js';
 import {
     GLYPH_NOTHING_OFF,
+    GLYPH_BODY_OFF,
+    GLYPH_BODY_PILETOP_OFF,
+    GLYPH_STATUE_FEM_OFF,
+    GLYPH_STATUE_FEM_PILETOP_OFF,
+    GLYPH_STATUE_MALE_OFF,
+    GLYPH_STATUE_MALE_PILETOP_OFF,
     GLYPH_UNEXPLORED_OFF,
 } from './glyph_offsets.js';
 import {
@@ -46,11 +58,13 @@ import {
     cmap_to_glyph,
     glyph_at,
     glyph_is_cmap,
+    glyph_is_body,
     glyph_is_monster,
     glyph_is_object,
     glyph_is_statue,
     glyph_is_trap,
     glyph_to_cmap,
+    glyph_to_obj,
     glyph_to_trap,
     engraving_to_glyph,
     map_glyphinfo,
@@ -76,7 +90,17 @@ import {
     singular,
     xnameFresh,
 } from './objnam.js';
-import { SLIME_MOLD } from './objects.js';
+import {
+    CHEST,
+    COIN_CLASS,
+    CORPSE,
+    LARGE_BOX,
+    LEASH,
+    OBJ_NAME,
+    SLIME_MOLD,
+    STATUE,
+    STRANGE_OBJECT,
+} from './objects.js';
 import {
     CMAP_EXPLANATIONS,
     MONSTER_CLASS_EXPLANATIONS,
@@ -115,13 +139,18 @@ import {
     monster_class_symbol,
     object_class_symbol,
 } from './symbols.js';
+import { dealloc_obj, mkobj, mksobj, sobj_at } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { obj_stop_timers } from './timeout.js';
+import { observe_object } from './o_init.js';
+import { costly_spot } from './shk.js';
 import {
     ROCK_CLASS,
     VENOM_CLASS,
 } from './objects.js';
 import { NO_COLOR } from './terminal.js';
 import { rn2 } from './rng.js';
-import { describeMonster } from './startup_a11y.js';
+import { describeMonster, heroIsBlind } from './startup_a11y.js';
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
@@ -232,27 +261,126 @@ function look_at_monster(monster, x, y, state) {
     return describeMonster(monster, { state });
 }
 
-// C ref: pager.c object_from_map(), through an ordinary live floor object.
-// Synthetic, buried, generic, and mimic reconstruction remain outside this
-// slice because no selected command path reaches them.
-function object_from_map(glyph, x, y, state) {
-    if (!glyph_is_object(glyph))
-        throw new UnsupportedWhatisError('a non-object map glyph');
-    const object = state.level?.objects?.[x]?.[y] ?? null;
-    if (!object || object.where !== OBJ_FLOOR)
-        throw new UnsupportedWhatisError('a reconstructed map object');
-    return object;
+// C ref: pager.c object_from_map() (284-380). The C function writes its object
+// through an out parameter and returns whether that object is synthetic; the
+// JavaScript result keeps those two values together for namefloorobj() and the
+// existing look_at_object() caller.
+export function object_from_map(glyph, x, y, state) {
+    let fakeobj = false;
+    let mimicObj = false;
+    const glyphotyp = glyph_is_object(glyph)
+        ? glyph_to_obj(glyph)
+        : glyph_is_cmap(glyph)
+            ? (sobj_at(CHEST, x, y, state) ? CHEST : LARGE_BOX)
+            : STRANGE_OBJECT;
+
+    let object = sobj_at(glyphotyp, x, y, state);
+    if (!object) {
+        for (let buried = state.level?.buriedobjlist
+                ?? state.buriedobjlist ?? null;
+            buried;
+            buried = buried.nobj) {
+            if (buried.ox === x && buried.oy === y
+                && buried.otyp === glyphotyp) {
+                object = buried;
+                break;
+            }
+        }
+    }
+
+    const monster = m_at(x, y, state);
+    if (monster
+        && ((monster.m_ap_type ?? 0) & M_AP_TYPMASK) === M_AP_OBJECT
+        && monster.mappearance === glyphotyp) {
+        object = null;
+        mimicObj = true;
+    }
+
+    if (!object || object.otyp !== glyphotyp) {
+        const type = state.objects?.[glyphotyp];
+        const env = objectGenerationEnv({ state });
+        // OBJ_NAME() distinguishes a regular map object from a shuffled-out
+        // extra type; the latter is represented by a random object of its
+        // class, exactly as mkobj.c does for look-at descriptions.
+        if (type && OBJ_NAME(type, state))
+            object = mksobj(glyphotyp, false, false, env);
+        else if (type)
+            object = mkobj(type.oc_class, false, env);
+        else
+            object = mksobj(STRANGE_OBJECT, false, false, env);
+        if (object?.timed) obj_stop_timers(object, state, env);
+        fakeobj = true;
+        if (object?.oclass === COIN_CLASS)
+            object.quan = 2;
+        else if (object?.otyp === SLIME_MOLD)
+            object.spe = state.context?.current_fruit ?? 0;
+
+        const corpsenm = monster && has_mcorpsenm(monster)
+            ? MCORPSENM(monster) : null;
+        if (corpsenm != null && corpsenm >= 0) {
+            if (object.otyp === SLIME_MOLD) object.spe = corpsenm;
+            else object.corpsenm = corpsenm;
+        } else if (object.otyp === CORPSE && glyph_is_body(glyph)) {
+            object.corpsenm = glyph >= GLYPH_BODY_PILETOP_OFF
+                ? glyph - GLYPH_BODY_PILETOP_OFF
+                : glyph - GLYPH_BODY_OFF;
+        } else if (object.otyp === STATUE && glyph_is_statue(glyph)) {
+            if (glyph >= GLYPH_STATUE_FEM_PILETOP_OFF)
+                object.corpsenm = glyph - GLYPH_STATUE_FEM_PILETOP_OFF;
+            else if (glyph >= GLYPH_STATUE_MALE_PILETOP_OFF)
+                object.corpsenm = glyph - GLYPH_STATUE_MALE_PILETOP_OFF;
+            else if (glyph >= GLYPH_STATUE_FEM_OFF)
+                object.corpsenm = glyph - GLYPH_STATUE_FEM_OFF;
+            else
+                object.corpsenm = glyph - GLYPH_STATUE_MALE_OFF;
+        }
+        if (object.otyp === LEASH) object.leashmon = 0;
+        object.where = OBJ_FLOOR;
+        object.ox = x;
+        object.oy = y;
+        object.no_charge = object.otyp === STRANGE_OBJECT
+            && costly_spot(x, y, state);
+    }
+
+    const hero = state.u;
+    const dx = x - (hero?.ux ?? 0);
+    const dy = y - (hero?.uy ?? 0);
+    if (object && dx * dx + dy * dy <= 2
+        && !heroIsBlind(state)
+        && !heroHallucinating(state)
+        && (fakeobj || object.where === OBJ_FLOOR)
+        && !state.iflags?.terrainmode)
+        observe_object(object, state);
+
+    if (fakeobj && monster && mimicObj
+        && (object.dknown || (monster.m_ap_type & M_AP_F_DKNOWN))) {
+        monster.m_ap_type |= M_AP_F_DKNOWN;
+        observe_object(object, state);
+    }
+    return { object, fakeobj };
 }
 
 // C ref: pager.c look_at_object(), through ordinary room-floor objects.
 function look_at_object(glyph, x, y, state) {
-    const object = object_from_map(glyph, x, y, state);
+    const { object, fakeobj } = object_from_map(glyph, x, y, state);
+    if (!object) return 'something';
     if (object.quan !== 1 && !object.dknown) {
+        if (fakeobj) {
+            object.where = OBJ_FREE;
+            dealloc_obj(object, { state });
+        }
         throw new UnsupportedWhatisError(
             'a distant stack with an unknown quantity',
         );
     }
-    return distant_name(object, donameFresh, state);
+    try {
+        return distant_name(object, donameFresh, state);
+    } finally {
+        if (fakeobj) {
+            object.where = OBJ_FREE;
+            dealloc_obj(object, { state });
+        }
+    }
 }
 
 // C ref: pager.c do_screen_description()'s monster/object symbol passes. A

@@ -59,7 +59,6 @@ import {
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectNameError } from './objnam.js';
-import { UnsupportedObjectNamingError } from './do_name.js';
 import { UnsupportedPotionError } from './potion.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
@@ -1007,7 +1006,6 @@ function elapsedTurnPlanningRefusals() {
         // first class; the trycall() below them raises the second for a type
         // the hero has neither identified nor already called something.
         UnsupportedPotionError,
-        UnsupportedObjectNamingError,
         // mon.c mondead() forgets the invisible-monster marker through
         // display.c unmap_object(), which refuses an engraved square. A
         // monster dying on a square that carries both reaches that refusal

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 913512,
+      "datetime": "20320418112233",
+      "nethackrc": "OPTIONS=name:MonsterRename,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,playmode:debug\nOPTIONS=pettype:none\n",
+      "comment": "Independent debug #name probe: create an adjacent ordinary monster and assign it a name. This reaches do_mgivenname(), christen_monst(), new_mgivenname(), and free_mgivenname() through production dispatch.",
+      "moves": " #wizgenesis\ngiant rat\n#name\nmj.MonsterFriend\n"
+    }
+  ]
+}

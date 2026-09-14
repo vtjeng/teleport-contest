@@ -958,9 +958,9 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
 // asked with.
 //
 // The arm this leaves out is the Amulet of Yendor's, which needs word ==
-// "call". do_name.c docallcmd() is its one C caller and is unported, so no
-// ported caller can supply that word; C's `otmp` parameter exists only for
-// that arm and is left out with it. The other C caller of the same format
+// "call". do_name.c docallcmd() supplies that word only after its own
+// getobj() callback has accepted the item; C's `otmp` parameter exists only
+// for that arm and is left out with it. The other C caller of the same format
 // string is read.c:559.
 async function silly_thing(word, state) {
     await ttyPline(silly_thing_to.replace('%s', word), state);
