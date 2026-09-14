@@ -1,9 +1,12 @@
 // ball.js -- punishment ball and chain movement.
-// C refs: ball.c move_bc() (437-552), drag_ball() (560-830), and bc_order().
+// C refs: ball.c ballrelease() (23-39), placebc_core() (120-145),
+// unplacebc_core() (147-190), placebc()/unplacebc() (193-219),
+// move_bc() (437-552), drag_ball() (560-830), and drag_down() (986-1031).
 // These helpers are used by dothrow.c hurtle_step() while a jumping hero is
 // punished. The pointers in drag_ball() are represented by `{ value }` cells.
 
 import {
+    A_STR,
     BC_BALL,
     BC_CHAIN,
     D_CLOSED,
@@ -14,16 +17,24 @@ import {
     OBJ_FLOOR,
     POOL,
     SLT_ENCUMBER,
+    HALF_PHDAM,
+    Is_waterlevel,
+    KILLED_BY_AN,
+    NO_KILLER_PREFIX,
     is_hole,
     is_pit,
 } from './const.js';
+import { exercise } from './attrib.js';
+import { canletgo, flooreffects } from './do.js';
 import { game } from './gstate.js';
 import {
+    cls,
     glyph_at,
     map_object,
     newsym,
     remembered_glyph_from_presentation,
 } from './display.js';
+import { freeinv } from './invent.js';
 import {
     carried,
     place_object,
@@ -32,14 +43,25 @@ import {
 import { maybe_unhide_at } from './mon.js';
 import { m_at } from './monst.js';
 import { dist2, distmin } from './hacklib.js';
-import { near_capacity, nomul, spoteffects } from './hack.js';
+import {
+    losehp,
+    near_capacity,
+    nomul,
+    spoteffects,
+    weight_cap,
+} from './hack.js';
 import { Levitation, is_pool, t_at } from './trap.js';
 import { find_mac } from './worn.js';
 import { hmon } from './uhitm.js';
 import { miss } from './zap.js';
-import { xnameFresh } from './objnam.js';
+import { otense, xnameFresh, yname } from './objnam.js';
+import { encumber_msg } from './pickup.js';
 import { rn2, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
+import { setnotworn, setuqwep, setuswapwep, setuwep } from './worn.js';
+import { welded } from './wield.js';
+import { note_unported } from './unported.js';
+import { ttyPline } from './tty_message.js';
 
 const BCPOS_DIFFER = 0;
 const BCPOS_CHAIN = 1;
@@ -85,6 +107,188 @@ function moveObject(object, x, y, state) {
 
 function rememberedGlyph(glyph) {
     return remembered_glyph_from_presentation({ glyph });
+}
+
+// C ref: ball.c placebc_core() (120-145), reached by placebc() after a level
+// transition. The floor-effect checks are ordinary on the destination square;
+// other landing effects remain owned by do.c flooreffects().
+function placebc_core(state) {
+    const ball = state.uball;
+    const chain = state.uchain;
+    if (!ball || !chain) {
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    flooreffects(chain, state.u.ux, state.u.uy, '', {
+        state,
+        unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
+    });
+
+    if (carried(ball)) {
+        state.u.bc_order = BCPOS_DIFFER;
+    } else {
+        flooreffects(ball, state.u.ux, state.u.uy, '', {
+            state,
+            unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
+        });
+        place_object(ball, state.u.ux, state.u.uy, { state });
+        state.u.bc_order = BCPOS_CHAIN;
+    }
+    place_object(chain, state.u.ux, state.u.uy, { state });
+    const glyph = state.level.at(state.u.ux, state.u.uy).glyph;
+    state.u.bglyph = glyph;
+    state.u.cglyph = glyph;
+    newsym(state.u.ux, state.u.uy, state);
+}
+
+// C ref: ball.c placebc() (193-209). The restriction mechanism is only used
+// by covet/lift callers outside this span, so a free chain is the live check.
+export function placebc(state = game) {
+    const chain = state.uchain;
+    if (chain && chain.where !== OBJ_FREE) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    placebc_core(state);
+}
+
+// C ref: ball.c unplacebc_core() (147-190), used around level transit. Object
+// extraction leaves the pointers attached to the hero while making both
+// objects free, so savelev()/getlev() can carry them between levels.
+function unplacebc_core(state) {
+    const ball = state.uball;
+    const chain = state.uchain;
+    if (!ball || !chain) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    if (state.u.uswallow) {
+        if (Is_waterlevel(state.u.uz)) {
+            if (!carried(ball) && ball.where === OBJ_FLOOR)
+                remove_object(ball, { state });
+            if (chain.where === OBJ_FLOOR)
+                remove_object(chain, { state });
+        }
+        return;
+    }
+
+    if (!carried(ball) && ball.where === OBJ_FLOOR) {
+        remove_object(ball, { state });
+        if (heroIsBlind(state) && (state.u.bc_felt & BC_BALL))
+            state.level.at(ball.ox, ball.oy).glyph = state.u.bglyph;
+        maybe_unhide_at(ball.ox, ball.oy, state);
+        newsym(ball.ox, ball.oy, state);
+    }
+    if (chain.where === OBJ_FLOOR)
+        remove_object(chain, { state });
+    if (heroIsBlind(state) && (state.u.bc_felt & BC_CHAIN))
+        state.level.at(chain.ox, chain.oy).glyph = state.u.cglyph;
+    maybe_unhide_at(chain.ox, chain.oy, state);
+    newsym(chain.ox, chain.oy, state);
+    state.u.bc_felt = 0;
+}
+
+// C ref: ball.c unplacebc() (212-219). The helper is intentionally a no-op
+// for an already-free chain, which is the state between level save and load.
+export function unplacebc(state = game) {
+    unplacebc_core(state);
+}
+
+// C ref: ball.c ballrelease() (23-39). A carried, unwelded ball leaves the
+// inventory without being placed on the floor and refreshes burden feedback.
+export async function ballrelease(showmsg, state = game) {
+    const ball = state.uball;
+    if (!ball || !carried(ball) || welded(ball, state)) return;
+    if (showmsg) await ttyPline('Startled, you drop the iron ball.', state);
+    if (state.uwep === ball) setuwep(null, { state });
+    if (state.uswapwep === ball) setuswapwep(null, { state });
+    if (state.uquiver === ball) setuqwep(null, { state });
+    freeinv(ball, { state });
+    await encumber_msg(state);
+}
+
+async function litter(state) {
+    const capacity = weight_cap(state);
+    for (let obj = state.invent; obj;) {
+        const next = obj.nobj;
+        if (obj !== state.uball && rnd(capacity) <= (obj.owt ?? 0)
+            && await canletgo(obj, '', state)) {
+            await ttyPline(
+                `You drop ${yname(obj, state)} and `
+                    + `${obj.quan === 1 ? 'it' : 'they'} `
+                    + `${otense(obj, 'fall')} down the stairs with you.`,
+                state,
+            );
+            setnotworn(obj, { state });
+            freeinv(obj, { state });
+            // do.c hitfloor() is outside this span; dropping the object on
+            // the destination floor would change its ownership incorrectly.
+            note_unported('do.c hitfloor');
+        }
+        obj = next;
+    }
+}
+
+function maybeHalfPhysical(damage, state) {
+    const property = state.u.uprops?.[HALF_PHDAM];
+    return property?.intrinsic || property?.extrinsic
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: ball.c drag_down() (986-1031). This runs while a punished hero
+// descends a stairway; the selected holdout reaches the collision arm.
+export async function drag_down(state = game) {
+    const ball = state.uball;
+    if (!ball) return;
+    let forward = false;
+    let dragchance = 3;
+    if (carried(ball))
+        forward = state.uwep === ball || !state.uwep || !rn2(3);
+
+    if (carried(ball) && !welded(ball, state))
+        await ttyPline('You lose your grip on the iron ball.', state);
+
+    await cls();
+    if (forward) {
+        if (rn2(6)) {
+            await ttyPline('The iron ball drags you downstairs!', state);
+            await losehp(
+                maybeHalfPhysical(rnd(6), state),
+                'dragged downstairs by an iron ball',
+                NO_KILLER_PREFIX,
+                state,
+            );
+            await litter(state);
+        }
+    } else {
+        if (rn2(2)) {
+            await ttyPline('The iron ball smacks into you!', state);
+            await losehp(
+                maybeHalfPhysical(rnd(20), state),
+                'iron ball collision',
+                KILLED_BY_AN,
+                state,
+            );
+            await exercise(A_STR, false, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+            dragchance -= 2;
+        }
+        if (dragchance >= rnd(6)) {
+            await ttyPline('The iron ball drags you downstairs!', state);
+            await losehp(
+                maybeHalfPhysical(rnd(3), state),
+                'dragged downstairs by an iron ball',
+                NO_KILLER_PREFIX,
+                state,
+            );
+            await exercise(A_STR, false, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+            await litter(state);
+        }
+    }
 }
 
 // C ref: ball.c move_bc() (437-552). Move the attached objects before or

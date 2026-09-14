@@ -16,6 +16,7 @@ import {
     CORR,
     DIR_DOWN,
     DIR_UP,
+    DISMOUNT_FELL,
     DOOR,
     ECMD_FAIL,
     ECMD_OK,
@@ -78,6 +79,7 @@ import {
 } from './const.js';
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
+import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
 import {
@@ -192,13 +194,14 @@ import {
     u_on_upstairs,
     u_on_sstairs,
 } from './stairs.js';
-import { Punished, stucksteed } from './steed.js';
+import { Punished, dismount_steed, stucksteed } from './steed.js';
 import { enexto, mnexto } from './teleport.js';
 import { run_timers } from './timeout.js';
 import {
     fill_pit,
     is_lava,
     is_pool,
+    Levitation,
     reset_utrap,
     t_at,
     uescaped_shaft,
@@ -1249,7 +1252,7 @@ export async function doup(state = game) {
 // the arrival tail at 1967-1993.
 //
 // Not covered, each named at its site: the endgame, tutorial, portal, trap-door
-// falling, punished, mounted falling, Gehennom, Knox, Mines, Sokoban and
+// falling, mounted falling, Gehennom, Knox, Mines, Sokoban and
 // Rogue-level arms. The getlev()
 // reload at 1704-1711 and the ascending-at-stairs placement and message at
 // 1747-1764 are now ported. Common Quest-entrance, shop-entry, object pickup,
@@ -1368,12 +1371,10 @@ export async function goto_level(
     }
 
     await check_special_room(true, state);
-    if (Punished(state)) {
-        // do.c:1616-1617, Punished -> ball.c unplacebc().
-        throw new UnsupportedLevelChangeError(
-            'goto_level() with a punished hero',
-        );
-    }
+    // do.c:1616-1617, Punished -> ball.c unplacebc() before the departing
+    // level is saved. The pointers remain on the hero while both objects are
+    // free, so getlev()/mklev() can restore them at the destination.
+    if (Punished(state)) unplacebc(state);
     reset_utrap(false, state);
     fill_pit(u.ux, u.uy, state);
     set_ustuck(null, state);
@@ -1517,17 +1518,13 @@ export async function goto_level(
         } else {
             u_on_dnstairs(state);
         }
-        // do.c:1758-1764. Transit message for ascending at stairs.
-        // great_effort = (Punished && !Levitation) -- the punished arm is
-        // refused at do.c:1616 above, so great_effort is always false here.
-        if (Punished(state)) {
-            throw new UnsupportedLevelChangeError(
-                'goto_level() ascending while punished',
-            );
-        }
-        if (state.flags?.verbose) {
+        // do.c:1758-1764. A punished, non-levitating hero announces the
+        // extra effort even when verbose mode is off.
+        const greatEffort = Punished(state) && !Levitation(state);
+        if (state.flags?.verbose || greatEffort) {
             await ttyPline(
-                `You ${u_locomotion('climb', state)} up the ${
+                `${greatEffort ? 'With great effort, you' : 'You'} `
+                    + `${u_locomotion('climb', state)} up the ${
                     state.ga?.at_ladder ? 'ladder' : 'stairs'
                 }.`,
                 state,
@@ -1559,30 +1556,32 @@ export async function goto_level(
             );
         } else if (near_capacity(state) > UNENCUMBERED
                    || Punished(state) || heroPropertyActive(u, FUMBLING)) {
-            // do.c:1783-1797. The punished arm is refused at do.c:1616, and
-            // the mounted fall has separate dismount behavior that remains
-            // fail-closed here. The selected witness is on foot, so C's
-            // source-ordered message, damage, and self-touch run below.
-            if (u.usteed) {
-                throw new UnsupportedLevelChangeError(
-                    'goto_level() falling down the stairs with a steed',
-                );
-            }
+            // do.c:1783-1797. Punishment drags the ball and chain before the
+            // ordinary fall damage or steed dismount.
             await ttyPline(
                 `You fall down the ${state.ga?.at_ladder ? 'ladder' : 'stairs'}.`,
                 state,
             );
-            const damage = heroPropertyActive(u, HALF_PHDAM)
-                ? Math.trunc((rnd(3) + 1) / 2)
-                : rnd(3);
-            await losehp(
-                damage,
-                state.ga?.at_ladder
-                    ? 'falling off a ladder'
-                    : 'tumbling down a flight of stairs',
-                KILLED_BY,
-                state,
-            );
+            if (Punished(state)) {
+                await drag_down(state);
+                if (!welded(state.uball, state))
+                    await ballrelease(false, state);
+            }
+            if (u.usteed) {
+                await dismount_steed(DISMOUNT_FELL, state);
+            } else {
+                const damage = heroPropertyActive(u, HALF_PHDAM)
+                    ? Math.trunc((rnd(3) + 1) / 2)
+                    : rnd(3);
+                await losehp(
+                    damage,
+                    state.ga?.at_ladder
+                        ? 'falling off a ladder'
+                        : 'tumbling down a flight of stairs',
+                    KILLED_BY,
+                    state,
+                );
+            }
             // trap.c selftouch() returns no value and remains outside this
             // span; preserving the discarded-result call keeps the arrival
             // tail source-ordered without inventing petrification behavior.
@@ -1597,8 +1596,9 @@ export async function goto_level(
         }
     }
 
-    // do.c:1812 placebc() puts a punished hero's ball and chain down; u.uball
-    // is refused at do.c:1616.
+    // do.c:1812 placebc() puts a punished hero's ball and chain down after
+    // arrival and before migrating objects are delivered.
+    if (Punished(state)) placebc(state);
     obj_delivery(false, state);
     losedogs({ state });
     kill_genocided_monsters(state);

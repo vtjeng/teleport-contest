@@ -29,6 +29,7 @@ import {
     TT_BURIEDBALL,
     TT_PIT,
     VIBRATING_SQUARE,
+    OBJ_FREE,
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
 import { UnsupportedLevelChangeError, dodown } from '../js/do.js';
@@ -37,7 +38,7 @@ import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, place_object } from '../js/obj.js';
 import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
@@ -901,22 +902,30 @@ test('goto_level stops for a hero tethered to a buried ball', async () => {
     );
 });
 
-test('goto_level stops for a punished hero', async () => {
+test('goto_level carries a punished hero through the leaving phase', async () => {
     // do.c:1616-1617, ball.c unplacebc(). Punished is (u.uball != 0), and the
     // port's single home for C's global `uball` is `state.uball` -- the
     // location js/steed.js Punished(), js/insight.js, js/monmove.js,
-    // js/steal.js and js/worn.js all read. Writing `state.u.uball` would leave
-    // the guard reading an undefined field, so the refusal would pass this
-    // test while never firing for a hero the game actually punished.
+    // js/steal.js and js/worn.js all read. The destination reload refusal is
+    // deliberately arranged after unplacebc() so this test distinguishes the
+    // source transition from the removed punished-state boundary.
     const state = await descendTo('>');
     quiet(state);
-    state.uball = { otyp: 0 };
+    state.uball = { otyp: 0, where: OBJ_FREE, quan: 1 };
+    state.uchain = { otyp: 0, where: OBJ_FREE, quan: 1 };
+    place_object(state.uball, state.u.ux, state.u.uy, { state });
+    place_object(state.uchain, state.u.ux, state.u.uy, { state });
     downStairsUnderHero(state);
+    destinationAlreadyVisited(state);
 
     await assert.rejects(
         dodown(state),
-        (error) => /punished hero/u.test(error.message),
+        DESTINATION_REFUSAL,
     );
+    assert.equal(state.uball.where, OBJ_FREE);
+    assert.equal(state.uchain.where, OBJ_FREE);
+    assert.notEqual(state._ttyToplines, 'unsupported level change: '
+        + 'goto_level() with a punished hero');
 });
 
 test('goto_level falls down burdened stairs before the arrival tail',
