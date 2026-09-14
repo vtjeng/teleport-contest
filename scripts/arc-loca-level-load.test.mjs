@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import {
     loadArcLocaRecipes,
@@ -12,15 +13,41 @@ test('Arc-loca recipes are independent clean input-only sessions', () => {
     assert.deepEqual(recipes.map(({ segments: [segment] }) => [
         segment.seed,
         segment.datetime,
+        segment.moves.length,
         segment.moves.at(-1),
     ]), [
-        [361, '20000110090000', 'z'],
-        [361, '20000110090000', 'z'],
+        [98231, '20460914121530', 44, 'z'],
+        [777331, '20370704153045', 41, 'z'],
     ]);
     assert.match(recipes[0].segments[0].nethackrc, /gender:male/u);
     assert.match(recipes[1].segments[0].nethackrc, /gender:female/u);
+    assert.notEqual(recipes[0].segments[0].seed, recipes[1].segments[0].seed);
+    assert.notEqual(
+        recipes[0].segments[0].datetime,
+        recipes[1].segments[0].datetime,
+    );
+    const fixedMoves = JSON.parse(readFileSync(
+        new URL('../sessions/seed0361-archeologist-tour.session.json', import.meta.url),
+    )).segments[0].moves;
+    for (const { segments: [segment] } of recipes) {
+        let common = 0;
+        while (common < segment.moves.length
+               && common < fixedMoves.length
+               && segment.moves[common] === fixedMoves[common]) ++common;
+        assert.ok(common < 8, `recipe shares ${common} fixed-session inputs`);
+    }
     for (const recipe of recipes)
         assert.equal(Object.hasOwn(recipe.segments[0], 'steps'), false);
+});
+
+test('Arc-loca source evidence names the 76 by 20 Lua map', () => {
+    // dat/Arc-loca.lua:10-31 contains 20 rows, each 76 cells wide.
+    const rows = readFileSync(
+        new URL('../nethack-c/upstream/dat/Arc-loca.lua', import.meta.url),
+        'utf8',
+    ).split('\n').slice(10, 30);
+    assert.equal(rows.length, 20);
+    assert.ok(rows.every((row) => row.length === 76));
 });
 
 test('Arc-loca loader creates source-defined level state', async () => {

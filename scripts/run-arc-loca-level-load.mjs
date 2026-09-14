@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-// Replay independent Archeologist routes into Arc-loca. Each recipe ends at
-// the level-change key, so the verifier observes the complete Lua loader's
-// generated level before a later command can leave it.
+// Replay independent Archeologist routes into Arc-loca. Each route opens the
+// wizard level menu and chooses Arc-loca, so the verifier observes the
+// complete Lua loader's generated level on arrival.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -32,6 +32,8 @@ function linkedCount(head, next) {
 }
 
 function altarCount() {
+    // Arc-loca.lua has 20 source rows of 76 cells; the game board retains its
+    // 80x21 playable bounds for descriptor placement and cleanup.
     let count = 0;
     for (let y = 0; y < 21; ++y)
         for (let x = 0; x < 80; ++x)
