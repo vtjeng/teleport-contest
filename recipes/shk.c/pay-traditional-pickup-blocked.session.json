@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\nOPTIONS=menustyle:traditional\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, py ",
+      "comment": "Blocked before payment by pickup.c pickup()'s traditional interface branch. This independent variation sets menustyle:traditional before pickup and is not a matching payment recording. Use the m prefix only for pay to exercise the same payment selection branch without the separately unported pickup interface."
+    }
+  ]
+}

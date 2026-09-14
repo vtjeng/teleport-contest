@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:PayCase,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, mpy ",
+      "comment": "Independent bounded seed search 8510300–8510349, stopping after three generated D:5 shops: corrected Healer welcome acknowledgement found 3 candidates in11replays (8510304,8510308,8510310). Selected the first general store. Start(17,17), controlled-teleport to its empty entrance column(72,12) for boots or(72,15) for cloak, then step east and pick up stock. Buy jumping boots using traditional billing's single-item yes/no prompt. The matrix verifies the intended inventory object and paid/unpaid bill ownership; no fixed-workload seed or input prefix was reused. Use the source m prefix to invert only payment selection into traditional itemization; a global menustyle change is separately blocked by pickup's traditional interface."
+    }
+  ]
+}
