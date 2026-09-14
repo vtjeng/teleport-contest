@@ -3572,30 +3572,29 @@ async function runChatCommand(key, state) {
 
 // C ref: weapon.c enhance_weapon_skill(). Like dosearch() and doeat() it
 // returns its own ECMD_* result, which for this command is always ECMD_OK.
-// The whole skill listing is formatted before select_menu() draws anything, so
-// an unported skill display stops with the screen untouched.
+// The whole skill listing is formatted before select_menu() draws anything.
 async function runEnhanceCommand(key, state) {
     return failClosedCommand(key, state, () => enhance_weapon_skill(state, {
         // weapon.c add_skills_to_menu() opens each skill range with
         // add_menu_heading(), which draws it with iflags.menu_headings;
         // menuTitleStyle() reads that style. end_menu()'s prompt line takes
         // the same style through allmain.c adjust_menu_promptstyle().
-        menu: (lines, prompt) => select_menu(state, {
-            lines: lines.map((line) => (line.heading
+        menu: (items, how, prompt) => select_menu(state, {
+            items: items.map((item) => (item.heading
                 ? {
-                    ...line,
+                    ...item,
                     attr: menuTitleStyle(state).titleAttr,
                     color: menuTitleStyle(state).titleColor,
                 }
-                : line)),
-            // Every entry is display-only, so select_menu(PICK_NONE) ends
-            // only on a dismissal and always answers cancelValue.
-            how: PICK_NONE,
+                : item)),
+            how,
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,
             overlay: state.iflags?.menu_overlay !== false,
         }),
+        ask: (query) => y_n(query, state),
+        message: ttyPline,
     }));
 }
 

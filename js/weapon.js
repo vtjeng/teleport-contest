@@ -15,6 +15,8 @@ import {
     A_DEX,
     A_STR,
     ECMD_OK,
+    MENU_BEHAVE_STANDARD,
+    MAXULEV,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -46,6 +48,9 @@ import {
     P_SLING,
     P_TWO_WEAPON_COMBAT,
     P_UNSKILLED,
+    PICK_NONE,
+    PICK_ONE,
+    plur,
     STR18,
     TIP_ENHANCE,
     WT_IRON_BALL_INCR,
@@ -212,10 +217,14 @@ import {
     P_RESTRICTED,
     P_SKILL,
     practice_needed_to_advance,
+    skill_based_spellbook_id,
     skillSlot,
     weapon_type,
 } from './startup_skills.js';
 import { is_pool } from './trap.js';
+import { y_n } from './cmd.js';
+import { select_menu } from './windows.js';
+import { ttyPline } from './tty_message.js';
 import { couldsee } from './vision.js';
 import { mwelded, will_weld } from './wield.js';
 import { which_armor } from './worn.js';
@@ -1325,16 +1334,15 @@ function slots_required(skill, state) {
 }
 
 // C ref: weapon.c can_advance(). C answers FALSE for a restricted, maxed, or
-// limit-reached skill before it consults `speedy`, and `speedy` alone does
-// nothing: the shortcut is `wizard && speedy`. Keeping that order matters,
-// because a restricted skill is an ordinary FALSE that needs nothing unported.
+// limit-reached skill before it consults `speedy`; the wizard shortcut then
+// bypasses both practice and slot checks.
 export function can_advance(skill, speedy, state = game) {
     if (P_RESTRICTED(skill, state)
         || P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
         || state.u.skills_advanced >= P_SKILL_LIMIT)
         return false;
     if (state.wizard && speedy)
-        throw new UnsupportedWeaponSkillError('can_advance(speedy)');
+        return true;
 
     return P_ADVANCE(skill, state)
             >= practice_needed_to_advance(P_SKILL(skill, state))
@@ -1375,19 +1383,17 @@ const skill_ranges = Object.freeze([
     { first: P_FIRST_SPELL, last: P_LAST_SPELL, name: 'Spellcasting Skills' },
 ]);
 
-// C ref: weapon.c add_skills_to_menu() (1224-1302). Covers the arm the only
-// caller in this port reaches: `selectable` FALSE and `wizard` FALSE, which is
-// the display-only listing. C takes `selectable` and `speedy` and uses both
-// only inside branches enhance_weapon_skill() refuses before calling here --
-// the `prefix` chain at :1266-1275, whose four other arms need a selection
-// letter, and the `any.a_int` assignment at :1298 -- so neither is a parameter
-// here. The wizard column format at :1277-1287 is refused the same way.
-//
-// C writes each line into a menu window; this returns the lines for its caller
-// to hand to the window owner, so nothing is drawn until the whole listing has
-// been formatted. A heading entry carries `heading: true`, which is
-// add_menu_heading()'s iflags.menu_headings styling.
-export function add_skills_to_menu(state = game) {
+// C ref: weapon.c add_skills_to_menu() (1224-1302). C writes each line into a
+// menu window; this returns the same ordered entries for the command's window
+// owner to draw only after the whole listing has been formatted. Entries with
+// a `value` are the C `anything.a_int` selections, while entries without one
+// are add_menu_str()-style display-only lines. A heading entry carries
+// `heading: true`, which is add_menu_heading()'s iflags.menu_headings styling.
+export function add_skills_to_menu(
+    state = game,
+    selectable = false,
+    speedy = false,
+) {
     // The tab-separated column layout at :1294-1296 belongs to
     // iflags.menu_tab_sep, whose options.c boolean handler is not ported.
     if (state.iflags?.menu_tab_sep)
@@ -1413,30 +1419,102 @@ export function add_skills_to_menu(state = game) {
             if (i === skill_ranges[pass].first)
                 lines.push({ text: skill_ranges[pass].name, heading: true });
 
-            if (P_RESTRICTED(i, state))
-                continue;
-            // C's `" %s %-*s [%s]"` with an empty prefix. The leading pair of
-            // spaces is that format's own space plus the one the empty prefix
-            // sits in, and `longest` assumes a monospaced font.
-            lines.push({
-                text: `  ${P_NAME(i, state).padEnd(longest)} `
-                    + `[${skill_level_name(i, state)}]`,
-            });
+            if (P_RESTRICTED(i, state)) continue;
+
+            // C's prefix leaves four spaces for a non-selectable entry's
+            // selector. Selectable entries receive their `a - ` prefix from
+            // the TTY menu owner, so their source label starts with one space.
+            let prefix;
+            if (!selectable) prefix = '';
+            else if (can_advance(i, speedy, state)) prefix = '';
+            else if (could_advance(i, state)) prefix = '  * ';
+            else if (peaked_skill(i, state)) prefix = '  # ';
+            else prefix = '    ';
+
+            const level = skill_level_name(i, state);
+            const text = state.wizard
+                ? state.iflags?.menu_tab_sep
+                    ? ` ${prefix}${P_NAME(i, state)}\t${level}\t`
+                        + `${String(P_ADVANCE(i, state)).padStart(5)}(`
+                        + `${String(practice_needed_to_advance(
+                            P_SKILL(i, state),
+                        )).padStart(4)})`
+                    : ` ${prefix}${P_NAME(i, state).padEnd(longest)} `
+                        + `${level.padEnd(12)} `
+                        + `${String(P_ADVANCE(i, state)).padStart(5)}(`
+                        + `${String(practice_needed_to_advance(
+                            P_SKILL(i, state),
+                        )).padStart(4)})`
+                : ` ${prefix} ${P_NAME(i, state).padEnd(longest)} [${level}]`;
+
+            if (selectable && can_advance(i, speedy, state))
+                lines.push({ text, value: i + 1, label: text });
+            else
+                lines.push({ text });
         }
     return lines;
 }
 
+// C ref: weapon.c skill_advance() (1197-1213). The C function consumes the
+// source-defined number of slots, raises the skill, appends its index to the
+// fixed skill_record array, then emits the level message. Wizard spell skills
+// also refresh skill-based spellbook identification after the message.
+export async function skill_advance(
+    skill,
+    state = game,
+    { message = ttyPline, spellbookIds = skill_based_spellbook_id } = {},
+) {
+    state.u.skill_record ??= [];
+    state.u.weapon_slots -= slots_required(skill, state);
+    P_SKILL(skill, state); // Ensure the skill slot exists before mutation.
+    skillSlot(skill, state).skill++;
+    state.u.skill_record[state.u.skills_advanced++] = skill;
+    await message(
+        `You are now ${P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
+            ? 'most' : 'more'} skilled in ${P_NAME(skill, state)}.`,
+        state,
+    );
+    if (skill >= P_FIRST_SPELL && skill <= P_LAST_SPELL)
+        spellbookIds(state);
+}
+
+// C ref: weapon.c show_skills() (1304-1318). This is used by DUMPLOG
+// disclosure in the reference build, so production gameplay has no caller;
+// the complete window and dismissal sequence remains available to that owner.
+export async function show_skills(
+    state = game,
+    { message = ttyPline, menu = null } = {},
+) {
+    await message('Skills:', state);
+    const items = add_skills_to_menu(state, false, false).map((item) => (
+        item.heading
+            ? {
+                ...item,
+                attr: state.iflags?.menu_headings?.attr,
+                color: state.iflags?.menu_headings?.color,
+            }
+            : item
+    ));
+    const owner = menu ?? ((menuItems, how, prompt) => select_menu(state, {
+        items: menuItems,
+        how,
+        title: prompt,
+        cancelValue: null,
+        behavior: MENU_BEHAVE_STANDARD,
+    }));
+    await owner(items, PICK_NONE, '');
+}
+
 // C ref: weapon.c enhance_weapon_skill() (1329-1407), the `#enhance` command.
-// Covers the pass over a hero who can advance nothing: the skill scan at
-// :1346-1355 leaves all three counters at zero, so no legend is written, the
-// listing is display-only, the title is "Current skills:" and select_menu()
-// is asked for PICK_NONE. Its answer cannot enter the `if (n > 0)` block at
-// :1391, and `while (speedy && n > 0)` at :1405 ends the do/while after one
-// pass, so the whole advancement half -- skill_advance() included -- is
-// unreachable from here and stays unported.
+// The menu owner receives C's ordered entries, the PICK_* mode, and the
+// end_menu() prompt. Selectable entries carry a one-based skill value, matching
+// the C `anything.a_int - 1` readback after select_menu().
 //
 // Returns ECMD_OK, which is C's only result.
-export async function enhance_weapon_skill(state = game, { menu } = {}) {
+export async function enhance_weapon_skill(
+    state = game,
+    { menu, ask = (query) => y_n(query, state), message = ttyPline } = {},
+) {
     if (typeof menu !== 'function')
         throw new TypeError('enhance_weapon_skill needs a menu owner');
 
@@ -1447,35 +1525,68 @@ export async function enhance_weapon_skill(state = game, { menu } = {}) {
     // branch below, so this does too.
     state.context.tips = (state.context.tips ?? 0) | (1 << TIP_ENHANCE);
 
-    // :1340's y_n("Advance skills without practice?") fires for every hero in
-    // debug mode, whatever the answer, and the wizard-only column format at
-    // :1277-1287 and slot-count title suffix at :1385-1387 follow it.
-    if (state.wizard)
-        throw new UnsupportedWeaponSkillError('#enhance in debug mode');
+    let n;
+    let speedy = false;
+    if (state.wizard
+        && await ask('Advance skills without practice?')
+            === 'y'.charCodeAt(0))
+        speedy = true;
 
-    /* count advanceable skills */
-    let to_advance = 0;
-    let eventually_advance = 0;
-    let maxxed_cnt = 0;
-    for (let i = 0; i < P_NUM_SKILLS; i++) {
-        if (P_RESTRICTED(i, state))
-            continue;
-        if (can_advance(i, false, state))
-            to_advance++;
-        else if (could_advance(i, state))
-            eventually_advance++;
-        else if (peaked_skill(i, state))
-            maxxed_cnt++;
-    }
+    do {
+        /* count advanceable skills */
+        let to_advance = 0;
+        let eventually_advance = 0;
+        let maxxed_cnt = 0;
+        for (let i = 0; i < P_NUM_SKILLS; i++) {
+            if (P_RESTRICTED(i, state)) continue;
+            if (can_advance(i, speedy, state)) ++to_advance;
+            else if (could_advance(i, state)) ++eventually_advance;
+            else if (peaked_skill(i, state)) ++maxxed_cnt;
+        }
 
-    // Every remaining branch this function has is behind one of these three
-    // counters: the "*" and "#" legend at :1362-1378, the selectable listing
-    // at :1380-1381, the "Pick a skill to advance:" title at :1383, and the
-    // PICK_ONE select_menu() at :1389 that leads to skill_advance().
-    if (to_advance + eventually_advance + maxxed_cnt > 0)
-        throw new UnsupportedWeaponSkillError('an advanceable or flagged skill');
+        const items = [];
+        if (eventually_advance > 0 || maxxed_cnt > 0) {
+            if (eventually_advance > 0) {
+                items.push({
+                    text: `(Skill${plur(eventually_advance)} flagged by "*" may be `
+                        + `enhanced ${state.u.ulevel < MAXULEV
+                            ? 'when you\'re more experienced'
+                            : 'if skill slots become available'}.)`,
+                });
+            }
+            if (maxxed_cnt > 0) {
+                items.push({
+                    text: `(Skill${plur(maxxed_cnt)} flagged by "#" cannot be `
+                        + 'enhanced any further.)',
+                });
+            }
+            items.push({ text: '' });
+        }
+        items.push(...add_skills_to_menu(state,
+            to_advance + eventually_advance + maxxed_cnt > 0,
+            speedy));
 
-    await menu(add_skills_to_menu(state), 'Current skills:');
+        let prompt = to_advance > 0
+            ? 'Pick a skill to advance:' : 'Current skills:';
+        if (state.wizard && !speedy)
+            prompt += `  (${state.u.weapon_slots} slot${plur(
+                state.u.weapon_slots,
+            )} available)`;
+        n = await menu(items, to_advance ? PICK_ONE : PICK_NONE, prompt);
+        if (n !== null && n !== undefined && n > 0) {
+            await skill_advance(n - 1, state, { message });
+            /* check for more skills able to advance; if so, then... */
+            n = 0;
+            for (let i = 0; i < P_NUM_SKILLS; i++) {
+                if (!can_advance(i, speedy, state)) continue;
+                if (!speedy) await message(
+                    'You feel you could be more dangerous!', state,
+                );
+                n++;
+                break;
+            }
+        }
+    } while (speedy && n > 0);
     return ECMD_OK;
 }
 

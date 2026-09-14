@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9100450,
+      "datetime": "20310913120000",
+      "nethackrc": "OPTIONS=name:EnhanceProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "comment": "Independent debug Knight case for weapon.c enhance_weapon_skill(): the y_n speedy branch advances polearms without practice, then rebuilds the menu before Escape dismisses it.",
+      "moves": ".#enhance\nyr \u001b"
+    }
+  ]
+}

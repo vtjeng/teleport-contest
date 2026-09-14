@@ -25,10 +25,10 @@
 //   "Weapon Skills", whose P_DAGGER it restricts, and Healer and Tourist
 //   reach it under "Spellcasting Skills", whose P_ATTACK_SPELL they restrict.
 //
-// Two arms no case here can reach, both refused by js/weapon.js: the whole
-// advancement half, which needs a hero who has practised a skill far enough
-// to advance it, and every wizard-only branch, which needs OPTIONS=playmode.
-// scripts/enhance-command.test.mjs pins both refusals instead.
+// These ordinary display cases leave every practice counter below its
+// threshold, so none selects a skill. scripts/enhance-command.test.mjs pins
+// the state transition directly, while the independent debug recipe and its
+// recording exercise the wizard speedy branch through the command dispatcher.
 
 import { P_ATTACK_SPELL, P_DAGGER, P_NUM_SKILLS } from '../js/const.js';
 import { game } from '../js/gstate.js';

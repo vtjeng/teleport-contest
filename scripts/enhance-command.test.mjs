@@ -1,6 +1,6 @@
-// Focused tests for weapon.c enhance_weapon_skill() and the three pieces its
-// display-only listing needs: add_skills_to_menu(), could_advance() and
-// peaked_skill().
+// Focused tests for weapon.c enhance_weapon_skill() and the skill-menu helpers
+// it calls: add_skills_to_menu(), could_advance(), peaked_skill(), and
+// skill_advance().
 //
 // The recorded evidence is the ten-segment matrix in
 // scripts/run-enhance-command.mjs, which compares complete screens, cursors
@@ -8,21 +8,22 @@
 // a role can produce. The first group of tests below replays that matrix
 // through the port, so the menus it recorded stay pinned without a C recorder.
 //
-// The rest cover what no C case can reach without diverging: the exact line
-// format, which the recorded screens show but no assertion in the matrix
-// names, and the three refusals, none of which C has -- C draws the menu the
-// port stops in front of.
+// The rest pin exact line formats and direct state transitions that the menu
+// screen comparison does not expose as individual assertions.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
     ECMD_OK,
+    P_ATTACK_SPELL,
     P_BASIC,
     P_EXPERT,
     P_ISRESTRICTED,
+    P_LONG_SWORD,
     P_MASTER,
     P_NUM_SKILLS,
+    P_POLEARMS,
     P_QUARTERSTAFF,
     P_SKILLED,
     P_SKILL_LIMIT,
@@ -32,7 +33,6 @@ import {
 import { failClosedCommandRefusals } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { getRngLog } from '../js/rng.js';
 import { P_RESTRICTED, skillSlot } from '../js/startup_skills.js';
 import {
     UnsupportedWeaponSkillError,
@@ -40,6 +40,8 @@ import {
     could_advance,
     enhance_weapon_skill,
     peaked_skill,
+    show_skills,
+    skill_advance,
 } from '../js/weapon.js';
 import {
     CASES,
@@ -232,73 +234,101 @@ test('peaked_skill needs the ceiling and the practice past it', () => {
     })), true);
 });
 
-// Everything a refusal must leave alone. weapon.c enhance_weapon_skill()
-// writes svc.context.tips at :1338 before any branch below it, so that bit is
-// the one thing a refusal is expected to have changed.
-function snapshot(state) {
-    return {
-        rng: getRngLog().length,
-        moves: state.moves,
-        toplines: state._ttyToplines ?? '',
-        skills: JSON.stringify(state.u.weapon_skills),
-        slots: state.u.weapon_slots,
-    };
-}
+// weapon.c skill_advance():1197-1213. This state starts with one available
+// slot and exactly the 20 practice points required to advance quarterstaff
+// from Unskilled to Basic; the injected message captures C's source order.
+test('skill_advance consumes slots, records the skill and reports the level',
+    async () => {
+        const state = await heroAfterOneTurn('monk-one-page');
+        const skill = skillSlot(P_QUARTERSTAFF, state);
+        skill.advance = 20;
+        state.u.weapon_slots = 1;
+        const messages = [];
+        await skill_advance(
+            P_QUARTERSTAFF,
+            state,
+            { message: async (text) => messages.push(text) },
+        );
+        assert.equal(skill.skill, P_BASIC);
+        assert.equal(state.u.weapon_slots, 0);
+        assert.equal(state.u.skills_advanced, 1);
+        assert.equal(state.u.skill_record[0], P_QUARTERSTAFF);
+        assert.deepEqual(messages, ['You are now most skilled in quarterstaff.']);
+    });
 
-async function refuses(state, message) {
-    let opened = 0;
-    const before = snapshot(state);
-    await assert.rejects(
-        () => enhance_weapon_skill(state, { menu: () => { opened++; } }),
-        (error) => error instanceof UnsupportedWeaponSkillError
-            && new RegExp(message, 'u').test(error.message),
-    );
-    // The menu is where C would have drawn, so a refusal that reaches it has
-    // already painted over the map the segment's next screen compares.
-    assert.equal(opened, 0);
-    assert.deepEqual(snapshot(state), before);
-    // :1338 runs above every refusal, so C has already set this bit too.
-    // svc.context starts a game zeroed and hack.c handle_tip() is the only
-    // other writer, so the whole field is this one bit.
-    assert.equal(state.context.tips, 1 << TIP_ENHANCE);
-}
-
-// weapon.c:1340. The y_n() prompt fires for every hero in debug mode whatever
-// the answer, so the whole command diverges there rather than at the branches
-// `speedy` later opens.
-test('enhance_weapon_skill refuses debug mode before it draws', async () => {
+test('skill_advance refreshes spellbook IDs for a spell skill', async () => {
     const state = await heroAfterOneTurn('monk-one-page');
-    state.wizard = true;
-    await refuses(state, 'debug mode');
+    const skill = skillSlot(P_ATTACK_SPELL, state);
+    skill.skill = P_UNSKILLED;
+    skill.max_skill = P_BASIC;
+    state.u.weapon_slots = 1;
+    let refreshed = 0;
+    await skill_advance(P_ATTACK_SPELL, state, {
+        message: async () => {},
+        spellbookIds: () => { refreshed++; },
+    });
+    assert.equal(skill.skill, P_BASIC);
+    assert.equal(refreshed, 1);
 });
 
-// weapon.c:1362-1391. Each of the three counters opens a branch this port
-// leaves unported, so a hero with any of them stops before create_nhwindow().
-// slots_required() for P_QUARTERSTAFF at P_UNSKILLED is P_SKILL, one slot.
-test('enhance_weapon_skill refuses a hero with a flagged skill', async () => {
-    // to_advance: practice and a slot to spend.
-    const advancing = await heroAfterOneTurn('monk-one-page');
-    skillSlot(P_QUARTERSTAFF, advancing).advance = 20;
-    advancing.u.weapon_slots = 1;
-    await refuses(advancing, 'advanceable or flagged');
+// weapon.c show_skills():1306-1326. DUMPLOG is disabled in the recorder
+// build, so this direct owner test pins its message, standard PICK_NONE menu,
+// and empty end_menu() prompt without pretending that a gameplay command
+// reaches the disclosure-only helper.
+test('show_skills writes the disclosure heading and dismissible menu',
+    async () => {
+        const state = await heroAfterOneTurn('monk-one-page');
+        const messages = [];
+        const shown = [];
+        await show_skills(state, {
+            message: async (text) => messages.push(text),
+            menu: async (items, how, prompt) => shown.push({
+                items, how, prompt,
+            }),
+        });
+        assert.deepEqual(messages, ['Skills:']);
+        assert.equal(shown.length, 1);
+        assert.equal(shown[0].how, 0);
+        assert.equal(shown[0].prompt, '');
+        assert.deepEqual(
+            shown[0].items.map((item) => item.heading
+                ? { text: item.text, heading: true }
+                : { text: item.text }),
+            add_skills_to_menu(state),
+        );
+    });
 
-    // eventually_advance: the same practice with no slot, which is the "*"
-    // legend rather than a selectable entry.
-    const waiting = await heroAfterOneTurn('monk-one-page');
-    skillSlot(P_QUARTERSTAFF, waiting).advance = 20;
-    waiting.u.weapon_slots = 0;
-    await refuses(waiting, 'advanceable or flagged');
-
-    // maxxed_cnt: at the ceiling with the practice for a step it cannot take,
-    // which is the "#" legend.
-    const maxed = await heroAfterOneTurn('monk-one-page');
-    skillSlot(P_QUARTERSTAFF, maxed).skill = P_BASIC;
-    skillSlot(P_QUARTERSTAFF, maxed).advance = 80;
-    await refuses(maxed, 'advanceable or flagged');
-});
+// weapon.c enhance_weapon_skill():1340-1405. In speedy wizard mode every
+// unrestricted skill is selectable even without practice or slots, and the
+// loop rebuilds the menu after each selected skill until dismissal.
+test('enhance_weapon_skill advances selected skills in speedy wizard mode',
+    async () => {
+        const state = await heroAfterOneTurn('samurai-narrow-column');
+        state.wizard = true;
+        const prompts = [];
+        const selected = [P_LONG_SWORD + 1, P_POLEARMS + 1];
+        const result = await enhance_weapon_skill(state, {
+            ask: async () => 'y'.charCodeAt(0),
+            menu: async (items, how, prompt) => {
+                prompts.push({ items, how, prompt });
+                return selected.shift() ?? null;
+            },
+            message: async () => {},
+        });
+        assert.equal(result, ECMD_OK);
+        assert.equal(prompts.length, 3);
+        assert.equal(prompts[0].how, 1);
+        assert.equal(prompts[0].prompt, 'Pick a skill to advance:');
+        // Samurai starts long sword at Basic and polearms at Unskilled.
+        assert.equal(state.u.weapon_skills[P_LONG_SWORD].skill, P_SKILLED);
+        assert.equal(state.u.weapon_skills[P_POLEARMS].skill, P_BASIC);
+        assert.deepEqual(state.u.skill_record.slice(0, 2), [
+            P_LONG_SWORD, P_POLEARMS,
+        ]);
+    });
 
 // The starting hero of every matrix case has practised nothing, so all three
-// counters are zero and none of the refusals above can fire.
+// counters are zero.
 test('a starting hero leaves all three counters at zero', async () => {
     for (const entry of CASES) {
         const state = await heroAfterOneTurn(entry.label);
@@ -316,13 +346,14 @@ test('enhance_weapon_skill shows the listing and answers ECMD_OK', async () => {
     const state = await heroAfterOneTurn('monk-one-page');
     const shown = [];
     const result = await enhance_weapon_skill(state, {
-        menu: (lines, prompt) => { shown.push({ lines, prompt }); },
+        menu: (items, how, prompt) => { shown.push({ items, how, prompt }); },
     });
     assert.equal(result, ECMD_OK);
     assert.equal(shown.length, 1);
     // weapon.c:1383. to_advance is zero, so the title is the checking one.
     assert.equal(shown[0].prompt, 'Current skills:');
-    assert.deepEqual(shown[0].lines, add_skills_to_menu(state));
+    assert.equal(shown[0].how, 0);
+    assert.deepEqual(shown[0].items, add_skills_to_menu(state));
     // :1338 -- the tip is marked seen whether or not anything can advance,
     // and svc.context, zeroed at game start, holds no other tip yet.
     assert.equal(state.context.tips, 1 << TIP_ENHANCE);

@@ -879,7 +879,7 @@ test('skill_level_name and can_advance read the hero skill slots', () => {
     assert.equal(can_advance(P_LONG_SWORD, false, state), false);
 });
 
-test('can_advance answers FALSE before it consults speedy', () => {
+test('can_advance answers FALSE before the wizard speedy shortcut', () => {
     const state = makeHeroState();
     const slot = state.u.weapon_skills[P_LONG_SWORD];
 
@@ -901,19 +901,17 @@ test('can_advance answers FALSE before it consults speedy', () => {
     state.u.skills_advanced = 60; /* P_SKILL_LIMIT */
     assert.equal(can_advance(P_LONG_SWORD, true, state), false);
 
-    // Past those three the refusal does fire, but only in C's own arm:
-    // `speedy` alone does nothing while wizard is FALSE.
+    // Past those three, the wizard speedy shortcut bypasses practice and
+    // slot checks. `speedy` alone does nothing while wizard is FALSE.
     state.u.skills_advanced = 0;
     slot.advance = 80;
     state.u.weapon_slots = 2;
     state.wizard = false;
     assert.equal(can_advance(P_LONG_SWORD, true, state), true);
     state.wizard = true;
-    assert.throws(
-        () => can_advance(P_LONG_SWORD, true, state),
-        (error) => error instanceof UnsupportedWeaponSkillError
-            && error.branch === 'can_advance(speedy)',
-    );
+    state.u.weapon_slots = 0;
+    slot.advance = 0;
+    assert.equal(can_advance(P_LONG_SWORD, true, state), true);
 });
 
 test('slots_required halves the cost for martial and bare-handed skills',
