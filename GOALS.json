@@ -34654,7 +34654,7 @@
     {
       "id": "port-weapon-enhance-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port weapon.c skill advancement eligibility, menus, speedy wizard enhancement, and production command wiring.",
       "cFile": "weapon.c",
       "sessions": [
@@ -34684,8 +34684,11 @@
         "screens": 8470,
         "rng": 630041
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6dca2f09ced11256d27f964ec48bffca0d75020b",
+      "delivered": {
+        "screens": 13,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "can_advance",
@@ -34994,6 +34997,83 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 643,
+          "kind": "stop",
+          "function": "doturn",
+          "functionDeclared": false,
+          "sourceFile": "pray.c",
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: doturn() for the extended command 'turn' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1171,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1171,
+              "status": "complete",
+              "commit": "9564954fe1f71dd805c397639b73814d3d22dca0",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1171,
+                "step": 643,
+                "kind": "stop",
+                "function": "doturn",
+                "functionDeclared": true,
+                "sourceFile": "pray.c",
+                "cFile": "pray.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: doturn() for the extended command 'turn' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The new boundary is the missing pray.c doturn() extended command. At step 643 the assigned recording, after #enhance completes, enters #turn as a lawful Knight: the role gate passes, gnostic conduct increments, halu_gname() resolves Lugh, can_chant() succeeds, the hero is not an evil or undead form, anger is within the allowed limit, and the hero is not in Gehennom. C then prints Calling upon Lugh, you chant an arcane formula., exercises Wisdom, scans monsters for turning, and installs the negative multi delay with trying to turn the monsters and You can move again. JavaScript has the extcmdlist row but no doturn handler, so dispatch falls through to its unported extended-command refusal. Port doturn() together with its pray.c maybe_turn_mon_iter() callback and wire the doturn dispatch; this is source-general pray.c file-port scope.",
+              "source": {
+                "file": "pray.c",
+                "functions": [
+                  "maybe_turn_mon_iter",
+                  "doturn"
+                ],
+                "branch": "For a Cleric or Knight with a chantable current form, doturn() records gnostic conduct and resolves the deity name. The normal branch requires a non-hostile hero form/alignment, ugangr <= 6, and !Inhell; it exercises Wisdom, computes the squared turning radius, iterates monsters, then calls nomul(-(5 - ((ulevel - 1) / 6))) and stores the multi reason and wake message before returning ECMD_TIME. Other source branches cover non-Cleric/Knight spell fallback or refusal, strangulation/speech failure, hostile demon-or-undead form or angry god, and Gehennom. maybe_turn_mon_iter() only acts on monsters within couldsee() and the radius that are nonpeaceful and undead, vampire-shifters, or high-level demons; confusion clears flee/paralysis, resistance and monster class thresholds choose peaceful conversion, death, or monflee().",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:75 declares doturn() and :1716-1717 binds the 'turn' extended-command row; js/extcmdlist_data.js:142 carries the existing turn -> doturn binding.",
+                  "js/cmd.js:4917-5154 is the production extended-command dispatcher; its switch handles ported handlers but currently has no doturn case, so the default at :5151-5154 raises the recorded UnsupportedHeroCommandBoundaryError.",
+                  "nethack-c/upstream/src/pray.c:2412-2486 is the command owner and calls its static maybe_turn_mon_iter() through iter_mons(); the JavaScript owner belongs in js/pray.js and must preserve the ECMD_TIME result and delayed turn-loop state."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/pray.c:2345-2409 maybe_turn_mon_iter() owns visibility/range filtering, undead/demon eligibility, confusion clearing, resistance thresholds, chaotic pacification, killed(), and monflee(); js/vision.js couldsee(), js/monmove.js monflee(), js/zap.js resist(), js/mon.js killed()/iter_mons(), and js/makemon.js set_malign() are the existing production counterparts.",
+                  "nethack-c/upstream/src/mondata.c:580-587 can_chant(), src/attrib.c:489-548 exercise(), src/hack.c:4161-4173 nomul(), src/dungeon.c In_hell(), and src/pray.c halu_gname() are prerequisites; js/mondata.js, js/attrib.js, js/hack.js, js/dungeon.js, and js/pray.js already expose corresponding helpers.",
+                  "nethack-c/upstream/src/spell.c known_spell()/spelleffects() supplies the non-Cleric/Knight fallback, while js/spell.js already exports known_spell() and spelleffects(); preserve the fallback's ECMD result and 'You don't know how to turn undead!' message.",
+                  "The monster callback may reach wizard.c aggravate() in doturn() hostile-form or angry-god branches; js/mon.js currently records wizard.c aggravate as an explicit unported discarded-result gap, so keep that source dependency visible if the selected span does not port it.",
+                  "js/hack.js:1035-1086 owns the negative-multi countdown and wake message fields; set state.multi_reason to 'trying to turn the monsters' and state.nomovemsg to You_can_move_again after nomul(), matching pray.c:2480-2485."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json SHA 9564954fe1f71dd805c397639b73814d3d22dca0 reports the assigned row at step 643, kind stop, with remainingScreensUpperBound 1171 and the exact doturn refusal; recordedSteps is 1814.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 638-643 enter #turn; step 643 key newline records 25 RNG calls beginning with rn2(19)=10 at exercise(attrib.c:509) and the C message Calling upon Lugh, you chant an arcane formula.  You can move again.",
+                "The recording nethackrc sets role:Knight, lawful alignment, playmode:debug, and the preceding #enhance menu is dismissed at steps 636-637; the step-643 normal Knight branch therefore passes role, chanting, hostile-form, anger, and Gehennom checks.",
+                "nethack-c/upstream/src/pray.c:2347-2409 defines maybe_turn_mon_iter() and :2414-2486 defines doturn(); the source owns the role/spell fallback, deity message, conduct, exercise, monster iteration, and negative-multi setup described by the witness.",
+                "js/extcmdlist_data.js:142 already advertises turn -> doturn, but js/cmd.js:5083-5085 handles only dopray and the dispatcher default at :5151-5154 refuses unknown doturn; js/pray.js has no doturn export. This identifies missing production wiring rather than a seed-specific mismatch.",
+                "The actionable scope is the source-general pray.c doturn()/maybe_turn_mon_iter() family and its command dispatch/dependencies; do not special-case seed 4500, Knight, Lugh, #turn, the 25 calls, or the recorded message."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "6dca2f09ced11256d27f964ec48bffca0d75020b",
+        "screens": 8483,
+        "rng": 630041
       }
     }
   ]
