@@ -41984,6 +41984,114 @@
         "screens": 8629,
         "rng": 632409
       }
+    },
+    {
+      "id": "port-teleport-teleds-ball-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete teleds() punished-ball dragging branch so level and coordinate teleport movement preserves ball and chain state, source ordering, and messages.",
+      "cFile": "teleport.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The refreshed full queue ranks holdout/seed4500-knight-coverage first at step 789 with 1025 remaining screens. Its valid completed cache investigations/holdout/seed4500-knight-coverage.json identifies teleport.c teleds as the current source owner; JavaScript still refuses the punishing-ball branch.",
+      "detail": "Queue entry: holdout/seed4500-knight-coverage, step 789, kind stop, function teleds, source teleport.c, message unsupported hero move: teleds() dragging a punishing ball, remainingScreensUpperBound 1025, recordedSteps 1814. Source tracing identifies the punished branch in teleport.c teleds() and existing js/ball.js drag_ball, move_bc, unplacebc, and placebc helpers as dependencies; port the source behavior through the production teleport path without session-specific logic.",
+      "spans": [],
+      "openedAt": "d6c8e3c0ee57e108c4b1d5aac13c137b61968ef7",
+      "openStanding": {
+        "sha": "d6c8e3c0ee57e108c4b1d5aac13c137b61968ef7",
+        "screens": 8629,
+        "rng": 632409
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "teleds",
+          "line": 448,
+          "endLine": 577,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 448,
+        "to": 577
+      },
+      "activeStanding": {
+        "sha": "d6c8e3c0ee57e108c4b1d5aac13c137b61968ef7",
+        "screens": 8629,
+        "rng": 632409
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 789,
+          "kind": "stop",
+          "function": "teleds",
+          "functionDeclared": true,
+          "sourceFile": "teleport.c",
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: teleds() dragging a punishing ball",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1025,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1025,
+              "status": "complete",
+              "commit": "f922afc3f15d8ced63b8ed86b407b68ff36b49ca",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1025,
+                "step": 789,
+                "kind": "stop",
+                "function": "teleds",
+                "functionDeclared": true,
+                "sourceFile": "teleport.c",
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero move: teleds() dragging a punishing ball",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The current stop is teleport.c teleds() active punishment-ball handling. C unplaces the ball when dragging is disallowed, invokes drag_ball and move_bc when the chain can follow, moves the hero, and restores a free chain with placebc; js/teleport.js:1483-1489 throws before these operations. js/ball.js already contains the source-mapped helpers, so the smallest next scope is the active-ball teleds branch plus its imports and wiring, a file-port of teleport.c teleds. Earlier mk_knox_portal, mkshop, and pager boundaries have passed and their source findings remain applicable.",
+              "source": {
+                "file": "teleport.c",
+                "functions": [
+                  "teleds"
+                ],
+                "branch": "teleds() admits the active punishment-ball branch when Punished && uball->where != OBJ_FREE. It allows drag only when the destination is adjacent and the hero is at or below burdened capacity; when the ball must move and dragging is disallowed, C calls unplacebc(). After trap and swallow cleanup, C calls drag_ball(), calls move_bc() when dragging succeeds, rechecks the active chain after failure, and later moves the hero with u_on_newpos() and restores a free chain with placebc(). js/teleport.js:1483-1489 currently throws before these operations. Buried-ball conversion, occupied-vault, occupied-destination, mimic, and swallowed branches are separate boundaries outside this active-ball scope.",
+                "callers": [
+                  "nethack-c/upstream/src/teleport.c:715-770 safe_teleds() calls teleds() after accepting a destination; :849-914 scrolltele() calls teleds() for controlled destinations and safe_teleds() otherwise.",
+                  "js/teleport.js:1357-1449 mirrors safe_teleds(), vault_tele(), and scrolltele() and reaches teleds() after destination checks.",
+                  "js/steed.js:424 and :731-738 directly call teleds() with TELEDS_ALLOW_DRAG; js/apply.js:1039 calls it with TELEDS_NO_FLAGS; js/trap.js:997, :1019, and :1075 use direct or safe teleport paths."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/ball.c placebc(), unplacebc(), move_bc(), and drag_ball() (placebc around :120-219, move_bc around :437-552, drag_ball around :560-830) are mirrored by existing js/ball.js:147-196, :294-376, and :386-636 implementations; js/teleport.js needs their imports and active-ball wiring.",
+                  "The branch also uses source-mapped teleport state and helpers for distmin(), near_capacity(), u_on_newpos(), fill_pit(), spoteffects(), and region updates; these are already part of the existing teleport path and must retain C ordering and random behavior.",
+                  "buried_ball_to_punishment() from dig.c and the vault/mimic/swallowed refusal branches are separate preconditions in teleport.c:teleds(); this scope must not claim those unresolved paths.",
+                  "Earlier mklev.c:mk_knox_portal wizard-gated placement, mkroom.c:mkshop, and pager.c:self_lookat() punishment suffix findings remain valid completed boundaries and are preserved as prior context."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json at commit f922afc3f15d8ced63b8ed86b407b68ff36b49ca reports holdout/seed4500-knight-coverage step 789, stop message `unsupported hero move: teleds() dragging a punishing ball`, and remainingScreensUpperBound 1025.",
+                "sessions/holdout/seed4500-knight-coverage.session.json is the explicit assigned recording; its current stop is step 789 of 1814 recorded steps. The investigation uses no other holdout path or session-specific implementation condition.",
+                "nethack-c/upstream/src/teleport.c:448-573 defines teleds() and contains the Punished, active-ball, drag_ball, move_bc, unplacebc, placebc, and u_on_newpos sequence; js/teleport.js:1466-1570 mirrors the function but throws at :1483-1489 when state.uball is active.",
+                "js/ball.js:147-196, :294-376, and :386-636 already provide placebc/unplacebc, move_bc, and drag_ball, so the actionable gap is the teleds() branch and production import wiring rather than a new ball.c port.",
+                "The production call graph is source-general through safe_teleds()/scrolltele() plus direct steed, apply, and trap callers; no seed, input, or expected screen is encoded in the proposed scope. Earlier mk_knox_portal, mkshop, and self_lookat findings remain in the prior cache record context."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
