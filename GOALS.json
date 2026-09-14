@@ -35580,8 +35580,8 @@
       "spans": [
         {
           "name": "nextmbuf..namefloorobj",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7",
           "functions": [
             "nextmbuf",
             "new_mgivenname",
@@ -35618,134 +35618,134 @@
           "name": "nextmbuf",
           "line": 20,
           "endLine": 30,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "new_mgivenname",
           "line": 31,
           "endLine": 50,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "free_mgivenname",
           "line": 51,
           "endLine": 60,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "new_oname",
           "line": 61,
           "endLine": 80,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "free_oname",
           "line": 81,
           "endLine": 94,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "safe_oname",
           "line": 95,
           "endLine": 104,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "name_from_player",
           "line": 105,
           "endLine": 132,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "christen_monst",
           "line": 133,
           "endLine": 157,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "alreadynamed",
           "line": 158,
           "endLine": 198,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "do_mgivenname",
           "line": 199,
           "endLine": 289,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "do_oname",
           "line": 290,
           "endLine": 371,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "oname",
           "line": 372,
           "endLine": 428,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "objtyp_is_callable",
           "line": 429,
           "endLine": 466,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "name_ok",
           "line": 467,
           "endLine": 479,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "call_ok",
           "line": 480,
           "endLine": 498,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "docallcmd",
           "line": 499,
           "endLine": 604,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "docall_xname",
           "line": 605,
           "endLine": 635,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "docall",
           "line": 636,
           "endLine": 678,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "namefloorobj",
           "line": 679,
           "endLine": 771,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "rndghostname",
@@ -36030,7 +36030,463 @@
             "previousRemainingScreensUpperBound": 1150
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "nextmbuf",
+            "implementation": "js/do_name.js",
+            "symbol": "nextmbuf",
+            "sourceReview": "Read nethack-c/upstream/src/do_name.c nextmbuf() lines 20-27 in full. The five static buffers and modulo rotation are preserved; the returned empty string is the JavaScript storage equivalent. No random call, output, or game-state mutation is introduced.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "x_monnam",
+                "source": "do_name.c x_monnam() uses nextmbuf() for its reusable result buffer; js/do_name.js advances the pool in x_monnam()."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "mon_nam_too",
+                "source": "do_name.c mon_nam_too() uses nextmbuf() for its reusable result buffer; js/do_name.js advances the pool in mon_nam_too()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "new_mgivenname",
+            "implementation": "js/do_name.js",
+            "symbol": "new_mgivenname",
+            "sourceReview": "Read do_name.c new_mgivenname() lines 31-47 in full. The nonzero arm retains or creates mextra, frees a prior given name, and leaves storage ready for the caller; the zero arm frees an existing name. The JavaScript object fields retain mextra and clear only the given-name field.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "christen_monst",
+                "source": "do_name.c christen_monst() calls new_mgivenname(); js/do_name.js does so before copying the clipped name."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "free_mgivenname",
+            "implementation": "js/do_name.js",
+            "symbol": "free_mgivenname",
+            "sourceReview": "Read do_name.c free_mgivenname() lines 51-57 in full. It clears MGIVENNAME while retaining mextra; the JavaScript implementation clears both supported field spellings without discarding mextra.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "new_mgivenname",
+                "source": "do_name.c new_mgivenname() calls free_mgivenname() when replacing an existing name; js/do_name.js preserves that call order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "new_oname",
+            "implementation": "js/do_name.js",
+            "symbol": "new_oname",
+            "sourceReview": "Read do_name.c new_oname() lines 60-77 in full. The nonzero arm retains or creates oextra, frees a prior object name, and leaves storage ready for the caller; the zero arm frees an existing name. JavaScript preserves oextra and clears only the name field.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "oname",
+                "source": "do_name.c oname() calls new_oname() before copying the player or artifact name; js/do_name.js keeps this order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-object-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "free_oname",
+            "implementation": "js/do_name.js",
+            "symbol": "free_oname",
+            "sourceReview": "Read do_name.c free_oname() lines 80-88 in full. It clears ONAME and retains oextra; JavaScript performs the equivalent field clearing.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "new_oname",
+                "source": "do_name.c new_oname() calls free_oname() when replacing an existing name; js/do_name.js preserves that call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-object-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "safe_oname",
+            "implementation": "js/do_name.js",
+            "symbol": "safe_oname",
+            "sourceReview": "Read do_name.c safe_oname() lines 95-100 in full. It returns the object's name when present and a valid empty string otherwise; JavaScript preserves both supported storage shapes and returns the same values without mutation.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_oname",
+                "source": "do_name.c do_oname() passes safe_oname() as getlin's default response; js/do_name.js uses it for the naming prompt."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "name_from_player",
+            "implementation": "js/do_name.js",
+            "symbol": "name_from_player",
+            "sourceReview": "Read do_name.c name_from_player() lines 104-128 in full. Empty and Escape input return NULL, mungspaces runs before truncation, and truncation is at PL_PSIZ-1 bytes. JavaScript uses the existing getlin and UTF-8 byte helpers and preserves this order.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c do_mgivenname() gets a monster name through name_from_player(); js/do_name.js passes the source prompt and existing given name."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_oname",
+                "source": "do_name.c do_oname() gets an object name through name_from_player(); js/do_name.js passes safe_oname() as the default."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "docall",
+                "source": "do_name.c docall() gets a type name through name_from_player(); js/do_name.js passes the existing oc_uname."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/docall.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-rename.session.json",
+              "recordings/do_name.c/name-object-rename.session.json",
+              "recordings/do_name.c/call-object-type.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "christen_monst",
+            "implementation": "js/do_name.js",
+            "symbol": "christen_monst",
+            "sourceReview": "Read do_name.c christen_monst() lines 132-155 in full. Length is measured in bytes, names longer than PL_PSIZ-1 bytes are clipped, new_mgivenname() runs before copying, and a leashed monster refreshes inventory. The JavaScript implementation preserves each branch and leaves the inventory call to the existing owner.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c do_mgivenname() calls christen_monst() for ordinary monsters; js/do_name.js dispatches the accepted name there."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "christen_orc",
+                "source": "do_name.c christen_orc() calls christen_monst() after generating the gang name; js/do_name.js retains that caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "alreadynamed",
+            "implementation": "js/do_name.js",
+            "symbol": "alreadynamed",
+            "sourceReview": "Read do_name.c alreadynamed() lines 158-195 in full. Empty-name rejection, fuzzy matching with the exact ignored-character set, title/invisible/of suffix matches, rider wording, and the Juiblex/Jubilex exception are preserved. ttyPline is the browser message boundary; no refusal is injected.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c do_mgivenname() calls alreadynamed() for unique monsters, shopkeepers, priests, and minions; js/do_name.js keeps those guards and branches in source order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "do_mgivenname",
+            "implementation": "js/do_name.js",
+            "symbol": "do_mgivenname",
+            "sourceReview": "Read do_name.c do_mgivenname() lines 199-282 in full. Hallucination, getpos, steed/self, swallowed monster, sensing/visibility, prompt, unique/shopkeeper/priest/minion/ghost/ebones rejection, verbalization, and christen branches retain source order and messages. The still-unported SetVoice side effect is represented only by the existing verbalize path; no command refusal remains.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c docallcmd() case 'm' dispatches do_mgivenname(); js/cmd.js routes the #name/#call extended command to js/do_name.js docallcmd()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-cancel.session.json",
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "do_oname",
+            "implementation": "js/do_name.js",
+            "symbol": "do_oname",
+            "sourceReview": "Read do_name.c do_oname() lines 290-369 in full. Novel rejection, safe_qbuf prompt, artifact resistance, canonical artifact matching, wipeout loop and display messages, literate conduct, and oname flags are preserved. The source's discarded oname return is likewise discarded.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c docallcmd() case 'i' calls getobj(name_ok) then do_oname(); js/do_name.js performs the same callback and dispatch from the production naming menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-object-cancel.session.json",
+              "recordings/do_name.c/name-object-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "oname",
+            "implementation": "js/do_name.js",
+            "symbol": "oname",
+            "sourceReview": "Read do_name.c oname() lines 371-426 in full. Byte truncation, duplicate/existing artifact guard, replacement allocation, artifact creation, secondary/wielded/unpaid side-effect order, naming conduct, and carried inventory refresh are preserved. The unported untwoweapon, set_artifact_intrinsic, alter_cost, and livelog-only effects use note_unported() after owned state updates, with no fake random or message calls.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_oname",
+                "source": "do_name.c do_oname() calls oname() with ONAME_VIA_NAMING | ONAME_KNOW_ARTI; js/do_name.js passes the same flags."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam",
+                "source": "objnam.c readobjnam() calls oname() for wished names; js/objnam_readobjnam.js retains the discarded-result call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-object-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "objtyp_is_callable",
+            "implementation": "js/do_name.js",
+            "symbol": "objtyp_is_callable",
+            "sourceReview": "Read do_name.c objtyp_is_callable() lines 429-463 in full. Existing user names short-circuit, real and fake Amulets of Yendor are excluded, and the listed classes require an object description. No state is changed.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "call_ok",
+                "source": "do_name.c call_ok() calls objtyp_is_callable(); js/do_name.js preserves that predicate before dknown/downplay checks."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/iactions.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "name_ok",
+            "implementation": "js/do_name.js",
+            "symbol": "name_ok",
+            "sourceReview": "Read do_name.c name_ok() lines 466-476 in full. Null and gold are excluded; unknown objects, artifacts, and novels are downplayed; all other objects are suggested. The callback performs no mutation.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c docallcmd() passes name_ok to getobj('name'); js/do_name.js does the same for option 'i'."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/iactions.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "call_ok",
+            "implementation": "js/do_name.js",
+            "symbol": "call_ok",
+            "sourceReview": "Read do_name.c call_ok() lines 480-495 in full. Noncallable types are excluded, unknown objects and discovered-but-uncalled types are downplayed, and all remaining callable objects are suggested. The callback performs no mutation.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c docallcmd() passes call_ok to getobj('call'); js/do_name.js does the same for option 'o'."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "namefloorobj",
+                "source": "do_name.c namefloorobj() uses call_ok for the floor-object message branch; js/do_name.js preserves the exclusion test."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/iactions.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "docallcmd",
+            "implementation": "js/do_name.js",
+            "symbol": "docallcmd",
+            "sourceReview": "Read do_name.c docallcmd() lines 499-601 in full. Canned key handling, lootabc menu accelerators, menu labels/order, cancel return, and all six dispatch cases are implemented. The d case records the unported rename_disco callee, while the other selected handlers are wired to production; no UnsupportedObjectNamingError remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extended-command dispatch reaches docallcmd(); js/cmd.js case 'docallcmd' awaits js/do_name.js docallcmd()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/docallcmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-cancel.session.json",
+              "recordings/do_name.c/name-object-cancel.session.json",
+              "recordings/do_name.c/name-object-rename.session.json",
+              "recordings/do_name.c/call-object-type.session.json",
+              "recordings/do_name.c/name-floor-type.session.json",
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "docall_xname",
+            "implementation": "js/do_name.js",
+            "symbol": "docall_xname",
+            "sourceReview": "Read do_name.c docall_xname() lines 604-633 in full. The temporary object clears oextra, quantity, blessed/cursed, and each class-specific cosmetic field in source order before an(article xname). JavaScript uses a shallow temporary object and preserves the discarded temporary result.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docall",
+                "source": "do_name.c docall() passes docall_xname to safe_qbuf(); js/do_name.js supplies the exported helper to its equivalent call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/docall.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/call-object-type.session.json",
+              "recordings/do_name.c/name-floor-type.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "docall",
+            "implementation": "js/do_name.js",
+            "symbol": "docall",
+            "sourceReview": "Read do_name.c docall() lines 636-676 in full. dknown guard, flush, sink-water prompt, safe_qbuf, old-name clearing, mungspaces, discover/undiscover updates, and inventory refresh preserve source order. The source-discarded display and helper results are not replaced with invented behavior.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c docallcmd() case 'o' and namefloorobj() call docall(); js/do_name.js dispatches both production paths."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/docall.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/call-object-type.session.json",
+              "recordings/do_name.c/name-floor-type.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          },
+          {
+            "name": "namefloorobj",
+            "implementation": "js/do_name.js",
+            "symbol": "namefloorobj",
+            "sourceReview": "Read do_name.c namefloorobj() lines 678-771 in full. Cursor text, hero-under-object lookup, map-glyph reconstruction, STRANGE_OBJECT handling, hallucination names and display RNG, callable/dknown messages, docall dispatch, and fake-object cleanup are preserved. pager.c object_from_map() supplies the selected reconstruction dependency.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "docallcmd",
+                "source": "do_name.c docallcmd() case 'f' calls namefloorobj(); js/do_name.js dispatches option 'f' from the production naming menu."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/docallcmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-floor-type.session.json"
+            ],
+            "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
+          }
+        ],
+        "entryPointReview": "The selected command entry point is the #name/#call extended command. js/cmd.js registers and dispatches docallcmd(), which reproduces the C menu and routes monster naming, individual object naming, inventory type naming, floor type naming, discovery naming, and level annotation. The d branch remains an explicit note_unported('o_init.c rename_disco()') because that callee is outside this span; the a branch calls the existing dungeon owner. Independent recordings cover m, i, o, and f through the production dispatcher, including cancellation and successful rename cases, and the exposed holdout advances beyond the original unsupported option-a boundary.",
+        "entryPoints": [
+          {
+            "name": "#name/#call naming dispatcher",
+            "functions": [
+              "docallcmd",
+              "do_mgivenname",
+              "do_oname",
+              "docall",
+              "namefloorobj"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-cancel.session.json",
+              "recordings/do_name.c/name-monster-rename.session.json",
+              "recordings/do_name.c/name-object-cancel.session.json",
+              "recordings/do_name.c/name-object-rename.session.json",
+              "recordings/do_name.c/call-object-type.session.json",
+              "recordings/do_name.c/name-floor-type.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
