@@ -41,7 +41,6 @@ import {
     SHRINK_GLOB,
     STONED,
     STONE_RES,
-    STUNNED,
     STRANGLED,
     SLEEPY,
     SLEEP_RES,

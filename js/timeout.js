@@ -35,7 +35,6 @@ import {
     GLIB,
     ICE,
     INTRINSIC,
-    INVULNERABLE,
     INVIS,
     I_SPECIAL,
     Is_waterlevel,
