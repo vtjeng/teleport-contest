@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4321,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:FreshDiff,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017scroll of punishment\nrp \u0014@",
+      "comment": "Independent wizard-mode punishment setup: Ctrl-W wishes for a scroll of punishment, r p reads it, and Ctrl-T with @ selects the current square so the source teleds() ball-in-range branch runs through the normal command caller."
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -13,6 +14,7 @@ import {
     LAVAPOOL,
     MON_FLOOR,
     MON_MIGRATING,
+    OBJ_FLOOR,
     POOL,
     RLOC_MSG,
     RLOC_NOMSG,
@@ -22,6 +24,8 @@ import {
     STRAT_APPEARMSG,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     PM_KITTEN,
@@ -34,6 +38,7 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
+import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
     add_rect_to_reg,
     add_region,
@@ -1039,4 +1044,37 @@ test('random_teleport_level clamps and adjusts at the bottom level', () => {
     enableRngLog();
     assert.equal(random_teleport_level(state), 7);
     assert.deepEqual(getRngLog(), ['rn2(5)=4', 'rn2(12)=9', 'rnd(3)=3']);
+});
+
+test('teleds drags the punished ball through the holdout teleport', async () => {
+    // teleport.c teleds():481-528. The explicit local-holdout prefix reaches
+    // the previously refused call at recorded step 789, where drag_ball()
+    // and move_bc() put both objects on the destination before the existing
+    // vision and spoteffects tail runs.
+    const recording = normalizeSession(JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    )));
+    const segment = recording.segments[0];
+    const moves = segment.steps.slice(1, 790)
+        .map(({ key }) => key ?? '')
+        .join('');
+    let boundary = null;
+    const replay = await runSegment(
+        { ...segment, moves },
+        { onBoundary: (error) => { boundary ??= error; } },
+    );
+
+    assert.equal(boundary, null,
+        'the teleds() ball branch consumes the recorded step');
+    assert.equal(replay.getScreens().length, 790,
+        'the prefix emits one screen for every input and its launch screen');
+    // The C recording's step 789 lands at (65,17). Both punishment objects
+    // are floor objects there after move_bc() and the teleds() tail.
+    assert.deepEqual([game.u.ux, game.u.uy], [65, 17]);
+    assert.deepEqual([game.uball.ox, game.uball.oy], [65, 17]);
+    assert.deepEqual([game.uchain.ox, game.uchain.oy], [65, 17]);
+    assert.equal(game.uball.where, OBJ_FLOOR);
+    assert.equal(game.uchain.where, OBJ_FLOOR);
 });

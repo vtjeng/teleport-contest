@@ -112,6 +112,7 @@ import { addinv, prinv } from './invent.js';
 import { record_achievement } from './insight.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { learnscroll } from './read.js';
+import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
 import {
     invocation_message,
     near_capacity,
@@ -165,7 +166,7 @@ import {
     maybe_unhide_at,
     set_ustuck,
 } from './mon.js';
-import { mksobj, sobj_at } from './obj.js';
+import { carried, mksobj, sobj_at } from './obj.js';
 import {
     AMULET_OF_YENDOR,
     BOULDER,
@@ -1476,26 +1477,32 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
         );
     }
     if (u.utraptype === TT_BURIEDBALL) {
+        // dig.c buried_ball_to_punishment() is still outside this span. Keep
+        // its existing boundary before reading the live punishment objects.
         throw new UnsupportedHeroMoveBoundaryError(
             'teleds() unearthing a buried ball',
         );
     }
-    const ball_active = Boolean(state.uball)
+    let ball_active = Boolean(state.uball)
         && state.uball.where !== OBJ_FREE;
-    if (ball_active) {
-        // drag_ball(), move_bc(), unplacebc() and placebc() have no owner.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'teleds() dragging a punishing ball',
-        );
-    }
-    // With no active ball this is always FALSE, so every later use of it is
-    // dead; it is written out because it is what decides whether the ball is
-    // dragged or teleported, and that decision returns the moment a punishing
-    // hero is admitted.
+    let ball_still_in_range = false;
     if (!ball_active
         || near_capacity(state) > SLT_ENCUMBER
         || distmin(u.ux, u.uy, nux, nuy) > 1)
         allow_drag = false;
+
+    // C teleds() keeps an active punishment ball on the floor when the
+    // destination remains within its two-square reach. Otherwise a teleport
+    // removes the ball and chain before the hero moves. drag_ball() receives
+    // mutable pointer cells because it may choose a different chain position.
+    if (ball_active) {
+        if (!carried(state.uball)
+            && distmin(nux, nuy, state.uball.ox, state.uball.oy) <= 2) {
+            ball_still_in_range = true;
+        } else if (!allow_drag) {
+            unplacebc(state);
+        }
+    }
 
     // teleds() itself tests nothing about who is standing on <nux,nuy>: it
     // moves the hero there at 525 and leaves the consequence to
@@ -1530,14 +1537,58 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
         );
     }
     if (was_swallowed) {
+        // C sets ball_active and redraws the map here when Punished. The
+        // swallowed relocation path still depends on that unported redraw and
+        // downstream effects, so retain its existing boundary as a whole.
         throw new UnsupportedHeroMoveBoundaryError(
             'teleds() out of an engulfer',
         );
     }
 
+    if (ball_active && (ball_still_in_range || allow_drag)) {
+        const bc_control = { value: 0 };
+        const ballx = { value: state.uball?.ox ?? 0 };
+        const bally = { value: state.uball?.oy ?? 0 };
+        const chainx = { value: state.uchain?.ox ?? 0 };
+        const chainy = { value: state.uchain?.oy ?? 0 };
+        const cause_delay = { value: false };
+
+        if (await drag_ball(
+            nux,
+            nuy,
+            bc_control,
+            ballx,
+            bally,
+            chainx,
+            chainy,
+            cause_delay,
+            allow_drag,
+            state,
+        )) {
+            move_bc(
+                0,
+                bc_control.value,
+                ballx.value,
+                bally.value,
+                chainx.value,
+                chainy.value,
+                state,
+            );
+        } else {
+            // drag_ball() can trigger a magic trap that removes punishment.
+            // Refresh the predicate before deciding whether placebc() below
+            // must restore the objects to the destination square.
+            ball_active = Boolean(state.uball)
+                && state.uball.where !== OBJ_FREE;
+            if (ball_active) unplacebc(state);
+        }
+    }
+
     /* must set u.ux, u.uy after drag_ball() */
     u_on_newpos(nux, nuy, state);
     fill_pit(u.ux0, u.uy0, state);
+    if (ball_active && state.uchain?.where === OBJ_FREE)
+        placebc(state);
     update_player_regions(state);
     /*
      *  Make sure the hero disappears from the old location, and force a full
