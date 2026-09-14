@@ -48,7 +48,13 @@ import {
 import { game } from '../js/gstate.js';
 import { near_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_ACID_BLOB, PM_GHOUL, PM_HORNED_DEVIL } from '../js/monsters.js';
+import {
+    PM_ACID_BLOB,
+    PM_GHOUL,
+    PM_HORNED_DEVIL,
+    PM_KNIGHT,
+    PM_LICH,
+} from '../js/monsters.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -91,8 +97,10 @@ import {
     can_pray,
     critically_low_hp,
     dopray,
+    doturn,
     gods_upset,
     in_trouble,
+    maybe_turn_mon_iter,
     prayer_done,
     stuck_in_wall,
     worst_cursed_item,
@@ -1346,3 +1354,127 @@ test('tty_yn_function stops on the response sets it cannot read', async () => {
         game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(), row,
     );
 });
+
+// pray.c doturn() reaches the spell fallback before it breaks conduct. This
+// fresh Valkyrie has no learned turn-undead spell, so the production #turn
+// dispatcher must print the source refusal and return without a move.
+test('#turn dispatches doturn() and preserves the role fallback', async () => {
+    // Keep this command test pinned to the two C gates it exercises: the
+    // role refusal precedes conduct, and C returns ECMD_OK after its message.
+    assert.match(PRAY_C,
+        /if \(!Role_if\(PM_CLERIC\) && !Role_if\(PM_KNIGHT\)\)/u);
+    assert.match(PRAY_C,
+        /You\("don't know how to turn undead!"\);\s*\n\s*return ECMD_OK;/u);
+    await startedGame('.#turn\n');
+    assert.equal(game._pending_message,
+        "You don't know how to turn undead!");
+    assert.equal(game.u.uconduct.gnostic, 0);
+});
+
+// pray.c doturn():2447-2487 is the ordinary Knight arm. A level-one Knight
+// has a BOLT_LIM (8) square range and receives nomul(-(5)) after the chant;
+// these state values pin the source arithmetic and its wake-up message.
+test('doturn() chants, exercises Wisdom, and installs negative multi', async () => {
+    // The range and wait assertions below mirror these source statements;
+    // reading them here catches a test that silently outlives a C change.
+    assert.match(PRAY_C,
+        /turn_undead_range = BOLT_LIM \+ \(u\.ulevel \/ 5\);/u);
+    assert.match(PRAY_C,
+        /nomul\(-\(5 - \(\(u\.ulevel - 1\) \/ 6\)\)\);/u);
+    await startedGame();
+    game.urole.mnum = PM_KNIGHT;
+    game.u.uconduct.gnostic = 0;
+    const result = await doturn(game);
+    assert.equal(result, ECMD_TIME);
+    assert.equal(game.u.uconduct.gnostic, 1);
+    assert.equal(game.turn_undead_range, 64);
+    assert.equal(game.turn_undead_msg_cnt, 0);
+    assert.equal(game.multi, -5);
+    assert.equal(game.multi_reason, 'trying to turn the monsters');
+    assert.equal(game.nomovemsg, 'You can move again.');
+    assert.equal(game._pending_message,
+        'Calling upon Tyr, you chant an arcane formula.');
+});
+
+// pray.c doturn():2431-2447 checks the current form, anger timer and dungeon
+// before the chant. Each row keeps a lawful Knight's conduct at its first
+// turn, so the source's ECMD_TIME reply can be distinguished from the normal
+// successful arm's negative multi setup.
+test('doturn() preserves form, anger and Gehennom refusal gates', async () => {
+    const cases = [
+        {
+            label: 'undead form',
+            setup(state) {
+                state.youmonst.data = state.mons[PM_LICH];
+            },
+            message: 'For some reason, Tyr seems to ignore you.',
+        },
+        {
+            label: 'angry god',
+            setup(state) { state.u.ugangr = 7; },
+            message: 'For some reason, Tyr seems to ignore you.',
+        },
+        {
+            label: 'Gehennom',
+            setup(state) {
+                const hellDnum = state.dungeons.findIndex(
+                    (dungeon) => dungeon?.flags?.hellish,
+                );
+                assert.ok(hellDnum >= 0, 'the dungeon list has Gehennom');
+                state.u.uz = { dnum: hellDnum, dlevel: 1 };
+            },
+            message: "Since you are in Gehennom, Tyr can't help you.",
+        },
+    ];
+    for (const { label, setup, message } of cases) {
+        await startedGame();
+        game.urole.mnum = PM_KNIGHT;
+        // allmain.c starts each command with gm.multi at zero; the focused
+        // direct call bypasses that command-loop initialization.
+        game.multi = 0;
+        setup(game);
+        const result = await doturn(game);
+        assert.equal(result, ECMD_TIME, label);
+        assert.equal(game.u.uconduct.gnostic, 1, label);
+        assert.equal(game.multi, 0, label);
+        assert.equal(game._pending_message, message, label);
+    }
+});
+
+// pray.c maybe_turn_mon_iter():2359-2365 reports one faltering voice for the
+// whole command. The synthetic ghoul is in the level-one 8-square range and
+// starts asleep, fleeing, frozen and unable to move, so the Confusion arm
+// exercises each of its state writes without invoking monflee().
+test('maybe_turn_mon_iter() clears a confused turn target once per command',
+    async () => {
+        await startedGame();
+        const state = game;
+        const monster = {
+            data: state.mons[PM_GHOUL],
+            mhp: 10,
+            mx: state.u.ux + 1,
+            my: state.u.uy,
+            mpeaceful: false,
+            msleeping: true,
+            mflee: true,
+            mfrozen: 3,
+            mcanmove: false,
+        };
+        state.turn_undead_range = 64;
+        state.turn_undead_msg_cnt = 0;
+        state.u.uprops[CONFUSION].intrinsic = 1;
+        const messages = [];
+        const env = {
+            couldSee: () => true,
+            message: async (text) => { messages.push(text); },
+        };
+        await maybe_turn_mon_iter(monster, state, env);
+        await maybe_turn_mon_iter({ ...monster }, state, env);
+        assert.deepEqual(messages, ['Unfortunately, your voice falters.']);
+        assert.equal(state.turn_undead_msg_cnt, 2);
+        assert.equal(monster.msleeping, false);
+        assert.equal(monster.mflee, false);
+        assert.equal(monster.mfrozen, 0);
+        assert.equal(monster.mcanmove, true);
+        state.u.uprops[CONFUSION].intrinsic = 0;
+    });

@@ -5,8 +5,9 @@
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
 //        angrygods() (704-784), gods_upset() (1436-1443),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
-//        dopray() (2199-2273), prayer_done() (2276-2343), u_gname() (2524)
-//        and align_gname() (2530).
+//        dopray() (2199-2273), prayer_done() (2276-2343),
+//        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
+//        u_gname() (2524), and align_gname() (2530).
 //
 // prayer_done() covers its head and the gp.p_type == 0 arm; angrygods() covers
 // cases 0 and 1 of its switch and the trailing rnz(300). water_prayer(),
@@ -26,6 +27,7 @@ import {
     AM_MASK,
     Amask2align,
     BLINDED,
+    BOLT_LIM,
     CONFUSION,
     DEAF,
     ECMD_OK,
@@ -40,6 +42,8 @@ import {
     INTRINSIC,
     IS_ALTAR,
     LARGEST_INT,
+    MAXULEV,
+    NOTELL,
     IS_OBSTRUCTED,
     PARANOID_CONFIRM,
     PARANOID_PRAY,
@@ -53,6 +57,7 @@ import {
     STONED,
     STRANGLED,
     STUNNED,
+    TELL,
     TIMEOUT,
     TELEPAT,
     STEALTH,
@@ -67,24 +72,38 @@ import {
     ismnum,
 } from './const.js';
 import { confers_luck, hcolor } from './artifacts.js';
-import { adjalign, adjattrib } from './attrib.js';
+import { adjalign, adjattrib, exercise } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { xlev_to_rank } from './display.js';
 import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { near_capacity, nomul } from './hack.js';
+import { near_capacity, nomul, You_can_move_again } from './hack.js';
+import { dist2 } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
     attacktype_fordmg,
+    can_chant,
     is_demon,
     is_human,
     is_undead,
+    is_vampshifter,
     nohands,
     throws_rocks,
 } from './mondata.js';
-import { AD_BLND, AT_ENGL } from './monsters.js';
+import {
+    AD_BLND,
+    AT_ENGL,
+    PM_CLERIC,
+    PM_KNIGHT,
+    S_GHOST,
+    S_LICH,
+    S_MUMMY,
+    S_VAMPIRE,
+    S_WRAITH,
+    S_ZOMBIE,
+} from './monsters.js';
 import { is_weptool, sobj_at, uncurse } from './obj.js';
 import {
     BOULDER,
@@ -96,14 +115,22 @@ import {
     RIN_LEVITATION,
     SADDLE,
     WEAPON_CLASS,
+    SPE_TURN_UNDEAD,
 } from './objects.js';
 import { region_danger } from './region.js';
 import { losexp, pluslvl } from './exper.js';
-import { rn1, rn2, rnl, rnz } from './rng.js';
+import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { Punished } from './steed.js';
 import { is_pool_or_lava } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { heroIsBlind } from './startup_a11y.js';
+import { canseemon, couldsee } from './vision.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { Monnam } from './do_name.js';
+import { killed, mon_offmap } from './mon.js';
+import { monflee } from './monmove.js';
+import { set_malign } from './makemon.js';
+import { resist } from './zap.js';
+import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
 import { bimanual, which_armor } from './worn.js';
 import { encumber_msg } from './pickup.js';
@@ -601,6 +628,209 @@ export async function prayer_done(state = game) {
         }
         await pleased(state.gp.p_aligntyp, state);
     }
+}
+
+// C ref: pray.c maybe_turn_mon_iter() (2347-2405). `iter_mons()` invokes this
+// callback for living, on-map monsters; the asynchronous owners below keep
+// that same cached-next traversal in doturn().
+function turnDefaultMessage(text, state, env = {}) {
+    if (env.planning) return undefined;
+    return ttyPline(text, state);
+}
+
+// C ref: mon.c pline_mon() as reached by monmove.c monflee(). The detail kinds
+// are the ones monflee() selects after its source visibility and light tests.
+async function turnFleeMessage(monster, detail, env = {}) {
+    const state = env.state ?? game;
+    const name = Monnam(monster, state);
+    let text;
+    switch (detail.kind) {
+    case 'immobile-flinch':
+        text = `${name} seems to flinch.`;
+        break;
+    case 'frightened':
+        text = `${name} is frightened.`;
+        break;
+    case 'painful-light':
+        text = `${name} flees from the painful light of `
+            + '[its imagination?].';
+        break;
+    case 'bright-light':
+        text = '"Bright light!"';
+        break;
+    default:
+        text = `${name} turns to flee.`;
+        break;
+    }
+    const message = env.message ?? turnDefaultMessage;
+    return message(messageAt(text, monster.mx, monster.my, state), state, env);
+}
+
+// C ref: pray.c maybe_turn_mon_iter() (2347-2405). The two file-static C
+// values are state fields so a helper call observes the same values doturn()
+// installed. `killed()` and `monflee()` discard their C return values; a
+// refusal from either unported downstream branch remains a command boundary.
+export async function maybe_turn_mon_iter(mtmp, state = game, env = {}) {
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const couldSee = env.couldSee
+        ?? ((x, y) => couldsee(x, y, state));
+    const range = env.turnUndeadRange ?? state.turn_undead_range ?? 0;
+    if (!couldSee(mtmp.mx, mtmp.my) || dist2(
+        mtmp.mx,
+        mtmp.my,
+        state.u.ux,
+        state.u.uy,
+    ) > range) return;
+
+    if (mtmp.mpeaceful
+        || (!is_undead(mtmp.data)
+            && !is_vampshifter(mtmp)
+            && !(is_demon(mtmp.data)
+                && state.u.ulevel > (MAXULEV / 2)))) return;
+
+    mtmp.msleeping = false;
+    if (intrinsic(state, CONFUSION)) {
+        const messageCount = state.turn_undead_msg_cnt ?? 0;
+        state.turn_undead_msg_cnt = messageCount + 1;
+        if (!messageCount) {
+            await (env.message ?? turnDefaultMessage)(
+                'Unfortunately, your voice falters.', state, env,
+            );
+        }
+        mtmp.mflee = false;
+        mtmp.mfrozen = 0;
+        mtmp.mcanmove = true;
+    } else if (!await resist(mtmp, '\0', 0, TELL, state, random)) {
+        let xlev = 6;
+        switch (mtmp.data?.mlet) {
+        case S_LICH:
+            xlev += 2;
+            // FALLTHROUGH
+        case S_GHOST:
+            xlev += 2;
+            // FALLTHROUGH
+        case S_VAMPIRE:
+            xlev += 2;
+            // FALLTHROUGH
+        case S_WRAITH:
+            xlev += 2;
+            // FALLTHROUGH
+        case S_MUMMY:
+            xlev += 2;
+            // FALLTHROUGH
+        case S_ZOMBIE:
+            if (state.u.ulevel >= xlev
+                && !await resist(mtmp, '\0', 0, NOTELL, state, random)) {
+                if (state.u.ualign.type === A_CHAOTIC) {
+                    mtmp.mpeaceful = true;
+                    set_malign(mtmp, state);
+                } else {
+                    await killed(mtmp, state, {
+                        ...env,
+                        state,
+                        random,
+                        message: env.message ?? turnDefaultMessage,
+                        unsupported: env.unsupported
+                            ?? ((what) => {
+                                throw new UnsupportedPrayerError(what);
+                            }),
+                    });
+                }
+                break;
+            }
+            // FALLTHROUGH
+        default:
+            await monflee(mtmp, 0, false, true, {
+                ...env,
+                state,
+                random,
+                couldSee,
+                canSeeMonster: env.canSeeMonster
+                    ?? ((monster) => canseemon(monster, state)),
+                fleeMessage: env.fleeMessage ?? turnFleeMessage,
+                message: env.message ?? turnDefaultMessage,
+            });
+            break;
+        }
+    }
+}
+
+// C ref: pray.c doturn() (2407-2489), the #turn extended command.
+export async function doturn(state = game, env = {}) {
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const message = env.message ?? turnDefaultMessage;
+    const normalized = { ...env, state, random, message };
+    const role = state.urole?.mnum;
+
+    if (role !== PM_CLERIC && role !== PM_KNIGHT) {
+        if (known_spell(SPE_TURN_UNDEAD, state)) {
+            return await spelleffects(
+                SPE_TURN_UNDEAD, false, false, state, normalized,
+            );
+        }
+        await message("You don't know how to turn undead!", state, env);
+        return ECMD_OK;
+    }
+
+    state.u.uconduct.gnostic++;
+    const Gname = halu_gname(state.u.ualign.type, state);
+    if (!can_chant(state.youmonst, state)) {
+        await message(
+            `You are ${intrinsic(state, STRANGLED)
+                ? 'not able to call' : 'incapable of calling'} upon ${Gname}`
+                + ' to turn aside evilness.', state, env,
+        );
+        return state.u.uconduct.gnostic === 1 ? ECMD_TIME : ECMD_OK;
+    }
+
+    if ((state.u.ualign.type !== A_CHAOTIC
+            && (is_demon(state.youmonst?.data)
+                || is_undead(state.youmonst?.data)
+                || is_vampshifter(state.youmonst)))
+        || state.u.ugangr > 6) {
+        await message(
+            `For some reason, ${Gname} seems to ignore you.`, state, env,
+        );
+        note_unported('wizard.c aggravate');
+        await exercise(A_WIS, false, state, random);
+        return ECMD_TIME;
+    }
+
+    if (In_hell(state.u.uz, state)) {
+        await message(
+            `Since you are in Gehennom, ${Gname} `
+                + `${Gname === Moloch ? "won't" : "can't"} help you.`,
+            state,
+            env,
+        );
+        note_unported('wizard.c aggravate');
+        return ECMD_TIME;
+    }
+
+    await message(
+        `Calling upon ${Gname}, you chant an arcane formula.`, state, env,
+    );
+    await exercise(A_WIS, true, state, random);
+    state.turn_undead_range = BOLT_LIM
+        + Math.trunc(state.u.ulevel / 5);
+    state.turn_undead_range *= state.turn_undead_range;
+    state.turn_undead_msg_cnt = 0;
+
+    // C iter_mons() caches nmon before invoking the callback. The callback is
+    // asynchronous here, so awaiting each one also preserves C's mutation and
+    // random-call order before the negative multi state is installed.
+    for (let mtmp = state.level?.monlist ?? null; mtmp;) {
+        const next = mtmp.nmon;
+        if (mtmp.mhp >= 1 && !mon_offmap(mtmp)) {
+            await maybe_turn_mon_iter(mtmp, state, normalized);
+        }
+        mtmp = next;
+    }
+
+    nomul(-(5 - Math.trunc((state.u.ulevel - 1) / 6)), state);
+    state.multi_reason = 'trying to turn the monsters';
+    state.nomovemsg = You_can_move_again;
+    return ECMD_TIME;
 }
 
 // C ref: pray.c pleased() (1071-1386). A successful prayer first reports the

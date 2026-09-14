@@ -283,7 +283,7 @@ import {
     show_menu_controls,
     UnsupportedOptionMenuError,
 } from './options.js';
-import { dopray, UnsupportedPrayerError } from './pray.js';
+import { dopray, doturn, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { dosave, dosave0, savelev } from './save.js';
 import {
@@ -5083,6 +5083,9 @@ async function doextcmd(key, state) {
     case 'dopray':
         // C ref: pray.c dopray(), which returns its own ECMD_* result.
         return await dopray(state);
+    case 'doturn':
+        // C ref: pray.c doturn(), which returns its own ECMD_* result.
+        return await doturn(state);
     case 'dosit':
         // C ref: sit.c dosit(), which returns its own ECMD_* result.
         return await dosit(state);

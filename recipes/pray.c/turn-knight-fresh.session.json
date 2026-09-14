@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4501,
+      "datetime": "20310615112233",
+      "nethackrc": "OPTIONS=name:TurnProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "comment": "Independent lawful Knight setup reaches doturn() through the #turn extended command and lets its first turn of negative multi elapse.",
+      "moves": ".#turn\n "
+    }
+  ]
+}
