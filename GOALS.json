@@ -42938,6 +42938,197 @@
         "screens": 8728,
         "rng": 641932
       }
+    },
+    {
+      "id": "port-read-seffect-light-seed0002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port read.c seffect_light() visible nonconfused noncursed light-scroll behavior, including litroom, lightdamage, scroll knowledge, wisdom exercise, and production doread wiring.",
+      "cFile": "read.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "The authoritative queue ranks holdout/seed4500-knight-coverage first at 1025, but its valid cache owner teleport.c:teleds is already a completed source goal and its same-count mismatch has no unverified teleds span. The next actionable session with a complete valid investigation is holdout/seed0002-healer-reflection-drummer at 499; its validated cache investigations/holdout/seed0002-healer-reflection-drummer.json identifies read.c:seffect_light and this bounded visible, unconfused, noncursed SCR_LIGHT branch.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "seffect_light",
+          "status": "closed",
+          "closedBy": "c99273539a288d06d2d379583b59f0735fef7143",
+          "functions": [
+            "seffect_light"
+          ]
+        }
+      ],
+      "openedAt": "b88ed99dae5ad0d0a9327547e0390c194f154a62",
+      "openStanding": {
+        "sha": "b88ed99dae5ad0d0a9327547e0390c194f154a62",
+        "screens": 8728,
+        "rng": 641932
+      },
+      "closedAt": "c99273539a288d06d2d379583b59f0735fef7143",
+      "delivered": {
+        "screens": 88,
+        "rng": 2645
+      },
+      "functions": [
+        {
+          "name": "seffect_light",
+          "line": 1741,
+          "endLine": 1787,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1741,
+        "to": 1787
+      },
+      "activeStanding": {
+        "sha": "b88ed99dae5ad0d0a9327547e0390c194f154a62",
+        "screens": 8728,
+        "rng": 641932
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 96,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 499,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 499,
+              "status": "complete",
+              "commit": "b0ac4bb23d49400023028cda9e5591fa59c5aea3",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 499,
+                "step": 96,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "Replay error: reading requires the selected scroll effect",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "At segment 0, recorded step 96 (input move index 95, key t), the read prompt selects the scroll labeled ASHPD SODALG and C prints \"As you read the scroll, it disappears.  A lit field surrounds you!\". In read.c, seffects() dispatches SCR_LIGHT to seffect_light(); its visible, unconfused, noncursed branch marks the scroll known, calls litroom(TRUE, sobj), and calls lightdamage(sobj, TRUE, 5). The current js/read.js seffects() admission set omits SCR_LIGHT and throws UnsupportedReadError(\"the selected scroll effect\") before that source branch. The bounded handoff is the ordinary SCR_LIGHT read effect, including the seffects() wisdom exercise and the existing doread() identification/useup tail.",
+              "source": {
+                "file": "read.c",
+                "functions": [
+                  "seffect_light"
+                ],
+                "branch": "SCR_LIGHT in seffects(): the target reaches the visible, unconfused, noncursed branch, which sets gk.known when not Blind, calls litroom(TRUE, sobj), then calls lightdamage(sobj, TRUE, 5) and marks the scroll known if lightdamage returns nonzero; seffects() performs the A_WIS exercise before dispatch.",
+                "callers": [
+                  "read.c seffects():2193-2290 (SCR_LIGHT switch arm at 2243-2245)",
+                  "read.c doread():328-647 (seffects() call at 635)",
+                  "js/read.js doread():427-532 (seffects() call at 520)",
+                  "js/read.js seffects():673-710 (current selected-effect dispatch)"
+                ],
+                "dependencies": [
+                  "read.c litroom():2491-2567",
+                  "zap.c lightdamage():3024-3056",
+                  "attrib.c exercise():488-518 (seffects() magic-scroll pre-dispatch)"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The fresh queue boundary is this target session at step 96, kind stop, with no queue source owner and message \"Replay error: reading requires the selected scroll effect\"; recordedSteps is 595 and 595 - 96 = remainingScreensUpperBound 499 at commit b0ac4bb23d49400023028cda9e5591fa59c5aea3.",
+                "The explicit session file shows segment 0 step 96 with key t, screen prefix \"As you read the scroll, it disappears.  A lit field surrounds you!\", cursor [70,12,1], and rn2(19)=9 and rn2(19)=12 exercise calls.",
+                "nethack-c/upstream/src/read.c:1741-1785 defines seffect_light(); the target message is the nonconfused, noncursed litroom branch, while the confused light-monster branch is outside this bounded probe.",
+                "nethack-c/upstream/src/read.c:2193-2290 dispatches SCR_LIGHT at 2243-2245 and returns through the existing doread() identification and useup tail at 635-645; litroom() is at 2491-2567 and lightdamage() is at zap.c:3024-3056.",
+                "js/read.js:673-680 currently admits only seven scroll effects and throws UnsupportedReadError(\"the selected scroll effect\") for SCR_LIGHT; js/read.js:doread() reaches that call at 520 after printing the disappearance message."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_light",
+            "implementation": "js/read.js",
+            "symbol": "seffect_light",
+            "sourceReview": "Read read.c:1741-1785 in full, including the calm, cursed, and confused branches and their evaluation order. The calm branch sets knowledge only when sighted, calls litroom(!scursed, sobj), then calls lightdamage(sobj, TRUE, 5) only when uncursed; the confused branch selects PM_BLACK_LIGHT for cursed and PM_YELLOW_LIGHT otherwise, checks G_GONE before rn1(2,3)+(sblessed*2), creates MM_EDOG|NO_MINVENT|MM_NOMSG lights at the hero, initializes each dog, clears sleeping, cancels the light, checks visibility, redraws, and reports visible lights. Verified the read.c litroom() callback and zap.c lightdamage() callees, including map-lighting, no-op water/swallow, rogue-room, gremlin-form damage, knowledge, and exercise ordering.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:2243-2245 dispatches case SCR_LIGHT to seffect_light(&sobj); js/read.js seffects dispatches SCR_LIGHT after the shared oc_magic exercise and returns the source-compatible scroll-consumption result."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:327-647 enters the scroll command, sets in_use, prints the read message, and calls seffects; js/read.js doread admits the visible SCR_LIGHT branch, preserves the confused message, and reaches seffects through the normal command loop."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/read.c/read-light-fresh.session.json",
+              "recordings/read.c/read-light-cursed-fresh.session.json",
+              "recordings/read.c/read-light-confused-fresh.session.json"
+            ],
+            "checkedAt": "c99273539a288d06d2d379583b59f0735fef7143"
+          }
+        ],
+        "entryPointReview": "The selected range has one runtime entry point: reading SCR_LIGHT through doread(), then seffects(). The independent recordings cover visible unconfused noncursed lighting, cursed darkening, and the confused yellow-light monster branch; each reaches seffect_light through the production command path.",
+        "entryPoints": [
+          {
+            "name": "read light scroll",
+            "functions": [
+              "seffect_light"
+            ],
+            "recordings": [
+              "recordings/read.c/read-light-fresh.session.json",
+              "recordings/read.c/read-light-cursed-fresh.session.json",
+              "recordings/read.c/read-light-confused-fresh.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 184,
+          "kind": "stop",
+          "function": "dodrink",
+          "functionDeclared": true,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires the sink prompt in dodrink()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 411,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "previousRemainingScreensUpperBound": 499
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "c99273539a288d06d2d379583b59f0735fef7143",
+        "screens": 8816,
+        "rng": 644577
+      }
     }
   ]
 }
