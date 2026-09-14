@@ -6,7 +6,6 @@
 
 import {
     ACCESSIBLE,
-    ACH_AMUL,
     ALTAR,
     ANTIMAGIC,
     BLINDED,
@@ -109,7 +108,6 @@ import { engr_at } from './engrave.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { addinv, prinv } from './invent.js';
-import { record_achievement } from './insight.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { learnscroll } from './read.js';
 import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
@@ -218,16 +216,6 @@ function teleportEnv(env = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('teleport random injection requires rn2');
     return { ...env, random, state: env.state ?? game };
-}
-
-// C ref: invent.c addinv_core1() (976-980).  level_tele() supplies the
-// special-object effect hook because its generated Amulet is the only
-// addinv() caller in this module; the hook keeps the source mutation order
-// beside the mksobj()/addinv() call at teleport.c:1234-1246.
-function addinvAmuletEffects(obj, env) {
-    if (obj.otyp !== AMULET_OF_YENDOR) return;
-    env.state.u.uhave.amulet = 1;
-    record_achievement(ACH_AMUL, env.state);
 }
 
 function teleJumpOk(x1, y1, x2, y2, state) {
@@ -1831,7 +1819,6 @@ async function levelTeleMenu(state) {
             amu = addinv(amu, {
                 state,
                 hooks: {
-                    addSpecialInventoryEffects: addinvAmuletEffects,
                     updateInventory: () => {},
                 },
             });
