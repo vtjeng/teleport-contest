@@ -3427,9 +3427,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['altar', /altar/u, ({ state }) => {
                 state.level.at(10, 5).typ = ALTAR;
             }],
-            ['stair shipping', /shipping/u, ({ state }) => {
-                state.stairs = { sx: 10, sy: 5, next: null };
-            }],
             ['trap effects', /trap/u, ({ state }) => {
                 state.level.traps.push({ tx: 10, ty: 5, ttyp: WEB });
             }],
@@ -3477,6 +3474,24 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 `${name}: floor`,
             );
             assert.deepEqual(lines, [], `${name}: output`);
+        }
+    });
+
+test('drop preflight admits down gates without moving the inventory object',
+    () => {
+        // do.c:790 delegates shipping to ship_object after admission/freeinv.
+        // Use the fixture hero's (10,5) square and an ordinary next-level gate.
+        // Both stairs and ladders must leave inventory untouched in preflight.
+        for (const isladder of [false, true]) {
+            const { hooks, lines, obj, state } = ordinaryDropFixture();
+            state.stairs = { sx: 10, sy: 5, up: false, isladder,
+                tolev: { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 },
+                next: null };
+            assert.doesNotThrow(() => preflight_dropx(obj, { state, hooks }));
+            assert.equal(state.invent, obj);
+            assert.equal(obj.where, OBJ_INVENT);
+            assert.equal(state.level.objects[10][5], null);
+            assert.deepEqual(lines, []);
         }
     });
 

@@ -1,61 +1,51 @@
 {
   "session": "seed0361-archeologist-tour",
-  "remainingScreensUpperBound": 59,
+  "remainingScreensUpperBound": 33,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
   "mismatch": {
     "session": "seed0361-archeologist-tour",
-    "remainingScreensUpperBound": 59,
-    "step": 307,
-    "kind": "stop",
-    "function": null,
+    "step": 333,
+    "kind": "rng",
+    "function": "shuffle",
     "functionDeclared": false,
-    "sourceFile": "Arc-loca.lua",
+    "sourceFile": "nhlib.lua",
     "cFile": null,
-    "luaFile": "Arc-loca.lua",
-    "line": null,
-    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Arc-loca\"",
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    },
+    "message": null,
     "unlocatedKinds": [],
-    "recordedSteps": 366
+    "recordedSteps": 366,
+    "remainingScreensUpperBound": 33
   },
-  "summary": "At C step 307, the Archeologist's level teleport resolves the Arc-loca quest locate level and enters its 76x21 Lua map; JavaScript stops before loading it because QUEST_LEVEL_LOADERS has no Arc-loca entry. Port the top-level Arc-loca program into js/quest_levels.js and register it so the existing special-level API can execute its 14 regions, 16 doors, 2 stairs, 3 aligned altars, 15 random objects, 4 engravings, 23 traps, and 27 monsters.",
+  "summary": "After Arc-filb loads, the first RNG mismatch is at zero-based step333 while level-teleporting from Home5 to Home2. makelevel selects Arc-fila above the locate level, but its loader is absent and generation falls through to ordinary rooms. Port the whole Arc-fila.lua program and register it. The fresh-differential display calls this step334 because that report is one-based.",
   "source": {
-    "file": "nethack-c/upstream/dat/Arc-loca.lua",
+    "file": "nethack-c/upstream/dat/Arc-fila.lua",
     "functions": [
-      "Arc-loca.lua top-level program (lines 6-145)",
-      "des.level_init/des.level_flags",
-      "des.map",
-      "des.region",
-      "des.door/des.stair/des.altar",
-      "des.non_diggable/des.object/des.engraving/des.trap/des.monster"
+      "Arc-fila.lua"
     ],
-    "branch": "Archeologist quest locate level Arc-loca: fixed map, three shuffled alignment altars, random object/trap/monster placement, and map postprocessing.",
+    "branch": "Whole program lines1-59: six ordinary rooms with ordered callbacks; up stair in room1, down stair in room4; nine objects, four traps, six snake-class monsters and one named human mummy; final random_corridors call.",
     "callers": [
-      "nethack-c/upstream/src/mklev.c:1267-1270 makelevel(): Is_special(&u.uz) dispatches slev->proto to makemaz().",
-      "nethack-c/upstream/src/mkmaze.c:1128-1194 makemaz(): resolves Arc-loca, appends .lua, calls load_special(), then frees dead monsters.",
-      "nethack-c/upstream/src/sp_lev.c:6454-6501 load_special(): evaluates the Lua program and applies special-level postprocessing.",
-      "js/dungeon.js:2028-2058 fixup_level_locations(): role filecode Arc changes x-loca to proto Arc-loca.",
-      "js/mklev.js:639-659 makelevel(): missing SPECIAL_LEVEL_LOADERS[\"Arc-loca\"] raises the recorded unsupported-level boundary.",
-      "js/mklev.js:1703-1740 ensureSpecialLevelLoaders() and 1747-1768 load_special(): QUEST_LEVEL_LOADERS registration and execution path."
+      "mklev.c:1275–1285 makelevel compares quest depth with the locate level and selects role-specific fila or filb, then calls makemaz.",
+      "js/mklev.js:689–706 makelevel computes Arc-fila for Home2 because it is above the locate level, but calls makemaz only if the registry has that prototype.",
+      "ensureSpecialLevelLoaders loads QUEST_LEVEL_LOADERS; makemaz -> load_special executes the registered room program and applies postprocessing."
     ],
     "dependencies": [
-      "js/quest_levels.js:8-47 already imports selection_area, S_SNAKE, and S_MUMMY; add Arc-loca beside the existing Arc-strt loader.",
-      "js/mklev.js:4290-4608 createSpecialLevelApi() supplies every des.* operation used by Arc-loca and runs finish() postprocessing.",
-      "js/mklev.js:1752-1759 shuffles state.specialLevelAlign before invoking a loader; Arc-loca align[1..3] must use this array in order.",
-      "js/mklev.js:1317-1345 get_table_align()/create_altar() and 2822-2845 lspo_altar() preserve altar alignment masks.",
-      "js/mklev.js:2030-2211 lspo_monster(), 2421-2465 lspo_engraving(), 2710-2777 lspo_stair(), 2913-2983 lspo_trap(), and 3134-3190 lspo_door() implement Arc-loca descriptor forms.",
-      "js/mklev.js:3816-3952 lspo_region() and 4141-4151 lspo_non_diggable() consume selection_area() results from js/themerooms.js:234-244.",
-      "js/mklev.js:4614-4653 mapFromRows() keeps the 76x21 map frame and relative coordinates aligned with sp_lev.c:lspo_map()."
+      "Reuse the existing des.room contents callbacks and random_corridors special-level API. Preserve descriptor and random-call order.",
+      "Arc-loca, Arc-goal and Arc-filb now exist; only the missing fila registration explains this transition's skipped Lua shuffle and room generation."
     ]
   },
   "goalKind": "lua-port",
   "evidence": [
-    "Verified .cache/scan-cache.json at commit cc1b4453d14fd4a0e995170e3842ad622790c8: this session emits 307 of 366 recorded steps and stops at step 307 with the exact Arc-loca loader boundary, leaving 59 screens.",
-    "Verified sessions/seed0361-archeologist-tour.session.json: seed 361, datetime 20000110090000, Archeologist role, and step 307 key z with C screen first line \"You materialize on a different level!--More--\".",
-    "Verified nethack-c/upstream/dat/Arc-loca.lua lines 6-145: 76x21 map; 14 region calls, 16 doors, 2 stairs, 3 altars using align[1..3], 15 objects, 4 engravings, 23 traps, and 27 monsters.",
-    "Verified js/quest_levels.js: Bar-loca and Arc-strt are registered in QUEST_LEVEL_LOADERS, but Arc-loca is absent; js/mklev.js:657-659 therefore raises the recorded boundary before any loader body runs.",
-    "Verified C makelevel()->makemaz()->load_special() source chain and JS makelevel()->ensureSpecialLevelLoaders()->load_special() counterpart; no js/sp_lev.js exists, so the special-level API lives in js/mklev.js.",
-    "Verified step 307 RNG begins getbones, nhlib alignment shuffle rn2(3)=0/rn2(2)=1, then solidfill lit rn2(2)=0; the implementation must preserve the private alignment shuffle and random initialization order.",
-    "Next probe: add an Arc-loca loader and registration in js/quest_levels.js, use state.specialLevelAlign[0..2] for the three altar alignments, then run the focused session replay/recording validation to compare map, RNG, and postprocessing before broader checks."
+    "Checkpoint39a33c46 run-stgA7m passes all gates; its refreshed queue reports RNG step333, upper33, nhlib.lua shuffle line19.",
+    "Read fixed recording raw steps331–333: Ctrl-V,2,Enter; steps[333] produces Home2 and begins getbones, Lua alignment shuffle and build_room calls. The earlier Home4 and Home5 transitions now pass.",
+    "Read all dat/Arc-fila.lua lines1-59 and compared every descriptor with the worker's immutable ad6f7fb4 implementation. The source owner is the omitted filler program, not the shared shuffle helper.",
+    "Worker independently designed two short Arc-loca-menu then Home2 routes, with different seeds/dates and character gender. Both match all33892RNG100screens/cursors0animations on its candidate; integration and full validation remain separate requirements.",
+    "Canonical mismatch-queue indices are zero-based. diff-fresh formatReport adds one for display; retain333 in queue/cache fields rather than copying its printed334."
   ]
 }

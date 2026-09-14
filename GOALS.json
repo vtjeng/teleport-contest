@@ -44506,6 +44506,1207 @@
         "screens": 9269,
         "rng": 655545
       }
+    },
+    {
+      "id": "pilot-mthrowu-ohitmon-seed0002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster missile impact feedback and required object shipping",
+      "cFile": "mthrowu.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "User-authorized independent seed-worker pilot: worker B follows holdout/seed0002-healer-reflection-drummer without waiting for worker A. Valid investigation investigations/holdout/seed0002-healer-reflection-drummer.json at remaining-screen upper bound 326 traces screen269 to mthrowu.c ohitmon; implement the whole function and required drop_throw/shipping callees. Other seed assignments remain independent.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "ohitmon",
+          "status": "closed",
+          "closedBy": "42271fc98b873a6902d35b0e6123e1e36efad716",
+          "functions": [
+            "ohitmon"
+          ]
+        }
+      ],
+      "openedAt": "093bc31ee9fd1f82b56d4c008f84ce6879f6f1e9",
+      "openStanding": {
+        "sha": "093bc31ee9fd1f82b56d4c008f84ce6879f6f1e9",
+        "screens": 9269,
+        "rng": 655545
+      },
+      "closedAt": "42271fc98b873a6902d35b0e6123e1e36efad716",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "ohitmon",
+          "line": 321,
+          "endLine": 505,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 321,
+        "to": 505
+      },
+      "activeStanding": {
+        "sha": "093bc31ee9fd1f82b56d4c008f84ce6879f6f1e9",
+        "screens": 9269,
+        "rng": 655545
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 269,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 326,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 326,
+              "status": "complete",
+              "commit": "74b67d7fa49064251fa1fb6fe4bac53df1df19ea",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 326,
+                "step": 269,
+                "kind": "screen",
+                "function": "ohitmon",
+                "functionDeclared": true,
+                "sourceFile": "mthrowu.c",
+                "cFile": "mthrowu.c",
+                "luaFile": null,
+                "line": 321,
+                "message": "C prints \"It is hit.\"; JavaScript omits the verbose unseen-target message.",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "Whole nh_timeout moves the assigned seed beyond its prior step-263 stop. The next first mismatch is screen269 after a repeated search command: C reports an unseen monster hit by a missile, while JavaScript suppresses the line. Core RNG and cursor streams match through the emitted315 screens. A later peffect_healing refusal at315 is not the first mismatch. Missing pline branches make ohitmon partial source behavior, so this requires a whole-function file port rather than a one-line divergence fix.",
+              "source": {
+                "file": "mthrowu.c",
+                "functions": [
+                  "ohitmon"
+                ],
+                "branch": "Read mthrowu.c ohitmon:321-502 and current js/mthrowu.js ohitmon. The observed branch is C400-401: !vis && verbose && !gm.mtarget prints Monnam(target) plus exclam(damage). The current JS replaces this with note_unported('pline.c pline'). Other pline gaps remain in misses, visible eggs, poison, silver, acid and blinding; they belong to the same selected whole function.",
+                "callers": [
+                  "C mthrowu.c m_throw:679-685 calls ohitmon for a monster in the missile path, with verbose TRUE and remaining range. JS m_throw:938-944 reaches exported ohitmon through the existing projectile collision branch.",
+                  "The reference step269 includes m_throw:798 RNG followed by ohitmon:350 rnd(20)=9 and weapon.c dmgval:265 rnd(3)=2; the resulting C line is \"It is hit.\". This locates the missing branch independently of the later quaff stop."
+                ],
+                "dependencies": [
+                  "Consumed-return helpers already declared include find_mac, omon_adj, spec_abon, dmgval, stone_missile, passes_rocks, monster resistance macros, munstone, can_blnd, drop_throw and source naming helpers. Whole-function implementation must inspect their actual contracts and preserve source evaluation/RNG order.",
+                  "The existing note_unported('trap.c minstapetrify') represents an unported discarded-return callee. Keep permitted callee gaps explicit; do not use note_unported for available pline/message formatting.",
+                  "Live and planning callers require message/RNG/display isolation. Trace m_throw and its caller environments before adding feedback; no callback or global RNG should run twice."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scan of worker B's source state now committed as74b67d7f produced screensEmitted315 of595, firstScreenMismatch269,row0,column0 (C'I',JS' '), rngMismatch=null,cursorMismatch=null.",
+                "Inspected reference steps263-272 and the step269 RNG owners. The old confusion-expiry line matches at263; the missile hit is the first new screen difference.",
+                "Inspected every ohitmon source branch; JavaScript has a declared body with missing message branches, not a complete function with an ordering-only defect. Proposed write set js/mthrowu.js plus focused tests/recipes/recordings; source-required expansions will be coordinated."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ohitmon",
+            "implementation": "js/mthrowu.js",
+            "symbol": "ohitmon",
+            "sourceReview": "Read mthrowu.c:321-502 whole and compared every branch. Restored visible/unseen miss/hit, known/unknown egg, poison-resistance/deadly poison, silver searing/flesh, acid resistance/burn, death and shortened blind-object feedback. Preserved observe_object before hit computation, target-only launcher/level bonus, rnd(20), potion handling, dmgval before mimic revelation, harmless rock passage, poison rolls, acid immunity, petrifying egg consumed munstone, death ownership, blind duration/cap and anger, then drop_throw and rolling-object re-extraction. can_blnd now receives the actual state. Existing independently implemented consumed helpers retain owned partial boundaries; m_throw still refuses FOOD_CLASS and artifact/returning missiles, so this does not newly admit live-only munstone food consumption. Allowed discarded-return gaps are sounds.c Soundeffect and trap.c minstapetrify. narrow clone bindings added to existing zap.c miss/hit message/name paths, artifact.c spec_abon/spec_applies RNG through weapon.c hitval and dothrow.c omon_adj, and mon.c seemimic unblockPoint/newsym. Planner reuses admitPlannedVisionChange before mimic transparency rebuild and suppresses output; no new planner framework or Unsupported throw.\n\nCoordinator read the complete selected C function and all required helper source ranges, caller changes, focused tests and independent recipes at synchronized dfb7a5e2. Required helper attestations follow; they are part of this span, not extra selected source-unit count: drop_throw (js/mthrowu.js:drop_throw; pure=false): Read mthrowu.c:162-196 whole. Preserved special pie/venom/hit-egg destruction, otherwise short-circuited should_mulch_missile, delobj (including obj_resists RNG), duplicate source down_gate lookup before ship_object, flooreffects consumed return, placement, hero fallback, passive_obj, stacking, and unconditional gt.thrownobj clearing. Removed special-destruction, mulch, shipping, and consumed-floor-effect stand-in refusals; removed reduced shipsAway injection. Used independently implemented should_mulch_missile, delobj, m_at, flooreffects, place_object, passive_obj, stackobj, retaining their existing owned boundaries. Newly ported whole required shipping group rather than inventing a consumed return. Production callers: js/mthrowu.js:ohitmon — mthrowu.c:362 and491 settle a range-exhausted miss or a hit. js/mthrowu.js:m_throw — mthrowu.c:635,641,789,815; movement scan -> monster ranged action -> thrwmu -> monshoot -> m_throw -> ohitmon -> drop_throw. Tests: scripts/mthrowu.test.mjs. Matching recordings: recordings/mthrowu.c/intercepted-bolt-visible.session.json, recordings/mthrowu.c/intercepted-bolt-quiet.session.json.\n\ndrop_to (js/dokick.js:drop_to; pure=true): Read dokick.c:1473-1506 whole. Pure destination calculation: writes only caller-local output coord, not game state; no RNG or output. MIGR_RANDOM stronghold selects valley, endgame/bottom rejects with zero coords, otherwise falls through to staircase/ladder/branch destination or next current-dungeon level. All other codes yield zero coords. Uses existing stairway_at, on_level and Is_botlevel. Production callers: js/dokick.js:ship_object — dokick.c:1653 consumes the output coordinates before any RNG. impact_drop:1527 remains unported and has no live implementation caller. Tests: scripts/dokick-shipping.test.mjs. Matching recordings: recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\nship_object (js/dokick.js:ship_object; pure=false): Read dokick.c:1639-1765 whole. Preserved null/down_gate/drop_to early returns; ball/chain and ladder short-circuit of rn2(3); recursive unpaid/container inspection; pile quantity/chain scan; boulder-over-hole early return; otransit before nodrop; shop no_charge reset and remove_worn_item; breaktest before glass/camera/egg luck penalty, sound/hearing, extraction/free; otherwise add_to_migration then destination/owornmask, boulder otrapped reset, impact/newsym. Existing return-valued breaktest/is_unpaid and migration/object helpers used unchanged. Allowed discarded-return gaps: dokick.c impact_drop, shk.c stolen_value, shk.c picked_container, sounds.c Soundeffect. Existing remove_worn_item/floor/shop owner refusals remain; this is not a claim of complete shop or arbitrary landing behavior. Removed reduced shipsAway and replaced all its current callers with the source consumed ship_object result. No new refusal added. Production callers: js/mthrowu.js:drop_throw — mthrowu.c:181 consumes shipping result. js/mthrowu.js:return_from_mtoss — mthrowu.c:943 consumes result before floor settlement; caller now awaits this async function. Returning-missile admission remains owned by existing m_throw refusal. js/do.js:dropx — do.c:790 after freeinv and before ordinary floor drop. Removed only stair/ladder-only admission refusals; swallowed/altar/trap/liquid/boulder/shop admission remains with existing do.c owners. js/dothrow.js:throwit — dothrow.c:1819 consumes result after floor effects and snuff position; clears thrownobj and returns on success. js/dothrow.js:throw_gold — dothrow.c:2715 consumes result when no monster intercepted the gold. Other source callers hitfloor:644 and returning-weapon arm:1755 are behind their existing unported caller boundaries; do.c flooreffects:298 is behind its existing boulder refusal. Tests: scripts/dokick-shipping.test.mjs, scripts/dothrow.test.mjs, scripts/drop-command.test.mjs. Matching recordings: recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\notransit_msg (js/dokick.js:otransit_msg; pure=false): Read dokick.c:1909-1940 whole. Preserved corpse_xname(CXN_PFX_THE)+upstart versus Tobjnam; num precedence over chain, singular/ plural object counts, otense verbs, nodrop period versus and-falls suffix, and no message for no impact plus nodrop. Existing consumed naming helpers reused. Production callers: js/dokick.js:ship_object — dokick.c:1685 invokes only when cansee landing square. Tests: scripts/dokick-shipping.test.mjs. Matching recordings: recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\ndown_gate (js/dokick.js:down_gate; pure=false): Read dokick.c:1943-1975 whole. Clears gg.gate_str on every call, applies quest-start restriction before gates, distinguishes down stairs current-dungeon versus special branch, ladders, then seen hole/trapdoor. Existing consumed ok_to_quest, stairway_at and t_at reused. Removed js/dothrow.js reduced shipsAway substitute. Production callers: js/dokick.js:ship_object — dokick.c:1651 consumes destination code. js/mthrowu.js:drop_throw — mthrowu.c:180 preliminary != -1 gate check. impact_drop:1526 remains unported. Tests: scripts/dokick-shipping.test.mjs. Matching recordings: recordings/mthrowu.c/intercepted-bolt-visible.session.json, recordings/mthrowu.c/intercepted-bolt-quiet.session.json, recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\nValidation: 11 focused test files passed at 2026-09-14 21:59 UTC: mthrowu (33 individual tests), dokick-shipping (7), dothrow, drop-command, throw-command, throw-gold, weapon, artifacts, unported-monster-actions, allmain-turn, kick-command. Scoped ESLint and git diff --check passed. scripts/run-missile-impact-shipping.mjs PASS: 4 segments, 12346 PRNG, 317 screens, 317 cursors, 4 animations. Saved recordings independently replayed via scanRecordedSession: no boundary or divergence. Blocked independent blind recipe: recipes/mthrowu.c/intercepted-bolt-blind.session.json — win/tty/topl.c update_topl/redotoplin: All gameplay RNG and input-boundary screens/cursors match. Animation boundary112 has missing unwrapped It-is-hit/missed text in JS: ttyPlineCore stores text but does not paint before unseen tmp_at skips its flush. Kept original recipe unrecorded; no tty fix in this delivery.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:685 handles the first monster encountered by a nonhero missile. Production path runSegment -> elapsed-turn monster scan -> thrwmu -> monshoot -> m_throw."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "launch_obj",
+                "source": "trap.c:3408 handles a launched trap object; removed obsolete shipsAway=false binding now that drop_throw owns down_gate/ship_object. Other existing launcher-owned floor/passive bindings are unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/dokick-shipping.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/intercepted-bolt-visible.session.json",
+              "recordings/mthrowu.c/intercepted-bolt-quiet.session.json",
+              "recordings/dokick.c/drop-apples-downstairs.session.json",
+              "recordings/dokick.c/drop-book-downstairs.session.json"
+            ],
+            "checkedAt": "646f56ff5d18e33c63d92b2441326a08bc4a2cd4"
+          }
+        ],
+        "entryPointReview": "Helper-only selected ohitmon range. Existing m_throw and launch_obj dispatchers call it; no new command or monster-action entry point is introduced. Independent visible and !verbose monster-interception recordings exercise ohitmon/drop_throw, and food/spellbook downstairs drops exercise the required shipping helpers through dropx. All four matching recordings are cited in the function evidence. The blind variant is retained unrecorded for the separate tty timing owner.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 315,
+          "kind": "stop",
+          "function": "peffect_healing",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_healing()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 280,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 280,
+              "status": "complete",
+              "commit": "dfb7a5e25f0837e7089dbfe5591e1269695eaf1d",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 280,
+                "step": 315,
+                "kind": "boundary",
+                "function": "peffect_healing",
+                "functionDeclared": false,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": 1119,
+                "message": "quaffing requires peffect_healing()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "The complete missile-impact/shipping delivery removes the prior unseen-hit screen mismatch. The refreshed worker branch matches all emitted screens, cursors and RNG through screen 315, then refuses a healing-potion quaff. peffects has only an UnsupportedQuaffError for this type, so the next source unit is whole peffect_healing, with the partial healup helper and cure callers inspected in the same span.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "peffect_healing"
+                ],
+                "branch": "potion.c:1119–1125 prints You feel better, rolls d(4+2*bcsign,4), adds eight HP, selects the max-HP increment and sickness/blindness cures by beatitude, calls healup, then exercises constitution. JS potion.js:949–950 refuses the entire POT_HEALING arm.",
+                "callers": [
+                  "runSegment -> quaff command -> potion.js dodrink -> dopotion -> peffects. C potion.c:1395–1397 dispatches POT_HEALING to peffect_healing; JS peffects currently throws at the corresponding case."
+                ],
+                "dependencies": [
+                  "healup C1428–1458 already implements polymorph/normal HP and peak HP bookkeeping, but its cureblind/curesick branches are obsolete refusals. Complete its source calls and propagate await through the existing potion, self-zap and artifact callers.",
+                  "Inspect make_blinded C261–331, make_deaf C443–457, make_vomiting C245–254, make_sick C140–196 and exercise. Existing partial helpers are not completion evidence; preserve source order, vision effects and unconscious message suppression. Missing discarded-return callees can remain explicit note_unported gaps; consumed-return dependencies cannot be replaced by invented values."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scanRecordedSession of the exact synchronized dfb7a5e2 branch reports screensEmitted=315, recordedSteps=595, divergence=null, boundary=quaffing requires peffect_healing(), behavioral.at=315. The previous screen269 ohitmon message now matches.",
+                "Read potion.c peffect_healing:1119–1125, the peffects dispatch:1395–1397, and healup:1428–1458. Inspected the matching JS dispatch and partial helper; the first stop is missing behavior, not an ordering defect in an implemented function.",
+                "11 focused B5 test files and scoped ESLint pass after the clean normal main refresh. The two refresh conflicts resolved only known unused imports; no game logic was manually merged."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "42271fc98b873a6902d35b0e6123e1e36efad716",
+        "screens": 9270,
+        "rng": 655545
+      }
+    },
+    {
+      "id": "pilot-arc-loca-seed0361",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Complete the Archeologist quest locate level program",
+      "luaFile": "Arc-loca.lua",
+      "sessions": [
+        "seed0361-archeologist-tour"
+      ],
+      "selectionReason": "User-authorized independent seed-worker pilot: worker A selected disjoint Arc-loca.lua while worker B owns seed0002 core behavior. Valid investigations/seed0361-archeologist-tour.json at remaining-screen upper bound59 traces the missing whole Arc-loca program at step307. Independent replacement recipes now match; source implementation is unchanged.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "Arc-loca.lua",
+          "status": "closed",
+          "closedBy": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+          "functions": [
+            "Arc-loca.lua"
+          ]
+        }
+      ],
+      "openedAt": "d2c1f4ebd0b752456a30267bec27daca7f4768bd",
+      "openStanding": {
+        "sha": "42271fc98b873a6902d35b0e6123e1e36efad716",
+        "screens": 9270,
+        "rng": 655545
+      },
+      "closedAt": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+      "delivered": {
+        "screens": 7,
+        "rng": 8298
+      },
+      "functions": [
+        {
+          "name": "Arc-loca.lua",
+          "line": 1,
+          "endLine": 145,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "activeStanding": {
+        "sha": "42271fc98b873a6902d35b0e6123e1e36efad716",
+        "screens": 9270,
+        "rng": 655545
+      },
+      "openMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 307,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "Arc-loca.lua",
+          "cFile": null,
+          "luaFile": "Arc-loca.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Arc-loca\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 59,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 59,
+              "status": "complete",
+              "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "remainingScreensUpperBound": 59,
+                "step": 307,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": "Arc-loca.lua",
+                "cFile": null,
+                "luaFile": "Arc-loca.lua",
+                "line": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Arc-loca\"",
+                "unlocatedKinds": [],
+                "recordedSteps": 366
+              },
+              "summary": "At C step 307, the Archeologist's level teleport resolves the Arc-loca quest locate level and enters its 76x21 Lua map; JavaScript stops before loading it because QUEST_LEVEL_LOADERS has no Arc-loca entry. Port the top-level Arc-loca program into js/quest_levels.js and register it so the existing special-level API can execute its 14 regions, 16 doors, 2 stairs, 3 aligned altars, 15 random objects, 4 engravings, 23 traps, and 27 monsters.",
+              "source": {
+                "file": "nethack-c/upstream/dat/Arc-loca.lua",
+                "functions": [
+                  "Arc-loca.lua top-level program (lines 6-145)",
+                  "des.level_init/des.level_flags",
+                  "des.map",
+                  "des.region",
+                  "des.door/des.stair/des.altar",
+                  "des.non_diggable/des.object/des.engraving/des.trap/des.monster"
+                ],
+                "branch": "Archeologist quest locate level Arc-loca: fixed map, three shuffled alignment altars, random object/trap/monster placement, and map postprocessing.",
+                "callers": [
+                  "nethack-c/upstream/src/mklev.c:1267-1270 makelevel(): Is_special(&u.uz) dispatches slev->proto to makemaz().",
+                  "nethack-c/upstream/src/mkmaze.c:1128-1194 makemaz(): resolves Arc-loca, appends .lua, calls load_special(), then frees dead monsters.",
+                  "nethack-c/upstream/src/sp_lev.c:6454-6501 load_special(): evaluates the Lua program and applies special-level postprocessing.",
+                  "js/dungeon.js:2028-2058 fixup_level_locations(): role filecode Arc changes x-loca to proto Arc-loca.",
+                  "js/mklev.js:639-659 makelevel(): missing SPECIAL_LEVEL_LOADERS[\"Arc-loca\"] raises the recorded unsupported-level boundary.",
+                  "js/mklev.js:1703-1740 ensureSpecialLevelLoaders() and 1747-1768 load_special(): QUEST_LEVEL_LOADERS registration and execution path."
+                ],
+                "dependencies": [
+                  "js/quest_levels.js:8-47 already imports selection_area, S_SNAKE, and S_MUMMY; add Arc-loca beside the existing Arc-strt loader.",
+                  "js/mklev.js:4290-4608 createSpecialLevelApi() supplies every des.* operation used by Arc-loca and runs finish() postprocessing.",
+                  "js/mklev.js:1752-1759 shuffles state.specialLevelAlign before invoking a loader; Arc-loca align[1..3] must use this array in order.",
+                  "js/mklev.js:1317-1345 get_table_align()/create_altar() and 2822-2845 lspo_altar() preserve altar alignment masks.",
+                  "js/mklev.js:2030-2211 lspo_monster(), 2421-2465 lspo_engraving(), 2710-2777 lspo_stair(), 2913-2983 lspo_trap(), and 3134-3190 lspo_door() implement Arc-loca descriptor forms.",
+                  "js/mklev.js:3816-3952 lspo_region() and 4141-4151 lspo_non_diggable() consume selection_area() results from js/themerooms.js:234-244.",
+                  "js/mklev.js:4614-4653 mapFromRows() keeps the 76x21 map frame and relative coordinates aligned with sp_lev.c:lspo_map()."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Verified .cache/scan-cache.json at commit cc1b4453d14fd4a0e995170e3842ad622790c8: this session emits 307 of 366 recorded steps and stops at step 307 with the exact Arc-loca loader boundary, leaving 59 screens.",
+                "Verified sessions/seed0361-archeologist-tour.session.json: seed 361, datetime 20000110090000, Archeologist role, and step 307 key z with C screen first line \"You materialize on a different level!--More--\".",
+                "Verified nethack-c/upstream/dat/Arc-loca.lua lines 6-145: 76x21 map; 14 region calls, 16 doors, 2 stairs, 3 altars using align[1..3], 15 objects, 4 engravings, 23 traps, and 27 monsters.",
+                "Verified js/quest_levels.js: Bar-loca and Arc-strt are registered in QUEST_LEVEL_LOADERS, but Arc-loca is absent; js/mklev.js:657-659 therefore raises the recorded boundary before any loader body runs.",
+                "Verified C makelevel()->makemaz()->load_special() source chain and JS makelevel()->ensureSpecialLevelLoaders()->load_special() counterpart; no js/sp_lev.js exists, so the special-level API lives in js/mklev.js.",
+                "Verified step 307 RNG begins getbones, nhlib alignment shuffle rn2(3)=0/rn2(2)=1, then solidfill lit rn2(2)=0; the implementation must preserve the private alignment shuffle and random initialization order.",
+                "Next probe: add an Arc-loca loader and registration in js/quest_levels.js, use state.specialLevelAlign[0..2] for the three altar alignments, then run the focused session replay/recording validation to compare map, RNG, and postprocessing before broader checks."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Arc-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "arcLoca",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Arc-loca.lua top-level program (lines 6-145; map rows are lines 11-30 and are 76x20) and ported every descriptor in source order: solidfill initialization; mazelevel/hardfloor flags; the complete 76x20 map; 14 regions including three filled temple regions; 16 doors; up/down stairs; three unattended altars using the loader alignment shuffle; whole-map non-diggable selection; 15 random objects; four X marks the spot engravings; 23 traps; and 27 monsters (18 S-class, two M-class, seven human mummies). The JS loader uses createSpecialLevelApi and preserves descriptor order and random calls. Coordinator compared every Lua descriptor, literal map row, placement and repeated-call count with b45e609f, then verified production registration through QUEST_LEVEL_LOADERS, ensureSpecialLevelLoaders, load_special and makemaz. Independent correction 26424d4f replaces both copied fixed-session routes: seeds 98231/777331 and dates 20460914121530/20370704153045, 44/41 input characters. Fresh recordings match 23755 RNG calls and 87 screens/cursors, with no animations. No fixed-workload session changed and no Lua-program gap remains; existing descriptor/postprocessing owners retain their documented scope.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "The special-level maker resolves the Arc-loca prototype and invokes load_special() before post-processing."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "The special-level loader resolves the registered loader, creates createSpecialLevelApi(), runs arcLoca(), and finalizes the level."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The lazy loader imports QUEST_LEVEL_LOADERS and merges its registrations into SPECIAL_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The Arc-loca.lua program is registered to the arcLoca function in the production quest-level loader table."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "fixup_level_locations",
+                "source": "The Archeologist role maps its quest locate level to the Arc-loca prototype before special-level creation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/arc-loca-level-load.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json",
+              "recordings/Arc-loca.lua/arc-loca-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "02d2bb3885eac3019174f69757d91241ea171586"
+          }
+        ],
+        "entryPointReview": "The two short independent clean recipes use different seeds and timestamps, select Arc-loca through the production wizard level menu, and reach the loader without reusing the fixed seed0361 input prefix. Fresh C/JS comparisons match screens, cells and attributes, cursors, PRNG values, and animation frames.",
+        "entryPoints": [
+          {
+            "name": "Archeologist Arc-loca quest locate level",
+            "functions": [
+              "Arc-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json",
+              "recordings/Arc-loca.lua/arc-loca-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 314,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 52,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "previousRemainingScreensUpperBound": 59
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+        "screens": 9277,
+        "rng": 663843
+      }
+    },
+    {
+      "id": "pilot-potion-healing-seed0002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port healing potion effects and source-ordered cure helpers",
+      "cFile": "potion.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "Authorized independent seed-worker pilot: the seed0002 first stop at 315 is missing peffect_healing. Its immutable worker delivery can integrate while other seeds continue.",
+      "detail": "Validated 7109bae7 queue: step 315 stop, 280 remaining screens. Source potion.c1119-1125; healup1428-1458 cure calls and existing async callers are required dependencies. Investigation cache at count280 is current.",
+      "spans": [
+        {
+          "name": "peffect_healing",
+          "status": "closed",
+          "closedBy": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+          "functions": [
+            "peffect_healing"
+          ]
+        }
+      ],
+      "openedAt": "2f6fa7b7df6a64e126b3e3a0d1013bbc68c3ffb3",
+      "openStanding": {
+        "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+        "screens": 9277,
+        "rng": 663843
+      },
+      "closedAt": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+      "delivered": {
+        "screens": 29,
+        "rng": 4376
+      },
+      "functions": [
+        {
+          "name": "peffect_healing",
+          "line": 1119,
+          "endLine": 1127,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1119,
+        "to": 1127
+      },
+      "activeStanding": {
+        "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+        "screens": 9277,
+        "rng": 663843
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 315,
+          "kind": "stop",
+          "function": "peffect_healing",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_healing()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 280,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 280,
+              "status": "complete",
+              "commit": "dfb7a5e25f0837e7089dbfe5591e1269695eaf1d",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 280,
+                "step": 315,
+                "kind": "boundary",
+                "function": "peffect_healing",
+                "functionDeclared": false,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": 1119,
+                "message": "quaffing requires peffect_healing()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "The complete missile-impact/shipping delivery removes the prior unseen-hit screen mismatch. The refreshed worker branch matches all emitted screens, cursors and RNG through screen 315, then refuses a healing-potion quaff. peffects has only an UnsupportedQuaffError for this type, so the next source unit is whole peffect_healing, with the partial healup helper and cure callers inspected in the same span.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "peffect_healing"
+                ],
+                "branch": "potion.c:1119–1125 prints You feel better, rolls d(4+2*bcsign,4), adds eight HP, selects the max-HP increment and sickness/blindness cures by beatitude, calls healup, then exercises constitution. JS potion.js:949–950 refuses the entire POT_HEALING arm.",
+                "callers": [
+                  "runSegment -> quaff command -> potion.js dodrink -> dopotion -> peffects. C potion.c:1395–1397 dispatches POT_HEALING to peffect_healing; JS peffects currently throws at the corresponding case."
+                ],
+                "dependencies": [
+                  "healup C1428–1458 already implements polymorph/normal HP and peak HP bookkeeping, but its cureblind/curesick branches are obsolete refusals. Complete its source calls and propagate await through the existing potion, self-zap and artifact callers.",
+                  "Inspect make_blinded C261–331, make_deaf C443–457, make_vomiting C245–254, make_sick C140–196 and exercise. Existing partial helpers are not completion evidence; preserve source order, vision effects and unconscious message suppression. Missing discarded-return callees can remain explicit note_unported gaps; consumed-return dependencies cannot be replaced by invented values."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scanRecordedSession of the exact synchronized dfb7a5e2 branch reports screensEmitted=315, recordedSteps=595, divergence=null, boundary=quaffing requires peffect_healing(), behavioral.at=315. The previous screen269 ohitmon message now matches.",
+                "Read potion.c peffect_healing:1119–1125, the peffects dispatch:1395–1397, and healup:1428–1458. Inspected the matching JS dispatch and partial helper; the first stop is missing behavior, not an ordering defect in an implemented function.",
+                "11 focused B5 test files and scoped ESLint pass after the clean normal main refresh. The two refresh conflicts resolved only known unused imports; no game logic was manually merged."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_healing",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_healing",
+            "sourceReview": "Read potion.c:1119–1125 completely and the peffects dispatch at1395–1397. Preserved feedback before d(4+2*bcsign,4), +8 HP, cursed/no-extra-HP selection, blessed sickness cure flag, noncursed blindness/deafness cure flag, then exercise(A_CON,TRUE). Read mkobj.c bcsign:1857–1860, JS bcsign, attrib.c exercise:489–521 and its JS owner. Passed the existing encumber_msg owner required after Constitution exercise once moves>0. Removed POT_HEALING's UnsupportedQuaffError rather than relocating it. Selected helper healup now calls real implemented blindness/deafness helpers; permitted absent void make_vomiting/make_sick calls remain explicit note_unported. No seed or session condition and no new refusal. Required helper healup (js/potion.js:healup): Read potion.c:1428–1458 completely. Preserved nhp guard, Upolyd versus ordinary HP branches, strict greater-than maximum test, max-HP increments and human uhppeak update. Replaced obsolete cureblind refusal/no-op with u.ucreamed=0 then awaited make_blinded(0,TRUE), make_deaf(0,TRUE) in C order. Replaced curesick refusal with permitted absent void calls note_unported('potion.c make_vomiting') then note_unported('potion.c make_sick'); no invented sickness state mutation. disp.botl remains final. All existing JS healup callers now await it. Read complete existing make_blinded C261–331 and make_deaf C443–457 bodies and JavaScript owners. Corrected make_blinded's zero-timeout admission: old==0&&xtime==0 cannot transition even when Blindfolded/PermaBlind, so the existing non-timeout blindness stays untouched. Existing independently implemented make_blinded transition refusals remain; this evidence does not claim its whole-source completion. No need for output/RNG clone hooks: healing cure flags are used only in live hero callers; artifact/booze false flags remain state-only. Existing production callers: js/potion.js:peffect_healing — potion.c:1122–1123 passes beatitude-dependent healing and cure flags. js/potion.js:peffect_booze — potion.c:783 heals one HP with false cure flags when not diluted. js/zap.js:zapyourself — zap.c:2908–2913 uses healing/extra-healing spell dice and optional blindness cure, before feedback. js/artifacts.js:artifact_hit — artifact.c:1682–1686 rounds drained life upward then heals attacking hero with false cure flags, before returning visible state. Coordinator read the selected potion.c function, whole healup, existing make_blinded and make_deaf bodies, all changed caller awaits, tests and fresh recipes at 9707e5dc. 195 focused tests passed across potion, cast-healing, wipe-occupation, artifacts, zap-command and zap-ray at2026-09-14T22:18Z; scoped ESLint and git diff --check passed. Cast-healing fixture workers require unsandboxed subprocess launch (sandbox EPERM; rerun passed). Four healing cases passed: 9288 PRNG calls,144 complete screens/cursors,0 animations. The existing confusion/booze matrix plus three healing cases separately passed8segments21092RNG279screens/cursors. Four saved recordings independently replayed with boundary=null,divergence=null. Blocked independent recipe recipes/potion.c/healing-blind-blocked.session.json: Fresh differential first differs at boundary48: C calls make_blinded on wizard setup and prints A cloud of darkness falls upon you; JS wizard setup prints its generic timeout line. Later quaff reaches make_blinded's existing general timed-blindness restoration refusal; no recording committed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1395–1397 POT_HEALING; production runSegment -> quaff command -> dodrink -> dopotion -> peffects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/cast-healing.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/wipe-occupation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/healing-blessed.session.json",
+              "recordings/potion.c/healing-uncursed.session.json",
+              "recordings/potion.c/healing-cursed.session.json",
+              "recordings/potion.c/healing-deaf.session.json"
+            ],
+            "checkedAt": "cc33358947af457e6fdfcc78d94d552ae47f40d0"
+          }
+        ],
+        "entryPointReview": "The selected peffect_healing helper is reached by the existing quaff dispatcher. healup is a helper used by quaff, self-healing spells and artifact drain; only its cure sequence and async completion contract changed. Four independent recordings exercise the newly admitted healing quaff and the timed-deafness cure. Existing spell fixture regressions and artifact tests cover unchanged production callers. General blindness transitions and absent sickness/vomiting helpers remain separate owned callee gaps, not completed entry points.",
+        "entryPoints": [
+          {
+            "name": "Quaff a healing potion",
+            "functions": [
+              "peffect_healing"
+            ],
+            "recordings": [
+              "recordings/potion.c/healing-blessed.session.json",
+              "recordings/potion.c/healing-uncursed.session.json",
+              "recordings/potion.c/healing-cursed.session.json",
+              "recordings/potion.c/healing-deaf.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 344,
+          "kind": "stop",
+          "function": "pickup",
+          "functionDeclared": true,
+          "sourceFile": "pickup.c",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() from a shop floor",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 251,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 251,
+              "status": "complete",
+              "commit": "9707e5dc8fa84863a36d94d1ac8166c2e097265d",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 251,
+                "step": 344,
+                "kind": "boundary",
+                "function": "pick_obj",
+                "functionDeclared": false,
+                "sourceFile": "pickup.c",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": 1897,
+                "message": "pickup() from a shop floor",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "Healing quaff now completes and the assigned seed matches through344screens. Its next stop is a shop-floor pickup guard. C pick_obj must extract the object, temporarily set the object's shop, bill it before inventory merging, restore the hero's shop string, add inventory and then handle remote burglary. JavaScript folds only extraction/addinv into pickup_object and refuses shop stock before selection; the actionable unit is whole pick_obj with addtobill and billing dependencies.",
+              "source": {
+                "file": "pickup.c",
+                "functions": [
+                  "pick_obj"
+                ],
+                "branch": "Read pickup.c pick_obj:1897–1945 and pickup_object:1803–1888. robshop is !u.uswallow && otmp!=uball && costly_spot(object coordinates). C addtobill at1929 precedes addinv at1934 so unpaid state controls merging; remote_burglary follows inventory insertion. JS pickup:1225–1228 refuses costly_spot and its folded pickup_object body omits the billing branch.",
+                "callers": [
+                  "runSegment -> pickup command (comma) -> pickup -> pickup_object -> pick_obj; C pickup:784 calls pickup_object, whose1877 call assigns the pick_obj result before pickup_prinv.",
+                  "JS pickup_object currently directly extracts, redraws and calls addinv_runtime; replace that folded helper with a source-shaped pick_obj and remove the shop-only caller stand-in once billing is wired."
+                ],
+                "dependencies": [
+                  "shk.c addtobill:3490–3601 is absent. Its required consumed helpers include billable:3451–3487, contained_cost:2995–3047 and set_cost:3148 onward; existing get_cost/get_pricing_units/onbill/contained_gold/count_unpaid must be checked rather than assumed complete.",
+                  "Source billing helpers add_one_tobill, add_to_billobjs, bill_box_content, picked_container and append_honorific preserve bill entries, unpaid state, nested containers and quote RNG. Inspect costly_gold and existing remote_burglary; missing discarded-return calls may remain explicit gaps, but consumed billing results must be real.",
+                  "Inventory preflight currently runs before billing and projects merges. Verify that source-ordered unpaid changes and actual addinv return remain correct, without inventing a separate billing state or running billing RNG/output speculatively. Existing partial addinv/lift/corpse caller boundaries remain independently owned."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scan of the source state committed as9707e5dc reports screensEmitted=344, recordedSteps=595, divergence=null, behavioral.at=344 and boundary pickup() from a shop floor. The next reference message is the shopkeeper's quoted50-zorkmid silver-shield price; the trace owner is addtobill's in-inventory message, not a generic screen renderer.",
+                "Read whole pickup C672–910 to identify the JS-only shop guard, then whole pickup_object and pick_obj. Read addtobill/billable/add_one_tobill/bill_box_content and the start of contained_cost; the incomplete billing group is a source port, not an ordering-only divergence fix.",
+                "B6 focused195tests, scoped lint and four independent healing recordings pass. No B7 implementation was present when this investigation was recorded."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+        "screens": 9306,
+        "rng": 668219
+      }
+    },
+    {
+      "id": "pilot-arc-goal-seed0361",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the Archeologist quest goal level and saved quest-monster gender",
+      "luaFile": "Arc-goal.lua",
+      "sessions": [
+        "seed0361-archeologist-tour"
+      ],
+      "selectionReason": "Authorized independent seed-worker pilot: finish the already assigned immutable Arc-goal span before its next Arc-filb span. Current seed0361 first mismatch314, upper52, is Arc-filb per investigations/seed0361-archeologist-tour.json; Arc-goal is the separate source-traced missing loader at317/Home5, not the first mismatch owner. Preserve that distinction and integrate the completed whole program without waiting for another worker.",
+      "detail": "Whole dat/Arc-goal.lua6-115, production registration, and required existing makemon gender helper correction at C1259-1279. The original assumption that first mismatch314 was Arc-goal was corrected during implementation; independent direct-menu recipes reach and fully validate Arc-goal without that earlier filler dependency.",
+      "spans": [
+        {
+          "name": "Arc-goal.lua",
+          "status": "closed",
+          "closedBy": "68b98dcb37c08ee2203111fb087a108aa7cbcef3",
+          "functions": [
+            "Arc-goal.lua"
+          ]
+        }
+      ],
+      "openedAt": "f31fc99efc883d26b504b918f9ad9d1cb68e4aab",
+      "openStanding": {
+        "sha": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+        "screens": 9306,
+        "rng": 668219
+      },
+      "closedAt": "68b98dcb37c08ee2203111fb087a108aa7cbcef3",
+      "delivered": {
+        "screens": 5,
+        "rng": 139
+      },
+      "functions": [
+        {
+          "name": "Arc-goal.lua",
+          "line": 1,
+          "endLine": 115,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "activeStanding": {
+        "sha": "4be69da348feae60e37c1a28d839daf4fe26ec75",
+        "screens": 9306,
+        "rng": 668219
+      },
+      "openMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 314,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 52,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 52,
+              "status": "complete",
+              "commit": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 314,
+                "kind": "rng",
+                "function": "shuffle",
+                "functionDeclared": false,
+                "sourceFile": "nhlib.lua",
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                },
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 52
+              },
+              "summary": "After Arc-loca loads, the first mismatch is at step 314 while entering Home 4, an Archeologist quest filler level. makelevel computes Arc-filb but finds no registered loader, falls through to ordinary generation, and skips the Lua alignment shuffle and room program. Port the whole Arc-filb.lua program and register it. The later Arc-goal missing-loader refusal at step 317 is a separate boundary, not the owner of the first mismatch.",
+              "source": {
+                "file": "nethack-c/upstream/dat/Arc-filb.lua",
+                "functions": [
+                  "Arc-filb.lua"
+                ],
+                "branch": "Whole top-level program: six ordinary rooms with ordered callbacks, up stair in the first room, down stair in the fourth, nine objects, four traps, three mummy-class and three snake-class monsters plus a human mummy; random_corridors follows the rooms.",
+                "callers": [
+                  "mklev.c:1275–1285 makelevel selects the role quest filler with loca-level comparison, then calls makemaz.",
+                  "js/mklev.js:689–706 makelevel computes the role-specific fillName and calls makemaz only if SPECIAL_LEVEL_LOADERS contains it. Missing Arc-filb currently falls through to ordinary generation.",
+                  "js/quest_levels.js QUEST_LEVEL_LOADERS supplies quest registrations to ensureSpecialLevelLoaders; Arc-filb is absent at the examined commit.",
+                  "makemaz -> load_special -> special-level API executes the room callbacks and random_corridors; Lua initialization shuffles align before this program."
+                ],
+                "dependencies": [
+                  "Reuse the existing des.room contents callback and random_corridors special-level API, preserving Lua operation and RNG order.",
+                  "Mummy and snake class descriptors map to existing source-derived monster class constants. Do not hard-code generated room positions or recorded outputs."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Passing checkpoint 7109bae7 run-b54Gy6 and its refreshed mismatch queue report step 314 RNG, nhlib.lua shuffle line 19, 52 remaining screens; this source helper identifies skipped initialization, not the owning level program.",
+                "Read the exact fixed C recording steps 312–317: Ctrl-V, level 4, Enter at 314 produce Home 4 and room-generation RNG; the next Ctrl-V, level 5, Enter reach Home 5 at 317. The Arc-goal refusal is later.",
+                "Read all of dat/Arc-filb.lua lines 1–62 and the JavaScript quest filler dispatch. Missing Arc-filb registration explains the earlier shuffle and room-generation mismatch.",
+                "Arc-loca is complete at this candidate with two independent short wizard-level-change recordings. An earlier coordinator assumption that step 314 was Arc-goal initialization was incorrect; the worker already implementing Arc-goal should finish its immutable source span, then take Arc-filb as the next disjoint goal."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Arc-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "arcGoal",
+            "sourceReview": "Complete dat/Arc-goal.lua top-level program, lines 6-115: 20 map rows of 76 columns; 24 regions; mazelevel; one up stair; whole-map non-diggable selection; filled temple; chaos altar; named blessed Orb of Detection spe 5; fourteen random objects; six random traps plus rolling boulder; Minion of Huhetotl; eighteen snakes; eight human mummies; one random mummy-class monster. Descriptor order, coordinates, and random calls are preserved. Coordinator independently read the whole Lua program, all new descriptors and registration, whole makemon gender decision, existing role_init gender initialization and the changed makemon caller. Both leader and nemesis reuse saved source state after explicit gender flags and before the random fallback. No general makemon completion is claimed. Two independently chosen short wizard-menu routes (seeds665431/889123, distinct dates and character genders) recorded25376 matching RNG calls and87 screens/cursors; no animations. Focused loader and makemon tests plus scoped lint passed on039b2c00; root will rerun combined validation. Required dependency: existing initializeGender now receives explicit state, uses quest leader/nemesis identity and role_init's saved gender, matching makemon.c1259-1279; fixed source flags retain priority. Existing makemon production caller passes its normalized state. Coordinator quality and full lint passed; 126 actual named loader/makemon tests passed on the combined integration tree.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Resolves the registered loader, creates the descriptor API, invokes it, and finalizes the level."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "Loads the quest registrations before special-level creation."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Registers the Arc-goal.lua program in the production quest loader table."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "fixup_level_locations",
+                "source": "Maps the Archeologist quest goal to the Arc-goal prototype."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/arc-goal-level-load.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Arc-goal.lua/arc-goal-level-teleport.session.json",
+              "recordings/Arc-goal.lua/arc-goal-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "4aa4a5cbe0bd0c2f3678c524c4f48a8776bb2438"
+          }
+        ],
+        "entryPointReview": "The selected whole Lua program has one level-generation entry point. Both independent short wizard-menu recipes enter Arc-goal through makelevel/makemaz/load_special and verify the generated level; both saved C recordings match completely on the worker candidate. Common-prefix length is not used as proof of independent case selection.",
+        "entryPoints": [
+          {
+            "name": "Arc-goal.lua",
+            "functions": [
+              "Arc-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Arc-goal.lua/arc-goal-level-teleport.session.json",
+              "recordings/Arc-goal.lua/arc-goal-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 314,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 52,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 52,
+              "status": "complete",
+              "commit": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 314,
+                "kind": "rng",
+                "function": "shuffle",
+                "functionDeclared": false,
+                "sourceFile": "nhlib.lua",
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                },
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 52
+              },
+              "summary": "After Arc-loca loads, the first mismatch is at step 314 while entering Home 4, an Archeologist quest filler level. makelevel computes Arc-filb but finds no registered loader, falls through to ordinary generation, and skips the Lua alignment shuffle and room program. Port the whole Arc-filb.lua program and register it. The later Arc-goal missing-loader refusal at step 317 is a separate boundary, not the owner of the first mismatch.",
+              "source": {
+                "file": "nethack-c/upstream/dat/Arc-filb.lua",
+                "functions": [
+                  "Arc-filb.lua"
+                ],
+                "branch": "Whole top-level program: six ordinary rooms with ordered callbacks, up stair in the first room, down stair in the fourth, nine objects, four traps, three mummy-class and three snake-class monsters plus a human mummy; random_corridors follows the rooms.",
+                "callers": [
+                  "mklev.c:1275–1285 makelevel selects the role quest filler with loca-level comparison, then calls makemaz.",
+                  "js/mklev.js:689–706 makelevel computes the role-specific fillName and calls makemaz only if SPECIAL_LEVEL_LOADERS contains it. Missing Arc-filb currently falls through to ordinary generation.",
+                  "js/quest_levels.js QUEST_LEVEL_LOADERS supplies quest registrations to ensureSpecialLevelLoaders; Arc-filb is absent at the examined commit.",
+                  "makemaz -> load_special -> special-level API executes the room callbacks and random_corridors; Lua initialization shuffles align before this program."
+                ],
+                "dependencies": [
+                  "Reuse the existing des.room contents callback and random_corridors special-level API, preserving Lua operation and RNG order.",
+                  "Mummy and snake class descriptors map to existing source-derived monster class constants. Do not hard-code generated room positions or recorded outputs."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Passing checkpoint 7109bae7 run-b54Gy6 and its refreshed mismatch queue report step 314 RNG, nhlib.lua shuffle line 19, 52 remaining screens; this source helper identifies skipped initialization, not the owning level program.",
+                "Read the exact fixed C recording steps 312–317: Ctrl-V, level 4, Enter at 314 produce Home 4 and room-generation RNG; the next Ctrl-V, level 5, Enter reach Home 5 at 317. The Arc-goal refusal is later.",
+                "Read all of dat/Arc-filb.lua lines 1–62 and the JavaScript quest filler dispatch. Missing Arc-filb registration explains the earlier shuffle and room-generation mismatch.",
+                "Arc-loca is complete at this candidate with two independent short wizard-level-change recordings. An earlier coordinator assumption that step 314 was Arc-goal initialization was incorrect; the worker already implementing Arc-goal should finish its immutable source span, then take Arc-filb as the next disjoint goal."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "68b98dcb37c08ee2203111fb087a108aa7cbcef3",
+        "screens": 9311,
+        "rng": 668358
+      }
+    },
+    {
+      "id": "pilot-arc-filb-seed0361",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the Archeologist lower quest filler rooms and corridors",
+      "luaFile": "Arc-filb.lua",
+      "sessions": [
+        "seed0361-archeologist-tour"
+      ],
+      "selectionReason": "Authorized independent seed-worker pilot: seed0361 first RNG mismatch314, upper52, is missing Arc-filb registration per completed investigations/seed0361-archeologist-tour.json. Integrate the ready whole-program delivery independently of worker B.",
+      "detail": "Whole dat/Arc-filb.lua1-59: six room callbacks, ordered stairs/objects/traps/monsters and final random_corridors. makelevel selects this role filler below the locate level; missing registration currently falls through to ordinary generation. Worker immutable12f39470 includes two independent matching level-change recordings.",
+      "spans": [
+        {
+          "name": "Arc-filb.lua",
+          "status": "closed",
+          "closedBy": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+          "functions": [
+            "Arc-filb.lua"
+          ]
+        }
+      ],
+      "openedAt": "44815239de2f32806320058cbce4f9671ed145a3",
+      "openStanding": {
+        "sha": "68b98dcb37c08ee2203111fb087a108aa7cbcef3",
+        "screens": 9311,
+        "rng": 668358
+      },
+      "closedAt": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+      "delivered": {
+        "screens": 17,
+        "rng": 10880
+      },
+      "functions": [
+        {
+          "name": "Arc-filb.lua",
+          "line": 1,
+          "endLine": 59,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "activeStanding": {
+        "sha": "68b98dcb37c08ee2203111fb087a108aa7cbcef3",
+        "screens": 9311,
+        "rng": 668358
+      },
+      "openMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 314,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 52,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 52,
+              "status": "complete",
+              "commit": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 314,
+                "kind": "rng",
+                "function": "shuffle",
+                "functionDeclared": false,
+                "sourceFile": "nhlib.lua",
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                },
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 52
+              },
+              "summary": "After Arc-loca loads, the first mismatch is at step 314 while entering Home 4, an Archeologist quest filler level. makelevel computes Arc-filb but finds no registered loader, falls through to ordinary generation, and skips the Lua alignment shuffle and room program. Port the whole Arc-filb.lua program and register it. The later Arc-goal missing-loader refusal at step 317 is a separate boundary, not the owner of the first mismatch.",
+              "source": {
+                "file": "nethack-c/upstream/dat/Arc-filb.lua",
+                "functions": [
+                  "Arc-filb.lua"
+                ],
+                "branch": "Whole top-level program: six ordinary rooms with ordered callbacks, up stair in the first room, down stair in the fourth, nine objects, four traps, three mummy-class and three snake-class monsters plus a human mummy; random_corridors follows the rooms.",
+                "callers": [
+                  "mklev.c:1275–1285 makelevel selects the role quest filler with loca-level comparison, then calls makemaz.",
+                  "js/mklev.js:689–706 makelevel computes the role-specific fillName and calls makemaz only if SPECIAL_LEVEL_LOADERS contains it. Missing Arc-filb currently falls through to ordinary generation.",
+                  "js/quest_levels.js QUEST_LEVEL_LOADERS supplies quest registrations to ensureSpecialLevelLoaders; Arc-filb is absent at the examined commit.",
+                  "makemaz -> load_special -> special-level API executes the room callbacks and random_corridors; Lua initialization shuffles align before this program."
+                ],
+                "dependencies": [
+                  "Reuse the existing des.room contents callback and random_corridors special-level API, preserving Lua operation and RNG order.",
+                  "Mummy and snake class descriptors map to existing source-derived monster class constants. Do not hard-code generated room positions or recorded outputs."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Passing checkpoint 7109bae7 run-b54Gy6 and its refreshed mismatch queue report step 314 RNG, nhlib.lua shuffle line 19, 52 remaining screens; this source helper identifies skipped initialization, not the owning level program.",
+                "Read the exact fixed C recording steps 312–317: Ctrl-V, level 4, Enter at 314 produce Home 4 and room-generation RNG; the next Ctrl-V, level 5, Enter reach Home 5 at 317. The Arc-goal refusal is later.",
+                "Read all of dat/Arc-filb.lua lines 1–62 and the JavaScript quest filler dispatch. Missing Arc-filb registration explains the earlier shuffle and room-generation mismatch.",
+                "Arc-loca is complete at this candidate with two independent short wizard-level-change recordings. An earlier coordinator assumption that step 314 was Arc-goal initialization was incorrect; the worker already implementing Arc-goal should finish its immutable source span, then take Arc-filb as the next disjoint goal."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Arc-filb.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "arcFilb",
+            "sourceReview": "Complete dat/Arc-filb.lua top-level program in source order: six ordinary rooms; up stair in room one; down stair in room four; nine random objects; four random traps; three mummy-class monsters, three snake-class monsters and one named human mummy (seven total); and random_corridors. The JavaScript descriptor order matches every source contents callback and preserves the final corridor call. Coordinator read the complete Lua program, every JavaScript room callback, and the makelevel quest-filler dispatch. The initial and final descriptors preserve source order. The two independent recorded routes select Arc-loca directly then level-teleport to Home4, reaching the filler caller and matching28713RNG100screens/cursors0animations; the runtime verifier checks six rooms, seven monsters, four traps and two stairs.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "Selects the role-specific filb prototype for quest levels at or below the locate level and dispatches it through makemaz()."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "Resolves the Arc-filb prototype and calls load_special() for the Lua loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "Looks up the registered loader, creates the special-level API, invokes arcFilb, and applies level post-processing."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "Loads QUEST_LEVEL_LOADERS into the production special-level loader table before dispatch."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Registers the Arc-filb.lua program under the production Arc-filb prototype name."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/arc-filb-level-load.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Arc-filb.lua/arc-filb-level-teleport.session.json",
+              "recordings/Arc-filb.lua/arc-filb-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "81e7c9ebce7fac91914f943cc6e8a4bd315526bf"
+          }
+        ],
+        "entryPointReview": "Both fresh recipes were designed independently from the Arc-loca wizard-menu route: each starts a new Archeologist with its own seed and date, selects Arc-loca, then requests Home 4 with the level-teleport command so makelevel selects Arc-filb. The variation changes both the seed/date and character gender; neither recipe copies the fixed seed0361 input route.",
+        "entryPoints": [
+          {
+            "name": "Arc-filb.lua",
+            "functions": [
+              "Arc-filb.lua"
+            ],
+            "recordings": [
+              "recordings/Arc-filb.lua/arc-filb-level-teleport.session.json",
+              "recordings/Arc-filb.lua/arc-filb-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 333,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 33,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 33,
+              "status": "complete",
+              "commit": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 333,
+                "kind": "rng",
+                "function": "shuffle",
+                "functionDeclared": false,
+                "sourceFile": "nhlib.lua",
+                "cFile": null,
+                "luaFile": "nhlib.lua",
+                "line": 19,
+                "helper": {
+                  "function": "random",
+                  "luaFile": "nhlib.lua",
+                  "line": 8
+                },
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 33
+              },
+              "summary": "After Arc-filb loads, the first RNG mismatch is at zero-based step333 while level-teleporting from Home5 to Home2. makelevel selects Arc-fila above the locate level, but its loader is absent and generation falls through to ordinary rooms. Port the whole Arc-fila.lua program and register it. The fresh-differential display calls this step334 because that report is one-based.",
+              "source": {
+                "file": "nethack-c/upstream/dat/Arc-fila.lua",
+                "functions": [
+                  "Arc-fila.lua"
+                ],
+                "branch": "Whole program lines1-59: six ordinary rooms with ordered callbacks; up stair in room1, down stair in room4; nine objects, four traps, six snake-class monsters and one named human mummy; final random_corridors call.",
+                "callers": [
+                  "mklev.c:1275–1285 makelevel compares quest depth with the locate level and selects role-specific fila or filb, then calls makemaz.",
+                  "js/mklev.js:689–706 makelevel computes Arc-fila for Home2 because it is above the locate level, but calls makemaz only if the registry has that prototype.",
+                  "ensureSpecialLevelLoaders loads QUEST_LEVEL_LOADERS; makemaz -> load_special executes the registered room program and applies postprocessing."
+                ],
+                "dependencies": [
+                  "Reuse the existing des.room contents callbacks and random_corridors special-level API. Preserve descriptor and random-call order.",
+                  "Arc-loca, Arc-goal and Arc-filb now exist; only the missing fila registration explains this transition's skipped Lua shuffle and room generation."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Checkpoint39a33c46 run-stgA7m passes all gates; its refreshed queue reports RNG step333, upper33, nhlib.lua shuffle line19.",
+                "Read fixed recording raw steps331–333: Ctrl-V,2,Enter; steps[333] produces Home2 and begins getbones, Lua alignment shuffle and build_room calls. The earlier Home4 and Home5 transitions now pass.",
+                "Read all dat/Arc-fila.lua lines1-59 and compared every descriptor with the worker's immutable ad6f7fb4 implementation. The source owner is the omitted filler program, not the shared shuffle helper.",
+                "Worker independently designed two short Arc-loca-menu then Home2 routes, with different seeds/dates and character gender. Both match all33892RNG100screens/cursors0animations on its candidate; integration and full validation remain separate requirements.",
+                "Canonical mismatch-queue indices are zero-based. diff-fresh formatReport adds one for display; retain333 in queue/cache fields rather than copying its printed334."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "39a33c466791f0e1fb63d941c160b4d37c3e32fa",
+        "screens": 9328,
+        "rng": 679238
+      }
     }
   ]
 }
