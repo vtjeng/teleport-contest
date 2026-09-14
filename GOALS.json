@@ -37445,7 +37445,7 @@
     {
       "id": "port-invent-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port invent.c inventory organization and adjustment commands",
       "cFile": "invent.c",
       "sessions": [
@@ -37613,6 +37613,21 @@
             "invdisp_nothing",
             "worn_wield_only",
             "display_minventory"
+          ]
+        },
+        {
+          "name": "cinv_doname..perm_invent_toggled",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "cinv_doname",
+            "cinv_ansimpleoname",
+            "display_cinventory",
+            "only_here",
+            "display_binventory",
+            "prepare_perminvent",
+            "sync_perminvent",
+            "perm_invent_toggled"
           ]
         }
       ],
@@ -41204,7 +41219,37 @@
             ]
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 39,
+        "rng": 28
+      },
+      "parkedStanding": {
+        "sha": "06882e8c4bd94b84dddb8233ae7f233c44407d13",
+        "screens": 8612,
+        "rng": 630101
+      },
+      "parkedReason": "The refreshed queue now selects holdout/seed4500-knight-coverage step 772 (1042 remaining) with a valid investigation identifying do.c goto_level()'s punished ball-and-chain transit branch. goto_level() is already a completed source unit, so this mismatch must be selected as a bounded divergence fix; preserve the queued invent.c range for later resumption."
+    },
+    {
+      "id": "div-do-goto-level-punished-seed4500",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Fix goto_level() punished-hero ball-and-chain transit and arrival behavior",
+      "cFile": "do.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The refreshed queue ranks holdout/seed4500-knight-coverage first at step 772 with 1042 remaining screens and a valid investigation at investigations/holdout/seed4500-knight-coverage.json. goto_level() is already a completed do.c source unit, so select a divergence fix for its punished transition branch rather than another file port.",
+      "detail": "C do.c:1615-1617 unplaces the ball and chain before transit for Punished, :1758-1796 handles punished ascent/descent including drag_down and ballrelease, and :1813-1814 restores the chain. JS do.js:1371-1375 raises the observed refusal. Existing production callers are do.js doup/dodown/deferred_goto and artifacts.js level teleport; dependencies are ball.c unplacebc/placebc/drag_down/ballrelease. Preserve source order and ordinary transition behavior.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "goto_level",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 772
     }
   ]
 }
