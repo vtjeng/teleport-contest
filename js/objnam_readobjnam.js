@@ -1696,11 +1696,6 @@ function readobjnam_lookup(d, normalized) {
         return 'result'; /* return d.otmp */
     if (action === 4)
         return 'any'; /* goto any */
-    if (action === 5) {
-        // objnam.c:4653-4658 reaches wiztrap:, whose wizterrainwish() arm
-        // is outside this source span and remains an explicit refusal.
-        throw new UnsupportedWishError('a wizard-mode trap wish', origbp(d));
-    }
     // This refusal stands here rather than at typfnd:, because
     // readobjnam_postparse3() would otherwise draw first for a named monster
     // carrier -- "gnome corpse" spends rn2(1) on CORPSE before its monster
