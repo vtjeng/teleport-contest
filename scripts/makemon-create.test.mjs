@@ -23,6 +23,7 @@ import {
     MM_NOMSG,
     MON_DETACH,
     MFAST,
+    MS_NEMESIS,
     MSLOW,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -127,6 +128,7 @@ import {
     PM_MARILITH,
     PM_MASTER_LICH,
     PM_MINOTAUR,
+    PM_MINION_OF_HUHETOTL,
     PM_NAZGUL,
     PM_NEWT,
     PM_ORC,
@@ -1712,6 +1714,39 @@ test('new monsters prepend to the source level-wide chain', () => {
     assert.equal(first.nmon, null);
     assert.equal(state.level.monsters[MON_X][MON_Y], first);
     assert.equal(state.level.monsters[MON_X + 1][MON_Y], second);
+});
+
+test('quest nemesis creation reuses role_init gender without a draw', () => {
+    const state = initialLevelState();
+    // Quest-level generation bypasses the main-dungeon species allowlist.
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    state.dungeons[1] = {
+        depth_start: 5,
+        dunlev_ureached: 1,
+        entry_lev: 1,
+        flags: { align: 0, hellish: false },
+        num_dunlevs: 4,
+    };
+    const nemesis = state.mons[PM_MINION_OF_HUHETOTL];
+    nemesis.msound = MS_NEMESIS;
+    state.urole = { neminum: PM_MINION_OF_HUHETOTL };
+    state.svq = { quest_status: { nemgend: 1 } };
+    const random = recordingRandom();
+
+    const monster = makemon(
+        nemesis,
+        MON_X,
+        MON_Y,
+        NO_MINVENT | MM_NOCOUNTBIRTH | MM_NOMSG,
+        { state, random: random.random },
+    );
+
+    assert.equal(monster.female, true);
+    assert.equal(
+        random.calls.some(({ kind, args }) => kind === 'rn2' && args[0] === 2),
+        false,
+        'makemon.c:1272-1273 uses quest_status.nemgend before rn2(2)',
+    );
 });
 
 test('random-coordinate creation accepts the first sampled good position', () => {
