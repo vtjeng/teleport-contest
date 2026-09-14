@@ -35569,7 +35569,7 @@
     {
       "id": "port-do_name-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do_name.c naming commands and source-faithful object naming",
       "cFile": "do_name.c",
       "sessions": [
@@ -35646,8 +35646,8 @@
         },
         {
           "name": "christen_orc..lookup_novel",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d371713642ddded268c14c611ecf5cbe51defd50",
           "functions": [
             "christen_orc",
             "noveltitle",
@@ -35661,8 +35661,11 @@
         "screens": 8525,
         "rng": 630073
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d371713642ddded268c14c611ecf5cbe51defd50",
+      "delivered": {
+        "screens": 48,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "nextmbuf",
@@ -36033,21 +36036,21 @@
           "line": 1557,
           "endLine": 1610,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "noveltitle",
           "line": 1611,
           "endLine": 1626,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "lookup_novel",
           "line": 1627,
           "endLine": 1664,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -37286,10 +37289,157 @@
               "recordings/mkmaze.c/minetown-fixup-special.session.json"
             ],
             "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "christen_orc",
+            "implementation": "js/do_name.js",
+            "symbol": "christen_orc",
+            "sourceReview": "Read do_name.c:1557-1594, including the rndorcname call, byte-sized BUFSZ guard, gang-versus-other pointer branches, upstart capitalization, and the christen_monst return. JavaScript preserves empty-but-present C strings, measures UTF-8 bytes before the 256-byte guard, keeps monster identity, and delegates the already ported christen_monst state update. The mkmaze.c stolen_booty caller is wired through js/mkmaze.js; its independent recipe reaches this function but remains blocked after it by makemon.c's initial-level monster creation boundary.",
+            "callers": [
+              {
+                "path": "js/mkmaze.js",
+                "symbol": "stolen_booty",
+                "source": "mkmaze.c:869 calls christen_orc(mtmp, upstart(gang), \"\") for each eligible Orcish Town orc; js/mkmaze.js:1241 passes the generated gang and empty other suffix through production RNG."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The only production caller, mkmaze.c stolen_booty(), reaches christen_orc() but the reference recording cannot complete because the following initial-level makemon.c:1087 makemon_rnd_goodpos() boundary remains unported; the function is source-pinned in scripts/do-name.test.mjs and its blocked recipe stays under recipes/mkmaze.c/.",
+            "checkedAt": "d371713642ddded268c14c611ecf5cbe51defd50"
+          },
+          {
+            "name": "noveltitle",
+            "implementation": "js/do_name.js",
+            "symbol": "noveltitle",
+            "sourceReview": "Read do_name.c:1611-1622, including the unconditional rn2(SIZE(sir_Terry_novels)) draw, -1 sentinel assignment, valid saved-index override, and returned catalog entry. JavaScript retains the index/title pair needed by the production object caller and consumes the draw before inspecting the saved index. The complete 41-entry table remains in source order.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "mksobj",
+                "source": "mkobj.c:1248 initializes SPE_NOVEL's novelidx to -1 and calls noveltitle(&otmp->novelidx); js/obj.js:2680-2684 performs the same initialization, title assignment, and index update."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/u-entered-shop.session.json",
+              "recordings/shk.c/u-entered-shop-deaf.session.json"
+            ],
+            "checkedAt": "d371713642ddded268c14c611ecf5cbe51defd50"
+          },
+          {
+            "name": "lookup_novel",
+            "implementation": "js/do_name.js",
+            "symbol": "lookup_novel",
+            "sourceReview": "Read do_name.c:1625-1664, including all five variant spellings, case-insensitive direct and The() comparisons over all 41 titles, optional index mutation, and the null result. JavaScript calls the existing source-shaped The() helper for every article comparison, preserves ASCII-only case folding, returns the updated index/title pair to its callers, and keeps valid fallback indices when no title matches.",
+            "callers": [
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam",
+                "source": "objnam.c:5357 fixes a wished SPE_NOVEL name through lookup_novel(d.name, &d.otmp->novelidx); js/objnam_readobjnam.js:1962-1971 performs the same lookup, title replacement, and novelidx update."
+              },
+              {
+                "path": "js/sp_lev_object.js",
+                "symbol": "create_object",
+                "source": "sp_lev.c:2270 calls lookup_novel(o->name.str, &otmp->novelidx) for a named special-level novel; js/sp_lev_object.js:341-347 calls lookup_novel while applying a named SPE_NOVEL object."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/novel-wish-lookup.session.json"
+            ],
+            "checkedAt": "d371713642ddded268c14c611ecf5cbe51defd50"
           }
         ],
-        "entryPointReview": "The selected do_name.c range contains naming and random-text helpers only. It defines no command dispatcher, monster action, level generator, or startup path of its own; each impure helper is reached through the production callers listed above, while minimal_monnam and the YMonnam/stucksteed debug/refusal path remain explicitly documented as unavailable reference-build entry points. Therefore this helper-only span has no independent entry points to enumerate.",
+        "entryPointReview": "The selected do_name.c range is helper-only. noveltitle is reached by the ordinary SPE_NOVEL object-creation path in mkobj.c and by the existing shop-arrival recordings; lookup_novel is reached by the wish parser and special-level object creator. christen_orc is reached by mkmaze.c stolen_booty() during the Orcish Town level feature. The independent recipes/do_name.c/novel-wish-lookup.session.json recording matches through the wish parser, and both shk.c shop recordings match the novel-title draw. recipes/mkmaze.c/orcish-town-stolen-booty.session.json reaches christen_orc after the corrected rndorcname draw order, then remains blocked at makemon.c:1087 makemon_rnd_goodpos() before a complete recording can be made. spell.c and sounds.c also call noveltitle in source, but their surrounding tribute paths have no currently wired JavaScript production caller.",
         "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 733,
+          "kind": "stop",
+          "function": "doorganize",
+          "functionDeclared": false,
+          "sourceFile": "invent.c",
+          "cFile": "invent.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: doorganize() for the extended command 'adjust' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1081,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1081,
+              "status": "complete",
+              "commit": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1081,
+                "step": 733,
+                "kind": "stop",
+                "function": "doorganize",
+                "functionDeclared": true,
+                "sourceFile": "invent.c",
+                "cFile": "invent.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: doorganize() for the extended command 'adjust' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "invent.c owns the #adjust boundary: doorganize() selects an inventory source object with getobj(\"adjust\", ...), then doorganize_core() asks for a destination letter and performs collect, move, merge, swap, or split bookkeeping. At the refreshed stop, the C recording has just painted What do you want to adjust? [a-km or ?*] after #adjust; JavaScript has the adjust and altadjust rows plus item-action queue wiring, but js/cmd.js doextcmd() lacks doorganize and adjust_split cases and falls into its generic refusal before invent.js getobj() runs. Port the complete invent.c adjust family and wire both handlers, preserving inventory-chain ordering, object names, messages, redraw, cancellation, malformed-gold handling, and split/count paths.",
+              "source": {
+                "file": "invent.c",
+                "functions": [
+                  "adjust_ok",
+                  "adjust_gold_ok",
+                  "doorganize",
+                  "adjust_split",
+                  "doorganize_core"
+                ],
+                "branch": "doorganize() returns ECMD_OK with a no-adjustable message only for an empty inventory or a sole gold stack already in '$'; otherwise !fixinv first reassigns letters, check_invent_gold(\"adjust\") selects a filter that excludes ordinary gold or admits malformed gold, and getobj(\"adjust\", filter, GETOBJ_PROMPT | GETOBJ_ALLOWCNT) chooses the source. doorganize_core() then accepts cancel, same-letter collection, a different destination for move/merge/swap, or a counted split; adjust_split() is the internal item-action path for non-gold stacks of at least two and validates a split count before calling splitobj(). The assigned recording has the normal fixed-letter path, a named long sword in slot a, and destination z, with no RNG at the boundary.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1673-1674 binds the M-a/adjust extended-command row to doorganize(); js/extcmdlist_data.js:45 already preserves that row, while js/cmd.js:4885-5150 has no doorganize case and reaches its default refusal.",
+                  "nethack-c/upstream/src/iactions.c:191-197 queues doorganize or adjust_split followed by the selected inventory letter; js/iactions.js:295-302 mirrors both queues, so the same production handlers must serve item-actions.",
+                  "nethack-c/upstream/src/invent.c:4981-5003 is the user entrypoint and :5008-5064 is the internal split entrypoint; both converge on :5068-5279 doorganize_core()."
+                ],
+                "dependencies": [
+                  "invent.c:4889-4913 check_invent_gold(), :739-765 reorder_invent(), and reassign() provide gold validation, inventory ordering, and !fixinv relabeling; js/invent.js already has check_invent_gold(), reassign(), and the equivalent private reorderInventory().",
+                  "doorganize_core() uses invent.c mergable()/merged(), extract_nobj(), inv_cnt(), assigninvlet(), clear_splitobjs(), prinv(), and update_inventory(); the existing JS ports are js/invent.js, js/obj.js, and js/hack.js, but their state and message ordering must be preserved while wiring the new owner.",
+                  "The destination ?/* branch calls invent.c:3467-3518 display_used_invlets(), which paints a selectable Inventory letters used menu and returns a letter or cancel; no display_used_invlets owner exists in js/invent.js, so this return-valued dependency is part of the source-general scope.",
+                  "The GETOBJ_ALLOWCNT source branch at invent.c:1937-1947 and adjust_split() at :5022-5040 consume get_count(); js/invent.js:832-843 currently raises UnsupportedObjectPromptError for get_count() and splitobj(), so counted adjust and the internal stack-split path need explicit completion or a recorded dependency handoff.",
+                  "C defers prinv() and update_inventory() until the inventory chain has been restored (:5262-5279); js/invent.js:3267-3283 and :1727-1740 provide those output/refresh seams, while object names and merge side effects flow through the existing object and inventory modules."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json at SHA 242d3d77cbff92156ce9bdf95eb0404a12ae7fa7 reports the assigned row at screensEmitted 733, recordedSteps 1814, and the exact doorganize refusal; 1814 - 733 = remainingScreensUpperBound 1081.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 726-733 type #adjust and adjust; step 733 has key newline, zero RNG, and the C prompt What do you want to adjust? [a-km or ?*]. Steps 734-735 answer source a and destination z, with the C Moving: z - a ... Sword of Justice result, proving the actionable path continues through doorganize_core().",
+                "nethack-c/upstream/src/invent.c:4915-5279 defines adjust_ok(), adjust_gold_ok(), doorganize(), adjust_split(), and doorganize_core(); the core performs exact collection/merge/swap/split ordering and restores the inventory before messages and update_inventory().",
+                "nethack-c/upstream/src/cmd.c:1673-1674 and :2062 plus js/extcmdlist_data.js:45 and :209 establish the public adjust and internal altadjust bindings; js/iactions.js:295-302 establishes the live item-action callers, while js/cmd.js doextcmd() lacks both switch cases and emits the observed default refusal.",
+                "The actionable scope is a source-general invent.c file-port family with command dispatch wiring and the return-valued display_used_invlets/count dependencies; do not special-case seed 4500, the Knight role, the named sword, the chosen letters, or step 733."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "d371713642ddded268c14c611ecf5cbe51defd50",
+        "screens": 8573,
+        "rng": 630073
       }
     }
   ]
