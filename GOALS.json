@@ -37556,8 +37556,8 @@
         },
         {
           "name": "display_pickinv..this_type_only",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a0d70a508c9ac294526d287b47d9c853c489b0b2",
           "functions": [
             "display_pickinv",
             "display_inventory",
@@ -38090,70 +38090,70 @@
           "line": 3057,
           "endLine": 3427,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "display_inventory",
           "line": 3428,
           "endLine": 3455,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "repopulate_perminvent",
           "line": 3456,
           "endLine": 3466,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_used_invlets",
           "line": 3467,
           "endLine": 3525,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "count_unpaid",
           "line": 3526,
           "endLine": 3547,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "count_buc",
           "line": 3548,
           "endLine": 3579,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "tally_BUCX",
           "line": 3580,
           "endLine": 3619,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "count_contents",
           "line": 3620,
           "endLine": 3653,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dounpaid",
           "line": 3654,
           "endLine": 3792,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "this_type_only",
           "line": 3793,
           "endLine": 3826,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dotypeinv",
@@ -40185,6 +40185,217 @@
             "recordings": [],
             "inactiveReason": "The JavaScript TTY renderer has no persistent native pick-inventory window to destroy; the source-pinned cache test covers the explicit destructor seam and WIN_ERR invalidation.",
             "checkedAt": "f516a7c10def7e64e59c579d68eb90bf83b08907"
+          },
+          {
+            "name": "display_pickinv",
+            "implementation": "js/invent.js",
+            "symbol": "display_pickinv",
+            "sourceReview": "Read invent.c:3057-3427 completely. Preserves empty and permanent-window count gates, message-menu shortcut, wizard identification menu, sortloot mode and in-use fake hands row, class and special headings, venom pass, gold filtering, query title, PICK_NONE/PICK_ONE/PICK_ANY selection, count return, identification side effects, and source ordering of glyph/name calls. Removed the prior loot-sorted, unpacked-inventory, partial-display, and menu-query refusals; no discarded callee result remains.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() reaches display_pickinv() for the i/*/? inventory branches; js/invent.js passes the selected class or letter subset and count option."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "display_inventory",
+                "source": "invent.c:display_inventory() delegates to display_pickinv(); js/invent.js preserves that delegation after consuming the command queue."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_identify",
+                "source": "wizcmds.c:wiz_identify() sets override_ID and calls display_inventory(); js/wizcmds.js routes the wizard identify menu through the display owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json"
+            ],
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "display_inventory",
+            "implementation": "js/invent.js",
+            "symbol": "display_inventory",
+            "sourceReview": "Read invent.c:3428-3455 completely. Consumes cmdq_pop() first, matches queued keys against inventory letters and object-class symbols, clears the canned queue on a miss or non-key node, and delegates ordinary display with the want_reply flag.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() displays the inventory while handling an i class answer; js/invent.js awaits display_inventory() before returning to its class prompt."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "dispinv_with_action",
+                "source": "invent.c:dispinv_with_action() calls display_inventory() with an equipment letter set; js/invent.js preserves the temporary display flags and action dispatch."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c:do_look() calls display_inventory() for the inventory what-is choice; js/pager.js supplies the inventory menu owner and consumes the returned letter."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_identify",
+                "source": "wizcmds.c:wiz_identify() calls display_inventory() after setting override_ID; js/wizcmds.js routes the source wizard path through this function."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizcmds.c/wizidentify-debug.session.json"
+            ],
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "repopulate_perminvent",
+            "implementation": "js/invent.js",
+            "symbol": "repopulate_perminvent",
+            "sourceReview": "Read invent.c:3456-3466 completely. Calls display_pickinv(NULL, NULL, NULL, FALSE, FALSE) so an empty permanent-inventory update still produces the source empty-state row; the JavaScript permanent flag selects this same display-only path.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The native WIN_INVEN update callback is outside the JavaScript TTY build and has no production caller; the source-pinned test invokes the permanent refresh seam and checks its empty display row.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "display_used_invlets",
+            "implementation": "js/invent.js",
+            "symbol": "display_used_invlets",
+            "sourceReview": "Read invent.c:3467-3525 completely. Preserves empty-pack return, avoid-letter filtering, sorted class-heading traversal, glyph-before-name evaluation, Inventory letters used title, PICK_ONE selection, cancellation result, and menu ownership.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The only C production caller is doorganize() adjust/split, which remains the next source span and is the selected fixed-session boundary; the source-pinned test covers heading, avoidlet, glyph/name, and selection behavior.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "count_unpaid",
+            "implementation": "js/invent.js",
+            "symbol": "count_unpaid",
+            "sourceReview": "Read invent.c:3526-3546 completely. Traverses each nobj sibling once, increments for unpaid objects, and recursively counts every cobj chain without multiplying stack quantity.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() counts unpaid inventory before adding the u selector; js/invent.js uses count_unpaid() in the same selector construction."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_category",
+                "source": "pickup.c:query_classes()/query_category() tests count_unpaid() before adding the unpaid category; js/pickup.js uses the shared invent.c owner."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c object theft checks count_unpaid() for nested merchandise; js/steal.js imports the recursive helper for its billing gate."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "count_buc",
+            "implementation": "js/invent.js",
+            "symbol": "count_buc",
+            "sourceReview": "Read invent.c:3548-3579 completely. Preserves priest bknown writes before filtering, filter callback order, coin goldX classification, and ordinary blessed/uncursed/cursed/unknown classification.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() uses count_buc() to append B/U/C/X selectors; js/invent.js calls the shared helper for each requested category."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates the category-selector construction; the source-pinned test reaches priest bknown mutation, filter-free classification, and both goldX settings.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "tally_BUCX",
+            "implementation": "js/invent.js",
+            "symbol": "tally_BUCX",
+            "sourceReview": "Read invent.c:3580-3619 completely. Preserves nobj/nexthere traversal choice, priest bknown writes, just-picked count, coin goldX classification, and all six output counters including the source-zero ocnt.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_category",
+                "source": "pickup.c:query_classes() tallies BUCX categories before constructing the menu; js/pickup.js imports the invent.c owner."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_classes",
+                "source": "pickup.c:query_classes() appends B/U/C/X/P selectors from tally_BUCX(); js/pickup.js uses the same result for the traditional category prompt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording isolates every BUCX category branch; the source-pinned test reaches priest bknown mutation, just-picked accounting, and both goldX settings.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "count_contents",
+            "implementation": "js/invent.js",
+            "symbol": "count_contents",
+            "sourceReview": "Read invent.c:3620-3651 completely. Preserves top-container ascent and costly_spot gate, nested recursion order, unpaid/newdrop/everything filtering, and stack-versus-quantity counting. costly_spot is retained as the source caller supplies it, including its possible shopkeeper state update.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The C callers are billing helpers in shk.c whose JavaScript production paths remain outside this invent.c span; the source-pinned test covers nested, quantity, everything, and newdrop branches.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "dounpaid",
+            "implementation": "js/invent.js",
+            "symbol": "dounpaid",
+            "sourceReview": "Read invent.c:3654-3792 completely. Preserves single-item message output, reassign ordering, sorted unpaid headings, recursive contained-item disclosure, unknown-container aggregate pricing, total line, floor/buried wording, and text-window versus message output. The required shk.c unpaid_cost() dependency is implemented with bill lookup and contained traversal; missing-bill impossible diagnostics remain explicit.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The only C production caller is dotypeinv(), which is not yet wired in the JavaScript command path; the source-pinned test covers the floor-only message branch and the implementation provides injectable message/text-window owners for the remaining display branches.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
+          },
+          {
+            "name": "this_type_only",
+            "implementation": "js/invent.js",
+            "symbol": "this_type_only",
+            "sourceReview": "Read invent.c:3793-3826 completely. Preserves ordinary object-class matching, just-picked P matching, coin goldX B/U/C/X classification, and known blessed/uncursed/cursed/unknown branches using the shared getobj context.",
+            "callers": [],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The only C production caller is dotypeinv() query_objlist(), which is not yet wired in the JavaScript command path; the source-pinned test covers class, P, B, C, and coin classification.",
+            "checkedAt": "a0d70a508c9ac294526d287b47d9c853c489b0b2"
           }
         ],
         "entryPointReview": "The selected invent.c range contains two executable entry points covered by fresh recordings: traditional container selection reaches askchain() through pickup.c traditional_loot(), and startup reroll reaches reroll_menu() through allmain.c newgame(). The remaining units are inventory-selection, identification, display, and teardown helpers reached by existing command/caller wiring; their recorder-inaccessible or non-isolating branches are source-pinned and named per function above. The current fixed holdout mismatch remains outside this span at the unsupported doorganize()/adjust command.",
