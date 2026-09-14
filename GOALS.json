@@ -42239,7 +42239,7 @@
     {
       "id": "div-trap-dart-exercise-seed0002",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire the encumber_msg callback through the dart-trap thitu exercise path so the healer's strength exercise matches C's post-hit behavior.",
       "cFile": "trap.c",
       "sessions": [],
@@ -42248,8 +42248,8 @@
       "spans": [
         {
           "name": "trapeffect_dart_trap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "dd4cb114d3e363da84ce18c190ba93e8e53a3325",
           "functions": [
             "trapeffect_dart_trap"
           ]
@@ -42261,8 +42261,11 @@
         "screens": 8632,
         "rng": 635746
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dd4cb114d3e363da84ce18c190ba93e8e53a3325",
+      "delivered": {
+        "screens": 53,
+        "rng": 3807
+      },
       "function": "trapeffect_dart_trap",
       "session": "holdout/seed0002-healer-reflection-drummer",
       "step": 47,
@@ -42339,7 +42342,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "dd4cb114d3e363da84ce18c190ba93e8e53a3325",
+        "screens": 8685,
+        "rng": 639553
+      }
     }
   ]
 }
