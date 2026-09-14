@@ -42736,6 +42736,126 @@
         "screens": 8718,
         "rng": 640345
       }
+    },
+    {
+      "id": "port-potion-paralysis-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port potion.c peffect_paralysis() ordinary floor branch, preserving its rn1 duration, frozen-feet messages, nomul state, and Dexterity exercise.",
+      "cFile": "potion.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "The authoritative queue ranks holdout/seed4500-knight-coverage first at 1025, but its valid cache owner teleport.c teleds is already a completed source goal and its same-count screen mismatch has no unverified teleds span. The next actionable session with a complete valid investigation is holdout/seed0002-healer-reflection-drummer at 509; its cache identifies potion.c:peffect_paralysis and the ordinary floor branch.",
+      "detail": "At commit 9fe6cb6a, the assigned session stops at step 86 with the ordinary POT_PARALYSIS floor branch before rn1 duration and exercise(A_DEX, FALSE). Port the complete peffect_paralysis function while preserving terrain, resistance, and steed branches.",
+      "spans": [
+        {
+          "name": "peffect_paralysis",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "peffect_paralysis"
+          ]
+        }
+      ],
+      "openedAt": "229ae0fcd97c023d2da85ac9dc9ba4d0355d654f",
+      "openStanding": {
+        "sha": "229ae0fcd97c023d2da85ac9dc9ba4d0355d654f",
+        "screens": 8718,
+        "rng": 640345
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_paralysis",
+          "line": 881,
+          "endLine": 900,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 881,
+        "to": 900
+      },
+      "activeStanding": {
+        "sha": "229ae0fcd97c023d2da85ac9dc9ba4d0355d654f",
+        "screens": 8718,
+        "rng": 640345
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 86,
+          "kind": "stop",
+          "function": "peffect_paralysis",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_paralysis()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 509,
+              "status": "complete",
+              "commit": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 509,
+                "step": 86,
+                "kind": "stop",
+                "function": "peffect_paralysis",
+                "functionDeclared": false,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null,
+                "message": "Replay error: quaffing requires peffect_paralysis()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "At segment 0, recorded step 86 (input move index 85, key n), the hero quaffs the potion selected from the inventory menu. C dispatches POT_PARALYSIS to potion.c peffect_paralysis(); with no Free_action, levitation, water, air, or steed exception, it prints the frozen-feet message, applies nomul(-rn1(10, 25)), sets the move-again message, and exercises Dexterity. The current JavaScript peffects() stops at the POT_PARALYSIS case with UnsupportedQuaffError(\"peffect_paralysis()\") before the rn1 duration and exercise calls. The bounded source handoff is this ordinary floor paralysis branch, including duration, occupation message, and A_DEX exercise; resistance and alternate terrain or steed arms remain part of the same source function's later coverage.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "peffect_paralysis"
+                ],
+                "branch": "POT_PARALYSIS with Free_action false, no levitation or air/water level, no steed, and an ordinary floor position: print that the hero's feet are frozen to the floor, call nomul(-rn1(10, 25)), set gm.multi_reason to frozen by a potion and gn.nomovemsg to You_can_move_again, then call exercise(A_DEX, FALSE).",
+                "callers": [
+                  "potion.c peffects():1360-1362",
+                  "potion.c dopotion():618-641",
+                  "potion.c dodrink():526-614",
+                  "js/potion.js peffects():831-899",
+                  "js/potion.js dopotion():911-937",
+                  "js/potion.js dodrink():948-1027"
+                ],
+                "dependencies": [
+                  "hack.c nomul():4161-4173 and unmul():4177-4208",
+                  "attrib.c exercise():488-518",
+                  "obj.c bcsign():1856-1860",
+                  "decl.h You_can_move_again macro"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The fresh queue entry is the target session's stop at step 86 with function peffect_paralysis, message \"Replay error: quaffing requires peffect_paralysis()\", recordedSteps 595, and remainingScreensUpperBound 509 (= 595 - 86) at commit 9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef.",
+                "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 85 shows the potion menu and step 86 key n emits \"Your feet are frozen to the floor!  You can move again.\"; step 86 records rn2(10)=4 at peffect_paralysis(potion.c:893) and rn2(2)=0 at exercise(attrib.c:509).",
+                "nethack-c/upstream/src/potion.c:880-898 implements peffect_paralysis(); the ordinary branch prints the floor message, calls rn1(10, 25) through nomul(), sets the frozen-potion reason and move-again message, then calls exercise(A_DEX, FALSE).",
+                "nethack-c/upstream/src/potion.c:1333-1362 dispatches POT_PARALYSIS from peffects(), while :618-641 shows dopotion() consuming the result and running its naming/useup tail.",
+                "js/potion.js:852-853 currently throws UnsupportedQuaffError('peffect_paralysis()') before peffect_paralysis exists; js/potion.js:831-899 is the peffects() dispatcher and js/hack.js plus js/attrib.js provide the existing nomul() and exercise() operations."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
