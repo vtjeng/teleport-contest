@@ -48,7 +48,7 @@ import { stop_occupation } from './allmain.js';
 import { bot, map_invisible, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
-import { should_mulch_missile, shipsAway } from './dothrow.js';
+import { should_mulch_missile } from './dothrow.js';
 import {
     best_target,
     dog_eat,
@@ -180,6 +180,7 @@ import {
     does_block,
     makeVisionBuffers,
     recalc_block_point,
+    unblock_point,
     vision_recalc,
 } from './vision.js';
 import {
@@ -1270,6 +1271,11 @@ function monsterMissileEnv(monster, env) {
             : ttyPline,
         monsterAt: (x, y, state) => m_at(x, y, state),
         monsterName: (subject) => capitalizedMonsterName(subject, env.state),
+        newsym: env.planning ? () => {} : newsym,
+        unblockPoint: (x, y, state) => {
+            if (env.planning) admitPlannedVisionChange(x, y, state);
+            unblock_point(x, y, state);
+        },
         objectToGlyph: (obj, state) => obj_to_glyph(obj, state),
         observeObject: (obj, state) => observe_object(obj, state),
         passiveObject: (target, obj, attack, actionEnv) => passive_obj(
@@ -1287,7 +1293,6 @@ function monsterMissileEnv(monster, env) {
         ),
         setMonsterNotWielded: (subject, obj, actionEnv) =>
             setmnotwielded(subject, obj, actionEnv),
-        shipsAway: (x, y, state) => shipsAway(x, y, state),
         shouldMulch: (obj, actionEnv) => should_mulch_missile(
             obj,
             actionEnv.state,

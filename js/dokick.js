@@ -1,4 +1,4 @@
-// C ref: src/dokick.c. Seven of its functions are ported: dokick() (1257-1470),
+// C ref: src/dokick.c. The kick-command functions include dokick() (1257-1470),
 // the #kick command; kick_door() (908-970), the door arm of dokick()'s final
 // pair; kick_nondoor() (974-1253), the terrain chain dokick() ends on; and
 // kick_dumb() (863-878), the one arm of that chain the earlier goal reached,
@@ -15,10 +15,10 @@
 // arm (D_TRAPPED, b_trapped), the Levitation guard (kick_ouch), and the
 // shop/town follow-ups are refused.
 //
-// kick_object(), really_kick_object(), watchman_thief_arrest(),
-// watchman_door_damage(),
-// otransit_msg() and drop_to() keep dokick.c company in C and have no ported
-// caller; the arm that would reach each one names it in its refusal.
+// kick_object(), really_kick_object(), watchman_thief_arrest(), and
+// watchman_door_damage() remain unported.
+// Object shipping below ports drop_to(), ship_object(), otransit_msg(), and
+// down_gate(), shared by hero drops, throws, and monster missile settlement.
 
 import { acurrstr, exercise, acurr } from './attrib.js';
 import { getdir } from './cmd.js';
@@ -36,6 +36,8 @@ import {
     ECMD_FAIL,
     ECMD_TIME,
     HALF_PHDAM,
+    Has_contents,
+    CXN_PFX_THE,
     IRONBARS,
     IS_DRAWBRIDGE,
     IS_OBSTRUCTED,
@@ -59,6 +61,11 @@ import {
     M_ATTK_DEF_DIED,
     M_ATTK_MISS,
     M_AP_TYPE,
+    MIGR_NOWHERE,
+    MIGR_RANDOM,
+    MIGR_STAIRS_UP,
+    MIGR_LADDER_UP,
+    MIGR_SSTAIRS,
     P_MARTIAL_ARTS,
     P_NONE,
     RIGHT_SIDE,
@@ -73,6 +80,9 @@ import {
     M_AP_MONSTER,
     NO_TRAP_FLAGS,
     Trap_Killed_Mon,
+    TRAPDOOR,
+    is_hole,
+    ismnum,
     isok,
 } from './const.js';
 import { feel_location, feel_newsym, map_invisible, newsym,
@@ -82,7 +92,11 @@ import {
     set_wounded_legs,
 } from './do.js';
 import { u_wipe_engr } from './engrave.js';
+import { Is_botlevel, on_level } from './dungeon.js';
+import { breaktest } from './dothrow.js';
 import { game } from './gstate.js';
+import { upstart } from './hacklib.js';
+import { obj_extract_self, obfree } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -95,19 +109,28 @@ import {
     m_in_air, monflee, set_apparxy, youHear,
 } from './monmove.js';
 import {
-    killed, maybe_mnexto, seemimic, setmangry, wake_nearby,
+    killed, maybe_mnexto, maybe_unhide_at, seemimic, setmangry, wake_nearby,
     wake_nearto,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
 } from './monsters.js';
-import { sobj_at } from './obj.js';
-import { BOULDER, KICKING_BOOTS } from './objects.js';
+import { add_to_migration, objectType, sobj_at } from './obj.js';
+import {
+    BOULDER, COIN_CLASS, CORPSE, EGG, EXPENSIVE_CAMERA, GLASS,
+    KICKING_BOOTS, MIRROR,
+} from './objects.js';
+import { corpse_xname, otense, Tobjnam } from './objnam.js';
+import { change_luck } from './moveloop_preamble.js';
 import { encumber_msg } from './pickup.js';
+import { ok_to_quest } from './quest.js';
 import { d, rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { is_pool } from './trap.js';
+import { is_unpaid } from './shk.js';
+import { stairway_at } from './stairs.js';
+import { remove_worn_item } from './steal.js';
+import { is_pool, t_at } from './trap.js';
 import { m_in_out_region } from './region.js';
 import { mintrap } from './trap_effects.js';
 import {
@@ -117,7 +140,7 @@ import {
 import { is_drawbridge_wall } from './startup_a11y.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { note_unported } from './unported.js';
-import { recalc_block_point } from './vision.js';
+import { cansee, recalc_block_point } from './vision.js';
 import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
 import {
     attack_checks, check_caitiff, damageum, find_roll_to_hit,
@@ -920,4 +943,153 @@ export async function dokick(state = game) {
         return await kick_nondoor(x, y, state);
     }
     return ECMD_TIME;
+}
+
+// C ref: dokick.c drop_to() (1473-1506). cc.y == 0 means no destination.
+export function drop_to(cc, loc, x, y, state = game) {
+    const stway = stairway_at(x, y, state);
+    switch (loc) {
+    case MIGR_RANDOM:
+        if (on_level(state.u.uz, state.stronghold_level)) {
+            cc.x = state.valley_level.dnum;
+            cc.y = state.valley_level.dlevel;
+            break;
+        } else if (state.u.uz.dnum === state.astral_level?.dnum
+                   || Is_botlevel(state.u.uz, state)) {
+            cc.y = cc.x = 0;
+            break;
+        }
+        // FALLTHROUGH: an ordinary hole reaches the next dungeon level.
+    case MIGR_STAIRS_UP:
+    case MIGR_LADDER_UP:
+    case MIGR_SSTAIRS:
+        cc.x = stway ? stway.tolev.dnum : state.u.uz.dnum;
+        cc.y = stway ? stway.tolev.dlevel : state.u.uz.dlevel + 1;
+        break;
+    default:
+        cc.y = cc.x = 0;
+        break;
+    }
+}
+
+// C ref: dokick.c ship_object() (1639-1765). The caller holds a free object;
+// TRUE means this function consumed it or moved it to the migration chain.
+export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
+    const state = env.state ?? game;
+    const random = { rn2, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
+    if (!obj) return false;
+    const toloc = down_gate(x, y, state);
+    if (toloc === MIGR_NOWHERE) return false;
+    const cc = {};
+    drop_to(cc, toloc, x, y, state);
+    if (!cc.y) return false;
+
+    const nodrop = obj === state.uball || obj === state.uchain
+        || (toloc !== MIGR_LADDER_UP && random.rn2(3));
+    const container = Has_contents(obj);
+    const unpaid = is_unpaid(obj);
+    let n = 0;
+    let chainthere = false;
+    for (let other = state.level.objects[x]?.[y]; other;
+        other = other.nexthere) {
+        if (other === state.uchain) chainthere = true;
+        else if (other !== obj) n += other.quan;
+    }
+    const impact = n !== 0;
+    const trap = t_at(x, y, state);
+    if (obj.otyp === BOULDER && trap && is_hole(trap.ttyp)) {
+        if (impact) note_unported('dokick.c impact_drop');
+        return false;
+    }
+    if (cansee(x, y, state))
+        await otransit_msg(obj, nodrop, chainthere, n, { ...env, state });
+    if (nodrop) {
+        if (impact) {
+            note_unported('dokick.c impact_drop');
+            maybe_unhide_at(x, y, state, env);
+        }
+        return false;
+    }
+    if (unpaid || shop_floor_obj) {
+        note_unported('shk.c stolen_value');
+        if (container) note_unported('shk.c picked_container');
+        if (obj.oclass !== COIN_CLASS) obj.no_charge = 0;
+    }
+    if (obj.owornmask) remove_worn_item(obj, true, state);
+    if (breaktest(obj, { ...env, state, random })) {
+        let result;
+        if (objectType(obj, state).oc_material === GLASS
+            || obj.otyp === EXPENSIVE_CAMERA) {
+            if (obj.otyp === MIRROR) change_luck(-2, state);
+            result = 'crash';
+        } else {
+            if (obj.otyp === EGG && obj.spe && ismnum(obj.corpsenm))
+                change_luck(-Math.min(obj.quan, 5), state);
+            result = 'splat';
+        }
+        note_unported('sounds.c Soundeffect');
+        const heard = youHear(`a muffled ${result}.`, state);
+        if (heard) await message(heard, state, env);
+        obj_extract_self(obj, { ...env, state });
+        obfree(obj, null, { ...env, state });
+        return true;
+    }
+    add_to_migration(obj, state);
+    obj.ox = cc.x;
+    obj.oy = cc.y;
+    obj.owornmask = toloc;
+    if (obj.otyp === BOULDER) obj.otrapped = 0;
+    if (impact) {
+        note_unported('dokick.c impact_drop');
+        if (!env.planning) newsym(x, y);
+    }
+    return true;
+}
+
+// C ref: dokick.c otransit_msg() (1909-1940).
+export async function otransit_msg(obj, nodrop, chainthere, num, env = {}) {
+    const state = env.state ?? game;
+    const message = env.message ?? ttyPline;
+    const name = obj.otyp === CORPSE
+        ? upstart(corpse_xname(obj, null, CXN_PFX_THE, state))
+        : Tobjnam(obj, null, state);
+    if (num || chainthere) {
+        let suffix = num
+            ? ` ${otense(obj, 'hit')} ${num === 1 ? 'another' : 'other'}`
+                + ` object${num > 1 ? 's' : ''}`
+            : ` ${otense(obj, 'rattle')} your chain`;
+        suffix += nodrop ? '.'
+            : ` and ${otense(obj, 'fall')} ${state.gg.gate_str}.`;
+        await message(name + suffix, state, env);
+    } else if (!nodrop) {
+        await message(`${name} ${otense(obj, 'fall')} ${state.gg.gate_str}.`,
+            state, env);
+    }
+}
+
+// C ref: dokick.c down_gate() (1943-1975). gate_str is C's shared description
+// of the selected down gate; every lookup clears it, including failed ones.
+export function down_gate(x, y, state = game) {
+    const stway = stairway_at(x, y, state);
+    state.gg ??= {};
+    state.gg.gate_str = null;
+    if (on_level(state.u.uz, state.qstart_level) && !ok_to_quest(state))
+        return MIGR_NOWHERE;
+    if (stway && !stway.up && !stway.isladder) {
+        state.gg.gate_str = 'down the stairs';
+        return stway.tolev.dnum === state.u.uz.dnum
+            ? MIGR_STAIRS_UP : MIGR_SSTAIRS;
+    }
+    if (stway && !stway.up && stway.isladder) {
+        state.gg.gate_str = 'down the ladder';
+        return MIGR_LADDER_UP;
+    }
+    const trap = t_at(x, y, state);
+    if (trap && trap.tseen && is_hole(trap.ttyp)) {
+        state.gg.gate_str = trap.ttyp === TRAPDOOR
+            ? 'through the trap door' : 'through the hole';
+        return MIGR_RANDOM;
+    }
+    return MIGR_NOWHERE;
 }
