@@ -37474,8 +37474,8 @@
         },
         {
           "name": "merged..obj_here",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a",
           "functions": [
             "merged",
             "addinv_core1",
@@ -37597,182 +37597,182 @@
           "line": 814,
           "endLine": 959,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "addinv_core1",
           "line": 960,
           "endLine": 1024,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "addinv_core2",
           "line": 1025,
           "endLine": 1055,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "addinv_core0",
           "line": 1056,
           "endLine": 1151,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "addinv",
           "line": 1152,
           "endLine": 1159,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "addinv_before",
           "line": 1160,
           "endLine": 1168,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "addinv_nomerge",
           "line": 1169,
           "endLine": 1186,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "carry_obj_effects",
           "line": 1187,
           "endLine": 1207,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "hold_another_object",
           "line": 1208,
           "endLine": 1311,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "useupall",
           "line": 1312,
           "endLine": 1320,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "useup",
           "line": 1321,
           "endLine": 1336,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "consume_obj_charge",
           "line": 1337,
           "endLine": 1355,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "freeinv_core",
           "line": 1356,
           "endLine": 1402,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "freeinv",
           "line": 1403,
           "endLine": 1412,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "delallobj",
           "line": 1413,
           "endLine": 1429,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "delobj",
           "line": 1430,
           "endLine": 1437,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "delobj_core",
           "line": 1438,
           "endLine": 1465,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "sobj_at",
           "line": 1466,
           "endLine": 1478,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "nxtobj",
           "line": 1479,
           "endLine": 1494,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "carrying",
           "line": 1495,
           "endLine": 1507,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "carrying_stoning_corpse",
           "line": 1508,
           "endLine": 1545,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "currency",
           "line": 1546,
           "endLine": 1556,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "u_carried_gloves",
           "line": 1557,
           "endLine": 1575,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "u_have_novel",
           "line": 1576,
           "endLine": 1586,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "o_on",
           "line": 1587,
           "endLine": 1601,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "obj_here",
           "line": 1602,
           "endLine": 1612,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "g_at",
@@ -38710,9 +38710,608 @@
               "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
             ],
             "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "merged",
+            "implementation": "js/invent.js",
+            "symbol": "merged",
+            "sourceReview": "Read invent.c:814-959 completely. The port preserves mergable admission, weighted age and quantity updates, coin and glob weight exceptions, naming and extraction order, pickup and timer transitions, identification discovery, worn-mask precedence, bypass propagation, glob absorption, comparison messaging, and obfree. Missing light, timer, worn-mask, glob, and comparison subsystems remain named hooks at their C call boundaries.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_core0",
+                "source": "invent.c:1110-1150 scans the quiver and inventory with merged(); js/invent.js addinv_core0 follows the same two scans."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "stackobj",
+                "source": "invent.c:2750-2760 uses merged() while preserving the newly placed floor object; js/invent.js stackobj uses the same target order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "addinv_core1",
+            "implementation": "js/invent.js",
+            "symbol": "addinv_core1",
+            "sourceReview": "Read invent.c:960-1024 completely. Coin status, special-object effects, artifact intrinsics, quest-prize clearing, nomerge reset, and the achievement ordering were checked. JavaScript routes owners of unported intrinsic and achievement systems through named hooks.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "beginAddinv",
+                "source": "invent.c:1097 calls addinv_core1 before insertion; js/invent.js beginAddinv performs the same pre-insertion effects after clearing no_charge and how_lost."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "addinv_core2",
+            "implementation": "js/invent.js",
+            "symbol": "addinv_core2",
+            "sourceReview": "Read invent.c:1025-1055 completely. Luck is applied after insertion, and the Archeologist scroll-label branch preserves its role, class, blank-paper, blindness, discovery, message, and literacy ordering through its named owner hook.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "finishAddinv",
+                "source": "invent.c:1143 calls addinv_core2 after pickup_prev is set; js/invent.js finishAddinv preserves that order before carry_obj_effects and inventory refresh."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "addinv_core0",
+            "implementation": "js/invent.js",
+            "symbol": "addinv_core0",
+            "sourceReview": "Read invent.c:1056-1151 completely. The port preserves free-object checks, exploding-object return, no_charge and nested-content clearing, thrown-state capture, reset_justpicked, pre-insertion effects, addinv_before placement, quiver-first merging, inventory insertion and reordering, thrown autoquiver exceptions, pickup_prev, post-insertion effects, carry effects, and optional inventory refresh.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv",
+                "source": "invent.c:1152 calls addinv_core0(obj,NULL,TRUE); js/invent.js addinv invokes the same core with a null successor."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_before",
+                "source": "invent.c:1160 calls addinv_core0(obj,other_obj,TRUE); js/invent.js addinv_before selects the predecessor arm before normal merging."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "addinv",
+            "implementation": "js/invent.js",
+            "symbol": "addinv",
+            "sourceReview": "Read invent.c:1152-1159 and its addinv_core0 callee completely. The wrapper keeps the source's update_perm_invent TRUE argument and returns the surviving stack or inserted object.",
+            "callers": [
+              {
+                "path": "js/u_init_inventory.js",
+                "symbol": "ini_inv",
+                "source": "u_init.c startup inventory creation calls addinv for each accepted starting object; js/u_init_inventory.js ini_inv calls the JS wrapper."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_core0",
+                "source": "The production wrapper is the source entry point for the shared insertion core; js/invent.js exposes addinv as its C-named public entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "addinv_before",
+            "implementation": "js/invent.js",
+            "symbol": "addinv_before",
+            "sourceReview": "Read invent.c:1160-1168 completely. The wrapper delegates to addinv_core0 with other_obj and preserves the source's predecessor-only insertion arm; when the requested successor is absent, normal quiver, merge, and insertion handling remains available.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:1719 and :1886 call addinv_before for throw-and-return recovery; js/dothrow.js throwit currently stops at its unported returning_missile branch before that call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The only C callers are in dothrow.c throw-and-return paths; js/dothrow.js stops at the returning_missile boundary before either call, so no recorder can reach this helper yet. The source-pinned addinv_before test covers its predecessor insertion.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "addinv_nomerge",
+            "implementation": "js/invent.js",
+            "symbol": "addinv_nomerge",
+            "sourceReview": "Read invent.c:1169-1186 completely. The temporary nomerge write and finally-style restoration surround the ordinary addinv call, preserving the C return value.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c food transfer uses addinv_nomerge for a generated food object; js/eat.js done_eating routes that object through the wrapper."
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "finish_splitting",
+                "source": "wield.c recovery uses addinv_nomerge while restoring a weapon; js/wield.js finish_splitting calls it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "carry_obj_effects",
+            "implementation": "js/invent.js",
+            "symbol": "carry_obj_effects",
+            "sourceReview": "Read invent.c:1187-1207 completely. Only cursed figurines with a valid non-NON_PM, non-dead species receive a transform timeout; the predicate and timer side effect remain in source order through named hooks.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "finishAddinv",
+                "source": "invent.c:1144 calls carry_obj_effects after addinv_core2; js/invent.js finishAddinv does the same."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "mpickobj",
+                "source": "steal.c inventory transfer calls carry_obj_effects after taking an object; js/steal.js mpickobj preflights and invokes the C-named helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The fixed recordings contain no cursed live figurine transfer; the source-pinned figurine timer test exercises both dead-species admission and the attach/stop lifecycle.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "hold_another_object",
+            "implementation": "js/invent.js",
+            "symbol": "hold_another_object",
+            "sourceReview": "Read invent.c:1208-1311 completely. Blind observation, artifact placement and touch order, Fumbling and fatal-wish checks, pre-add burden capture, drop-argument preservation, addinv_core0 FALSE, slot and burden limits, merge rollback, messages, autoquiver, refresh, and encumber feedback were checked. Artifact refusal, Fumbling, fatal corpse, drop, and autoquiver branches retain named boundaries for their unported owners.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c hornoplenty calls hold_another_object for non-tipping output; js/obj.js hornoplenty passes the inventory environment."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "hold_another_object",
+                "source": "makewish.c and object-generation callers enter this C-named helper; js/invent.js owns the shared live implementation and its prepared drop admission."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "useupall",
+            "implementation": "js/invent.js",
+            "symbol": "useupall",
+            "sourceReview": "Read invent.c:1312-1320 completely. Worn-state removal, freeinv, and obfree ordering are preserved, including recursive content disposal.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zapnodir",
+                "source": "zap.c destruction calls useupall on a carried object; js/zap.js zapnodir uses the same wrapper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/death-ray-cleanup.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "useup",
+            "implementation": "js/invent.js",
+            "symbol": "useup",
+            "sourceReview": "Read invent.c:1321-1336 completely. Stack consumption clears in_use, decrements quantity, recalculates weight and refreshes inventory; a singleton delegates to useupall.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c horn output can consume a generated stack through the inventory owner; js/obj.js hornoplenty reaches the useup owner on its held-output path."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c oil repair calls useup after a successful disarm; js/trap.js disarm_squeaky_board uses the same path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/untrap-door.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "consume_obj_charge",
+            "implementation": "js/invent.js",
+            "symbol": "consume_obj_charge",
+            "sourceReview": "Read invent.c:1337-1355 completely. check_unpaid precedes spe decrement, and known objects refresh the inventory after the write. js/obj.js hornoplenty, js/makemon.js bagotricks, and js/trap.js squeaky-board repair now call this implementation at their original source boundaries.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c:2847-2936 consumes a horn charge before generating output; js/obj.js hornoplenty calls consume_obj_charge with !tipping."
+              },
+              {
+                "path": "js/makemon.js",
+                "symbol": "bagotricks",
+                "source": "makemon.c:2554-2604 consumes a bag charge before monster generation; js/makemon.js bagotricks calls consume_obj_charge with !tipping."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "disarm_squeaky_board",
+                "source": "trap.c:5629-5660 consumes grease after a successful repair; js/trap.js disarm_squeaky_board calls consume_obj_charge(TRUE)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-apply.session.json",
+              "recordings/makemon.c/bagotricks-apply.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "freeinv_core",
+            "implementation": "js/invent.js",
+            "symbol": "freeinv_core",
+            "sourceReview": "Read invent.c:1356-1402 completely. Coin status, uhave clearing, quest-artifact intrinsic removal, loadstone curse, luck recalculation, figurine timer stop, and tin-context clearing preserve source order through named lifecycle hooks.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "freeinv",
+                "source": "invent.c:1403 calls freeinv_core after unlinking and pickup_prev clearing; js/invent.js freeinv performs the same core call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "freeinv",
+            "implementation": "js/invent.js",
+            "symbol": "freeinv",
+            "sourceReview": "Read invent.c:1403-1412 completely. Inventory extraction, pickup_prev clearing, freeinv_core, and update_inventory order were checked.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "lift_object",
+                "source": "pickup.c object transfer removes a carried object through freeinv; js/pickup.js lift_object uses freeinv before floor handling."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "shrinking_glob_gone",
+                "source": "mkobj.c object cleanup dispatches carried objects through freeinv; js/obj.js shrinking_glob_gone reaches useupall and the same freeinv owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "delallobj",
+            "implementation": "js/invent.js",
+            "symbol": "delallobj",
+            "sourceReview": "Read invent.c:1413-1429 completely. The ball unpunish call precedes saving nexthere, the chain is skipped, and every other pile member enters delobj in order. The unpunish operation is a named hook because ball.c/read.c owns that state transition.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "delallobj",
+                "source": "dbridge.c:822-823 and :869 call delallobj for each drawbridge endpoint; the JavaScript drawbridge destruction caller is not yet ported."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "dbridge.c destruction is outside the currently ported JS dispatcher, so no production recorder reaches delallobj; its source-pinned test covers nexthere mutation and the skipped chain member.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "delobj",
+            "implementation": "js/invent.js",
+            "symbol": "delobj",
+            "sourceReview": "Read invent.c:1430-1437 completely. The wrapper delegates to delobj_core with force FALSE, preserving ordinary obj_resists protection.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "delallobj",
+                "source": "invent.c:1425 calls delobj for each non-chain floor object; js/invent.js delallobj uses the wrapper."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "pickup.c destruction paths call delobj on floor objects; js/pickup.js tipcontainer uses the same deletion owner where its branch is admitted."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/death-ray-cleanup.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "delobj_core",
+            "implementation": "js/invent.js",
+            "symbol": "delobj_core",
+            "sourceReview": "Read invent.c:1438-1465 completely. Forced and ordinary resistance, in_use clearing, floor-coordinate update, extraction, maybe_unhide, newsym, and recursive obfree were checked in source order.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "delobj",
+                "source": "invent.c:1430 delegates normal deletion to delobj_core(FALSE); js/invent.js delobj makes the same delegation."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "revive",
+                "source": "zap.c Rider revival calls delobj_core(TRUE); js/zap.js revive passes force TRUE through the revive cleanup path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/death-ray-cleanup.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "sobj_at",
+            "implementation": "js/invent.js",
+            "symbol": "sobj_at",
+            "sourceReview": "Read invent.c:1466-1478 completely. The wrapper exposes the canonical floor-pile implementation and preserves first matching type and nexthere traversal.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c terrain and boulder checks call sobj_at; js/hack.js routes those checks through js/obj.js's canonical floor implementation, re-exported from js/invent.js."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "nxtobj",
+            "implementation": "js/invent.js",
+            "symbol": "nxtobj",
+            "sourceReview": "Read invent.c:1479-1494 completely. The helper starts at the link after obj, selects either nobj or nexthere, and stops at the first matching type or null.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "nxtobj",
+                "source": "Inventory and object callers use this source-named traversal; js/invent.js implements the selected link arm directly."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "carrying",
+            "implementation": "js/invent.js",
+            "symbol": "carrying",
+            "sourceReview": "Read invent.c:1495-1507 completely. The helper scans gi.invent in nobj order and returns the first matching otyp or null.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "unsqueak_ok",
+                "source": "Inventory object selection and trap callers use carrying's first-match invariant; js/invent.js exposes the C-named scan used by these owners."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "carrying_stoning_corpse",
+            "implementation": "js/invent.js",
+            "symbol": "carrying_stoning_corpse",
+            "sourceReview": "Read invent.c:1508-1545 completely. The scan checks corpse type and touch_petrifies in inventory order and returns the first dangerous corpse or null.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "better_not_take_that_off",
+                "source": "do_wear.c:2992 calls carrying_stoning_corpse before armor handling; js/do_wear.js better_not_take_that_off uses the imported helper in its corpse protection path."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0361-healer-startup-wear-gloves.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "currency",
+            "implementation": "js/invent.js",
+            "symbol": "currency",
+            "sourceReview": "Read invent.c:1546-1556 completely. Normal output is zorkmid; Hallucination selects exactly one of the 21 fixed names with ROLL_FROM on the display RNG, then makeplural runs when amount is not one. The JavaScript table and injected display stream preserve this order.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doprgold",
+                "source": "invent.c:4518-4532 formats wallet and total currency through currency(); js/invent.js doprgold calls the helper."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "check_unpaid_usage",
+                "source": "shk.c billing messages use currency(); js/shk.js billing text calls the shared helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "u_carried_gloves",
+            "implementation": "js/invent.js",
+            "symbol": "u_carried_gloves",
+            "sourceReview": "Read invent.c:1557-1575 completely. A non-null worn-gloves pointer wins; otherwise the first inventory object accepted by is_gloves is returned.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:2146 uses u_carried_gloves for seduction wording; js/mhitu.js has no active equivalent caller yet."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The corresponding js/mhitu.js seduction arm is not yet ported; the source-pinned test covers both the fallback inventory scan and worn-pointer precedence.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "u_have_novel",
+            "implementation": "js/invent.js",
+            "symbol": "u_have_novel",
+            "sourceReview": "Read invent.c:1576-1586 completely. The helper returns the first SPE_NOVEL in gi.invent and does not recurse into container contents.",
+            "callers": [
+              {
+                "path": "js/sounds.js",
+                "symbol": "dosounds",
+                "source": "sounds.c:1200 checks u_have_novel for the novel joke; js/sounds.js has no active equivalent caller yet."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The corresponding js/sounds.js novel-joke caller is not yet ported; the source-pinned test covers the direct inventory traversal.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "o_on",
+            "implementation": "js/invent.js",
+            "symbol": "o_on",
+            "sourceReview": "Read invent.c:1587-1601 completely. Each sibling is checked before recursively searching its cobj chain, giving the same depth-first object-id order.",
+            "callers": [
+              {
+                "path": "js/shk.js",
+                "symbol": "find_objowner",
+                "source": "shk.c:2765-2799 searches billing, inventory, floor, buried, migrating, and monster chains with o_on; js/shk.js owner lookup has not yet ported this traversal."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The corresponding js/shk.js object-owner traversal is not yet ported; the source-pinned test covers sibling-before-contents order.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "obj_here",
+            "implementation": "js/invent.js",
+            "symbol": "obj_here",
+            "sourceReview": "Read invent.c:1602-1612 completely. The helper compares object identity while traversing the selected square's nexthere pile and returns TRUE only for that exact object.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c:2112 checks obj_here before finishing a meal; js/eat.js documents this source check but its active caller is not yet wired."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The corresponding js/eat.js meal-location caller remains deferred; the source-pinned test covers identity, coordinate, and nexthere behavior.",
+            "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
           }
         ],
-        "entryPointReview": "The selected invent.c range is helper-only: it defines inventory classification, sorting, letter assignment/reordering, cleanup, and merge selection rather than a standalone command, monster action, or level feature. Production entry paths are pickup.c query_objlist and lift_object, end.c container_contents, invent.c inventory insertion/reassign/getobj, and shk.c shkgone; these are traced in the caller records above. The inactive second invent.c sortloot definition at :655-693 is excluded by #if 0 and has no separate JavaScript implementation. No new recipe or recording is required for this helper-only span; the existing do_wear.c recording exercises inventory insertion/letter ordering, inventory object menus, floor-pile sorting, naming, and the connected production callers, while source-pinned tests cover the non-recorder-only sort, filter, cleanup, and merge branches.",
+        "entryPointReview": "The selected invent.c range is helper-only. It has no standalone command, monster action, or level feature entry point: addinv and its helpers are reached from startup, pickup, object generation, eating, wielding, theft, and throw-return; deletion is reached from drawbridge and destruction; the lookup helpers feed do_wear, mhitu, sounds, shk, and meal handling. Existing production callers are traced above, while dothrow, dbridge, mhitu, sounds, shk owner lookup, and the meal-location branch remain source-backed inactive boundaries. No new recipe is required for this helper-only range; the existing horn, bag, trap, wear, and cleanup recordings plus source-pinned tests cover the admitted paths.",
         "entryPoints": []
       }
     }
