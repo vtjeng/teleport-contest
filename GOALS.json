@@ -44961,7 +44961,16 @@
       ],
       "selectionReason": "Authorized independent seed-worker pilot: the seed0002 first stop at 315 is missing peffect_healing. Its immutable worker delivery can integrate while other seeds continue.",
       "detail": "Validated 7109bae7 queue: step 315 stop, 280 remaining screens. Source potion.c1119-1125; healup1428-1458 cure calls and existing async callers are required dependencies. Investigation cache at count280 is current.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "peffect_healing",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "peffect_healing"
+          ]
+        }
+      ],
       "openedAt": "2f6fa7b7df6a64e126b3e3a0d1013bbc68c3ffb3",
       "openStanding": {
         "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
