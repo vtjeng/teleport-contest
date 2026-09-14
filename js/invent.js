@@ -19,6 +19,9 @@ import {
     HAND,
     HALLUC,
     HALLUC_RES,
+  LEFT_HANDED,
+  LEFT_RING,
+  RIGHT_RING,
     LOST_EXPLODING,
     LOST_NONE,
     LOST_THROWN,
@@ -54,8 +57,10 @@ import {
     P_KNIFE,
     P_SPEAR,
     SORTLOOT_INVLET,
+    SORTLOOT_INUSE,
     SORTLOOT_LOOT,
     SORTLOOT_PACK,
+    SORTLOOT_PETRIFY,
     is_pit,
     Is_airlevel,
     Is_waterlevel,
@@ -84,7 +89,21 @@ import {
     Upolyd,
     u_at,
     W_ART,
+    W_ACCESSORY,
+    W_ARMOR,
     W_QUIVER,
+    W_SWAPWEP,
+    W_WEAPONS,
+    W_WEP,
+    WORN_AMUL,
+    WORN_ARMOR,
+    WORN_BLINDF,
+    WORN_BOOTS,
+    WORN_CLOAK,
+    WORN_GLOVES,
+    WORN_HELMET,
+    WORN_SHIELD,
+    WORN_SHIRT,
 } from './const.js';
 import {
     ART_MJOLLNIR, confers_luck, discover_artifact, set_artifact_intrinsic,
@@ -139,23 +158,33 @@ import {
     ARMOR_CLASS,
     BAG_OF_TRICKS,
     BELL_OF_OPENING,
+    BUGLE,
     BOULDER,
     CANDELABRUM_OF_INVOCATION,
     COIN_CLASS,
     CORPSE,
     CRYSKNIFE,
+    DRUM_OF_EARTHQUAKE,
     EGG,
+    FIRE_HORN,
     FIGURINE,
     FOOD_CLASS,
+    FROST_HORN,
     GEM_CLASS,
     GEMSTONE,
     GLASS,
     HORN_OF_PLENTY,
     LEASH,
+    LEATHER_DRUM,
     LOADSTONE,
     LUCKSTONE,
+    MAGIC_FLUTE,
+    MAGIC_HARP,
+    OBJ_DESCR,
     PIERCE,
     POT_OIL,
+    POTION_CLASS,
+    POT_WATER,
     ROCK,
     SCR_BLANK_PAPER,
     SCR_MAIL,
@@ -166,10 +195,14 @@ import {
     SPBOOK_CLASS,
     STATUE,
     TIN,
+    TOOLED_HORN,
+    TOWEL,
     TOOL_CLASS,
     VENOM_CLASS,
     WAR_HAMMER,
     WEAPON_CLASS,
+    WOODEN_FLUTE,
+    WOODEN_HARP,
 } from './objects.js';
 import {
     UnsupportedObjectOperationError,
@@ -185,6 +218,7 @@ import {
     is_ammo,
     is_missile,
     is_spear,
+    is_wet_towel,
     objectType,
     place_object,
     preflightWeight,
@@ -350,241 +384,348 @@ export class UnsupportedObjectPromptError extends Error {
 // as an ordinary object.
 export const hands_obj = Object.freeze({});
 
-// C ref: invent.c invletter_value() (390-399). Orders '$' first, then 'a'-'z',
-// then 'A'-'Z', then the '#' overflow letter. `invlet_basic` is INVLET_BASIC.
-function invletter_value(c) {
-    if (c >= 'a' && c <= 'z') return c.charCodeAt(0) - 'a'.charCodeAt(0) + 2;
-    if (c >= 'A' && c <= 'Z')
-        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 2 + 26;
-    if (c === '$') return 1;
-    if (c === NOINVSYM) return 1 + INVLET_BASIC + 1;
-    return 1 + INVLET_BASIC + 1 + 1; /* none of the above (shouldn't happen) */
+// C ref: invent.c inuse_classify() (70-144). Classifies an object for the
+// in-use inventory display. The C function writes these four fields into its
+// Loot argument; JavaScript keeps the same fields on each sort item.
+function inuse_classify(sort_item, obj, state = game) {
+    const w_mask = (obj.owornmask ?? 0)
+        & (W_ACCESSORY | W_WEAPONS | W_ARMOR);
+    let rating = 0;
+    let altclass = 0;
+    const useRating = (test) => {
+        ++rating;
+        return Boolean(test);
+    };
+
+    ++altclass;
+    if (useRating(!w_mask && obj.otyp === LEASH && obj.leashmon))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(!w_mask && obj.oclass === TOOL_CLASS && obj.lamplit))
+        return assignInuseRating(sort_item, rating, altclass);
+
+    ++altclass;
+    if (useRating(w_mask & WORN_SHIRT))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_BOOTS))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_GLOVES))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_HELMET))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_SHIELD))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_CLOAK))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_ARMOR))
+        return assignInuseRating(sort_item, rating, altclass);
+
+    ++altclass;
+    if (useRating(w_mask & W_QUIVER))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & W_SWAPWEP))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & W_WEP))
+        return assignInuseRating(sort_item, rating, altclass);
+
+    ++altclass;
+    if (useRating(w_mask & WORN_BLINDF))
+        return assignInuseRating(sort_item, rating, altclass);
+    const lefty = state.u?.uhandedness === LEFT_HANDED;
+    if (useRating(w_mask & (lefty ? RIGHT_RING : LEFT_RING)))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & (lefty ? LEFT_RING : RIGHT_RING)))
+        return assignInuseRating(sort_item, rating, altclass);
+    if (useRating(w_mask & WORN_AMUL))
+        return assignInuseRating(sort_item, rating, altclass);
+
+    assignInuseRating(sort_item, 0, -1);
 }
 
-// C ref: invent.c sortloot() (592-643) called with SORTLOOT_INVLET alone, no
-// filter and by_nexthere FALSE, which is what getobj() asks for. With neither
-// SORTLOOT_PACK nor SORTLOOT_LOOT set, sortloot_cmp() (403-547) skips its
-// class, subclass, discovery and name arms and reduces to invletter_value()
-// with a tiebreak on the original position; Array.prototype.sort() is required
-// to be stable, which is the same tiebreak.
-//
-// The other modes stay with their own callers. js/invent.js display_pickinv()
-// already documents why SORTLOOT_INVLET|SORTLOOT_PACK needs no sort at all.
-function sortlootByInvlet(state) {
-    const items = [];
-    for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj)
-        items.push(otmp);
-    return items.sort(
-        (a, b) => invletter_value(a.invlet) - invletter_value(b.invlet),
-    );
+function assignInuseRating(sort_item, rating, altclass) {
+    sort_item.inuse = rating;
+    sort_item.orderclass = altclass;
+    sort_item.subclass = 0;
+    sort_item.disco = 0;
 }
 
-// C ref: invent.c loot_classify() (149-305). Assigns orderclass, subclass,
-// disco, and inuse fields to a sortloot item based on the object's class,
-// type, and discovery status.
-//
-// The armcat table maps C's ARM_* subtype values to a display ordering
-// different from the numerical order in objclass.h.
-const ARMCAT = [
-    /* ARM_SUIT=0 */ 7,
-    /* ARM_SHIELD=1 */ 4,
-    /* ARM_HELM=2 */ 1,
-    /* ARM_GLOVES=3 */ 2,
-    /* ARM_BOOTS=4 */ 3,
-    /* ARM_CLOAK=5 */ 5,
-    /* ARM_SHIRT=6 */ 6,
-    /* sentinel  */ 8,
-];
-
-// C ref: invent.c def_srt_order[] (155-158). Used when sortpack is off.
+// C ref: invent.c loot_classify() (149-305). Writes class, subclass,
+// discovery and in-use ordering fields into a Loot item.
+const ARMCAT = [7, 4, 1, 2, 3, 5, 6, 8];
 const DEF_SRT_ORDER = '\x0B\x04\x05\x06\x08\x09\x0A\x0C\x07\x0D\x02\x03\x0F\x10\x11';
 
-function loot_classify(obj, state) {
+function loot_classify(sort_item, obj, state = game) {
+    const objects = state.objects;
     const otyp = obj.otyp;
     const oclass = obj.oclass;
     const type = objectType(obj, state);
-    const seen = obj.dknown ? true : false;
-    const discovered = type.oc_name_known ? true : false;
-    if (!heroIsBlind(state))
-        observe_object(obj, state);
-
-    // Class order.
+    const discovered = Boolean(objects[otyp].oc_name_known);
+    if (!heroIsBlind(state)) observe_object(obj, state);
+    const seen = Boolean(obj.dknown);
     const classorder = state.flags?.sortpack
         ? (state.flags.inv_order ?? DEF_SRT_ORDER)
         : DEF_SRT_ORDER;
     let p = -1;
-    for (let i = 0; i < classorder.length; i++) {
-        if ((typeof classorder[i] === 'string'
-            ? classorder[i].charCodeAt(0) : classorder[i]) === oclass) {
+    for (let i = 0; i < classorder.length; ++i) {
+        const value = typeof classorder[i] === 'string'
+            ? classorder[i].charCodeAt(0) : classorder[i];
+        if (value === oclass) {
             p = i;
             break;
         }
     }
-    const orderclass = p >= 0
-        ? (1 + p)
-        : (1 + classorder.length + (oclass !== VENOM_CLASS ? 1 : 0));
+    let k = p >= 0
+        ? 1 + p
+        : 1 + classorder.length + (oclass !== VENOM_CLASS ? 1 : 0);
+    sort_item.orderclass = k;
 
-    // Subclass designation.
-    let subclass;
     switch (oclass) {
-    case ARMOR_CLASS: {
-        let k = type.oc_armcat ?? type.oc_subtyp ?? 0;
+    case ARMOR_CLASS:
+        k = type.oc_armcat;
         if (k < 0 || k >= 7) k = 7;
-        subclass = ARMCAT[k];
+        k = ARMCAT[k];
         break;
-    }
     case WEAPON_CLASS: {
-        const sk = type.oc_skill ?? type.oc_subtyp ?? 0;
-        if (sk < 0) {
-            subclass = (sk >= -P_CROSSBOW && sk <= -P_BOW) ? 1 : 3;
-        } else {
-            subclass = (sk >= P_BOW && sk <= P_CROSSBOW) ? 2
-                : (sk === P_SPEAR || sk === P_DAGGER || sk === P_KNIFE) ? 4
-                    : (!is_pole(obj, state)) ? 5 : 6;
-        }
+        k = type.oc_skill;
+        k = k < 0
+            ? ((k >= -P_CROSSBOW && k <= -P_BOW) ? 1 : 3)
+            : ((k >= P_BOW && k <= P_CROSSBOW) ? 2
+                : (k === P_SPEAR || k === P_DAGGER || k === P_KNIFE) ? 4
+                    : !is_pole(obj, state) ? 5 : 6);
         break;
     }
     case TOOL_CLASS:
         if (seen && discovered
-            && (otyp === BAG_OF_TRICKS || otyp === HORN_OF_PLENTY))
-            subclass = 2;
-        else if (isContainer(obj))
-            subclass = 1;
-        else
-            subclass = 4;
+            && (otyp === BAG_OF_TRICKS || otyp === HORN_OF_PLENTY)) {
+            k = 2;
+        } else if (isContainer(obj)) {
+            k = 1;
+        } else {
+            switch (otyp) {
+            case WOODEN_FLUTE:
+            case MAGIC_FLUTE:
+            case TOOLED_HORN:
+            case FROST_HORN:
+            case FIRE_HORN:
+            case WOODEN_HARP:
+            case MAGIC_HARP:
+            case BUGLE:
+            case LEATHER_DRUM:
+            case DRUM_OF_EARTHQUAKE:
+            case HORN_OF_PLENTY:
+                k = 3;
+                break;
+            default:
+                k = 4;
+                break;
+            }
+        }
         break;
     case FOOD_CLASS:
         switch (otyp) {
-        case SLIME_MOLD: subclass = 1; break;
-        case TIN: subclass = 3; break;
-        case EGG: subclass = 4; break;
-        case CORPSE: subclass = 5; break;
-        default: subclass = obj.globby ? 6 : 2; break;
+        case SLIME_MOLD: k = 1; break;
+        default: k = obj.globby ? 6 : 2; break;
+        case TIN: k = 3; break;
+        case EGG: k = 4; break;
+        case CORPSE: k = 5; break;
         }
         break;
-    case GEM_CLASS: {
-        const mat = type.oc_material ?? 0;
-        if (mat === GEMSTONE)
-            subclass = !seen ? 1 : !discovered ? 2 : 3;
-        else if (mat === GLASS)
-            subclass = !seen ? 1 : !discovered ? 2 : 4;
-        else // MINERAL
-            subclass = !seen ? 5
+    case GEM_CLASS:
+        switch (type.oc_material) {
+        case GEMSTONE: k = !seen ? 1 : !discovered ? 2 : 3; break;
+        case GLASS: k = !seen ? 1 : !discovered ? 2 : 4; break;
+        default:
+            k = !seen ? 5
                 : (otyp !== ROCK) ? (!discovered ? 6 : 7) : 8;
+            break;
+        }
         break;
-    }
     default:
-        subclass = 1;
+        k = 1;
         break;
     }
-
-    // Discovery status.
-    const OBJ_DESCR = type.oc_descr_idx !== undefined
-        ? type.oc_descr_idx : null;
-    const disco = !seen ? 1
-        : (discovered || OBJ_DESCR == null) ? 4
-            : type.oc_uname ? 3
-                : 2;
-
-    return { orderclass, subclass, disco };
+    sort_item.subclass = k;
+    k = !seen ? 1
+        : (discovered || OBJ_DESCR(type, state) == null) ? 4
+            : type.oc_uname ? 3 : 2;
+    sort_item.disco = k;
+    sort_item.inuse = 0;
 }
 
-// C ref: invent.c loot_xname() (309-387). Formats an object name for
-// alphabetical sorting, suppressing attributes (BUC, dilution, user name)
-// that sortloot_cmp handles separately.
-function loot_xname(obj, state) {
-    // cxname with quan forced to 1, suppressing user attributes that change
-    // alphabetical order. For container contents display, the exact sort
-    // is less critical than for pickup menus -- cxname(obj) with quan forced
-    // to 1 suffices for correct class+subclass+name ordering.
-    const saved_quan = obj.quan;
-    obj.quan = 1;
-    let res;
-    try {
-        res = cxname(obj, state);
-    } finally {
-        obj.quan = saved_quan;
-    }
-    return res;
-}
-
-// C ref: invent.c sortloot_cmp() (403-547). Comparison function for sortloot
-// in SORTLOOT_LOOT|SORTLOOT_PACK mode. Uses class/subclass/discovery ordering
-// from loot_classify, then alphabetical name comparison, then BUC, greasing,
-// erosion, erodeproofing, enchantment, and finally stable-sort tiebreak.
-function sortloot_cmp(a, b, mode, state) {
-    // Class/subclass/discovery ordering when PACK or LOOT is set and INVLET
-    // is not set alone.
-    if ((mode & (SORTLOOT_PACK | SORTLOOT_INVLET)) !== SORTLOOT_INVLET) {
-        if (!a.classified) a.classified = loot_classify(a.obj, state);
-        if (!b.classified) b.classified = loot_classify(b.obj, state);
-        if (a.classified.orderclass !== b.classified.orderclass)
-            return a.classified.orderclass - b.classified.orderclass;
-        if (!(mode & SORTLOOT_INVLET)) {
-            if (a.classified.subclass !== b.classified.subclass)
-                return a.classified.subclass - b.classified.subclass;
-            if (a.classified.disco !== b.classified.disco)
-                return a.classified.disco - b.classified.disco;
+// C ref: invent.c loot_xname() (309-387). Temporarily removes attributes
+// that sortloot_cmp() compares separately before formatting a singular name.
+function loot_xname(obj, state = game) {
+    const saveo = {
+        odiluted: obj.odiluted,
+        blessed: obj.blessed,
+        cursed: obj.cursed,
+        spe: obj.spe,
+        owt: obj.owt,
+        quan: obj.quan,
+    };
+    const saveOname = obj.oextra?.oname ?? null;
+    const saveDebug = Boolean(state.flags?.debug);
+    if (obj.oclass === POTION_CLASS) {
+        obj.odiluted = 0;
+        if (obj.otyp === POT_WATER) {
+            obj.blessed = 0;
+            obj.cursed = 0;
         }
     }
-    // Invlet ordering.
-    if (mode & SORTLOOT_INVLET) {
-        const v1 = invletter_value(a.obj.invlet);
-        const v2 = invletter_value(b.obj.invlet);
-        if (v1 !== v2) return v1 - v2;
-    }
-    if (!(mode & SORTLOOT_LOOT)) return a.indx - b.indx;
-
-    // Alphabetical name comparison.
-    if (!a.str) a.str = loot_xname(a.obj, state);
-    if (!b.str) b.str = loot_xname(b.obj, state);
-    const namcmp = a.str.toLowerCase().localeCompare(b.str.toLowerCase());
-    if (namcmp !== 0) return namcmp;
-
-    // BUC: blessed > uncursed > cursed > unknown.
-    const bval = (o) => o.bknown ? (o.blessed ? 3 : !o.cursed ? 2 : 1) : 0;
-    const bv1 = bval(a.obj), bv2 = bval(b.obj);
-    if (bv1 !== bv2) return bv2 - bv1;
-
-    // Greasing.
-    if ((a.obj.greased ?? 0) !== (b.obj.greased ?? 0))
-        return (b.obj.greased ?? 0) - (a.obj.greased ?? 0);
-
-    // Erosion.
-    const e1 = greatest_erosion(a.obj), e2 = greatest_erosion(b.obj);
-    if (e1 !== e2) return e1 - e2;
-
-    // Erodeproofing.
-    const ep1 = (a.obj.rknown && a.obj.oerodeproof) ? 1 : 0;
-    const ep2 = (b.obj.rknown && b.obj.oerodeproof) ? 1 : 0;
-    if (ep1 !== ep2) return ep2 - ep1;
-
-    // Enchantment.
-    const type1 = objectType(a.obj, state);
-    if (type1.oc_uses_known && a.obj.oclass !== FOOD_CLASS) {
-        const s1 = a.obj.known ? (a.obj.spe ?? 0) : -1000;
-        const s2 = b.obj.known ? (b.obj.spe ?? 0) : -1000;
-        if (s1 !== s2) return s2 - s1;
+    if (obj.otyp === TOWEL) obj.spe = 0;
+    if (obj.globby) obj.owt = 20;
+    obj.quan = 1;
+    if (saveOname && !obj.oartifact && obj.oextra)
+        obj.oextra.oname = null;
+    if (state.wizard) {
+        state.program_state ??= {};
+        state.program_state.something_worth_saving = 0;
+        state.flags.debug = false;
     }
 
-    return a.indx - b.indx;
+    let result;
+    try {
+        result = cxname(obj, state);
+    } finally {
+        if (saveDebug) {
+            state.flags.debug = true;
+            state.program_state ??= {};
+            state.program_state.something_worth_saving = 1;
+        }
+        if (obj.oclass === POTION_CLASS) {
+            obj.odiluted = saveo.odiluted;
+            if (obj.otyp === POT_WATER) {
+                obj.blessed = saveo.blessed;
+                obj.cursed = saveo.cursed;
+            }
+        }
+        if (obj.otyp === TOWEL) obj.spe = saveo.spe;
+        if (obj.globby) obj.owt = saveo.owt;
+        obj.quan = saveo.quan;
+        if (saveOname && !obj.oartifact && obj.oextra)
+            obj.oextra.oname = saveOname;
+    }
+    if (obj.otyp === TOWEL)
+        result += is_wet_towel(obj) ? (obj.spe >= 3 ? 'x' : 'y') : 'z';
+    if (obj.globby)
+        result += obj.owt <= 100 ? 'a'
+            : obj.owt <= 300 ? 'b' : obj.owt <= 500 ? 'c' : 'd';
+    return result;
 }
 
-// C ref: invent.c sortloot() (592-643). Returns an array of {obj} entries
-// sorted according to mode flags. Does not reorder the linked list.
+// C ref: invent.c invletter_value() (391-399). Orders '$', lower-case,
+// upper-case, '#', then every other character.
+function invletter_value(c) {
+    if (c >= 'a' && c <= 'z') return c.charCodeAt(0) - 96 + 1;
+    if (c >= 'A' && c <= 'Z') return c.charCodeAt(0) - 64 + 26 + 1;
+    if (c === '$') return 1;
+    if (c === NOINVSYM) return INVLET_BASIC + 2;
+    return INVLET_BASIC + 3;
+}
+
+// C ref: invent.c sortloot_cmp() (403-547). Compares two Loot entries in
+// source order, preserving the original index for equal entries.
+function sortloot_cmp(sli1, sli2, mode, state = game) {
+    if (mode & SORTLOOT_INUSE) {
+        if (!sli1.orderclass) inuse_classify(sli1, sli1.obj, state);
+        if (!sli2.orderclass) inuse_classify(sli2, sli2.obj, state);
+        if (sli1.inuse !== sli2.inuse) return sli2.inuse - sli1.inuse;
+        return sli1.indx - sli2.indx;
+    }
+    if ((mode & (SORTLOOT_PACK | SORTLOOT_INVLET)) !== SORTLOOT_INVLET) {
+        if (!sli1.orderclass) loot_classify(sli1, sli1.obj, state);
+        if (!sli2.orderclass) loot_classify(sli2, sli2.obj, state);
+        if (sli1.orderclass !== sli2.orderclass)
+            return sli1.orderclass - sli2.orderclass;
+        if (!(mode & SORTLOOT_INVLET)) {
+            if (sli1.subclass !== sli2.subclass)
+                return sli1.subclass - sli2.subclass;
+            if (sli1.disco !== sli2.disco)
+                return sli1.disco - sli2.disco;
+        }
+    }
+    if (mode & SORTLOOT_INVLET) {
+        const val1 = invletter_value(sli1.obj.invlet);
+        const val2 = invletter_value(sli2.obj.invlet);
+        if (val1 !== val2) return val1 - val2;
+    }
+    if (!(mode & SORTLOOT_LOOT)) return sli1.indx - sli2.indx;
+    if (!sli1.str) sli1.str = loot_xname(sli1.obj, state);
+    if (!sli2.str) sli2.str = loot_xname(sli2.obj, state);
+    const name1 = sli1.str.toLowerCase();
+    const name2 = sli2.str.toLowerCase();
+    if (name1 < name2) return -1;
+    if (name1 > name2) return 1;
+
+    const buc = (obj) => obj.bknown
+        ? (obj.blessed ? 3 : !obj.cursed ? 2 : 1) : 0;
+    const buc1 = buc(sli1.obj), buc2 = buc(sli2.obj);
+    if (buc1 !== buc2) return buc2 - buc1;
+    const greased1 = sli1.obj.greased ? 1 : 0;
+    const greased2 = sli2.obj.greased ? 1 : 0;
+    if (greased1 !== greased2) return greased2 - greased1;
+    const erosion1 = greatest_erosion(sli1.obj);
+    const erosion2 = greatest_erosion(sli2.obj);
+    if (erosion1 !== erosion2) return erosion1 - erosion2;
+    const proof1 = sli1.obj.rknown && sli1.obj.oerodeproof ? 1 : 0;
+    const proof2 = sli2.obj.rknown && sli2.obj.oerodeproof ? 1 : 0;
+    if (proof1 !== proof2) return proof2 - proof1;
+    const type1 = objectType(sli1.obj, state);
+    if (type1.oc_uses_known && sli1.obj.oclass !== FOOD_CLASS) {
+        const spe1 = sli1.obj.known ? sli1.obj.spe : -1000;
+        const spe2 = sli2.obj.known ? sli2.obj.spe : -1000;
+        if (spe1 !== spe2) return spe2 - spe1;
+    }
+    return sli1.indx - sli2.indx;
+}
+
+// C ref: invent.c sortloot() (593-646). Builds a temporary array in source
+// list order, optionally augments the filter for petrifying corpses, and
+// sorts that array without changing the linked list.
 export function sortloot(olist, mode, by_nexthere, filterfunc, state = game) {
     const items = [];
-    let i = 0;
-    for (let o = olist; o; o = by_nexthere ? o.nexthere : o.nobj) {
-        if (filterfunc && !filterfunc(o)) continue;
-        items.push({ obj: o, indx: i, classified: null, str: null });
-        i++;
+    const augmentFilter = Boolean(mode & SORTLOOT_PETRIFY);
+    const sortMode = mode & ~SORTLOOT_PETRIFY;
+    let index = 0;
+    for (let obj = olist; obj;
+        obj = by_nexthere ? obj.nexthere : obj.nobj) {
+        const accepted = !filterfunc || filterfunc(obj)
+            || (augmentFilter && obj.otyp === CORPSE
+                && touch_petrifies(state.mons?.[obj.corpsenm]));
+        if (!accepted) continue;
+        items.push({
+            obj,
+            str: null,
+            indx: index,
+            orderclass: 0,
+            subclass: 0,
+            disco: 0,
+            inuse: 0,
+        });
+        ++index;
     }
-    if (mode && items.length > 1) {
-        items.sort((a, b) => sortloot_cmp(a, b, mode, state));
+    if (sortMode && items.length > 1) {
+        items.sort((a, b) => sortloot_cmp(a, b, sortMode, state));
+        // C frees comparator-owned name buffers before returning the array.
+        for (const item of items) item.str = null;
     }
     return items;
 }
+
+// C ref: invent.c unsortloot() (647-654). JavaScript garbage-collects the
+// temporary array, so callers replace their reference with this null result.
+export function unsortloot(_loot_array) {
+    return null;
+}
+
+// Inventory reassign() needs only the objects from the inventory-letter sort.
+function sortlootByInvlet(state) {
+    return sortloot(inventoryHead(state), SORTLOOT_INVLET, false, null, state)
+        .map((entry) => entry.obj);
+}
+
+// C ref: invent.c's inactive 3.6.0 sortloot() definition (655-693). The
+// preprocessor excludes this implementation with #if 0; production uses the
+// temporary-array implementation above.
 
 // C ref: invent.c compactify() (1626-1659). Rewrites a run of three or more
 // consecutive letters in place as "<first>-<last>", so "bcdefg" becomes "b-g",
@@ -975,7 +1116,13 @@ async function silly_thing(word, state) {
 export const _getobjInternals = Object.freeze({
     compactify,
     getobj_hands_txt,
+    inuse_classify,
     invletter_value,
+    loot_classify,
+    loot_xname,
+    reorder_invent,
+    sortloot_cmp,
+    unsortloot,
 });
 
 // C ref: invent.c display_pickinv(). Covers the full-inventory branches (`i`
@@ -2670,12 +2817,15 @@ export function assigninvlet(obj, state = game) {
     return obj.invlet;
 }
 
-function inventoryRank(obj) {
-    if (typeof obj.invlet !== 'string' || !obj.invlet) return 0;
-    return obj.invlet.charCodeAt(0) ^ 0o40;
-}
-
-function reorderInventory(state) {
+// C ref: invent.c reorder_invent() (739-774). The XOR is the source's
+// inv_rank macro, including its value for an empty inventory letter.
+function reorder_invent(state) {
+    const rank = (obj) => {
+        const code = typeof obj.invlet === 'string'
+            && obj.invlet.length > 0
+            ? obj.invlet.charCodeAt(0) : 0;
+        return code ^ 0o40;
+    };
     let needsSorting;
     do {
         needsSorting = false;
@@ -2683,7 +2833,7 @@ function reorderInventory(state) {
         let current = inventoryHead(state);
         while (current) {
             const next = current.nobj;
-            if (next && inventoryRank(next) < inventoryRank(current)) {
+            if (next && rank(next) < rank(current)) {
                 needsSorting = true;
                 if (previous) previous.nobj = next;
                 else setInventoryHead(state, next);
@@ -2963,7 +3113,7 @@ function projectAddinv(obj, projectedEnv) {
             if (fixedLetters || !previous) {
                 obj.nobj = inventoryHead(state);
                 setInventoryHead(state, obj);
-                if (fixedLetters) reorderInventory(state);
+                if (fixedLetters) reorder_invent(state);
             } else {
                 previous.nobj = obj;
             }
@@ -3070,7 +3220,7 @@ function insertInventoryObject(obj, previous, state) {
     if (fixedLetters || !previous) {
         obj.nobj = inventoryHead(state);
         setInventoryHead(state, obj);
-        if (fixedLetters) reorderInventory(state);
+        if (fixedLetters) reorder_invent(state);
     } else {
         previous.nobj = obj;
         obj.nobj = null;

@@ -121,6 +121,7 @@ import {
     count_unpaid,
     dfeature_at,
     getobj,
+    merge_choice,
     let_to_name,
     look_here,
     money_cnt,
@@ -2227,7 +2228,9 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
     // Loadstone and boulder-by-giant override (C: 1721-1734).
     if (obj.otyp === LOADSTONE
         || (obj.otyp === BOULDER && throws_rocks(state.youmonst?.data))) {
-        if (inv_cnt(false, state) < INVLET_BASIC || !carrying(obj.otyp, state))
+        if (inv_cnt(false, state) < INVLET_BASIC
+            || !carrying(obj.otyp, state)
+            || merge_choice(state.invent, obj, state))
             return { result: 1, count: cnt_p };
         await ttyPline(
             `You are carrying too much stuff to pick up `
@@ -2244,7 +2247,8 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
     if (count < 1) {
         result = -1;
     } else if (obj.oclass !== COIN_CLASS
-        && inv_cnt(false, state) >= INVLET_BASIC) {
+        && inv_cnt(false, state) >= INVLET_BASIC
+        && !merge_choice(state.invent, obj, state)) {
         // Knapsack full (C: 1740-1753).
         const goldHint = nxtobj(obj, GOLD_PIECE,
             obj.where === OBJ_FLOOR);

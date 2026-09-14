@@ -43,7 +43,11 @@ import {
     STONE_RES,
     WEB,
     ONAME_WISH,
+    SORTLOOT_INUSE,
+    SORTLOOT_PETRIFY,
     W_ART,
+    WORN_AMUL,
+    WORN_SHIRT,
     W_QUIVER,
     W_WEP,
 } from '../js/const.js';
@@ -82,6 +86,9 @@ import {
     reassign,
     resetInventory,
     stackobj,
+    sortloot,
+    unsortloot,
+    _getobjInternals,
     update_inventory,
     useupall,
     will_feel_cockatrice,
@@ -129,14 +136,19 @@ import {
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
     LONG_SWORD,
+    LEASH,
     MIRROR,
     OIL_LAMP,
+    POT_WATER,
     ROCK,
     SACK,
     SCR_SCARE_MONSTER,
     SILVER_SABER,
     SPE_BOOK_OF_THE_DEAD,
     TALLOW_CANDLE,
+    HORN_OF_PLENTY,
+    MAGIC_FLUTE,
+    TOWEL,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -193,6 +205,121 @@ function instance(otyp, state, overrides = {}) {
         obj.owt = weight(obj, { state });
     return obj;
 }
+
+const {
+    inuse_classify,
+    loot_classify,
+    loot_xname,
+    reorder_invent,
+} = _getobjInternals;
+
+// C ref: invent.c inuse_classify() and sortloot_cmp(). The ratings are
+// source order: an amulet (16) precedes a wielded weapon (12), worn shirt
+// (3), and an attached leash (1) when sorted from most to least important.
+test('sortloot orders in-use objects by the C ratings', () => {
+    const state = initializedState();
+    const leash = instance(LEASH, state, { leashmon: 1 });
+    const shirt = instance(AMULET_OF_YENDOR, state, {
+        owornmask: WORN_SHIRT,
+    });
+    const weapon = instance(LONG_SWORD, state, { owornmask: W_WEP });
+    const amulet = instance(AMULET_OF_YENDOR, state, {
+        owornmask: WORN_AMUL,
+    });
+    leash.nobj = shirt;
+    shirt.nobj = weapon;
+    weapon.nobj = amulet;
+
+    const sorted = sortloot(leash, SORTLOOT_INUSE, false, null, state);
+    assert.deepEqual(sorted.map((entry) => entry.obj), [
+        amulet, weapon, shirt, leash,
+    ]);
+    assert.deepEqual(
+        sorted.map((entry) => [entry.inuse, entry.orderclass]),
+        [[16, 4], [12, 3], [3, 2], [1, 1]],
+    );
+});
+
+// C ref: invent.c loot_classify() tool subclasses. Musical instruments use
+// subclass 3, ordinary containers use 1, and a known bag of tricks uses 2.
+test('loot_classify includes the source tool subclasses', () => {
+    const state = initializedState();
+    state.u.uprops[BLINDED].intrinsic = 1;
+    state.objects[HORN_OF_PLENTY].oc_name_known = 1;
+    const flute = instance(MAGIC_FLUTE, state, { dknown: true });
+    const sack = instance(SACK, state, { dknown: true });
+    const horn = instance(HORN_OF_PLENTY, state, { dknown: true });
+    const entries = [flute, sack, horn].map((obj) => ({ obj }));
+    for (const entry of entries) loot_classify(entry, entry.obj, state);
+    assert.deepEqual(entries.map((entry) => entry.subclass), [3, 1, 2]);
+});
+
+// C ref: invent.c loot_xname(). Each temporary prefix input is restored, and
+// towels and globs receive suffixes that keep their source sorting groups.
+test('loot_xname suppresses sorting prefixes and restores object state', () => {
+    const state = initializedState();
+    state.u.uprops[BLINDED].intrinsic = 1;
+    const water = instance(POT_WATER, state, {
+        odiluted: 1, blessed: true, cursed: false, quan: 2,
+    });
+    const originalWater = {
+        odiluted: water.odiluted, blessed: water.blessed,
+        cursed: water.cursed, quan: water.quan,
+    };
+    assert.doesNotMatch(loot_xname(water, state), /diluted|holy|unholy/u);
+    assert.deepEqual(
+        { odiluted: water.odiluted, blessed: water.blessed,
+            cursed: water.cursed, quan: water.quan },
+        originalWater,
+    );
+
+    const towel = instance(TOWEL, state, { spe: 3 });
+    assert.equal(loot_xname(towel, state).at(-1), 'x');
+    assert.equal(towel.spe, 3);
+
+    const glob = instance(GLOB_OF_GRAY_OOZE, state, {
+        globby: true, owt: 40,
+    });
+    assert.equal(loot_xname(glob, state).at(-1), 'a');
+    assert.equal(glob.owt, 40);
+});
+
+// C ref: invent.c sortloot()'s SORTLOOT_PETRIFY filter override. A rejected
+// cockatrice corpse remains selectable so pickup can perform its touch check.
+test('sortloot keeps a petrifying corpse when the filter rejects it', () => {
+    const state = initializedState();
+    state.mons = [];
+    state.mons[PM_COCKATRICE] = { pmidx: PM_COCKATRICE };
+    const corpse = instance(CORPSE, state, { corpsenm: PM_COCKATRICE });
+    const ordinary = instance(APPLE, state);
+    corpse.nobj = ordinary;
+    const sorted = sortloot(
+        corpse, SORTLOOT_PETRIFY, false, () => false, state,
+    );
+    assert.deepEqual(sorted.map((entry) => entry.obj), [corpse]);
+});
+
+// C ref: invent.c reorder_invent() and its inv_rank macro. ASCII rank puts
+// '#' before '$', then lowercase and uppercase letters; an empty letter has
+// the C char value zero before the XOR operation.
+test('reorder_invent applies the source inventory rank', () => {
+    const state = initializedState();
+    const empty = newObject({ invlet: '' });
+    const dollar = newObject({ invlet: '$' });
+    const lower = newObject({ invlet: 'a' });
+    const upper = newObject({ invlet: 'A' });
+    const hash = newObject({ invlet: '#' });
+    empty.nobj = dollar;
+    dollar.nobj = lower;
+    lower.nobj = upper;
+    upper.nobj = hash;
+    state.invent = empty;
+    reorder_invent(state);
+    assert.deepEqual(inventoryObjects(state).map((obj) => obj.invlet), [
+        '#', '$', '', 'a', 'A',
+    ]);
+    assert.equal(unsortloot(sortloot(state.invent, 0, false, null, state)), null);
+});
 
 test('nxtobj starts after its object and follows the selected source chain',
     () => {
