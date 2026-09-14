@@ -35087,7 +35087,17 @@
       ],
       "selectionReason": "Selected holdout/seed4500-knight-coverage at remainingScreensUpperBound 1171, the first session in per-session queue order with a valid complete investigation at investigations/holdout/seed4500-knight-coverage.json; its source-traced owner is pray.c maybe_turn_mon_iter() through doturn(). Lower-ranked sessions have complete cached investigations and remain available after this goal.",
       "detail": "At step 643, lawful debug Knight #turn reaches pray.c doturn(). C passes the chant and alignment/form gates, exercises Wisdom, calls maybe_turn_mon_iter() over eligible monsters, installs negative multi with the source wake message, and returns ECMD_TIME. JS advertises turn but has no doturn dispatcher or pray.js implementation. Port the complete maybe_turn_mon_iter()/doturn() family and wire the existing extended-command path, preserving spell fallback and unported discarded aggravate dependency.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "maybe_turn_mon_iter..doturn",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "maybe_turn_mon_iter",
+            "doturn"
+          ]
+        }
+      ],
       "openedAt": "ba571114896e8b6b6938a1b568801343bfbc69b1",
       "openStanding": {
         "sha": "6dca2f09ced11256d27f964ec48bffca0d75020b",
