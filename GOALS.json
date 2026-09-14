@@ -43536,6 +43536,227 @@
         "screens": 8936,
         "rng": 651740
       }
+    },
+    {
+      "id": "pilot-objnam-postparse1-seed0399",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete readobjnam_postparse1 wish parsing and its required tin-variety callee.",
+      "cFile": "objnam.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "User-authorized independent seed-worker pilot assigns holdout/seed0399-wizard-hallu-actions to worker A. At unchanged seed state the queue has 370 remaining screens and investigations/holdout/seed0399-wizard-hallu-actions.json traces the gold-wish refusal. Direct C inspection corrects the bounded owner to whole objnam.c readobjnam_postparse1 at4240-4663, with production readobjnam dispatch and required eat.c tin_variety_txt.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "61d10bc985061ab995a1fe0dedf152f2c322c32f",
+      "openStanding": {
+        "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
+        "screens": 8936,
+        "rng": 651740
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "readobjnam_postparse1",
+          "line": 4240,
+          "endLine": 4665,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4240,
+        "to": 4665
+      },
+      "activeStanding": {
+        "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
+        "screens": 8936,
+        "rng": 651740
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 162,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 370,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 370,
+              "status": "complete",
+              "commit": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "remainingScreensUpperBound": 370,
+                "step": 162,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold",
+                "unlocatedKinds": [],
+                "recordedSteps": 532
+              },
+              "summary": "At step 162, the wizard wish prompt submits `blessed 30 gold pieces`. C's objnam.c readobjnam() gold arm clamps the count, calls mksobj(GOLD_PIECE, FALSE, FALSE), sets the quantity and weight, marks the status line dirty, and returns the object; JS readobjnam_postparse1() raises UnsupportedWishError before that branch, which failClosedCommand wraps as the observed hero-command boundary. Port this missing readobjnam arm through the existing makewish() and inventory path while retaining C's count rules and RNG order.",
+              "source": {
+                "file": "objnam.c",
+                "functions": [
+                  "readobjnam"
+                ],
+                "branch": "nethack-c/upstream/src/objnam.c:4533-4545 is reached after the normal readobjnam parsing chain when d->bp ends in `gold piece` or `zorkmid`, equals `gold`, `money` or `coin`, or begins with GOLD_SYM. In this debug wizard recording d->cnt is 30, so the non-wizard >5000 cap and the minimum-count correction do not change it. C then calls mksobj(GOLD_PIECE, FALSE, FALSE), assigns d->otmp->quan = d->cnt, recomputes d->otmp->owt with weight(), sets disp.botl, and returns the object directly. The JavaScript split of this C function reaches js/objnam_readobjnam.js:1064-1069 inside readobjnam_postparse1(), where it currently raises UnsupportedWishError before mksobj(); js/objnam_readobjnam.js:1570-1612 supplies the readobjnam() driver and return-code path.",
+                "callers": [
+                  "nethack-c/upstream/src/zap.c:makewish() (6314-6422) calls readobjnam(buf, &nothing) at 6360; js/zap.js:makewish() (999-1122) calls readobjnam() at 1055 and then hands the returned object to hold_another_object().",
+                  "nethack-c/upstream/src/wizcmds.c:wiz_wish() (31-44) calls makewish() for the wizard #wizwish command; js/wizcmds.js:wiz_wish() (141-160) is its production counterpart, and js/cmd.js:runWishCommand() (3424-3429) plus the wizwish dispatch (5122-5124, 5900-5911) route the session into it.",
+                  "Other source callers share makewish() and therefore this readobjnam branch: nethack-c/upstream/src/zap.c:WAN_WISHING (2575-2584), potion.c:mongrantswish() (2794-2812), sit.c:special_throne_effect() (90-111, 238-256), and allmain.c resume/Amulet paths (200-202, 445-451); js/potion.js:mongrantswish() (190-211) and js/allmain.js:advanceElapsedTurn() (1314-1328) supply the corresponding existing call sites where ported."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/mkobj.c:mksobj() (1177-1258) advances next_ident(), creates the GOLD_PIECE object with init false, and finalizes its weight; js/obj.js:mksobj() (2631-2695) already supports the same init=false path, including GOLD_PIECE's ordinary finalization.",
+                  "nethack-c/upstream/src/mkobj.c:weight() (1888-1945) computes a coin object's weight; js/obj.js:weight() (1682-1730) has the COIN_CLASS result and must be called after setting quan, as C does.",
+                  "nethack-c/upstream/src/invent.c:hold_another_object() (1208-1306) receives the returned stack and emits the inventory/drop result; js/invent.js:hold_another_object() (4810-4903) is the existing production path that js/zap.js:makewish() prepares and calls.",
+                  "nethack-c/upstream/src/zap.c:makewish() (6359-6421) continues after readobjnam(), ultimately adding rn1(100, 50) to u.ublesscnt; js/zap.js:makewish() (1055-1122) mirrors that tail. The recorded step-162 RNG has rnd(2)=2 at next_ident(mkobj.c:521), followed by rn2(100)=17 at makewish(zap.c:6421), so the new arm must preserve both draws and their order.",
+                  "js/cmd.js:failClosedCommand() (3017-3029) converts UnsupportedWishError into the observed `unsupported hero command: an unported branch of this command: ...` boundary; removing only the gold refusal must leave other explicitly unsupported wish branches intact."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json at commit 93a0880804e5b5e7aab756e1cce0b271cc1419dd reports holdout/seed0399-wizard-hallu-actions with screensEmitted 162, recordedSteps 532, first stop step 162, boundary `unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold`, and remainingScreensUpperBound 532 - 162 = 370.",
+                "sessions/holdout/seed0399-wizard-hallu-actions.session.json segment 0 steps 150-161 echo `blessed 30 gold pieces` at the wish prompt; step 162's newline records the C screen `$ - 30 gold pieces.`, cursor [46,10,1], rnd(2)=2 @ next_ident(mkobj.c:521), and rn2(100)=17 @ makewish(zap.c:6421). The following step 163 starts the next `For what do you wish?` prompt, confirming that step 162 completed a gold wish in C.",
+                "nethack-c/upstream/src/objnam.c:4533-4545 implements the exact gold aliases and count handling, constructs GOLD_PIECE with mksobj(..., FALSE, FALSE), assigns its quantity and weight, sets disp.botl, and returns it; js/objnam_readobjnam.js:1064-1069 instead raises `UnsupportedWishError('a wish for gold', ...)` before any object-generation draw.",
+                "nethack-c/upstream/src/zap.c:6314-6422 shows makewish() calling readobjnam() at 6360, then hold_another_object() and the final rn1(100, 50) at 6421; js/zap.js:999-1122 follows that production path. js/cmd.js:3017-3029 catches the wish-parser refusal and produces the exact current boundary message, so the missing behavior belongs to the source port rather than to command admission.",
+                "The prior 423-count cache identified and recorded the step-109 were_change ordering defect. Commit 93a0880804e5b5e7aab756e1cce0b271cc1419dd removes that premature preflight; the current scan therefore advances to this independent step-162 gold-wish owner. The old were_change finding is retained only as transition provenance, not as the current source scope."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
+        "screens": 8936,
+        "rng": 651740
+      },
+      "parkedReason": "Pilot integration deferred pending correction of a newly introduced UnsupportedWishError throw in readobjnam_lookup and complete recording-comparison evidence. Worker A continues independently; ready worker B turn-planning delivery can integrate meanwhile."
+    },
+    {
+      "id": "pilot-div-immobility-planning-seed0002",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Repair planning of live immobility countdowns and resume after delayed-action callbacks without a second movement debit.",
+      "cFile": "allmain.c",
+      "sessions": [],
+      "selectionReason": "User-authorized independent seed-worker pilot: worker B has a ready source-traced fix at holdout/seed0002-healer-reflection-drummer step232, 363 remaining screens. Integration of worker A is temporarily deferred for a concrete correction; this ready delivery proceeds without waiting. investigations/holdout/seed0002-healer-reflection-drummer.json identifies the existing live countdown and the JS-only planning refusal.",
+      "detail": "At baseline f1cafd53 the session stops at step232 while burdened and dressing, multi=-5 and afternmv=Armor_on. C allmain.c moveloop_core379-388 counts down and invokes unmul at zero. js/allmain.js live finishElapsedTurn already implements that path, but its planning-only guard rejects it. The general fix plans a validated prefix, executes the live callback once, and replans remaining allocations without another NORMAL_SPEED debit. JS owners: finishElapsedTurn, advanceElapsedTurn, preflightSimpleMonsterActions and planSimpleMonsterTurn.",
+      "spans": [],
+      "openedAt": "f7c80ce6d2f4acbe84177294c90210516ba014fe",
+      "openStanding": {
+        "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
+        "screens": 8936,
+        "rng": 651740
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "moveloop_core",
+      "session": "holdout/seed0002-healer-reflection-drummer",
+      "step": 232,
+      "activeStanding": {
+        "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
+        "screens": 8936,
+        "rng": 651740
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 232,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed turn reached burdened multi-cycle immobility countdown",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 363,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 363,
+              "status": "complete",
+              "commit": "24d32a739a1d61c49a1654aeb94bcade6ccd1645",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 363,
+                "step": 232,
+                "kind": "stop",
+                "function": "moveloop_core",
+                "functionDeclared": true,
+                "sourceFile": "allmain.c",
+                "cFile": "allmain.c",
+                "luaFile": null,
+                "line": 380,
+                "message": "elapsed turn reached burdened multi-cycle immobility countdown",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "The sink port moves the first stop from step 184 to step 232. At input index 231 (key x), the player chooses chain mail from the wear prompt. C finishes the five-turn dressing delay, prints 'You finish your dressing maneuver.', and accepts inventory at step 233. JavaScript stops before its burdened elapsed-turn plan can count down negative multi. The live state at the refusal is moves=238, multi=-5, multi_reason='dressing up', afternmv=Armor_on, u.umovement=18, near_capacity=1, and worn inventory item x is CHAIN_MAIL (otyp 128, weight 300, W_ARM). The scan reports no prior screen or RNG divergence. Refined source comparison confirms that the live JavaScript countdown, unmul call and callback dispatch already follow C; only the JavaScript-only planning adapter refuses this valid path. This is a divergence fix in existing planning, superseding the initial file-port classification. Other missing moveloop_core branches are separate source gaps.",
+              "source": {
+                "file": "allmain.c",
+                "functions": [
+                  "moveloop_core"
+                ],
+                "branch": "Read the entire C function at allmain.c:177-564. The elapsed-time loop at 202-390 repeatedly scans monsters and allocates turns while u.umovement<NORMAL_SPEED. Lines 379-388 handle every gm.multi<0 state: runmode_delay_output(), increment multi, unmul(NULL) at zero, then deferred_goto() if unmul scheduled a level change. This fix preserves that existing live implementation and repairs its JavaScript-only planning contract. The generic fix must cover every delayed callback, not only Armor_on. It does not establish whole moveloop_core completion or absorb unrelated unported calls.",
+                "callers": [
+                  "js/jsmain.js replay loop -> js/allmain.js moveloop_core():1289 -> advanceElapsedTurn():1093 -> preflightSimpleMonsterActions() -> finishElapsedTurn(planning:true):682",
+                  "do_wear.c accessory_or_armor_on():2374-2404 sets worn chain mail, ga.afternmv=Armor_on, nomul(-objects[otyp].oc_delay), multi_reason and nomovemsg; js/do_wear.js:2845-2854 follows that setup",
+                  "allmain.c moveloop_core():379-388 -> hack.c runmode_delay_output()/unmul(NULL) -> do_wear.c Armor_on()"
+                ],
+                "dependencies": [
+                  "js/unported_monster_actions.js planningState():520 and preflightSimpleMonsterActions():1798 clone the state and RNG; planSimpleMonsterTurn():1864 calls finishElapsedTurn through the advanceRound callback",
+                  "js/allmain.js advanceElapsedTurn():1093-1110 selects the full planning path when projected_capacity>0; finishElapsedTurn():945-952 explicitly refuses any negative multi on that clone",
+                  "hack.c unmul():4177-4211 resets delay/message state, clears ga.afternmv before invoking the callback, and discards the callback's return; js/hack.js unmul():1068-1096 currently prints via ttyPline",
+                  "hack.c runmode_delay_output() owns animation frames; js/hack.js:4212 calls curs_on_u(), which refuses nonglobal state, so merely removing the planning guard would be unsafe",
+                  "do_wear.c Armor_on():887 is the observed callback; other valid delayed actions use other afternmv callbacks and must not be special-cased",
+                  "hack.c overexert_hp() retains a separate existing refusal whose comment cites this same missing burdened countdown; it is not the first failing operation in this recording"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "At committed 24d32a739a1d61c49a1654aeb94bcade6ccd1645, scanSession('holdout/seed0002-healer-reflection-drummer.session.json') in a fresh Node process reports screensEmitted=232, recordedSteps=595, divergence=null, and the burdened immobility boundary. Remaining screens upper bound is 595-232=363.",
+                "The read-only fixed recording has step 231 key W and the wear prompt, step 232 key x and the dressing-completion message with six elapsed-turn groups of C RNG calls, then step 233 key i and inventory. Those inputs locate the source branch; a new recipe must choose independent state and inputs.",
+                "A second focused replay inspected the live state at refusal: moves 238, multi -5, capacity 1, afternmv Armor_on, u.umovement 18, item x otyp128/weight300/owornmask1. JavaScript's last live message is still 'What do you want to wear? [x or ?*] x'.",
+                "js/allmain.js finishElapsedTurn explicitly calls elapsedTurnBoundary('burdened multi-cycle immobility countdown') when planning and multi<0. Its live branch below already follows the C countdown, but the planning branch is deliberately absent.",
+                "The clone adapter is JavaScript scaffolding, not a second C phase. Its new behavior must leave live state, message output, animation frames and both RNG streams unchanged during planning; callback effects can also change encumbrance before the next allocation.",
+                "scripts/allmain-turn.test.mjs:1593-1640 currently asserts that this planning case refuses, so that obsolete expectation must be replaced when the source path is ported. The unrelated region/search/overexertion refusal cases remain separately scoped.",
+                "No game code changed in the investigation commits. The sink delivery's checkpoint is attached to commit 24d32a73 and passed at 2026-09-14T20:01:51.126Z.",
+                "The coordinator's independent read-only survey verified the planning-only cause at a113b962, whose game code is identical to 24d32a73. A continuation plan must not repeat preflightSimpleMonsterActions's NORMAL_SPEED debit. It must stop before a due unmul, replay the validated prefix live, then replan remaining allocations from actual callback effects.",
+                "Callback-owner evidence supports live execution rather than f(planned): eat.c Hear_again's existing JavaScript uses global rn2(2); do_wear.c Boots_on uses global rnd(20); pray.c prayer_done uses global rnz(250) and planningState does not deep-clone gp. The correction can avoid changes to those source owners by invoking callbacks only on the live game."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
