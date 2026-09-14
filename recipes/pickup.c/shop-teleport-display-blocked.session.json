@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8490100,
+      "datetime": "20341107121416",
+      "nethackrc": "OPTIONS=name:BillCase,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": ".\u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh. k, ",
+      "comment": "Blocked before pickup by controlled-teleport map refresh in teleport.c teleds/display.c newsym: at materialization boundary 75, C retains the unseen shop door as '+' while JavaScript draws '|'. All RNG and cursor values match; no recording is committed."
+    }
+  ]
+}

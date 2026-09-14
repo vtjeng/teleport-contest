@@ -10,6 +10,7 @@
 
 import {
     A_CHA,
+    BILLSZ,
     ANY_SHOP,
     ACH_SHOP,
     BUFSZ,
@@ -28,6 +29,7 @@ import {
     IS_DOOR,
     isok,
     LOW_PM,
+    MAXULEV,
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPE,
@@ -35,6 +37,7 @@ import {
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_MINVENT,
     OBJ_ONBILL,
     PLINE_SPEECH,
@@ -45,6 +48,7 @@ import {
     ROOMOFFSET,
     SHOPBASE,
     TELEPAT,
+    Upolyd,
     plur,
     u_at,
 } from './const.js';
@@ -64,6 +68,7 @@ import {
     INVLET_BASIC,
     merge_choice,
     obj_extract_self,
+    update_inventory,
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
@@ -71,11 +76,12 @@ import { mongone } from './makemon_create.js';
 import { angry_guards, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
-    carried, hasContents, isCandle, isContainer, is_pick, objectType,
-    sobj_at, splitobj,
+    carried, dealloc_obj, hasContents, isCandle, isContainer, is_pick,
+    newObject, next_ident, newomid, objectType, sobj_at, splitobj,
 } from './obj.js';
 import {
     ARMOR_CLASS,
+    BALL_CLASS,
     COIN_CLASS,
     CORPSE,
     DUNCE_CAP,
@@ -83,7 +89,10 @@ import {
     EGG,
     FOOD_CLASS,
     GEM_CLASS,
+    GEMSTONE,
     GLASS,
+    FIRST_REAL_GEM,
+    LARGE_BOX,
     POTION_CLASS,
     POT_WATER,
     PICK_AXE,
@@ -94,6 +103,7 @@ import {
 } from './objects.js';
 import {
     PM_KEYSTONE_KOP,
+    PM_ELF,
     PM_KOP_KAPTAIN,
     PM_KOP_LIEUTENANT,
     PM_KOP_SERGEANT,
@@ -104,6 +114,9 @@ import {
 import {
     haseyes,
     is_demon,
+    is_elf,
+    is_human,
+    is_vampire,
     mhim,
     pronoun_gender,
     resist_conflict,
@@ -122,13 +135,15 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { set_voice } from './sounds.js';
-import { shkname, Shknam } from './shknam.js';
+import { saleable, shkname, Shknam } from './shknam.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, remove_worn_item } from './steal.js';
 import { discover_object } from './o_init.js';
 import { y_monnam } from './do_name.js';
 import { rn2 } from './rng.js';
+import { obj_stop_timers } from './timeout.js';
+import { The, the, xnameFresh } from './objnam.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
 // in one C process but is not saved; each recorder segment starts a new
@@ -1082,6 +1097,282 @@ export function contained_gold(obj, even_if_unknown) {
     return value;
 }
 
+// C ref: shk.c contained_cost() (2995-3047).
+export function contained_cost(obj, shkp, price, usell, unpaid_only, state = game) {
+    let top = obj;
+    while (top.where === OBJ_CONTAINED) top = top.ocontainer;
+    const onFloor = top.where === OBJ_FLOOR || top.where === OBJ_FREE;
+    const location = top.where === OBJ_FREE ? null : get_obj_location(top, 0, state);
+    const x = location?.x ?? state.u.ux;
+    const y = location?.y ?? state.u.uy;
+    const freespot = onFloor && x === shkp.mextra.eshk.shk.x
+        && y === shkp.mextra.eshk.shk.y;
+    for (let item = obj.cobj; item; item = item.nobj) {
+        if (item.oclass === COIN_CLASS) continue;
+        if (usell) {
+            if (saleable(shkp, item, state) && !item.unpaid
+                && item.oclass !== BALL_CLASS
+                && !(item.oclass === FOOD_CLASS && item.oeaten)
+                && !(isCandle(item)
+                    && item.age < 20 * objectType(item, state).oc_cost)) {
+                price += set_cost(item, shkp, state);
+            }
+        } else if (onFloor ? !item.no_charge && !freespot
+            : item.unpaid || !unpaid_only) {
+            price += get_cost(item, shkp, state) * get_pricing_units(item);
+        }
+        if (hasContents(item))
+            price = contained_cost(item, shkp, price, usell, unpaid_only, state);
+    }
+    return price;
+}
+
+// C ref: shk.c picked_container() (3085-3100). Coins keep their own flag.
+export function picked_container(obj) {
+    for (let item = obj.cobj; item; item = item.nobj) {
+        if (item.oclass === COIN_CLASS) continue;
+        if (item.no_charge) item.no_charge = 0;
+        if (hasContents(item)) picked_container(item);
+    }
+}
+
+// C ref: shk.c set_cost() (3148-3193). Shopkeeper's buying price.
+export function set_cost(obj, shkp, state = game) {
+    let price = get_pricing_units(obj) * getprice(obj, true, state);
+    let multiplier = 1;
+    let divisor = 1;
+    if (state.uarmh?.otyp === DUNCE_CAP
+        || (state.urole?.mnum === PM_TOURIST && state.u.ulevel < MAXULEV / 2)
+        || (state.uarmu && !state.uarm && !state.uarmc)) {
+        divisor *= 3;
+    } else {
+        divisor *= 2;
+    }
+    const type = objectType(obj, state);
+    if (!obj.dknown || !type.oc_name_known) {
+        if (obj.oclass === GEM_CLASS) {
+            if (type.oc_material === GEMSTONE || type.oc_material === GLASS) {
+                price = (obj.otyp - FIRST_REAL_GEM) % (6 - shkp.m_id % 3);
+                price = (price + 3) * obj.quan;
+                divisor = 1;
+            }
+        } else if (price > 1 && !(shkp.m_id % 4)) {
+            multiplier *= 3;
+            divisor *= 4;
+        }
+    }
+    if (price >= 1) {
+        price *= multiplier;
+        if (divisor > 1) {
+            price = Math.trunc(price * 10 / divisor);
+            price = Math.trunc((price + 5) / 10);
+        }
+        if (price < 1) price = 1;
+    }
+    return price;
+}
+
+// C ref: shk.c add_one_tobill() (3309-3367).
+async function add_one_tobill(obj, dummy, shkp, state, env) {
+    const eshk = shkp.mextra.eshk;
+    if (!eshk.bill_p) eshk.bill_p = eshk.bill;
+    const owner = { value: shkp };
+    let unbilled = !billable(owner, obj, firstRoom(state.u.ushops), true, state);
+    if (!unbilled && eshk.billct === BILLSZ) {
+        await (env.message ?? ttyPline)('You got that for free!', state);
+        unbilled = true;
+    }
+    if (unbilled) {
+        if (obj.where === OBJ_FREE) dealloc_obj(obj, { ...env, state });
+        return;
+    }
+    const bill = { bo_id: obj.o_id, bquan: obj.quan, useup: Boolean(dummy) };
+    eshk.bill_p[eshk.billct] = bill;
+    if (dummy) add_to_billobjs(obj, state, env);
+    bill.price = get_cost(obj, shkp, state);
+    if (obj.globby) {
+        bill.price *= get_pricing_units(obj);
+        newomid(obj);
+        obj.oextra.omid = obj.owt;
+    }
+    eshk.billct++;
+    obj.unpaid = 1;
+    record_price_quote(obj.otyp, bill.price, true, state);
+}
+
+// C ref: shk.c add_to_billobjs() (3370-3388). gb.billobjs owns used objects
+// until setpaid frees the chain; the active bill still references their IDs.
+function add_to_billobjs(obj, state = game, env = {}) {
+    if (obj.where !== OBJ_FREE) throw new Error('add_to_billobjs: obj not free');
+    if (obj.timed) obj_stop_timers(obj, state, env);
+    state.gb ??= {};
+    obj.nobj = state.gb.billobjs ?? null;
+    state.gb.billobjs = obj;
+    obj.where = OBJ_ONBILL;
+    obj.in_use = 0;
+    obj.bypass = 0;
+}
+
+// C ref: shk.c bill_box_content() (3392-3414).
+async function bill_box_content(obj, ininv, dummy, shkp, state, env) {
+    if (obj.otyp === LARGE_BOX && obj.spe === 1) return;
+    for (let item = obj.cobj; item; item = item.nobj) {
+        if (item.oclass === COIN_CLASS) continue;
+        if (!item.no_charge) await add_one_tobill(item, dummy, shkp, state, env);
+        if (hasContents(item))
+            await bill_box_content(item, ininv, dummy, shkp, state, env);
+    }
+}
+
+// C ref: shk.c billable() (3451-3487). owner.value represents struct monst **.
+export function billable(owner, obj, roomno, reset_nocharge, state = game) {
+    let shkp = owner.value;
+    if (!shkp) {
+        if (!roomno) return false;
+        shkp = shop_keeper(roomno, state);
+        if (!shkp || !inhishop(shkp, state)) return false;
+        owner.value = shkp;
+    }
+    if (onbill(obj, shkp, false) || (obj.oclass === FOOD_CLASS && obj.oeaten))
+        return false;
+    if (obj.no_charge) {
+        if (!hasContents(obj) || (contained_gold(obj, true) === 0
+            && contained_cost(obj, shkp, 0, false, !reset_nocharge, state) === 0)) {
+            shkp = null;
+        }
+        if (reset_nocharge && !shkp && obj.oclass !== COIN_CLASS) {
+            obj.no_charge = 0;
+            if (hasContents(obj)) picked_container(obj);
+        }
+    }
+    return Boolean(shkp);
+}
+
+// C ref: shk.c addtobill() (3490-3601). Bill before addinv so unpaid objects
+// merge only with objects on the same-priced bill; callers await all output.
+export async function addtobill(obj, ininv, dummy, silent, state = game, env = {}) {
+    const owner = { value: null };
+    if (!billable(owner, obj, firstRoom(state.u.ushops), true, state)) return;
+    const shkp = owner.value;
+    const message = env.message ?? ttyPline;
+    if (obj.oclass === COIN_CLASS) {
+        await costly_gold(obj.ox, obj.oy, obj.quan, silent, state, env);
+        return;
+    } else if (shkp.mextra.eshk.billct === BILLSZ) {
+        if (!silent) await message('You got that for free!', state);
+        return;
+    }
+    let price = 0;
+    let contentsPrice = 0;
+    let gold = 0;
+    let contentsCount;
+    const container = hasContents(obj);
+    if (!obj.no_charge) {
+        price = get_cost(obj, shkp, state);
+        if (obj.globby) price *= get_pricing_units(obj);
+    }
+    if (obj.no_charge && !container) {
+        obj.no_charge = 0;
+        return;
+    }
+    if (container) {
+        contentsPrice = contained_cost(obj, shkp, contentsPrice, false, false, state);
+        gold = contained_gold(obj, true);
+        if (price) await add_one_tobill(obj, dummy, shkp, state, env);
+        if (contentsPrice) await bill_box_content(obj, ininv, dummy, shkp, state, env);
+        picked_container(obj);
+        price += contentsPrice;
+        if (gold) {
+            await costly_gold(obj.ox, obj.oy, gold, silent, state, env);
+            if (!price) return;
+        }
+        if (obj.no_charge) obj.no_charge = 0;
+        contentsCount = count_unpaid(obj.cobj);
+    } else {
+        await add_one_tobill(obj, dummy, shkp, state, env);
+        contentsCount = 0;
+    }
+    if (!heroIsDeaf(state) && !muteshk(shkp) && !silent) {
+        if (!price) {
+            await message(`${Shknam(shkp, state)} has no interest in ${
+                the(xnameFresh(obj, state), state)}.`, state);
+            return;
+        }
+        if (!ininv) {
+            await message(`${The(xnameFresh(obj, state), state)} will cost you ${
+                price} ${currency(price, state)}${obj.quan > 1 ? ' each' : ''}.`, state);
+        } else {
+            const quantity = obj.quan;
+            let prefix = '"For you,';
+            if (!NOTANGRY(shkp)) prefix += ' scum;';
+            else if (!shkp.mextra.eshk.surcharge)
+                prefix += ` ${append_honorific(state, env)}; only`;
+            obj.quan = 1;
+            try {
+                set_voice(shkp, 0, 80, 0, state);
+                await message(`${prefix} ${price} ${currency(price, state)} ${
+                    quantity > 1 ? 'per' : contentsCount && !obj.unpaid
+                        ? 'for the contents of this' : 'for this'} ${
+                    xnameFresh(obj, state)}${
+                    contentsCount && obj.unpaid ? ' and its contents' : ''}."`, state);
+            } finally {
+                obj.quan = quantity;
+            }
+        }
+    } else if (!silent) {
+        if (price) {
+            set_voice(shkp, 0, 80, 0, state);
+            await message(`The list price of ${
+                contentsCount && !obj.unpaid ? 'the contents of ' : ''}${
+                the(xnameFresh(obj, state), state)}${
+                contentsCount && obj.unpaid ? ' and its contents' : ''} is ${
+                price} ${currency(price, state)}${obj.quan > 1 ? ' each' : ''}.`, state);
+        } else {
+            await message(`${Shknam(shkp, state)} does not notice.`, state);
+        }
+    }
+}
+
+// C ref: shk.c append_honorific() (3604-3625).
+function append_honorific(state, env) {
+    const honored = ['good', 'honored', 'most gracious', 'esteemed',
+        'most renowned and sacred'];
+    let result = honored[(env.random?.rn2 ?? rn2)(honored.length - 1)
+        + Number(Boolean(state.u.uevent.udemigod))];
+    const species = state.youmonst.data;
+    if (is_vampire(species)) result += state.flags.female ? ' dark lady' : ' dark lord';
+    else if (Upolyd(state.u) ? is_elf(species) : state.urace.mnum === PM_ELF)
+        result += state.flags.female ? ' hiril' : ' hir';
+    else result += !is_human(species) ? ' creature' : state.flags.female ? ' lady' : ' sir';
+    return result;
+}
+
+// C ref: shk.c costly_gold() (5745-5787).
+export async function costly_gold(x, y, amount, silent, state = game, env = {}) {
+    if (!costly_spot(x, y, state)) return;
+    const shkp = shop_keeper(firstRoom(in_rooms(x, y, SHOPBASE, state)), state);
+    if (!shkp) return;
+    const eshk = shkp.mextra.eshk;
+    const message = env.message ?? ttyPline;
+    if (eshk.credit >= amount) {
+        if (!silent) await message(eshk.credit > amount
+            ? `Your credit is reduced by ${amount} ${currency(amount, state)}.`
+            : 'Your credit is erased.', state);
+        eshk.credit -= amount;
+    } else {
+        const delta = amount - eshk.credit;
+        if (!silent) {
+            if (eshk.credit) await message('Your credit is erased.', state);
+            await message(eshk.debit
+                ? `Your debt increases by ${delta} ${currency(delta, state)}.`
+                : `You owe ${shkname(shkp, state)} ${delta} ${currency(delta, state)}.`, state);
+        }
+        eshk.debit += delta;
+        eshk.loan += delta;
+        eshk.credit = 0;
+    }
+}
+
 // C ref: shk.c check_unpaid() (5737-5742), the "used in the normal manner"
 // entry point, over check_unpaid_usage() (5687-5733). C's wrapper is one call
 // with `altusage` FALSE; the guard below is check_unpaid_usage()'s own opening
@@ -1721,30 +2012,44 @@ export function onbill(obj, shopkeeper, silent) {
     return null;
 }
 
+// C ref: shk.c obfree() (1207-1258), the billing branch of the lifecycle
+// function in invent.js. The result selects its existing deletion tail.
+export function obfree_shop_bill(obj, merge, env = {}) {
+    const state = env.state ?? game;
+    let shkp = null;
+    if (obj.unpaid) {
+        for (shkp = next_shkp(state.level?.monlist ?? null, true, state);
+            shkp; shkp = next_shkp(shkp.nmon, true, state)) {
+            if (onbill(obj, shkp, true)) break;
+        }
+    }
+    if (!shkp) shkp = shop_keeper(firstRoom(state.u.ushops), state);
+    const bill = onbill(obj, shkp, false);
+    if (!bill) return 'unbilled';
+    if (!merge) {
+        bill.useup = true;
+        obj.unpaid = 0;
+        if (obj.globby && !obj.owt && obj.oextra?.omid)
+            obj.owt = obj.oextra.omid;
+        add_to_billobjs(obj, state, env);
+        return 'retained';
+    }
+    const targetBill = onbill(merge, shkp, false);
+    if (!targetBill) {
+        note_unported('pline.c impossible');
+        return 'preserved'; // C returns before deallocating either object.
+    }
+    targetBill.bquan += bill.bquan;
+    const eshk = shkp.mextra.eshk;
+    --eshk.billct;
+    Object.assign(bill, eshk.bill_p[eshk.billct]);
+    return 'billed';
+}
+
 // C ref: shk.c unpaid_cost() (3260-3305). Bill entries store a per-unit
 // price and a billed quantity; the inventory display asks for either one
 // object or the complete stack. The caller supplies the object known to be
 // unpaid, so a missing bill remains an explicit source diagnostic.
-function containedUnpaidCost(obj, shopkeeper) {
-    let amount = 0;
-    let found = false;
-    for (let child = obj.cobj; child; child = child.nobj) {
-        if (child.oclass === COIN_CLASS) continue;
-        const bill = onbill(child, shopkeeper, true);
-        if (bill) {
-            found = true;
-            amount += Math.trunc(bill.price ?? 0)
-                * Math.trunc(child.quan ?? 1);
-        }
-        if (hasContents(child)) {
-            const nested = containedUnpaidCost(child, shopkeeper);
-            amount += nested.amount;
-            found ||= nested.found;
-        }
-    }
-    return { amount, found };
-}
-
 export function unpaid_cost(obj, costType = 0, state = game) {
     let amount = 0;
     let found = null;
@@ -1760,17 +2065,67 @@ export function unpaid_cost(obj, costType = 0, state = game) {
                 amount *= Math.trunc(obj.quan ?? 1);
         }
         if (costType === COST_CONTENTS && hasContents(obj)) {
-            // contained_cost() stays with the current shopkeeper; recurse on
-            // that keeper instead of restarting the u.ushops scan per child.
-            const nested = containedUnpaidCost(obj, shopkeeper);
-            amount = (found ? amount : 0) + nested.amount;
-            found ||= nested.found ? bill : null;
+            amount = contained_cost(obj, shopkeeper, amount, false, true, state);
         }
         if (found || (!obj.unpaid && amount)) break;
     }
     if (obj.unpaid && !found)
         note_unported('shk.c unpaid_cost: object was not on a bill');
     return amount;
+}
+
+// C ref: shk.c alter_cost() (3237-3256). A negative amount forces the saved
+// original price when bill_dummy_object replaces an altered object.
+export function alter_cost(obj, amount, state = game, env = {}) {
+    for (let shkp = next_shkp(state.level.monlist, true, state);
+        shkp; shkp = next_shkp(shkp, true, state)) {
+        const bill = onbill(obj, shkp, true);
+        if (bill) {
+            const price = !amount ? get_cost(obj, shkp, state)
+                : amount < 0 ? -amount : amount;
+            if (price > bill.price || amount < 0) {
+                bill.price = price;
+                update_inventory({ ...env, state });
+            }
+            break;
+        }
+    }
+}
+
+// C ref: shk.c sub_one_frombill() (3661-3690).
+function sub_one_frombill(obj, shkp, state, env) {
+    const bill = onbill(obj, shkp, false);
+    if (bill) {
+        obj.unpaid = 0;
+        if (bill.bquan > obj.quan) {
+            const used = newObject();
+            Object.assign(used, obj);
+            used.oextra = null;
+            bill.bo_id = used.o_id = next_ident({ ...env, state });
+            used.where = OBJ_FREE;
+            used.quan = (bill.bquan -= obj.quan);
+            used.owt = 0;
+            bill.useup = true;
+            add_to_billobjs(used, state, env);
+            return;
+        }
+        const eshk = shkp.mextra.eshk;
+        --eshk.billct;
+        Object.assign(bill, eshk.bill_p[eshk.billct]);
+    } else if (obj.unpaid) {
+        note_unported('pline.c impossible');
+        obj.unpaid = 0;
+    }
+}
+
+// C ref: shk.c subfrombill() (3694-3710).
+export function subfrombill(obj, shkp, state = game, env = {}) {
+    sub_one_frombill(obj, shkp, state, env);
+    for (let item = obj.cobj; item; item = item.nobj) {
+        if (item.oclass === COIN_CLASS) continue;
+        if (hasContents(item)) subfrombill(item, shkp, state, env);
+        else sub_one_frombill(item, shkp, state, env);
+    }
 }
 
 // C ref: shk.c onshopbill() (1160-1163). Expose only the boolean answer; the
@@ -1851,9 +2206,8 @@ export function clear_no_charge_pets(shopkeeper, state = game) {
 // C ref: shk.c setpaid() (397-433). Clears one shopkeeper's claim on every
 // object list the game holds, then discards the bill itself.
 //
-// gb.billobjs holds objects the hero used up while unpaid. Nothing in the port
-// bills the hero, so that chain is never created and the drain loop at 423-427
-// has nothing to free; it is therefore not modelled here.
+// gb.billobjs holds objects the hero used up while unpaid. C drains the
+// entire chain here, including when one shopkeeper's bill is being cleared.
 export function setpaid(shopkeeper, state = game) {
     clear_unpaid(shopkeeper, state.invent);
     clear_unpaid(shopkeeper, state.level?.objlist ?? null);
@@ -1869,6 +2223,12 @@ export function setpaid(shopkeeper, state = game) {
     /* clear obj->no_charge for all obj in shkp's shop */
     clear_no_charge(shopkeeper, state.level?.objlist ?? null, state);
     clear_no_charge(shopkeeper, state.level?.buriedobjlist ?? null, state);
+
+    while (state.gb?.billobjs) {
+        const obj = state.gb.billobjs;
+        obj_extract_self(obj, { state });
+        dealloc_obj(obj, { state });
+    }
 
     if (shopkeeper) {
         const eshkp = shopkeeper.mextra.eshk;

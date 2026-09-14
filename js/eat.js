@@ -1893,7 +1893,7 @@ async function eatcorpse(otmp, state) {
             if (carried(otmp))
                 useup(otmp, { state });
             else
-                useupf(otmp, 1, { state });
+                await useupf(otmp, 1, { state });
             retcode = 2;
         }
 
@@ -2244,7 +2244,7 @@ async function done_eating(message, state, env) {
         await fpostfx(piece, state, env);
 
     if (carried(piece)) useup(piece, env);
-    else useupf(piece, 1, env);
+    else await useupf(piece, 1, env);
 
     state.context.victual = zero_victual();
 }

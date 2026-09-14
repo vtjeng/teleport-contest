@@ -17,7 +17,7 @@ import {
     permapoisoned,
 } from './artifacts.js';
 import {
-    BLINDED, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
+    BLINDED, COST_CONTENTS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
     MALE, NEUTRAL, NON_PM,
@@ -32,6 +32,7 @@ import {
 import { obj_pmname, pmname } from './do_name.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
+import { currency } from './invent.js';
 import {
     digit, dist2, highc, lowc, mungspaces, s_suffix, strcasecpy, strstri,
 } from './hacklib.js';
@@ -78,8 +79,10 @@ import {
 import {
     append_price_quote,
     get_cost_of_shop_item,
+    is_unpaid,
     record_price_quote,
     shk_your,
+    unpaid_cost,
 } from './shk.js';
 // wield.js holds the port's single reading of youprop.h:112 Glib. It imports
 // naming helpers from this file in turn; the cycle is safe because neither
@@ -396,8 +399,6 @@ function preflightXname(obj, type, state) {
 function preflightDoname(obj, type, state) {
     preflightXname(obj, type, state);
     const { cknown } = identificationFlags(obj, type, state);
-    if (obj.unpaid)
-        unsupported('shop price suffix', obj);
     // objnam.c:1563 and :1592. wornSuffix() below ports the "wielded in" and
     // "weapon in" arms of that word choice; "tethered to" would also have to
     // follow the aklys back to the hand it is attached to, so it still stops.
@@ -1593,7 +1594,7 @@ function donameFreshInternal(
         break;
     }
     if (obj.otyp === CORPSE)
-        return corpseDoname(obj, modifiers, state);
+        return appendUnpaidPrice(corpseDoname(obj, modifiers, state), obj, state);
     if (obj.otyp === EGG && obj.corpsenm !== NON_PM && ident.known) {
         base = `${pmname(state.mons[obj.corpsenm], NEUTRAL)} ${base}`;
         if (obj.spe === 1) base += ' (laid by you)';
@@ -1619,12 +1620,15 @@ function donameFreshInternal(
     // return above took.
     base += wizmgenderSuffix(obj, state);
     base += wornSuffix(obj, type, state);
+    base = appendUnpaidPrice(base, obj, state);
     // C ref: objnam.c doname_base():1750-1752. This runs after the worn
     // suffixes but before the article prefix is prepended. The live-price
     // caller enables the same remembered fallback for contained objects;
     // when a positive live price exists, its caller appends that suffix after
     // this ordinary name and does not request the remembered one.
-    if (includeRememberedPriceQuote && state.iflags?.pricequotes
+    if (!state.iflags?.suppress_price && !state.program_state?.restoring
+        && !is_unpaid(obj)
+        && includeRememberedPriceQuote && state.iflags?.pricequotes
         && !type.oc_name_known) {
         base += append_price_quote(base, obj.otyp, state);
     }
@@ -1640,6 +1644,18 @@ function donameFreshInternal(
     }
     if (fakeArtifact) return words;
     return articleName(words);
+}
+
+// C ref: objnam.c doname_base() (1648-1664), shared by ordinary inventory
+// names and the existing separate corpse formatter.
+function appendUnpaidPrice(name, obj, state) {
+    if (state.iflags?.suppress_price || state.program_state?.restoring
+        || !is_unpaid(obj)) return name;
+    const quotedprice = unpaid_cost(obj, COST_CONTENTS, state);
+    const result = `${name} (${obj.unpaid ? 'unpaid' : 'contents'}, ${
+        quotedprice} ${currency(quotedprice, state)})`;
+    record_price_quote(obj.otyp, Math.trunc(quotedprice / obj.quan), true, state);
+    return result;
 }
 
 export function donameFresh(obj, state) {
@@ -1659,16 +1675,15 @@ export function doname_with_price(
     state,
     { currencyName } = {},
 ) {
+    if (state.iflags?.suppress_price || state.program_state?.restoring
+        || is_unpaid(obj)) return donameFresh(obj, state);
     if (obj.where !== OBJ_FLOOR) {
         if (obj.where !== OBJ_CONTAINED && obj.where !== OBJ_INVENT
             && obj.where !== OBJ_MINVENT)
             unsupported('non-floor price suffix', obj);
         preflightDoname(obj, objectType(obj, state), state);
-        // For OBJ_INVENT items (e.g. worn hero items being stolen by a nymph),
-        // C's doname_base falls through to the remembered-price-quote branch
-        // at objnam.c:1682-1684. preflightDoname() already refuses unpaid
-        // inventory items, so the non-unpaid path just gets the base name
-        // plus any remembered price quote, matching C.
+        // Paid inventory items fall through to the remembered-price branch;
+        // unpaid inventory and container contents were handled above.
         return donameFreshInternal(obj, state, {
             allowLiveShopPrice: true,
             includeRememberedPriceQuote: true,

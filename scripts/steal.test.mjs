@@ -3,6 +3,8 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    HALLUC,
+    HALLUC_RES,
     IN_SIGHT,
     I_SPECIAL,
     NEED_WEAPON,
@@ -113,6 +115,8 @@ function state(overrides = {}) {
             // compares a shopkeeper's recorded shoplevel against.
             uz: { dnum: 0, dlevel: 1 },
             uprops: {
+                [HALLUC]: { intrinsic: 0, extrinsic: 0 },
+                [HALLUC_RES]: { intrinsic: 0, extrinsic: 0 },
                 [BLINDED]: {
                     intrinsic: 0,
                     extrinsic: 0,
@@ -335,7 +339,7 @@ test('engulfing pickup reports before transfer and snuffs afterward', () => {
     assert.deepEqual(events, ['report', 'snuff']);
 });
 
-test('unsupported billing and light seams stop before pickup mutation', () => {
+test('an explicitly disabled billing owner and missing light owner stop before pickup mutation', () => {
     const carrier = monster({
         mtame: true,
         data: { mattk: [{ aatyp: AT_ENGL }] },
@@ -346,7 +350,8 @@ test('unsupported billing and light seams stop before pickup mutation', () => {
     });
     const gameState = state({ gt: { thrownobj: billed } });
     assert.throws(
-        () => mpickobj(carrier, billed, { state: gameState }),
+        () => mpickobj(carrier, billed, { state: gameState,
+            hooks: { findObjectOwner: null } }),
         (error) => error instanceof UnsupportedMonsterPickupOperationError
             && error.operation === 'findObjectOwner',
     );
@@ -911,19 +916,18 @@ test('every reachable conjunct of the saddle exemption is required',
         assert.equal(otherShop.held.no_charge, false);
     });
 
-test('an unpaid saddle stops before the exemption can read it', async () => {
-    // The remaining conjunct, !obj->unpaid, cannot be reached as false. C's
-    // mdrop_obj() names the object first, at steal.c:823, and objnam.c
-    // doname_base()'s shop-price suffix has no port: js/objnam.js
-    // preflightDoname() refuses any unpaid object. So no drop of an unpaid
-    // saddle gets as far as steal.c:829, and this pins where it does stop.
+test('an unpaid saddle reaches the source no-charge exemption and remains stock', async () => {
+    // Naming now includes the unpaid price, then steal.c:829's !unpaid
+    // conjunct excludes this saddle from the dead-steed no-charge exemption.
     const unpaid = saddleFixture({ carried: { unpaid: true } });
-
-    await assert.rejects(
-        relobj(unpaid.carrier, 0, false, unpaid.env),
-        /shop price suffix/u,
-    );
-    assert.equal(unpaid.held.where, OBJ_MINVENT);
+    const keeper = unpaid.gameState.level.rooms[0].resident;
+    unpaid.gameState.u.ushops = [SHOP_ROOMNO, 0];
+    Object.assign(keeper.mextra.eshk, { billct: 1,
+        bill_p: [{ bo_id: unpaid.held.o_id, price: 10, bquan: 1 }],
+    });
+    await relobj(unpaid.carrier, 0, false, unpaid.env);
+    assert.equal(unpaid.held.where, OBJ_FLOOR);
+    assert.equal(unpaid.held.no_charge, false);
 });
 
 test('a monster release needs an unsupported operation', async () => {

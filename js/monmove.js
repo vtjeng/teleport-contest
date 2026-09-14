@@ -1038,7 +1038,7 @@ async function m_break_boulder(mtmp, x, y, env = {}) {
             );
         }
         if (otmp.unpaid) {
-            bill_dummy_object(otmp, env);
+            await bill_dummy_object(otmp, env);
         }
         // fracture_rock() changes the boulder into rocks, adjusts the map,
         // and draws rn1(60,7) for the new rock quantity. It is void.

@@ -53,6 +53,7 @@ import {
     PM_DEATH,
     PM_KOBOLD_ZOMBIE,
     PM_LICHEN,
+    PM_SHOPKEEPER,
 } from '../js/monsters.js';
 import { mksobj_at, splitobj, unsplitobj, clear_splitobjs } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -1556,39 +1557,55 @@ function makeShopUnderHero(state) {
     room.resident = {
         isshk: true,
         mpeaceful: true,
+        mhp: 10,
+        mcanmove: true,
+        data: state.mons[PM_SHOPKEEPER],
         mx: state.u.ux - 1,
         my: state.u.uy,
         mextra: {
             eshk: {
                 shoproom: roomno,
+                shoptype: SHOPBASE,
+                bill: [],
+                billct: 0,
+                credit: 0,
+                debit: 0,
+                loan: 0,
+                surcharge: false,
                 shoplevel: { ...state.u.uz },
                 shk: { x: state.u.ux - 1, y: state.u.uy },
             },
         },
     };
+    state.u.ushops = [roomno, 0, 0, 0, 0];
     return room;
 }
 
-test('the interactive arm refuses a shop square', async () => {
+test('the interactive arm bills shop stock before adding it to inventory', async () => {
     const state = await heroOnAnEmptySquare();
     const stock = objectUnderHero(state);
     makeShopUnderHero(state);
-    // all_but_uchain() allows the stock, and pick_obj() would then bill it
-    // through addtobill() and remote_burglary().
-    await assert.rejects(
-        () => pickup(0, state),
-        (error) => error instanceof UnsupportedPickupError
-            && /shop floor/u.test(error.message),
-    );
-    assert.equal(stock.where, OBJ_FLOOR);
+    // C pickup.c pick_obj bills before addinv; the quote pauses before prinv.
+    state.nhDisplay.pushKey(32);
+    assert.equal(await pickup(0, state), 1);
+    assert.equal(stock.where, OBJ_INVENT);
+    assert.equal(stock.unpaid, 1);
+    const bill = state.level.rooms[0].resident.mextra.eshk;
+    assert.equal(bill.billct, 1);
+    assert.equal(bill.bill_p[0].bo_id, stock.o_id);
+    assert.equal(bill.bill_p[0].bquan, stock.quan);
 
     // The same square with the shopkeeper standing on it is not costly, which
     // is the second conjunct of shk.c costly_spot().
     const keeper = state.level.rooms[0].resident;
     Object.assign(keeper, { mx: state.u.ux, my: state.u.uy });
     Object.assign(keeper.mextra.eshk.shk, { x: state.u.ux, y: state.u.uy });
+    const freeStock = objectUnderHero(state);
+    quiet(state);
     assert.equal(await pickup(0, state), 1);
-    assert.equal(stock.where, OBJ_INVENT);
+    assert.equal(freeStock.where, OBJ_INVENT);
+    assert.equal(Boolean(freeStock.unpaid), false);
+    assert.equal(bill.billct, 1);
 });
 
 test('an autopickup that lifts nothing leaves the pile described as untouched',

@@ -61,6 +61,7 @@ import {
     PLNMSG_OBJNAM_ONLY,
     SIGNAL_NOMENU,
     SIGNAL_ESCAPE,
+    SHOPBASE,
     SLT_ENCUMBER,
     STAIRS,
     STONE,
@@ -118,6 +119,7 @@ import {
     addinv_runtime,
     freeinv,
     carrying,
+    currency,
     count_unpaid,
     tally_BUCX,
     dfeature_at,
@@ -151,6 +153,7 @@ import { bagotricks } from './makemon.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';
+import { in_rooms } from './rooms.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
     CANDELABRUM_OF_INVOCATION, COIN_CLASS, CORPSE, GOLD_PIECE,
@@ -159,12 +162,13 @@ import {
 } from './objects.js';
 import {
     Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
-    otense, safe_qbuf, the, The, thesimpleoname, xnameFresh, yname,
+    doname_with_price, otense, safe_qbuf, the, The, thesimpleoname, xnameFresh, yname,
     ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
 import {
-    check_unpaid_usage, costly_spot, pick_pick, sellobj_state,
+    addtobill, check_unpaid_usage, costly_spot, pick_pick, remote_burglary,
+    sellobj_state,
 } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
@@ -571,11 +575,18 @@ export async function query_objlist(
                     ? curr.invlet
                     : (first && curr.oclass === COIN_CLASS ? '$' : undefined),
                 groupSelector,
-                // pickup() rejects live shop squares before this branch, so
-                // the source's doname_with_price() has the same text as
-                // doname() here under the default pricequotes setting. The
-                // price-quote and shop-price variants remain outside scope.
-                label: donameFresh(curr, state),
+                // C uses doname_with_price(). Outside a shop (or for coins
+                // and punishment objects), get_cost_of_shop_item returns 0
+                // with nochrg=-1, so the ordinary name/remembered quote is
+                // identical. Keep the existing priced-name callee boundary
+                // for live shop stock, including its unsupported variants.
+                label: state.u.ushops?.[0] && curr.oclass !== COIN_CLASS
+                    && curr !== state.uball && curr !== state.uchain
+                    && curr.where === OBJ_FLOOR
+                    && in_rooms(curr.ox, curr.oy, SHOPBASE, state)[0]
+                        === state.u.ushops[0]
+                    ? doname_with_price(curr, state, { currencyName: currency })
+                    : donameFresh(curr, state),
                 value: curr,
                 glyphInfo,
             });
@@ -771,10 +782,9 @@ export async function query_category(
     };
 }
 
-// Everything C decides inside pickup_object(), lift_object(), pick_obj() and
-// addinv() that can refuse, gathered before observe_object() runs or the first
-// object leaves the floor. This is the narrow fail-closed boundary for special
-// pickup behavior and it keeps floor indexes and discovery state atomic.
+// Existing pickup/addinv admission before discovery and floor extraction.
+// Shop billing runs later at pick_obj's source position; its independently
+// implemented pricing callees can still refuse their unported variants.
 function preflightPickupObjects(selected, state) {
     let addedWeight = 0;
     let projectedGold = money_cnt(state.invent);
@@ -844,11 +854,15 @@ function preflightPickupObjects(selected, state) {
     // object can merge with an earlier projected pickup.  Reject atomically
     // only at the first projected non-merge addition which C would refuse.
     let projectedSlots = inv_cnt(false, state);
-    for (const plan of addPlans) {
-        if (!plan.addedOrdinarySlot) continue;
-        if (projectedSlots >= 52)
-            throw new UnsupportedPickupError('pickup() with a full pack');
-        ++projectedSlots;
+    // Billing changes mergeability after lift_object's decision. For a shop
+    // floor, use the live source lift below, not this pre-billing projection.
+    if (!costly_spot(state.u.ux, state.u.uy, state)) {
+        for (const plan of addPlans) {
+            if (!plan.addedOrdinarySlot) continue;
+            if (projectedSlots >= 52)
+                throw new UnsupportedPickupError('pickup() with a full pack');
+            ++projectedSlots;
+        }
     }
     for (const plan of addPlans) {
         // pickup.c:1881-1882 raises gm.mrg_to_wielded across pickup_prinv()
@@ -1053,11 +1067,9 @@ export function preflight_projected_random_arrival_pickup(state) {
     }
 }
 
-// C ref: pickup.c pickup_object() (1803-1888), with lift_object(), pick_obj()
-// and pickup_prinv() folded in where the port already owns them:
-// preflight_addinv_sequence() answers lift_object()'s weight and slot
-// questions, obj_extract_self() plus addinv_runtime() are pick_obj(), and the
-// encumbrance-prefix ladder plus prinv() are pickup_prinv().
+// C ref: pickup.c pickup_object() (1803-1888). lift_object() and pick_obj()
+// run at their source sites; pickup_prinv()'s encumbrance-prefix ladder and
+// prinv() remain folded into the final block below.
 //
 // Four of C's five type arms refuse in preflightPickupObjects() before
 // anything moves: uchain has no owner, an engulfer's inventory is rejected by
@@ -1085,9 +1097,14 @@ async function pickup_object(obj, count, telekinesis, env, plan) {
             || rider_corpse_revival(obj, telekinesis, state)))
         return -1;
 
-    obj_extract_self(obj, env);
-    newsym(state.u.ux, state.u.uy);
-    const carried = await addinv_runtime(obj, env, plan);
+    const lifted = await lift_object(obj, null, count, telekinesis, state);
+    if (lifted.result <= 0) return lifted.result;
+    count = lifted.count;
+    if (obj.quan !== count && obj.otyp !== LOADSTONE) {
+        obj = splitobj(obj, count, env);
+        plan = null;
+    }
+    const carried = await pick_obj(obj, state, env, plan);
 
     const nearload = near_capacity(state);
     let prefix = null;
@@ -1106,13 +1123,40 @@ async function pickup_object(obj, count, telekinesis, env, plan) {
     return 1;
 }
 
+// C ref: pickup.c pick_obj() (1897-1945). Billing must precede inventory
+// merging; remote burglary must follow it so setpaid can find the object.
+export async function pick_obj(otmp, state = game, env = {}, plan = null) {
+    env = objectGenerationEnv({ ...env, state });
+    const fromfloor = otmp.where === OBJ_FLOOR;
+    const location = get_obj_location(otmp, 0, state);
+    const { x: ox, y: oy } = location;
+    let robshop = !state.u.uswallow && otmp !== state.uball
+        && costly_spot(ox, oy, state);
+    obj_extract_self(otmp, env);
+    if (fromfloor) (env.redraw ?? newsym)(ox, oy, state);
+    if (robshop) {
+        const savedShops = state.u.ushops;
+        const shop = in_rooms(ox, oy, SHOPBASE, state)[0];
+        state.u.ushops = [shop, 0, 0, 0, 0];
+        try {
+            await addtobill(otmp, true, false, false, state, env);
+        } finally {
+            state.u.ushops = savedShops;
+        }
+        robshop = otmp.unpaid && !savedShops.includes(shop);
+    }
+    const result = await addinv_runtime(otmp, env, plan);
+    if (robshop) await remote_burglary(ox, oy, state, env);
+    return result;
+}
+
 // C ref: pickup.c pickup() (672-910), autopick(), query_objlist(),
 // pickup_object(), pick_obj() and pickup_prinv(). Beyond the no-object and
 // no-autopickup arms this covers two selections that share one pickup loop:
 // autopick()'s, used by a level teleport arrival, and the `,` command's, for a
 // square holding exactly one object it is allowed to take. Option filters,
-// shop stock, burden prompts, partial stacks, full packs and every square with
-// a second object stop before ownership changes.
+// burden prompts and full packs retain their existing admission checks.
+// Manual menus and autopickup share pickup_object and the billed pick_obj path.
 export async function pickup(what, state = game) {
     const u = state.u;
     const autopickup = what > 0;
@@ -1221,11 +1265,6 @@ export async function pickup(what, state = game) {
             // refusal is reachable, and is what keeps C's counted-subset
             // selector from being silently skipped.
             throw new UnsupportedPickupError('pickup() of a counted subset');
-        }
-        if (costly_spot(u.ux, u.uy, state)) {
-            // all_but_uchain() allows shop stock, and pick_obj() then bills it
-            // through addtobill() and remote_burglary().
-            throw new UnsupportedPickupError('pickup() from a shop floor');
         }
         const traverse_how = BY_NEXTHERE | AUTOSELECT_SINGLE
             | (state.flags?.sortpack ? INVORDER_SORT : 0);

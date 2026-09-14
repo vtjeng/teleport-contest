@@ -87,11 +87,10 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { donameFresh } from './objnam.js';
-import { set_residency } from './shk.js';
+import { picked_container, set_residency } from './shk.js';
 import { mksobj, unknow_object } from './obj.js';
 import {
     BOULDER,
-    COIN_CLASS,
     EXPENSIVE_CAMERA,
     SADDLE,
 } from './objects.js';
@@ -546,13 +545,6 @@ export async function makedog(env = {}) {
     return monster;
 }
 
-function clearContainedNoCharge(container) {
-    for (let obj = container.cobj; obj; obj = obj.nobj) {
-        if (obj.oclass !== COIN_CLASS) obj.no_charge = false;
-        if (obj.cobj) clearContainedNoCharge(obj);
-    }
-}
-
 function monsterEmitsLight(monster) {
     const species = monster.data;
     return species?.mlet === S_LIGHT
@@ -608,7 +600,7 @@ function sameLevel(left, right) {
 // for it.
 function mon_leave(monster, state) {
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (obj.cobj) clearContainedNoCharge(obj);
+        if (obj.cobj) picked_container(obj);
         obj.no_charge = false;
     }
     if (monster.isshk) {

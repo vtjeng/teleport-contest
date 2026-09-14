@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8490101,
+      "datetime": "20341107121416",
+      "nethackrc": "OPTIONS=name:BillCase,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": ".\u00165\n \u0014  llllllllllllllllllllllllllllllllllllllllkkkkkk. l, ",
+      "comment": "Independent bounded seed search 8490100–8490149 on 2034-11-07 selected this general store after an earlier seed's generated-door mismatch. The hero level-teleports to D:5, controlled-teleports into the empty entrance column at (75,6), then steps east and picks up a food ration. run-shop-billing.mjs verifies the acquired unpaid object, active bill identity/quantity and exhausted input before recording; no corpus seed or prefix was reused."
+    }
+  ]
+}
