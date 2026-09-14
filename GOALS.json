@@ -37591,8 +37591,8 @@
         },
         {
           "name": "doprarm..display_minventory",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9",
           "functions": [
             "doprarm",
             "doprring",
@@ -38281,133 +38281,133 @@
           "line": 4601,
           "endLine": 4641,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doprring",
           "line": 4642,
           "endLine": 4678,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dopramulet",
           "line": 4679,
           "endLine": 4697,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "tool_being_used",
           "line": 4698,
           "endLine": 4714,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doprtool",
           "line": 4715,
           "endLine": 4739,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doprinuse",
           "line": 4740,
           "endLine": 4762,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "useupf",
           "line": 4763,
           "endLine": 4799,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "let_to_name",
           "line": 4800,
           "endLine": 4844,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "free_invbuf",
           "line": 4845,
           "endLine": 4854,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "reassign",
           "line": 4855,
           "endLine": 4888,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "check_invent_gold",
           "line": 4889,
           "endLine": 4916,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "adjust_ok",
           "line": 4917,
           "endLine": 4926,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "adjust_gold_ok",
           "line": 4927,
           "endLine": 4980,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doorganize",
           "line": 4981,
           "endLine": 5007,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "adjust_split",
           "line": 5008,
           "endLine": 5067,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "doorganize_core",
           "line": 5068,
           "endLine": 5289,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "invdisp_nothing",
           "line": 5290,
           "endLine": 5308,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "worn_wield_only",
           "line": 5309,
           "endLine": 5340,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_minventory",
           "line": 5341,
           "endLine": 5390,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "cinv_doname",
@@ -40696,74 +40696,511 @@
               "recordings/invent.c/show-armor.session.json"
             ],
             "checkedAt": "b3c4a3cfe9546fe6feb379f77ef6c7200eeb38a7"
+          },
+          {
+            "name": "doprarm",
+            "implementation": "js/invent.js",
+            "symbol": "doprarm",
+            "sourceReview": "Read invent.c:4601-4641 in full. Preserved the noarmor(TRUE) branch, seven armor-slot traversal order, obj_to_let calls, menu-requested display owner, and ECMD_OK result; no unported callee is needed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] dispatches #seearmor to doprarm()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c's bound '[' command reaches doprarm() through the command dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-armor.session.json",
+              "recordings/invent.c/show-armor-equipped.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "doprring",
+            "implementation": "js/invent.js",
+            "symbol": "doprring",
+            "sourceReview": "Read invent.c:4642-4678 in full. Preserved empty-ring messaging, right-then-left letters, meat-ring detection, menu-prefix ordering, alternate Ring/Rings label, and ECMD_OK result; no unported callee is needed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] dispatches #seerings to doprring()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c's bound '=' command reaches doprring() through the command dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/invent.c/show-rings.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "dopramulet",
+            "implementation": "js/invent.js",
+            "symbol": "dopramulet",
+            "sourceReview": "Read invent.c:4679-4697 in full. Preserved empty-amulet messaging, obj_to_let selection, forced in-use menu, Amulet label, and ECMD_OK result; no unported callee is needed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] dispatches #seeamulet to dopramulet()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c's bound double-quote command reaches dopramulet() through the command dispatcher."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/invent.c/show-amulet.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "tool_being_used",
+            "implementation": "js/invent.js",
+            "symbol": "tool_being_used",
+            "sourceReview": "Read invent.c:4698-4714 in full. Preserved W_TOOL/W_SADDLE, non-tool exclusion, uwep, lamplit, and leashmon predicates in source order; the predicate is pure and makes no random draw or output.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "is_inuse",
+                "source": "invent.c is_inuse() calls tool_being_used() after carried() and is_worn()."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "doprtool",
+                "source": "invent.c doprtool() calls tool_being_used() while collecting inventory letters."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "doprtool",
+            "implementation": "js/invent.js",
+            "symbol": "doprtool",
+            "sourceReview": "Read invent.c:4715-4739 in full. Preserved the fixed invlet_basic bound, source inventory traversal, empty-use message, forced in-use display, and ECMD_OK result; all called display and naming functions are ported.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] dispatches #seetools to doprtool()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-tools-in-use.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "doprinuse",
+            "implementation": "js/invent.js",
+            "symbol": "doprinuse",
+            "sourceReview": "Read invent.c:4740-4762 in full. Preserved the first is_inuse test, empty-use message, forced complete in-use display, and ECMD_OK result.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] dispatches #seeall to doprinuse()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-all-in-use.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "useupf",
+            "implementation": "js/invent.js",
+            "symbol": "useupf",
+            "sourceReview": "Read invent.c:4763-4799 in full. Preserved u_at evaluation before splitting, splitobj quantity behavior, mon_moving and costly_spot gates, in_rooms hero-room choice, delobj ordering, and the final concealed-hero hideunder condition. C's discarded shk.c addtobill()/stolen_value() and mon.c hideunder() calls are explicit note_unported boundaries; maybe_unhide_at likewise records its discarded hideunder call so deletion continues.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "done_eating",
+                "source": "eat.c done_eating() calls useupf(piece, 1L) after consuming one floor object."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c's object arm calls useupf(obj, obj->quan)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/useupf-floor-pie.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "let_to_name",
+            "implementation": "js/invent.js",
+            "symbol": "let_to_name",
+            "sourceReview": "Read invent.c:4800-4844 in full. Preserved class and contained-item names, unpaid prefix, symbol padding, and fallback illegal-object name; the JavaScript return is an immutable string and consumes no RNG or output.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c query_objlist() adds each sorted inventory class heading through let_to_name()."
+              },
+              {
+                "path": "js/o_init.js",
+                "symbol": "dodiscovered",
+                "source": "o_init.c discovered-object display uses let_to_name() for class headings."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/menu-objsyms.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "free_invbuf",
+            "implementation": "js/invent.js",
+            "symbol": "free_invbuf",
+            "sourceReview": "Read invent.c:4845-4854 in full. JavaScript has no mutable static allocation behind let_to_name(), so the named boundary performs the source cleanup as a no-op without output or RNG. save.c is not yet a JavaScript production caller.",
+            "callers": [],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The only C caller is save.c savegam() cleanup; the JavaScript save path is not ported and JavaScript strings need no heap release.",
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "reassign",
+            "implementation": "js/invent.js",
+            "symbol": "reassign",
+            "sourceReview": "Read invent.c:4855-4888 in full. Preserved first-gold extraction, a-z/A-Z/overflow relabeling, gold reinsertion, and lastinvnr truncation.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize",
+                "source": "invent.c doorganize() calls reassign() when invlet_constant is false."
+              },
+              {
+                "path": "js/options.js",
+                "symbol": "applyOption",
+                "source": "options.c option processing invokes reassign() for inventory-letter-dependent option changes."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/adjust-inventory-slots.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "check_invent_gold",
+            "implementation": "js/invent.js",
+            "symbol": "check_invent_gold",
+            "sourceReview": "Read invent.c:4889-4916 in full. Preserved stack and slot counting and boolean result; the discarded impossible() diagnostic is recorded as note_unported('pline.c impossible') without inventing output.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize",
+                "source": "invent.c doorganize() selects adjust_gold_ok() or adjust_ok() from check_invent_gold()."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions",
+                "source": "iactions.c itemactions() uses check_invent_gold() to admit gold adjustment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/iactions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/adjust-inventory-slots.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "adjust_ok",
+            "implementation": "js/invent.js",
+            "symbol": "adjust_ok",
+            "sourceReview": "Read invent.c:4917-4926 in full. Preserved null exclusion and non-gold suggestion result; this callback is pure.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize",
+                "source": "invent.c doorganize() passes adjust_ok() when gold is sane."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "adjust_split",
+                "source": "invent.c adjust_split() always passes adjust_ok() to getobj()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "adjust_gold_ok",
+            "implementation": "js/invent.js",
+            "symbol": "adjust_gold_ok",
+            "sourceReview": "Read invent.c:4927-4932 in full. Preserved null exclusion and suggestion of every object, including gold; this callback is pure.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize",
+                "source": "invent.c doorganize() passes adjust_gold_ok() when check_invent_gold() finds malformed gold."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "doorganize",
+            "implementation": "js/invent.js",
+            "symbol": "doorganize",
+            "sourceReview": "Read invent.c:4981-5007 in full. Preserved empty-inventory messaging, floating-letter reassign, gold sanity callback choice, getobj prompt and flags, core delegation, and ECMD_OK behavior.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist[] dispatches #adjust to doorganize()."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c itemactions_pushkeys() queues #adjust for IA_ADJUST_OBJ."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/adjust-inventory-slots.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "adjust_split",
+            "implementation": "js/invent.js",
+            "symbol": "adjust_split",
+            "sourceReview": "Read invent.c:5008-5067 in full. Preserved queued getobj behavior, gold and quantity guards, two-item shortcut, digit/count acceptance, cancellation messages, split bounds, splitobj, and core delegation.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c internal altadjust row dispatches adjust_split()."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c IA_ADJUST_STACK queues the internal #altadjust command and inventory key."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/adjust-split-item-action.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "doorganize_core",
+            "implementation": "js/invent.js",
+            "symbol": "doorganize_core",
+            "sourceReview": "Read invent.c:5068-5289 in full. Preserved cancellation, split-parent detection, destination-letter construction and compaction, occupied-slot clearing, collection/merge/swap/split branches, name restoration, overflow handling, inline reinsertion, deferred prinv messages, split cleanup, and inventory update order.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "doorganize",
+                "source": "invent.c doorganize() returns doorganize_core(obj)."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "adjust_split",
+                "source": "invent.c adjust_split() returns doorganize_core(splitobj result)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/extended-command-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/adjust-inventory-slots.session.json",
+              "recordings/invent.c/adjust-split-item-action.session.json"
+            ],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "invdisp_nothing",
+            "implementation": "js/invent.js",
+            "symbol": "invdisp_nothing",
+            "sourceReview": "Read invent.c:5290-5308 in full. Preserved menu heading, blank line, text row, PICK_NONE selection, and null result; the JavaScript menu owner replaces C window allocation and destruction.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "display_minventory",
+                "source": "invent.c display_minventory() calls invdisp_nothing() when the filtered monster inventory is empty."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "display_minventory's C callers are the swallowed look_here() path and zap.c probe_monster(); neither production caller is wired in JavaScript yet.",
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "worn_wield_only",
+            "implementation": "js/invent.js",
+            "symbol": "worn_wield_only",
+            "sourceReview": "Read invent.c:5309-5340 in full. Preserved the compiled #if 1 arm, which tests only a nonzero owornmask; the historical #else arm remains excluded by the reference build.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "display_minventory",
+                "source": "invent.c display_minventory() passes worn_wield_only() for armament-only monster menus."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
+          },
+          {
+            "name": "display_minventory",
+            "implementation": "js/invent.js",
+            "symbol": "display_minventory",
+            "sourceReview": "Read invent.c:5341-5386 in full. Preserved do_all and engulfing flags, no-inventory fallback, monster-name heading, temporary hero species and suppress_price state, INVORDER_SORT filtering, class headings, glyph-before-name evaluation order, PICK_NONE/PICK_ONE/PICK_ANY selection, and restoration of temporary state. The swallowed hero fake row remains an explicit pickup.c query_objlist dependency marker.",
+            "callers": [],
+            "pure": false,
+            "tests": [
+              "scripts/invent-display-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No JavaScript production caller currently reaches the C swallowed look_here() or zap.c probe_monster() display path; the source-pinned test exercises the complete menu and temporary-state behavior.",
+            "checkedAt": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9"
           }
         ],
-        "entryPointReview": "The selected source range exposes #inventtype (dotypeinv), #look and movement/pickup look_here paths, #showgold (doprgold), #seeweapon (doprwep), and #seearmor (doprarm/noarmor). stackobj() and mergable() are helpers reached by drop and throw inventory paths; feel_cockatrice() is a tactile helper whose independent setup remains blocked in objnam.c.",
+        "entryPointReview": "The selected range contains #seearmor, #seerings, #seeamulet, #seetools, #seeall, #adjust, and the internal #altadjust item-action entry points. Matching recordings cover each command, including both empty and equipped armor branches. useupf is reached through the production sit path in its independent recording. display_minventory and invdisp_nothing are helper paths called by the swallowed look_here() and zap.c probe_monster() callers, which are not yet wired in JavaScript; their source-pinned test covers the implementation and the dependency marker remains explicit.",
         "entryPoints": [
-          {
-            "name": "#inventtype",
-            "functions": [
-              "dotypeinv"
-            ],
-            "recordings": [
-              "recordings/invent.c/inventory-by-type.session.json"
-            ]
-          },
-          {
-            "name": "#look",
-            "functions": [
-              "dolook",
-              "look_here",
-              "dfeature_at"
-            ],
-            "recordings": [
-              "recordings/invent.c/look-command-empty-square.session.json"
-            ]
-          },
-          {
-            "name": "#showgold",
-            "functions": [
-              "doprgold"
-            ],
-            "recordings": [
-              "recordings/invent.c/show-gold.session.json"
-            ]
-          },
-          {
-            "name": "#seeweapon",
-            "functions": [
-              "doprwep"
-            ],
-            "recordings": [
-              "recordings/invent.c/show-weapon.session.json"
-            ]
-          },
           {
             "name": "#seearmor",
             "functions": [
-              "noarmor"
+              "doprarm"
             ],
             "recordings": [
-              "recordings/invent.c/show-armor.session.json"
+              "recordings/invent.c/show-armor.session.json",
+              "recordings/invent.c/show-armor-equipped.session.json"
+            ]
+          },
+          {
+            "name": "#seerings",
+            "functions": [
+              "doprring"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-rings.session.json"
+            ]
+          },
+          {
+            "name": "#seeamulet",
+            "functions": [
+              "dopramulet"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-amulet.session.json"
+            ]
+          },
+          {
+            "name": "#seetools",
+            "functions": [
+              "tool_being_used",
+              "doprtool"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-tools-in-use.session.json"
+            ]
+          },
+          {
+            "name": "#seeall",
+            "functions": [
+              "doprinuse"
+            ],
+            "recordings": [
+              "recordings/invent.c/show-all-in-use.session.json"
             ]
           },
           {
             "name": "#adjust",
             "functions": [
-              "mergable"
+              "reassign",
+              "check_invent_gold",
+              "adjust_ok",
+              "adjust_gold_ok",
+              "doorganize",
+              "doorganize_core"
             ],
             "recordings": [
               "recordings/invent.c/adjust-inventory-slots.session.json"
             ]
           },
           {
-            "name": "floor object stacking",
+            "name": "#altadjust item action",
             "functions": [
-              "stackobj",
-              "mergable"
+              "adjust_split",
+              "doorganize_core"
             ],
             "recordings": [
-              "recordings/dothrow.c/monster-missile-drop-mulching.session.json"
+              "recordings/invent.c/adjust-split-item-action.session.json"
             ]
           }
         ]
