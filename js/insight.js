@@ -1174,10 +1174,6 @@ const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
     [POLYMORPH, 'Polymorph'],
     [POLYMORPH_CONTROL, 'Polymorph_control'],
 
-    [REFLECTING, 'Reflecting'],
-    [FREE_ACTION, 'Free_action'],
-    [FIXED_ABIL, 'Fixed_abil'],
-    [LIFESAVED, 'Lifesaved'],
 ]);
 
 // C ref: insight.c attributes_enlightenment() (1487-2005), "intrinsics and the
@@ -1327,6 +1323,24 @@ async function attributes_enlightenment(final, state, lines) {
 
     if (hasProperty(state, FAST))
         you_are(lines, final, 'fast', from_what(FAST, state));
+
+    // C ref: insight.c:1900. Reflection is reported after movement speed and
+    // retains the wizard-mode source suffix from attrib.c from_what().
+    if (hasProperty(state, REFLECTING))
+        you_have(lines, final, 'reflection',
+            from_what(REFLECTING, state));
+
+    // C ref: insight.c:1902-1906. These capability lines retain their source
+    // wording where from_what() has one and preserve C's order.
+    if (hasProperty(state, FREE_ACTION))
+        you_have(lines, final, 'free action',
+            from_what(FREE_ACTION, state));
+    if (hasProperty(state, FIXED_ABIL))
+        you_have(lines, final, 'fixed abilities',
+            from_what(FIXED_ABIL, state));
+    if (hasProperty(state, LIFESAVED))
+        enl_msg(lines, final, 'Your life ', 'will be', 'would have been',
+            ' saved', '');
 
     if (luck) {
         const prefix = Math.abs(luck) >= 10 ? 'extremely '

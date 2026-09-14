@@ -27,12 +27,15 @@ import {
     EXT_ENCUMBER,
     FIRE_RES,
     FIXED_ABIL,
+    FREE_ACTION,
     HALLUC_RES,
     HVY_ENCUMBER,
     LEVITATION,
+    LIFESAVED,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     OVERLOADED,
+    REFLECTING,
     SEARCHING,
     SLEEPY,
     SLT_ENCUMBER,
@@ -956,6 +959,40 @@ test('attributes enlightenment reports automatic searching', async () => {
     );
     assert.ok(lines.some((line) => line.includes('automatic searching')),
         'the Searching branch is emitted');
+});
+
+// insight.c:1900. Reflection is a movement/non-armor capability in the
+// attributes window and is emitted through the production caller.
+test('attributes enlightenment reports reflection', async () => {
+    const state = await readyExploreGame();
+    state.u.uprops[REFLECTING] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const lines = attributeSection(
+        await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
+    );
+    assert.ok(lines.some((line) => line.includes('reflection')),
+        'the Reflecting branch is emitted');
+});
+
+// insight.c:1902-1906. Free action, fixed abilities and lifesaving are
+// adjacent capability branches and keep their source order in the report.
+test('attributes enlightenment reports adjacent capabilities', async () => {
+    const state = await readyExploreGame();
+    state.u.uprops[FREE_ACTION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uprops[FIXED_ABIL] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uprops[LIFESAVED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const lines = attributeSection(
+        await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
+    );
+    const free = lines.findIndex((line) => line.includes('free action'));
+    const fixed = lines.findIndex((line) => line.includes('fixed abilities'));
+    const saved = lines.findIndex((line) => line.includes('life will be saved'));
+    assert.ok(free >= 0, 'the Free_action branch is emitted');
+    assert.ok(fixed > free, 'Fixed_abil follows Free_action');
+    assert.ok(saved > fixed, 'Lifesaved follows Fixed_abil');
 });
 
 // insight.c:1509-1513. piousness() names how far the record has moved, and the
