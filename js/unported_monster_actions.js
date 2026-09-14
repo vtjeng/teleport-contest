@@ -1818,6 +1818,7 @@ export async function preflightSimpleMonsterActions(
     let upkeepCount = 0;
     let heroDeath = null;
     let beforeUnmul = false;
+    let beforeTimeout = false;
     try {
         try {
             upkeepCount = await planSimpleMonsterTurn(
@@ -1826,6 +1827,7 @@ export async function preflightSimpleMonsterActions(
                 advanceRound ? async (subject, planningRandom) => {
                     const result = await advanceRound(subject, planningRandom);
                     beforeUnmul = Boolean(result?.beforeUnmul);
+                    beforeTimeout = Boolean(result?.beforeTimeout);
                     return result;
                 } : null,
             );
@@ -1865,7 +1867,26 @@ export async function preflightSimpleMonsterActions(
         upkeepCount,
         heroDeath,
         beforeUnmul,
+        beforeTimeout,
     };
+}
+
+// Resume validation inside an already allocated turn, after a live timeout.
+// This deliberately does not enter planSimpleMonsterTurn: that would rerun
+// monster actions and cannot preserve this allocation's source position.
+export async function preflightElapsedTurnTail(state, advanceTail) {
+    const planned = planningState(state);
+    const random = clonedRandom(planned);
+    try {
+        return await advanceTail(planned, random);
+    } finally {
+        if (planned._plannedVisionChange) {
+            const { x, y } = planned._plannedVisionChange;
+            const fullRecalcBefore = state.vision_full_recalc;
+            recalc_block_point(x, y, state);
+            state.vision_full_recalc = fullRecalcBefore;
+        }
+    }
 }
 
 // The body of preflightSimpleMonsterActions()'s scan, split out so that its

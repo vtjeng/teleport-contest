@@ -160,6 +160,7 @@ import { fightm } from './mhitm.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
     admitPlannedVisionChange,
+    preflightElapsedTurnTail,
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
@@ -171,7 +172,8 @@ import {
 } from './region.js';
 import {
     UnsupportedHeroTimeoutBoundaryError,
-    nh_timeout_elapsed_turn,
+    nh_timeout,
+    nh_timeout_requires_live_state,
     preflight_nh_timeout_elapsed_turn,
 } from './timeout.js';
 import { regen_hp, regen_pw } from './regen.js';
@@ -707,8 +709,7 @@ export async function finishElapsedTurn(
     // gethungry() and attrib.c exerper() each call near_capacity() themselves,
     // so they get a live evaluator below rather than this value, which
     // nh_timeout() and the hunger transition can already have invalidated.
-    let wtcap = near_capacity(state);
-    const regionEnv = planning ? null : regionEffectEnv(state, random);
+    const wtcap = near_capacity(state);
     state.gw.were_changes = 0;
     await mcalcdistress(state, {
         state,
@@ -768,7 +769,7 @@ export async function finishElapsedTurn(
     // planSimpleMonsterTurn() treats a truthy advanceRound result as "this
     // single unburdened allocation is fully preflighted" and must not plan a
     // second allocation that the live hero will not need.
-    if (randomMonsterOnly) return true;
+    if (randomMonsterOnly && !nh_timeout_requires_live_state(state)) return true;
     u_calc_moveamt(wtcap, state, random.rn2);
     settrack(state);
 
@@ -807,9 +808,13 @@ export async function finishElapsedTurn(
     // advanceElapsedTurn() converts that refusal around its call to this
     // function, so the segment ends on its last matching screen instead of
     // being discarded whole.
-    await nh_timeout_elapsed_turn(state, {
+    const liveTimeout = nh_timeout_requires_live_state(state);
+    if (planning && liveTimeout) return { beforeTimeout: true };
+    await nh_timeout(state, {
+        planning,
         random,
         message: turnMessage,
+        norepMessage: turnNorep,
         statusRefresh: turnStatusRefresh,
         // dig.c rot_corpse() redraws the square it cleared. The dry run works
         // on a clone whose objects are copies, so its rotting is discarded
@@ -817,9 +822,37 @@ export async function finishElapsedTurn(
         // is handed, so the clone must draw nothing.
         newsym: planning ? () => {} : newsym,
     });
-    // Full planning remains specific to the burdened multi-allocation path.
-    // An unburdened clone returns just after random monster generation above,
-    // which is the newly async lifecycle that also needs atomic preflight.
+    // C's fatal timeout never reaches the remaining upkeep. JS's end-game
+    // owner returns so the recorder can retain its final capture.
+    if (state.program_state?.gameover) return { afterTimeout: liveTimeout };
+    if (liveTimeout) {
+        const tailPlan = await preflightElapsedTurnTail(
+            state,
+            (planned, planningRandom) => finishElapsedTurnAfterTimeout(
+                planned, planningRandom, wtcap, { planning: true },
+            ),
+        );
+        const result = await finishElapsedTurnAfterTimeout(state, random, wtcap);
+        if (tailPlan?.beforeUnmul && !result?.afterUnmul)
+            throw new Error('elapsed-turn timeout tail disagreed with live delayed action');
+        return { ...result, afterTimeout: true };
+    }
+    return finishElapsedTurnAfterTimeout(state, random, wtcap, { planning });
+}
+
+// C ref: allmain.c moveloop_core(), immediately after nh_timeout through
+// negative-multi release. wtcap is the allocation's earlier mvl_wtcap, not a
+// fresh capacity calculation after a timeout changes equipment or form.
+async function finishElapsedTurnAfterTimeout(
+    state, random, wtcap, { planning = false } = {},
+) {
+    const silentDisplay = async () => {};
+    const turnMessage = planning ? silentDisplay : ttyPline;
+    const turnNorep = planning ? silentDisplay : ttyNorep;
+    const turnStatusRefresh = planning ? silentDisplay : () => bot();
+    const regionEnv = planning ? null : regionEffectEnv(state, random);
+    // Full tail planning also follows a live-only timeout for an unburdened
+    // hero. The existing region guard applies at this source position too.
     if (planning && state.level.regions.length)
         elapsedTurnBoundary('burdened multi-cycle region upkeep');
     if (!planning) await run_regions(regionEnv);
@@ -1138,7 +1171,7 @@ async function planElapsedTurn(state, { consumeHeroRation = true } = {}) {
     // the wrap value with an ISAAC draw already spent.
     if (reachesTurnLimit)
         elapsedTurnBoundary('game end through done(ESCAPED)');
-    if (preflight.runsOncePerTurnUpkeep) {
+    if (preflight.runsOncePerTurnUpkeep && !preflight.beforeTimeout) {
         try {
             preflightGetHungry(state, {
                 nearCapacity: () => initialCapacity,
@@ -1260,16 +1293,19 @@ async function advanceElapsedTurn(state) {
         if (runsOncePerTurnUpkeep) {
             ++upkeepCount;
             let afterUnmul;
+            let afterTimeout;
             try {
-                afterUnmul = (await finishElapsedTurn(state, random))?.afterUnmul;
+                const result = await finishElapsedTurn(state, random);
+                afterUnmul = result?.afterUnmul;
+                afterTimeout = result?.afterTimeout;
             } catch (error) {
-                // The same conversion the two preflights above take, for the
-                // one refusal a preflight cannot decide: the live monster scan
-                // can move a due corpse off the floor after the turn was
-                // admitted, and nh_timeout_elapsed_turn() refuses it here.
-                // Without this the class reaches js/jsmain.js, which does not
-                // list it, and the segment loses every screen it had matched.
-                if (!(error instanceof UnsupportedHeroTimeoutBoundaryError))
+                // A live-only timeout and its fresh tail can reach existing
+                // command or upkeep refusals after the prefix has completed.
+                // Preserve that prefix through the normal gameplay boundary;
+                // unexpected errors, including TypeErrors, still escape.
+                if (![...elapsedTurnPlanningRefusals(), ...failClosedCommandRefusals()].some(
+                    (type) => error instanceof type,
+                ))
                     throw error;
                 const boundary = new UnsupportedTurnBoundaryError(
                     error.message,
@@ -1284,7 +1320,13 @@ async function advanceElapsedTurn(state) {
                     'elapsed-turn preflight disagreed with live delayed action',
                 );
             }
-            if (afterUnmul && state.u.umovement < NORMAL_SPEED) {
+            if (preflight.beforeTimeout
+                && upkeepCount === preflight.upkeepCount && !afterTimeout) {
+                throw new Error(
+                    'elapsed-turn preflight disagreed with live timeout',
+                );
+            }
+            if ((afterUnmul || afterTimeout) && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,
                 });

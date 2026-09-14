@@ -762,6 +762,18 @@ test('toggle_displacement follows its source visibility guards', async () => {
         takePendingTopLine(),
         'You feel that monsters no longer have difficulty pinpointing your location.',
     );
+    // timeout.c supplies no object; expiry neither discovers a cloak nor
+    // consumes discovery RNG, and You_feel uses its sleeping wording.
+    await freshCase();
+    game.multi = -2;
+    game.u.usleep = game.moves;
+    const beforeTimeout = getRngLog().length;
+    // The dreaming sentence wraps beyond the 80-column message window.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await toggle_displacement(null, 0, false, game);
+    assert.equal(getRngLog().length, beforeTimeout);
+    assert.equal(game._ttyToplines,
+        'You dream that you feel that monsters no longer have difficulty pinpointing your location.');
 });
 
 // The keys scripts/run-wear-armor.mjs records for Cloak_on()'s two acting

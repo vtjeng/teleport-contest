@@ -7,6 +7,8 @@
 // and obj_stop_timers() also accept cleanup integration through `{ hooks }`.
 
 import {
+    ACID_RES,
+    A_CON,
     BURN_OBJECT,
     BURIED_TOO,
     BLINDED,
@@ -15,8 +17,11 @@ import {
     DB_ICE,
     DB_UNDER,
     DEAF,
+    DETECT_MONSTERS,
+    DISPLACED,
     DRAWBRIDGE_UP,
     FIG_TRANSFORM,
+    FIRE_RES,
     FOOT,
     FULL_MOON,
     FLYING,
@@ -27,14 +32,23 @@ import {
     HATCH_EGG,
     HALLUC,
     HALLUC_RES,
+    GLIB,
     ICE,
     INTRINSIC,
     INVULNERABLE,
+    INVIS,
+    I_SPECIAL,
+    Is_waterlevel,
     isok,
     LEVITATION,
+    KILLED_BY,
+    KILLED_BY_AN,
+    MAGICAL_BREATHING,
+    NEUTRAL,
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
+    NO_KILLER_PREFIX,
     LS_OBJECT,
     OBJ_BURIED,
     OBJ_CONTAINED,
@@ -43,12 +57,23 @@ import {
     OBJ_MIGRATING,
     OBJ_MINVENT,
     RANGE_LEVEL,
+    PASSES_WALLS,
+    POISON_RES,
+    PROT_FROM_SHAPE_CHANGERS,
     REVIVE_MON,
     ROT_AGE,
     ROT_CORPSE,
     SHRINK_GLOB,
     SLIMED,
+    SICK,
+    SICK_NONVOMITABLE,
+    SLEEP_RES,
     SLEEPY,
+    SEE_INVIS,
+    STONED,
+    STONE_RES,
+    STRANGLED,
+    STUNNED,
     TAINT_AGE,
     TIMEOUT,
     TIMER_NONE,
@@ -58,38 +83,62 @@ import {
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
     UNCHANGING,
+    Upolyd,
+    VOMITING,
+    WARN_OF_MON,
     WT_NOISY_INV,
     WOUNDED_LEGS,
+    WWALKING,
     ZOMBIFY_MON,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { artifact_light } from './artifacts.js';
-import { stone_luck } from './attrib.js';
+import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
+import { newsym, see_monsters } from './display.js';
+import { hcolor, Monnam } from './do_name.js';
+import { toggle_displacement } from './do_wear.js';
+import { eating_dangerous_corpse } from './eat.js';
+import { find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
-import { heal_legs, wipeoff } from './do.js';
+import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
-import { carrying } from './invent.js';
+import { carrying, useup } from './invent.js';
 import { game } from './gstate.js';
-import { inv_weight, You_can_move_again, nomul } from './hack.js';
-import { make_deaf, set_itimeout } from './potion.js';
+import { inv_weight, You_can_move_again, nomul, spoteffects } from './hack.js';
+import {
+    incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
+    make_hallucinated, set_itimeout,
+} from './potion.js';
+import { encumber_msg } from './pickup.js';
+import { stuck_in_wall } from './pray.js';
+import { region_danger } from './region.js';
+import { the } from './objnam.js';
 import {
     candle_light_range,
     get_obj_location,
     new_light_source,
 } from './light.js';
-import { is_rider, is_were, zombie_form } from './mondata.js';
+import {
+    breathless, is_flyer, is_rider, is_were, name_to_mon, type_is_pname,
+    zombie_form,
+} from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
-import { wake_nearby } from './mon.js';
+import { restartcham, wake_nearby } from './mon.js';
 import { note_unported } from './unported.js';
-import { unconscious } from './trap.js';
+import { float_down, unconscious } from './trap.js';
+import { find_ac } from './u_init_inventory_attrs.js';
 import {
     PM_DEATH,
     PM_ARCHEOLOGIST,
     PM_LICHEN,
     PM_LIZARD,
     S_TROLL,
+    G_UNIQ,
+    LOW_PM,
+    NON_PM,
 } from './monsters.js';
 import {
+    AMULET_OF_STRANGULATION,
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
     FEDORA,
@@ -103,8 +152,10 @@ import {
 import {
     remove_object, shrink_glob, unportedShrinkGlobReason,
 } from './obj.js';
-import { rn1, rn2, rnd, rnz } from './rng.js';
-import { ttyPline } from './tty_message.js';
+import {
+    createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd, rnz,
+} from './rng.js';
+import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
 
@@ -397,8 +448,8 @@ function heroIsOnIce(state) {
 
 // timeout.c::slip_or_trip() has several source-heavy branches. This span admits
 // the four-way plain on-foot switch after a move and the no-move expiry arm,
-// whose movement effects are skipped by nh_timeout(); object, ice, mounted,
-// and deferred-decoration paths remain fail closed. FROMOUTSIDE is safe on the
+// whose movement effects are skipped by nh_timeout(); object, ice and mounted
+// slip_or_trip calls remain recorded gaps. FROMOUTSIDE is safe on the
 // no-move arm because slip_or_trip() is not called, but a moved hero with that
 // bit reaches its unported ice branch.
 function plainOnFootFumbleAdmitted(state) {
@@ -410,8 +461,7 @@ function plainOnFootFumbleAdmitted(state) {
         && !heroPropertyActive(state, FLYING)
         && (!u.umoved || !fromOutside)
         && !heroIsOnIce(state)
-        && !state.level?.objects?.[u.ux]?.[u.uy]
-        && !state.iflags?.defer_decor;
+        && !state.level?.objects?.[u.ux]?.[u.uy];
 }
 
 function hallucinating(state) {
@@ -463,15 +513,8 @@ async function slipOrTripPlainOnFoot(state, random, message) {
     }
 }
 
-// C ref: timeout.c nh_timeout() and timer.c run_timers(), specialized to the
-// source-inert timeout state admitted by the current repeated-command
-// boundary. Validate those invariants rather than silently skipping a newly
-// reachable timeout branch. FUMBLING expiry is admitted only for the
-// source-backed plain on-foot path below.
-//
-// `env` carries the newsym() seam the due timers will draw through, so a turn
-// whose timer cannot fire refuses before the turn starts rather than partway
-// into it.
+// Object-timer admission remains owned by run_timers(). Hero clocks and
+// property expiry are implemented by nh_timeout below, not by this preflight.
 export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     const u = state.u ?? {};
     // timeout.c:621-622 returns for an invulnerable hero, and everything this
@@ -479,65 +522,8 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     // usptime and ugallop arms at 641-667, the property countdown at 670-671,
     // and run_timers() at 947, nh_timeout()'s last statement. So none of that
     // state is read on such a turn and none of it needs to be admitted.
-    // nh_timeout_elapsed_turn() makes the same return, in C's position.
+    // nh_timeout() makes the same return, in C's position.
     if (u.uinvulnerable) return;
-    const wipeOccupation = state.go?.occupation === wipeoff;
-    // do.c wipeoff() owns the callback's independent four-turn clamps. The
-    // elapsed turn before that callback decrements any cream and temporary
-    // blindness timeout while the occupation is installed, regardless of
-    // their relative values.
-    for (const [name, value] of [
-        ['ucreamed', u.ucreamed],
-        ['usptime', u.usptime],
-        ['ugallop', u.ugallop],
-    ]) {
-        if (name === 'ucreamed' && wipeOccupation) continue;
-        if (Math.trunc(value ?? 0) !== 0) {
-            throw new UnsupportedHeroTimeoutBoundaryError(
-                `zero ${name}`,
-            );
-        }
-    }
-    for (let index = 0; index < (u.uprops?.length ?? 0); ++index) {
-        const timeout = Math.trunc(u.uprops[index]?.intrinsic ?? 0) & TIMEOUT;
-        if (timeout === 0) continue;
-        // WOUNDED_LEGS is fully ported, including expiry through heal_legs().
-        // CONFUSION is admitted only while this decrement remains nonzero;
-        // timeout 1 would reach make_confused(), which remains unported here.
-        if (index === WOUNDED_LEGS) continue;
-        if (index === CONFUSION && timeout > 1) continue;
-        // HALLUC's timeout expiry still needs make_hallucinated(), but its
-        // ordinary decrement is source-inert while more than one turn remains.
-        if (index === HALLUC && timeout > 1) continue;
-        // timeout.c has no INVULNERABLE case in its expiry switch. A timed
-        // property therefore decrements to zero without feedback or cleanup;
-        // this is distinct from u.uinvulnerable's early return above.
-        if (index === INVULNERABLE) continue;
-        // timeout.c:725-729 only reads the FAST fields after decrementing the
-        // timeout. The expiry feedback and the silent Very_fast cases are all
-        // source-complete below.
-        if (index === FAST) continue;
-        if (index === FUMBLING
-            && (timeout > 1 || plainOnFootFumbleAdmitted(state))) continue;
-        // timeout.c:752-758 restores one turn before make_deaf() clears the
-        // timeout. Its talk path is planning-aware and has no RNG or other
-        // refusal, so every timed DEAF value is admitted here.
-        if (index === DEAF) continue;
-        // timeout.c:784's SLEEPY case has no effect while its timeout remains
-        // above one, regardless of whether the source is a worn amulet or an
-        // intrinsic flag.  At expiry, the source-bearing and extrinsic cases
-        // can fall asleep or extend the timeout, so only a plain worn-amulet
-        // timeout may enter that final no-op arm.
-        if (index === SLEEPY
-            && (timeout > 1
-                || ((Math.trunc(u.uprops[index]?.intrinsic ?? 0) & ~TIMEOUT)
-                    === 0
-                    && !(u.uprops[index]?.extrinsic ?? 0)))) continue;
-        if (index === BLINDED && wipeOccupation) continue;
-        throw new UnsupportedHeroTimeoutBoundaryError(
-            `no active property timeout at index ${index}`,
-        );
-    }
     const reason = unportedDueTimerReason(state, timerFireEnv(state, env));
     if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
 }
@@ -599,144 +585,352 @@ async function sleep_dialogue(state, env = {}) {
         await (env.message ?? ttyPline)('You yawn.', state);
 }
 
-// C ref: timeout.c nh_timeout() (669-945), the per-property countdown and the
-// expiry switch under it. C decrements every property whose TIMEOUT field is
-// nonzero and runs the switch on each one that reaches zero. An invulnerable
-// hero never arrives, because the caller returns first exactly as
-// timeout.c:621 does; every other hero has been through the preflight. The
-// admitted rows here are INVULNERABLE's source-inert expiry, FAST's speed
-// feedback, WOUNDED_LEGS, the plain on-foot FUMBLING arm, source-inert SLEEPY,
-// and the non-expiring CONFUSION/HALLUC countdowns.
-//
-// C reads find_delayed_killer() at 672 before switching, but only its STONED,
-// SLIMED and SICK cases use the result and none of the three is admitted here.
+// youprop.h: source-only properties do not consult their blocked field.
+function propertySource(state, index) {
+    const property = state.u?.uprops?.[index];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function Flying(state) {
+    return Boolean(propertySource(state, FLYING)
+        || (state.u?.usteed && is_flyer(state.u.usteed.data)))
+        && !state.u?.uprops?.[FLYING]?.blocked;
+}
+
+// These existing callees can draw, prompt, change maps or invoke arbitrary
+// callbacks. The elapsed-turn planner stops before nh_timeout reaches one,
+// runs this timeout live, then validates the remaining allocation from the
+// resulting state. This is an execution handoff, not a refused source path.
+export function nh_timeout_requires_live_state(state = game) {
+    const u = state.u;
+    if (u.uinvulnerable) return false;
+    if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
+        && !is_were(state.youmonst.data)) return true;
+    for (const index of [
+        STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
+        FLYING, STRANGLED, DETECT_MONSTERS, DISPLACED, GLIB,
+        PROT_FROM_SHAPE_CHANGERS,
+    ]) {
+        if ((u.uprops?.[index]?.intrinsic & TIMEOUT) === 1) return true;
+    }
+    return false;
+}
+
+// C ref: timeout.c nh_timeout() (669-945). Every expiry follows the common
+// decrement and delayed-killer lookup, including properties with no case.
 async function decrement_property_timeouts(state, env) {
-    for (let index = 0; index < (state.u?.uprops?.length ?? 0); ++index) {
-        const property = state.u.uprops[index];
+    const u = state.u;
+    const random = env.random ?? { rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const wasFlying = Flying(state);
+    const encumberMessage = (subject) => encumber_msg(subject, { message });
+    for (let index = 0; index < (u.uprops?.length ?? 0); ++index) {
+        const property = u.uprops[index];
         if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) === 0) continue;
         if ((--property.intrinsic & TIMEOUT) !== 0) continue;
-        if (index === DEAF) {
-            // timeout.c:752-754. Keep HDeaf nonzero while make_deaf() tests
-            // the old status, then clear it and deliver its source-ordered
-            // feedback through the live or planning message seam.
-            set_itimeout(property, 1);
-            await make_deaf(0, true, state, {
-                message: env.message ?? ttyPline,
-            });
-            state.disp ??= {};
-            state.disp.botl = true;
-            // timeout.c:756-758 leaves an occupation alone while an
-            // extrinsic or role deafness source still keeps Deaf true.
-            if (!deaf(state))
-                await stop_occupation(state, env);
-            continue;
-        }
-        // timeout.c has no INVULNERABLE case. Its timed intrinsic still loses
-        // one turn above, but expiry has no message, RNG draw, or state change.
-        if (index === INVULNERABLE) continue;
-        if (index === FAST) {
-            // timeout.c:725-729 tests Very_fast and Fast after the common
-            // timeout decrement. A timed speed ending while no other speed
-            // source remains therefore reports a plain slowdown; a permanent
-            // intrinsic source keeps Fast true and adds "a bit". Extrinsic or
-            // non-intrinsic intrinsic speed keeps Very_fast true and is silent.
-            const HFast = property.intrinsic;
-            const EFast = property.extrinsic;
-            const Very_fast = Boolean((HFast & ~INTRINSIC) || EFast);
-            if (!Very_fast) {
-                const Fast = Boolean(HFast || EFast);
-                await (env.message ?? ttyPline)(
+        const killer = find_delayed_killer(index, state);
+        switch (index) {
+        case STONED:
+            state.killer ??= {};
+            if (killer?.name) {
+                state.killer.format = killer.format;
+                state.killer.name = killer.name;
+            } else {
+                state.killer.format = NO_KILLER_PREFIX;
+                state.killer.name = 'killed by petrification';
+            }
+            if (!env.planning) note_unported('end.c dealloc_killer');
+            if (!env.planning) note_unported('timeout.c done_timeout');
+            break;
+        case SLIMED:
+            if (!env.planning) note_unported('timeout.c slimed_to_death');
+            break;
+        case VOMITING:
+            if (!env.planning) note_unported('potion.c make_vomiting');
+            break;
+        case SICK:
+            if (!(u.usick_type & SICK_NONVOMITABLE)
+                && random.rn2(100) < acurr(state, A_CON)) {
+                await message('You have recovered from your illness.', state);
+                if (!env.planning) note_unported('potion.c make_sick');
+                await exercise(A_CON, false, state, random, { encumberMessage });
+                await adjattrib(A_CON, -1, 1, state, { ...env, encumberMessage });
+                break;
+            }
+            await (env.urgentMessage ?? ttyUrgentPline)(
+                'You die from your illness.', state,
+            );
+            state.killer ??= {};
+            if (killer?.name) {
+                state.killer.format = killer.format;
+                state.killer.name = killer.name;
+            } else {
+                state.killer.format = KILLED_BY_AN;
+                state.killer.name = '';
+            }
+            if (!env.planning) note_unported('end.c dealloc_killer');
+            {
+                const speciesIndex = name_to_mon(state.killer.name, { state });
+                if (speciesIndex >= LOW_PM) {
+                    const species = state.mons[speciesIndex];
+                    if (type_is_pname(species)) {
+                        state.killer.format = KILLED_BY;
+                    } else if (species.geno & G_UNIQ) {
+                        state.killer.name = the(state.killer.name, state);
+                        state.killer.format = KILLED_BY;
+                    }
+                }
+            }
+            if (!env.planning) note_unported('timeout.c done_timeout');
+            u.usick_type = 0;
+            break;
+        case FAST:
+            if (!((property.intrinsic & ~INTRINSIC) || property.extrinsic)) {
+                await message(
                     `${unaware(state) ? 'You dream that you feel' : 'You feel'} `
-                        + `yourself slow down${Fast ? ' a bit' : ''}.`,
+                        + `yourself slow down${propertySource(state, FAST) ? ' a bit' : ''}.`,
                     state,
                 );
             }
-            continue;
+            break;
+        case CONFUSION:
+            set_itimeout(property, 1);
+            await make_confused(0, true, state, env);
+            if (!property.intrinsic) await stop_occupation(state, env);
+            break;
+        case STUNNED:
+            set_itimeout(property, 1);
+            if (!env.planning) note_unported('potion.c make_stunned');
+            if (!property.intrinsic) await stop_occupation(state, env);
+            break;
+        case BLINDED: {
+            const wasBlind = heroPropertyActive(state, BLINDED);
+            set_itimeout(property, 1);
+            await make_blinded(0, true, state);
+            if (wasBlind && !heroPropertyActive(state, BLINDED))
+                await stop_occupation(state, env);
+            break;
         }
-        if (index === FUMBLING) {
-            const random = env.random ?? { rn2, rnd };
-            const message = env.message ?? ttyPline;
-            // timeout.c:905 gates slip_or_trip(), nomul(), noise, and wakeup
-            // on u.umoved. A stationary closed-door bump still reaches the
-            // clearing and extension below, but consumes no rn2(4).
-            if (state.u?.umoved) {
-                await slipOrTripPlainOnFoot(state, random, message);
+        case DEAF:
+            set_itimeout(property, 1);
+            await make_deaf(0, true, state, env);
+            state.disp ??= {};
+            state.disp.botl = true;
+            if (!deaf(state)) await stop_occupation(state, env);
+            break;
+        case INVIS:
+            (env.newsym ?? newsym)(u.ux, u.uy, state);
+            if (!heroPropertyActive(state, INVIS) && !property.blocked
+                && !heroPropertyActive(state, BLINDED)) {
+                await message(!propertySource(state, SEE_INVIS)
+                    ? 'You are no longer invisible.'
+                    : 'You can no longer see through yourself.', state);
+                await stop_occupation(state, env);
+            }
+            break;
+        case SEE_INVIS:
+            if (!env.planning) note_unported('display.c set_mimic_blocking');
+            see_monsters(state);
+            (env.newsym ?? newsym)(u.ux, u.uy, state);
+            await stop_occupation(state, env);
+            break;
+        case WOUNDED_LEGS:
+            await heal_legs(state, env);
+            await stop_occupation(state, env);
+            break;
+        case HALLUC:
+            set_itimeout(property, 1);
+            await make_hallucinated(0, true, 0, state);
+            if (!hallucinating(state)) await stop_occupation(state, env);
+            break;
+        case SLEEPY:
+            if (unconscious(state) || propertySource(state, SLEEP_RES)) {
+                incr_itimeout(property, random.rnd(100));
+            } else if (propertySource(state, SLEEPY)) {
+                await message('You fall asleep.', state);
+                const duration = random.rnd(20);
+                await fall_asleep(-duration, true, state, env);
+                incr_itimeout(property, duration + random.rnd(100));
+            }
+            break;
+        case LEVITATION:
+            if ((u.uprops[FLYING].intrinsic & TIMEOUT) === 1)
+                set_itimeout(u.uprops[FLYING], 0);
+            await float_down(I_SPECIAL | TIMEOUT, 0, state);
+            break;
+        case FLYING:
+            if (wasFlying && !Flying(state)) {
+                state.disp ??= {};
+                state.disp.botl = true;
+                await message('You land.', state);
+                await spoteffects(true, state);
+            }
+            break;
+        case ACID_RES:
+            if (!propertySource(state, ACID_RES)) {
+                if (eating_dangerous_corpse(ACID_RES, state)) {
+                    set_itimeout(property, 1);
+                    break;
+                }
+                if (!unaware(state))
+                    await message('You no longer feel safe from acid.', state);
+            }
+            break;
+        case STONE_RES:
+            if (!propertySource(state, STONE_RES)) {
+                if (eating_dangerous_corpse(STONE_RES, state)) {
+                    set_itimeout(property, 1);
+                    break;
+                }
+                if (!unaware(state))
+                    await message('You no longer feel secure from petrification.', state);
+                if (!env.planning) note_unported('do_wear.c wielding_corpse');
+                if (!env.planning) note_unported('do_wear.c wielding_corpse');
+            }
+            break;
+        case FIRE_RES:
+            if (!propertySource(state, FIRE_RES))
+                await message('Your temporary ability to survive burning has ended.', state);
+            break;
+        case WWALKING:
+            if (!(propertySource(state, WWALKING) && !Is_waterlevel(u.uz)))
+                await message('Your temporary ability to walk on liquid has ended.', state);
+            break;
+        case DISPLACED:
+            if (!propertySource(state, DISPLACED))
+                await toggle_displacement(null, 0, false, state);
+            break;
+        case WARN_OF_MON:
+            if (!propertySource(state, WARN_OF_MON)) {
+                const species = state.context.warntype.species;
+                state.context.warntype.species = null;
+                state.context.warntype.speciesidx = NON_PM;
+                if (species)
+                    await message(`You are no longer warned about ${makeplural(species.pmnames[NEUTRAL])}.`, state);
+            }
+            break;
+        case PASSES_WALLS:
+            if (!propertySource(state, PASSES_WALLS)) {
+                if (stuck_in_wall(state)) {
+                    await message(
+                        `${unaware(state) ? 'You dream that you feel' : 'You feel'} hemmed in again.`,
+                        state,
+                    );
+                } else {
+                    await message(`You're back to your ${!Upolyd(u) ? 'normal' : 'unusual'} self again.`, state);
+                }
+            }
+            break;
+        case MAGICAL_BREATHING:
+            if (!(propertySource(state, MAGICAL_BREATHING)
+                    || breathless(state.youmonst.data))
+                && region_danger(state)) {
+                await message(`You cough${propertySource(state, POISON_RES) ? '.' : ' and spit blood!'}`, state);
+            }
+            break;
+        case STRANGLED:
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = u.uburied ? 'suffocation' : 'strangulation';
+            if (!env.planning) note_unported('timeout.c done_timeout');
+            if (state.uamul?.otyp === AMULET_OF_STRANGULATION) {
+                await message('Your amulet vanishes!', state);
+                useup(state.uamul, { ...env, state });
+            }
+            break;
+        case FUMBLING:
+            if (u.umoved && !(heroPropertyActive(state, LEVITATION) || Flying(state))) {
+                if (plainOnFootFumbleAdmitted(state))
+                    await slipOrTripPlainOnFoot(state, random, message);
+                else if (!env.planning)
+                    note_unported('timeout.c slip_or_trip');
                 nomul(-2, state);
                 state.multi_reason = 'fumbling';
                 state.nomovemsg = '';
-                // timeout.c:914-917. The inventory calculation uses the
-                // current capacity, then noise wakes nearby monsters even for
-                // a deaf hero.
                 if (inv_weight(state) > -WT_NOISY_INV) {
                     if (!deaf(state)) await message('You make a lot of noise!', state);
-                    await wake_nearby(false, {
-                        ...env,
-                        state,
-                        random,
-                        message,
-                    });
+                    await wake_nearby(false, { ...env, state, random, message });
                 }
             }
-            // timeout.c:920-924. Clearing FROMOUTSIDE is unconditional, and
-            // an extrinsic or other remaining source extends Fumbling with
-            // rnd(20), whether or not the hero moved this turn.
             property.intrinsic &= ~FROMOUTSIDE;
-            if (property.intrinsic || property.extrinsic)
-                property.intrinsic = (property.intrinsic & ~TIMEOUT)
-                    | (random.rnd(20) & TIMEOUT);
-            continue;
+            if (propertySource(state, FUMBLING))
+                incr_itimeout(property, random.rnd(20));
+            if (state.iflags?.defer_decor && !env.planning)
+                note_unported('pickup.c deferred_decor');
+            break;
+        case DETECT_MONSTERS:
+            see_monsters(state);
+            break;
+        case GLIB:
+            make_glib(0, state, env);
+            break;
+        case PROT_FROM_SHAPE_CHANGERS:
+            if (!propertySource(state, PROT_FROM_SHAPE_CHANGERS))
+                restartcham(state, { ...env, state });
+            break;
         }
-        if (index === SLEEPY) {
-            // C's case SLEEPY (timeout.c:784-793) sees Sleepy as false here
-            // when the property had only the worn amulet's timeout bit. The
-            // other source-bearing forms were rejected by preflight because
-            // their expiry can consume RNG or make the hero fall asleep.
-            continue;
-        }
-        // C ref: timeout.c:774-777.
-        await heal_legs(state, env);
-        await stop_occupation(state, env);
+        if (state.program_state?.gameover) return;
     }
 }
 
-// youprop.h:372 Unchanging, intrinsic or extrinsic. nh_timeout() reads it
-// when the polymorph timer runs out.
-function Unchanging(state) {
-    const unchanging = state.u?.uprops?.[UNCHANGING];
-    return Boolean(unchanging?.intrinsic || unchanging?.extrinsic);
-}
-
-// Source-ordered elapsed-turn owner. The remaining admitted timeout state is
-// source-inert after the live luck prefix and the property countdown.
-//
-// `env` carries the message() that heal_legs() writes its line through, the
-// statusRefresh() stop_occupation() may need, and the newsym() a rotting floor
-// corpse redraws its square with, because the elapsed turn is dry run on a
-// cloned state first and that pass has to stay silent.
-export async function nh_timeout_elapsed_turn(state = game, env = {}) {
-    preflight_nh_timeout_elapsed_turn(state, env);
+// C ref: timeout.c nh_timeout() (588-948), the once-per-turn hero clocks.
+// Each skipped discarded-return call records its source owner; no invented
+// state or random draw stands in for those unported callees.
+export async function nh_timeout(state = game, env = {}) {
     const random = env.random ?? { rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const u = state.u;
+    const displayEnv = {
+        ...env,
+        displayRandom: env.displayRandom ?? (state === game
+            ? rn2_on_display_rng
+            : createCoreRandom(state.displayCtx, state).rn2),
+    };
     adjust_timeout_luck(state);
-    /* "things past this point could kill you" -- timeout.c:621-622, below the
-       basal-luck block and above every branch nh_timeout() has left. */
-    if (state.u?.uinvulnerable) return;
-    await sleep_dialogue(state, env);
-    // C ref: timeout.c:641-648. Decrement the polymorph timer each turn.
-    // When it reaches zero, the hero reverts: Unchanging extends it,
-    // is_were() calls you_unwere(), otherwise rehumanize(). were.c
-    // you_unwere() is unported and C discards its result, so that call
-    // records a gap.
-    if (state.u.mtimedone && !--state.u.mtimedone) {
-        if (Unchanging(state))
-            state.u.mtimedone = rnd(100 * state.youmonst.data.mlevel + 1);
-        else if (is_were(state.youmonst.data))
-            note_unported('were.c you_unwere'); /* if polycontrl, asks whether to rehumanize */
-        else
+    if (u.uinvulnerable) return;
+    if (u.uprops?.[STONED]?.intrinsic && !env.planning)
+        note_unported('timeout.c stoned_dialogue');
+    if (u.uprops?.[SLIMED]?.intrinsic && !env.planning)
+        note_unported('timeout.c slime_dialogue');
+    if (u.uprops?.[VOMITING]?.intrinsic && !env.planning)
+        note_unported('timeout.c vomiting_dialogue');
+    if (u.uprops?.[STRANGLED]?.intrinsic && !env.planning)
+        note_unported('timeout.c choke_dialogue');
+    if (u.uprops?.[SICK]?.intrinsic && !env.planning)
+        note_unported('timeout.c sickness_dialogue');
+    if ((u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT) && !env.planning)
+        note_unported('timeout.c levitation_dialogue');
+    if ((u.uprops?.[PASSES_WALLS]?.intrinsic & TIMEOUT) && !env.planning)
+        note_unported('timeout.c phaze_dialogue');
+    if ((u.uprops?.[MAGICAL_BREATHING]?.intrinsic & TIMEOUT) && !env.planning)
+        note_unported('timeout.c region_dialogue');
+    if (u.uprops?.[SLEEPY]?.intrinsic & TIMEOUT)
+        await sleep_dialogue(state, env);
+    if (u.mtimedone && !--u.mtimedone) {
+        if (propertySource(state, UNCHANGING))
+            u.mtimedone = random.rnd(100 * state.youmonst.data.mlevel + 1);
+        else if (is_were(state.youmonst.data)) {
+            if (!env.planning) note_unported('were.c you_unwere');
+        } else {
             await rehumanize(state);
+            if (state.program_state?.gameover) return;
+        }
     }
-    if (state.u.ucreamed) --state.u.ucreamed;
-    await decrement_property_timeouts(state, { ...env, random });
-    /* timeout.c:947, nh_timeout()'s last statement. */
+    if (u.ucreamed) --u.ucreamed;
+    if (u.usptime && !--u.usptime && u.uspellprot) {
+        u.usptime = u.uspmtime;
+        --u.uspellprot;
+        find_ac(state);
+        if (!heroPropertyActive(state, BLINDED))
+            await (env.norepMessage ?? ttyNorep)(
+                `The ${hcolor('golden', state, displayEnv)} haze around you ${u.uspellprot ? 'becomes less dense' : 'disappears'}.`,
+                state,
+            );
+    }
+    if (u.ugallop && !--u.ugallop && u.usteed)
+        await message(`${Monnam(u.usteed, state, displayEnv)} stops galloping.`, state);
+    await decrement_property_timeouts(state, { ...env, random, message });
+    if (state.program_state?.gameover) return;
     await run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });
 }
 

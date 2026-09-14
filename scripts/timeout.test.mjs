@@ -1,50 +1,71 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { loadHeroTimeoutRecipes, verifyHeroTimeoutSegment } from './run-hero-timeouts.mjs';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
+    ACID_RES,
     BLINDED,
     BURN_OBJECT,
     CONFUSION,
     DEAF,
+    DETECT_MONSTERS,
+    DISPLACED,
     FIG_TRANSFORM,
     FAST,
+    FIRE_RES,
     FLYING,
     FROM_FORM,
     FROMOUTSIDE,
     FUMBLING,
     HATCH_EGG,
+    HALLUC,
     ICE,
     INVULNERABLE,
+    INVIS,
+    LAST_PROP,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
+    NOT_HUNGRY,
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
+    PASSES_WALLS,
     REVIVE_MON,
     RIGHT_SIDE,
     ROT_CORPSE,
     ROT_ORGANIC,
+    ROOM,
     SHRINK_GLOB,
+    STONED,
+    STONE_RES,
+    STUNNED,
+    STRANGLED,
     SLEEPY,
+    SLEEP_RES,
     TIMEOUT,
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
     LEVITATION,
     UNCHANGING,
+    WARN_OF_MON,
+    WWALKING,
     WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from '../js/const.js';
 import { wipeoff } from '../js/do.js';
+import { eatfood } from '../js/eat.js';
 import { initRng } from '../js/rng.js';
 import {
     PM_DEATH,
+    PM_ACID_BLOB,
     PM_ARCHEOLOGIST,
     PM_FAMINE,
     PM_HEALER,
+    PM_COCKATRICE,
     PM_KOBOLD,
     PM_LICHEN,
     PM_LIZARD,
@@ -69,7 +90,8 @@ import {
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
     fall_asleep,
-    nh_timeout_elapsed_turn,
+    nh_timeout,
+    nh_timeout_requires_live_state,
     obj_has_timer,
     obj_stop_timers,
     peek_timer,
@@ -127,6 +149,166 @@ function monsterTimerState(moves = 1) {
     return state;
 }
 
+function propertyTimeoutState() {
+    const state = plainFumblingState();
+    monst_globals_init(state);
+    objects_globals_init(state);
+    state.youmonst.data = state.mons[PM_HEALER];
+    state.u.umonnum = state.u.umonster = PM_HEALER;
+    state.u.uprops = Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0, extrinsic: 0, blocked: 0,
+    }));
+    state.u.umoved = false;
+    state.u.uroleplay = {};
+    state.u.uhs = NOT_HUNGRY;
+    state.invent = null;
+    state.disp = {};
+    state.context.victual = { piece: null };
+    state.context.warntype = { species: null, speciesidx: -1 };
+    state.go = {};
+    return state;
+}
+
+test('timeout planning hands live-only expiries off before touching their state', () => {
+    const state = propertyTimeoutState();
+    for (const property of [
+        BLINDED, HALLUC, INVIS, DETECT_MONSTERS, DISPLACED, LEVITATION,
+        FLYING, STONED, STRANGLED,
+    ]) {
+        state.u.uprops[property].intrinsic = 2;
+        assert.equal(nh_timeout_requires_live_state(state), false, `${property}: countdown`);
+        state.u.uprops[property].intrinsic = 1;
+        assert.equal(nh_timeout_requires_live_state(state), true, `${property}: expiry`);
+        state.u.uinvulnerable = true;
+        assert.equal(nh_timeout_requires_live_state(state), false, `${property}: invulnerable`);
+        state.u.uinvulnerable = false;
+        state.u.uprops[property].intrinsic = 0;
+    }
+    state.u.uprops[CONFUSION].intrinsic = 1;
+    assert.equal(nh_timeout_requires_live_state(state), false, 'confusion uses message seam');
+    state.u.mtimedone = 1;
+    assert.equal(nh_timeout_requires_live_state(state), true, 'form expiry is live');
+    state.u.uprops[UNCHANGING].extrinsic = 1;
+    assert.equal(nh_timeout_requires_live_state(state), false, 'extension uses supplied RNG');
+});
+
+test('confusion expiry tests the intrinsic after clearing and interrupts only then', async () => {
+    for (const [intrinsic, stops] of [[1, true], [FROMOUTSIDE | 1, false]]) {
+        const state = propertyTimeoutState();
+        state.u.uprops[CONFUSION] = { intrinsic, extrinsic: 1, blocked: 0 };
+        const occupation = () => 1;
+        state.go = { occupation, occtxt: 'waiting' };
+        const messages = [];
+        await nh_timeout(state, { message: async (text) => messages.push(text) });
+        assert.equal(state.u.uprops[CONFUSION].intrinsic, intrinsic & ~TIMEOUT);
+        assert.equal(state.go.occupation, stops ? null : occupation);
+        assert.deepEqual(messages, ['You feel less confused now.',
+            ...(stops ? ['You stop waiting.'] : [])]);
+        assert.equal(state.disp.botl, true);
+    }
+});
+
+test('temporary resistance survives only an active dangerous corpse meal', async () => {
+    for (const [resistance, species, recovery] of [
+        [ACID_RES, PM_ACID_BLOB, 'You no longer feel safe from acid.'],
+        [STONE_RES, PM_COCKATRICE, 'You no longer feel secure from petrification.'],
+    ]) {
+        const state = propertyTimeoutState();
+        const food = { otyp: CORPSE, corpsenm: species, where: OBJ_INVENT };
+        state.context.victual.piece = food;
+        state.go.occupation = eatfood;
+        state.u.uprops[resistance].intrinsic = 1;
+        const messages = [];
+        await nh_timeout(state, { message: async (text) => messages.push(text) });
+        assert.equal(state.u.uprops[resistance].intrinsic, 1);
+        assert.deepEqual(messages, []);
+        state.go.occupation = null;
+        await nh_timeout(state, { message: async (text) => messages.push(text) });
+        assert.equal(state.u.uprops[resistance].intrinsic, 0);
+        assert.deepEqual(messages, [recovery]);
+        state.u.uprops[resistance] = { intrinsic: 1, extrinsic: 1, blocked: 1 };
+        messages.length = 0;
+        await nh_timeout(state, { message: async (text) => messages.push(text) });
+        assert.deepEqual(messages, [], 'the source resistance macro ignores blocked');
+    }
+});
+
+test('simultaneous levitation and flight expiry clears flight before float_down', async () => {
+    const state = propertyTimeoutState();
+    state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 1, blocked: 0 };
+    state.u.uprops[FLYING].intrinsic = 1;
+    const messages = [];
+    await nh_timeout(state, { message: async (text) => messages.push(text) });
+    assert.equal(state.u.uprops[FLYING].intrinsic, 0);
+    assert.equal(state.u.uprops[LEVITATION].intrinsic, 0);
+    assert.equal(state.u.uprops[LEVITATION].extrinsic, 1);
+    assert.deepEqual(messages, [], 'remaining levitation suppresses landing');
+});
+
+test('property expiry preserves source message and warning-pointer order', async () => {
+    const state = propertyTimeoutState();
+    for (const index of [FIRE_RES, WWALKING, WARN_OF_MON, PASSES_WALLS])
+        state.u.uprops[index].intrinsic = 1;
+    state.context.warntype = {
+        species: state.mons[PM_KOBOLD], speciesidx: PM_KOBOLD,
+    };
+    // Eight open room squares make stuck_in_wall() false.
+    for (let x = state.u.ux - 1; x <= state.u.ux + 1; ++x)
+        for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y)
+            state.level.at(x, y).typ = ROOM;
+    const messages = [];
+    await nh_timeout(state, { message: async (text) => messages.push(text) });
+    assert.deepEqual(messages, [
+        'Your temporary ability to survive burning has ended.',
+        'You are no longer warned about kobolds.',
+        'Your temporary ability to walk on liquid has ended.',
+        "You're back to your normal self again.",
+    ]);
+    assert.equal(state.context.warntype.species, null);
+    assert.equal(state.context.warntype.speciesidx, -1);
+});
+
+test('independent timeout recipes reach expiry with both capacity branches',
+    async () => {
+        for (const { recipe } of loadHeroTimeoutRecipes()) {
+            for (const segment of recipe.segments)
+                await verifyHeroTimeoutSegment(segment);
+        }
+    });
+
+test('nh_timeout orders Unchanging, cream and spell-protection clocks', async () => {
+    // timeout.c:641-662 resets mtimedone from the form level, then cream,
+    // then protection. The remaining spell protection affects find_ac().
+    for (const blind of [false, true]) {
+        const state = propertyTimeoutState();
+        state.u.mtimedone = 1;
+        state.u.uprops[UNCHANGING].intrinsic = FROMOUTSIDE;
+        state.u.uprops[BLINDED].intrinsic = blind ? FROMOUTSIDE : 0;
+        state.u.ucreamed = 2;
+        state.u.usptime = 1;
+        state.u.uspmtime = 7;
+        state.u.uspellprot = 2;
+        const messages = [];
+        const draws = [];
+        await nh_timeout(state, {
+            random: { rnd(bound) {
+                draws.push(bound);
+                assert.equal(state.u.ucreamed, 2, 'cream follows the draw');
+                return 3;
+            } },
+            norepMessage: async (text) => messages.push(text),
+        });
+        assert.deepEqual(draws, [100 * state.youmonst.data.mlevel + 1]);
+        assert.equal(state.u.mtimedone, 3);
+        assert.equal(state.u.ucreamed, 1);
+        assert.equal(state.u.usptime, 7);
+        assert.equal(state.u.uspellprot, 1);
+        assert.equal(state.u.uac, state.youmonst.data.ac - 1);
+        assert.deepEqual(messages, blind ? []
+            : ['The golden haze around you becomes less dense.']);
+    }
+});
+
 function queue(state) {
     const result = [];
     for (let timer = state.gt.timer_base; timer; timer = timer.next)
@@ -150,7 +332,7 @@ test('plain on-foot fumbling expiry keeps C ordering and random draws',
             },
         };
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             random,
             message: async (text) => messages.push(text),
         });
@@ -189,7 +371,7 @@ test('stationary fumbling expiry clears outside and only draws extension',
             },
         };
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             random,
             message: async (text) => messages.push(text),
         });
@@ -201,14 +383,14 @@ test('stationary fumbling expiry clears outside and only draws extension',
         assert.equal(state.u.uprops[FUMBLING].extrinsic, 1);
     });
 
-test('unsupported fumbling expiry branches remain fail closed', async () => {
+test('fumbling expiry preserves its caller around unported slip branches', async () => {
     const cases = [
         ['while mounted', (state) => { state.u.usteed = {}; }],
         ['while levitating', (state) => {
-            state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0 };
+            state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 1 };
         }],
         ['while flying', (state) => {
-            state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0 };
+            state.u.uprops[FLYING] = { intrinsic: 0, extrinsic: 1 };
         }],
         ['from outside', (state) => {
             state.u.uprops[FUMBLING].intrinsic = FROMOUTSIDE | 1;
@@ -227,13 +409,14 @@ test('unsupported fumbling expiry branches remain fail closed', async () => {
     for (const [label, mutate] of cases) {
         const state = plainFumblingState();
         mutate(state);
-        await assert.rejects(
-            nh_timeout_elapsed_turn(state),
-            /no active property timeout at index 25/u,
-            label,
-        );
-        assert.equal(state.u.uprops[FUMBLING].intrinsic & 0x00ffffff, 1);
-        assert.equal(state.multi, 0);
+        await nh_timeout(state, {
+            random: { rn2: () => 0, rnd: () => 5 },
+            message: async () => {},
+        });
+        assert.equal(state.u.uprops[FUMBLING].intrinsic, 5, label);
+        assert.equal(state.multi,
+            label === 'while levitating' || label === 'while flying' ? 0 : -2,
+            label);
     }
 });
 
@@ -245,7 +428,7 @@ test('timeout globals reset source-owned fields without replacing owners', () =>
     assert.equal(state.svt.timer_id, 1);
 });
 
-test('elapsed-turn timeout upkeep admits only source-inert timeout state',
+test('elapsed-turn timeout upkeep counts scalar and unhandled property clocks',
     async () => {
         const state = timerState(2);
         state.u = {
@@ -257,19 +440,14 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
             uprops: [{ intrinsic: 0 }, { intrinsic: 0x01000000 }],
         };
         start_timer(100, TIMER_OBJECT, ROT_CORPSE, { timed: 0 }, state);
-        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        await assert.doesNotReject(nh_timeout(state));
 
-        // Each scalar the guard names must stop the turn on its own. The
-        // guard returns early when uinvulnerable is set, so these all run
-        // with it false.
+        // C decrements every scalar; absent protection and steed make their
+        // expiry arms inert, independently of the cream clock.
         for (const field of ['ucreamed', 'usptime', 'ugallop']) {
             state.u[field] = 1;
-            await assert.rejects(
-                nh_timeout_elapsed_turn(state),
-                new RegExp(`zero ${field}`, 'u'),
-                field,
-            );
-            state.u[field] = 0;
+            await nh_timeout(state);
+            assert.equal(state.u[field], 0, field);
         }
         // mtimedone=1 decrements to 0 and timeout.c:642-643 re-arms it for
         // an Unchanging hero with rnd(100 * mlevel + 1); a form of level 0
@@ -278,7 +456,7 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
         state.u.uprops[UNCHANGING] = { intrinsic: 0, extrinsic: 1 };
         state.youmonst = { data: { mlevel: 0 } };
         initRng(1); // rnd(1) draws once; any seed answers 1
-        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        await assert.doesNotReject(nh_timeout(state));
         assert.equal(state.u.mtimedone, 1, 'Unchanging re-arms mtimedone');
         delete state.u.uprops[UNCHANGING];
         delete state.youmonst;
@@ -286,7 +464,7 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
         // mtimedone > 1 decrements without error; the countdown runs but
         // does not reach zero.
         state.u.mtimedone = 5;
-        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        await assert.doesNotReject(nh_timeout(state));
         // Verify it actually decremented.
         assert.equal(state.u.mtimedone, 4, 'mtimedone decrements each turn');
         state.u.mtimedone = 0;
@@ -294,24 +472,22 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
         // passes when uinvulnerable is set.
         state.u.mtimedone = 1;
         state.u.uinvulnerable = true;
-        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        await assert.doesNotReject(nh_timeout(state));
         // Invulnerability skips the decrement, so mtimedone stays 1.
         assert.equal(state.u.mtimedone, 1, 'uinvulnerable skips mtimedone');
         state.u.uinvulnerable = false;
         state.u.mtimedone = 0;
 
         state.u.uprops[0].intrinsic = 3;
-        await assert.rejects(
-            nh_timeout_elapsed_turn(state),
-            /no active property timeout at index 0/u,
-        );
+        await nh_timeout(state);
+        assert.equal(state.u.uprops[0].intrinsic, 2);
         state.u.uprops[0].intrinsic = 0;
         state.gt.timer_base.timeout = 2;
         // The timer above holds a bare `{ timed }` stand-in rather than a
         // floor object, so run_timers() stops on dig.c rot_corpse()'s
         // where test rather than firing. `where=undefined` is that stand-in.
         await assert.rejects(
-            nh_timeout_elapsed_turn(state),
+            nh_timeout(state),
             /a corpse on the floor, but one is rotting at where=undefined/u,
         );
     });
@@ -340,11 +516,11 @@ test('elapsed-turn timeout decrements and expires timed deafness while unaware',
         const messages = [];
         const env = { message: async (text) => messages.push(text) };
 
-        await nh_timeout_elapsed_turn(state, env);
+        await nh_timeout(state, env);
         assert.equal(uprops[DEAF].intrinsic, FROMOUTSIDE | 2);
-        await nh_timeout_elapsed_turn(state, env);
+        await nh_timeout(state, env);
         assert.equal(uprops[DEAF].intrinsic, FROMOUTSIDE | 1);
-        await nh_timeout_elapsed_turn(state, env);
+        await nh_timeout(state, env);
 
         // timeout.c:752-758 restores one turn before make_deaf(0, TRUE),
         // which clears only the timeout bits and then marks the status line.
@@ -374,7 +550,7 @@ test('timed deafness expiry talks and stops occupation only when hearing returns
         state.go = { occupation: () => {}, occtxt: 'reading' };
         const messages = [];
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             message: async (text) => messages.push(text),
         });
 
@@ -410,7 +586,7 @@ test('timed deafness expiry keeps occupation while another deafness source remai
         state.go = { occupation, occtxt: 'reading' };
         const messages = [];
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             message: async (text) => messages.push(text),
         });
 
@@ -430,7 +606,7 @@ test('elapsed-turn timeout upkeep preserves invulnerability short circuit',
         uprops[WOUNDED_LEGS] = { intrinsic: 5, extrinsic: RIGHT_SIDE };
         state.u = { uinvulnerable: true, mtimedone: 5, uprops };
 
-        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        await assert.doesNotReject(nh_timeout(state));
         // timeout.c:621-622 returns above the countdown, so the count stands.
         assert.equal(uprops[WOUNDED_LEGS].intrinsic, 5);
 
@@ -440,7 +616,7 @@ test('elapsed-turn timeout upkeep preserves invulnerability short circuit',
         // short circuit heal_legs() would run here, and this synthetic hero
         // has neither the temporary attributes nor the pack it reads.
         uprops[WOUNDED_LEGS].intrinsic = 1;
-        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        await assert.doesNotReject(nh_timeout(state));
         assert.equal(uprops[WOUNDED_LEGS].intrinsic, 1);
 
         // The same state without invulnerability does count down. Without this
@@ -448,7 +624,7 @@ test('elapsed-turn timeout upkeep preserves invulnerability short circuit',
         state.u.uinvulnerable = false;
         state.u.mtimedone = 0;
         uprops[WOUNDED_LEGS].intrinsic = 5;
-        await nh_timeout_elapsed_turn(state);
+        await nh_timeout(state);
         assert.equal(uprops[WOUNDED_LEGS].intrinsic, 4);
     });
 
@@ -481,20 +657,20 @@ test('timed INVULNERABLE counts down with source-inert expiry', async () => {
         },
     };
 
-    await nh_timeout_elapsed_turn(state, {
+    await nh_timeout(state, {
         random,
         message: async (text) => messages.push(text),
     });
     assert.equal(uprops[INVULNERABLE].intrinsic, FROMOUTSIDE | 2);
     assert.equal(Boolean(uprops[INVULNERABLE].intrinsic), true);
 
-    await nh_timeout_elapsed_turn(state, {
+    await nh_timeout(state, {
         random,
         message: async (text) => messages.push(text),
     });
     assert.equal(uprops[INVULNERABLE].intrinsic, FROMOUTSIDE | 1);
 
-    await nh_timeout_elapsed_turn(state, {
+    await nh_timeout(state, {
         random,
         message: async (text) => messages.push(text),
     });
@@ -557,7 +733,7 @@ test('timed FAST expiry keeps source speed and message ordering', async () => {
             },
         };
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             random,
             message: async (text) => messages.push(text),
         });
@@ -586,21 +762,23 @@ test('elapsed-turn timeout upkeep decrements non-expiring confusion',
             uprops,
         };
 
-        await nh_timeout_elapsed_turn(state);
+        await nh_timeout(state);
 
         // timeout.c:670-671 decrements 24 to 23 without entering the expiry
         // switch, so this turn writes no message and needs no expiry seam.
         assert.equal(uprops[CONFUSION].intrinsic, FROMOUTSIDE | 23);
 
-        // One is the last TIMEOUT value: decrementing it reaches
-        // make_confused(0, TRUE), which this slice deliberately leaves
-        // fail-closed before mutating the property.
+        // The final turn restores one tick for make_confused's old-state
+        // test, then clears only TIMEOUT. FROMOUTSIDE keeps Confusion true.
         uprops[CONFUSION].intrinsic = FROMOUTSIDE | 1;
-        await assert.rejects(
-            nh_timeout_elapsed_turn(state),
-            new RegExp(`no active property timeout at index ${CONFUSION}`, 'u'),
-        );
-        assert.equal(uprops[CONFUSION].intrinsic, FROMOUTSIDE | 1);
+        state.disp = {};
+        const messages = [];
+        await nh_timeout(state, {
+            message: async (text) => messages.push(text),
+        });
+        assert.equal(uprops[CONFUSION].intrinsic, FROMOUTSIDE);
+        assert.deepEqual(messages, ['You feel less confused now.']);
+        assert.equal(state.disp.botl, true);
     });
 
 test('elapsed-turn timeout upkeep counts down a worn restful-sleep amulet',
@@ -623,31 +801,32 @@ test('elapsed-turn timeout upkeep counts down a worn restful-sleep amulet',
         };
         const messages = [];
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             message: async (text) => messages.push(text),
         });
         assert.deepEqual(messages, ['You yawn.']);
         assert.equal(uprops[SLEEPY].intrinsic, 3);
 
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             message: async (text) => messages.push(text),
         });
         assert.deepEqual(messages, ['You yawn.']);
         assert.equal(uprops[SLEEPY].intrinsic, 2);
 
         uprops[SLEEPY].intrinsic = 1;
-        await nh_timeout_elapsed_turn(state, {
+        await nh_timeout(state, {
             message: async (text) => messages.push(text),
         });
         assert.deepEqual(messages, ['You yawn.']);
         assert.equal(uprops[SLEEPY].intrinsic, 0);
     });
 
-test('source-bearing sleepy timeout remains fail-closed at expiry', async () => {
+test('source-bearing sleepy expiry sleeps and extends in source draw order', async () => {
     // timeout.c:784-792 can extend or initiate sleep when Sleepy remains true
-    // through FROMOUTSIDE or an extrinsic source. The narrow worn-amulet path
-    // must not silently skip those RNG- and state-changing branches.
+    // through FROMOUTSIDE or an extrinsic source.
     const state = timerState();
+    state.context = { run: 0, travel: 0 };
+    state.multi = 0;
     const uprops = [];
     uprops[SLEEPY] = { intrinsic: FROMOUTSIDE | 1, extrinsic: 0 };
     state.u = {
@@ -659,11 +838,29 @@ test('source-bearing sleepy timeout remains fail-closed at expiry', async () => 
         uprops,
     };
 
-    await assert.rejects(
-        nh_timeout_elapsed_turn(state),
-        new RegExp(`no active property timeout at index ${SLEEPY}`, 'u'),
-    );
-    assert.equal(uprops[SLEEPY].intrinsic, FROMOUTSIDE | 1);
+    const draws = [];
+    const messages = [];
+    await nh_timeout(state, {
+        random: { rnd: (bound) => { draws.push(bound); return 3; } },
+        message: async (text) => messages.push(text),
+    });
+    assert.deepEqual(draws, [20, 100]);
+    assert.deepEqual(messages, ['You fall asleep.']);
+    assert.equal(uprops[SLEEPY].intrinsic, FROMOUTSIDE | 6);
+    assert.equal(state.multi, -3);
+    assert.equal(state.u.usleep, state.moves);
+    assert.equal(state.nomovemsg, 'You wake up.');
+    state.u.uprops[SLEEP_RES] = { intrinsic: 0, extrinsic: 1 };
+    state.u.uprops[SLEEPY].intrinsic = FROMOUTSIDE | 1;
+    draws.length = 0;
+    messages.length = 0;
+    await nh_timeout(state, {
+        random: { rnd: (bound) => { draws.push(bound); return 7; } },
+        message: async (text) => messages.push(text),
+    });
+    assert.deepEqual(draws, [100]);
+    assert.deepEqual(messages, []);
+    assert.equal(state.u.uprops[SLEEPY].intrinsic, FROMOUTSIDE | 7);
 });
 
 test('move-600 timeout luck uses basal role and luckstone gates', async () => {
@@ -685,7 +882,7 @@ test('move-600 timeout luck uses basal role and luckstone gates', async () => {
         uluck: 0,
     };
 
-    await nh_timeout_elapsed_turn(state);
+    await nh_timeout(state);
     assert.equal(state.u.uluck, 1);
 
     state.moves = 1200;
@@ -697,12 +894,12 @@ test('move-600 timeout luck uses basal role and luckstone gates', async () => {
         cursed: false,
         nobj: null,
     };
-    await nh_timeout_elapsed_turn(state);
+    await nh_timeout(state);
     assert.equal(state.u.uluck, 3, 'blessed luckstone retains good luck');
 
     state.invent.blessed = false;
     state.invent.cursed = true;
-    await nh_timeout_elapsed_turn(state);
+    await nh_timeout(state);
     assert.equal(state.u.uluck, 2, 'cursed luckstone lets good luck time out');
 });
 
@@ -730,7 +927,7 @@ test('elapsed-turn timeout upkeep advances the ordinary wipe occupation',
             uluck: 0,
         };
 
-        await nh_timeout_elapsed_turn(state);
+        await nh_timeout(state);
 
         assert.equal(state.u.ucreamed, 2);
         assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 2);
@@ -740,7 +937,7 @@ test('elapsed-turn timeout upkeep advances the ordinary wipe occupation',
         // counters once before the callback runs.
         state.u.ucreamed = 4;
         uprops[BLINDED].intrinsic = 4;
-        await nh_timeout_elapsed_turn(state);
+        await nh_timeout(state);
         assert.equal(state.u.ucreamed, 3);
         assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 3);
     });
@@ -764,13 +961,13 @@ test('fedora basal luck requires both the role and worn helmet', async () => {
 
     state.urole = { mnum: PM_HEALER };
     state.uarmh = { otyp: FEDORA };
-    await nh_timeout_elapsed_turn(state);
+    await nh_timeout(state);
     assert.equal(state.u.uluck, 0, 'another role gets no fedora baseline');
 
     state.urole.mnum = PM_ARCHEOLOGIST;
     state.uarmh = null;
     state.u.uluck = 1;
-    await nh_timeout_elapsed_turn(state);
+    await nh_timeout(state);
     assert.equal(state.u.uluck, 0, 'Archeologist must wear the fedora');
 });
 

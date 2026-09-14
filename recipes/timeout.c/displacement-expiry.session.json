@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c nh_timeout helper case. Uses the already checked region-free seed 8440032 and changes only the timed property; the property is selected from timeout.c propertynames order.",
+  "segments": [
+    {
+      "seed": 8440032,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".#wizintrinsic\n>1e\n ."
+    }
+  ]
+}

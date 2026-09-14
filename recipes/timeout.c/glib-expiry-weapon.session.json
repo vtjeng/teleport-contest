@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Blocked before nh_timeout by the unported do_wear.c glibr weapon-slip branch, called at allmain.c:271-272. The C hero drops her knife before expiry; JavaScript omits that message and inventory change. No matching recording is committed.",
+  "segments": [{
+    "seed": 8440032,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": ".#wizintrinsic\n1l\n ."
+  }]
+}

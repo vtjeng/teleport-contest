@@ -77,8 +77,9 @@ import {
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { set_uasmon } from '../js/polyself.js';
 import { new_light_source } from '../js/light.js';
-import { getRngLog, initRng, rnd } from '../js/rng.js';
+import { getRngLog, initRng, rn1, rn2, rnd } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AT_HUGS,
@@ -121,6 +122,7 @@ import {
     vision_recalc,
 } from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
+import { initrack } from '../js/track.js';
 import {
     loadFirstCompleteTurnRecipe,
 } from './run-first-complete-turn.mjs';
@@ -1089,6 +1091,200 @@ test('independent delayed-action recipes reach their completed callbacks',
         }
     });
 
+test('live timeout handoff preserves allocation and tail counts', async () => {
+    for (const scenario of [
+        { name: 'unburdened full ration', heavy: false, movement: 12, turns: 1 },
+        { name: 'burdened exact ration', heavy: true, movement: 21, turns: 1 },
+        { name: 'burdened continuation', heavy: true, movement: 12, turns: 4 },
+        { name: 'delayed callback in timeout tail', heavy: true,
+            movement: 12, turns: 4, callback: true },
+    ]) {
+        const outcomes = [];
+        for (const expiring of [false, true]) {
+            const replay = await runSegment(firstTurnInput({
+                seed: 8440101, datetime: '20320415101723',
+                name: 'TimeoutTail', role: 'Healer', race: 'human',
+                gender: 'female', align: 'neutral', command: '',
+                options: ',pettype:none,!debug_mongen,!acoustics',
+            }));
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            game.level.regions = [];
+            game.head_engr = null;
+            clearTtyMessageWindow(game);
+            game.invent = scenario.heavy ? {
+                oclass: TOOL_CLASS, otyp: SACK,
+                owt: weight_cap(game) * 2, nobj: null,
+            } : null;
+            game.go.oldcap = scenario.heavy ? HVY_ENCUMBER : 0;
+            game.u.umovement = scenario.movement;
+            game.u.ublesscnt = 10;
+            game.u.uhunger = 900;
+            game.u.uprops[HALLUC].intrinsic = expiring ? 1 : 0;
+            game.context.move = 1;
+            game.context.seer_turn = 100000;
+            game.context.next_attrib_check = 100000;
+            game.multi = scenario.callback ? -1 : 0;
+            game.nomovemsg = '';
+            game.flags.runmode = RUN_STEP;
+            let callbacks = 0;
+            game.afternmv = scenario.callback ? (subject) => {
+                assert.strictEqual(subject, game);
+                assert.equal(subject.u.uprops[HALLUC].intrinsic, 0);
+                callbacks++;
+                rnd(139);
+            } : null;
+            const movesBefore = game.moves;
+            initrack(game);
+            const tracksBefore = game.track.utcnt;
+            const rngBefore = replay.getRngLog().length;
+            game.nhDisplay.pushKey('.'.charCodeAt(0));
+            await moveloop_core();
+            assert.equal(game.moves, movesBefore + scenario.turns, scenario.name);
+            assert.equal(game.track.utcnt, tracksBefore + scenario.turns, scenario.name);
+            assert.equal(game.u.umovement, 12, scenario.name);
+            assert.equal(game.u.ublesscnt, 10 - scenario.turns, scenario.name);
+            assert.equal(game.u.uprops[HALLUC].intrinsic, 0, scenario.name);
+            assert.equal(callbacks, scenario.callback ? 1 : 0, scenario.name);
+            outcomes.push({
+                rng: replay.getRngLog().slice(rngBefore),
+                hunger: game.u.uhunger,
+                heroSequence: game.hero_seq,
+                movement: game.u.umovement,
+                callbacks,
+            });
+        }
+        // Removing hallucination consumes no core RNG. The live-only route
+        // must therefore match the same allocation without that display work.
+        assert.deepEqual(outcomes[1], outcomes[0], scenario.name);
+    }
+});
+
+test('a refused timeout tail retains only its completed live prefix', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 8440101, datetime: '20320415101723', name: 'TimeoutPrefix',
+        role: 'Healer', race: 'human', gender: 'female', align: 'neutral',
+        command: '', options: ',pettype:none,!debug_mongen,!acoustics',
+    }));
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.head_engr = null;
+    clearTtyMessageWindow(game);
+    game.invent = {
+        oclass: TOOL_CLASS, otyp: SACK,
+        owt: weight_cap(game) * 2, nobj: null,
+    };
+    game.go.oldcap = HVY_ENCUMBER;
+    game.level.regions = [create_region([{
+        lx: game.u.ux, ly: game.u.uy, hx: game.u.ux, hy: game.u.uy,
+    }])];
+    game.u.umovement = NORMAL_SPEED;
+    game.u.uprops[HALLUC].intrinsic = 1;
+    game.u.ublesscnt = 10;
+    game.u.uhunger = 900;
+    game.multi = -1;
+    game.nomovemsg = '';
+    game.context.move = 1;
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    let callbacks = 0;
+    game.afternmv = () => { callbacks++; };
+    const movesBefore = game.moves;
+    initrack(game);
+    const tracksBefore = game.track.utcnt;
+    const rngBefore = replay.getRngLog().length;
+    await assert.rejects(moveloop_core(), (error) => (
+        error instanceof UnsupportedTurnBoundaryError
+        && error.message.includes('multi-cycle region upkeep')
+    ));
+    assert.equal(game.moves, movesBefore + 1);
+    assert.equal(game.track.utcnt, tracksBefore + 1);
+    assert.equal(game.u.umovement, 3);
+    assert.equal(game.u.uprops[HALLUC].intrinsic, 0);
+    assert.match(game._ttyToplines, /Everything looks SO boring now\./u);
+    assert.equal(game.u.ublesscnt, 10);
+    assert.equal(game.u.uhunger, 900);
+    assert.equal(game.multi, -1);
+    assert.equal(callbacks, 0);
+    assert.equal(replay.getRngLog().slice(rngBefore)
+        .some((entry) => entry.startsWith('rn2(20)')), false);
+});
+
+test('polymorph timeout isolates live callbacks and preserves the capacity snapshot', async () => {
+    // polyman releases a mimicked appearance through unmul. The callback may
+    // change inventory, request a transition, or finish the game; none runs
+    // against the clone. Weight affects this allocation before that callback.
+    for (const ending of ['continue', 'gameover']) {
+        const replay = await runSegment(firstTurnInput({
+            seed: 8440101, datetime: '20320415101723', name: 'TimeoutForm',
+            role: 'Healer', race: 'human', gender: 'female', align: 'neutral',
+            command: '', options: ',pettype:none,!debug_mongen,!acoustics',
+        }));
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        for (const slot of ['uwep', 'uswapwep', 'uquiver', 'uarm', 'uarmc',
+            'uarmh', 'uarmf', 'uarmg', 'uarms', 'uarmu', 'uleft', 'uright'])
+            game[slot] = null;
+        game.u.macurr = { a: [...game.u.acurr.a] };
+        game.u.mamax = { a: [...game.u.amax.a] };
+        game.u.mfemale = game.flags.female;
+        game.u.umonnum = PM_SMALL_MIMIC;
+        set_uasmon(game);
+        game.youmonst.m_ap_type = M_AP_OBJECT;
+        game.youmonst.mappearance = SACK;
+        game.u.mh = game.u.mhmax = 20;
+        game.u.mtimedone = 1;
+        game.u.uhp = game.u.uhpmax - 2;
+        game.u.umoved = true;
+        game.invent = {
+            oclass: TOOL_CLASS, otyp: SACK,
+            owt: weight_cap(game) * 2, nobj: null,
+        };
+        game.u.umovement = 0;
+        game.u.ublesscnt = 10;
+        game.u.uhunger = 900;
+        game.multi = -1;
+        game.nomovemsg = '';
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        clearTtyMessageWindow(game);
+        let callbacks = 0;
+        game.afternmv = (subject) => {
+            assert.strictEqual(subject, game);
+            callbacks++;
+            rnd(137); // Unique bound distinguishes this callback's draw.
+            subject.invent = null;
+            if (ending === 'gameover') subject.program_state.gameover = true;
+        };
+        const hpBefore = game.u.uhp;
+        const movesBefore = game.moves;
+        const rngBefore = replay.getRngLog().length;
+        const snapshot = completeSecondTurnSnapshot(game, replay);
+        const plan = await preflightSimpleMonsterActions(game, {
+            consumeHeroRation: false,
+            advanceRound: (planned, random) =>
+                finishElapsedTurn(planned, random, { planning: true }),
+        });
+        assert.equal(plan.beforeTimeout, true);
+        assert.equal(callbacks, 0);
+        assert.deepEqual(completeSecondTurnSnapshot(game, replay), snapshot);
+        await finishElapsedTurn(game, { rn1, rn2, rnd });
+        assert.equal(callbacks, 1);
+        assert.equal(game.u.umonnum, game.u.umonster);
+        assert.equal(game.u.mtimedone, 0);
+        assert.equal(near_capacity(game), 0, 'callback removed the burden');
+        assert.equal(game.moves, movesBefore + 1, 'one allocation only');
+        assert.equal(game.u.uhp, hpBefore, 'old burden still suppresses regeneration');
+        assert.equal(game.u.ublesscnt, ending === 'gameover' ? 10 : 9,
+            'a completed game never enters the same-allocation tail');
+        const draws = replay.getRngLog().slice(rngBefore);
+        assert.equal(draws.filter((entry) => entry.startsWith('rnd(137)')).length, 1);
+        assert.equal(draws.some((entry) => entry.startsWith('rn2(100)')), false);
+    }
+});
+
 test('fainting boundaries stop before any elapsed-turn mutation',
     async () => {
     const cases = [
@@ -1900,7 +2096,7 @@ test('burdened multi-cycle upkeep stops before region and search work',
 // later, so passing ttyPline() there left the whole suite green.
 //
 // This case removes both cover stories at once. The plan stops at the region
-// upkeep immediately below nh_timeout_elapsed_turn(), so no live pass follows
+// upkeep immediately below nh_timeout(), so no live pass follows
 // to repaint what a printing dry run left behind. And the turn begins with the
 // arrival message still pending, which is what an ordinary turn looks like:
 // cmd.c parse() clears the physical row after reading its key and leaves the
@@ -2110,7 +2306,7 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         assert.equal(square.waslit, Boolean(square.lit));
     });
 
-// The status seam of the same nh_timeout_elapsed_turn() call, which the case
+// The status seam of the same nh_timeout() call, which the case
 // above cannot reach. timeout.c:775 calls stop_occupation() beside
 // heal_legs(0), and js/allmain.js stop_occupation() reaches a status refresh
 // only through eat.c maybe_finished_meal(), which runs eatfood() when

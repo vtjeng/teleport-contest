@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c nh_timeout recipe. Seed 8440031 was selected before inspection without a scan. Timed confusion expires after one turn; the ordinary elapsed-turn path calls make_confused and stops the occupation.",
+  "segments": [
+    {
+      "seed": 8440031,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".#wizintrinsic\n1g\n ."
+    }
+  ]
+}

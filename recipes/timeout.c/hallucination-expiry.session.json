@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c nh_timeout case. Three consecutive newly chosen seeds 8440031-8440033 were inspected for initial regions; 8440032 is the first without one. The blind option avoids a separately retained display.c hallucinated-object glyph mismatch before expiry; the live hallucination-expiry callback still redraws and reports the blind wording. The hero keeps the starting unburdened load.",
+  "segments": [
+    {
+      "seed": 8440032,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,blind\n",
+      "moves": " .#wizintrinsic\n1h\n ."
+    }
+  ]
+}
