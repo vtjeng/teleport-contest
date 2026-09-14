@@ -8,7 +8,9 @@ import {
     CONFUSION,
     DEAF,
     FIG_TRANSFORM,
+    FAST,
     FLYING,
+    FROM_FORM,
     FROMOUTSIDE,
     FUMBLING,
     HATCH_EGG,
@@ -27,6 +29,7 @@ import {
     ROT_ORGANIC,
     SHRINK_GLOB,
     SLEEPY,
+    TIMEOUT,
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
@@ -503,6 +506,66 @@ test('timed INVULNERABLE counts down with source-inert expiry', async () => {
     assert.equal(state.go.occupation, occupation);
     assert.deepEqual(messages, []);
     assert.deepEqual(draws, []);
+});
+
+test('timed FAST expiry keeps source speed and message ordering', async () => {
+    const cases = [
+        // One timeout turn with no other source makes both Fast and Very_fast
+        // false after timeout.c:670-671's decrement.
+        ['temporary speed', 1, 0, 0, 'You feel yourself slow down.'],
+        // FROMOUTSIDE is an intrinsic source that leaves Fast true but does
+        // not satisfy Very_fast, so C appends " a bit" at timeout.c:727-728.
+        ['permanent intrinsic speed', FROMOUTSIDE | 1, 0, 0,
+            'You feel yourself slow down a bit.'],
+        // A nonzero extrinsic source keeps Very_fast true after the timeout,
+        // which suppresses timeout.c:726's message entirely.
+        ['extrinsic speed', 1, 1, 0, null],
+        // FROM_FORM is outside INTRINSIC, so it also keeps Very_fast true
+        // after the temporary timeout expires.
+        ['form speed', FROM_FORM | 1, 0, 0, null],
+        // C's You_feel() uses its dream prefix for an unaware hero, while the
+        // timeout countdown and source test remain the same as the first row.
+        ['unaware temporary speed', 1, 0, -1,
+            'You dream that you feel yourself slow down.'],
+    ];
+
+    for (const [label, intrinsic, extrinsic, multi, expected] of cases) {
+        const state = timerState();
+        const property = { intrinsic, extrinsic };
+        const uprops = [];
+        uprops[FAST] = property;
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops,
+            ...(multi < 0 ? { usleep: 1 } : {}),
+        };
+        state.multi = multi;
+        const messages = [];
+        const draws = [];
+        const random = {
+            rn2(bound) {
+                draws.push(['rn2', bound]);
+                throw new Error(`${label} must not draw rn2`);
+            },
+            rnd(bound) {
+                draws.push(['rnd', bound]);
+                throw new Error(`${label} must not draw rnd`);
+            },
+        };
+
+        await nh_timeout_elapsed_turn(state, {
+            random,
+            message: async (text) => messages.push(text),
+        });
+
+        assert.equal(property.intrinsic, intrinsic & ~TIMEOUT, label);
+        assert.deepEqual(messages, expected === null ? [] : [expected], label);
+        assert.deepEqual(draws, [], label);
+    }
 });
 
 test('elapsed-turn timeout upkeep decrements non-expiring confusion',

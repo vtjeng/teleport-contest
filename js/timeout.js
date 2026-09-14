@@ -22,10 +22,13 @@ import {
     FLYING,
     FROMOUTSIDE,
     FUMBLING,
+    FAST,
+    FAINTED,
     HATCH_EGG,
     HALLUC,
     HALLUC_RES,
     ICE,
+    INTRINSIC,
     INVULNERABLE,
     isok,
     LEVITATION,
@@ -78,6 +81,7 @@ import { is_rider, is_were, zombie_form } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
 import { wake_nearby } from './mon.js';
 import { note_unported } from './unported.js';
+import { unconscious } from './trap.js';
 import {
     PM_DEATH,
     PM_ARCHEOLOGIST,
@@ -425,6 +429,13 @@ function deaf(state) {
     );
 }
 
+// C ref: youprop.h Unaware. You_feel() changes its prefix when a negative
+// multi-turn state leaves the hero unconscious or fainted.
+function unaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
+}
+
 // C ref: timeout.c slip_or_trip() (1300-1317), the plain on-foot arm. The
 // random choice precedes its message, as in C's switch (rn2(4)).
 async function slipOrTripPlainOnFoot(state, random, message) {
@@ -505,6 +516,10 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
         // property therefore decrements to zero without feedback or cleanup;
         // this is distinct from u.uinvulnerable's early return above.
         if (index === INVULNERABLE) continue;
+        // timeout.c:725-729 only reads the FAST fields after decrementing the
+        // timeout. The expiry feedback and the silent Very_fast cases are all
+        // source-complete below.
+        if (index === FAST) continue;
         if (index === FUMBLING
             && (timeout > 1 || plainOnFootFumbleAdmitted(state))) continue;
         // timeout.c:752-758 restores one turn before make_deaf() clears the
@@ -592,9 +607,9 @@ async function sleep_dialogue(state, env = {}) {
 // nonzero and runs the switch on each one that reaches zero. An invulnerable
 // hero never arrives, because the caller returns first exactly as
 // timeout.c:621 does; every other hero has been through the preflight. The
-// admitted rows here are INVULNERABLE's source-inert expiry, WOUNDED_LEGS,
-// the plain on-foot FUMBLING arm, source-inert SLEEPY, and the non-expiring
-// CONFUSION/HALLUC countdowns.
+// admitted rows here are INVULNERABLE's source-inert expiry, FAST's speed
+// feedback, WOUNDED_LEGS, the plain on-foot FUMBLING arm, source-inert SLEEPY,
+// and the non-expiring CONFUSION/HALLUC countdowns.
 //
 // C reads find_delayed_killer() at 672 before switching, but only its STONED,
 // SLIMED and SICK cases use the result and none of the three is admitted here.
@@ -622,6 +637,25 @@ async function decrement_property_timeouts(state, env) {
         // timeout.c has no INVULNERABLE case. Its timed intrinsic still loses
         // one turn above, but expiry has no message, RNG draw, or state change.
         if (index === INVULNERABLE) continue;
+        if (index === FAST) {
+            // timeout.c:725-729 tests Very_fast and Fast after the common
+            // timeout decrement. A timed speed ending while no other speed
+            // source remains therefore reports a plain slowdown; a permanent
+            // intrinsic source keeps Fast true and adds "a bit". Extrinsic or
+            // non-intrinsic intrinsic speed keeps Very_fast true and is silent.
+            const HFast = property.intrinsic;
+            const EFast = property.extrinsic;
+            const Very_fast = Boolean((HFast & ~INTRINSIC) || EFast);
+            if (!Very_fast) {
+                const Fast = Boolean(HFast || EFast);
+                await (env.message ?? ttyPline)(
+                    `${unaware(state) ? 'You dream that you feel' : 'You feel'} `
+                        + `yourself slow down${Fast ? ' a bit' : ''}.`,
+                    state,
+                );
+            }
+            continue;
+        }
         if (index === FUMBLING) {
             const random = env.random ?? { rn2, rnd };
             const message = env.message ?? ttyPline;
