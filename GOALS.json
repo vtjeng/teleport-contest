@@ -44984,8 +44984,8 @@
           "name": "peffect_healing",
           "line": 1119,
           "endLine": 1127,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -45059,7 +45059,55 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_healing",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_healing",
+            "sourceReview": "Read potion.c:1119–1125 completely and the peffects dispatch at1395–1397. Preserved feedback before d(4+2*bcsign,4), +8 HP, cursed/no-extra-HP selection, blessed sickness cure flag, noncursed blindness/deafness cure flag, then exercise(A_CON,TRUE). Read mkobj.c bcsign:1857–1860, JS bcsign, attrib.c exercise:489–521 and its JS owner. Passed the existing encumber_msg owner required after Constitution exercise once moves>0. Removed POT_HEALING's UnsupportedQuaffError rather than relocating it. Selected helper healup now calls real implemented blindness/deafness helpers; permitted absent void make_vomiting/make_sick calls remain explicit note_unported. No seed or session condition and no new refusal. Required helper healup (js/potion.js:healup): Read potion.c:1428–1458 completely. Preserved nhp guard, Upolyd versus ordinary HP branches, strict greater-than maximum test, max-HP increments and human uhppeak update. Replaced obsolete cureblind refusal/no-op with u.ucreamed=0 then awaited make_blinded(0,TRUE), make_deaf(0,TRUE) in C order. Replaced curesick refusal with permitted absent void calls note_unported('potion.c make_vomiting') then note_unported('potion.c make_sick'); no invented sickness state mutation. disp.botl remains final. All existing JS healup callers now await it. Read complete existing make_blinded C261–331 and make_deaf C443–457 bodies and JavaScript owners. Corrected make_blinded's zero-timeout admission: old==0&&xtime==0 cannot transition even when Blindfolded/PermaBlind, so the existing non-timeout blindness stays untouched. Existing independently implemented make_blinded transition refusals remain; this evidence does not claim its whole-source completion. No need for output/RNG clone hooks: healing cure flags are used only in live hero callers; artifact/booze false flags remain state-only. Existing production callers: js/potion.js:peffect_healing — potion.c:1122–1123 passes beatitude-dependent healing and cure flags. js/potion.js:peffect_booze — potion.c:783 heals one HP with false cure flags when not diluted. js/zap.js:zapyourself — zap.c:2908–2913 uses healing/extra-healing spell dice and optional blindness cure, before feedback. js/artifacts.js:artifact_hit — artifact.c:1682–1686 rounds drained life upward then heals attacking hero with false cure flags, before returning visible state. Coordinator read the selected potion.c function, whole healup, existing make_blinded and make_deaf bodies, all changed caller awaits, tests and fresh recipes at 9707e5dc. 195 focused tests passed across potion, cast-healing, wipe-occupation, artifacts, zap-command and zap-ray at2026-09-14T22:18Z; scoped ESLint and git diff --check passed. Cast-healing fixture workers require unsandboxed subprocess launch (sandbox EPERM; rerun passed). Four healing cases passed: 9288 PRNG calls,144 complete screens/cursors,0 animations. The existing confusion/booze matrix plus three healing cases separately passed8segments21092RNG279screens/cursors. Four saved recordings independently replayed with boundary=null,divergence=null. Blocked independent recipe recipes/potion.c/healing-blind-blocked.session.json: Fresh differential first differs at boundary48: C calls make_blinded on wizard setup and prints A cloud of darkness falls upon you; JS wizard setup prints its generic timeout line. Later quaff reaches make_blinded's existing general timed-blindness restoration refusal; no recording committed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1395–1397 POT_HEALING; production runSegment -> quaff command -> dodrink -> dopotion -> peffects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/cast-healing.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/zap-ray.test.mjs",
+              "scripts/wipe-occupation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/healing-blessed.session.json",
+              "recordings/potion.c/healing-uncursed.session.json",
+              "recordings/potion.c/healing-cursed.session.json",
+              "recordings/potion.c/healing-deaf.session.json"
+            ],
+            "checkedAt": "cc33358947af457e6fdfcc78d94d552ae47f40d0"
+          }
+        ],
+        "entryPointReview": "The selected peffect_healing helper is reached by the existing quaff dispatcher. healup is a helper used by quaff, self-healing spells and artifact drain; only its cure sequence and async completion contract changed. Four independent recordings exercise the newly admitted healing quaff and the timed-deafness cure. Existing spell fixture regressions and artifact tests cover unchanged production callers. General blindness transitions and absent sickness/vomiting helpers remain separate owned callee gaps, not completed entry points.",
+        "entryPoints": [
+          {
+            "name": "Quaff a healing potion",
+            "functions": [
+              "peffect_healing"
+            ],
+            "recordings": [
+              "recordings/potion.c/healing-blessed.session.json",
+              "recordings/potion.c/healing-uncursed.session.json",
+              "recordings/potion.c/healing-cursed.session.json",
+              "recordings/potion.c/healing-deaf.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

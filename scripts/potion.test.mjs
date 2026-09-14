@@ -204,10 +204,12 @@ function vaporPotion(otyp) {
 test('healing potion preserves beatitude dice before Constitution exercise',
     async () => {
     for (const sign of [-1, 0, 1]) {
+        // An independent reproducible fixture; the assertions cover all BUC signs.
         await startedGame(8460023, 'HealingDice');
         const potion = vaporPotion(POT_HEALING);
         potion.cursed = sign < 0;
         potion.blessed = sign > 0;
+        // Leave room for even the blessed maximum (6d4 + 8), avoiding overheal.
         game.u.uhp = 1;
         game.u.uhpmax = 100;
         game.u.uhppeak = 100;
@@ -238,6 +240,7 @@ test('uncursed healing clears cream and timed deafness through healup',
     const potion = vaporPotion(POT_HEALING);
     potion.cursed = false;
     potion.blessed = false;
+    // Distinct nonzero fixture durations: healup must clear both, not decrement.
     game.u.ucreamed = 3;
     game.u.uprops[BLINDED].intrinsic = 0;
     game.u.uprops[DEAF].intrinsic = 7;
