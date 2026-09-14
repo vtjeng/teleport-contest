@@ -1,12 +1,12 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
-  "remainingScreensUpperBound": 423,
+  "remainingScreensUpperBound": 370,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "remainingScreensUpperBound": 423,
-    "step": 109,
+    "remainingScreensUpperBound": 370,
+    "step": 162,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,43 +14,36 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported monster distress state: equipped or attached lycanthrope",
+    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold",
     "unlocatedKinds": [],
     "recordedSteps": 532
   },
-  "summary": "At step 109, key T (takeoff) spends a turn and enters C's once-per-turn monster distress loop. The focused JavaScript state has one were-form monster, PM_HUMAN_WEREWOLF (pmidx 263), at monster-list index 26; it carries a potion of speed (POT_SPEED 302) in minvent. C were_change() draws rn2(50)=29 for this daytime human-form lycanthrope, so the 1-in-50 conversion test fails and new_were() is not called. JS preflightNewWere() runs before that chance draw and throws on any minvent, producing the queue boundary. Move that preflight to the successful-change path while retaining it in new_were(); the failed chance must consume only rn2(50) and then reach the recorded movement and turn draws.",
+  "summary": "At step 162, the wizard wish prompt submits `blessed 30 gold pieces`. C's objnam.c readobjnam() gold arm clamps the count, calls mksobj(GOLD_PIECE, FALSE, FALSE), sets the quantity and weight, marks the status line dirty, and returns the object; JS readobjnam_postparse1() raises UnsupportedWishError before that branch, which failClosedCommand wraps as the observed hero-command boundary. Port this missing readobjnam arm through the existing makewish() and inventory path while retaining C's count rules and RNG order.",
   "source": {
-    "file": "were.c",
+    "file": "objnam.c",
     "functions": [
-      "were_change",
-      "new_were",
-      "counter_were"
+      "readobjnam"
     ],
-    "branch": "nethack-c/upstream/src/were.c:14-18 tests the human-form lycanthrope chance and calls new_were() only when !rn2(50) succeeds in this daytime setup. The stop trace records rn2(50)=29, so C skips new_were() and does not inspect the monster inventory on this turn. js/mon.js:3332-3340 calls preflightNewWere() before drawing rn2(50), and js/mon.js:2701-2706 rejects the observed minvent with the boundary message.",
+    "branch": "nethack-c/upstream/src/objnam.c:4533-4545 is reached after the normal readobjnam parsing chain when d->bp ends in `gold piece` or `zorkmid`, equals `gold`, `money` or `coin`, or begins with GOLD_SYM. In this debug wizard recording d->cnt is 30, so the non-wizard >5000 cap and the minimum-count correction do not change it. C then calls mksobj(GOLD_PIECE, FALSE, FALSE), assigns d->otmp->quan = d->cnt, recomputes d->otmp->owt with weight(), sets disp.botl, and returns the object directly. The JavaScript split of this C function reaches js/objnam_readobjnam.js:1064-1069 inside readobjnam_postparse1(), where it currently raises UnsupportedWishError before mksobj(); js/objnam_readobjnam.js:1570-1612 supplies the readobjnam() driver and return-code path.",
     "callers": [
-      "nethack-c/upstream/src/mon.c:mcalcdistress() and m_calcdistress() (1174-1198) iterate monsters and call were_change() after regeneration",
-      "nethack-c/upstream/src/allmain.c:moveloop_core() (222-234) resets gw.were_changes, calls mcalcdistress(), and then consumes mcalcmove() movement draws",
-      "js/mon.js:mcalcdistress() and m_calcdistress() (3384-3467) invoke the wereChange callback in the same once-per-turn position",
-      "js/allmain.js:finishElapsedTurn() (713-735) invokes mcalcdistress() and then mcalcmove() during an elapsed command",
-      "js/allmain.js:advanceElapsedTurn() (1095-1124) runs the planning clone and converts the distress refusal to UnsupportedTurnBoundaryError",
-      "js/allmain.js:moveloop_core() (1289-1301) enters advanceElapsedTurn() when context.move is true"
+      "nethack-c/upstream/src/zap.c:makewish() (6314-6422) calls readobjnam(buf, &nothing) at 6360; js/zap.js:makewish() (999-1122) calls readobjnam() at 1055 and then hands the returned object to hold_another_object().",
+      "nethack-c/upstream/src/wizcmds.c:wiz_wish() (31-44) calls makewish() for the wizard #wizwish command; js/wizcmds.js:wiz_wish() (141-160) is its production counterpart, and js/cmd.js:runWishCommand() (3424-3429) plus the wizwish dispatch (5122-5124, 5900-5911) route the session into it.",
+      "Other source callers share makewish() and therefore this readobjnam branch: nethack-c/upstream/src/zap.c:WAN_WISHING (2575-2584), potion.c:mongrantswish() (2794-2812), sit.c:special_throne_effect() (90-111, 238-256), and allmain.c resume/Amulet paths (200-202, 445-451); js/potion.js:mongrantswish() (190-211) and js/allmain.js:advanceElapsedTurn() (1314-1328) supply the corresponding existing call sites where ported."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/were.c:new_were() (95-138) mutates the form only after were_change() succeeds; a successful transformation then calls mon_break_armor() and possibly_unwield()",
-      "nethack-c/upstream/src/were.c:counter_were() (47-65) maps PM_HUMAN_WEREWOLF to PM_WEREWOLF",
-      "nethack-c/upstream/src/worn.c:mon_break_armor() and nethack-c/upstream/src/weapon.c:possibly_unwield() are downstream of a successful new_were() call",
-      "js/mon.js:preflightNewWere(), new_were(), and were_change() (2684-2761, 3316-3347) contain the premature inventory refusal and the chance draw",
-      "js/monsters.js:949 defines PM_HUMAN_WEREWOLF (pmidx 263) with neutral name werewolf; js/objects.js:377 defines POT_SPEED as object type 302",
-      "nethack-c/upstream/src/mon.c:mcalcmove() (1126-1168) and js/mon.js:mcalcmove() consume the post-distress rn2(12) movement draws that follow the failed chance"
+      "nethack-c/upstream/src/mkobj.c:mksobj() (1177-1258) advances next_ident(), creates the GOLD_PIECE object with init false, and finalizes its weight; js/obj.js:mksobj() (2631-2695) already supports the same init=false path, including GOLD_PIECE's ordinary finalization.",
+      "nethack-c/upstream/src/mkobj.c:weight() (1888-1945) computes a coin object's weight; js/obj.js:weight() (1682-1730) has the COIN_CLASS result and must be called after setting quan, as C does.",
+      "nethack-c/upstream/src/invent.c:hold_another_object() (1208-1306) receives the returned stack and emits the inventory/drop result; js/invent.js:hold_another_object() (4810-4903) is the existing production path that js/zap.js:makewish() prepares and calls.",
+      "nethack-c/upstream/src/zap.c:makewish() (6359-6421) continues after readobjnam(), ultimately adding rn1(100, 50) to u.ublesscnt; js/zap.js:makewish() (1055-1122) mirrors that tail. The recorded step-162 RNG has rnd(2)=2 at next_ident(mkobj.c:521), followed by rn2(100)=17 at makewish(zap.c:6421), so the new arm must preserve both draws and their order.",
+      "js/cmd.js:failClosedCommand() (3017-3029) converts UnsupportedWishError into the observed `unsupported hero command: an unported branch of this command: ...` boundary; removing only the gold refusal must leave other explicitly unsupported wish branches intact."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json identifies this session at commit cc1b4453d14fd4a0e995170e3842ad622790c8a5, step 109, with 423 remaining screens and the boundary unsupported monster distress state: equipped or attached lycanthrope.",
-    "sessions/holdout/seed0399-wizard-hallu-actions.session.json segments[0].steps[109] records key T, message You were wearing an uncursed +0 cloak of magic resistance., and the first RNG entry rn2(50)=29 @ were_change(were.c:17); the same step then records the mcalcmove rn2(12) entries and later turn draws.",
-    "A focused replay of the exact recorded input prefix through step 109 stops at the same UnsupportedTurnBoundaryError before the live turn; the replay and state witness are saved in .cache/investigation-seed0399-wizard-hallu-actions.json.",
-    "The focused replay state has a single relevant monster at list index 26 with pmidx 263, human-form data, and minvent containing object type 302 (potion of speed); it has no worn mask, leash, steed, or stuck attachment. This identifies minvent as the immediate refusal predicate.",
-    "nethack-c/upstream/src/were.c:14-18 evaluates the human-form chance before new_were(), while js/mon.js:3332-3340 preflights before rn2(); the nonzero C draw proves that the inventory-bearing new_were() path is not reached at this stop.",
-    "nethack-c/upstream/src/mon.c:1174-1198 and allmain.c:222-234 place were_change() before mcalcmove(); no mhitu.c/mattacku() call occurs in the step-109 RNG trace, so monster attack and polyself branches are outside this mismatch."
+    ".cache/scan-cache.json at commit 93a0880804e5b5e7aab756e1cce0b271cc1419dd reports holdout/seed0399-wizard-hallu-actions with screensEmitted 162, recordedSteps 532, first stop step 162, boundary `unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold`, and remainingScreensUpperBound 532 - 162 = 370.",
+    "sessions/holdout/seed0399-wizard-hallu-actions.session.json segment 0 steps 150-161 echo `blessed 30 gold pieces` at the wish prompt; step 162's newline records the C screen `$ - 30 gold pieces.`, cursor [46,10,1], rnd(2)=2 @ next_ident(mkobj.c:521), and rn2(100)=17 @ makewish(zap.c:6421). The following step 163 starts the next `For what do you wish?` prompt, confirming that step 162 completed a gold wish in C.",
+    "nethack-c/upstream/src/objnam.c:4533-4545 implements the exact gold aliases and count handling, constructs GOLD_PIECE with mksobj(..., FALSE, FALSE), assigns its quantity and weight, sets disp.botl, and returns it; js/objnam_readobjnam.js:1064-1069 instead raises `UnsupportedWishError('a wish for gold', ...)` before any object-generation draw.",
+    "nethack-c/upstream/src/zap.c:6314-6422 shows makewish() calling readobjnam() at 6360, then hold_another_object() and the final rn1(100, 50) at 6421; js/zap.js:999-1122 follows that production path. js/cmd.js:3017-3029 catches the wish-parser refusal and produces the exact current boundary message, so the missing behavior belongs to the source port rather than to command admission.",
+    "The prior 423-count cache identified and recorded the step-109 were_change ordering defect. Commit 93a0880804e5b5e7aab756e1cce0b271cc1419dd removes that premature preflight; the current scan therefore advances to this independent step-162 gold-wish owner. The old were_change finding is retained only as transition provenance, not as the current source scope."
   ]
 }
