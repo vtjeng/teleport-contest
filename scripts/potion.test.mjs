@@ -14,7 +14,8 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
     A_CON, A_DEX, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, HALLUC,
-    HALLUC_RES, INVIS, POTHIT_MONST_THROW, SEE_INVIS, SLEEP_RES, TIMEOUT,
+    HALLUC_RES, INVIS, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS, SLEEP_RES,
+    TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
@@ -1080,4 +1081,111 @@ test('peffects POT_OIL no longer throws UnsupportedQuaffError', async () => {
     clearTopline();
     await potionbreathe(obj, game);
     assert.equal(toplines(), '');
+});
+
+// ---------------------------------------------------------------------------
+// peffect_see_invisible: fruit-juice arm
+// C ref: potion.c peffect_see_invisible() (841-880). Fruit juice shares the
+// taste and identification preamble with see-invisible potions, then adds
+// nutrition according to dilution and beatitude before calling newuhs(FALSE).
+// ---------------------------------------------------------------------------
+
+test('fruit juice taste, identification, and nutrition follow its BUC state',
+    async () => {
+    await startedGame(771013, 'FruitJuiceTaste');
+
+    // Each case starts at 900 nutrition, the initialized NOT_HUNGRY value
+    // below the 1000 SATIATED boundary, so newuhs(FALSE) runs without an
+    // additional hunger-status message or random draw.
+    const cases = [
+        { name: 'uncursed', blessed: false, cursed: false, odiluted: false,
+            delta: 20, message: 'This tastes like slime mold juice.' },
+        { name: 'diluted', blessed: false, cursed: false, odiluted: true,
+            delta: 10,
+            message: 'This tastes like reconstituted slime mold juice.' },
+        { name: 'blessed', blessed: true, cursed: false, odiluted: false,
+            delta: 30, message: 'This tastes like slime mold juice.' },
+        { name: 'cursed', blessed: false, cursed: true, odiluted: false,
+            delta: 10, message: 'Yecch!  This tastes rotten.' },
+    ];
+    for (const entry of cases) {
+        const potion = vaporPotion(POT_FRUIT_JUICE);
+        potion.blessed = entry.blessed;
+        potion.cursed = entry.cursed;
+        potion.odiluted = entry.odiluted;
+        game.u.uhunger = 900;
+        game.u.uhs = NOT_HUNGRY;
+        game.gp.potion_unkn = 0;
+        game.gp.potion_nothing = 0;
+        clearTopline();
+        enableRngLog();
+
+        await peffects(potion, game);
+
+        assert.equal(game.u.uhunger, 900 + entry.delta, entry.name);
+        assert.equal(game.u.uhs, NOT_HUNGRY, entry.name);
+        assert.equal(game.gp.potion_unkn, 1, entry.name);
+        assert.equal(toplines(), entry.message, entry.name);
+        assert.deepEqual(getRngLog(), [], entry.name);
+    }
+});
+
+test('hallucinating fruit juice uses the source taste variants', async () => {
+    // Seed 771014 is an independent startup case; the test overrides only
+    // the potion and hallucination state after initialization.
+    await startedGame(771014, 'FruitJuiceHallu');
+    // 30 is a positive Hallucination timeout, so Hallucination's message
+    // format is active without changing the potion's BUC state.
+    game.u.uprops[HALLUC].intrinsic = 30;
+
+    // The two uncursed cases exercise C's "10% real" format string and its
+    // source-ordered dilution prefix. The cursed case uses the alternate
+    // "overripe" wording and still follows the same nutrition formula.
+    const cases = [
+        { cursed: false, odiluted: false,
+            message: 'This tastes like 10% real slime mold juice '
+                + 'all-natural beverage.' },
+        { cursed: false, odiluted: true,
+            message: 'This tastes like 10% real reconstituted '
+                + 'slime mold juice all-natural beverage.' },
+        { cursed: true, odiluted: false,
+            message: 'Yecch!  This tastes overripe.' },
+    ];
+    for (const entry of cases) {
+        const potion = vaporPotion(POT_FRUIT_JUICE);
+        potion.cursed = entry.cursed;
+        potion.odiluted = entry.odiluted;
+        game.u.uhunger = 900;
+        game.u.uhs = NOT_HUNGRY;
+        game.gp.potion_unkn = 0;
+        clearTopline();
+        enableRngLog();
+
+        await peffects(potion, game);
+
+        assert.equal(toplines(), entry.message);
+        assert.equal(game.gp.potion_unkn, 1);
+        assert.deepEqual(getRngLog(), []);
+    }
+});
+
+test('fruit juice lets newuhs report a hunger-status transition', async () => {
+    // Seed 771015 is independent from the taste cases and supplies an
+    // initialized game for the direct potion effect call.
+    await startedGame(771015, 'FruitJuiceStatus');
+    const potion = vaporPotion(POT_FRUIT_JUICE);
+    // 45 is WEAK; one uncursed undiluted fruit juice adds 20 and reaches
+    // HUNGRY, whose newuhs(FALSE) message is appended after the taste line.
+    game.u.uhunger = 45;
+    game.u.uhs = 3; // WEAK from eat.c's hunger-status ordering.
+    clearTopline();
+
+    await peffects(potion, game);
+
+    assert.equal(game.u.uhunger, 65);
+    assert.equal(game.u.uhs, 2); // HUNGRY from eat.c's hunger-status ordering.
+    assert.equal(
+        toplines(),
+        'This tastes like slime mold juice.  You only feel hungry now.',
+    );
 });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 914002,
+      "datetime": "20301225112233",
+      "nethackrc": "OPTIONS=name:FruitPort,role:Wizard,race:gnome,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017uncursed potion of fruit juice\nqo"
+    }
+  ],
+  "comment": "Independently selected debug wish and quaff case for potion.c peffect_see_invisible(): the wished uncursed fruit juice reaches the POT_FRUIT_JUICE arm through dodrink(), dopotion(), and peffects()."
+}

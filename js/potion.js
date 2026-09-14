@@ -15,8 +15,9 @@
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), and POT_OIL are ported. The
-// other 22 arms throw
+// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_OIL, and the
+// POT_FRUIT_JUICE arm of peffect_see_invisible() are ported. The other 21
+// arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -77,7 +78,7 @@ import {
 } from './const.js';
 import { adjattrib, exercise, poisontell } from './attrib.js';
 import {
-    see_monsters, see_objects, see_traps, swallowed, tmp_at,
+    bot, newsym, see_monsters, see_objects, see_traps, swallowed, tmp_at,
 } from './display.js';
 import { heal_legs, trycall } from './do.js';
 import { Amonnam, capitalizedMonsterName } from './do_name.js';
@@ -87,7 +88,9 @@ import { drinkfountain } from './fountain.js';
 import { more_experienced } from './exper.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { losehp, nomul, You_can_move_again } from './hack.js';
+import {
+    endRunning, losehp, nomul, You_can_move_again,
+} from './hack.js';
 import {
     getobj, hands_obj, learn_unseen_invent, obfree, update_inventory, useup,
 } from './invent.js';
@@ -151,6 +154,7 @@ import {
 } from './objects.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 
 // Thrown where potion.c reaches a vapor effect this port has not ported.
 export class UnsupportedPotionError extends Error {
@@ -162,8 +166,8 @@ export class UnsupportedPotionError extends Error {
 }
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported: the 23 potion types besides POT_CONFUSION, POT_SPEED, and POT_OIL,
-// and the
+// ported: the 21 potion types besides POT_CONFUSION, POT_SICKNESS, POT_SPEED,
+// POT_OIL, and POT_FRUIT_JUICE, and the
 // strangled, fountain, sink, underwater, worn-potion, milky and smoky
 // branches of dodrink().
 export class UnsupportedQuaffError extends Error {
@@ -743,6 +747,79 @@ async function peffect_oil(otmp, state = game) {
 }
 
 // ---------------------------------------------------------------------------
+// peffect_see_invisible
+// C ref: potion.c peffect_see_invisible() (841-880).
+// ---------------------------------------------------------------------------
+
+// C ref: potion.c peffect_see_invisible() (841-880). The fruit-juice arm
+// shares the taste and identification preamble with POT_SEE_INVISIBLE, then
+// adds nutrition, refreshes the hunger status, and returns before the
+// see-invisible continuation. The dispatcher keeps POT_SEE_INVISIBLE behind
+// its existing refusal until that continuation's remaining caller contract is
+// ported.
+async function peffect_see_invisible(otmp, state = game, env = {}) {
+    // C evaluates these locals before the shared potion_unknown increment.
+    // The fruit arm returns before either local is consumed, but retaining the
+    // source order keeps the later see-invisible continuation source-shaped.
+    const msg = Invis(state) && !heroIsBlind(state);
+    const permchance = 10
+        - (state.u.uprops[INVIS]?.intrinsic ? 3 : 0)
+        - (See_invisible(state) ? 6 : 0);
+
+    state.gp.potion_unkn++;
+    if (otmp.cursed) {
+        await ttyPline(
+            `Yecch!  This tastes ${Hallucination(state) ? 'overripe' : 'rotten'}.`,
+            state,
+        );
+    } else {
+        const hallucinating = Hallucination(state);
+        const juiceName = fruitname(true, state);
+        await ttyPline(hallucinating
+            ? `This tastes like 10% real ${otmp.odiluted
+                ? 'reconstituted ' : ''}${juiceName} all-natural beverage.`
+            : `This tastes like ${otmp.odiluted
+                ? 'reconstituted ' : ''}${juiceName}.`, state);
+    }
+
+    if (otmp.otyp === POT_FRUIT_JUICE) {
+        state.u.uhunger += (otmp.odiluted ? 5 : 10) * (2 + bcsign(otmp));
+        // eat.js imports potion.js for shared potion effects, so defer this
+        // import until the branch executes and avoid another initialization
+        // cycle at module load time.
+        const { newuhs } = await import('./eat.js');
+        await newuhs(false, state, {
+            ...env,
+            message: env.message ?? ttyPline,
+            endRunning: env.endRunning
+                ?? ((currentState) => endRunning(currentState)),
+            statusRefresh: env.statusRefresh ?? (() => bot()),
+        });
+        return;
+    }
+
+    // The code below is the existing source continuation for a real
+    // see-invisible potion. peffects() still refuses that potion at its
+    // dispatcher boundary, so no new caller reaches this tail in this span.
+    if (!otmp.cursed)
+        await make_blinded(0, true, state);
+    if (otmp.blessed && !rn2(permchance))
+        state.u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
+    else
+        incr_itimeout(state.u.uprops[SEE_INVIS], rn1(100, 750));
+    // C's set_mimic_blocking() return is discarded. Record the unported gap
+    // and continue with the source's visible-monster and hero redraws.
+    note_unported('display.c set_mimic_blocking');
+    see_monsters(state);
+    newsym(state.u.ux, state.u.uy);
+    if (msg && !heroIsBlind(state)) {
+        await ttyPline(
+            'You can see through yourself, but you are visible!', state);
+        state.gp.potion_unkn--;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // peffects / dopotion / dodrink
 // C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
 //        drink_ok() (505-521), dodrink() (526-615).
@@ -768,8 +845,10 @@ export async function peffects(otmp, state = game) {
     case POT_INVISIBILITY:
         throw new UnsupportedQuaffError('peffect_invisibility()');
     case POT_SEE_INVISIBLE:
-    case POT_FRUIT_JUICE:
         throw new UnsupportedQuaffError('peffect_see_invisible()');
+    case POT_FRUIT_JUICE:
+        await peffect_see_invisible(otmp, state);
+        break;
     case POT_PARALYSIS:
         throw new UnsupportedQuaffError('peffect_paralysis()');
     case POT_SLEEPING:
