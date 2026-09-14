@@ -45454,7 +45454,16 @@
       ],
       "selectionReason": "Authorized independent seed-worker pilot: seed0361 first RNG mismatch314, upper52, is missing Arc-filb registration per completed investigations/seed0361-archeologist-tour.json. Integrate the ready whole-program delivery independently of worker B.",
       "detail": "Whole dat/Arc-filb.lua1-59: six room callbacks, ordered stairs/objects/traps/monsters and final random_corridors. makelevel selects this role filler below the locate level; missing registration currently falls through to ordinary generation. Worker immutable12f39470 includes two independent matching level-change recordings.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "Arc-filb.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Arc-filb.lua"
+          ]
+        }
+      ],
       "openedAt": "44815239de2f32806320058cbce4f9671ed145a3",
       "openStanding": {
         "sha": "68b98dcb37c08ee2203111fb087a108aa7cbcef3",
