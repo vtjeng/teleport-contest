@@ -4,7 +4,8 @@
 // create_particular(). doread() completes a known ordinary magic-mapping
 // scroll, the ordinary unknown identify-scroll path whose remaining pack is
 // fully identified, an ordinary positive enchant-weapon scroll, and declining
-// a fresh known healing-spell refresh. It also takes a calm ordinary
+// a fresh known healing-spell refresh. Light scrolls use seffect_light(),
+// including calm, cursed and confused branches. It also takes a calm ordinary
 // teleportation scroll through seffects() and
 // seffect_teleportation() into scrolltele(), which handles the uncontrolled
 // safe_teleds path; a blessed confused teleportation scroll goes through
@@ -25,25 +26,35 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FEMALE,
+    CORR,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
+    G_GONE,
     HALLUC,
     MALE,
     MM_FEMALE,
+    MM_EDOG,
     MM_MALE,
+    MM_NOMSG,
     MM_NOEXCLAM,
+    NO_MINVENT,
     NEUTRAL,
     NO_MM_FLAGS,
     ROWNO,
+    ROOMOFFSET,
+    LS_OBJECT,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
     SPE_LIM,
     W_BALL,
     W_CHAIN,
     WT_IRON_BALL_INCR,
+    Is_rogue_level,
+    Is_waterlevel,
+    isok,
     ismnum,
 } from './const.js';
 import {
@@ -51,12 +62,15 @@ import {
     PM_ANGEL,
     PM_DOPPELGANGER,
     PM_GUARD,
+    PM_BLACK_LIGHT,
+    PM_GREMLIN,
     PM_HIGH_CLERIC,
     PM_HUMAN_ZOMBIE,
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
     PM_SHOPKEEPER,
     PM_WIZARD,
+    PM_YELLOW_LIGHT,
 } from './monsters.js';
 import { digit, mungspaces, strstri } from './hacklib.js';
 import { game } from './gstate.js';
@@ -78,7 +92,9 @@ import {
     unsolid,
     unique_corpstat,
 } from './mondata.js';
+import { initedog } from './dog.js';
 import { makemon_runtime } from './makemon_create.js';
+import { Monnam } from './do_name.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
     BRASS_LANTERN,
@@ -93,6 +109,7 @@ import {
     TOOL_CLASS,
     WAND_CLASS,
     SCR_IDENTIFY,
+    SCR_LIGHT,
     SCR_MAGIC_MAPPING,
     SCR_PUNISHMENT,
     SCR_REMOVE_CURSE,
@@ -117,9 +134,10 @@ import { acurr, exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
 import { In_W_tower, Is_special } from './dungeon.js';
 import { level_tele, scrolltele } from './teleport.js';
+import { lightdamage } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
-import { rn2, rnl, rnd } from './rng.js';
+import { rn1, rn2, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { newsym } from './display.js';
 import { flooreffects, trycall } from './do.js';
@@ -131,6 +149,11 @@ import {
 import { destroy_arm, some_armor, setwornEnv } from './do_wear.js';
 import { setworn } from './worn.js';
 import { chwepon } from './wield.js';
+import { ART_SUNSWORD, artifact_light } from './artifacts.js';
+import { del_light_source } from './light.js';
+import { do_clear_area, vision_recalc } from './vision.js';
+import { canSpotMonster } from './startup_a11y.js';
+import { m_at } from './monst.js';
 
 // A selected scroll or spellbook enters doread()'s effect arms. Raising before
 // pickup_prev changes keeps every unsupported object and the turn retryable
@@ -451,6 +474,14 @@ export async function doread(state = game) {
         && scroll.otyp === SCR_DESTROY_ARMOR
         && !objectType(scroll, state).oc_name_known
         && oneWornFlammableArmor(state);
+    // C doread() admits a visible light scroll while confused; ordinaryScroll
+    // intentionally excludes confusion because its other arms need calm
+    // preconditions. Keep this separate so seffect_light() reaches both
+    // source branches through the production caller.
+    const light = scroll.oclass === SCROLL_CLASS
+        && scroll.otyp === SCR_LIGHT
+        && !propertyActive(BLINDED, state)
+        && can_chant(state.youmonst, state);
     const enchantWeapon = ordinaryScroll
         && scroll.otyp === SCR_ENCHANT_WEAPON
         && !propertyActive(HALLUC, state)
@@ -477,7 +508,7 @@ export async function doread(state = game) {
         && !propertyActive(BLINDED, state)
         && can_chant(state.youmonst, state);
     const punishment = punishmentReadAdmitted(scroll, confused, state);
-    if (!mapping && !identify && !destroyArmor
+    if (!mapping && !identify && !destroyArmor && !light
         && !knownHealing && !tooHardBook
         && !enchantWeapon
         && !confusedTeleport && !calmTeleport && !removeCurse
@@ -647,6 +678,198 @@ export async function seffect_identify(scroll, state = game) {
     await identify_pack(cval, true, state);
 }
 
+// C ref: read.c set_lit() (2471-2488).  The callback keeps the permanent
+// terrain lighting in level.map and records gremlins for litroom()'s delayed
+// light damage.  Mobile object sources are removed by the same coordinate
+// check as light.c snuff_light_source().
+function set_lit(x, y, lit, state, gremlins) {
+    if (!isok(x, y)) return;
+    const location = state.level?.at(x, y);
+    if (!location) return;
+    if (lit) {
+        location.lit = true;
+        const monster = m_at(x, y, state);
+        if (monster?.data?.pmidx === PM_GREMLIN)
+            gremlins.push(monster);
+        return;
+    }
+    location.lit = false;
+    // C's snuff_light_source() only removes an object source and leaves
+    // artifact light alone.  Deleting through light.js preserves its list
+    // ownership and vision invalidation contract.
+    for (let source = state.gl?.light_base ?? null; source;) {
+        const next = source.next;
+        if (source.type === LS_OBJECT && source.x === x && source.y === y
+            && source.id?.lamplit && !artifact_light(source.id)) {
+            try {
+                del_light_source(source.type, source.id, state);
+            } catch {
+                // A stale source is already equivalent to C's absent source.
+            }
+        }
+        source = next;
+    }
+}
+
+// C ref: read.c litroom() (2491-2634), for the light-scroll call.  The map
+// callback, rogue-room exception, redraw sequencing, and no-op water/swallow
+// guard follow the source.  Artifact-light BUC transitions belong to
+// artifact.c impact_arti_light(); those objects remain lit here, as C's
+// artifact branch does when that helper elects not to extinguish them.
+async function litroom(on, object, state) {
+    const blessedEffect = Boolean(
+        object && object.oclass === SCROLL_CLASS && object.blessed,
+    );
+    const swallowed = Boolean(state.u?.uswallow);
+    const noOp = swallowed || Boolean(state.u?.uinwater)
+        || Is_waterlevel(state.u?.uz);
+    const gremlins = [];
+
+    if (!on) {
+        let stillLit = 0;
+        for (let current = state.invent; current; current = current.nobj) {
+            if (!current.lamplit) continue;
+            if (!artifact_light(current)) {
+                current.lamplit = false;
+                for (let source = state.gl?.light_base ?? null; source;) {
+                    const next = source.next;
+                    if (source.type === LS_OBJECT && source.id === current) {
+                        try {
+                            del_light_source(source.type, source.id, state);
+                        } catch {
+                            // The source can already have gone stale.
+                        }
+                    }
+                    source = next;
+                }
+            }
+            if (current.lamplit) ++stillLit;
+        }
+        if (!propertyActive(BLINDED, state)) {
+            if (stillLit) await ttyPline('The ambient light seems dimmer.', state);
+            else if (swallowed) {
+                await ttyPline('It seems even darker in here than before.', state);
+            } else {
+                await ttyPline('You are surrounded by darkness!', state);
+            }
+        }
+    } else {
+        if (swallowed) {
+            if (!propertyActive(BLINDED, state)) {
+                const engulfer = state.u.ustuck;
+                const name = engulfer ? Monnam(engulfer, state) : 'It';
+                if (engulfer?.data && is_whirly(engulfer.data)) {
+                    await ttyPline(`${name} shines briefly.`, state);
+                } else if (engulfer?.data) {
+                    await ttyPline(`${name} glistens.`, state);
+                }
+            }
+        } else if (!propertyActive(BLINDED, state)
+            && (!Is_rogue_level(state.u?.uz)
+                || state.level?.at(state.u.ux, state.u.uy)?.typ !== CORR)) {
+            await ttyPline(
+                `A lit field ${noOp ? 'briefly ' : ''}surrounds you!`, state,
+            );
+        }
+    }
+
+    if (noOp) return;
+
+    if (Is_rogue_level(state.u?.uz)) {
+        const roomNumber = (state.level.at(state.u.ux, state.u.uy)?.roomno ?? 0)
+            - ROOMOFFSET;
+        const room = state.level.rooms?.[roomNumber];
+        if (room) {
+            for (let x = room.lx - 1; x <= room.hx + 1; ++x) {
+                for (let y = room.ly - 1; y <= room.hy + 1; ++y)
+                    set_lit(x, y, on, state, gremlins);
+            }
+            room.rlit = Boolean(on);
+        }
+    } else if (object?.oartifact === ART_SUNSWORD) {
+        // A scroll can never reach this arm through doread(), but
+        // seffect_light() keeps the source test for direct callers and source
+        // parity.
+        set_lit(state.u.ux, state.u.uy, true, state, gremlins);
+    } else {
+        do_clear_area(
+            state.u.ux, state.u.uy, blessedEffect ? 9 : 5,
+            (x, y, value) => set_lit(x, y, value, state, gremlins),
+            on ? true : null,
+            state,
+        );
+    }
+
+    if (!propertyActive(BLINDED, state)) {
+        vision_recalc(2, {
+            state,
+            redraw: (x, y) => newsym(x, y),
+        });
+    }
+    state.vision_full_recalc = 1;
+
+    // C drains the temporary gremlin list after the delayed vision pass. The
+    // complete wake/killed-monster lifecycle is owned by uhitm.c; this path
+    // still applies the source damage and removes a dead map occupant.
+    for (const monster of gremlins) {
+        if (monster.mhp < 1) continue;
+        const damage = rnd(5);
+        monster.mhp -= damage;
+        if (monster.mhp < 1) {
+            monster.mhp = 0;
+            if (m_at(monster.mx, monster.my, state) === monster)
+                state.level.monsters[monster.mx][monster.my] = null;
+        }
+    }
+}
+
+// C ref: read.c seffect_light() (1741-1785).  This is the complete source
+// branch: calm scrolls illuminate or darken the room and can hurt a gremlin;
+// confused scrolls surround the hero with cancelled tame yellow/black
+// lights, including the genocide fallback and visibility knowledge update.
+export async function seffect_light(scroll, state = game) {
+    if (scroll?.otyp !== SCR_LIGHT || scroll.oclass !== SCROLL_CLASS)
+        throw new UnsupportedReadError('the selected light-scroll branch');
+    state.gk ??= {};
+    const blessed = Boolean(scroll.blessed);
+    const cursed = Boolean(scroll.cursed);
+    const confused = propertyActive(CONFUSION, state);
+
+    if (!confused) {
+        if (!propertyActive(BLINDED, state)) state.gk.known = true;
+        await litroom(!cursed, scroll, state);
+        if (!cursed && await lightdamage(scroll, true, 5, state))
+            state.gk.known = true;
+        return;
+    }
+
+    const pm = cursed ? PM_BLACK_LIGHT : PM_YELLOW_LIGHT;
+    const vital = (state.svm?.mvitals ?? state.mvitals)?.[pm];
+    if ((vital?.mvflags ?? 0) & G_GONE) {
+        await ttyPline('Tiny lights sparkle in the air momentarily.', state);
+        return;
+    }
+    const numLights = rn1(2, 3) + (blessed ? 2 : 0);
+    let sawLights = false;
+    for (let i = 0; i < numLights; ++i) {
+        const monster = await makemon_runtime(
+            state.mons[pm], state.u.ux, state.u.uy,
+            MM_EDOG | NO_MINVENT | MM_NOMSG,
+            { state },
+        );
+        if (!monster) continue;
+        initedog(monster, true, { state });
+        monster.msleeping = false;
+        monster.mcan = true;
+        if (canSpotMonster(monster, state)) sawLights = true;
+        newsym(monster.mx, monster.my);
+    }
+    if (sawLights) {
+        await ttyPline('Lights appear all around you!', state);
+        state.gk.known = true;
+    }
+}
+
 // C ref: read.c seffect_magic_mapping() (2102-2153), restricted to an
 // ordinary uncursed scroll on a mappable level.
 export async function seffect_magic_mapping(scroll, state = game) {
@@ -676,9 +899,11 @@ export async function seffects(scroll, state = game) {
         && scroll.otyp !== SCR_ENCHANT_WEAPON
         && scroll.otyp !== SCR_REMOVE_CURSE
         && scroll.otyp !== SCR_TELEPORTATION
-        && scroll.otyp !== SCR_PUNISHMENT) {
+        && scroll.otyp !== SCR_PUNISHMENT
+        && scroll.otyp !== SCR_LIGHT) {
         throw new UnsupportedReadError('the selected scroll effect');
     }
+    state.gk ??= {};
     if (objectType(scroll, state).oc_magic)
         await exercise(A_WIS, true, state, { rn2 });
     if (scroll.otyp === SCR_IDENTIFY) {
@@ -704,6 +929,10 @@ export async function seffects(scroll, state = game) {
     }
     if (scroll.otyp === SCR_PUNISHMENT) {
         await seffect_punishment(scroll, state);
+        return 0;
+    }
+    if (scroll.otyp === SCR_LIGHT) {
+        await seffect_light(scroll, state);
         return 0;
     }
     await seffect_magic_mapping(scroll, state);

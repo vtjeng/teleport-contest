@@ -1285,6 +1285,10 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             && !barracksSpecies
             && !morgueSpecies
             && species.pmidx !== PM_DJINNI
+            // read.c seffect_light() creates cancelled tame light monsters
+            // at the hero's square while a confused scroll is read.
+            && species.pmidx !== PM_YELLOW_LIGHT
+            && species.pmidx !== PM_BLACK_LIGHT
             && species.pmidx !== PM_WATER_DEMON
             && species.pmidx !== PM_WATER_MOCCASIN
             && species.pmidx !== PM_WATER_NYMPH
@@ -1350,6 +1354,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EDOG | NO_MINVENT);
+    // read.c seffect_light() creates a cancelled, inventoryless light pet
+    // with MM_NOMSG while confused.  It is a runtime call with the same
+    // continuation and post-creation dog initialization as a starting pet.
+    const confusedLightCall = !state.in_mklev
+        && (ptr?.pmidx === PM_YELLOW_LIGHT
+            || ptr?.pmidx === PM_BLACK_LIGHT)
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === (MM_EDOG | NO_MINVENT | MM_NOMSG);
     const djinniBottleCall = !state.in_mklev
         && ptr?.pmidx === PM_DJINNI
         && x === state.u?.ux
@@ -1391,7 +1404,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(NO_MINVENT | MM_NOWAIT | MM_NOMSG
             | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_MALE | MM_FEMALE));
-    const runtimeCall = startingPetCall || djinniBottleCall
+    const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
         || vaultGuardCall || revivalCall;
@@ -3550,7 +3563,8 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 // also admits the runtime random-generation call on every dungeon branch:
 // makemon(NULL, 0, 0, NO_MM_FLAGS), that call's explicit-coordinate,
 // MM_NOGRP recursive group members, and read.c create_particular_creation()'s
-// named species on the hero's own square under MM_NOEXCLAM.
+// named species on the hero's own square under MM_NOEXCLAM. read.c
+// seffect_light() supplies the explicit cancelled-light pet shape.
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,

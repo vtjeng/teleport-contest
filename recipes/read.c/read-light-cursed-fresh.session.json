@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8123577,
+      "datetime": "20390515120000",
+      "nethackrc": "OPTIONS=name:LightCursed,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017cursed scroll of light\nrp ."
+    }
+  ]
+}

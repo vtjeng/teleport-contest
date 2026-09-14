@@ -48,6 +48,7 @@ import {
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
     HALF_SPDAM,
+    HALF_PHDAM,
     HALLUC,
     HALLUC_RES,
     ICE,
@@ -180,6 +181,7 @@ import {
     PM_CLAY_GOLEM,
     PM_DEATH,
     PM_DOPPELGANGER,
+    PM_GREMLIN,
     S_EEL,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -227,6 +229,8 @@ import {
     Yname2,
     an,
     aobjnam,
+    ansimpleoname,
+    bare_artifactname,
     donameFresh,
     corpse_xname,
     the_unique_pm,
@@ -288,6 +292,38 @@ function heroIsBlind(state) {
     const blinded = state.u?.uprops?.[BLINDED];
     return Boolean((blinded?.intrinsic || blinded?.extrinsic)
         && !blinded?.blocked);
+}
+
+// C ref: zap.c lightdamage() (3024-3056). Scrolls pass ordinary=TRUE, but
+// the source changes that to FALSE for scrolls so a gremlin blames the magic
+// rather than a wand. The normal humanoid path returns the supplied amount
+// without a random draw, exactly as C does.
+function maybeHalfPhysical(damage, state) {
+    const half = state.u?.uprops?.[HALF_PHDAM];
+    return (half?.intrinsic || half?.extrinsic)
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+export async function lightdamage(scroll, ordinary, amount, state = game) {
+    let damage = amount;
+    if (damage && state.youmonst?.data?.pmidx === PM_GREMLIN) {
+        damage = rnd(damage);
+        if (damage > 10) damage = 10 + rnd(damage - 10);
+        if (damage > 20) damage = 20;
+        await ttyPline(
+            `Ow, that light hurts${damage > 2 || state.u.mh <= 5 ? '!' : '.'}`,
+            state,
+        );
+        const how = scroll.oclass === SPBOOK_CLASS
+            ? 'spell of light'
+            : scroll.oartifact ? bare_artifactname(scroll, state)
+                : ansimpleoname(scroll, state);
+        const reason = `${ordinary ? 'zapped' : 'blasted'} ${uhim(state)}self with ${how}`;
+        await losehp(
+            maybeHalfPhysical(damage, state), reason, NO_KILLER_PREFIX, state,
+        );
+    }
+    return damage;
 }
 
 export class UnsupportedRevivalError extends Error {

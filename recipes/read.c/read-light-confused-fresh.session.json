@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8123578,
+      "datetime": "20390615120000",
+      "nethackrc": "OPTIONS=name:LightConfused,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017cursed potion of confusion\nqi\u0017blessed scroll of light\nrj  "
+    }
+  ]
+}
