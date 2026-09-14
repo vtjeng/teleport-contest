@@ -41872,6 +41872,101 @@
         "screens": 8628,
         "rng": 632409
       }
+    },
+    {
+      "id": "div-pager-self-lookat-ball-seed4500",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Align pager self_lookat's punished-hero object description so the chained ball suffix matches C while preserving ordinary object and monster lookups.",
+      "cFile": "pager.c",
+      "sessions": [],
+      "selectionReason": "The refreshed full queue ranks holdout/seed4500-knight-coverage first at screen step 787 with 1027 remaining screens. Its valid completed cache investigations/holdout/seed4500-knight-coverage.json identifies pager.c self_lookat as the current source owner, with C adding the chained-ball suffix that JavaScript omits.",
+      "detail": "Queue entry: holdout/seed4500-knight-coverage, step 787, kind screen, remainingScreensUpperBound 1027, recordedSteps 1814. The first differing cell is row 0 column 26: C prints the comma and chained ball name after the punished hero's object description, while JS leaves the suffix blank. Source owner: pager.c self_lookat() and its uball branch; JS pager.js self_lookat() omits the branch. Existing ansimpleoname() and state.uball are the required dependencies.",
+      "spans": [],
+      "openedAt": "20cd559b4723ff7d90a8b5cfdf74cd0dee5f673a",
+      "openStanding": {
+        "sha": "20cd559b4723ff7d90a8b5cfdf74cd0dee5f673a",
+        "screens": 8628,
+        "rng": 632409
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "self_lookat",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 787,
+      "activeStanding": {
+        "sha": "20cd559b4723ff7d90a8b5cfdf74cd0dee5f673a",
+        "screens": 8628,
+        "rng": 632409
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 787,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1027,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1027,
+              "status": "complete",
+              "commit": "83a64c4d02068be4c4aeb3d912267605052f4806",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1027,
+                "step": 787,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The current first mismatch is a deterministic self-description cell during the what-is/hero lookup path: C writes the comma in `human knight called wizard, chained to a heavy iron ball` at row 0, column 26, while JS leaves that cell blank. pager.c self_lookat() appends `, chained to ` plus ansimpleoname(uball) whenever Punished is true; js/pager.js:self_lookat() currently stops after the player name. The smallest scope is a divergence fix to this existing helper, using the existing ansimpleoname() implementation and state.uball. The earlier mk_knox_portal wizard-gated RNG and portal-placement findings, and the mkshop source trace, remain valid prior boundaries.",
+              "source": {
+                "file": "pager.c",
+                "functions": [
+                  "self_lookat"
+                ],
+                "branch": "pager.c self_lookat() builds the visible hero description from race, current monster form, and player name, then appends mounted and hidden-region details when their C predicates hold. For Punished (the uball pointer is non-null), it appends `, chained to ` followed by ansimpleoname(uball), with `nothing?` only for the impossible null-ball case. A trapped hero then receives the trap_predicament suffix. The assigned state reaches the ordinary visible human branch with Punished true, so the missing suffix is the current actionable branch.",
+                "callers": [
+                  "nethack-c/upstream/src/pager.c:657-670 lookat() calls self_lookat() when the visible glyph is the hero.",
+                  "nethack-c/upstream/src/pager.c:1979-2000 look_all() calls self_lookat() for the hero in the monster listing path; nethack-c/upstream/src/pickup.c:1155-1163 also uses it for the fake hero entry.",
+                  "js/pager.js:513-531 look_all() and :823-835 do_screen_description() call js self_lookat() for the hero lookup paths exercised by the port."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/pager.c:108-133 is the source function; js/pager.js:237-253 is the current implementation. Import js/objnam.js ansimpleoname() and append its result when state.uball is present, preserving the existing base description and exceptional-state guards.",
+                  "nethack-c/upstream/src/objnam.c:2428-2470 defines simpleonames()/ansimpleoname(); js/objnam.js:853-876 already ports those functions and formats the attached ball name without a new random call.",
+                  "nethack-c/upstream/src/youprop.h:77 defines Punished as uball != 0; js/steed.js:129-132 provides the equivalent predicate and js/detect.js:625-628 documents state.uball as the single ball-and-chain state location.",
+                  "The earlier mk_knox_portal source fix at nethack-c/upstream/src/mklev.c:2643-2658 and the mkshop trace at nethack-c/upstream/src/mkroom.c:101-215 remain upstream dependencies already passed before this screen boundary; no RNG mismatch is present here."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                ".cache/scan-cache.json at commit 83a64c4d02068be4c4aeb3d912267605052f4806 reports the assigned screen mismatch at segment 0 step 787 (key space), row 0 column 26, C cell comma versus JS blank, with no RNG or cursor mismatch and remainingScreensUpperBound 1027.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segments[0].steps[787] is the explicit assigned step; its C screen first line is `human knight called wizard, chained to a heavy iron ball`, establishing the Punished state and the omitted suffix without a session-specific implementation.",
+                "nethack-c/upstream/src/pager.c:108-133 appends the Punished suffix after the base name, while js/pager.js:237-253 returns only `${race} ${pmname(...)} called ${state.plname}`.",
+                "The production path is source-general: pager.c lookat()/look_all() -> self_lookat(), mirrored by js/pager.js do_screen_description()/look_all() -> self_lookat(); the minimal fix is the missing state.uball branch plus ansimpleoname wiring, with no extra random draw."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
