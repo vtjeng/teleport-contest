@@ -1,44 +1,44 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 251,
+  "remainingScreensUpperBound": 242,
   "status": "complete",
-  "commit": "9707e5dc8fa84863a36d94d1ac8166c2e097265d",
+  "commit": "fbece0a4401e02046b4adb1dac1383e46d713a03",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 251,
-    "step": 344,
+    "remainingScreensUpperBound": 242,
+    "step": 353,
     "kind": "boundary",
-    "function": "pick_obj",
+    "function": "dopay",
     "functionDeclared": false,
-    "sourceFile": "pickup.c",
-    "cFile": "pickup.c",
+    "sourceFile": "shk.c",
+    "cFile": "shk.c",
     "luaFile": null,
-    "line": 1897,
-    "message": "pickup() from a shop floor",
+    "line": 1743,
+    "message": "pay command not admitted by rhack",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "Healing quaff now completes and the assigned seed matches through344screens. Its next stop is a shop-floor pickup guard. C pick_obj must extract the object, temporarily set the object's shop, bill it before inventory merging, restore the hero's shop string, add inventory and then handle remote burglary. JavaScript folds only extraction/addinv into pickup_object and refuses shop stock before selection; the actionable unit is whole pick_obj with addtobill and billing dependencies.",
+  "summary": "Shop pickup now bills the acquired shield and the assigned seed matches through 353 screens. The next p key is rejected because dopay is absent from JavaScript command dispatch; C opens the itemized pay menu. The source unit is whole dopay, including required bill construction, sorting, selection, funds checks and container purchasing, not only the observed ordinary-item menu.",
   "source": {
-    "file": "pickup.c",
+    "file": "shk.c",
     "functions": [
-      "pick_obj"
+      "dopay"
     ],
-    "branch": "Read pickup.c pick_obj:1897–1945 and pickup_object:1803–1888. robshop is !u.uswallow && otmp!=uball && costly_spot(object coordinates). C addtobill at1929 precedes addinv at1934 so unpaid state controls merging; remote_burglary follows inventory insertion. JS pickup:1225–1228 refuses costly_spot and its folded pickup_object body omits the billing branch.",
+    "branch": "Read shk.c dopay:1743–2031 completely. It selects an adjacent/visible/resident shopkeeper, handles robbery or debit first, builds the itemized bill and consumes pay_billed_items's result, then emits the deaf/mute-aware thank-you and returns ECMD_TIME only when paid. The current seed reaches resident-shop item billing. JS extcmdlist_data already maps p/pay to dopay; cmd.js ADMITTED_COMMANDS and both rhack/doextcmd dispatch lack the implementation.",
     "callers": [
-      "runSegment -> pickup command (comma) -> pickup -> pickup_object -> pick_obj; C pickup:784 calls pickup_object, whose1877 call assigns the pick_obj result before pickup_prinv.",
-      "JS pickup_object currently directly extracts, redraws and calls addinv_runtime; replace that folded helper with a source-shaped pick_obj and remove the shop-only caller stand-in once billing is wired."
+      "C cmd.c pay entry -> rhack/doextcmd -> dopay; JS extcmdlist_data row maps p/pay to dopay but has no runtime owner.",
+      "C dopay:2000–2003 calls make_itemized_bill and consumes pay_billed_items; its helper chain includes menu_pick_pay_items and dopayobj/buy_container, so those whole functions are required."
     ],
     "dependencies": [
-      "shk.c addtobill:3490–3601 is absent. Its required consumed helpers include billable:3451–3487, contained_cost:2995–3047 and set_cost:3148 onward; existing get_cost/get_pricing_units/onbill/contained_gold/count_unpaid must be checked rather than assumed complete.",
-      "Source billing helpers add_one_tobill, add_to_billobjs, bill_box_content, picked_container and append_honorific preserve bill entries, unpaid state, nested containers and quote RNG. Inspect costly_gold and existing remote_burglary; missing discarded-return calls may remain explicit gaps, but consumed billing results must be real.",
-      "Inventory preflight currently runs before billing and projects merges. Verify that source-ordered unpaid changes and actual addinv return remain correct, without inventing a separate billing state or running billing RNG/output speculatively. Existing partial addinv/lift/corpse caller boundaries remain independently owned."
+      "Read whole shk.c sortbill_cmp:1499–1518, cheapest_item:1522–1537, make_itemized_bill:1545–1663, menu_pick_pay_items:1668–1739, pay_billed_items:2045–2167, update_bill:2171–2209, dopayobj:2220–2301, buy_container:2309–2410, reject_purchase:2419–2451 and insufficient_funds:2455–2480. Preserve source bill indices across compaction, partly-used quantities, containers and traditional/menu selection.",
+      "Read bp_to_obj:2759–2770 and find_oid:2777–2803; implement missing whole lookup owners using existing recursive invent.o_on. Read check_credit/pay:1278–1314 and shk_names_obj:3413–3446 for payment mutation/output. Existing money2mon/money2u, hidden_gold, getpos and naming owners are reused.",
+      "Read whole objnam.c paydoname:2313–2364; suppress inventory prices and weights, temporarily conceal contents, preserve ownership wording and restore flags. Existing rouse_shk partial lacks verbose wake feedback and needs its complete source body for the new caller. Absent void make_happy_shk may remain explicit note_unported; no consumed return is substituted."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Fresh-process scan of the source state committed as9707e5dc reports screensEmitted=344, recordedSteps=595, divergence=null, behavioral.at=344 and boundary pickup() from a shop floor. The next reference message is the shopkeeper's quoted50-zorkmid silver-shield price; the trace owner is addtobill's in-inventory message, not a generic screen renderer.",
-    "Read whole pickup C672–910 to identify the JS-only shop guard, then whole pickup_object and pick_obj. Read addtobill/billable/add_one_tobill/bill_box_content and the start of contained_cost; the incomplete billing group is a source port, not an ordering-only divergence fix.",
-    "B6 focused195tests, scoped lint and four independent healing recordings pass. No B7 implementation was present when this investigation was recorded."
+    "Fresh-process scan of synchronized fbece0a4 reports screensEmitted=353, recordedSteps=595, divergence=null, commandRefusal=true, key=p, command=pay and C next screen 'Pay for which items?'. Original process10664 exited and was reaped.",
+    "B7 source86dd064f passes729 focused named tests and three independently generated, entrypoint-verified shop recordings; clean merge of validated11b2d9d7 did not change this seed's stop. The current 242 remaining-screen bound is not a predicted gain.",
+    "Required source family is about1000 C lines because whole dopay consumes container/partial-use billing too. Intended game writes are shk.js, objnam.js and cmd.js; no B8 implementation was present in the examined commit."
   ]
 }
