@@ -42352,7 +42352,7 @@
     {
       "id": "port-eatcorpse-mild-sick-seed0002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port eat.c eatcorpse() mildly sickening rotted-corpse branch, including its rn2(5) gate, sickness message, rnd(8) cadaver damage, and production return flow.",
       "cFile": "eat.c",
       "sessions": [
@@ -42363,8 +42363,8 @@
       "spans": [
         {
           "name": "eatcorpse",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1e053b46f91f5850d247903f63e70eddb6f4b598",
           "functions": [
             "eatcorpse"
           ]
@@ -42376,15 +42376,18 @@
         "screens": 8685,
         "rng": 639553
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1e053b46f91f5850d247903f63e70eddb6f4b598",
+      "delivered": {
+        "screens": 3,
+        "rng": 753
+      },
       "functions": [
         {
           "name": "eatcorpse",
           "line": 1855,
           "endLine": 2021,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -42463,7 +42466,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "eatcorpse",
+            "implementation": "js/eat.js",
+            "symbol": "eatcorpse",
+            "sourceReview": "Read the complete upstream eat.c:eatcorpse() source range 1855-2018 (the assigned span ends at the next declaration boundary near 2021) and compared every branch with js/eat.js. Verified conduct updates, nonrotting checks, iced-corpse age and cursed/blessed rot adjustments, the tainted early return, acid and poison order, the mildly sickening condition and short-circuit evaluation, delay, rotten-food handling, taste effects, and return codes. The port preserves (rotted > 5 || (rotted > 3 && rn2(5))) && !Sick_resistance, then increments tp, emits the Sick-dependent message, calls losehp(rnd(8), glob-specific killer text, KILLED_BY_AN), and continues into the delay and later branches. Sick_resistance follows youprop.h:67-70 through intrinsic/extrinsic SICK_RES and mondata.c defended(AD_DISE). The target UnsupportedEatError refusal is removed. Existing boundaries for glob handling, green-slime make_slimed(), petrification done(STONING), and tainted make_sick() remain explicit because their callees are outside this span; C livelog bookkeeping is likewise an existing recorder boundary and does not affect the game trace. Direct source dependencies used for this branch are the existing rn2/rnd, ttyPline, defended, and losehp implementations.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:2984-2993 doeat() calls eatcorpse(), then uses its return to select the time-consuming and normal meal flows."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEatCommand",
+                "source": "cmd.c:1713 registers the #eat command and cmd.c:4804 queues it; js/cmd.js runEatCommand and command dispatch route production #eat input to doeat()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-corpse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ],
+            "checkedAt": "1e053b46f91f5850d247903f63e70eddb6f4b598"
+          }
+        ],
+        "entryPointReview": "The selected source range has one production entry point: the #eat command. C cmd.c registers and queues it, then doeat() dispatches a corpse to eatcorpse(); JS cmd.js runEatCommand/dispatch reaches js/eat.js doeat() through the same live command path. The independent recipe kills and picks up a jackal, ages it with 70 search turns, and eats it through production input, reaching the mildly sickening branch. The assigned local holdout also reaches this branch on its gnome corpse; its C trace draws rn2(20)=11, rn2(5)=2, rnd(8)=6 and now continues past the former refusal. No additional entry point is defined inside eatcorpse().",
+        "entryPoints": [
+          {
+            "name": "#eat command",
+            "functions": [
+              "eatcorpse"
+            ],
+            "recordings": [
+              "recordings/eat.c/mildly-rotten-jackal.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 56,
+          "kind": "stop",
+          "function": "peffect_see_invisible",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 539,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "previousRemainingScreensUpperBound": 542
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "1e053b46f91f5850d247903f63e70eddb6f4b598",
+        "screens": 8688,
+        "rng": 640306
+      }
     }
   ]
 }

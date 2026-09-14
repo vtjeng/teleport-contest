@@ -1,48 +1,50 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 542,
+  "remainingScreensUpperBound": 539,
   "status": "complete",
-  "commit": "dd4cb114d3e363da84ce18c190ba93e8e53a3325",
+  "commit": "1e053b46f91f5850d247903f63e70eddb6f4b598",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 542,
-    "step": 53,
+    "remainingScreensUpperBound": 539,
+    "step": 56,
     "kind": "stop",
-    "function": "eatcorpse",
-    "functionDeclared": true,
-    "sourceFile": "eat.c",
-    "cFile": "eat.c",
+    "function": "peffect_see_invisible",
+    "functionDeclared": false,
+    "sourceFile": "potion.c",
+    "cFile": "potion.c",
     "luaFile": null,
     "line": null,
-    "message": "Replay error: eatcorpse()'s mildly sickening rotted corpse",
+    "message": "Replay error: quaffing requires peffect_see_invisible()",
     "unlocatedKinds": [],
     "recordedSteps": 595,
-    "remainingScreensUpperBound": 542
+    "remainingScreensUpperBound": 539
   },
-  "summary": "At segment 0, recorded step 53 (input move index 52, key y), the healer eats the gnome corpse. C's eat.c eatcorpse() computes a rotted corpse, takes the mildly sickening branch, consumes rn2(5), deals rnd(8) cadaver damage through losehp(), and continues to the meal completion. The current JavaScript eatcorpse() stops at that branch before rn2(5) with UnsupportedEatError(\"eatcorpse()'s mildly sickening rotted corpse\"). The bounded source handoff is eat.c eatcorpse()'s mildly sickening rotted-corpse branch, including its random draw, message, and losehp() call; later corpse effects remain separate work.",
+  "summary": "At segment 0, recorded step 56 (input move index 55, key q), the hero selects the ruby-looking potion and C handles it as POT_FRUIT_JUICE through potion.c peffect_see_invisible(). That shared handler marks the potion unknown, prints the fruit-juice taste, adds nutrition using dilution and bless/curse state, calls newuhs(FALSE), and returns before the see-invisible effect. The current JavaScript peffects() maps POT_FRUIT_JUICE to UnsupportedQuaffError(\"peffect_see_invisible()\") before any of those effects. The bounded source handoff is the POT_FRUIT_JUICE arm of potion.c peffect_see_invisible(), including its message, hunger update, newuhs(FALSE), and return; the POT_SEE_INVISIBLE continuation remains separate.",
   "source": {
-    "file": "eat.c",
+    "file": "potion.c",
     "functions": [
-      "eatcorpse"
+      "peffect_see_invisible"
     ],
-    "branch": "Corpse path with no glob, petrification, or green-slime stop; a rotting corpse whose computed rotted value is above 3 but does not take the earlier tainted (>5) return, Sick_resistance is false, rn2(5) is nonzero, and eatcorpse() emits the mildly sickening message then loses rnd(8) hit points as a cadaver.",
+    "branch": "POT_FRUIT_JUICE arm of peffect_see_invisible(): after potion_unkn is incremented and the uncursed fruitname(TRUE) taste message is printed, add (odiluted ? 5 : 10) * (2 + bcsign(otmp)) to u.uhunger, call newuhs(FALSE), and return before the POT_SEE_INVISIBLE-only blindness and visibility work.",
     "callers": [
-      "eat.c doeat():2984-2993",
-      "js/eat.js doeat():2465-2475"
+      "potion.c peffects():1356-1359",
+      "potion.c dopotion():618-641",
+      "js/potion.js peffects():754-820",
+      "js/potion.js dopotion():830-858",
+      "js/potion.js dodrink():869-948"
     ],
     "dependencies": [
-      "eat.c nonrotting_corpse macro:58-61",
-      "mkobj.c peek_at_iced_corpse_age():2422-2437",
-      "rnd.c rn2()/rnd()",
-      "hack.c losehp():4255-4292"
+      "objnam.c fruitname():411-427",
+      "mkobj.c bcsign():1856-1860",
+      "eat.c newuhs():3362-3510"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The fresh queue entry is the target session's stop at step 53 with function eatcorpse, message \"Replay error: eatcorpse()'s mildly sickening rotted corpse\", recordedSteps 595, and remainingScreensUpperBound 542 (= 595 - 53) at commit dd4cb114d3e363da84ce18c190ba93e8e53a3325.",
-    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 53 has key y, RNG entries rn2(20)=11 at eatcorpse(eat.c:1887), rn2(5)=2 at eatcorpse(eat.c:1939), rnd(8)=6 at eatcorpse(eat.c:1942), and screen prefix \"You feel sick.  You finish eating the gnome corpse.\".",
-    "nethack-c/upstream/src/eat.c:1938-1943 guards the mildly sickening branch with (rotted > 5L || (rotted > 3L && rn2(5))) && !Sick_resistance, prints the sick message, and calls losehp(rnd(8), \"cadaver\", KILLED_BY_AN).",
-    "nethack-c/upstream/src/eat.c:1853-1892 computes rotted from peek_at_iced_corpse_age() and rn2(20), while :2984-2993 shows doeat() as the caller that consumes eatcorpse()'s return.",
-    "js/eat.js:1802-1811 currently tests only rotted > 3 and throws before the recorded rn2(5) and rnd(8); js/eat.js:2465-2475 is the production doeat() caller, and js/hack.js losehp() is the existing damage dependency."
+    "The fresh queue entry is the target session's stop at step 56 with function peffect_see_invisible, message \"Replay error: quaffing requires peffect_see_invisible()\", recordedSteps 595, and remainingScreensUpperBound 539 (= 595 - 56) at commit 1e053b46f91f5850d247903f63e70eddb6f4b598.",
+    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 55 lists q as a ruby potion; step 56 key q emits \"This tastes like slime mold juice.--More--\" with no RNG calls, and step 57 continues with \"Call a ruby potion:\".",
+    "nethack-c/upstream/src/potion.c:841-860 increments potion_unkn, prints fruitname(TRUE), and for POT_FRUIT_JUICE adds hunger using bcsign and dilution, calls newuhs(FALSE), and returns; :1356-1359 dispatches POT_FRUIT_JUICE to peffect_see_invisible().",
+    "nethack-c/upstream/src/potion.c:618-641 shows dopotion() consuming the peffects() result, issuing the unknown-potion naming prompt through trycall(), and using up the potion; objnam.c:411-427 owns fruitname(), mkobj.c:1856-1860 owns bcsign(), and eat.c:3362-3510 owns newuhs().",
+    "js/potion.js:770-772 currently throws UnsupportedQuaffError('peffect_see_invisible()') for both POT_SEE_INVISIBLE and POT_FRUIT_JUICE; js/potion.js:830-858 is the tail that must run after the fruit-juice arm returns."
   ]
 }
