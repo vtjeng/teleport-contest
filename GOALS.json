@@ -43540,15 +43540,24 @@
     {
       "id": "pilot-objnam-postparse1-seed0399",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete readobjnam_postparse1 wish parsing and its required tin-variety callee.",
       "cFile": "objnam.c",
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
-      "selectionReason": "User-authorized independent seed-worker pilot assigns holdout/seed0399-wizard-hallu-actions to worker A. At unchanged seed state the queue has 370 remaining screens and investigations/holdout/seed0399-wizard-hallu-actions.json traces the gold-wish refusal. Direct C inspection corrects the bounded owner to whole objnam.c readobjnam_postparse1 at4240-4663, with production readobjnam dispatch and required eat.c tin_variety_txt.",
+      "selectionReason": "User-authorized seed-worker pilot integrates the ready whole readobjnam_postparse1 delivery from the assigned seed0399; verified corrections remove the new refusal and align empty-string tin initialization. Worker B continues independently.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "readobjnam_postparse1",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "readobjnam_postparse1"
+          ]
+        }
+      ],
       "openedAt": "61d10bc985061ab995a1fe0dedf152f2c322c32f",
       "openStanding": {
         "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
@@ -43571,9 +43580,9 @@
         "to": 4665
       },
       "activeStanding": {
-        "sha": "f1cafd53489b4bff4fa26b83f5975f37ab3dbfd5",
-        "screens": 8936,
-        "rng": 651740
+        "sha": "0d21fb528a34b78019d1f29a7f71bffdf9e62b13",
+        "screens": 8945,
+        "rng": 652047
       },
       "openMismatches": [
         {
