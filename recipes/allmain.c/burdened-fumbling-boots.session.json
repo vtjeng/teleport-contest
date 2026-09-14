@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent variation of the burdened dressing setup: after acquiring chain mail for weight, wear fumbling boots. do_wear.c Boots_on consumes rnd(20) from the delayed callback; planning must not execute that draw or print the release message.",
+  "segments": [{
+    "seed": 8420013,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:DelayPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": "\u0017uncursed chain mail\n \u0017uncursed fumble boots\n Wm"
+  }]
+}

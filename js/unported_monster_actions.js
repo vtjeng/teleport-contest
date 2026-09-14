@@ -1797,7 +1797,7 @@ async function planSimpleMonsterScan(monster, env) {
 // remain unchanged and retryable.
 export async function preflightSimpleMonsterActions(
     state = game,
-    { advanceRound = null } = {},
+    { advanceRound = null, consumeHeroRation = true } = {},
 ) {
     // The two terms are allmain.c moveloop_core()'s own preamble:
     // `if (svc.context.bypasses) clear_bypasses();` at 193 and the deferred
@@ -1811,15 +1811,23 @@ export async function preflightSimpleMonsterActions(
         unsupported('deferred monster cleanup or level transition');
     const planned = planningState(state);
     const random = clonedRandom(planned);
-    planned.u.umovement -= NORMAL_SPEED;
+    // A continuation after a live delayed-action callback has already paid
+    // the action's ration. It starts at allmain.c's outer-loop condition,
+    // not at the initial u.umovement -= NORMAL_SPEED statement.
+    if (consumeHeroRation) planned.u.umovement -= NORMAL_SPEED;
     let upkeepCount = 0;
     let heroDeath = null;
+    let beforeUnmul = false;
     try {
         try {
             upkeepCount = await planSimpleMonsterTurn(
                 planned,
                 random,
-                advanceRound,
+                advanceRound ? async (subject, planningRandom) => {
+                    const result = await advanceRound(subject, planningRandom);
+                    beforeUnmul = Boolean(result?.beforeUnmul);
+                    return result;
+                } : null,
             );
         } catch (error) {
             if (!(error instanceof MonsterDeathPlanningError)) throw error;
@@ -1856,6 +1864,7 @@ export async function preflightSimpleMonsterActions(
         runsOncePerTurnUpkeep: upkeepCount > 0,
         upkeepCount,
         heroDeath,
+        beforeUnmul,
     };
 }
 

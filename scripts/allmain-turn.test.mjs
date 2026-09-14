@@ -78,7 +78,7 @@ import {
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { new_light_source } from '../js/light.js';
-import { getRngLog, initRng } from '../js/rng.js';
+import { getRngLog, initRng, rnd } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AT_HUGS,
@@ -136,6 +136,10 @@ import {
 import { loadStatusRefreshRecipe } from './run-status-refresh.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
+import {
+    loadDelayedActionRecipes,
+    verifyDelayedActionSegment,
+} from './run-delayed-actions.mjs';
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -898,6 +902,193 @@ test('the immobility countdown draws a frame a turn and releases at zero',
         }
     });
 
+// allmain.c:379-388 calls unmul() before the outer movement gate. A delayed
+// action can change burden there, so later allocations must use its result.
+test('a burdened delayed callback runs once before remaining allocations',
+    async () => {
+        // These independent inputs initialize the ordinary Healer turn state;
+        // the constructed callback exercises the generic ga.afternmv contract.
+        const replay = await runSegment(firstTurnInput({
+            seed: 8420001,
+            datetime: '20320415101723',
+            name: 'DelayedBurden',
+            role: 'Healer',
+            race: 'human',
+            gender: 'female',
+            align: 'neutral',
+            command: '',
+        }));
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        clearTtyMessageWindow(game);
+        // Twice capacity is HVY_ENCUMBER: u_calc_moveamt() gives 3 of the
+        // ordinary 12 movement points. Removing it restores all 12 next turn.
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) * 2,
+            nobj: null,
+        };
+        assert.equal(near_capacity(game), HVY_ENCUMBER);
+        game.go.oldcap = HVY_ENCUMBER;
+        game.u.umovement = NORMAL_SPEED;
+        game.context.move = 1;
+        game.multi = -1; // This allocation finishes the delayed action.
+        game.multi_reason = 'dressing up';
+        game.nomovemsg = 'You finish your dressing maneuver.';
+        game.flags.runmode = RUN_STEP; // One frame per negative-multi turn.
+        // Keep unrelated clairvoyance and attribute-check cadences out of
+        // the two-turn assertion; it measures callback ordering.
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        let callbacks = 0;
+        let frames = 0;
+        const movesBefore = game.moves;
+        const rngBefore = replay.getRngLog().length;
+        game.afternmv = async (state) => {
+            assert.equal(state, game, 'callbacks execute on the live game');
+            assert.equal(state.afternmv, null, 'unmul clears before invoking');
+            assert.equal(state.multi, 0, 'unmul has finished the countdown');
+            callbacks++;
+            rnd(137); // Distinct bound makes an accidental dry-run draw visible.
+            state.invent = null;
+            state.uarm = null;
+            // Avoid an unrelated encumber_msg() --More-- after removing load.
+            state.go.oldcap = 0;
+        };
+        game._animationFrameHook = () => { frames++; };
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
+        try {
+            await moveloop_core();
+        } finally {
+            game._animationFrameHook = null;
+        }
+        assert.equal(callbacks, 1);
+        assert.equal(frames, 1);
+        assert.equal(game.moves, movesBefore + 2);
+        assert.equal(game.u.umovement, 15); // First allocation 3, then 12.
+        assert.equal(game.multi, 0);
+        assert.equal(game.nomovemsg, null);
+        assert.equal(game.multi_reason, null);
+        assert.equal(game.afternmv, null);
+        assert.equal(replay.getRngLog().slice(rngBefore)
+            .filter((entry) => entry.startsWith('rnd(137)')).length, 1);
+    });
+
+test('delayed-action planning resumes at the outer movement gate', async () => {
+    // Burdened cases use heavy encumbrance's 3-point allocation; the separate
+    // unburdened row gets 12. The retained-ration row starts at 21, pays 12,
+    // and reaches exactly 12 in one turn.
+    for (const scenario of [
+        { name: 'exactly full ration', movement: 21, multi: -1,
+            turns: 1, frames: 1, callbacks: 1 },
+        { name: 'callback schedules another delay', movement: 12, multi: -1,
+            turns: 4, frames: 3, callbacks: 2, chain: true },
+        { name: 'no callback release', movement: 12, multi: -2,
+            turns: 4, frames: 2, callbacks: 0, noCallback: true },
+        { name: 'unburdened callback exhausts ration', movement: 12, multi: -1,
+            turns: 2, frames: 1, callbacks: 1, exhaustRation: true },
+        { name: 'unsupported suffix', movement: 12, multi: -1,
+            turns: 1, frames: 1, callbacks: 1, refuseSuffix: true },
+    ]) {
+        const replay = await runSegment(firstTurnInput({
+            // Independent inputs; all scenario differences are constructed
+            // movement and callback state, not selected RNG outcomes.
+            seed: 8420002,
+            datetime: '20320415101723',
+            name: 'DelayedGate',
+            role: 'Healer', race: 'human', gender: 'female', align: 'neutral',
+            command: '',
+        }));
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        clearTtyMessageWindow(game);
+        game.invent = {
+            oclass: TOOL_CLASS, otyp: SACK,
+            owt: weight_cap(game) * 2, nobj: null,
+        };
+        game.go.oldcap = HVY_ENCUMBER;
+        if (scenario.exhaustRation) {
+            game.invent = null;
+            game.uarm = null;
+            game.go.oldcap = 0;
+        }
+        game.u.umovement = scenario.movement;
+        game.context.move = 1;
+        game.multi = scenario.multi;
+        game.multi_reason = 'dressing up';
+        game.nomovemsg = 'You finish your dressing maneuver.';
+        game.flags.runmode = RUN_STEP;
+        game.context.seer_turn = 100000; // Outside this short test's cadence.
+        game.context.next_attrib_check = 100000;
+        const movesBefore = game.moves;
+        let callbacks = 0;
+        let frames = 0;
+        let prefixSnapshot;
+        game.afternmv = scenario.noCallback ? null : (state) => {
+            assert.equal(state, game, scenario.name);
+            assert.equal(state.afternmv, null, scenario.name);
+            callbacks++;
+            if (scenario.exhaustRation) state.u.umovement = 0;
+            if (scenario.chain) {
+                state.multi = -2; // A second delay, installed by the first.
+                state.multi_reason = 'dressing up';
+                state.nomovemsg = ''; // C permits a silent callback release.
+                state.afternmv = (nextState) => {
+                    assert.equal(nextState, game, scenario.name);
+                    assert.equal(nextState.afternmv, null, scenario.name);
+                    callbacks++;
+                };
+            }
+            if (scenario.refuseSuffix) {
+                state.level.regions.push(create_region([{
+                    lx: state.u.ux, ly: state.u.uy,
+                    hx: state.u.ux, hy: state.u.uy,
+                }]));
+                prefixSnapshot = completeSecondTurnSnapshot(state, replay);
+            }
+        };
+        game._animationFrameHook = () => { frames++; };
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
+        try {
+            if (scenario.refuseSuffix) {
+                await assert.rejects(moveloop_core(), (error) => (
+                    error instanceof UnsupportedTurnBoundaryError
+                    && error.message.includes('multi-cycle region upkeep')
+                ));
+                // The callback's completed prefix stays committed; the new
+                // unsupported suffix spends no live RNG or state mutation.
+                assert.deepEqual(completeSecondTurnSnapshot(game, replay),
+                    prefixSnapshot);
+            } else {
+                await moveloop_core();
+            }
+        } finally {
+            game._animationFrameHook = null;
+        }
+        assert.equal(callbacks, scenario.callbacks, scenario.name);
+        assert.equal(frames, scenario.frames, scenario.name);
+        assert.equal(game.moves, movesBefore + scenario.turns, scenario.name);
+        assert.equal(game.u.umovement, scenario.refuseSuffix ? 3 : 12,
+            scenario.name);
+        assert.equal(game.multi, 0, scenario.name);
+        assert.equal(game.nomovemsg, null, scenario.name);
+        assert.equal(game.afternmv, null, scenario.name);
+    }
+});
+
+test('independent delayed-action recipes reach their completed callbacks',
+    async () => {
+        for (const { recipe } of loadDelayedActionRecipes()) {
+            for (const segment of recipe.segments)
+                await verifyDelayedActionSegment(segment);
+        }
+    });
+
 test('fainting boundaries stop before any elapsed-turn mutation',
     async () => {
     const cases = [
@@ -1619,22 +1810,6 @@ test('burdened multi-cycle upkeep stops before region and search work',
                     };
                     game.level.flags.noautosearch = false;
                     game.multi = 0;
-                },
-            ],
-            [
-                // allmain.c:380-388 counts a negative gm.multi up and, at
-                // zero, prints through unmul(). The clone would spend one turn
-                // of the wait and print from state that is thrown away, so it
-                // stops the way region upkeep above it does.
-                'immobility countdown',
-                'burdened multi-cycle immobility countdown',
-                () => {
-                    // What pray.c dopray() leaves behind. The message matters:
-                    // it is what keeps trap.c unconscious() FALSE, so eat.c
-                    // gethungry() does not refuse the turn first.
-                    game.multi = -3;
-                    game.multi_reason = 'praying';
-                    game.nomovemsg = 'You finish your prayer.';
                 },
             ],
             [
