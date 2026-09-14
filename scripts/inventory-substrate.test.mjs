@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ACH_AMUL,
+    ACH_BELL,
+    ACH_BOOK,
+    ACH_CNDL,
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     A_CON,
@@ -2590,15 +2594,25 @@ test('taking an artifact into inventory grants its carried intrinsics', () => {
     addinv(saber, { state });
     assert.deepEqual(state.u.uprops.map((prop) => prop.extrinsic), before);
 
-    // The four types above the artifact arm keep their own seam: each sets a
-    // u.uhave flag and records an achievement, neither of which is ported.
-    for (const otyp of [AMULET_OF_YENDOR, CANDELABRUM_OF_INVOCATION,
-                        BELL_OF_OPENING, SPE_BOOK_OF_THE_DEAD]) {
-        assert.throws(
-            () => addinv(instance(otyp, state), { state }),
-            /addSpecialInventoryEffects/u,
-            String(otyp),
-        );
+    // invent.c addinv_core1() sets each invocation object's u.uhave bit and
+    // records its achievement before addinv_core0() inserts the object.
+    state.u.uhave = {};
+    state.u.uachieved = [];
+    const specialObjects = [
+        [AMULET_OF_YENDOR, 'amulet', ACH_AMUL],
+        [CANDELABRUM_OF_INVOCATION, 'menorah', ACH_CNDL],
+        [BELL_OF_OPENING, 'bell', ACH_BELL],
+        [SPE_BOOK_OF_THE_DEAD, 'book', ACH_BOOK],
+    ];
+    for (const [otyp, haveField, achievement] of specialObjects) {
+        const object = instance(otyp, state);
+        assert.equal(addinv(object, { state }), object, String(otyp));
+        assert.equal(state.u.uhave[haveField], 1, String(otyp));
+        assert.deepEqual(state.u.uachieved, [
+            ...specialObjects
+                .slice(0, specialObjects.findIndex(([type]) => type === otyp) + 1)
+                .map(([, , ach]) => ach),
+        ], String(otyp));
     }
 });
 

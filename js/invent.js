@@ -4,6 +4,10 @@
 
 import { calc_capacity, inv_cnt, near_capacity } from './hack.js';
 import {
+    ACH_AMUL,
+    ACH_BELL,
+    ACH_BOOK,
+    ACH_CNDL,
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     A_CHAOTIC,
@@ -326,6 +330,7 @@ import { in_rooms } from './rooms.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { note_unported } from './unported.js';
+import { record_achievement } from './insight.js';
 import {
     inhishop,
     inside_shop,
@@ -2717,8 +2722,7 @@ function requiredHook(env, name, obj) {
 //
 // Predicates: artifactConfersLuck(obj, env), isReviver(species, env),
 // samePrice(obj, target, env), isDeadSpecies(species, includeGone, env).
-// Inventory effects: addSpecialInventoryEffects(obj, env),
-// removeSpecialInventoryEffects(obj, env),
+// Inventory effects: removeSpecialInventoryEffects(obj, env),
 // archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
 // updateInventory(state).
 // attachFigurineTimer(obj, env) and stopFigurineTimer(obj, env) own both the
@@ -4087,14 +4091,30 @@ function specialPrize(obj, state) {
 }
 
 function addinv_core1(obj, env, facts) {
+    const { state } = env;
     if (obj.oclass === COIN_CLASS) {
-        env.state.disp ??= {};
-        env.state.disp.botl = true;
-    } else if (obj.otyp === AMULET_OF_YENDOR
-               || obj.otyp === CANDELABRUM_OF_INVOCATION
-               || obj.otyp === BELL_OF_OPENING
-               || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-        requiredHook(env, 'addSpecialInventoryEffects', obj)(obj, env);
+        state.disp ??= {};
+        state.disp.botl = true;
+    } else if (obj.otyp === AMULET_OF_YENDOR) {
+        if (state.u.uhave?.amulet)
+            note_unported('pline.c impossible');
+        state.u.uhave.amulet = 1;
+        record_achievement(ACH_AMUL, state);
+    } else if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
+        if (state.u.uhave?.menorah)
+            note_unported('pline.c impossible');
+        state.u.uhave.menorah = 1;
+        record_achievement(ACH_CNDL, state);
+    } else if (obj.otyp === BELL_OF_OPENING) {
+        if (state.u.uhave?.bell)
+            note_unported('pline.c impossible');
+        state.u.uhave.bell = 1;
+        record_achievement(ACH_BELL, state);
+    } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
+        if (state.u.uhave?.book)
+            note_unported('pline.c impossible');
+        state.u.uhave.book = 1;
+        record_achievement(ACH_BOOK, state);
     } else if (obj.oartifact) {
         if (is_quest_artifact(obj, env.state)) {
             // invent.c:986-989 sets u.uhave.questart and calls artitouch().
@@ -4117,12 +4137,7 @@ function addinv_core1(obj, env, facts) {
 }
 
 function preflightAddinvCores(obj, env) {
-    if (obj.otyp === AMULET_OF_YENDOR
-        || obj.otyp === CANDELABRUM_OF_INVOCATION
-        || obj.otyp === BELL_OF_OPENING
-        || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-        requiredHook(env, 'addSpecialInventoryEffects', obj);
-    } else if (obj.oartifact && is_quest_artifact(obj, env.state)) {
+    if (obj.oartifact && is_quest_artifact(obj, env.state)) {
         // The next arm of the same if/else chain in addinv_core1(), projected
         // here for the reason the four otyps above are: addinv() clears
         // no_charge and how_lost before addinv_core1() runs, so the refusal
