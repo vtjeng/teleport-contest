@@ -37456,8 +37456,8 @@
       "spans": [
         {
           "name": "inuse_classify..merge_choice",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e",
           "functions": [
             "inuse_classify",
             "loot_classify",
@@ -37486,78 +37486,78 @@
           "name": "inuse_classify",
           "line": 70,
           "endLine": 148,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "loot_classify",
           "line": 149,
           "endLine": 308,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "loot_xname",
           "line": 309,
           "endLine": 390,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "invletter_value",
           "line": 391,
           "endLine": 402,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "sortloot_cmp",
           "line": 403,
           "endLine": 592,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "sortloot",
           "line": 593,
           "endLine": 646,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "unsortloot",
           "line": 647,
           "endLine": 654,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "sortloot",
           "line": 655,
           "endLine": 693,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "assigninvlet",
           "line": 694,
           "endLine": 738,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "reorder_invent",
           "line": 739,
           "endLine": 774,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "merge_choice",
           "line": 775,
           "endLine": 813,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "merged",
@@ -38405,7 +38405,283 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "inuse_classify",
+            "implementation": "js/invent.js",
+            "symbol": "inuse_classify",
+            "sourceReview": "Read invent.c:70-144 completely, including the USE_RATING evaluation order, owornmask precedence for lit tools and leashes, the seven armor slots, quiver/swap/primary weapon ordering, handed off-hand and main-hand ring masks, amulet last rating, and the unmatched rating=0/orderclass=-1 assignment. JavaScript writes the same Loot fields and derives handedness from state.u. No unported callee is used.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "sortloot_cmp",
+                "source": "invent.c:413-427 calls inuse_classify lazily while SORTLOOT_INUSE comparisons run; js/invent.js:sortloot_cmp performs the same lazy classification and stable index tie break."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c:1079-1090 selects sortloot flags for object menus; the production picker dispatches through js/invent.js sortloot and its comparator."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "loot_classify",
+            "implementation": "js/invent.js",
+            "symbol": "loot_classify",
+            "sourceReview": "Read invent.c:149-305 completely, including observe-before-seen ordering, the default and configured class order, armor category remapping, all weapon skill groups, known pseudo-containers and instruments, food/globby groups, all gemstone/glass/mineral discovery groups, and the four discovery statuses. JavaScript preserves source branch order and writes orderclass/subclass/disco/inuse fields; object catalog descriptions are read through OBJ_DESCR.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "sortloot_cmp",
+                "source": "invent.c:431-468 calls loot_classify lazily for PACK/LOOT comparisons; js/invent.js:sortloot_cmp uses the same nonzero orderclass sentinel."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c:1081-1100 enters sortloot from floor object selection; js/pickup.js calls js/invent.js sortloot with the source filter and configured sort flags."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "container_contents",
+                "source": "end.c:1635-1644 sorts container contents before display; js/end.js calls js/invent.js sortloot for that production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "loot_xname",
+            "implementation": "js/invent.js",
+            "symbol": "loot_xname",
+            "sourceReview": "Read invent.c:309-387 completely, including saved object fields, potion dilution and water BUC suppression, singular quantity formatting, towel wetness suppression and suffixes, glob weight normalization and suffixes, user-name suppression, wizard debug/save-state toggles, and restoration order. JavaScript restores every temporary field in a finally block and appends the source towel/glob suffix after restoration.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "sortloot_cmp",
+                "source": "invent.c:489-505 formats each comparator name through loot_xname; js/invent.js:sortloot_cmp caches the singular name before BUC, grease, erosion, proof, and enchantment comparisons."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c:1085-1100 routes floor piles into sortloot and sortloot_cmp; js/pickup.js uses the production sorter for pickup menus."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "invletter_value",
+            "implementation": "js/invent.js",
+            "symbol": "invletter_value",
+            "sourceReview": "Read invent.c:391-399 completely. JavaScript returns the source values for '$', lower-case letters, upper-case letters, '#', and the catch-all case without state access or extra work.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "sortloot_cmp",
+                "source": "invent.c:472-476 orders assigned inventory letters through invletter_value; js/invent.js:sortloot_cmp uses the same comparator branch."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "sortlootByInvlet",
+                "source": "invent.c:1861 sorts the inventory by SORTLOOT_INVLET for reassign; js/invent.js:sortlootByInvlet routes reassign through sortloot and the comparator."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/eat-prompt.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "sortloot_cmp",
+            "implementation": "js/invent.js",
+            "symbol": "sortloot_cmp",
+            "sourceReview": "Read invent.c:403-547 completely, including in-use precedence and stable ties, PACK/INVLET class suppression, class/subclass/discovery ordering, inventory-letter values, singular name comparison, BUC/grease/erosion/proof/enchantment ordering, and the original-index tie break. JavaScript keeps temporary Loot fields on the entries, uses ASCII case-insensitive lexical comparison, and applies the source oc_uses_known gate.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "sortloot",
+                "source": "invent.c:601-646 qsorts the temporary Loot array with sortloot_cmp; js/invent.js:sortloot passes the stripped mode and state to the same comparator."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c:1079-1100 calls sortloot for floor piles; js/pickup.js query_objlist is wired to js/invent.js sortloot."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "container_contents",
+                "source": "end.c:1635-1650 calls sortloot and then releases it for container display; js/end.js uses the JS temporary array path."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "sortloot",
+            "implementation": "js/invent.js",
+            "symbol": "sortloot",
+            "sourceReview": "Read the active invent.c:593-646 sortloot implementation completely, including list counting, optional filter evaluation, SORTLOOT_PETRIFY masking and touch_petrifies override, accepted-item index assignment, terminator semantics, conditional sorting, and comparator-string cleanup. JavaScript returns the temporary accepted-entry array, keeps source index order for ties, strips the overloaded petrify bit before sorting, and clears cached names after sorting; the inactive duplicate definition is separately recorded below.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c:1085 invokes sortloot over the floor chain with qflags-derived mode and filter; js/pickup.js calls sortloot with BY_NEXTHERE and allow()."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "container_contents",
+                "source": "end.c:1637 invokes sortloot over box->cobj for sorted container display; js/end.js passes the container nobj chain."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "sortlootByInvlet",
+                "source": "invent.c:1861 and :2407 invoke sortloot for inventory and container selection; js/invent.js routes inventory-letter sorting through sortlootByInvlet and getobj callers use its result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "unsortloot",
+            "implementation": "js/invent.js",
+            "symbol": "unsortloot",
+            "sourceReview": "Read invent.c:647-654 completely. C frees the temporary allocation and nulls the caller pointer; JavaScript has garbage collection, so the helper returns null for the caller to replace its temporary array with the same null state. No game-state or output effect is omitted.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "sortloot",
+                "source": "invent.c:647-654 is the cleanup paired with sortloot; JS callers own the temporary array and can replace it with unsortloot()'s null result."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c:1115 and :1144 release the sorted floor array; js/pickup.js consumes the JS array directly and does not need an explicit memory release."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "container_contents",
+                "source": "end.c:1650 releases sorted container contents; js/end.js uses normal array lifetime in the equivalent production path."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "assigninvlet",
+            "implementation": "js/invent.js",
+            "symbol": "assigninvlet",
+            "sourceReview": "Read invent.c:694-738 completely, including coin special handling, duplicate-letter clearing, valid existing-letter preservation, lastinvnr wrap from slot 51 through -1, first-free selection, '#' exhaustion, and lastinvnr update. JavaScript preserves the same inventory state transitions and source letter ordering.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "insertInventoryObject",
+                "source": "invent.c:1116 assigns a letter while adding an object; js/invent.js:3215 calls assigninvlet in the production insertion path."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "projectAddinv",
+                "source": "invent.c:5271 assigns a letter while adding a projected or restored object; js/invent.js:3108 calls assigninvlet for the corresponding insertion route."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "reorder_invent",
+            "implementation": "js/invent.js",
+            "symbol": "reorder_invent",
+            "sourceReview": "Read invent.c:739-774 completely, including the ASCII inv_rank XOR 040 macro, repeated adjacent swaps, head replacement, and traversal pointer updates. JavaScript uses charCodeAt with zero for the empty letter and repeats the same linked-list pass until ordered.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "insertInventoryObject",
+                "source": "invent.c:1121 reorders fixed-letter inventory after addinv; js/invent.js:3220 calls reorder_invent after insertion."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "projectAddinv",
+                "source": "invent.c:5266 reorders inventory during addinv_core0; js/invent.js:3113 calls reorder_invent in the projected insertion path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          },
+          {
+            "name": "merge_choice",
+            "implementation": "js/invent.js",
+            "symbol": "merge_choice",
+            "sourceReview": "Read invent.c:775-813 completely, including empty-list and scare-scroll exits, the shop-floor no_charge adjustment and early billable rejection, full linked-list mergable scan, and restoration of no_charge after the scan. JavaScript preserves the source early-return ordering and is wired into pickup.c lift_object's full-pack and loadstone branches as well as shk.c's payment path.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "lift_object",
+                "source": "pickup.c:1724 and :1744 call merge_choice before refusing a full pack; js/pickup.js:2232 and :2250 now perform the same checks for loadstones/giant boulders and ordinary full-pack lifts."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "shkgone",
+                "source": "shk.c:204 calls merge_choice before adding split gold; js/shk.js:191 performs the same payment-room check."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "31ffeedfd36f2987fbf7f0bc6ce236c5ec23bf3e"
+          }
+        ],
+        "entryPointReview": "The selected invent.c range is helper-only: it defines inventory classification, sorting, letter assignment/reordering, cleanup, and merge selection rather than a standalone command, monster action, or level feature. Production entry paths are pickup.c query_objlist and lift_object, end.c container_contents, invent.c inventory insertion/reassign/getobj, and shk.c shkgone; these are traced in the caller records above. The inactive second invent.c sortloot definition at :655-693 is excluded by #if 0 and has no separate JavaScript implementation. No new recipe or recording is required for this helper-only span; the existing do_wear.c recording exercises inventory insertion/letter ordering, inventory object menus, floor-pile sorting, naming, and the connected production callers, while source-pinned tests cover the non-recorder-only sort, filter, cleanup, and merge branches.",
+        "entryPoints": []
+      }
     }
   ]
 }
