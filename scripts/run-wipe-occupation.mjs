@@ -5,39 +5,28 @@
 // the two cream-blindness counters are three, and waits once after the
 // occupation returns to command input.
 
+import { readFileSync } from 'node:fs';
+
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
-// Directly assigning the blindness state would skip apply.c use_cream_pie(),
-// the elapsed-turn timeout, and cmd.c doextcmd(). A bounded local replay scan
-// of seeds 7100001 through 7100050 with these fixed inputs found 7100006 as
-// the first whose use_cream_pie() rnd(25) is four. The application turn then
-// reduces both counters to the required entry value three.
-const SEED = 7100006;
-// This established Thursday morning avoids calendar startup messages, which
-// do not affect the wipe behavior under test.
-const DATETIME = '20330203111213';
+const RECIPE_DIR = new URL('../recipes/do.c/', import.meta.url);
 
-const NETHACKRC = [
-    'OPTIONS=name:Wiper,role:Rogue,race:human,gender:female,align:chaotic',
-    'OPTIONS=!legacy,!tutorial,!splash_screen',
-    'OPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp',
-    '',
-].join('\n');
+function loadRecipe(filename, label) {
+    return validateCleanRecipe(
+        JSON.parse(readFileSync(new URL(filename, RECIPE_DIR), 'utf8')),
+        label,
+    );
+}
 
 export function loadWipeOccupationRecipe() {
-    return validateCleanRecipe({
-        version: 5,
-        segments: [{
-            seed: SEED,
-            datetime: DATETIME,
-            nethackrc: NETHACKRC,
-            // Debug Rogue inventory gives the wished cream pie letter h. The
-            // space dismisses its first message; the final wait proves that
-            // wipeoff() cleared the occupation and returned to command input.
-            moves: '\x17cream pie\nah #wipe\n.',
-        }],
-    }, 'wipe occupation recipe');
+    return loadRecipe('wipe-occupation.session.json', 'wipe occupation recipe');
+}
+
+export function loadWipeCleanFaceRecipe() {
+    // This independent debug seed starts with no cream pie, so the shortest
+    // input reaches dowipe()'s clean-face branch directly.
+    return loadRecipe('wipe-clean-face.session.json', 'wipe clean-face recipe');
 }
 
 export async function runWipeOccupationMatrix() {
@@ -45,6 +34,9 @@ export async function runWipeOccupationMatrix() {
         entries: [{
             label: 'ordinary wipe occupation',
             recipe: loadWipeOccupationRecipe(),
+        }, {
+            label: 'clean-face wipe command',
+            recipe: loadWipeCleanFaceRecipe(),
         }],
         summaryLabel: 'WIPE OCCUPATION',
         // A debug game leaves a save behind when the recorder exits, so this

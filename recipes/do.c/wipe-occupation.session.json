@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7100006,
+      "datetime": "20330203111213",
+      "nethackrc": "OPTIONS=name:Wiper,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": "\u0017cream pie\nah #wipe\n."
+    }
+  ]
+}

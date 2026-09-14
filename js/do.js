@@ -223,16 +223,6 @@ export class UnsupportedLevelChangeError extends Error {
     }
 }
 
-// Thrown when do.c dowipe() or wipeoff() reaches a face or blindness state
-// outside the ordinary three-turn cream-pie occupation selected for this port.
-export class UnsupportedWipeError extends Error {
-    constructor(reason) {
-        super(`wiping the hero's face requires ${reason}`);
-        this.name = 'UnsupportedWipeError';
-        this.reason = reason;
-    }
-}
-
 // C ref: do.c revive_corpse() (2111-2250), floor arm used by hack.c
 // revive_nasty(). revive() owns creation and corpse deletion; this wrapper
 // snapshots the corpse description and reports the source-specific result.
@@ -276,64 +266,55 @@ export async function revive_corpse(corpse, state = game) {
     return true;
 }
 
-function ordinaryWipeState(state, timeout) {
-    const hero = state.u;
-    const blinded = hero?.uprops?.[BLINDED];
-    return Boolean(
-        hero
-        && blinded
-        && hero.ucreamed === timeout
-        && blinded.intrinsic === timeout
-        && !blinded.extrinsic
-        && !blinded.blocked
-        && !hero.uprops?.[HALLUC]?.intrinsic
-        && !hero.uprops?.[HALLUC]?.extrinsic
-        && !hero.uswallow
-        && !Upolyd(hero)
-        && state.urace?.noun === 'human',
-    );
-}
-
-// C ref: do.c wipeoff() (2361-2384), restricted to the occupation turn after
-// the selected three-turn ordinary cream blindness has counted down to two.
+// C ref: do.c wipeoff() (2361-2385). The occupation callback independently
+// clamps and decrements the cream and temporary-blindness timeouts. It may
+// finish with either sight restored, a clean face that remains blind, or a
+// continuation while cream remains.
 export async function wipeoff(state = game) {
-    if (!ordinaryWipeState(state, 2)
-        || state.go?.occupation !== wipeoff) {
-        throw new UnsupportedWipeError(
-            'the installed occupation with matching two-turn blindness',
+    const hero = state.u;
+    const blinded = hero.uprops[BLINDED];
+    let creamDelta = hero.ucreamed;
+    let blindDelta = blinded.intrinsic & TIMEOUT;
+
+    if (creamDelta > 4) creamDelta = 4;
+    hero.ucreamed -= creamDelta;
+    if (blindDelta > 4) blindDelta = 4;
+    incr_itimeout(blinded, -blindDelta);
+
+    if (!blinded.intrinsic) {
+        await ttyPline("You've got the glop off.", state);
+        hero.ucreamed = 0;
+        if (!gulp_blnd_check(state)) {
+            set_itimeout(blinded, 1);
+            await make_blinded(0, true, state);
+        }
+        return 0;
+    } else if (!hero.ucreamed) {
+        await ttyPline(
+            `Your ${body_part(FACE, state.youmonst)} feels clean now.`,
+            state,
         );
+        return 0;
     }
-
-    const blinded = state.u.uprops[BLINDED];
-    state.u.ucreamed -= 2;
-    incr_itimeout(blinded, -2);
-
-    await ttyPline("You've got the glop off.", state);
-    state.u.ucreamed = 0;
-    // ordinaryWipeState() rejected engulfment before either counter changed,
-    // so gulp_blnd_check() takes its source false arm here.
-    if (!gulp_blnd_check(state)) {
-        set_itimeout(blinded, 1);
-        await make_blinded(0, true, state);
-    }
-    return 0;
+    return 1;
 }
 
-// C ref: do.c dowipe() (2387-2404), restricted to the selected ordinary
-// human state. The command spends a turn and installs wipeoff() without
-// printing; all other face and blindness states remain fail-closed.
+// C ref: do.c dowipe() (2388-2407). A dirty face installs wipeoff() as an
+// untimed occupation; a clean face reports that state and still spends a turn.
 export async function dowipe(state = game) {
-    if (!ordinaryWipeState(state, 3) || state.go?.occupation) {
-        throw new UnsupportedWipeError(
-            'a clean occupation slot and matching three-turn blindness',
+    if (state.u.ucreamed) {
+        set_occupation(
+            wipeoff,
+            `wiping off your ${body_part(FACE, state.youmonst)}`,
+            0,
+            state,
+        );
+    } else {
+        await ttyPline(
+            `Your ${body_part(FACE, state.youmonst)} is already clean.`,
+            state,
         );
     }
-    set_occupation(
-        wipeoff,
-        `wiping off your ${body_part(FACE, state.youmonst)}`,
-        0,
-        state,
-    );
     return ECMD_TIME;
 }
 

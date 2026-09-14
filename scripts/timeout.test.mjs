@@ -735,17 +735,14 @@ test('elapsed-turn timeout upkeep advances the ordinary wipe occupation',
         assert.equal(state.u.ucreamed, 2);
         assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 2);
 
-        // Four is the nearest longer cream timeout. The current goal admits
-        // only the exact three-turn state, so this neighbor must stop before
-        // either counter changes.
+        // Four is the nearest longer cream timeout. do.c wipeoff() clamps
+        // independently, so the elapsed turn admits it and decrements both
+        // counters once before the callback runs.
         state.u.ucreamed = 4;
         uprops[BLINDED].intrinsic = 4;
-        await assert.rejects(
-            nh_timeout_elapsed_turn(state),
-            /ordinary wipe occupation with matching three-turn blindness/u,
-        );
-        assert.equal(state.u.ucreamed, 4);
-        assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 4);
+        await nh_timeout_elapsed_turn(state);
+        assert.equal(state.u.ucreamed, 3);
+        assert.equal(uprops[BLINDED].intrinsic & 0x00ffffff, 3);
     });
 
 test('fedora basal luck requires both the role and worn helmet', async () => {

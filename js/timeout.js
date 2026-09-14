@@ -482,22 +482,19 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     // nh_timeout_elapsed_turn() makes the same return, in C's position.
     if (u.uinvulnerable) return;
     const wipeOccupation = state.go?.occupation === wipeoff;
-    const ordinaryWipe = u.ucreamed === 3
-        && u.uprops?.[BLINDED]?.intrinsic === 3
-        && !u.uprops[BLINDED].extrinsic
-        && !u.uprops[BLINDED].blocked
-        && wipeOccupation;
+    // do.c wipeoff() owns the callback's independent four-turn clamps. The
+    // elapsed turn before that callback decrements any cream and temporary
+    // blindness timeout while the occupation is installed, regardless of
+    // their relative values.
     for (const [name, value] of [
         ['ucreamed', u.ucreamed],
         ['usptime', u.usptime],
         ['ugallop', u.ugallop],
     ]) {
-        if (name === 'ucreamed' && ordinaryWipe) continue;
+        if (name === 'ucreamed' && wipeOccupation) continue;
         if (Math.trunc(value ?? 0) !== 0) {
             throw new UnsupportedHeroTimeoutBoundaryError(
-                name === 'ucreamed' && wipeOccupation
-                    ? 'ordinary wipe occupation with matching three-turn blindness'
-                    : `zero ${name}`,
+                `zero ${name}`,
             );
         }
     }
@@ -536,7 +533,7 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
                 || ((Math.trunc(u.uprops[index]?.intrinsic ?? 0) & ~TIMEOUT)
                     === 0
                     && !(u.uprops[index]?.extrinsic ?? 0)))) continue;
-        if (index === BLINDED && ordinaryWipe) continue;
+        if (index === BLINDED && wipeOccupation) continue;
         throw new UnsupportedHeroTimeoutBoundaryError(
             `no active property timeout at index ${index}`,
         );

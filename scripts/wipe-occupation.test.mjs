@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { BLINDED, HALLUC, TIMEOUT } from '../js/const.js';
-import { UnsupportedWipeError, dowipe } from '../js/do.js';
+import { BLINDED, FROM_FORM, TIMEOUT } from '../js/const.js';
+import { dowipe, wipeoff } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { make_blinded } from '../js/potion.js';
@@ -18,6 +18,16 @@ async function witnessSegment() {
     assert.equal(recording.segments.length, 1);
     const [{ steps: _steps, ...segment }] = recording.segments;
     return segment;
+}
+
+// Direct function checks do not pass through the next input boundary that
+// normally dismisses a pending tty message. Clear that recorder state between
+// source-pinned calls so each call can inspect its own output.
+function clearTopline() {
+    game._pending_message = '';
+    game._ttyToplines = '';
+    game._ttyPreviousMessage = '';
+    game._ttyMessageStopped = false;
 }
 
 test('#wipe clears three-turn cream blindness through its occupation',
@@ -59,60 +69,79 @@ test('#wipe clears three-turn cream blindness through its occupation',
         );
     });
 
-test('dowipe keeps neighboring face and blindness states fail-closed',
+test('dowipe handles clean and dirty faces without extra state gates',
     async () => {
         const segment = await witnessSegment();
         const wipeAt = segment.moves.indexOf('#wipe\n');
         await runSegment({ ...segment, moves: segment.moves.slice(0, wipeAt) });
 
-        const cases = [
-            {
-                label: 'a clean face',
-                // Zero reaches dowipe()'s clean-face message outside this goal.
-                setup: () => { game.u.ucreamed = 0; },
-            },
-            {
-                label: 'a longer timeout',
-                // Four is the nearest duration above the admitted value three.
-                setup: () => {
-                    game.u.ucreamed = 4;
-                    game.u.uprops[BLINDED].intrinsic = 4;
-                },
-            },
-            {
-                label: 'mismatched counters',
-                // Two differs from the admitted blindness timeout by one turn.
-                setup: () => { game.u.uprops[BLINDED].intrinsic = 2; },
-            },
-            {
-                label: 'hallucination',
-                // One is the smallest active HALLUC timeout; C would print a
-                // different sight-restoration message outside this goal.
-                setup: () => { game.u.uprops[HALLUC].intrinsic = 1; },
-            },
-        ];
+        // do.c dowipe() prints this arm when u.ucreamed is zero and still
+        // spends the command turn. The assigned holdout reaches this branch.
+        game.u.ucreamed = 0;
+        clearTopline();
+        await dowipe(game);
+        assert.equal(game._pending_message, 'Your face is already clean.');
+        assert.equal(game.go?.occupation ?? null, null);
 
-        for (const { label, setup } of cases) {
-            game.u.ucreamed = 3;
-            game.u.uprops[BLINDED].intrinsic = 3;
-            game.u.uprops[HALLUC].intrinsic = 0;
-            setup();
-            const before = {
-                cream: game.u.ucreamed,
-                blinded: game.u.uprops[BLINDED].intrinsic,
-                occupation: game.go?.occupation ?? null,
-            };
-            await assert.rejects(
-                dowipe(game),
-                (error) => error instanceof UnsupportedWipeError,
-                label,
-            );
-            assert.deepEqual({
-                cream: game.u.ucreamed,
-                blinded: game.u.uprops[BLINDED].intrinsic,
-                occupation: game.go?.occupation ?? null,
-            }, before, label);
+        // Any nonzero cream value installs wipeoff(), even when blindness is
+        // longer or shorter than cream. These values exercise the source's
+        // absence of the old exact-three-turn guard.
+        for (const [cream, blinded] of [[4, 4], [3, 2]]) {
+            game.u.ucreamed = cream;
+            game.u.uprops[BLINDED].intrinsic = blinded;
+            await dowipe(game);
+            assert.equal(game.go.occupation, wipeoff);
+            assert.equal(game.go.occtxt, 'wiping off your face');
+            game.go.occupation = null;
         }
+    });
+
+test('wipeoff clamps independent counters and keeps busy faces occupied',
+    async () => {
+        const segment = await witnessSegment();
+        const wipeAt = segment.moves.indexOf('#wipe\n');
+        await runSegment({ ...segment, moves: segment.moves.slice(0, wipeAt) });
+
+        // With more cream than temporary blindness, both four-turn clamps
+        // fire. C clears all cream after blindness reaches zero and calls the
+        // ordinary timed-blindness restoration path.
+        clearTopline();
+        game.u.ucreamed = 6;
+        game.u.uprops[BLINDED].intrinsic = 1;
+        assert.equal(await wipeoff(game), 0);
+        assert.equal(game.u.ucreamed, 0);
+        assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
+        assert.match(game._pending_message, /You've got the glop off\./u);
+
+        // When cream reaches zero while blindness remains, C reports a clean
+        // face and returns zero without forcing sight restoration.
+        clearTopline();
+        game.u.ucreamed = 1;
+        game.u.uprops[BLINDED].intrinsic = 5;
+        assert.equal(await wipeoff(game), 0);
+        assert.equal(game.u.ucreamed, 0);
+        assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 1);
+        assert.equal(game._pending_message, 'Your face feels clean now.');
+
+        // HBlinded includes source flags above TIMEOUT. C tests !HBlinded,
+        // rather than !BlindedTimeout, so a form-supplied blindness flag keeps
+        // the face-clean branch active after its temporary timeout expires.
+        clearTopline();
+        game.u.ucreamed = 1;
+        game.u.uprops[BLINDED].intrinsic = FROM_FORM | 1;
+        assert.equal(await wipeoff(game), 0);
+        assert.equal(game.u.ucreamed, 0);
+        assert.equal(game.u.uprops[BLINDED].intrinsic, FROM_FORM);
+        assert.equal(game._pending_message, 'Your face feels clean now.');
+
+        // Both counters can remain busy after one callback, which keeps the
+        // occupation active for the next turn.
+        clearTopline();
+        game.u.ucreamed = 5;
+        game.u.uprops[BLINDED].intrinsic = 5;
+        assert.equal(await wipeoff(game), 1);
+        assert.equal(game.u.ucreamed, 1);
+        assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 1);
     });
 
 test('make_blinded(0, true) fires toggle_blindness on sight restoration',
