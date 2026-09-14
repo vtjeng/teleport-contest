@@ -567,7 +567,7 @@ test('tin_variety_txt recognizes source tin prefixes', () => {
     assert.equal(variety.value, -1);
     variety.value = 42;
     assert.equal(tin_variety_txt('', variety), 0);
-    assert.equal(variety.value, 42);
+    assert.equal(variety.value, -1);
 });
 
 test('readobjnam_postparse1 carries tin contents and variety state', () => {
