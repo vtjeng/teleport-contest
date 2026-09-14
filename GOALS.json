@@ -37528,6 +37528,31 @@
             "safeq_shortxprname",
             "ggetobj"
           ]
+        },
+        {
+          "name": "askchain..free_pickinv_cache",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "askchain",
+            "reroll_menu",
+            "set_cknown_lknown",
+            "fully_identify_obj",
+            "identify",
+            "menu_identify",
+            "count_unidentified",
+            "identify_pack",
+            "learn_unseen_invent",
+            "update_inventory",
+            "doperminv",
+            "obj_to_let",
+            "prinv",
+            "xprname",
+            "dispinv_with_action",
+            "ddoinv",
+            "find_unpaid",
+            "free_pickinv_cache"
+          ]
         }
       ],
       "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
