@@ -33989,8 +33989,8 @@
       "spans": [
         {
           "name": "nh_timeout_fast",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b943474ea93b67358453598cbbe943ff3848fe2d",
           "functions": [
             "nh_timeout"
           ]
