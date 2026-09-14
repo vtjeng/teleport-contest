@@ -37507,8 +37507,8 @@
         },
         {
           "name": "g_at..ggetobj",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5dec427649e89a703e99144839c77fcdf2aee60c",
           "functions": [
             "g_at",
             "compactify",
@@ -37803,119 +37803,119 @@
           "line": 1613,
           "endLine": 1626,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "compactify",
           "line": 1627,
           "endLine": 1663,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "splittable",
           "line": 1664,
           "endLine": 1671,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "taking_off",
           "line": 1672,
           "endLine": 1677,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "mime_action",
           "line": 1678,
           "endLine": 1709,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "any_obj_ok",
           "line": 1710,
           "endLine": 1718,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "getobj_hands_txt",
           "line": 1719,
           "endLine": 1751,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "getobj",
           "line": 1752,
           "endLine": 2093,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "silly_thing",
           "line": 2094,
           "endLine": 2135,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "ckvalidcat",
           "line": 2136,
           "endLine": 2142,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "ckunpaid",
           "line": 2143,
           "endLine": 2148,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wearing_armor",
           "line": 2149,
           "endLine": 2155,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "is_worn",
           "line": 2156,
           "endLine": 2166,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "is_inuse",
           "line": 2167,
           "endLine": 2179,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "safeq_xprname",
           "line": 2180,
           "endLine": 2187,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "safeq_shortxprname",
           "line": 2188,
           "endLine": 2201,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "ggetobj",
           "line": 2202,
           "endLine": 2376,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "askchain",
@@ -38215,7 +38215,7 @@
           "name": "tool_being_used",
           "line": 4698,
           "endLine": 4714,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
@@ -39333,9 +39333,370 @@
             "recordings": [],
             "inactiveReason": "The corresponding js/eat.js meal-location caller remains deferred; the source-pinned test covers identity, coordinate, and nexthere behavior.",
             "checkedAt": "5e2209e6d767188a12e33eecd001f5bc6e3cf32a"
+          },
+          {
+            "name": "g_at",
+            "implementation": "js/obj.js",
+            "symbol": "g_at",
+            "sourceReview": "Read invent.c:1613-1624 completely. The floor-object chain returns the first COIN_CLASS object and otherwise null, with no mutation or random draw; js/obj.js preserves the same grid and nexthere order.",
+            "callers": [
+              {
+                "path": "js/obj.js",
+                "symbol": "mkgold",
+                "source": "mkobj.c gold placement calls g_at() while merging a gold pile; js/obj.js mkgold uses the canonical g_at() before placing or merging coins."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mklev-special-rooms.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "compactify",
+            "implementation": "js/invent.js",
+            "symbol": "compactify",
+            "sourceReview": "Read invent.c:1626-1659 completely. The in-place scan preserves successor runs, dash reopening, overflow # compression, and the terminating NUL; the JavaScript array implementation retains the same evaluation order.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "getobj",
+                "source": "invent.c:getobj() calls compactify() after collecting more than five suggested inventory letters; js/invent.js getobj() appends a NUL, invokes compactify(), and removes the terminator."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/eat-prompt.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "splittable",
+            "implementation": "js/invent.js",
+            "symbol": "splittable",
+            "sourceReview": "Read invent.c:1664-1671 completely. Cursed loadstones and welded uwep are kept unsplit; welded() remains the named wield.c dependency and preserves its bknown side effect.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "getobj",
+                "source": "invent.c:getobj() calls splittable() before splitobj() for queued and interactive counts; js/invent.js getobj() preserves the cursed-loadstone corpsenm kludge."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The fixed recordings do not reach a counted stack or cursed loadstone through getobj; the source-pinned span test exercises both the ordinary and welded predicate arms.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "taking_off",
+            "implementation": "js/invent.js",
+            "symbol": "taking_off",
+            "sourceReview": "Read invent.c:1672-1677 completely. The helper matches exactly the two action strings used by ggetobj().",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() selects its takeoff filter by calling taking_off(word); js/invent.js ggetobj uses the same exact-string predicate."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "mime_action",
+            "implementation": "js/invent.js",
+            "symbol": "mime_action",
+            "sourceReview": "Read invent.c:1678-1709 completely. The port preserves the on-the suffix split, rub/dip prefix split, rn2(2) choice for an or phrase, ing_suffix conversion, and final You-mime message order.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "getobj",
+                "source": "invent.c:getobj() invokes mime_action(word) when hands are selected but allownone is false; js/invent.js getobj awaits the same message-producing helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording selects the hands dash on a getobj action whose callback excludes hands; the source-pinned eat prompt test reaches the message branch directly through getobj.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "any_obj_ok",
+            "implementation": "js/invent.js",
+            "symbol": "any_obj_ok",
+            "sourceReview": "Read invent.c:1709-1715 completely. Non-null objects answer GETOBJ_SUGGEST and null hands answer GETOBJ_EXCLUDE, with no side effects.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dodrop",
+                "source": "do.c:dodrop() passes any_obj_ok to getobj(); js/do.js dodrop supplies the same callback on the full-menu path."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/drop-command.test.mjs",
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "getobj_hands_txt",
+            "implementation": "js/invent.js",
+            "symbol": "getobj_hands_txt",
+            "sourceReview": "Read invent.c:1717-1736 completely. The grease, write-with, wield, ready, and default hand descriptions preserve source wording, pluralization, glove state, and empty-slot suffixes.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "getobj",
+                "source": "invent.c:getobj() computes handsbuf before display_pickinv(); js/invent.js getobj() does the same for ? and * menus."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/eat-prompt.test.mjs",
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "getobj",
+            "implementation": "js/invent.js",
+            "symbol": "getobj",
+            "sourceReview": "Read invent.c:1751-2088 completely. The port covers queued user/key/int nodes, reassign and invlet sorting, callback classifications and prompt subsets, repeat and forced-menu input, count parsing and stack splitting, hands mime feedback, inventory-menu redo, gold and throw count guards, repeat queue writes, invalid-object messages, silly_thing dispatch, and cursed-loadstone handling. The existing tty menu owner now carries PICK_ONE counts when requested; unsupported menu-owner branches remain named at their owners.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dodrop",
+                "source": "do.c:dodrop() calls getobj(\"drop\", any_obj_ok, GETOBJ_PROMPT|GETOBJ_ALLOWCNT); js/do.js dodrop retains this full-menu caller."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dowear",
+                "source": "do_wear.c:dowear() calls getobj(\"wear\", wear_ok, 0); js/do_wear.js dowear uses the C-named prompt."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() calls getobj(\"read\", read_ok, GETOBJ_PROMPT); js/read.js doread uses getobj for scroll selection."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat() calls getobj(\"eat\", eat_ok, 0); js/eat.js doeat uses getobj for the inventory-food prompt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-prompt.test.mjs",
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/seed0360-wizard-world-tour-gloves-on.session.json"
+            ],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "silly_thing",
+            "implementation": "js/invent.js",
+            "symbol": "silly_thing",
+            "sourceReview": "Read invent.c:2094-2135 completely. OBSOLETE_HANDLING is disabled; the live path preserves the special real-amulet and unknown-fake response for call and the generic silly_thing_to message otherwise.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "getobj",
+                "source": "invent.c:getobj() invokes silly_thing(word, otmp) after an explicitly typed unsuitable inventory item; js/invent.js passes both values and awaits the message."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording deliberately types an unsuitable inventory object at a getobj prompt; the source-pinned test covers the Amulet exception and generic helper wiring.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "ckvalidcat",
+            "implementation": "js/invent.js",
+            "symbol": "ckvalidcat",
+            "sourceReview": "Read invent.c:2136-2142 and pickup.c:522-592 completely. The helper delegates category admission semantics, including immediate coin acceptance under class filtering, cleric bknown assignment, unpaid contents, BUC, and just-picked filters; pickup.js allow_category now calls this invent.c owner.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "askchain",
+                "source": "invent.c:ggetobj() passes ckvalidcat through askchain(); js/pickup.js askchain invokes the imported invent.js ckvalidcat for category-filtered inventory."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The fixed recordings do not execute a traditional ggetobj category filter; the source-pinned test covers category and cleric-state behavior.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "ckunpaid",
+            "implementation": "js/invent.js",
+            "symbol": "ckunpaid",
+            "sourceReview": "Read invent.c:2143-2148 completely. The callback accepts directly unpaid objects and containers with unpaid contents, preserving count_unpaid recursion.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() assigns ckunpaid when the user selects the unpaid category; js/invent.js ggetobj passes the callback to askchain."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "wearing_armor",
+            "implementation": "js/invent.js",
+            "symbol": "wearing_armor",
+            "sourceReview": "Read invent.c:2150-2154 completely. The seven armor globals are tested in source order and the JavaScript Boolean result preserves the same zero/nonzero behavior.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dotakeoff",
+                "source": "do_wear.c:doddoremarm() and dotakeoff() consult wearing_armor(); js/do_wear.js dotakeoff uses the shared invent.js helper."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() rejects the armor category when wearing_armor() is false; js/invent.js ggetobj performs that check."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/take-off-armor.test.mjs",
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "is_worn",
+            "implementation": "js/invent.js",
+            "symbol": "is_worn",
+            "sourceReview": "Read invent.c:2156-2166 completely. The source mask is exactly W_ARMOR|W_ACCESSORY|W_SADDLE|W_WEAPONS and the port returns a Boolean.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "ggetobj",
+                "source": "invent.c:ggetobj() filters takeoff candidates with is_worn(); js/invent.js ggetobj installs the same filter."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "is_inuse",
+            "implementation": "js/invent.js",
+            "symbol": "is_inuse",
+            "sourceReview": "Read invent.c:2167-2179 completely, including tool_being_used(). The port preserves carried-first evaluation, worn masks, wielded and active tools, and leashmon handling.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "inuse_classify",
+                "source": "invent.c:70-144 inuse_classify() calls is_inuse() through the in-use inventory classification; js/invent.js inuse_classify routes the same object predicate."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "safeq_xprname",
+            "implementation": "js/invent.js",
+            "symbol": "safeq_xprname",
+            "sourceReview": "Read invent.c:2180-2190 completely. The callback passes the static let and dot context to xprname with null alternate text and zero cost/quantity; JavaScript preserves that context through set_safeq_context().",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "askchain",
+                "source": "invent.c:askchain() passes safeq_xprname to safe_qbuf(); js/pickup.js askchain sets the context before using the callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording reaches the inventory askchain safe_qbuf callback; the source-pinned test exercises both static-context callbacks.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "safeq_shortxprname",
+            "implementation": "js/invent.js",
+            "symbol": "safeq_shortxprname",
+            "sourceReview": "Read invent.c:2192-2201 completely. The alternate callback obtains ansimpleoname first and then calls xprname with the same static let/dot context and zero cost/quantity.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "askchain",
+                "source": "invent.c:askchain() passes safeq_shortxprname as safe_qbuf short callback; js/pickup.js askchain uses the same callback for inventory prompts."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "No fixed recording reaches the inventory askchain safe_qbuf callback; the source-pinned test exercises both static-context callbacks.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
+          },
+          {
+            "name": "ggetobj",
+            "implementation": "js/invent.js",
+            "symbol": "ggetobj",
+            "sourceReview": "Read invent.c:2202-2376 completely. The port preserves empty-inventory ALL_FINISHED, filter reset and class/B.U.C.X.P menu construction, identify/takeoff filters and validation messages, inventory display retry, m/all/menu result codes, and askchain callback/result-flag order. Traditional dodrop and finite identify_pack callers are wired; full-menu menu_drop/menu_identify fallbacks remain named boundaries.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dodrop",
+                "source": "do.c:dodrop() invokes ggetobj() for MENU_TRADITIONAL; js/do.js dodrop now routes that style through the C-named helper."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "identify_pack",
+                "source": "invent.c:identify_pack() invokes ggetobj() for finite traditional identification; js/invent.js identify_pack routes the same branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/invent-getobj-span.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The fixed recordings use full or combination inventory menus and do not select the traditional ggetobj path; the source-pinned empty-inventory result and caller wiring cover the reachable helper boundary. Full-menu menu_drop/menu_identify and pickup askchain count handling remain outside this span.",
+            "checkedAt": "5dec427649e89a703e99144839c77fcdf2aee60c"
           }
         ],
-        "entryPointReview": "The selected invent.c range is helper-only. It has no standalone command, monster action, or level feature entry point: addinv and its helpers are reached from startup, pickup, object generation, eating, wielding, theft, and throw-return; deletion is reached from drawbridge and destruction; the lookup helpers feed do_wear, mhitu, sounds, shk, and meal handling. Existing production callers are traced above, while dothrow, dbridge, mhitu, sounds, shk owner lookup, and the meal-location branch remain source-backed inactive boundaries. No new recipe is required for this helper-only range; the existing horn, bag, trap, wear, and cleanup recordings plus source-pinned tests cover the admitted paths.",
+        "entryPointReview": "The selected invent.c range is helper and inventory-selection support. Its production entry points are existing getobj callers and the newly wired traditional dodrop and finite identify_pack paths; the range has no standalone command entry point requiring a new recipe. ggetobj delegates to pickup.c askchain, whose independent count boundary remains named in its owner.",
         "entryPoints": []
       }
     }
