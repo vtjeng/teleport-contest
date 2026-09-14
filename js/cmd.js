@@ -298,7 +298,7 @@ import {
     UnsupportedHelpError,
     UnsupportedWhatisError,
 } from './pager.js';
-import { UnsupportedShopError } from './shk.js';
+import { dopay, UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError } from './vault.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
@@ -1798,7 +1798,7 @@ export function end_of_input(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup',
+    'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'pay',
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
@@ -5077,6 +5077,8 @@ async function doextcmd(key, state) {
         return await runDropCommand(key, state);
     case 'dopickup':
         return await runPickupCommand(key, state);
+    case 'dopay':
+        return await failClosedCommand(key, state, () => dopay(state));
     case 'doloot':
         return await runLootCommand(key, state);
     case 'doopen':
@@ -5371,7 +5373,9 @@ export async function rhack(key, state = game) {
                 state.multi,
                 state,
             );
-        } else if (state.multi > 0 && command !== null) {
+        } else if (state.multi > 0 && command !== null && command !== 'pay') {
+            // shk.c dopay:1755 clears multi before its first action, so pay
+            // never reaches the repeated-command path refused here.
             // Every other row leaves the count for moveloop_core():515-531 to
             // repeat the command with, and that arm reaches lookaround() and
             // svc.context.mv, neither of which this port drives from a count.
@@ -5698,6 +5702,16 @@ export async function rhack(key, state = game) {
             // flag; that same flag is what lets `m,` through the prefix test
             // at 3693-3695 with iflags.menu_requested still set.
             const res = await runPickupCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'pay') {
+            // cmd.c rhack:3810-3818 applies dopay's ECMD result equally to
+            // its p binding, #pay and the source's m-prefix inversion.
+            const res = await failClosedCommand(key, state, () => dopay(state));
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

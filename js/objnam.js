@@ -17,7 +17,7 @@ import {
     permapoisoned,
 } from './artifacts.js';
 import {
-    BLINDED, COST_CONTENTS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
+    BLINDED, BUFSZ, COST_CONTENTS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
     MALE, NEUTRAL, NON_PM,
@@ -1662,6 +1662,49 @@ export function donameFresh(obj, state) {
     return donameFreshInternal(obj, state, {
         includeRememberedPriceQuote: true,
     });
+}
+
+// C ref: objnam.c Doname2() (2303-2309).
+export function Doname2(obj, state = game) {
+    const name = donameFresh(obj, state);
+    return highc(name[0]) + name.slice(1);
+}
+
+// C ref: objnam.c paydoname() (2313-2355). The pay menu owns the price;
+// hide contents and wizard weights while formatting its object name.
+export function paydoname(obj, state = game) {
+    const savedKnown = obj.cknown;
+    const savedWeight = state.iflags.wizweight;
+    const contents = hasContents(obj);
+    if (contents) obj.cknown = 0;
+    state.iflags.wizweight = false;
+    state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
+    let name;
+    try {
+        name = donameFresh(obj, state);
+    } catch (error) {
+        // An existing naming refusal must not leak the temporary flag.
+        obj.cknown = savedKnown;
+        throw error;
+    } finally {
+        --state.iflags.suppress_price;
+        state.iflags.wizweight = savedWeight;
+    }
+    if (contents) {
+        if (!obj.no_charge) {
+            name = name.replace(/^an? /u, '');
+            name = `${obj.unpaid ? 'an unpaid ' : 'your '}${name}`;
+        }
+        if (!obj.cknown) {
+            if (obj.unpaid) {
+                const suffix = ' and its contents';
+                // objnam.c PREFIX reserves 80 bytes before its name buffer.
+                if (name.length + suffix.length < BUFSZ - 80) name += suffix;
+            } else name = `the contents of ${name}`;
+        }
+    }
+    obj.cknown = savedKnown;
+    return name;
 }
 
 // C ref: objnam.c doname_base(DONAME_WITH_PRICE), through its ordinary floor
