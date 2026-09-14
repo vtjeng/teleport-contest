@@ -37441,6 +37441,971 @@
         "screens": 8573,
         "rng": 630073
       }
+    },
+    {
+      "id": "port-invent-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port invent.c inventory organization and adjustment commands",
+      "cFile": "invent.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Highest-ranked fixed-workload mismatch after do_name closure; queue step 733 is an invent.c doorganize adjust boundary with a complete source investigation.",
+      "detail": "Queue at 6c5059df: holdout/seed4500-knight-coverage step 733, remainingScreensUpperBound 1081, unsupported doorganize() extended command adjust. The refreshed investigation identifies invent.c doorganize/adjust_split/doorganize_core as the first source owner and traces production menu/count dependencies.",
+      "spans": [
+        {
+          "name": "inuse_classify..merge_choice",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "inuse_classify",
+            "loot_classify",
+            "loot_xname",
+            "invletter_value",
+            "sortloot_cmp",
+            "sortloot",
+            "unsortloot",
+            "sortloot",
+            "assigninvlet",
+            "reorder_invent",
+            "merge_choice"
+          ]
+        }
+      ],
+      "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
+      "openStanding": {
+        "sha": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
+        "screens": 8573,
+        "rng": 630073
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "inuse_classify",
+          "line": 70,
+          "endLine": 148,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "loot_classify",
+          "line": 149,
+          "endLine": 308,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "loot_xname",
+          "line": 309,
+          "endLine": 390,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "invletter_value",
+          "line": 391,
+          "endLine": 402,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "sortloot_cmp",
+          "line": 403,
+          "endLine": 592,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "sortloot",
+          "line": 593,
+          "endLine": 646,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "unsortloot",
+          "line": 647,
+          "endLine": 654,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "sortloot",
+          "line": 655,
+          "endLine": 693,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "assigninvlet",
+          "line": 694,
+          "endLine": 738,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "reorder_invent",
+          "line": 739,
+          "endLine": 774,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "merge_choice",
+          "line": 775,
+          "endLine": 813,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "merged",
+          "line": 814,
+          "endLine": 959,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "addinv_core1",
+          "line": 960,
+          "endLine": 1024,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addinv_core2",
+          "line": 1025,
+          "endLine": 1055,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addinv_core0",
+          "line": 1056,
+          "endLine": 1151,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addinv",
+          "line": 1152,
+          "endLine": 1159,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "addinv_before",
+          "line": 1160,
+          "endLine": 1168,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "addinv_nomerge",
+          "line": 1169,
+          "endLine": 1186,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "carry_obj_effects",
+          "line": 1187,
+          "endLine": 1207,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "hold_another_object",
+          "line": 1208,
+          "endLine": 1311,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "useupall",
+          "line": 1312,
+          "endLine": 1320,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "useup",
+          "line": 1321,
+          "endLine": 1336,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "consume_obj_charge",
+          "line": 1337,
+          "endLine": 1355,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "freeinv_core",
+          "line": 1356,
+          "endLine": 1402,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "freeinv",
+          "line": 1403,
+          "endLine": 1412,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "delallobj",
+          "line": 1413,
+          "endLine": 1429,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "delobj",
+          "line": 1430,
+          "endLine": 1437,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "delobj_core",
+          "line": 1438,
+          "endLine": 1465,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "sobj_at",
+          "line": 1466,
+          "endLine": 1478,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "nxtobj",
+          "line": 1479,
+          "endLine": 1494,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "carrying",
+          "line": 1495,
+          "endLine": 1507,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "carrying_stoning_corpse",
+          "line": 1508,
+          "endLine": 1545,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "currency",
+          "line": 1546,
+          "endLine": 1556,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "u_carried_gloves",
+          "line": 1557,
+          "endLine": 1575,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "u_have_novel",
+          "line": 1576,
+          "endLine": 1586,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "o_on",
+          "line": 1587,
+          "endLine": 1601,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "obj_here",
+          "line": 1602,
+          "endLine": 1612,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "g_at",
+          "line": 1613,
+          "endLine": 1626,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "compactify",
+          "line": 1627,
+          "endLine": 1663,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "splittable",
+          "line": 1664,
+          "endLine": 1671,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "taking_off",
+          "line": 1672,
+          "endLine": 1677,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "mime_action",
+          "line": 1678,
+          "endLine": 1709,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "any_obj_ok",
+          "line": 1710,
+          "endLine": 1718,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "getobj_hands_txt",
+          "line": 1719,
+          "endLine": 1751,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "getobj",
+          "line": 1752,
+          "endLine": 2093,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "silly_thing",
+          "line": 2094,
+          "endLine": 2135,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "ckvalidcat",
+          "line": 2136,
+          "endLine": 2142,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "ckunpaid",
+          "line": 2143,
+          "endLine": 2148,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wearing_armor",
+          "line": 2149,
+          "endLine": 2155,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "is_worn",
+          "line": 2156,
+          "endLine": 2166,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "is_inuse",
+          "line": 2167,
+          "endLine": 2179,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "safeq_xprname",
+          "line": 2180,
+          "endLine": 2187,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "safeq_shortxprname",
+          "line": 2188,
+          "endLine": 2201,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "ggetobj",
+          "line": 2202,
+          "endLine": 2376,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "askchain",
+          "line": 2377,
+          "endLine": 2551,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "reroll_menu",
+          "line": 2552,
+          "endLine": 2623,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "set_cknown_lknown",
+          "line": 2624,
+          "endLine": 2636,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "fully_identify_obj",
+          "line": 2637,
+          "endLine": 2650,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "identify",
+          "line": 2651,
+          "endLine": 2659,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "menu_identify",
+          "line": 2660,
+          "endLine": 2697,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "count_unidentified",
+          "line": 2698,
+          "endLine": 2710,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "identify_pack",
+          "line": 2711,
+          "endLine": 2749,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "learn_unseen_invent",
+          "line": 2750,
+          "endLine": 2781,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "update_inventory",
+          "line": 2782,
+          "endLine": 2813,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "doperminv",
+          "line": 2814,
+          "endLine": 2860,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "obj_to_let",
+          "line": 2861,
+          "endLine": 2874,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "prinv",
+          "line": 2875,
+          "endLine": 2894,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "xprname",
+          "line": 2895,
+          "endLine": 2963,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dispinv_with_action",
+          "line": 2964,
+          "endLine": 3005,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "ddoinv",
+          "line": 3006,
+          "endLine": 3020,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "find_unpaid",
+          "line": 3021,
+          "endLine": 3043,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "free_pickinv_cache",
+          "line": 3044,
+          "endLine": 3056,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_pickinv",
+          "line": 3057,
+          "endLine": 3427,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "display_inventory",
+          "line": 3428,
+          "endLine": 3455,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "repopulate_perminvent",
+          "line": 3456,
+          "endLine": 3466,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_used_invlets",
+          "line": 3467,
+          "endLine": 3525,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "count_unpaid",
+          "line": 3526,
+          "endLine": 3547,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "count_buc",
+          "line": 3548,
+          "endLine": 3579,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tally_BUCX",
+          "line": 3580,
+          "endLine": 3619,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "count_contents",
+          "line": 3620,
+          "endLine": 3653,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dounpaid",
+          "line": 3654,
+          "endLine": 3792,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "this_type_only",
+          "line": 3793,
+          "endLine": 3826,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dotypeinv",
+          "line": 3827,
+          "endLine": 4036,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dfeature_at",
+          "line": 4037,
+          "endLine": 4103,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "look_here",
+          "line": 4104,
+          "endLine": 4318,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dolook",
+          "line": 4319,
+          "endLine": 4333,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "will_feel_cockatrice",
+          "line": 4334,
+          "endLine": 4342,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "feel_cockatrice",
+          "line": 4343,
+          "endLine": 4365,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "stackobj",
+          "line": 4366,
+          "endLine": 4378,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mergable",
+          "line": 4379,
+          "endLine": 4502,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "doprgold",
+          "line": 4503,
+          "endLine": 4549,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "doprwep",
+          "line": 4550,
+          "endLine": 4577,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "noarmor",
+          "line": 4578,
+          "endLine": 4600,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "doprarm",
+          "line": 4601,
+          "endLine": 4641,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "doprring",
+          "line": 4642,
+          "endLine": 4678,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dopramulet",
+          "line": 4679,
+          "endLine": 4697,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "tool_being_used",
+          "line": 4698,
+          "endLine": 4714,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doprtool",
+          "line": 4715,
+          "endLine": 4739,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doprinuse",
+          "line": 4740,
+          "endLine": 4762,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "useupf",
+          "line": 4763,
+          "endLine": 4799,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "let_to_name",
+          "line": 4800,
+          "endLine": 4844,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "free_invbuf",
+          "line": 4845,
+          "endLine": 4854,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "reassign",
+          "line": 4855,
+          "endLine": 4888,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "check_invent_gold",
+          "line": 4889,
+          "endLine": 4916,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "adjust_ok",
+          "line": 4917,
+          "endLine": 4926,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "adjust_gold_ok",
+          "line": 4927,
+          "endLine": 4980,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doorganize",
+          "line": 4981,
+          "endLine": 5007,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "adjust_split",
+          "line": 5008,
+          "endLine": 5067,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doorganize_core",
+          "line": 5068,
+          "endLine": 5289,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "invdisp_nothing",
+          "line": 5290,
+          "endLine": 5308,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "worn_wield_only",
+          "line": 5309,
+          "endLine": 5340,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_minventory",
+          "line": 5341,
+          "endLine": 5390,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "cinv_doname",
+          "line": 5391,
+          "endLine": 5422,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "cinv_ansimpleoname",
+          "line": 5423,
+          "endLine": 5445,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_cinventory",
+          "line": 5446,
+          "endLine": 5476,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "only_here",
+          "line": 5477,
+          "endLine": 5488,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_binventory",
+          "line": 5489,
+          "endLine": 5548,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "prepare_perminvent",
+          "line": 5549,
+          "endLine": 5564,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "sync_perminvent",
+          "line": 5565,
+          "endLine": 5660,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "perm_invent_toggled",
+          "line": 5661,
+          "endLine": 5680,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 70,
+        "to": 5680
+      },
+      "activeStanding": {
+        "sha": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
+        "screens": 8573,
+        "rng": 630073
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 733,
+          "kind": "stop",
+          "function": "doorganize",
+          "functionDeclared": false,
+          "sourceFile": "invent.c",
+          "cFile": "invent.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: doorganize() for the extended command 'adjust' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1081,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1081,
+              "status": "complete",
+              "commit": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1081,
+                "step": 733,
+                "kind": "stop",
+                "function": "doorganize",
+                "functionDeclared": true,
+                "sourceFile": "invent.c",
+                "cFile": "invent.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: doorganize() for the extended command 'adjust' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "invent.c owns the #adjust boundary: doorganize() selects an inventory source object with getobj(\"adjust\", ...), then doorganize_core() asks for a destination letter and performs collect, move, merge, swap, or split bookkeeping. At the refreshed stop, the C recording has just painted What do you want to adjust? [a-km or ?*] after #adjust; JavaScript has the adjust and altadjust rows plus item-action queue wiring, but js/cmd.js doextcmd() lacks doorganize and adjust_split cases and falls into its generic refusal before invent.js getobj() runs. Port the complete invent.c adjust family and wire both handlers, preserving inventory-chain ordering, object names, messages, redraw, cancellation, malformed-gold handling, and split/count paths.",
+              "source": {
+                "file": "invent.c",
+                "functions": [
+                  "adjust_ok",
+                  "adjust_gold_ok",
+                  "doorganize",
+                  "adjust_split",
+                  "doorganize_core"
+                ],
+                "branch": "doorganize() returns ECMD_OK with a no-adjustable message only for an empty inventory or a sole gold stack already in '$'; otherwise !fixinv first reassigns letters, check_invent_gold(\"adjust\") selects a filter that excludes ordinary gold or admits malformed gold, and getobj(\"adjust\", filter, GETOBJ_PROMPT | GETOBJ_ALLOWCNT) chooses the source. doorganize_core() then accepts cancel, same-letter collection, a different destination for move/merge/swap, or a counted split; adjust_split() is the internal item-action path for non-gold stacks of at least two and validates a split count before calling splitobj(). The assigned recording has the normal fixed-letter path, a named long sword in slot a, and destination z, with no RNG at the boundary.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1673-1674 binds the M-a/adjust extended-command row to doorganize(); js/extcmdlist_data.js:45 already preserves that row, while js/cmd.js:4885-5150 has no doorganize case and reaches its default refusal.",
+                  "nethack-c/upstream/src/iactions.c:191-197 queues doorganize or adjust_split followed by the selected inventory letter; js/iactions.js:295-302 mirrors both queues, so the same production handlers must serve item-actions.",
+                  "nethack-c/upstream/src/invent.c:4981-5003 is the user entrypoint and :5008-5064 is the internal split entrypoint; both converge on :5068-5279 doorganize_core()."
+                ],
+                "dependencies": [
+                  "invent.c:4889-4913 check_invent_gold(), :739-765 reorder_invent(), and reassign() provide gold validation, inventory ordering, and !fixinv relabeling; js/invent.js already has check_invent_gold(), reassign(), and the equivalent private reorderInventory().",
+                  "doorganize_core() uses invent.c mergable()/merged(), extract_nobj(), inv_cnt(), assigninvlet(), clear_splitobjs(), prinv(), and update_inventory(); the existing JS ports are js/invent.js, js/obj.js, and js/hack.js, but their state and message ordering must be preserved while wiring the new owner.",
+                  "The destination ?/* branch calls invent.c:3467-3518 display_used_invlets(), which paints a selectable Inventory letters used menu and returns a letter or cancel; no display_used_invlets owner exists in js/invent.js, so this return-valued dependency is part of the source-general scope.",
+                  "The GETOBJ_ALLOWCNT source branch at invent.c:1937-1947 and adjust_split() at :5022-5040 consume get_count(); js/invent.js:832-843 currently raises UnsupportedObjectPromptError for get_count() and splitobj(), so counted adjust and the internal stack-split path need explicit completion or a recorded dependency handoff.",
+                  "C defers prinv() and update_inventory() until the inventory chain has been restored (:5262-5279); js/invent.js:3267-3283 and :1727-1740 provide those output/refresh seams, while object names and merge side effects flow through the existing object and inventory modules."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json at SHA 242d3d77cbff92156ce9bdf95eb0404a12ae7fa7 reports the assigned row at screensEmitted 733, recordedSteps 1814, and the exact doorganize refusal; 1814 - 733 = remainingScreensUpperBound 1081.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 726-733 type #adjust and adjust; step 733 has key newline, zero RNG, and the C prompt What do you want to adjust? [a-km or ?*]. Steps 734-735 answer source a and destination z, with the C Moving: z - a ... Sword of Justice result, proving the actionable path continues through doorganize_core().",
+                "nethack-c/upstream/src/invent.c:4915-5279 defines adjust_ok(), adjust_gold_ok(), doorganize(), adjust_split(), and doorganize_core(); the core performs exact collection/merge/swap/split ordering and restores the inventory before messages and update_inventory().",
+                "nethack-c/upstream/src/cmd.c:1673-1674 and :2062 plus js/extcmdlist_data.js:45 and :209 establish the public adjust and internal altadjust bindings; js/iactions.js:295-302 establishes the live item-action callers, while js/cmd.js doextcmd() lacks both switch cases and emits the observed default refusal.",
+                "The actionable scope is a source-general invent.c file-port family with command dispatch wiring and the return-valued display_used_invlets/count dependencies; do not special-case seed 4500, the Knight role, the named sword, the chosen letters, or step 733."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
