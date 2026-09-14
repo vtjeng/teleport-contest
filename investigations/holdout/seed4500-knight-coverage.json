@@ -1,49 +1,52 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1193,
+  "remainingScreensUpperBound": 1184,
   "status": "complete",
-  "commit": "bb0449507becc8da64b355c7acbf68f355500a27",
+  "commit": "0c5a3f37453813743aa387f0f861a4b523321d7d",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1193,
-    "step": 621,
-    "kind": "screen",
-    "function": "tty_yn_function",
+    "remainingScreensUpperBound": 1184,
+    "step": 630,
+    "kind": "stop",
+    "function": "enhance_weapon_skill",
     "functionDeclared": true,
-    "sourceFile": "js/getline.js",
-    "cFile": "nethack-c/upstream/win/tty/topl.c",
+    "sourceFile": "js/weapon.js",
+    "cFile": "nethack-c/upstream/src/weapon.c",
     "luaFile": null,
-    "line": 414,
-    "message": "At step 621, C keeps the answered unrestricted getobj() prompt on row 0 (cCell W); JS clears row 0 because tty_yn_function() does not set _pending_message when resp is null, so jsCell is blank.",
+    "line": 1454,
+    "message": "unsupported hero command: an unported branch of this command: weapon skill handling requires #enhance in debug mode",
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The overview command now matches through its dismissal; the next divergence is the answered unrestricted object prompt after #dip. C invent.c:getobj() calls topl.c:tty_yn_function() with resp == NULL, and topl.c cleanup rewrites gt.toplines while leaving a one-line WIN_MESSAGE prompt visible after Escape. js/getline.js:tty_yn_function() writes the answered toplines but only retains _pending_message for restricted prompts, so the next screen clears row 0 (C W versus JS space). This is a source-general topl.c divergence fix for unrestricted prompt retention, reached here through potion.c dodip(), not a seed-specific overview issue.",
+  "summary": "The current boundary is the wizard/debug branch of weapon.c enhance_weapon_skill(). At step 630 the assigned recording enters #enhance and C asks Advance skills without practice? [yn] (n); JavaScript reaches enhance_weapon_skill() but rejects state.wizard before issuing that prompt. The C y answer at step 631 sets speedy=true, making every eligible nonrestricted skill advanceable, then builds a selectable wizard skill menu; j and r advance long sword and polearms and redraw the menu. Port the debug prompt, speedy can_advance branch, wizard skill columns, skill_advance state/message updates, and repeated PICK_ONE loop from weapon.c. This is source-general weapon.c file-port scope, not a seed-specific refusal.",
   "source": {
-    "file": "topl.c",
+    "file": "weapon.c",
     "functions": [
-      "tty_yn_function"
+      "can_advance",
+      "skill_advance",
+      "add_skills_to_menu",
+      "enhance_weapon_skill"
     ],
-    "branch": "The resp == NULL arm at topl.c:421-427 prints the unrestricted prompt, reads one key, and jumps to clean_up. topl.c:533-548 rewrites gt.toplines, sets TOPLINE_NON_EMPTY, and only clears WIN_MESSAGE when cury is nonzero; this one-line prompt therefore remains visible after Escape. js/getline.js:392-415 mirrors cleanup but skips state._pending_message when resp === null, allowing the next display rebuild to erase the prompt.",
+    "branch": "In debug/wizard mode, enhance_weapon_skill() calls y_n(\"Advance skills without practice?\"); a y answer sets speedy=TRUE. can_advance() then returns TRUE after restricted/maxed/limit guards without practice or slot checks. The resulting to_advance count selects the wizard-formatted add_skills_to_menu(..., TRUE, TRUE) output and PICK_ONE title; each selected item calls skill_advance(), then the speedy loop repeats while another skill can advance. The witness takes y, selects j then r, and dismisses the repeated menu.",
     "callers": [
-      "nethack-c/upstream/src/potion.c:2267-2281 dodip() calls invent.c:getobj(\"dip\", ..., GETOBJ_PROMPT); js/potion.js:1384-1400 and js/cmd.js:3342-3347 provide the corresponding production chain.",
-      "nethack-c/upstream/src/invent.c:1916-1935 builds the unrestricted object prompt and calls yn_function(qbuf, NULL, '\\0', FALSE); js/invent.js:823-830 calls js/cmd.js:808-853 yn_function(), which dispatches to js/getline.js:286-419 tty_yn_function().",
-      "nethack-c/upstream/src/cmd.c:3810-3815 handles dodip()'s ECMD_CANCEL with reset_cmd_vars(), which does not clear the answered one-line prompt; js/cmd.js:6190-6203 handles the same cancellation and likewise leaves the cleanup to the TTY state."
+      "nethack-c/upstream/src/cmd.c:1716-1717 binds #enhance to enhance_weapon_skill(); js/extcmdlist_data.js:64 and js/cmd.js:5101-5102 provide the production extended-command binding and dispatch.",
+      "js/cmd.js:3573-3600 runEnhanceCommand() supplies the select_menu() hook; nethack-c/upstream/src/weapon.c:1340-1406 owns the prompt, menu, selection, repeat, and ECMD_OK result.",
+      "nethack-c/upstream/src/weapon.c:1200-1212 skill_advance() updates weapon_slots, the skill level, skill_record, message, and wizard spellbook IDs; js/weapon.js currently has no skill_advance() implementation."
     ],
     "dependencies": [
-      "nethack-c/upstream/win/tty/topl.c:421-427 and :533-548 define the unrestricted prompt and cleanup lifecycle; js/getline.js:392-415 is the ported counterpart and line 414 is the missing assignment.",
-      "js/display.js:_buildScreenOutput() repaints row 0 from state._pending_message, so retaining the answered unrestricted prompt is required for the recorded C cell; no RNG or game-state change is involved.",
-      "nethack-c/upstream/src/invent.c:1950-1953 returns NULL on the Escape quitchar with !verbose, so this witness emits no Never_mind message; js/invent.js:824-848 returns null through the same cancellation arm.",
-      "The fix must preserve the existing cury/wrapped-prompt clear behavior and callers that explicitly clear an answered prompt; the current witness is the short unrestricted getobj() branch reached by #dip."
+      "nethack-c/upstream/src/weapon.c:1154-1195 can_advance/could_advance/peaked_skill and :1215-1302 skill_ranges/add_skills_to_menu define eligibility, wizard columns, menu letters, headings, and selectable item values; js/weapon.js:1331-1427 has only non-wizard/no-speedy portions and throws on wizard speedy.",
+      "nethack-c/upstream/src/weapon.c:1130-1152 slots_required(), :1090-1122 skill_level_name(), and include/skills.h:90-120 skill levels/limits provide arithmetic and labels; the former two are already partly ported in js/weapon.js, while the constants/state are in js/const.js and js/u_init.js.",
+      "js/cmd.js:3577-3600 maps skill menu lines to windows.js/tty_menu.js select_menu(PICK_ONE); preserve add_menu_heading styling, (1 of 2) pagination, menu prompt dismissal, and y_n prompt handling.",
+      "nethack-c/upstream/src/weapon.c:1208-1212 calls skill_based_spellbook_id() for spell skills; js/startup_skills.js:217+ contains the corresponding helper, so advancement must preserve that dependency."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json SHA bb0449507becc8da64b355c7acbf68f355500a27 reports the assigned row at step 621, kind screen, with remaining-screen upper bound 1193; the first differing cell is row 0 column 0, C W versus JS space, both color 8 and attr 0.",
-    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 616-620 enter #dip and record the unrestricted prompt What do you want to dip? [a-km or ?*]; step 621 is Escape and retains that prompt in C at row 0 while the map and status remain unchanged.",
-    "nethack-c/upstream/win/tty/topl.c:421-427 takes the resp == NULL path, and :533-548 rewrites gt.toplines, sets TOPLINE_NON_EMPTY, and does not call tty_clear_nhwindow() for a one-line prompt because WIN_MESSAGE cury is zero.",
-    "nethack-c/upstream/src/invent.c:1919-1935 and :1950-1953 establish the getobj prompt and Escape cancellation; nethack-c/upstream/src/potion.c:2267-2281 establishes dodip() as the production caller.",
-    "js/getline.js:392-415 rewrites the answered prompt but assigns state._pending_message only when resp !== null; js/display.js rebuilds row 0 from that field, exposing the C W versus JS space mismatch.",
-    "The actionable scope is source-general unrestricted tty_yn_function() prompt retention and its TTY cleanup contract; do not special-case the Knight, seed 4500, #dip text, or replay step."
+    ".cache/scan-cache.json SHA 0c5a3f37453813743aa387f0f861a4b523321d7d reports this assigned session at step 630 with the exact unsupported debug weapon-skill branch and remainingScreensUpperBound 1184.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 622-630 enter #enhance; step 630 key newline has zero RNG and the C prompt Advance skills without practice? [yn] (n).",
+    "The same recording answers y at step 631 and records Pick a skill to advance with wizard columns; step 632 selects j and emits You are now more skilled in long sword.--More--; step 634 selects r and emits You are now more skilled in polearms.--More--; step 636 newline and step 637 Escape dismiss the repeated menu.",
+    "nethack-c/upstream/src/weapon.c:1329-1407 defines the complete owner: wizard y_n speedy setup, can_advance scan, selectable wizard skill menu, skill_advance, and speedy repetition; js/weapon.js:1331-1337 and :1453-1454 explicitly refuse the wizard speedy path.",
+    "nethack-c/upstream/src/cmd.c:1716-1717 plus js/extcmdlist_data.js:64 and js/cmd.js:3573-3600,5101-5102 show production callers are already wired to the partial JS owner; the actionable gap is the source branch and its skill/menu dependencies.",
+    "The scope is source-general weapon.c behavior and state/menu wiring; do not special-case seed 4500, Knight role, #enhance text, selected letters, expected messages, or replay step."
   ]
 }
