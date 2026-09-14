@@ -34650,6 +34650,160 @@
         "screens": 8470,
         "rng": 630041
       }
+    },
+    {
+      "id": "port-weapon-enhance-seed4500",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port weapon.c skill advancement eligibility, menus, speedy wizard enhancement, and production command wiring.",
+      "cFile": "weapon.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Selected holdout/seed4500-knight-coverage at remainingScreensUpperBound 1184, the first session in per-session queue order with a valid complete investigation at investigations/holdout/seed4500-knight-coverage.json; its source-traced owner is weapon.c can_advance through enhance_weapon_skill. Lower-ranked sessions have complete cached investigations and remain available after this goal.",
+      "detail": "At step 630, debug #enhance reaches weapon.c enhance_weapon_skill(). C asks Advance skills without practice? [yn] (n); a y answer sets speedy, scans can_advance(), builds the wizard skill menu, applies skill_advance() to selected long sword and polearms, and repeats until dismissal. JS currently rejects the wizard speedy branch. Port can_advance, skill_advance, add_skills_to_menu, and enhance_weapon_skill with existing command/menu callers and skill dependencies.",
+      "spans": [],
+      "openedAt": "d3ca4d9b86501d546251b25ada7082311e709855",
+      "openStanding": {
+        "sha": "9fc0cc243d5553761502690845a952528001b232",
+        "screens": 8470,
+        "rng": 630041
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "can_advance",
+          "line": 1156,
+          "endLine": 1172,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "could_advance",
+          "line": 1173,
+          "endLine": 1186,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "peaked_skill",
+          "line": 1187,
+          "endLine": 1197,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "skill_advance",
+          "line": 1198,
+          "endLine": 1228,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "add_skills_to_menu",
+          "line": 1229,
+          "endLine": 1305,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "show_skills",
+          "line": 1306,
+          "endLine": 1328,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "enhance_weapon_skill",
+          "line": 1329,
+          "endLine": 1413,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1156,
+        "to": 1413
+      },
+      "activeStanding": {
+        "sha": "9fc0cc243d5553761502690845a952528001b232",
+        "screens": 8470,
+        "rng": 630041
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 630,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: weapon skill handling requires #enhance in debug mode",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1184,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1184,
+              "status": "complete",
+              "commit": "0c5a3f37453813743aa387f0f861a4b523321d7d",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "remainingScreensUpperBound": 1184,
+                "step": 630,
+                "kind": "stop",
+                "function": "enhance_weapon_skill",
+                "functionDeclared": true,
+                "sourceFile": "js/weapon.js",
+                "cFile": "nethack-c/upstream/src/weapon.c",
+                "luaFile": null,
+                "line": 1454,
+                "message": "unsupported hero command: an unported branch of this command: weapon skill handling requires #enhance in debug mode",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814
+              },
+              "summary": "The current boundary is the wizard/debug branch of weapon.c enhance_weapon_skill(). At step 630 the assigned recording enters #enhance and C asks Advance skills without practice? [yn] (n); JavaScript reaches enhance_weapon_skill() but rejects state.wizard before issuing that prompt. The C y answer at step 631 sets speedy=true, making every eligible nonrestricted skill advanceable, then builds a selectable wizard skill menu; j and r advance long sword and polearms and redraw the menu. Port the debug prompt, speedy can_advance branch, wizard skill columns, skill_advance state/message updates, and repeated PICK_ONE loop from weapon.c. This is source-general weapon.c file-port scope, not a seed-specific refusal.",
+              "source": {
+                "file": "weapon.c",
+                "functions": [
+                  "can_advance",
+                  "skill_advance",
+                  "add_skills_to_menu",
+                  "enhance_weapon_skill"
+                ],
+                "branch": "In debug/wizard mode, enhance_weapon_skill() calls y_n(\"Advance skills without practice?\"); a y answer sets speedy=TRUE. can_advance() then returns TRUE after restricted/maxed/limit guards without practice or slot checks. The resulting to_advance count selects the wizard-formatted add_skills_to_menu(..., TRUE, TRUE) output and PICK_ONE title; each selected item calls skill_advance(), then the speedy loop repeats while another skill can advance. The witness takes y, selects j then r, and dismisses the repeated menu.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1716-1717 binds #enhance to enhance_weapon_skill(); js/extcmdlist_data.js:64 and js/cmd.js:5101-5102 provide the production extended-command binding and dispatch.",
+                  "js/cmd.js:3573-3600 runEnhanceCommand() supplies the select_menu() hook; nethack-c/upstream/src/weapon.c:1340-1406 owns the prompt, menu, selection, repeat, and ECMD_OK result.",
+                  "nethack-c/upstream/src/weapon.c:1200-1212 skill_advance() updates weapon_slots, the skill level, skill_record, message, and wizard spellbook IDs; js/weapon.js currently has no skill_advance() implementation."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/weapon.c:1154-1195 can_advance/could_advance/peaked_skill and :1215-1302 skill_ranges/add_skills_to_menu define eligibility, wizard columns, menu letters, headings, and selectable item values; js/weapon.js:1331-1427 has only non-wizard/no-speedy portions and throws on wizard speedy.",
+                  "nethack-c/upstream/src/weapon.c:1130-1152 slots_required(), :1090-1122 skill_level_name(), and include/skills.h:90-120 skill levels/limits provide arithmetic and labels; the former two are already partly ported in js/weapon.js, while the constants/state are in js/const.js and js/u_init.js.",
+                  "js/cmd.js:3577-3600 maps skill menu lines to windows.js/tty_menu.js select_menu(PICK_ONE); preserve add_menu_heading styling, (1 of 2) pagination, menu prompt dismissal, and y_n prompt handling.",
+                  "nethack-c/upstream/src/weapon.c:1208-1212 calls skill_based_spellbook_id() for spell skills; js/startup_skills.js:217+ contains the corresponding helper, so advancement must preserve that dependency."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json SHA 0c5a3f37453813743aa387f0f861a4b523321d7d reports this assigned session at step 630 with the exact unsupported debug weapon-skill branch and remainingScreensUpperBound 1184.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 622-630 enter #enhance; step 630 key newline has zero RNG and the C prompt Advance skills without practice? [yn] (n).",
+                "The same recording answers y at step 631 and records Pick a skill to advance with wizard columns; step 632 selects j and emits You are now more skilled in long sword.--More--; step 634 selects r and emits You are now more skilled in polearms.--More--; step 636 newline and step 637 Escape dismiss the repeated menu.",
+                "nethack-c/upstream/src/weapon.c:1329-1407 defines the complete owner: wizard y_n speedy setup, can_advance scan, selectable wizard skill menu, skill_advance, and speedy repetition; js/weapon.js:1331-1337 and :1453-1454 explicitly refuse the wizard speedy path.",
+                "nethack-c/upstream/src/cmd.c:1716-1717 plus js/extcmdlist_data.js:64 and js/cmd.js:3573-3600,5101-5102 show production callers are already wired to the partial JS owner; the actionable gap is the source branch and its skill/menu dependencies.",
+                "The scope is source-general weapon.c behavior and state/menu wiring; do not special-case seed 4500, Knight role, #enhance text, selected letters, expected messages, or replay step."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
