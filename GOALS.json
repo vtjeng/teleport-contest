@@ -33876,8 +33876,8 @@
       "spans": [
         {
           "name": "nh_timeout_invulnerable",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7cbf9c1a0afcdea3dded418ff06a17f6e0679f36",
           "functions": [
             "nh_timeout"
           ]
