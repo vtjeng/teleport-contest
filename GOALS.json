@@ -44765,7 +44765,7 @@
           "line": 1,
           "endLine": 145,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -44854,7 +44854,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Arc-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "arcLoca",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Arc-loca.lua top-level program (lines 6-145; map rows are lines 11-30 and are 76x20) and ported every descriptor in source order: solidfill initialization; mazelevel/hardfloor flags; the complete 76x20 map; 14 regions including three filled temple regions; 16 doors; up/down stairs; three unattended altars using the loader alignment shuffle; whole-map non-diggable selection; 15 random objects; four X marks the spot engravings; 23 traps; and 27 monsters (18 S-class, two M-class, seven human mummies). The JS loader uses createSpecialLevelApi and preserves descriptor order and random calls. Coordinator compared every Lua descriptor, literal map row, placement and repeated-call count with b45e609f, then verified production registration through QUEST_LEVEL_LOADERS, ensureSpecialLevelLoaders, load_special and makemaz. Independent correction 26424d4f replaces both copied fixed-session routes: seeds 98231/777331 and dates 20460914121530/20370704153045, 44/41 input characters. Fresh recordings match 23755 RNG calls and 87 screens/cursors, with no animations. No fixed-workload session changed and no Lua-program gap remains; existing descriptor/postprocessing owners retain their documented scope.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "The special-level maker resolves the Arc-loca prototype and invokes load_special() before post-processing."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "The special-level loader resolves the registered loader, creates createSpecialLevelApi(), runs arcLoca(), and finalizes the level."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The lazy loader imports QUEST_LEVEL_LOADERS and merges its registrations into SPECIAL_LEVEL_LOADERS."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The Arc-loca.lua program is registered to the arcLoca function in the production quest-level loader table."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "fixup_level_locations",
+                "source": "The Archeologist role maps its quest locate level to the Arc-loca prototype before special-level creation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/arc-loca-level-load.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json",
+              "recordings/Arc-loca.lua/arc-loca-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "02d2bb3885eac3019174f69757d91241ea171586"
+          }
+        ],
+        "entryPointReview": "The two short independent clean recipes use different seeds and timestamps, select Arc-loca through the production wizard level menu, and reach the loader without reusing the fixed seed0361 input prefix. Fresh C/JS comparisons match screens, cells and attributes, cursors, PRNG values, and animation frames.",
+        "entryPoints": [
+          {
+            "name": "Archeologist Arc-loca quest locate level",
+            "functions": [
+              "Arc-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json",
+              "recordings/Arc-loca.lua/arc-loca-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

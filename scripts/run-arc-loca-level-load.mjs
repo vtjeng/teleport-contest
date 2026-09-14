@@ -62,6 +62,11 @@ function nonDiggableCount() {
 export async function verifyArcLocaSegment(segment) {
     await runSegment(segment);
 
+    // Both recipes enter the locate level: quest dungeon 3, depth 3 in their
+    // initialized topology. Arc-loca.lua fixes three temples, 23 traps,
+    // 27 monsters, 15 explicit objects, four engravings, three altars and two
+    // stairs (one up). Other level generation may add floor objects. nhlib's
+    // alignment table has the three alignments used by the unattended altars.
     assert.equal(game.u.uz.dnum, 3);
     assert.equal(game.u.uz.dlevel, 3);
     assert.equal(game.level.flags.is_maze_lev, true);

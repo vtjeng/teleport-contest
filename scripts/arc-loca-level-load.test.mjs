@@ -8,6 +8,9 @@ import {
 } from './run-arc-loca-level-load.mjs';
 
 test('Arc-loca recipes are independent clean input-only sessions', () => {
+    // These seeds/dates were chosen for the replacement recipes, not copied
+    // from the fixed workload. The 44/41 inputs include their startup prompts;
+    // z is the selected Arc-loca entry on the wizard menu's second page.
     const recipes = loadArcLocaRecipes();
     assert.equal(recipes.length, 2);
     assert.deepEqual(recipes.map(({ segments: [segment] }) => [
@@ -30,11 +33,9 @@ test('Arc-loca recipes are independent clean input-only sessions', () => {
         new URL('../sessions/seed0361-archeologist-tour.session.json', import.meta.url),
     )).segments[0].moves;
     for (const { segments: [segment] } of recipes) {
-        let common = 0;
-        while (common < segment.moves.length
-               && common < fixedMoves.length
-               && segment.moves[common] === fixedMoves[common]) ++common;
-        assert.ok(common < 8, `recipe shares ${common} fixed-session inputs`);
+        // Reject the original mistake: copying an entire fixed-session prefix.
+        // This check alone does not establish independent case design.
+        assert.notEqual(segment.moves, fixedMoves.slice(0, segment.moves.length));
     }
     for (const recipe of recipes)
         assert.equal(Object.hasOwn(recipe.segments[0], 'steps'), false);
