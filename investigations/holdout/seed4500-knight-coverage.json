@@ -1,47 +1,47 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1506,
+  "remainingScreensUpperBound": 1027,
   "status": "complete",
-  "commit": "ea8bec0702f022bb53e8534c850efabcddd9b92a",
+  "commit": "83a64c4d02068be4c4aeb3d912267605052f4806",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1506,
-    "step": 308,
-    "kind": "stop",
-    "function": "mk_knox_portal",
-    "functionDeclared": true,
-    "sourceFile": "mklev.c",
-    "cFile": "mklev.c",
+    "remainingScreensUpperBound": 1027,
+    "step": 787,
+    "kind": "screen",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported special room: mk_knox_portal() placing the Fort Ludios portal at <4,4>",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The current boundary is the accepted portal branch of mklev.c mk_knox_portal(), where JavaScript still throws UnsupportedSpecialRoomError at js/mklev.js:884 instead of performing C's source update, branch-list reorder, and portal placement. C assigns the current level to the Fort Ludios source endpoint, calls insert_branch(br, TRUE), then place_branch(br, x, y); the existing JavaScript insert_branch(), place_branch(), and mkportal() implementations provide the required dependencies. The smallest next scope is a complete mk_knox_portal file-port with import/wiring for insert_branch. The prior wizard-gated rn2(3) correction and mkshop trace remain valid provenance for the boundaries already passed.",
+  "summary": "The current first mismatch is a deterministic self-description cell during the what-is/hero lookup path: C writes the comma in `human knight called wizard, chained to a heavy iron ball` at row 0, column 26, while JS leaves that cell blank. pager.c self_lookat() appends `, chained to ` plus ansimpleoname(uball) whenever Punished is true; js/pager.js:self_lookat() currently stops after the player name. The smallest scope is a divergence fix to this existing helper, using the existing ansimpleoname() implementation and state.uball. The earlier mk_knox_portal wizard-gated RNG and portal-placement findings, and the mkshop source trace, remain valid prior boundaries.",
   "source": {
-    "file": "mklev.c",
+    "file": "pager.c",
     "functions": [
-      "mk_knox_portal"
+      "self_lookat"
     ],
-    "branch": "makelevel() calls mk_knox_portal() after realizing a secret vault. The helper chooses Fort Ludios branch source end2 when the current level is Knox end1, otherwise returns on an existing dungeon branch. It returns when the source endpoint is already assigned or when non-wizard rn2(3) defers the branch; an accepted branch must be in the main dungeon, not the Quest entry, at depth > 10 and below Medusa. C then sets the selected source endpoint to u.uz, reinserts the branch in sorted order, and places its BR_PORTAL at the vault coordinate.",
+    "branch": "pager.c self_lookat() builds the visible hero description from race, current monster form, and player name, then appends mounted and hidden-region details when their C predicates hold. For Punished (the uball pointer is non-null), it appends `, chained to ` followed by ansimpleoname(uball), with `nothing?` only for the impossible null-ball case. A trapped hero then receives the trap_predicament suffix. The assigned state reaches the ordinary visible human branch with Punished true, so the missing suffix is the current actionable branch.",
     "callers": [
-      "nethack-c/upstream/src/mklev.c:1315-1333 makelevel() realizes and fills a vault, then calls mk_knox_portal() before makevtele().",
-      "js/mklev.js:741-765 makelevel() mirrors vault realization and calls js mk_knox_portal() before its makeniche() roll."
+      "nethack-c/upstream/src/pager.c:657-670 lookat() calls self_lookat() when the visible glyph is the hero.",
+      "nethack-c/upstream/src/pager.c:1979-2000 look_all() calls self_lookat() for the hero in the monster listing path; nethack-c/upstream/src/pickup.c:1155-1163 also uses it for the fake hero entry.",
+      "js/pager.js:513-531 look_all() and :823-835 do_screen_description() call js self_lookat() for the hero lookup paths exercised by the port."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/dungeon.c dungeon_branch(), on_level(), Is_branchlev(), and insert_branch() supply Fort Ludios lookup, endpoint tests, existing-branch rejection, and sorted branch-list reinsertion; js/dungeon.js:415-436 already ports insert_branch() and exports it.",
-      "nethack-c/upstream/src/mklev.c:1691-1747 place_branch() handles the supplied coordinate, BR_PORTAL destination, and made_branch flag; js/mklev.js:7757-7789 already implements that path and calls mkportal().",
-      "js/mkmaze.js:1467-1473 mkportal() creates MAGIC_PORTAL and stores the destination; the mk_knox_portal fix should pass the adjusted branch endpoint without inventing a random draw.",
-      "nethack-c/upstream/src/mklev.c:2643-2658 includes the already-fixed wizard-gated rn2(3) condition followed by source assignment, insert_branch(), and place_branch(); js/mklev.js:875 has the gate, but lines 884-887 still retain the placeholder throw.",
-      "The earlier mkshop trace remains applicable after portal placement: mkroom.c:101-215 and js/mkroom.js:342-489 cover SHOPTYPE dispatch, candidate filters, rnd(100), topology, and FILL_NORMAL."
+      "nethack-c/upstream/src/pager.c:108-133 is the source function; js/pager.js:237-253 is the current implementation. Import js/objnam.js ansimpleoname() and append its result when state.uball is present, preserving the existing base description and exceptional-state guards.",
+      "nethack-c/upstream/src/objnam.c:2428-2470 defines simpleonames()/ansimpleoname(); js/objnam.js:853-876 already ports those functions and formats the attached ball name without a new random call.",
+      "nethack-c/upstream/src/youprop.h:77 defines Punished as uball != 0; js/steed.js:129-132 provides the equivalent predicate and js/detect.js:625-628 documents state.uball as the single ball-and-chain state location.",
+      "The earlier mk_knox_portal source fix at nethack-c/upstream/src/mklev.c:2643-2658 and the mkshop trace at nethack-c/upstream/src/mkroom.c:101-215 remain upstream dependencies already passed before this screen boundary; no RNG mismatch is present here."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    ".cache/scan-cache.json at commit ea8bec0702f022bb53e8534c850efabcddd9b92a reports the assigned row boundary at step 308 with the exact mk_knox_portal() unsupported-special-room message, recordedSteps 1814, and remainingScreensUpperBound 1506.",
-    "nethack-c/upstream/src/mklev.c:2624-2659 contains the complete accepted branch: after the depth and dungeon preconditions, it assigns *source = u.uz, calls insert_branch(br, TRUE), and calls place_branch(br, x, y).",
-    "js/mklev.js:864-887 has the matching lookup, branch guards, depth checks, and wizard-gated deferral, but throws at lines 884-886 where C performs those three state/placement operations.",
-    "The required callees are already production implementations: js/dungeon.js:415-436 insert_branch(), js/mklev.js:7757-7789 place_branch(), and js/mkmaze.js:1467-1473 mkportal(); the actionable change is the whole source function and its import/wiring, without session-specific behavior."
+    ".cache/scan-cache.json at commit 83a64c4d02068be4c4aeb3d912267605052f4806 reports the assigned screen mismatch at segment 0 step 787 (key space), row 0 column 26, C cell comma versus JS blank, with no RNG or cursor mismatch and remainingScreensUpperBound 1027.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segments[0].steps[787] is the explicit assigned step; its C screen first line is `human knight called wizard, chained to a heavy iron ball`, establishing the Punished state and the omitted suffix without a session-specific implementation.",
+    "nethack-c/upstream/src/pager.c:108-133 appends the Punished suffix after the base name, while js/pager.js:237-253 returns only `${race} ${pmname(...)} called ${state.plname}`.",
+    "The production path is source-general: pager.c lookat()/look_all() -> self_lookat(), mirrored by js/pager.js do_screen_description()/look_all() -> self_lookat(); the minimal fix is the missing state.uball branch plus ansimpleoname wiring, with no extra random draw."
   ]
 }

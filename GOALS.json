@@ -41693,7 +41693,7 @@
     {
       "id": "port-mklev-knox-portal-seed4500",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete mk_knox_portal accepted branch, including Fort Ludios source endpoint reassignment, sorted branch reinsertion, and portal placement after the source-aligned wizard deferral.",
       "cFile": "mklev.c",
       "sessions": [
@@ -41704,8 +41704,8 @@
       "spans": [
         {
           "name": "mk_knox_portal",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "83a64c4d02068be4c4aeb3d912267605052f4806",
           "functions": [
             "mk_knox_portal"
           ]
@@ -41717,15 +41717,18 @@
         "screens": 8148,
         "rng": 592908
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "83a64c4d02068be4c4aeb3d912267605052f4806",
+      "delivered": {
+        "screens": 480,
+        "rng": 39501
+      },
       "functions": [
         {
           "name": "mk_knox_portal",
           "line": 2624,
           "endLine": 2662,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -41804,7 +41807,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mk_knox_portal",
+            "implementation": "js/mklev.js",
+            "symbol": "mk_knox_portal",
+            "sourceReview": "Read nethack-c/upstream/src/mklev.c:2624-2659 in full. The branch lookup selects br->end2 when the current level is Knox and otherwise rejects an existing branch level before selecting br->end1. The deferral condition preserves C's left-to-right evaluation: source->dnum < svn.n_dgns || (rn2(3) && !wizard), so wizard mode still consumes rn2(3) but accepts regardless of its value. The depth, main-dungeon, Quest-entry, and Medusa bounds remain in source order. The accepted arm copies u.uz into the source endpoint, calls dungeon.c insert_branch(br, TRUE) with the branch list state, and calls mklev.c place_branch(br, x, y), which delegates BR_PORTAL to mkmaze.c mkportal() and trap.c maketrap(). The obsolete placement refusal was removed. The C debugpline0() call is a build-debug diagnostic with no recorded screen, RNG, or game-state contract and remains omitted from the JavaScript game path.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:1315-1333 makelevel() realizes and fills a secret vault, then calls mk_knox_portal() before the makevtele() draw; js/mklev.js:741-765 preserves that caller order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mklev-knox-portal.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mklev.c/knox-portal-seed0.session.json"
+            ],
+            "checkedAt": "83a64c4d02068be4c4aeb3d912267605052f4806"
+          }
+        ],
+        "entryPointReview": "The selected helper has one production entry point: js/mklev.js makelevel() calls mk_knox_portal() after realizing and filling a generated vault. The independent seed-0 recipe reaches D:12 through the live wizard level-teleport path, realizes a vault, accepts the Fort Ludios branch, and records the branch correction plus MAGIC_PORTAL placement through makelevel(), place_branch(), mkportal(), and maketrap().",
+        "entryPoints": [
+          {
+            "name": "secret-vault Fort Ludios portal generation",
+            "functions": [
+              "mk_knox_portal"
+            ],
+            "recordings": [
+              "recordings/mklev.c/knox-portal-seed0.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 787,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1027,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 1506
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "83a64c4d02068be4c4aeb3d912267605052f4806",
+        "screens": 8628,
+        "rng": 632409
+      }
     }
   ]
 }
