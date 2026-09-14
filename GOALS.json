@@ -34546,7 +34546,16 @@
       ],
       "selectionReason": "Selected holdout/seed4500-knight-coverage at remainingScreensUpperBound 1193, the first session in per-session queue order with a valid complete investigation at investigations/holdout/seed4500-knight-coverage.json; its source-traced owner is topl.c tty_yn_function. Other lower-ranked sessions remain investigated in the background.",
       "detail": "At step 621, C's unrestricted resp == NULL tty_yn_function path retains the answered one-line prompt after Escape because topl.c cleanup rewrites gt.toplines and leaves WIN_MESSAGE visible when cury is zero. js/getline.js tty_yn_function skips state._pending_message for resp === null, so display.js clears row 0. Scope is source-general prompt retention, preserving existing cury and wrapped-prompt cleanup.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "tty_yn_function-unrestricted-cleanup",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "tty_yn_function"
+          ]
+        }
+      ],
       "openedAt": "5d17434cc6fedc8b533d57660b9a65b7c453ce3b",
       "openStanding": {
         "sha": "5d17434cc6fedc8b533d57660b9a65b7c453ce3b",
