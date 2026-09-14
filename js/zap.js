@@ -747,7 +747,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
         learn_it = true; /* (no effect for spells...) */
-        healup(d(6, obj.otyp === SPE_EXTRA_HEALING ? 8 : 4), 0, false,
+        await healup(d(6, obj.otyp === SPE_EXTRA_HEALING ? 8 : 4), 0, false,
                (obj.blessed || obj.otyp === SPE_EXTRA_HEALING), state);
         await ttyPline(
             `You feel ${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`,

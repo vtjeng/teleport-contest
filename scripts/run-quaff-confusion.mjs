@@ -18,10 +18,10 @@
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CONFUSION } from '../js/const.js';
+import { CONFUSION, DEAF, TIMEOUT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { POT_BOOZE } from '../js/objects.js';
+import { POT_BOOZE, POT_HEALING } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -100,14 +100,51 @@ export async function verifyBoozeSegment(input) {
     }
 }
 
+// The seed was chosen before inspection, with no scan. Barbarian has no
+// starting potions; all three cases use the same wish/quaff setup and differ
+// only in the beatitude that peffect_healing reads.
+export function loadQuaffHealingRecipes() {
+    return ['blessed', 'uncursed', 'cursed', 'deaf'].map((beatitude) => ({
+        label: `quaff ${beatitude} healing`,
+        recipe: JSON.parse(readFileSync(new URL(
+            `../recipes/potion.c/healing-${beatitude}.session.json`,
+            import.meta.url,
+        ), 'utf8')),
+    }));
+}
+
+export async function verifyHealingSegment(input) {
+    if (!input.moves.includes('potion of healing')) return;
+    await runSegment({ ...input, moves: '.' });
+    const initialMaximum = game.u.uhpmax;
+    let boundary;
+    await runSegment(input, { onBoundary: (error) => { boundary = error; } });
+    assert.equal(boundary, undefined);
+    for (let object = game.invent; object; object = object.nobj)
+        assert.notEqual(object.otyp, POT_HEALING, 'dopotion consumed the dose');
+    // potion.c:1122-1123: only cursed healing omits the overheal increment.
+    assert.equal(game.u.uhpmax,
+        initialMaximum + (input.moves.includes('\u0017cursed') ? 0 : 1));
+    assert.equal(game.u.uhp, game.u.uhpmax);
+    assert.equal(game.u.uhppeak, game.u.uhpmax);
+    assert.match(game._ttyToplines, /You feel better\./u);
+    if (input.moves.includes('50j')) {
+        assert.equal(game.u.uprops[DEAF].intrinsic & TIMEOUT, 0);
+        assert.match(game._ttyToplines, /You can hear again\./u);
+    }
+}
+
 export async function runQuaffConfusionMatrix() {
     return runFreshMatrix({
         entries: [{
             label: 'quaff confusion',
             recipe: loadQuaffConfusionRecipe(),
-        }, ...loadQuaffBoozeRecipes()],
-        summaryLabel: 'QUAFF CONFUSION AND BOOZE',
-        verifySegment: verifyBoozeSegment,
+        }, ...loadQuaffBoozeRecipes(), ...loadQuaffHealingRecipes()],
+        summaryLabel: 'QUAFF CONFUSION, BOOZE AND HEALING',
+        verifySegment: async (input) => {
+            await verifyBoozeSegment(input);
+            await verifyHealingSegment(input);
+        },
         // Debug games leave saves in the recorder installation, so each must
         // run in a separately cleared chunk.
         chunkLimit: 1,

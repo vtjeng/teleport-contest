@@ -32,6 +32,7 @@ import { acurr } from '../js/attrib.js';
 import { morehungry } from '../js/eat.js';
 import { can_chant } from '../js/mondata.js';
 import { healup, UnsupportedPotionError } from '../js/potion.js';
+import { game } from '../js/gstate.js';
 import { formatReport } from './diff-fresh.mjs';
 import {
     createScoringWorkspace,
@@ -132,19 +133,19 @@ test('morehungry subtracts hunger from u.uhunger', async () => {
 // C ref: potion.c healup() (1428-1458). Heals HP, optionally cures sickness
 // and blindness.
 
-test('healup adds hit points up to uhpmax', () => {
+test('healup adds hit points up to uhpmax', async () => {
     // Start at uhp = 10, uhpmax = 15. Healing 3 points brings uhp to 13,
     // which is still below uhpmax, so no max adjustment.
     const state = {
         u: { uhp: 10, uhpmax: 15, uhppeak: 15 },
         disp: {},
     };
-    healup(3, 0, false, false, state);
+    await healup(3, 0, false, false, state);
     assert.equal(state.u.uhp, 13);
     assert.equal(state.u.uhpmax, 15);
 });
 
-test('healup caps at uhpmax and adds nxtra when overhealing', () => {
+test('healup caps at uhpmax and adds nxtra when overhealing', async () => {
     // Start at uhp = 14, uhpmax = 15, uhppeak = 15. Healing 5 would bring
     // uhp to 19 > uhpmax(15), so C does: uhp = (uhpmax += nxtra). With nxtra
     // = 0, uhpmax stays 15 and uhp becomes 15.
@@ -152,37 +153,37 @@ test('healup caps at uhpmax and adds nxtra when overhealing', () => {
         u: { uhp: 14, uhpmax: 15, uhppeak: 15 },
         disp: {},
     };
-    healup(5, 0, false, false, state);
+    await healup(5, 0, false, false, state);
     assert.equal(state.u.uhp, 15);
     assert.equal(state.u.uhpmax, 15);
 });
 
-test('healup increases uhpmax with nxtra when overhealing', () => {
+test('healup increases uhpmax with nxtra when overhealing', async () => {
     // uhp = 15, uhpmax = 15. Healing 1 brings uhp to 16 > 15, and nxtra = 2,
     // so uhpmax becomes 17 and uhp becomes 17. uhppeak tracks the new max.
     const state = {
         u: { uhp: 15, uhpmax: 15, uhppeak: 15 },
         disp: {},
     };
-    healup(1, 2, false, false, state);
+    await healup(1, 2, false, false, state);
     assert.equal(state.u.uhp, 17);
     assert.equal(state.u.uhpmax, 17);
     assert.equal(state.u.uhppeak, 17);
 });
 
-test('healup updates uhppeak when uhpmax exceeds it', () => {
+test('healup updates uhppeak when uhpmax exceeds it', async () => {
     // uhppeak = 10 lags behind. After healing pushes uhpmax to 12, uhppeak
     // must follow.
     const state = {
         u: { uhp: 10, uhpmax: 10, uhppeak: 10 },
         disp: {},
     };
-    healup(5, 3, false, false, state);
+    await healup(5, 3, false, false, state);
     assert.equal(state.u.uhpmax, 13);
     assert.equal(state.u.uhppeak, 13);
 });
 
-test('healup uses polymorphed HP fields when Upolyd', () => {
+test('healup uses polymorphed HP fields when Upolyd', async () => {
     // C: if (Upolyd) { u.mh += nhp; if (u.mh > u.mhmax) u.mh = (u.mhmax += nxtra); }
     // Upolyd is true when the hero is polymorphed.
     const u = { mh: 8, mhmax: 12, uhp: 100, uhpmax: 100, uhppeak: 100 };
@@ -190,7 +191,7 @@ test('healup uses polymorphed HP fields when Upolyd', () => {
     u.umonnum = 1; // any non-negative PM
     u.mtimedone = 100;
     const state = { u, disp: {} };
-    healup(3, 0, false, false, state);
+    await healup(3, 0, false, false, state);
     // mh goes 8 + 3 = 11, still under mhmax = 12.
     assert.equal(state.u.mh, 11);
     assert.equal(state.u.mhmax, 12);
@@ -198,39 +199,44 @@ test('healup uses polymorphed HP fields when Upolyd', () => {
     assert.equal(state.u.uhp, 100);
 });
 
-test('healup sets disp.botl unconditionally', () => {
+test('healup sets disp.botl unconditionally', async () => {
     // C: disp.botl = TRUE at line 1456, reached on every path.
     const state = { u: { uhp: 10, uhpmax: 15, uhppeak: 15 }, disp: {} };
-    healup(0, 0, false, false, state);
+    await healup(0, 0, false, false, state);
     assert.equal(state.disp.botl, true);
 });
 
-test('healup throws on curesick', () => {
-    // The curesick path calls make_vomiting() and make_sick(), which are not
-    // ported. The port throws UnsupportedPotionError.
+test('healup records missing void sickness helpers in source order', async () => {
     const state = { u: { uhp: 10, uhpmax: 15, uhppeak: 15 }, disp: {} };
-    assert.throws(
-        () => healup(0, 0, true, false, state),
-        (error) => error instanceof UnsupportedPotionError,
-    );
+    const previous = game.unported;
+    game.unported = new Set();
+    try {
+        await healup(0, 0, true, false, state);
+        assert.deepEqual([...game.unported], [
+            'potion.c make_vomiting', 'potion.c make_sick',
+        ]);
+        assert.equal(state.disp.botl, true);
+    } finally {
+        game.unported = previous;
+    }
 });
 
-test('healup is a no-op for cureblind on a sighted hero', () => {
+test('healup is a no-op for cureblind on a sighted hero', async () => {
     // When the hero is neither creamed nor blind, the cureblind arm is a
     // no-op (u.ucreamed is 0 and heroIsBlind() returns false).
     const state = {
         u: {
             uhp: 10, uhpmax: 15, uhppeak: 15, ucreamed: 0,
-            uprops: {},
+            uprops: { [BLINDED]: { intrinsic: 0, extrinsic: 0 } },
         },
         disp: {},
     };
     // Should not throw because neither ucreamed nor heroIsBlind is true.
-    healup(0, 0, false, true, state);
+    await healup(0, 0, false, true, state);
     assert.equal(state.disp.botl, true);
 });
 
-test('healup leaves extrinsic blindfold blindness in place', () => {
+test('healup leaves extrinsic blindfold blindness in place', async () => {
     // potion.c:1444 calls make_blinded(0L), which clears timed blindness but
     // does not remove a worn blindfold or its extrinsic BLINDED property.
     const state = {
@@ -243,15 +249,15 @@ test('healup leaves extrinsic blindfold blindness in place', () => {
         disp: {},
     };
 
-    healup(0, 0, false, true, state);
+    await healup(0, 0, false, true, state);
 
     assert.equal(state.u.uprops[BLINDED].extrinsic, 1);
     assert.equal(state.disp.botl, true);
 });
 
-test('healup keeps timed blindness behind the make_blinded boundary', () => {
-    // potion.c healup() clears a BLINDED timeout through make_blinded(), which
-    // is not ported. Permanent intrinsic blindness uses FROMOUTSIDE rather
+test('healup keeps timed blindness behind the make_blinded boundary', async () => {
+    // potion.c healup() clears a BLINDED timeout through make_blinded(), whose
+    // remaining transition branches retain their existing refusal. Permanent intrinsic blindness uses FROMOUTSIDE rather
     // than TIMEOUT and therefore does not enter this branch. Use TIMEOUT's
     // highest bit so the test rejects a check that reads only the low bit.
     const highTimeoutBit = 1 << 23;
@@ -268,7 +274,7 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         disp: {},
     };
 
-    assert.throws(
+    await assert.rejects(
         () => healup(0, 0, false, true, timed),
         (error) => error instanceof UnsupportedPotionError,
     );
@@ -282,7 +288,7 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         },
         disp: {},
     };
-    assert.throws(
+    await assert.rejects(
         () => healup(0, 0, false, true, ordinaryTimed),
         (error) => error instanceof UnsupportedPotionError,
     );
@@ -296,7 +302,7 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         },
         disp: {},
     };
-    healup(0, 0, false, true, permanent);
+    await healup(0, 0, false, true, permanent);
     assert.equal(permanent.u.uprops[BLINDED].intrinsic, FROMOUTSIDE);
 
     const mixed = {
@@ -311,7 +317,7 @@ test('healup keeps timed blindness behind the make_blinded boundary', () => {
         },
         disp: {},
     };
-    assert.throws(
+    await assert.rejects(
         () => healup(0, 0, false, true, mixed),
         (error) => error instanceof UnsupportedPotionError,
     );

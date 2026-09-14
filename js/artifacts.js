@@ -2113,7 +2113,7 @@ export async function artifact_hit(
                 /* drain: was target's damage, now heal attacker by half */
                 drain = Math.trunc((drain + 1) / 2); /* drain/2 rounded up */
                 if (youattack) {
-                    healup(drain, 0, false, false, state);
+                    await healup(drain, 0, false, false, state);
                 } else {
                     // C: assert(magr != 0);
                     healmon(magr, drain, 0);

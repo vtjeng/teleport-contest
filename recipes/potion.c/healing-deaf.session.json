@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c healing variation. The same preselected Barbarian seed acquires timed deafness before quaffing uncursed healing; healup must clear it through make_deaf.",
+  "segments": [
+    {
+      "seed": 8460017,
+      "datetime": "20320516102347",
+      "nethackrc": "OPTIONS=name:HealingPilot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed potion of healing\n#wizintrinsic\n50j\n qe"
+    }
+  ]
+}

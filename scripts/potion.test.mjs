@@ -13,7 +13,7 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
+    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
     TIMEOUT,
@@ -67,7 +67,10 @@ import {
     speed_up,
 } from '../js/potion.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
-import { loadQuaffBoozeRecipes, verifyBoozeSegment } from './run-quaff-confusion.mjs';
+import {
+    loadQuaffBoozeRecipes, loadQuaffHealingRecipes,
+    verifyBoozeSegment, verifyHealingSegment,
+} from './run-quaff-confusion.mjs';
 
 test('make_glib preserves C boolean XOR and refreshes worn gloves', () => {
     // potion.c:462-468 uses !old ^ !!xtime, including the equal-state cases.
@@ -197,6 +200,61 @@ function vaporPotion(otyp) {
     obj.dknown = true;
     return obj;
 }
+
+test('healing potion preserves beatitude dice before Constitution exercise',
+    async () => {
+    for (const sign of [-1, 0, 1]) {
+        await startedGame(8460023, 'HealingDice');
+        const potion = vaporPotion(POT_HEALING);
+        potion.cursed = sign < 0;
+        potion.blessed = sign > 0;
+        game.u.uhp = 1;
+        game.u.uhpmax = 100;
+        game.u.uhppeak = 100;
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(potion, game), -1);
+
+        // potion.c:1122 rolls 4+2*bcsign four-sided dice; exercise follows
+        // healup and takes its own rn2(19), not another healing draw.
+        const draws = getRngLog();
+        assert.equal(draws.length, 2);
+        const rolled = new RegExp(`^d\\(${4 + 2 * sign},4\\)=(\\d+)$`, 'u')
+            .exec(draws[0]);
+        assert.ok(rolled, draws[0]);
+        assert.match(draws[1], /^rn2\(19\)=\d+$/u);
+        assert.equal(game.u.uhp, 1 + 8 + Number(rolled[1]));
+        assert.equal(game.u.uhpmax, 100);
+        assert.equal(game.u.uhppeak, 100);
+        assert.equal(toplines(), 'You feel better.');
+        assert.equal(game.unported.has('potion.c make_sick'), sign > 0);
+    }
+});
+
+test('uncursed healing clears cream and timed deafness through healup',
+    async () => {
+    await startedGame(8460023, 'HealingHearing');
+    const potion = vaporPotion(POT_HEALING);
+    potion.cursed = false;
+    potion.blessed = false;
+    game.u.ucreamed = 3;
+    game.u.uprops[BLINDED].intrinsic = 0;
+    game.u.uprops[DEAF].intrinsic = 7;
+    clearTopline();
+
+    await peffects(potion, game);
+
+    assert.equal(game.u.ucreamed, 0);
+    assert.equal(game.u.uprops[DEAF].intrinsic & TIMEOUT, 0);
+    assert.equal(toplines(), 'You feel better.  You can hear again.');
+});
+
+test('independent healing recipes complete quaff and overheal bookkeeping',
+    async () => {
+    for (const { recipe } of loadQuaffHealingRecipes())
+        await verifyHealingSegment(recipe.segments[0]);
+});
 
 // potion.c peffect_paralysis():881-898. The ordinary floor arm must emit its
 // feet message before rn1(10, 25), then set both continuation fields before
