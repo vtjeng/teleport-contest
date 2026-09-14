@@ -41234,7 +41234,7 @@
     {
       "id": "div-do-goto-level-punished-seed4500",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Fix goto_level() punished-hero ball-and-chain transit and arrival behavior",
       "cFile": "do.c",
       "sessions": [
@@ -41242,14 +41242,102 @@
       ],
       "selectionReason": "The refreshed queue ranks holdout/seed4500-knight-coverage first at step 772 with 1042 remaining screens and a valid investigation at investigations/holdout/seed4500-knight-coverage.json. goto_level() is already a completed do.c source unit, so select a divergence fix for its punished transition branch rather than another file port.",
       "detail": "C do.c:1615-1617 unplaces the ball and chain before transit for Punished, :1758-1796 handles punished ascent/descent including drag_down and ballrelease, and :1813-1814 restores the chain. JS do.js:1371-1375 raises the observed refusal. Existing production callers are do.js doup/dodown/deferred_goto and artifacts.js level teleport; dependencies are ball.c unplacebc/placebc/drag_down/ballrelease. Preserve source order and ordinary transition behavior.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "goto_level_punished_ball_chain",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "goto_level",
+            "unplacebc",
+            "placebc",
+            "drag_down",
+            "ballrelease"
+          ]
+        }
+      ],
+      "openedAt": "a7d3228eae78fc1c59b30fedc5c08d9c124680c6",
+      "openStanding": {
+        "sha": "06882e8c4bd94b84dddb8233ae7f233c44407d13",
+        "screens": 8612,
+        "rng": 630101
+      },
       "closedAt": null,
       "delivered": null,
       "function": "goto_level",
       "session": "holdout/seed4500-knight-coverage",
-      "step": 772
+      "step": 772,
+      "activeStanding": {
+        "sha": "06882e8c4bd94b84dddb8233ae7f233c44407d13",
+        "screens": 8612,
+        "rng": 630101
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 772,
+          "kind": "stop",
+          "function": "goto_level",
+          "functionDeclared": true,
+          "sourceFile": "do.c",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported level change: goto_level() with a punished hero",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 1042,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 1042,
+              "status": "complete",
+              "commit": "cfc6097bfc5d3bedc75c4d5535214e03ee3a6cc9",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 772,
+                "kind": "stop",
+                "function": "goto_level",
+                "functionDeclared": true,
+                "sourceFile": "do.c",
+                "cFile": "do.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported level change: goto_level() with a punished hero",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 1042
+              },
+              "summary": "do.c goto_level owns the punished-hero level-transition boundary. After check_special_room(), C unplaces the ball and chain for a punished hero before transit, runs its punished ascent or descent branch, and places the chain again after the destination transition. The JavaScript goto_level() path currently refuses this state; port the lifecycle and transit branches through the existing doup, dodown, deferred_goto, and artifact level-teleport callers without special-casing the Knight recording.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "goto_level"
+                ],
+                "branch": "Punished hero entering goto_level() after check_special_room(): unplacebc() runs before level transit, the punished ascent/descent branches handle ball-chain dragging and release, and placebc() restores the chain after arrival.",
+                "callers": [
+                  "nethack-c/upstream/src/do.c:dodown(), doup(), and deferred_goto() call goto_level() for ordinary level transitions; js/do.js preserves these production callers.",
+                  "nethack-c/upstream/src/artifact.c level-teleport handling calls goto_level(); js/artifacts.js provides the corresponding level-teleport caller."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/ball.c:unplacebc() and placebc() manage the punished ball-and-chain position around level transit.",
+                  "nethack-c/upstream/src/ball.c:drag_down() and ballrelease() support the punished descent branch.",
+                  "js/do.js:1371-1375 currently throws for the punished goto_level() state and is the implementation seam to replace."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The refreshed queue at commit cfc6097b reports holdout/seed4500-knight-coverage step 772, function goto_level in do.c, recordedSteps 1814, and remainingScreensUpperBound 1042.",
+                "nethack-c/upstream/src/do.c:1615-1617 unplaces the ball and chain for Punished before transit; :1758-1796 contains the punished ascent/descent branches, including drag_down/ballrelease handling; :1813-1814 places the chain after arrival.",
+                "js/do.js:1371-1375 currently raises the unsupported level-change refusal for a punished hero. Existing production callers are js/do.js doup/dodown/deferred_goto and js/artifacts.js level-teleport handling.",
+                "The smallest source-general scope is goto_level() plus the ball.c transit dependencies required for its return-valued or state-mutating branches; preserve normal transition behavior and remove only the punished-state refusal."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
