@@ -34662,7 +34662,22 @@
       ],
       "selectionReason": "Selected holdout/seed4500-knight-coverage at remainingScreensUpperBound 1184, the first session in per-session queue order with a valid complete investigation at investigations/holdout/seed4500-knight-coverage.json; its source-traced owner is weapon.c can_advance through enhance_weapon_skill. Lower-ranked sessions have complete cached investigations and remain available after this goal.",
       "detail": "At step 630, debug #enhance reaches weapon.c enhance_weapon_skill(). C asks Advance skills without practice? [yn] (n); a y answer sets speedy, scans can_advance(), builds the wizard skill menu, applies skill_advance() to selected long sword and polearms, and repeats until dismissal. JS currently rejects the wizard speedy branch. Port can_advance, skill_advance, add_skills_to_menu, and enhance_weapon_skill with existing command/menu callers and skill dependencies.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "can_advance..enhance_weapon_skill",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "can_advance",
+            "could_advance",
+            "peaked_skill",
+            "skill_advance",
+            "add_skills_to_menu",
+            "show_skills",
+            "enhance_weapon_skill"
+          ]
+        }
+      ],
       "openedAt": "d3ca4d9b86501d546251b25ada7082311e709855",
       "openStanding": {
         "sha": "9fc0cc243d5553761502690845a952528001b232",
