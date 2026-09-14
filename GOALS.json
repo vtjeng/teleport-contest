@@ -43885,8 +43885,8 @@
           "name": "peffect_booze",
           "line": 771,
           "endLine": 794,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -43964,7 +43964,48 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_booze",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_booze",
+            "sourceReview": "Read potion.c:771-792 completely. Preserved potion_unkn increment before taste; dilution and hallucination branches; nonblessed d(2+u.uhs,8) before any hunger change; make_confused/itimeout_incr; nondiluted healup(1,0,FALSE,FALSE); 10*(2+bcsign) nutrition; newuhs(FALSE); exercise(A_WIS,FALSE); cursed pass-out message followed by direct multi=-rnd(15) and nomovemsg. Did not replace the direct assignment with nomul, so running, invulnerability, usleep, multi_reason and callback state remain source-correct. Removed the obsolete POT_BOOZE UnsupportedQuaffError in peffects. Required existing local Hallucination predicate corrected to youprop.h:115-120's HALLUC_RES intrinsic/extrinsic test; no HALLUC.blocked term exists in that macro. Read the consumed-value helpers itimeout_incr and bcsign and the called make_confused, healup, newuhs and exercise implementations against their C. healup's false cure flags use its complete ordinary/polymorphed HP arithmetic. newuhs's existing fainting/starvation/death refusals remain separate unported branches; no new note_unported or Unsupported error was introduced.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1346-1348 POT_BOOZE invokes peffect_booze and breaks. Production cmd.js quaff -> dodrink -> dopotion -> peffects reaches it; fountain.js drinksink's generated potion also reaches dopotion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/booze-blessed.session.json",
+              "recordings/potion.c/booze-uncursed.session.json",
+              "recordings/potion.c/booze-cursed.session.json"
+            ],
+            "checkedAt": "087684f9a651581865ede8f6c643a3e7ee4b9b69"
+          }
+        ],
+        "entryPointReview": "One source entry point: quaffing booze through the peffects dispatcher, whether from inventory or drinksink's generated potion. The three independent inventory recipes cover blessed, uncursed and cursed outcomes. Source-pinned constructed cases cover dilution, hunger-scaled dice, polymorphed healing, hallucinating taste, intrinsic/extrinsic hallucination resistance and preservation of fields that nomul would incorrectly clear.",
+        "entryPoints": [
+          {
+            "name": "quaff booze",
+            "functions": [
+              "peffect_booze"
+            ],
+            "recordings": [
+              "recordings/potion.c/booze-blessed.session.json",
+              "recordings/potion.c/booze-uncursed.session.json",
+              "recordings/potion.c/booze-cursed.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
