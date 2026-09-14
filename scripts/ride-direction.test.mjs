@@ -496,25 +496,28 @@ test('yn_function stops on a query too long for QBUFSZ', async () => {
     );
 });
 
-test('the response sets tty_yn_function still refuses stop before it paints',
+test('the response sets tty_yn_function parse counts before the case boundary',
     async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     cmdq_clear(CQ_REPEAT, game);
+    // topl.c:397-408 admits '#', and topl.c:478-529 consumes a positive
+    // count before returning '#'.
+    game.nhDisplay.pushKey('2'.charCodeAt(0));
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    assert.equal(
+        await yn_function(
+            'Force the mount to succeed?', 'yn#', 'n', false, game,
+        ), '#'.charCodeAt(0),
+    );
+    assert.equal(game.yn_number, 2);
+
+    // Uppercase-preserving responses remain a named boundary and are checked
+    // before show_topl().
     const row = topLine();
-    // topl.c:397-408 reads two things out of `resp` before the prompt is
-    // built, and each one has a reader this port lacks: '#' turns digits into
-    // yn_number and an uppercase letter suppresses the lowc() on the answer.
-    // Hidden responses after ESC are now handled (topl.c:412-413).
-    for (const [resp, reason] of [
-        ['yn#', /yn_number/u],
-        ['yN', /preserving case/u],
-    ]) {
-        await assert.rejects(
-            yn_function('Force the mount to succeed?', resp, 'n', false, game),
-            reason,
-        );
-    }
-    // Both guards precede show_topl(), so neither painted a query.
+    await assert.rejects(
+        yn_function('Force the mount to succeed?', 'yN', 'n', false, game),
+        /preserving case/u,
+    );
     assert.equal(topLine(), row);
     // "yn" itself carries neither, so it gets past them and fails at
     // the spent input queue instead.

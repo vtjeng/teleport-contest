@@ -302,11 +302,12 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt); they
     // differ only in the prompt they build for it.  The restricted arm's
     // trailing space is already in the string, "in case of reprompt".
+    const preserveCase = resp !== null && /[A-Z]/u.test(resp);
     let prompt;
     if (resp !== null) {
         /* normally we force lowercase, but if any uppercase letters
            are present in the allowed response, preserve case */
-        if (/[A-Z]/u.test(resp)) {
+        if (preserveCase) {
             throw new UnsupportedGetlinBoundaryError(
                 'tty_yn_function() preserving case in the answer',
             );

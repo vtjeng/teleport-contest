@@ -1336,20 +1336,26 @@ test('tty_yn_function rereads an invalid key and quits on quitchars',
             assert.equal(await ask('yn', quitchar), 'n'.charCodeAt(0));
     });
 
-test('tty_yn_function stops on the response sets it cannot read', async () => {
+test('tty_yn_function parses counts and still gates preserving case', async () => {
     await startedGame();
+    // topl.c:397-408 admits '#', then topl.c:478-529 consumes the count and
+    // returns '#'. The counted response is what askchain() uses to split a
+    // stack after tty_yn_function() returns.
+    game.nhDisplay.pushKey('2'.charCodeAt(0));
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    assert.equal(
+        await tty_yn_function('Ring?', 'yn#', 'n', game), '#'.charCodeAt(0),
+    );
+    assert.equal(game.yn_number, 2);
+
+    // The uppercase-preserving arm remains outside this port. Its guard is
+    // before show_topl(), so it must leave the answered prompt untouched.
     const row = game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
-    for (const [resp, reason] of [
-        ['yn#', /yn_number/u],
-        ['yN', /preserving case/u],
-    ]) {
-        await assert.rejects(
-            tty_yn_function('Ring?', resp, 'n', game),
-            (error) => error instanceof UnsupportedGetlinBoundaryError
-                && reason.test(error.message),
-        );
-    }
-    // topl.c:397-408 reads both out of `resp` before the prompt is built.
+    await assert.rejects(
+        tty_yn_function('Ring?', 'yN', 'n', game),
+        (error) => error instanceof UnsupportedGetlinBoundaryError
+            && /preserving case/u.test(error.message),
+    );
     assert.equal(
         game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(), row,
     );
