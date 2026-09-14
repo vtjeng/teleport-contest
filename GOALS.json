@@ -43129,6 +43129,129 @@
         "screens": 8816,
         "rng": 644577
       }
+    },
+    {
+      "id": "div-were-change-minvent-seed0399",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix were_change() chance ordering so failed lycanthrope conversion draws rn2(50) before new_were() inventory preflight, preserving once-per-turn distress movement.",
+      "cFile": "were.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "The authoritative queue ranks holdout/seed4500-knight-coverage first at 1025, but its valid cache owner teleport.c:teleds is already a completed source goal and its same-count mismatch has no unverified teleds span. The next actionable session with a complete valid investigation is holdout/seed0399-wizard-hallu-actions at 423; its validated cache investigations/holdout/seed0399-wizard-hallu-actions.json identifies the were.c:were_change chance-order defect and bounded divergence fix.",
+      "detail": "At holdout/seed0399-wizard-hallu-actions step 109, C were_change() draws rn2(50)=29 before deciding whether to call new_were(); JavaScript preflightNewWere() rejects a minvent-bearing human werewolf before that draw. Move the preflight to the successful new_were() path while retaining new_were() inventory checks. Source: nethack-c/upstream/src/were.c:14-18, :95-138; callers mon.c:mcalcdistress() and allmain.c:moveloop_core(); JS callers js/mon.js:mcalcdistress()/wereChange, js/allmain.js finishElapsedTurn()/advanceElapsedTurn().",
+      "spans": [
+        {
+          "name": "were_change",
+          "status": "closed",
+          "closedBy": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+          "functions": [
+            "were_change"
+          ]
+        }
+      ],
+      "openedAt": "4f346703c2a29d2f8a448d480c131d8632117ec3",
+      "openStanding": {
+        "sha": "4f346703c2a29d2f8a448d480c131d8632117ec3",
+        "screens": 8816,
+        "rng": 644577
+      },
+      "closedAt": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+      "delivered": {
+        "screens": 72,
+        "rng": 5667
+      },
+      "function": "were_change",
+      "session": "holdout/seed0399-wizard-hallu-actions",
+      "step": 109,
+      "activeStanding": {
+        "sha": "4f346703c2a29d2f8a448d480c131d8632117ec3",
+        "screens": 8816,
+        "rng": 644577
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 109,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported monster distress state: equipped or attached lycanthrope",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 423,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 423,
+              "status": "complete",
+              "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "remainingScreensUpperBound": 423,
+                "step": 109,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported monster distress state: equipped or attached lycanthrope",
+                "unlocatedKinds": [],
+                "recordedSteps": 532
+              },
+              "summary": "At step 109, key T (takeoff) spends a turn and enters C's once-per-turn monster distress loop. The focused JavaScript state has one were-form monster, PM_HUMAN_WEREWOLF (pmidx 263), at monster-list index 26; it carries a potion of speed (POT_SPEED 302) in minvent. C were_change() draws rn2(50)=29 for this daytime human-form lycanthrope, so the 1-in-50 conversion test fails and new_were() is not called. JS preflightNewWere() runs before that chance draw and throws on any minvent, producing the queue boundary. Move that preflight to the successful-change path while retaining it in new_were(); the failed chance must consume only rn2(50) and then reach the recorded movement and turn draws.",
+              "source": {
+                "file": "were.c",
+                "functions": [
+                  "were_change",
+                  "new_were",
+                  "counter_were"
+                ],
+                "branch": "nethack-c/upstream/src/were.c:14-18 tests the human-form lycanthrope chance and calls new_were() only when !rn2(50) succeeds in this daytime setup. The stop trace records rn2(50)=29, so C skips new_were() and does not inspect the monster inventory on this turn. js/mon.js:3332-3340 calls preflightNewWere() before drawing rn2(50), and js/mon.js:2701-2706 rejects the observed minvent with the boundary message.",
+                "callers": [
+                  "nethack-c/upstream/src/mon.c:mcalcdistress() and m_calcdistress() (1174-1198) iterate monsters and call were_change() after regeneration",
+                  "nethack-c/upstream/src/allmain.c:moveloop_core() (222-234) resets gw.were_changes, calls mcalcdistress(), and then consumes mcalcmove() movement draws",
+                  "js/mon.js:mcalcdistress() and m_calcdistress() (3384-3467) invoke the wereChange callback in the same once-per-turn position",
+                  "js/allmain.js:finishElapsedTurn() (713-735) invokes mcalcdistress() and then mcalcmove() during an elapsed command",
+                  "js/allmain.js:advanceElapsedTurn() (1095-1124) runs the planning clone and converts the distress refusal to UnsupportedTurnBoundaryError",
+                  "js/allmain.js:moveloop_core() (1289-1301) enters advanceElapsedTurn() when context.move is true"
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/were.c:new_were() (95-138) mutates the form only after were_change() succeeds; a successful transformation then calls mon_break_armor() and possibly_unwield()",
+                  "nethack-c/upstream/src/were.c:counter_were() (47-65) maps PM_HUMAN_WEREWOLF to PM_WEREWOLF",
+                  "nethack-c/upstream/src/worn.c:mon_break_armor() and nethack-c/upstream/src/weapon.c:possibly_unwield() are downstream of a successful new_were() call",
+                  "js/mon.js:preflightNewWere(), new_were(), and were_change() (2684-2761, 3316-3347) contain the premature inventory refusal and the chance draw",
+                  "js/monsters.js:949 defines PM_HUMAN_WEREWOLF (pmidx 263) with neutral name werewolf; js/objects.js:377 defines POT_SPEED as object type 302",
+                  "nethack-c/upstream/src/mon.c:mcalcmove() (1126-1168) and js/mon.js:mcalcmove() consume the post-distress rn2(12) movement draws that follow the failed chance"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                ".cache/scan-cache.json identifies this session at commit cc1b4453d14fd4a0e995170e3842ad622790c8a5, step 109, with 423 remaining screens and the boundary unsupported monster distress state: equipped or attached lycanthrope.",
+                "sessions/holdout/seed0399-wizard-hallu-actions.session.json segments[0].steps[109] records key T, message You were wearing an uncursed +0 cloak of magic resistance., and the first RNG entry rn2(50)=29 @ were_change(were.c:17); the same step then records the mcalcmove rn2(12) entries and later turn draws.",
+                "A focused replay of the exact recorded input prefix through step 109 stops at the same UnsupportedTurnBoundaryError before the live turn; the replay and state witness are saved in .cache/investigation-seed0399-wizard-hallu-actions.json.",
+                "The focused replay state has a single relevant monster at list index 26 with pmidx 263, human-form data, and minvent containing object type 302 (potion of speed); it has no worn mask, leash, steed, or stuck attachment. This identifies minvent as the immediate refusal predicate.",
+                "nethack-c/upstream/src/were.c:14-18 evaluates the human-form chance before new_were(), while js/mon.js:3332-3340 preflights before rn2(); the nonzero C draw proves that the inventory-bearing new_were() path is not reached at this stop.",
+                "nethack-c/upstream/src/mon.c:1174-1198 and allmain.c:222-234 place were_change() before mcalcmove(); no mhitu.c/mattacku() call occurs in the step-109 RNG trace, so monster attack and polyself branches are outside this mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+        "screens": 8888,
+        "rng": 650244
+      }
     }
   ]
 }
