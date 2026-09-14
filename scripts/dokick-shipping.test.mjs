@@ -12,6 +12,8 @@ import { BOULDER, CORPSE, DAGGER, EGG, MIRROR } from '../js/objects.js';
 import { PM_NEWT } from '../js/monsters.js';
 
 async function setup() {
+    // Reuse the independently preselected Healer recipe's seed/date. It starts
+    // on dungeon 0, level 1; clear only gates and visibility for isolated cases.
     await runSegment({ seed: 8450001, datetime: '20320415101723', moves: '',
         nethackrc: 'OPTIONS=name:Shipping,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n' });
     game.stairs = null;
@@ -21,12 +23,15 @@ async function setup() {
 }
 
 function stair(state, isladder = false) {
+    // An ordinary downward gate joins dungeon 0 levels 1 and 2 (drop_to).
     state.stairs = { sx: state.u.ux, sy: state.u.uy, up: false, isladder,
         tolev: { dnum: 0, dlevel: 2 }, next: null };
     return state.stairs;
 }
 
 test('drop_to pins all destination arms to dokick.c:1473-1506', () => {
+    // Choose level 3 of a nine-level dungeon so the default destination is 4.
+    // (4,5) is an arbitrary gate coordinate reused in every destination arm.
     const state = { u: { uz: { dnum: 0, dlevel: 3 } },
         dungeons: [{ num_dunlevs: 9 }], stairs: null };
     const cc = {};
@@ -34,18 +39,22 @@ test('drop_to pins all destination arms to dokick.c:1473-1506', () => {
         drop_to(cc, loc, 4, 5, state);
         assert.deepEqual(cc, { x: 0, y: 4 });
     }
+    // A branch staircase must use its explicit dungeon 2, level 7 destination.
     state.stairs = { sx: 4, sy: 5, tolev: { dnum: 2, dlevel: 7 } };
     drop_to(cc, MIGR_SSTAIRS, 4, 5, state);
     assert.deepEqual(cc, { x: 2, y: 7 });
+    // Stronghold holes use the valley tuple, independently of the staircase.
     state.stronghold_level = { ...state.u.uz };
     state.valley_level = { dnum: 3, dlevel: 1 };
     drop_to(cc, MIGR_RANDOM, 4, 5, state);
     assert.deepEqual(cc, { x: 3, y: 1 });
     state.stronghold_level = null;
+    // In_endgame compares dungeon numbers; level 1 itself is immaterial.
     state.astral_level = { dnum: 0, dlevel: 1 };
     drop_to(cc, MIGR_RANDOM, 4, 5, state);
     assert.deepEqual(cc, { x: 0, y: 0 });
     state.astral_level = null;
+    // Level 9 is the declared bottom; both it and MIGR_NOWHERE yield (0,0).
     state.u.uz.dlevel = 9;
     drop_to(cc, MIGR_RANDOM, 4, 5, state);
     assert.deepEqual(cc, { x: 0, y: 0 });
@@ -59,6 +68,7 @@ test('down_gate distinguishes stairs, ladder, quest gate, and seen shafts', asyn
     const gate = stair(state);
     assert.equal(down_gate(x, y, state), MIGR_STAIRS_UP);
     assert.equal(state.gg.gate_str, 'down the stairs');
+    // Any other dungeon number selects MIGR_SSTAIRS (dokick.c:1958).
     gate.tolev.dnum = 2;
     assert.equal(down_gate(x, y, state), MIGR_SSTAIRS);
     gate.isladder = true;
@@ -84,6 +94,7 @@ test('down_gate distinguishes stairs, ladder, quest gate, and seen shafts', asyn
         assert.equal(state.gg.gate_str,
             type === TRAPDOOR ? 'through the trap door' : 'through the hole');
     }
+    // The adjacent square has no gate and must clear the previous description.
     assert.equal(down_gate(x + 1, y, state), MIGR_NOWHERE);
     assert.equal(state.gg.gate_str, null);
 });
@@ -93,6 +104,8 @@ test('ship_object preserves no-gate, ladder, stairs, and attached-object RNG ord
     const { ux: x, uy: y } = state.u;
     const obj = mksobj(DAGGER, false, false, { state });
     const draws = [];
+    // rn2(3)=1 keeps an unattached object upstairs; ladders skip that draw.
+    // breaktest's obj_resists then draws rn2(100), also answered with 1.
     const env = { state, random: { rn2: (n) => { draws.push(n); return 1; } } };
     assert.equal(await ship_object(null, x, y, false, env), false);
     assert.equal(await ship_object(obj, x, y, false, env), false);
@@ -115,6 +128,8 @@ test('ship_object preserves no-gate, ladder, stairs, and attached-object RNG ord
 });
 
 test('ship_object breaks mirrors and hero-laid eggs before migration', async () => {
+    // dokick.c:1721/1726: mirror luck loss is 2; seven hero-laid eggs exceed
+    // the five-point cap. spe=1 and a valid newt species mark laid eggs.
     for (const [type, penalty, result] of [[MIRROR, 2, 'crash'], [EGG, 5, 'splat']]) {
         const state = await setup();
         stair(state, true);
@@ -136,6 +151,7 @@ test('ship_object breaks mirrors and hero-laid eggs before migration', async () 
 });
 
 test('ship_object leaves a boulder over a hole after the stay-here roll', async () => {
+    // rn2(3)=0 selects falling, but the subsequent boulder/hole guard wins.
     const state = await setup();
     const { ux: x, uy: y } = state.u;
     state.level.traps = [{ tx: x, ty: y, ttyp: HOLE, tseen: true }];
@@ -147,6 +163,8 @@ test('ship_object leaves a boulder over a hole after the stay-here roll', async 
 });
 
 test('otransit_msg names corpses and agrees impact, chain, and fall verbs', async () => {
+    // Impact counts 0,1,3 select no pile, singular, plural. Quantity 2 selects
+    // plural verbs; num=0 with a chain selects the separate rattle wording.
     const state = await setup();
     state.gg = { gate_str: 'down the stairs' };
     const messages = [];
@@ -168,6 +186,8 @@ test('otransit_msg names corpses and agrees impact, chain, and fall verbs', asyn
 });
 
 test('ship_object reports pile impact before migration', async () => {
+    // One visible dagger on a ladder hits one floor object. rn2(100)=1 leaves
+    // the missile intact; the missing void impact_drop cannot move the pile.
     const state = await setup();
     const { ux: x, uy: y } = state.u;
     stair(state, true);

@@ -78,6 +78,9 @@ async function hero() {
 
 async function impactCase({ visible = false, type = ORCISH_DAGGER,
     missRoll = false } = {}) {
+    // A rat one square east is an accidental target. The arbitrary unique ID
+    // 9123 and 40 HP keep identity/death out of these feedback cases. AC -10
+    // plus rnd(20)=20 forces a miss; draws of 1 select nonlethal hit branches.
     const state = await hero();
     const target = newMonster({ data: state.mons[PM_GIANT_RAT], m_id: 9123,
         mx: state.u.ux + 1, my: state.u.uy, mhp: 40, mhpmax: 40,
@@ -127,6 +130,7 @@ test('ohitmon suppresses unseen feedback for a designated monster target', async
 });
 
 test('ohitmon reports known and unknown eggs, then deletes them on impact', async () => {
+    // A newt egg is nonpetrifying. delobj's obj_resists uses rn2(100).
     for (const known of [false, true]) {
         const c = await impactCase({ visible: true, type: EGG });
         c.object.known = known;
@@ -140,6 +144,7 @@ test('ohitmon reports known and unknown eggs, then deletes them on impact', asyn
 });
 
 test('ohitmon blinds with a pie and caps the duration at the C seven-bit maximum', async () => {
+    // mthrowu.c:480-483 adds rnd(25)+20: 120 exceeds 127 after even a draw of 1.
     const c = await impactCase({ visible: true, type: CREAM_PIE });
     c.target.mblinded = 120;
     await ohitmon(c.target, c.object, 1, true, c.env);
@@ -164,6 +169,8 @@ test('drop_throw consumes a mulched missile and respects a consumed floor effect
 });
 
 test('artifact to-hit dependencies use the supplied resistance and bonus RNG', async () => {
+    // Magicbane's source attack bonus is rnd(3). MR=0 admits it after the
+    // AD_STUN rn2(100) check; a draw of 1 supplies exactly one bonus point.
     const c = await impactCase();
     const coreBefore = structuredClone(c.state.coreCtx);
     c.object.oartifact = ART_MAGICBANE;

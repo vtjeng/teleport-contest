@@ -44542,7 +44542,7 @@
           "line": 321,
           "endLine": 505,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -44618,7 +44618,46 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ohitmon",
+            "implementation": "js/mthrowu.js",
+            "symbol": "ohitmon",
+            "sourceReview": "Read mthrowu.c:321-502 whole and compared every branch. Restored visible/unseen miss/hit, known/unknown egg, poison-resistance/deadly poison, silver searing/flesh, acid resistance/burn, death and shortened blind-object feedback. Preserved observe_object before hit computation, target-only launcher/level bonus, rnd(20), potion handling, dmgval before mimic revelation, harmless rock passage, poison rolls, acid immunity, petrifying egg consumed munstone, death ownership, blind duration/cap and anger, then drop_throw and rolling-object re-extraction. can_blnd now receives the actual state. Existing independently implemented consumed helpers retain owned partial boundaries; m_throw still refuses FOOD_CLASS and artifact/returning missiles, so this does not newly admit live-only munstone food consumption. Allowed discarded-return gaps are sounds.c Soundeffect and trap.c minstapetrify. narrow clone bindings added to existing zap.c miss/hit message/name paths, artifact.c spec_abon/spec_applies RNG through weapon.c hitval and dothrow.c omon_adj, and mon.c seemimic unblockPoint/newsym. Planner reuses admitPlannedVisionChange before mimic transparency rebuild and suppresses output; no new planner framework or Unsupported throw.\n\nCoordinator read the complete selected C function and all required helper source ranges, caller changes, focused tests and independent recipes at synchronized dfb7a5e2. Required helper attestations follow; they are part of this span, not extra selected source-unit count: drop_throw (js/mthrowu.js:drop_throw; pure=false): Read mthrowu.c:162-196 whole. Preserved special pie/venom/hit-egg destruction, otherwise short-circuited should_mulch_missile, delobj (including obj_resists RNG), duplicate source down_gate lookup before ship_object, flooreffects consumed return, placement, hero fallback, passive_obj, stacking, and unconditional gt.thrownobj clearing. Removed special-destruction, mulch, shipping, and consumed-floor-effect stand-in refusals; removed reduced shipsAway injection. Used independently implemented should_mulch_missile, delobj, m_at, flooreffects, place_object, passive_obj, stackobj, retaining their existing owned boundaries. Newly ported whole required shipping group rather than inventing a consumed return. Production callers: js/mthrowu.js:ohitmon — mthrowu.c:362 and491 settle a range-exhausted miss or a hit. js/mthrowu.js:m_throw — mthrowu.c:635,641,789,815; movement scan -> monster ranged action -> thrwmu -> monshoot -> m_throw -> ohitmon -> drop_throw. Tests: scripts/mthrowu.test.mjs. Matching recordings: recordings/mthrowu.c/intercepted-bolt-visible.session.json, recordings/mthrowu.c/intercepted-bolt-quiet.session.json.\n\ndrop_to (js/dokick.js:drop_to; pure=true): Read dokick.c:1473-1506 whole. Pure destination calculation: writes only caller-local output coord, not game state; no RNG or output. MIGR_RANDOM stronghold selects valley, endgame/bottom rejects with zero coords, otherwise falls through to staircase/ladder/branch destination or next current-dungeon level. All other codes yield zero coords. Uses existing stairway_at, on_level and Is_botlevel. Production callers: js/dokick.js:ship_object — dokick.c:1653 consumes the output coordinates before any RNG. impact_drop:1527 remains unported and has no live implementation caller. Tests: scripts/dokick-shipping.test.mjs. Matching recordings: recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\nship_object (js/dokick.js:ship_object; pure=false): Read dokick.c:1639-1765 whole. Preserved null/down_gate/drop_to early returns; ball/chain and ladder short-circuit of rn2(3); recursive unpaid/container inspection; pile quantity/chain scan; boulder-over-hole early return; otransit before nodrop; shop no_charge reset and remove_worn_item; breaktest before glass/camera/egg luck penalty, sound/hearing, extraction/free; otherwise add_to_migration then destination/owornmask, boulder otrapped reset, impact/newsym. Existing return-valued breaktest/is_unpaid and migration/object helpers used unchanged. Allowed discarded-return gaps: dokick.c impact_drop, shk.c stolen_value, shk.c picked_container, sounds.c Soundeffect. Existing remove_worn_item/floor/shop owner refusals remain; this is not a claim of complete shop or arbitrary landing behavior. Removed reduced shipsAway and replaced all its current callers with the source consumed ship_object result. No new refusal added. Production callers: js/mthrowu.js:drop_throw — mthrowu.c:181 consumes shipping result. js/mthrowu.js:return_from_mtoss — mthrowu.c:943 consumes result before floor settlement; caller now awaits this async function. Returning-missile admission remains owned by existing m_throw refusal. js/do.js:dropx — do.c:790 after freeinv and before ordinary floor drop. Removed only stair/ladder-only admission refusals; swallowed/altar/trap/liquid/boulder/shop admission remains with existing do.c owners. js/dothrow.js:throwit — dothrow.c:1819 consumes result after floor effects and snuff position; clears thrownobj and returns on success. js/dothrow.js:throw_gold — dothrow.c:2715 consumes result when no monster intercepted the gold. Other source callers hitfloor:644 and returning-weapon arm:1755 are behind their existing unported caller boundaries; do.c flooreffects:298 is behind its existing boulder refusal. Tests: scripts/dokick-shipping.test.mjs, scripts/dothrow.test.mjs, scripts/drop-command.test.mjs. Matching recordings: recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\notransit_msg (js/dokick.js:otransit_msg; pure=false): Read dokick.c:1909-1940 whole. Preserved corpse_xname(CXN_PFX_THE)+upstart versus Tobjnam; num precedence over chain, singular/ plural object counts, otense verbs, nodrop period versus and-falls suffix, and no message for no impact plus nodrop. Existing consumed naming helpers reused. Production callers: js/dokick.js:ship_object — dokick.c:1685 invokes only when cansee landing square. Tests: scripts/dokick-shipping.test.mjs. Matching recordings: recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\ndown_gate (js/dokick.js:down_gate; pure=false): Read dokick.c:1943-1975 whole. Clears gg.gate_str on every call, applies quest-start restriction before gates, distinguishes down stairs current-dungeon versus special branch, ladders, then seen hole/trapdoor. Existing consumed ok_to_quest, stairway_at and t_at reused. Removed js/dothrow.js reduced shipsAway substitute. Production callers: js/dokick.js:ship_object — dokick.c:1651 consumes destination code. js/mthrowu.js:drop_throw — mthrowu.c:180 preliminary != -1 gate check. impact_drop:1526 remains unported. Tests: scripts/dokick-shipping.test.mjs. Matching recordings: recordings/mthrowu.c/intercepted-bolt-visible.session.json, recordings/mthrowu.c/intercepted-bolt-quiet.session.json, recordings/dokick.c/drop-apples-downstairs.session.json, recordings/dokick.c/drop-book-downstairs.session.json.\n\nValidation: 11 focused test files passed at 2026-09-14 21:59 UTC: mthrowu (33 individual tests), dokick-shipping (7), dothrow, drop-command, throw-command, throw-gold, weapon, artifacts, unported-monster-actions, allmain-turn, kick-command. Scoped ESLint and git diff --check passed. scripts/run-missile-impact-shipping.mjs PASS: 4 segments, 12346 PRNG, 317 screens, 317 cursors, 4 animations. Saved recordings independently replayed via scanRecordedSession: no boundary or divergence. Blocked independent blind recipe: recipes/mthrowu.c/intercepted-bolt-blind.session.json — win/tty/topl.c update_topl/redotoplin: All gameplay RNG and input-boundary screens/cursors match. Animation boundary112 has missing unwrapped It-is-hit/missed text in JS: ttyPlineCore stores text but does not paint before unseen tmp_at skips its flush. Kept original recipe unrecorded; no tty fix in this delivery.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:685 handles the first monster encountered by a nonhero missile. Production path runSegment -> elapsed-turn monster scan -> thrwmu -> monshoot -> m_throw."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "launch_obj",
+                "source": "trap.c:3408 handles a launched trap object; removed obsolete shipsAway=false binding now that drop_throw owns down_gate/ship_object. Other existing launcher-owned floor/passive bindings are unchanged."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/dokick-shipping.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/intercepted-bolt-visible.session.json",
+              "recordings/mthrowu.c/intercepted-bolt-quiet.session.json",
+              "recordings/dokick.c/drop-apples-downstairs.session.json",
+              "recordings/dokick.c/drop-book-downstairs.session.json"
+            ],
+            "checkedAt": "646f56ff5d18e33c63d92b2441326a08bc4a2cd4"
+          }
+        ],
+        "entryPointReview": "Helper-only selected ohitmon range. Existing m_throw and launch_obj dispatchers call it; no new command or monster-action entry point is introduced. Independent visible and !verbose monster-interception recordings exercise ohitmon/drop_throw, and food/spellbook downstairs drops exercise the required shipping helpers through dropx. All four matching recordings are cited in the function evidence. The blind variant is retained unrecorded for the separate tty timing owner.",
+        "entryPoints": []
+      }
     }
   ]
 }
