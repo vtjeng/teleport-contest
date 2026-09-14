@@ -44741,7 +44741,16 @@
       ],
       "selectionReason": "User-authorized independent seed-worker pilot: worker A selected disjoint Arc-loca.lua while worker B owns seed0002 core behavior. Valid investigations/seed0361-archeologist-tour.json at remaining-screen upper bound59 traces the missing whole Arc-loca program at step307. Independent replacement recipes now match; source implementation is unchanged.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "Arc-loca.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Arc-loca.lua"
+          ]
+        }
+      ],
       "openedAt": "d2c1f4ebd0b752456a30267bec27daca7f4768bd",
       "openStanding": {
         "sha": "42271fc98b873a6902d35b0e6123e1e36efad716",
