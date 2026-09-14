@@ -33873,7 +33873,16 @@
       "sessions": [],
       "selectionReason": "Selected holdout/seed4500-knight-coverage as the first per-session candidate with a valid completed investigation: remainingScreensUpperBound 1235 at step 579, cache investigations/holdout/seed4500-knight-coverage.json, source-traced owner timeout.c:nh_timeout().",
       "detail": "Fixed-workload session holdout/seed4500-knight-coverage, segment 0, first mismatch at input step 579 (key k/movenorth) after #wizintrinsic sets INVULNERABLE to 30 at steps 574-577. The mismatch is an elapsed-turn behavioral stop before the recorded screen/RNG continuation: C timeout.c nh_timeout() decrements timed properties and has no INVULNERABLE expiry case, while JS js/timeout.js preflights index 11 as unsupported and its generic expiry fallback would call heal_legs()/stop_occupation(). Source branch: when u.uprops[INVULNERABLE].intrinsic carries TIMEOUT and separate prayer flag u.uinvulnerable is false, decrement and leave the source-inert expiry path. Production callers: allmain.c moveloop calls nh_timeout after hero/monster work; js/allmain.js live and planning elapsed-turn paths call the timeout implementation. Preserve the separate u.uinvulnerable prayer early return and active property consumers.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "nh_timeout_invulnerable",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "nh_timeout"
+          ]
+        }
+      ],
       "openedAt": "ce9b30e047556cc6abf42eb3c8564ac6a3d06c6e",
       "openStanding": {
         "sha": "ce9b30e047556cc6abf42eb3c8564ac6a3d06c6e",
