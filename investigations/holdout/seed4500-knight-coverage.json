@@ -1,12 +1,12 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1273,
+  "remainingScreensUpperBound": 1235,
   "status": "complete",
-  "commit": "2197a60fcd29556e827a4b3a28fdac64e86ad4f7",
+  "commit": "5fe1e89bdbae7c18355290568ebd1dce6fdcec7c",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1273,
-    "step": 541,
+    "remainingScreensUpperBound": 1235,
+    "step": 579,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,35 +14,35 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported",
+    "message": "elapsed-turn nh_timeout requires no active property timeout at index 11",
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The current boundary is the missing wizcmds.c wiz_identify() command. The assigned recording types #wizidentify and confirms it with Return at step 541; C sets iflags.override_ID to the command key (falling back to Ctrl-I), calls display_inventory(NULL, FALSE), then clears the temporary override and returns ECMD_OK. This witness has no unidentified inventory items, so invent.c display_pickinv() adds the Debug Identify title and '(all items are permanently identified already)', opens its display-only PICK_NONE menu, and waits for the next Escape. JavaScript has the extcmdlist row but no wiz_identify() export, no doextcmd() dispatch or direct-key rhack() arm, and its display_pickinv() rejects the non-reply multi-item path as an unsupported partial inventory. The source owner is a file-port of wizcmds.c wiz_identify() with the display-only wizard-ID branch wired through invent.js; the current mismatch does not require RNG or turn processing and must not be keyed to this session.",
+  "summary": "The current boundary is timeout.c nh_timeout() processing the timed INVULNERABLE property at index 11. Steps 574-577 of the assigned recording use #wizintrinsic to set invulnerable and very fast to 30; step 579 is the first elapsed move afterward. C decrements the timed property in nh_timeout() but has no case for INVULNERABLE, so this countdown and its expiry are source inert. The existing JavaScript preflight rejects index 11 before the turn, while its generic expiry fallback would also need to avoid heal_legs() and stop_occupation(). The ordinary prayer flag u.uinvulnerable is a separate field and its early-return guard must remain. This is a source-general timeout divergence fix, with no seed or replay-position special case.",
   "source": {
-    "file": "wizcmds.c",
-    "functions": ["wiz_identify"],
-    "branch": "For wizard=true, wizcmds.c:50-65 assigns iflags.override_ID from cmd_from_func(wiz_identify), falls back to C('I') when no binding exists, calls display_inventory(NULL, FALSE), clears override_ID, and returns ECMD_OK. In this recording the inventory is nonempty but count_unidentified() is zero, so invent.c:3057-3417 takes the wizid display branch at :3222-3236, adds 'Debug Identify' and '(all items are permanently identified already)', then select_menu(PICK_NONE) waits for the following Escape; no inventory mutation, RNG, or elapsed turn occurs.",
+    "file": "timeout.c",
+    "functions": [
+      "nh_timeout"
+    ],
+    "branch": "When u.uprops[INVULNERABLE].intrinsic has a TIMEOUT value and u.uinvulnerable is false, nh_timeout() reaches the per-property loop at lines 669-671, decrements the timeout, and falls through the expiry switch because no case INVULNERABLE exists. The current witness has a value of 30 established by #wizintrinsic, so step 579 takes the non-expiring decrement path; the expiry path must remain a no-op as well.",
     "callers": [
-      "nethack-c/upstream/src/cmd.c:1963-1964 binds Ctrl-I and the wizidentify extended-command row to wiz_identify(); js/extcmdlist_data.js:164 already carries the row.",
-      "js/cmd.js:4886-5142 owns # extended-command lookup and dispatch but its switch has no wiz_identify case; js/cmd.js:1794-1805 and :5181-5260 own direct-key admission and lookup, while the direct rhack command arms at :5871-5925 have no wizidentify branch."
+      "nethack-c/upstream/src/allmain.c:273 calls nh_timeout() once after the per-turn monster and hero work; js/allmain.js:811 calls nh_timeout_elapsed_turn() and js/allmain.js:1162 preflights the same elapsed-turn work.",
+      "js/allmain.js:796-811 performs the live timeout call after the movement and regeneration phases, preserving the source ordering that the current boundary reaches."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/invent.c:3057-3417 display_pickinv() and :3427-3455 display_inventory(); js/invent.js:980-1113 and :1115-1121 contain the partial port. The current JS multi-item path throws when want_reply is false at :1053-1055, so it cannot render the witness's display-only wizid menu.",
-      "nethack-c/upstream/src/invent.c:3222-3251 and js/invent.js:1556-1562 count_unidentified()/not_fully_identified() decide the title and the all-items-already-identified line. The helper is present in JS; the missing state is the wizard-ID branch around display_pickinv().",
-      "nethack-c/upstream/src/windows.c select_menu() and nethack-c/upstream/src/win/tty/wintty.c PICK_NONE handling; js/windows.js:107-139 and js/tty_menu.js:1041-1142 already provide a display-only menu that ignores selectors and closes on Escape/Return.",
-      "nethack-c/upstream/src/cmd.c:3682-3695 can_do_extcmd() and js/cmd.js:4793-4809 gate WIZMODECMD rows by wizard mode; the witness is playmode:debug, so this guard should admit the row before dispatch.",
-      "For the nonzero unidentified-count branch, invent.c:3226-3251 and :3385-3407 use iflags.override_ID, display_pickinv() item selection, identify(), identify_pack(), and objnam.c naming overrides; js/invent.js:1577-1626 and js/objnam.js:335-368 already expose related helpers but that selection branch is not reached by this recording."
+      "nethack-c/upstream/src/wizcmds.c:1008-1078 selects simple properties through incr_itimeout(); js/wizcmds.js:334-379 mirrors that producer and writes INVULNERABLE (js/const.js:2437, numeric index 11) into u.uprops.",
+      "nethack-c/upstream/include/prop.h:29 and js/const.js:2437 identify INVULNERABLE as property 11; nethack-c/upstream/include/youprop.h:73 defines Invulnerable from that timed property, while nethack-c/upstream/include/you.h:435 defines u.uinvulnerable separately for prayer protection.",
+      "js/timeout.js:463-523 is the rejecting preflight and js/timeout.js:595-660 is the countdown/expiry implementation; admit timed INVULNERABLE there and give its expiry an explicit source-inert path before the generic heal_legs() fallback.",
+      "The timed property is consumed by ordinary property checks such as js/explode.js:571-574, so the fix must decrement the property while preserving the active-property state and must not clear or conflate it with the prayer flag."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    ".cache/scan-cache.json at SHA 2197a60fcd29556e827a4b3a28fdac64e86ad4f7 reports 541 emitted screens, 1814 recorded steps, and the boundary 'unsupported hero command: wiz_identify() for the extended command 'wizidentify' is not ported'; the queue upper bound is 1273 and there are no unlocated kinds.",
-    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 529-541 contain '#wizidentify\\n'; steps 530-540 build the exact command text, and step 541's Return produces the C screen lines 'Debug Identify', '(all items are permanently identified already)', and '(end)' with no RNG entry.",
-    "nethack-c/upstream/src/wizcmds.c:48-66 defines the missing source function and its temporary override_ID lifetime; nethack-c/upstream/src/cmd.c:1963-1964 confirms both the Ctrl-I binding and extended-command row.",
-    "nethack-c/upstream/src/invent.c:3130-3138 skips the single-item shortcut for wizid, :3222-3236 builds the exact zero-unidentified display lines, and :3379-3417 invokes select_menu(PICK_NONE) through the ordinary display_inventory() return path.",
-    "js/cmd.js:5136-5141 currently raises the reported default dispatch refusal; js/cmd.js:1794-1805 omits wizidentify from direct-key admission and :5871-5925 omits its direct handler. js/wizcmds.js has no wiz_identify export.",
-    "js/invent.js:1053-1055 explicitly refuses every multi-item display when want_reply is false, while js/windows.js:122-139 and js/tty_menu.js:1041-1142 already support the PICK_NONE display-only interaction needed after the command is wired.",
-    "The implementation scope is source-general wizard-mode command admission, temporary override_ID handling, and the display-only zero-unidentified inventory branch; no seed, input string, expected screen, or replay-position special case is indicated."
+    ".cache/scan-cache.json has SHA 5fe1e89bdbae7c18355290568ebd1dce6fdcec7c and the assigned row reports 579 emitted screens, 1814 recorded steps, and boundary elapsed-turn nh_timeout requires no active property timeout at index 11; its upper bound is 1235.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 574-577 show the wizard intrinsic menu selections a and r, then the C message Timeout for invulnerable set to 30.  Timeout for very fast set to 30.; step 579 key k (movenorth) emits the seven recorded RNG calls and reaches T:98 before the JavaScript preflight refuses.",
+    "nethack-c/upstream/src/timeout.c:621-622 returns only for the separate u.uinvulnerable prayer flag; lines 669-671 decrement every timed property and lines 673-944 contain no case INVULNERABLE. The direct search rg -n case INVULNERABLE nethack-c/upstream/src/timeout.c produced no matches.",
+    "nethack-c/upstream/src/wizcmds.c:973-1008 maps the first menu item to property INVULNERABLE and adds the default 30-turn timeout; nethack-c/upstream/src/prop.h:29 and nethack-c/upstream/include/youprop.h:73 pin index 11 and its timed-property meaning.",
+    "js/timeout.js:492-523 currently throws no active property timeout at index 11, and js/timeout.js:595-659 sends an unrecognized expiring property to heal_legs()/stop_occupation(); the actionable scope is admission plus a source-inert index-11 expiry branch.",
+    "The required behavior is source-general: preserve timeout decrement, active-property consumers, RNG order, and the separate prayer early return for every timed INVULNERABLE value; do not key it to seed 4500, the Knight role, or step 579."
   ]
 }
