@@ -41876,7 +41876,7 @@
     {
       "id": "div-pager-self-lookat-ball-seed4500",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Align pager self_lookat's punished-hero object description so the chained ball suffix matches C while preserving ordinary object and monster lookups.",
       "cFile": "pager.c",
       "sessions": [],
@@ -41885,8 +41885,8 @@
       "spans": [
         {
           "name": "self_lookat",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f922afc3f15d8ced63b8ed86b407b68ff36b49ca",
           "functions": [
             "self_lookat"
           ]
@@ -41898,8 +41898,11 @@
         "screens": 8628,
         "rng": 632409
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f922afc3f15d8ced63b8ed86b407b68ff36b49ca",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "self_lookat",
       "session": "holdout/seed4500-knight-coverage",
       "step": 787,
@@ -41975,7 +41978,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "f922afc3f15d8ced63b8ed86b407b68ff36b49ca",
+        "screens": 8629,
+        "rng": 632409
+      }
     }
   ]
 }
