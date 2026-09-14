@@ -42740,7 +42740,7 @@
     {
       "id": "port-potion-paralysis-seed0002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port potion.c peffect_paralysis() ordinary floor branch, preserving its rn1 duration, frozen-feet messages, nomul state, and Dexterity exercise.",
       "cFile": "potion.c",
       "sessions": [
@@ -42751,8 +42751,8 @@
       "spans": [
         {
           "name": "peffect_paralysis",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b0ac4bb23d49400023028cda9e5591fa59c5aea3",
           "functions": [
             "peffect_paralysis"
           ]
@@ -42764,15 +42764,18 @@
         "screens": 8718,
         "rng": 640345
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b0ac4bb23d49400023028cda9e5591fa59c5aea3",
+      "delivered": {
+        "screens": 10,
+        "rng": 1587
+      },
       "functions": [
         {
           "name": "peffect_paralysis",
           "line": 881,
           "endLine": 900,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -42855,7 +42858,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_paralysis",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_paralysis",
+            "sourceReview": "Read the complete upstream potion.c peffect_paralysis() definition at lines 881-898 and compared every branch and evaluation boundary with js/potion.js. The Free_action branch prints only the momentary stiffening message. The remaining branches preserve the Levitation, Is_airlevel, Is_waterlevel, and u.usteed message gates, with the ordinary floor branch using body_part(FOOT), makeplural(), and surface(). The shared tail evaluates rn1(10, 25 - 12 * bcsign(otmp)) before nomul(), then stores the frozen-potion multi reason and You_can_move_again nomovemsg before exercise(A_DEX, FALSE). No unported callee is needed. Removed the POT_PARALYSIS UnsupportedQuaffError dispatcher refusal; the other potion refusals remain for their unported source units.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1360-1362 dispatches POT_PARALYSIS to peffect_paralysis(); js/potion.js peffects routes that case to the ported implementation and continues with dopotion()'s result tail."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() lines 618-641 calls peffects(), then identifies the potion, invokes trycall() when needed, consumes it with useup(), and returns ECMD_TIME; js/potion.js dopotion() follows the same caller path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() lines 526-615 selects an inventory potion after dungeon-feature checks and calls dopotion(); js/potion.js dodrink() is the production #quaff implementation."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c registers q/#quaff and rhack() handles the ECMD result; js/cmd.js runQuaffCommand routes the production quaff command through failClosedCommand() to dodrink(), and the command dispatcher invokes it for the quaff row."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/paralysis-quaff-seed914117.session.json"
+            ],
+            "checkedAt": "b0ac4bb23d49400023028cda9e5591fa59c5aea3"
+          }
+        ],
+        "entryPointReview": "The selected range has one production entry point: q/#quaff with a POT_PARALYSIS inventory item. cmd.c's quaff row and result handling reach js/cmd.js runQuaffCommand, which calls dodrink(); dodrink() selects the potion and calls dopotion(); dopotion() calls peffects(); and peffects() dispatches POT_PARALYSIS to peffect_paralysis(). The independent debug recipe wishes an uncursed potion of paralysis, moves off the starting staircase to an ordinary floor square, and selects the resulting inventory item, so its recording reaches the production caller chain, frozen-feet message, rn1 duration, continuation state, Dexterity exercise, and subsequent move-again message.",
+        "entryPoints": [
+          {
+            "name": "#quaff POT_PARALYSIS",
+            "functions": [
+              "peffect_paralysis"
+            ],
+            "recordings": [
+              "recordings/potion.c/paralysis-quaff-seed914117.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 96,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 499,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "previousRemainingScreensUpperBound": 509
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "b0ac4bb23d49400023028cda9e5591fa59c5aea3",
+        "screens": 8728,
+        "rng": 641932
+      }
     }
   ]
 }

@@ -1,52 +1,48 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 509,
+  "remainingScreensUpperBound": 499,
   "status": "complete",
-  "commit": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
+  "commit": "b0ac4bb23d49400023028cda9e5591fa59c5aea3",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 509,
-    "step": 86,
+    "remainingScreensUpperBound": 499,
+    "step": 96,
     "kind": "stop",
-    "function": "peffect_paralysis",
+    "function": null,
     "functionDeclared": false,
-    "sourceFile": "potion.c",
-    "cFile": "potion.c",
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "Replay error: quaffing requires peffect_paralysis()",
+    "message": "Replay error: reading requires the selected scroll effect",
     "unlocatedKinds": [],
-    "recordedSteps": 595,
-    "remainingScreensUpperBound": 509
+    "recordedSteps": 595
   },
-  "summary": "At segment 0, recorded step 86 (input move index 85, key n), the hero quaffs the potion selected from the inventory menu. C dispatches POT_PARALYSIS to potion.c peffect_paralysis(); with no Free_action, levitation, water, air, or steed exception, it prints the frozen-feet message, applies nomul(-rn1(10, 25)), sets the move-again message, and exercises Dexterity. The current JavaScript peffects() stops at the POT_PARALYSIS case with UnsupportedQuaffError(\"peffect_paralysis()\") before the rn1 duration and exercise calls. The bounded source handoff is this ordinary floor paralysis branch, including duration, occupation message, and A_DEX exercise; resistance and alternate terrain or steed arms remain part of the same source function's later coverage.",
+  "summary": "At segment 0, recorded step 96 (input move index 95, key t), the read prompt selects the scroll labeled ASHPD SODALG and C prints \"As you read the scroll, it disappears.  A lit field surrounds you!\". In read.c, seffects() dispatches SCR_LIGHT to seffect_light(); its visible, unconfused, noncursed branch marks the scroll known, calls litroom(TRUE, sobj), and calls lightdamage(sobj, TRUE, 5). The current js/read.js seffects() admission set omits SCR_LIGHT and throws UnsupportedReadError(\"the selected scroll effect\") before that source branch. The bounded handoff is the ordinary SCR_LIGHT read effect, including the seffects() wisdom exercise and the existing doread() identification/useup tail.",
   "source": {
-    "file": "potion.c",
+    "file": "read.c",
     "functions": [
-      "peffect_paralysis"
+      "seffect_light"
     ],
-    "branch": "POT_PARALYSIS with Free_action false, no levitation or air/water level, no steed, and an ordinary floor position: print that the hero's feet are frozen to the floor, call nomul(-rn1(10, 25)), set gm.multi_reason to frozen by a potion and gn.nomovemsg to You_can_move_again, then call exercise(A_DEX, FALSE).",
+    "branch": "SCR_LIGHT in seffects(): the target reaches the visible, unconfused, noncursed branch, which sets gk.known when not Blind, calls litroom(TRUE, sobj), then calls lightdamage(sobj, TRUE, 5) and marks the scroll known if lightdamage returns nonzero; seffects() performs the A_WIS exercise before dispatch.",
     "callers": [
-      "potion.c peffects():1360-1362",
-      "potion.c dopotion():618-641",
-      "potion.c dodrink():526-614",
-      "js/potion.js peffects():831-899",
-      "js/potion.js dopotion():911-937",
-      "js/potion.js dodrink():948-1027"
+      "read.c seffects():2193-2290 (SCR_LIGHT switch arm at 2243-2245)",
+      "read.c doread():328-647 (seffects() call at 635)",
+      "js/read.js doread():427-532 (seffects() call at 520)",
+      "js/read.js seffects():673-710 (current selected-effect dispatch)"
     ],
     "dependencies": [
-      "hack.c nomul():4161-4173 and unmul():4177-4208",
-      "attrib.c exercise():488-518",
-      "obj.c bcsign():1856-1860",
-      "decl.h You_can_move_again macro"
+      "read.c litroom():2491-2567",
+      "zap.c lightdamage():3024-3056",
+      "attrib.c exercise():488-518 (seffects() magic-scroll pre-dispatch)"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The fresh queue entry is the target session's stop at step 86 with function peffect_paralysis, message \"Replay error: quaffing requires peffect_paralysis()\", recordedSteps 595, and remainingScreensUpperBound 509 (= 595 - 86) at commit 9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef.",
-    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 85 shows the potion menu and step 86 key n emits \"Your feet are frozen to the floor!  You can move again.\"; step 86 records rn2(10)=4 at peffect_paralysis(potion.c:893) and rn2(2)=0 at exercise(attrib.c:509).",
-    "nethack-c/upstream/src/potion.c:880-898 implements peffect_paralysis(); the ordinary branch prints the floor message, calls rn1(10, 25) through nomul(), sets the frozen-potion reason and move-again message, then calls exercise(A_DEX, FALSE).",
-    "nethack-c/upstream/src/potion.c:1333-1362 dispatches POT_PARALYSIS from peffects(), while :618-641 shows dopotion() consuming the result and running its naming/useup tail.",
-    "js/potion.js:852-853 currently throws UnsupportedQuaffError('peffect_paralysis()') before peffect_paralysis exists; js/potion.js:831-899 is the peffects() dispatcher and js/hack.js plus js/attrib.js provide the existing nomul() and exercise() operations."
+    "The fresh queue boundary is this target session at step 96, kind stop, with no queue source owner and message \"Replay error: reading requires the selected scroll effect\"; recordedSteps is 595 and 595 - 96 = remainingScreensUpperBound 499 at commit b0ac4bb23d49400023028cda9e5591fa59c5aea3.",
+    "The explicit session file shows segment 0 step 96 with key t, screen prefix \"As you read the scroll, it disappears.  A lit field surrounds you!\", cursor [70,12,1], and rn2(19)=9 and rn2(19)=12 exercise calls.",
+    "nethack-c/upstream/src/read.c:1741-1785 defines seffect_light(); the target message is the nonconfused, noncursed litroom branch, while the confused light-monster branch is outside this bounded probe.",
+    "nethack-c/upstream/src/read.c:2193-2290 dispatches SCR_LIGHT at 2243-2245 and returns through the existing doread() identification and useup tail at 635-645; litroom() is at 2491-2567 and lightdamage() is at zap.c:3024-3056.",
+    "js/read.js:673-680 currently admits only seven scroll effects and throws UnsupportedReadError(\"the selected scroll effect\") for SCR_LIGHT; js/read.js:doread() reaches that call at 520 after printing the disappearance message."
   ]
 }
