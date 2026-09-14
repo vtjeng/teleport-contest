@@ -42536,6 +42536,124 @@
         "screens": 8688,
         "rng": 640306
       }
+    },
+    {
+      "id": "port-potion-fruit-juice-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port potion.c peffect_see_invisible() fruit-juice arm, including potion identification, taste, nutrition, and newuhs(FALSE) return flow.",
+      "cFile": "potion.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "The authoritative queue ranks holdout/seed4500-knight-coverage first at 1025, but its valid cache owner teleport.c teleds is already a completed source goal and its same-count screen mismatch has no unverified teleds span. The next actionable session with a complete valid investigation is holdout/seed0002-healer-reflection-drummer at 539; its cache identifies potion.c:peffect_see_invisible and the POT_FRUIT_JUICE arm.",
+      "detail": "At commit 1e053b46, the assigned session stops at step 56 with the POT_FRUIT_JUICE arm before potion_unkn, fruitname, hunger, and newuhs(FALSE). Port the whole peffect_see_invisible function while preserving its later POT_SEE_INVISIBLE branch and production callers.",
+      "spans": [
+        {
+          "name": "peffect_see_invisible",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "peffect_see_invisible"
+          ]
+        }
+      ],
+      "openedAt": "9b5e7ba9f81b0181815b18be440d2db212469a83",
+      "openStanding": {
+        "sha": "9b5e7ba9f81b0181815b18be440d2db212469a83",
+        "screens": 8688,
+        "rng": 640306
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_see_invisible",
+          "line": 841,
+          "endLine": 880,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 841,
+        "to": 880
+      },
+      "activeStanding": {
+        "sha": "9b5e7ba9f81b0181815b18be440d2db212469a83",
+        "screens": 8688,
+        "rng": 640306
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 56,
+          "kind": "stop",
+          "function": "peffect_see_invisible",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 539,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 539,
+              "status": "complete",
+              "commit": "1e053b46f91f5850d247903f63e70eddb6f4b598",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 539,
+                "step": 56,
+                "kind": "stop",
+                "function": "peffect_see_invisible",
+                "functionDeclared": false,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null,
+                "message": "Replay error: quaffing requires peffect_see_invisible()",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "At segment 0, recorded step 56 (input move index 55, key q), the hero selects the ruby-looking potion and C handles it as POT_FRUIT_JUICE through potion.c peffect_see_invisible(). That shared handler marks the potion unknown, prints the fruit-juice taste, adds nutrition using dilution and bless/curse state, calls newuhs(FALSE), and returns before the see-invisible effect. The current JavaScript peffects() maps POT_FRUIT_JUICE to UnsupportedQuaffError(\"peffect_see_invisible()\") before any of those effects. The bounded source handoff is the POT_FRUIT_JUICE arm of potion.c peffect_see_invisible(), including its message, hunger update, newuhs(FALSE), and return; the POT_SEE_INVISIBLE continuation remains separate.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "peffect_see_invisible"
+                ],
+                "branch": "POT_FRUIT_JUICE arm of peffect_see_invisible(): after potion_unkn is incremented and the uncursed fruitname(TRUE) taste message is printed, add (odiluted ? 5 : 10) * (2 + bcsign(otmp)) to u.uhunger, call newuhs(FALSE), and return before the POT_SEE_INVISIBLE-only blindness and visibility work.",
+                "callers": [
+                  "potion.c peffects():1356-1359",
+                  "potion.c dopotion():618-641",
+                  "js/potion.js peffects():754-820",
+                  "js/potion.js dopotion():830-858",
+                  "js/potion.js dodrink():869-948"
+                ],
+                "dependencies": [
+                  "objnam.c fruitname():411-427",
+                  "mkobj.c bcsign():1856-1860",
+                  "eat.c newuhs():3362-3510"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The fresh queue entry is the target session's stop at step 56 with function peffect_see_invisible, message \"Replay error: quaffing requires peffect_see_invisible()\", recordedSteps 595, and remainingScreensUpperBound 539 (= 595 - 56) at commit 1e053b46f91f5850d247903f63e70eddb6f4b598.",
+                "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 55 lists q as a ruby potion; step 56 key q emits \"This tastes like slime mold juice.--More--\" with no RNG calls, and step 57 continues with \"Call a ruby potion:\".",
+                "nethack-c/upstream/src/potion.c:841-860 increments potion_unkn, prints fruitname(TRUE), and for POT_FRUIT_JUICE adds hunger using bcsign and dilution, calls newuhs(FALSE), and returns; :1356-1359 dispatches POT_FRUIT_JUICE to peffect_see_invisible().",
+                "nethack-c/upstream/src/potion.c:618-641 shows dopotion() consuming the peffects() result, issuing the unknown-potion naming prompt through trycall(), and using up the potion; objnam.c:411-427 owns fruitname(), mkobj.c:1856-1860 owns bcsign(), and eat.c:3362-3510 owns newuhs().",
+                "js/potion.js:770-772 currently throws UnsupportedQuaffError('peffect_see_invisible()') for both POT_SEE_INVISIBLE and POT_FRUIT_JUICE; js/potion.js:830-858 is the tail that must run after the fruit-juice arm returns."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
