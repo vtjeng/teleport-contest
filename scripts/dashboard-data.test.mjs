@@ -411,10 +411,10 @@ test('the queue shows current findings and explicit missing, partial, and stale 
     assert.match(entries, /missing[\s\S]*complete[\s\S]*partial[\s\S]*stale[\s\S]*invalid/u);
     const summaries = [...entries.matchAll(/<summary>(.*?)<\/summary>/gu)].map(match => match[1]);
     assert.match(summaries[0], /No investigation result/u);
-    assert.match(summaries[1], /Complete investigation/u);
-    assert.match(summaries[2], /Partial investigation/u);
-    assert.match(summaries[3], /Needs investigation · remaining-screen count changed/u);
-    assert.match(summaries[4], /Investigation file incomplete or unreadable/u);
+    assert.match(summaries[1], /aria-label="Investigation complete"[\s\S]*☑/u);
+    assert.match(summaries[2], /aria-label="Partial investigation"[\s\S]*◐/u);
+    assert.match(summaries[3], /aria-label="Needs investigation · remaining-screen count changed"[\s\S]*☐/u);
+    assert.match(summaries[4], /aria-label="Investigation file incomplete or unreadable"[\s\S]*⚠/u);
     // Findings stay in the expanded body, keeping the queue scannable on phones.
     assert.ok(summaries.every(summary => !summary.includes('finding')));
     assert.match(entries, /complete finding &lt;tag> &amp; &quot;quote&quot;/u);
@@ -782,6 +782,77 @@ test('dashboard separates closed goals and labels inferred timing', () => {
     assertBarsBounded(timelineBars(
         renderTimeline({ ...data, goals: [alpha] }, builtAt),
     ));
+});
+
+test('goal lifecycle records suppress score milestones and phantom open goals', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-lifecycle-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    const baseline = commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    commit(fixture, 'Open alpha goal', '2026-01-01T00:05:00Z');
+    const alphaClose = commit(
+        fixture, 'Close alpha goal', '2026-01-01T00:20:00Z',
+    );
+    commit(fixture, 'Open beta goal', '2026-01-01T00:25:00Z');
+    const betaClose = commit(
+        fixture, 'Close beta goal', '2026-01-01T00:35:00Z',
+    );
+    commit(fixture, 'Open running goal', '2026-01-01T00:40:00Z');
+    const noisyScore = commit(
+        fixture, 'Unrelated score measurement', '2026-01-01T00:45:00Z',
+    );
+
+    // openedAt is the standing commit captured immediately before the Open
+    // commit, matching goal-log's lifecycle representation.
+    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify({
+        goals: [
+            {
+                id: 'alpha', kind: 'file-port', status: 'closed', summary: 'Alpha',
+                openedAt: baseline, closedAt: alphaClose,
+                closeStanding: { screens: 10, rng: 20 }, spans: [],
+            },
+            {
+                id: 'beta', kind: 'divergence-fix', status: 'closed', summary: 'Beta',
+                openedAt: alphaClose, closedAt: betaClose,
+                closeStanding: { screens: 20, rng: 30 }, spans: [],
+            },
+            {
+                id: 'running', kind: 'file-port', status: 'open', summary: 'Running',
+                openedAt: betaClose,
+                openStanding: { screens: 20, rng: 30 }, spans: [],
+            },
+        ],
+    }));
+    writeFileSync(join(fixture, 'SCORE.tsv'), [
+        SCORE_HEADER,
+        scoreRow({
+            utc: '2026-01-01T00:20:00Z', sha: alphaClose, event: 'goal',
+            screens: 10, note: 'Development 10 of 100 screens, 20 of 100 rng.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:35:00Z', sha: betaClose, event: 'span',
+            screens: 20, note: 'Development 20 of 100 screens, 30 of 100 rng.',
+        }),
+        scoreRow({
+            utc: '2026-01-01T00:45:00Z', sha: noisyScore, event: 'goal',
+            screens: 20, note: 'Development 20 of 100 screens, 30 of 100 rng.',
+        }),
+        '',
+    ].join('\n'));
+
+    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+        cwd: fixture, encoding: 'utf8',
+    }));
+    assert.equal(data.goals.length, 3);
+    assert.equal(data.summary.totalGoals, 2);
+    assert.equal(data.summary.inProgressGoals, 1);
+    assert.deepEqual(data.goals.map(goal => goal.name), ['alpha', 'beta', 'running']);
+    assert.equal(data.goals.filter(goal => goal.status === 'in-progress').length, 1);
+    assert.ok(data.goals.every(goal => !goal.name.startsWith('Development ')));
+    assert.equal(data.goals[1].openTimeSource, 'goal-record');
+    assert.equal(data.goals[1].openTime, '2026-01-01T00:20:00.000Z');
+    assert.equal(data.goals[1].screensDelta, 10);
 });
 
 test('in-progress phase provenance follows each recorded boundary', () => {

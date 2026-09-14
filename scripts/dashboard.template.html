@@ -833,7 +833,21 @@ canvas {
   color: var(--ink-secondary);
 }
 .queue-remaining { font-variant-numeric: tabular-nums; }
-.investigation-status { font-weight: 600; }
+.investigation-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.investigation-status.status-complete { color: var(--goal-in-progress); }
+.investigation-status.status-partial { color: var(--phase-impl); }
+.investigation-status.status-stale { color: var(--goal-paused); }
+.investigation-status.status-invalid { color: var(--goal-divergence); }
+.investigation-status.status-missing { color: var(--ink-muted); }
 .queue-finding { max-width: 75ch; padding-bottom: 20px; font-size: 14px; }
 .investigation-summary { line-height: 1.65; }
 .investigation-source { margin-top: 8px; color: var(--ink-secondary); }
@@ -949,7 +963,7 @@ canvas {
 
 <div class="section">
   <h3 class="section-title">Goal timeline</h3>
-  <p class="subtitle">Goal intervals from commits and score records. Pale bars have estimated start times.</p>
+  <p class="subtitle">Goal intervals from lifecycle records, commits, and score records. Pale bars have estimated start times.</p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -1109,11 +1123,15 @@ document.getElementById('stats').innerHTML = [
   rows.forEach(entry => {
     const investigation = entry.investigation;
     const result = investigation?.result;
-    const status = ({
-      complete: 'Complete investigation', partial: 'Partial investigation',
-      stale: 'Needs investigation · remaining-screen count changed',
-      invalid: 'Investigation file incomplete or unreadable',
-    })[investigation?.status] || 'No investigation result';
+    const investigationState = ({
+      complete: { symbol: '☑', label: 'Investigation complete', className: 'complete' },
+      partial: { symbol: '◐', label: 'Partial investigation', className: 'partial' },
+      stale: { symbol: '☐', label: 'Needs investigation · remaining-screen count changed', className: 'stale' },
+      invalid: { symbol: '⚠', label: 'Investigation file incomplete or unreadable', className: 'invalid' },
+    })[investigation?.status] || { symbol: '?', label: 'No investigation result', className: 'missing' };
+    const status = '<span class="investigation-status status-' + investigationState.className
+      + '" role="img" aria-label="' + esc(investigationState.label)
+      + '" title="' + esc(investigationState.label) + '">' + investigationState.symbol + '</span>';
     const source = result?.source;
     const findings = (result ? '<p class="investigation-summary">' + esc(result.summary) + '</p>' : '')
       + (source ? '<div class="investigation-source">Source: ' + esc(source.file)
@@ -1126,7 +1144,7 @@ document.getElementById('stats').innerHTML = [
       + '<span class="queue-session">' + esc(entry.session) + '</span>'
       + '<span class="queue-overview"><span class="queue-remaining">'
       + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps + ' screens remaining</span>'
-      + '<span class="investigation-status">' + status + '</span></span></summary>'
+      + status + '</span></summary>'
       + '<div class="queue-finding">' + findings
       + '<dl class="queue-mismatch"><div><dt>First mismatch</dt><dd>step ' + (entry.step ?? 'unknown') + '</dd></div>'
       + '<div><dt>Kind</dt><dd>' + esc(entry.kind) + '</dd></div></dl>'
@@ -1579,6 +1597,7 @@ document.getElementById('stats').innerHTML = [
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const DAYS = 7;
   const dayMs = 86400000;
+  const observedOpenTime = goal => ['open-commit', 'goal-record'].includes(goal.openTimeSource);
   // The strip shows the state at build time: the in-progress goal's bar ends
   // there rather than at the viewing time.
   const builtAt = new Date(DATA.summary.generatedAt).getTime();
@@ -1650,7 +1669,7 @@ document.getElementById('stats').innerHTML = [
       const g = DATA.goals[bar.index];
       const cls = 'day-bar ' + g.kind
         + (g.status === 'in-progress' ? ' in-progress' : '')
-        + (g.openTimeSource === 'open-commit' ? '' : ' inferred');
+        + (observedOpenTime(g) ? '' : ' inferred');
       let box = 'left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%';
       if (bar.lanes > 1) {
         const height = (16 - 2 * (bar.lanes - 1)) / bar.lanes;
@@ -1670,7 +1689,7 @@ document.getElementById('stats').innerHTML = [
   function describe(el) {
     const g = DATA.goals[Number(el.dataset.goal)];
     const { open, close } = span(g);
-    const inferred = g.openTimeSource !== 'open-commit';
+    const inferred = !observedOpenTime(g);
     const overlapping = DATA.goals.filter(other => {
       if (other === g) return false;
       const o = span(other);
