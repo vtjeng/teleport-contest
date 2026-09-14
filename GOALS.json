@@ -45971,7 +45971,16 @@
       ],
       "selectionReason": "User-authorized seed-worker pilot: integrate the completed seed0002 lane delivery at step344, remaining upper bound251. The valid investigations/holdout/seed0002-healer-reflection-drummer.json traces whole pickup.c pick_obj and its required billing family. Other workers continue independently; shared aggregate goal state remains coordinator-owned.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "pick_obj",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "pick_obj"
+          ]
+        }
+      ],
       "openedAt": "7064e22ba577b6b636d23a6704313729d4c43b5a",
       "openStanding": {
         "sha": "6369a93eff1bde89dc9d15feedaa7ff2b1ea8298",
