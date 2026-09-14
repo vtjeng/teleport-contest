@@ -1,50 +1,53 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1150,
+  "remainingScreensUpperBound": 1081,
   "status": "complete",
-  "commit": "4ce84b51b5fcea74fd540e92725443156e388c2a",
+  "commit": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1150,
-    "step": 664,
+    "remainingScreensUpperBound": 1081,
+    "step": 733,
     "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "function": "doorganize",
+    "functionDeclared": true,
+    "sourceFile": "invent.c",
+    "cFile": "invent.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: wiping the hero's face requires a clean occupation slot and matching three-turn blindness",
+    "message": "unsupported hero command: doorganize() for the extended command 'adjust' is not ported",
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The new boundary is the clean-face arm of do.c dowipe(). At step 664 the assigned recording enters #wipe after the prior turn command, with no cream on the hero; C prints Your face is already clean. and returns ECMD_TIME. JavaScript reaches the existing dowipe() owner but requires a clean occupation slot and an exact three-turn ordinary human blindness state before it can run, so it raises the wiping-the-face refusal instead of taking C's clean branch. Port the complete do.c wipeoff()/dowipe() family: dowipe() must start wipeoff() whenever u.ucreamed is nonzero regardless of the narrow ordinary-state predicate, and must print the body-part clean message when it is zero; wipeoff() must clamp and decrement cream/blindness independently, distinguish glop-off from face-feels-clean, and keep the occupation active while cream remains. This is source-general do.c file-port scope.",
+  "summary": "invent.c owns the #adjust boundary: doorganize() selects an inventory source object with getobj(\"adjust\", ...), then doorganize_core() asks for a destination letter and performs collect, move, merge, swap, or split bookkeeping. At the refreshed stop, the C recording has just painted What do you want to adjust? [a-km or ?*] after #adjust; JavaScript has the adjust and altadjust rows plus item-action queue wiring, but js/cmd.js doextcmd() lacks doorganize and adjust_split cases and falls into its generic refusal before invent.js getobj() runs. Port the complete invent.c adjust family and wire both handlers, preserving inventory-chain ordering, object names, messages, redraw, cancellation, malformed-gold handling, and split/count paths.",
   "source": {
-    "file": "do.c",
+    "file": "invent.c",
     "functions": [
-      "wipeoff",
-      "dowipe"
+      "adjust_ok",
+      "adjust_gold_ok",
+      "doorganize",
+      "adjust_split",
+      "doorganize_core"
     ],
-    "branch": "dowipe() is the #wipe entrypoint. If u.ucreamed is nonzero it installs wipeoff() as an untimed occupation and returns ECMD_TIME; if u.ucreamed is zero it prints Your \"%s is already clean.\" using body_part(FACE) and still returns ECMD_TIME. Each wipeoff() callback clamps u.ucreamed and BlindedTimeout to four, decrements each, then prints You've got the glop off. and clears ucreamed when HBlinded reaches zero, prints Your \"%s feels clean now.\" when blindness remains but cream reaches zero, or returns 1 to continue the occupation. These source branches apply across valid hero forms and blindness states; the current JS exact-three-turn human guard is only a narrow partial path.",
+    "branch": "doorganize() returns ECMD_OK with a no-adjustable message only for an empty inventory or a sole gold stack already in '$'; otherwise !fixinv first reassigns letters, check_invent_gold(\"adjust\") selects a filter that excludes ordinary gold or admits malformed gold, and getobj(\"adjust\", filter, GETOBJ_PROMPT | GETOBJ_ALLOWCNT) chooses the source. doorganize_core() then accepts cancel, same-letter collection, a different destination for move/merge/swap, or a counted split; adjust_split() is the internal item-action path for non-gold stacks of at least two and validates a split count before calling splitobj(). The assigned recording has the normal fixed-letter path, a named long sword in slot a, and destination z, with no RNG at the boundary.",
     "callers": [
-      "nethack-c/upstream/src/cmd.c:30 declares dowipe(), and :1941 binds the wipe extended-command row; js/extcmdlist_data.js:155 carries wipe -> dowipe.",
-      "js/cmd.js:5092-5093 dispatches dowipe() through failClosedCommand(), while js/cmd.js:2964-2969 registers UnsupportedWipeError for the current partial branch; the row is already admitted and only the do.c owner needs widening.",
-      "nethack-c/upstream/src/do.c:2390-2404 dowipe() installs wipeoff(); js/cmd.js:set_occupation()/timed_occupation() (525-541, 508-511) and the allmain turn boundary run that callback across subsequent turns."
+      "nethack-c/upstream/src/cmd.c:1673-1674 binds the M-a/adjust extended-command row to doorganize(); js/extcmdlist_data.js:45 already preserves that row, while js/cmd.js:4885-5150 has no doorganize case and reaches its default refusal.",
+      "nethack-c/upstream/src/iactions.c:191-197 queues doorganize or adjust_split followed by the selected inventory letter; js/iactions.js:295-302 mirrors both queues, so the same production handlers must serve item-actions.",
+      "nethack-c/upstream/src/invent.c:4981-5003 is the user entrypoint and :5008-5064 is the internal split entrypoint; both converge on :5068-5279 doorganize_core()."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/do.c:2361-2385 wipeoff() depends on HBlinded timeout arithmetic, body_part(FACE), gulp_blnd_check(), set_itimeout(), make_blinded(), and the occupation return convention; js/do.js:297-319 has only the exact two-turn subset and js/potion.js:306-447 plus js/mhitu.js provide the timeout/blindness helpers.",
-      "nethack-c/upstream/src/do.c:2390-2404 dowipe() depends on set_occupation() and body_part(FACE); js/do.js:322-337 and js/cmd.js:525-541 already provide the production seam but dowipe() currently adds unsupported ordinaryWipeState() and occupation guards absent from C.",
-      "The source callback is consumed by allmain.c negative/occupation turn processing; js/cmd.js timed_occupation() decrements state.multi and invokes state.timedOccFn, so preserve its return value, occtxt, and the exact one-turn/continuation behavior.",
-      "The current js/do.js ordinaryWipeState() additionally gates human, unpolymorphed, unengulfed, non-hallucinating, unblocked blindness and exact timeout values; these conditions must remain only where they correspond to a real C branch, rather than blocking the clean-face dowipe() arm witnessed here.",
-      "js/tty_message.js ttyPline() owns the C Your()/pline() output, and js/polyself.js/body-part helpers supply the current face wording; retain C's output ordering before occupation completion or the next command."
+      "invent.c:4889-4913 check_invent_gold(), :739-765 reorder_invent(), and reassign() provide gold validation, inventory ordering, and !fixinv relabeling; js/invent.js already has check_invent_gold(), reassign(), and the equivalent private reorderInventory().",
+      "doorganize_core() uses invent.c mergable()/merged(), extract_nobj(), inv_cnt(), assigninvlet(), clear_splitobjs(), prinv(), and update_inventory(); the existing JS ports are js/invent.js, js/obj.js, and js/hack.js, but their state and message ordering must be preserved while wiring the new owner.",
+      "The destination ?/* branch calls invent.c:3467-3518 display_used_invlets(), which paints a selectable Inventory letters used menu and returns a letter or cancel; no display_used_invlets owner exists in js/invent.js, so this return-valued dependency is part of the source-general scope.",
+      "The GETOBJ_ALLOWCNT source branch at invent.c:1937-1947 and adjust_split() at :5022-5040 consume get_count(); js/invent.js:832-843 currently raises UnsupportedObjectPromptError for get_count() and splitobj(), so counted adjust and the internal stack-split path need explicit completion or a recorded dependency handoff.",
+      "C defers prinv() and update_inventory() until the inventory chain has been restored (:5262-5279); js/invent.js:3267-3283 and :1727-1740 provide those output/refresh seams, while object names and merge side effects flow through the existing object and inventory modules."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json SHA 4ce84b51b5fcea74fd540e92725443156e388c2a reports the assigned row at step 664, kind stop, with remainingScreensUpperBound 1150 and the exact wiping-the-face refusal; recordedSteps is 1814.",
-    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 659-664 enter #wipe; step 664 key newline has zero RNG and the C screen begins Your face is already clean., proving the u.ucreamed == 0 dowipe() arm rather than wipeoff().",
-    "nethack-c/upstream/src/do.c:2361-2385 defines wipeoff() and :2388-2404 defines dowipe(); C dowipe() has no exact three-turn blindness, human, polymorph, hallucination, or occupation-slot precondition when the face is already clean.",
-    "js/do.js:297-337 shows the partial port: ordinaryWipeState(state, 2) rejects wipeoff(), ordinaryWipeState(state, 3) rejects dowipe(), and dowipe() has no C clean-face message branch. js/cmd.js:5092-5093 confirms the production command dispatch is already present.",
-    "The actionable scope is the source-general do.c wipeoff()/dowipe() family and its existing occupation/blindness helpers; do not special-case seed 4500, the Knight role, #wipe, the clean-face text, or replay step 664."
+    ".cache/scan-cache.json at SHA 242d3d77cbff92156ce9bdf95eb0404a12ae7fa7 reports the assigned row at screensEmitted 733, recordedSteps 1814, and the exact doorganize refusal; 1814 - 733 = remainingScreensUpperBound 1081.",
+    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 726-733 type #adjust and adjust; step 733 has key newline, zero RNG, and the C prompt What do you want to adjust? [a-km or ?*]. Steps 734-735 answer source a and destination z, with the C Moving: z - a ... Sword of Justice result, proving the actionable path continues through doorganize_core().",
+    "nethack-c/upstream/src/invent.c:4915-5279 defines adjust_ok(), adjust_gold_ok(), doorganize(), adjust_split(), and doorganize_core(); the core performs exact collection/merge/swap/split ordering and restores the inventory before messages and update_inventory().",
+    "nethack-c/upstream/src/cmd.c:1673-1674 and :2062 plus js/extcmdlist_data.js:45 and :209 establish the public adjust and internal altadjust bindings; js/iactions.js:295-302 establishes the live item-action callers, while js/cmd.js doextcmd() lacks both switch cases and emits the observed default refusal.",
+    "The actionable scope is a source-general invent.c file-port family with command dispatch wiring and the return-valued display_used_invlets/count dependencies; do not special-case seed 4500, the Knight role, the named sword, the chosen letters, or step 733."
   ]
 }

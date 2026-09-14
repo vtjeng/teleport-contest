@@ -35606,8 +35606,8 @@
         },
         {
           "name": "rndghostname..rndorcname",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81",
           "functions": [
             "rndghostname",
             "x_monnam",
@@ -35792,231 +35792,231 @@
           "line": 772,
           "endLine": 826,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "x_monnam",
           "line": 827,
           "endLine": 1034,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "l_monnam",
           "line": 1035,
           "endLine": 1041,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_nam",
           "line": 1042,
           "endLine": 1053,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "noit_mon_nam",
           "line": 1054,
           "endLine": 1064,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "some_mon_nam",
           "line": 1065,
           "endLine": 1073,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "Monnam",
           "line": 1074,
           "endLine": 1082,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "noit_Monnam",
           "line": 1083,
           "endLine": 1091,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "Some_Monnam",
           "line": 1092,
           "endLine": 1101,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "noname_monnam",
           "line": 1102,
           "endLine": 1109,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "m_monnam",
           "line": 1110,
           "endLine": 1116,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "y_monnam",
           "line": 1117,
           "endLine": 1132,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "YMonnam",
           "line": 1133,
           "endLine": 1141,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "Adjmonnam",
           "line": 1142,
           "endLine": 1151,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "a_monnam",
           "line": 1152,
           "endLine": 1158,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "Amonnam",
           "line": 1159,
           "endLine": 1169,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "distant_monnam",
           "line": 1170,
           "endLine": 1190,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "mon_nam_too",
           "line": 1191,
           "endLine": 1220,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "monverbself",
           "line": 1221,
           "endLine": 1253,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "minimal_monnam",
           "line": 1254,
           "endLine": 1288,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "Mgender",
           "line": 1289,
           "endLine": 1302,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "pmname",
           "line": 1303,
           "endLine": 1312,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_pmname",
           "line": 1313,
           "endLine": 1320,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "obj_pmname",
           "line": 1321,
           "endLine": 1368,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "bogusmon",
           "line": 1369,
           "endLine": 1388,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "rndmonnam",
           "line": 1389,
           "endLine": 1414,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "bogon_is_pname",
           "line": 1415,
           "endLine": 1423,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "roguename",
           "line": 1424,
           "endLine": 1460,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "hcolor",
           "line": 1461,
           "endLine": 1469,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "rndcolor",
           "line": 1470,
           "endLine": 1492,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "hliquid",
           "line": 1493,
           "endLine": 1525,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "coyotename",
           "line": 1526,
           "endLine": 1537,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "rndorcname",
           "line": 1538,
           "endLine": 1556,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "christen_orc",
@@ -36503,29 +36503,783 @@
               "recordings/do_name.c/name-floor-type.session.json"
             ],
             "checkedAt": "242d3d77cbff92156ce9bdf95eb0404a12ae7fa7"
-          }
-        ],
-        "entryPointReview": "The selected command entry point is the #name/#call extended command. js/cmd.js registers and dispatches docallcmd(), which reproduces the C menu and routes monster naming, individual object naming, inventory type naming, floor type naming, discovery naming, and level annotation. The d branch remains an explicit note_unported('o_init.c rename_disco()') because that callee is outside this span; the a branch calls the existing dungeon owner. Independent recordings cover m, i, o, and f through the production dispatcher, including cancellation and successful rename cases, and the exposed holdout advances beyond the original unsupported option-a boundary.",
-        "entryPoints": [
+          },
           {
-            "name": "#name/#call naming dispatcher",
-            "functions": [
-              "docallcmd",
-              "do_mgivenname",
-              "do_oname",
-              "docall",
-              "namefloorobj"
+            "name": "rndghostname",
+            "implementation": "js/do_name.js",
+            "symbol": "rndghostname",
+            "sourceReview": "Read do_name.c:772-782 in full. Preserved rn2(7), the second ghost-name draw, and the player-name fallback; no discarded-result gap remains.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon_runtime",
+                "source": "makemon.c ghost creation calls rndghostname() when a ghost receives a generated given name."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
             ],
             "recordings": [
-              "recordings/do_name.c/name-monster-cancel.session.json",
-              "recordings/do_name.c/name-monster-rename.session.json",
-              "recordings/do_name.c/name-object-cancel.session.json",
-              "recordings/do_name.c/name-object-rename.session.json",
-              "recordings/do_name.c/call-object-type.session.json",
-              "recordings/do_name.c/name-floor-type.session.json"
-            ]
+              "recordings/makemon.c/bagotricks-apply.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "x_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "x_monnam",
+            "sourceReview": "Read do_name.c:827-1032 in full. Ported every article, visibility, hallucination, priest/minion, shopkeeper, saddle, mimic, given-name, player-monster, unique, and output branch in source order; display and gameplay RNG seams are preserved.",
+            "callers": [
+              {
+                "path": "js/steed.js",
+                "symbol": "mount_steed",
+                "source": "steed.c mount_steed() builds its slipped-mount killer name with x_monnam()."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "mstatusline",
+                "source": "insight.c mstatusline() names the probed monster through x_monnam()."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "uhitm.c player-versus-monster attack messages use x_monnam() for the defender."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/jump-knight-basic.session.json",
+              "recordings/dogmove.c/pet-ranged-score-probe.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "l_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "l_monnam",
+            "sourceReview": "Read do_name.c:1035-1039 in full. Preserved ARTICLE_NONE, called-name handling, and named-monster saddle suppression through x_monnam().",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "uhitm.c attack reporting uses l_monnam() for a lowercase monster reference."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/monster-missile-drop-mulching.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "mon_nam",
+            "implementation": "js/do_name.js",
+            "symbol": "mon_nam",
+            "sourceReview": "Read do_name.c:1042-1046 in full. Preserved definite article and named-monster saddle suppression through x_monnam().",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c monster combat messages use mon_nam() for the target."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "noit_mon_nam",
+            "implementation": "js/do_name.js",
+            "symbol": "noit_mon_nam",
+            "sourceReview": "Read do_name.c:1054-1062 in full. Preserved SUPPRESS_IT, tame article conversion, and named-monster saddle suppression for forced-visible descriptions.",
+            "callers": [
+              {
+                "path": "js/shknam.js",
+                "symbol": "shkname",
+                "source": "shknam.c shopkeeper fallback formatting uses noit_mon_nam()."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "wiz_force_cham_form",
+                "source": "mon.c naming command builds its existing-name prompt with noit_mon_nam()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_name.c/name-monster-rename.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "some_mon_nam",
+            "implementation": "js/do_name.js",
+            "symbol": "some_mon_nam",
+            "sourceReview": "Read do_name.c:1065-1071 in full. Preserved AUGMENT_IT, the humanoid/animal/mindless test, hallucination inversion, and saddle suppression.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "monshoot",
+                "source": "mthrowu.c projectile messages use some_mon_nam() for an unseen target."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/goblin-throws-dagger-fresh.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "Monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "Monnam",
+            "sourceReview": "Read do_name.c:1074-1080 in full. Preserved the mon_nam() call and first-character capitalization.",
+            "callers": [
+              {
+                "path": "js/explode.js",
+                "symbol": "explode",
+                "source": "explode.c messages capitalize Monnam() for the monster caught in an explosion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "noit_Monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "noit_Monnam",
+            "sourceReview": "Read do_name.c:1083-1089 in full. Preserved noit_mon_nam() and first-character capitalization.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "trapmove",
+                "source": "trap.c trap movement messages use noit_Monnam() for the ridden steed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-trap.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "Some_Monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "Some_Monnam",
+            "sourceReview": "Read do_name.c:1092-1098 in full. Preserved some_mon_nam() and first-character capitalization.",
+            "callers": [
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c theft messages capitalize Some_Monnam() for the victim."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "find_misc",
+                "source": "muse.c trap messages use Some_Monnam() for the acting monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/muse.c/use-defensive-sergeant-healing.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "noname_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "noname_monnam",
+            "sourceReview": "Read do_name.c:1102-1107 in full. Preserved SUPPRESS_NAME while retaining all x_monnam article, visibility, hallucination, and unique-name rules.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c hidden-monster notice selects noname_monnam() when Unaware; the surrounding branch remains blocked on unported sensemon()/pline_mon()."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c's hidden target wording combines noname_monnam() with m_monnam(); its source branch remains behind the existing unsupported dependency."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The recorder cannot reach the source call sites because their surrounding branches still require unported sensemon()/pline_mon() behavior; the helper itself is source-pinned in scripts/do-name.test.mjs and no caller refusal for noname_monnam remains in js/do_name.js.",
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "m_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "m_monnam",
+            "sourceReview": "Read do_name.c:1110-1113 in full. Preserved EXACT_NAME and the ARTICLE_NONE result; wired the priest/minion killer path in end.js.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "done_in_by",
+                "source": "end.c done_in_by() uses m_monnam() for priest and minion killers."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "y_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "y_monnam",
+            "sourceReview": "Read do_name.c:1117-1129 in full. Preserved tame ARTICLE_YOUR selection, steed saddle suppression, and x_monnam() delegation.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "maybe_unhide_at",
+                "source": "mon.c concealment messages use y_monnam() before changing mundetected."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "trapmove",
+                "source": "trap.c ridden-steed messages use y_monnam()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/shape-changer-ring-span.session.json",
+              "recordings/trap.c/monster-magic-trap.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "YMonnam",
+            "implementation": "js/do_name.js",
+            "symbol": "YMonnam",
+            "sourceReview": "Read do_name.c:1133-1139 in full. Preserved y_monnam() and first-character capitalization.",
+            "callers": [
+              {
+                "path": "js/steed.js",
+                "symbol": "stucksteed",
+                "source": "steed.c stucksteed() reports immobile or feeding mounts with YMonnam(); the caller remains deferred with the rest of that steed source group."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "The remaining JavaScript stucksteed/maybewakesteed refusal is outside this do_name span and is retained until the steed caller's other selected source branches land; YMonnam itself is implemented and source-pinned.",
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "Adjmonnam",
+            "implementation": "js/do_name.js",
+            "symbol": "Adjmonnam",
+            "sourceReview": "Read do_name.c:1142-1149 in full. Preserved adjective placement, named-monster saddle suppression, and sentence capitalization.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "uhitm.c combat text uses Adjmonnam() for an adjective-qualified attacker."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/wildmiss-displaced-goblin.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "a_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "a_monnam",
+            "sourceReview": "Read do_name.c:1152-1156 in full. Preserved ARTICLE_A, named-monster saddle suppression, and x_monnam() special cases.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_core",
+                "source": "hack.c boulder and path messages use a_monnam() for a monster behind the obstacle."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "use_defensive",
+                "source": "muse.c smoke and item messages use a_monnam()."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c monster-release text uses a_monnam()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/makemon.c/bagotricks-apply.session.json",
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "Amonnam",
+            "implementation": "js/do_name.js",
+            "symbol": "Amonnam",
+            "sourceReview": "Read do_name.c:1159-1165 in full. Preserved a_monnam() and first-character capitalization.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon_runtime",
+                "source": "makemon.c creation messages capitalize Amonnam() for a newly created monster."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "djinni_from_bottle",
+                "source": "potion.c effect messages capitalize Amonnam() for an affected monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/makemon.c/bagotricks-apply.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "distant_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "distant_monnam",
+            "sourceReview": "Read do_name.c:1170-1186 in full. Preserved the Astral remote high-priest concealment, adjacency exception, hallucination override, output-buffer write, and x_monnam() fallback.",
+            "callers": [
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "describeMonster",
+                "source": "pager.c look_at_monster() reaches distant_monnam() through the shared accessibility description."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "look_at_monster",
+                "source": "pager.c live monster look-at dispatch uses the shared describeMonster() path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/startup-a11y.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/object-map-farlook-wish-drop.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "mon_nam_too",
+            "implementation": "js/do_name.js",
+            "symbol": "mon_nam_too",
+            "sourceReview": "Read do_name.c:1191-1216 in full. Preserved ordinary-name versus self-pronoun selection and PRONOUN_HALLU draw behavior.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c reflexive monster combat messages use mon_nam_too()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitm.c/monster-nymph-seduction-boundary.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "monverbself",
+            "implementation": "js/do_name.js",
+            "symbol": "monverbself",
+            "sourceReview": "Read do_name.c:1221-1252 in full. Preserved reflexive pronoun, plural verb, plural subject, and optional object text ordering while retaining the mutable output-buffer contract.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_offensive",
+                "source": "muse.c self-targeting item messages construct their sentence with monverbself()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/muse.c/ureflects-amulet-wand-bounce.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "minimal_monnam",
+            "implementation": "js/do_name.js",
+            "symbol": "minimal_monnam",
+            "sourceReview": "Read do_name.c:1254-1285 in full. Preserved null, invalid-data, long-worm-tail, tame/peaceful, coordinates, and chameleon diagnostic branches; fmt_ptr diagnostics use stable JavaScript monster identifiers.",
+            "callers": [
+              {
+                "path": "js/steed.js",
+                "symbol": "stucksteed",
+                "source": "steed.c debug diagnostics call minimal_monnam(), but that debug-only caller is not dispatched by the browser reference build."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "inactiveReason": "minimal_monnam() is used only by C debug diagnostics (steed.c and wizcmds.c) whose compile-time/debug dispatch is excluded from the recorder; its complete source branches are pinned by scripts/do-name.test.mjs.",
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "Mgender",
+            "implementation": "js/do_name.js",
+            "symbol": "Mgender",
+            "sourceReview": "Read do_name.c:1289-1300 in full. Preserved the hero's Upolyd versus flags.female selection and ordinary monster female bit.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "mon_pmname",
+                "source": "do_name.c mon_pmname() obtains its pmname gender from Mgender()."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "monster_glyph_info",
+                "source": "display.c monster glyph attributes use the monster gender selected by Mgender()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "pmname",
+            "implementation": "js/do_name.js",
+            "symbol": "pmname",
+            "sourceReview": "Read do_name.c:1303-1310 in full. Preserved valid gender bounds and neutral fallback for missing or invalid gender-specific names.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "mon_pmname",
+                "source": "do_name.c mon_pmname() delegates the species lookup to pmname()."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "self_lookat",
+                "source": "pager.c self_lookat() uses pmname() for the hero's species title."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "mon_pmname",
+            "implementation": "js/do_name.js",
+            "symbol": "mon_pmname",
+            "sourceReview": "Read do_name.c:1313-1317 in full. Preserved Mgender-based species selection and neutral fallback through pmname().",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "x_monnam",
+                "source": "do_name.c x_monnam() obtains the real monster species name through mon_pmname()."
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "priestname",
+                "source": "priest.c priest naming uses mon_pmname() for ordinary monster names."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "obj_pmname",
+            "implementation": "js/do_name.js",
+            "symbol": "obj_pmname",
+            "sourceReview": "Read do_name.c:1321-1358 in full. Preserved corpse/statue/figurine class checks, CORPSTAT gender decoding, aligned-cleric random-gender substitution, and impossible fallback.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "corpseDoname",
+                "source": "objnam.c corpse/statue/figurine naming uses obj_pmname()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c statue probing uses obj_pmname()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "bogusmon",
+            "implementation": "js/do_name.js",
+            "symbol": "bogusmon",
+            "sourceReview": "Read do_name.c:1369-1386 in full. Preserved random-text selection, fallback to bogon, prefix-code extraction, and stripped return text.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "rndmonnamDetails",
+                "source": "do_name.c rndmonnam() delegates bogus-name selection to bogusmon()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/u-entered-shop.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "rndmonnam",
+            "implementation": "js/do_name.js",
+            "symbol": "rndmonnam",
+            "sourceReview": "Read do_name.c:1389-1412 in full. Preserved candidate retry exclusions, SPECIAL_PM bogus-name branch, display RNG gender draw, and code propagation.",
+            "callers": [
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "describeMonster",
+                "source": "pager.c hallucinated monster descriptions use rndmonnam()."
+              },
+              {
+                "path": "js/explode.js",
+                "symbol": "explode",
+                "source": "explode.c hallucinated killer text uses rndmonnam()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/u-entered-shop.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "bogon_is_pname",
+            "implementation": "js/do_name.js",
+            "symbol": "bogon_is_pname",
+            "sourceReview": "Read do_name.c:1415-1421 in full. Preserved the exact -,+,= personal-name prefix subset and rejected underscore/pipe codes.",
+            "callers": [
+              {
+                "path": "js/random_text.js",
+                "symbol": "get_rnd_line",
+                "source": "rumors.c capitalization handling uses bogon_is_pname()."
+              },
+              {
+                "path": "js/priest.js",
+                "symbol": "priestname",
+                "source": "priest.c hallucinated priest article handling uses bogon_is_pname()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "roguename",
+            "implementation": "js/do_name.js",
+            "symbol": "roguename",
+            "sourceReview": "Read do_name.c:1424-1436 in full. Preserved scanning for name= anywhere in ROGUEOPTS, comma termination, and the three-name rn2 draw sequence.",
+            "callers": [
+              {
+                "path": "js/extralev.js",
+                "symbol": "makerogueghost",
+                "source": "extralev.c rogue-level ghost creation uses roguename()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/extralev.c/rogue-level-teleport.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "hcolor",
+            "implementation": "js/do_name.js",
+            "symbol": "hcolor",
+            "sourceReview": "Read do_name.c:1461-1467 in full. Generated HCOLORS from the pinned source and preserved preferred-color bypass versus one display-RNG draw for hallucination or empty preference.",
+            "callers": [
+              {
+                "path": "js/do_name.js",
+                "symbol": "rndcolor",
+                "source": "do_name.c rndcolor() calls hcolor(NULL) on the hallucinated branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/random-text.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-trap.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "rndcolor",
+            "implementation": "js/do_name.js",
+            "symbol": "rndcolor",
+            "sourceReview": "Read do_name.c:1470-1479 in full. Preserved gameplay rn2(CLR_MAX) before the hallucinated display-RNG hcolor draw and the colorless slot.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c monster magic-trap gas message uses rndcolor()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-magic-trap.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "hliquid",
+            "implementation": "js/do_name.js",
+            "symbol": "hliquid",
+            "sourceReview": "Read do_name.c:1493-1509 in full. Generated HLIQUIDS from the pinned source and preserved gameover suppression, empty-preference handling, preferred-value extra slot, and display RNG.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c floor-liquid messages use hliquid()."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pager.c water descriptions use hliquid()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/random-text.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "coyotename",
+            "implementation": "js/do_name.js",
+            "symbol": "coyotename",
+            "sourceReview": "Read do_name.c:1526-1535 in full. Preserved x_monnam ARTICLE_NONE output, mcan special suffix, m_id modulo selection, and caller output-buffer mutation.",
+            "callers": [
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "describeMonster",
+                "source": "pager.c look_at_monster() chooses coyotename() for an accurately identified coyote."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs",
+              "scripts/startup-a11y.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/object-map-farlook-wish-drop.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
+          },
+          {
+            "name": "rndorcname",
+            "implementation": "js/do_name.js",
+            "symbol": "rndorcname",
+            "sourceReview": "Read do_name.c:1538-1554 in full. Preserved rn1(2,3), alternating vowel/consonant chunks, per-chunk rn2 selection, and post-first-chunk hyphen draw order.",
+            "callers": [
+              {
+                "path": "js/mkmaze.js",
+                "symbol": "stolen_booty",
+                "source": "mkmaze.c orcish-town stolen booty names the invading gang with rndorcname()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkmaze.c/minetown-fixup-special.session.json"
+            ],
+            "checkedAt": "81f06eb41106a8fc746e1b853ca20e5cf0b47a81"
           }
-        ]
+        ],
+        "entryPointReview": "The selected do_name.c range contains naming and random-text helpers only. It defines no command dispatcher, monster action, level generator, or startup path of its own; each impure helper is reached through the production callers listed above, while minimal_monnam and the YMonnam/stucksteed debug/refusal path remain explicitly documented as unavailable reference-build entry points. Therefore this helper-only span has no independent entry points to enumerate.",
+        "entryPoints": []
       }
     }
   ]
