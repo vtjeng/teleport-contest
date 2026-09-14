@@ -44733,7 +44733,7 @@
     {
       "id": "pilot-arc-loca-seed0361",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete the Archeologist quest locate level program",
       "luaFile": "Arc-loca.lua",
       "sessions": [
@@ -44744,8 +44744,8 @@
       "spans": [
         {
           "name": "Arc-loca.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
           "functions": [
             "Arc-loca.lua"
           ]
@@ -44757,8 +44757,11 @@
         "screens": 9270,
         "rng": 655545
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+      "delivered": {
+        "screens": 7,
+        "rng": 8298
+      },
       "functions": [
         {
           "name": "Arc-loca.lua",
@@ -44913,6 +44916,38 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 314,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 52,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "previousRemainingScreensUpperBound": 59
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7109bae7f28eb870bc018ac7b6c380511dcfa823",
+        "screens": 9277,
+        "rng": 663843
       }
     }
   ]
