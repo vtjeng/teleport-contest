@@ -37504,6 +37504,30 @@
             "o_on",
             "obj_here"
           ]
+        },
+        {
+          "name": "g_at..ggetobj",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "g_at",
+            "compactify",
+            "splittable",
+            "taking_off",
+            "mime_action",
+            "any_obj_ok",
+            "getobj_hands_txt",
+            "getobj",
+            "silly_thing",
+            "ckvalidcat",
+            "ckunpaid",
+            "wearing_armor",
+            "is_worn",
+            "is_inuse",
+            "safeq_xprname",
+            "safeq_shortxprname",
+            "ggetobj"
+          ]
         }
       ],
       "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
