@@ -3329,8 +3329,6 @@ export async function were_change(monster, rawEnv = {}) {
     const humanForm = is_human(monster.data);
     if (humanForm && protection) return false;
 
-    // Validate the complete possible success path before the chance draw.
-    preflightNewWere(monster, normalized);
     let change = false;
     if (humanForm) {
         const fullMoon = state.flags?.moonphase === FULL_MOON;

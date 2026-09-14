@@ -41,6 +41,7 @@ import {
     seemimic,
     wake_msg,
     wake_nearto,
+    were_change,
 } from '../js/mon.js';
 import {
     G_UNIQ,
@@ -857,6 +858,46 @@ test('counter_were preserves the source human and beast pairing', () => {
     assert.equal(counter_were(PM_HUMAN_WEREWOLF), PM_WEREWOLF);
     assert.equal(counter_were(-1), -1);
 });
+
+test('were_change draws before preflighting an unsuccessful human conversion',
+    async () => {
+        const state = {
+            fixedDatetime: '20260720120000', // Daytime selects C's rn2(50) arm.
+            flags: { moonphase: 0 },
+            gw: { were_changes: 0 },
+            u: { uprops: [] },
+        };
+        monst_globals_init(state);
+        const subject = newMonster({
+            data: state.mons[PM_HUMAN_WEREWOLF],
+            minvent: { otyp: 302 }, // Inventory preflight must wait for success.
+        });
+        const calls = [];
+        const noUnexpectedDraw = (name) => () => {
+            assert.fail(`were_change called unexpected ${name}`);
+        };
+        const random = {
+            rn2(bound) {
+                calls.push(bound);
+                assert.equal(bound, 50);
+                return 29; // Nonzero C draw: skip new_were() and its inventory guard.
+            },
+            d: noUnexpectedDraw('d'),
+            rn1: noUnexpectedDraw('rn1'),
+            rnd: noUnexpectedDraw('rnd'),
+            rne: noUnexpectedDraw('rne'),
+        };
+
+        assert.equal(await were_change(subject, {
+            state,
+            random,
+            canSeeMonster: () => false,
+            message: () => assert.fail('failed were_change emitted a message'),
+        }), false);
+        assert.deepEqual(calls, [50]);
+        assert.equal(subject.data, state.mons[PM_HUMAN_WEREWOLF]);
+        assert.equal(state.gw.were_changes, 0);
+    });
 
 test('iter_mons_safe visits its original identities despite list mutation', async () => {
     const first = { id: 'first' };
