@@ -87,7 +87,7 @@ import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
     You_can_move_again,
 } from './hack.js';
-import { dist2 } from './hacklib.js';
+import { dist2, lcase } from './hacklib.js';
 import {
     INVLET_BASIC,
     addinv_nomerge,
@@ -297,6 +297,33 @@ export const TIN_VARIETIES = Object.freeze([
     Object.freeze({ name: 'pureed', healthFood: true }),
 ]);
 const TIN_VARIETY_COUNT = TIN_VARIETIES.length;
+
+// C ref: eat.c tin_variety_txt() (1405-1421). Find a known tin variety at
+// the start of a description and return the number of characters consumed,
+// including the following space. The final empty tintxts[] row is a
+// terminator and is therefore excluded from the scan.
+export function tin_variety_txt(text, varietyRef = null) {
+    // C only initializes *tinvariety after both pointers are non-null and
+    // the input points at a non-empty string.
+    if (typeof text !== 'string' || text.length === 0
+        || !varietyRef || typeof varietyRef !== 'object')
+        return 0;
+    varietyRef.value = -1;
+    for (let index = 0; index < TIN_VARIETY_COUNT; index++) {
+        const name = TIN_VARIETIES[index].name;
+        if (strncmpi(text, name) && text.length > name.length
+            && text[name.length] === ' ') {
+            varietyRef.value = index;
+            return name.length + 1;
+        }
+    }
+    return 0;
+}
+
+function strncmpi(text, prefix) {
+    return text.length >= prefix.length
+        && lcase(text.slice(0, prefix.length)) === lcase(prefix);
+}
 function tinEnv(env = {}) {
     const random = env.random ?? { rn2 };
     if (typeof random.rn2 !== 'function')
