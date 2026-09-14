@@ -775,7 +775,16 @@ async function makelevel(specialLevelLoader = null) {
     // one more when a vault was placed above.
     const u_depth = depth(g.u.uz);
     if (!rogue) {
-        if (u_depth > 1 && u_depth < depth(g.medusa_level)
+        // C's first branch is selected by wizard mode plus the presence of
+        // the SHOPTYPE environment variable. `state.environment` is the
+        // runtime seam for that process environment; an empty value still
+        // counts as present, just as nh_getenv()'s non-null pointer does.
+        const configuredShopType = g.environment?.SHOPTYPE ?? g.SHOPTYPE;
+        const hasConfiguredShopType = configuredShopType !== undefined
+            && configuredShopType !== null;
+        if (g.wizard && hasConfiguredShopType) {
+            do_mkroom(SHOPBASE, g);
+        } else if (u_depth > 1 && u_depth < depth(g.medusa_level)
             && g.level.nroom >= room_threshold && rn2(u_depth) < 3) {
             do_mkroom(SHOPBASE, g);
         } else if (u_depth > 4 && !rn2(6)) {

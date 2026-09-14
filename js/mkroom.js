@@ -10,6 +10,7 @@ import {
     AM_SHRINE,
     ANY_SHOP,
     ANY_TYPE,
+    ANTHOLE,
     BARRACKS,
     BEEHIVE,
     BLCORNER,
@@ -21,6 +22,7 @@ import {
     DBWALL,
     DOOR,
     DRAWBRIDGE_DOWN,
+    FODDERSHOP,
     FILL_NORMAL,
     G_GONE,
     FOUNTAIN,
@@ -56,6 +58,8 @@ import {
     MM_NOGRP,
     SPACE_POS,
     TEMPLE,
+    COCKNEST,
+    LEPREHALL,
 } from './const.js';
 import { In_hell, induced_align, level_difficulty } from './dungeon.js';
 import { dist2 } from './hacklib.js';
@@ -110,6 +114,8 @@ import { priestini } from './priest.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
 import { SHTYPES } from './shtypes_data.js';
+import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
+import { note_unported } from './unported.js';
 import {
     S_air,
     S_altar,
@@ -329,29 +335,90 @@ export function invalid_shop_shape(sroom, state = game) {
     return false;
 }
 
-// C ref: mkroom.c mkshop(). The room search draws no random number: it walks
-// the level's rooms in order and takes the first ordinary one that holds no
-// staircase, has exactly one door, and leaves the shopkeeper somewhere to
-// stand. C returns when no room qualifies, and the level gets no shop.
-//
-// After the search, the only random number mkshop() draws is the single
-// rnd(100) that picks the shop type. The room is not stocked here: mkshop()
-// marks it FILL_NORMAL and makelevel()'s tail calls fill_special_room(), which
-// reaches js/shknam.js stock_room().
-//
-// C's wizard-mode SHOPTYPE arm above the search is unreachable: the port never
-// sets wizard mode, and game code may not read the environment. That arm is
-// also the only way `i` reaches the type roll already set, so the roll's
-// `if (i < 0)` guard is always true here.
+// C ref: mkroom.c mkshop() (95-219). The environment seam mirrors nh_getenv()
+// for direct callers: state.environment.SHOPTYPE is present when the C
+// environment variable is present, including an empty value. The recorder
+// does not set SHOPTYPE, so the ordinary branch remains the default.
 function mkshop(state, random) {
+    let i = -1;
+    const configuredShopType = state.environment?.SHOPTYPE
+        ?? state.SHOPTYPE;
+    const hasConfiguredShopType = configuredShopType !== undefined
+        && configuredShopType !== null;
+    // C's wizard mode lets SHOPTYPE select another special room before it
+    // scans for a shop. These dispatches return from mkshop() immediately.
+    if (state.wizard && hasConfiguredShopType) {
+        const shopChar = String(configuredShopType).charAt(0);
+        if (shopChar === 'z' || shopChar === 'Z') {
+            mkzoo(ZOO, state, random);
+            return;
+        }
+        if (shopChar === 'm' || shopChar === 'M') {
+            mkzoo(MORGUE, state, random);
+            return;
+        }
+        if (shopChar === 'b' || shopChar === 'B') {
+            mkzoo(BEEHIVE, state, random);
+            return;
+        }
+        if (shopChar === 't' || shopChar === 'T' || shopChar === '\\') {
+            mkzoo(COURT, state, random);
+            return;
+        }
+        if (shopChar === 's' || shopChar === 'S') {
+            mkzoo(BARRACKS, state, random);
+            return;
+        }
+        if (shopChar === 'a' || shopChar === 'A') {
+            mkzoo(ANTHOLE, state, random);
+            return;
+        }
+        if (shopChar === 'c' || shopChar === 'C') {
+            mkzoo(COCKNEST, state, random);
+            return;
+        }
+        if (shopChar === 'l' || shopChar === 'L') {
+            mkzoo(LEPREHALL, state, random);
+            return;
+        }
+        if (shopChar === '_') {
+            mktemple(state, random);
+            return;
+        }
+        if (shopChar === '}') {
+            // mkshop() discards mkswamp()'s return value. The callee remains
+            // outside this span, so record the skipped source call.
+            note_unported('mkroom.c mkswamp');
+            return;
+        }
+        for (let index = 0; index < SHTYPES.length; ++index) {
+            const shop = SHTYPES[index];
+            const defaultSymbol = String.fromCharCode(
+                DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + shop.symb],
+            );
+            if (shopChar === defaultSymbol) {
+                i = index;
+                break;
+            }
+        }
+        if (i < 0) {
+            if (shopChar === 'g' || shopChar === 'G') i = 0;
+            else if (shopChar === 'v' || shopChar === 'V')
+                i = FODDERSHOP - SHOPBASE;
+        }
+    }
+
     let sroom = null;
     for (let index = 0; index < state.level.nroom; ++index) {
         const candidate = state.level.rooms[index];
         if (!candidate || candidate.hx < 0) return;
         if (candidate.rtype !== OROOM) continue;
-        if (has_dnstairs(candidate, state) || has_upstairs(candidate, state))
+        if (has_dnstairs(candidate, state) || has_upstairs(candidate, state)) {
             continue;
-        if (candidate.doorct === 1) {
+        }
+        if (candidate.doorct === 1
+            || (state.wizard && hasConfiguredShopType
+                && candidate.doorct !== 0)) {
             if (invalid_shop_shape(candidate, state)) continue;
             sroom = candidate;
             break;
@@ -373,16 +440,19 @@ function mkshop(state, random) {
     // C: for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++). One draw
     // whatever the outcome, so an off-by-one here shifts every shop type
     // without changing the random-number log.
-    let j = random.rnd(100);
-    let i = 0;
-    while ((j -= SHTYPES[i].prob) > 0) i++;
-
-    // A big room cannot be a wand or spellbook shop, because those two stock
-    // too much value for a room this size; C makes it a general store instead.
-    if (isbig(sroom)
-        && (SHTYPES[i].symb === WAND_CLASS
-            || SHTYPES[i].symb === SPBOOK_CLASS)) {
+    if (i < 0) {
+        let j = random.rnd(100);
         i = 0;
+        while ((j -= SHTYPES[i].prob) > 0) i++;
+
+        // A big room cannot be a wand or spellbook shop, because those two
+        // stock too much value for a room this size; C makes them general
+        // stores instead.
+        if (isbig(sroom)
+            && (SHTYPES[i].symb === WAND_CLASS
+                || SHTYPES[i].symb === SPBOOK_CLASS)) {
+            i = 0;
+        }
     }
     sroom.rtype = SHOPBASE + i;
 

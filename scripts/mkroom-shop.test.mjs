@@ -13,6 +13,7 @@ import {
     FILL_NONE,
     FILL_NORMAL,
     COURT,
+    FODDERSHOP,
     G_GONE,
     LOW_PM,
     MORGUE,
@@ -23,6 +24,7 @@ import {
     SHOPBASE,
     THRONE,
     VAULT,
+    ZOO,
     ismnum,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
@@ -487,6 +489,93 @@ test('mkshop takes the first eligible room and leaves the later ones alone',
         assert.equal(chosen.rtype, SHOPBASE + GENERAL_STORE);
         assert.equal(ignored.rtype, OROOM);
     });
+
+test('wizard SHOPTYPE selects a type before the random shop roll', () => {
+    const state = initializedState();
+    state.wizard = true;
+    state.environment = { SHOPTYPE: 'v' };
+    const room = shopCandidate(state, { hx: 13, hy: 8 });
+    room.doorct = 2;
+
+    // mkroom.c:145-153 sets the food shop index directly for `v`; the
+    // preselected branch therefore consumes no rnd(100), even with two doors.
+    do_mkroom(SHOPBASE, state, {
+        rnd: () => assert.fail('preselected SHOPTYPE must skip rnd(100)'),
+    });
+
+    assert.equal(room.rtype, FODDERSHOP);
+    assert.equal(room.needfill, FILL_NORMAL);
+});
+
+test('wizard SHOPTYPE symbols use default object-class symbols', () => {
+    const state = initializedState();
+    state.wizard = true;
+    state.environment = { SHOPTYPE: '?' };
+    const room = shopCandidate(state, { hx: 13, hy: 8 });
+    room.doorct = 2;
+
+    // shknam.c's second-hand bookstore uses the compiled-in '?' symbol. The
+    // active map symbol set must not affect this environment lookup.
+    do_mkroom(SHOPBASE, state, {
+        rnd: () => assert.fail('recognized symbol must skip rnd(100)'),
+    });
+
+    assert.equal(room.rtype, SHOPBASE + 2);
+    assert.equal(room.needfill, FILL_NORMAL);
+});
+
+test('wizard SHOPTYPE keeps an explicit wand shop in a big room', () => {
+    const state = initializedState();
+    state.wizard = true;
+    state.environment = { SHOPTYPE: '/' };
+    const room = shopCandidate(state, { hx: 16, hy: 7 });
+
+    // mkroom.c:189-201 applies the big-room rewrite only inside the random
+    // shop-type branch; a preselected wand shop keeps its requested type.
+    do_mkroom(SHOPBASE, state, {
+        rnd: () => assert.fail('preselected SHOPTYPE must skip rnd(100)'),
+    });
+
+    assert.equal(room.rtype, SHOPBASE + 7);
+    assert.equal(room.needfill, FILL_NORMAL);
+});
+
+test('wizard SHOPTYPE special-room dispatch returns before room scanning', () => {
+    const state = initializedState();
+    state.wizard = true;
+    state.environment = { SHOPTYPE: 'z' };
+    const room = shopCandidate(state, { hx: 13, hy: 8 });
+    room.doorct = 2;
+
+    // mkroom.c:105-107 dispatches ZOO before the shop candidate loop. The
+    // wizard operand is evaluated after pick_room()'s rn2(5), so preserve that
+    // discarded draw even though it still selects this room.
+    const bounds = [];
+    do_mkroom(SHOPBASE, state, {
+        rn2: (bound) => {
+            bounds.push(bound);
+            return bound === 5 ? 1 : 0;
+        },
+    });
+
+    assert.deepEqual(bounds, [1, 5]);
+    assert.equal(room.rtype, ZOO);
+    assert.equal(room.needfill, FILL_NORMAL);
+});
+
+test('wizard SHOPTYPE swamp dispatch records the unported callee', () => {
+    const state = initializedState();
+    state.wizard = true;
+    state.environment = { SHOPTYPE: '}' };
+    const room = shopCandidate(state, { hx: 13, hy: 8 });
+
+    // mkroom.c:136-139 calls mkswamp() and discards its result. That source
+    // callee remains outside this span, so mkshop records the skipped call.
+    do_mkroom(SHOPBASE, state, {});
+
+    assert.equal(room.rtype, OROOM);
+    assert.ok(state.unported.has('mkroom.c mkswamp'));
+});
 
 test('stock_room rejects a row shtypes[] does not carry', () => {
     // Every row the table carries now stocks, so the only refusal left here is

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9701123,
+      "datetime": "20380102101522",
+      "nethackrc": "OPTIONS=name:RoomProof,role:Ranger,race:elf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u00165\n .",
+      "comment": "Independent wizard-mode level teleport to a generated D:5 shop; the destination makelevel() dispatch reaches mkroom.c mkshop() before the shop entry screen."
+    }
+  ]
+}
