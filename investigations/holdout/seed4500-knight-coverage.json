@@ -1,46 +1,47 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1042,
+  "remainingScreensUpperBound": 1506,
   "status": "complete",
-  "commit": "ec7ccd2377ae74bfd15e9f39301aa1adbef4c3a9",
+  "commit": "ea8bec0702f022bb53e8534c850efabcddd9b92a",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1042,
-    "step": 772,
-    "kind": "rng",
-    "function": "mkshop",
+    "remainingScreensUpperBound": 1506,
+    "step": 308,
+    "kind": "stop",
+    "function": "mk_knox_portal",
     "functionDeclared": true,
-    "sourceFile": "mkroom.c",
-    "cFile": "mkroom.c",
+    "sourceFile": "mklev.c",
+    "cFile": "mklev.c",
     "luaFile": null,
-    "line": 193,
-    "message": null,
+    "line": null,
+    "message": "unsupported special room: mk_knox_portal() placing the Fort Ludios portal at <4,4>",
     "unlocatedKinds": [],
     "recordedSteps": 1814
   },
-  "summary": "The queue still annotates C rnd(100) in mkshop(), but the earlier source owner is mklev.c mk_knox_portal(). Its C deferral condition evaluates rn2(3) only when the Ludios source is unset and wizard mode is false; js/mklev.js:875 evaluates rn2(3) for wizard mode too, shifting the stream before mkshop reaches its line-193 roll. The smallest current scope is a divergence fix to that wizard-gated condition. The prior mkshop source trace remains useful for the later ordinary-room and SHOPTYPE path; after this RNG fix, the accepted portal branch still has a separate JS placement stub at line 884.",
+  "summary": "The current boundary is the accepted portal branch of mklev.c mk_knox_portal(), where JavaScript still throws UnsupportedSpecialRoomError at js/mklev.js:884 instead of performing C's source update, branch-list reorder, and portal placement. C assigns the current level to the Fort Ludios source endpoint, calls insert_branch(br, TRUE), then place_branch(br, x, y); the existing JavaScript insert_branch(), place_branch(), and mkportal() implementations provide the required dependencies. The smallest next scope is a complete mk_knox_portal file-port with import/wiring for insert_branch. The prior wizard-gated rn2(3) correction and mkshop trace remain valid provenance for the boundaries already passed.",
   "source": {
     "file": "mklev.c",
     "functions": [
       "mk_knox_portal"
     ],
-    "branch": "makelevel() calls mk_knox_portal() after realizing a secret vault. The helper chooses Fort Ludios branch source end2 when the current level is Knox end1, otherwise returns on an existing dungeon branch. When source->dnum is already assigned it returns without a draw; when the source is unassigned, C draws rn2(3) only if !wizard and defers on a nonzero result. An unassigned source in wizard mode therefore consumes no rn2(3), then passes only on a main-dungeon, non-Quest-entry level with depth > 10 and below Medusa.",
+    "branch": "makelevel() calls mk_knox_portal() after realizing a secret vault. The helper chooses Fort Ludios branch source end2 when the current level is Knox end1, otherwise returns on an existing dungeon branch. It returns when the source endpoint is already assigned or when non-wizard rn2(3) defers the branch; an accepted branch must be in the main dungeon, not the Quest entry, at depth > 10 and below Medusa. C then sets the selected source endpoint to u.uz, reinserts the branch in sorted order, and places its BR_PORTAL at the vault coordinate.",
     "callers": [
-      "nethack-c/upstream/src/mklev.c:1315-1333 makelevel() realizes and fills a vault, then calls mk_knox_portal() before the makevtele() roll.",
+      "nethack-c/upstream/src/mklev.c:1315-1333 makelevel() realizes and fills a vault, then calls mk_knox_portal() before makevtele().",
       "js/mklev.js:741-765 makelevel() mirrors vault realization and calls js mk_knox_portal() before its makeniche() roll."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/dungeon.c dungeon_branch(), on_level(), Is_branchlev(), depth(), and at_dgn_entrance() supply branch lookup and eligibility; js/dungeon.js and js/mklev.js provide their current counterparts.",
-      "The exact C condition is nethack-c/upstream/src/mklev.c:2643-2651: source->dnum < svn.n_dgns || (rn2(3) && !wizard). js/mklev.js:872-882 currently uses source.dnum < g.n_dgns || rn2(3), omitting the !g.wizard gate.",
-      "If the corrected precondition accepts the portal, C continues through dungeon.c insert_branch() and mklev.c place_branch(); js/mklev.js:884-887 still throws UnsupportedSpecialRoomError there, a separate subsequent missing branch beyond this first RNG cause.",
-      "The already-matching mkshop path remains source-traced in mkroom.c:101-215 and js/mkroom.js:342-489, including SHOPTYPE dispatch, candidate filters, rnd(100), topology, and FILL_NORMAL handoff."
+      "nethack-c/upstream/src/dungeon.c dungeon_branch(), on_level(), Is_branchlev(), and insert_branch() supply Fort Ludios lookup, endpoint tests, existing-branch rejection, and sorted branch-list reinsertion; js/dungeon.js:415-436 already ports insert_branch() and exports it.",
+      "nethack-c/upstream/src/mklev.c:1691-1747 place_branch() handles the supplied coordinate, BR_PORTAL destination, and made_branch flag; js/mklev.js:7757-7789 already implements that path and calls mkportal().",
+      "js/mkmaze.js:1467-1473 mkportal() creates MAGIC_PORTAL and stores the destination; the mk_knox_portal fix should pass the adjusted branch endpoint without inventing a random draw.",
+      "nethack-c/upstream/src/mklev.c:2643-2658 includes the already-fixed wizard-gated rn2(3) condition followed by source assignment, insert_branch(), and place_branch(); js/mklev.js:875 has the gate, but lines 884-887 still retain the placeholder throw.",
+      "The earlier mkshop trace remains applicable after portal placement: mkroom.c:101-215 and js/mkroom.js:342-489 cover SHOPTYPE dispatch, candidate filters, rnd(100), topology, and FILL_NORMAL."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json at commit ec7ccd2377ae74bfd15e9f39301aa1adbef4c3a9 reports the assigned row at step 772: C rnd(100)=24 from mkshop(mkroom.c:193), JS rn2(7)=1, recordedSteps 1814, and remainingScreensUpperBound 1042.",
-    "nethack-c/upstream/src/mklev.c:2624-2659 defines mk_knox_portal(); line 2644 short-circuits the rn2(3) call when wizard is true, while preserving the draw for non-wizard unassigned sources.",
-    "js/mklev.js:864-887 mirrors the helper but line 875 uses source.dnum < g.n_dgns || rn2(3), so wizard mode consumes the extra rn2(3) before the later mkshop rnd(100) boundary.",
-    "The production call chain is source-general: makelevel() vault realization -> mk_knox_portal() -> subsequent special-room selection including mkshop(); the current actionable change is the source-aligned wizard precondition, with no session-specific values."
+    ".cache/scan-cache.json at commit ea8bec0702f022bb53e8534c850efabcddd9b92a reports the assigned row boundary at step 308 with the exact mk_knox_portal() unsupported-special-room message, recordedSteps 1814, and remainingScreensUpperBound 1506.",
+    "nethack-c/upstream/src/mklev.c:2624-2659 contains the complete accepted branch: after the depth and dungeon preconditions, it assigns *source = u.uz, calls insert_branch(br, TRUE), and calls place_branch(br, x, y).",
+    "js/mklev.js:864-887 has the matching lookup, branch guards, depth checks, and wizard-gated deferral, but throws at lines 884-886 where C performs those three state/placement operations.",
+    "The required callees are already production implementations: js/dungeon.js:415-436 insert_branch(), js/mklev.js:7757-7789 place_branch(), and js/mkmaze.js:1467-1473 mkportal(); the actionable change is the whole source function and its import/wiring, without session-specific behavior."
   ]
 }
