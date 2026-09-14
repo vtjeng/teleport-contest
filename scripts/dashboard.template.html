@@ -15,10 +15,9 @@
   --gridline: #e1e0d9;
   --baseline: #c3c2b7;
 
-  /* Phases of a goal, drawn only in the goal history's bar. */
-  --phase-impl: #dc4c4c;
-  --phase-verif: #c99000;
-  --phase-audit: #e87ba4;
+  /* Investigation and review accents. */
+  --investigation-partial: #dc4c4c;
+  --audit-accent: #e87ba4;
 
   /* Kinds of goal and the running state, shared by the timeline and the
      tables. Divergence fix is a magenta rather than a teal so that it stays
@@ -48,9 +47,8 @@
     --gridline: #2c2c2a;
     --baseline: #383835;
 
-    --phase-impl: #e06060;
-    --phase-verif: #d4a012;
-    --phase-audit: #d55181;
+    --investigation-partial: #e06060;
+    --audit-accent: #d55181;
 
     --goal-file-port: #3987e5;
     --goal-divergence: #b451a8;
@@ -74,9 +72,8 @@
   --gridline: #2c2c2a;
   --baseline: #383835;
 
-  --phase-impl: #e06060;
-  --phase-verif: #d4a012;
-  --phase-audit: #d55181;
+  --investigation-partial: #e06060;
+  --audit-accent: #d55181;
 
   --goal-file-port: #3987e5;
   --goal-divergence: #b451a8;
@@ -777,22 +774,6 @@ canvas {
   background-image: linear-gradient(var(--border), var(--border));
 }
 
-.phase-bar {
-  display: flex;
-  height: 10px;
-  border-radius: 2px;
-  overflow: hidden;
-  min-width: 60px;
-  gap: 2px;
-  background: var(--surface-chart);
-}
-
-.phase-bar-seg {
-  height: 100%;
-  min-width: 2px;
-  border-radius: 1px;
-}
-
 .audit-badge {
   display: inline-block;
   font-size: 11px;
@@ -801,8 +782,8 @@ canvas {
   padding: 0 4px;
   line-height: 1.5;
   vertical-align: middle;
-  color: var(--phase-audit);
-  border: 1px solid var(--phase-audit);
+  color: var(--audit-accent);
+  border: 1px solid var(--audit-accent);
 }
 
 #queueDisclosure summary { cursor: pointer; overflow-wrap: anywhere; }
@@ -844,7 +825,7 @@ canvas {
   line-height: 1;
 }
 .investigation-status.status-complete { color: var(--goal-in-progress); }
-.investigation-status.status-partial { color: var(--phase-impl); }
+.investigation-status.status-partial { color: var(--investigation-partial); }
 .investigation-status.status-stale { color: var(--goal-paused); }
 .investigation-status.status-invalid { color: var(--goal-divergence); }
 .investigation-status.status-missing { color: var(--ink-muted); }
@@ -1710,11 +1691,6 @@ document.getElementById('stats').innerHTML = [
 // --- Phase breakdown table ---
 (function() {
   document.getElementById('tableLegend').innerHTML = [
-    { cssVar: '--phase-impl', label: 'Goal selection' },
-    { cssVar: '--phase-verif', label: 'Working time' },
-  ].map(p =>
-    '<div class="legend-item"><div class="legend-swatch" style="background:var(' + p.cssVar + ')"></div>' + p.label + '</div>'
-  ).join('') + [
     { cssVar: '--goal-file-port', label: 'source port (C or Lua)' },
     { cssVar: '--goal-divergence', label: 'divergence fix' },
     { cssVar: '--goal-boundary', label: 'boundary stop' },
@@ -1727,7 +1703,9 @@ document.getElementById('stats').innerHTML = [
   const allGoals = [...DATA.goals].reverse();
   const goals = allGoals.filter(g => g.status === 'in-progress' || (g.totalMin > 0 && g.totalMin < 1440));
   const hidden = allGoals.length - goals.length;
-  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '') + '. † = inferred from commit time.';
+  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '') + '. † = inferred start time.';
+
+  const observedOpenTime = goal => ['open-commit', 'goal-record'].includes(goal.openTimeSource);
 
   function fmtDate(iso) {
     if (!iso) return '-';
@@ -1735,9 +1713,9 @@ document.getElementById('stats').innerHTML = [
     return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  let html = '<thead><tr><th>Goal</th><th>Δ</th><th>Start</th><th>Spans</th><th>Total</th><th>Goal sel</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Goal</th><th>Δ</th><th>Start</th><th>Spans</th><th>Total</th></tr></thead><tbody>';
 
-  goals.forEach((g, i) => {
+  goals.forEach((g) => {
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
     // The stripe states the kind, so a name's kind prefix is redundant here.
     const kind = g.kind === 'divergence-fix' || g.eventType === 'divergence' ? 'divergence-fix' : g.kind;
@@ -1749,16 +1727,8 @@ document.getElementById('stats').innerHTML = [
     const trClasses = [kind ? 'kind-' + kind : '', g.status === 'in-progress' ? 'in-progress' : ''].filter(Boolean);
     const trClass = trClasses.length ? ' class="' + trClasses.join(' ') + '"' : '';
 
-    const selMin = g.goalSelectionMin || 0;
-    const workMin = g.totalMin - selMin;
-    const barTotal = selMin + workMin;
-    const bar = barTotal <= 0 ? '' : '<div class="phase-bar">'
-      + (selMin > 0 ? '<div class="phase-bar-seg" style="width:' + Math.max(selMin / barTotal * 100, 2) + '%;background:var(--phase-impl)' + (workMin <= 0 ? ';background-image:repeating-linear-gradient(135deg,transparent,transparent 2px,rgba(255,255,255,0.3) 2px,rgba(255,255,255,0.3) 4px)' : '') + '" title="Goal selection: ' + fmt(selMin) + '"></div>' : '')
-      + (workMin > 0 ? '<div class="phase-bar-seg" style="width:' + Math.max(workMin / barTotal * 100, 2) + '%;background:var(--phase-verif)" title="Working time: ' + fmt(workMin) + '"></div>' : '')
-      + '</div>';
-
-    const startCell = fmtDate(g.openTime) + (g.openTimeSource === 'open-commit' ? '' : ' †');
-    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td><td>' + fmtTiming(g.goalSelectionMin, g.goalSelectionObserved) + '</td><td>' + bar + '</td></tr>';
+    const startCell = fmtDate(g.openTime) + (observedOpenTime(g) ? '' : ' †');
+    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td></tr>';
   });
 
   html += '</tbody>';
