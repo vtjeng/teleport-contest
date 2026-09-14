@@ -41701,7 +41701,16 @@
       ],
       "selectionReason": "The refreshed full queue ranks holdout/seed4500-knight-coverage first at step 308 with 1506 remaining screens. Its valid completed cache investigations/holdout/seed4500-knight-coverage.json identifies the accepted mklev.c mk_knox_portal branch as the first source owner after the prior divergence fix; the JavaScript placeholder remains at the exact boundary.",
       "detail": "Queue entry: holdout/seed4500-knight-coverage, step 308, kind stop, message unsupported special room: mk_knox_portal() placing the Fort Ludios portal at <4,4>, remainingScreensUpperBound 1506. C mklev.c:2624-2659 assigns the selected source endpoint to u.uz, calls insert_branch(br, TRUE), then place_branch(br, x, y); js/mklev.js:864-887 has the guards and wizard-gated draw but still throws before those operations. Existing js/dungeon.js insert_branch(), js/mklev.js place_branch(), and js/mkmaze.js mkportal() are the required production dependencies.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "mk_knox_portal",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mk_knox_portal"
+          ]
+        }
+      ],
       "openedAt": "9414add1c5e76917d92e0ff9130e707d38ad615e",
       "openStanding": {
         "sha": "9414add1c5e76917d92e0ff9130e707d38ad615e",
