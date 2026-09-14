@@ -37570,6 +37570,24 @@
             "dounpaid",
             "this_type_only"
           ]
+        },
+        {
+          "name": "dotypeinv..noarmor",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dotypeinv",
+            "dfeature_at",
+            "look_here",
+            "dolook",
+            "will_feel_cockatrice",
+            "feel_cockatrice",
+            "stackobj",
+            "mergable",
+            "doprgold",
+            "doprwep",
+            "noarmor"
+          ]
         }
       ],
       "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
