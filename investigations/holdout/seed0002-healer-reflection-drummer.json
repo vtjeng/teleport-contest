@@ -1,48 +1,47 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 499,
+  "remainingScreensUpperBound": 411,
   "status": "complete",
-  "commit": "b0ac4bb23d49400023028cda9e5591fa59c5aea3",
+  "commit": "c99273539a288d06d2d379583b59f0735fef7143",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 499,
-    "step": 96,
+    "remainingScreensUpperBound": 411,
+    "step": 184,
     "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "function": "dodrink",
+    "functionDeclared": true,
+    "sourceFile": "potion.c",
+    "cFile": "potion.c",
     "luaFile": null,
     "line": null,
-    "message": "Replay error: reading requires the selected scroll effect",
+    "message": "Replay error: an unported branch of this command: quaffing requires the sink prompt in dodrink()",
     "unlocatedKinds": [],
     "recordedSteps": 595
   },
-  "summary": "At segment 0, recorded step 96 (input move index 95, key t), the read prompt selects the scroll labeled ASHPD SODALG and C prints \"As you read the scroll, it disappears.  A lit field surrounds you!\". In read.c, seffects() dispatches SCR_LIGHT to seffect_light(); its visible, unconfused, noncursed branch marks the scroll known, calls litroom(TRUE, sobj), and calls lightdamage(sobj, TRUE, 5). The current js/read.js seffects() admission set omits SCR_LIGHT and throws UnsupportedReadError(\"the selected scroll effect\") before that source branch. The bounded handoff is the ordinary SCR_LIGHT read effect, including the seffects() wisdom exercise and the existing doread() identification/useup tail.",
+  "summary": "At segment 0, recorded step 184 (input move index 183, key q), the hero is standing on a sink and the C prompt is \"Drink from the sink? [yn] (n)\". The current JavaScript potion.c dodrink() branch stops before drawing that prompt. The next recorded answer at step 185 is y; C then enters fountain.c drinksink(), whose ordinary nonlevitating switch takes rn2(20)=15 and falls through its default arm, consumes rn2(3)=2 and rn2(2)=0, and prints \"You take a sip of warm water.\". The bounded source handoff is fountain.c drinksink() plus potion.c dodrink()'s sink prompt/call seam; sink fates, levitation, and hallucination arms outside this recorded branch remain out of scope.",
   "source": {
-    "file": "read.c",
+    "file": "fountain.c",
     "functions": [
-      "seffect_light"
+      "drinksink"
     ],
-    "branch": "SCR_LIGHT in seffects(): the target reaches the visible, unconfused, noncursed branch, which sets gk.known when not Blind, calls litroom(TRUE, sobj), then calls lightdamage(sobj, TRUE, 5) and marks the scroll known if lightdamage returns nonzero; seffects() performs the A_WIS exercise before dispatch.",
+    "branch": "Ordinary sink drink after potion.c dodrink() confirms can_reach_floor() and the hero answers y, with Levitation false: drinksink() takes the default switch arm for rn2(20)=15, then rn2(3)=2 and rn2(2)=0 choose warm, hliquid(\"water\") remains water, and the command spends one turn. Other sink fates, levitation, and hallucination branches are outside this bounded probe.",
     "callers": [
-      "read.c seffects():2193-2290 (SCR_LIGHT switch arm at 2243-2245)",
-      "read.c doread():328-647 (seffects() call at 635)",
-      "js/read.js doread():427-532 (seffects() call at 520)",
-      "js/read.js seffects():673-710 (current selected-effect dispatch)"
+      "potion.c dodrink():526-615 (sink prompt and drinksink() call at 552-558)",
+      "js/potion.js dodrink():987-1067 (current sink seam at 1021-1024)",
+      "js/cmd.js runQuaffCommand():3334-3339"
     ],
     "dependencies": [
-      "read.c litroom():2491-2567",
-      "zap.c lightdamage():3024-3056",
-      "attrib.c exercise():488-518 (seffects() magic-scroll pre-dispatch)"
+      "potion.c can_reach_floor()/y_n() sink seam:552-558",
+      "do_name.c hliquid():1491-1510",
+      "rnd.c rn2():93-101"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The fresh queue boundary is this target session at step 96, kind stop, with no queue source owner and message \"Replay error: reading requires the selected scroll effect\"; recordedSteps is 595 and 595 - 96 = remainingScreensUpperBound 499 at commit b0ac4bb23d49400023028cda9e5591fa59c5aea3.",
-    "The explicit session file shows segment 0 step 96 with key t, screen prefix \"As you read the scroll, it disappears.  A lit field surrounds you!\", cursor [70,12,1], and rn2(19)=9 and rn2(19)=12 exercise calls.",
-    "nethack-c/upstream/src/read.c:1741-1785 defines seffect_light(); the target message is the nonconfused, noncursed litroom branch, while the confused light-monster branch is outside this bounded probe.",
-    "nethack-c/upstream/src/read.c:2193-2290 dispatches SCR_LIGHT at 2243-2245 and returns through the existing doread() identification and useup tail at 635-645; litroom() is at 2491-2567 and lightdamage() is at zap.c:3024-3056.",
-    "js/read.js:673-680 currently admits only seven scroll effects and throws UnsupportedReadError(\"the selected scroll effect\") for SCR_LIGHT; js/read.js:doread() reaches that call at 520 after printing the disappearance message."
+    "The refreshed queue count is 411 for this target at commit c99273539a288d06d2d379583b59f0735fef7143; recordedSteps is 595 and the first stop is step 184, so 595 - 184 = 411. Its original boundary is \"Replay error: an unported branch of this command: quaffing requires the sink prompt in dodrink()\" with function dodrink declared in potion.c.",
+    "The explicit session file shows segment 0 step 184 with key q and \"Drink from the sink? [yn] (n)\", followed by step 185 key y with \"You take a sip of warm water.\" and RNG entries rn2(20)=15 at drinksink(fountain.c:604), rn2(3)=2 and rn2(2)=0 at drinksink(fountain.c:709).",
+    "nethack-c/upstream/src/potion.c:526-615 checks the sink at 552-559, asks y_n(\"Drink from the sink?\"), and calls drinksink() on y; nethack-c/upstream/src/fountain.c:595-712 defines the sink behavior and its default warm/cold/hot message arm at 708-710.",
+    "The target fate is the nonlevitating default arm: fountain.c:604 receives 15 (not cases 0-13 or 19), then line 709 receives 2 and line 709 receives 0, producing \"warm\"; do_name.c hliquid():1491-1510 returns the ordinary water name without a display-RNG substitution.",
+    "js/potion.js:1021-1024 currently throws UnsupportedQuaffError(\"the sink prompt in dodrink()\") before y_n or drinksink; js/fountain.js implements drinkfountain() but has no drinksink() export, leaving the fountain.c source owner unported."
   ]
 }
