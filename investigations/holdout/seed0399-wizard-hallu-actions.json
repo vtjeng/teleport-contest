@@ -1,12 +1,11 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
-  "remainingScreensUpperBound": 370,
+  "remainingScreensUpperBound": 232,
   "status": "complete",
-  "commit": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
+  "commit": "59aedc79748d2e1285caf3d2d16aaeea446a9851",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "remainingScreensUpperBound": 370,
-    "step": 162,
+    "step": 300,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,36 +13,36 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold",
+    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish for a unique object",
     "unlocatedKinds": [],
-    "recordedSteps": 532
+    "recordedSteps": 532,
+    "remainingScreensUpperBound": 232
   },
-  "summary": "At step 162, the wizard wish prompt submits `blessed 30 gold pieces`. C's objnam.c readobjnam() gold arm clamps the count, calls mksobj(GOLD_PIECE, FALSE, FALSE), sets the quantity and weight, marks the status line dirty, and returns the object; JS readobjnam_postparse1() raises UnsupportedWishError before that branch, which failClosedCommand wraps as the observed hero-command boundary. Port this missing readobjnam arm through the existing makewish() and inventory path while retaining C's count rules and RNG order.",
+  "summary": "At step 300 a wizard's named unique-object wish is stopped by an obsolete blanket guard in readobjnam, although mksobj already handles unique finalization. Removing that guard exposes missing special-item inventory effects in invent.c addinv_core1. Complete that whole source unit, remove its injected achievement hooks and obsolete preflight refusals, and keep the wish caller aligned with C.",
   "source": {
-    "file": "objnam.c",
+    "file": "invent.c",
     "functions": [
-      "readobjnam"
+      "addinv_core1"
     ],
-    "branch": "nethack-c/upstream/src/objnam.c:4533-4545 is reached after the normal readobjnam parsing chain when d->bp ends in `gold piece` or `zorkmid`, equals `gold`, `money` or `coin`, or begins with GOLD_SYM. In this debug wizard recording d->cnt is 30, so the non-wizard >5000 cap and the minimum-count correction do not change it. C then calls mksobj(GOLD_PIECE, FALSE, FALSE), assigns d->otmp->quan = d->cnt, recomputes d->otmp->owt with weight(), sets disp.botl, and returns the object directly. The JavaScript split of this C function reaches js/objnam_readobjnam.js:1064-1069 inside readobjnam_postparse1(), where it currently raises UnsupportedWishError before mksobj(); js/objnam_readobjnam.js:1570-1612 supplies the readobjnam() driver and return-code path.",
+    "branch": "invent.c:960-1005 adjusts inventory effects before insertion: coins, four invocation objects, quest artifacts and artifact intrinsics, then Mines/Sokoban prizes. The recorded Bell wish reaches the invocation-object path. objnam.c:4999-5023 substitutes unique types only outside wizard mode; js/objnam_readobjnam.js requireSimpleWishedObject incorrectly refuses every named unique type before the existing mksobj path.",
     "callers": [
-      "nethack-c/upstream/src/zap.c:makewish() (6314-6422) calls readobjnam(buf, &nothing) at 6360; js/zap.js:makewish() (999-1122) calls readobjnam() at 1055 and then hands the returned object to hold_another_object().",
-      "nethack-c/upstream/src/wizcmds.c:wiz_wish() (31-44) calls makewish() for the wizard #wizwish command; js/wizcmds.js:wiz_wish() (141-160) is its production counterpart, and js/cmd.js:runWishCommand() (3424-3429) plus the wizwish dispatch (5122-5124, 5900-5911) route the session into it.",
-      "Other source callers share makewish() and therefore this readobjnam branch: nethack-c/upstream/src/zap.c:WAN_WISHING (2575-2584), potion.c:mongrantswish() (2794-2812), sit.c:special_throne_effect() (90-111, 238-256), and allmain.c resume/Amulet paths (200-202, 445-451); js/potion.js:mongrantswish() (190-211) and js/allmain.js:advanceElapsedTurn() (1314-1328) supply the corresponding existing call sites where ported."
+      "js/invent.js beginAddinv invokes addinv_core1 before inventory insertion, corresponding to invent.c addinv_core0 at1082. Both synchronous addinv and addinv_runtime use beginAddinv.",
+      "zap.c makewish:6314-6422 calls readobjnam then hold_another_object; js/zap.js makewish follows that path. The independent Bell recipe reaches the production wizard command, parser, object generation and addinv_core1.",
+      "teleport.c level_tele:1234-1246 creates and adds an Amulet for endgame level teleport; js/teleport.js levelTeleMenu has a duplicated injected Amulet effect that must be removed when invent owns it.",
+      "zap.c poly_obj:1912 calls addinv_core1 directly for an in-place inventory replacement. poly_obj has no JavaScript implementation; this is a future caller, not an existing wired route or a completion claim."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/mkobj.c:mksobj() (1177-1258) advances next_ident(), creates the GOLD_PIECE object with init false, and finalizes its weight; js/obj.js:mksobj() (2631-2695) already supports the same init=false path, including GOLD_PIECE's ordinary finalization.",
-      "nethack-c/upstream/src/mkobj.c:weight() (1888-1945) computes a coin object's weight; js/obj.js:weight() (1682-1730) has the COIN_CLASS result and must be called after setting quan, as C does.",
-      "nethack-c/upstream/src/invent.c:hold_another_object() (1208-1306) receives the returned stack and emits the inventory/drop result; js/invent.js:hold_another_object() (4810-4903) is the existing production path that js/zap.js:makewish() prepares and calls.",
-      "nethack-c/upstream/src/zap.c:makewish() (6359-6421) continues after readobjnam(), ultimately adding rn1(100, 50) to u.ublesscnt; js/zap.js:makewish() (1055-1122) mirrors that tail. The recorded step-162 RNG has rnd(2)=2 at next_ident(mkobj.c:521), followed by rn2(100)=17 at makewish(zap.c:6421), so the new arm must preserve both draws and their order.",
-      "js/cmd.js:failClosedCommand() (3017-3029) converts UnsupportedWishError into the observed `unsupported hero command: an unported branch of this command: ...` boundary; removing only the gold refusal must leave other explicitly unsupported wish branches intact."
+      "mkobj.c mksobj:1177-1258 and js/obj.js mksobj already perform unique-object artifact finalization before weight; the named-unique parser refusal is obsolete admission, not a newly implemented readobjnam branch.",
+      "questpgr.js is_quest_artifact and artifacts.js set_artifact_intrinsic are existing callees. Retain the latter's unrelated display refusals as explicit downstream gaps.",
+      "insight.js record_achievement exists and must be called directly for invocation objects and both prizes, preserving achievement -> tracking-id reset -> nomerge order.",
+      "quest.c artitouch is an unported void callee; record note_unported rather than invent its pager, discovery, quest status or exercise effects. Unported void pline.c impossible diagnostics also remain explicit gaps."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json at commit 93a0880804e5b5e7aab756e1cce0b271cc1419dd reports holdout/seed0399-wizard-hallu-actions with screensEmitted 162, recordedSteps 532, first stop step 162, boundary `unsupported hero command: an unported branch of this command: unsupported wish: a wish for gold`, and remainingScreensUpperBound 532 - 162 = 370.",
-    "sessions/holdout/seed0399-wizard-hallu-actions.session.json segment 0 steps 150-161 echo `blessed 30 gold pieces` at the wish prompt; step 162's newline records the C screen `$ - 30 gold pieces.`, cursor [46,10,1], rnd(2)=2 @ next_ident(mkobj.c:521), and rn2(100)=17 @ makewish(zap.c:6421). The following step 163 starts the next `For what do you wish?` prompt, confirming that step 162 completed a gold wish in C.",
-    "nethack-c/upstream/src/objnam.c:4533-4545 implements the exact gold aliases and count handling, constructs GOLD_PIECE with mksobj(..., FALSE, FALSE), assigns its quantity and weight, sets disp.botl, and returns it; js/objnam_readobjnam.js:1064-1069 instead raises `UnsupportedWishError('a wish for gold', ...)` before any object-generation draw.",
-    "nethack-c/upstream/src/zap.c:6314-6422 shows makewish() calling readobjnam() at 6360, then hold_another_object() and the final rn1(100, 50) at 6421; js/zap.js:999-1122 follows that production path. js/cmd.js:3017-3029 catches the wish-parser refusal and produces the exact current boundary message, so the missing behavior belongs to the source port rather than to command admission.",
-    "The prior 423-count cache identified and recorded the step-109 were_change ordering defect. Commit 93a0880804e5b5e7aab756e1cce0b271cc1419dd removes that premature preflight; the current scan therefore advances to this independent step-162 gold-wish owner. The old were_change finding is retained only as transition provenance, not as the current source scope."
+    "Corrected A1 checkpoint59aedc79 and subsequent unchanged-seed scan at e43d1b18 both place seed0399 at300 of532 screens, remaining232, with unsupported wish: a wish for a unique object. Baseline gold stop162 was resolved by A1.",
+    "Coordinator read full invent.c addinv_core1 and its live beginAddinv caller, and verified the worker's immutable source snapshots19a6b847,2b6f160d,52c2cdf6. The final correction removes the internal quest-artifact refusal and preflight projection, performs the source-owned questart write, and calls existing record_achievement for prizes.",
+    "Worker's corrected independent Bell differential at52c2cdf6 matches2609 RNG calls,28 complete screens/attributes,28 cursors and0 animation frames. Focused inventory tests cover all four invocation flags/achievements, both prize tails and the quest-artifact state prefix.",
+    "Historical port-invent-seed4500 evidence marked addinv_core1 complete while it still depended on injected hooks. Refresh the source evidence for this changed unit; do not treat the old attestation as proof the missing effects were implemented."
   ]
 }
