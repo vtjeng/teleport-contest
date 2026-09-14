@@ -303,12 +303,13 @@ const TIN_VARIETY_COUNT = TIN_VARIETIES.length;
 // including the following space. The final empty tintxts[] row is a
 // terminator and is therefore excluded from the scan.
 export function tin_variety_txt(text, varietyRef = null) {
-    // C only initializes *tinvariety after both pointers are non-null and
-    // the input points at a non-empty string.
-    if (typeof text !== 'string' || text.length === 0
+    // C initializes *tinvariety whenever both pointers are non-null;
+    // an empty string still takes that initialization before the scan.
+    if (typeof text !== 'string'
         || !varietyRef || typeof varietyRef !== 'object')
         return 0;
     varietyRef.value = -1;
+    if (text.length === 0) return 0;
     for (let index = 0; index < TIN_VARIETY_COUNT; index++) {
         const name = TIN_VARIETIES[index].name;
         if (strncmpi(text, name) && text.length > name.length
