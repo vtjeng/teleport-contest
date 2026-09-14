@@ -41882,7 +41882,16 @@
       "sessions": [],
       "selectionReason": "The refreshed full queue ranks holdout/seed4500-knight-coverage first at screen step 787 with 1027 remaining screens. Its valid completed cache investigations/holdout/seed4500-knight-coverage.json identifies pager.c self_lookat as the current source owner, with C adding the chained-ball suffix that JavaScript omits.",
       "detail": "Queue entry: holdout/seed4500-knight-coverage, step 787, kind screen, remainingScreensUpperBound 1027, recordedSteps 1814. The first differing cell is row 0 column 26: C prints the comma and chained ball name after the punished hero's object description, while JS leaves the suffix blank. Source owner: pager.c self_lookat() and its uball branch; JS pager.js self_lookat() omits the branch. Existing ansimpleoname() and state.uball are the required dependencies.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "self_lookat",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "self_lookat"
+          ]
+        }
+      ],
       "openedAt": "20cd559b4723ff7d90a8b5cfdf74cd0dee5f673a",
       "openStanding": {
         "sha": "20cd559b4723ff7d90a8b5cfdf74cd0dee5f673a",
