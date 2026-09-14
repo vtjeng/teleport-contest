@@ -27,6 +27,7 @@ import {
     EXT_ENCUMBER,
     FIRE_RES,
     FIXED_ABIL,
+    HALLUC_RES,
     HVY_ENCUMBER,
     LEVITATION,
     MAGICENLIGHTENMENT,
@@ -61,6 +62,7 @@ import {
     RING_CLASS,
     RING_MAIL,
     SHORT_SWORD,
+    SILVER_DRAGON_SCALE_MAIL,
     objects_globals_init,
     TOWEL,
     WEAPON_CLASS,
@@ -905,6 +907,37 @@ test('the magic half prints the three lines the port covers', async () => {
         ' Total elapsed playing time is none.',
     ]);
 });
+
+// insight.c:1559-1561. The Halluc_resistance branch belongs to the complete
+// attributes_enlightenment() function, and a wizard's from_what() call names
+// the worn non-artifact that contributes its extrinsic bit.
+test('attributes enlightenment reports Halluc_resistance and its source',
+    async () => {
+        const state = await readyExploreGame();
+        state.wizard = true;
+        const scales = {
+            otyp: SILVER_DRAGON_SCALE_MAIL,
+            oclass: ARMOR_CLASS,
+            owornmask: W_ARMC,
+            dknown: true,
+            nobj: state.invent,
+        };
+        state.invent = scales;
+        state.uarmc = scales;
+        state.u.uprops[HALLUC_RES] = {
+            intrinsic: 0,
+            extrinsic: W_ARMC,
+            blocked: 0,
+        };
+        const lines = attributeSection(
+            await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
+        );
+        assert.ok(lines.some((line) => line.includes('resist hallucinations')),
+            'the Halluc_resistance line is emitted');
+        assert.ok(lines.some((line) => line.includes(
+            'because of the silver dragon scale mail',
+        )), 'wizard source wording identifies the worn scales');
+    });
 
 // insight.c:1509-1513. piousness() names how far the record has moved, and the
 // sign of the record picks you_are() over you_have(). No role starts with a

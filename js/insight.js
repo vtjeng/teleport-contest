@@ -1134,7 +1134,6 @@ const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
     [SICK_RES, 'Sick_resistance',
         (state) => propertyInPlay(state, SICK_RES) || greenDragonSuit(state)],
     [STONE_RES, 'Stone_resistance'],
-    [HALLUC_RES, 'Halluc_resistance'],
     [BLINDED, 'the Eyes of the Overworld and blind See_invisible arms'],
     [BLND_RES, 'Blnd_resist'],
     [SEE_INVIS, 'See_invisible'],
@@ -1297,6 +1296,12 @@ async function attributes_enlightenment(final, state, lines) {
     if (hasProperty(state, POISON_RES))
         you_are(lines, final, 'poison resistant',
             from_what(POISON_RES, state));
+
+    // C ref: insight.c:1559-1561. Halluc_resistance is reported with the
+    // source wording supplied by attrib.c from_what() in wizard mode.
+    if (hasProperty(state, HALLUC_RES))
+        enl_msg(lines, final, You_, 'resist', 'resisted',
+            ' hallucinations', from_what(HALLUC_RES, state));
 
     if (hasProperty(state, INFRAVISION))
         you_have(lines, final, 'infravision', '');

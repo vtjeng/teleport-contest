@@ -85,6 +85,7 @@ import {
     ART_EYES_OF_THE_OVERWORLD,
     ART_OGRESMASHER,
     SPFX_LUCK,
+    what_gives,
 } from './artifacts.js';
 // js/display.js imports acurr() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
@@ -448,13 +449,19 @@ export function from_what(propidx, state = game) {
             return from_what_trim(` because of ${source}`, propidx);
         }
 
-        // C ref: what_gives(&u.uprops[propidx].extrinsic) identifies the worn
-        // or carried object providing the property. Not yet ported.
+        // C ref: artifact.c what_gives() identifies the worn or carried object
+        // providing an extrinsic property. Non-artifacts use ysimple_name();
+        // the artifact-only bare_artifactname() formatting remains a gap.
         if (state.wizard && (u.uprops?.[propidx]?.extrinsic ?? 0) !== 0) {
-            note_unported('artifact.c what_gives');
-            // Skip the branch that calls what_gives and bare_artifactname;
-            // the result would name the equipment source, but what_gives and
-            // bare_artifactname are not ported yet.
+            const sourceObject = what_gives(propidx, state);
+            if (sourceObject && !sourceObject.oartifact) {
+                return from_what_trim(
+                    ` because of ${ysimple_name(sourceObject, state)}`,
+                    propidx,
+                );
+            }
+            if (sourceObject?.oartifact)
+                note_unported('objnam.c bare_artifactname');
         }
 
         // C ref: youprop.h:96 Blindfolded = EBlinded (W_TOOL)
