@@ -45994,8 +45994,8 @@
           "name": "pick_obj",
           "line": 1897,
           "endLine": 1947,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -46071,7 +46071,100 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pick_obj",
+            "implementation": "js/pickup.js",
+            "symbol": "pick_obj",
+            "sourceReview": "Read whole pickup.c pick_obj:1897–1947 and pickup_object:1803–1888. Preserve get_obj_location before extraction, floor redraw, temporary u.ushops during addtobill, original shop restoration, addinv's actual survivor, and only then remote_burglary. Removed the obsolete shop-floor refusal and folded pick_obj stand-in; actual lift_object remains before splitting and pickup. Billing precedes live merge choice, without an invented projected billing result. Existing independently implemented pickup/lift/addinv/pricing boundaries remain; this is not whole pickup.c completion. Required helper group: read whole shk.c contained_cost:2995–3047, picked_container:3085–3100, set_cost:3148–3193, add_one_tobill:3309–3367, add_to_billobjs:3370–3388, bill_box_content:3392–3414, billable:3451–3487, addtobill:3490–3601, append_honorific:3604–3625, costly_gold:5745–5787, sub_one_frombill:3661–3690, subfrombill:3694–3710, alter_cost:3237–3256 and shknam.c saleable:805–825. Preserved nested-content and Schrodinger-box branches, no_charge and coin rules, quantity and rounding order, BILLSZ handling, honorific RNG, mute/deaf/ininv/silent messages, bill-object ownership and dummy disposal. set_cost, saleable and contained_cost have source-pinned value tests. Existing return-valued get_cost/getprice/get_pricing_units/onbill boundaries are used rather than replaced with fabricated data; unported price variants remain explicit. Newly reached obfree billing work follows C shk.c:1207–1258 through the existing inventory lifecycle hook outcomes, preserving useup, merge quantity, bill-entry compaction and gb.billobjs retention. setpaid drains that chain through obj_extract_self and dealloc_obj. Existing bill_dummy_object caller now completes its billing sequence including old unpaid cost, subfrombill, source-shaped copy, awaited addtobill and alter_cost; alter_cost retains the source's exact next_shkp(shkp,TRUE) iteration rather than silently repairing it. unpaid_cost now uses real contained_cost at C3296 instead of duplicate saved-child-price arithmetic. pick_container callers in invent, dokick and dog share the source owner. Audible useupf and boulder/horn callers await billing before destruction, movement or output; even silent dummy calls are awaited because bill saturation inside a container can print. Naming appends C doname_base:1648–1664 unpaid contents prices and remembers the integer per-object quote. query_objlist's live shop-floor rows invoke the existing doname_with_price owner; C early no-shop/coin/punishment cases retain ordinary naming. Existing get_cost_of_shop_item guards remain and its whole-source completion is not claimed. No new Unsupported error or seed-specific behavior. Coordinator independently compared the whole pick_obj body and required billing helpers against C, checked the production pickup, inventory disposal, dummy billing, container, horn, theft and boulder callers, and read every changed test and the fresh verifier. The three new recipes are independently designed and assert actual unpaid inventory plus active bill identity, rather than relying only on matching output. Pure helper tests pin ordinary and tourist rounding, unknown gem offers, specialized saleable rows, and contained cost/no_charge/coin cases. A separate coordinator correction completes isolation of the billing roots: clone buried objects and migrating monster inventories through the existing shared object map, remap gm.migrating_mons, and copy u.ushops. A constructed revived-shopkeeper fatal-lava case exercises the actual preflight/minliquid/mondead/shkgone/setpaid chain without an injected turn or death callback. The new regression failed before the correction because live buried unpaid changed1→0. The shared-root omissions predate this delivery; this is not a merge-conflict claim. The test also checks migrating unpaid state, buried no_charge, live room/bill/carrier identities and shop membership.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup_object",
+                "source": "pickup.c:1877 assigns pick_obj's returned survivor before pickup_prinv; runSegment comma/autopickup -> pickup -> pickup_object -> pick_obj."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "useupf",
+                "source": "invent.c:4775 addtobill(FALSE,FALSE,FALSE) before delobj; eat.js and sit.js await this existing owner."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "bill_dummy_object",
+                "source": "mkobj.c:712–751 bills a used dummy, restores the saved price and updates original unpaid/no_charge; monmove.mdig_tunnel awaits it."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c hornoplenty invokes addtobill(FALSE,FALSE,tipping) before inventory/drop lifetime transitions."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "dopush",
+                "source": "hack.c existing boulder billing sites call addtobill and subfrombill at the C shop-boundary positions; absent stolen_value remains a note_unported call."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "obfree",
+                "source": "shk.c obfree billing branch uses real obfree_shop_bill; existing addinv merge paths now maintain live bill identities and quantities."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "mon_leave",
+                "source": "dog.c:737 calls picked_container on carried containers before clearing top-level no_charge."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "Existing unpaid theft caller uses the real subfrombill owner before freeinv; pickup_env defaults use the same billing owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-billing.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/dog-migrate.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/steal.test.mjs",
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/shop-potion.session.json",
+              "recordings/pickup.c/shop-food.session.json",
+              "recordings/pickup.c/shop-deaf.session.json"
+            ],
+            "checkedAt": "805395e53f222fb6b80901b3753f383947e96a62"
+          }
+        ],
+        "entryPointReview": "The selected pick_obj entry point is object pickup, shared by manual selection and autopickup. Three independent fresh recipes enter a generated shop and acquire potion/food stock, with an additional deaf variation; the verifier requires the expected unpaid object in OBJ_INVENT, an active bill with matching object ID and quantity, and all input consumed. Existing autopickup floor-object and exception recordings still match. Helper lifecycle tests cover retained used objects, merging bills, remote settlement, dummy replacement and cloning; these are not misrepresented as fresh recordings of every helper branch. Pricing variant boundaries remain outside this source unit's completion.",
+        "entryPoints": [
+          {
+            "name": "Manual pickup of shop stock",
+            "functions": [
+              "pick_obj"
+            ],
+            "recordings": [
+              "recordings/pickup.c/shop-potion.session.json",
+              "recordings/pickup.c/shop-food.session.json",
+              "recordings/pickup.c/shop-deaf.session.json"
+            ]
+          },
+          {
+            "name": "Automatic floor-object pickup",
+            "functions": [
+              "pick_obj"
+            ],
+            "recordings": [
+              "recordings/pickup.c/autopickup-floor-object.session.json",
+              "recordings/pickup.c/autopickup-exception-floor-object.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
