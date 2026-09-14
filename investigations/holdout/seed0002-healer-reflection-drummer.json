@@ -1,50 +1,52 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 539,
+  "remainingScreensUpperBound": 509,
   "status": "complete",
-  "commit": "1e053b46f91f5850d247903f63e70eddb6f4b598",
+  "commit": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "remainingScreensUpperBound": 539,
-    "step": 56,
+    "remainingScreensUpperBound": 509,
+    "step": 86,
     "kind": "stop",
-    "function": "peffect_see_invisible",
+    "function": "peffect_paralysis",
     "functionDeclared": false,
     "sourceFile": "potion.c",
     "cFile": "potion.c",
     "luaFile": null,
     "line": null,
-    "message": "Replay error: quaffing requires peffect_see_invisible()",
+    "message": "Replay error: quaffing requires peffect_paralysis()",
     "unlocatedKinds": [],
     "recordedSteps": 595,
-    "remainingScreensUpperBound": 539
+    "remainingScreensUpperBound": 509
   },
-  "summary": "At segment 0, recorded step 56 (input move index 55, key q), the hero selects the ruby-looking potion and C handles it as POT_FRUIT_JUICE through potion.c peffect_see_invisible(). That shared handler marks the potion unknown, prints the fruit-juice taste, adds nutrition using dilution and bless/curse state, calls newuhs(FALSE), and returns before the see-invisible effect. The current JavaScript peffects() maps POT_FRUIT_JUICE to UnsupportedQuaffError(\"peffect_see_invisible()\") before any of those effects. The bounded source handoff is the POT_FRUIT_JUICE arm of potion.c peffect_see_invisible(), including its message, hunger update, newuhs(FALSE), and return; the POT_SEE_INVISIBLE continuation remains separate.",
+  "summary": "At segment 0, recorded step 86 (input move index 85, key n), the hero quaffs the potion selected from the inventory menu. C dispatches POT_PARALYSIS to potion.c peffect_paralysis(); with no Free_action, levitation, water, air, or steed exception, it prints the frozen-feet message, applies nomul(-rn1(10, 25)), sets the move-again message, and exercises Dexterity. The current JavaScript peffects() stops at the POT_PARALYSIS case with UnsupportedQuaffError(\"peffect_paralysis()\") before the rn1 duration and exercise calls. The bounded source handoff is this ordinary floor paralysis branch, including duration, occupation message, and A_DEX exercise; resistance and alternate terrain or steed arms remain part of the same source function's later coverage.",
   "source": {
     "file": "potion.c",
     "functions": [
-      "peffect_see_invisible"
+      "peffect_paralysis"
     ],
-    "branch": "POT_FRUIT_JUICE arm of peffect_see_invisible(): after potion_unkn is incremented and the uncursed fruitname(TRUE) taste message is printed, add (odiluted ? 5 : 10) * (2 + bcsign(otmp)) to u.uhunger, call newuhs(FALSE), and return before the POT_SEE_INVISIBLE-only blindness and visibility work.",
+    "branch": "POT_PARALYSIS with Free_action false, no levitation or air/water level, no steed, and an ordinary floor position: print that the hero's feet are frozen to the floor, call nomul(-rn1(10, 25)), set gm.multi_reason to frozen by a potion and gn.nomovemsg to You_can_move_again, then call exercise(A_DEX, FALSE).",
     "callers": [
-      "potion.c peffects():1356-1359",
+      "potion.c peffects():1360-1362",
       "potion.c dopotion():618-641",
-      "js/potion.js peffects():754-820",
-      "js/potion.js dopotion():830-858",
-      "js/potion.js dodrink():869-948"
+      "potion.c dodrink():526-614",
+      "js/potion.js peffects():831-899",
+      "js/potion.js dopotion():911-937",
+      "js/potion.js dodrink():948-1027"
     ],
     "dependencies": [
-      "objnam.c fruitname():411-427",
-      "mkobj.c bcsign():1856-1860",
-      "eat.c newuhs():3362-3510"
+      "hack.c nomul():4161-4173 and unmul():4177-4208",
+      "attrib.c exercise():488-518",
+      "obj.c bcsign():1856-1860",
+      "decl.h You_can_move_again macro"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The fresh queue entry is the target session's stop at step 56 with function peffect_see_invisible, message \"Replay error: quaffing requires peffect_see_invisible()\", recordedSteps 595, and remainingScreensUpperBound 539 (= 595 - 56) at commit 1e053b46f91f5850d247903f63e70eddb6f4b598.",
-    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 55 lists q as a ruby potion; step 56 key q emits \"This tastes like slime mold juice.--More--\" with no RNG calls, and step 57 continues with \"Call a ruby potion:\".",
-    "nethack-c/upstream/src/potion.c:841-860 increments potion_unkn, prints fruitname(TRUE), and for POT_FRUIT_JUICE adds hunger using bcsign and dilution, calls newuhs(FALSE), and returns; :1356-1359 dispatches POT_FRUIT_JUICE to peffect_see_invisible().",
-    "nethack-c/upstream/src/potion.c:618-641 shows dopotion() consuming the peffects() result, issuing the unknown-potion naming prompt through trycall(), and using up the potion; objnam.c:411-427 owns fruitname(), mkobj.c:1856-1860 owns bcsign(), and eat.c:3362-3510 owns newuhs().",
-    "js/potion.js:770-772 currently throws UnsupportedQuaffError('peffect_see_invisible()') for both POT_SEE_INVISIBLE and POT_FRUIT_JUICE; js/potion.js:830-858 is the tail that must run after the fruit-juice arm returns."
+    "The fresh queue entry is the target session's stop at step 86 with function peffect_paralysis, message \"Replay error: quaffing requires peffect_paralysis()\", recordedSteps 595, and remainingScreensUpperBound 509 (= 595 - 86) at commit 9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef.",
+    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 85 shows the potion menu and step 86 key n emits \"Your feet are frozen to the floor!  You can move again.\"; step 86 records rn2(10)=4 at peffect_paralysis(potion.c:893) and rn2(2)=0 at exercise(attrib.c:509).",
+    "nethack-c/upstream/src/potion.c:880-898 implements peffect_paralysis(); the ordinary branch prints the floor message, calls rn1(10, 25) through nomul(), sets the frozen-potion reason and move-again message, then calls exercise(A_DEX, FALSE).",
+    "nethack-c/upstream/src/potion.c:1333-1362 dispatches POT_PARALYSIS from peffects(), while :618-641 shows dopotion() consuming the result and running its naming/useup tail.",
+    "js/potion.js:852-853 currently throws UnsupportedQuaffError('peffect_paralysis()') before peffect_paralysis exists; js/potion.js:831-899 is the peffects() dispatcher and js/hack.js plus js/attrib.js provide the existing nomul() and exercise() operations."
   ]
 }

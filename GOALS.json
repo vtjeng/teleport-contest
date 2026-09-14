@@ -42540,7 +42540,7 @@
     {
       "id": "port-potion-fruit-juice-seed0002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port potion.c peffect_see_invisible() fruit-juice arm, including potion identification, taste, nutrition, and newuhs(FALSE) return flow.",
       "cFile": "potion.c",
       "sessions": [
@@ -42551,8 +42551,8 @@
       "spans": [
         {
           "name": "peffect_see_invisible",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
           "functions": [
             "peffect_see_invisible"
           ]
@@ -42564,15 +42564,18 @@
         "screens": 8688,
         "rng": 640306
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
+      "delivered": {
+        "screens": 30,
+        "rng": 39
+      },
       "functions": [
         {
           "name": "peffect_see_invisible",
           "line": 841,
           "endLine": 880,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -42653,7 +42656,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_see_invisible",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_see_invisible",
+            "sourceReview": "Read the complete upstream potion.c peffect_see_invisible() source at lines 841-880 and compared its evaluation order with js/potion.js. The port preserves the initial Invisible/Blind and permanent-chance local calculations, potion_unkn increment, cursed and uncursed Hallucination-dependent taste messages, fruitname(TRUE) call, and the POT_FRUIT_JUICE nutrition formula (odiluted ? 5 : 10) * (2 + bcsign(otmp)). It dynamically calls the existing eat.js newuhs(FALSE) implementation with ttyPline, endRunning, and bot status hooks, then returns before the see-invisible continuation. The later continuation remains source-shaped for the next dispatcher slice; set_mimic_blocking() is an explicit note_unported() gap because C discards its result. The peffects() dispatcher retains the existing UnsupportedQuaffError for POT_SEE_INVISIBLE while routing POT_FRUIT_JUICE through this function. No RNG call occurs in the fruit arm, and the production dopotion() tail still performs identification, trycall(), useup(), and ECMD_TIME handling after the effect returns.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1356-1359 dispatches POT_FRUIT_JUICE to peffect_see_invisible(); js/potion.js peffects routes the same case to the ported function and keeps POT_SEE_INVISIBLE at its refusal boundary."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() lines 618-641 calls peffects(), then runs the potion identification/name prompt and useup() tail when peffects() returns -1; js/potion.js dopotion() follows that path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() lines 526-615 selects an inventory potion and calls dopotion(); js/potion.js dodrink() is the corresponding #quaff entry point."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c:1809 registers the q/quaff command and cmd.c:3810-3818 handles its ECMD result; js/cmd.js runQuaffCommand and the quaff dispatch arm route production q input to dodrink()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/fruit-juice-quaff-seed914002.session.json"
+            ],
+            "checkedAt": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef"
+          }
+        ],
+        "entryPointReview": "The selected range has one production entry point: the #quaff command's POT_FRUIT_JUICE case. cmd.c registers q/quaff and its result handling, dodrink() selects the potion, dopotion() invokes peffects(), and peffects() dispatches the fruit juice effect; js/cmd.js and js/potion.js preserve that caller chain. The independent debug recipe wishes an uncursed potion of fruit juice and selects it with the inventory letter produced by that startup, so its recording reaches the taste, potion_unkn, nutrition, newuhs(FALSE), return, useup(), and following turn. The assigned holdout has the same fruit-juice entry point at its recorded step 56. POT_SEE_INVISIBLE remains a separate dispatcher boundary for the later continuation.",
+        "entryPoints": [
+          {
+            "name": "#quaff POT_FRUIT_JUICE",
+            "functions": [
+              "peffect_see_invisible"
+            ],
+            "recordings": [
+              "recordings/potion.c/fruit-juice-quaff-seed914002.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 86,
+          "kind": "stop",
+          "function": "peffect_paralysis",
+          "functionDeclared": false,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_paralysis()",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 509,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "previousRemainingScreensUpperBound": 539
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
+        "screens": 8718,
+        "rng": 640345
+      }
     }
   ]
 }
