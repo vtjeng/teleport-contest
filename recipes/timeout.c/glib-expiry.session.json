@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent timeout.c nh_timeout helper case. Uses the already checked region-free seed 8440032. Wielding no weapon avoids do_wear.c glibr's unported weapon-slip branch before nh_timeout; starting gloves exercise make_glib's inventory refresh.",
+  "segments": [
+    {
+      "seed": 8440032,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".w- #wizintrinsic\n1l\n ."
+    }
+  ]
+}

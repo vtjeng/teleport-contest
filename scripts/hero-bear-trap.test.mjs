@@ -36,7 +36,7 @@ import {
     HIGH_BOOTS,
     IRON_SHOES,
 } from '../js/objects.js';
-import { nh_timeout_elapsed_turn } from '../js/timeout.js';
+import { nh_timeout } from '../js/timeout.js';
 import {
     PM_BLACK_PUDDING,
     PM_DUST_VORTEX,
@@ -734,13 +734,13 @@ test('the wounded-legs timeout counts down and then reaches heal_legs',
         woundedLegs().extrinsic = RIGHT_SIDE;
         game.u.atemp[A_DEX] = -1; // what set_wounded_legs() charged
 
-        await nh_timeout_elapsed_turn(game);
+        await nh_timeout(game);
         assert.equal(woundedLegs().intrinsic & TIMEOUT, 2);
         // Nothing happens until the count runs out: the side bit stands and
         // the point of Dexterity is still spent.
         assert.equal(woundedLegs().extrinsic, RIGHT_SIDE);
         assert.equal(game.u.atemp[A_DEX], -1);
-        await nh_timeout_elapsed_turn(game);
+        await nh_timeout(game);
         assert.equal(woundedLegs().intrinsic & TIMEOUT, 1);
 
         // timeout.c:670-671 decrements first and runs the expiry switch on the
@@ -748,7 +748,7 @@ test('the wounded-legs timeout counts down and then reaches heal_legs',
         // which clears both halves of the condition and gives the point back.
         clearTtyMessageWindow(game);
         game._ttyToplines = '';
-        await nh_timeout_elapsed_turn(game);
+        await nh_timeout(game);
         assert.equal(woundedLegs().intrinsic & TIMEOUT, 0);
         assert.equal(woundedLegs().extrinsic, 0);
         assert.equal(game.u.atemp[A_DEX], 0);

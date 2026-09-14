@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Blocked independent boundary case. Seed 8440031 has a permanent gas-cloud region elsewhere on D:1. After live hallucination expiry, allmain.c moveloop_core's remaining allocation requires region upkeep, which the existing burdened planning guard does not yet admit. display.c also differs in a pre-expiry hallucinated map glyph. No recording is committed.",
+  "segments": [{
+    "seed": 8440031,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": ".#wizintrinsic\n1h\n ."
+  }]
+}

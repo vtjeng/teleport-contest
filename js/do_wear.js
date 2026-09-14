@@ -65,6 +65,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FACE,
+    FAINTED,
     FAST,
     FUMBLING,
     FINGER,
@@ -166,6 +167,7 @@ import {
 import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
+import { unconscious } from './trap.js';
 import {
     Is_dragon_armor,
     WrappingAllowed,
@@ -1345,8 +1347,8 @@ async function Boots_on(state) {
 // after setworn() has installed or removed the cloak. `initial_don` is set by
 // set_wear() while startup callbacks replay the effects of starting gear;
 // `cancelled_don` is retained by takeoffContext() for an interrupted callback.
-// The timed eat.c and timeout.c callers remain outside this source span.
-async function toggle_displacement(obj, oldprop, on, state = game) {
+// timeout.c also calls it with a null object when timed displacement ends.
+export async function toggle_displacement(obj, oldprop, on, state = game) {
     // Keep C's conditional read order: an initial don checks only
     // gi.initial_don, while the off arm is the one that reads takeoff.
     const cancelledDon = !on && takeoffContext(state).cancelled_don;
@@ -1381,8 +1383,10 @@ async function toggle_displacement(obj, oldprop, on, state = game) {
             || detectMonsters)) {
         if (obj)
             discover_object(obj.otyp, true, true, true, state);
+        const unaware = state.multi < 0
+            && (unconscious(state) || state.u.uhs === FAINTED);
         await ttyPline(
-            `You feel that monsters${on ? '' : ' no longer'} have difficulty `
+            `${unaware ? 'You dream that you feel' : 'You feel'} that monsters${on ? '' : ' no longer'} have difficulty `
             + 'pinpointing your location.',
             state,
         );

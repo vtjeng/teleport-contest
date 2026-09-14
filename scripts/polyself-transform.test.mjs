@@ -355,38 +355,37 @@ test('weight_cap returns the base formula when not polymorphed', () => {
 });
 
 // -- make_glib (potion.c:460-468) --
-// Clearing Glib (make_glib(0)) when already non-Glib leaves the intrinsic
-// unchanged and does not mark the status line dirty.
-test('make_glib(0) is a no-op when Glib is already zero', () => {
+// C's (!Glib ^ !!xtime) is true when both old and new Glib are zero.
+test('make_glib(0) marks botl when Glib is already zero', () => {
     const state = minimalState(PM_GNOME);
     // GLIB property starts at zero (set by minimalState's uprops loop).
     state.disp = { botl: false };
     make_glib(0, state);
-    // Intrinsic stays zero, botl stays false (no status-line update needed).
+    // Preserve this source expression even though the intrinsic is unchanged.
     assert.equal(state.u.uprops[GLIB].intrinsic, 0);
-    assert.equal(state.disp.botl, false);
+    assert.equal(state.disp.botl, true);
 });
 
-// Setting Glib to a nonzero value marks the status line dirty.
-test('make_glib sets a nonzero timeout and marks botl', () => {
+// C's (!Glib ^ !!xtime) is false when starting a new Glib timeout.
+test('make_glib starts a timeout without changing botl', () => {
     const state = minimalState(PM_GNOME);
     state.disp = { botl: false };
     // xtime=20 represents a slippery-fingers timeout (e.g. from a potion
     // of oil or a greased weapon).
     make_glib(20, state);
     assert.equal(state.u.uprops[GLIB].intrinsic, 20);
-    assert.equal(state.disp.botl, true);
+    assert.equal(state.disp.botl, false);
 });
 
-// Clearing an active Glib timeout marks botl.  polymon() calls make_glib(0)
-// when the new form has no hands (nohands true), such as a dragon.
-test('make_glib(0) clears an active Glib timeout and marks botl', () => {
+// potion.c's (!Glib ^ !!xtime) is false when clearing active Glib. polymon()
+// calls make_glib(0) when the new form has no hands, such as a dragon.
+test('make_glib(0) clears active Glib without changing botl', () => {
     const state = minimalState(PM_GNOME);
     state.u.uprops[GLIB].intrinsic = 15;
     state.disp = { botl: false };
     make_glib(0, state);
     assert.equal(state.u.uprops[GLIB].intrinsic, 0);
-    assert.equal(state.disp.botl, true);
+    assert.equal(state.disp.botl, false);
 });
 
 // -- uwepgone (wield.c:873-885) --

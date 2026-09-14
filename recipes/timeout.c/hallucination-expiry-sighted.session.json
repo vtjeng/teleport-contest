@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Blocked independent boundary case. Before hallucination expiry, display.c's hallucinated floor-object glyph differs at the command's More dismissal. Core RNG, total screens and cursors match, but one object glyph differs. This recipe cannot establish timeout completion until the earlier display.c mapping is source-correct; no recording is committed.",
+  "segments": [{
+    "seed": 8440032,
+    "datetime": "20320415101723",
+    "nethackrc": "OPTIONS=name:TimeoutPilot,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+    "moves": " .#wizintrinsic\n1h\n ."
+  }]
+}

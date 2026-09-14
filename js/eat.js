@@ -93,6 +93,7 @@ import {
     addinv_nomerge,
     freeinv,
     getobj,
+    obj_here,
     useup,
     useupf,
     will_feel_cockatrice,
@@ -130,6 +131,7 @@ import {
     AD_HALU,
     AD_STUN,
     AT_MAGC,
+    LOW_PM,
     M1_CARNIVORE,
     M1_HERBIVORE,
     M1_METALLIVORE,
@@ -647,6 +649,22 @@ export async function gethungry(state = game, env = {}) {
     u.uhunger = nextNutrition;
     await newuhs(true, state, env);
     return nutritionLoss;
+}
+
+// C ref: eat.c eating_dangerous_corpse() (475-494). A temporary resistance
+// must survive until the active corpse meal finishes or is interrupted.
+export function eating_dangerous_corpse(res, state = game) {
+    const food = state.context?.victual?.piece;
+    if (state.go?.occupation === eatfood
+        && food
+        && food.otyp === CORPSE
+        && food.corpsenm >= LOW_PM
+        && (carried(food) || obj_here(food, state.u.ux, state.u.uy, state))) {
+        const species = state.mons[food.corpsenm];
+        if (res === ACID_RES && acidic(species)) return true;
+        if (res === STONE_RES && flesh_petrifies(species)) return true;
+    }
+    return false;
 }
 
 export function nonrotting_corpse(mnum, state = game) {

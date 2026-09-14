@@ -327,19 +327,19 @@ export function incr_itimeout(prop, incr) {
 // C ref: potion.c make_glib() (460-468). Set or clear "slippery fingers".
 // polymon() calls make_glib(0) when the new form has no hands, clearing any
 // Glib timeout so the status line updates.
-export function make_glib(xtime, state = game) {
+export function make_glib(xtime, state = game, env = {}) {
     const prop = state.u?.uprops?.[GLIB];
     if (!prop) return; // property not initialized
-    const wasGlib = Boolean(prop.intrinsic & TIMEOUT);
+    const wasGlib = Boolean(prop.intrinsic);
     const willBeGlib = Boolean(xtime);
-    if (wasGlib !== willBeGlib) {
+    // Preserve C's (!Glib ^ !!xtime), including its equal-truth-value case.
+    if (!wasGlib !== willBeGlib) {
         state.disp ??= {};
         state.disp.botl = true;
     }
     set_itimeout(prop, xtime);
-    // C: if (uarmg) update_inventory(); — may change "(being worn; slippery)"
-    // The dragon-HP slice reaches this only with xtime=0 and no gloves
-    // (nohands form), so the uarmg guard is always false here.
+    // potion.c:467: the worn-glove annotation can change with Glib.
+    if (state.uarmg) update_inventory({ ...env, state });
 }
 
 // C ref: potion.c self_invis_message() (471-478). The optional message seam
@@ -468,7 +468,7 @@ function Unaware(state) {
 // C ref: potion.c make_confused() (89-104). Replace HConfusion's timeout,
 // report a cleared condition when requested, and mark the status line only
 // when confusion starts or ends.
-export async function make_confused(xtime, talk, state = game) {
+export async function make_confused(xtime, talk, state = game, env = {}) {
     const prop = state.u.uprops[CONFUSION] ??= {
         intrinsic: 0,
         extrinsic: 0,
@@ -478,7 +478,7 @@ export async function make_confused(xtime, talk, state = game) {
     if (Unaware(state)) talk = false;
 
     if (!xtime && old && talk) {
-        await ttyPline(
+        await (env.message ?? ttyPline)(
             `You feel less ${Hallucination(state) ? 'trippy' : 'confused'} now.`,
             state,
         );

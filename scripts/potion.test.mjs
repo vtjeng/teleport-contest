@@ -13,7 +13,7 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, HALLUC,
+    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
     TIMEOUT,
@@ -59,6 +59,7 @@ import {
     bottlename,
     incr_itimeout,
     make_confused,
+    make_glib,
     peffects,
     potionbreathe,
     potionhit,
@@ -67,6 +68,39 @@ import {
 } from '../js/potion.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 import { loadQuaffBoozeRecipes, verifyBoozeSegment } from './run-quaff-confusion.mjs';
+
+test('make_glib preserves C boolean XOR and refreshes worn gloves', () => {
+    // potion.c:462-468 uses !old ^ !!xtime, including the equal-state cases.
+    for (const old of [0, 1, FROMOUTSIDE]) {
+        for (const xtime of [0, 2]) {
+            for (const gloves of [false, true]) {
+                const state = {
+                    u: { uprops: [] }, disp: { botl: false },
+                    uarmg: gloves ? {} : null,
+                    program_state: { in_moveloop: true },
+                    iflags: { suppress_price: 7 },
+                };
+                state.u.uprops[GLIB] = { intrinsic: old };
+                let refreshes = 0;
+                make_glib(xtime, state, { hooks: {
+                    updateInventory(subject) {
+                        assert.strictEqual(subject, state);
+                        assert.equal(subject.u.uprops[GLIB].intrinsic,
+                            (old & ~TIMEOUT) | xtime);
+                        assert.equal(subject.iflags.suppress_price, 0);
+                        refreshes++;
+                    },
+                } });
+                assert.equal(state.disp.botl, Boolean(old) === Boolean(xtime));
+                assert.equal(state.u.uprops[GLIB].intrinsic,
+                    (old & ~TIMEOUT) | xtime);
+                assert.equal(refreshes, gloves ? 1 : 0);
+                assert.equal(state.iflags.suppress_price, 7,
+                    'inventory refresh restores its independent flag');
+            }
+        }
+    }
+});
 
 const POTION_TYPES = Object.freeze({
     POT_GAIN_ABILITY,

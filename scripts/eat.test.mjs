@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ACID_RES,
     A_STR,
     CONFLICT,
     FAINTED,
@@ -13,12 +14,15 @@ import {
     HUNGRY,
     MOD_ENCUMBER,
     NOT_HUNGRY,
+    OBJ_FLOOR,
+    OBJ_INVENT,
     PROTECTION,
     RANDOM_TIN,
     REGENERATION,
     SATIATED,
     SLOW_DIGESTION,
     SPINACH_TIN,
+    STONE_RES,
     UNENCUMBERED,
     WEAK,
     W_ARTI,
@@ -27,9 +31,12 @@ import {
     W_TOOL,
     W_WEP,
 } from '../js/const.js';
-import { gethungry, set_tin_variety } from '../js/eat.js';
+import {
+    eatfood, eating_dangerous_corpse, gethungry, set_tin_variety,
+} from '../js/eat.js';
 import {
     AMULET_OF_LIFE_SAVING,
+    CORPSE,
     FAKE_AMULET_OF_YENDOR,
     MEAT_RING,
     RIN_ADORNMENT,
@@ -43,6 +50,8 @@ import {
     M1_HERBIVORE,
     M1_METALLIVORE,
     NON_PM,
+    PM_ACID_BLOB,
+    PM_COCKATRICE,
     PM_ELF,
     PM_GHOST,
     PM_HEALER,
@@ -50,6 +59,7 @@ import {
     PM_KOBOLD,
     PM_LICHEN,
     PM_LIZARD,
+    PM_MEDUSA,
     PM_PONY,
     PM_RUST_MONSTER,
     PM_VALKYRIE,
@@ -63,6 +73,45 @@ function state() {
     monst_globals_init(result);
     return result;
 }
+
+test('eating_dangerous_corpse follows the active meal, species and floor identity', () => {
+    // eat.c:475-494; mondata.h:88 acidic, :202-203 touch/flesh_petrifies.
+    const subject = state();
+    const food = { otyp: CORPSE, corpsenm: PM_ACID_BLOB, where: OBJ_INVENT };
+    subject.context = { victual: { piece: food } };
+    subject.go = { occupation: eatfood };
+    subject.u = { ux: 3, uy: 4 };
+    subject.level = { objects: [] };
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), true);
+    assert.equal(eating_dangerous_corpse(STONE_RES, subject), false);
+    assert.equal(eating_dangerous_corpse(FROMFORM, subject), false);
+    for (const species of [PM_COCKATRICE, PM_MEDUSA]) {
+        food.corpsenm = species;
+        assert.equal(eating_dangerous_corpse(STONE_RES, subject), true);
+        assert.equal(eating_dangerous_corpse(ACID_RES, subject), false);
+    }
+    food.corpsenm = PM_LICHEN;
+    assert.equal(eating_dangerous_corpse(STONE_RES, subject), false);
+    food.corpsenm = NON_PM;
+    assert.equal(eating_dangerous_corpse(STONE_RES, subject), false);
+    food.corpsenm = PM_ACID_BLOB;
+    food.where = OBJ_FLOOR;
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), false);
+    subject.level.objects[3] = [];
+    subject.level.objects[3][4] = { ...food, nexthere: food };
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), true);
+    subject.level.objects[3][4].nexthere = null;
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), false);
+    food.where = OBJ_INVENT;
+    food.otyp = MEAT_RING;
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), false);
+    food.otyp = CORPSE;
+    subject.context.victual.piece = null;
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), false);
+    subject.context.victual.piece = food;
+    subject.go.occupation = () => {};
+    assert.equal(eating_dangerous_corpse(ACID_RES, subject), false);
+});
 
 function hungerState() {
     const result = state();

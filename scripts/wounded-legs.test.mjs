@@ -18,7 +18,7 @@ import { heal_legs } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { near_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { nh_timeout_elapsed_turn } from '../js/timeout.js';
+import { nh_timeout } from '../js/timeout.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     preflightSimpleMonsterActions,
@@ -301,13 +301,13 @@ test('the expiring timeout interrupts what the hero was doing', async () => {
     wounded.extrinsic = LEFT_SIDE;
     game.context.run = 3;
 
-    await nh_timeout_elapsed_turn(game);
+    await nh_timeout(game);
 
     assert.equal(wounded.intrinsic & TIMEOUT, 0);
     assert.equal(game.context.run, 0);
 });
 
-// The seam nh_timeout_elapsed_turn() threads through to heal_legs() and
+// The seam nh_timeout() threads through to heal_legs() and
 // encumber_msg(). The elapsed turn is dry run on a cloned state before it is
 // run live, and that pass has to write nothing; the env is how it stays
 // silent. Both halves are asserted here, because a seam that ignores its
@@ -321,7 +321,7 @@ test('the elapsed turn writes its recovery line through the seam it is given',
         game.u.atemp[A_DEX] = -1;
         const recorded = [];
 
-        await nh_timeout_elapsed_turn(game, {
+        await nh_timeout(game, {
             message: async (text) => { recorded.push(text); },
             statusRefresh: () => {},
         });
@@ -341,7 +341,7 @@ test('the elapsed turn writes its recovery line through the seam it is given',
         live.extrinsic = LEFT_SIDE;
         game.u.atemp[A_DEX] = -1;
 
-        await nh_timeout_elapsed_turn(game);
+        await nh_timeout(game);
 
         assert.equal(game._ttyToplines, 'Your leg feels better.');
         assert.equal(live.intrinsic & TIMEOUT, 0);
@@ -375,7 +375,7 @@ test('the planning round heals the clone and leaves the live hero alone',
             () => preflightSimpleMonsterActions(game, {
                 async advanceRound(planned) {
                     reachedRound = true;
-                    await nh_timeout_elapsed_turn(planned, {
+                    await nh_timeout(planned, {
                         message: async (text) => { recorded.push(text); },
                         statusRefresh: () => {},
                     });
