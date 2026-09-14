@@ -1,46 +1,48 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 595,
+  "remainingScreensUpperBound": 542,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "dd4cb114d3e363da84ce18c190ba93e8e53a3325",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "step": null,
+    "remainingScreensUpperBound": 542,
+    "step": 53,
     "kind": "stop",
-    "function": "exercise",
+    "function": "eatcorpse",
     "functionDeclared": true,
-    "sourceFile": "attrib.c",
-    "cFile": "attrib.c",
+    "sourceFile": "eat.c",
+    "cFile": "eat.c",
     "luaFile": null,
     "line": null,
-    "message": "Replay error: exercise requires encumber_msg",
+    "message": "Replay error: eatcorpse()'s mildly sickening rotted corpse",
     "unlocatedKinds": [],
     "recordedSteps": 595,
-    "remainingScreensUpperBound": 595
+    "remainingScreensUpperBound": 542
   },
-  "summary": "At segment 0, recorded step 47 (input move index 46, space), a dart trap hits the healer. C's mthrowu.c thitu() generic-hit branch loses nonlethal damage and calls exercise(A_STR, FALSE); attrib.c exercise() then calls encumber_msg() because play has begun. The JavaScript trap_effects.js caller omits encumberMessage from thitu()'s exercise callback, so attrib.js throws before the recorded exercise call can complete. This is a caller-wiring divergence in trap.c's trapeffect_dart_trap() path.",
+  "summary": "At segment 0, recorded step 53 (input move index 52, key y), the healer eats the gnome corpse. C's eat.c eatcorpse() computes a rotted corpse, takes the mildly sickening branch, consumes rn2(5), deals rnd(8) cadaver damage through losehp(), and continues to the meal completion. The current JavaScript eatcorpse() stops at that branch before rn2(5) with UnsupportedEatError(\"eatcorpse()'s mildly sickening rotted corpse\"). The bounded source handoff is eat.c eatcorpse()'s mildly sickening rotted-corpse branch, including its random draw, message, and losehp() call; later corpse effects remain separate work.",
   "source": {
-    "file": "trap.c",
+    "file": "eat.c",
     "functions": [
-      "trapeffect_dart_trap"
+      "eatcorpse"
     ],
-    "branch": "Hero arm (mtmp == &gy.youmonst), first DART_TRAP activation, ordinary unpoisoned dart, thitu() hit, nonlethal damage, moves > 0, and a non-polymorphed hero; the generic mthrowu.c thitu() branch reaches exercise(A_STR, FALSE).",
+    "branch": "Corpse path with no glob, petrification, or green-slime stop; a rotting corpse whose computed rotted value is above 3 but does not take the earlier tainted (>5) return, Sick_resistance is false, rn2(5) is nonzero, and eatcorpse() emits the mildly sickening message then loses rnd(8) hit points as a cadaver.",
     "callers": [
-      "mthrowu.c thitu():139-151",
-      "js/trap_effects.js trapeffect_dart_trap():574-615"
+      "eat.c doeat():2984-2993",
+      "js/eat.js doeat():2465-2475"
     ],
     "dependencies": [
-      "attrib.c exercise():488-517",
-      "pickup.c encumber_msg():1978-2019",
-      "hack.c near_capacity()/calc_capacity():4372-4387"
+      "eat.c nonrotting_corpse macro:58-61",
+      "mkobj.c peek_at_iced_corpse_age():2422-2437",
+      "rnd.c rn2()/rnd()",
+      "hack.c losehp():4255-4292"
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "The original queue entry is the stop at an unknown step with message 'Replay error: exercise requires encumber_msg'; the examined commit is cc1b4453d14fd4a0e995170e3842ad622790c8a5 and the queue count is 595.",
-    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 47 has key space, screen prefix 'A little dart shoots out at you!  You are hit by a little dart.', and RNG entries rn2(6)=2 at trap.c:1273, rnd(20)=9 at mthrowu.c:106, and rn2(2)=1 at attrib.c:509.",
-    "nethack-c/upstream/src/trap.c:1259-1293 creates and fires the hero dart, then calls thitu(); nethack-c/upstream/src/mthrowu.c:139-151 calls exercise(A_STR, FALSE) after losehp() on the ordinary hit branch.",
-    "nethack-c/upstream/src/attrib.c:488-517 shows that exercise() calls encumber_msg() whenever moves > 0 and the index is A_STR or A_CON. nethack-c/upstream/src/pickup.c:1978-2019 owns encumber_msg(), whose direct capacity dependency is nethack-c/upstream/src/hack.c:4372-4387.",
-    "js/trap_effects.js:602-615 supplies thitu()'s exercise callback without encumberMessage; js/mthrowu.js:1632-1634 and :1731-1739 consume that callback on the post-damage A_STR path; js/attrib.js:937-951 throws the observed error before rn2(2)."
+    "The fresh queue entry is the target session's stop at step 53 with function eatcorpse, message \"Replay error: eatcorpse()'s mildly sickening rotted corpse\", recordedSteps 595, and remainingScreensUpperBound 542 (= 595 - 53) at commit dd4cb114d3e363da84ce18c190ba93e8e53a3325.",
+    "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 53 has key y, RNG entries rn2(20)=11 at eatcorpse(eat.c:1887), rn2(5)=2 at eatcorpse(eat.c:1939), rnd(8)=6 at eatcorpse(eat.c:1942), and screen prefix \"You feel sick.  You finish eating the gnome corpse.\".",
+    "nethack-c/upstream/src/eat.c:1938-1943 guards the mildly sickening branch with (rotted > 5L || (rotted > 3L && rn2(5))) && !Sick_resistance, prints the sick message, and calls losehp(rnd(8), \"cadaver\", KILLED_BY_AN).",
+    "nethack-c/upstream/src/eat.c:1853-1892 computes rotted from peek_at_iced_corpse_age() and rn2(20), while :2984-2993 shows doeat() as the caller that consumes eatcorpse()'s return.",
+    "js/eat.js:1802-1811 currently tests only rotted > 3 and throws before the recorded rn2(5) and rnd(8); js/eat.js:2465-2475 is the production doeat() caller, and js/hack.js losehp() is the existing damage dependency."
   ]
 }

@@ -42348,6 +42348,122 @@
         "screens": 8685,
         "rng": 639553
       }
+    },
+    {
+      "id": "port-eatcorpse-mild-sick-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port eat.c eatcorpse() mildly sickening rotted-corpse branch, including its rn2(5) gate, sickness message, rnd(8) cadaver damage, and production return flow.",
+      "cFile": "eat.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "The authoritative queue ranks holdout/seed4500-knight-coverage first at 1025, but its valid cache owner teleport.c teleds is already a completed source goal and its same-count screen mismatch has no unverified teleds span. The next actionable session with a complete valid investigation is holdout/seed0002-healer-reflection-drummer at 542; its refreshed cache identifies eat.c:eatcorpse and this bounded source branch.",
+      "detail": "The refreshed count is 542 at commit dd4cb114. The investigation traces eat.c:eatcorpse() through rn2(5), rnd(8), losehp(), and doeat(); later corpse effects remain separate.",
+      "spans": [
+        {
+          "name": "eatcorpse",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "eatcorpse"
+          ]
+        }
+      ],
+      "openedAt": "56a5e7212244f05a8ee8376987ad445469d2b999",
+      "openStanding": {
+        "sha": "56a5e7212244f05a8ee8376987ad445469d2b999",
+        "screens": 8685,
+        "rng": 639553
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "eatcorpse",
+          "line": 1855,
+          "endLine": 2021,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1855,
+        "to": 2021
+      },
+      "activeStanding": {
+        "sha": "56a5e7212244f05a8ee8376987ad445469d2b999",
+        "screens": 8685,
+        "rng": 639553
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 53,
+          "kind": "stop",
+          "function": "eatcorpse",
+          "functionDeclared": true,
+          "sourceFile": "eat.c",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires eatcorpse()'s mildly sickening rotted corpse",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 542,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 542,
+              "status": "complete",
+              "commit": "dd4cb114d3e363da84ce18c190ba93e8e53a3325",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 542,
+                "step": 53,
+                "kind": "stop",
+                "function": "eatcorpse",
+                "functionDeclared": true,
+                "sourceFile": "eat.c",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null,
+                "message": "Replay error: eatcorpse()'s mildly sickening rotted corpse",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "At segment 0, recorded step 53 (input move index 52, key y), the healer eats the gnome corpse. C's eat.c eatcorpse() computes a rotted corpse, takes the mildly sickening branch, consumes rn2(5), deals rnd(8) cadaver damage through losehp(), and continues to the meal completion. The current JavaScript eatcorpse() stops at that branch before rn2(5) with UnsupportedEatError(\"eatcorpse()'s mildly sickening rotted corpse\"). The bounded source handoff is eat.c eatcorpse()'s mildly sickening rotted-corpse branch, including its random draw, message, and losehp() call; later corpse effects remain separate work.",
+              "source": {
+                "file": "eat.c",
+                "functions": [
+                  "eatcorpse"
+                ],
+                "branch": "Corpse path with no glob, petrification, or green-slime stop; a rotting corpse whose computed rotted value is above 3 but does not take the earlier tainted (>5) return, Sick_resistance is false, rn2(5) is nonzero, and eatcorpse() emits the mildly sickening message then loses rnd(8) hit points as a cadaver.",
+                "callers": [
+                  "eat.c doeat():2984-2993",
+                  "js/eat.js doeat():2465-2475"
+                ],
+                "dependencies": [
+                  "eat.c nonrotting_corpse macro:58-61",
+                  "mkobj.c peek_at_iced_corpse_age():2422-2437",
+                  "rnd.c rn2()/rnd()",
+                  "hack.c losehp():4255-4292"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The fresh queue entry is the target session's stop at step 53 with function eatcorpse, message \"Replay error: eatcorpse()'s mildly sickening rotted corpse\", recordedSteps 595, and remainingScreensUpperBound 542 (= 595 - 53) at commit dd4cb114d3e363da84ce18c190ba93e8e53a3325.",
+                "sessions/holdout/seed0002-healer-reflection-drummer.session.json segment 0 step 53 has key y, RNG entries rn2(20)=11 at eatcorpse(eat.c:1887), rn2(5)=2 at eatcorpse(eat.c:1939), rnd(8)=6 at eatcorpse(eat.c:1942), and screen prefix \"You feel sick.  You finish eating the gnome corpse.\".",
+                "nethack-c/upstream/src/eat.c:1938-1943 guards the mildly sickening branch with (rotted > 5L || (rotted > 3L && rn2(5))) && !Sick_resistance, prints the sick message, and calls losehp(rnd(8), \"cadaver\", KILLED_BY_AN).",
+                "nethack-c/upstream/src/eat.c:1853-1892 computes rotted from peek_at_iced_corpse_age() and rn2(20), while :2984-2993 shows doeat() as the caller that consumes eatcorpse()'s return.",
+                "js/eat.js:1802-1811 currently tests only rotted > 3 and throws before the recorded rn2(5) and rnd(8); js/eat.js:2465-2475 is the production doeat() caller, and js/hack.js losehp() is the existing damage dependency."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
