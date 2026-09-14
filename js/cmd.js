@@ -353,8 +353,8 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_genesis, wiz_intrinsic, wiz_level_change, wiz_level_tele, wiz_map,
-    wiz_polyself, wiz_wish,
+    wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change,
+    wiz_level_tele, wiz_map, wiz_polyself, wiz_wish,
 } from './wizcmds.js';
 import {
     dozap,
@@ -1797,7 +1797,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
-    'wizwish', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'fire', 'throw',
+    'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'fire', 'throw',
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet', 'teleport',
@@ -3425,6 +3425,12 @@ async function runLevelChangeCommand(key, state) {
 // every other ECMD_* handler; rhack()'s arm drops it, and says why.
 async function runWishCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_wish(state));
+}
+
+// C ref: wizcmds.c wiz_identify(). Its inventory menu and selected-item
+// updates complete with ECMD_OK, so the command never consumes a turn.
+async function runIdentifyCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_identify(state));
 }
 
 // C ref: wizcmds.c wiz_level_tele(). Like wiz_wish() it ends `return ECMD_OK`
@@ -5094,6 +5100,8 @@ async function doextcmd(key, state) {
         return await runLevelTeleCommand(key, state);
     case 'wiz_wish':
         return await runWishCommand(key, state);
+    case 'wiz_identify':
+        return await runIdentifyCommand(key, state);
     case 'wiz_genesis':
         return await runGenesisCommand(key, state);
     case 'wiz_map':
@@ -5878,6 +5886,14 @@ export async function rhack(key, state = game) {
             // either: extcmdlist[]'s "wizwish" row carries IFBURIED,
             // CMD_M_PREFIX and WIZMODECMD and none of the movement flags.
             await runWishCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'wizidentify') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818. Both
+            // wiz_identify() arms end with ECMD_OK, and display_inventory()
+            // is a display-only menu, so no turn is spent.
+            await runIdentifyCommand(key, state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

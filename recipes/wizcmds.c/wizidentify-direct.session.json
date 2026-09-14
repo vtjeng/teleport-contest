@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7704502,
+      "datetime": "20310912091500",
+      "nethackrc": "OPTIONS=name:Idval,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0009\u001b"
+    }
+  ],
+  "comment": "Independent Ctrl-I inventory display admission case for the wizard command binding. The same source wiz_identify() entry point is reached through its direct keyboard key and returns to gameplay after the display-only menu is dismissed."
+}

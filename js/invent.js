@@ -76,6 +76,7 @@ import {
     silly_thing_to,
     STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
+    PICK_ANY,
     PICK_NONE,
     PICK_ONE,
     P_SABER,
@@ -93,7 +94,7 @@ import { obj_resists } from './bury.js';
 import { cmdq_clear, cmdq_pop, yn_function } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit } from './hacklib.js';
+import { digit, visctrl } from './hacklib.js';
 import { PM_ARCHEOLOGIST, PM_CLERIC } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
@@ -980,7 +981,8 @@ export const _getobjInternals = Object.freeze({
 // C ref: invent.c display_pickinv(). Covers the full-inventory branches (`i`
 // and the ordinary throw `*` reach it), the bounded one-item suggested subset
 // from getobj() (`?`), and the partial-inventory branch (equipment display
-// commands pass a `lets` filter). Extra-choice, non-reply, and non-default
+// commands pass a `lets` filter). The wizard-identify display-only branch also
+// builds its PICK_NONE or PICK_ANY menu here; extra-choice and non-default
 // sort branches remain unported.
 export async function display_pickinv(
     lets,
@@ -997,7 +999,9 @@ export async function display_pickinv(
     // (xtra_choice) and permission (allowxtra) to appear.
     if (xtra_choice && allowxtra)
         throw new UnsupportedFeatureDescriptionError('a partial inventory');
-    if (!lets && (state.iflags.force_invmenu || state.iflags.menu_requested))
+    const wizid = Boolean(state.wizard && state.iflags?.override_ID);
+    if (!lets && (state.iflags.force_invmenu || state.iflags.menu_requested)
+        && !wizid)
         throw new UnsupportedFeatureDescriptionError('a forced inventory menu');
     if (state.flags.sortloot === 'i' || state.flags.sortloot === 'f')
         throw new UnsupportedFeatureDescriptionError('a reordered inventory');
@@ -1005,8 +1009,13 @@ export async function display_pickinv(
         throw new UnsupportedFeatureDescriptionError('reassign()');
     if (!state.flags.sortpack)
         throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
-    if (!state.invent)
+    if (!state.invent) {
+        if (wizid) {
+            await ttyPline('Not carrying anything.', state);
+            return null;
+        }
         throw new UnsupportedFeatureDescriptionError('an empty inventory');
+    }
 
     // C ref: invent.c display_pickinv() n-count.  With a lets filter, n is
     // the number of matching letters; without, n is 0/1/2+ of the full pack.
@@ -1015,10 +1024,10 @@ export async function display_pickinv(
         n = lets.length;
     } else {
         n = !state.invent ? 0 : !state.invent.nobj ? 1 : 2;
-        // Without lets and without wizid, C increments n to skip the
-        // single-item message-line shortcut.
-        if (n === 1) n++;
     }
+    // C skips the single-item message-line shortcut for a full inventory and
+    // for wizard identify, even when exactly one object remains.
+    if (n === 1 && (!lets || wizid)) n++;
 
     // C ref: invent.c display_pickinv() single-item message-line path.
     // When only one item matches and no menu is forced, show it with
@@ -1050,10 +1059,15 @@ export async function display_pickinv(
         return null;
     }
 
-    // The multi-item menu path requires both a menu owner and want_reply.
-    if (!want_reply)
+    // The multi-item menu path requires both a menu owner and want_reply,
+    // except for wizard identify, whose display-only menu is PICK_NONE (when
+    // every item is already identified) or PICK_ANY (when choices exist).
+    if (!want_reply && !wizid)
         throw new UnsupportedFeatureDescriptionError('a partial inventory');
-    const menuOwner = menu ?? ((items) => select_menu(state, {
+    const unidCount = wizid
+        ? count_unidentified(inventoryHead(state), state) : 0;
+    const menuHow = wizid ? (unidCount ? PICK_ANY : PICK_NONE) : PICK_ONE;
+    const menuOwner = menu ?? ((items, _state, how = PICK_ONE) => select_menu(state, {
         items: items.map((item) => (item.heading
             ? {
                 ...item,
@@ -1061,7 +1075,7 @@ export async function display_pickinv(
                 color: menuTitleStyle(state).titleColor,
             }
             : item)),
-        how: PICK_ONE,
+        how,
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     }));
@@ -1072,6 +1086,7 @@ export async function display_pickinv(
     // four discovered and still refuse the command.
     for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
         if (lets && !lets.includes(otmp.invlet)) continue;
+        if (wizid && !not_fully_identified(otmp, state)) continue;
         assertObjectNameable(otmp, state);
     }
 
@@ -1079,11 +1094,37 @@ export async function display_pickinv(
     // the class walk below is what groups it, exactly as C's nextclass loop
     // does over flags.inv_order.
     const items = [];
+    let gotsomething = false;
+    const wizidFakeobj = wizid ? Object.freeze({}) : null;
+    if (wizid) {
+        let title = 'Debug Identify';
+        if (unidCount)
+            title += ` -- unidentified or partially identified item${unidCount === 1 ? '' : 's'}`;
+        items.push({ text: title });
+        if (!unidCount) {
+            items.push({
+                text: '(all items are permanently identified already)',
+            });
+            gotsomething = true;
+        } else {
+            let label = `select ${unidCount === 1 ? 'it' : 'any or all of them'} to permanently identify`;
+            if (unidCount > 1)
+                label += ` (${visctrl(state.iflags.override_ID)} for all)`;
+            items.push({
+                selector: '_',
+                groupSelector: String.fromCharCode(state.iflags.override_ID),
+                label,
+                value: wizidFakeobj,
+            });
+            gotsomething = true;
+        }
+    }
     for (const oclass of state.flags.inv_order) {
         let classcount = 0;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
             if (otmp.oclass !== oclass) continue;
             if (lets && !lets.includes(otmp.invlet)) continue;
+            if (wizid && !not_fully_identified(otmp, state)) continue;
             if (!classcount) {
                 items.push({
                     text: let_to_name(
@@ -1102,14 +1143,33 @@ export async function display_pickinv(
             items.push({
                 selector: otmp.invlet,
                 label: donameFresh(otmp, state),
-                value: otmp.invlet,
+                value: wizid ? otmp : otmp.invlet,
                 glyphInfo,
             });
         }
     }
     if (query)
         throw new UnsupportedFeatureDescriptionError('a menu prompt');
-    return menuOwner(items, state);
+    const selected = await menuOwner(items, state, menuHow);
+    if (!wizid) return selected;
+
+    // C clears override_ID before applying a PICK_ANY selection. The command
+    // owner also clears it in its finally block for cancellation and the
+    // display-only zero-unidentified branch.
+    if (!Array.isArray(selected) || selected.length === 0) return null;
+    state.iflags.override_ID = 0;
+    let allId = false;
+    for (const entry of selected) {
+        if (entry.value === wizidFakeobj) {
+            await identify_pack(0, false, state);
+            allId = true;
+            break;
+        }
+        if (not_fully_identified(entry.value, state))
+            await identify(entry.value, state);
+    }
+    if (!allId) update_inventory({ state });
+    return null;
 }
 
 // C ref: invent.c display_inventory(). Its queued-key branch needs a command

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7704501,
+      "datetime": "20310912091500",
+      "nethackrc": "OPTIONS=name:Idtest,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizidentify\n\u001b"
+    }
+  ],
+  "comment": "Independent wizard-mode #wizidentify case. The inventory is empty of unidentified objects, so the source display_pickinv() path emits its Debug Identify explanation and waits without consuming a turn."
+}

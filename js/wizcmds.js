@@ -1,7 +1,7 @@
 // wizcmds.js -- the wizard-mode extended commands.
 // C refs: src/wizcmds.c wiz_map(), wiz_genesis(), wiz_level_change(),
-// wiz_level_tele(), wiz_wish() and wiz_polyself(), so far the six rows of
-// that file cmd.c dispatches here.
+// wiz_level_tele(), wiz_wish(), wiz_identify() and wiz_polyself(), so far the
+// seven rows of that file cmd.c dispatches here.
 
 import {
     ACID_RES,
@@ -83,6 +83,8 @@ import { polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
+import { cmd_from_func } from './cmd.js';
+import { display_inventory } from './invent.js';
 import { notice_mon_off, notice_mon_on } from './hack.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
@@ -153,6 +155,27 @@ export async function wiz_wish(state = game) {
         // name as ecname_from_fn(wiz_wish), which walks extcmdlist[] for the
         // row whose ef_funct is wiz_wish -- the "wizwish" row at cmd.c:2000.
         await ttyPline("Unavailable command 'wizwish'.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_identify() (50-72), the #wizidentify command and its
+// Ctrl-I binding. The temporary override makes inventory naming show the
+// true object names while display_inventory() builds the wizard menu; it is
+// cleared by the inventory selector before identify() mutates selected items,
+// and by this command after every display-only or cancelled return.
+export async function wiz_identify(state = game) {
+    if (state.wizard) {
+        state.iflags ??= {};
+        state.iflags.override_ID = cmd_from_func('wiz_identify', state)
+            || 0x09; // C('I') fallback when the command has no binding.
+        try {
+            await display_inventory(null, false, state);
+        } finally {
+            state.iflags.override_ID = 0;
+        }
+    } else {
+        await ttyPline("Unavailable command 'wizidentify'.", state);
     }
     return ECMD_OK;
 }
