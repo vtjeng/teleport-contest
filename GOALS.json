@@ -43264,7 +43264,17 @@
       ],
       "selectionReason": "User-authorized seed-worker pilot assigns holdout/seed0002-healer-reflection-drummer to worker B independently of global priority. At baseline 93a08808 this session has 411 remaining screens; investigations/holdout/seed0002-healer-reflection-drummer.json traces potion.c dodrink to fountain.c drinksink. Include adjacent breaksink and whole drinksink, with required caller/dependency wiring.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "breaksink..drinksink",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "breaksink",
+            "drinksink"
+          ]
+        }
+      ],
       "openedAt": "a29a90cbfadf10adecc49eb4c6e6364e2bacca0f",
       "openStanding": {
         "sha": "93a0880804e5b5e7aab756e1cce0b271cc1419dd",
