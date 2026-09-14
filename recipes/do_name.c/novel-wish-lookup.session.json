@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7409,
+      "datetime": "20300102131415",
+      "nethackrc": "OPTIONS=name:NovelProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "  #wizwish\nnovel named light fantastic\nq",
+      "comment": "An independently selected debug wish names a novel with an American spelling, reaching objnam.c lookup_novel() through the production wish parser."
+    }
+  ]
+}

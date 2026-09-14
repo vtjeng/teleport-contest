@@ -11,6 +11,7 @@ import {
     bogusmon,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
+    christen_orc,
     christen_monst,
     free_mgivenname,
     free_oname,
@@ -1254,6 +1255,42 @@ test('random ghost, Rogue, coyote, and orc names preserve C draw order', () => {
     assert.equal(rndorcname(random), 'agor');
     assert.deepEqual(draws, [
         ['rn1', 2, 3], ['rn2', 2], ['rn2', 4],
-        ['rn2', 30], ['rn2', 11],
+        // Sprintf's second argument is evaluated before its first by the
+        // patched C build, so chunk selection precedes hyphen selection.
+        ['rn2', 11], ['rn2', 30],
     ]);
+});
+
+test('christen_orc preserves pointer branches and the C byte limit', () => {
+    const random = {
+        rn1() { return 2; }, // Two chunks keep each expected test name short.
+        rn2(bound) { return bound === 30 ? 1 : 0; }, // No hyphens.
+    };
+    const gangMonster = { mextra: {} };
+    assert.equal(
+        christen_orc(gangMonster, 'orcish horde', '', { random }),
+        gangMonster,
+    );
+    assert.equal(gangMonster.mextra.mgivenname, 'Agor of Orcish horde');
+
+    const emptyGangMonster = { mextra: {} };
+    christen_orc(emptyGangMonster, '', '', { random });
+    // C tests whether gang is non-NULL, so an empty string still selects the
+    // "of" branch.
+    assert.equal(emptyGangMonster.mextra.mgivenname, 'Agor of ');
+
+    const otherMonster = { mextra: {} };
+    christen_orc(otherMonster, null, ' called Gruk', { random });
+    assert.equal(otherMonster.mextra.mgivenname, 'Agor called Gruk');
+
+    const unnamedMonster = { mextra: { mgivenname: 'Old name' } };
+    christen_orc(unnamedMonster, null, null, { random });
+    assert.equal(unnamedMonster.mextra.mgivenname, 'Old name');
+
+    const oversizedMonster = { mextra: {} };
+    christen_orc(oversizedMonster, 'é'.repeat(126), null, { random });
+    // 126 two-byte characters plus the generated name and " of " exceed the
+    // 256-byte BUFSZ check even though the JavaScript string is short enough
+    // to pass a UTF-16 length check.
+    assert.equal(oversizedMonster.mextra.mgivenname, undefined);
 });

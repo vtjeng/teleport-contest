@@ -1,6 +1,6 @@
 // Monster names, naming commands, and novel-title data.
 // C ref: src/do_name.c docallcmd(), christen_monst(), docall(),
-// rndghostname(), bogusmon(), rndmonnam(),
+// rndghostname(), rndorcname(), christen_orc(), bogusmon(), rndmonnam(),
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
@@ -11,6 +11,7 @@ import {
     ARTICLE_YOUR,
     AUGMENT_IT,
     BOGUSMONFILE,
+    BUFSZ,
     CMDQ_KEY,
     CQ_CANNED,
     CORPSTAT_FEMALE,
@@ -86,7 +87,7 @@ import { body_part, poly_gender } from './polyself.js';
 import { cansee, couldsee } from './vision.js';
 import { priestname } from './priest.js';
 import { shkname } from './shknam.js';
-import { fruit_from_name, makeplural } from './fruit.js';
+import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
@@ -359,9 +360,13 @@ export function rndorcname(random = { rn1, rn2 }) {
     let result = '';
     for (let i = 0; i < end; ++i) {
         vowelNext = 1 - vowelNext;
-        if (i > 0 && !random.rn2(30)) result += '-';
         const choices = vowelNext ? vowels : sounds;
-        result += choices[random.rn2(choices.length)];
+        // The patched C build evaluates the second Sprintf argument before
+        // the first.  Select the chunk before consuming the hyphen draw, then
+        // append them in the source's rendered order.
+        const chunk = choices[random.rn2(choices.length)];
+        if (i > 0 && !random.rn2(30)) result += '-';
+        result += chunk;
     }
     return result;
 }
@@ -370,10 +375,25 @@ export function rndorcname(random = { rn1, rn2 }) {
 // is capitalized and optionally followed by the invading gang name.
 export function christen_orc(monster, gang, other, env = {}) {
     const orcname = rndorcname(env.random ?? { rn1, rn2 });
-    if (!gang && !other) return monster;
-    const suffix = gang ? ` of ${upstart(gang)}` : (other ?? '');
-    const name = `${upstart(orcname)}${suffix}`;
-    return name.length < 256 ? christen_monst(monster, name, env) : monster;
+    let size = encodeUtf8ByteString(orcname).length;
+    // C tests pointers for presence, so an empty gang or suffix still names
+    // the monster and takes the corresponding branch.
+    if (gang !== null && gang !== undefined)
+        size += encodeUtf8ByteString(String(gang)).length + ' of '.length;
+    else if (other !== null && other !== undefined)
+        size += encodeUtf8ByteString(String(other)).length;
+
+    if (size < BUFSZ) {
+        let name;
+        if (gang !== null && gang !== undefined) {
+            name = `${upstart(orcname)} of ${upstart(String(gang))}`;
+        } else if (other !== null && other !== undefined) {
+            name = `${upstart(orcname)}${String(other)}`;
+        }
+        if (name !== undefined)
+            return christen_monst(monster, name, env);
+    }
+    return monster;
 }
 
 // C ref: do_name.c objtyp_is_callable() (429-463). Returns true when the
@@ -1780,60 +1800,15 @@ function sameTitle(left, right) {
     return asciiFold(left) === asciiFold(right);
 }
 
-function startsWithThe(title) {
-    return sameTitle(String(title).slice(0, 4), 'the ');
-}
-
-function fruitNameForcesArticle(title, state) {
-    if (!state.gf?.ffruit) return false;
-    if (!fruit_from_name(title, true, state)) return false;
-    const artifactName = artifact_name(title, null, false, state);
-    return !artifactName || startsWithThe(artifactName);
-}
-
-// Lookup-specific port of the objnam.c the()/The() decisions which can affect
-// the fixed novel catalog.  Proper title casing normally suppresses “the,”
-// while a configured fruit name can force it back unless an artifact with the
-// same name deliberately lacks the article.
-function withDefiniteArticle(title, state) {
-    const text = String(title);
-    if (startsWithThe(text)) return `T${text.slice(1)}`;
-
-    let insertThe = !/^[A-Z]/u.test(text)
-        || fruitNameForcesArticle(text, state);
-    if (!insertThe) {
-        const lastSpace = text.lastIndexOf(' ');
-        const separator = lastSpace >= 0
-            ? lastSpace
-            : text.lastIndexOf('-');
-        if (separator >= 0 && !/^[A-Z]/u.test(text.slice(separator + 1))) {
-            insertThe = !text.includes("'");
-        } else if (separator >= 0 && text.indexOf(' ') < separator) {
-            const folded = asciiFold(text);
-            const ofIndex = folded.indexOf(' of ');
-            const namedIndex = folded.indexOf(' named ');
-            const calledIndex = folded.indexOf(' called ');
-            const namingIndex = namedIndex < 0
-                ? calledIndex
-                : calledIndex < 0
-                    ? namedIndex
-                    : Math.min(namedIndex, calledIndex);
-            insertThe = ofIndex >= 0
-                && (namingIndex < 0 || ofIndex < namingIndex);
-        }
-    }
-    const result = insertThe ? `the ${text}` : text;
-    return result ? result[0].toUpperCase() + result.slice(1) : result;
-}
-
 // C ref: do_name.c lookup_novel(). Preserve an already valid generated index
 // when the supplied title is unknown; sp_lev.c uses only the updated index and
 // leaves the explicitly supplied object name intact.
 export function lookup_novel(lookname, novelidx = undefined, env = {}) {
     const state = env.state ?? game;
     let sought = String(lookname);
+    const titled = () => The(sought, state);
     if (sameTitle(
-        withDefiniteArticle(sought, state),
+        titled(),
         'The Color of Magic',
     )) {
         sought = SIR_TERRY_NOVELS[0];
@@ -1842,7 +1817,7 @@ export function lookup_novel(lookname, novelidx = undefined, env = {}) {
     } else if (sameTitle(sought, 'Masquerade')) {
         sought = SIR_TERRY_NOVELS[17];
     } else if (sameTitle(
-        withDefiniteArticle(sought, state),
+        titled(),
         'The Amazing Maurice',
     )) {
         sought = SIR_TERRY_NOVELS[27];
@@ -1852,7 +1827,7 @@ export function lookup_novel(lookname, novelidx = undefined, env = {}) {
 
     const matchedIndex = SIR_TERRY_NOVELS.findIndex(
         (title) => sameTitle(sought, title)
-            || sameTitle(withDefiniteArticle(sought, state), title),
+            || sameTitle(titled(), title),
     );
     if (matchedIndex >= 0) {
         return {
