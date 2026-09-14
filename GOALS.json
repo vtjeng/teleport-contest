@@ -41996,7 +41996,16 @@
       ],
       "selectionReason": "The refreshed full queue ranks holdout/seed4500-knight-coverage first at step 789 with 1025 remaining screens. Its valid completed cache investigations/holdout/seed4500-knight-coverage.json identifies teleport.c teleds as the current source owner; JavaScript still refuses the punishing-ball branch.",
       "detail": "Queue entry: holdout/seed4500-knight-coverage, step 789, kind stop, function teleds, source teleport.c, message unsupported hero move: teleds() dragging a punishing ball, remainingScreensUpperBound 1025, recordedSteps 1814. Source tracing identifies the punished branch in teleport.c teleds() and existing js/ball.js drag_ball, move_bc, unplacebc, and placebc helpers as dependencies; port the source behavior through the production teleport path without session-specific logic.",
-      "spans": [],
+      "spans": [
+        {
+          "name": "teleds",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "teleds"
+          ]
+        }
+      ],
       "openedAt": "d6c8e3c0ee57e108c4b1d5aac13c137b61968ef7",
       "openStanding": {
         "sha": "d6c8e3c0ee57e108c4b1d5aac13c137b61968ef7",
