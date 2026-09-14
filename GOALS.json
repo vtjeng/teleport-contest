@@ -37553,6 +37553,23 @@
             "find_unpaid",
             "free_pickinv_cache"
           ]
+        },
+        {
+          "name": "display_pickinv..this_type_only",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "display_pickinv",
+            "display_inventory",
+            "repopulate_perminvent",
+            "display_used_invlets",
+            "count_unpaid",
+            "count_buc",
+            "tally_BUCX",
+            "count_contents",
+            "dounpaid",
+            "this_type_only"
+          ]
         }
       ],
       "openedAt": "6c5059df198c70a9a245bc7f0eb5567a2a8def68",
