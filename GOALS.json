@@ -44186,7 +44186,58 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "addinv_core1",
+            "implementation": "js/invent.js",
+            "symbol": "addinv_core1",
+            "sourceReview": "Coordinator read the complete invent.c addinv_core1 definition at960-1005, its pre-insertion caller, and the worker's final source through52c2cdf6. All C branches are accounted for: coin botl; Amulet, Candelabrum, Bell and Book duplicate diagnostics followed by u.uhave and achievement updates; quest-artifact duplicate diagnostic, questart flag, artitouch and set_artifact_intrinsic; Mines-before-Sokoban prize selection, direct record_achievement, tracked object-id reset and nomerge clearing. Unported void pline.c impossible and quest.c artitouch are recorded with note_unported; no return value is fabricated. is_quest_artifact and set_artifact_intrinsic are existing callees, with the latter's unrelated display-affecting refusal documented as a downstream gap. The source-owned special-item and prize effects replace injected hooks; corresponding preflight guards and duplicated wish/endgame-teleport effect implementations are removed. Existing record_achievement is reused. Source-pinned inventory tests cover the four invocation objects, both prizes, ordinary artifact intrinsics and the quest-artifact state prefix before its downstream display boundary. The parser change removes only an obsolete blanket unique-object refusal: C objnam.c4999-5023 substitutes these types only outside wizard mode, and the existing js/obj.js mksobj already implements C mkobj.c1177-1258 unique finalization. No whole readobjnam completion is claimed. Historical port-invent-seed4500 evidence previously marked this unit complete through hooks; this record refreshes the changed function's source evidence and does not claim a newly discovered C declaration. The coordinator removed three imports in zap.js left unused by deletion of its injected special-item helper.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "beginAddinv",
+                "source": "invent.c addinv_core0 at1082 calls addinv_core1 after clearing object ownership flags and before insertion. JS beginAddinv follows that order and is shared by synchronous addinv and addinv_runtime."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "zap.c makewish6314-6422 calls readobjnam and hold_another_object; the latter reaches addinv_core0. The production wizard wish command reaches this chain in the independent Bell recording."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "levelTeleMenu",
+                "source": "teleport.c level_tele1234-1246 creates an Amulet for endgame teleport and adds it to inventory. JS now relies on invent.js for the source-owned Amulet effects instead of supplying a duplicated hook."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/wizard-wish.test.mjs",
+              "scripts/objnam-readobjnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-postparse1-bell.session.json",
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ],
+            "checkedAt": "6d6cb4a66c75094d283c4c2c9e000fc29284b301"
+          }
+        ],
+        "entryPointReview": "The selected range is the pre-insertion inventory-effects helper, reached through existing inventory admission. The independent Bell wish recording reaches cmd/wizcmds -> makewish -> readobjnam -> hold_another_object -> addinv -> beginAddinv -> addinv_core1 and matches2609 RNG calls,28 complete screens including attributes,28 cursors and zero animation frames after the final source correction. The existing hornoplenty recording also reaches ordinary inventory insertion. Source-pinned tests cover branch details, and the combined checkpoint replays both recordings with all other fixed and fresh cases. C zap.c poly_obj1912 is a separate direct caller for in-place polymorph, but no JS poly_obj implementation exists; it is a future caller outside this helper's currently implemented production entry point, not a claim of runtime wiring or completion of that source unit.",
+        "entryPoints": [
+          {
+            "name": "inventory admission effects",
+            "functions": [
+              "addinv_core1"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-postparse1-bell.session.json",
+              "recordings/mkobj.c/hornoplenty-apply.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
