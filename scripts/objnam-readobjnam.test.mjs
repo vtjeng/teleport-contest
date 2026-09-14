@@ -1496,8 +1496,10 @@ test('readobjnam gives a wizard a disarmed trap object', () => {
     assert.equal(direct.obj.otyp, BEARTRAP);
     assert.equal(direct.draws[0], 'rnd(2)'); // no lookup draw
     assert.equal(wish(state, 'landmine object').obj.otyp, LAND_MINE);
+    // action 5 reaches the unported wiztrap: caller arm; the existing
+    // readobjnam backstop reports that returned action without drawing.
     assert.equal(wish(state, 'bear trap trap').refusal,
-                 'a wizard-mode trap wish');
+                 'readobjnam action 5');
 });
 
 test('readobjnam honors the count for a mergeable type', () => {
