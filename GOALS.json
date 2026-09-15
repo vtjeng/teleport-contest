@@ -47486,7 +47486,7 @@
     {
       "id": "div-sounds-domonnoise-seed0106-20260914",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix domonnoise ordinary monster sound branches and restore #chat responses.",
       "cFile": "sounds.c",
       "sessions": [],
@@ -47495,8 +47495,8 @@
       "spans": [
         {
           "name": "domonnoise-ordinary-sounds",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c47ff2f7bdcdba53d5399693af0af9ddb3841ca5",
           "functions": [
             "domonnoise"
           ]
@@ -47508,8 +47508,11 @@
         "screens": 9659,
         "rng": 699110
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c47ff2f7bdcdba53d5399693af0af9ddb3841ca5",
+      "delivered": {
+        "screens": 11,
+        "rng": 229
+      },
       "function": "domonnoise",
       "session": "holdout/seed0106-priest-extcmd-sweep",
       "step": 29,
@@ -47597,7 +47600,12 @@
         "screens": 9659,
         "rng": 699110
       },
-      "parkedReason": "Park the second central goal while the first worker's immutable teleds delivery is integrated and validated. Worker B keeps its reserved sounds scope and continues independently."
+      "parkedReason": "Park the second central goal while the first worker's immutable teleds delivery is integrated and validated. Worker B keeps its reserved sounds scope and continues independently.",
+      "closeStanding": {
+        "sha": "c47ff2f7bdcdba53d5399693af0af9ddb3841ca5",
+        "screens": 9670,
+        "rng": 699339
+      }
     }
   ]
 }
