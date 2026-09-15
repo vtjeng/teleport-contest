@@ -48969,6 +48969,26 @@
         "screens": 9880,
         "rng": 718022
       }
+    },
+    {
+      "id": "div-goto-level-travelcc-seed0014-20260915",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore goto_level travel destination reset after successful level departure",
+      "cFile": "do.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "Select seed0014-dequa-fountain-explore at 67 remaining screens from investigations/seed0014-dequa-fountain-explore.json, whose complete source trace identifies do.c goto_level() as the actionable owner. The higher-ranked seed0106 and seed0399 entries are stale and await refreshed investigations; seed2200 is complete but classified machine-local because its mismatch depends on an absent HOME-derived pathname, so it has no portable gameplay fix. The 67-screen seed0014 case is independent of worker A’s reserved mthrowu.c functions and follows the per-session ordering.",
+      "detail": "Investigation at do.c:1601-1608 shows C clears iflags.travelcc.x and iflags.travelcc.y after reset_trapset() during successful level departure; js/do.js:1351-1354 omits that assignment. Restore the source-ordered reset and remove the obsolete unported-travel comment. The existing dotravel/getpos callers consume this shared state.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "goto_level",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 647
     }
   ]
 }
