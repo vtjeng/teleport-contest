@@ -49781,7 +49781,7 @@
     {
       "id": "port-pray-fix-worst-trouble-seed4500-20260915",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pray.c fix_curse_trouble and fix_worst_trouble with source-ordered curse, timed-trouble, healing, and recovery behavior wired through pleased() and #pray.",
       "cFile": "pray.c",
       "sessions": [
@@ -49792,8 +49792,8 @@
       "spans": [
         {
           "name": "fix_curse_trouble..fix_worst_trouble",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9393daf54ff7926fe9f9dfb8180c6ae28f2a2cb3",
           "functions": [
             "fix_curse_trouble",
             "fix_worst_trouble"
@@ -49806,8 +49806,11 @@
         "screens": 9903,
         "rng": 728113
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9393daf54ff7926fe9f9dfb8180c6ae28f2a2cb3",
+      "delivered": {
+        "screens": 120,
+        "rng": 10948
+      },
       "functions": [
         {
           "name": "fix_curse_trouble",
@@ -49943,6 +49946,33 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 893,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 921,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 972
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7e1d98c227f9cad94ae005dccd38230c37215e02",
+        "screens": 10037,
+        "rng": 739105
       }
     },
     {
