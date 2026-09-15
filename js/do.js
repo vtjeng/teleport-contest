@@ -1351,7 +1351,13 @@ export async function goto_level(
     maybe_reset_pick(null, state);
     reset_trapset(state);
     // do.c:1607 clears iflags.travelcc, the travel command's destination
-    // cache. The travel command is not ported and neither is that field.
+    // cache. Preserve the object because the C fields are part of the live
+    // iflags struct, and initialize the containing fields for direct callers
+    // that construct a state without running the normal startup path.
+    state.iflags ??= {};
+    state.iflags.travelcc ??= { x: 0, y: 0 };
+    state.iflags.travelcc.x = 0;
+    state.iflags.travelcc.y = 0;
     if (state.context) {
         state.context.polearm ??= {};
         state.context.polearm.hitmon = null;
