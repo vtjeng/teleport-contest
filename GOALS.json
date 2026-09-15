@@ -47371,7 +47371,7 @@
     {
       "id": "div-teleport-teleds-ball-seed4500-20260914",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Fix teleds active punishment-ball transit and restore source-ordered chain movement.",
       "cFile": "teleport.c",
       "sessions": [],
@@ -47467,6 +47467,122 @@
                 "nethack-c/upstream/src/teleport.c:448-573 defines teleds() and contains the Punished, active-ball, drag_ball, move_bc, unplacebc, placebc, and u_on_newpos sequence; js/teleport.js:1466-1570 mirrors the function but throws at :1483-1489 when state.uball is active.",
                 "js/ball.js:147-196, :294-376, and :386-636 already provide placebc/unplacebc, move_bc, and drag_ball, so the actionable gap is the teleds() branch and production import wiring rather than a new ball.c port.",
                 "The production call graph is source-general through safe_teleds()/scrolltele() plus direct steed, apply, and trap callers; no seed, input, or expected screen is encoded in the proposed scope. Earlier mk_knox_portal, mkshop, and self_lookat findings remain in the prior cache record context."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "screens": 9659,
+        "rng": 699110
+      },
+      "parkedReason": "Park the open central boundary while its queued divergence span is delivered by the first persistent worker. Central goal opening remains serialized; the worker retains standing permission and the queued span."
+    },
+    {
+      "id": "div-sounds-domonnoise-seed0106-20260914",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Fix domonnoise ordinary monster sound branches and restore #chat responses.",
+      "cFile": "sounds.c",
+      "sessions": [],
+      "selectionReason": "Selected holdout/seed0106-priest-extcmd-sweep at remainingScreensUpperBound 238, the second per-session-ranked entry with a complete investigation and disjoint source ownership from the teleds delivery. Existing sounds-dosounds-to-sound_speak has domonnoise completion evidence, so this ordinary-monster refusal is a divergence-fix. The investigation is investigations/holdout/seed0106-priest-extcmd-sweep.json.",
+      "detail": "At step 29, #chat targets a tame little dog. C dochat() calls domonnoise(), whose ordinary MS_BARK branch prints The little dog barks. and returns ECMD_TIME. JS routes to domonnoise() but currently raises UnsupportedChatError for ordinary target monsters. Restore source-faithful domonnoise() behavior, preserving sound predicates, message order, and RNG; keep unrelated unported callers explicit.",
+      "spans": [
+        {
+          "name": "domonnoise-ordinary-sounds",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "domonnoise"
+          ]
+        }
+      ],
+      "openedAt": "073dbfce9dfcef7920a00a6523cceb06a7c8d2e5",
+      "openStanding": {
+        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "screens": 9659,
+        "rng": 699110
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "domonnoise",
+      "session": "holdout/seed0106-priest-extcmd-sweep",
+      "step": 29,
+      "activeStanding": {
+        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "screens": 9659,
+        "rng": 699110
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 29,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 238,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "result": {
+              "session": "holdout/seed0106-priest-extcmd-sweep",
+              "remainingScreensUpperBound": 238,
+              "status": "complete",
+              "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+              "mismatch": {
+                "session": "holdout/seed0106-priest-extcmd-sweep",
+                "remainingScreensUpperBound": 238,
+                "step": 29,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+                "unlocatedKinds": [],
+                "recordedSteps": 267
+              },
+              "summary": "At step 29, #chat's l direction targets the tame little dog immediately east of the hero. C dochat() finds that monster and calls domonnoise(); its MS_BARK branch selects barks. and the common tail returns ECMD_TIME. JS reaches the same target through dochat() but domonnoise() still rejects every ordinary monster with UnsupportedChatError. Port the source-faithful sounds.c domonnoise() function and wire its ordinary sound branches, beginning with MS_BARK, to remove this boundary.",
+              "source": {
+                "file": "sounds.c",
+                "branch": "domonnoise() MS_BARK arm (837-854), reached from dochat() when m_at(tx, ty) returns a visible, non-mimic target; this recording's target is a peaceful, tame little dog with no moon, confusion, fleeing, trapped, or hunger condition, so the branch prints barks.",
+                "functions": [
+                  "domonnoise"
+                ],
+                "callers": [
+                  "dochat",
+                  "dotalk",
+                  "cmd.c extcmdlist[] chat row"
+                ],
+                "dependencies": [
+                  "m_at",
+                  "Monnam",
+                  "EDOG(mtmp)->hungrytime",
+                  "svm.moves",
+                  "flags.moonphase and night",
+                  "ECMD_TIME common return"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "sessions/holdout/seed0106-priest-extcmd-sweep.session.json segments[0].steps[28-29] show the talk prompt followed by key l and the C message The little dog barks.; the map places the tame dog on the target square.",
+                "experiments/generalization/holdout-baseline.json records 29 of 267 matching screens at the examined commit and the #chat target-square boundary; its source finding identifies sounds.c dochat/dotalk and domonnoise MS_BARK.",
+                "nethack-c/upstream/src/sounds.c:837-854, 1241, 1247-1254, and 1256-1409 show the MS_BARK message, target lookup, domonnoise dispatch, and ECMD_TIME return.",
+                "js/sounds.js:937-998 and 1050-1198 route dochat() to domonnoise(), which currently throws UnsupportedChatError for an ordinary target monster; the smallest scope is the source-backed domonnoise() branch and command wiring."
               ]
             }
           }
