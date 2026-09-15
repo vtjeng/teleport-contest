@@ -35,7 +35,8 @@ import { game } from '../js/gstate.js';
 import { magic_negation } from '../js/mhitu.js';
 import { enlightenment } from '../js/insight.js';
 import {
-    BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, MAGICENLIGHTENMENT,
+    BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, ENL_GAMEOVERDEAD,
+    MAGICENLIGHTENMENT,
 } from '../js/const.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -166,6 +167,28 @@ const WIZARD_ORC_CASE = {
     ],
 };
 
+const FINAL_DISCLOSURE_CASE = {
+    label: 'debug death disclosure, final attributes pages',
+    seed: 9150701,
+    datetime: '20350912112200',
+    nethackrc: namedNethackrc(
+        'FinalFresh',
+        'role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug',
+        'OPTIONS=pettype:none,!acoustics,!autopickup',
+    ),
+    moves: '.\u0017wand of death\nze.  yy y       ',
+    discover: false,
+    wizard: true,
+    mc: 0,
+    bones: true,
+    final: ENL_GAMEOVERDEAD,
+    reportLines: [
+        'Final Attributes:',
+        ' You were cold resistant innately.',
+        ' You are dead.',
+    ],
+};
+
 // Each segment dismisses the welcome message, opens the window, turns to its
 // second page and closes it. doattributes() answers ECMD_OK, so no move is
 // spent and the closing <esc> lands back on the same map screen every row
@@ -193,8 +216,21 @@ export function loadWizardOrcRecipe() {
     });
 }
 
+export function loadFinalDisclosureRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: FINAL_DISCLOSURE_CASE.seed,
+            datetime: FINAL_DISCLOSURE_CASE.datetime,
+            nethackrc: FINAL_DISCLOSURE_CASE.nethackrc,
+            moves: FINAL_DISCLOSURE_CASE.moves,
+        }],
+    });
+}
+
 const CASE_BY_SEED = new Map(
-    [...ATTRIBUTE_CASES, WIZARD_ORC_CASE].map((entry) => [entry.seed, entry]),
+    [...ATTRIBUTE_CASES, WIZARD_ORC_CASE, FINAL_DISCLOSURE_CASE]
+        .map((entry) => [entry.seed, entry]),
 );
 
 // The screens show that a window appeared, not that the port chose its
@@ -225,24 +261,27 @@ export async function verifyAttributesSegment(recipeSegment) {
         throw new Error(`${expected.label}: flags.bones is`
             + ` ${game.flags.bones}, not ${expected.bones}`);
     }
-    // u_init.c:382 sets u.ublesscnt to 300 and allmain.c spends one per turn;
-    // these rows take no turn, so every pray.c:2151-2154 threshold holds and
-    // gp.p_type is 0, "too soon". A row that had drifted below 200 would still
-    // print "not safely pray" while reaching it a different way.
-    if (game.u.ublesscnt !== 300) {
-        throw new Error(`${expected.label}: u.ublesscnt is`
-            + ` ${game.u.ublesscnt}, not 300`);
-    }
-    const p_type = game.gp?.p_type;
-    const expected_p_type = expected.discover || expected.wizard ? 0 : undefined;
-    if (p_type !== expected_p_type) {
-        throw new Error(`${expected.label}: gp.p_type is ${p_type},`
-            + ` not ${expected_p_type}`);
+    if (expected.final === undefined) {
+        // u_init.c:382 sets u.ublesscnt to 300 and allmain.c spends one per
+        // turn; these rows take no turn, so every pray.c:2151-2154 threshold
+        // holds and gp.p_type is 0, "too soon". A row that had drifted below
+        // 200 would still print "not safely pray" while reaching it a
+        // different way.
+        if (game.u.ublesscnt !== 300) {
+            throw new Error(`${expected.label}: u.ublesscnt is`
+                + ` ${game.u.ublesscnt}, not 300`);
+        }
+        const p_type = game.gp?.p_type;
+        const expected_p_type = expected.discover || expected.wizard ? 0 : undefined;
+        if (p_type !== expected_p_type) {
+            throw new Error(`${expected.label}: gp.p_type is ${p_type},`
+                + ` not ${expected_p_type}`);
+        }
     }
     if (expected.reportLines) {
         const lines = await enlightenment(
             BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
-            ENL_GAMEINPROGRESS,
+            expected.final ?? ENL_GAMEINPROGRESS,
             game,
         );
         for (const reportLine of expected.reportLines) {
@@ -259,6 +298,7 @@ export async function runAttributesCommandMatrix() {
         entries: [
             { label: 'attributes window', recipe: loadAttributesRecipe() },
             { label: 'orc Wizard attributes', recipe: loadWizardOrcRecipe() },
+            { label: 'final death disclosure', recipe: loadFinalDisclosureRecipe() },
         ],
         summaryLabel: 'ATTRIBUTES COMMAND',
         verifySegment: verifyAttributesSegment,
