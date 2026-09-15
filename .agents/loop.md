@@ -25,11 +25,13 @@ only their assigned source, focused tests, recipes, recordings, and local
 handoff files. Do not merge worker copies of the central ledgers. A worker
 proposes any new `QUALITY.json` area assignment; the orchestrator applies it.
 
-Keep a coordinator-only runtime ledger at `.cache/worker-state.json`.
-Record each worker's identity, absolute worktree path, branch, base SHA, goal
-and span scope, seed, reserved functions/contracts, allowed paths, status,
-owned process handles, and immutable delivery/evidence paths. Record
-assignment, readiness, integration, validation, and publication timestamps.
+Use `scripts/worker-state.mjs` to update `.cache/worker-state.json`.
+Only the orchestrator runs this command; do not edit the JSON by hand.
+Run it with `--help` for the commands and required fields. Record each
+assignment, delivery, integration, validation, acceptance, publication,
+and pause when it happens. The command adds timestamps and tracks reservations
+for each task. Release only the reservations for the task being accepted or
+parked.
 This is recoverable local coordination state, not source-completion evidence.
 Commit accepted source evidence to `GOALS.json` as usual.
 
@@ -44,7 +46,11 @@ rules, without mutating `GOALS.json` or waiting for a central goal to open.
 Record queued goals at a safe central commit boundary, without changing an
 in-flight checkpoint's inputs.
 
-For every new worktree, initialize C as AGENTS.md specifies. Before any
+Before starting work in a new worker or integration worktree, run
+`node scripts/worker-worktree.mjs prepare --branch <assigned-branch>`
+from that worktree. Use `--help` for recorder setup options. The command
+checks out the pinned C source and starts a fresh game with the worktree's
+private recorder. If it fails, fix the setup before starting work. Before any
 write, the worker verifies `pwd`, `git rev-parse --show-toplevel`, and its
 branch against the assignment. Every command, edit, and descendant agent
 uses that absolute worktree path. Never share a recorder installation.
