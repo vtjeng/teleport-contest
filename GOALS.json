@@ -47850,7 +47850,7 @@
         {
           "name": "cls-mkstairs-dungeon-end",
           "status": "closed",
-      "closedBy": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+          "closedBy": "71fa0446ce8d12175bc06243420a3538646c1bbf",
           "functions": [
             "cls",
             "mkstairs",
@@ -47864,18 +47864,18 @@
         "screens": 9705,
         "rng": 706215
       },
-    "closedAt": "71fa0446ce8d12175bc06243420a3538646c1bbf",
-    "delivered": {
-      "screens": 31,
-      "rng": 0
+      "closedAt": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+      "delivered": {
+        "screens": 31,
+        "rng": 0
       },
       "function": "cls",
       "session": "holdout/seed4500-knight-coverage",
       "step": 842,
-    "activeStanding": {
-      "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
-      "screens": 9781,
-      "rng": 712806
+      "activeStanding": {
+        "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+        "screens": 9781,
+        "rng": 712806
       },
       "openMismatches": [
         {
@@ -47956,10 +47956,10 @@
         "rng": 706215
       },
       "parkedReason": "Integration checkpoint ca7367ea failed fixed-development acceptance: seed0006 screens 123 to 121 and seed0007 screens 302 to 301. Preserve worker A's a4984bef tip and rework the TTY/display regression before any retry.",
-    "closeStanding": {
-      "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
-      "screens": 9781,
-      "rng": 712806
+      "closeStanding": {
+        "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+        "screens": 9781,
+        "rng": 712806
       }
     },
     {
@@ -48075,6 +48075,62 @@
         "screens": 9750,
         "rng": 712806
       }
+    },
+    {
+      "id": "port-trap-web-20260915",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole web-trap hero and monster effects with web-destruction dependency and production dispatch",
+      "cFile": "trap.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "Worker A initial assignment uses holdout/seed0399-wizard-hallu-actions, remaining-screen upper bound119, valid investigations/holdout/seed0399-wizard-hallu-actions.json, source trap.c trapeffect_web and mu_maybe_destroy_web. It was the first ready actionable investigation at dispatch; higher-ranked4500 and0106 were awaiting stale-cache investigation. No reserved source overlap.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_web",
+          "line": 2106,
+          "endLine": 2278,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2106,
+        "to": 2278
+      }
+    },
+    {
+      "id": "port-wiz-loca-20260915",
+      "kind": "lua-port",
+      "status": "queued",
+      "summary": "Port the complete Wizard quest locate level and register its loader",
+      "luaFile": "Wiz-loca.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "Worker B initial assignment uses seed0360-wizard-world-tour, remaining-screen upper bound 53, valid investigations/seed0360-wizard-world-tour.json, source Wiz-loca.lua. Web-trap functions are reserved by worker A; higher-ranked 4500, 0106, 0014 and 0009 await stale-cache investigations. The higher-ranked seed2200 configuration-path divergence is already classified machine-local. Wiz-loca is the first independent actionable completed investigation at dispatch.",
+      "detail": "",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Wiz-loca.lua",
+          "line": 1,
+          "endLine": 151,
+          "declared": false,
+          "complete": false
+        }
+      ]
     }
   ]
 }
