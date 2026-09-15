@@ -299,9 +299,11 @@ function applyEvent(state, event, at) {
         Object.assign(delivery, { integratingAt: at, integration: event.integration });
         task.status = 'integrating';
     } else if (type === 'received') {
-        check(delivery?.delivery === event.delivery, 'receipt must identify the current delivery SHA');
-        check(!delivery.receivedAt, 'delivery already received');
-        delivery.receivedAt = at;
+        sha(event.delivery, 'delivery');
+        const received = state.deliveries[event.delivery];
+        check(received?.task === task.id, 'receipt delivery must belong to the named task');
+        check(!received.receivedAt, 'delivery already received');
+        received.receivedAt = at;
     } else if (type === 'feedback') {
         requireStatus('ready', 'changes-required');
         check(delivery?.delivery === event.delivery, 'feedback must identify the current delivery SHA');

@@ -195,6 +195,23 @@ test('connection acknowledgement identifies the current worker handle', () => {
     assert.throws(() => f.send({ type: 'connected', worker: 'B', handle: 'handle-B' }), /connection/);
 });
 
+test('receipts drain superseded deliveries without changing the accepted repair', () => {
+    const f = fixture(); f.assign(); f.ready();
+    f.send({ type: 'feedback', task: 'one', delivery: FIRST, reason: 'Correct the caller.' });
+    f.send({ type: 'resume', task: 'one' }); f.ready('one', SECOND);
+    f.send({ type: 'received', task: 'one', delivery: SECOND });
+    const accepted = f.accept();
+    f.assign('next', 'A'); // Receiving old work must not affect this reservation.
+    const state = f.send({ type: 'received', task: 'one', delivery: FIRST });
+    assert.deepEqual(nextActions(state).unread, []);
+    assert.deepEqual(state.deliveries[SECOND], accepted.deliveries[SECOND]);
+    assert.equal(state.tasks.one.status, 'accepted');
+    assert.equal(state.tasks.next.status, 'working');
+    assert.deepEqual(state.reservations[RESERVATION].tasks, ['next']);
+    assert.throws(() => f.send({ type: 'received', task: 'next', delivery: FIRST }), /belong/);
+    assert.throws(() => f.send({ type: 'received', task: 'one', delivery: FIRST }), /already received/);
+});
+
 test('a third implementation worker cannot register while two owners remain', () => {
     const f = fixture();
     assert.throws(() => f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`,

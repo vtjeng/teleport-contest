@@ -33,11 +33,13 @@ function fixture(t) {
     writeFileSync(join(root, '.gitignore'), '.cache/\n');
     writeFileSync(join(root, 'js/sample.js'), 'export function sample() { return 0; }\nexport function caller() { return sample(); }\n');
     writeFileSync(join(root, 'scripts/sample.test.mjs'), "import { sample } from '../js/sample.js';\nvoid sample;\n");
+    // This unchanged importer is deliberately absent from source evidence.
+    writeFileSync(join(root, 'scripts/importer-only.test.mjs'), "import { caller } from '../js/sample.js';\nvoid caller;\n");
     writeFileSync(join(root, 'QUALITY.json'), JSON.stringify({ areas: [{ paths: ['js/sample.js'] }] }));
     // The long fixed route makes a renamed/redated copy unambiguous.
     writeFileSync(join(root, 'sessions/fixed.session.json'), JSON.stringify({ segments: [{ seed: 360, moves: 'hhjjkkll' }] }));
     git(root, 'add', '.gitignore', '.gitmodules', 'nethack-c/upstream', 'js/sample.js',
-        'scripts/sample.test.mjs', 'QUALITY.json', 'sessions/fixed.session.json');
+        'scripts/sample.test.mjs', 'scripts/importer-only.test.mjs', 'QUALITY.json', 'sessions/fixed.session.json');
     git(root, 'commit', '-qm', 'base fixture');
     const base = git(root, 'rev-parse', 'HEAD');
     const workers = {};
@@ -94,7 +96,19 @@ function fixture(t) {
 }
 
 test('worker submits durably and starts another task before receipt; snapshots survive changed evidence', (t) => {
-    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    const f = fixture(t); const assigned = f.assign(); f.artifacts(); f.commit();
+    const addedTest = 'scripts/delivered.test.mjs';
+    f.event({ type: 'scope', task: 'A-1', reservations: assigned.tasks['A-1'].reservations,
+        allowedPaths: [...assigned.tasks['A-1'].allowedPaths, addedTest] }, f.workers.A);
+    // This evidence reference exists only in the submitted commit, not in the
+    // coordinator checkout. Ignoring the commit now breaks the positive case.
+    writeFileSync(join(f.workers.A, addedTest), '/* Delivery-only evidence fixture. */\n');
+    const evidencePath = join(f.workers.A, '.cache/evidence.json');
+    const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
+    evidence.functions[0].tests.push(addedTest);
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    f.git(f.workers.A, 'add', addedTest); f.git(f.workers.A, 'commit', '-qm', 'delivery-only test');
+    const head = f.git(f.workers.A, 'rev-parse', 'HEAD');
     const submitted = f.success(f.submitArgs, f.workers.A);
     const first = submitted.deliveries[head];
     assert.equal(first.delivery, head);
@@ -112,7 +126,62 @@ test('worker submits durably and starts another task before receipt; snapshots s
     assert.equal(packet.git.head, head);
     const preflight = f.success(['preflight', '--task', 'A-1', '--commit', head]);
     assert.equal(preflight.passed, true); // Reads Git, not the worker's new dirty file.
-    assert.ok(preflight.focusedTests.includes('scripts/sample.test.mjs'));
+    assert.deepEqual(preflight.focusedTests, [addedTest, 'scripts/importer-only.test.mjs', 'scripts/sample.test.mjs']);
+});
+
+test('submission rejects evidence references found only in an uncommitted checkout', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); f.commit();
+    const path = join(f.workers.A, '.cache/evidence.json');
+    const evidence = JSON.parse(readFileSync(path, 'utf8'));
+    evidence.functions[0].callers[0].symbol = 'checkoutOnly';
+    writeFileSync(path, JSON.stringify(evidence));
+    writeFileSync(join(f.workers.A, 'js/sample.js'),
+        'export function sample() { return 1; }\nexport function checkoutOnly() { return sample(); }\n');
+    const result = f.run(f.submitArgs, f.workers.A);
+    assert.equal(result.status, 1); // The claimed caller is absent from HEAD.
+    assert.match(result.stderr, /checkoutOnly/);
+    assert.deepEqual(f.success(['status']).deliveries, {});
+});
+
+test('a valid acceptance event remains coordinator-only', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    f.success(f.submitArgs, f.workers.A); f.event({ type: 'received', task: 'A-1', delivery: head });
+    f.git(f.root, 'merge', '--ff-only', head);
+    f.event({ type: 'integrating', task: 'A-1', integration: head });
+    const summary = join(f.parent, 'validated.json');
+    writeFileSync(summary, JSON.stringify({ commit: head, allPassed: true }));
+    f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
+    const before = readFileSync(f.file, 'utf8');
+    const result = f.run(['event', '--file', f.file, '--json',
+        JSON.stringify({ id: 'worker-accept', type: 'accepted', task: 'A-1' })], f.workers.A);
+    assert.equal(result.status, 1); // Every state precondition holds; only actor ownership rejects it.
+    assert.match(result.stderr, /only coordinator/);
+    assert.equal(readFileSync(f.file, 'utf8'), before);
+    assert.equal(f.event({ type: 'accepted', task: 'A-1' }).tasks['A-1'].status, 'accepted');
+});
+
+test('an exact retry retains inferred dependencies after their acceptance', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const first = f.commit();
+    f.success(f.submitArgs, f.workers.A); f.assign('A', 'A-2');
+    // A later source edit supplies a distinct dependent delivery on the same branch.
+    writeFileSync(join(f.workers.A, 'js/sample.js'), 'export function sample() { return 2; }\nexport function caller() { return sample(); }\n');
+    f.git(f.workers.A, 'add', 'js/sample.js'); f.git(f.workers.A, 'commit', '-qm', 'dependent fixture');
+    const second = f.git(f.workers.A, 'rev-parse', 'HEAD');
+    const args = [...f.submitArgs.map(arg => arg === 'A-1' ? 'A-2' : arg), '--base', first, '--head', second];
+    const original = f.success(args, f.workers.A).deliveries[second];
+    assert.deepEqual(original.dependencies, [first]);
+    f.event({ type: 'received', task: 'A-1', delivery: first });
+    f.git(f.root, 'merge', '--ff-only', first);
+    f.event({ type: 'integrating', task: 'A-1', integration: first });
+    const summary = join(f.parent, 'first-pass.json');
+    writeFileSync(summary, JSON.stringify({ commit: first, allPassed: true }));
+    f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
+    f.event({ type: 'accepted', task: 'A-1' });
+    const before = readFileSync(f.file, 'utf8');
+    assert.deepEqual(f.success(args, f.workers.A).deliveries[second], original);
+    assert.equal(readFileSync(f.file, 'utf8'), before); // No new event or timestamp on retry.
+    assert.equal(f.run([...args, '--dependencies', 'none'], f.workers.A).status, 1);
+    assert.equal(readFileSync(f.file, 'utf8'), before); // Explicit conflicting retries still fail.
 });
 
 test('worker-scoped writes reject another worker, central events and overlapping claims', (t) => {
@@ -261,4 +330,14 @@ test('repairing an earlier submission excludes the next task and unblocks its de
     assert.equal(f.success(['next']).integration.delivery, second);
     const preflight = f.success(['preflight', '--task', 'A-1']);
     assert.equal(preflight.passed, true);
+    f.event({ type: 'received', task: 'A-2', delivery: second });
+    // The dependent branch contains the original, but not its accepted repair.
+    f.git(f.root, 'checkout', '-qb', 'missing-repair', second);
+    const missing = f.run(['preflight', '--task', 'A-2']);
+    assert.equal(missing.status, 1);
+    assert.match(JSON.parse(missing.stdout).issues.join('\n'), /missing delivered patches/);
+    assert.throws(() => f.event({ type: 'integrating', task: 'A-2', integration: second }), /missing delivered patches/);
+    f.git(f.root, 'cherry-pick', repair);
+    assert.equal(f.success(['preflight', '--task', 'A-2']).passed, true);
+    f.event({ type: 'integrating', task: 'A-2', integration: f.git(f.root, 'rev-parse', 'HEAD') });
 });

@@ -100,8 +100,10 @@ export function submitDelivery({ root, file, state, taskId, contextPath, evidenc
         'submission requires a working task or an exact ready retry');
     check(isAncestor(root, task.base, source.base), 'delivery base precedes or diverges from assignment base');
     checkScope(task, source.paths);
+    // A retry keeps the dependency decision made at first submission, even
+    // when the coordinator has since accepted one of those dependencies.
     dependencies = dependencies ? dependencies.map(sha => resolveCommit(root, sha))
-        : Object.values(state.deliveries).filter(delivery => delivery.task !== taskId
+        : state.deliveries[source.head]?.dependencies ?? Object.values(state.deliveries).filter(delivery => delivery.task !== taskId
             && !delivery.acceptedAt && isAncestor(root, delivery.delivery, source.head)).map(d => d.delivery);
     const packet = { ...JSON.parse(readFileSync(evidencePath, 'utf8')),
         context: JSON.parse(readFileSync(contextPath, 'utf8')), checks: readChecks(checksPath), git: source };
@@ -138,7 +140,9 @@ export function readDelivery(delivery) {
     return packet;
 }
 
-function checkCandidate(root, state, task, commit) {
+function checkCandidate(root, state, task, commit, visited = new Set()) {
+    if (visited.has(task.id)) return;
+    visited.add(task.id);
     // A correction can be cherry-picked independently of a worker's later task.
     // The combined candidate must still include the original submission too.
     for (const sha of task.deliveries) {
@@ -148,6 +152,14 @@ function checkCandidate(root, state, task, commit) {
         const missing = lines(git(root, 'cherry', commit, delivery.delivery, delivery.base))
             .filter(line => line.startsWith('+'));
         check(missing.length === 0, `candidate is missing delivered patches from ${sha}`);
+        for (const dependency of delivery.dependencies) {
+            const required = state.tasks[state.deliveries[dependency]?.task];
+            check(required && state.deliveries[required.deliveries.at(-1)]?.acceptedAt,
+                `dependency is not accepted: ${dependency}`);
+            // Acceptance of a repair is not enough: this candidate must also
+            // contain the repair, including a selectively cherry-picked one.
+            checkCandidate(root, state, required, commit, visited);
+        }
     }
 }
 
