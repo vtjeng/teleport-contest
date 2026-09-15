@@ -318,12 +318,12 @@ function startupStairDecor(state) {
 }
 
 // This source-bounded plan covers describe_decor()'s two silent ordinary
-// terrain results. The first step from the remembered startup staircase
-// returns TRUE and stores ROOM or CORR. A following step on the same ordinary
-// terrain returns FALSE and stores the same value. Other prior terrain can
-// invoke back_on_ground(), and every feature-bearing or exceptional state can
-// print, defer, or suppress feedback, so those states remain outside this
-// owner.
+// terrain results. The first step from the remembered startup staircase, or
+// from C's initial STONE sentinel, returns TRUE and stores ROOM or CORR. A
+// following step on the same ordinary terrain returns FALSE and stores the
+// same value. Other prior terrain can invoke back_on_ground(), and every
+// feature-bearing or exceptional state can print, defer, or suppress
+// feedback, so those states remain outside this owner.
 function ordinaryDecorPlan(x, y, state) {
     const typ = state.level?.at(x, y)?.typ;
     if (typ !== ROOM && typ !== CORR) return null;
@@ -346,7 +346,7 @@ function ordinaryDecorPlan(x, y, state) {
         );
     }
     const previous = state.iflags?.prev_decor;
-    if (previous !== STAIRS && previous !== typ) {
+    if (previous !== STONE && previous !== STAIRS && previous !== typ) {
         throw new UnsupportedPickupError(
             'ordinary decor after unowned prior terrain',
         );

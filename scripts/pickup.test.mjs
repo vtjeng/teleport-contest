@@ -355,32 +355,28 @@ test('decor preflight rejects either changed coordinate before mutation',
 
 test('describe_decor remembers silent ordinary terrain transitions',
     async () => {
-        for (const terrain of [ROOM, CORR]) {
-            const state = await heroOnAnEmptySquare();
-            state.flags.mention_decor = true;
-            state.iflags.prev_decor = STAIRS;
-            state.level.at(state.u.ux, state.u.uy).typ = terrain;
-            state.stairs = null;
+        for (const previous of [STAIRS, STONE]) {
+            for (const terrain of [ROOM, CORR]) {
+                const state = await heroOnAnEmptySquare();
+                state.flags.mention_decor = true;
+                state.iflags.prev_decor = previous;
+                state.level.at(state.u.ux, state.u.uy).typ = terrain;
+                state.stairs = null;
 
-            assert.equal(await describe_decor(state), true);
-            assert.equal(state.iflags.prev_decor, terrain);
-            assert.equal(state._ttyToplines ?? '', '');
+                assert.equal(await describe_decor(state), true);
+                assert.equal(state.iflags.prev_decor, terrain);
+                assert.equal(state._ttyToplines ?? '', '');
 
-            assert.equal(await describe_decor(state), false);
-            assert.equal(state.iflags.prev_decor, terrain);
-            assert.equal(state._ttyToplines ?? '', '');
+                assert.equal(await describe_decor(state), false);
+                assert.equal(state.iflags.prev_decor, terrain);
+                assert.equal(state._ttyToplines ?? '', '');
+            }
         }
     });
 
 test('ordinary describe_decor exclusions preserve terrain memory and output',
     async () => {
         const cases = [
-            {
-                // STONE is neither the startup staircase nor the preceding
-                // STAIRS terrain owned by the silent transition.
-                name: 'unowned prior terrain',
-                alter: (state) => { state.iflags.prev_decor = STONE; },
-            },
             {
                 // Underwater suppresses dfeature output and belongs to the
                 // water transition owner.
@@ -1134,7 +1130,11 @@ test('pickup stops on each state it has no answer for', async () => {
 
     state.flags.mention_decor = true;
     state.stairs = null;
-    await assert.rejects(() => pickup(1, state), /unowned prior terrain/u);
+    state.iflags.prev_decor = STONE;
+    const ordinaryTerrain = state.level.at(state.u.ux, state.u.uy).typ;
+    assert.ok([ROOM, CORR].includes(ordinaryTerrain));
+    assert.equal(await pickup(1, state), 0);
+    assert.equal(state.iflags.prev_decor, ordinaryTerrain);
     state.flags.mention_decor = false;
 
     // A nonempty engulfer inventory remains outside this no-op branch.

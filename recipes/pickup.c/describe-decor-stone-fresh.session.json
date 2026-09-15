@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9020102,
+      "datetime": "20270115101010",
+      "nethackrc": "OPTIONS=name:DecorProbe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,!acoustics\n",
+      "moves": " y   y"
+    }
+  ]
+}
