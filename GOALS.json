@@ -48652,7 +48652,7 @@
     {
       "id": "port-mthrowu-seed4500-20260915",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port monster ranged missile selection and flight for nonweapon ammunition",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -48756,9 +48756,9 @@
         "to": 1267
       },
       "activeStanding": {
-        "sha": "b788f5aae00c2953253518b1148a43481551e29e",
-        "screens": 9810,
-        "rng": 716839
+        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
+        "screens": 9880,
+        "rng": 718022
       },
       "openMismatches": [
         {
