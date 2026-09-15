@@ -25,8 +25,9 @@
 // largest are breakobj() with breakmsg(), for a missile that shatters, and
 // dothrow.c's thrown-and-return family -- Mjollnir, an aklys and a boomerang
 // -- still needs boomhit() and sho_obj_return_to_u().
-// dowield(), doquiver_core(), autoquiver(), use_pole() and use_whip() stop for
-// the same reason: each is a command in its own right.
+// dowield(), autoquiver(), use_pole() and use_whip() stop for the same reason:
+// each is a command in its own right. doquiver_core() is wired below because
+// it is the source's own refill helper, not a separate command dispatch.
 
 import {
     ARTICLE_A,
@@ -102,6 +103,7 @@ import {
     STUNNED,
     THROWN_WEAPON,
     WT_SPLASH_THRESHOLD,
+    W_QUIVER,
     W_WEP,
     HMON_APPLIED,
     HMON_KICKED,
@@ -127,6 +129,7 @@ import {
     newsym,
 } from './display.js';
 import { canletgo, flooreffects } from './do.js';
+import { setwornEnv } from './do_wear.js';
 import { ceiling, on_level, surface, u_on_newpos } from './dungeon.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
@@ -143,7 +146,7 @@ import {
     weight_cap,
 } from './hack.js';
 import { distmin, sgn } from './hacklib.js';
-import { freeinv, getobj, stackobj } from './invent.js';
+import { freeinv, getobj, stackobj, update_inventory } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { MZ_MEDIUM } from './monsters.js';
 import {
@@ -272,8 +275,8 @@ import {
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, canseemon, vision_recalc } from './vision.js';
-import { welded } from './wield.js';
-import { find_mac, is_pole } from './worn.js';
+import { doquiver_core, welded } from './wield.js';
+import { find_mac, is_pole, setuqwep } from './worn.js';
 import { bhit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
@@ -896,7 +899,16 @@ export async function dofire(state = game) {
 
     /* if autoquiver is disabled or has failed, prompt for missile */
     if (!obj) {
-        throw new UnsupportedThrowError('doquiver_core()');
+        /* in case we're using ^A to repeat prior 'f' command, don't
+           use direction of previous throw as getobj()'s choice here */
+        state.in_doagain = 0;
+
+        /* this gives its own feedback about populating the quiver slot */
+        const refillResult = await doquiver_core('fire', state);
+        if (refillResult !== ECMD_OK && refillResult !== ECMD_TIME)
+            return refillResult;
+
+        obj = state.uquiver ?? null;
     }
 
     /* C's fourth conjunct here is `!skip_fireassist`, which only the
@@ -1126,7 +1138,14 @@ export async function throw_obj(obj, shotlimit, state = game) {
             otmp = splitobj(obj, 1, { state });
         } else {
             otmp = obj;
-            if (otmp.owornmask) {
+            if ((otmp.owornmask & W_QUIVER)
+                && otmp === state.uquiver) {
+                // dothrow.c remove_worn_item() reaches uqwepgone() for the
+                // quiver slot; clear that slot before freeinv() consumes the
+                // singleton, and refresh the inventory as uqwepgone() does.
+                setuqwep(null, setwornEnv(state));
+                update_inventory({ state });
+            } else if (otmp.owornmask) {
                 throw new UnsupportedThrowError('remove_worn_item()');
             }
             oldslot = obj.nobj;

@@ -39,6 +39,7 @@ import { reset_remarm, setwornEnv } from './do_wear.js';
 import { acurr } from './attrib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { inv_cnt } from './hack.js';
 import { strstri } from './hacklib.js';
 import {
     addinv_nomerge,
@@ -59,16 +60,21 @@ import {
     ammo_and_launcher,
     clear_splitobjs,
     is_ammo,
+    is_boots,
+    is_gloves,
     is_launcher,
     is_missile,
     is_wet_towel,
     is_weptool,
     set_bknown,
+    splitobj,
+    unsplitobj,
 } from './obj.js';
 import {
     donameFresh,
     is_plural,
     otense,
+    simpleonames,
     vtense,
     xnameFresh,
     Yname2,
@@ -79,6 +85,8 @@ import {
     CORPSE,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
+    LENSES,
+    LOADSTONE,
     MAGIC_LAMP,
     SCROLL_CLASS,
     TIN_OPENER,
@@ -521,6 +529,40 @@ function finish_splitting(obj, state) {
     addinv_nomerge(obj, { state });
 }
 
+// C ref: obj.h pair_of(). These armor categories name one logical item as a
+// pair even when its quantity is one, so doquiver_core() uses "those" and
+// plural verb agreement in its confirmation path.
+function pair_of(obj, state) {
+    return obj.otyp === LENSES
+        || is_gloves(obj, state)
+        || is_boots(obj, state);
+}
+
+// C ref: invent.c splittable() (1664-1671). This is kept at this caller's
+// source boundary because invent.c does not export the helper; the predicate
+// is deliberately identical and preserves welded primary weapons and cursed
+// loadstones as indivisible objects.
+function quiver_splittable(obj, state) {
+    return !((obj.otyp === LOADSTONE && obj.cursed)
+        || (obj === state.uwep && welded(obj, state)));
+}
+
+// C ref: hack.h ynq() (1330). lock.js owns the same macro wrapper; loading it
+// here avoids introducing a static wield.c -> cmd.c -> wield.js cycle while
+// retaining its y/n/q normalization and prompt input behavior.
+async function quiver_ynq(query, state) {
+    const { ynq } = await import('./lock.js');
+    return ynq(query, state);
+}
+
+// C ref: wield.c Shk_Your(). The ordinary carried-object owner prefix is
+// already source-backed by shk.js; capitalize it exactly as Shk_Your does.
+async function shk_your_prefix(obj, state) {
+    const { shk_your } = await import('./shk.js');
+    const prefix = shk_your(obj, state);
+    return prefix ? prefix[0].toUpperCase() + prefix.slice(1) : prefix;
+}
+
 // C ref: wield.c dowield() (354-457), the #wield command. Prompts the hero
 // for an object, handles conflicts with worn/quivered/swapped slots, and
 // calls ready_weapon() to put it in the hand.
@@ -649,10 +691,12 @@ export async function dowieldquiver(state = game) {
     return doquiver_core('ready', state);
 }
 
-// C ref: wield.c doquiver_core() (509-668), through the queued hands_obj arm
-// at 532-544. The ordinary-item branches remain fail-closed below: they split
-// stacks, negotiate weapon slots, or refill #fire and belong to later slices.
+// C ref: wield.c doquiver_core() (512-678). This is also the refill helper for
+// dothrow.c dofire(). The prompt, counted-stack, wielded-primary, and
+// alternate-weapon arms retain C's evaluation order before the common tail.
 export async function doquiver_core(verb, state = game) {
+    let was_uwep = false;
+    const was_twoweap = Boolean(state.u.twoweap);
     state.multi = 0;
     if (!state.invent) {
         await ttyPline('You have nothing to ready for firing.', state);
@@ -660,7 +704,7 @@ export async function doquiver_core(verb, state = game) {
     }
 
     clear_splitobjs(state);
-    const newquiver = await getobj(
+    let newquiver = await getobj(
         verb, (obj) => ready_ok(obj, state),
         GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
     );
@@ -677,9 +721,158 @@ export async function doquiver_core(verb, state = game) {
         return ECMD_OK;
     }
 
-    throw new UnsupportedWieldError(
-        'doquiver_core() with an ordinary inventory item',
-    );
+    if (newquiver.o_id
+        && newquiver.o_id === state.context?.objsplit?.child_oid) {
+        if (state.uquiver
+            && state.uquiver.o_id === state.context.objsplit.parent_oid) {
+            unsplitobj(newquiver, { state });
+            // C falls through this label after undoing the count split.
+            await ttyPline('That ammunition is already readied!', state);
+            return ECMD_OK;
+        } else if (newquiver.oclass === COIN_CLASS) {
+            await ttyPline("You can't ready only part of your gold.", state);
+            unsplitobj(newquiver, { state });
+            return ECMD_OK;
+        }
+        finish_splitting(newquiver, state);
+    } else if (newquiver === state.uquiver) {
+        await ttyPline('That ammunition is already readied!', state);
+        return ECMD_OK;
+    } else if (newquiver.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
+        await ttyPline(`You cannot ${verb} that!`, state);
+        return ECMD_OK;
+    } else if (newquiver === state.uwep) {
+        const weldRes = !newquiver.bknown;
+
+        if (welded(newquiver, state)) {
+            await weldmsg(newquiver, state);
+            reset_remarm(state);
+            return weldRes ? ECMD_TIME : ECMD_OK;
+        }
+
+        if (newquiver.quan > 1
+            && inv_cnt(false, state) < 52
+            && quiver_splittable(newquiver, state)) {
+            let qbuf = `You are wielding ${newquiver.quan} `
+                + `${simpleonames(newquiver, state)}.  Ready `
+                + `${newquiver.quan - 1} of them?`;
+            const answer = await quiver_ynq(qbuf, state);
+            if (answer === 'q') return ECMD_OK;
+            if (answer === 'y') {
+                newquiver = splitobj(
+                    newquiver,
+                    newquiver.quan - 1,
+                    { state },
+                );
+                finish_splitting(newquiver, state);
+                // C's goto quivering bypasses the wielded-primary tail.
+            } else {
+                qbuf = 'Ready all of them instead?';
+                if (await quiver_ynq(qbuf, state) !== 'y') {
+                    const prefix = await shk_your_prefix(newquiver, state);
+                    await ttyPline(
+                        `${prefix}${simpleonames(newquiver, state)} `
+                        + `${otense(newquiver, 'remain')} wielded.`,
+                        state,
+                    );
+                    return ECMD_OK;
+                }
+                setuwep(null, setwornEnv(state));
+                await untwoweapon(state);
+                was_uwep = true;
+            }
+        } else {
+            const usePlural = is_plural(newquiver)
+                || pair_of(newquiver, state);
+            // The source wording has two clauses; retain its exact pronouns.
+            const fullQbuf = `You are wielding ${!usePlural ? 'that' : 'those'}`
+                + `.  Ready ${!usePlural ? 'it' : 'them'} instead?`;
+            if (await quiver_ynq(fullQbuf, state) !== 'y') {
+                const prefix = await shk_your_prefix(newquiver, state);
+                await ttyPline(
+                    `${prefix}${simpleonames(newquiver, state)} `
+                    + `${otense(newquiver, 'remain')} wielded.`,
+                    state,
+                );
+                return ECMD_OK;
+            }
+            setuwep(null, setwornEnv(state));
+            await untwoweapon(state);
+            was_uwep = true;
+        }
+    } else if (newquiver === state.uswapwep) {
+        let qbuf;
+        if (newquiver.quan > 1
+            && inv_cnt(false, state) < 52
+            && quiver_splittable(newquiver, state)) {
+            qbuf = `${state.u.twoweap ? 'You are dual wielding'
+                : 'Your alternate weapon is'} ${newquiver.quan} `
+                + `${simpleonames(newquiver, state)}.  Ready `
+                + `${newquiver.quan - 1} of them?`;
+            const answer = await quiver_ynq(qbuf, state);
+            if (answer === 'q') return ECMD_OK;
+            if (answer === 'y') {
+                newquiver = splitobj(
+                    newquiver,
+                    newquiver.quan - 1,
+                    { state },
+                );
+                finish_splitting(newquiver, state);
+            } else {
+                qbuf = 'Ready all of them instead?';
+                if (await quiver_ynq(qbuf, state) !== 'y') {
+                    const prefix = await shk_your_prefix(newquiver, state);
+                    await ttyPline(
+                        `${prefix}${simpleonames(newquiver, state)} `
+                        + `${otense(newquiver, 'remain')} `
+                        + `${state.u.twoweap ? 'wielded' : 'as secondary weapon'}.`,
+                        state,
+                    );
+                    return ECMD_OK;
+                }
+                setuswapwep(null, setwornEnv(state));
+                await untwoweapon(state);
+            }
+        } else {
+            const usePlural = is_plural(newquiver)
+                || pair_of(newquiver, state);
+            qbuf = `${!usePlural ? 'That is' : 'Those are'} your `
+                + `${state.u.twoweap ? 'second' : 'alternate'} weapon.  `
+                + `Ready ${!usePlural ? 'it' : 'them'} instead?`;
+            if (await quiver_ynq(qbuf, state) !== 'y') {
+                const prefix = await shk_your_prefix(newquiver, state);
+                await ttyPline(
+                    `${prefix}${simpleonames(newquiver, state)} `
+                    + `${otense(newquiver, 'remain')} `
+                    + `${state.u.twoweap ? 'wielded' : 'as secondary weapon'}.`,
+                    state,
+                );
+                return ECMD_OK;
+            }
+            setuswapwep(null, setwornEnv(state));
+            await untwoweapon(state);
+        }
+    }
+
+    // C label quivering: a split child, or a newly selected ordinary item,
+    // reaches this common slot/message tail without spending a turn.
+    if (verb === 'ready') {
+        setuqwep(newquiver, setwornEnv(state));
+        await prinv(null, newquiver, 0, { state });
+    } else {
+        await prinv('You ready:', newquiver, 0, { state });
+        setuqwep(newquiver, setwornEnv(state));
+    }
+
+    let res = 0;
+    if (was_uwep) {
+        await ttyPline(`You are now ${empty_handed(state)}.`, state);
+        res = 1;
+    } else if (was_twoweap && !state.u.twoweap) {
+        await ttyPline(`${are_no_longer_twoweap}.`, state);
+        res = 1;
+    }
+    return res ? ECMD_TIME : ECMD_OK;
 }
 
 // C ref: wield.c wield_tool() (683-758), restricted to the ordinary unworn,

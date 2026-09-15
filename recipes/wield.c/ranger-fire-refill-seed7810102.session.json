@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7810102,
+      "datetime": "20000111090000",
+      "nethackrc": "OPTIONS=name:QuiverFireProbe,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": "  nfdl"
+    }
+  ]
+}

@@ -1644,10 +1644,10 @@ test('dofire() with an empty quiver reads the hands before complaining',
     async () => {
         // dothrow.c:511-528, the four arms an empty quiver and
         // flags.autoquiver off can take. Empty hands take the last of them
-        // and then stop at doquiver_core(), which prompts for a missile.
+        // and then doquiver_core(), which prompts for a missile.
         const empty = arena();
         empty._ttyToplines = '';
-        await assert.rejects(() => dofire(empty), /doquiver_core/u);
+        assert.equal(await dofire(empty), ECMD_CANCEL);
         assert.match(empty._ttyToplines, /no ammunition readied/u);
         // A wielded polearm takes the first.
         const polearm = arena();
@@ -1687,8 +1687,11 @@ test('dofire() with an empty quiver reads the hands before complaining',
         known.uswapwep = bad;
         carry(known, bad);
         known._ttyToplines = '';
-        await assert.rejects(() => dofire(known), /doquiver_core/u);
-        assert.match(known._ttyToplines, /no ammunition readied/u);
+        known.iflags.cbreak = true;
+        known.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
+        known.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
+        assert.equal(await dofire(known), ECMD_CANCEL);
+        assert.match(known._ttyToplines, /What do you want to fire/u);
         // :516-517, the bullwhip arm between the first and the third.
         const whip = arena();
         const bullwhip = item(whip, BULLWHIP, { owornmask: W_WEP });
@@ -1696,6 +1699,28 @@ test('dofire() with an empty quiver reads the hands before complaining',
         carry(whip, bullwhip);
         await assert.rejects(() => dofire(whip), /use_whip/u);
     });
+
+test('dofire() refills the quiver through doquiver_core()', async () => {
+    // dothrow.c:547-555. With autoquiver disabled, the #fire caller clears
+    // in_doagain, refills with the shared helper, and then throws the selected
+    // item. The first Escape dismisses the prior no-ammunition message; the
+    // object letter and direction are the two source-owned prompt answers.
+    const state = arena();
+    const dagger = item(state, DAGGER);
+    pack(state, dagger);
+    state.iflags.cbreak = true;
+    state.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
+    state.nhDisplay.pushKey(dagger.invlet.charCodeAt(0));
+    state.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
+    state.nhDisplay.pushKey('l'.charCodeAt(0));
+    for (let i = 0; i < 8; i++) state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    assert.equal(await dofire(state), ECMD_TIME);
+    assert.equal(state.uquiver, null);
+    assert.equal(state.invent, null);
+    assert.equal(state.in_doagain, 0);
+    assert.deepEqual(pileAt(state, 9, 4), [dagger]);
+});
 
 test('dofire() finds a launcher for the quivered ammo', async () => {
     // dothrow.c:557-575. The search wants ammo in the quiver and
