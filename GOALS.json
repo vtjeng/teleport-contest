@@ -48846,7 +48846,7 @@
     {
       "id": "div-select-rwep-seed0106-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve hands_obj as the launcher sentinel for negative-skill darts and shuriken.",
       "cFile": "weapon.c",
       "sessions": [
@@ -48857,8 +48857,8 @@
       "spans": [
         {
           "name": "select_rwep",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c944340d09c4e5ac64f209196b4e36aef5795841",
           "functions": [
             "select_rwep"
           ]
@@ -48870,8 +48870,11 @@
         "screens": 9810,
         "rng": 716839
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c944340d09c4e5ac64f209196b4e36aef5795841",
+      "delivered": {
+        "screens": 70,
+        "rng": 1183
+      },
       "function": "select_rwep",
       "session": "holdout/seed0106-priest-extcmd-sweep",
       "step": 40,
@@ -48960,7 +48963,12 @@
         "screens": 9810,
         "rng": 716839
       },
-      "parkedReason": "Prepare both persistent worker contexts before implementation; preserve the queued select_rwep span for worker B and resume it for central integration after worker A is accepted."
+      "parkedReason": "Prepare both persistent worker contexts before implementation; preserve the queued select_rwep span for worker B and resume it for central integration after worker A is accepted.",
+      "closeStanding": {
+        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
+        "screens": 9880,
+        "rng": 718022
+      }
     }
   ]
 }
