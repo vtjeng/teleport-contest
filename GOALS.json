@@ -50133,6 +50133,26 @@
         "screens": 10037,
         "rng": 739105
       }
+    },
+    {
+      "id": "div-doquiver-core-seed0101-20260915",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port wield.c doquiver_core ordinary-item and alternate-weapon branches, preserving confirmation, slot state, inventory feedback, result bits, and the separate dofire caller.",
+      "cFile": "wield.c",
+      "sessions": [
+        "holdout/seed0101-ranger-quiver-throw-travel-engrave"
+      ],
+      "selectionReason": "The worker delivery is the earliest dependency-ready independent current mismatch after the pray correction: the fixed holdout session stops at wield.c doquiver_core with an ordinary alternate-weapon item. The source-traced branch and its independently matching Q and #fire recordings are ready for integration.",
+      "detail": "The opening Q command reaches doquiver_core after getobj accepts inventory letter b. C wield.c:611-679 confirms the uswapwep ordinary-item path: ask whether the alternate weapon should be readied, clear W_SWAPWEP, set W_QUIVER, print inventory feedback, and return the correct ECMD result. JavaScript currently stops at the ordinary-item refusal in js/wield.js. Production callers are cmd.c Q through dowieldquiver and dothrow.c dofire through doquiver_core; preserve ynq, pair_of, untwoweapon, naming, and result-tail contracts.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doquiver_core",
+      "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
+      "step": 5
     }
   ]
 }
