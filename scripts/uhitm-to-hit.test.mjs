@@ -789,7 +789,7 @@ test('do_attack clears gu.unweapon and exercises Strength before swinging',
     async () => {
         await hero();
         // uhitm.c:531-541. With `verbose` off C prints nothing and only the
-        // flag changes; with it on the announcement has no port.
+        // flag changes; with it on the wielded object is named by yname().
         game.unweapon = true;
         game.flags.verbose = false;
         const env = meleeEnv();
@@ -803,11 +803,33 @@ test('do_attack clears gu.unweapon and exercises Strength before swinging',
 
         game.unweapon = true;
         game.flags.verbose = true;
-        await refusesAsync(
-            () => do_attack(target(), game, meleeEnv()),
-            'first bash message',
-        );
+        const verbose = meleeEnv();
+        await do_attack(target(), game, verbose);
+        assert.equal(verbose.lines[0],
+            'You begin bashing monsters with your spear.');
+    });
+
+test('do_attack names the source role verb and body for an unarmed swing',
+    async () => {
+        await hero();
+        game.uwep = null;
+        game.unweapon = true;
         game.flags.verbose = true;
+        const human = meleeEnv();
+        await do_attack(target(), game, human);
+        assert.deepEqual(human.lines.slice(0, 1), [
+            'You begin bashing monsters with your bare hands.',
+        ]);
+
+        await hero({ role: 'Monk', gender: 'male', align: 'lawful' });
+        game.uwep = null;
+        game.unweapon = true;
+        game.flags.verbose = true;
+        const monk = meleeEnv();
+        await do_attack(target(), game, monk);
+        assert.deepEqual(monk.lines.slice(0, 1), [
+            'You begin striking monsters with your gloved hands.',
+        ]);
     });
 
 test('do_attack stops for the states below its upkeep', async () => {

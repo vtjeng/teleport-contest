@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Valkyrie seed 7701020 clears its spear with w- and enters the adjacent hostile newt; do_attack() emits the source bare-hand bash line before the swing.",
+  "segments": [
+    {
+      "seed": 7701020,
+      "datetime": "20260214101010",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "w-h"
+    }
+  ]
+}

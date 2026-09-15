@@ -64,6 +64,7 @@ import {
     helpless,
     isok,
     M_AP_TYPE,
+    HAND,
     NO_TRAP_FLAGS,
     XKILL_NOMSG,
     something,
@@ -80,6 +81,7 @@ import {
     pmname,
     x_monnam,
 } from './do_name.js';
+import { makeplural } from './fruit.js';
 import {
     glyph_at,
     glyph_is_cmap,
@@ -95,7 +97,7 @@ import {
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { doorless_door, test_move } from './hack.js';
-import { sgn } from './hacklib.js';
+import { ing_suffix, sgn } from './hacklib.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
 // so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
 // into each other. Both bindings are hoisted function declarations, which an
@@ -277,7 +279,7 @@ import {
     mwepgone,
     possibly_unwield,
 } from './weapon.js';
-import { can_twoweapon } from './wield.js';
+import { can_twoweapon, cantwield } from './wield.js';
 import {
     bimanual,
     extract_from_minvent,
@@ -295,7 +297,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { Cold_resistance, exclam } from './zap.js';
 import { note_unported } from './unported.js';
 import { canseemon } from './vision.js';
-import { mbodypart } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -781,10 +783,30 @@ export async function do_attack(monster, state = game, env = {}) {
 
     // 531-541. wield.c setuwep() sets gu.unweapon for a hero holding something
     // that is not a weapon; the first swing clears it and, with `verbose` on,
-    // announces what the hero is now bashing monsters with.
+    // announces what the hero is now bashing monsters with. The no-weapon
+    // arm uses the hero's role verb and anatomy, but suppresses the line for a
+    // form that cannot wield.
     if (state.unweapon) {
         state.unweapon = false;
-        if (state.flags?.verbose) unsupported('first bash message');
+        if (state.flags?.verbose) {
+            const message = requireAttackOperation(env, 'message');
+            if (state.uwep) {
+                await message(
+                    `You begin bashing monsters with ${yname(state.uwep, state)}.`,
+                    state,
+                );
+            } else if (!cantwield(state.youmonst?.data)) {
+                const verb = ing_suffix(
+                    state.urole?.mnum === PM_MONK ? 'strike' : 'bash',
+                );
+                const hands = makeplural(body_part(HAND, state.youmonst));
+                await message(
+                    `You begin ${verb} monsters with your `
+                        + `${state.uarmg ? 'gloved' : 'bare'} ${hands}.`,
+                    state,
+                );
+            }
+        }
     }
 
     // 543-545. exercise() draws rn2(19) while |AEXE(A_STR)| is under its
