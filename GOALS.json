@@ -47486,7 +47486,7 @@
     {
       "id": "div-sounds-domonnoise-seed0106-20260914",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "open",
       "summary": "Fix domonnoise ordinary monster sound branches and restore #chat responses.",
       "cFile": "sounds.c",
       "sessions": [],
@@ -47514,7 +47514,7 @@
       "session": "holdout/seed0106-priest-extcmd-sweep",
       "step": 29,
       "activeStanding": {
-        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "sha": "f7ccef07732b81fc69549d3b85b50663917fa801",
         "screens": 9659,
         "rng": 699110
       },
