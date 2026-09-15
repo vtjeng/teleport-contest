@@ -113,7 +113,7 @@ import {
     S_ZOMBIE,
 } from './monsters.js';
 import { Glib } from './wield.js';
-import { is_weptool, sobj_at, uncurse } from './obj.js';
+import { is_weptool, set_bknown, sobj_at, uncurse } from './obj.js';
 import {
     BOULDER,
     FUMBLE_BOOTS,
@@ -703,7 +703,7 @@ export async function fix_worst_trouble(trouble, state = game) {
                 `${Yobjnam2(otmp, 'softly glow', state)} ${hcolor('amber', state)}.`,
                 state,
             );
-            if (otmp) otmp.bknown = 1;
+            set_bknown(otmp, 1, { state });
         }
         if (otmp) await uncurse(otmp, { state });
         break;

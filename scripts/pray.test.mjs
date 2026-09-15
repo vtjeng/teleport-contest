@@ -59,6 +59,7 @@ import { enableRngLog, getRngLog } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     AMULET_OF_UNCHANGING,
+    ARMOR_CLASS,
     BOULDER,
     FUMBLE_BOOTS,
     GAUNTLETS_OF_FUMBLING,
@@ -413,6 +414,27 @@ test('fix_curse_trouble() uncurses an object and records its visible glow',
         assert.equal(cursedRing.cursed, false);
         assert.equal(cursedRing.bknown, 1);
         assert.match(state._pending_message, /Your left ring softly glows amber\./u);
+    });
+
+// pray.c:591-598 uses set_bknown() for the saddle's learned beatitude, so the
+// helper call remains source-visible even though a steed's saddle is not in
+// the hero's permanent inventory.
+test('fix_worst_trouble() marks a cursed saddle known through set_bknown',
+    async () => {
+        const state = await startedGame();
+        const saddle = object(SADDLE, { cursed: 1 });
+        saddle.oclass = ARMOR_CLASS;
+        saddle.owornmask = W_SADDLE;
+        state.u.usteed = { minvent: saddle };
+
+        await fix_worst_trouble(TROUBLE_SADDLE, state);
+
+        assert.equal(saddle.cursed, false);
+        assert.equal(saddle.bknown, 1);
+        assert.match(
+            PRAY_C,
+            /case TROUBLE_SADDLE:[\s\S]*?set_bknown\(otmp, 1\);/u,
+        );
     });
 
 // pray.c critically_low_hp() maps experience level to a divisor through
