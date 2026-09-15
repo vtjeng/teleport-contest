@@ -16,6 +16,7 @@ import {
     THRONE,
     CORR,
     DO_MOVE,
+    DOMOVE_WALK,
     DUST,
     FLYING,
     FROMOUTSIDE,
@@ -82,6 +83,7 @@ import {
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     M1_FLY, PM_GRID_BUG, PM_SOLDIER, monst_globals_init,
 } from '../js/monsters.js';
@@ -1368,6 +1370,59 @@ test('a run stopped before a monster ends through nomul too', async () => {
     assert.equal(state.context.move, 0);
     assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
     assertRunEndedThroughNomul(state, 'monster in front');
+});
+
+test('domove applies success effects only to explicit movement attempts',
+    async () => {
+    // hack.c domove():2698-2705 and domove_core():2964-2967. The first
+    // continuation step has no DOMOVE_* bit, while a lowercase movement
+    // command records DOMOVE_WALK before entering the same core.
+    async function prepare() {
+        await runSegment({
+            seed: 840031,
+            datetime: '20310314150926',
+            nethackrc: 'OPTIONS=name:DomoveSuccess,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        const startX = game.u.ux;
+        const startY = game.u.uy;
+        game.level.at(startX, startY).typ = ROOM;
+        const destination = game.level.at(startX + 1, startY);
+        destination.typ = ROOM;
+        destination.flags = destination.doormask = 0;
+        game.level.monsters[startX + 1][startY] = null;
+        game.level.monlist = null;
+        game.level.objects[startX + 1][startY] = null;
+        game.level.traps = [];
+        game.level.regions = [];
+        game.head_engr = null;
+        game.u.dx = 1;
+        game.u.dy = 0;
+        game.u.umoved = false;
+        game.context.move = 1;
+        return [startX, startY];
+    }
+
+    const [continuationX, continuationY] = await prepare();
+    game.context.run = 1;
+    game.domoveAttempting = 0;
+    await domove(game);
+    assert.deepEqual(
+        [game.u.ux, game.u.uy],
+        [continuationX + 1, continuationY],
+    );
+    assert.equal(game.domoveSucceeded, 0);
+    assert.equal(game.domoveAttempting, 0);
+
+    const [walkX, walkY] = await prepare();
+    game.context.run = 0;
+    game.domoveAttempting = DOMOVE_WALK;
+    await domove(game);
+    assert.deepEqual([game.u.ux, game.u.uy], [walkX + 1, walkY]);
+    assert.equal(game.domoveSucceeded, DOMOVE_WALK);
+    assert.equal(game.domoveAttempting, 0);
 });
 
 test('the run stop before a monster reads each of C\'s three terms', () => {

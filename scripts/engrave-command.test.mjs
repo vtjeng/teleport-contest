@@ -5,8 +5,8 @@ import {
     ADMITTED_COMMANDS,
     UnsupportedHeroCommandBoundaryError,
 } from '../js/cmd.js';
-import { DUST } from '../js/const.js';
-import { engr_at } from '../js/engrave.js';
+import { DUST, ROOM } from '../js/const.js';
+import { engr_at, make_engr_at, read_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -99,4 +99,47 @@ test('a refused engraving line restores status redraw ownership', async () => {
         ENGRAVE_KEY.charCodeAt(0),
     );
     assert.equal(game.gb.bot_disabled, false);
+});
+
+test('reading an engraving interrupts a running command after the text',
+    async () => {
+    // engrave.c read_engr_at():396-402. The run is still active while both
+    // messages and the remembered text are written; nomul(0) follows them.
+    const state = {
+        u: { uprops: [] },
+        level: { at: () => ({ typ: ROOM }) },
+        context: { run: 1, travel: 1, travel1: 1, mv: 1 },
+        multi: 3,
+        disp: { botl: false },
+        flags: {},
+        iflags: {},
+        command_queue: [[{ typ: 'canned' }], []],
+    };
+    const engraving = make_engr_at(
+        3,
+        4,
+        'keep moving',
+        null,
+        0,
+        DUST,
+        { state, random: { rn2: () => 0, rnd: () => 1 } },
+    );
+    const messages = [];
+    assert.equal(await read_engr_at(3, 4, state, {
+        pline: async (message) => messages.push(message),
+    }), true);
+    assert.deepEqual(messages, [
+        'Something is written here in the dust.',
+        'You read: "keep moving".',
+    ]);
+    assert.equal(engraving.engr_txt[1], 'keep moving');
+    assert.equal(state.context.run, 0);
+    assert.equal(state.context.travel, 0);
+    assert.equal(state.context.travel1, 0);
+    assert.equal(state.context.mv, 0);
+    assert.equal(state.multi, 0);
+    assert.equal(state.u.uinvulnerable, false);
+    assert.equal(state.u.usleep, 0);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(state.command_queue, [[], []]);
 });

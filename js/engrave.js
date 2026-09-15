@@ -31,6 +31,7 @@ import { exercise_nonphysical } from './attrib.js';
 import { on_level, surface } from './dungeon.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
+import { nomul } from './hack.js';
 import { sticks } from './mondata.js';
 import {
     AT_HUGS,
@@ -501,6 +502,11 @@ export async function read_engr_at(
     engraving.engr_txt[1] = text;
     engraving.eread = true;
     engraving.erevealed = true;
+    // C ref: engrave.c read_engr_at():400-402. Reading an engraving while
+    // running interrupts the run after the messages and remembered text.
+    if (state.context?.run > 0) {
+        nomul(0, state);
+    }
     return true;
 }
 

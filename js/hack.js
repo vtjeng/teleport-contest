@@ -22,6 +22,8 @@ import {
     DISMOUNT_GENERIC,
     DOOR,
     DO_MOVE,
+    DOMOVE_RUSH,
+    DOMOVE_WALK,
     DRAWBRIDGE_UP,
     D_BROKEN,
     D_ISOPEN,
@@ -356,7 +358,7 @@ import {
 } from './region.js';
 import { CapitalMon } from './random_text.js';
 import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
-import { water_friction } from './mkmaze.js';
+import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import { is_db_wall } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
@@ -3794,16 +3796,19 @@ async function trapmove(_x, _y, _desttrap, state = game) {
     return false;
 }
 
-// C ref: hack.c domove() (2693-2709), the three-statement bracket around
-// domove_core(). Only its last statement is here: C's maybe_smudge_engr() and
-// `domove_attempting = 0` both sit inside domove_core() below, at the exits
-// they belong to, because this port never tracked domove_succeeded. The
-// kickedloc clear cannot be split that way -- C runs it on every exit
-// domove_core() takes, including the ones that print a refusal and move
-// nobody -- so it stays where C put it, above the one return this function
-// has.
+// C ref: hack.c domove() (2695-2709). Keep the success mask separate from
+// domoveAttempting: the former is set only after a position change and the
+// latter is cleared after the wrapper has applied success-only effects.
 export async function domove(state = game) {
+    const ux1 = state.u.ux;
+    const uy1 = state.u.uy;
+    state.domoveSucceeded = 0;
     await domove_core(state);
+    if (state.domoveSucceeded & (DOMOVE_RUSH | DOMOVE_WALK)) {
+        maybe_smudge_engr(ux1, uy1, state.u.ux, state.u.uy, state);
+        maybe_adjust_hero_bubble(state);
+    }
+    state.domoveAttempting = 0;
     clear_kickedloc(state);
 }
 
@@ -4158,6 +4163,11 @@ async function domove_core(state = game) {
         nomul(0, state);
     }
 
+    // C ref: hack.c domove_core():2964-2967. Only a movement attempt
+    // marked WALK or RUSH earns the wrapper's success-only effects;
+    // automatic continuation steps have no bit in domoveAttempting.
+    state.domoveSucceeded |=
+        state.domoveAttempting & (DOMOVE_RUSH | DOMOVE_WALK);
     u.umoved = true;
 
     if (hero_tread_disturbs_buried_zombies(state))
@@ -4187,8 +4197,6 @@ async function domove_core(state = game) {
         state.nomovemsg = '';
     }
     await runmode_delay_output(state);
-    maybe_smudge_engr(oldx, oldy, newx, newy, state);
-    state.domoveAttempting = 0;
 }
 
 // C ref: hack.c nh_delay_output()'s window-port entry. Recorder patch 006

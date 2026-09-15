@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42044,
+      "datetime": "20000203123456",
+      "nethackrc": "OPTIONS=name:RunEngrave,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!autopickup\nOPTIONS=pettype:none,!acoustics\n",
+      "comment": "Independent movement and engraving regression: the hero writes on the west square, returns east, then rushes west so domove() continues without an explicit intent and pickup.c reaches read_engr_at() while the run is active.",
+      "moves": " hE- Elbereth\rlH  "
+    }
+  ]
+}
