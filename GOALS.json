@@ -48109,7 +48109,7 @@
     {
       "id": "port-wiz-loca-20260915",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Wizard quest locate level and register its loader",
       "luaFile": "Wiz-loca.lua",
       "sessions": [
@@ -48120,8 +48120,8 @@
       "spans": [
         {
           "name": "Wiz-loca.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "57f217d61f4395736b9503f7675ab29325ceea6b",
           "functions": [
             "Wiz-loca.lua"
           ]
@@ -48133,8 +48133,11 @@
         "screens": 9781,
         "rng": 712806
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "57f217d61f4395736b9503f7675ab29325ceea6b",
+      "delivered": {
+        "screens": 7,
+        "rng": 1770
+      },
       "functions": [
         {
           "name": "Wiz-loca.lua",
@@ -48282,6 +48285,38 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 784,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 49,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "previousRemainingScreensUpperBound": 53
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "57f217d61f4395736b9503f7675ab29325ceea6b",
+        "screens": 9788,
+        "rng": 714576
       }
     }
   ]
