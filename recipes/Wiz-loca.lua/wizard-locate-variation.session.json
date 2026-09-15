@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 618047,
+      "datetime": "20430517131500",
+      "nethackrc": "OPTIONS=name:WizLocaProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!autopickup\n",
+      "moves": ".#levelchange\n20\n                   \u0016?\n z"
+    }
+  ],
+  "comment": "Independent Wizard locate-level variation using the default symbol set. It keeps the human recipe seed and inputs so the changed option isolates the display of the same generated terrain, objects, traps, and monsters."
+}

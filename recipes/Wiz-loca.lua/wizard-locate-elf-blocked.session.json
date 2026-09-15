@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 618048,
+      "datetime": "20430517131500",
+      "nethackrc": "OPTIONS=name:WizLocaProbe,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": ".#levelchange\n20\n                     \u0016?\n z"
+    }
+  ],
+  "comment": "Independent Wizard level-teleport route to Wiz-loca. Seeds 618047 and 618048 were chosen before recording; the elf variation changes starting inventory and alignment-dependent generation. The command raises experience level, opens the dungeon menu, and selects the quest locate level. Two extra spaces dismiss elf intrinsic messages while gaining experience. Blocked by makemon.c makemon(): the JavaScript constructor omits the EMIN initialization at source lines 1411-1428 when a statue trap creates a temporary aligned cleric. Keep this recipe unrecorded until that source function is complete."
+}

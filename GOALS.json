@@ -48141,7 +48141,7 @@
           "line": 1,
           "endLine": 151,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -48223,7 +48223,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Wiz-loca.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizLoca",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Wiz-loca.lua program, lines 1-151. Compared solidfill initialization and both flags; every character in the 76x21 map; the three source-ordered probabilistic replacement regions; whole-map lighting; all five irregular regions with contents callbacks; the west and east chambers' math.random(1, 3) wall choices against nhlib.lua; two unlit corridors; four locked doors; forced floor and both stairs; non-diggable selection; fifteen objects; all twenty-one trap descriptors; and twenty-seven monster descriptors in source order. The callbacks retain the active special-level room frame and each random wall selection consumes rn2(3) immediately before des.door(). Existing des handlers in js/mklev.js implement the required signatures, including positional trap and monster names. Registration removes the missing-loader boundary for Wiz-loca. No new unported call, injected substitute, or swallowed refusal was added. The additional elf recipe exposes an existing makemon.c EMIN-initialization omission while generating a statue trap and remains blocked under recipes/Wiz-loca.lua; it is not claimed as matching evidence.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "fixup_level_locations",
+                "source": "dungeon.c fixup_level_locations(): the Wizard quest locate topology resolves x-loca to Wiz-loca."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel(): Is_special(&u.uz) dispatches the resolved special level through makemaz(slev->proto)."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "mkmaze.c makemaz() and sp_lev.c load_special(): the JavaScript registry imports QUEST_LEVEL_LOADERS including Wiz-loca before special-level dispatch."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special(): runs the whole Lua program through the special-level API, then performs map post-processing."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "The Wiz-loca entry selects wizLoca for dat/Wiz-loca.lua through load_special()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-loca-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Wiz-loca.lua/wizard-locate.session.json",
+              "recordings/Wiz-loca.lua/wizard-locate-variation.session.json"
+            ],
+            "checkedAt": "2c9832cdbfb4b2d7e5e33aace5ff7859675f8b32"
+          }
+        ],
+        "entryPointReview": "Wiz-loca.lua has one top-level special-level entry point. Both matching recipes raise Wizard experience through the debug command, select the quest locate level through the production dungeon menu, and run the complete registered loader. scripts/run-wiz-loca-level-load.mjs asserts Is_special(game.u.uz).proto is Wiz-loca, both level flags, five rooms, twenty-seven monsters, and both stairs. The symbol-set variation changes screen rendering of the same source-generated level. The elf recipe is a supplementary blocked case, with makemon.c makemon() named in its comment; it does not establish parity.",
+        "entryPoints": [
+          {
+            "name": "Wiz-loca special-level load",
+            "functions": [
+              "Wiz-loca.lua"
+            ],
+            "recordings": [
+              "recordings/Wiz-loca.lua/wizard-locate.session.json",
+              "recordings/Wiz-loca.lua/wizard-locate-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

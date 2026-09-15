@@ -5,7 +5,7 @@
 //         dat/Arc-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
-//         dat/Wiz-strt.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
+//         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -1679,6 +1679,111 @@ async function wizStrt(des) {
     des.monster({ class: 'B', x: 10, y: 19, peaceful: 0 });
 }
 
+// C ref: dat/Wiz-loca.lua. Wizard quest locate level: concentric chambers
+// enclosed by a moat, with clouds along the western approach.
+async function wizLoca(des) {
+    des.level_init({ style: 'solidfill', fg: ' ' });
+    des.level_flags('mazelevel', 'hardfloor');
+    des.map([
+        '.............        .......................................................',
+        '..............       .............}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.......',
+        '..............      ..............}.................................}.......',
+        '..............      ..............}.-------------------------------.}.......',
+        '...............     .........C....}.|.............................|.}.......',
+        '...............    ..........C....}.|.---------------------------.|.}.......',
+        '...............    .........CCC...}.|.|.........................|.|.}.......',
+        '................   ....C....CCC...}.|.|.-----------------------.|.|.}.......',
+        '.......C..C.....  .....C....CCC...}.|.|.|......+.......+......|.|.|.}.......',
+        '.............C..CC.....C....CCC...}.|.|.|......|-------|......|.|.|.}.......',
+        '................   ....C....CCC...}.|.|.|......|.......|......|.|.|.}.......',
+        '......C..C.....    ....C....CCC...}.|.|.|......|-------|......|.|.|.}.......',
+        '............C..     ...C....CCC...}.|.|.|......+.......+......|.|.|.}.......',
+        '........C......    ....C....CCC...}.|.|.-----------------------.|.|.}.......',
+        '....C......C...     ........CCC...}.|.|.........................|.|.}.......',
+        '......C..C....      .........C....}.|.---------------------------.|.}.......',
+        '..............      .........C....}.|.............................|.}.......',
+        '.............       ..............}.-------------------------------.}.......',
+        '.............        .............}.................................}.......',
+        '.............        .............}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.......',
+        '.............        .......................................................',
+    ]);
+
+    des.replace_terrain({ region: [0, 0, 30, 20], fromterrain: '.', toterrain: 'C', chance: 15 });
+    des.replace_terrain({ region: [68, 0, 75, 20], fromterrain: '.', toterrain: '}', chance: 25 });
+    des.replace_terrain({ region: [34, 1, 68, 19], fromterrain: '}', toterrain: '.', chance: 2 });
+
+    des.region(selection_area(0, 0, 75, 20), 'lit');
+    des.region({
+        region: [37, 4, 65, 16], lit: 0, type: 'ordinary', irregular: 1,
+        contents() { des.door({ state: 'secret', wall: 'random' }); },
+    });
+    des.region({
+        region: [39, 6, 63, 14], lit: 0, type: 'ordinary', irregular: 1,
+        contents() { des.door({ state: 'secret', wall: 'random' }); },
+    });
+    des.region({
+        region: [41, 8, 46, 12], lit: 1, type: 'ordinary', irregular: 1,
+        contents() {
+            const walls = ['north', 'south', 'west'];
+            // nhlib.lua math.random(1, #walls) selects a one-based index.
+            const widx = des.random.rn2(walls.length);
+            des.door({ state: 'secret', wall: walls[widx] });
+        },
+    });
+    des.region({
+        region: [56, 8, 61, 12], lit: 1, type: 'ordinary', irregular: 1,
+        contents() {
+            const walls = ['north', 'south', 'east'];
+            const widx = des.random.rn2(walls.length);
+            des.door({ state: 'secret', wall: walls[widx] });
+        },
+    });
+    des.region(selection_area(48, 8, 54, 8), 'unlit');
+    des.region(selection_area(48, 12, 54, 12), 'unlit');
+    des.region({
+        region: [48, 10, 54, 10], lit: 0, type: 'ordinary', irregular: 1,
+        contents() { des.door({ state: 'secret', wall: 'random' }); },
+    });
+
+    des.door('locked', 55, 8);
+    des.door('locked', 55, 12);
+    des.door('locked', 47, 8);
+    des.door('locked', 47, 12);
+    des.terrain([3, 17], '.');
+    des.stair('up', 3, 17);
+    des.stair('down', 48, 10);
+    des.non_diggable(selection_area(0, 0, 75, 20));
+
+    for (let i = 0; i < 15; ++i) des.object();
+
+    des.trap('spiked pit', 24, 2);
+    des.trap('spiked pit', 7, 10);
+    des.trap('spiked pit', 23, 5);
+    des.trap('spiked pit', 26, 19);
+    des.trap('spiked pit', 72, 2);
+    des.trap('spiked pit', 72, 12);
+    des.trap('falling rock', 45, 16);
+    des.trap('falling rock', 65, 13);
+    des.trap('falling rock', 55, 6);
+    des.trap('falling rock', 39, 11);
+    des.trap('falling rock', 57, 9);
+    des.trap('magic');
+    des.trap('statue');
+    des.trap('statue');
+    des.trap('polymorph');
+    des.trap('anti magic', 53, 10);
+    des.trap('sleep gas');
+    des.trap('sleep gas');
+    des.trap('dart');
+    des.trap('dart');
+    des.trap('dart');
+
+    for (let i = 0; i < 12; ++i) des.monster({ class: 'B', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) des.monster({ class: 'i', peaceful: 0 });
+    for (let i = 0; i < 7; ++i) des.monster('vampire bat');
+    des.monster({ class: 'i', peaceful: 0 });
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
@@ -1696,6 +1801,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Pri-fila': priFila,
     'Pri-filb': priFilb,
     'Wiz-strt': wizStrt,
+    'Wiz-loca': wizLoca,
     oracle,
     tower1,
     tower2,

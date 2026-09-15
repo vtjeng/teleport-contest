@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 618047,
+      "datetime": "20430517131500",
+      "nethackrc": "OPTIONS=name:WizLocaProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": ".#levelchange\n20\n                   \u0016?\n z"
+    }
+  ],
+  "comment": "Independent Wizard level-teleport route to Wiz-loca. Seeds 618047 and 618048 were chosen before recording; the elf variation changes starting inventory and alignment-dependent generation. The command raises experience level, opens the dungeon menu, and selects the quest locate level."
+}
