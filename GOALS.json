@@ -47025,7 +47025,16 @@
       ],
       "selectionReason": "The user-authorized seed-worker pilot continues the A stream after its Archeologist Lua ports. investigations/seed0361-archeologist-tour.json identifies whole attributes_enlightenment at first mismatch360 with remaining-screen upper bound6. This existing delivery is completed before pilot wind-down; it excludes the separate unvalidated doppelganger admission and web work. Other ranked source owners remain outside this bounded stream.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "attributes_enlightenment",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "attributes_enlightenment"
+          ]
+        }
+      ],
       "openedAt": "00b94f29879e61d02101787db15e471c66de74eb",
       "openStanding": {
         "sha": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
