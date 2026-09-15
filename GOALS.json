@@ -47715,6 +47715,125 @@
         "screens": 9700,
         "rng": 706154
       }
+    },
+    {
+      "id": "div-pickup-describe-decor-seed0009-20260915",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix pickup.c describe_decor ordinary ROOM/CORR fall-through from C's initial STONE sentinel.",
+      "cFile": "pickup.c",
+      "sessions": [
+        "holdout/seed0009-swimmer-mforce"
+      ],
+      "selectionReason": "Selected holdout/seed0009-swimmer-mforce from the refreshed fixed-workload queue: complete investigation, step 17, remainingScreensUpperBound 56, source-traced owner pickup.c describe_decor(); the worker's independent delivery was already in flight while higher-ranked seed0399 remained unassigned and is retained for later selection because both persistent implementation slots were occupied.",
+      "detail": "C pickup.c:392-425 silently accepts ordinary ROOM/CORR terrain when iflags.prev_decor is the initial STONE sentinel and then stores the destination terrain. JS pickup.js ordinaryDecorPlan() previously rejected that source-valid state. The delivery changes only this source branch, preserves feature, liquid, underwater, deferred and same-terrain guards, adds focused production tests, and includes an independent matching recording.",
+      "spans": [
+        {
+          "name": "describe-decor-stone-sentinel",
+          "status": "closed",
+          "closedBy": "903270c7f33f9761670a42c2ecbdfbad82dedefe",
+          "functions": [
+            "describe_decor"
+          ]
+        }
+      ],
+      "openedAt": "903270c7f33f9761670a42c2ecbdfbad82dedefe",
+      "openStanding": {
+        "sha": "135b9a3f713ab40606bc97b4c33bd02dee416e2e",
+        "screens": 9700,
+        "rng": 706154
+      },
+    "closedAt": "469993b4c8d8b5176ce2bce5b598f7812e464dce",
+    "delivered": {
+      "screens": 5,
+      "rng": 61
+      },
+      "function": "describe_decor",
+      "session": "holdout/seed0009-swimmer-mforce",
+      "step": 17,
+    "activeStanding": {
+      "sha": "469993b4c8d8b5176ce2bce5b598f7812e464dce",
+      "screens": 9705,
+      "rng": 706215
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 17,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: ordinary decor after unowned prior terrain",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 56,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 56,
+              "status": "complete",
+              "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "remainingScreensUpperBound": 56,
+                "step": 17,
+                "kind": "stop",
+                "function": "ordinaryDecorPlan",
+                "functionDeclared": true,
+                "sourceFile": "js/pickup.js",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": 342,
+                "message": "unsupported hero move: ordinary decor after unowned prior terrain",
+                "unlocatedKinds": [],
+                "recordedSteps": 73
+              },
+              "summary": "The canonical session stops at step 17 when a northwest move enters ordinary terrain on the tutorial level. C pickup.c:describe_decor() permits this state: with mention_decor enabled, prev_decor initialized to STONE, an ordinary ROOM or CORR destination with no dfeature leaves res unchanged, emits no message, and stores the destination terrain in prev_decor. JS pickup.js:ordinaryDecorPlan() currently throws for every previous value other than STAIRS or the destination type, so its prior-STONE guard rejects the source-valid silent fall-through before hack.js can complete domove(). This is a source-traced divergence fix; the existing feature, underwater, fumbling, deferred-decoration, and liquid-transition guards remain dependencies of the fix.",
+              "source": {
+                "file": "pickup.c",
+                "functions": [
+                  "describe_decor()"
+                ],
+                "branch": "pickup.c:392-425: for an ordinary ROOM/CORR destination with no dfeature, prev_decor == STONE does not satisfy the repeated-terrain suppression test; the function silently falls through and then updates prev_decor to the destination terrain.",
+                "callers": [
+                  "hack.c:2740-2980 domove_core() commits the move and reaches spoteffects(), whose movement path calls pickup(1); JS hack.js:4043-4059 performs the decoration preflight and 4188 reaches spoteffects().",
+                  "pickup.c:430-455 check_here() calls describe_decor() when mention_decor is enabled; JS pickup.js:1264-1268 has the corresponding call.",
+                  "pickup.c:698-718 pickup() calls describe_decor() in the no-object/autopick path; JS pickup.js:1150-1161 has the corresponding call.",
+                  "pickup.c:315-347 force_decor() and deferred_decor() call describe_decor(); JS pickup.js:351-360 preflight_describe_decor_at() covers those admission paths."
+                ],
+                "dependencies": [
+                  "js/hack.js requireSimpleHeroDestination() movement admission and domove().",
+                  "js/pickup.js ordinaryDecorPlan(), preflight_describe_decor_at(), and describe_decor().",
+                  "js/tutorial_level.js:136-138 mention_decor setup and js/options.js:553-556 STONE initialization.",
+                  "invent.c/js/invent.js dfeature_at() for feature suppression and feature description.",
+                  "hack.c/js/hack.js back_on_ground() for prior pool, lava, or ice transitions.",
+                  "pickup.c deferred_decor(), waterbody_name(), an(), upstart(), and pline/Norep formatting for the other describe_decor branches."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "scan-cache-with-holdout.json identifies this canonical row at screensEmitted 17, recordedSteps 73, boundary 'unsupported hero move: ordinary decor after unowned prior terrain', command movenorthwest, key y, and segment seed 9/date 20260427215729.",
+                "The explicit session's step 17 has cursor [10,6,1], no message, and seven post-move random calls: maybe_smudge_engr(hack.c:3026), three mcalcmove(mon.c:1164) calls, maybe_generate_rnd_mon(allmain.c:166), gethungry(eat.c:3191), and moveloop_core(allmain.c:360). This shows the C move crossed ordinary decoration and continued into normal post-move processing.",
+                "pickup.c:392-425 reads ltyp and dfeature, leaves ordinary no-feature terrain silent when prev_decor is STONE, then assigns iflags.prev_decor = ltyp when mention_decor is enabled.",
+                "js/pickup.js:339-344 contains the matching refusal: previous values other than STAIRS or typ throw 'ordinary decor after unowned prior terrain'.",
+                "js/tutorial_level.js:136-138 enables mention_decor and js/options.js:553-556 initializes prev_decor to STONE, establishing the exact state at the first ordinary destination."
+              ],
+              "nextProbe": "Update ordinaryDecorPlan() to admit the source-valid previous-STONE ordinary ROOM/CORR fall-through while preserving source guards for dfeatures, underwater, FUMBLING, deferred decoration, and prior liquid terrain; then compare this named session through steps 17 and 18."
+            }
+          }
+        }
+      ],
+    "closeStanding": {
+      "sha": "469993b4c8d8b5176ce2bce5b598f7812e464dce",
+      "screens": 9705,
+      "rng": 706215
+      }
     }
   ]
 }
