@@ -50137,7 +50137,7 @@
     {
       "id": "div-doquiver-core-seed0101-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port wield.c doquiver_core ordinary-item and alternate-weapon branches, preserving confirmation, slot state, inventory feedback, result bits, and the separate dofire caller.",
       "cFile": "wield.c",
       "sessions": [
@@ -50148,8 +50148,8 @@
       "spans": [
         {
           "name": "doquiver_core",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "266dd86ff694bac20b28eb32fecc8376df3adf62",
           "functions": [
             "doquiver_core"
           ]
@@ -50161,8 +50161,11 @@
         "screens": 10037,
         "rng": 739105
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "266dd86ff694bac20b28eb32fecc8376df3adf62",
+      "delivered": {
+        "screens": 4,
+        "rng": 1
+      },
       "function": "doquiver_core",
       "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
       "step": 5,
@@ -50245,7 +50248,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "266dd86ff694bac20b28eb32fecc8376df3adf62",
+        "screens": 10041,
+        "rng": 739106
+      }
     }
   ]
 }
