@@ -17,16 +17,21 @@ import {
     A_DEX,
     A_STR,
     ACID_RES,
+    ARM,
+    BACKTRACK,
+    FACE,
     BLINDED,
     BOLT_LIM,
     BZ_OFS_AD,
     BZ_VALID_ADTYP,
     CONFUSION,
     DEAF,
+    DISP_TETHER,
     DISP_END,
     DISP_FLASH,
     EYE,
     EDOG,
+    FOOT,
     FUMBLING,
     HALF_PHDAM,
     HALLUC,
@@ -37,6 +42,7 @@ import {
     IS_WATERWALL,
     KILLED_BY,
     KILLED_BY_AN,
+    HAND,
     LAVAWALL,
     LOW_PM,
     M_AP_MONSTER,
@@ -46,6 +52,7 @@ import {
     M_SEEN_ACID,
     M_ATTK_MISS,
     M_SEEN_REFL,
+    MON_POLE_DIST,
     Upolyd,
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
@@ -65,6 +72,7 @@ import {
     SLEEP_RES,
     SLT_ENCUMBER,
     STONE_RES,
+    STONED,
     STUNNED,
     TIMEOUT,
     W_NONDIGGABLE,
@@ -74,7 +82,7 @@ import {
     isok,
     u_at,
 } from './const.js';
-import { acurr, acurrstr } from './attrib.js';
+import { acurr, acurrstr, poisoned } from './attrib.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { calc_capacity, end_running, nomul, rounddiv } from './hack.js';
@@ -106,6 +114,7 @@ import {
     hates_silver,
     is_unicorn,
     mhim,
+    mhis,
     mon_hates_silver,
     monster_resists_element,
     monstseesu,
@@ -114,6 +123,7 @@ import {
     noncorporeal,
     nonliving,
     passes_rocks,
+    poly_when_stoned,
     throws_rocks,
     touch_petrifies,
     is_vampshifter,
@@ -136,6 +146,7 @@ import {
     PM_FLOATING_EYE,
     PM_MONK,
     PM_ROGUE,
+    PM_STONE_GOLEM,
 } from './monsters.js';
 // closed_door() belongs to monmove.c, and js/monmove.js imports lined_up()
 // back for m_move()'s item search. Both sides of that cycle are hoisted
@@ -159,7 +170,6 @@ import {
 } from './obj.js';
 import {
     ACID_VENOM,
-    AKLYS,
     ARMOR_CLASS,
     ARM_GLOVES,
     BALL_CLASS,
@@ -216,15 +226,17 @@ import {
     obj_is_pname,
     singular,
     the,
+    Tobjnam,
     vtense,
     xnameFresh,
 } from './objnam.js';
 import { rn2, rnd } from './rng.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, clear_path, couldsee } from './vision.js';
-import { dmgval, mon_wield_item, select_rwep } from './weapon.js';
-import { spec_abon } from './artifacts.js';
+import { autoreturn_weapon, dmgval, mon_wield_item, select_rwep } from './weapon.js';
+import { spec_abon, Stone_resistance } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
+import { mwelded } from './wield.js';
 import { exclam, hit, miss } from './zap.js';
 import { harmless_missile } from './dothrow.js';
 import { observe_object, discover_object } from './o_init.js';
@@ -232,7 +244,7 @@ import { make_blinded, potionhit } from './potion.js';
 import { munstone } from './muse.js';
 import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
 import { is_lava, is_pool } from './trap.js';
 import { obj_sheds_light } from './light.js';
@@ -828,12 +840,13 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
 // C ref: mthrowu.c m_throw() (572-844), ordinary untethered missile hit and
 // miss. A stack is split before flight so one missile leaves per call.
 // A miss lets the missile continue flying and drop at range expiry or terrain.
-// Alternate flight, interception, catch, special-object, death, floor-effect,
-// and return paths retain named refusals.
 export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = { rn2, rnd, ...(rawEnv.random ?? {}) };
     const env = { ...rawEnv, state, random };
+    const arw = autoreturn_weapon(obj);
+    const tethered_weapon = monster.mw === obj
+        && Boolean(arw?.tethered);
 
     // Resolve every injected owner before the source-ordered inventory
     // extraction. The planning pass also executes the complete path on cloned
@@ -864,18 +877,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     requireRangedOperation(env, 'passiveObject');
     requireRangedOperation(env, 'stackObject');
 
-    // C ref: muse.c use_offensive()'s MUSE_POT_* case is the other live
-    // caller; it hands over a potion, whose hero-hit arm at 698-701 calls
-    // potionhit(). Venom is the other source-supported special class.
-    if (obj.oclass !== WEAPON_CLASS
-        && obj.oclass !== POTION_CLASS
-        && obj.oclass !== VENOM_CLASS)
-        return refuseRanged(env, 'monster special missile action');
-    if (obj.cursed || obj.greased)
-        return refuseRanged(env, 'cursed or greased monster missile flight');
-    if (obj.oartifact)
-        return refuseRanged(env, 'monster returning or artifact missile');
-
     state.gb ??= {};
     state.gb.bhitpos ??= {};
     state.gb.bhitpos.x = x;
@@ -900,6 +901,30 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     singleobj.owornmask = 0;
     if (!canSeeMonster(monster, state)) clearObjectKnowledge(singleobj, state);
 
+    // C ref: mthrowu.c:622-637. Cursed or greased missiles can misfire after
+    // extraction, and both replacement direction draws precede flight-check.
+    if ((singleobj.cursed || singleobj.greased) && (dx || dy)
+        && !random.rn2(7)) {
+        if (canSeeMonster(monster, state) && state.flags?.verbose) {
+            if (is_ammo(singleobj, state)) {
+                if (typeof env.message === 'function')
+                    await env.message(`${Monnam(monster, state)} misfires!`, state);
+            } else if (typeof env.message === 'function') {
+                await env.message(
+                    `${Tobjnam(singleobj, 'slip')} as ${mon_nam(monster, state)} throws it!`,
+                    state,
+                );
+            }
+        }
+        dx = random.rn2(3) - 1;
+        dy = random.rn2(3) - 1;
+        if (!dx && !dy) {
+            await drop_throw(singleobj, 0, state.gb.bhitpos.x,
+                state.gb.bhitpos.y, env);
+            return 0;
+        }
+    }
+
     const nextX = state.gb.bhitpos.x + dx;
     const nextY = state.gb.bhitpos.y + dy;
     const singleobj_ref = { obj: singleobj };
@@ -920,21 +945,19 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     }
     state.mesg_given = 0;
     await temporaryDisplay(
-        DISP_FLASH,
+        tethered_weapon ? DISP_TETHER : DISP_FLASH,
         objectToGlyph(singleobj, state),
         state,
     );
 
-    // C: autoreturn_weapon and tethered_weapon handling. Currently blocked
-    // by the oartifact refusal above; included for structural fidelity.
-    const tethered_weapon = false;
+    // C ref: mthrowu.c:584-587. Only a currently wielded throw-and-return
+    // weapon is tethered; an un-wielded returning weapon flies normally.
     let return_flightpath = false;
 
     let hit = false;
     let blindinc = 0;
     // C leaves the loop by `break` from three arms. Weapon and venom paths
     // settle through drop_throw(); the potion arm uses potionhit()'s obfree().
-    let settled = false;
     while (range-- > 0) {
         singleobj.ox = state.gb.bhitpos.x += dx;
         singleobj.oy = state.gb.bhitpos.y += dy;
@@ -948,7 +971,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 mtmp = null;
             } else if (mtmp) {
                 if (await ohitmon(mtmp, singleobj, range, true, env)) {
-                    settled = true;
                     break;
                 }
             }
@@ -958,10 +980,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             /* hero might be poly'd into a unicorn */
             if (singleobj.oclass === GEM_CLASS
                 && await ucatchgem(singleobj, monster, env)) {
-                settled = true;
                 break;
             }
-            if (u_catch_thrown_obj(singleobj, env)) return 0;
+            if (!tethered_weapon && u_catch_thrown_obj(singleobj, env)) {
+                break;
+            }
             if (singleobj.oclass === POTION_CLASS) {
                 // potionhit() always uses the object up, so the flight loop
                 // hands over ownership and never reaches drop_throw().
@@ -971,19 +994,23 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     POTHIT_MONST_THROW,
                     env,
                 );
-                settled = true;
                 break;
             }
-            if (singleobj.otyp === EGG
-                || singleobj.otyp === CREAM_PIE) {
-                return refuseRanged(env, 'special monster missile hit');
-            }
-
-            let damage;
+            const oldumort = state.u.umortality;
             let hitv;
-            if (singleobj.otyp === BLINDING_VENOM) {
+            let damage;
+            if (singleobj.otyp === EGG
+                && !touch_petrifies(state.mons?.[singleobj.corpsenm])) {
+                // C's impossible() is diagnostic-only; it does not consume
+                // the missile or stop the flight.
+                note_unported('mthrowu.c impossible');
+                hitv = 0;
+                damage = 0;
+            } else if (singleobj.otyp === CREAM_PIE
+                       || singleobj.otyp === BLINDING_VENOM) {
                 // C ref: mthrowu.c:701-702. Spit venom uses thitu(8, 0)
-                // and therefore skips weapon damage and its RNG draws.
+                // and cream pies use the same special hit path, skipping
+                // weapon damage and its RNG draws.
                 damage = 0;
                 hitv = 8;
             } else {
@@ -997,7 +1024,11 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 if (hitv < -4) hitv = -4;
                 if (is_elf(monster.data)
                     && objectType(singleobj, state).oc_skill === -P_BOW) {
-                    return refuseRanged(env, 'elven monster shooting bonus');
+                    hitv++;
+                    if (monster.mw && monster.mw.otyp === ELVEN_BOW)
+                        hitv++;
+                    if (singleobj.otyp === ELVEN_ARROW)
+                        damage++;
                 }
                 if (bigmonst(state.youmonst.data)) hitv++;
                 hitv += 8 + singleobj.spe;
@@ -1013,11 +1044,54 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
             // would pass the same floor object to drop_throw() a second time.
             if (state.program_state?.gameover)
                 return 0;
-            if (hit && singleobj.otyp === BLINDING_VENOM
-                && can_blnd(null, state.youmonst, AT_SPIT, singleobj, state)) {
+            if (hit && singleobj.opoisoned
+                && isPoisonable(singleobj, state)) {
+                if (typeof env.poisoned === 'function') {
+                    await env.poisoned(
+                        xnameFresh(singleobj, state),
+                        A_STR,
+                        killer_xname(singleobj, state),
+                        (state.u.umortality ?? 0) > (oldumort ?? 0) ? 0 : 10,
+                        true,
+                        state,
+                        env,
+                    );
+                } else if (typeof env.message === 'function'
+                           && typeof env.losehp === 'function'
+                           && typeof env.done === 'function'
+                           && typeof env.encumberMessage === 'function') {
+                    await poisoned(
+                        xnameFresh(singleobj, state),
+                        A_STR,
+                        killer_xname(singleobj, state),
+                        (state.u.umortality ?? 0) > (oldumort ?? 0) ? 0 : 10,
+                        true,
+                        state,
+                        env,
+                    );
+                } else {
+                    note_unported('attrib.c poisoned');
+                }
+            }
+            if (hit && can_blnd(
+                null,
+                state.youmonst,
+                singleobj.otyp === BLINDING_VENOM ? AT_SPIT : AT_WEAP,
+                singleobj,
+                state,
+            )) {
                 blindinc = random.rnd(25);
                 if (typeof env.message === 'function') {
-                    if (heroIsBlind(state)) {
+                    if (singleobj.otyp === CREAM_PIE) {
+                        if (heroIsBlind(state)) {
+                            await env.message(
+                                `There's something sticky all over your ${body_part(FACE, state.youmonst)}.`,
+                                state,
+                            );
+                        } else {
+                            await env.message('Yecch!  You\'ve been creamed.', state);
+                        }
+                    } else if (heroIsBlind(state)) {
                         let eyes = body_part(EYE, state.youmonst);
                         const pmidx = state.youmonst.data?.pmidx;
                         if (pmidx !== PM_CYCLOPS && pmidx !== PM_FLOATING_EYE)
@@ -1029,6 +1103,17 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     } else {
                         await env.message('The venom blinds you.', state);
                     }
+                }
+            }
+            if (hit && singleobj.otyp === EGG) {
+                const stoned = state.u.uprops?.[STONED];
+                if (!stoned?.intrinsic
+                    && !Stone_resistance(state)
+                    && !(poly_when_stoned(state.youmonst.data, state)
+                         && await polymon(PM_STONE_GOLEM, state))) {
+                    // make_stoned() has no owner in the current port. Keep the
+                    // source branch explicit while preserving its no-RNG path.
+                    note_unported('trap.c make_stoned');
                 }
             }
             await stopOccupation(state, env);
@@ -1044,7 +1129,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 } else {
                     return_flightpath = true;
                 }
-                settled = true;
                 break;
             }
             // Miss: missile continues flying past the hero.
@@ -1104,7 +1188,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                     return_flightpath = true;
                 }
             }
-            settled = true;
             break;
         }
         await temporaryDisplay(
@@ -1115,11 +1198,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         await delayOutput(state);
     }
 
-    if (!settled)
-        return refuseRanged(env, 'monster missile without settlement');
     await temporaryDisplay(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     await delayOutput(state);
-    if (return_flightpath) {
+    if (arw && return_flightpath) {
         await return_from_mtoss(monster, singleobj, tethered_weapon, state, random, env);
         // monster could be DEADMONSTER now
     } else {
@@ -1140,6 +1221,8 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 // throw of a returning weapon (Aklys / Mjollnir). Handles the return flight
 // animation, the message, re-equipping the weapon, and the case where the
 // return goes wrong (weapon hits thrower or drops).
+let returnDoNotAnnoy = 0;
+
 export async function return_from_mtoss(magr, otmp, tethered_weapon, state = game, random = { rn2, rnd }, rawEnv = {}) {
     const env = { ...rawEnv, state, random };
     const impaired = (magr.mconf || magr.mstun || magr.mblinded);
@@ -1153,43 +1236,95 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
     if (otmp && made_it_back) {
         /* it made it back to thrower's location */
         if (tethered_weapon) {
-            note_unported('display.c tmp_at'); /* tmp_at(DISP_END, BACKTRACK) */
-        } else {
-            // Return flight animation (display only, no game state)
-            note_unported('display.c tmp_at'); /* return flight animation */
+            if (typeof env.temporaryDisplay === 'function')
+                await env.temporaryDisplay(DISP_END, BACKTRACK, state);
+        } else if (x !== magr.mx || y !== magr.my) {
+            // C ref: mthrowu.c:865-877. The non-tethered return retraces the
+            // path, consuming display-only work but no gameplay RNG.
+            if (typeof env.temporaryDisplay === 'function') {
+                const objectToGlyph = typeof env.objectToGlyph === 'function'
+                    ? env.objectToGlyph(otmp, state) : 0;
+                await env.temporaryDisplay(DISP_FLASH, objectToGlyph, state);
+                const dx = sgn(x - magr.mx);
+                const dy = sgn(y - magr.my);
+                while (isok(x, y)
+                       && (x !== magr.mx || y !== magr.my)) {
+                    await env.temporaryDisplay(x, y, state);
+                    if (typeof env.delayOutput === 'function')
+                        await env.delayOutput(state);
+                    x -= dx;
+                    y -= dy;
+                }
+                await env.temporaryDisplay(DISP_END, 0, state);
+            }
         }
         x = magr.mx;
         y = magr.my;
         if (!impaired && random.rn2(100)) {
             /* Weapon returns successfully to the thrower's hand. */
-            /* C: pline("%s to %s %s!", ...) -- message skipped */
-            note_unported('pline.c pline'); /* return-to-hand message */
+            const moves = state.moves ?? state.svm?.moves ?? 0;
+            if (!returnDoNotAnnoy || moves - returnDoNotAnnoy > 500) {
+                if (typeof env.message === 'function') {
+                    await env.message(
+                        `${Tobjnam(otmp, 'return')} to `
+                        + `${s_suffix(mon_nam(magr, state))} `
+                        + `${mbodypart(magr, HAND)}!`,
+                        state,
+                    );
+                }
+                returnDoNotAnnoy = moves;
+            }
             if (otmp) {
-                add_to_minv(magr, otmp, { state });
+                add_to_minv(magr, otmp, env);
                 if (tethered_weapon) {
                     magr.mw = otmp;
                     otmp.owornmask |= W_WEP;
                 }
             }
-            if (cansee(x, y, state))
-                note_unported('display.c newsym');
+            if (cansee(x, y, state)) {
+                if (typeof env.newsym === 'function')
+                    env.newsym(x, y, state);
+                else
+                    note_unported('display.c newsym');
+            }
         } else {
             /* Weapon return fumbled. */
             dmg = random.rn2(2);
             if (!dmg) {
                 /* Lands at feet. */
                 if (canseemon(magr, state)) {
-                    note_unported('pline.c pline'); /* lands-at-feet message */
+                    if (typeof env.message === 'function') {
+                        await env.message(
+                            `${Tobjnam(otmp, 'return')} back to `
+                            + `${mon_nam(magr, state)}, landing at `
+                            + `${mhis(magr)} ${makeplural(mbodypart(magr, FOOT))}.`,
+                            state,
+                        );
+                    }
                 } else if (!Deaf(state)) {
-                    note_unported('pline.c pline'); /* You_hear land message */
+                    if (typeof env.message === 'function')
+                        await env.message(
+                            `You hear something land near ${mon_nam(magr, state)}.`,
+                            state,
+                        );
                 }
             } else {
                 /* Hits thrower's arm. */
                 dmg += random.rnd(3);
                 if (canseemon(magr, state)) {
-                    note_unported('pline.c pline'); /* hits-arm message */
+                    if (typeof env.message === 'function')
+                        await env.message(
+                            `${Tobjnam(otmp, 'fly')} back toward `
+                            + `${mon_nam(magr, state)}, hitting `
+                            + `${mhis(magr)} ${body_part(ARM, state.youmonst)}!`,
+                            state,
+                        );
                 } else if (!Deaf(state)) {
-                    note_unported('pline.c pline'); /* You_hear thud message */
+                    if (typeof env.message === 'function')
+                        await env.message(
+                            `You hear something hit ${mon_nam(magr, state)} with a thud!`,
+                            state,
+                        );
                 }
                 hits_thrower_flag = true;
             }
@@ -1204,7 +1339,10 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
     }
     if (otmp) {
         if (hits_thrower_flag) {
-            note_unported('artifact.c artifact_hit'); /* (void) artifact_hit() */
+            // artifact_hit() is an unowned side-effect hook in this caller;
+            // the ordinary weapon damage and monster death remain local.
+            if (otmp.oartifact)
+                note_unported('artifact.c artifact_hit');
             magr.mhp -= dmg;
             if (magr.mhp < 1) /* DEADMONSTER */
                 note_unported('mon.c monkilled');
@@ -1213,8 +1351,12 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             note_unported('apply.c snuff_candle'); /* (void) snuff_candle() */
             if (!await ship_object(otmp, x, y, false, env)) {
                 if (flooreffects(otmp, x, y, 'drop', env)) {
-                    if (cansee(x, y, state))
-                        note_unported('display.c newsym');
+                    if (cansee(x, y, state)) {
+                        if (typeof env.newsym === 'function')
+                            env.newsym(x, y, state);
+                        else
+                            note_unported('display.c newsym');
+                    }
                     return;
                 }
                 place_object(otmp, x, y, env);
@@ -1223,7 +1365,9 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             if (!Deaf(state) && !state.u?.uinwater) {
                 if (is_pool(x, y, state)
                     || (is_lava(x, y, state) && !is_flammable(otmp, state))) {
-                    note_unported('pline.c pline'); /* Splash!/Plop! */
+                    note_unported('sound.c Soundeffect');
+                    if (typeof env.message === 'function')
+                        await env.message(weight(otmp, env) > 9 ? 'Splash!' : 'Plop!', state);
                 }
             }
             if (obj_sheds_light(otmp)) {
@@ -1232,8 +1376,12 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             }
         }
     }
-    if (cansee(x, y, state))
-        note_unported('display.c newsym');
+    if (cansee(x, y, state)) {
+        if (typeof env.newsym === 'function')
+            env.newsym(x, y, state);
+        else
+            note_unported('display.c newsym');
+    }
 }
 
 // C ref: mthrowu.c thrwmm() (968-1012). Monster throws item at another
@@ -1305,9 +1453,15 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
     if (mtmp.mcan) {
         if (!Deaf(state) && mdistu(mtmp, state) < BOLT_LIM * BOLT_LIM) {
             if (canseemon(mtmp, state)) {
-                note_unported('pline.c pline'); /* "A dry rattle comes from %s throat." */
+                if (typeof env.message === 'function')
+                    await env.message(
+                        `A dry rattle comes from ${s_suffix(mon_nam(mtmp, state))} throat.`,
+                        state,
+                    );
             } else {
-                note_unported('pline.c pline'); /* You_hear "a dry rattle nearby." */
+                note_unported('sound.c Soundeffect');
+                if (typeof env.message === 'function')
+                    await env.message('You hear a dry rattle nearby.', state);
             }
         }
         return M_ATTK_MISS;
@@ -1372,7 +1526,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
 // C ref: mthrowu.c breathwep_name() (1082-1089). Return the name of a breath
 // weapon. If the player is hallucinating, return a silly name instead.
 // typ is AD_MAGM, AD_FIRE, etc.
-function breathwep_name(typ, state = game, random = { rn2 }) {
+export function breathwep_name(typ, state = game, random = { rn2 }) {
     if (Hallucination(state))
         return rnd_hallublast(random);
     return breathwep[BZ_OFS_AD(typ)];
@@ -1392,9 +1546,12 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
         if (mtmp.mcan) {
             if (!Deaf(state)) {
                 if (canseemon(mtmp, state)) {
-                    note_unported('pline.c pline'); /* "%s coughs." */
+                    if (typeof env.message === 'function')
+                        await env.message(`${Monnam(mtmp, state)} coughs.`, state);
                 } else {
-                    note_unported('pline.c pline'); /* You_hear "a cough." */
+                    note_unported('sound.c Soundeffect');
+                    if (typeof env.message === 'function')
+                        await env.message('You hear a cough.', state);
                 }
             }
             return M_ATTK_MISS;
@@ -1408,15 +1565,21 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
 
         if (!mtmp.mspec_used && random.rn2(3)) {
             if (BZ_VALID_ADTYP(typ)) {
-                if (canseemon(mtmp, state))
-                    note_unported('pline.c pline'); /* "%s breathes %s!" */
+                if (canseemon(mtmp, state)
+                    && typeof env.message === 'function') {
+                    await env.message(
+                        `${Monnam(mtmp, state)} breathes `
+                        + `${breathwep_name(typ, state, random)}!`,
+                        state,
+                    );
+                }
                 state.gb ??= {};
                 state.gb.buzzer = mtmp;
                 // dobuzz() is void in C. The beam animation, damage, and side
                 // effects are all inside dobuzz; skipping it means the breath
                 // attack produces no effect beyond the RNG draws already made.
                 note_unported('zap.c dobuzz');
-                state.gb.buzzer = null;
+                state.gb.buzzer = 0;
                 nomul(0, state);
                 /* breath runs out sometimes. Also, give monster some
                  * cunning; don't breath if the target fell asleep. */
@@ -1528,8 +1691,8 @@ export function m_useup(mon, obj, env = {}) {
     }
 }
 
-// C ref: mthrowu.c thrwmu() (1174-1263), through the source-ordered wield
-// turn, ordinary line and retreat checks, and monshoot()'s first m_throw().
+// C ref: mthrowu.c thrwmu() (1174-1263). This includes the non-line-of-fire
+// polearm arm and the throw-and-return weapon arm before ordinary monshoot().
 export async function thrwmu(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
@@ -1557,12 +1720,78 @@ export async function thrwmu(monster, rawEnv = {}) {
     const selected = select_rwep(monster, env);
     if (!selected) return 0;
 
-    if (is_pole(selected, state) || selected.otyp === AKLYS) {
-        return refuseRanged(
-            env,
-            'monster polearm or returning-weapon action',
+    if (is_pole(selected, state)) {
+        // C ref: mthrowu.c:1196-1240. Polearms are applied without a
+        // lined-up check, but only when the selected polearm is wielded.
+        if (selected !== monster.mw)
+            return 0;
+        const rang = dist2(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
         );
+        if (rang > MON_POLE_DIST || !couldsee(monster.mx, monster.my, state))
+            return 0;
+
+        if (canseemon(monster, state)) {
+            const name = xnameFresh(selected, state);
+            const verb = typeof env.swingVerb === 'function'
+                ? env.swingVerb(selected, rang <= 2, env)
+                : null;
+            if (verb && typeof env.message === 'function') {
+                await env.message(
+                    `${Monnam(monster, state)} ${verb} `
+                    + `${obj_is_pname(selected, state) ? the(name, state) : an(name)}.`,
+                    state,
+                );
+            } else {
+                note_unported('mhitu.c mswings_verb/pline_mon');
+            }
+        }
+
+        let damage = dmgval(selected, state.youmonst, state, env);
+        let hitv = 3 - distmin(
+            state.u.ux,
+            state.u.uy,
+            monster.mx,
+            monster.my,
+        );
+        if (hitv < -4) hitv = -4;
+        if (bigmonst(state.youmonst.data)) hitv++;
+        hitv += 8 + selected.spe;
+        if (damage < 1) damage = 1;
+        if (typeof env.hitHero === 'function') {
+            await env.hitHero(
+                hitv,
+                maybeHalfPhysical(damage, state),
+                selected,
+                env,
+            );
+        } else {
+            note_unported('mthrowu.c thitu');
+        }
+        if (typeof env.stopOccupation === 'function')
+            await env.stopOccupation(state, env);
+        else
+            note_unported('allmain.c stop_occupation');
+        return 0;
     }
+
+    let arw = autoreturn_weapon(selected);
+    let always_toss = false;
+    if (arw && !mwelded(selected, state)) {
+        const rang = dist2(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
+        );
+        if (rang > arw.range || !couldsee(monster.mx, monster.my, state))
+            return 0;
+        always_toss = true;
+    }
+
     if (!lined_up(monster, env)) return 0;
 
     const currentDistance = distmin(
@@ -1588,8 +1817,6 @@ export async function thrwmu(monster, rawEnv = {}) {
         && env.random.rn2(BOLT_LIM - targetDistance)) {
         return 0;
     }
-    if (selected.oclass !== WEAPON_CLASS)
-        return refuseRanged(env, 'monster special missile action');
 
     const endMulti = requireRangedOperation(env, 'endMulti');
     await monshoot(monster, selected, monster.mw, env);

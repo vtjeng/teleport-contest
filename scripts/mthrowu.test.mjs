@@ -6,6 +6,7 @@ import {
     COULD_SEE,
     D_CLOSED,
     DOOR,
+    HALLUC,
     IN_SIGHT,
     LAVAWALL,
     MOAT,
@@ -28,7 +29,13 @@ import { game } from '../js/gstate.js';
 import { losehp } from '../js/hack.js';
 import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GIANT_RAT, PM_NEWT, PM_STONE_GIANT, PM_URUK_HAI } from '../js/monsters.js';
+import {
+    AD_FIRE,
+    PM_GIANT_RAT,
+    PM_NEWT,
+    PM_STONE_GIANT,
+    PM_URUK_HAI,
+} from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
     from '../js/obj.js';
@@ -41,6 +48,7 @@ import {
     BOW,
     CREAM_PIE,
     EGG,
+    HALBERD,
     ORCISH_DAGGER,
     ORCISH_ARROW,
     ORCISH_BOW,
@@ -50,7 +58,7 @@ import {
     WAN_STRIKING,
 } from '../js/objects.js';
 import {
-    blocking_terrain, lined_up, linedup, linedup_callback, m_lined_up,
+    blocking_terrain, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
     drop_throw, m_useup, monmulti, monshoot, m_throw, ohitmon, thitu, thrwmu,
 } from '../js/mthrowu.js';
@@ -1450,6 +1458,102 @@ test('m_useup takes one potion from a stack and frees a lone one', async () => {
     // The last one: m_useupall() (mthrowu.c:1153-1158) extracts and frees it.
     m_useup(subject, potion, { state });
     assert.equal(subject.minvent, null);
+});
+
+test('m_throw performs the source-ordered cursed missile misfire', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(state, state.u.ux + 3, y, state.u.ux, y);
+    const dagger = mksobj(ORCISH_DAGGER, false, false, { state });
+    dagger.cursed = true;
+    add_to_minv(subject, dagger, { state });
+    clearRow(state, state.u.ux, subject.mx, y);
+    const draws = [];
+    let landed;
+
+    await m_throw(subject, subject.mx, y, -1, 0, 1, dagger, {
+        state,
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                if (bound === 7) return 0; // misfire
+                if (bound === 3) return draws.filter((n) => n === 3).length === 1
+                    ? 0 : 1; // dx=-1, dy=0
+                return 4; // post-flight forcehit
+            },
+            rnd: () => assert.fail('misfire path does not roll damage'),
+        },
+        canSeeMonster: () => false,
+        canSeeSquare: () => false,
+        monsterAt: () => null,
+        objectToGlyph: () => 777,
+        temporaryDisplay: async () => {},
+        delayOutput: async () => {},
+        clearObjectKnowledge: () => {},
+        observeObject: () => {},
+        extractObject: (obj) => obj_extract_self(obj, { state }),
+        setMonsterNotWielded: () => {},
+        damageValue: () => assert.fail('misfire path does not hit hero'),
+        hitHero: () => assert.fail('misfire path does not hit hero'),
+        stopOccupation: () => assert.fail('misfire path does not hit hero'),
+        shouldMulch: () => false,
+        floorEffects: () => false,
+        placeObject: (_obj, x, atY) => { landed = [x, atY]; },
+        passiveObject: () => {},
+        stackObject: () => {},
+        unsupported: (reason) => assert.fail(reason),
+    });
+
+    assert.deepEqual(draws, [7, 3, 3, 5]);
+    assert.deepEqual(landed, [subject.mx - 1, y]);
+    assert.equal(state.gt.thrownobj, null);
+});
+
+test('thrwmu applies a wielded polearm without a line-up refusal', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const subject = attacker(
+        state,
+        state.u.ux + 2,
+        y,
+        state.u.ux,
+        y,
+        state.mons[PM_STONE_GIANT],
+    );
+    const polearm = mksobj(HALBERD, false, false, { state });
+    add_to_minv(subject, polearm, { state });
+    polearm.owornmask = W_WEP;
+    subject.mw = polearm;
+    subject.weapon_check = NO_WEAPON_WANTED;
+    clearRow(state, state.u.ux, subject.mx, y);
+    setCouldSee(state, subject.mx, y, true);
+    let hit;
+    const messages = [];
+
+    assert.equal(await thrwmu(subject, {
+        state,
+        random: { rn2: () => assert.fail('polearm path should not roll rn2'), rnd: () => 1 },
+        message: (text) => { messages.push(text); },
+        swingVerb: () => 'thrusts',
+        hitHero: (hitv, damage, obj) => { hit = [hitv, damage, obj]; },
+        stopOccupation: () => {},
+    }), 0);
+    assert.equal(hit[2], polearm);
+    assert.equal(hit[0] > 0, true);
+    assert.equal(hit[1] > 0, true);
+    assert.deepEqual(messages, ['The stone giant thrusts an angled poleaxe.']);
+});
+
+test('breathwep_name follows fixed and hallucinated source tables', async () => {
+    const state = await hero();
+    assert.equal(breathwep_name(AD_FIRE, state, noDraw()), 'fire');
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    let bound;
+    assert.equal(
+        breathwep_name(AD_FIRE, state, { rn2: (n) => { bound = n; return 0; } }),
+        'asteroids',
+    );
+    assert.equal(bound, 96);
 });
 
 // m_has_launcher_and_ammo tests: C ref: mthrowu.c:58-71.  Checks whether a

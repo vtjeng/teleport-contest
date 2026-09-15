@@ -40,12 +40,13 @@ import {
     ANTI_MAGIC,
     STRAT_WAITMASK,
 } from './const.js';
-import { exercise } from './attrib.js';
+import { exercise, poisoned } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
 // import cycle. `stop_occupation` is a hoisted function declaration, which an
 // ES module cycle initializes before either module body runs; nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
+import { done } from './end.js';
 import { bot, map_invisible, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { mdig_tunnel } from './dig.js';
 import { flooreffects } from './do.js';
@@ -73,10 +74,15 @@ import { hands_obj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source } from './light.js';
 import { m_dowear, set_mimic_sym } from './makemon_create.js';
 import { fightm } from './mhitm.js';
-import { mattacku, mdamageu, MonsterDeathPlanningError } from './mhitu.js';
+import {
+    mattacku,
+    mdamageu,
+    MonsterDeathPlanningError,
+    mswings_verb,
+} from './mhitu.js';
 import { buzzmu, castmu } from './mcastu.js';
 import { m_throw, thitu, thrwmu } from './mthrowu.js';
-import { AKLYS, WOOD } from './objects.js';
+import { WOOD } from './objects.js';
 import { quest_stat_check, quest_talk } from './quest.js';
 import { whimper } from './sounds.js';
 import {
@@ -1282,6 +1288,25 @@ function monsterMissileEnv(monster, env) {
                     : undefined,
             });
         },
+        poisoned: (reason, typ, pkiller, fatal, thrownWeapon, actionEnv) =>
+            poisoned(
+                reason,
+                typ,
+                pkiller,
+                fatal,
+                thrownWeapon,
+                actionEnv.state,
+                {
+                    ...actionEnv,
+                    message: actionEnv.message
+                        ?? (env.planning ? async () => {} : ttyPline),
+                    losehp: (n, knam, kFormat) =>
+                        losehp(n, knam, kFormat, actionEnv.state),
+                    done: (how) => done(how, actionEnv.state),
+                    encumberMessage: env.planning
+                        ? async () => {} : encumber_msg,
+                },
+            ),
         message: env.planning
             ? async (text, state) => {
                 plannedAnnouncementWaits = ttyPlineWillWait(text, state);
@@ -1328,6 +1353,7 @@ function monsterMissileEnv(monster, env) {
             statusRefresh: env.planning ? () => {} : () => bot(),
         }),
         temporaryDisplay: env.planning ? async () => {} : tmp_at,
+        swingVerb: (obj, bash, actionEnv) => mswings_verb(obj, bash, actionEnv),
         throwMissile: env.planning
             ? (...args) => plannedAnnouncementWaits
                 ? undefined : m_throw(...args)
@@ -1391,10 +1417,6 @@ async function throwRangedWeapon(monster, env) {
             propellorResult,
         });
         const propellor = propellorResult.value;
-        if (selected && (is_pole(selected, env.state)
-            || selected.otyp === AKLYS)) {
-            unsupported('monster polearm or returning-weapon action');
-        }
         if (propellor && propellor !== hands_obj) {
             // C's thrwmu() preamble reaches mon_wield_item() even when a
             // different, non-welded MON_WEP already exists. That call clears
