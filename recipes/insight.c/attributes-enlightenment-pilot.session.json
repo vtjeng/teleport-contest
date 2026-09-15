@@ -1,0 +1,40 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8151001,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Enlight,role:Caveman,race:human,gender:male,align:neutral\nOPTIONS=playmode:explore\n",
+      "comment": "Independent explore-mode Caveman recipe selected for the magic-cancellation and full attributes sections.",
+      "moves": "\u001b\u0018 \u001b"
+    },
+    {
+      "seed": 8151002,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Enlight,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=playmode:explore\n",
+      "comment": "Independent explore-mode Tourist variation reaches the no-magic-cancellation branch.",
+      "moves": "\u001b\u0018 \u001b"
+    },
+    {
+      "seed": 8151004,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Enlight,role:Caveman,race:human,gender:female,align:neutral\nOPTIONS=playmode:explore\nOPTIONS=!bones\n",
+      "comment": "Independent female-role variation reaches the disabled-bones reminder branch.",
+      "moves": "\u001b\u0018 \u001b"
+    },
+    {
+      "seed": 8151005,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Enlight,role:Caveman,race:human,gender:male,align:neutral\n",
+      "comment": "Independent normal-mode variation confirms the shared production command without the explore-only section.",
+      "moves": "\u001b\u0018\u001b"
+    },
+    {
+      "seed": 2601,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:Enlight,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,showexp,time,color,lit_corridor\nBIND=v:inventory\n",
+      "comment": "Independent debug Wizard recipe exercises the numeric enlightenment details through the same command entry point.",
+      "moves": "\u001b\u0018 \u001b"
+    }
+  ]
+}
