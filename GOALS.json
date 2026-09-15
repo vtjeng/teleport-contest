@@ -49781,7 +49781,7 @@
     {
       "id": "port-pray-fix-worst-trouble-seed4500-20260915",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port pray.c fix_curse_trouble and fix_worst_trouble with source-ordered curse, timed-trouble, healing, and recovery behavior wired through pleased() and #pray.",
       "cFile": "pray.c",
       "sessions": [
@@ -49829,9 +49829,9 @@
         "to": 609
       },
       "activeStanding": {
-        "sha": "bace1d821ddd49b58965ee469e9192fcad5c3329",
-        "screens": 9903,
-        "rng": 728113
+        "sha": "833393b3012ea4cbd7afde2af8b3cd28a6bd50f3",
+        "screens": 10037,
+        "rng": 739105
       },
       "openMismatches": [
         {
