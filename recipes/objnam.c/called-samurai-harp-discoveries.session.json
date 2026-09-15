@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Samurai variation of the new alias setup. Seed 8558163 was chosen before inspection; the wished harp occupies f. Unknown magic harp uses koto [harp] called strings in discoveries. Inventory and every discoveries page are dismissed.",
+  "segments": [
+    {
+      "seed": 8558163,
+      "datetime": "20351014102917",
+      "nethackrc": "OPTIONS=name:AliasPilot,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed magic harp\n#name\nofstrings\ni \\    "
+    }
+  ]
+}

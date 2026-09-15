@@ -224,13 +224,11 @@ test('simple_typename drops the description and the user-assigned name', () => {
     );
     assert.equal(simple_typename(RIN_PROTECTION, state), 'ring of protection');
 
-    // A name the player gave the type is suppressed and put back. The clear
-    // is what lets this answer at all: obj_typename() stops with
-    // 'user-assigned type name' for a type that still carries one, so a port
-    // that skipped C's save-and-restore would refuse here.
+    // C suppresses the player's alias in the simple name and restores it.
     state.objects[RIN_PROTECTION].oc_uname = 'zappy';
-    assert.throws(
-        () => obj_typename(RIN_PROTECTION, state), UnsupportedObjectNameError,
+    assert.equal(
+        obj_typename(RIN_PROTECTION, state),
+        'ring of protection called zappy (black onyx)',
     );
     assert.equal(simple_typename(RIN_PROTECTION, state), 'ring of protection');
     assert.equal(state.objects[RIN_PROTECTION].oc_uname, 'zappy');
@@ -1954,12 +1952,8 @@ test('unsupported naming branches fail before discovery or state changes', () =>
 
     state.objects[WAN_SLEEP].oc_uname = 'napper';
     const calledWand = objectOf(state, WAN_SLEEP);
-    assert.throws(
-        () => donameFresh(calledWand, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'user-assigned type name',
-    );
-    assert.equal(calledWand.dknown, false);
+    assert.equal(donameFresh(calledWand, state), 'a wand called napper');
+    assert.equal(calledWand.dknown, true);
 
     const litCandle = objectOf(state, TALLOW_CANDLE, {
         lamplit: true,

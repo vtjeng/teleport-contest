@@ -34,7 +34,8 @@ import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import { currency } from './invent.js';
 import {
-    digit, dist2, highc, lowc, mungspaces, s_suffix, strcasecpy, strstri,
+    digit, dist2, encodeUtf8ByteString, highc, lowc, mungspaces, s_suffix,
+    strcasecpy, strstri, truncateByteString,
 } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import { cansee } from './vision.js';
@@ -142,10 +143,21 @@ function sourceDescription(obj, type, state, actual) {
     return OBJ_DESCR(type, state) ?? actual;
 }
 
-// C ref: objnam.c obj_typename(). Names an object type rather than an object,
-// which is what the discoveries list shows. A type carrying oc_uname reaches
-// xcalled() in four of the branches below; no ported path assigns one, and
-// naming the type without the call would be wrong, so it stops instead.
+// C objnam.c reserves PREFIX bytes for doname's prefixes in each BUFSZ buffer.
+const PREFIX = 80;
+
+// C ref: objnam.c xcalled():558–572. JavaScript returns the appended buffer;
+// siz includes the terminating NUL, and only the user-supplied suffix truncates.
+export function xcalled(buf, siz, pfx, sfx) {
+    const bufsiz = siz - 1 - encodeUtf8ByteString(buf).length;
+    const pfxlen = encodeUtf8ByteString(pfx).length + ' called '.length;
+    if (pfxlen > bufsiz)
+        throw new RangeError(`xcalled: not enough room for prefix (${pfxlen} > ${bufsiz})`);
+    return `${buf}${pfx} called ${truncateByteString(sfx, bufsiz - pfxlen)}`;
+}
+
+// C ref: objnam.c obj_typename():201–293. Names a type for discoveries,
+// preserving its appearance after a bounded user-assigned name.
 export function obj_typename(otyp, state = game) {
     const ocl = state.objects[otyp];
     let actualn = OBJ_NAME(ocl, state);
@@ -161,7 +173,6 @@ export function obj_typename(otyp, state = game) {
     // substitutes a placeholder rather than asserting, so this does too.
     if (!actualn)
         actualn = (otyp > 0 && otyp < MAXOCLASSES) ? 'generic' : 'object?';
-    if (un) unsupported('user-assigned type name', null);
 
     let buf = '';
     switch (ocl.oc_class) {
@@ -189,6 +200,7 @@ export function obj_typename(otyp, state = game) {
         break;
     case AMULET_CLASS:
         buf = nn ? actualn : 'amulet';
+        if (un) buf = xcalled(buf, BUFSZ - (dn ? dn.length + 3 : 0), '', un);
         if (dn) buf += ` (${dn})`;
         return buf;
     case ARMOR_CLASS:
@@ -201,11 +213,13 @@ export function obj_typename(otyp, state = game) {
         if (nn) {
             buf += actualn;
             if (isGemStone(otyp, ocl)) buf += ' stone';
+            if (un) buf = xcalled(buf, BUFSZ - (dn ? dn.length + 3 : 0), '', un);
             if (dn) buf += ` (${dn})`;
         } else {
-            buf += dn || actualn;
+            buf += dn ?? actualn;
             if (ocl.oc_class === GEM_CLASS)
                 buf += ocl.oc_material === MINERAL ? ' stone' : ' gem';
+            if (un) buf = xcalled(buf, BUFSZ, '', un);
         }
         return buf;
     }
@@ -215,6 +229,7 @@ export function obj_typename(otyp, state = game) {
         // Book of the Dead".
         buf = ocl.oc_unique ? actualn : `${buf} of ${actualn}`;
     }
+    if (un) buf = xcalled(buf, BUFSZ - (dn ? dn.length + 3 : 0), '', un);
     if (dn) buf += ` (${dn})`;
     return buf;
 }
@@ -222,12 +237,7 @@ export function obj_typename(otyp, state = game) {
 // C ref: objnam.c simple_typename() (296-307). Either the actual name or the
 // description, never both, and never the name the player gave the type.
 //
-// C suppresses that user-assigned name by clearing objects[otyp].oc_uname
-// around the obj_typename() call and putting it back afterwards, and the port
-// does the same rather than passing a flag: obj_typename() reads the catalog
-// entry, and it stops with 'user-assigned type name' for an entry that still
-// carries one, so a port that skipped the clear would refuse a named type
-// where C answers.
+// C clears objects[otyp].oc_uname around obj_typename() and restores it.
 export function simple_typename(otyp, state = game) {
     const ocl = state.objects[otyp];
     const save_uname = ocl.oc_uname;
@@ -386,18 +396,16 @@ function identificationFlags(obj, type, state) {
     };
 }
 
-function preflightXname(obj, type, state) {
+function preflightXname(obj, state) {
     // really_done() identifies inventory while it is still assembling the
     // disclosure windows; other gameover callers remain outside this port.
     if (state.program_state?.gameover
         && !state.program_state?.in_really_done)
         unsupported('end-of-game object text', obj);
-    if (type.oc_uname)
-        unsupported('user-assigned type name', obj);
 }
 
 function preflightDoname(obj, type, state) {
-    preflightXname(obj, type, state);
+    preflightXname(obj, state);
     const { cknown } = identificationFlags(obj, type, state);
     // objnam.c:1563 and :1592. wornSuffix() below ports the "wielded in" and
     // "weapon in" arms of that word choice; "tethered to" would also have to
@@ -426,6 +434,7 @@ function preflightDoname(obj, type, state) {
 function xnameBase(obj, type, state, ident) {
     const knownType = ident.nameKnown;
     const dknown = ident.dknown;
+    const un = type.oc_uname;
     const actual = sourceActualName(obj, type, state) ?? 'object?';
     const description = sourceDescription(obj, type, state, actual);
 
@@ -437,6 +446,7 @@ function xnameBase(obj, type, state, ident) {
             return ident.known ? actual : description;
         }
         if (knownType) return actual;
+        if (un) return xcalled('', BUFSZ - PREFIX, 'amulet', un);
         return `${description} amulet`;
     case WEAPON_CLASS:
     case VENOM_CLASS:
@@ -450,9 +460,9 @@ function xnameBase(obj, type, state, ident) {
             prefix = 'pair of ';
         else if (obj.otyp === TOWEL && obj.spe > 0)
             prefix = obj.spe < 3 ? 'moist ' : 'wet ';
-        let result = `${prefix}${!dknown
-            ? description
-            : knownType ? actual : description}`;
+        let result = dknown && !knownType && un
+            ? xcalled(prefix, BUFSZ - PREFIX, description, un)
+            : `${prefix}${!dknown ? description : knownType ? actual : description}`;
         if (obj.otyp === FIGURINE && obj.corpsenm !== NON_PM) {
             const species = obj_pmname(obj, state);
             result += ` of ${articleName(species)}`;
@@ -472,6 +482,8 @@ function xnameBase(obj, type, state, ident) {
             if (obj.otyp === SHIELD_OF_REFLECTION)
                 return 'smooth shield';
         }
+        if (!knownType && un)
+            return xcalled(prefix, BUFSZ - PREFIX, armor_simple_name(obj, state), un);
         const base = knownType ? actual : description;
         return `${prefix}${base}`;
     }
@@ -516,7 +528,7 @@ function xnameBase(obj, type, state, ident) {
         return `${obj.owt > type.oc_weight ? 'very ' : ''}heavy iron ball`;
     case POTION_CLASS: {
         const prefix = dknown && obj.odiluted ? 'diluted ' : '';
-        if (knownType || !dknown) {
+        if (knownType || un || !dknown) {
             if (!dknown) return `${prefix}potion`;
             if (knownType) {
                 const holy = obj.otyp === POT_WATER && ident.bknown
@@ -525,38 +537,45 @@ function xnameBase(obj, type, state, ident) {
                     : '';
                 return `${prefix}potion of ${holy}${actual}`;
             }
+            return xcalled(`${prefix}potion`, BUFSZ - PREFIX, '', un);
         }
         return `${prefix}${description} potion`;
     }
     case SCROLL_CLASS:
         if (!dknown) return 'scroll';
         if (knownType) return `scroll of ${actual}`;
+        if (un) return xcalled('scroll', BUFSZ - PREFIX, '', un);
         return type.oc_magic
             ? `scroll labeled ${description}`
             : `${description} scroll`;
     case WAND_CLASS:
         if (!dknown) return 'wand';
         if (knownType) return `wand of ${actual}`;
+        if (un) return xcalled('', BUFSZ - PREFIX, 'wand', un);
         return `${description} wand`;
     case SPBOOK_CLASS:
         if (obj.otyp === SPE_NOVEL) {
             if (!dknown) return 'book';
             if (knownType) return actual;
+            if (un) return xcalled('', BUFSZ - PREFIX, 'novel', un);
             return `${description} book`;
         }
         if (!dknown) return 'spellbook';
         if (knownType)
             return `${obj.otyp === SPE_BOOK_OF_THE_DEAD
                 ? '' : 'spellbook of '}${actual}`;
+        if (un) return xcalled('', BUFSZ - PREFIX, 'spellbook', un);
         return `${description} spellbook`;
     case RING_CLASS:
         if (!dknown) return 'ring';
         if (knownType) return `ring of ${actual}`;
+        if (un) return xcalled('', BUFSZ - PREFIX, 'ring', un);
         return `${description} ring`;
     case GEM_CLASS: {
         const rock = type.oc_material === MINERAL ? 'stone' : 'gem';
         if (!dknown) return rock;
         if (!knownType) {
+            if (un) return xcalled('', BUFSZ - PREFIX, rock, un);
             return `${description} ${rock}`;
         }
         return `${actual}${isGemStone(obj.otyp, type) ? ' stone' : ''}`;
@@ -755,7 +774,7 @@ export function xnameFresh(obj, state) {
     if (quantity <= 0)
         throw new RangeError('xnameFresh requires positive quantity');
     const type = objectType(obj, state);
-    preflightXname(obj, type, state);
+    preflightXname(obj, state);
     // C ref: objnam.c xname_flags():625-626. This runs ahead of the
     // override_ID block at :632, so it reads the type's stored flag rather
     // than the `nn` that block forces to 1.
@@ -781,13 +800,19 @@ export function xnameFresh(obj, state) {
     let base = personalName
         ? String(obj.oextra.oname)
         : xnameBase(obj, type, state, ident);
+    if (!personalName && encodeUtf8ByteString(base).length > BUFSZ - PREFIX - 1)
+        throw new RangeError('xname: buffer overflow before appending name.');
     if (quantity !== 1) {
         base = obj.otyp === SLIME_MOLD
             ? makeplural(makesingular(base))
             : makeplural(base);
+        // C Concat() copies the pluralized result back into obuf[PREFIX..].
+        base = truncateByteString(base, BUFSZ - PREFIX - 1);
     }
+    // C's personal-name branch also copies through Concat().
+    if (personalName) base = truncateByteString(base, BUFSZ - PREFIX - 1);
     if (!personalName && obj.oextra?.oname && ident.dknown)
-        base += ` named ${obj.oextra.oname}`;
+        base = truncateByteString(`${base} named ${obj.oextra.oname}`, BUFSZ - PREFIX - 1);
     return base.replace(/^the /iu, '');
 }
 
@@ -1698,8 +1723,7 @@ export function paydoname(obj, state = game) {
         if (!obj.cknown) {
             if (obj.unpaid) {
                 const suffix = ' and its contents';
-                // objnam.c PREFIX reserves 80 bytes before its name buffer.
-                if (name.length + suffix.length < BUFSZ - 80) name += suffix;
+                if (name.length + suffix.length < BUFSZ - PREFIX) name += suffix;
             } else name = `the contents of ${name}`;
         }
     }
