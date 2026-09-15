@@ -17081,5 +17081,212 @@
       }
     },
     "recordedAt": "2026-09-05T07:56:27.222Z"
+  },
+  {
+    "kind": "review",
+    "head": "b788f5aae00c2953253518b1148a43481551e29e",
+    "auditedRange": "54e9f1b1172c98c2cf50741ff3d5d6d584d13139..b788f5aae00c2953253518b1148a43481551e29e",
+    "level": "full",
+    "areas": [],
+    "outcome": "changed",
+    "evidence": "Counts: 11 raw, 6 deduplicated, 6 confirmed, 6 applied, 0 deferred, 0 rejected, 0 unverified. Worker-pool tooling review: immutable retries, dependency repairs, exact receipts, and discriminating snapshot/authorization/importer tests. All six confirmed findings fixed and independently rechecked. 60 focused tests, three mutation probes, full checkpoint and ESLint pass.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1552,
+      "mode": "full",
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "variable-trace",
+        "performance",
+        "concurrency"
+      ],
+      "optionalTriggers": {
+        "performance": "Git subprocesses, evidence parsing and startup cost changed.",
+        "concurrency": "Shared reservations, retries, immutable delivery handoff and worker lifecycle changed."
+      },
+      "counts": {
+        "raw": 11,
+        "deduplicated": 6,
+        "confirmed": 6,
+        "applied": 6,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 3,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 3
+      },
+      "productionDefects": [],
+      "findings": [
+        {
+          "file": "scripts/worker-delivery.mjs",
+          "symbol": "submitDelivery",
+          "summary": "Recomputing default dependencies breaks identical submission retries.",
+          "foundBy": [
+            "correctness",
+            "readability",
+            "variable-trace",
+            "concurrency"
+          ],
+          "category": "other",
+          "resolution": "applied",
+          "fix": "Exact retries reuse the first inferred dependency list after coordinator acceptance. Explicit conflicts still fail.",
+          "validation": "CLI retry after ancestor acceptance preserves the entire delivery and ledger; conflicting explicit dependencies fail.",
+          "adjudication": {
+            "evidence": true,
+            "causality": true,
+            "resolution": true
+          }
+        },
+        {
+          "file": "scripts/worker-delivery.mjs",
+          "symbol": "checkCandidate",
+          "summary": "Candidate verification omits accepted dependency corrections.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "category": "other",
+          "resolution": "applied",
+          "fix": "Candidate checks recurse through accepted dependency tasks, including their original and correction patches, with visited-task protection.",
+          "validation": "Preflight and integration reject a dependent candidate without the accepted repair; a selective repair cherry-pick makes both succeed.",
+          "adjudication": {
+            "evidence": true,
+            "causality": true,
+            "resolution": true
+          }
+        },
+        {
+          "file": "scripts/worker-delivery.test.mjs",
+          "symbol": "worker submits durably; submission rejects checkout-only evidence",
+          "summary": "The snapshot test passes when evidence validation ignores the submitted commit.",
+          "foundBy": [
+            "tests"
+          ],
+          "category": "tests",
+          "resolution": "applied",
+          "fix": "Snapshot fixtures distinguish committed references from files in moving coordinator and worker checkouts.",
+          "validation": "A newly committed evidence file absent from coordinator HEAD passes; a caller present only in dirty worker files fails. The ignore-commit mutation is detected.",
+          "adjudication": {
+            "evidence": true,
+            "causality": true,
+            "resolution": true
+          }
+        },
+        {
+          "file": "scripts/worker-delivery.test.mjs",
+          "symbol": "worker submits durably",
+          "summary": "The focused-test assertion cannot detect missing importer discovery.",
+          "foundBy": [
+            "tests"
+          ],
+          "category": "tests",
+          "resolution": "applied",
+          "fix": "An unchanged importer absent from the evidence list is required in the exact focused-test set.",
+          "validation": "The skip-importer-discovery mutation fails that exact-set assertion.",
+          "adjudication": {
+            "evidence": true,
+            "causality": true,
+            "resolution": true
+          }
+        },
+        {
+          "file": "scripts/worker-delivery.test.mjs",
+          "symbol": "a valid acceptance event remains coordinator-only",
+          "summary": "The worker-acceptance rejection exercises an invalid task state.",
+          "foundBy": [
+            "tests"
+          ],
+          "category": "tests",
+          "resolution": "applied",
+          "fix": "Acceptance is tested in a valid validated state so authorization is the only rejection condition.",
+          "validation": "The worker gets the coordinator-only error with unchanged ledger; coordinator acceptance succeeds. Allowing worker acceptance is detected.",
+          "adjudication": {
+            "evidence": true,
+            "causality": true,
+            "resolution": true
+          }
+        },
+        {
+          "file": "scripts/worker-state.mjs",
+          "symbol": "applyEvent received; nextActions",
+          "summary": "Superseded deliveries can remain permanently unread.",
+          "foundBy": [
+            "correctness",
+            "variable-trace"
+          ],
+          "category": "other",
+          "resolution": "applied",
+          "fix": "Receipts acknowledge any exact delivery belonging to the task without changing the accepted repair or newer reservation.",
+          "validation": "A superseded receipt drains after repair acceptance; wrong-task and duplicate receipts still fail.",
+          "adjudication": {
+            "evidence": true,
+            "causality": true,
+            "resolution": true
+          }
+        }
+      ],
+      "rejections": [],
+      "deferrals": [],
+      "unverified": [],
+      "warnings": [],
+      "readiness": {
+        "boundary": "Tooling range 54e9f1b1172c98c2cf50741ff3d5d6d584d13139..8c15c213499d73435e2ab792488b52ebf1dbb60f, followed by the confirmed-finding correction to b788f5aae00c2953253518b1148a43481551e29e. Worker-state, delivery, port-evidence, worker-worktree and audit-worktree tests exercise these interfaces; no game port is in scope.",
+        "sourceReview": "Traced tooling against approved workflow requirements and existing Git, source-evidence and checkpoint contracts. C/Lua port attestations are not applicable to this tooling-only range.",
+        "completeness": "No C/Lua source unit is being closed by this review. Completeness is the six resolved tooling/test findings, independently checked again at the correction commit."
+      },
+      "validation": {
+        "focused": "60/60 focused tests; repo-wide ESLint; git diff --check.",
+        "regressions": "Three new behavior regressions failed before fixes and passed afterward.",
+        "testMutations": [
+          {
+            "name": "ignore-commit",
+            "exitCode": 1,
+            "detectedBy": "submission rejects evidence references found only in an uncommitted checkout"
+          },
+          {
+            "name": "worker-acceptance",
+            "exitCode": 1,
+            "detectedBy": "a valid acceptance event remains coordinator-only"
+          },
+          {
+            "name": "skip-importer-discovery",
+            "exitCode": 1,
+            "detectedBy": "worker submits durably and starts another task before receipt; snapshots survive changed evidence"
+          }
+        ],
+        "checkpoint": {
+          "commit": "b788f5aae00c2953253518b1148a43481551e29e",
+          "allPassed": true,
+          "recordings": {
+            "passed": true,
+            "summary": "recordings: 235/235 passing, screens 8985/8985, rng 1227515/1227515"
+          },
+          "score": {
+            "sessions": 44,
+            "passing": 27,
+            "rngMatched": 716839,
+            "rngTotal": 792838,
+            "screensMatched": 9810,
+            "screensTotal": 11405,
+            "cursorsMatched": 9844,
+            "cursorsTotal": 11405,
+            "speedLabel": "308+3.05/turn"
+          },
+          "artifacts": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/b788f5aae00c2953253518b1148a43481551e29e/run-27doae"
+        },
+        "independentCorrectionCheck": "The adjudicator re-read 8c15c213..b788f5aa through exact Git objects, marked all six resolved and reported no corrective regression."
+      },
+      "benchmark": {
+        "status": "c6f827b2 commit message: +5.2 +/-6.7 ms/call, unresolved at measured noise; not workflow throughput.",
+        "candidate": "b788f5aa commit message: two-task candidate verification adds 46.6 +/-0.8 ms/call (42.36 to 88.98 ms), paying for required dependency verification; not workflow throughput."
+      }
+    },
+    "recordedAt": "2026-09-15T18:23:04.186Z"
   }
 ]
