@@ -47953,6 +47953,120 @@
         "rng": 706215
       },
       "parkedReason": "Integration checkpoint ca7367ea failed fixed-development acceptance: seed0006 screens 123 to 121 and seed0007 screens 302 to 301. Preserve worker A's a4984bef tip and rework the TTY/display regression before any retry."
+    },
+    {
+      "id": "div-dig-zap-dig-seed0116-20260915",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Port the hero zap_dig wall and pit effects with source-ordered hole filling and pit checks.",
+      "cFile": "dig.c",
+      "sessions": [
+        "holdout/seed0116-wizard-wear-shop"
+      ],
+      "selectionReason": "Seed-continuation for holdout/seed0116-wizard-wear-shop, a complete source investigation at step 80 with 47 remaining-screen upper bound. Worker B continued this same seed after its accepted pickup span while both persistent slots were occupied; higher-ranked seed4500 remains assigned to A rework and seed0399 remains queued for a later free slot.",
+      "detail": "dig.c zap_dig() lines 1548-1754 reaches the hero's horizontal and maze wall-dig branches and uses return-valued adj_pit_checks() and fillholetyp(). The delivery preserves C's terrain conversion, pit/trap filling, hole messages, source RNG order, and production dig/zap callers; swallowed, vertical, and pit-helper branches remain explicit gaps.",
+      "spans": [
+        {
+          "name": "zap-dig-hero-walls-and-pits",
+          "status": "closed",
+          "closedBy": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+          "functions": [
+            "zap_dig",
+            "adj_pit_checks",
+            "fillholetyp"
+          ]
+        }
+      ],
+      "openedAt": "3007b4a0fb8a55c37f48c33fe1fce09c9056815f",
+      "openStanding": {
+        "sha": "469993b4c8d8b5176ce2bce5b598f7812e464dce",
+        "screens": 9705,
+        "rng": 706215
+      },
+    "closedAt": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+    "delivered": {
+      "screens": 45,
+      "rng": 6591
+      },
+      "function": "zap_dig",
+      "session": "holdout/seed0116-wizard-wear-shop",
+      "step": 80,
+    "activeStanding": {
+      "sha": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+      "screens": 9750,
+      "rng": 712806
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0116-wizard-wear-shop",
+          "step": 80,
+          "kind": "stop",
+          "function": "zap_dig",
+          "functionDeclared": false,
+          "sourceFile": "dig.c",
+          "cFile": "dig.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zap_dig()",
+          "unlocatedKinds": [],
+          "recordedSteps": 127,
+          "remainingScreensUpperBound": 47,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0116-wizard-wear-shop.json",
+            "result": {
+              "session": "holdout/seed0116-wizard-wear-shop",
+              "remainingScreensUpperBound": 47,
+              "status": "complete",
+              "commit": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+              "mismatch": {
+                "session": "holdout/seed0116-wizard-wear-shop",
+                "step": 80,
+                "kind": "stop",
+                "function": "zap_dig",
+                "functionDeclared": false,
+                "sourceFile": "dig.c",
+                "cFile": "dig.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zap_dig()",
+                "unlocatedKinds": [],
+                "recordedSteps": 127,
+                "remainingScreensUpperBound": 47
+              },
+              "summary": "Payment now passes. At step80 the southward wand-of-digging effect stops because zap.weffects rejects WAN_DIGGING instead of calling dig.c zap_dig. Port the whole zap_dig function and required consumed-result helpers, then wire the existing wand and spell dispatcher.",
+              "source": {
+                "file": "dig.c",
+                "functions": [
+                  "zap_dig"
+                ],
+                "branch": "The stopped hero is at(12,13) on dungeon level2 with dx0,dy1,dz0, not swallowed or trapped. This is ordinary horizontal digging on a non-maze, non-cavernous level without a shop: ROOM squares(12,14),(12,15), diggable HWALL(12,16), then stone. C draws rn1(18,8), displays and delays the beam, changes terrain and vision, and closes the beam; JavaScript refuses before it runs.",
+                "callers": [
+                  "cmd.js runZapCommand -> zap.js dozap -> weffects; C zap.c3460 calls zap_dig for WAN_DIGGING/SPE_DIG.",
+                  "spell.js sends applicable spell effects through weffects; the same dig.c owner must serve both sources."
+                ],
+                "dependencies": [
+                  "Whole dig.c zap_dig1548–1754 includes swallowed, vertical, horizontal, maze, adjacent-pit and shop-damage branches.",
+                  "Consumed-result adj_pit_checks1763–1838 and fillholetyp606–637 need whole implementations. Existing hack.may_dig and trap.conjoined_pits supply source predicates.",
+                  "Preserve source temporary-beam animation/delay, terrain flags, vision and later weffects learnwand handling. Missing discarded-result watch_dig, dighole, pit_flow, add_damage and pay_for_damage follow the allowed-gap rules; do not invent effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh queue atfe38104c records stop80/127 and remaining-screen bound47. Read-only investigator ran two single-session scanRecordedSession replays00:15:30–00:17:45UTC: both emitted80screens with no earlier divergence; second established the stopped hero/terrain state.",
+                "Input78 z,79 wandp,80 directionj enters zap.weffects' explicit zap_dig refusal. The fixed C recording has7beam animation frames at80; j is a direction answer, not a movement command.",
+                "Investigator read whole zap_dig and adjacent helper and searched declarations: no zap_dig, adj_pit_checks or fillholetyp implementation. Coordinator independently read whole zap_dig and fillholetyp and verified consumed-result call sites.",
+                "Metadata HEAD advanced during investigation, but git diff fe38104c -- js scripts frozen stayed empty. No source edits or fixed recordings changed during these diagnostic replays."
+              ]
+            }
+          }
+        }
+      ],
+    "closeStanding": {
+      "sha": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+      "screens": 9750,
+      "rng": 712806
+      }
     }
   ]
 }
