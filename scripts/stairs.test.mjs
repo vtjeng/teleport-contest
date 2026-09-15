@@ -12,12 +12,16 @@ import {
     IRONBARS,
     ROOM,
     SINK,
+    STAIRS,
+    STONE,
     THRONE,
     TREE,
 } from '../js/const.js';
 import { dfeature_at } from '../js/invent.js';
+import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { mkstairs } from '../js/mklev.js';
 import {
     known_branch_stairs,
     On_stairs,
@@ -77,6 +81,41 @@ test('the stairway list answers every stairs.c lookup', () => {
     const local = stairway_at(7, 8);
     local.u_traversed = true;
     assert.equal(known_branch_stairs(local), false);
+});
+
+test('mkstairs refuses regular stairs at dungeon branch endpoints', () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = { uz: { dnum: 0, dlevel: 1 } };
+    state.dungeons = [{ num_dunlevs: 3 }];
+    state.stairs = null;
+
+    // mklev.c allows a special-level stair request to reach mkstairs() even
+    // when the request points off the end of the current dungeon branch.
+    mkstairs(10, 10, true, null);
+    assert.equal(state.level.at(10, 10).typ, STONE);
+    assert.equal(state.stairs, null);
+
+    // The ordinary direction from level 1 remains valid.
+    mkstairs(11, 10, false, null);
+    assert.equal(state.level.at(11, 10).typ, STAIRS);
+    assert.equal(state.stairs?.up, false);
+    assert.deepEqual(state.stairs?.tolev, { dnum: 0, dlevel: 2 });
+
+    // Both directions are valid on the middle level.
+    state.u.uz.dlevel = 2;
+    state.stairs = null;
+    mkstairs(12, 10, true, null);
+    assert.equal(state.level.at(12, 10).typ, STAIRS);
+    assert.equal(state.stairs?.up, true);
+    assert.deepEqual(state.stairs?.tolev, { dnum: 0, dlevel: 1 });
+
+    // The bottom-level down request is rejected before it mutates the map.
+    state.u.uz.dlevel = 3;
+    state.stairs = null;
+    mkstairs(13, 10, false, null);
+    assert.equal(state.level.at(13, 10).typ, STONE);
+    assert.equal(state.stairs, null);
 });
 
 test('u_on_sstairs places a descending branch arrival on its special stairs',

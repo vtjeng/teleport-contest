@@ -16,6 +16,8 @@ import {
     at_dgn_entrance,
     depth,
     dungeon_branch,
+    dunlev,
+    dunlevs_in_dungeon,
     find_level,
     init_mapseen,
     insert_branch,
@@ -7570,6 +7572,11 @@ function generate_stairs_find_room() {
 
 export function mkstairs(x, y, up, croom) {
     const g = game;
+    // C ref: mklev.c mkstairs():2183-2189. A regular stair cannot be
+    // created at either end of a dungeon branch; the Lua `des.stair("up")`
+    // on Mines level 1 therefore has no corresponding terrain or stairway.
+    if (dunlev(g.u.uz) === (up ? 1 : dunlevs_in_dungeon(g.u.uz, g)))
+        return;
     const loc = g.level.at(x, y);
     if (loc) {
         loc.typ = STAIRS;

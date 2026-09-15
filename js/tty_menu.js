@@ -336,13 +336,20 @@ export async function displayTtyMenuTextWindow(
     if (!display)
         throw new Error('tty menu text window requires an initialized display');
 
-    // tty_display_nhwindow(NHW_MENU) flushes an unacknowledged message, but
-    // an acknowledged query (TOPLINE_NON_EMPTY) is simply covered by the
-    // menu. The latter is the state left by end.c's disclosure questions.
-    if (display.toplin === TOPLINE_NEED_MORE)
-        await dismissPendingTtyMessage(state);
-    clearTtyMessageWindow(state);
-    display.clearRow(0);
+    // wintty.c tty_display_nhwindow(WIN_MESSAGE, FALSE) flushes an
+    // unacknowledged message and then clears its message-window state. An
+    // already acknowledged line is only marked TOPLINE_EMPTY; its physical
+    // bytes remain available underneath a corner NHW_MENU. The later menu
+    // renderer clears only its own right-hand region, matching
+    // tty_clear_nhwindow(WIN_MESSAGE)'s TOPLINE_EMPTY arm.
+    if (display.toplin === TOPLINE_NEED_MORE) {
+        if (await dismissPendingTtyMessage(state)) {
+            display.toplin = TOPLINE_NEED_MORE;
+            clearTtyMessageWindow(state);
+        } else {
+            display.toplin = TOPLINE_EMPTY;
+        }
+    }
 
     const layout = ttyMenuTextLayout(
         display,

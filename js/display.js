@@ -38,6 +38,7 @@ import { cansee, seenv_matrix } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import {
+    TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
@@ -5534,6 +5535,21 @@ export async function flush_screen(mode) {
 // ── cls ──
 export async function cls() {
     const display = game?.nhDisplay;
+    // C display.c cls() begins with display_nhwindow(WIN_MESSAGE, FALSE).
+    // On the TTY this dismisses a pending --More-- before the old level is
+    // erased.  drag_down() relies on that boundary: its caller's fall
+    // message must be visible and acknowledged before the collision message
+    // replaces it.  Keep the restore-to-NEED_MORE/clear sequence identical to
+    // the other display-window callers so the message state is not carried
+    // into the rebuilt map.
+    const waitingForMore = display?.toplin === TOPLINE_NEED_MORE;
+    if (waitingForMore && await dismissPendingTtyMessage(game)) {
+        display.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(game);
+    } else if (display) {
+        display.toplin = TOPLINE_EMPTY;
+        clearTtyMessageWindow(game);
+    }
     if (display?.clearScreen) display.clearScreen();
     // C's cls() clears both the physical terminal and its pending glyph
     // buffer.  disp_* is the JS glyph-buffer owner; leaving it populated lets
