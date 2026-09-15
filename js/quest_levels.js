@@ -5,7 +5,8 @@
 //         dat/Arc-goal.lua,
 //         dat/Pri-strt.lua, dat/Pri-loca.lua, dat/Pri-fila.lua,
 //         dat/Pri-filb.lua, dat/Pri-goal.lua, dat/oracle.lua,
-//         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
+//         dat/Wiz-strt.lua, dat/Wiz-loca.lua, dat/Wiz-fila.lua,
+//         dat/tower1.lua, dat/tower2.lua, dat/tower3.lua.
 
 import { COLNO, FEMALE, G_GENOD, ROWNO } from './const.js';
 import { mkclass } from './makemon.js';
@@ -1784,6 +1785,47 @@ async function wizLoca(des) {
     des.monster({ class: 'i', peaceful: 0 });
 }
 
+// C ref: dat/Wiz-fila.lua. Six rooms above the Wizard quest locate level,
+// with imps, vampire bats, and source-ordered stairs, objects, and traps.
+async function wizFila(des) {
+    des.room({ type: 'ordinary', contents() {
+        des.stair('up');
+        des.object();
+        des.monster({ class: 'i', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.monster({ class: 'i', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.object();
+        des.monster('vampire bat');
+        des.monster('vampire bat');
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.stair('down');
+        des.object();
+        des.trap();
+        des.monster({ class: 'i', peaceful: 0 });
+        des.monster('vampire bat');
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.trap();
+        des.monster({ class: 'i', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.monster('vampire bat');
+    }});
+    des.random_corridors();
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
@@ -1802,6 +1844,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Pri-filb': priFilb,
     'Wiz-strt': wizStrt,
     'Wiz-loca': wizLoca,
+    'Wiz-fila': wizFila,
     oracle,
     tower1,
     tower2,
