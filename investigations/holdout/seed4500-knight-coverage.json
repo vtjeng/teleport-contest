@@ -1,48 +1,51 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 1025,
+  "remainingScreensUpperBound": 972,
   "status": "complete",
-  "commit": "f922afc3f15d8ced63b8ed86b407b68ff36b49ca",
+  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "remainingScreensUpperBound": 1025,
-    "step": 789,
+    "step": 842,
     "kind": "stop",
-    "function": "teleds",
-    "functionDeclared": true,
-    "sourceFile": "teleport.c",
-    "cFile": "teleport.c",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero move: teleds() dragging a punishing ball",
+    "message": "simple monster action requires monster special missile action",
     "unlocatedKinds": [],
-    "recordedSteps": 1814
+    "recordedSteps": 1814,
+    "remainingScreensUpperBound": 972
   },
-  "summary": "The current stop is teleport.c teleds() active punishment-ball handling. C unplaces the ball when dragging is disallowed, invokes drag_ball and move_bc when the chain can follow, moves the hero, and restores a free chain with placebc; js/teleport.js:1483-1489 throws before these operations. js/ball.js already contains the source-mapped helpers, so the smallest next scope is the active-ball teleds branch plus its imports and wiring, a file-port of teleport.c teleds. Earlier mk_knox_portal, mkshop, and pager boundaries have passed and their source findings remain applicable.",
+  "summary": "A hobbit attempts to shoot rocks from a sling during prayer. weapon.c select_rwep accepts this ammunition, but js/mthrowu.js thrwmu rejects every selected object outside WEAPON_CLASS; ROCK belongs to GEM_CLASS. m_throw has a second class restriction that would reject the same rock. Complete the whole thrwmu and m_throw functions with their required helpers and production wiring; removing only the observed class guards would leave their other source branches incomplete.",
   "source": {
-    "file": "teleport.c",
+    "file": "mthrowu.c",
     "functions": [
-      "teleds"
+      "m_throw",
+      "thrwmu"
     ],
-    "branch": "teleds() admits the active punishment-ball branch when Punished && uball->where != OBJ_FREE. It allows drag only when the destination is adjacent and the hero is at or below burdened capacity; when the ball must move and dragging is disallowed, C calls unplacebc(). After trap and swallow cleanup, C calls drag_ball(), calls move_bc() when dragging succeeds, rechecks the active chain after failure, and later moves the hero with u_on_newpos() and restores a free chain with placebc(). js/teleport.js:1483-1489 currently throws before these operations. Buried-ball conversion, occupied-vault, occupied-destination, mimic, and swallowed branches are separate boundaries outside this active-ball scope.",
+    "branch": "mattacku enters its AT_WEAP range2 arm outside the Rogue level. thrwmu selects ranged ammunition, passes lined_up, and does not take the retreat RNG gate when the hero has not moved away. A nonweapon missile accepted by select_rwep must then reach monshoot and m_throw. The observed monster is a hostile hobbit at (34,2), targeting the hero at (38,2), with six uncursed, ungreased rocks; JavaScript stops at thrwmu:1592 before monshoot. C has no object-class restriction here or at m_throw entry. m_throw extracts one missile, performs source-ordered flight and catch checks, applies its object-specific hit arm, and settles or returns the missile.",
     "callers": [
-      "nethack-c/upstream/src/teleport.c:715-770 safe_teleds() calls teleds() after accepting a destination; :849-914 scrolltele() calls teleds() for controlled destinations and safe_teleds() otherwise.",
-      "js/teleport.js:1357-1449 mirrors safe_teleds(), vault_tele(), and scrolltele() and reaches teleds() after destination checks.",
-      "js/steed.js:424 and :731-738 directly call teleds() with TELEDS_ALLOW_DRAG; js/apply.js:1039 calls it with TELEDS_NO_FLAGS; js/trap.js:997, :1019, and :1075 use direct or safe teleport paths."
+      "mhitu.c mattacku():883-886 calls thrwmu for AT_WEAP when range2 and outside the Rogue level. js/mhitu.js:945-950 calls the throwRangedWeapon operation; js/unported_monster_actions.js:1393-1428 binds that operation to thrwmu and monsterMissileEnv.",
+      "mthrowu.c thrwmu():1260 calls monshoot(); monshoot():262-314 computes monmulti, reports the shot, then calls m_throw once per missile. js/mthrowu.js:1449-1596 implements the corresponding chain but stops at the selected-object class guard.",
+      "Runtime diagnostic stack reaches thrwmu from mattacku, dochug, dochugw, movemon_singlemon, and planSimpleMonsterTurn. js/unported_monster_actions.js:1251-1360 supplies planning and live missile adapters; both must follow the same source order and input boundaries."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/ball.c placebc(), unplacebc(), move_bc(), and drag_ball() (placebc around :120-219, move_bc around :437-552, drag_ball around :560-830) are mirrored by existing js/ball.js:147-196, :294-376, and :386-636 implementations; js/teleport.js needs their imports and active-ball wiring.",
-      "The branch also uses source-mapped teleport state and helpers for distmin(), near_capacity(), u_on_newpos(), fill_pit(), spoteffects(), and region updates; these are already part of the existing teleport path and must retain C ordering and random behavior.",
-      "buried_ball_to_punishment() from dig.c and the vault/mimic/swallowed refusal branches are separate preconditions in teleport.c:teleds(); this scope must not claim those unresolved paths.",
-      "Earlier mklev.c:mk_knox_portal wizard-gated placement, mkroom.c:mkshop, and pager.c:self_lookat() punishment suffix findings remain valid completed boundaries and are preserved as prior context."
+      "weapon.c select_rwep():533-695 includes ROCK in rwep and selects a sling for P_SLING ammunition. Existing js/weapon.js:635-762 reaches that result. makemon.c m_initweap():362-374 equips hobbits with a sling and flint or rocks through its ordinary random selection. Preserve this general selection; no species-specific permission is needed.",
+      "The whole thrwmu():1174-1263 also includes polearm range/visibility/damage and autoreturn_weapon handling, currently refused by js/mthrowu.js:1560 and by the production throwRangedWeapon wrapper. Include these branches and the required mon_wield_item, autoreturn_weapon, mwelded, mswings_verb, dmgval, thitu, lined_up, monshoot, stop_occupation and nomul wiring when completing this source unit.",
+      "The whole m_throw():572-844 includes cursed/greased misfire, tethered return flight, monster interception, gem and ordinary catching, potion/egg/pie/venom hits, poison, blindness, petrification, flight termination and settlement. JS still refuses several of these and hard-codes tethered_weapon=false. Read and complete required return-valued helpers, including ucatchgem():505-529, u_catch_thrown_obj():531-549, ohitmon, shade_miss, hits_bars, can_blnd and the petrification test; preserve existing implementations that are correct.",
+      "JS u_catch_thrown_obj():486-503 still refuses a successful catch although its result is consumed by m_throw. It must implement hold_another_object and source settlement when included in the completed flight unit. Existing return_from_mtoss and the remaining drop_throw, monmulti, monshoot, thitu and object helpers require source/wiring verification; declarations alone are not completion evidence.",
+      "For the observed ordinary rock miss, thitu():75-155 already has the generic hit/miss and stone_missile branches in js/mthrowu.js:1624-1742. The reference draw sequence is monmulti, splitobj/next_ident, per-square flight, failed catch, dmgval, thitu miss, then final flight. Preserve RNG order, inventory ownership, thrownobj, and tty input boundaries through planning and live execution."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json at commit f922afc3f15d8ced63b8ed86b407b68ff36b49ca reports holdout/seed4500-knight-coverage step 789, stop message `unsupported hero move: teleds() dragging a punishing ball`, and remainingScreensUpperBound 1025.",
-    "sessions/holdout/seed4500-knight-coverage.session.json is the explicit assigned recording; its current stop is step 789 of 1814 recorded steps. The investigation uses no other holdout path or session-specific implementation condition.",
-    "nethack-c/upstream/src/teleport.c:448-573 defines teleds() and contains the Punished, active-ball, drag_ball, move_bc, unplacebc, placebc, and u_on_newpos sequence; js/teleport.js:1466-1570 mirrors the function but throws at :1483-1489 when state.uball is active.",
-    "js/ball.js:147-196, :294-376, and :386-636 already provide placebc/unplacebc, move_bc, and drag_ball, so the actionable gap is the teleds() branch and production import wiring rather than a new ball.c port.",
-    "The production call graph is source-general through safe_teleds()/scrolltele() plus direct steed, apply, and trap callers; no seed, input, or expected screen is encoded in the proposed scope. Earlier mk_knox_portal, mkshop, and self_lookat findings remain in the prior cache record context."
+    ".cache/resume-queue.json assigns holdout/seed4500-knight-coverage first stop 842, recordedSteps 1814, and remainingScreensUpperBound 972 at examined commit a0986b8404a83d232bee4bd2b5a9433337cf2739. The queue message is `simple monster action requires monster special missile action`; its generic label alone did not identify the cause.",
+    ".cache/investigate-seed4500-a0986b8/diagnostic.json and replay.log record a focused replay of only the assigned fixed session using an immutable git-archive snapshot of a0986b8 with the scorer frozen-file overlays. Diagnostic-only logging identifies thrwmu guard site 2, monster mnum 43, ROCK otyp 474/GEM_CLASS 13, quantity 6, and the unchanged stop after 842 screens and 61406 RNG calls. Source constants in js/monsters.js:281 and js/objects.js:20,162,549 identify the hobbit, gem class, sling and rock.",
+    "The examined commit gitlink and local C checkout both equal 16ff59115315917b93185d026aeefea06db9b0f4. Read complete C m_throw():572-844 and thrwmu():1174-1263, plus monmulti/monshoot():201-314, ucatchgem/u_catch_thrown_obj():505-549, thitu/drop_throw():75-196 and select_rwep():533-695. Their source accepts nonweapon ammunition; the two JS refusal sites are mthrowu.js:873 and :1592.",
+    "sessions/holdout/seed4500-knight-coverage.session.json normalized segment 0 step 842 records `It misses.  You finish your prayer.  You feel that Lugh is displeased.` The ranged sequence contains rnd(1)=1 at monmulti, rnd(2)=1 at next_ident, flight rn2(5) results 1/2/1, rn2(91)=19 at u_catch_thrown_obj, rnd(3)=3 at dmgval, rnd(20)=20 at thitu, and flight rn2(5)=0. This confirms C executes an ordinary missile miss before completing prayer.",
+    "Whole-source scope is the thrwmu/m_throw family and its required consumed helpers, with matching caller changes. A two-line admission patch alone does not complete either function: their other refusal branches, tethered-flight substitute, and catch behavior remain part of the same source units. Independent recipes should exercise sling rocks and a cheap ammunition variation, then the selected functions other entry points; the fixed input is diagnostic evidence only.",
+    "The previous cache at f922afc3f15d8ced63b8ed86b407b68ff36b49ca described teleds punishment-ball handling at step 789 and count 1025. That boundary has passed: the assigned scan and pinned replay now reach 842. Prior mk_knox_portal, mkshop and self_lookat findings remain historical context and are not the current owner. The count 972 is an upper bound, not a predicted gain."
   ]
 }

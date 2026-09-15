@@ -1,45 +1,52 @@
 {
   "session": "holdout/seed0116-wizard-wear-shop",
-  "remainingScreensUpperBound": 47,
+  "remainingScreensUpperBound": 2,
   "status": "complete",
-  "commit": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
   "mismatch": {
     "session": "holdout/seed0116-wizard-wear-shop",
-    "step": 80,
+    "step": 125,
     "kind": "stop",
-    "function": "zap_dig",
+    "function": null,
     "functionDeclared": false,
-    "sourceFile": "dig.c",
-    "cFile": "dig.c",
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zap_dig()",
+    "message": "unsupported monster distress state: equipped or attached lycanthrope",
     "unlocatedKinds": [],
     "recordedSteps": 127,
-    "remainingScreensUpperBound": 47
+    "remainingScreensUpperBound": 2
   },
-  "summary": "Payment now passes. At step80 the southward wand-of-digging effect stops because zap.weffects rejects WAN_DIGGING instead of calling dig.c zap_dig. Port the whole zap_dig function and required consumed-result helpers, then wire the existing wand and spell dispatcher.",
+  "summary": "The digging stop is resolved. At step 125, ordinary upkeep tries to transform a sleeping human wererat carrying an unworn healing potion. The inventory guard in the partial new_were implementation rejects it. Complete were.c new_were, remove its unsupported-state guards, and wire its shared transformation callers and source-ordered equipment and fear handling.",
   "source": {
-    "file": "dig.c",
+    "file": "were.c",
     "functions": [
-      "zap_dig"
+      "new_were"
     ],
-    "branch": "The stopped hero is at(12,13) on dungeon level2 with dx0,dy1,dz0, not swallowed or trapped. This is ordinary horizontal digging on a non-maze, non-cavernous level without a shop: ROOM squares(12,14),(12,15), diggable HWALL(12,16), then stone. C draws rn1(18,8), displays and delays the beam, changes terrain and vision, and closes the beam; JavaScript refuses before it runs.",
+    "branch": "were_change sees a human wererat without Protection_from_shape_changers during daytime and outside the full moon; rn2(50) returns 0. The selected monster is sleeping, has 23/23 HP, carries a healing potion with owornmask 0, and has no weapon, worn armor, leash, steed or stuck relationship. context.mon_moving is false. C new_were changes its species, wakes it, heals one quarter of lost HP, redraws, then checks armor and weapons; the carried potion does not prohibit or change the transformation. JavaScript stops at preflightNewWere solely because minvent is non-null.",
     "callers": [
-      "cmd.js runZapCommand -> zap.js dozap -> weffects; C zap.c3460 calls zap_dig for WAN_DIGGING/SPE_DIG.",
-      "spell.js sends applicable spell effects through weffects; the same dig.c owner must serve both sources."
+      "C allmain.c moveloop_core:228 -> mon.c mcalcdistress:1174 -> m_calcdistress:1180-1208 -> were.c were_change:9-45 -> new_were:96. JavaScript allmain.js finishElapsedTurn:714 -> mon.js mcalcdistress:3425 -> m_calcdistress:3385 -> were_change:3316 -> new_were:2737; planElapsedTurn repeats the same upkeep on a cloned state before the live turn.",
+      "C mon.c normal_shape:4431-4446 also calls new_were for an animal-form lycanthrope. JavaScript mon.js normal_shape:3246-3257 instead calls restoreWereShapeSynchronously:3213, which duplicates the same guarded partial transformation. Reconcile this caller with the completed source owner and preserve message/input sequencing through rescham and restoration callers.",
+      "C mhitu.c summonmu:956-985 has direct new_were calls during monster movement. JavaScript mhitu.js mattacku:794-795 still refuses the whole were-creature summoning branch; that remains a separate unported caller. The completed new_were must nevertheless implement its context.mon_moving fear branch rather than retaining the blanket refusal."
     ],
     "dependencies": [
-      "Whole dig.c zap_dig1548–1754 includes swallowed, vertical, horizontal, maze, adjacent-pit and shop-damage branches.",
-      "Consumed-result adj_pit_checks1763–1838 and fillholetyp606–637 need whole implementations. Existing hack.may_dig and trap.conjoined_pits supply source predicates.",
-      "Preserve source temporary-beam animation/delay, terrain flags, vision and later weffects learnwand handling. Missing discarded-result watch_dig, dighole, pit_flow, add_damage and pay_for_damage follow the allowed-gap rules; do not invent effects."
+      "Port the complete were.c new_were:95-138, including protection, unknown-species handling, visible non-hallucinating feedback, set_mon_data, helpless wakeup, healmon, redraw, equipment checks, and short-circuited fear. Keep were.c code in js/were.js and reconcile the existing were_change/counter_were/new_were implementations in js/mon.js without retaining duplicate transformation logic or obsolete preflight guards.",
+      "Consumed-result dependencies are counter_were and the species, visibility, hallucination, helpless, onscary and monnear predicates. counter_were is already in mon.js:2668; onscary and monnear are in monmove.js:1757 and :1803. Reuse and verify these source predicates. Preserve the final test order context.mon_moving && !mpeaceful && onscary(mux,muy,mon) && monnear(mon,mux,muy), then draw rn1(9,2).",
+      "C calls worn.c mon_break_armor:1177-1335 and weapon.c possibly_unwield:747-795 after redraw. mon_break_armor has no JavaScript declaration; possibly_unwield at weapon.js:1040 only implements the no-weapon return. Both calls discard their return values, so any still-unported branches must use named note_unported gaps under the allowed-gap rule, without a new refusal or invented equipment effects. Completing either helper requires its whole source function and consumed-result callees.",
+      "mon.c healmon already exists at mon.js:5514; call it with integer one-quarter lost HP and overheal 0. monmove.js monflee:2011 exists but requires visibility/message operations when emitting fear feedback. Adapt those operations for both planning and live execution, preserving clone-local state and RNG and suppressing only planning display."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Fresh queue atfe38104c records stop80/127 and remaining-screen bound47. Read-only investigator ran two single-session scanRecordedSession replays00:15:30–00:17:45UTC: both emitted80screens with no earlier divergence; second established the stopped hero/terrain state.",
-    "Input78 z,79 wandp,80 directionj enters zap.weffects' explicit zap_dig refusal. The fixed C recording has7beam animation frames at80; j is a direction answer, not a movement command.",
-    "Investigator read whole zap_dig and adjacent helper and searched declarations: no zap_dig, adj_pit_checks or fillholetyp implementation. Coordinator independently read whole zap_dig and fillholetyp and verified consumed-result call sites.",
-    "Metadata HEAD advanced during investigation, but git diff fe38104c -- js scripts frozen stayed empty. No source edits or fixed recordings changed during these diagnostic replays."
+    "Assigned queue .cache/resume-queue.json and the saved scan at a0986b8404a83d232bee4bd2b5a9433337cf2739 identify stop 125/127 with remainingScreensUpperBound 2. The stale 47-screen investigation described zap_dig at step 80 and no longer identifies the first blocker.",
+    "Single-session scanRecordedSession replay from an immutable git archive of a0986b8404a83d232bee4bd2b5a9433337cf2739, with frozen isaac64.js, terminal.js and storage.js overlaid as in scoring-workspace.mjs, emitted 125 screens with divergence null. Diagnostic: .cache/seed0116-a0986b84/diagnostic.json. Only the assigned fixed session was replayed; no aggregate scorer, fresh C run or full suite was run.",
+    "A second assigned-session replay followed by the existing preflightSimpleMonsterActions/finishElapsedTurn call captured the failing planned state without changing game source. .cache/seed0116-a0986b84/planned-state.json records the exact stack through mon.js:2704/2740/3344/3408/3456 and allmain.js:714, plus its sole upkeep draw rn2(50)=0.",
+    "The planned monster is human wererat PM 261, id 305, at (47,5), sleeping with 23/23 HP; minvent contains POT_HEALING (otyp 307), owornmask 0. mw is null, misc_worn_check is 0, mleashed is false, and hero steed/stuck pointers are null. The hero is at (32,10), level {dnum:4,dlevel:1}; moonphase is 1, shapechanger protection intrinsic/extrinsic are 0, and mon_moving is false. These identities establish diagnostic preconditions and are not implementation selectors.",
+    "Pinned C gitlink is 16ff59115315917b93185d026aeefea06db9b0f4. Read were.c:8-138 with git show at that revision. were_change:14-19 selects the daytime non-full-moon denominator 50 and calls new_were before incrementing were_changes. new_were:119-130 changes species, wakes helpless monsters, heals, redraws, checks armor, then unwields; its source has no inventory or attachment prohibition.",
+    "The fixed C step 125 records rn2(50)=0 @ were_change(were.c:17), followed by monster movement allocation. Its screen advances the turn to 26 without a transformation message; final step 126 is look. This supports the diagnosed source path, while the two-screen count remains an upper bound rather than a promised gain.",
+    "Pinned JavaScript mon.js:2699-2711 refuses any minvent, worn item, leash, steed/stuck relation, or mon_moving context. new_were:2734-2769 implements only feedback and basic form/wakeup/healing/redraw. mon.js:3213-3239 duplicates that partial path for normal_shape and swallows rejected asynchronous message promises; replacing the source owner must reconcile that existing caller.",
+    "git grep -n -e \"function mon_break_armor\" -e \"function possibly_unwield\" -e \"function onscary\" -e \"function monnear\" -e \"function monflee\" a0986b8404a83d232bee4bd2b5a9433337cf2739 -- js found onscary/monnear/monflee in monmove.js and possibly_unwield in weapon.js, with no mon_break_armor declaration. Read worn.c:1177-1335 and weapon.c:747-795 to distinguish the discarded-result equipment helpers from the consumed-result predicates.",
+    "Implementation scope is the whole new_were function and its existing production wiring. Independent completion recipes should cover human-to-animal and animal-to-human transformation, carried unworn inventory, protection from shape changers, wakeup/healing, and visible feedback; equipment and monster-moving fear branches require source-based coverage or named allowed gaps for unported void callees. This investigation does not establish source completion."
   ]
 }

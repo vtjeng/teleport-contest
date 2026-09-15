@@ -1,49 +1,50 @@
 {
   "session": "holdout/seed0106-priest-extcmd-sweep",
-  "remainingScreensUpperBound": 238,
+  "remainingScreensUpperBound": 227,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
   "mismatch": {
     "session": "holdout/seed0106-priest-extcmd-sweep",
-    "remainingScreensUpperBound": 238,
-    "step": 29,
-    "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "step": 40,
+    "kind": "rng",
+    "function": "monmulti",
+    "functionDeclared": true,
+    "sourceFile": "mthrowu.c",
+    "cFile": "mthrowu.c",
     "luaFile": null,
-    "line": null,
-    "message": "unsupported hero command: an unported branch of this command: #chat needs a monster occupying the target square",
+    "line": 238,
+    "message": null,
     "unlocatedKinds": [],
-    "recordedSteps": 267
+    "recordedSteps": 267,
+    "remainingScreensUpperBound": 227
   },
-  "summary": "At step 29, #chat's l direction targets the tame little dog immediately east of the hero. C dochat() finds that monster and calls domonnoise(); its MS_BARK branch selects barks. and the common tail returns ECMD_TIME. JS reaches the same target through dochat() but domonnoise() still rejects every ordinary monster with UnsupportedChatError. Port the source-faithful sounds.c domonnoise() function and wire its ordinary sound branches, beginning with MS_BARK, to remove this boundary.",
+  "summary": "The first divergence is a missed kobold dart attack. In weapon.c select_rwep(), negative weapon skills outside bow, sling and crossbow retain hands_obj as their propellor, so darts and shuriken need no launcher. JavaScript launcherFor() returns null for those skills and select_rwep() skips the weapon; repair that branch of the complete selection function and preserve its caller contracts.",
   "source": {
-    "file": "sounds.c",
-    "branch": "domonnoise() MS_BARK arm (837-854), reached from dochat() when m_at(tx, ty) returns a visible, non-mimic target; this recording's target is a peaceful, tame little dog with no moon, confusion, fleeing, trapped, or hunger condition, so the branch prints barks.",
+    "file": "weapon.c",
     "functions": [
-      "domonnoise"
+      "select_rwep"
     ],
+    "branch": "The ranged-weapon preference loop reaches a dart or shuriken with negative oc_skill, an eligible inventory object, and no welded weapon prohibiting the throw. C weapon.c:627-650 initializes gp.propellor to &hands_obj, then replaces it only for P_BOW, P_SLING or P_CROSSBOW; the unmatched negative skill retains the sentinel. At the examined first divergence, an unconfused hostile kobold carries nine darts, has no wielded weapon, and is aligned with the approaching hero. JavaScript launcherFor() defaults to null, and select_rwep() continues before selecting the dart.",
     "callers": [
-      "dochat",
-      "dotalk",
-      "cmd.c extcmdlist[] chat row"
+      "C mthrowu.c thrwmu():1184-1194 invokes mon_wield_item() and select_rwep(); its selected missile reaches monshoot():1259 and monmulti(). JavaScript js/unported_monster_actions.js throwRangedWeapon():1394-1428 dispatches to js/mthrowu.js thrwmu():1531-1600, which uses select_rwep for both its launcher side result and its missile result.",
+      "Production attack path: monmove.c dochug() permits a non-nearby AT_WEAP monster to shoot after moving, then mhitu.c mattacku() dispatches its range2 AT_WEAP arm to thrwmu(). Corresponding JavaScript gates are js/monmove.js:2579-2620 and js/mhitu.js:945-952, through attackHeroWithMattacku().",
+      "Other consumed selection callers are C mthrowu.c thrwmm():984, weapon.c mon_wield_item():814 and monmove.c dochug():855; JavaScript js/mthrowu.js:1255-1266 and js/monmove.js wield_pre_move_weapon() use the same selection and propellor contract. Preserve them while repairing the shared function."
     ],
     "dependencies": [
-      "m_at",
-      "Monnam",
-      "EDOG(mtmp)->hungrytime",
-      "svm.moves",
-      "flags.moonphase and night",
-      "ECMD_TIME common return"
+      "include/objects.h:160-165 defines DART with -P_DART and SHURIKEN with -P_SHURIKEN. js/weapon.js RANGED_WEAPONS includes both; no species or session exception is needed.",
+      "js/weapon.js launcherFor():615-629 is an extracted part of C select_rwep(), not a separate source unit. Its default result must preserve the C hands_obj choice while missing bow, sling and crossbow launchers still yield null.",
+      "C oselect(), can_touch_safely(), mwelded(), m_carrying(), object skill data and the ranged preference order govern which candidate is returned. Verify the entire select_rwep() function at weapon.c:533-676 and its consumed return values; preserve artifact, welded, loadstone, gem, polearm and return-weapon branches.",
+      "hands_obj flows through propellorResult to mon_wield_item(), whose no-launcher-needed path consumes no wield turn. thrwmu() then selects the missile again, checks lined_up() and retreat conditions, and enters existing monshoot()/monmulti()/m_throw() behavior. The observed annotation names the first missing RNG call rather than the defective owner."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "sessions/holdout/seed0106-priest-extcmd-sweep.session.json segments[0].steps[28-29] show the talk prompt followed by key l and the C message The little dog barks.; the map places the tame dog on the target square.",
-    "experiments/generalization/holdout-baseline.json records 29 of 267 matching screens at the examined commit and the #chat target-square boundary; its source finding identifies sounds.c dochat/dotalk and domonnoise MS_BARK.",
-    "nethack-c/upstream/src/sounds.c:837-854, 1241, 1247-1254, and 1256-1409 show the MS_BARK message, target lookup, domonnoise dispatch, and ECMD_TIME return.",
-    "js/sounds.js:937-998 and 1050-1198 route dochat() to domonnoise(), which currently throws UnsupportedChatError for an ordinary target monster; the smallest scope is the source-backed domonnoise() branch and command wiring."
+    "All game source reads and the diagnostic replay use a0986b8404a83d232bee4bd2b5a9433337cf2739. Its nethack-c/upstream gitlink is 16ff59115315917b93185d026aeefea06db9b0f4; C reads use that submodule revision. The previous chat investigation at count 238 is obsolete because the queue count is now 227.",
+    ".cache/scan-cache.json at the examined commit records first RNG mismatch index 2912, step 40/key h: C rnd(1)=1 from monmulti(mthrowu.c:238), JavaScript rn2(12)=8. The same screen first differs on the top line: C begins You are hit by a dart.; JavaScript is blank. Matching calls immediately before the divergence include dog_move, m_move and distfleeck.",
+    "Assigned-session-only replay in .cache/investigate0106-a0986b uses an immutable git archive with frozen isaac64.js, terminal.js and storage.js overlaid exactly as the scoring workspace does. replay.json reproduces 109 emitted screens and the missing attack draws. states.json records the step-40 kobold at JavaScript map (58,6), remembered hero (62,6), quantity 9 of DART (otyp 24), no wielded weapon, mconf false, mpeaceful false, couldsee true and cansee false. Its darts remain unspent at the next boundary.",
+    "The source trace is weapon.c:627-656: initialize gp.propellor to &hands_obj for each rwep candidate, switch only the three launcher skills, apply the welded-current-weapon exclusion, then select the missile whenever gp.propellor is non-null. JavaScript js/weapon.js:615-629 returns null in launcherFor default; :730-741 assigns that null for every negative unrecognized skill and skips the candidate. C therefore attempts the dart throw while JavaScript returns no missile.",
+    ".cache/investigate0106-a0986b/selection-probe.json exercises the unmodified examined select_rwep() using the captured kobold coordinates and inventory shape: DART skill -23 and SHURIKEN skill -24 both return null; a positive-skill DAGGER is selected, and an ARROW without a launcher is rejected. This isolates the selection error without modifying game behavior or running a fresh C recording.",
+    "The actionable whole-unit scope is a divergence fix in weapon.c select_rwep() and its JavaScript launcherFor extraction, with existing caller wiring retained and verified. Extend the existing source-pinned selection tests in scripts/weapon.test.mjs:290-370 to cover launcher-free negative skills, their preference order, and the welded exclusion; existing dagger and arrow fixtures do not cover that switch default. Independent recorded play must reach actual dart and shuriken throwing before implementation is considered validated.",
+    "The 227-screen upper bound is scheduling provenance, not a predicted gain. This investigation establishes the first missing attack; later potion_dip and extended-command stops remain outside this scope, and no post-fix parity or aggregate score is claimed."
   ]
 }

@@ -1,42 +1,48 @@
 {
   "session": "seed0014-dequa-fountain-explore",
-  "remainingScreensUpperBound": 90,
+  "remainingScreensUpperBound": 67,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
   "mismatch": {
     "session": "seed0014-dequa-fountain-explore",
-    "remainingScreensUpperBound": 90,
-    "step": 624,
-    "kind": "stop",
+    "step": 647,
+    "kind": "cursor",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero move: first bash message",
+    "message": null,
     "unlocatedKinds": [],
-    "recordedSteps": 714
+    "recordedSteps": 714,
+    "remainingScreensUpperBound": 67
   },
-  "summary": "The movement command h enters a monster square after a kick. C do_attack() clears gu.unweapon, emits the verbose bare-hand bash message, and continues into exercise(A_STR), u_wipe_engr(3), and hitum(). JS clears state.unweapon but throws at the first bash message, so the queue stops before the recorded hitum() and passive/monster-turn RNG. The missing behavior is the source-faithful message branch plus continuation; no new random call belongs to the message itself.",
+  "summary": "goto_level() leaves the old level’s travel destination cached. C clears iflags.travelcc after reset_trapset(); JavaScript skips that assignment under an obsolete unported-travel comment. After descending, the next travel prompt starts at the old destination instead of the hero. The mismatch is deterministic state left behind by level departure.",
   "source": {
-    "file": "uhitm.c",
-    "functions": ["do_attack"],
-    "branch": "A hero movement command enters a monster square after a kick; the verbose bare-hand bash message is emitted, then exercise(A_STR), u_wipe_engr(3), and hitum() continue. The JavaScript branch clears state.unweapon but stops at the message refusal.",
+    "file": "do.c",
+    "functions": [
+      "goto_level"
+    ],
+    "branch": "A successful level change passes the same-level and quest guards while iflags.travelcc holds a destination selected on the departing level. Clear both cached coordinates during context discard, after reset_trapset() and before clearing the polearm target. Rejected or same-level transitions return before that reset.",
     "callers": [
-      "js/uhitm.js:do_attack() is reached by the ordinary movement attack path in js/hack.js and js/cmd.js",
-      "nethack-c/upstream/src/uhitm.c:do_attack() is dispatched from the hero movement attack path"
+      "js/cmd.js:3361 and 5643 dispatch the > command through dodown(); js/do.js:1174 calls next_level(!trap, state, { gotoLevel: goto_level }). This matches do.c dodown():1288-1291.",
+      "js/dungeon.js:764-787 next_level() invokes the injected goto_level() with the staircase destination, matching dungeon.c next_level():1497-1514. The observed step 599 descends through this path.",
+      "js/cmd.js:2596-2626 dotravel() reads iflags.travelcc; cmd.c dotravel():5314-5341 uses the hero position only when both cached coordinates are zero. js/getpos.js:529-550 positions the prompt cursor at those coordinates."
     ],
     "dependencies": [
-      "js/uhitm.js: exercise(), u_wipe_engr(), hitum(), and passive/monster-turn continuation",
-      "nethack-c/upstream/src/uhitm.c:539-550 and hitum() continuation"
+      "iflags.travelcc is the existing travel destination cache shared by cmd.c dotravel()/dotravel_target(), hack.c findtravelpath(), and level departure. Retain that single state location; u.tx/u.ty are distinct C fields and are not reset by do.c:1607.",
+      "Existing maybe_reset_pick(), reset_trapset(), and context.polearm.hitmon establish the source ordering. This correction needs no additional callee or random draw."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    ".cache/scan-cache.json rows[file=seed0014-dequa-fountain-explore.session.json] records commit cc1b4453d14fd4a0e995170e3842ad622790c8a5, step 624, and remainingScreensUpperBound 90.",
-    "sessions/seed0014-dequa-fountain-explore.session.json segments[0].steps[624] records key h (movewest), cursor [70,0,1], and the C bare-hand bash message before the later hitum(), passive(), and monster-action RNG calls.",
-    "nethack-c/upstream/src/uhitm.c:539-550 prints the conditional bare-hand bash message and continues into exercise(A_STR), u_wipe_engr(3), and hitum(); js/uhitm.js:782-788 clears state.unweapon and then refuses at the first bash message.",
-    "The smallest general scope is the source-faithful message branch and continuation in do_attack(); no random draw belongs to the message itself, and no session-specific value is required."
+    "Pinned source: a0986b8404a83d232bee4bd2b5a9433337cf2739 records nethack-c/upstream at 16ff59115315917b93185d026aeefea06db9b0f4. All JavaScript source reads used git show at the examined commit; C reads used the pinned submodule revision.",
+    ".cache/scan-cache.json at the examined commit records 655 emitted screens, first cursor mismatch at segment 0 step 647 key _, C [6,9,1], JavaScript [65,12,1], and no RNG or screen divergence in its compared prefix. The old cache’s step 624 first-bash-message refusal is already implemented in js/uhitm.js do_attack().",
+    ".cache/seed0014-investigation-a0986b84/replay.mjs replays only the assigned fixed session from a Git archive of the examined commit with frozen isaac64.js, terminal.js, and storage.js overlaid. Its capture-hook wrapper records state without changing game behavior; replay.json contains the output. All per-step RNG calls agree across 655 captured boundaries, and decoded cells agree throughout steps 7-654, including the mismatch. Startup banner cells at steps 0-6 differ in this direct runner and do not participate in the travel-state diagnosis.",
+    "Replay steps 591-598 select and retain travelcc {x:66,y:11} on dungeon 2 level 1. Step 599 changes u.uz to {dnum:2,dlevel:2}, arrives at {ux:69,uy:19}, and retains travelcc {x:66,y:11}. At step 647, u is {ux:7,uy:8}; getpos receives {66,11}, yielding terminal cursor [65,12,1]. C records [6,9,1], the cursor for the current hero square, while the prompt cells and RNG agree.",
+    "nethack-c/upstream/src/do.c:1583 returns for the same level. Its context-discard block at 1601-1608 calls maybe_reset_pick(NULL), reset_trapset(), assigns iflags.travelcc.x = iflags.travelcc.y = 0, then clears context.polearm.hitmon. js/do.js:1351-1354 makes the first two calls but replaces the travel assignment with the stale comment that travel and its field are unported.",
+    "The actionable scope is a divergence fix in the whole goto_level() source unit (do.c:1479-1998; js/do.js:1262 onward): restore the missing context-discard assignment at the C position and remove the obsolete comment. Verify that successful level changes reset the cache, same-level or rejected transitions preserve it, and the next travel prompt starts at the hero. Existing cmd.c/getpos.c cursor handling already follows its supplied state; changing cursor placement would conceal the earlier state defect.",
+    "The replay still stops at step 655 with simple monster action requires trap activation. This later source gap is separate; remainingScreensUpperBound 67 is a queue priority bound, not a predicted gain from the travel-cache correction."
   ]
 }
