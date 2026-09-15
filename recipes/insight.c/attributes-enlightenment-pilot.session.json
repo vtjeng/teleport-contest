@@ -16,6 +16,20 @@
       "moves": "\u001b\u0018 \u001b"
     },
     {
+      "seed": 8151011,
+      "datetime": "20010405060708",
+      "nethackrc": "OPTIONS=name:Enlight,role:Archeologist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:explore\n",
+      "comment": "Independently chosen explore route (new seed, date, and female Archeologist) reaches the automatic-searching report: You have automatic searching.",
+      "moves": "\u001b\u0018 \u001b"
+    },
+    {
+      "seed": 8151012,
+      "datetime": "20010405060708",
+      "nethackrc": "OPTIONS=name:Enlight,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:explore\n",
+      "comment": "Independently chosen explore route (new seed, date, elven Ranger, and chaotic alignment) reaches automatic searching and racial infravision: You have automatic searching; You have infravision.",
+      "moves": "\u001b\u0018 \u001b"
+    },
+    {
       "seed": 8151004,
       "datetime": "20000110090000",
       "nethackrc": "OPTIONS=name:Enlight,role:Caveman,race:human,gender:female,align:neutral\nOPTIONS=playmode:explore\nOPTIONS=!bones\n",

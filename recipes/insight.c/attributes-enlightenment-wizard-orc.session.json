@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8151013,
+      "datetime": "20010405060708",
+      "nethackrc": "OPTIONS=name:EnlightOrc,role:Wizard,race:orc,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,showexp,time,color,lit_corridor\n",
+      "comment": "Independently chosen debug route (new seed, date, and orc race) reaches the exact Wizard report lines 'You are magic-protected because of your cloak of magic resistance.' and 'You have infravision innately.'.",
+      "moves": "\u001b\u0018 \u001b"
+    }
+  ]
+}

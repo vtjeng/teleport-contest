@@ -12,15 +12,12 @@
 // normal-mode row carries neither, and is here so a port that ignored the mode
 // bit and always emitted them would fail.
 //
-// The three attributes_enlightenment() lines the port covers are chosen for
-// what varies between rows:
+// The attributes_enlightenment() lines are chosen for properties that vary
+// between rows:
 //
-// - the piousness() line at insight.c:1509. Every role whose role.c initrecord
-//   is 10 also holds an XL1 intrinsic that stops the window -- Archeologist
-//   and Ranger HSearching, Barbarian and Healer HPoison_resistance, Monk five
-//   at once, Rogue HStealth, Samurai HFast, Knight Jumping -- and every
-//   non-human race holds HInfravision, so a recorded case can only reach the
-//   record-0 wording. scripts/insight.test.mjs pins the other two arms.
+// - the piousness() line at insight.c:1509. The Archeologist and Ranger rows
+//   exercise automatic searching, and the elven Ranger also exercises racial
+//   infravision. scripts/insight.test.mjs pins the remaining record wordings.
 // - the magic-cancellation line at insight.c:1800. The Caveman's leather
 //   armor has objects.c a_can 1, so mhitu.c magic_negation() answers 1 and the
 //   line reads "warded"; the Tourist wears only a Hawaiian shirt, whose a_can
@@ -36,6 +33,10 @@
 
 import { game } from '../js/gstate.js';
 import { magic_negation } from '../js/mhitu.js';
+import { enlightenment } from '../js/insight.js';
+import {
+    BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, MAGICENLIGHTENMENT,
+} from '../js/const.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
@@ -49,21 +50,30 @@ const ATTRIBUTES = '\x18';
 // getline.c xwaitforspace() takes a space to turn a menu page.
 const PAGE = ' ';
 
-function nethackrc(character, ...extra) {
+function namedNethackrc(name, character, ...extra) {
     return [
-        `OPTIONS=name:Enlight,${character},!legacy,!tutorial,!splash_screen`,
+        `OPTIONS=name:${name},${character},!legacy,!tutorial,!splash_screen`,
         ...extra,
         '',
     ].join('\n');
 }
 
+function nethackrc(character, ...extra) {
+    return namedNethackrc('Enlight', character, ...extra);
+}
+
 const CAVEMAN = 'role:Caveman,race:human,gender:male,align:neutral';
 const CAVEWOMAN = 'role:Caveman,race:human,gender:female,align:neutral';
 const TOURIST = 'role:Tourist,race:human,gender:male,align:neutral';
+const ARCHEOLOGIST = 'role:Archeologist,race:human,gender:female,align:neutral';
+const RANGER_ELF = 'role:Ranger,race:elf,gender:male,align:chaotic';
+const WIZARD_ORC = 'role:Wizard,race:orc,gender:male,align:neutral';
 const EXPLORE = 'OPTIONS=playmode:explore';
 
-// Four ordinary seeds plus one authorized debug seed, so a level layout that
-// happened to hide a divergence in one cannot hide it in the whole matrix.
+// Independent role/race seeds exercise the automatic-searching and racial
+// infravision properties in addition to the equipment-backed wizard case.
+// The normal-mode row remains a command-path check; it does not execute
+// attributes_enlightenment().
 export const ATTRIBUTE_CASES = [
     {
         label: 'explore Caveman, magic cancellation 1',
@@ -83,6 +93,27 @@ export const ATTRIBUTE_CASES = [
         // insight.c:1800's `> 0` fails and the section skips the line.
         mc: 0,
         bones: true,
+    },
+    {
+        label: 'explore Archeologist, automatic searching',
+        seed: 8151011,
+        nethackrc: nethackrc(ARCHEOLOGIST, EXPLORE),
+        discover: true,
+        mc: 0,
+        bones: true,
+        reportLines: [' You have automatic searching.'],
+    },
+    {
+        label: 'explore elven Ranger, searching and infravision',
+        seed: 8151012,
+        nethackrc: nethackrc(RANGER_ELF, EXPLORE),
+        discover: true,
+        mc: 1,
+        bones: true,
+        reportLines: [
+            ' You have automatic searching.',
+            ' You have infravision.',
+        ],
     },
     {
         label: 'explore Caveman, bones loading disabled',
@@ -117,6 +148,24 @@ export const ATTRIBUTE_CASES = [
     },
 ];
 
+const WIZARD_ORC_CASE = {
+    label: 'debug orc Wizard, equipment and racial properties',
+    seed: 8151013,
+    nethackrc: namedNethackrc(
+        'EnlightOrc',
+        WIZARD_ORC,
+        'OPTIONS=playmode:debug,showexp,time,color,lit_corridor',
+    ),
+    discover: false,
+    wizard: true,
+    mc: 1,
+    bones: true,
+    reportLines: [
+        ' You are magic-protected because of your cloak of magic resistance.',
+        ' You have infravision innately.',
+    ],
+};
+
 // Each segment dismisses the welcome message, opens the window, turns to its
 // second page and closes it. doattributes() answers ECMD_OK, so no move is
 // spent and the closing <esc> lands back on the same map screen every row
@@ -132,8 +181,20 @@ export function loadAttributesRecipe() {
     });
 }
 
+export function loadWizardOrcRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: WIZARD_ORC_CASE.seed,
+            datetime: '20010405060708',
+            nethackrc: WIZARD_ORC_CASE.nethackrc,
+            moves: MOVES,
+        }],
+    });
+}
+
 const CASE_BY_SEED = new Map(
-    ATTRIBUTE_CASES.map((entry) => [entry.seed, entry]),
+    [...ATTRIBUTE_CASES, WIZARD_ORC_CASE].map((entry) => [entry.seed, entry]),
 );
 
 // The screens show that a window appeared, not that the port chose its
@@ -178,12 +239,26 @@ export async function verifyAttributesSegment(recipeSegment) {
         throw new Error(`${expected.label}: gp.p_type is ${p_type},`
             + ` not ${expected_p_type}`);
     }
+    if (expected.reportLines) {
+        const lines = await enlightenment(
+            BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
+            ENL_GAMEINPROGRESS,
+            game,
+        );
+        for (const reportLine of expected.reportLines) {
+            if (!lines.includes(reportLine)) {
+                throw new Error(`${expected.label}: report is missing`
+                    + ` ${reportLine}`);
+            }
+        }
+    }
 }
 
 export async function runAttributesCommandMatrix() {
     return runFreshMatrix({
         entries: [
             { label: 'attributes window', recipe: loadAttributesRecipe() },
+            { label: 'orc Wizard attributes', recipe: loadWizardOrcRecipe() },
         ],
         summaryLabel: 'ATTRIBUTES COMMAND',
         verifySegment: verifyAttributesSegment,

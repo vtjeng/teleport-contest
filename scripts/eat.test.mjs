@@ -26,6 +26,7 @@ import {
     UNENCUMBERED,
     WEAK,
     W_ARTI,
+    W_ARMOR,
     W_RINGL,
     W_RINGR,
     W_TOOL,
@@ -33,6 +34,7 @@ import {
 } from '../js/const.js';
 import {
     eatfood, eating_dangerous_corpse, gethungry, set_tin_variety,
+    temp_resist,
 } from '../js/eat.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -73,6 +75,22 @@ function state() {
     monst_globals_init(result);
     return result;
 }
+
+test('temp_resist follows eat.c timeout-only resistance rules', () => {
+    const subject = state();
+    subject.u = { uprops: [] };
+    subject.u.uprops[ACID_RES] = { intrinsic: 7,
+        extrinsic: 0, blocked: 0 };
+    assert.equal(temp_resist(ACID_RES, subject), 7);
+    subject.u.uprops[ACID_RES].intrinsic |= FROMFORM;
+    assert.equal(temp_resist(ACID_RES, subject), 0);
+    subject.u.uprops[ACID_RES] = { intrinsic: 7,
+        extrinsic: W_ARMOR, blocked: 0 };
+    assert.equal(temp_resist(ACID_RES, subject), 0);
+    subject.u.uprops[ACID_RES].extrinsic = 0;
+    subject.u.uprops[ACID_RES].blocked = 1;
+    assert.equal(temp_resist(ACID_RES, subject), 0);
+});
 
 test('eating_dangerous_corpse follows the active meal, species and floor identity', () => {
     // eat.c:475-494; mondata.h:88 acidic, :202-203 touch/flesh_petrifies.

@@ -50,9 +50,11 @@ import {
     createArtifactTable,
     init_artifacts,
     touch_artifact,
+    what_gives,
 } from '../js/artifacts.js';
 import {
-    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, ENERGY_REGENERATION,
+    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
+    ENERGY_REGENERATION,
     HALF_PHDAM, HALF_SPDAM, HALLUC, HALLUC_RES, LAST_PROP, NON_PM,
     W_ARM, W_ARMC, W_ART, W_WEP,
 } from '../js/const.js';
@@ -817,6 +819,28 @@ test('set_artifact_intrinsic sets worn intrinsics from defn and spfx', () => {
     // cspfx bits are not applied to a worn mask, so ENERGY_REGENERATION stays 0.
     assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, 0,
         'ENERGY_REGENERATION is cspfx-only, not set for W_WEP');
+});
+
+// artifact.c:2411 checks the canonical global uwep when Sunsword's wielded
+// blindness resistance is identified. The JS state keeps that value at
+// state.uwep, so the real Knight artifact table must be wired through it.
+test('what_gives identifies Sunsword blindness resistance from state.uwep', () => {
+    const state = stateFor('Kni', 'lawful');
+    init_artifacts(state);
+    state.u = { twoweap: false, uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+        blocked: 0, extrinsic: 0, intrinsic: 0,
+    })) };
+    const sunsword = {
+        oartifact: ART_SUNSWORD,
+        otyp: LONG_SWORD,
+        owornmask: W_WEP,
+        nobj: null,
+    };
+    state.invent = sunsword;
+    state.uwep = sunsword;
+    set_artifact_intrinsic(sunsword, true, W_WEP, state);
+    assert.equal(state.u.uprops[BLND_RES].extrinsic & W_WEP, W_WEP);
+    assert.equal(what_gives(BLND_RES, state), sunsword);
 });
 
 test('wielding Grayswandir sets hallucination resistance (SPFX_HALRES)', () => {

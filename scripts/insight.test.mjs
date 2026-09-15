@@ -9,18 +9,27 @@ import {
     A_NEUTRAL,
     A_NONE,
     A_STR,
+    ACID_RES,
+    FLYING,
+    FROMOUTSIDE,
+    I_SPECIAL,
+    INFRAVISION,
+    WARN_OF_MON,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import {
     align_str,
     attrval,
+    attributes_enlightenment,
     cause_known,
     enlightenment,
     fmt_elapsed_time,
+    N_times,
     size_str,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
+import { item_what } from '../js/zap.js';
 import {
     ART_GRAYSWANDIR,
 } from '../js/artifacts.js';
@@ -39,10 +48,12 @@ import {
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     OVERLOADED,
+    POLYMORPH,
     REFLECTING,
     SEARCHING,
     SLEEPY,
     SLT_ENCUMBER,
+    UNCHANGING,
     W_AMUL,
     W_ARMOR,
     W_WEP,
@@ -51,9 +62,13 @@ import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    AD_ACID,
     M1_BREATHLESS,
     M1_OVIPAROUS,
     M2_DEMON,
+    PM_VAMPIRE,
+    PM_VAMPIRE_BAT,
+    PM_WOLF,
 } from '../js/monsters.js';
 import {
     AMULET_OF_RESTFUL_SLEEP,
@@ -859,11 +874,9 @@ test('the enhancement summary never takes the wizard shortcut', async () => {
 });
 
 // A live explore-mode game, which is what insight.c doattributes():2014-2015
-// turns into a MAGICENLIGHTENMENT window. The Caveman and the Tourist are the
-// only two roles whose starting state reaches attributes_enlightenment()'s
-// output at all: the rest hold an XL1 intrinsic, a steed, a robe or a cloak
-// that stops it. The Caveman's leather armor makes magic_negation() answer 1
-// and the Tourist's Hawaiian shirt makes it answer 0.
+// turns into a MAGICENLIGHTENMENT window. The helper below supplies a real
+// startup state, while direct property setup below reaches source branches
+// that character creation does not select on its own.
 async function readyExploreGame(role = 'Caveman') {
     await runSegment({
         seed: 8810073,
@@ -883,10 +896,10 @@ function attributeSection(lines) {
     return start === -1 ? [] : lines.slice(start + 1, lines.indexOf('', start));
 }
 
-// The three attributes_enlightenment() lines the port covers, together, in the
-// order insight.c emits them. The fresh matrix records the same window against
-// C; this pins it without a recorder so a change is caught by `npm test`.
-test('the magic half prints the three lines the port covers', async () => {
+// The attributes_enlightenment() lines are checked in source order. The fresh
+// matrix records the same window against C; this pins it without a recorder so
+// a change is caught by `npm test`.
+test('the magic half prints the source attributes in order', async () => {
     const state = await readyExploreGame();
     const lines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
     assert.deepEqual(attributeSection(lines), [
@@ -1371,4 +1384,126 @@ test('the Sleepy arm prints the narcolepsy line under magic enlightenment', asyn
     );
     // Clean up.
     state.u.uprops[SLEEPY] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+});
+
+// zap.c:5722-5762 delegates each armor category to objnam.c's corresponding
+// simple-name helper. A wizard wearing a cloak therefore gets the category
+// word in the resistance source suffix.
+test('item_what uses the source armor category name', async () => {
+    const state = await readyGame();
+    state.wizard = true;
+    state.u.uprops[ACID_RES] = { intrinsic: 0, extrinsic: W_ARMC, blocked: 0 };
+    state.uarmc = { otyp: DWARVISH_CLOAK, owornmask: W_ARMC };
+    assert.equal(item_what(AD_ACID, state), ' by your cloak');
+});
+
+// insight.c:1710-1735 compares a blocked-flight source as a complete value.
+// Combining the trap and surroundings flags must use the generic wording.
+test('blocked flight keeps the combined-source wording', async () => {
+    const state = await readyGame();
+    state.u.uprops[FLYING] = {
+        intrinsic: 1, extrinsic: 0, blocked: I_SPECIAL | FROMOUTSIDE,
+    };
+    const lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(lines.includes(' You would fly if circumstances permitted.'));
+});
+
+// insight.c:1591-1621 uses `something` for an unclassified object warning and
+// appends from_what() to infravision. These are separate source branches.
+test('warning fallback and infravision retain their source wording', async () => {
+    const state = await readyGame();
+    state.u.uprops[WARN_OF_MON] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.context.warntype = { obj: 1, polyd: 0, speciesidx: -1 };
+    state.u.uprops[INFRAVISION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(lines.includes(' You are aware of the presence of something.'));
+    assert.ok(lines.includes(' You have infravision.'));
+});
+
+// insight.c:1866-1884 reads the current permonst for the shifted form and
+// the saved mons[] entry for a lycanthrope. Keeping those two sources distinct
+// preserves vampire-shift and were-creature names.
+test('polymorph and lycanthropy names use current and saved forms', async () => {
+    const state = await readyGame();
+    state.u.umonster = PM_VAMPIRE;
+    state.u.umonnum = PM_VAMPIRE_BAT;
+    state.youmonst.cham = PM_VAMPIRE;
+    state.youmonst.data = state.mons[PM_VAMPIRE_BAT];
+    let lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(lines.includes(
+        ' You are polymorphed into a vampire in vampire bat form.',
+    ));
+
+    state.u.umonnum = PM_VAMPIRE;
+    state.u.ulycn = PM_WOLF;
+    state.youmonst.data = state.mons[PM_VAMPIRE];
+    lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(lines.includes(' You are a wolf.'));
+});
+
+// insight.c:1975-2005 uses N_times() while alive/in progress and ordin() for
+// a dead disclosure. The zero count has its own survived arm.
+test('mortality disclosure follows N_times and ordin', async () => {
+    assert.equal(N_times(0), '0 times');
+    assert.equal(N_times(1), 'once');
+    assert.equal(N_times(2), 'twice');
+    assert.equal(N_times(3), 'thrice');
+    const state = await readyGame();
+    state.u.umonnum = state.u.umonster;
+    state.u.umortality = 2;
+    let lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(lines.includes(' You have been killed twice.'));
+
+    state.u.umortality = 0;
+    lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(!lines.some((line) => line.includes('killed')));
+
+    state.u.umortality = 2;
+    lines = [];
+    await attributes_enlightenment(ENL_GAMEOVERDEAD, state, lines);
+    assert.ok(lines.includes(' You are dead (2nd time!).'));
+});
+
+// insight.c:1774-1780 uses integer division for 4 * spelarmr / 5. With a
+// non-multiple-of-five armor penalty, the exact boundary belongs to the
+// nearly-offsetting branch.
+test('tux penalty uses C integer threshold boundaries', async () => {
+    const state = await readyGame();
+    state.iflags.tux_penalty = true;
+    state.urole.spelarmr = 9;
+    state.u.uhitinc = 7;
+    state.u.umonnum = state.u.umonster;
+    const lines = [];
+    await attributes_enlightenment(ENL_GAMEINPROGRESS, state, lines);
+    assert.ok(lines.includes(
+        " You have a large bonus to hit nearly offsetting your suit's penalty.",
+    ));
+});
+
+// insight.c:1837-1848 changes the past wording for blocked periodic shape
+// changes. The polymorph and lycanthropy arms keep their source-specific verbs.
+test('final blocked shape changes use source past wording', async () => {
+    const state = await readyGame();
+    state.u.uprops[UNCHANGING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uprops[POLYMORPH] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.umonnum = state.u.umonster;
+    let lines = [];
+    await attributes_enlightenment(ENL_GAMEOVERDEAD, state, lines);
+    assert.ok(lines.includes(
+        ' You would have polymorphed periodically if not locked into your current form.',
+    ));
+
+    state.u.uprops[POLYMORPH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.ulycn = PM_WOLF;
+    lines = [];
+    await attributes_enlightenment(ENL_GAMEOVERDEAD, state, lines);
+    assert.ok(lines.includes(
+        ' You would have changed shape periodically if not locked into your current form.',
+    ));
 });

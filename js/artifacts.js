@@ -2760,7 +2760,7 @@ export function what_gives(propIdx, state = game) {
                     if ((art.spfx & spfx) === spfx && obj.owornmask)
                         return obj;
                 }
-                if (obj === u.uwep && propIdx === BLND_RES
+                if (obj === state.uwep && propIdx === BLND_RES
                     && (abilValue & W_WEP) !== 0)
                     return obj;
             }

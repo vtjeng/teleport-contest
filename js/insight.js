@@ -160,19 +160,9 @@ import {
     WARN_OF_MON,
     WARN_UNDEAD,
     W_AMUL,
-    W_ARM,
-    W_ARMC,
-    W_ARMF,
-    W_ARMG,
-    W_ARMH,
     W_ARMOR,
-    W_ARMS,
-    W_ARMU,
     W_RING,
-    W_RINGL,
-    W_RINGR,
     W_TOOL,
-    W_WEP,
     WARNING,
     WOUNDED_LEGS,
     WWALKING,
@@ -182,14 +172,16 @@ import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat } from './display.js';
 import { depth, dunlev, endgamelevelname } from './dungeon.js';
-import { hu_stat } from './eat.js';
+import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
 import { inv_weight, near_capacity } from './hack.js';
-import { lcase, lowc, highc, mungspaces, strsubst } from './hacklib.js';
+import {
+    lcase, lowc, highc, mungspaces, ordin, strsubst,
+} from './hacklib.js';
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
-import { an, ysimple_name } from './objnam.js';
+import { an } from './objnam.js';
 import { oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
@@ -214,6 +206,7 @@ import {
     is_clinger,
     is_flyer,
     is_swimmer,
+    is_vampire,
     is_vampshifter,
     lays_eggs,
 } from './mondata.js';
@@ -267,7 +260,7 @@ import { empty_handed } from './wield.js';
 import { ART_OGRESMASHER } from './artifacts.js';
 import { RIGHT_HANDED } from './u_init.js';
 import { is_pool_or_lava } from './trap.js';
-import { u_adtyp_resistance_obj } from './zap.js';
+import { item_what, u_adtyp_resistance_obj } from './zap.js';
 
 // Thrown where insight.c reaches a branch this port has not ported. Every
 // throw happens while the line list is still being built, so the window has
@@ -485,6 +478,17 @@ export function fmt_elapsed_time(final, state = game) {
     }
     if (eseconds) outbuf += ` ${eseconds} second${plur(eseconds)}`;
     return outbuf;
+}
+
+// C ref: insight.c N_times() (362-374). The helper is local to the insight
+// source unit and preserves the explicit zero-count numeric form.
+export function N_times(n) {
+    switch (n) {
+    case 1: return 'once';
+    case 2: return 'twice';
+    case 3: return 'thrice';
+    default: return `${n} times`;
+    }
 }
 
 // C ref: insight.c background_enlightenment(). Role, race, alignment,
@@ -1146,7 +1150,7 @@ function greenDragonSuit(state) {
 // Every branch in the selected C function is represented below. Calls whose
 // return values are discarded by C remain explicit note_unported gaps; values
 // used to select output are read from the state rather than invented.
-async function attributes_enlightenment(final, state, lines) {
+export async function attributes_enlightenment(final, state, lines) {
     const { u } = state;
 
     const prop = (index) => u.uprops?.[index] ?? {};
@@ -1170,45 +1174,21 @@ async function attributes_enlightenment(final, state, lines) {
         || breathless(state.youmonst?.data);
     const amphibiousHero = breathlessHero
         || amphibious(state.youmonst?.data);
-    const walkingOnWater = !u.uinwater && !levitation && !flying
+    const walking_on_water = !u.uinwater && !levitation && !flying
         && walking && is_pool_or_lava(u.ux, u.uy, state);
     const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
-    const itemWhat = (adtyp) => {
-        const index = {
-            [AD_FIRE]: FIRE_RES,
-            [AD_COLD]: COLD_RES,
-            [AD_DISN]: DISINT_RES,
-            [AD_ELEC]: SHOCK_RES,
-            [AD_ACID]: ACID_RES,
-        }[adtyp];
-        const extrinsic = e(index);
-        if (!state.wizard || !extrinsic) return '';
-        let object = null;
-        if (extrinsic & W_ARMC) object = state.uarmc;
-        else if (extrinsic & W_ARM) object = state.uarm;
-        else if (extrinsic & W_ARMU) object = state.uarmu;
-        else if (extrinsic & W_ARMH) object = state.uarmh;
-        else if (extrinsic & W_ARMG) object = state.uarmg;
-        else if (extrinsic & W_ARMF) object = state.uarmf;
-        else if (extrinsic & W_ARMS) object = state.uarms;
-        else if (extrinsic & W_AMUL) object = state.uamul;
-        else if (extrinsic & W_TOOL) object = state.ublindf;
-        else if (extrinsic & W_RING) {
-            object = (extrinsic & W_RINGL) && (extrinsic & W_RINGR)
-                ? null : (extrinsic & W_RINGL ? state.uleft : state.uright);
-        } else if (extrinsic & W_WEP) object = state.uwep;
-        return object ? ` by your ${ysimple_name(object, state)}` : '';
-    };
-    const itemResistance = (adtyp, message) => {
+    // C ref: insight.c item_resistance_message() (1468-1481).
+    const item_resistance_message = (adtyp, message) => {
         const protection = u_adtyp_resistance_obj(adtyp, state);
         if (!protection) return;
         const somewhat = protection < 99;
         enl_msg(lines, final, 'Your items ',
             somewhat ? 'are somewhat' : 'are',
             somewhat ? 'were somewhat' : 'were', message,
-            itemWhat(adtyp));
+            item_what(adtyp, state));
     };
-    const combatIncrement = (type, amount) => {
+    // C ref: insight.c enlght_combatinc() (160-199).
+    const enlght_combatinc = (type, amount) => {
         let magnitude = Math.abs(amount);
         if (type === 'defense') magnitude = Math.trunc(magnitude * 2 / 3);
         const modifier = amount === 0 ? 'no'
@@ -1222,7 +1202,8 @@ async function attributes_enlightenment(final, state, lines) {
         return `${text}${final || state.wizard
             ? ` (${amount > 0 ? '+' : ''}${amount})` : ''}`;
     };
-    const halfDamage = (category) => {
+    // C ref: insight.c enlght_halfdmg() (201-222).
+    const enlght_halfdmg = (category) => {
         const name = category === HALF_PHDAM ? 'physical'
             : category === HALF_SPDAM ? 'spell' : 'unknown';
         return `${final || state.wizard ? 'half' : 'reduced'} ${name} damage`;
@@ -1261,35 +1242,35 @@ async function attributes_enlightenment(final, state, lines) {
     }
     if (activeUnblocked(FIRE_RES))
         you_are(lines, final, 'fire resistant', from_what(FIRE_RES, state));
-    itemResistance(AD_FIRE, ' protected from fire');
+    item_resistance_message(AD_FIRE, ' protected from fire');
     if (activeUnblocked(COLD_RES))
         you_are(lines, final, 'cold resistant', from_what(COLD_RES, state));
-    itemResistance(AD_COLD, ' protected from cold');
+    item_resistance_message(AD_COLD, ' protected from cold');
     if (activeUnblocked(SLEEP_RES))
         you_are(lines, final, 'sleep resistant', from_what(SLEEP_RES, state));
     if (activeUnblocked(DISINT_RES))
         you_are(lines, final, 'disintegration resistant',
             from_what(DISINT_RES, state));
-    itemResistance(AD_DISN, ' protected from disintegration');
+    item_resistance_message(AD_DISN, ' protected from disintegration');
     if (activeUnblocked(SHOCK_RES))
         you_are(lines, final, 'shock resistant', from_what(SHOCK_RES, state));
-    itemResistance(AD_ELEC, ' protected from electric shocks');
+    item_resistance_message(AD_ELEC, ' protected from electric shocks');
     if (hasProperty(state, POISON_RES))
         you_are(lines, final, 'poison resistant',
             from_what(POISON_RES, state));
     if (activeUnblocked(ACID_RES)) {
-        const description = `${h(ACID_RES) & TIMEOUT ? 'temporarily ' : ''}`
+        const description = `${temp_resist(ACID_RES, state) ? 'temporarily ' : ''}`
             + 'acid resistant';
         you_are(lines, final, description, from_what(ACID_RES, state));
     }
-    itemResistance(AD_ACID, ' protected from acid');
+    item_resistance_message(AD_ACID, ' protected from acid');
     if (activeUnblocked(DRAIN_RES))
         you_are(lines, final, 'level-drain resistant',
             from_what(DRAIN_RES, state));
     if (activeUnblocked(SICK_RES) || greenDragonSuit(state))
         you_are(lines, final, 'immune to sickness', from_what(SICK_RES, state));
     if (activeUnblocked(STONE_RES)) {
-        const description = `${h(STONE_RES) & TIMEOUT ? 'temporarily ' : ''}`
+        const description = `${temp_resist(STONE_RES, state) ? 'temporarily ' : ''}`
             + 'petrification resistant';
         you_are(lines, final, description, from_what(STONE_RES, state));
     }
@@ -1327,7 +1308,7 @@ async function attributes_enlightenment(final, state, lines) {
     if (active(WARN_OF_MON) && warntype.obj) {
         const objectWarning = (warntype.obj & M2_ORC) ? 'orcs'
             : (warntype.obj & M2_ELF) ? 'elves'
-                : (warntype.obj & M2_DEMON) ? 'demons' : 'certain monsters';
+                : (warntype.obj & M2_DEMON) ? 'demons' : 'something';
         you_are(lines, final, `aware of the presence of ${objectWarning}`,
             from_what(WARN_OF_MON, state));
     }
@@ -1368,7 +1349,7 @@ async function attributes_enlightenment(final, state, lines) {
             ' clairvoyant', source);
     }
     if (hasProperty(state, INFRAVISION))
-        you_have(lines, final, 'infravision', '');
+        you_have(lines, final, 'infravision', from_what(INFRAVISION, state));
 
     if (active(DETECT_MONSTERS)) {
         let description = 'sensing the presence of monsters';
@@ -1439,8 +1420,8 @@ async function attributes_enlightenment(final, state, lines) {
     if (b(FLYING)) {
         if (active(FLYING) || (u.usteed && is_flyer(u.usteed.data))) {
             const suffix = levitation ? ' if you weren\'t levitating'
-                : (b(FLYING) & I_SPECIAL) ? ' if you weren\'t trapped'
-                    : (b(FLYING) & FROMOUTSIDE)
+                : b(FLYING) === I_SPECIAL ? ' if you weren\'t trapped'
+                    : b(FLYING) === FROMOUTSIDE
                         ? ' if surroundings permitted'
                         : ' if circumstances permitted';
             enl_msg(lines, final, You_, 'would fly', 'would have flown',
@@ -1460,7 +1441,7 @@ async function attributes_enlightenment(final, state, lines) {
                 suffix, '');
         }
     }
-    if (walking && !walkingOnWater)
+    if (walking && !walking_on_water)
         you_can(lines, final, 'walk on water', from_what(WWALKING, state));
     if (swimming && (u.uinwater || !u.uinwater))
         you_can(lines, final, 'swim', from_what(SWIMMING, state));
@@ -1481,18 +1462,19 @@ async function attributes_enlightenment(final, state, lines) {
         you_have(lines, final, 'slower digestion',
             from_what(SLOW_DIGESTION, state));
     if (u.uhitinc) {
-        let description = combatIncrement('to hit', u.uhitinc);
+        let description = enlght_combatinc('to hit', u.uhitinc);
         if (state.iflags?.tux_penalty && !Upolyd(u)) {
             const armorPenalty = state.urole?.spelarmr ?? 0;
+            const partialThreshold = Math.trunc(4 * armorPenalty / 5);
             description += ` ${u.uhitinc < 0 ? 'increasing'
-                : u.uhitinc < 4 * armorPenalty / 5 ? 'partly offsetting'
+                : u.uhitinc < partialThreshold ? 'partly offsetting'
                     : u.uhitinc < armorPenalty ? 'nearly offsetting'
                         : 'overcoming'} your suit's penalty`;
         }
         you_have(lines, final, description, '');
     }
     if (u.udaminc)
-        you_have(lines, final, combatIncrement('damage', u.udaminc), '');
+        you_have(lines, final, enlght_combatinc('damage', u.udaminc), '');
     if (u.uspellprot || active(PROTECTION)) {
         let protection = u.uspellprot ?? 0;
         if (state.uleft?.otyp === RIN_PROTECTION)
@@ -1502,7 +1484,7 @@ async function attributes_enlightenment(final, state, lines) {
         if (state.uamul?.otyp === AMULET_OF_GUARDING) protection += 2;
         if (h(PROTECTION) & INTRINSIC) protection += u.ublessed ?? 0;
         if (protection)
-            you_have(lines, final, combatIncrement('defense', protection), '');
+            you_have(lines, final, enlght_combatinc('defense', protection), '');
     }
     let armpro = magic_negation(state.youmonst, state);
     if (armpro > 0) {
@@ -1516,10 +1498,10 @@ async function attributes_enlightenment(final, state, lines) {
 
     if (active(HALF_PHDAM))
         enl_msg(lines, final, You_, 'take', 'took',
-            ` ${halfDamage(HALF_PHDAM)}`, from_what(HALF_PHDAM, state));
+            ` ${enlght_halfdmg(HALF_PHDAM)}`, from_what(HALF_PHDAM, state));
     if (active(HALF_SPDAM))
         enl_msg(lines, final, You_, 'take', 'took',
-            ` ${halfDamage(HALF_SPDAM)}`, from_what(HALF_SPDAM, state));
+            ` ${enlght_halfdmg(HALF_SPDAM)}`, from_what(HALF_SPDAM, state));
     if (state.ublindf && is_wet_towel(state.ublindf))
         enl_msg(lines, final, You_, 'take', 'took',
             ' reduced poison gas damage', '');
@@ -1541,12 +1523,18 @@ async function attributes_enlightenment(final, state, lines) {
         if (!Upolyd(u))
             you_can(lines, final, 'not change from your current form',
                 from_what(UNCHANGING, state));
-        let periodic = '';
-        if (active(POLYMORPH)) periodic = 'polymorph';
-        else if (ismnum(u.ulycn)) periodic = 'change shape';
+        let periodic;
+        let pastPeriodic;
+        if (active(POLYMORPH)) {
+            periodic = 'polymorph';
+            pastPeriodic = 'have polymorphed';
+        } else if (ismnum(u.ulycn)) {
+            periodic = 'change shape';
+            pastPeriodic = 'have changed shape';
+        }
         if (periodic)
             enl_msg(lines, final, You_, `would ${periodic} periodically`,
-                `would have ${periodic} periodically`,
+                `would ${pastPeriodic} periodically`,
                 ' if not locked into your current form', '');
     } else if (active(POLYMORPH)) {
         you_are(lines, final, 'polymorphing periodically',
@@ -1559,14 +1547,17 @@ async function attributes_enlightenment(final, state, lines) {
         && !(final === ENL_GAMEOVERDEAD && u.umonnum === PM_GREEN_SLIME
             && !active(UNCHANGING))) {
         let description;
-        if (!is_vampshifter(state.youmonst)) {
+        const currentForm = state.youmonst?.data;
+        const vampireShift = is_vampshifter(state.youmonst)
+            && !is_vampire(currentForm);
+        if (!vampireShift) {
             description = `polymorphed into ${an(pmname(state.youmonst?.data,
                 state.flags.female ? FEMALE : MALE))}`;
         } else {
-            description = `polymorphed into ${an(pmname(state.youmonst?.data,
+            const baseForm = state.mons?.[state.youmonst.cham];
+            description = `polymorphed into ${an(pmname(baseForm,
                 state.flags.female ? FEMALE : MALE))} in ${pmname(
-                state.mons?.[state.youmonst.cham]?.data ?? state.youmonst.data,
-                state.flags.female ? FEMALE : MALE)} form`;
+                currentForm, state.flags.female ? FEMALE : MALE)} form`;
         }
         if (state.wizard) description += ` (${u.mtimedone ?? 0})`;
         you_are(lines, final, description, '');
@@ -1574,8 +1565,8 @@ async function attributes_enlightenment(final, state, lines) {
     if (lays_eggs(state.youmonst?.data) && state.flags.female)
         you_can(lines, final, 'lay eggs', '');
     if (ismnum(u.ulycn)) {
-        let description = an(pmname(state.mons?.[u.ulycn]?.data
-            ?? state.youmonst?.data, state.flags.female ? FEMALE : MALE));
+        let description = an(pmname(state.mons?.[u.ulycn],
+            state.flags.female ? FEMALE : MALE));
         if (u.umonnum === u.ulycn) {
             description += ' in beast form';
             if (state.wizard) description += ` (${u.mtimedone ?? 0})`;
@@ -1651,21 +1642,26 @@ async function attributes_enlightenment(final, state, lines) {
         you_can(lines, final, buf, '');
     }
 
-    // insight.c:1975-2000. Death disclosure distinguishes a first death
-    // from repeated deaths; the recorder exposes mortality as a small integer.
-    if (final >= ENL_GAMEOVERDEAD) {
-        const mortality = u.umortality ?? 0;
-        const suffix = mortality > 1
-            ? ` (${mortality}${mortality === 2 ? 'nd' : mortality === 3 ? 'rd' : 'th'} time!)`
-            : '';
-        enl_msg(lines, final, You_, 'have been killed ', 'are dead', suffix, '');
-    } else if (u.umortality) {
-        const count = u.umortality;
-        const suffix = count > 1
-            ? ` (${count}${count === 2 ? 'nd' : count === 3 ? 'rd' : 'th'} time!)`
-            : '';
-        enl_msg(lines, final, You_, 'have been killed ', 'survived', suffix, '');
+    // insight.c:1975-2005.  In-progress/quit disclosures use N_times()
+    // (once/twice/thrice/"N times"), while a dead disclosure uses ordin().
+    const mortality = Number(u.umortality ?? 0);
+    let mortalityVerb;
+    let mortalitySuffix = '';
+    if (final < ENL_GAMEOVERDEAD) {
+        mortalityVerb = 'survived after being killed ';
+        if (!mortality)
+            mortalityVerb = final ? 'survived' : null;
+        else {
+            mortalitySuffix = N_times(mortality);
+        }
+    } else {
+        mortalityVerb = 'are dead';
+        if (mortality > 1)
+            mortalitySuffix = ` (${mortality}${ordin(mortality)} time!)`;
     }
+    if (mortalityVerb)
+        enl_msg(lines, final, You_, 'have been killed ', mortalityVerb,
+            mortalitySuffix, '');
 }
 
 // C ref: insight.c enlightenment(). Builds the whole window's lines. C

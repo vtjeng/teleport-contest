@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9150701,
+      "datetime": "20350912112200",
+      "nethackrc": "OPTIONS=name:FinalFresh,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".\u0017wand of death\nze.  yy y",
+      "comment": "Independent debug death route: wish a wand of death, zap self, confirm death, accept inventory disclosure, dismiss it, then answer yes to the attributes disclosure. The final screen is produced through end.c disclose() -> enlightenment(..., ENL_GAMEOVERDEAD), not a direct ^X command."
+    }
+  ]
+}
