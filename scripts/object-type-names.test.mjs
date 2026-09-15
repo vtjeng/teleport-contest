@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { BUFSZ, NON_PM } from '../js/const.js';
-import { PM_SAMURAI } from '../js/monsters.js';
+import { PM_KITTEN, PM_SAMURAI, monst_globals_init } from '../js/monsters.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from '../js/hacklib.js';
 import { disco_typename, init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import { obj_typename, simple_typename, xcalled, xnameFresh } from '../js/objnam.js';
 import { loadCalledTypeRecipes, verifyCalledTypeSegment } from './run-worn-glove-name.mjs';
 import {
-    AMULET_OF_REFLECTION, DART, FLINT, GAUNTLETS_OF_POWER, GOLD_PIECE,
+    AMULET_OF_REFLECTION, DART, FIGURINE, FLINT, GAUNTLETS_OF_POWER, GOLD_PIECE,
     GRAY_DRAGON_SCALES,
     JADE, MAGIC_HARP, OIL_LAMP, POT_HEALING, RIN_PROTECTION, SCR_IDENTIFY,
-    SPE_BOOK_OF_THE_DEAD, SPE_FORCE_BOLT, SPE_NOVEL, WAN_SLEEP, WOODEN_HARP,
+    SPE_BOOK_OF_THE_DEAD, SPE_FORCE_BOLT, SPE_NOVEL, TOWEL, WAN_SLEEP, WOODEN_HARP,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -160,6 +160,52 @@ test('long aliases retain xname plural and instance-name buffer bounds', () => {
     const named = object(state, WAN_SLEEP);
     named.oextra = { oname: 'individual' };
     assert.equal(xnameFresh(named, state).length, capacity);
+});
+
+test('figurine species suffix truncates before xname checks buffer overflow', () => {
+    const state = namingState();
+    monst_globals_init(state);
+    const type = state.objects[FIGURINE];
+    type.oc_name_known = false;
+    const figurine = object(state, FIGURINE, { corpsenm: PM_KITTEN });
+    // C xname_flags:704–714: xcalled can fill all 175 bytes, then
+    // ConcatF2 copies only the remaining part of " of a kitten".
+    const capacity = BUFSZ - 80 - 1;
+    const head = 'figurine called ';
+    const suffix = ' of a kitten';
+    type.oc_uname = 'x'.repeat(BUFSZ);
+    assert.equal(xnameFresh(figurine, state), head + 'x'.repeat(capacity - head.length));
+    // Empty, partial word, exact fit, and one spare byte at the suffix edge.
+    for (const room of [0, 1, 5, suffix.length, suffix.length + 1]) {
+        type.oc_uname = 'x'.repeat(capacity - head.length - room);
+        assert.equal(xnameFresh(figurine, state),
+            head + type.oc_uname + suffix.slice(0, room));
+    }
+    type.oc_uname = null;
+    assert.equal(xnameFresh(figurine, state), 'figurine of a kitten');
+});
+
+test('wet towel wizard suffix uses the same remaining-byte capacity', () => {
+    const state = namingState();
+    const type = state.objects[TOWEL];
+    type.oc_name_known = false;
+    state.wizard = true;
+    // C xname_flags:697 and716–718: spe=3 starts "wet", spe=2 is "moist";
+    // only wizard mode appends the numerical wetness through ConcatF1.
+    const towel = object(state, TOWEL, { spe: 3 });
+    const capacity = BUFSZ - 80 - 1;
+    const head = 'wet towel called ';
+    const suffix = ' (3)';
+    for (const room of [0, 1, 3, suffix.length, suffix.length + 1]) {
+        type.oc_uname = 'x'.repeat(capacity - head.length - room);
+        assert.equal(xnameFresh(towel, state),
+            head + type.oc_uname + suffix.slice(0, room));
+    }
+    type.oc_uname = 'bath';
+    towel.spe = 2;
+    assert.equal(xnameFresh(towel, state), 'moist towel called bath (2)');
+    state.wizard = false;
+    assert.equal(xnameFresh(towel, state), 'moist towel called bath');
 });
 
 for (const { label, recipe } of loadCalledTypeRecipes()) {

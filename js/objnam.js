@@ -465,7 +465,14 @@ function xnameBase(obj, type, state, ident) {
             : `${prefix}${!dknown ? description : knownType ? actual : description}`;
         if (obj.otyp === FIGURINE && obj.corpsenm !== NON_PM) {
             const species = obj_pmname(obj, state);
-            result += ` of ${articleName(species)}`;
+            // C ConcatF2 copies only the remaining bytes after xcalled;
+            // a full alias must not turn the suffix into a buffer overflow.
+            result = truncateByteString(`${result} of ${articleName(species)}`,
+                BUFSZ - PREFIX - 1);
+        } else if (obj.otyp === TOWEL && obj.spe > 0 && state.wizard) {
+            // C xname_flags:716–718 uses the same bounded ConcatF1.
+            result = truncateByteString(`${result} (${obj.spe})`,
+                BUFSZ - PREFIX - 1);
         }
         return result;
     }
