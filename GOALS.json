@@ -48109,17 +48109,30 @@
     {
       "id": "port-wiz-loca-20260915",
       "kind": "lua-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete Wizard quest locate level and register its loader",
       "luaFile": "Wiz-loca.lua",
       "sessions": [
         "seed0360-wizard-world-tour"
       ],
-      "selectionReason": "Worker B initial assignment uses seed0360-wizard-world-tour, remaining-screen upper bound 53, valid investigations/seed0360-wizard-world-tour.json, source Wiz-loca.lua. Web-trap functions are reserved by worker A; higher-ranked 4500, 0106, 0014 and 0009 await stale-cache investigations. The higher-ranked seed2200 configuration-path divergence is already classified machine-local. Wiz-loca is the first independent actionable completed investigation at dispatch.",
+      "selectionReason": "Integrate earliest ready independent delivery B1 at 1f75feed61c337cf6aca12cbdc49224b113f0ad3 for seed0360-wizard-world-tour, remaining-screen upper bound 53, investigations/seed0360-wizard-world-tour.json. Source is whole Wiz-loca.lua. Worker A remains implementing reserved web effects; higher-ranked newly investigated goals have no ready delivery. This integration preserves the original eligible dispatch and loop ready-delivery order.",
       "detail": "",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "Wiz-loca.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Wiz-loca.lua"
+          ]
+        }
+      ],
+      "openedAt": "288a79e75a1a217be81bd8ca8a23d3ab8c46deae",
+      "openStanding": {
+        "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+        "screens": 9781,
+        "rng": 712806
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -48129,6 +48142,86 @@
           "endLine": 151,
           "declared": false,
           "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+        "screens": 9781,
+        "rng": 712806
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 780,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": "Wiz-loca.lua",
+          "cFile": null,
+          "luaFile": "Wiz-loca.lua",
+          "line": null,
+          "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Wiz-loca\"",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 53,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 53,
+              "status": "complete",
+              "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "remainingScreensUpperBound": 53,
+                "step": 780,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": "Wiz-loca.lua",
+                "cFile": null,
+                "luaFile": "Wiz-loca.lua",
+                "line": null,
+                "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Wiz-loca\"",
+                "unlocatedKinds": [],
+                "recordedSteps": 833
+              },
+              "summary": "At recorded step 780, key z selects Wiz-loca from the wizard level-teleport menu. init_dungeons() gives the Wizard role's x-loca record the proto Wiz-loca; mklev.c makelevel() dispatches Is_special() through makemaz(), and sp_lev.c load_special() evaluates the whole Wiz-loca.lua chunk. The JavaScript path reaches mklev.js makelevel(), but ensureSpecialLevelLoaders() merges QUEST_LEVEL_LOADERS without a Wiz-loca entry, so it throws before any level terrain, regions, doors, stairs, objects, traps, or monsters are created. The Lua port belongs beside the existing quest loaders in js/quest_levels.js and should register Wiz-loca. createSpecialLevelApi() already exposes every des operation this chunk uses; its two math.random(1, 3) wall choices must consume the source rn2(3) facade. The map is 76 columns by 21 rows.",
+              "source": {
+                "file": "Wiz-loca.lua",
+                "functions": [
+                  "Wiz-loca.lua top-level program"
+                ],
+                "branch": "Whole top-level chunk: solidfill and mazelevel/hardfloor flags; a 76x21 map; three probabilistic terrain replacements; five irregular regions with secret doors; four fixed locked doors; up and down stairs; a full non-diggable selection; 15 random objects; 21 fixed or random traps; and 27 monsters.",
+                "callers": [
+                  "js/dungeon.js fixup_level_locations() (2038-2058) resolves x-loca to the role-specific Wiz-loca proto",
+                  "js/mklev.js makelevel() (627-658) detects the special level and dispatches to makemaz()",
+                  "js/mklev.js makemaz() (1771-1799) resolves the proto and calls load_special()",
+                  "js/mklev.js ensureSpecialLevelLoaders() (1703-1740) merges QUEST_LEVEL_LOADERS into the registry",
+                  "js/mklev.js load_special() (1743-1768) looks up and runs the registered level loader"
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/mklev.c makelevel() (1251-1465)",
+                  "nethack-c/upstream/src/sp_lev.c load_special() and lspo_* handlers",
+                  "js/mklev.js createSpecialLevelApi() des adapters for level_init, level_flags, map, replace_terrain, region, door, terrain, stair, non_diggable, object, trap, and monster",
+                  "js/quest_levels.js existing quest-level loader conventions and QUEST_LEVEL_LOADERS registry",
+                  "js/dungeon.js role-specific x-loca topology/proto resolution",
+                  "nethack-c/upstream/dat/nhlib.lua math.random() facade (one-based rn2)"
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                ".cache/scan-cache.json rows[file=seed0360-wizard-world-tour.session.json]: commit cc1b4453d14fd4a0e995170e3842ad622790c8a5, 780 screens emitted of 833 recorded, and the missing Wiz-loca loader boundary at step 780.",
+                "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[780]: key z, C message You materialize on a different level!--More--, and 1752 recorded RNG calls beginning with the private nhlib shuffle and splev_initlev.",
+                "nethack-c/upstream/src/mklev.c makelevel() 1251-1274: a special level enters makemaz(slev->proto), including the Wizard quest locate record.",
+                "nethack-c/upstream/src/sp_lev.c load_special() 6454-6501 and lspo_* registrations 3837-6075: the C loader runs the Lua chunk and its des operations, then applies special-level post-processing.",
+                "nethack-c/upstream/dat/Wiz-loca.lua 5-151: the complete level description and all required des calls; the two callback math.random calls are at lines 53 and 61.",
+                "js/mklev.js 639-658 and 1703-1750: the current refusal is the missing registry entry for Wiz-loca; no js/sp_lev.js file exists, because the special-level API is implemented in js/mklev.js.",
+                "js/quest_levels.js 1275-1399: Wiz-strt is the existing Wizard quest loader and QUEST_LEVEL_LOADERS is the direct registration point for Wiz-loca."
+              ]
+            }
+          }
         }
       ]
     }
