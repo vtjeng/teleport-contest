@@ -72,7 +72,7 @@ import { acurr } from '../js/attrib.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { unmul } from '../js/hack.js';
-import { UnsupportedEnlightenmentError, enlightenment } from '../js/insight.js';
+import { enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { cantweararm, has_horns, num_horns } from '../js/mondata.js';
@@ -1355,40 +1355,35 @@ test('the two boots C leaves bare raise state no ported reader misuses',
     // two readers. apply.c jump() cannot start, because js/cmd.js admits no
     // `jump` command. insight.c:1683 is inside attributes_enlightenment(),
     // which C runs only under MAGICENLIGHTENMENT -- explore or debug mode --
-    // so an ordinary `^X` never reads the property in either program, and the
-    // window under that mode stops by name rather than dropping C's line.
+    // so an ordinary `^X` never reads the property in either program. The
+    // magic window reports the extrinsic property after the boots are worn.
     //
     // KICKING_BOOTS: objects.h:718-720 gives it an oc_oprop of 0, so setworn()
     // raises nothing and dokick.c reads the type directly instead, at :10, :41
     // and :1328. js/dokick.js:127 martial() is the first of those, ported and
     // live in kick_dumb()'s rn2(3) short circuit.
     //
-    // A Tourist, not the Valkyrie every other test here uses: the property
-    // table is ordered, and the Valkyrie's XL1 cold resistance stops the magic
-    // window twenty-odd rows above JUMPING, so no boots could move her answer.
-    // The Tourist and the Caveman are the two roles whose starting state
-    // reaches the table's end at all, as scripts/insight.test.mjs records.
+    // A Tourist has no innate jumping, so the added report line must come
+    // from the boots rather than a starting property.
     const segment = seedSegmentFor(7720153);
     const MAGIC = BASICENLIGHTENMENT | MAGICENLIGHTENMENT;
     await setup(segment, WAIT);
-    // Both windows are complete while the hero is barefoot, which is what
-    // makes the stop below attributable to the boots.
+    // Both windows are complete while the hero is barefoot. No jumping line
+    // may appear before setworn() sets the boots' extrinsic property.
     assert.ok(Array.isArray(
         await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, game),
     ));
-    assert.ok(Array.isArray(
-        await enlightenment(MAGIC, ENL_GAMEINPROGRESS, game),
-    ));
+    assert.ok(!(await enlightenment(MAGIC, ENL_GAMEINPROGRESS, game))
+        .includes(' You can jump.'));
 
     const jumpers = armor(JUMPING_BOOTS, { dknown: 1, spe: 0, known: false });
 
     assert.equal(await accessory_or_armor_on(jumpers, game), ECMD_TIME);
     assert.equal(game.u.uprops[JUMPING].extrinsic & W_ARMF, W_ARMF,
         'setworn() raised EJumping');
-    await assert.rejects(
-        () => enlightenment(MAGIC, ENL_GAMEINPROGRESS, game),
-        refusal(UnsupportedEnlightenmentError, 'Jumping'),
-    );
+    // insight.c:1683-1684 emits this line when Jumping is active.
+    assert.ok((await enlightenment(MAGIC, ENL_GAMEINPROGRESS, game))
+        .includes(' You can jump.'));
     // The ordinary ^X reads no property table at all, in C or here.
     assert.ok(Array.isArray(
         await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, game),

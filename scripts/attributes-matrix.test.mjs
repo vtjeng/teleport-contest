@@ -25,10 +25,11 @@ test('the attributes matrix carries replay inputs only', () => {
     // the closing screen, so the trailing <esc> has to be the last key.
     assert.equal(MOVES, '\x1B\x18 \x1B');
     assert.ok(recipe.segments.every(({ moves }) => moves === MOVES));
-    // The seed list is the tripwire for a silent re-recording.
+    // Keep the five original mode/cancellation/bones cases and the independent
+    // Archeologist and elven Ranger cases that reach searching and infravision.
     assert.deepEqual(
         recipe.segments.map(({ seed }) => seed),
-        [8151001, 8151002, 8151004, 8151005, 2601],
+        [8151001, 8151002, 8151011, 8151012, 8151004, 8151005, 2601],
     );
 });
 
