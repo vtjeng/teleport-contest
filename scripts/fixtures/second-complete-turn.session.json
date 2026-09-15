@@ -449,23 +449,5 @@
       }
     }
   ],
-  "excludedPrefixes": [
-    {
-      "name": "TrapBoundary",
-      "reason": "trap activation",
-      "input": {
-        "seed": 840003,
-        "datetime": "20260725120000",
-        "nethackrc": "OPTIONS=name:TrapBoundary,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
-        "moves": ".."
-      },
-      "oracle": {
-        "cursors": [[27, 18, 1], [27, 18, 1]],
-        "rngCount": 2612,
-        "rngDigest": "528d7bf5e7f3bcb0f3ee6b5800c53142e992f40ede368f84f5ac783fefaa5d6c",
-        "screenCount": 2,
-        "screenDigest": "b3a18b48e8711b6cad432984c0a8a9b5dc1aa712217085c3d147c810638e41d7"
-      }
-    }
-  ]
+  "excludedPrefixes": []
 }

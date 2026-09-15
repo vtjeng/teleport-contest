@@ -3309,13 +3309,12 @@ test('simple ordinary monster and starting pet can land in a corridor',
 
 test('simple preflight rejects a selected trap without live mutation',
     async () => {
-        await runSegment({
-            seed: 840003,
-            datetime: DATETIME,
-            nethackrc: 'OPTIONS=name:BoundaryStop,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen',
-            moves: '.',
+        const target = await prepareSelectedAction();
+        game.level.traps.push({
+            tx: target.destinationX,
+            ty: target.heroY,
+            ttyp: ARROW_TRAP,
+            tseen: false,
         });
         const before = preflightSnapshot();
 
