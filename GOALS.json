@@ -47017,7 +47017,7 @@
     {
       "id": "pilot-insight-attributes-seed0361",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete attribute enlightenment and source helpers",
       "cFile": "insight.c",
       "sessions": [
@@ -47028,8 +47028,8 @@
       "spans": [
         {
           "name": "attributes_enlightenment",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
           "functions": [
             "attributes_enlightenment"
           ]
@@ -47041,8 +47041,11 @@
         "screens": 9653,
         "rng": 699110
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+      "delivered": {
+        "screens": 6,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "attributes_enlightenment",
@@ -47175,6 +47178,76 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 363,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: distress shapechanger 270",
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 3,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 3,
+              "status": "complete",
+              "commit": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 363,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported initial-level monster creation: distress shapechanger 270",
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 3
+              },
+              "summary": "Whole attributes enlightenment now passes. The next stop is monster distress at step363: preflightDistressShapechange rejects PM_DOPPELGANGER before the source's shapeshift decision. The existing newcham_distress adapter covers only some natural shapechangers and attachment states. Complete the source-backed shapechange family; the unaccepted worker admission patch alone does not establish whole-source or independent-play evidence.",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "newcham"
+                ],
+                "branch": "During monster distress, a doppelganger reaches decide_to_shapeshift. JavaScript rejects its species before the non-vampire mspec_used/rn2(6) decision. C accepts regular shapechangers and, when a change is chosen, selects and applies a form through newcham. Whole newcham5278–5534, its required select_newcham_form5157–5225/accept_newcham_form5229–5253 and consumed helpers must be checked; preserve C decision, RNG, attachment, equipment, naming and relocation order.",
+                "callers": [
+                  "mon.c distress calls decide_to_shapeshift at1197; decide_to_shapeshift4872–4938 calls newcham at4928 when dochng is true and reads its result.",
+                  "js/mon.js decide_to_shapeshift2591 invokes preflight_newcham_distress before the decision, then newcham_distress on a chosen change. js/makemon_create.js preflightDistressShapechange3354 rejects the doppelganger."
+                ],
+                "dependencies": [
+                  "Verify whole decide_to_shapeshift and return-valued form-selection/application helpers against mon.c. Existing declarations and narrow admission tests are not completion evidence.",
+                  "The existing adapter refuses attachments and omits broader newcham behavior. Preserve valid work while completing the whole selected source unit; do not turn the observed species into a session-specific exception.",
+                  "Worker commit07d51ee634e89803555d4eb9e7da01cc09819d22 adds doppelganger admission and a focused test but has no accepted independent recording. It is preserved only on the worker branch and explicitly excluded from this combined candidate."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Passing checkpoint1c15a0dc run-4d7xME completed2026-09-15T01:24:25.317Z: all221regression recordings pass. The post-checkpoint queue moves this session's first mismatch360→363, remaining-screen upper bound6→3.",
+                "Coordinator read the full mon.c shapechange sources during candidate assessment and rechecked decide_to_shapeshift4872–4938, select_newcham_form5157–5225, newcham's selection loop5278–5350 and the JavaScript preflight/caller. PM_DOPPELGANGER is270 in js/monsters.js; the current queue names distress shapechanger270.",
+                "The three-screen bound is not a predicted gain. The pilot has stopped new implementation; resume with independent source-backed recipes that actually reach selection and form application."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "screens": 9659,
+        "rng": 699110
       }
     }
   ]

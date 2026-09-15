@@ -1,11 +1,11 @@
 {
   "session": "seed0361-archeologist-tour",
-  "remainingScreensUpperBound": 6,
+  "remainingScreensUpperBound": 3,
   "status": "complete",
-  "commit": "6369a93eff1bde89dc9d15feedaa7ff2b1ea8298",
+  "commit": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
   "mismatch": {
     "session": "seed0361-archeologist-tour",
-    "step": 360,
+    "step": 363,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -13,31 +13,32 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: the attributes window requires Halluc_resistance",
+    "message": "unsupported initial-level monster creation: distress shapechanger 270",
     "unlocatedKinds": [],
     "recordedSteps": 366,
-    "remainingScreensUpperBound": 6
+    "remainingScreensUpperBound": 3
   },
-  "summary": "All Archeologist level loaders now match. The first stop is the attributes command at zero-based step360: attributes_enlightenment refuses Halluc_resistance before rendering the magic attributes. This is missing behavior in a partial C function, so complete the whole attributes_enlightenment source unit, not isolated property branches.",
+  "summary": "Whole attributes enlightenment now passes. The next stop is monster distress at step363: preflightDistressShapechange rejects PM_DOPPELGANGER before the source's shapeshift decision. The existing newcham_distress adapter covers only some natural shapechangers and attachment states. Complete the source-backed shapechange family; the unaccepted worker admission patch alone does not establish whole-source or independent-play evidence.",
   "source": {
-    "file": "nethack-c/upstream/src/insight.c",
+    "file": "mon.c",
     "functions": [
-      "attributes_enlightenment"
+      "newcham"
     ],
-    "branch": "Whole attributes_enlightenment1487–2005, including the Halluc_resistance branch1559–1561 and every later property/capability/final-status branch. The selected command is wizard or explore Ctrl-X with MAGICENLIGHTENMENT.",
+    "branch": "During monster distress, a doppelganger reaches decide_to_shapeshift. JavaScript rejects its species before the non-vampire mspec_used/rn2(6) decision. C accepts regular shapechangers and, when a change is chosen, selects and applies a form through newcham. Whole newcham5278–5534, its required select_newcham_form5157–5225/accept_newcham_form5229–5253 and consumed helpers must be checked; preserve C decision, RNG, attachment, equipment, naming and relocation order.",
     "callers": [
-      "insight.c doattributes2010–2020 adds MAGICENLIGHTENMENT in wizard/explore mode and calls enlightenment.",
-      "insight.c enlightenment416–422 dispatches attributes_enlightenment for magic disclosure; js/insight.js doattributes -> enlightenment -> attributes_enlightenment is the existing production route."
+      "mon.c distress calls decide_to_shapeshift at1197; decide_to_shapeshift4872–4938 calls newcham at4928 when dochng is true and reads its result.",
+      "js/mon.js decide_to_shapeshift2591 invokes preflight_newcham_distress before the decision, then newcham_distress on a chosen change. js/makemon_create.js preflightDistressShapechange3354 rejects the doppelganger."
     ],
     "dependencies": [
-      "Verify attrib.c from_what and every consumed-return property/naming helper across the complete source function; port missing consumed-return behavior, retaining only allowed discarded-return gaps.",
-      "The existing JavaScript UNPORTED_ENLIGHTENMENT_PROPERTIES guards identify missing branches, not completed implementations. Whole-source evidence and independent matching entrypoint recordings are required."
+      "Verify whole decide_to_shapeshift and return-valued form-selection/application helpers against mon.c. Existing declarations and narrow admission tests are not completion evidence.",
+      "The existing adapter refuses attachments and omits broader newcham behavior. Preserve valid work while completing the whole selected source unit; do not turn the observed species into a session-specific exception.",
+      "Worker commit07d51ee634e89803555d4eb9e7da01cc09819d22 adds doppelganger admission and a focused test but has no accepted independent recording. It is preserved only on the worker branch and explicitly excluded from this combined candidate."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Checkpoint6369a93e run-ehAf46 passes all gates and all200recordings; queue moves first mismatch333→360 and remaining upper bound33→6.",
-    "Coordinator read C1487–1600,1990–2020 and enlightenment405–425, and traced the existing JavaScript property guard and dispatch. Halluc_resistance is the first missing branch, not the complete implementation scope.",
-    "Worker branch commits7eafcb45,2a382c70,22bb8f7b add some missing branches but leave the C function partial; they remain unaccepted work in progress pending whole-function completion."
+    "Passing checkpoint1c15a0dc run-4d7xME completed2026-09-15T01:24:25.317Z: all221regression recordings pass. The post-checkpoint queue moves this session's first mismatch360→363, remaining-screen upper bound6→3.",
+    "Coordinator read the full mon.c shapechange sources during candidate assessment and rechecked decide_to_shapeshift4872–4938, select_newcham_form5157–5225, newcham's selection loop5278–5350 and the JavaScript preflight/caller. PM_DOPPELGANGER is270 in js/monsters.js; the current queue names distress shapechanger270.",
+    "The three-screen bound is not a predicted gain. The pilot has stopped new implementation; resume with independent source-backed recipes that actually reach selection and form application."
   ]
 }
