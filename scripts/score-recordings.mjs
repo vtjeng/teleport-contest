@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { boundedMain } from './run-bounded.mjs';
 
 // Replays every recording under recordings/ with the port and reports how
 // many matched. A recording is a recipe under recipes/ recorded with the
@@ -111,7 +112,9 @@ async function main(args) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).catch((error) => {
+    boundedMain('full', () => main(process.argv.slice(2))).then(code => {
+        if (code !== undefined) process.exitCode = code;
+    }).catch((error) => {
         console.error(`score-recordings: ${error.message}`);
         process.exitCode = 1;
     });

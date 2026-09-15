@@ -8,6 +8,9 @@ jobs:
   score:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # This hosted job has its own VM and timeout, not a shared agent host.
+      TELEPORT_VALIDATION_EXTERNAL: '1'
     steps:
       - uses: actions/checkout@v7
         with:

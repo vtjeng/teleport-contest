@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { boundedMain } from './run-bounded.mjs';
 // record-session.mjs — Re-record a session.json from a recipe.
 //
 // Reads an input session.json (clean v5 segments format), spawns the
@@ -780,7 +781,9 @@ async function main() {
 // Run only as a script; the test imports the path-length helper above.
 if (process.argv[1]
     && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-    main().catch((err) => {
+    boundedMain('focused', main).then(code => {
+        if (code !== undefined) process.exitCode = code;
+    }).catch((err) => {
         console.error('[fail]', err.message || err);
         process.exit(1);
     });

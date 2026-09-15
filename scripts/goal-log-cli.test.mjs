@@ -29,7 +29,7 @@ const CORE_SCRIPTS = [
     'goal-log.mjs', 'c-functions.mjs', 'score-log.mjs', 'lua-sources.mjs',
     'port-evidence.mjs', 'check-namespace-members.mjs',
     'score-development.mjs', 'scoring-workspace.mjs', 'fixed-workload.mjs',
-    'local-tmpdir.mjs',
+    'local-tmpdir.mjs', 'run-bounded.mjs',
     'development-standing.mjs', 'checkpoint-results.mjs',
 ];
 // These standings distinguish progress before parking, during another goal,

@@ -10,13 +10,23 @@ competition holdout is outside this workspace.
 
 ## Routine validation
 
-- Before committing, run focused tests with `node --test <file>`.
+- Before committing, run focused tests with
+  `node scripts/run-bounded.mjs focused -- node --test <file>`.
   Put Node test options before the file. `npm test` selects the default
   suite; it does not forward file selections or Node test options.
   Leave the routine full-suite run to checkpoint.
 - If a focused run reports only a file-level `test failed`, run
-  `node <test-file>` to expose its underlying assertions. Changing the
+  `node scripts/run-bounded.mjs focused -- node <test-file>` to expose its
+  underlying assertions. Changing the
   reporter alone is not a reason to repeat the test.
+- The bounded runner limits a focused command and its descendants to
+  2 GiB and two minutes, and a full validation run to 6 GiB and 15 minutes.
+  All bounded validation shares a 10 GiB limit, with swap disabled.
+  Run it outside the Codex sandbox. It requires Linux and a working
+  systemd user manager; it fails without those protections.
+- Keep the printed run ID. Use the runner's `status`, `wait`, or `stop`
+  command to recover or stop that run; `--help` gives the syntax.
+  Do not start another copy to check whether the first has finished.
 - After committing a combined integration candidate, the orchestrator runs
   `npm run checkpoint`. Workers submit immutable deliveries after focused
   tests, lint and required fresh differentials; they do not run a redundant

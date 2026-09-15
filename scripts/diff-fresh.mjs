@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { boundedMain } from './run-bounded.mjs';
 
 // Record a fresh case with the deterministic C recorder, replay the same
 // inputs through the contestant API, and print the first strict divergence.
@@ -1009,7 +1010,7 @@ async function main(argv) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).then((status) => {
+    boundedMain('focused', () => main(process.argv.slice(2))).then((status) => {
         process.exitCode = status;
     }).catch((error) => {
         process.stderr.write(`diff-fresh: ${error.message || error}\n`);

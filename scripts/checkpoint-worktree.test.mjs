@@ -76,7 +76,7 @@ function fixture(t) {
     git(cRoot, 'add', 'input.c');
     git(cRoot, 'commit', '-qm', 'C fixture');
     mkdirSync(join(root, 'scripts'));
-    for (const name of ['checkpoint.mjs', 'checkpoint-results.mjs', 'checkpoint-reuse.mjs', 'local-tmpdir.mjs'])
+    for (const name of ['checkpoint.mjs', 'checkpoint-results.mjs', 'checkpoint-reuse.mjs', 'local-tmpdir.mjs', 'run-bounded.mjs'])
         copyFileSync(new URL(name, import.meta.url), join(root, 'scripts', name));
     writeFileSync(join(root, 'scripts/checkpoint-checks.mjs'), CHECK);
     writeFileSync(join(root, '.gitignore'), '.cache/\n');

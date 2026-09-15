@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { boundedMain } from './run-bounded.mjs';
 
 // Each fixed-workload session's first known mismatch and its source owner, read
 // from `scripts/scan-sessions.mjs --json`. Declaration counts are inventory;
@@ -280,7 +281,8 @@ export function main(args) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
     try {
-        main(process.argv.slice(2));
+        const code = await boundedMain('full', () => main(process.argv.slice(2)));
+        if (code !== undefined) process.exitCode = code;
     } catch (error) {
         console.error(`mismatch-queue: ${error.message}`);
         process.exitCode = 1;

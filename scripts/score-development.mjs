@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { boundedMain } from './run-bounded.mjs';
 
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -57,7 +58,9 @@ async function main(args) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
-    main(process.argv.slice(2)).catch((error) => {
+    boundedMain('full', () => main(process.argv.slice(2))).then(code => {
+        if (code !== undefined) process.exitCode = code;
+    }).catch((error) => {
         console.error(`Development scoring failed: ${error.message}`);
         process.exitCode = 1;
     });
