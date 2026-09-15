@@ -46548,8 +46548,8 @@
           "name": "do_play_instrument",
           "line": 759,
           "endLine": 901,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -46626,7 +46626,73 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_play_instrument",
+            "implementation": "js/music.js",
+            "symbol": "do_play_instrument",
+            "sourceReview": "Read complete music.c do_play_instrument:759–899 and its required consumed-return group do_improvisation:503–730, improvised_notes:733–753 and generic_lvl_desc:478–492. All instrument arms, impaired-mode choice and draw order, magical-to-mundane local-copy conversion, same-tune context, charge consumption, source messages/exercise, horn direction/self/beam routing, drum deafness and return values are preserved. Chosen tunes use source mungspaces and ASCII highc, H-to-B conversion, C loop-coordinate mutation during drawbridge search, duplicate-note matching, gears/tumblers and achievement timing; You_hear retains its separate acoustics gate. context.jingle uses the existing serialized context owner; gc.current_wand uses existing state.current_wand, not a duplicate namespace field. tty Hero_playnotes/Soundeffect are excluded by sndprocs.h's empty macros, so obj_to_instr is not evaluated. Source wake group read whole awaken_scare:45–60 and awaken_monsters:67–78; preserves live level.monlist traversal, dead skip, strict squared ranges, C integer division, waiting-before-resistance and mindless/unique exemptions. Existing monflee uses real visibility, source-positioned message adapter and existing region hooks. Its five message cases are now supplied beside the monmove.c owner, including immobile naming, actual light object and verbalize acoustics; no separate scare-state implementation was invented. Read complete dbridge.c is_drawbridge_wall:137–162, is_db_wall:170–173 and find_drawbridge:180–205. Moved the two existing predicates from startup_a11y into the existing dbridge.js, preserving create_drawbridge unchanged. Restored direction/-1 return semantics, updated every old boolean consumer to >=0 and wired the missing in/out coordinate lookup where C uses it, including kick_ouch and mbhit. Existing independent consumed-return owners can_blow, naming, getdir, zapyourself, flash_str, resist and onscary remain their source boundaries; no invented return or new Unsupported error. Missing discarded-return callees stay explicit: music.c put_monsters_to_sleep, charm_snakes, calm_nymphs, awaken_soldiers, charm_monsters, do_earthquake; dbridge.c open_drawbridge, close_drawbridge and destroy_drawbridge; pline.c impossible diagnostics. This is not a claim of whole music.c or whole drawbridge effects completion. Coordinator independently read the entire selected C function and named music/drawbridge helper bodies, all changed production code at immutable38ef59a6, all189lines of source-pinned tests, the entrypoint verifier, six passing recipes and the blocked charged recipe. Verified reference tty macros discard sound arguments, integer scare-radius division, source monflee message/region bindings, direction0 versus -1, mutable drawbridge coordinates and every former boolean consumer via repository search. Whole-application focused and combined validation follow separately.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4372–4383 maps all ten instrument types to do_play_instrument; runtime a -> doapply -> instrument owner. The old generic tool refusal no longer intercepts these source arms."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs",
+              "scripts/monmove.test.mjs",
+              "scripts/closed-door-autoopen.test.mjs",
+              "scripts/apply-lock-pick.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/muse.test.mjs",
+              "scripts/muse-pure.test.mjs",
+              "scripts/dokick-shipping.test.mjs",
+              "scripts/startup-a11y.test.mjs",
+              "scripts/stairs.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/drum-wakes-leprechaun.session.json",
+              "recordings/music.c/drum-deaf-wakes-leprechaun.session.json",
+              "recordings/music.c/empty-earthquake-drum.session.json",
+              "recordings/music.c/horn-wakes-leprechaun.session.json",
+              "recordings/music.c/flute-chosen-tune.session.json",
+              "recordings/music.c/empty-magic-flute.session.json"
+            ],
+            "checkedAt": "e138a49c196bb103ce80b8c0ff12378445b761ce"
+          }
+        ],
+        "entryPointReview": "The selected source unit has one command entry point, applying a musical instrument, with improvisation and requested-tune paths. Six independent recipes cover ordinary and deaf drumming, a depleted magical drum, a horn, a requested flute tune and a depleted magical flute. Four wake recipes replay their pre-application prefix to require a sleeping leprechaun, then require the same species present and awake after the full input; ordinary drums also require real timed deafness and improvisation requires a stored jingle. The tuple lookup and level-description pure helpers have source-pinned values. Stronghold matching, same-tune persistence and the exact depletion/RNG branches have isolated source tests; these are not claimed as fresh stronghold or every magical effect recordings.",
+        "entryPoints": [
+          {
+            "name": "Instrument improvisation",
+            "functions": [
+              "do_play_instrument"
+            ],
+            "recordings": [
+              "recordings/music.c/drum-wakes-leprechaun.session.json",
+              "recordings/music.c/drum-deaf-wakes-leprechaun.session.json",
+              "recordings/music.c/empty-earthquake-drum.session.json",
+              "recordings/music.c/horn-wakes-leprechaun.session.json",
+              "recordings/music.c/empty-magic-flute.session.json"
+            ]
+          },
+          {
+            "name": "Requested musical tune",
+            "functions": [
+              "do_play_instrument"
+            ],
+            "recordings": [
+              "recordings/music.c/flute-chosen-tune.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

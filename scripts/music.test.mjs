@@ -51,7 +51,7 @@ test('drawbridge lookup preserves four directions, negative failure, and in/out 
         map.set('10,10', { typ: DBWALL });
         assert.equal(is_db_wall(10, 10, state), true);
         assert.equal(is_drawbridge_wall(0, 10, state), -1); // C isok excludes x=0.
-        const missing = { x: 30, y: 10 };
+        const missing = { x: 30, y: 10 }; // Interior floor, away from the bridge.
         assert.equal(find_drawbridge(missing, state), false);
         assert.deepEqual(missing, { x: 30, y: 10 });
     }
@@ -83,6 +83,8 @@ test('improvised_notes draws one to five notes, then preserves the saved jingle 
 });
 
 function monster(state, overrides = {}) {
+    // Adjacent living grid bug: level1 fixes resistance defense, HP4 survives
+    // a damage-free scare, and frozen8 makes wake-up reset observable.
     return { data: state.mons[PM_GRID_BUG], m_lev: 1, mhp: 4,
         mx: state.u.ux + 1, my: state.u.uy, msleeping: true, mcanmove: false,
         mfrozen: 8, mstrategy: 0, mtrack: [], ...overrides };
