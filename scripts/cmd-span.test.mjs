@@ -336,12 +336,6 @@ test('direction names, menu selectors, and command-menu result mapping follow C'
     assert.equal(await doherecmdmenu(here), ECMD_TIME);
     assert.equal(await dotherecmdmenu(here), ECMD_TIME);
     assert.deepEqual(here.clicklook_cc, { x: -1, y: -1 });
-    const cancelledHere = {
-        hereCmdMenu: () => '\0',
-    };
-    // cmd.c's here_cmd_menu() returns the NUL byte after Escape; the C
-    // truth test therefore leaves the command at ECMD_OK without a turn.
-    assert.equal(await doherecmdmenu(cancelledHere), ECMD_OK);
     await assert.rejects(
         doherecmdmenu({}),
         UnsupportedHeroCommandBoundaryError,

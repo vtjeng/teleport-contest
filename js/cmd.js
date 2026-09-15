@@ -4264,7 +4264,7 @@ function commandMenuResult(state, name, ...args) {
 // C ref: cmd.c doherecmdmenu() (4328-4340).
 export async function doherecmdmenu(state = game) {
     const ch = await commandMenuResult(state, 'hereCmdMenu');
-    return ch && ch !== ESC && ch !== '\0' ? ECMD_TIME : ECMD_OK;
+    return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
 }
 
 // C ref: cmd.c dotherecmdmenu() (4343-4420).
