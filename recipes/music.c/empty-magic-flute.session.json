@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent music.c instrument input. Seed 8547721 was chosen before inspection, without a seed search. Barbarian starts without a tool, so the wished instrument occupies e. Leprechauns start asleep by source; the verifier checks sleep before play and actual wake afterward. Deafness, a depleted magical counterpart, the instrument and chosen-tune input provide cheap variations.",
+  "segments": [
+    {
+      "seed": 8547721,
+      "datetime": "20350812112743",
+      "nethackrc": "OPTIONS=name:MusicPilot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed magic flute (0:0)\naey "
+    }
+  ]
+}

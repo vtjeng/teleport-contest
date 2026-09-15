@@ -38,6 +38,7 @@ import {
     isok,
     u_at,
 } from './const.js';
+import { is_db_wall, is_drawbridge_wall } from './dbridge.js';
 import { is_magic_key } from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import {
@@ -106,8 +107,6 @@ import { costly_spot } from './shk.js';
 import { is_lava, is_pool } from './trap.js';
 import {
     heroIsBlind,
-    is_db_wall,
-    is_drawbridge_wall,
     messageAt,
 } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
@@ -768,7 +767,7 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
             res = PICKLOCK_LEARNED_SOMETHING;
 
         const blind = heroIsBlind(state);
-        if (is_drawbridge_wall(cc.x, cc.y, state))
+        if (is_drawbridge_wall(cc.x, cc.y, state) >= 0)
             await ttyPline(
                 `You ${blind ? 'feel' : 'see'} no lock on the drawbridge.`,
                 state,
@@ -1101,7 +1100,7 @@ export async function doopen_indir(x, y, state = game, env = {}) {
     // lock.c:828-829.
     const door = state.level?.at(cc.x, cc.y);
     if (!door) throw new TypeError('doopen_indir requires a door location');
-    const portcullis = is_drawbridge_wall(cc.x, cc.y, state);
+    const portcullis = is_drawbridge_wall(cc.x, cc.y, state) >= 0;
 
     // lock.c:831-839. The glyph-comparison block: "this used to be 'if (Blind)'
     // but using a key skips that so we do too". update_mapseen_for() and
@@ -1357,7 +1356,7 @@ export async function doclose(state = game) {
         res = ECMD_TIME;
 
     const door = state.level.at(x, y);
-    const portcullis = is_drawbridge_wall(x, y, state);
+    const portcullis = is_drawbridge_wall(x, y, state) >= 0;
 
     // lock.c:997-1005. Blind hero feels the location to learn what is there.
     if (heroIsBlind(state)) {

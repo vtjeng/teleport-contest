@@ -357,6 +357,7 @@ import {
 import { CapitalMon } from './random_text.js';
 import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { water_friction } from './mkmaze.js';
+import { is_db_wall } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
 import { enexto, goodpos, rloc_to } from './teleport.js';
@@ -377,7 +378,6 @@ import {
     canSpotMonster,
     collectMonsterNoticeMessage,
     collectMonsterNoticeMessages,
-    is_db_wall,
     messageAt,
     monsterVisible,
     sensesMonster,

@@ -181,7 +181,8 @@ import { HCOLORS } from './random_text_data.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
-import { canSpotMonster, is_drawbridge_wall, messageAt, sensesMonster } from './startup_a11y.js';
+import { canSpotMonster, messageAt, sensesMonster } from './startup_a11y.js';
+import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
 import {
     enexto, noteleport_level, random_teleport_level, rloc, tele,
     tele_restrict,
@@ -2339,17 +2340,14 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
             range--;
         const lev = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
         const ltyp = lev.typ;
-        let dbx = x;
-        let dby = y;
+        const drawbridge = { x, y };
         if (otyp === O.WAN_STRIKING
             /* if levl[x][y].typ is DRAWBRIDGE_UP then the zap is passing
                over the moat in front of a closed drawbridge and doesn't
                hit any part of the bridge's mechanism */
-            && ltyp !== DRAWBRIDGE_UP) {
-            // find_drawbridge() and destroy_drawbridge() are unported.
-            note_unported('dbridge.c find_drawbridge');
-        }
-        if (IS_DOOR(ltyp) || ltyp === SDOOR) {
+            && ltyp !== DRAWBRIDGE_UP && find_drawbridge(drawbridge, state)) {
+            note_unported('dbridge.c destroy_drawbridge');
+        } else if (IS_DOOR(ltyp) || ltyp === SDOOR) {
             switch (otyp) {
             /* note: monsters don't use opening or locking magic
                at present, but keep these as placeholders */

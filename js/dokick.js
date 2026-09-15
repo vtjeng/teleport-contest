@@ -137,7 +137,7 @@ import {
     displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
-import { is_drawbridge_wall } from './startup_a11y.js';
+import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { cansee, recalc_block_point } from './vision.js';
@@ -561,11 +561,10 @@ export function kickstr(maploc, kickobjnam, state = game) {
 
 // C ref: dokick.c kick_ouch() (881-906). This helper is shared by the wall
 // and upward-stairs arm of kick_nondoor(), and by future terrain arms as they
-// become reachable. The drawbridge lookup and floating recoil stay gaps until
-// dbridge.c and the movement owner port those functions.
+// become reachable. Floating recoil remains with the movement owner.
 async function kick_ouch(x, y, kickobjnam, state) {
     const u = state.u;
-    const maploc = isok(x, y) ? state.level.at(x, y) : null;
+    let maploc = isok(x, y) ? state.level.at(x, y) : null;
 
     await ttyPline('Ouch!  That hurts!', state);
     await exercise(A_DEX, false, state, { rn2 });
@@ -573,12 +572,12 @@ async function kick_ouch(x, y, kickobjnam, state) {
                    { encumberMessage: encumber_msg });
     if (isok(x, y)) {
         if (Blind(state)) feel_location(x, y, state);
-        if (is_drawbridge_wall(x, y, state)) {
+        if (is_drawbridge_wall(x, y, state) >= 0) {
             await ttyPline('The drawbridge is unaffected.', state);
-            // C discards find_drawbridge()'s return value, but its coordinate
-            // arguments update gm.maploc. Record the unported mutation rather
-            // than inventing a map update for this out-of-scope branch.
-            note_unported('dbridge.c find_drawbridge');
+            const position = { x, y };
+            find_drawbridge(position, state);
+            ({ x, y } = position);
+            maploc = state.level.at(x, y);
         }
         await wake_nearto(x, y, 5 * 5, { state });
     }
