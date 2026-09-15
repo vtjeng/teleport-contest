@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731338,
+      "datetime": "20330517112233",
+      "nethackrc": "OPTIONS=name:MoveFresh,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "u."
+    }
+  ],
+  "comment": "Independent Valkyrie movement recipe: seed 731338 places a secret door northeast of the starting hero, so u reaches hack.c test_move()'s IS_OBSTRUCTED(SDOOR) refusal without a message or turn. The trailing wait verifies the refused step leaves the command stream aligned."
+}

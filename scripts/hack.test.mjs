@@ -15,6 +15,7 @@ import {
     TELEPAT,
     THRONE,
     CORR,
+    DO_MOVE,
     DUST,
     FLYING,
     FROMOUTSIDE,
@@ -37,6 +38,7 @@ import {
     RUN_STEP,
     RUN_TPORT,
     SINK,
+    SDOOR,
     STONE,
     STAIRS,
     STEALTH,
@@ -72,6 +74,7 @@ import {
     spoteffects,
     swim_move_danger,
     switch_terrain,
+    test_move,
     terrain_changed_under_hero,
     u_simple_floortyp,
     uint_to_any,
@@ -456,6 +459,35 @@ test('known lava warning passes the walking seam and stops before arrival',
             /door or special terrain movement/u,
         );
     });
+
+test('a secret door reaches test_move instead of preflight refusal', async () => {
+    const state = {
+        level: new GameMap(),
+        u: {
+            ux: 10,
+            uy: 10,
+            uinwater: false,
+            usteed: null,
+            uprops: [],
+        },
+        youmonst: { data: { mflags1: 0, mmove: 12 } },
+        context: { nopick: 0, run: 0, tips: 0 },
+        flags: { mention_walls: false, mention_decor: false, pickup: false },
+    };
+    state.level.at(10, 10).typ = ROOM;
+    state.level.at(11, 10).typ = SDOOR;
+
+    // hack.c test_move():1011 includes SDOOR through IS_OBSTRUCTED and
+    // returns FALSE silently when mention_walls is off. The preflight seam
+    // must therefore admit the command instead of throwing first.
+    assert.doesNotThrow(
+        () => preflightDomoveDestination(11, 10, state),
+    );
+    assert.equal(
+        await test_move(10, 10, 1, 0, DO_MOVE, state),
+        false,
+    );
+});
 
 test('liquid admission requires a warning that will stop the move', () => {
     // Each variation follows a FALSE arm of hack.c swim_move_danger(): an
