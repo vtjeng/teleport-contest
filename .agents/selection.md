@@ -88,8 +88,9 @@ that seed or to skip whole-source completion.
 Before editing, check the current runtime ledger and pending scope
 announcements for active and pending-delivery reservations. Prepare the next
 worker-local span context and notify the orchestrator of the base commit,
-next mismatch, source scope, dependencies, and write set. Proceed when the
-scope is disjoint; do not wait for acknowledgement or a central ledger update.
+next mismatch, source scope, dependencies, and write set. Claim that scope
+with the atomic `assign` operation in `.agents/loop.md` before editing.
+Do not wait for acknowledgement after a successful claim.
 If ownership is unclear, another worker reserves the function, or a shared
 contract must change, ask the orchestrator to resolve that dependency and
 continue independent work meanwhile. Different functions in the same file

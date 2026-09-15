@@ -3,6 +3,7 @@
 // not prove behavioral equivalence, runtime reachability, or a matching replay.
 
 import { lstatSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
 import { PROJECT_ROOT, parseCFunctions } from './c-functions.mjs';
@@ -178,23 +179,48 @@ function hasSymbol(source, symbol, allowConst) {
  * are checked with lstat only; this function never reads recording contents.
  * A checkpoint supplies replay results separately when the goal is closed.
  */
-export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT } = {}) {
+export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, commit } = {}) {
     const { scope, evidence: result } = evidenceShape(goal, evidence);
-    const source = sourcePath(scope, root);
+    // A queued delivery remains reviewable after its worker changes HEAD or
+    // starts editing again. Read its references from Git, not that moving tree.
+    const git = (directory, args) => execFileSync('git', ['-C', directory, ...args],
+        { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+    const committedFile = (path) => {
+        const entry = git(root, ['ls-tree', commit, '--', path]).trim();
+        if (!/^100(?:644|755) blob [0-9a-f]{40}\t/u.test(entry))
+            throw new Error(`missing regular file at ${commit}: ${path}`);
+        return path;
+    };
+    const file = commit ? committedFile : path => regularFile(path, root);
+    const read = commit ? path => git(root, ['show', `${commit}:${path}`]) : path => readFileSync(path, 'utf8');
+    let sourceText;
+    if (commit) {
+        const cRoot = join(root, 'nethack-c/upstream');
+        const cCommit = git(root, ['rev-parse', `${commit}:nethack-c/upstream`]).trim();
+        const directories = scope.lua ? ['dat'] : ['src', 'win/tty'];
+        for (const directory of directories) {
+            const path = `${directory}/${scope.file}`;
+            if (git(cRoot, ['ls-tree', cCommit, '--', path]).trim()) {
+                sourceText = git(cRoot, ['show', `${cCommit}:${path}`]);
+                break;
+            }
+        }
+        if (sourceText === undefined) throw new Error(`source file ${scope.file} is missing at pinned C commit`);
+    } else sourceText = readFileSync(sourcePath(scope, root), 'utf8');
     const symbols = [];
     for (const entry of result.functions) {
-        symbols.push({ path: regularFile(entry.implementation, root),
+        symbols.push({ path: file(entry.implementation),
             symbol: entry.symbol, allowConst: scope.lua });
         for (const caller of entry.callers) {
-            symbols.push({ path: regularFile(caller.path, root), symbol: caller.symbol, allowConst: true });
+            symbols.push({ path: file(caller.path), symbol: caller.symbol, allowConst: true });
         }
-        for (const path of [...entry.tests, ...entry.recordings]) regularFile(path, root);
+        for (const path of [...entry.tests, ...entry.recordings]) file(path);
     }
     for (const entry of result.entryPoints ?? []) {
-        for (const path of entry.recordings) regularFile(path, root);
+        for (const path of entry.recordings) file(path);
     }
     if (!scope.lua) {
-        const sourceNames = new Set(parseCFunctions(blankCommentsAndStrings(readFileSync(source, 'utf8')))
+        const sourceNames = new Set(parseCFunctions(blankCommentsAndStrings(sourceText))
             .map((entry) => entry.name));
         for (const entry of result.functions) {
             if (!sourceNames.has(entry.name)) throw new Error(`source ${scope.file} has no definition for ${entry.name}`);
@@ -202,7 +228,7 @@ export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT } = {
     }
     const sources = new Map();
     for (const { path, symbol, allowConst } of symbols) {
-        if (!sources.has(path)) sources.set(path, blankCommentsAndStrings(readFileSync(path, 'utf8')));
+        if (!sources.has(path)) sources.set(path, blankCommentsAndStrings(read(path)));
         if (!hasSymbol(sources.get(path), symbol, allowConst)) {
             throw new Error(`missing declared symbol ${symbol} in ${path}`);
         }

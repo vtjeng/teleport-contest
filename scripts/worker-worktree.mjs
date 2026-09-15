@@ -5,6 +5,7 @@ import { accessSync, constants, cpSync, existsSync, lstatSync, mkdirSync,
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runRecorderSmoke } from './smoke-recorder.mjs';
+import { boundedMain } from './run-bounded.mjs';
 
 export const USAGE = `Usage (run from the new worktree's root):
   node scripts/worker-worktree.mjs prepare --branch <assigned-branch> \\
@@ -24,6 +25,10 @@ SHAs, time and smoke results as JSON only on success. They do not assign
 workers, start a pilot, change branches, or alter existing recorder state.
 Run setup before workers use the checkout. Failed probes produce no saved
 readiness receipt; fix the reported problem and run the command again.
+For a replacement worker, use check on its already prepared worktree; do not
+rebuild or copy the recorder again. CLI setup/check runs in the focused bounded
+profile. Run outside the Codex sandbox: both Git metadata and the systemd user
+manager need host access. Focused tests use run-bounded.mjs focused as well.
 In a new checkout without these scripts, invoke the script by absolute path
 from a checkout that contains it, keeping cwd at the new worktree root.`;
 
@@ -142,6 +147,10 @@ function main(argv) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-    try { main(process.argv.slice(2)); }
+    try {
+        const argv = process.argv.slice(2);
+        if (argv.length === 1 && ['--help', '-h'].includes(argv[0])) main(argv);
+        else process.exitCode = await boundedMain('focused', () => { main(argv); return 0; });
+    }
     catch (error) { console.error(error.message); process.exitCode = 1; }
 }

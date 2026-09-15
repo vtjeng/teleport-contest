@@ -1,0 +1,264 @@
+import assert from 'node:assert/strict';
+import { spawn, spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+import { copiedRecipe } from './worker-delivery.mjs';
+
+const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
+
+function fixture(t) {
+    const parent = mkdtempSync(join(tmpdir(), 'worker-delivery-test-'));
+    t.after(() => rmSync(parent, { recursive: true, force: true }));
+    const root = join(parent, 'main'); const cRoot = join(parent, 'source');
+    const git = (cwd, ...args) => {
+        const result = spawnSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], { cwd, encoding: 'utf8' });
+        assert.equal(result.status, 0, result.stderr); // Only disposable fixture repositories are written.
+        return result.stdout.trim();
+    };
+    for (const path of [root, cRoot]) {
+        mkdirSync(path); git(path, 'init', '-qb', 'main');
+        git(path, 'config', 'user.name', 'Delivery fixture');
+        git(path, 'config', 'user.email', 'fixture@example.invalid');
+        git(path, 'config', 'commit.gpgsign', 'false');
+    }
+    mkdirSync(join(cRoot, 'src'));
+    // One source function and caller are enough to exercise evidence references.
+    writeFileSync(join(cRoot, 'src/sample.c'), 'int\nsample(void)\n{\n    return 1;\n}\n');
+    git(cRoot, 'add', 'src/sample.c'); git(cRoot, 'commit', '-qm', 'source fixture');
+    git(root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', cRoot, 'nethack-c/upstream');
+    for (const dir of ['js', 'scripts', 'sessions']) mkdirSync(join(root, dir));
+    writeFileSync(join(root, '.gitignore'), '.cache/\n');
+    writeFileSync(join(root, 'js/sample.js'), 'export function sample() { return 0; }\nexport function caller() { return sample(); }\n');
+    writeFileSync(join(root, 'scripts/sample.test.mjs'), "import { sample } from '../js/sample.js';\nvoid sample;\n");
+    writeFileSync(join(root, 'QUALITY.json'), JSON.stringify({ areas: [{ paths: ['js/sample.js'] }] }));
+    // The long fixed route makes a renamed/redated copy unambiguous.
+    writeFileSync(join(root, 'sessions/fixed.session.json'), JSON.stringify({ segments: [{ seed: 360, moves: 'hhjjkkll' }] }));
+    git(root, 'add', '.gitignore', '.gitmodules', 'nethack-c/upstream', 'js/sample.js',
+        'scripts/sample.test.mjs', 'QUALITY.json', 'sessions/fixed.session.json');
+    git(root, 'commit', '-qm', 'base fixture');
+    const base = git(root, 'rev-parse', 'HEAD');
+    const workers = {};
+    for (const name of ['A', 'B']) {
+        const path = join(parent, name); workers[name] = path;
+        git(root, 'worktree', 'add', '-qb', `worker/${name}`, path);
+        git(path, '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', '--checkout', '--no-fetch');
+        mkdirSync(join(path, '.cache'));
+    }
+    const file = join(root, '.cache/worker-state.json');
+    const run = (args, cwd = root) => spawnSync(process.execPath, [SCRIPT, ...args], {
+        cwd, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024,
+    });
+    const success = (args, cwd = root) => {
+        const result = run(args, cwd);
+        assert.equal(result.status, 0, result.stderr || result.stdout);
+        return JSON.parse(result.stdout);
+    };
+    let sequence = 0;
+    const event = (payload, cwd = root) => success(['event', '--file', file,
+        '--json', JSON.stringify({ id: `fixture-${++sequence}`, ...payload })], cwd);
+    success(['init', '--run', 'fixture']);
+    for (const name of ['A', 'B']) event({ type: 'register', worker: name,
+        worktree: workers[name], branch: `worker/${name}`, base, handle: `handle-${name}` });
+    const assign = (name = 'A', task = 'A-1', reservations = ['source:sample.c:sample']) => event({
+        type: 'assign', task, worker: name, goal: 'sample-port', span: 'sample', seed: null,
+        base: git(workers[name], 'rev-parse', 'HEAD'), reservations,
+        allowedPaths: ['js/sample.js', 'scripts/sample.test.mjs', 'recipes/sample.c/'],
+    }, workers[name]);
+    const artifacts = (name = 'A') => {
+        const path = workers[name];
+        writeFileSync(join(path, '.cache/context.json'), JSON.stringify({ goal: 'sample-port',
+            kind: 'file-port', cFile: 'sample.c', functions: ['sample'] }));
+        writeFileSync(join(path, '.cache/evidence.json'), JSON.stringify({ functions: [{
+            name: 'sample', implementation: 'js/sample.js', sourceReview: 'Fixture return and caller checked.',
+            callers: [{ path: 'js/sample.js', symbol: 'caller', source: 'sample.c caller fixture' }],
+            pure: true, tests: ['scripts/sample.test.mjs'], recordings: [],
+        }], entryPointReview: 'Helper-only fixture.', entryPoints: [] }));
+        const log = join(path, '.cache/check.log');
+        writeFileSync(log, 'Transport fixture: a completed check result, not a real game-validation claim.\n');
+        writeFileSync(join(path, '.cache/checks.json'), JSON.stringify(['focused', 'lint'].map(kind => ({
+            kind, command: ['fixture-check', kind], exitCode: 0, log,
+        }))));
+    };
+    const commit = (name = 'A') => {
+        const path = workers[name];
+        writeFileSync(join(path, 'js/sample.js'), 'export function sample() { return 1; }\nexport function caller() { return sample(); }\n');
+        git(path, 'add', 'js/sample.js'); git(path, 'commit', '-qm', 'delivery fixture');
+        return git(path, 'rev-parse', 'HEAD');
+    };
+    const submitArgs = ['submit', '--task', 'A-1', '--file', file, '--context', '.cache/context.json',
+        '--evidence', '.cache/evidence.json', '--checks', '.cache/checks.json'];
+    return { parent, root, workers, file, base, git, run, success, event, assign, artifacts, commit, submitArgs };
+}
+
+test('worker submits durably and starts another task before receipt; snapshots survive changed evidence', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    const submitted = f.success(f.submitArgs, f.workers.A);
+    const first = submitted.deliveries[head];
+    assert.equal(first.delivery, head);
+    const retry = f.success(f.submitArgs, f.workers.A);
+    assert.equal(retry.deliveries[head].readyAt, first.readyAt);
+    f.assign('A', 'A-2', ['source:sample.c:next']);
+    writeFileSync(join(f.workers.A, '.cache/evidence.json'), '{"next":"task"}');
+    writeFileSync(join(f.workers.A, 'js/sample.js'), 'unfinished next-task edits\n');
+    const next = f.success(['next']);
+    assert.equal(next.unread[0].delivery, head);
+    assert.equal(next.integration.delivery, head);
+    f.event({ type: 'received', task: 'A-1', delivery: head });
+    const packet = JSON.parse(readFileSync(first.evidence, 'utf8'));
+    assert.equal(packet.functions[0].name, 'sample');
+    assert.equal(packet.git.head, head);
+    const preflight = f.success(['preflight', '--task', 'A-1', '--commit', head]);
+    assert.equal(preflight.passed, true); // Reads Git, not the worker's new dirty file.
+    assert.ok(preflight.focusedTests.includes('scripts/sample.test.mjs'));
+});
+
+test('worker-scoped writes reject another worker, central events and overlapping claims', (t) => {
+    const f = fixture(t); f.assign();
+    for (const payload of [
+        { type: 'assign', worker: 'B', task: 'wrong-owner', goal: 'sample-port', span: 'sample', seed: null,
+            base: f.base, reservations: ['source:sample.c:other'], allowedPaths: ['js/sample.js'] },
+        { type: 'accepted', task: 'A-1' },
+        { type: 'observe', worker: 'A', handle: null, processes: [] },
+    ]) {
+        const result = f.run(['event', '--file', f.file, '--json', JSON.stringify({ id: 'forbidden', ...payload })], f.workers.A);
+        assert.equal(result.status, 1, result.stdout);
+    }
+    assert.throws(() => f.assign('B', 'B-overlap'), /reserved/);
+    f.assign('B', 'B-independent', ['source:sample.c:other']);
+});
+
+test('simultaneous overlapping claims yield one owner, never two', async (t) => {
+    const f = fixture(t);
+    const claims = ['A', 'B'].map(worker => new Promise(resolve => {
+        const event = { id: `claim-${worker}`, type: 'assign', task: `${worker}-1`, worker,
+            goal: 'sample-port', span: 'sample', seed: null, base: f.base,
+            reservations: ['source:sample.c:sample'], allowedPaths: ['js/sample.js'] };
+        const child = spawn(process.execPath, [SCRIPT, 'event', '--file', f.file, '--json', JSON.stringify(event)],
+            { cwd: f.workers[worker], stdio: 'ignore' });
+        child.on('error', error => resolve({ error }));
+        child.on('close', code => resolve({ code }));
+    }));
+    const results = await Promise.all(claims);
+    assert.equal(results.filter(result => result.code === 0).length, 1);
+    assert.equal(Object.keys(f.success(['status']).tasks).length, 1);
+});
+
+test('queued corrections do not interrupt or mix with the current task', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    f.success(f.submitArgs, f.workers.A);
+    f.assign('A', 'A-next', ['source:sample.c:next']);
+    f.event({ type: 'feedback', task: 'A-1', delivery: head, reason: 'Repair the caller evidence.' });
+    const next = f.success(['next']);
+    assert.equal(next.corrections[0].afterTask, 'A-next');
+    assert.throws(() => f.event({ type: 'resume', task: 'A-1' }, f.workers.A), /already working/);
+    assert.equal(f.success(['status']).tasks['A-next'].status, 'working');
+});
+
+test('preflight reports quality omissions, copied recipes and all previous failed checks together', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); f.commit();
+    const worker = f.workers.A;
+    mkdirSync(join(worker, 'recipes/sample.c'), { recursive: true });
+    writeFileSync(join(worker, 'recipes/sample.c/copied.session.json'), JSON.stringify({
+        comment: 'Different name and date do not make this route independent.',
+        segments: [{ seed: 360, datetime: '20000101120000', moves: 'hhjjkkll' }],
+    }));
+    f.git(worker, 'add', 'recipes/sample.c/copied.session.json'); f.git(worker, 'commit', '-qm', 'copied fixture');
+    const submitted = f.success(f.submitArgs, worker);
+    const head = Object.keys(submitted.deliveries)[0];
+    f.git(f.root, 'merge', '--ff-only', head);
+    writeFileSync(join(f.root, 'QUALITY.json'), JSON.stringify({ areas: [] }));
+    f.git(f.root, 'add', 'QUALITY.json'); f.git(f.root, 'commit', '-qm', 'missing assignment fixture');
+    const summary = join(f.parent, 'failed.json');
+    writeFileSync(summary, JSON.stringify({ allPassed: false, results: [
+        { label: 'quality', passed: false, logPath: '/fixture/quality.log' },
+        { label: 'caller tests', passed: false, logPath: '/fixture/callers.log' },
+        { label: 'informational', passed: false, informational: true },
+    ] }));
+    const result = f.run(['preflight', '--task', 'A-1', '--previous-checkpoint', summary]);
+    assert.equal(result.status, 1);
+    const report = JSON.parse(result.stdout);
+    assert.ok(report.issues.some(issue => issue.includes('unassigned')));
+    assert.ok(report.issues.some(issue => issue.includes('copies seed and moves')));
+    assert.deepEqual(report.previousFailures.map(item => item.label), ['quality', 'caller tests', 'informational']);
+});
+
+test('Git objects and exact checkpoint candidates are verified rather than trusting SHA spelling', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    f.success(f.submitArgs, f.workers.A);
+    f.event({ type: 'received', task: 'A-1', delivery: head });
+    assert.throws(() => f.event({ type: 'integrating', task: 'A-1', integration: 'f'.repeat(40) }), /revision|object|commit/i);
+    assert.throws(() => f.event({ type: 'integrating', task: 'A-1', integration: f.base }), /delivered patch/);
+    f.git(f.root, 'merge', '--ff-only', head);
+    f.event({ type: 'integrating', task: 'A-1', integration: head.slice(0, 12) }); // Resolve, never pad a short SHA.
+    const summary = join(f.parent, 'summary.json');
+    writeFileSync(summary, JSON.stringify({ commit: f.base, allPassed: true }));
+    assert.throws(() => f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary }), /different integration/);
+    writeFileSync(summary, JSON.stringify({ commit: head, allPassed: false }));
+    assert.throws(() => f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary }), /disagrees/);
+});
+
+test('publication requires accepted work on both local and remote main', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+    f.success(f.submitArgs, f.workers.A); f.event({ type: 'received', task: 'A-1', delivery: head });
+    f.git(f.root, 'checkout', '-qb', 'integration'); f.git(f.root, 'merge', '--ff-only', head);
+    f.event({ type: 'integrating', task: 'A-1', integration: head });
+    const summary = join(f.parent, 'pass.json');
+    writeFileSync(summary, JSON.stringify({ commit: head, allPassed: true }));
+    f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
+    f.event({ type: 'accepted', task: 'A-1' });
+    assert.throws(() => f.event({ type: 'published', task: 'A-1', commit: head }), /local main/);
+    f.success(['sync-main', '--commit', head]);
+    const remote = join(f.parent, 'remote.git');
+    f.git(f.parent, 'init', '--bare', '-q', remote); f.git(f.root, 'remote', 'add', 'origin', remote);
+    assert.throws(() => f.event({ type: 'published', task: 'A-1', commit: head }), /git ls-remote|remote main/);
+    f.git(f.root, 'push', '-q', 'origin', 'main'); // Disposable filesystem remote, never the project remote.
+    const state = f.event({ type: 'published', task: 'A-1', commit: head });
+    assert.ok(state.deliveries[head].publishedAt);
+});
+
+test('recipe comparison ignores renamed metadata but not independently chosen moves', () => {
+    const fixed = { seed: 360, moves: 'hhjjkkll' }; // Reproduce the observed same-seed/same-route defect.
+    assert.equal(copiedRecipe({ ...fixed, datetime: '20000101120000', name: 'new' }, fixed), true);
+    assert.equal(copiedRecipe({ ...fixed, moves: 'jj' }, fixed), false);
+});
+
+test('repairing an earlier submission excludes the next task and unblocks its dependent delivery', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); const first = f.commit();
+    const worker = f.workers.A;
+    f.success(f.submitArgs, worker);
+    f.assign('A', 'A-2');
+    mkdirSync(join(worker, 'recipes/sample.c'), { recursive: true });
+    const laterPath = 'recipes/sample.c/later.session.json';
+    // This file belongs to the later task and must not enter the earlier repair.
+    writeFileSync(join(worker, laterPath), JSON.stringify({ seed: 777, moves: 'j' }));
+    f.git(worker, 'add', laterPath); f.git(worker, 'commit', '-qm', 'later task fixture');
+    const second = f.git(worker, 'rev-parse', 'HEAD');
+    const nextArgs = f.submitArgs.map(arg => arg === 'A-1' ? 'A-2' : arg);
+    f.success([...nextArgs, '--base', first], worker);
+    f.event({ type: 'feedback', task: 'A-1', delivery: first, reason: 'Correct the helper.' });
+    f.event({ type: 'resume', task: 'A-1' }, worker);
+    writeFileSync(join(worker, 'js/sample.js'), 'export function sample() { return 2; }\nexport function caller() { return sample(); }\n');
+    f.git(worker, 'add', 'js/sample.js'); f.git(worker, 'commit', '-qm', 'repair fixture');
+    const repair = f.git(worker, 'rev-parse', 'HEAD');
+    const cyclic = f.run([...f.submitArgs, '--base', second], worker);
+    assert.equal(cyclic.status, 1);
+    assert.match(cyclic.stderr, /dependency cycle/);
+    f.success([...f.submitArgs, '--base', second, '--dependencies', 'none'], worker);
+    f.git(f.root, 'merge', '--ff-only', first);
+    f.git(f.root, 'cherry-pick', repair);
+    assert.equal(f.git(f.root, 'ls-tree', 'HEAD', '--', laterPath), '');
+    f.event({ type: 'received', task: 'A-1', delivery: repair });
+    const combined = f.git(f.root, 'rev-parse', 'HEAD');
+    f.event({ type: 'integrating', task: 'A-1', integration: combined });
+    const summary = join(f.parent, 'repair-pass.json');
+    writeFileSync(summary, JSON.stringify({ commit: combined, allPassed: true }));
+    f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
+    const state = f.event({ type: 'accepted', task: 'A-1' });
+    assert.equal(state.deliveries[first].acceptedAt, undefined); // Original failed snapshot is never relabelled passing.
+    assert.equal(f.success(['next']).integration.delivery, second);
+    const preflight = f.success(['preflight', '--task', 'A-1']);
+    assert.equal(preflight.passed, true);
+});

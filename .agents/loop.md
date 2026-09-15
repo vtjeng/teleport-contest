@@ -26,7 +26,10 @@ handoff files. Do not merge worker copies of the central ledgers. A worker
 proposes any new `QUALITY.json` area assignment; the orchestrator applies it.
 
 Use `scripts/worker-state.mjs` to update `.cache/worker-state.json`.
-Only the orchestrator runs this command; do not edit the JSON by hand.
+Give each worker the absolute ledger path. Workers may record their own
+connection, turn state, assignments, scope expansions and deliveries.
+Only the orchestrator records integration, acceptance and publication.
+Do not edit the JSON by hand.
 Run it with `--help` for the commands and required fields. Record each
 assignment, delivery, integration, validation, acceptance, publication,
 and pause when it happens. The command adds timestamps and tracks reservations
@@ -63,11 +66,12 @@ of coordination.
 
 Give each worker an initial span and standing permission to select subsequent
 independent work within the user's task bounds. After sending an immutable
-delivery, the worker selects and announces its next scope under
-`.agents/selection.md`, "Seed continuation", then proceeds without waiting
-for fresh permission, acknowledgement, merge, combined validation, CI, or the
-other worker. The orchestrator records scope announcements in the runtime
-ledger; that update is bookkeeping, not permission to begin.
+delivery, the worker selects its next scope under
+`.agents/selection.md`, "Seed continuation", and claims it with a worker-state
+`assign` event before editing. The command checks and reserves the scope
+in one locked update. If another worker owns it, choose independent work.
+After a successful claim, proceed without waiting for acknowledgement,
+merge, combined validation, CI, or the other worker.
 
 Reserve functions and shared-state contracts, not whole files indefinitely.
 A dependency shared by workers has one owner. Keep reservations for pending
@@ -77,6 +81,10 @@ reserved function or changing a shared contract. Continue independent work
 while that ownership decision is pending.
 
 ## Merge requests
+
+Before initial dispatch or replacement, have the worker record a `connect`
+event from its assigned worktree. The orchestrator reads and acknowledges
+that connection before dispatching implementation.
 
 At each completed span, the worker sends `READY_TO_MERGE` to the main
 orchestrator. A message containing the fields below is the merge request;
@@ -97,7 +105,15 @@ to a submitted snapshot. The message also identifies the next scope or
 investigation the worker is taking, or the concrete blocker if none is
 available. Do not wait for a next-scope decision to submit a ready delivery.
 
-The orchestrator acknowledges the exact delivery SHA as `QUEUED_FOR_MERGE`
+First submit the delivery with `worker-state.mjs submit`; `--help` describes
+the context, evidence and check-result files. The command derives commits
+and paths from Git and saves an immutable evidence copy in the shared inbox.
+Then send `READY_TO_MERGE` through the callable collaboration tool. In Codex,
+collaboration tools are separate from `functions.ALL_TOOLS`.
+An unavailable notification does not undo submission or block independent work.
+
+The orchestrator records receipt of the exact SHA with a `received` event,
+acknowledges it as `QUEUED_FOR_MERGE`,
 and integrates requests individually. It sends `ACCEPTED` with the tested
 integration SHA and checkpoint result after validation, or
 `CHANGES_REQUIRED` with concrete findings. Publication and CI completion are
@@ -130,6 +146,12 @@ Drain ready deliveries individually in dependency order. Among independent
 ready deliveries, prefer the earliest ready one. An unready higher-ranked
 goal does not block integration of a ready independent goal.
 
+Before each wait and after each completion, run `worker-state.mjs next`.
+Process unread deliveries and completed worker turns before waiting again.
+Record observed turn completion with a `turn` event, then use `followup_task`
+on the same worker when independent work remains. Record a concrete blocker
+otherwise; an accepted earlier delivery does not end the worker's next task.
+
 1. Recover any central open goal and its queued span with
    `node scripts/goal-log.mjs --current --detail`. Establish which exact
    delivery and checkpoint belong to it; do not infer the worker assignment
@@ -146,7 +168,11 @@ goal does not block integration of a ready independent goal.
    checks and `npm run lint`. Run `npm run quality` as the orchestrator and
    use `.agents/review.md` to decide review eligibility. Record verified
    source evidence, then commit the exact combined candidate.
-4. Run one `npm run checkpoint` on that candidate under
+4. Run `worker-state.mjs preflight --task <id>` on the committed candidate.
+   Resolve every reported omission and run its listed focused checks before
+   the full checkpoint. When retrying a failed checkpoint, supply its summary
+   with `--previous-checkpoint` and address every failure it reports.
+   Then run one `npm run checkpoint` on that candidate under
    `.agents/validation.md`. The orchestrator owns it through completion;
    workers continue independently. Freeze integration HEAD until evidence,
    score recording and closure are complete. A failure returns to a
@@ -165,6 +191,9 @@ goal does not block integration of a ready independent goal.
 6. Fast-forward main and push accepted work, subject to publication
    permissions. If permission is missing, retain the validated local commit
    and ask; do not retry a denied publication without new authorization.
+   Use `worker-state.mjs sync-main --commit <accepted-commit>` for the local
+   fast-forward. Record `published` only after the push succeeds; the command
+   verifies both local main and the remote main commit.
    Watch each relevant CI run once by its exact commit/run ID. CI failure
    requires diagnosis and a corrected validated commit; workers continue
    independent work meanwhile. Do not claim CI passed before its run ends.

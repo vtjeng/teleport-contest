@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { createLedger, recordEvent, summarizeLedger, updateLedger } from './worker-state.mjs';
+import { createLedger, nextActions, recordEvent, summarizeLedger, updateLedger } from './worker-state.mjs';
 
 // Distinct synthetic commits identify a base, two deliveries, and integration.
 const BASE = 'a'.repeat(40);
@@ -166,4 +166,48 @@ test('legacy pilot records are rejected without being overwritten', (t) => {
     writeFileSync(file, legacy);
     assert.throws(() => updateLedger(file, root, () => createLedger('new-run', root)), /unsupported.*preserve/i);
     assert.equal(readFileSync(file, 'utf8'), legacy);
+});
+
+test('unread deliveries and ended turns remain actionable while the other worker runs', () => {
+    const f = fixture();
+    f.assign(); f.ready();
+    f.assign('next-a', 'A', ['source:hack.c:test_move']);
+    f.assign('long-b', 'B', ['source:dig.c:zap_dig']);
+    f.send({ type: 'turn', worker: 'A', state: 'idle', reason: null, processes: [] });
+    f.send({ type: 'turn', worker: 'B', state: 'active', reason: null, processes: [] });
+    const state = f.send({ type: 'received', task: 'one', delivery: FIRST });
+    assert.ok(state.deliveries[FIRST].receivedAt);
+    assert.equal(state.tasks['next-a'].status, 'working');
+    const next = nextActions(state);
+    assert.equal(next.workers.find(w => w.worker === 'A').action, 'resume');
+    assert.equal(next.workers.find(w => w.worker === 'B').action, 'continue');
+    assert.equal(next.integration.task, 'one'); // B's unfinished higher-priority work does not hold the slot.
+    assert.deepEqual(next.unread, []);
+    assert.throws(() => f.send({ type: 'received', task: 'one', delivery: SECOND }), /delivery/);
+});
+
+test('connection acknowledgement identifies the current worker handle', () => {
+    const f = fixture();
+    f.send({ type: 'connect', worker: 'A', handle: 'handle-A' });
+    const state = f.send({ type: 'connected', worker: 'A', handle: 'handle-A' });
+    assert.ok(state.workers.A.connectedAt);
+    assert.throws(() => f.send({ type: 'connect', worker: 'A', handle: 'old-handle' }), /handle/);
+    assert.throws(() => f.send({ type: 'connected', worker: 'B', handle: 'handle-B' }), /connection/);
+});
+
+test('a third implementation worker cannot register while two owners remain', () => {
+    const f = fixture();
+    assert.throws(() => f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`,
+        branch: 'worker/C', base: BASE, handle: 'handle-C' }), /two implementation workers/);
+});
+
+test('recovery cannot reactivate a third owner or inherit another handle’s connection', () => {
+    const f = fixture();
+    f.send({ type: 'connect', worker: 'A', handle: 'handle-A' });
+    f.send({ type: 'connected', worker: 'A', handle: 'handle-A' });
+    const released = f.send({ type: 'observe', worker: 'A', handle: null, processes: [] });
+    assert.equal(released.workers.A.connectedAt, undefined);
+    f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`, branch: 'worker/C', base: BASE, handle: 'handle-C' });
+    assert.throws(() => f.send({ type: 'observe', worker: 'A', handle: 'handle-A', processes: [] }), /two implementation workers/);
+    assert.throws(() => f.send({ type: 'turn', worker: '__proto__', state: 'idle', reason: null, processes: [] }), /unknown worker/);
 });

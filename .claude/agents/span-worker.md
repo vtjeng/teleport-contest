@@ -43,8 +43,9 @@ discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole source units and wire their callers", states.
 
 Select subsequent work under `.agents/selection.md`, "Seed continuation".
-Leave central goal-selection commands and reservation-ledger writes to the
-orchestrator; its bookkeeping does not block your independent continuation.
+Claim your next scope and submit deliveries through `worker-state.mjs` as
+`.agents/loop.md` specifies. Leave central goal-selection commands,
+integration, acceptance and publication to the orchestrator.
 Do not open `.agents/review.md`; formal reviews belong to the orchestrator.
 This restriction overrides the AGENTS.md reading row that names it.
 
