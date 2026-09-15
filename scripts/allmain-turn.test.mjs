@@ -101,6 +101,7 @@ import {
     OIL_LAMP,
     SACK,
     TOOL_CLASS,
+    WAX_CANDLE,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import {
@@ -2773,13 +2774,13 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
     async () => {
         for (const [name, buildObject, refusal] of [
             [
-                // A user-assigned type name still reaches preflightXname's
-                // unported branch. The former unpaid-price guard is gone.
+                // Lit candle naming still needs its unported timer adjustment.
+                // Type aliases and unpaid prices now have source owners.
                 'naming',
-                (x, y) => {
-                    game.objects[DAGGER].oc_uname = 'needle';
-                    return fetchedFloorObject(x, y, DAGGER, 9301);
-                },
+                (x, y) => Object.assign(
+                    fetchedFloorObject(x, y, WAX_CANDLE, 9301),
+                    { lamplit: true },
+                ),
                 UnsupportedObjectNameError,
             ],
             [

@@ -26,6 +26,7 @@ import {
     POT_HEALING,
     SACK,
     TIN,
+    WAX_CANDLE,
 } from '../js/objects.js';
 import {
     HALLUC,
@@ -425,9 +426,12 @@ test('priced preflight refuses every excluded branch before naming',
                     state.u.uprops[HALLUC_RES].intrinsic = 0;
                     state.u.uprops[HALLUC_RES].extrinsic = 0;
                 }],
-            ['unsupported base name', /user-assigned type name/u,
+            ['unsupported base name', /lit candle timer adjustment/u,
                 ({ state, upper }) => {
-                    state.objects[upper.otyp].oc_uname = 'needle';
+                    // The timer-dependent candle suffix remains unported;
+                    // assigned type aliases are now supported.
+                    changeObjectType(upper, WAX_CANDLE, state);
+                    upper.lamplit = true;
                 }],
         ];
 
@@ -594,13 +598,15 @@ test('an excluded second pile member refuses before any durable mutation',
 test('movement translates an object-name exclusion at its public boundary',
     async () => {
         const { keeper, state, target, upper } = await generatedShopPile();
-        state.objects[upper.otyp].oc_uname = 'needle';
+        // Keep exercising error conversion with a real remaining name refusal.
+        changeObjectType(upper, WAX_CANDLE, state);
+        upper.lamplit = true;
         const before = movementSnapshot(state, target, keeper);
 
         await assert.rejects(
             () => domove(state),
             (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && /user-assigned type name/u.test(error.message),
+                && /lit candle timer adjustment/u.test(error.message),
         );
         assertMovementSnapshot(state, target, before, keeper);
     });

@@ -4123,20 +4123,20 @@ test('a planned pickup raises the naming class the turn must convert',
     async () => {
         const target = await prepareStartingPetAction(PM_PONY);
         target.monster.mextra.edog.apport = 20;
-        const dagger = floorObject(
+        const candle = floorObject(
             target.monsterX,
             target.heroY,
             9301,
-            DAGGER,
+            WAX_CANDLE,
         );
-        installObject(target, dagger);
+        candle.lamplit = true;
+        installObject(target, candle);
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
         // distant_name()'s near branch is the one that formats through
         // doname(); the far branch never reaches preflightObjectName().
         game.u.xray_range = 3;
-        // User-assigned type names remain an unported xname branch; unpaid
-        // prices now have their real source owner and must not refuse here.
-        game.objects[DAGGER].oc_uname = 'needle';
+        // Lit candles still reach the timer-adjustment naming refusal.
+        // Type aliases and unpaid prices now have source owners.
 
         await assert.rejects(
             preflightSimpleMonsterActions(game),
