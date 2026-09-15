@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9020118,
+      "datetime": "20270217112233",
+      "nethackrc": "OPTIONS=name:DigFresh,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "\u0017wand of digging\nzol"
+    }
+  ],
+  "comment": "Independent debug-Wizard recipe: wish a wand of digging, then aim it east with a different seed, timestamp, name, and input sequence from the exposed holdout. The command reaches dig.c zap_dig() through zap.c dozap()/weffects()."
+}

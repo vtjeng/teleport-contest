@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     COLNO,
     CORR,
+    DBWALL,
     DIGTYP_DOOR,
     DIGTYP_ROCK,
     DIGTYP_TREE,
@@ -12,10 +13,15 @@ import {
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
+    DRAWBRIDGE_DOWN,
+    FOUNTAIN,
+    IRONBARS,
     IS_WALL,
     OBJ_DELETED,
     OBJ_INVENT,
     POOL,
+    MOAT,
+    LAVAPOOL,
     ROOM,
     ROWNO,
     SDOOR,
@@ -25,7 +31,8 @@ import {
     W_NONDIGGABLE,
 } from '../js/const.js';
 import {
-    dig_typ, is_digging, mdig_tunnel, rot_corpse, unportedRotCorpseReason,
+    adj_pit_checks, dig_typ, fillholetyp, is_digging, mdig_tunnel,
+    rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
@@ -214,6 +221,77 @@ test('dig_typ answers undiggable for a square off the map', () => {
     assert.equal(
         dig_typ(tool(PICK_AXE, state), 0, Y, state), DIGTYP_UNDIGGABLE,
     );
+});
+
+test('fillholetyp preserves liquid counts, weighting and draw order', () => {
+    const state = digState();
+    state.u = { uz: { dnum: 0, dlevel: 1 } };
+    state.level.at(X - 1, Y - 1).typ = LAVAPOOL;
+    state.level.at(X - 1, Y).typ = MOAT;
+    state.level.at(X, Y - 1).typ = LAVAPOOL;
+    state.level.at(X + 1, Y - 1).typ = POOL;
+
+    const draws = [];
+    const random = { rn2: (bound) => { draws.push(bound); return 0; } };
+    assert.equal(fillholetyp(X, Y, false, state, random), ROOM);
+    assert.deepEqual(draws, [3, 2]);
+
+    draws.length = 0;
+    assert.equal(fillholetyp(X, Y, true, state, random), LAVAPOOL);
+    assert.deepEqual(draws, []);
+});
+
+test('adj_pit_checks reports hard foundations and supporting structures', () => {
+    const state = digState();
+    state.u = { uz: { dnum: 0, dlevel: 1 } };
+    const location = state.level.at(X, Y);
+    location.typ = SDOOR;
+    location.flags = D_CLOSED;
+    const secret = adj_pit_checks({ x: X, y: Y }, state);
+    assert.equal(secret.allowed, false);
+    assert.equal(secret.message,
+        'The foundation is too hard to dig through from this angle.');
+    assert.equal(location.flags, 0);
+
+    location.typ = IRONBARS;
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: false,
+        message: 'The bars go much deeper than your pit.',
+    });
+    location.typ = FOUNTAIN;
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: false,
+        message: "The fountain's supporting structures remain intact.",
+    });
+
+    location.typ = ROOM;
+    state.stairs = { sx: X, sy: Y, isladder: false, next: null };
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: false,
+        message: "The stairs' supporting structures remain intact.",
+    });
+    state.stairs.isladder = true;
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: false,
+        message: 'The ladder is unaffected.',
+    });
+
+    state.stairs = null;
+    location.typ = ROOM;
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: true,
+        message: '',
+    });
+    location.typ = DRAWBRIDGE_DOWN;
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: false,
+        message: "The drawbridge's supporting structures remain intact.",
+    });
+    location.typ = DBWALL;
+    assert.deepEqual(adj_pit_checks({ x: X, y: Y }, state), {
+        allowed: false,
+        message: 'The foundation is too hard to dig through from this angle.',
+    });
 });
 
 // rot_corpse() reads the floor indexes, the monster grid, and the object

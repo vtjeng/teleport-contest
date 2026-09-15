@@ -96,6 +96,7 @@ import {
     inventory_resistance_check,
     miss,
     resist,
+    zap_dig,
     u_adtyp_resistance_obj,
     weffects,
     zap_hit,
@@ -1233,8 +1234,8 @@ test('weffects sends digging and a cast ray to their own arms', async () => {
     // before the wand band, so an object in either one never reaches ubuzz()
     // with a wand type.
     for (const [otyp, ending] of [
-        [WAN_DIGGING, 'zap_dig()'],
-        [SPE_DIG, 'zap_dig()'],
+        [WAN_DIGGING, null],
+        [SPE_DIG, null],
         [SPE_MAGIC_MISSILE, 'ubuzz() for a spell the hero cast'],
         [SPE_FINGER_OF_DEATH, 'ubuzz() for a spell the hero cast'],
     ]) {
@@ -1244,12 +1245,71 @@ test('weffects sends digging and a cast ray to their own arms', async () => {
         // directionless arm above it.
         assert.notEqual(game.objects[otyp].oc_dir, 1, `NODIR at ${otyp}`);
         assert.notEqual(game.objects[otyp].oc_dir, 2, `IMMEDIATE at ${otyp}`);
-        await assert.rejects(
-            () => weffects(wand, game, straightThrough()),
-            (error) => error.message.endsWith(ending),
-            `${otyp}`,
-        );
+        if (ending === null) {
+            // Avoid the generated startup stairs so the downward vertical
+            // arm reaches its source dighole() gap without a --More-- line.
+            game.u.ux = 10;
+            game.u.uy = 10;
+            game.stairs = null;
+            await weffects(wand, game, straightThrough());
+            assert.ok(game.unported.has('dig.c dighole'), `${otyp}`);
+        } else {
+            await assert.rejects(
+                () => weffects(wand, game, straightThrough()),
+                (error) => error.message.endsWith(ending),
+                `${otyp}`,
+            );
+        }
     }
+});
+
+test('zap_dig mutates normal and maze walls after the source beam walk',
+    async () => {
+    await runSegment({ ...raySegment(0), moves: '' });
+    const { u } = game;
+    // Keep both eight-square beam walks inside the 80x21 map regardless of
+    // where the startup recipe placed the hero.
+    const x = 10;
+    const y = 10;
+    u.ux = x;
+    u.uy = y;
+    u.dx = 0;
+    u.dy = 1;
+    u.dz = 0;
+    for (let offset = 1; offset <= 8; ++offset) {
+        const location = game.level.at(x, y + offset);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.doormask = 0;
+    }
+    game.level.at(x, y + 1).typ = VWALL;
+    let frames = 0;
+    game._animationFrameHook = () => { frames += 1; };
+    await zap_dig(game, { rn1: () => 8 });
+    assert.equal(game.level.at(x, y + 1).typ, DOOR);
+    assert.equal(game.level.at(x, y + 1).doormask, 0);
+    assert.equal(game.level.at(x, y + 2).typ, ROOM);
+    // C subtracts two from digdepth when the beam pierces a wall, so the
+    // eight-position roll animates only six visited squares on this branch.
+    assert.equal(frames, 6);
+
+    game.level.flags.is_maze_lev = true;
+    for (let offset = 1; offset <= 8; ++offset) {
+        const location = game.level.at(x, y - offset);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.doormask = 0;
+    }
+    game.level.at(x, y - 1).typ = VWALL;
+    u.dx = 0;
+    u.dy = -1;
+    frames = 0;
+    await zap_dig(game, { rn1: () => 8 });
+    assert.equal(game.level.at(x, y - 1).typ, ROOM);
+    // The maze wall branch breaks immediately after its first visited square.
+    assert.equal(frames, 1);
+    game.level.flags.is_maze_lev = false;
+    game._animationFrameHook = null;
 });
 
 test('weffects offers a downward zap to the steed before the ray', async () => {

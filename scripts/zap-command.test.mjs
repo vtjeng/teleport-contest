@@ -1033,8 +1033,9 @@ test('every zap refusal names a zap.c function the port has not ported',
     //   impossible(); it covers every object type but the two that sleep.
     //
     // The rest are the ray's, in the order the section declares them:
-    // flash_str(), zap_hit(), zhitu(), zap_over_floor(), dobuzz(), ubuzz()
-    // and weffects().
+    // flash_str(), zap_hit(), zhitu(), zap_over_floor(), dobuzz(), ubuzz(),
+    // and weffects(), with dig.c zap_dig()'s three unported branch boundaries
+    // immediately before the zap.c caller's remaining boundaries.
     assert.deepEqual(
         [...source.matchAll(
             /new UnsupportedZapError\(\s*['"`]([^'"`]*)/gu,
@@ -1071,9 +1072,12 @@ test('every zap refusal names a zap.c function the port has not ported',
             'dobuzz',
             'flashburn', 'Is_airlevel', 'pay_for_damage',
             // zapnodir() retains its default for the other directionless
-            // types. weffects() then retains the steed, immediate wand,
-            // digging, cast spell, and C impossible() refusals.
-            'zapnodir', 'zap_steed', 'zapsetup', 'zap_dig', 'ubuzz',
+            // types. dig.c zap_dig() has no UnsupportedZapError boundary now:
+            // its vertical dighole() and adjacent-pit dighole()/pit_flow()
+            // calls are discarded-result gaps recorded with note_unported().
+            // weffects() retains the steed, immediate wand, cast spell, and C
+            // impossible() refusals.
+            'zapnodir', 'zap_steed', 'zapsetup', 'ubuzz',
             'weffects',
         ],
     );

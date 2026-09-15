@@ -11,11 +11,17 @@ import {
     A_INT,
     A_STR,
     A_WIS,
+    COLNO,
     CORR,
+    DB_MOAT,
+    DBWALL,
+    DB_UNDER,
     D_BROKEN,
     D_NODOOR,
     D_TRAPPED,
     DOOR,
+    DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
     DIGTYP_DOOR,
     DIGTYP_ROCK,
     DIGTYP_TREE,
@@ -24,16 +30,26 @@ import {
     Has_contents,
     HALLUC,
     HALLUC_RES,
+    IRONBARS,
+    IS_ALTAR,
+    IS_FOUNTAIN,
     isok,
     IS_OBSTRUCTED,
+    IS_SINK,
+    IS_THRONE,
     IS_TREE,
     IS_WALL,
+    LAVAPOOL,
+    MOAT,
     OBJ_AT,
     OBJ_FLOOR,
+    POOL,
     ROOM,
+    ROWNO,
     SCORR,
     SDOOR,
     SHOPBASE,
+    STONE,
     u_at,
     W_NONDIGGABLE,
 } from './const.js';
@@ -60,7 +76,10 @@ import { in_rooms } from './rooms.js';
 import { acurr } from './attrib.js';
 import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
 import { canseemon, recalc_block_point, unblock_point } from './vision.js';
-import { rn1 } from './rng.js';
+import { rn1, rn2 } from './rng.js';
+import { is_lava, is_pool } from './trap.js';
+import { stairway_at } from './stairs.js';
+import { s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
@@ -117,6 +136,110 @@ export function dig_typ(otmp, x, y, state = game) {
                && (!state.level.flags.arboreal || IS_WALL(ltyp)))
                 ? DIGTYP_ROCK
                 : DIGTYP_UNDIGGABLE;
+}
+
+// C ref: dbridge.c is_moat() (100-112). is_pool() deliberately remains a
+// separate predicate: on Juiblex's level C still calls MOAT terrain a pool,
+// but is_moat() excludes it when fillholetyp() chooses a liquid.
+function is_moat(x, y, state) {
+    const location = state.level?.at(x, y);
+    const current = state.u?.uz;
+    const juiblex = state.juiblex_level;
+    const onJuiblex = Boolean(current && juiblex
+        && current.dnum === juiblex.dnum
+        && current.dlevel === juiblex.dlevel);
+    if (!location || onJuiblex) return false;
+    return location.typ === MOAT
+        || (location.typ === DRAWBRIDGE_UP
+            && ((location.flags || location.drawbridgemask || 0) & DB_UNDER)
+                === DB_MOAT);
+}
+
+// C ref: dig.c fillholetyp() (606-637). Count the liquid around a square in
+// x-major/y-minor order, reduce ordinary pools when not forced, then preserve
+// C's short-circuit order for the three rn2() choices. This helper is impure
+// only because those choices consume the caller's random stream.
+export function fillholetyp(x, y, fillIfAny, state = game, random = { rn2 }) {
+    const loX = Math.max(1, x - 1);
+    const hiX = Math.min(x + 1, COLNO - 1);
+    const loY = Math.max(0, y - 1);
+    const hiY = Math.min(y + 1, ROWNO - 1);
+    let poolCount = 0;
+    let moatCount = 0;
+    let lavaCount = 0;
+
+    for (let x1 = loX; x1 <= hiX; ++x1) {
+        for (let y1 = loY; y1 <= hiY; ++y1) {
+            if (is_moat(x1, y1, state)) ++moatCount;
+            else if (is_pool(x1, y1, state)) ++poolCount;
+            else if (is_lava(x1, y1, state)) ++lavaCount;
+        }
+    }
+
+    if (!fillIfAny) poolCount = Math.trunc(poolCount / 3);
+    if ((lavaCount > moatCount + poolCount
+         && random.rn2(lavaCount + 1))
+        || (lavaCount && fillIfAny)) {
+        return LAVAPOOL;
+    }
+    if ((moatCount > 0 && random.rn2(moatCount + 1))
+        || (moatCount && fillIfAny)) {
+        return MOAT;
+    }
+    if ((poolCount > 0 && random.rn2(poolCount + 1))
+        || (poolCount && fillIfAny)) {
+        return POOL;
+    }
+    return ROOM;
+}
+
+// C ref: dig.c adj_pit_checks() (1763-1838). The caller supplies the mutable
+// coordinate and receives both the boolean permission and the exact refusal
+// message. C clears the struct-rm flags before inspecting the surface; the
+// JS location keeps doormask as a compatibility mirror, so clear that mirror
+// too or monmove.c closed_door() would observe stale door state.
+export function adj_pit_checks(coordinate, state = game) {
+    if (!coordinate || !isok(coordinate.x, coordinate.y))
+        return { allowed: false, message: '' };
+
+    const { x, y } = coordinate;
+    const room = state.level.at(x, y);
+    room.flags = 0;
+    room.doormask = 0;
+    const foundation = 'The foundation is too hard to dig through from this angle.';
+    let message = '';
+
+    if (is_pool(x, y, state) || is_lava(x, y, state)) {
+        // The zap_dig() caller handles liquid after this helper returns false.
+        return { allowed: false, message };
+    }
+    if (closed_door(x, y, state) || room.typ === SDOOR) {
+        message = foundation;
+    } else if (IS_WALL(room.typ)) {
+        message = foundation;
+    } else if (IS_TREE(room.typ, state)) {
+        message = "The tree's roots glow then fade.";
+    } else if ((room.typ === STONE || room.typ === SCORR)
+               && (room.wall_info & W_NONDIGGABLE)) {
+        message = 'The rock glows then fades.';
+    } else if (room.typ === IRONBARS) {
+        message = 'The bars go much deeper than your pit.';
+    } else if (IS_SINK(room.typ)) {
+        message = 'A tangled mass of plumbing remains below the sink.';
+    } else if (stairway_at(x, y, state)?.isladder) {
+        message = 'The ladder is unaffected.';
+    } else {
+        let supporting = null;
+        if (IS_FOUNTAIN(room.typ)) supporting = 'fountain';
+        else if (IS_THRONE(room.typ)) supporting = 'throne';
+        else if (IS_ALTAR(room.typ)) supporting = 'altar';
+        else if (stairway_at(x, y, state)) supporting = 'stairs';
+        else if (room.typ === DRAWBRIDGE_DOWN || room.typ === DBWALL)
+            supporting = 'drawbridge';
+        if (supporting)
+            message = `The ${s_suffix(supporting)} supporting structures remain intact.`;
+    }
+    return { allowed: !message, message };
 }
 
 function setTerrain(location, typ, flags = 0) {
