@@ -46801,7 +46801,7 @@
           "line": 201,
           "endLine": 297,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -46876,7 +46876,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "obj_typename",
+            "implementation": "js/objnam.js",
+            "symbol": "obj_typename",
+            "sourceReview": "Read whole objnam.c obj_typename:201–293, including the closing brace, and required xcalled:558–572. Preserved all class branches, coin immediate return, amulet knownness, armor pair/set prefixes, GemStone material/exclusions, novel knownness reset, unique book wording, Samurai actual/appearance naming, null-name fallback and four bounded alias insertions before description suffixes. Removed the global user-assigned-type refusal. C naming buffers become local JS strings; xcalled counts UTF-8 bytes through existing hacklib byte-string helpers, reserves the NUL and preserves malformed trailing bytes rather than replacing them. Existing Japanese_item_name table/map and GemStone predicate match their source definitions. No absent consumed-return callee or fabricated behavior. Source caller comparison also read whole o_init.c disco_typename:661–689 and disco_append_typename:694–721: restored the Samurai explanation-before-called arm and the existing caller's byte-capacity truncation, preserving appearance suffix and existing price-quote call. disco_typename has source-pinned pure tests. Read all xname_flags:581–1029 to locate its ten xcalled calls; wired those existing class arms in xnameBase, preserving known/dknown/override flags, armor early returns and source prefixes. xnameFresh's existing plural and instance-name concatenations now use the source BUFSZ-PREFIX byte capacity. Its source overflow panic is represented by RangeError, not an Unsupported refusal. xname_flags is still partial and is not claimed complete; unrelated independent source boundaries remain unchanged. Coordinator independently read the complete selected obj_typename and xcalled bodies, whole disco_typename/disco_append_typename, all changed production code, ten xname_flags alias call sites and their concat/overflow ordering, all new source-pinned tests, three recipes and the entrypoint verifier. Root independently reproduced a long-figurine alias overflow, then read and incorporated immutablefe9ccdd8's bounded ConcatF2/ConcatF1 correction for figurine and wizard wet-towel suffixes. Both new regression tests failed before that correction; the final combined checkpoint verifies the corrected code.",
+            "callers": [
+              {
+                "path": "js/o_init.js",
+                "symbol": "disco_typename",
+                "source": "o_init.c:663 consumes obj_typename in discoveries; command '\\\\' -> dodiscovered -> disco_append_typename -> disco_typename. The Samurai English explanation must precede a called alias at677–679."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "simple_typename",
+                "source": "objnam.c:298–309 temporarily suppresses oc_uname around obj_typename, restores it and strips the description; existing production simple-name callers now retain correct suppression with aliases implemented."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "obj_meld",
+                "source": "mkobj.c obj_meld consumes makeplural(obj_typename) for the existing seen coalescence message; no caller rewrite was needed."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/object-type-names.test.mjs",
+              "scripts/objnam.test.mjs",
+              "scripts/o-init.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/called-potion-discoveries.session.json",
+              "recordings/objnam.c/called-wand-discoveries.session.json",
+              "recordings/objnam.c/called-samurai-harp-discoveries.session.json"
+            ],
+            "checkedAt": "e084e50fad1b08872636835c72e12374982974b8"
+          }
+        ],
+        "entryPointReview": "The selected family formats types and aliases through existing commands rather than defining a command. Its main observed production entry is discoveries; xcalled also supplies the existing inventory/item-name class branches. Three independent recipes name a newly wished type, display inventory, then consume the discoveries pages. They vary potion/wand prefix and Samurai harp explanation. The verifier requires the intended type's saved alias, real discovery-ledger membership and exhausted input. Saved C discoveries screens contain 'potion called cerulean sample (murky)', 'wand called sleep marker (steel)' and 'koto [harp] called strings'; all recorded outputs match. Existing simple_typename and obj_meld callers were traced but do not introduce new command entry points.",
+        "entryPoints": [
+          {
+            "name": "Aliased discoveries",
+            "functions": [
+              "obj_typename"
+            ],
+            "recordings": [
+              "recordings/objnam.c/called-potion-discoveries.session.json",
+              "recordings/objnam.c/called-wand-discoveries.session.json",
+              "recordings/objnam.c/called-samurai-harp-discoveries.session.json"
+            ]
+          },
+          {
+            "name": "Aliased inventory naming",
+            "functions": [
+              "obj_typename"
+            ],
+            "recordings": [
+              "recordings/objnam.c/called-potion-discoveries.session.json",
+              "recordings/objnam.c/called-wand-discoveries.session.json",
+              "recordings/objnam.c/called-samurai-harp-discoveries.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
