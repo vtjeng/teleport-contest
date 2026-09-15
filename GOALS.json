@@ -22407,9 +22407,9 @@
         "to": 2322
       },
       "activeStanding": {
-        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
-        "screens": 6045,
-        "rng": 425274
+        "sha": "e8164c76fc1af4ac79307594dfbba69016da9bd4",
+        "screens": 9900,
+        "rng": 728099
       },
       "openMismatches": [
         {
@@ -22433,11 +22433,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "733d3df44d8ffb4931f26768d565a78017356ea5",
-        "screens": 6045,
-        "rng": 425274
+        "sha": "e8164c76fc1af4ac79307594dfbba69016da9bd4",
+        "screens": 9900,
+        "rng": 728099
       },
-      "parkedReason": "The source-order range from burnarmor to trapeffect_magic_trap includes 638 lines of unrelated unverified trap helpers before the blocker. Park this broad selection and reopen a narrow magic-trap goal whose worker can include only the return-valued fire-trap and burnarmor dependencies."
+      "parkedReason": "Preserve the existing burnarmor..fall_through queue while worker B independently handles trapeffect_rust_trap from the current seed0398 source trace; this function-level scope is tracked separately so the parked earlier span is not displaced."
     },
     {
       "id": "port-trap-magic-trap",
@@ -49521,6 +49521,36 @@
         "sha": "e8164c76fc1af4ac79307594dfbba69016da9bd4",
         "screens": 9900,
         "rng": 728099
+      }
+    },
+    {
+      "id": "port-trapeffect-rust-trap-seed0398-20260915",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port trap.c trapeffect_rust_trap and wire hero and monster trap dispatch for the seed0398 rust-trap boundary.",
+      "cFile": "trap.c",
+      "sessions": [
+        "holdout/seed0398-wizard-wandpoly-pile"
+      ],
+      "selectionReason": "Worker B selected the complete seed0398-wizard-wandpoly-pile investigation at step 45 and atomically reserved trap.c trapeffect_rust_trap. The current highest-ranked pray.c and trap.c seed0106 candidates are independent; the preserved parked trap.c goal has an earlier burnarmor..fall_through span, so this one-function source range keeps that queued work intact while recording the independently selected rust-trap unit.",
+      "detail": "C trap.c trapeffect_rust_trap covers hero body-part and monster arms, including water splash, equipment damage, iron-golem death, and gremlin split behavior. Remove the JavaScript RUST_TRAP refusal from selector and movement preflight, preserve trap gates, RNG order, item effects, and production callers. The assigned seed0398 recording reaches an unseen rust trap with rn2(5)=3 and the default water-hit arm; add an independent hero recipe and recording for source completion evidence.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_rust_trap",
+          "line": 1595,
+          "endLine": 1729,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1595,
+        "to": 1729
       }
     }
   ]
