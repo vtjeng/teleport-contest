@@ -21,9 +21,7 @@ import {
     parseRange,
     prepareAuditWorktree,
     runReadiness,
-    assertRangeCoversFrontier,
     readinessCommands,
-    reviewFrontier,
 } from './audit-worktree.mjs';
 
 function git(repositoryRoot, ...args) {
@@ -145,6 +143,25 @@ test('prepares, rechecks, and cleans an exact audit worktree', t => {
         }),
         { alreadyClean: true },
     );
+});
+
+test('prepares an on-demand review without covering earlier unreviewed commits', t => {
+    const fixture = makeFixture(t);
+    // Keep the historical ledger behind this focused range: reviewing the
+    // final implementation commit must not require reviewing its predecessor.
+    writeFileSync(join(fixture.repositoryRoot, 'QUALITY.json'), JSON.stringify({
+        enforcementBase: fixture.base,
+        passes: [],
+    }));
+    fixture.base = git(fixture.repositoryRoot, 'rev-parse', `${fixture.head}~1`);
+    writeFileSync(fixture.promptPath,
+        `Read AGENTS.md. Run audit-diff-correctness for ${fixture.base}..${fixture.head}.\n`);
+    const prepared = prepare(fixture);
+    assert.equal(prepared.manifest.base, fixture.base);
+    cleanupAuditWorktree({
+        manifestPath: prepared.manifestPath,
+        repositoryRoot: fixture.repositoryRoot,
+    });
 });
 
 test('recheck detects changed prompt and cleanup preserves audit changes', t => {
@@ -344,39 +361,4 @@ test('readiness asks the quality gate for its health half alone', () => {
     const quality = readinessCommands()
         .find((entry) => entry.label === 'quality check');
     assert.deepEqual(quality.args, ['run', 'quality', '--', '--check', '--health']);
-});
-
-// reviewFrontier() takes the newest recorded review head, and ignores
-// simplification passes, which carry their own frontier.
-test('the review frontier is the newest recorded review head', () => {
-    const isAncestorOf = (a, b) => a === b || Number(a) < Number(b);
-    const config = {
-        enforcementBase: '10',
-        passes: [
-            { kind: 'review', head: '20' },
-            { kind: 'simplification', head: '90' },
-            { kind: 'review', head: '30' },
-        ],
-    };
-    assert.equal(reviewFrontier(config, 'review', isAncestorOf), '30');
-    // With no recorded pass the frontier is the enforcement base.
-    assert.equal(
-        reviewFrontier({ enforcementBase: '10', passes: [] }, 'review',
-            isAncestorOf),
-        '10',
-    );
-});
-
-// prepare() checks this before running anything, because record-review refuses
-// the same range only after the whole pass has run.
-test('a range starting after the frontier is refused', () => {
-    const isAncestorOf = (a, b) => a === b || Number(a) < Number(b);
-    // At the frontier, and before it, both cover it.
-    assertRangeCoversFrontier('30', '30', isAncestorOf);
-    assertRangeCoversFrontier('20', '30', isAncestorOf);
-    // After it, the commits between would become reviewed history unread.
-    assert.throws(
-        () => assertRangeCoversFrontier('40', '30', isAncestorOf),
-        /sits after the review frontier/u,
-    );
 });
