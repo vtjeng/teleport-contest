@@ -25,7 +25,7 @@
       "do_play_instrument",
       "do_improvisation"
     ],
-    "branch": "The selected hero applies a leather drum. Read music.c do_play_instrument759–899 and do_improvisation503–730 in full. Drums skip the Improvise prompt; ordinary leather drums draw mode and jingle before output, extend deafness only when not already deaf, exercise wisdom, then awaken_monsters and mark the status dirty.",
+    "branch": "The selected hero applies a leather drum. Read music.c do_play_instrument759–899 and do_improvisation503–730 in full. Drums skip the Improvise prompt. The mode draw and opening message precede the stored-jingle draws and drum feedback. Ordinary leather drums extend deafness only when not already deaf, exercise wisdom, then awaken_monsters and mark the status dirty.",
     "callers": [
       "apply.c doapply4383 routes wooden/magic flute, wooden/magic harp, horns, bugle and both drums to do_play_instrument; JS apply.js lacks that instrument switch arm at the examined candidate.",
       "do_play_instrument consumes do_improvisation's return and find_drawbridge's result; the passtune branch must preserve mutable search coordinates, tune discovery and hint counts."
