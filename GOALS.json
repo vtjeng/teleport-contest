@@ -49526,7 +49526,7 @@
     {
       "id": "port-trapeffect-rust-trap-seed0398-20260915",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c trapeffect_rust_trap and wire hero and monster trap dispatch for the seed0398 rust-trap boundary.",
       "cFile": "trap.c",
       "sessions": [
@@ -49537,8 +49537,8 @@
       "spans": [
         {
           "name": "trapeffect_rust_trap",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "210ea1e757caa4acf083667cd073ae55c8344d33",
           "functions": [
             "trapeffect_rust_trap"
           ]
@@ -49550,8 +49550,11 @@
         "screens": 9900,
         "rng": 728099
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "210ea1e757caa4acf083667cd073ae55c8344d33",
+      "delivered": {
+        "screens": 3,
+        "rng": 14
+      },
       "functions": [
         {
           "name": "trapeffect_rust_trap",
@@ -49746,7 +49749,34 @@
         "screens": 9903,
         "rng": 728113
       },
-      "parkedReason": "Combined validation exposed two stale retry-boundary assertions after RUST_TRAP became a supported path; B is preparing a tracked correction while its independent water_damage span continues. Preserve the queued rust-trap span and source evidence until the correction validates."
+      "parkedReason": "Combined validation exposed two stale retry-boundary assertions after RUST_TRAP became a supported path; B is preparing a tracked correction while its independent water_damage span continues. Preserve the queued rust-trap span and source evidence until the correction validates.",
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0398-wizard-wandpoly-pile",
+          "step": 48,
+          "kind": "stop",
+          "function": "zapsetup",
+          "functionDeclared": false,
+          "sourceFile": "zap.c",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapsetup() and the immediate-wand arm of weffects()",
+          "unlocatedKinds": [],
+          "recordedSteps": 87,
+          "remainingScreensUpperBound": 39,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0398-wizard-wandpoly-pile.json",
+            "previousRemainingScreensUpperBound": 42
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "1c5fa2626eae6b9ddf1a43973a57e9999bf9ef94",
+        "screens": 10023,
+        "rng": 739061
+      }
     },
     {
       "id": "port-pray-fix-worst-trouble-seed4500-20260915",
