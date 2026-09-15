@@ -49557,8 +49557,8 @@
           "name": "trapeffect_rust_trap",
           "line": 1595,
           "endLine": 1729,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -49566,9 +49566,9 @@
         "to": 1729
       },
       "activeStanding": {
-        "sha": "e8164c76fc1af4ac79307594dfbba69016da9bd4",
-        "screens": 9900,
-        "rng": 728099
+        "sha": "1c5fa2626eae6b9ddf1a43973a57e9999bf9ef94",
+        "screens": 10023,
+        "rng": 739061
       },
       "openMismatches": [
         {
@@ -49644,7 +49644,197 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_rust_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_rust_trap",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:1594-1727 in full, including both hero and monster arms, the single rn2(5) dispatch, target-selection order, the hero inventory iteration with saved nobj, armor fallback order, update_inventory placement, iron-golem damage, gremlin split, monster life-saving wording, and return sentinels. Read trapeffect_selector() at trap.c:2937-2992 and removed the obsolete JavaScript RUST_TRAP refusal from selector and preflight_dotrap. Traced the selected callees seetrap(), water_damage(), splash_lit(), update_inventory(), losehp(), monkilled(), completelyrusts(), mbodypart(), body_part(), bimanual(), which_armor(), and the source mlifesaver() condition. water_damage() retains explicit fail-closed refusals for unrelated unported object branches; its lit-item seam now delegates the rust-trap hero splash_lit arm and preserves splash_lit()'s FALSE result for a non-dunked brass lantern. The discarded split_mon() results are recorded with note_unported('potion.c split_mon') in both gremlin arms; no invented random draw or state mutation replaces them.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:2937-2992 switches RUST_TRAP to trapeffect_rust_trap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:2996-3060 dispatches hero trap activation through trapeffect_selector()."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:3312-3394 calls dotrap() after a hero move; the independent seed9400060 recording reaches this path."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c:3733-3840 dispatches monster trap activation through trapeffect_selector()."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:1455-1516 calls mintrap() after a monster reaches its destination square."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hurtle_step",
+                "source": "dothrow.c:948-959 calls dotrap() for traps encountered by thrown objects."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "jump",
+                "source": "apply.c:2127 and :2943 call dotrap() for forced trap entry."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dospinweb",
+                "source": "polyself.c:1600 calls dotrap() when polymorph movement triggers a trap."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:503 calls dotrap() for a trap under the seated hero."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "try_disarm",
+                "source": "trap.c:5440-5527 calls dotrap() at :5503 and :5514 for disarm failure paths."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "closeholdingtrap",
+                "source": "trap.c:6236-6248 calls dotrap() for a held hero or monster."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "openfallingtrap",
+                "source": "trap.c:6275 calls dotrap() for a falling trap under a held target."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-rust-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/rust-trap-hero-seed9400060.session.json"
+            ],
+            "checkedAt": "bace1d821ddd49b58965ee469e9192fcad5c3329"
+          }
+        ],
+        "entryPointReview": "The selected range is the RUST_TRAP trap-effect entry point with both hero and monster arms. The independent seed9400060 recipe reaches the production hero chain hack.js spoteffects() -> dotrap() -> trapeffect_selector() -> trapeffect_rust_trap(), and the source-pinned test reaches the monster arm through the same selector. No recipe is blocked; the only intentionally deferred callee is the discarded potion.c split_mon() result, recorded with note_unported().",
+        "entryPoints": [
+          {
+            "name": "rust trap activation",
+            "functions": [
+              "trapeffect_rust_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/rust-trap-hero-seed9400060.session.json"
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 14
+      },
+      "parkedStanding": {
+        "sha": "bace1d821ddd49b58965ee469e9192fcad5c3329",
+        "screens": 9903,
+        "rng": 728113
+      },
+      "parkedReason": "Combined validation exposed two stale retry-boundary assertions after RUST_TRAP became a supported path; B is preparing a tracked correction while its independent water_damage span continues. Preserve the queued rust-trap span and source evidence until the correction validates."
+    },
+    {
+      "id": "port-pray-fix-worst-trouble-seed4500-20260915",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port pray.c fix_curse_trouble and fix_worst_trouble with source-ordered curse, timed-trouble, healing, and recovery behavior wired through pleased() and #pray.",
+      "cFile": "pray.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Seed-continuation goal already claimed by persistent worker A before the latest scan: holdout/seed4500-knight-coverage was the selected source-traced mismatch at fix_worst_trouble, with its delivery now ready. The current scan at bace1d has moved that seed to an earlier mthrowu stop after the repair; this goal preserves the already-owned pray span and does not claim the new mthrowu scope. Higher-ranked current source work is either stale investigation or independently reserved.",
+      "detail": "Worker A source evidence covers pray.c:348-600, production pleased()/prayer_done()/dopray() callers, focused tests, and the independent matching wizard-confusion prayer recording.",
+      "spans": [
+        {
+          "name": "fix_curse_trouble..fix_worst_trouble",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "fix_curse_trouble",
+            "fix_worst_trouble"
+          ]
+        }
+      ],
+      "openedAt": "bace1d821ddd49b58965ee469e9192fcad5c3329",
+      "openStanding": {
+        "sha": "bace1d821ddd49b58965ee469e9192fcad5c3329",
+        "screens": 9903,
+        "rng": 728113
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "fix_curse_trouble",
+          "line": 349,
+          "endLine": 372,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "fix_worst_trouble",
+          "line": 373,
+          "endLine": 609,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 349,
+        "to": 609
+      },
+      "activeStanding": {
+        "sha": "bace1d821ddd49b58965ee469e9192fcad5c3329",
+        "screens": 9903,
+        "rng": 728113
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 853,
+          "kind": "rng",
+          "function": "fix_worst_trouble",
+          "functionDeclared": false,
+          "sourceFile": "pray.c",
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": 433,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 961,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 972
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 120,
+        "rng": 10948
+      },
+      "parkedStanding": {
+        "sha": "1c5fa2626eae6b9ddf1a43973a57e9999bf9ef94",
+        "screens": 10023,
+        "rng": 739061
+      },
+      "parkedReason": "Park while B-r2-4 correction is accepted and the A-r2-4 source-backed revalidation path is prepared; preserve the A delivery, failed checkpoint, and queued dependent work."
     }
   ]
 }
