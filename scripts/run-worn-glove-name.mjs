@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-// Record and replay the inventory of a hero who is wearing gloves against the
+// Record and replay object names, including inventory worn-glove names and
+// user-assigned type names in inventory and discoveries, against the
 // patched C reference. Every segment contains replay inputs only;
 // runFreshMatrix() records new reference output in an isolated temporary
 // workspace.
@@ -23,10 +24,12 @@
 // key dismisses it, which is what makes the port paint the screen underneath
 // again and lets a wrongly spent turn show up.
 
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { donameFresh } from '../js/objnam.js';
-import { LEATHER_GLOVES } from '../js/objects.js';
+import { donameFresh, obj_typename } from '../js/objnam.js';
+import { LEATHER_GLOVES, MAGIC_HARP, POT_HEALING, WAN_SLEEP } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -140,14 +143,38 @@ export async function verifyWornGloveNameSegment(recipeSegment) {
         throw new Error(`${entry.role}'s gloves lost their enchantment prefix`);
 }
 
+// Alias seed 8558163 was chosen before inspection, without a seed scan.
+// Recipe input identifies the alias; the verifier independently checks its
+// actual object type and discovery-ledger membership after command dispatch.
+export function loadCalledTypeRecipes() {
+    return ['called-potion-discoveries', 'called-wand-discoveries',
+        'called-samurai-harp-discoveries'].map(label => ({ label,
+        recipe: JSON.parse(readFileSync(new URL(
+            `../recipes/objnam.c/${label}.session.json`, import.meta.url), 'utf8')) }));
+}
+export async function verifyCalledTypeSegment(segment) {
+    let boundary;
+    await runSegment(segment, { onBoundary: error => { boundary = error; } });
+    if (boundary) throw boundary;
+    const otyp = segment.moves.includes('potion') ? POT_HEALING
+        : segment.moves.includes('wand') ? WAN_SLEEP : MAGIC_HARP;
+    const alias = segment.moves.match(/#name\nof([^\n]+)\n/u)?.[1];
+    assert.ok(alias, 'the recipe names the independently wished object at f');
+    assert.equal(game.objects[otyp].oc_uname, alias);
+    assert.ok(game.svd.disco.includes(otyp), 'the aliased type is in real discoveries');
+    assert.ok(obj_typename(otyp, game).includes(` called ${alias}`));
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+}
+
 export async function runWornGloveNameMatrix() {
     return runFreshMatrix({
         entries: [{
             label: 'worn glove name',
             recipe: loadWornGloveNameRecipe(),
-        }],
-        summaryLabel: 'WORN GLOVE NAME',
-        verifySegment: verifyWornGloveNameSegment,
+        }, ...loadCalledTypeRecipes()],
+        summaryLabel: 'OBJECT NAMES',
+        verifySegment: segment => segment.moves.includes('#name')
+            ? verifyCalledTypeSegment(segment) : verifyWornGloveNameSegment(segment),
     });
 }
 

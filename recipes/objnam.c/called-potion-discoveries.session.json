@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent objnam.c alias input. Seed 8558163 and the date were chosen before inspection, without a seed search. This startup includes the optional oil lamp at e; the wished potion or wand occupies f. The class variation reaches different xcalled prefixes. Inventory and the paginated discoveries display both consume the saved alias.",
+  "segments": [
+    {
+      "seed": 8558163,
+      "datetime": "20351014102917",
+      "nethackrc": "OPTIONS=name:AliasPilot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed potion of healing\n#name\nofcerulean sample\ni \\    "
+    }
+  ]
+}

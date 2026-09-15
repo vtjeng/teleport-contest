@@ -4,7 +4,7 @@
 import { disp_artifact_discoveries } from './artifacts.js';
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
-import { strsubst } from './hacklib.js';
+import { encodeUtf8ByteString, strstri, strsubst, truncateByteString } from './hacklib.js';
 import {
     let_to_name, preflight_update_inventory, update_inventory,
 } from './invent.js';
@@ -564,10 +564,9 @@ const DISCO_ORDERS_DESCR = Object.freeze([
     'alphabetical across all classes',
 ]);
 
-// C ref: o_init.c disco_typename(). obj_typename() stops on a type carrying
-// oc_uname, so the " called " form its Samurai branch rewrites cannot reach
-// here; the other two forms can.
-function disco_typename(otyp, state) {
+// C ref: o_init.c disco_typename():661–689. Explain Japanese names before
+// the user's alias or the appearance, in that order.
+export function disco_typename(otyp, state) {
     let result = obj_typename(otyp, state);
 
     if (state.urole?.mnum === PM_SAMURAI && JAPANESE_ITEM_TYPES.has(otyp)) {
@@ -578,7 +577,11 @@ function disco_typename(otyp, state) {
             ? OBJ_NAME(state.objects[otyp], state)
             : 'harp';
 
-        if (result.includes(' ('))
+        if (!actualn) {
+            // C's static-analyzer guard leaves the result unchanged.
+        } else if (strstri(result, ' called') >= 0)
+            result = strsubst(result, ' called', ` [${actualn}] called`);
+        else if (strstri(result, ' (') >= 0)
             result = strsubst(result, ' (', ` [${actualn}] (`);
         else
             result += ` [${actualn}]`;
@@ -588,14 +591,14 @@ function disco_typename(otyp, state) {
 
 // C ref: o_init.c disco_append_typename(). C appends into the caller's BUFSZ
 // buffer and truncates when the type name does not fit; JavaScript returns the
-// finished line. Only a type carrying oc_uname can be long enough to truncate,
-// and obj_typename() stops on those, so the two truncating branches are
-// unreachable until user-assigned type names are ported.
+// finished line. A long user-assigned name truncates before the appearance
+// suffix when one is present.
 function disco_append_typename(buf, dis, state) {
     const typnm = disco_typename(dis, state);
+    const len = encodeUtf8ByteString(buf).length;
     let out;
 
-    if (buf.length + typnm.length < BUFSZ) {
+    if (len + encodeUtf8ByteString(typnm).length < BUFSZ) {
         out = buf + typnm;
     } else {
         const paren = typnm.lastIndexOf('(');
@@ -603,10 +606,10 @@ function disco_append_typename(buf, dis, state) {
             && typnm.indexOf(')', paren) >= 0) {
             // Truncate the user-applied name and keep " (actual type)".
             const tail = typnm.slice(paren - 1);
-            const room = BUFSZ - 1 - (buf.length + tail.length);
-            out = buf + typnm.slice(0, Math.max(0, room)) + tail;
+            const room = BUFSZ - 1 - (len + encodeUtf8ByteString(tail).length);
+            out = buf + truncateByteString(typnm, Math.max(0, room)) + tail;
         } else {
-            out = buf + typnm.slice(0, Math.max(0, BUFSZ - 1 - buf.length));
+            out = buf + truncateByteString(typnm, Math.max(0, BUFSZ - 1 - len));
         }
     }
     return out + append_price_quote(out, dis, state);
