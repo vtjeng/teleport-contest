@@ -47838,7 +47838,7 @@
     {
       "id": "div-display-cls-mkstairs-end-20260915",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "closed",
       "summary": "Fix the post-teleds bottom-of-Mines redraw and regular-stair endpoint guard.",
       "cFile": "display.c",
       "sessions": [
@@ -47849,8 +47849,8 @@
       "spans": [
         {
           "name": "cls-mkstairs-dungeon-end",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+      "closedBy": "71fa0446ce8d12175bc06243420a3538646c1bbf",
           "functions": [
             "cls",
             "mkstairs",
@@ -47864,15 +47864,18 @@
         "screens": 9705,
         "rng": 706215
       },
-      "closedAt": null,
-      "delivered": null,
+    "closedAt": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+    "delivered": {
+      "screens": 31,
+      "rng": 0
+      },
       "function": "cls",
       "session": "holdout/seed4500-knight-coverage",
       "step": 842,
-      "activeStanding": {
-        "sha": "469993b4c8d8b5176ce2bce5b598f7812e464dce",
-        "screens": 9705,
-        "rng": 706215
+    "activeStanding": {
+      "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+      "screens": 9781,
+      "rng": 712806
       },
       "openMismatches": [
         {
@@ -47952,7 +47955,12 @@
         "screens": 9705,
         "rng": 706215
       },
-      "parkedReason": "Integration checkpoint ca7367ea failed fixed-development acceptance: seed0006 screens 123 to 121 and seed0007 screens 302 to 301. Preserve worker A's a4984bef tip and rework the TTY/display regression before any retry."
+      "parkedReason": "Integration checkpoint ca7367ea failed fixed-development acceptance: seed0006 screens 123 to 121 and seed0007 screens 302 to 301. Preserve worker A's a4984bef tip and rework the TTY/display regression before any retry.",
+    "closeStanding": {
+      "sha": "71fa0446ce8d12175bc06243420a3538646c1bbf",
+      "screens": 9781,
+      "rng": 712806
+      }
     },
     {
       "id": "div-dig-zap-dig-seed0116-20260915",
@@ -47983,18 +47991,18 @@
         "screens": 9705,
         "rng": 706215
       },
-    "closedAt": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
-    "delivered": {
-      "screens": 45,
-      "rng": 6591
+      "closedAt": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+      "delivered": {
+        "screens": 45,
+        "rng": 6591
       },
       "function": "zap_dig",
       "session": "holdout/seed0116-wizard-wear-shop",
       "step": 80,
-    "activeStanding": {
-      "sha": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
-      "screens": 9750,
-      "rng": 712806
+      "activeStanding": {
+        "sha": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+        "screens": 9750,
+        "rng": 712806
       },
       "openMismatches": [
         {
@@ -48062,10 +48070,10 @@
           }
         }
       ],
-    "closeStanding": {
-      "sha": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
-      "screens": 9750,
-      "rng": 712806
+      "closeStanding": {
+        "sha": "96ea65f6c819b20433b4ffcadecbc2ec32138d8f",
+        "screens": 9750,
+        "rng": 712806
       }
     }
   ]
