@@ -46239,6 +46239,280 @@
         "screens": 9361,
         "rng": 691045
       }
+    },
+    {
+      "id": "pilot-shk-dopay-seed0002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port shop payment and itemized billing",
+      "cFile": "shk.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "User-authorized seed-worker pilot: integrate the completed seed0002 lane payment delivery at step353, remaining upper bound242. The valid investigations/holdout/seed0002-healer-reflection-drummer.json traces whole shk.c dopay and required billing, container, lookup and naming helpers. Other workers continue independently.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "dopay",
+          "status": "closed",
+          "closedBy": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+          "functions": [
+            "dopay"
+          ]
+        }
+      ],
+      "openedAt": "ff10d8082f75e5f0826f1d04c41f1450bb7f58d2",
+      "openStanding": {
+        "sha": "64b6730a5cd59a413a97bde86c93012e5741d06a",
+        "screens": 9361,
+        "rng": 691045
+      },
+      "closedAt": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+      "delivered": {
+        "screens": 272,
+        "rng": 8030
+      },
+      "functions": [
+        {
+          "name": "dopay",
+          "line": 1743,
+          "endLine": 2044,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1743,
+        "to": 2044
+      },
+      "activeStanding": {
+        "sha": "64b6730a5cd59a413a97bde86c93012e5741d06a",
+        "screens": 9361,
+        "rng": 691045
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 353,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 242,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 242,
+              "status": "complete",
+              "commit": "fbece0a4401e02046b4adb1dac1383e46d713a03",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "remainingScreensUpperBound": 242,
+                "step": 353,
+                "kind": "boundary",
+                "function": "dopay",
+                "functionDeclared": false,
+                "sourceFile": "shk.c",
+                "cFile": "shk.c",
+                "luaFile": null,
+                "line": 1743,
+                "message": "pay command not admitted by rhack",
+                "unlocatedKinds": [],
+                "recordedSteps": 595
+              },
+              "summary": "Shop pickup now bills the acquired shield and the assigned seed matches through 353 screens. The next p key is rejected because dopay is absent from JavaScript command dispatch; C opens the itemized pay menu. The source unit is whole dopay, including required bill construction, sorting, selection, funds checks and container purchasing, not only the observed ordinary-item menu.",
+              "source": {
+                "file": "shk.c",
+                "functions": [
+                  "dopay"
+                ],
+                "branch": "Read shk.c dopay:1743–2035 completely. It selects an adjacent/visible/resident shopkeeper, handles robbery or debit first, builds the itemized bill and consumes pay_billed_items's result, then emits the deaf/mute-aware thank-you and returns ECMD_TIME only when paid. The current seed reaches resident-shop item billing. JS extcmdlist_data already maps p/pay to dopay; cmd.js ADMITTED_COMMANDS and both rhack/doextcmd dispatch lack the implementation.",
+                "callers": [
+                  "C cmd.c pay entry -> rhack/doextcmd -> dopay; JS extcmdlist_data row maps p/pay to dopay but has no runtime owner.",
+                  "C dopay:2000–2003 calls make_itemized_bill and consumes pay_billed_items; its helper chain includes menu_pick_pay_items and dopayobj/buy_container, so those whole functions are required."
+                ],
+                "dependencies": [
+                  "Read whole shk.c sortbill_cmp:1499–1518, cheapest_item:1522–1537, make_itemized_bill:1545–1663, menu_pick_pay_items:1668–1739, pay_billed_items:2045–2167, update_bill:2171–2209, dopayobj:2220–2301, buy_container:2309–2410, reject_purchase:2419–2451 and insufficient_funds:2455–2480. Preserve source bill indices across compaction, partly-used quantities, containers and traditional/menu selection.",
+                  "Read bp_to_obj:2759–2770 and find_oid:2777–2803; implement missing whole lookup owners using existing recursive invent.o_on. Read check_credit/pay:1278–1314 and shk_names_obj:3413–3446 for payment mutation/output. Existing money2mon/money2u, hidden_gold, getpos and naming owners are reused.",
+                  "Read whole objnam.c paydoname:2313–2364; suppress inventory prices and weights, temporarily conceal contents, preserve ownership wording and restore flags. Existing rouse_shk partial lacks verbose wake feedback and needs its complete source body for the new caller. Absent void make_happy_shk may remain explicit note_unported; no consumed return is substituted."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Fresh-process scan of synchronized fbece0a4 reports screensEmitted=353, recordedSteps=595, divergence=null, commandRefusal=true, key=p, command=pay and C next screen 'Pay for which items?'. Original process10664 exited and was reaped.",
+                "B7 source86dd064f passes729 focused named tests and three independently generated, entrypoint-verified shop recordings; clean merge of validated11b2d9d7 did not change this seed's stop. The current 242 remaining-screen bound is not a predicted gain.",
+                "Required source family is about1000 C lines because whole dopay consumes container/partial-use billing too. Intended game writes are shk.js, objnam.js and cmd.js; no B8 implementation was present in the examined commit.",
+                "Coordinator read the whole payment source family including dopay through its closing brace2035, plus rouse_shk and paydoname. Combined checkpoint64b6730a run-kJar8s passes all203recordings; refreshed queue independently confirms first stop353 and remaining bound242. B7 clone correction preserves live buried/migrating billing state during an admitted planned shopkeeper death."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dopay",
+            "implementation": "js/shk.js",
+            "symbol": "dopay",
+            "sourceReview": "Read and translated whole shk.c dopay:1743–2035, including its final itemized-bill cleanup, iflags.menu_requested reset and return. Preserved shopkeeper selection and source-position counts, visibility/telepathy and distance checks, wake-before-debt ordering, robbery/angry branches, credit/debit/loan arithmetic, itemized purchase outcomes, money transfer and mute/deaf-aware output. Required family read whole: sortbill_cmp:1499–1518, cheapest_item:1522–1539, make_itemized_bill:1545–1663, menu_pick_pay_items:1668–1739, pay_billed_items:2045–2167, update_bill:2171–2211, dopayobj:2220–2302, buy_container:2309–2411, reject_purchase:2419–2451, insufficient_funds:2455–2481, check_credit:1278–1294, pay:1297–1313, rouse_shk:1381–1392, bp_to_obj:2759–2769, find_oid:2777–2804, shk_names_obj:3413–3445; objnam.c Doname2:2303–2309 and paydoname:2313–2355. Preserved used versus intact rows, source sorting including long-to-int comparator conversion, container aggregation and contents-before-container billing, original ebillct snapshot, bill-entry pointer identity during last-entry compaction, and OBJ_ONBILL extraction/deallocation. Prompt and naming flags are restored before returning. Source pay quantities and temporary unpaid/no_charge changes remain in source order. Existing get_cost/getprice/get_pricing_units, naming, money and inventory owners remain independent consumed-return boundaries. No fabricated return values or new Unsupported errors. Missing discarded-return make_happy_shk is explicitly noted at each reached source call; this delivery does not claim that separate function complete. No seed-specific runtime behavior. Coordinator read the entire C family, every changed production function and dispatcher, and all new tests and recipe/entrypoint verifier definitions at immutable67d9efd4. Verified the long-to-int sort conversion, source bill-entry identity and old ebillct iteration bounds, source default quantity/flag restoration, ordinary/count/extended dispatch and the non-awaiting false-verbosity rouse_shk callers. Constructed tests cover source prices, partial-use compaction, hidden contents, cancellation, insufficient funds, and all credit-versus-debit partitions. Six independently chosen shop recipes exercise actual paid/unpaid ownership and cash transfer; full combined validation follows separately.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c command dispatch routes ordinary p to dopay; pay is admitted and counted p reaches dopay's C1743–1755 multi reset instead of the old unported-count guard. ECMD time results use the existing dispatcher contract."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extended command table routes #pay to the same dopay owner; menu-request prefix state is consumed and reset by dopay."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "rob_shop",
+                "source": "shk.c rob_shop:694 calls rouse_shk(TRUE); the previous discarded call marker is replaced by awaited source-ordered wake output. Existing false-verbosity callers retain synchronous state mutation because they do not enter the async output branch."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "paydoname",
+                "source": "shk.c itemized menu and purchase feedback call objnam.c paydoname with temporary quantity/known-container/price flags restored afterward."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-payment.test.mjs",
+              "scripts/shop-billing.test.mjs",
+              "scripts/shk.test.mjs",
+              "scripts/objnam.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/scan-sessions.test.mjs",
+              "scripts/paybill-end-cleanup.test.mjs",
+              "scripts/hero-death.test.mjs",
+              "scripts/end-done-object-cleanup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-menu.session.json",
+              "recordings/shk.c/pay-cloak-menu.session.json",
+              "recordings/shk.c/pay-boots-traditional.session.json",
+              "recordings/shk.c/pay-boots-cancel.session.json",
+              "recordings/shk.c/pay-boots-extended.session.json",
+              "recordings/shk.c/pay-boots-counted.session.json"
+            ],
+            "checkedAt": "6ad58089d5153789d5e5539eebe79ac584924094"
+          }
+        ],
+        "entryPointReview": "Ordinary p, #pay, menu-requested traditional payment, cancellation and counted p all reach the real payment owner. Six independently chosen recipes enter a generated shop, acquire specific unpaid boots or a cloak, then pay or cancel. The verifier requires the intended inventory object, source-correct unpaid state, active bill identity on cancellation, real cash transfer on purchase, and complete input consumption. Source-pinned tests cover sorting/cheapest bounds, object lookup precedence, used/partly-used rows, itemized container grouping, bill compaction, credit and cash, debt/loan clearing and wake-before-mutation. These isolated tests are not claimed as fresh recording coverage of every helper branch.",
+        "entryPoints": [
+          {
+            "name": "Ordinary and counted pay command",
+            "functions": [
+              "dopay"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-menu.session.json",
+              "recordings/shk.c/pay-cloak-menu.session.json",
+              "recordings/shk.c/pay-boots-counted.session.json"
+            ]
+          },
+          {
+            "name": "Extended pay command",
+            "functions": [
+              "dopay"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-extended.session.json"
+            ]
+          },
+          {
+            "name": "Requested traditional itemization and cancelled menu",
+            "functions": [
+              "dopay"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-traditional.session.json",
+              "recordings/shk.c/pay-boots-cancel.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 569,
+          "kind": "stop",
+          "function": "doapply",
+          "functionDeclared": true,
+          "sourceFile": "apply.c",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 257",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 26,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 26,
+              "status": "complete",
+              "commit": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "step": 569,
+                "kind": "stop",
+                "function": "doapply",
+                "functionDeclared": true,
+                "sourceFile": "apply.c",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 257",
+                "unlocatedKinds": [],
+                "recordedSteps": 595,
+                "remainingScreensUpperBound": 26
+              },
+              "summary": "Payment now reaches step569. Applying the leather drum stops in doapply before its instrument dispatch. C apply.c routes instrument types to whole music.c do_play_instrument, whose drum path immediately consumes do_improvisation. Port both whole functions and their required helpers; instrument output, stored jingle, deafness and monster wake/scare effects retain source order.",
+              "source": {
+                "file": "music.c",
+                "functions": [
+                  "do_play_instrument",
+                  "do_improvisation"
+                ],
+                "branch": "The selected hero applies a leather drum. Read music.c do_play_instrument759–933 and do_improvisation503–730 in full. Drums skip the Improvise prompt; ordinary leather drums draw mode and jingle before output, extend deafness only when not already deaf, exercise wisdom, then awaken_monsters and mark the status dirty.",
+                "callers": [
+                  "apply.c doapply4383 routes wooden/magic flute, wooden/magic harp, horns, bugle and both drums to do_play_instrument; JS apply.js lacks that instrument switch arm at the examined candidate.",
+                  "do_play_instrument consumes do_improvisation's return and find_drawbridge's result; the passtune branch must preserve mutable search coordinates, tune discovery and hint counts."
+                ],
+                "dependencies": [
+                  "music.c improvised_notes733–753 stores the five-note maximum jingle in context and retains it while Unchanging; generic_lvl_desc478–491 selects source dungeon labels.",
+                  "Whole awaken_monsters, awaken_scare and awaken_soldiers implement reached drum/horn/bugle effects. Bind existing monster flee, resistance, vision and region owners from their real callers. Missing discarded-return effects may remain explicit note_unported; consumed results need real implementations.",
+                  "Read and restore dbridge.c is_drawbridge_wall/find_drawbridge direction-or-minus-one contract and update all former boolean consumers. Existing is_pool_or_lava remains in its independent owner."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Combined checkpointfe38104c completed2026-09-15T00:13:54.848Z with all209regression recordings passing. Fixed workload27/44;9633/11405screens,699075/792838RNG. Refreshed canonical queue confirms first mismatch569 and remaining-screen upper bound26; this bound is not a predicted gain.",
+                "Worker B independently located the same source owner after immutable payment67d9efd4 and is implementing it in its worktree while the combined payment checkpoint runs. No music implementation is included in this measured candidate.",
+                "Coordinator read whole do_play_instrument, do_improvisation, improvised_notes and generic_lvl_desc against the fixed patched upstream C. No fixed-session identities, counts or input positions belong in runtime code."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+        "screens": 9633,
+        "rng": 699075
+      }
     }
   ]
 }
