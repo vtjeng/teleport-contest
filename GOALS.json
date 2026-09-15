@@ -49526,7 +49526,7 @@
     {
       "id": "port-trapeffect-rust-trap-seed0398-20260915",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port trap.c trapeffect_rust_trap and wire hero and monster trap dispatch for the seed0398 rust-trap boundary.",
       "cFile": "trap.c",
       "sessions": [
@@ -49534,9 +49534,22 @@
       ],
       "selectionReason": "Worker B selected the complete seed0398-wizard-wandpoly-pile investigation at step 45 and atomically reserved trap.c trapeffect_rust_trap. The current highest-ranked pray.c and trap.c seed0106 candidates are independent; the preserved parked trap.c goal has an earlier burnarmor..fall_through span, so this one-function source range keeps that queued work intact while recording the independently selected rust-trap unit.",
       "detail": "C trap.c trapeffect_rust_trap covers hero body-part and monster arms, including water splash, equipment damage, iron-golem death, and gremlin split behavior. Remove the JavaScript RUST_TRAP refusal from selector and movement preflight, preserve trap gates, RNG order, item effects, and production callers. The assigned seed0398 recording reaches an unseen rust trap with rn2(5)=3 and the default water-hit arm; add an independent hero recipe and recording for source completion evidence.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "trapeffect_rust_trap",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_rust_trap"
+          ]
+        }
+      ],
+      "openedAt": "a9da7f5dfdce2cec209a5414956f30d900a6974b",
+      "openStanding": {
+        "sha": "e8164c76fc1af4ac79307594dfbba69016da9bd4",
+        "screens": 9900,
+        "rng": 728099
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -49551,7 +49564,87 @@
       "range": {
         "from": 1595,
         "to": 1729
-      }
+      },
+      "activeStanding": {
+        "sha": "e8164c76fc1af4ac79307594dfbba69016da9bd4",
+        "screens": 9900,
+        "rng": 728099
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0398-wizard-wandpoly-pile",
+          "step": 45,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 87,
+          "remainingScreensUpperBound": 42,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0398-wizard-wandpoly-pile.json",
+            "result": {
+              "session": "holdout/seed0398-wizard-wandpoly-pile",
+              "remainingScreensUpperBound": 42,
+              "status": "complete",
+              "commit": "0c5a3f37453813743aa387f0f861a4b523321d7d",
+              "mismatch": {
+                "session": "holdout/seed0398-wizard-wandpoly-pile",
+                "step": 45,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero move: trap activation",
+                "unlocatedKinds": [],
+                "recordedSteps": 87,
+                "remainingScreensUpperBound": 42
+              },
+              "summary": "At commit 0c5a3f37453813743aa387f0f861a4b523321d7d, the previously fixed unrestricted prompt no longer leads the queue; the first boundary is step 45. The hero's l move enters an unseen rust trap. C hack.c:spoteffects() triggers dotrap() and trap.c:trapeffect_rust_trap(); the recorded rn2(5)=3 selects the default body splash, emits 'A gush of water hits you!', and applies water/splash effects before continuing. JS requireSimpleHeroDestination() calls preflight_dotrap() and rejects rust before the move, while trapeffect_selector() also routes RUST_TRAP to the generic refusal. Port the whole source function (hero and monster arms), admit RUST_TRAP, and preserve C evaluation, random-call, and side-effect order.",
+              "source": {
+                "file": "trap.c",
+                "branch": "The trap is RUST_TRAP and C's mtmp == &gy.youmonst hero arm is reached from an ordinary committed movement. In this recording the trap is unseen, Polly is an unpolymorphed human without flight or levitation, and the floor_trigger()/check_in_air() and seen-trap escape gates therefore pass. trap.c:1610 rn2(5)=3 selects the default body arm: it prints the water-hit message, splashes lit carried objects except the primary and secondary weapon, then forced-water-damages cloak, suit, or shirt and updates inventory. The source function's complete file-port scope also includes its head, left-arm, right-arm, and monster arms, including iron-golem death and gremlin split branches.",
+                "functions": [
+                  "trapeffect_rust_trap"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/hack.c:domove_core() -> spoteffects() (2712-2980, 3312-3401) calls dotrap() after a hero move onto a trap.",
+                  "js/hack.js:domove_core() (4188) -> spoteffects() (4936-4973) calls dotrap() after movement; requireSimpleHeroDestination() (1553-1554) preflights the destination trap before movement commits.",
+                  "nethack-c/upstream/src/trap.c:dotrap() (2996-3060) and trapeffect_selector() (2937-2992) dispatch the hero arm; js/trap_effects.js:dotrap() (2266-2319) and trapeffect_selector() (2152-2185) are their production counterparts.",
+                  "nethack-c/upstream/src/monmove.c:postmov() (1509, 1734) calls mintrap() for a monster on a trap; js/monmove.js postmov()/m_move() (3101-3112, 3318-3336) supplies the monster-arm caller.",
+                  "js/teleport.js:teleds() (1515-1566) shares requireSimpleHeroDestination() and spoteffects() for teleported heroes that arrive on a trap."
+                ],
+                "dependencies": [
+                  "trap.c:seetrap(), water_damage(), splash_lit(), update_inventory(), and split_mon() supply the hero effect's reveal, item-damage, light-extinguishing, inventory, and gremlin branches; C losehp()/Maybe_Half_Phys() and JS hack.js equivalents supply the iron-golem branch.",
+                  "js/trap_effects.js:seetrap(), body_part(), worn.which_armor(), and objnam helm_simple_name()/gloves_simple_name()/cloak_simple_name()/suit_simple_name() provide existing trap, body, equipment, and message helpers.",
+                  "js/trap_water_damage.js:water_damage() is the existing hero item-water owner but still fail-closes unported lit-item and several water branches; water_damage_monster_equipment() (37-75) is the existing forced monster-equipment adapter, with js/trap_erode_obj.js:erode_obj() and js/apply_splash_lit.js:splash_monster_light() beneath it.",
+                  "js/mondata.js:completelyrusts() (1600-1602) and js/mon.js:monkilled() (4621-4668) cover the monster iron-golem death test; split_mon() remains an explicitly unported C dependency for gremlins and must be recorded as a discarded-result gap if not in scope.",
+                  "js/trap_effects.js:UNPORTED_TRAP_EFFECTS (2128-2136) and preflight_dotrap() (2211-2216) are the admission/refusal guards that must be updated together with selector dispatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json is a current-commit scan for 0c5a3f37453813743aa387f0f861a4b523321d7d; its holdout/seed0398-wizard-wandpoly-pile row has screensEmitted 45, recordedSteps 87, key l, boundary unsupported hero move: trap activation, and remainingScreensUpperBound 42.",
+                "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json segments[0].steps[45] records key l, the C message A gush of water hits you!, rn2(5)=3 at trapeffect_rust_trap(trap.c:1610), and the post-trap movement RNG calls. stopContext.inputThroughStop ends with the six drop moves followed by l, so no polymorph, flight, or levitation setup precedes the trap.",
+                "nethack-c/upstream/src/trap.c:1594-1727 defines trapeffect_rust_trap(); its hero arm calls seetrap(), draws rn2(5), selects the recorded default arm at 1628-1644, updates inventory, and then handles iron-golem and gremlin post-effects. trap.c:2937-2992 dispatches RUST_TRAP through trapeffect_selector().",
+                "js/trap_effects.js:2128-2136 lists RUST_TRAP in UNPORTED_TRAP_EFFECTS, :2184 raises unsupported('trap activation') for it, and :2211-2216 rejects every hero trap type except the six currently admitted types before movement. js/hack.js:1549-1554 calls this preflight at the destination, explaining why the refusal precedes C's movement and trap message.",
+                "nethack-c/upstream/src/hack.c:3312-3401 and js/hack.js:4936-4973 establish the production spoteffects() ordering (ordinary pickup before dotrap); js/hack.js:4187-4188 and js/teleport.js:1515-1566 identify the movement and teleport callers. The matched step-45 C trace therefore attributes the boundary to the rust-trap effect, not to the later zap.c wand-of-polymorph pile path at step 48.",
+                "scripts/trap-water-damage.test.mjs covers the existing water_damage_monster_equipment() missing-target, light-splash, grease, and forced-erosion behavior, while recordings/mon.c/rust-monster-eats-mace-span.session.json covers a separate rust-monster object path. No existing recordings/trap.c rust-trap recording was found, so a later span needs an independent hero entry-point recipe and matching recording.",
+                "The stale count-59 cache's topl.c:tty_yn_function() source trace is retained only as prior provenance: commit c0249c50 carries the unrestricted-prompt retention fix, and the current scan no longer reports that step-28 issue."
+              ],
+              "nextProbe": "Port trap.c:trapeffect_rust_trap() as one source unit, remove RUST_TRAP from the selector refusal set, and admit it in preflight_dotrap() while retaining C's trap gates. Replay this session through step 45 to verify the rn2(5)=3 default splash, item effects, screen/cursor, and downstream RNG; then continue through step 48's wand-of-polymorph pile behavior. Add an independent hero rust-trap recipe and recording for source completion evidence."
+            }
+          }
+        }
+      ]
     }
   ]
 }
