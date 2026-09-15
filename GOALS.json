@@ -46525,7 +46525,16 @@
       ],
       "selectionReason": "Authorized seed-worker pilot: the seed0002 worker continues its independent stream after payment; first mismatch569, upper bound26, complete cache investigations/holdout/seed0002-healer-reflection-drummer.json traces whole music.c do_play_instrument and required helpers. Other seed workers continue their owned source spans without a batch barrier.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "do_play_instrument",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "do_play_instrument"
+          ]
+        }
+      ],
       "openedAt": "d360ae692bc86b3d6fc6ba486fc27dd70f99329b",
       "openStanding": {
         "sha": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
