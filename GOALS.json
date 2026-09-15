@@ -48079,7 +48079,7 @@
     {
       "id": "port-trap-web-20260915",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole web-trap hero and monster effects with web-destruction dependency and production dispatch",
       "cFile": "trap.c",
       "sessions": [
@@ -48090,8 +48090,8 @@
       "spans": [
         {
           "name": "trapeffect_web",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "525ae853af8b0a48c579cdd42715cf025fbfed11",
           "functions": [
             "trapeffect_web"
           ]
@@ -48103,15 +48103,18 @@
         "screens": 9788,
         "rng": 714576
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "525ae853af8b0a48c579cdd42715cf025fbfed11",
+      "delivered": {
+        "screens": 22,
+        "rng": 419
+      },
       "functions": [
         {
           "name": "trapeffect_web",
           "line": 2106,
           "endLine": 2278,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -48195,7 +48198,87 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_web",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_web",
+            "sourceReview": "Read the complete trap.c trapeffect_web() definition at lines 2106-2276 and its required local dependency mu_maybe_destroy_web() at lines 972-1014. Preserved hero feeltrap()/webmaker() ordering, NOWEBMSG/FORCETRAP/FAILEDUNTRAP/VIASITTING gates, mounted-steed mintrap() handoff and reset_utrap() escape, all Strength thresholds and rn1/rnd draw order, high-Strength web destruction, monster webmaker and immune-form handling, unseen owlbear/bugbear hearing, giant/adult-dragon/worm tear rules, explicit tear-species list, visibility messages, seetrap() writes, trap deletion/redraw, and Trap_Caught_Mon return. mu_maybe_destroy_web preserves the amorphous, whirly, flaming, unsolid and gelatinous-cube admission test, flaming/acidic destruction messages, deltrap()/newsym() ordering, and non-destructive flow-through message/seetrap() behavior. The WEB selector dispatch, hero dotrap() trap gates, monster mintrap() held-monster WEB admission, and production caller environments are wired; no obsolete WEB refusals remain. Soundeffect() has no tty output; its You_hear() result is injected from the existing monmove owner. No additional unported callee is used on the covered branches.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c trapeffect_selector() lines 2936-2992 dispatches WEB to trapeffect_web(); the JavaScript selector has the corresponding WEB arm."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c dotrap() lines 3058-3060 calls trapeffect_selector(&gy.youmonst, trap, trflags) after its trap gates; the JavaScript hero dotrap() follows the same dispatch."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "trap.c mintrap() reaches trapeffect_selector() for a monster moving onto a trap; monmove.c m_move() are wired to JavaScript mintrap(), which dispatches WEB here."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-web.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-web-caught-strong.session.json",
+              "recordings/trap.c/hero-web-caught.session.json",
+              "recordings/trap.c/hero-web-seen-escape.session.json",
+              "recordings/trap.c/monster-web-caught.session.json"
+            ],
+            "checkedAt": "525ae853af8b0a48c579cdd42715cf025fbfed11"
+          }
+        ],
+        "entryPointReview": "The planned source scope has one WEB trap entry point, reached through hero dotrap() and monster mintrap(), with mu_maybe_destroy_web() as the required helper dependency. The ordinary hero recipe reaches the regular trapeffect_web() path; the strong hero recipe reaches high-Strength web destruction; the seen-web recipe reaches the dotrap() escape gate before WEB dispatch; and the monster recipe reaches the mintrap() WEB arm. Focused tests cover immune forms, webmakers, unseen bear variants, explicit tear species, worm segment thresholds, mounted transfer, and hero Strength thresholds. No additional entry point is claimed for this delivery.",
+        "entryPoints": [
+          {
+            "name": "WEB trap activation",
+            "functions": [
+              "trapeffect_web"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-web-caught-strong.session.json",
+              "recordings/trap.c/hero-web-caught.session.json",
+              "recordings/trap.c/hero-web-seen-escape.session.json",
+              "recordings/trap.c/monster-web-caught.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 435,
+          "kind": "stop",
+          "function": "thitmonst",
+          "functionDeclared": true,
+          "sourceFile": "dothrow.c",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 97,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "previousRemainingScreensUpperBound": 119
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "525ae853af8b0a48c579cdd42715cf025fbfed11",
+        "screens": 9810,
+        "rng": 714995
+      }
     },
     {
       "id": "port-wiz-loca-20260915",
