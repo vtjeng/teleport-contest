@@ -730,10 +730,10 @@ test('the meal message is the one fprefx chose', async () => {
 // fprefx()'s message off the top line. doeat() reads the letter from the same
 // key queue the replay uses. The message buffer is emptied first so that a
 // message left by the replay cannot satisfy an assertion below on its own.
-async function eatSlot(obj) {
+async function eatSlot(obj, env = {}) {
     game.nhDisplay.toplines = '';
     game.nhDisplay.pushKey(obj.invlet.charCodeAt(0));
-    return doeat(game);
+    return doeat(game, env);
 }
 
 // The message the meal wrote. pline() fills gt.toplines at once but tty topl.c
@@ -861,8 +861,7 @@ test('give_feedback swaps in its hallucinating wording', async () => {
     // otyp test at doeat() (3027-3031) exempts a fortune cookie from the
     // diversion that sends every other cursed food to rottenfood() before
     // fprefx() runs, so the cookie is the only object that carries
-    // otmp->cursed into this pline. fpostfx() then stops on outrumor(), which
-    // this port does not carry, but the pline has already written the string.
+    // otmp->cursed into this pline. fpostfx() then reads the cookie's rumor.
     const eatCursedCookie = async (hallucinating) => {
         await runSegment({ ...priest, moves: '.' });
         if (hallucinating) game.u.uprops[HALLUC].intrinsic = 1;
@@ -870,18 +869,17 @@ test('give_feedback swaps in its hallucinating wording', async () => {
         cookie.otyp = FORTUNE_COOKIE;
         cookie.cursed = 1;
         cookie.owt = weight(cookie, { state: game });
-        try {
-            await eatSlot(cookie);
-        } catch (error) {
-            assert.match(String(error.message), /outrumor/u);
-        }
-        return mealMessage();
+        const messages = [];
+        await eatSlot(cookie, {
+            message: async (line) => { messages.push(line); },
+        });
+        return [mealMessage(), ...messages].join('\n');
     };
 
-    assert.equal(await eatCursedCookie(false),
-        'This fortune cookie is terrible!');
-    assert.equal(await eatCursedCookie(true),
-        'This fortune cookie is grody!');
+    assert.match(await eatCursedCookie(false),
+        /This fortune cookie is terrible!/u);
+    assert.match(await eatCursedCookie(true),
+        /This fortune cookie is grody!/u);
 });
 
 test('a meal that crosses 1000 nutrition writes Satiated to the status line',
@@ -961,7 +959,7 @@ test('the rot test is reached only past thirty turns of age', async () => {
     );
 });
 
-test('a comestible with an unported effect stops after doeat has committed',
+test('a fortune cookie reaches outrumor after doeat has committed',
     async () => {
         const knight = segmentFor('eg.eg.eg');
         // u_init.c gives the Knight ten carrots beside the apples. fpostfx()
@@ -985,7 +983,7 @@ test('a comestible with an unported effect stops after doeat has committed',
             ].join('\n'),
         };
         const cookie = await boundaryFor(monk, '.eh');
-        assert.match(cookie.message, /outrumor\(\)/u);
+        assert.equal(cookie, null);
         assert.equal(game.u.uconduct.unvegan, 1);
         assert.equal(game.u.uconduct.food, 1);
     });

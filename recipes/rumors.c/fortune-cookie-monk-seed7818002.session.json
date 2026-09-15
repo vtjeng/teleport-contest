@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7818002,
+      "datetime": "20320102090000",
+      "nethackrc": "OPTIONS=name:RumorMonk,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+      "moves": ".eh  "
+    }
+  ]
+}

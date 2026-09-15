@@ -5,8 +5,14 @@ import test from 'node:test';
 
 import {
     A_WIS,
+    BLINDED,
+    BY_COOKIE,
+    BY_ORACLE,
+    BY_PAPER,
+    FAINTED,
     HALLUC,
     HALLUC_RES,
+    NOT_HUNGRY,
     NUM_MGENDERS,
 } from '../js/const.js';
 import { random_engraving } from '../js/random_engraving.js';
@@ -21,6 +27,7 @@ import {
     CapitalMon,
     get_rnd_line,
     getrumor,
+    outrumor,
     parseRumorHeader,
     xcrypt,
 } from '../js/random_text.js';
@@ -426,4 +433,111 @@ test('random_engraving falls back after an empty rumor', () => {
         ['wipe', 'abcd', 1, 0],
     ]);
     random.done();
+});
+
+
+// Source-pinned tests for rumors.c outrumor(). The recorded Fortune Cookie
+// matrix covers its production meal caller; these focused cases pin the
+// source-order reading guards and the mechanism-specific message sequences.
+
+function outrumorState({ blind = false, hunger = NOT_HUNGRY } = {}) {
+    return {
+        in_mklev: false,
+        gp: {},
+        u: {
+            uhs: hunger,
+            uprops: {
+                [BLINDED]: blind ? { intrinsic: 1 } : {},
+            },
+        },
+    };
+}
+
+function capturedOutrumorRandom(values = []) {
+    const draws = [];
+    let index = 0;
+    return {
+        draws,
+        rn2(bound) {
+            draws.push(bound);
+            return values[index++] ?? 0;
+        },
+    };
+}
+
+test('outrumor reads a visible cookie in C message and RNG order', async () => {
+    const game = outrumorState();
+    const messages = [];
+    const exercises = [];
+    const random = capturedOutrumorRandom([0, 0]);
+
+    await outrumor(1, BY_COOKIE, game, {
+        files: RANDOM_TEXT_FILES,
+        random,
+        message: async (line) => { messages.push(line); },
+        exercise: (index, increase) => exercises.push({ index, increase }),
+    });
+
+    assert.deepEqual(random.draws, [2, 24924]);
+    assert.deepEqual(messages, [
+        'This cookie has a scrap of paper inside.',
+        'It reads:',
+        'A candelabrum affixed with seven candles shows the way with a magical light.',
+    ]);
+    assert.deepEqual(exercises, [{ index: 2, increase: true }]);
+});
+
+test('outrumor returns before random selection for fainted cookies', async () => {
+    const random = capturedOutrumorRandom();
+    const messages = [];
+
+    await outrumor(1, BY_COOKIE, outrumorState({ hunger: FAINTED }), {
+        random,
+        message: async (line) => { messages.push(line); },
+    });
+
+    assert.deepEqual(random.draws, []);
+    assert.deepEqual(messages, []);
+});
+
+test('outrumor blind reading prints only the source guard messages', async () => {
+    const cookieRandom = capturedOutrumorRandom();
+    const cookieMessages = [];
+    await outrumor(1, BY_COOKIE, outrumorState({ blind: true }), {
+        random: cookieRandom,
+        message: async (line) => { cookieMessages.push(line); },
+    });
+    assert.deepEqual(cookieRandom.draws, []);
+    assert.deepEqual(cookieMessages, [
+        'This cookie has a scrap of paper inside.',
+        'What a pity that you cannot read it!',
+    ]);
+
+    const paperRandom = capturedOutrumorRandom();
+    const paperMessages = [];
+    await outrumor(1, BY_PAPER, outrumorState({ blind: true }), {
+        random: paperRandom,
+        message: async (line) => { paperMessages.push(line); },
+    });
+    assert.deepEqual(paperRandom.draws, []);
+    assert.deepEqual(paperMessages, ['What a pity that you cannot read it!']);
+});
+
+test('outrumor Oracle wording draws after getrumor and quotes the line', async () => {
+    const game = outrumorState();
+    const messages = [];
+    const random = capturedOutrumorRandom([0, 0, 0]);
+
+    await outrumor(1, BY_ORACLE, game, {
+        files: RANDOM_TEXT_FILES,
+        random,
+        message: async (line) => { messages.push(line); },
+        exercise: () => {},
+    });
+
+    assert.deepEqual(random.draws, [2, 24924, 4]);
+    assert.deepEqual(messages, [
+        'True to her word, the Oracle offhandedly says: ',
+        '"A candelabrum affixed with seven candles shows the way with a magical light."',
+    ]);
 });

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7818001,
+      "datetime": "20320101090000",
+      "nethackrc": "OPTIONS=name:RumorScout,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+      "moves": ".ee  "
+    }
+  ]
+}

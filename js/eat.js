@@ -8,6 +8,7 @@ import {
     ACID_RES,
     AGGRAVATE_MONSTER,
     A_STR,
+    BY_COOKIE,
     BLINDED,
     IS_ALTAR,
     COLD_RES,
@@ -217,6 +218,7 @@ import {
 import {
     carried,
     costly_alteration,
+    bcsign,
     is_rottable,
     objectType,
     peek_at_iced_corpse_age,
@@ -268,6 +270,7 @@ import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { d, rn1, rn2, rnd } from './rng.js';
+import { outrumor } from './random_text.js';
 import { obj_stop_timers } from './timeout.js';
 import { Levitation, is_pool_or_lava, unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -1958,7 +1961,7 @@ async function eatcorpse(otmp, state) {
 }
 
 // C ref: eat.c fpostfx() (2508-2597), the effects that follow a finished
-// non-corpse meal. Every arm whose effect is unported stops rather than
+// non-corpse meal. Arms whose effects are still unported stop rather than
 // silently skipping, because each one changes hero state.
 async function fpostfx(otmp, state, env) {
     switch (otmp.otyp) {
@@ -1973,8 +1976,17 @@ async function fpostfx(otmp, state, env) {
             await make_blinded(state.u.ucreamed ?? 0, true, state);
         break;
     case FORTUNE_COOKIE:
-        // outrumor() reads dat/rumors and sets the literate conduct.
-        throw new UnsupportedEatError('outrumor()');
+        await outrumor(
+            bcsign(otmp),
+            BY_COOKIE,
+            state,
+            { message: env.message ?? ttyPline },
+        );
+        if (!heroIsBlind(state)) {
+            // C's livelog_printf() has no screen or game-state result.
+            state.u.uconduct.literate++;
+        }
+        break;
     case LUMP_OF_ROYAL_JELLY:
         // gainstr(), the rnd(20) hit points and the rn2(17) maximum increase.
         throw new UnsupportedEatError('the royal jelly effects');

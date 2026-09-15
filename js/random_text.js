@@ -1,23 +1,33 @@
 // Random-access rumor, epitaph, and engraving text.
-// C refs: rumors.c getrumor(), get_rnd_line(), get_rnd_text(), CapitalMon();
+// C refs: rumors.c outrumor(), getrumor(), get_rnd_line(), get_rnd_text(),
+// CapitalMon();
 // hacklib.c xcrypt().
 
 import {
     A_WIS,
     BOGUSMONFILE,
+    BY_COOKIE,
+    BY_ORACLE,
+    BY_PAPER,
     BUFSZ,
+    FAINTED,
     MALE,
     MD_PAD_RUMORS,
     NUM_MGENDERS,
     RUMORFILE,
 } from './const.js';
+import { exercise } from './attrib.js';
 import { bogon_is_pname } from './do_name.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, lowc, xcrypt } from './hacklib.js';
 import { G_UNIQ, LOW_PM, NUMMONS } from './monsters.js';
 import { the_unique_pm } from './objnam.js';
+import { verbalize } from './pline.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { rn2 } from './rng.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 
 export { xcrypt } from './hacklib.js';
 
@@ -239,4 +249,69 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
     if (!excludeCookie && rumor.startsWith(COOKIE_MARKER))
         rumor = rumor.slice(COOKIE_MARKER.length);
     return rumor;
+}
+
+// C ref: rumors.c outrumor() (529-575). The caller supplies the source
+// mechanism so the reading guards happen before getrumor(), while the
+// fortune-cookie, paper and Oracle message sequences retain their C order.
+export async function outrumor(truth, mechanism, state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const reading = mechanism === BY_COOKIE || mechanism === BY_PAPER;
+    const randomSource = rawEnv.random ?? { rn2 };
+    const random = randomFunction(randomSource);
+
+    if (reading) {
+        // C's is_fainted() is the u.uhs == FAINTED half of the hunger status
+        // predicate in this source path. Only a cookie's meal can use it.
+        if (mechanism === BY_COOKIE && state.u?.uhs === FAINTED)
+            return;
+        if (heroIsBlind(state)) {
+            if (mechanism === BY_COOKIE)
+                await message('This cookie has a scrap of paper inside.', state);
+            await message('What a pity that you cannot read it!', state);
+            return;
+        }
+    }
+
+    const lineResult = getrumor(truth, !reading, {
+        ...rawEnv,
+        random: randomSource,
+        state,
+        // getrumor() is synchronous like its C counterpart. A Wis exercise
+        // has no awaitable encumber_msg() tail, so exercise() mutates the
+        // source state before returning its Promise here.
+        exercise: rawEnv.exercise
+            ?? ((index, increase) => exercise(
+                index,
+                increase,
+                state,
+                { rn2: random },
+            )),
+    });
+    const line = lineResult || 'NetHack rumors file closed for renovation.';
+
+    switch (mechanism) {
+    case BY_ORACLE: {
+        const adverb = !random(4)
+            ? 'offhandedly '
+            : (!random(3)
+                ? 'casually '
+                : (random(2) ? 'nonchalantly ' : ''));
+        // SetVoice() only reaches the recorder's no-sound interface and has
+        // no state or screen result; preserve the explicit source gap.
+        note_unported('rumors.c SetVoice');
+        await message(`True to her word, the Oracle ${adverb}says: `, state);
+        await verbalize(line, state, { message });
+        return;
+    }
+    case BY_COOKIE:
+        await message('This cookie has a scrap of paper inside.', state);
+        // FALLTHROUGH: the cookie and paper paths share the next message.
+    case BY_PAPER:
+        await message('It reads:', state);
+        break;
+    default:
+        break;
+    }
+    await message(line, state);
 }
