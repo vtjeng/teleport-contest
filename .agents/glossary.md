@@ -26,7 +26,7 @@ A **divergence fix** is a goal that repairs a source-traced defect in
 implemented behavior at one fixed-workload session's first mismatch.
 `.agents/divergence.md` defines its workflow.
 
-A **span** is the unit of work one worker run ports, wires, and lands: for a
+A **span** is the unit of work one worker delivery ports, wires, and lands: for a
 file port, its unverified functions in C order up to the planner's line cap;
 for a Lua port, its whole program; for a divergence fix, the functions the
 fix touches. Existing partial functions stay in scope.
@@ -58,8 +58,12 @@ form the **recordings corpus** under `recordings/` and replay in
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests, and may be one of several commits inside a span.
 
-A goal or a span is **in progress** from the moment work starts on it until
-it **closes**. Work written down but not begun is **queued**. A source port
+A worker's current span is **in progress** from initial assignment or announced
+selection until handoff or an explicit block, as the runtime ledger in
+`.agents/loop.md` records. The central `GOALS.json` open/queued states describe
+integration and its backlog, not all concurrent worker activity; opening and
+closing remain serialized. A worker persists across span deliveries in its
+assigned worktree. A source port
 closes after its spans close and entry-point coverage is verified. A
 **parked** goal preserves unfinished work while a higher-priority blocker is
 addressed.

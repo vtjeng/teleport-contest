@@ -17,7 +17,12 @@ competition holdout is outside this workspace.
 - If a focused run reports only a file-level `test failed`, run
   `node <test-file>` to expose its underlying assertions. Changing the
   reporter alone is not a reason to repeat the test.
-- After committing, run `npm run checkpoint`. It tests HEAD in a fresh
+- After committing a combined integration candidate, the orchestrator runs
+  `npm run checkpoint`. Workers submit immutable deliveries after focused
+  tests, lint and required fresh differentials; they do not run a redundant
+  branch-only full checkpoint before each handoff. A standalone game change
+  outside the multi-worker loop still requires a post-commit checkpoint.
+  It tests HEAD in a fresh
   worktree, initializes C from the local repository, and excludes uncommitted
   changes. Use `npm run checkpoint -- --commit <revision>` to select another
   commit. Run outside the Codex sandbox because setup writes Git metadata.
@@ -48,7 +53,12 @@ competition holdout is outside this workspace.
   If the owner was interrupted, establish the subprocess state before taking
   over: an agent interruption does not prove its command exited. Wait for the
   existing command or inspect its completed result before deciding to rerun.
-- Other agents may keep editing or committing during checkpoint. Its result
+- Keep at most one full suite, checkpoint, mutation run or aggregate scorer
+  active locally for the loop. The orchestrator owns the slot; workers may
+  continue focused checks and independent fresh cases using private recorder
+  installations. Request an exceptional worker full run rather than starting
+  one concurrently. Release the slot promptly after reaping its handle.
+- Other agents may keep editing or committing in their own worktrees during checkpoint. Its result
   remains attached to the tested commit; advancing HEAD does not make it fail.
   Wait for an existing run of the intended commit rather than launching a
   duplicate. When the current loop step will require a checkpoint at HEAD,
@@ -69,8 +79,9 @@ competition holdout is outside this workspace.
   seed, datetime, options, character, and inputs. Create the output directory
   with `mkdir -p recordings/<source-file>` before recording it:
   `node scripts/record-session.mjs recipes/<source-file>/<name>.session.json
-  recordings/<source-file>/<name>.session.json`. Then run `npm run checkpoint`,
-  which compares the PRNG log, the complete 24x80 screens with their
+  recordings/<source-file>/<name>.session.json`. Verify the fresh differential
+  matches before committing the recording. The orchestrator's combined
+  `npm run checkpoint` compares the PRNG log, the complete 24x80 screens with their
   attributes, and the cursor positions of every recording. Commit the
   recording only when it matches completely, as `AGENTS.md`, "Validate
   completed work", states.

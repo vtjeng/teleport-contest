@@ -12,8 +12,9 @@ every valid seed, date and time, set of options, and input sequence.
   and terminal-screen capture. Match the behavior and output these patches
   produce.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
-  goal in progress and the goals queued after it
-  (`node scripts/goal-log.mjs --current`).
+  goal being integrated and the goals queued after it
+  (`node scripts/goal-log.mjs --current`). Runtime worker assignments are
+  described in `.agents/loop.md`, "Worker scheduling".
   `node scripts/goal-log.mjs roadmap` lists C declarations separately from
   verified functions, and every Lua program with its completion evidence.
 
@@ -67,13 +68,19 @@ Follow all instructions in those files. A **goal** is a C **file port**, a
 **Lua port**, or a **divergence fix**. A file port implements whole C functions,
 a Lua port implements a whole `dat/*.lua` program, and a divergence fix repairs
 a source-traced defect in implemented behavior. A **span** is the unit of work
-one worker run lands: for a file port, its unverified functions in C order up
-to a line cap; for a Lua port, the whole program; for a divergence fix, the
-functions the fix touches. The span worker (`.claude/agents/span-worker.md`)
-completes one span per run.
+one worker delivery lands: for a file port, its unverified functions in C order
+up to a line cap; for a Lua port, the whole program; for a divergence fix, the
+functions the fix touches. The worker (`.claude/agents/span-worker.md`)
+completes one span per delivery and persists across deliveries. The loop
+defaults to one main orchestrator and two workers, each in its own Git
+worktree. Workers notify the orchestrator when a span is ready to merge;
+only the orchestrator integrates, runs combined validation, and publishes.
+Workers select independent next work under the standing permission in
+`.agents/loop.md`, which defines scheduling and merge requests.
 
 | Before you... | Read... |
 | --- | --- |
+| Run or resume the implementation loop | `.agents/loop.md` |
 | Choose which goal to open next | `.agents/selection.md` |
 | Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |
 | Validate game behavior | `.agents/validation.md` |

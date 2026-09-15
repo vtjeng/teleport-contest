@@ -1,6 +1,6 @@
 ---
 name: span-worker
-description: Completes exactly one span of the NetHack port, from upstream source through validation to a commit. Spawned once per iteration of the continuous-operation loop; runs no formal review pass.
+description: Persistent NetHack implementation worker in an assigned worktree. Completes one span per immutable merge-ready delivery, notifies the main orchestrator, then selects and continues independent work under standing permission. Runs no formal review pass.
 model: opus
 ---
 
@@ -10,16 +10,26 @@ Read these sources:
 
 - `.cache/span-context.json`: the current span's goal, C or Lua source file, source units,
   source line ranges, line count, JavaScript file, and the sessions whose
-  first mismatch the goal addresses, written by `goal-log.mjs next-span`
-- `node scripts/goal-log.mjs --current --detail`: the goal in progress,
-  its source units with declarations and completion evidence, and its spans
+  first mismatch the goal addresses. The orchestrator prepares the initial
+  context; you prepare subsequent contexts using the `goal-log.mjs` planner's
+  schema and source-order rules under `.agents/loop.md`
+- The orchestrator's initial assignment and your subsequent scope
+  announcements: absolute worktree, branch and base SHA, source reservations,
+  allowed paths, dependencies and delivery ID. Preserve each delivery's context.
+  `GOALS.json` supplies existing completion evidence, but its current open
+  goal belongs to central integration and may differ from your assignment
 - `.agents/validation.md`: what validating this span requires
 - `.agents/glossary.md`: the work vocabulary
+- `.agents/loop.md`: worker scheduling and the merge-request protocol
+- `.agents/selection.md`: source scope, reservations and seed continuation
 
-Use the orchestrator's selected mismatch entry for the assigned work.
+Use the orchestrator's selected mismatch entry for the initial work and your
+source-traced selection under `.agents/selection.md` for subsequent spans.
 Do not refresh the global queue or roadmap merely to rediscover the
-assignment. Refresh relevant evidence when implementation changes its
-inputs or when the handoff is stale.
+assignment. Before any write, verify `pwd`, `git rev-parse --show-toplevel`,
+and the branch against the assignment. Use its absolute worktree path for
+commands, edits and descendants. Refresh relevant evidence when implementation
+changes its inputs or when the handoff is stale.
 
 Before writing, read the complete C functions or Lua program in the span,
 including Lua top-level statements. A span can pass over verified functions,
@@ -32,24 +42,31 @@ a missing callee in this span when the C uses its return value; when the C
 discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole source units and wire their callers", states.
 
-Do not open `.agents/review.md` or `.agents/selection.md`.
-Those belong to the orchestrator defined in `.agents/loop.md`. This
-restriction overrides the AGENTS.md reading rows that name them.
+Select subsequent work under `.agents/selection.md`, "Seed continuation".
+Leave central goal-selection commands and reservation-ledger writes to the
+orchestrator; its bookkeeping does not block your independent continuation.
+Do not open `.agents/review.md`; formal reviews belong to the orchestrator.
+This restriction overrides the AGENTS.md reading row that names it.
 
 ## Scope
 
-You own one span: the source it ports, the code and tests it changes, the
-recipes and recordings it adds, and the commits that land them. After the
-last commit, run `npm run checkpoint` and push. Include the checkpoint
-handoff and source evidence in your report; the orchestrator uses them to
-close the span, append the `SCORE.tsv` row, and watch CI.
+You are a persistent worker in one assigned worktree. Own one current span
+at a time: the source it ports, the code and tests it changes, the
+recipes and recordings it adds, and its immutable delivery commits. Run
+focused tests, `npm run lint`, and required fresh differentials before
+handoff. Do not push or perform a central merge. Run a full checkpoint only
+if the orchestrator explicitly grants that validation slot. The orchestrator
+integrates and validates the combined candidate, closes the span, records
+scores and publishes. A submitted span is ready for integration, not yet
+accepted.
 
 Beyond code and tests:
 
-- Assign each new `js/` file to its `QUALITY.json` area with
-  `npm run quality -- assign --file <path> --area <id>`.
-- Leave `GOALS.json` and `QUALITY.json`'s review records to the
-  orchestrator, including on the last span of a goal.
+- Propose the `QUALITY.json` area for each new `js/` file; the orchestrator
+  applies the assignment before combined validation.
+- Leave central `GOALS.json`, `SCORE.tsv`, quality/review records, instructions,
+  aggregate scans and scoring to the orchestrator. Never merge worker copies
+  of those records into the integration branch.
 
 Do not run formal review passes or launch reviewer skills. If the span
 needs one, say so in your report.
@@ -101,18 +118,25 @@ Pass every restriction in this document to each subagent you spawn.
   coverage, production callers, pure-function tests, impure-function
   recordings, and the entry-point coverage plan. The orchestrator verifies
   and records it; do not edit `GOALS.json` yourself.
-- `npm run checkpoint` shows the development score and the recordings
-  corpus unchanged or improved, screen for screen and call for call.
+- Focused tests and lint pass, and the required fresh C/JavaScript cases
+  match completely and reach the claimed entries. State blockers honestly;
+  the orchestrator's combined checkpoint establishes aggregate non-regression.
 - When the span completed an entry point of the file, its recipe is committed
   under `recipes/<source-file>/`, and its recording under `recordings/<source-file>/`
   once that recording matches completely, per "Validate completed work" in
   `AGENTS.md`.
-- The work is committed, `npm run checkpoint` passes on the committed state,
-  and the commits are pushed.
+- The work is committed, the delivery-specific evidence is preserved, and
+  every owned process is reaped or explicitly handed off with its handle.
+  Include the exact base and delivery SHAs; never amend a submitted snapshot.
 
-Commit before running checkpoint so the summary describes the committed
-state. If checkpoint fails, fix and commit again. If you cannot reach a
-passing checkpoint, report what blocked you without pushing.
+Send `READY_TO_MERGE` as `.agents/loop.md`, "Merge requests", specifies, or
+report a concrete blocker promptly. This handoff does not end your worker
+assignment. Select and announce the next independent scope using the standing
+continuation procedure; do not wait for fresh permission, acknowledgement,
+another worker, central validation, integration, or CI. Ask about conflicting
+ownership or shared-contract changes while continuing independent work.
+If asked to correct a delivery, commit the correction separately and identify
+affected dependent work.
 
 A final integration runner, fixture, or test may remain uncommitted while
 changing. Commit production behavior and focused tests as soon as they are
@@ -120,10 +144,14 @@ done, and commit integration artifacts once they stabilize.
 
 ## What to report
 
-Report to the orchestrator in one brief message. Cover:
+At each delivery, report to the main orchestrator in one brief
+`READY_TO_MERGE` message. Follow its acknowledgement and acceptance protocol
+in `.agents/loop.md`, "Merge requests". Cover:
 
-- The tested commit, checkpoint outcome, and shared summary path, following
-  `.agents/validation.md`, "Routine validation", for ownership and handoff.
+- Base and delivery commits, exact delivery commit list, dependency SHAs,
+  changed paths/functions, focused/lint/fresh-case commands and results,
+  delivery-specific evidence path, and any running process handle. Include a
+  checkpoint result only if the orchestrator assigned that run.
 - What you ported, from which C functions or Lua program, and every gap you recorded with
   the C callee it stands for.
 - Every bug and surprise you hit, and what you did about it.

@@ -1,163 +1,223 @@
 # Continuous operation
 
-This file defines the orchestrator's loop: goal selection, span iteration,
-measurement, and the reviews it may call for.
+This file defines the orchestrator's implementation loop. Use it when the
+user starts or resumes continuous implementation, not merely to answer a
+question, prepare a proposal, or run a bounded task. Respect an explicit
+time limit, stop request, or narrower task scope.
 
-`.agents/glossary.md` defines the terms this file uses.
-`.agents/review.md` states when a correctness review is warranted and how to
-run one.
+`.agents/glossary.md` defines the work units; `.agents/selection.md` governs
+selection. `.agents/review.md` governs formal reviews.
 
-Maintain "Background investigations" throughout the loop, including while
-waiting for an active implementation worker or its checkpoint.
+## Worker scheduling
 
-The orchestrator repeats without returning to the user between steps:
+Run one main orchestrator and two persistent implementation workers, each
+in a separate Git worktree. Each worker implements and validates its own
+spans, periodically notifying the orchestrator that a completed span is
+ready to merge. Only the orchestrator merges into the integration branch,
+runs combined validation, and publishes to main. Use one worker when only
+one independent goal is ready or resources permit only one. Do not add
+implementation workers above two without user approval. Read-only helpers
+do not own implementation.
 
-   On entry (or after a restart), check
-   `node scripts/goal-log.mjs --current` for the current state:
+The orchestrator owns the integration branch, main, `GOALS.json`,
+`SCORE.tsv`, review records, aggregate scoring, and publication. Workers own
+only their assigned source, focused tests, recipes, recordings, and local
+handoff files. Do not merge worker copies of the central ledgers. A worker
+proposes any new `QUALITY.json` area assignment; the orchestrator applies it.
 
-   - No goal in progress: start at step 1.
-   - Goal in progress, a span is queued: the worker may have been interrupted.
-     Run `git log --oneline` and check the shared checkpoint results described
-     in `.agents/validation.md`, "Routine validation", to
-     establish what it landed. If the span's commits landed, skip the worker
-     and continue with step 3's measurement and push; otherwise start at
-     step 3 and spawn the worker.
-   - Goal in progress, no queued span: start at step 2.
-   - A parked goal retains its evidence and spans. Resume it only when the
-     current mismatch queue permits it; it does not outrank a new blocker.
+Keep a coordinator-only runtime ledger at `.cache/worker-state.json`.
+Record each worker's identity, absolute worktree path, branch, base SHA, goal
+and span scope, seed, reserved functions/contracts, allowed paths, status,
+owned process handles, and immutable delivery/evidence paths. Record
+assignment, readiness, integration, validation, and publication timestamps.
+This is recoverable local coordination state, not source-completion evidence.
+Commit accepted source evidence to `GOALS.json` as usual.
 
-1. When no goal is in progress, select the next goal.
+The initial assignment and standing continuation permission below authorize
+implementation even when that worker's `GOALS.json` does not list the goal as
+open. Keep central opening, measurement, and closure serialized so another
+worker's gains are not attributed to the wrong goal. Before initial dispatch,
+the orchestrator prepares a worker-local `.cache/span-context.json` using the
+fields and source-order/line-cap rules of `nextSpan()` and `spanContext()` in
+`scripts/goal-log.mjs`. Workers prepare subsequent contexts by those same
+rules, without mutating `GOALS.json` or waiting for a central goal to open.
+Record queued goals at a safe central commit boundary, without changing an
+in-flight checkpoint's inputs.
 
-   a. Read `node scripts/goal-log.mjs --current --detail`. Existing queued
-      or parked work still needs to satisfy the current mismatch queue.
-   b. Run `node scripts/mismatch-queue.mjs --json` and maintain the background
-      investigations described below. When every fixed-workload session
-      matches and `node scripts/goal-log.mjs roadmap` lists no unverified
-      C function or Lua program, the port is complete: stop the loop and
-      notify the user. Otherwise choose the goal by the order in
-      `.agents/selection.md`, "Choosing a goal", and queue it with
-      `node scripts/goal-log.mjs queue-goal`.
-   c. Open the goal with `node scripts/goal-log.mjs open-goal --id <id>`,
-      which captures the development standing, and commit `GOALS.json` with
-      a message that starts `Open <id> goal`.
-2. Plan the next span with `node scripts/goal-log.mjs next-span --goal <id>`.
-   It combines declaration inventory with recorded completion evidence,
-   rechecks selection, queues a span, and writes `.cache/span-context.json`.
-   Before planning, apply `.agents/selection.md` to the refreshed queue and
-   investigation cache. A declaration without evidence stays in scope. If
-   selection now favors another blocker, park the open goal with
-   `park-goal --goal <id> --reason "<source-based reason>"` and return to step 1.
-   When every source unit has evidence, the goal has no span left: go to
-   step 6. Otherwise
-   commit `GOALS.json` with a message that starts `Queue <span name> span`.
-   For a divergence fix, name the span yourself with `queue-span` and write
-   the context file from `.agents/divergence.md`, step 2.
-3. Spawn a span worker (`.claude/agents/span-worker.md`) for that span.
-   Include the selected mismatch entry, the commit it describes, the valid
-   investigation cache path, relevant source ranges, and paths to existing
-   evidence in the handoff. Keep background investigations running while the
-   span worker implements and validates.
-   The worker owns implementation validation through checkpoint completion
-   and handoff, following `.agents/validation.md`, "Routine validation". Do not
-   launch a competing full suite, checkpoint, or development scorer while
-   it performs that validation.
+For every new worktree, initialize C as AGENTS.md specifies. Before any
+write, the worker verifies `pwd`, `git rev-parse --show-toplevel`, and its
+branch against the assignment. Every command, edit, and descendant agent
+uses that absolute worktree path. Never share a recorder installation.
 
-   When the handoff leaves a broad, unresolved cross-file caller or dependency
-   question, start one read-only survey helper at substantially the same time as
-   the span worker. Tell both agents the split: the worker owns the complete
-   source comparison, implementation, tests, recordings, commit, and checkpoint;
-   the helper owns only the named survey and returns concise file and function
-   pointers plus the contracts they preserve. The helper does not edit files or
-   run a recorder, full suite, checkpoint, or scorer. Forward its findings while
-   the worker can still use them, and have the worker verify each pointer before
-   relying on it. Skip the helper when the symbol and callers are local or already
-   known, a prior investigation settled them, or implementation cannot proceed
-   independently. Record the agents' start and finish times, which findings the
-   worker used, duplication or rework, and handoff overhead.
+Keep the same worker and worktree across deliveries; a span is a delivery
+boundary, not a worker-lifetime boundary. Use a fresh worker only for recovery
+or an explicit handoff, after establishing the previous worker's process
+ownership. Do not make routine nested implementation workers another layer
+of coordination.
 
-   When a confirmed difficult mismatch has two concrete, falsifiable
-   explanations, start at most two read-only investigators concurrently, one
-   for each explanation, while the span worker keeps implementation and
-   checkpoint ownership. This also applies when one focused investigation has
-   not resolved the mismatch after two source-backed probes and the
-   orchestrator can then state two distinct explanations. Give each
-   investigator a narrow source and artifact allowlist and tell it what would
-   falsify its explanation. It must stop when falsified and return concise
-   source pointers and evidence. It must not edit files, enumerate session
-   corpora, record a session, or run a full suite, checkpoint, or scorer.
-   Forward each verified result as soon as the worker can use it, and stop the
-   remaining investigation if the worker resolves the mismatch first. Skip
-   this overlap when the cause is already source-local, the explanations are
-   not distinct, or implementation cannot proceed independently. Record the
-   investigators' start and finish times, overlap with implementation, the
-   accepted and rejected explanations, findings used by the worker,
-   duplication or rework, and handoff overhead.
+Give each worker an initial span and standing permission to select subsequent
+independent work within the user's task bounds. After sending an immutable
+delivery, the worker selects and announces its next scope under
+`.agents/selection.md`, "Seed continuation", then proceeds without waiting
+for fresh permission, acknowledgement, merge, combined validation, CI, or the
+other worker. The orchestrator records scope announcements in the runtime
+ledger; that update is bookkeeping, not permission to begin.
 
-   While the worker runs, follow the waiting rules in the shared
-   instructions' "Operational Workflow" section. Wait with
-   `wait_agent({timeout_ms: 600000})`; the wait returns early when an agent
-   sends an update or completes.
+Reserve functions and shared-state contracts, not whole files indefinitely.
+A dependency shared by workers has one owner. Keep reservations for pending
+deliveries; release or revise them when a delivery is integrated, reassigned,
+or deliberately parked. Ask the orchestrator before editing another worker's
+reserved function or changing a shared contract. Continue independent work
+while that ownership decision is pending.
 
-   At timeout, inspect the worker transcript. Evidence of liveness—new
-   transcript events, an active tool call, or a retained process handle—starts
-   another ten-minute notification-aware wait. A stationary transcript with
-   no active tool call or retained process handle starts a 60-second
-   confirmation wait. If the transcript remains stationary, call
-   `followup_task` with the existing worker path when it is idle. When
-   collaboration still reports it as running, call `interrupt_agent` once and
-   then call `followup_task` with that same path.
+## Merge requests
 
-   Use the worker's completion message to trigger handoff checks. When it
-   returns, establish what landed with
-   `git log --oneline origin/main..HEAD` and `git status --short`. The worker
-   runs `npm run checkpoint` after committing, so
-   its shared summary describes the tested commit. Apply
-   `.agents/validation.md`, "Routine validation", to find and reuse its
-   results or handle a failure. Push before the turn ends.
+At each completed span, the worker sends `READY_TO_MERGE` to the main
+orchestrator. A message containing the fields below is the merge request;
+the worker does not perform the central merge itself. Send it when the span
+has focused tests, lint, source evidence and required matching independent
+recordings, not after waiting for a timer or for another worker. Long-running
+spans send progress or blocker updates without claiming that incomplete work
+is ready.
 
-   Watch the CI run from a background task (`gh run list --limit 1`,
-   then `gh run watch <id> --exit-status`). Retain one watcher for that run;
-   do not also poll run lists or CI logs for its completion. CI can fail
-   where a local checkpoint passes; start the next step without waiting.
-   When a run fails, diagnose, fix, push,
-   and watch the new run before the current span closes. The `gh`
-   commands require `gh repo set-default vtjeng/teleport-contest`; run
-   it if `gh run list` shows unfamiliar runs.
-4. Run `npm run quality` yourself as the orchestrator check. Its output is
-   informational; decide review eligibility using `.agents/review.md`,
-   "When a correctness review is warranted".
-5. For a C or Lua source port, verify the worker's `.cache/span-evidence.json`
-   against the source, production callers, and execution artifacts. Record
-   it with `goal-log.mjs record-evidence` as `.agents/validation.md` specifies.
-   Close the span with `goal-log.mjs close-span` and append its
-   `SCORE.tsv` row in the commit that records closure in `GOALS.json`. The
-   row's SHA and figures come from step 3. Refresh the fixed-workload mismatch
-   queue and report first-mismatch movement and newly matching recordings
-   alongside the fixed development score. Continue at step 2.
-6. Before closing a source port, verify its `entryPointReview` and every
-   entry point's matching recording. A blocked recipe leaves that entry
-   point unfinished. Run checkpoint if its summary does not describe HEAD.
-   Then evaluate synthetic local challenge set `v1`, retain its saved artifact, and
-   append the goal's fixed-development score row at the measured commit before
-   `goal-log.mjs close-goal`. Commit the closure and continue at step 1.
+Each request identifies the worker and worktree, base and delivery SHAs,
+exact commits to accept, dependencies on earlier deliveries, changed
+paths/functions, commands and results, a delivery-specific copy of the source
+evidence, matching recordings and the entry points they reach, and unresolved
+work. Do not overwrite a prior delivery's evidence with the next span. Ready
+means ready for integration, not accepted or measured progress. Corrections
+are new commits, not amendments
+to a submitted snapshot. The message also identifies the next scope or
+investigation the worker is taking, or the concrete blocker if none is
+available. Do not wait for a next-scope decision to submit a ready delivery.
 
-After each span worker hands off a passing checkpoint, start
-`node scripts/mismatch-queue.mjs --json` while the orchestrator verifies quality
-and evidence, scores, closes the span or goal, commits, and pushes. As soon as
-the queue returns, compare investigation-cache counts and replenish background
-investigations. Finish closing the current work and recheck selection before
-opening the next goal. Skip new investigations when the current goal completes
-the user's active objective. Use actual checkpoint-handoff, queue,
-investigator, closure, and push timestamps when reporting overlap, including any
-remaining wait or rework.
+The orchestrator acknowledges the exact delivery SHA as `QUEUED_FOR_MERGE`
+and integrates requests individually. It sends `ACCEPTED` with the tested
+integration SHA and checkpoint result after validation, or
+`CHANGES_REQUIRED` with concrete findings. Publication and CI completion are
+reported separately. Acknowledgement is not acceptance and is not required
+before the worker continues independent work. Never require both workers to
+be ready before accepting one worker's request.
 
-A correctness review, when one is warranted, is a loop step between spans.
-Commits that land while a review reads its fixed range belong to the next
-review.
+Refresh a worker from validated main at a clean boundary using a
+history-preserving merge. Preserve pending commits and dirty work; do not
+reset or discard them to synchronize. The orchestrator accepts exact delivery
+commits, preferring a merge when the history contains only intended work and
+selective cherry-picks when needed to exclude unfinished work. Do not merge a
+moving branch tip. Revalidate dependent work after an earlier correction.
 
-`AGENTS.md`, "When to stop and ask the user", lists the cases that stop
-this loop. Nothing else stops it. End each turn with a subagent or a
-review running, or with the next step started.
+On restart, inspect the ledger, worktree status, commit history, worker
+transcripts and retained process handles before assigning anything. Resume
+existing ownership; do not duplicate a live worker or checkpoint. If a
+bounded run ends, stop new spans including worker-selected continuations,
+preserve unfinished work and its branch/commit/dirty paths in the local task
+scratch file, and report remaining process ownership. Do not mark unfinished
+work complete.
+
+## Integration
+
+Drain ready deliveries individually in dependency order. Among independent
+ready deliveries, prefer the earliest ready one. An unready higher-ranked
+goal does not block integration of a ready independent goal.
+
+1. Recover any central open goal and its queued span with
+   `node scripts/goal-log.mjs --current --detail`. Establish which exact
+   delivery and checkpoint belong to it; do not infer the worker assignment
+   from this command alone. Finish or deliberately park that integration
+   before opening another. Preserve existing queued and parked work.
+2. Check the delivery against its assignment, current completion evidence,
+   source reservations, and selection reason. Queue/open its goal and plan
+   its span with the existing `goal-log.mjs` commands in
+   `.agents/selection.md` or `.agents/divergence.md`. Commit those central
+   boundaries. Reconcile the planned source units with the delivery; do not
+   close unrelated units or count a declaration as verification.
+3. Integrate the immutable commits. Inspect the actual combined diff, whole
+   source coverage, callers and entry-point recordings; run affected focused
+   checks and `npm run lint`. Run `npm run quality` as the orchestrator and
+   use `.agents/review.md` to decide review eligibility. Record verified
+   source evidence, then commit the exact combined candidate.
+4. Run one `npm run checkpoint` on that candidate under
+   `.agents/validation.md`. The orchestrator owns it through completion;
+   workers continue independently. Freeze integration HEAD until evidence,
+   score recording and closure are complete. A failure returns to a
+   source-backed correction and a new exact candidate, without blocking
+   unrelated workers. Never accept a clean Git merge as validation.
+5. After a passing checkpoint, start `node scripts/mismatch-queue.mjs --json`.
+   Use the saved summary for scores, close the span, and append its
+   `SCORE.tsv` row following `.agents/scoring.md`. Before closing a source
+   goal, verify every entry point, evaluate frozen challenge set v1, append
+   the goal score, and close with the current saved development scan.
+   Commit closure and investigation updates together without an intervening
+   change to checkpoint inputs. Record a multi-span goal's active intervals
+   so another delivery's gains are not credited to it. If the goal needs more
+   spans, keep it open only while integrating that goal; otherwise park it
+   before another goal's measurement. Its worker can continue independently.
+6. Fast-forward main and push accepted work, subject to publication
+   permissions. If permission is missing, retain the validated local commit
+   and ask; do not retry a denied publication without new authorization.
+   Watch each relevant CI run once by its exact commit/run ID. CI failure
+   requires diagnosis and a corrected validated commit; workers continue
+   independent work meanwhile. Do not claim CI passed before its run ends.
+
+Keep background investigations running and reconsider reservations when the
+queue returns. An assignment on a worker branch does not overwrite the
+integration branch's count-keyed investigation cache. Skip new investigations
+when the current work completes the user's bounded objective. When all 44
+sessions match and `goal-log.mjs roadmap` lists no unverified C or Lua units,
+stop and report the complete port.
+
+A warranted correctness review is a loop step on a frozen committed range.
+Later commits remain outside it. Stop or ask only under the user's bounds,
+publication restrictions, and AGENTS.md's stop conditions; do not end a
+continuous loop merely to report progress.
+
+## Worker support
+
+When the handoff leaves a broad, unresolved cross-file caller or dependency
+question, start one read-only survey helper at substantially the same time as
+the span worker. Tell both agents the split: the worker owns the complete
+source comparison, implementation, focused tests, recordings, and commits;
+the helper owns only the named survey and returns concise file and function
+pointers plus the contracts they preserve. The helper does not edit files or
+run a recorder, full suite, checkpoint, or scorer. Forward its findings while
+the worker can still use them, and have the worker verify each pointer before
+relying on it. Skip the helper when the symbol and callers are local or already
+known, a prior investigation settled them, or implementation cannot proceed
+independently. Record the agents' start and finish times, which findings the
+worker used, duplication or rework, and handoff overhead.
+
+When a confirmed difficult mismatch has two concrete, falsifiable
+explanations, start at most two read-only investigators concurrently, one
+for each explanation, while the span worker keeps implementation and
+focused-validation ownership. This also applies when one focused
+investigation has not resolved the mismatch after two source-backed probes and the
+orchestrator can then state two distinct explanations. Give each
+investigator a narrow source and artifact allowlist and tell it what would
+falsify its explanation. It must stop when falsified and return concise
+source pointers and evidence. It must not edit files, enumerate session
+corpora, record a session, or run a full suite, checkpoint, or scorer.
+Forward each verified result as soon as the worker can use it, and stop the
+remaining investigation if the worker resolves the mismatch first. Skip
+this overlap when the cause is already source-local, the explanations are
+not distinct, or implementation cannot proceed independently. Record the
+investigators' start and finish times, overlap with implementation, the
+accepted and rejected explanations, findings used by the worker,
+duplication or rework, and handoff overhead.
+
+While the worker runs, follow the waiting rules in the shared
+instructions' "Operational Workflow" section. Wait with
+notification-aware waits of at most 60 seconds; process any ready delivery
+or free worker slot before waiting again. Track elapsed time across waits.
+
+After ten minutes without an update, inspect the worker transcript. Evidence
+of liveness—new transcript events, an active tool call, or a retained process
+handle—starts another ten-minute liveness window using the same bounded
+waits. A stationary transcript with no active tool call or retained process
+handle starts a 60-second
+confirmation wait. If the transcript remains stationary, call
+`followup_task` with the existing worker path when it is idle. When
+collaboration still reports it as running, call `interrupt_agent` once and
+then call `followup_task` with that same path.
 
 When a question arises that `AGENTS.md`, this file, or their references
 already answer, state the decision, cite the rule, and continue. Triage
@@ -173,8 +233,9 @@ every other question by what it blocks:
 Entries stay open until the user answers. Open each progress report with
 the count of open entries and the newest one.
 
-Spawn a fresh subagent by agent type (such as `span-worker`) only at
-the step that calls for one.
+Start the two persistent workers at loop entry or resume them after recovery.
+Spawn other subagents only at the support or investigation step that calls
+for them. A ready-to-merge message does not require replacing its worker.
 
 When the loop runs under `/loop`, completion notifications advance work in
 flight. When `ScheduleWakeup` is available, set it to ten minutes as a
@@ -187,9 +248,9 @@ context is not a reason to stop.
 At loop entry and after each queue refresh, use the per-session order and
 cache rules in `.agents/selection.md`. For every mismatching session without
 a valid completed investigation, start or continue a source investigation in a
-subagent. Exclude the session owned by the active implementation worker.
-Launch investigators concurrently up to the available capacity, reserving a
-slot for the span worker and any helper required by its current work. When
+subagent. Exclude sessions owned by active workers or pending deliveries.
+Launch investigators concurrently up to the available capacity, reserving
+both implementation slots and any helper required by their current work. When
 capacity is exhausted, queue the remaining sessions in the same order and
 start the next as a slot becomes available. Keep only one investigator per
 session; reuse partial findings when continuing an investigation.
@@ -239,8 +300,12 @@ which span or goal the loop takes next. Use `git diff --name-only
 a passing checkpoint confirms they match. A repeated score can accompany
 new coverage. Report recovered regressions separately from newly earned
 screens, and never describe queue upper bounds as delivered or expected gains.
-Every figure comes from your measurement in step 3; do not use figures the
-worker reports. A parked goal's delivered count includes only its active
+Every aggregate figure comes from the exact combined checkpoint; do not use
+worker-branch totals as delivered progress. Report ready, integrating,
+validated, published and CI-complete states separately. Include the next
+assignment for each free worker slot and any dependency wait or integration
+rework; do not count validation queue time as idle time when a worker is
+coding. A parked goal's delivered count includes only its active
 intervals; gains while another goal runs belong to that goal.
 
 Keep updates brief and specific: report changed behavior, remaining

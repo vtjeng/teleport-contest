@@ -52,7 +52,7 @@ Put the record in its `--detail`:
 - the exact upstream C file, function, branch, and preconditions;
 - the JavaScript owner suspected of causing the mismatch.
 
-Open the queued goal as `.agents/loop.md`, step 1c, specifies before
+Open the queued goal as `.agents/loop.md`, "Integration", specifies before
 queueing its span. On resumption, inspect the recorded goal and span state
 and continue the existing work rather than queueing it again.
 
@@ -88,7 +88,10 @@ Validate in this order:
 - fresh-process confirmation;
 - a refreshed mismatch queue.
 
-Run `npm run checkpoint` after every commit that claims the fix. When the fix
+In the multi-worker loop, the worker submits focused and fresh-differential
+results; the orchestrator runs `npm run checkpoint` on the combined fix before
+claiming resolution. A standalone fix still requires its own post-commit
+checkpoint. When the fix
 changes the development score, the goal's `SCORE.tsv` rows record it; a fix
 committed outside a goal appends a row with `event=divergence` and `label=`
 naming the session and root cause, following `.agents/scoring.md`.

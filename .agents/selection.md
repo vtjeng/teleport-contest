@@ -5,18 +5,22 @@ defines the goal kinds; `.agents/loop.md` describes their execution.
 
 ## Choosing a goal
 
-Run `node scripts/mismatch-queue.mjs --json` and use its `sessions` array,
-including each entry's `investigation` status and result.
+The orchestrator runs `node scripts/mismatch-queue.mjs --json` and uses its
+`sessions` array, including each entry's `investigation` status and result.
+Workers use the saved queue and the seed-continuation procedure below.
 It includes C and Lua sources, partially implemented functions, defects in
 existing code, screen and cursor mismatches, and unresolved source owners.
 A JavaScript declaration is inventory information, never completion evidence.
 
 Sort sessions by `remainingScreensUpperBound` descending, then by first
 mismatch `step` ascending (unknown steps last), then by canonical session ID.
-Select the first session with a completed, valid investigation from the cache
-specified below. Use this per-session order even when the command's grouped
-`candidates` order differs. A later blocker can consume the entire apparent
-gain; these counts are not predicted gains or measured unmatched-screen counts.
+For a free worker slot, select the first session with a completed, valid
+investigation whose source functions and shared-state contracts are not
+reserved by another worker or pending delivery. Apply the seed-continuation
+rule below before assigning a new session. Use this per-session order even
+when the command's grouped `candidates` order differs. A later blocker can
+consume the entire apparent gain; these counts are not predicted gains or
+measured unmatched-screen counts.
 
 Start background investigations for the other uncached or invalidated sessions
 as `.agents/loop.md`, "Background investigations", specifies. Do not wait for a
@@ -48,17 +52,18 @@ Always name the selected session with `--sessions` (or `--session` for a
 divergence fix). When the selected goal differs from the command's highest
 grouped candidate or its annotated owner, supply `--selection-reason` with
 the selected session, remaining-screen count, cache path, and source-traced
-owner. Explain that this is the first session with a valid completed
-investigation in per-session order; identify higher-ranked sessions still
-awaiting investigation when applicable. This policy authorizes that choice
-without user approval. A source-traced dependency or a condition blocking
+owner. Explain its eligibility under per-session order, seed continuation,
+and source reservations; identify higher-ranked sessions still awaiting
+investigation or owned by another worker when applicable. This policy
+authorizes that choice without user approval. A source-traced dependency or a
+condition blocking
 implementation can still justify a different choice; record that reason.
 
 `queue-goal`, `open-goal`, `next-span`, and a divergence fix's `queue-span`
 still check selection against grouped candidates and the recorded reason.
 The orchestrator applies the completed-investigation priority described here.
 Reconsider priority between spans. When an open goal no longer addresses the
-first session with a valid completed investigation, preserve its work with
+first eligible session under these scheduling rules, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
 Resume it with `open-goal --id <id>` when its priority permits.
 
@@ -69,6 +74,37 @@ inactive helpers. The port is complete only when all 44 fixed-workload
 sessions match and all C functions and Lua programs have completion evidence.
 Synthetic local challenge results are reported separately and supplement
 source completion evidence.
+
+## Seed continuation
+
+After a delivery, the persistent worker selects its next source-traced goal
+under the standing permission in `.agents/loop.md`. Prefer continuing the same
+seed when a focused replay of its immutable worker base identifies the next
+goal. If that scope is blocked or overlaps another worker, select the
+highest-ranked independent ready goal from the saved fixed-workload queue.
+Seed continuity is a scheduling preference, not permission to special-case
+that seed or to skip whole-source completion.
+
+Before editing, check the current runtime ledger and pending scope
+announcements for active and pending-delivery reservations. Prepare the next
+worker-local span context and notify the orchestrator of the base commit,
+next mismatch, source scope, dependencies, and write set. Proceed when the
+scope is disjoint; do not wait for acknowledgement or a central ledger update.
+If ownership is unclear, another worker reserves the function, or a shared
+contract must change, ask the orchestrator to resolve that dependency and
+continue independent work meanwhile. Different functions in the same file
+need not conflict. If no independent goal is ready, investigate the next
+eligible candidate and report the blocker rather than waiting for an
+assignment. Respect the user's task bounds and stop requests throughout.
+
+Explain seed continuation or a reserved higher-ranked candidate in
+`--selection-reason`; do not describe it as globally highest priority.
+A fresh worker-branch observation stays tied to that commit and does not
+replace the integration branch's investigation cache. Recheck selection and
+existing completion evidence before integrating each delivery; reconcile
+work made redundant by intervening integrations rather than implementing it
+again. A submitted delivery may be integrated while another worker proceeds;
+neither dispatch nor integration waits for an entire worker batch.
 
 ## Investigation cache
 
