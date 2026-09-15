@@ -24,6 +24,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    ARM,
     BEAR_TRAP,
     BOLT_LIM,
     DART_TRAP,
@@ -42,6 +43,7 @@ import {
     FORCETRAP,
     FROMOUTSIDE,
     FUMBLING,
+    HEAD,
     HALF_PHDAM,
     HALLUC,
     HALLUC_RES,
@@ -51,6 +53,7 @@ import {
     IS_TREE,
     IRONBARS,
     In_quest,
+    KILLED_BY,
     KILLED_BY_AN,
     LANDMINE,
     LAUNCH_KNOWN,
@@ -90,8 +93,18 @@ import {
     Upolyd,
     VIASITTING,
     VIBRATING_SQUARE,
+    W_AMUL,
     WEB,
+    ER_NOTHING,
+    W_ARM,
     W_ARMF,
+    W_ARMC,
+    W_ARMG,
+    W_ARMH,
+    W_ARMS,
+    W_ARMU,
+    W_SWAPWEP,
+    W_WEP,
     has_mgivenname,
     helpless,
     is_hole,
@@ -145,6 +158,7 @@ import {
     amorphous,
     attacktype,
     breathless,
+    completelyrusts,
     defended,
     extra_nasty,
     flaming,
@@ -152,6 +166,7 @@ import {
     is_floater,
     is_flyer,
     is_neuter,
+    is_vampshifter,
     is_whirly,
     metallivorous,
     mindless,
@@ -176,6 +191,7 @@ import {
     AD_FIRE,
     AD_PHYS,
     AD_RBRE,
+    AD_RUST,
     AD_SLEE,
     AT_BREA,
     AT_MAGC,
@@ -186,6 +202,7 @@ import {
     PM_BUGBEAR,
     PM_CYCLOPS,
     PM_GELATINOUS_CUBE,
+    PM_GREMLIN,
     PM_IRON_GOLEM,
     PM_JABBERWOCK,
     PM_KRAKEN,
@@ -209,8 +226,10 @@ import { finish_meating } from './dogmove.js';
 import { m_at } from './monst.js';
 import { mpickobj } from './steal.js';
 import { ohitmon, thitu } from './mthrowu.js';
+import { splash_monster_light } from './apply_splash_lit.js';
 import {
     dealloc_obj,
+    isCandle,
     mksobj,
     objectType,
     place_object,
@@ -222,10 +241,33 @@ import {
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
-import { BOULDER, CORPSE, DART, IRON, ROCK } from './objects.js';
-import { an, donameFresh, just_an, xnameFresh } from './objnam.js';
+import {
+    AMULET_OF_LIFE_SAVING,
+    BOULDER,
+    BRASS_LANTERN,
+    CANDELABRUM_OF_INVOCATION,
+    CORPSE,
+    DART,
+    IRON,
+    MAGIC_LAMP,
+    OIL_LAMP,
+    POT_OIL,
+    ROCK,
+} from './objects.js';
+import {
+    an,
+    cloak_simple_name,
+    donameFresh,
+    gloves_simple_name,
+    helm_simple_name,
+    just_an,
+    otense,
+    suit_simple_name,
+    Yname2,
+    xnameFresh,
+} from './objnam.js';
 import { encumber_msg } from './pickup.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl } from './rng.js';
 import {
     canSeeMonster,
@@ -249,7 +291,7 @@ import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { is_ice } from './terrain.js';
-import { fall_asleep } from './timeout.js';
+import { end_burn, fall_asleep } from './timeout.js';
 import { self_invis_message } from './potion.js';
 import { note_unported } from './unported.js';
 import { dmgval } from './weapon.js';
@@ -260,7 +302,11 @@ import {
     couldsee,
     recalc_block_point,
 } from './vision.js';
-import { find_mac, which_armor } from './worn.js';
+import { bimanual, find_mac, which_armor } from './worn.js';
+import {
+    water_damage,
+    water_damage_monster_equipment,
+} from './trap_water_damage.js';
 
 // Five owners arrive through the caller's env rather than through an import.
 // `mInAir` is mon.c m_in_air() and `youHear`/`heroDeaf` are pline.c You_hear()
@@ -2337,6 +2383,250 @@ function heroIsDeaf(state) {
         || state.u?.uroleplay?.deaf);
 }
 
+// C ref: mon.c mlifesaver() (2825-2836), in the rust-trap death message.
+// `monkilled()` owns the later life-saving operation; this read only selects
+// the source's "starts to fall" wording before that call.
+function rustTrapMonsterLifesaver(monster, state) {
+    if (!nonliving(monster.data) || is_vampshifter(monster)) {
+        const amulet = which_armor(monster, W_AMUL, state);
+        if (amulet?.otyp === AMULET_OF_LIFE_SAVING) return amulet;
+    }
+    return null;
+}
+
+// C ref: apply.c splash_lit() (1518-1571), the hero-inventory arm reached by
+// trap.c water_damage() from trapeffect_rust_trap(). A brass lantern is not
+// extinguished by a rust trap unless the hero is actually dunked, which this
+// trap path cannot do. The remaining lit-object cases mirror snuff_lit() and
+// snuff_candle(), including their source messages.
+async function splash_hero_light(obj, env) {
+    const { state } = env;
+    if (!obj?.lamplit || obj.otyp === BRASS_LANTERN) return false;
+    if (obj.otyp === OIL_LAMP
+        || obj.otyp === MAGIC_LAMP
+        || obj.otyp === POT_OIL) {
+        if (!heroIsBlind(state)) {
+            await requireTrapOperation(env, 'message')(
+                `${Yname2(obj, state)} ${otense(obj, 'go')} out!`,
+                state,
+                env,
+            );
+        }
+        end_burn(obj, true, objectGenerationEnv(env));
+        return true;
+    }
+    const candle = isCandle(obj);
+    if (candle || obj.otyp === CANDELABRUM_OF_INVOCATION) {
+        const many = candle
+            ? Math.trunc(obj.quan ?? 1) > 1
+            : Math.trunc(obj.spe ?? 0) > 1;
+        if (!heroIsBlind(state)) {
+            const kind = candle ? 'candle' : "candelabrum's candle";
+            await requireTrapOperation(env, 'message')(
+                `Your ${kind}${many ? "s'" : "'s"} flame`
+                    + `${many ? 's are' : ' is'} extinguished.`,
+                state,
+                env,
+            );
+        }
+        end_burn(obj, true, objectGenerationEnv(env));
+        return true;
+    }
+    return false;
+}
+
+// C ref: trap.c trapeffect_rust_trap() (1594-1727), both hero and monster
+// arms. The two arms deliberately share the source's rn2(5) split but differ
+// in target selection: hero traps hit the selected worn object even when it
+// is not rust-prone, while monster traps use water_damage()'s worn-equipment
+// adapter and MON_WEP().
+export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
+    const { state, random } = env;
+    const message = requireTrapOperation(env, 'message');
+    const hero = mtmp === state.youmonst;
+    const damage = hero
+        ? (obj, description) => water_damage(
+            obj,
+            description,
+            true,
+            { ...env, splashLight: splash_hero_light },
+        )
+        : (obj, description) => water_damage_monster_equipment(
+            obj,
+            description,
+            env,
+        );
+
+    if (hero) {
+        seetrap(trap, env);
+        // Unlike monsters, traps cannot aim their rust attacks at the hero;
+        // every case therefore uses the selected object, even when it is
+        // absent or not rust-prone.
+        switch (random.rn2(5)) {
+        case 0:
+            await message(
+                `${'A gush of water hits'} you on the ${body_part(HEAD, state.youmonst)}!`,
+                state,
+                env,
+            );
+            await damage(state.uarmh, helm_simple_name(state.uarmh, state));
+            break;
+        case 1:
+            await message(
+                `${'A gush of water hits'} your left ${body_part(ARM, state.youmonst)}!`,
+                state,
+                env,
+            );
+            if (await damage(state.uarms, 'shield') !== ER_NOTHING)
+                break;
+            if (state.u.twoweap || (state.uwep && bimanual(state.uwep, state))) {
+                const weapon = state.u.twoweap ? state.uswapwep : state.uwep;
+                await damage(weapon, null);
+            }
+            // C's goto uglovecheck lands here after the optional weapon hit.
+            await damage(state.uarmg, gloves_simple_name(state.uarmg, state));
+            break;
+        case 2:
+            await message(
+                `${'A gush of water hits'} your right ${body_part(ARM, state.youmonst)}!`,
+                state,
+                env,
+            );
+            await damage(state.uwep, null);
+            await damage(state.uarmg, gloves_simple_name(state.uarmg, state));
+            break;
+        default: {
+            await message('A gush of water hits you!', state, env);
+            // Exclude primary and secondary weapons because cases 1 and 2
+            // target them through water_damage(). Save nobj before the call;
+            // C does the same because splash_lit() may alter the list.
+            for (let obj = state.invent; obj;) {
+                const next = obj.nobj;
+                if (obj.lamplit && obj !== state.uwep
+                    && (obj !== state.uswapwep || !state.u.twoweap)) {
+                    await splash_hero_light(obj, env);
+                }
+                obj = next;
+            }
+            if (state.uarmc)
+                await damage(state.uarmc, cloak_simple_name(state.uarmc, state));
+            else if (state.uarm)
+                await damage(state.uarm, suit_simple_name(state.uarm, state));
+            else if (state.uarmu)
+                await damage(state.uarmu, 'shirt');
+            break;
+        }
+        }
+        update_inventory({ state });
+
+        if (state.u.umonnum === PM_IRON_GOLEM) {
+            const dam = state.u.mhmax ?? state.youmonst.mhpmax ?? 0;
+            await message('You are covered with rust!', state, env);
+            await losehp(
+                Maybe_Half_Phys(dam, state),
+                'rusting away',
+                KILLED_BY,
+                state,
+            );
+        } else if (state.u.umonnum === PM_GREMLIN && random.rn2(3)) {
+            note_unported('potion.c split_mon');
+        }
+        return Trap_Effect_Finished;
+    }
+
+    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const mptr = mtmp.data;
+    let trapkilled = false;
+    if (inSight) seetrap(trap, env);
+
+    switch (random.rn2(5)) {
+    case 0: {
+        if (inSight)
+            await message(messageAt(
+                `A gush of water hits ${mon_nam(mtmp, state)} on the `
+                    + `${mbodypart(mtmp, HEAD)}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ), state, env);
+        const target = which_armor(mtmp, W_ARMH, state);
+        await damage(target, helm_simple_name(target, state));
+        break;
+    }
+    case 1: {
+        if (inSight)
+            await message(messageAt(
+                `A gush of water hits ${mon_nam(mtmp, state)}'s left ${mbodypart(mtmp, ARM)}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ), state, env);
+        let target = which_armor(mtmp, W_ARMS, state);
+        if (await damage(target, 'shield') !== ER_NOTHING) break;
+        target = mtmp.mw;
+        if (target && bimanual(target, state))
+            await damage(target, null);
+        target = which_armor(mtmp, W_ARMG, state);
+        await damage(target, gloves_simple_name(target, state));
+        break;
+    }
+    case 2: {
+        if (inSight)
+            await message(messageAt(
+                `A gush of water hits ${mon_nam(mtmp, state)}'s right ${mbodypart(mtmp, ARM)}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ), state, env);
+        await damage(mtmp.mw, null);
+        const target = which_armor(mtmp, W_ARMG, state);
+        await damage(target, gloves_simple_name(target, state));
+        break;
+    }
+    default: {
+        if (inSight)
+            await message(messageAt(
+                `A gush of water hits ${mon_nam(mtmp, state)}!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ), state, env);
+        for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
+            if (obj.lamplit
+                && (obj.owornmask & (W_WEP | W_SWAPWEP)) === 0) {
+                await splash_monster_light(obj, env);
+            }
+        }
+        let target = which_armor(mtmp, W_ARMC, state);
+        if (target)
+            await damage(target, cloak_simple_name(target, state));
+        else if ((target = which_armor(mtmp, W_ARM, state)))
+            await damage(target, suit_simple_name(target, state));
+        else if ((target = which_armor(mtmp, W_ARMU, state)))
+            await damage(target, 'shirt');
+        break;
+    }
+    }
+
+    if (completelyrusts(mptr)) {
+        if (inSight)
+            await message(messageAt(
+                `${capitalizedMonsterName(mtmp, state)} ${rustTrapMonsterLifesaver(mtmp, state)
+                    ? 'starts to fall' : 'falls'} to pieces!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ), state, env);
+        await monkilled(mtmp, null, AD_RUST, state, env);
+        if (mtmp.mhp < 1) trapkilled = true;
+    } else if (mptr?.pmidx === PM_GREMLIN && random.rn2(3)) {
+        note_unported('potion.c split_mon');
+    }
+
+    return trapkilled ? Trap_Killed_Mon
+        : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
 // The trap types whose trapeffect_*() body has no arm in the port yet. C
 // dispatches all of them; each stops the scan before the effect changes state,
 // draws, or writes a message. BEAR_TRAP, DART_TRAP, MAGIC_TRAP and SLP_GAS_TRAP
@@ -2348,7 +2638,6 @@ function heroIsDeaf(state) {
 // ported.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
-    RUST_TRAP,
     SPIKED_PIT,
     LANDMINE,
     POLY_TRAP,
@@ -2373,6 +2662,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
     const unsupported = requireTrapOperation(env, 'unsupported');
     if (trap.ttyp === SQKY_BOARD)
         return trapeffect_sqky_board(monster, trap, trflags, env);
+    if (trap.ttyp === RUST_TRAP)
+        return trapeffect_rust_trap(monster, trap, trflags, env);
     if (trap.ttyp === DART_TRAP)
         return trapeffect_dart_trap(monster, trap, trflags, env);
     if (trap.ttyp === ROCKTRAP)
@@ -2414,8 +2705,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, TELEP_TRAP,
-//     WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
+//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, RUST_TRAP,
+//     TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
@@ -2433,7 +2724,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 export function preflight_dotrap(trap, state = game) {
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
-        && trap.ttyp !== TELEP_TRAP && trap.ttyp !== WEB
+        && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== WEB
         && trap.ttyp !== ROLLING_BOULDER_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {

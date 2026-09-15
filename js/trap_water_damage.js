@@ -92,11 +92,17 @@ export async function water_damage(obj, description, force, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? (await import('./rng.js'));
 
-    // C ref: trap.c:4722-4723. splash_lit() extinguishes lit items.
-    // For hero-carried items that are not lamplit, this returns false.
+    // C ref: trap.c:4722-4723. splash_lit() extinguishes lit items. The
+    // hero rust-trap caller supplies apply.c's hero-inventory operation;
+    // other callers retain the existing fail-closed boundary for this branch.
     if (obj.lamplit) {
-        throw new WaterDamageError(
-            'splash_lit() for a lit hero-carried item');
+        if (typeof env.splashLight !== 'function') {
+            throw new WaterDamageError(
+                'splash_lit() for a lit hero-carried item');
+        }
+        // splash_lit() returns FALSE for a brass lantern that is not dunked,
+        // so water_damage() must continue into its ordinary object branches.
+        if (await env.splashLight(obj, env)) return ER_DAMAGED;
     }
 
     const in_invent = carried(obj);

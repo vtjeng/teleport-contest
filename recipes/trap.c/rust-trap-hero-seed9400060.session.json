@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c coverage: a bounded port-only scan of seeds 9400001-9401000 at 20260915130000 selected seed 9400060 because its generated D:1 rust trap is five eastward steps from the new wizard's start. The route reaches trapeffect_rust_trap() through dotrap() and selects the right-arm case; it does not copy the seed, clock, role, or moves from the seed0398 witness.",
+  "segments": [
+    {
+      "seed": 9400060,
+      "datetime": "20260915130000",
+      "nethackrc": "OPTIONS=name:RustFinder,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "lllll"
+    }
+  ]
+}
