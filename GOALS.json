@@ -47371,7 +47371,7 @@
     {
       "id": "div-teleport-teleds-ball-seed4500-20260914",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Fix teleds active punishment-ball transit and restore source-ordered chain movement.",
       "cFile": "teleport.c",
       "sessions": [],
@@ -47380,8 +47380,8 @@
       "spans": [
         {
           "name": "teleds-active-punishment-ball",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f7ccef07732b81fc69549d3b85b50663917fa801",
           "functions": [
             "teleds"
           ]
@@ -47477,11 +47477,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "sha": "f7ccef07732b81fc69549d3b85b50663917fa801",
         "screens": 9659,
         "rng": 699110
       },
-      "parkedReason": "Park the open central boundary while its queued divergence span is delivered by the first persistent worker. Central goal opening remains serialized; the worker retains standing permission and the queued span."
+      "parkedReason": "The teleds production implementation was already present on validated main; this delivery added a source-backed regression assertion and matching independent recording. The fixed-workload scan still reports a step-789 topline mismatch and later special-missile boundary, so do not claim a teleds score gain or close the goal until the remaining screen owner is traced."
     },
     {
       "id": "div-sounds-domonnoise-seed0106-20260914",
