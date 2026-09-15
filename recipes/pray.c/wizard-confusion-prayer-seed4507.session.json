@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4507,
+      "datetime": "20320506112233",
+      "nethackrc": "OPTIONS=name:PrayTroubleProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\ng\n#pray\ny  ",
+      "comment": "Independent wizard-mode timed-confusion setup reaches pray.c pleased() and its fix_worst_trouble() production path."
+    }
+  ]
+}

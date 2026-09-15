@@ -34,6 +34,7 @@ import {
     ECMD_TIME,
     EXT_ENCUMBER,
     FAST,
+    FIXED_ABIL,
     FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
@@ -56,7 +57,9 @@ import {
     SLIMED,
     STONED,
     STRANGLED,
+    STOMACH,
     STUNNED,
+    TELEDS_NO_FLAGS,
     TELL,
     TIMEOUT,
     TELEPAT,
@@ -68,13 +71,15 @@ import {
     WEAK,
     WOUNDED_LEGS,
     W_SADDLE,
+    EYE,
     isok,
     ismnum,
 } from './const.js';
 import { confers_luck, hcolor } from './artifacts.js';
-import { adjalign, adjattrib, exercise } from './attrib.js';
+import { adjalign, adjattrib, exercise, setuhpmax } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { xlev_to_rank } from './display.js';
+import { heal_legs } from './do.js';
 import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
@@ -92,10 +97,13 @@ import {
     nohands,
     throws_rocks,
 } from './mondata.js';
+import { makeplural } from './fruit.js';
 import {
     AD_BLND,
     AT_ENGL,
     PM_CLERIC,
+    PM_CYCLOPS,
+    PM_FLOATING_EYE,
     PM_KNIGHT,
     S_GHOST,
     S_LICH,
@@ -104,6 +112,7 @@ import {
     S_WRAITH,
     S_ZOMBIE,
 } from './monsters.js';
+import { Glib } from './wield.js';
 import { is_weptool, sobj_at, uncurse } from './obj.js';
 import {
     BOULDER,
@@ -112,16 +121,28 @@ import {
     HELM_OF_OPPOSITE_ALIGNMENT,
     LEVITATION_BOOTS,
     LOADSTONE,
+    AMULET_OF_STRANGULATION,
     RIN_LEVITATION,
+    RIN_SUSTAIN_ABILITY,
     SADDLE,
     WEAPON_CLASS,
     SPE_TURN_UNDEAD,
 } from './objects.js';
+import { body_part, rehumanize } from './polyself.js';
+import {
+    make_blinded,
+    make_confused,
+    make_deaf,
+    make_glib,
+    make_hallucinated,
+    set_itimeout,
+} from './potion.js';
 import { region_danger } from './region.js';
 import { losexp, pluslvl } from './exper.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { Punished } from './steed.js';
-import { is_pool_or_lava } from './trap.js';
+import { is_pool_or_lava, reset_utrap } from './trap.js';
+import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
@@ -135,10 +156,11 @@ import { welded } from './wield.js';
 import { bimanual, which_armor } from './worn.js';
 import { encumber_msg } from './pickup.js';
 import { init_uhunger } from './u_init.js';
-import { make_blinded } from './potion.js';
 import { see_monsters } from './display.js';
 import { update_inventory } from './invent.js';
-import { an, otense, yname, Yobjnam2 } from './objnam.js';
+import {
+    an, gloves_simple_name, otense, vtense, yname, Yobjnam2,
+} from './objnam.js';
 import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 
@@ -421,6 +443,273 @@ export function worst_cursed_item(state = game) {
         }
     }
     return otmp ?? null;
+}
+
+// C ref: pray.c fix_curse_trouble() (348-370). This helper owns the common
+// visible uncurse message and inventory refresh used by several
+// fix_worst_trouble() arms. The source calls unported helpers only where their
+// return value is discarded; those boundaries remain explicit gaps rather
+// than silently changing the property they own.
+export async function fix_curse_trouble(otmp, what = null, state = game) {
+    if (!otmp) {
+        note_unported('pray.c impossible');
+        return;
+    }
+
+    if (otmp === state.uarmg && Glib(state)) {
+        make_glib(0, state);
+        await ttyPline(
+            `Your ${gloves_simple_name(state.uarmg, state)} are no longer slippery.`,
+            state,
+        );
+        if (!otmp.cursed) return;
+    }
+
+    const blindfoldedOnly = Boolean(
+        state.u?.uprops?.[BLINDED]?.extrinsic,
+    ) && !heroIsBlinded(state);
+    if (!heroIsBlind(state) || (otmp === state.ublindf && blindfoldedOnly)) {
+        await ttyPline(
+            `${what ?? Yobjnam2(otmp, 'softly glow', state)} ${hcolor('amber', state)}.`,
+            state,
+        );
+        state.iflags ??= {};
+        state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
+        otmp.bknown = Hallucination(state) ? 0 : 1;
+    }
+    await uncurse(otmp, { state });
+    update_inventory({ state });
+}
+
+function heroIsBlinded(state) {
+    const property = state.u?.uprops?.[BLINDED];
+    return Boolean((property?.intrinsic ?? 0) && !(property?.blocked ?? 0));
+}
+
+function heroIsDeaf(state) {
+    const property = state.u?.uprops?.[DEAF];
+    return Boolean(
+        (property?.intrinsic ?? 0) || (property?.extrinsic ?? 0)
+            || state.u?.uroleplay?.deaf,
+    );
+}
+
+// C ref: pray.c fix_worst_trouble() (372-600). Every switch arm is retained
+// in source order. Helpers whose C implementations are not yet available are
+// represented by note_unported(); helpers with live JavaScript owners are
+// called at their source point, including their asynchronous message order.
+export async function fix_worst_trouble(trouble, state = game) {
+    let otmp = null;
+    let what = null;
+
+    switch (trouble) {
+    case TROUBLE_STONED:
+        note_unported('potion.c make_stoned');
+        break;
+    case TROUBLE_SLIMED:
+        note_unported('potion.c make_slimed');
+        break;
+    case TROUBLE_STRANGLED:
+        if (state.uamul && state.uamul.otyp === AMULET_OF_STRANGULATION) {
+            await ttyPline('Your amulet vanishes!', state);
+            note_unported('invent.c useup');
+        }
+        await ttyPline('You can breathe again.', state);
+        state.u.uprops[STRANGLED].intrinsic = 0;
+        state.disp ??= {};
+        state.disp.botl = true;
+        break;
+    case TROUBLE_LAVA:
+        if (!await safe_teleds(TELEDS_NO_FLAGS, state))
+            reset_utrap(true, state);
+        note_unported('hack.c rescued_from_terrain');
+        break;
+    case TROUBLE_STARVING:
+        // FALLTHROUGH
+    case TROUBLE_HUNGRY:
+        await ttyPline(`Your ${body_part(STOMACH, state.youmonst)} feels content.`, state);
+        init_uhunger(state);
+        state.disp ??= {};
+        state.disp.botl = true;
+        break;
+    case TROUBLE_SICK:
+        await ttyPline('You feel better.', state);
+        note_unported('potion.c make_sick');
+        break;
+    case TROUBLE_REGION:
+        note_unported('region.c region_safety');
+        break;
+    case TROUBLE_HIT: {
+        await ttyPline('You feel much better.', state);
+        if (Upolyd(state.u)) {
+            const maxhp = state.u.mhmax + rnd(5);
+            setuhpmax(Math.max(maxhp, 5 + 1), false, state);
+            state.u.mh = state.u.mhmax;
+        }
+        let maxhp = state.u.uhpmax;
+        if (maxhp < state.u.ulevel * 5 + 11)
+            maxhp += rnd(5);
+        setuhpmax(Math.max(maxhp, 5 + 1), true, state);
+        state.u.uhp = state.u.uhpmax;
+        state.disp ??= {};
+        state.disp.botl = true;
+        break;
+    }
+    case TROUBLE_COLLAPSING:
+        await ttyPline(
+            `You feel ${state.u.amax.a[A_STR] - state.u.acurr.a[A_STR] > 6
+                ? 'much ' : ''}stronger.`,
+            state,
+        );
+        state.u.acurr.a[A_STR] = state.u.amax.a[A_STR];
+        state.disp ??= {};
+        state.disp.botl = true;
+        if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
+            if ((otmp = stuck_ring(
+                state.uleft, RIN_SUSTAIN_ABILITY, state,
+            ))) {
+                if (otmp === state.uleft) what = 'Your left ring softly glows';
+            } else if ((otmp = stuck_ring(
+                state.uright, RIN_SUSTAIN_ABILITY, state,
+            ))) {
+                if (otmp === state.uright) what = 'Your right ring softly glows';
+            }
+            if (otmp) await fix_curse_trouble(otmp, what, state);
+        }
+        break;
+    case TROUBLE_STUCK_IN_WALL:
+        if (await safe_teleds(TELEDS_NO_FLAGS, state)) {
+            await ttyPline('Your surroundings change.', state);
+        } else {
+            const passesWalls = state.u.uprops[PASSES_WALLS] ??= {
+                intrinsic: 0,
+                extrinsic: 0,
+            };
+            set_itimeout(passesWalls, d(4, 4) + 4);
+            await ttyPline('You feel much slimmer.', state);
+        }
+        break;
+    case TROUBLE_CURSED_LEVITATION:
+        if (Cursed_obj(state.uarmf, LEVITATION_BOOTS)) {
+            otmp = state.uarmf;
+        } else if ((otmp = stuck_ring(
+            state.uleft, RIN_LEVITATION, state,
+        ))) {
+            if (otmp === state.uleft) what = 'Your left ring softly glows';
+        } else if ((otmp = stuck_ring(
+            state.uright, RIN_LEVITATION, state,
+        ))) {
+            if (otmp === state.uright) what = 'Your right ring softly glows';
+        }
+        await fix_curse_trouble(otmp, what, state);
+        break;
+    case TROUBLE_UNUSEABLE_HANDS:
+        if (welded(state.uwep, state)) {
+            await fix_curse_trouble(state.uwep, null, state);
+            break;
+        }
+        if (Upolyd(state.u) && nohands(state.youmonst?.data)) {
+            if (!Unchanging(state)) {
+                await ttyPline('Your shape becomes uncertain.', state);
+                await rehumanize(state);
+            } else if ((otmp = unchanger(state)) && otmp.cursed) {
+                await fix_curse_trouble(otmp, null, state);
+                break;
+            }
+        }
+        if (nohands(state.youmonst?.data) || !freehand(state))
+            note_unported('pray.c impossible');
+        break;
+    case TROUBLE_CURSED_BLINDFOLD:
+        await fix_curse_trouble(state.ublindf, null, state);
+        break;
+    case TROUBLE_LYCANTHROPE:
+        note_unported('were.c you_unwere');
+        break;
+    case TROUBLE_PUNISHED:
+        await ttyPline('Your chain disappears.', state);
+        if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL)
+            note_unported('dig.c buried_ball_to_freedom');
+        else
+            note_unported('ball.c unpunish');
+        break;
+    case TROUBLE_FUMBLING:
+        if (Cursed_obj(state.uarmg, GAUNTLETS_OF_FUMBLING)) {
+            otmp = state.uarmg;
+        } else if (Cursed_obj(state.uarmf, FUMBLE_BOOTS)) {
+            otmp = state.uarmf;
+        }
+        await fix_curse_trouble(otmp, null, state);
+        break;
+    case TROUBLE_CURSED_ITEMS:
+        otmp = worst_cursed_item(state);
+        if (otmp === state.uright) what = 'Your right ring softly glows';
+        else if (otmp === state.uleft) what = 'Your left ring softly glows';
+        await fix_curse_trouble(otmp, what, state);
+        break;
+    case TROUBLE_POISONED:
+        await ttyPline(
+            Hallucination(state)
+                ? "There's a tiger in your tank."
+                : 'You feel in good health again.',
+            state,
+        );
+        for (let i = 0; i < A_MAX; i++) {
+            if (state.u.acurr.a[i] < state.u.amax.a[i]) {
+                state.u.acurr.a[i] = state.u.amax.a[i];
+                state.disp ??= {};
+                state.disp.botl = true;
+            }
+        }
+        await encumber_msg(state);
+        break;
+    case TROUBLE_BLIND: {
+        let msgbuf = '';
+        let eyes = body_part(EYE, state.youmonst);
+        const cureDeaf = Boolean(intrinsic(state, DEAF) & TIMEOUT);
+        if (heroIsBlinded(state)) {
+            const pmidx = state.youmonst?.data?.pmidx;
+            if (pmidx !== PM_FLOATING_EYE && pmidx !== PM_CYCLOPS)
+                eyes = makeplural(eyes);
+            msgbuf = `Your ${eyes} ${vtense(eyes, 'feel')} better`;
+            state.u.ucreamed = 0;
+            note_unported('potion.c make_blinded');
+        }
+        if (cureDeaf) {
+            await make_deaf(0, false, state);
+            if (!heroIsDeaf(state))
+                msgbuf += `${msgbuf ? ' and you' : 'You'} can hear again`;
+        }
+        if (msgbuf) await ttyPline(`${msgbuf}.`, state);
+        break;
+    }
+    case TROUBLE_WOUNDED_LEGS:
+        await heal_legs(state);
+        break;
+    case TROUBLE_STUNNED:
+        note_unported('potion.c make_stunned');
+        break;
+    case TROUBLE_CONFUSED:
+        await make_confused(0, true, state);
+        break;
+    case TROUBLE_HALLUCINATION:
+        await ttyPline('Looks like you are back in Kansas.', state);
+        await make_hallucinated(0, false, 0, state);
+        break;
+    case TROUBLE_SADDLE:
+        otmp = which_armor(state.u.usteed, W_SADDLE, state);
+        if (!heroIsBlind(state)) {
+            await ttyPline(
+                `${Yobjnam2(otmp, 'softly glow', state)} ${hcolor('amber', state)}.`,
+                state,
+            );
+            if (otmp) otmp.bknown = 1;
+        }
+        if (otmp) await uncurse(otmp, { state });
+        break;
+    default:
+        break;
+    }
 }
 
 // C ref: pray.c can_pray() (2124-2173). "determine prayer results in advance;
@@ -889,21 +1178,24 @@ export async function pleased(g_align, state = game) {
             pat_on_head = 1;
             // FALLTHROUGH
         case 4:
-            // fix_worst_trouble() returns void, but its state and output are
-            // not yet ported. Do not fabricate a repair or a loop here.
-            note_unported('pray.c fix_worst_trouble');
+            do {
+                await fix_worst_trouble(trouble, state);
+                trouble = in_trouble(state);
+            } while (trouble !== 0);
             break;
         case 3:
-            note_unported('pray.c fix_worst_trouble');
+            await fix_worst_trouble(trouble, state);
             // FALLTHROUGH
         case 2:
-            // The unported repair would be the loop's only state change. The
-            // source loop is therefore represented by its explicit gap.
-            note_unported('pray.c fix_worst_trouble');
+            {
+                let tryct = 0;
+                while ((trouble = in_trouble(state)) > 0 && (++tryct < 10))
+                    await fix_worst_trouble(trouble, state);
+            }
             break;
         case 1:
             if (trouble > 0)
-                note_unported('pray.c fix_worst_trouble');
+                await fix_worst_trouble(trouble, state);
             break;
         case 0:
             break;

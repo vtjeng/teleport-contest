@@ -98,6 +98,8 @@ import {
     critically_low_hp,
     dopray,
     doturn,
+    fix_curse_trouble,
+    fix_worst_trouble,
     gods_upset,
     in_trouble,
     maybe_turn_mon_iter,
@@ -377,6 +379,40 @@ test('in_trouble() hit-point arm ignores Unchanging on an unpolymorphed hero',
         u.uprops[UNCHANGING].intrinsic = 0;
         u.uhp = fullHp;
         assert.equal(in_trouble(game), 0);
+    });
+
+// pray.c:421-439 fixes the low-HP arm in place. The threshold test and the
+// rnd(5) draw are both source behavior: the draw happens only when u.uhpmax
+// is below u.ulevel*5+11, before setuhpmax() and the current-HP assignment.
+test('fix_worst_trouble() restores low hit points in source order', async () => {
+    const u = (await startedGame()).u;
+    u.ulevel = 1;
+    u.uhpmax = 10;
+    u.uhp = 4;
+    enableRngLog();
+
+    await fix_worst_trouble(TROUBLE_HIT, game);
+
+    const draws = getRngLog();
+    const hpDraw = draws.find((entry) => entry.startsWith('rnd(5)='));
+    assert.ok(hpDraw, 'pray.c fix_worst_trouble() must draw rnd(5)');
+    const increment = Number(hpDraw.slice('rnd(5)='.length));
+    assert.equal(u.uhpmax, 10 + increment);
+    assert.equal(u.uhp, u.uhpmax);
+    assert.match(PRAY_C, /case TROUBLE_HIT:[\s\S]*?maxhp \+= rnd\(5\);/u);
+});
+
+// The shared helper owns C's glow message, bknown update, uncurse call and
+// inventory refresh. A detached object is enough to exercise those writes
+// without making the test depend on a particular starting pack.
+test('fix_curse_trouble() uncurses an object and records its visible glow',
+    async () => {
+        const state = await startedGame();
+        const cursedRing = object(RIN_LEVITATION, { cursed: 1 });
+        await fix_curse_trouble(cursedRing, 'Your left ring softly glows', state);
+        assert.equal(cursedRing.cursed, false);
+        assert.equal(cursedRing.bknown, 1);
+        assert.match(state._pending_message, /Your left ring softly glows amber\./u);
     });
 
 // pray.c critically_low_hp() maps experience level to a divisor through
