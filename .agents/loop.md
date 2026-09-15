@@ -112,10 +112,14 @@ commits, preferring a merge when the history contains only intended work and
 selective cherry-picks when needed to exclude unfinished work. Do not merge a
 moving branch tip. Revalidate dependent work after an earlier correction.
 
-On restart, inspect the ledger, worktree status, commit history, worker
-transcripts and retained process handles before assigning anything. Resume
-existing ownership; do not duplicate a live worker or checkpoint. If a
-bounded run ends, stop new spans including worker-selected continuations,
+Before starting or resuming, check for live workers and validation processes.
+Do not duplicate or disrupt work that is still running.
+For stopped workers, reuse unfinished changes only when their purpose,
+scope, and remaining validation are clear. Otherwise abandon those changes
+and start from validated main. Keep abandoned changes recoverable. Do not
+treat them as pending work or automatically revisit them in future sessions.
+
+If a bounded run ends, stop new spans including worker-selected continuations,
 preserve unfinished work and its branch/commit/dirty paths in the local task
 scratch file, and report remaining process ownership. Do not mark unfinished
 work complete.
