@@ -48652,7 +48652,7 @@
     {
       "id": "port-mthrowu-seed4500-20260915",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster ranged missile selection and flight for nonweapon ammunition",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -48663,8 +48663,8 @@
       "spans": [
         {
           "name": "m_throw..thrwmu",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db",
           "functions": [
             "m_throw",
             "return_from_mtoss",
@@ -48684,71 +48684,74 @@
         "screens": 9810,
         "rng": 716839
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db",
+      "delivered": {
+        "screens": 11,
+        "rng": 10072
+      },
       "functions": [
         {
           "name": "m_throw",
           "line": 572,
           "endLine": 849,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "return_from_mtoss",
           "line": 850,
           "endLine": 968,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "thrwmm",
           "line": 969,
           "endLine": 1015,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "spitmm",
           "line": 1016,
           "endLine": 1082,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "breathwep_name",
           "line": 1083,
           "endLine": 1092,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "breamm",
           "line": 1093,
           "endLine": 1153,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_useupall",
           "line": 1154,
           "endLine": 1161,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_useup",
           "line": 1162,
           "endLine": 1173,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "thrwmu",
           "line": 1174,
           "endLine": 1267,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -48841,7 +48844,309 @@
         "screens": 9880,
         "rng": 718022
       },
-      "parkedReason": "Park central integration briefly while worker B executes the independent queued seed0014 goto_level travel-cache divergence; worker A continues its already-reserved mthrowu span and remains the higher-ranked active implementation."
+      "parkedReason": "Park central integration briefly while worker B executes the independent queued seed0014 goto_level travel-cache divergence; worker A continues its already-reserved mthrowu span and remains the higher-ranked active implementation.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "m_throw",
+            "implementation": "js/mthrowu.js",
+            "symbol": "m_throw",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:572-844 completely. Ported extraction/splitting, cursed-misfire draws, preflight and flight checks, monster/hero/potion/special-object branches, poison/blinding/stoning order, floor settlement, and returning-weapon dispatch in source order. Removed the former class, curse, artifact, special-hit, and no-settlement refusals. Allowed gaps remain the named unported callees trap.c make_stoned, pline.c message-only branches, sounds.c Soundeffect, and the existing partial u_catch_thrown_obj/potionhit/thitu/ohitmon integration.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "monshoot",
+                "source": "mthrowu.c:304 monshoot invokes m_throw for each selected missile"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "spitmm",
+                "source": "mthrowu.c:1055 spitmm sends venom through m_throw"
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "useOffensiveItem",
+                "source": "muse.c:2020-2022 use_offensive's potion arm sends the object through m_throw"
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "throwRangedWeapon",
+                "source": "mhitu.c AT_WEAP dispatch reaches thrwmu and its shared monshoot/m_throw path"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json",
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "return_from_mtoss",
+            "implementation": "js/mthrowu.js",
+            "symbol": "return_from_mtoss",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:850-965 completely. Ported successful and failed return rolls, tether/non-tether display order, annoyance cooldown, re-equipping, fumble damage, landing settlement, water/lava handling, light recalculation, and final newsym. The artifact_hit, monkilled, snuff_candle, Soundeffect, and loud-snap pline side effects remain named gaps because their owning ports are outside this reservation.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:829-830 calls return_from_mtoss when an autoreturn weapon reaches return_flightpath"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "thrwmm",
+            "implementation": "js/mthrowu.js",
+            "symbol": "thrwmm",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:968-1012 completely. Ported ranged selection, wield preparation, monster line-up/chance/range checks, target bookkeeping, monshoot dispatch, and nomul result order; polearms remain excluded exactly as in C.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:466-470 dispatches ranged monster-versus-monster attacks to thrwmm"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/intercepted-bolt-visible.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "spitmm",
+            "implementation": "js/mthrowu.js",
+            "symbol": "spitmm",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:1014-1077 completely. Ported cancelled-spit feedback, target-coordinate selection, attack-type venom construction, line-up/chance draw, target setup, m_throw dispatch, nomul, pet hunger, and miss cleanup. The dry-rattle Soundeffect remains a named sound.c gap.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:569-571 dispatches AT_SPIT to spitmm for a monster target"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "spitmu",
+                "source": "mthrowu.c:1265-1271 wraps spitmm with youmonst as target"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "breathwep_name",
+            "implementation": "js/mthrowu.js",
+            "symbol": "breathwep_name",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:1082-1089 completely. Ported the fixed BZ_OFS_AD table lookup and hallucination branch to rnd_hallublast with the same random call; exported the static helper only so the source-pinned table test can invoke it.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "breamm",
+                "source": "mthrowu.c:1119-1121 names a valid breath weapon through breathwep_name"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "breamm",
+            "implementation": "js/mthrowu.js",
+            "symbol": "breamm",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:1091-1150 completely. Ported line-up, cancelled cough, seen-resistance/reflection short circuit, valid-breath random order, naming, buzzer setup/reset, nomul, mspec_used and sleep resistance updates, and pet hunger. zap.c dobuzz and sound.c effects remain named gaps.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:569-571 dispatches AT_BREA to breamm for a monster target"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "breamu",
+                "source": "mthrowu.c:1273-1278 wraps breamm with youmonst as target"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "m_useupall",
+            "implementation": "js/mthrowu.js",
+            "symbol": "m_useupall",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:1153-1158 completely. Ported the exact extract_from_minvent(..., TRUE, FALSE) then obfree order. These inventory/free operations are existing dependencies and add no replacement randomness or output.",
+            "callers": [
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_useup",
+                "source": "mthrowu.c:1168-1170 delegates a one-item stack to m_useupall"
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "use_defensive",
+                "source": "muse.c:1173-1202 consumes defensive monster items through m_useup"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/muse.c/use-defensive-sergeant-healing.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "m_useup",
+            "implementation": "js/mthrowu.js",
+            "symbol": "m_useup",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:1160-1170 completely. Ported the quantity decrement, source weight recomputation, and single-item delegation without changing evaluation order.",
+            "callers": [
+              {
+                "path": "js/muse.js",
+                "symbol": "use_defensive",
+                "source": "muse.c:1161-1202 defensive potion arms call m_useup after applying their effect"
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "precheck",
+                "source": "muse.c:78,105,150 precheck's consumed potion branches call m_useup"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/muse.c/use-defensive-sergeant-healing.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          },
+          {
+            "name": "thrwmu",
+            "implementation": "js/mthrowu.js",
+            "symbol": "thrwmu",
+            "sourceReview": "Read nethack-c/upstream/src/mthrowu.c:1174-1263 completely. Ported wield preparation, ranged selection, wielded polearm range/visibility/damage/message path, autoreturn range and weld checks, retreat random bound, line-up gate, monshoot, and nomul; removed the former polearm and autoreturn refusals. Remaining named dependencies are existing mon_wield_item/select_rwep/lined_up/monshoot and caller-owned mswings_verb/thitu/stop_occupation adapters.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "throwRangedWeapon",
+                "source": "mhitu.c AT_WEAP dispatch reaches thrwmu for the monster's ranged weapon action"
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "mhitu.c mattacku is wired with throwRangedWeapon as its AT_WEAP action"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json"
+            ],
+            "checkedAt": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db"
+          }
+        ],
+        "entryPointReview": "The selected source range has ordinary monster missile flight (thrwmu -> monshoot -> m_throw), monster-versus-monster weapon flight (thrwmm), venom spit (spitmm/spitmu), breath attack naming/effects (breamm/breamu), returning-weapon cleanup (return_from_mtoss), and monster inventory consumption (m_useup/m_useupall). The independent r2 recordings reach ordinary crossbow flight and offensive potion flight; the existing intercepted-bolt recording covers the monster-target weapon route, and the existing defensive-healing recording covers inventory consumption. Return, spit, and breath effect branches are implemented but their independent production recordings remain coordinator follow-up because their owning artifact/vision/zap dependencies are outside this reservation.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster ranged weapon",
+            "functions": [
+              "thrwmu",
+              "m_throw"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/uruk-throws-spear-r2.session.json"
+            ]
+          },
+          {
+            "name": "offensive monster potion",
+            "functions": [
+              "m_throw"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json"
+            ]
+          },
+          {
+            "name": "monster-target missile interception",
+            "functions": [
+              "thrwmm"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/intercepted-bolt-visible.session.json"
+            ]
+          },
+          {
+            "name": "monster inventory consumption",
+            "functions": [
+              "m_useup",
+              "m_useupall"
+            ],
+            "recordings": [
+              "recordings/muse.c/use-defensive-sergeant-healing.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 853,
+          "kind": "rng",
+          "function": "fix_worst_trouble",
+          "functionDeclared": false,
+          "sourceFile": "pray.c",
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": 433,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 961,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 972
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db",
+        "screens": 9891,
+        "rng": 728094
+      }
     },
     {
       "id": "div-select-rwep-seed0106-20260915",
@@ -48973,7 +49278,7 @@
     {
       "id": "div-goto-level-travelcc-seed0014-20260915",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "open",
       "summary": "Restore goto_level travel destination reset after successful level departure",
       "cFile": "do.c",
       "sessions": [
@@ -49003,9 +49308,9 @@
       "session": "seed0014-dequa-fountain-explore",
       "step": 647,
       "activeStanding": {
-        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
-        "screens": 9880,
-        "rng": 718022
+        "sha": "4e81d907a48bb5d1d883cdc0f0c26fe5021329db",
+        "screens": 9891,
+        "rng": 728094
       },
       "openMismatches": [
         {
