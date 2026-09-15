@@ -1,45 +1,43 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 26,
+  "remainingScreensUpperBound": 8,
   "status": "complete",
-  "commit": "fe38104ce4b6b38e5f6e060a3053b9849e958a6d",
+  "commit": "894a6122f42097baed2fdaef0295969c591d570e",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "step": 569,
+    "step": 587,
     "kind": "stop",
-    "function": "doapply",
-    "functionDeclared": true,
-    "sourceFile": "apply.c",
-    "cFile": "apply.c",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 257",
+    "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: user-assigned type name",
     "unlocatedKinds": [],
     "recordedSteps": 595,
-    "remainingScreensUpperBound": 26
+    "remainingScreensUpperBound": 8
   },
-  "summary": "Payment now reaches step569. Applying the leather drum stops in doapply before its instrument dispatch. C apply.c routes instrument types to whole music.c do_play_instrument, whose drum path immediately consumes do_improvisation. Port both whole functions and their required helpers; instrument output, stored jingle, deafness and monster wake/scare effects retain source order.",
+  "summary": "Instrument playback now reaches step587. The discoveries command stops on an assigned object-type alias. Complete objnam.c obj_typename and its consumed xcalled helper, then wire their existing naming callers. Preserve bounded C strings, appearance suffixes and Samurai discoveries explanations.",
   "source": {
-    "file": "music.c",
+    "file": "objnam.c",
     "functions": [
-      "do_play_instrument",
-      "do_improvisation"
+      "obj_typename",
+      "xcalled"
     ],
-    "branch": "The selected hero applies a leather drum. Read music.c do_play_instrument759–899 and do_improvisation503–730 in full. Drums skip the Improvise prompt. The mode draw and opening message precede the stored-jingle draws and drum feedback. Ordinary leather drums extend deafness only when not already deaf, exercise wisdom, then awaken_monsters and mark the status dirty.",
+    "branch": "Read whole obj_typename201–293 and xcalled558–572. Four alias insertions preserve each class prefix and reserve the appearance suffix before truncating the user name. Discoveries calls obj_typename through o_init.c disco_typename and disco_append_typename.",
     "callers": [
-      "apply.c doapply4383 routes wooden/magic flute, wooden/magic harp, horns, bugle and both drums to do_play_instrument; JS apply.js lacks that instrument switch arm at the examined candidate.",
-      "do_play_instrument consumes do_improvisation's return and find_drawbridge's result; the passtune branch must preserve mutable search coordinates, tune discovery and hint counts."
+      "o_init.c disco_typename661–689 consumes obj_typename; disco_append_typename694–721 retains a long name's appearance suffix. The Samurai explanation is inserted before called or appearance text.",
+      "objnam.c simple_typename suppresses and restores oc_uname; existing xname_flags class arms call xcalled for inventory and ordinary messages. Completing these helpers does not establish whole-xname_flags completion."
     ],
     "dependencies": [
-      "music.c improvised_notes733–753 stores the five-note maximum jingle in context and retains it while Unchanging; generic_lvl_desc478–491 selects source dungeon labels.",
-      "Whole awaken_monsters, awaken_scare and awaken_soldiers implement reached drum/horn/bugle effects. Bind existing monster flee, resistance, vision and region owners from their real callers. Missing discarded-return effects may remain explicit note_unported; consumed results need real implementations.",
-      "Read and restore dbridge.c is_drawbridge_wall/find_drawbridge direction-or-minus-one contract and update all former boolean consumers. Existing is_pool_or_lava remains in its independent owner."
+      "Existing source naming tables, Japanese_item_name and GemStone predicates supply actual and appearance names.",
+      "xcalled needs byte-precision truncation and the C NUL capacity; reuse existing hacklib byte helpers. No absent consumed-return dependency was found in these selected functions."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Combined checkpointfe38104c completed2026-09-15T00:13:54.848Z with all209regression recordings passing. Fixed workload27/44;9633/11405screens,699075/792838RNG. Refreshed canonical queue confirms first mismatch569 and remaining-screen upper bound26; this bound is not a predicted gain.",
-    "Worker B independently located the same source owner after immutable payment67d9efd4 and is implementing it in its worktree while the combined payment checkpoint runs. No music implementation is included in this measured candidate.",
-    "Coordinator read whole do_play_instrument, do_improvisation, improvised_notes and generic_lvl_desc against the fixed patched upstream C. No fixed-session identities, counts or input positions belong in runtime code."
+    "Combined checkpoint894a6122 completed2026-09-15T00:30:28.788Z with all215regression recordings passing. Fixed workload27/44;9651/11405screens,699110/792838RNG. Canonical post-checkpoint queue reports first mismatch587 and remaining-screen upper bound8; this is not a predicted gain.",
+    "Coordinator read both selected C functions in full and the complete o_init.c formatting callers. Worker independently located the same owner and supplied a separate immutable delivery while instruments were validated. No alias implementation is included in this measured candidate."
   ]
 }
