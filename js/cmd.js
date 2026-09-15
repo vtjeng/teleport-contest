@@ -183,7 +183,6 @@ import {
     UnsupportedQuaffError,
 } from './potion.js';
 import { UnsupportedFountainError } from './fountain.js';
-import { WaterDamageError } from './trap_water_damage.js';
 import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import {
     BOULDER,
@@ -2936,10 +2935,6 @@ export function failClosedCommandRefusals() {
         // potion.c dodip() raises this for the sink, pool, and
         // potion-into-potion dipping paths this port leaves unported.
         UnsupportedDipError,
-        // trap.c water_damage() raises this for the item types
-        // (containers, scrolls, spellbooks, potions, lit items) whose
-        // water-damage paths are not yet ported.
-        WaterDamageError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
         // Fumbling and autoquiver arms. A wish heavy or numerous enough to

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c water_damage() coverage: a bounded port-only scan of seeds 7710000-7710099 selected seed 7710023 because its generated D:1 fountain is one northwest step from the new Valkyrie's start. The route dips the first inventory spear into that fountain and reaches water_damage() through fountain.c dipfountain(); it uses a new seed, timestamp, name, and route rather than the existing fountain witnesses.",
+  "segments": [
+    {
+      "seed": 7710023,
+      "datetime": "20310203040507",
+      "nethackrc": "OPTIONS=name:WaterPilot,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " y#dip\nay"
+    }
+  ]
+}
