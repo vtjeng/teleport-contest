@@ -82,6 +82,7 @@ import {
     CREAM_PIE,
     CROSSBOW_BOLT,
     DAGGER,
+    DART,
     DWARVISH_MATTOCK,
     EGG,
     FLAIL,
@@ -96,6 +97,7 @@ import {
     PICK_AXE,
     POT_WATER,
     ROCK,
+    SHURIKEN,
     SPEAR,
     TRIDENT,
     SILVER_DAGGER,
@@ -366,6 +368,20 @@ test('select_rwep reports the propellor separately from the missile', () => {
         propellorResult: thrown,
     }), dagger);
     assert.equal(thrown.value, hands_obj);
+
+    // Darts and shuriken have negative oc_skill values, but weapon.c's
+    // switch handles only -P_BOW, -P_SLING, and -P_CROSSBOW. With no launcher
+    // case, each iteration keeps the &hands_obj sentinel for the throw.
+    for (const type of [DART, SHURIKEN]) {
+        const missile = object(state, type);
+        subject.minvent = missile;
+        const handThrown = {};
+        assert.equal(select_rwep(subject, {
+            state,
+            propellorResult: handThrown,
+        }), missile);
+        assert.equal(handThrown.value, hands_obj, `hand-thrown ${type}`);
+    }
 });
 
 test('mon_wield_item selects hand-to-hand weapons and reports welded state', async () => {

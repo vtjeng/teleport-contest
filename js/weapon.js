@@ -624,14 +624,18 @@ function launcherFor(monster, skill, env) {
     case P_CROSSBOW:
         return selectObject(monster, CROSSBOW, env);
     default:
-        return null;
+        // weapon.c select_rwep() resets gp.propellor to &hands_obj before
+        // switching on -oc_skill. Dart and shuriken skills are negative but
+        // have no launcher case, so that sentinel survives this switch.
+        return hands_obj;
     }
 }
 
 // C ref: weapon.c select_rwep(). The return value remains C's missile. When a
 // caller supplies propellorResult, its value receives C's gp.propellor side
-// channel: hands_obj for a thrown weapon, a launcher or reusable weapon object
-// when one must be wielded, and null when ammunition has no launcher.
+// channel: hands_obj for hand-thrown missiles, a launcher or reusable weapon
+// object when one must be wielded, and null when a required launcher is absent
+// or a welded weapon blocks it.
 export function select_rwep(monster, env = {}) {
     const normalized = weaponEnv(env);
     const state = normalized.state;
