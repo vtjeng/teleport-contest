@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9020117,
+      "datetime": "20270216112233",
+      "nethackrc": "OPTIONS=name:WatchProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017wand of digging\nzol"
+    }
+  ],
+  "comment": "Fresh debug-Wizard route for dig.c watch_dig(): an independently seeded wand-of-digging command reaches zap_dig() and its watch_dig() guard hook before terrain mutation. The target is outside Mine Town, so the source guard predicate returns without a warning; branch behavior is pinned by the source test."
+}

@@ -200,7 +200,7 @@ import {
 } from './command_bindings.js';
 import { clear_kickedloc } from './dokick.js';
 import { drag_ball, move_bc } from './ball.js';
-import { dig_typ } from './dig.js';
+import { dig_typ, watch_dig } from './dig.js';
 import {
     a_monnam,
     capitalizedAlwaysVisibleMonsterName,
@@ -1952,7 +1952,7 @@ export async function still_chewing(x, y, state = game) {
                 : IS_OBSTRUCTED(lev.typ) ? 'rock'
                     : lev.typ === IRONBARS ? 'bar' : 'door';
         await ttyPline(`You start chewing ${prep} ${target}.`, state);
-        note_unported('mon.c watch_dig');
+        await watch_dig(null, x, y, false, { state });
         return 1;
     }
     digging.effort += 30 + Math.trunc(state.u.udaminc ?? 0);
@@ -1965,7 +1965,7 @@ export async function still_chewing(x, y, state = game) {
             await ttyPline(`You continue chewing on the ${target}.`, state);
         }
         digging.chew = true;
-        note_unported('mon.c watch_dig');
+        await watch_dig(null, x, y, false, { state });
         return 1;
     }
 

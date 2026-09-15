@@ -174,7 +174,7 @@ import { bury_an_obj, obj_resists } from './bury.js';
 import { newsym, vobj_at } from './display.js';
 import { Adjmonnam, Amonnam, Monnam, capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { dogfood } from './dogfood.js';
-import { is_digging } from './dig.js';
+import { is_digging, watch_dig } from './dig.js';
 import { could_reach_item } from './dogmove.js';
 import { has_ceiling, Is_special, on_level } from './dungeon.js';
 import {
@@ -1049,7 +1049,7 @@ async function m_break_boulder(mtmp, x, y, env = {}) {
 // C ref: monmove.c watch_on_duty() (176-203). A watch guard on duty checks
 // whether the hero is picking a lock or digging, and warns or arrests.
 // picking_lock() and is_digging() are occupation predicates from lock.c and
-// dig.c; watch_dig() (dig.c) remains a discarded gap.
+// dig.c; watch_dig() owns the digging warning and arrest branch in dig.c.
 async function watch_on_duty(mtmp, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
@@ -1087,8 +1087,13 @@ async function watch_on_duty(mtmp, env = {}) {
                 }
             }
         } else if (is_digging(state)) {
-            // watch_dig() is void; note_unported.
-            note_unported('dig.c watch_dig');
+            await watch_dig(
+                mtmp,
+                state.context?.digging?.pos?.x,
+                state.context?.digging?.pos?.y,
+                false,
+                { ...env, state },
+            );
         }
     }
 }

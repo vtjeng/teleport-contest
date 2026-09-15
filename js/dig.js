@@ -1,5 +1,7 @@
-// dig.js -- what a wielded digging tool is pointed at, and what rots away.
-// C refs: src/dig.c dig_typ(), rot_organic(), rot_corpse().
+// dig.js -- what a wielded digging tool is pointed at, what rots away, and
+// how Mine Town watchmen respond to digging.
+// C refs: src/dig.c dig_typ(), rot_organic(), rot_corpse(),
+// watchman_canseeu(), watch_dig().
 //
 // dig.c bury_an_obj() is ported in js/bury.js, which predates this file and
 // keeps its own name because it also holds zap.c obj_resists().
@@ -13,6 +15,7 @@ import {
     A_WIS,
     COLNO,
     CORR,
+    DEAF,
     DB_MOAT,
     DBWALL,
     DB_UNDER,
@@ -32,6 +35,7 @@ import {
     HALLUC_RES,
     IRONBARS,
     IS_ALTAR,
+    IS_DOOR,
     IS_FOUNTAIN,
     isok,
     IS_OBSTRUCTED,
@@ -59,7 +63,8 @@ import { objectGenerationEnv } from './object_generation.js';
 // bodies, so the source-owned in_town() remains safe across the cycle.
 import { in_town } from './hack.js';
 import { obfree, obj_extract_self } from './invent.js';
-import { hides_under } from './mondata.js';
+import { hides_under, is_watch } from './mondata.js';
+import { angry_guards, get_iter_mons } from './mon.js';
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -72,15 +77,18 @@ import {
     ROCK,
 } from './objects.js';
 import { cvt_sdoor_to_door } from './detect.js';
+import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { acurr } from './attrib.js';
 import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
-import { canseemon, recalc_block_point, unblock_point } from './vision.js';
+import { canseemon, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { rn1, rn2 } from './rng.js';
+import { set_voice } from './sounds.js';
 import { is_lava, is_pool } from './trap.js';
 import { stairway_at } from './stairs.js';
 import { s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
+import { ttyPline } from './tty_message.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -117,6 +125,78 @@ export function is_digging(_state) {
     // The dig() occupation callback is not ported to JS, so the hero can
     // never be in the dig occupation.
     return false;
+}
+
+// C ref: dig.c watchman_canseeu() (1362-1368). The guard must be a watchman,
+// able to see, able to see the hero, and peaceful. m_canseeu() owns the
+// compiled vision variant, including the hero's invisibility and underwater
+// checks.
+export function watchman_canseeu(mtmp, state = game) {
+    return is_watch(mtmp?.data)
+        && mtmp.mcansee
+        && m_canseeu(mtmp, state)
+        && mtmp.mpeaceful;
+}
+
+function heroDeaf(state) {
+    const deafness = state.u?.uprops?.[DEAF] ?? {};
+    return Boolean(
+        deafness.intrinsic || deafness.extrinsic
+        || state.u?.uroleplay?.deaf,
+    );
+}
+
+// C ref: dig.c watch_dig() (1377-1410). This is called by the monster watch,
+// chewing, and wand-digging paths before their terrain mutation. The optional
+// operations keep focused tests independent while production uses the same
+// source-owned helpers and live game state.
+export async function watch_dig(mtmp, x, y, zap, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const inTown = in_town(x, y, state);
+    const lev = state.level?.at(x, y);
+    if (!inTown || !lev
+        || !(closed_door(x, y, state)
+            || lev.typ === SDOOR
+            || IS_WALL(lev.typ)
+            || IS_FOUNTAIN(lev.typ)
+            || IS_TREE(lev.typ, state))) {
+        return;
+    }
+
+    const findWatchman = rawEnv.getIterMons ?? get_iter_mons;
+    if (!mtmp)
+        mtmp = findWatchman(
+            (candidate) => watchman_canseeu(candidate, state), state,
+        );
+    if (!mtmp) return;
+
+    set_voice(mtmp, 0, 80, 0, state);
+    if (zap || state.context?.digging?.warned) {
+        await verbalize(
+            'Halt, vandal!  You\'re under arrest!',
+            state,
+            { message },
+        );
+        const anger = rawEnv.angryGuards ?? angry_guards;
+        await anger(heroDeaf(state), { ...rawEnv, state, message });
+    } else {
+        const target = IS_DOOR(lev.typ) ? 'door'
+            : IS_TREE(lev.typ, state) ? 'tree'
+                : IS_OBSTRUCTED(lev.typ) ? 'wall' : 'fountain';
+        await verbalize(`Hey, stop damaging that ${target}!`, state, {
+            message,
+        });
+        state.context ??= {};
+        state.context.digging ??= {};
+        state.context.digging.warned = true;
+    }
+
+    if (is_digging(state)) {
+        const stop = rawEnv.stopOccupation
+            ?? (await import('./allmain.js')).stop_occupation;
+        await stop(state, { ...rawEnv, state, message });
+    }
 }
 
 export function dig_typ(otmp, x, y, state = game) {

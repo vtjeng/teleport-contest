@@ -164,7 +164,7 @@ import {
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat } from './eat.js';
 import { cvt_sdoor_to_door, findit } from './detect.js';
-import { adj_pit_checks, fillholetyp } from './dig.js';
+import { adj_pit_checks, fillholetyp, watch_dig } from './dig.js';
 import { dropx, preflight_dropx } from './do.js';
 import { ceiling } from './dungeon.js';
 import { done } from './end.js';
@@ -2497,7 +2497,7 @@ export async function zap_dig(
                 }
                 newsym(u.ux, u.uy, state);
             } else {
-                note_unported('mon.c watch_dig');
+                await watch_dig(null, u.ux, u.uy, true, { state });
                 note_unported('dig.c dighole');
             }
         }
@@ -2572,7 +2572,7 @@ export async function zap_dig(
             } else if (cansee(zx, zy, state)) {
                 await ttyPline('The door is razed!', state);
             }
-            note_unported('mon.c watch_dig');
+            await watch_dig(null, zx, zy, true, { state });
             room.doormask = D_NODOOR;
             room.flags = D_NODOOR;
             recalc_block_point(zx, zy, state);
@@ -2621,7 +2621,7 @@ export async function zap_dig(
                     note_unported('shk.c add_damage');
                     shopwall = true;
                 }
-                note_unported('mon.c watch_dig');
+                await watch_dig(null, zx, zy, true, { state });
                 if (state.level.flags?.is_cavernous_lev
                     && !in_town(zx, zy, state)) {
                     room.typ = CORR;
