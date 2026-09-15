@@ -48652,7 +48652,7 @@
     {
       "id": "port-mthrowu-seed4500-20260915",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port monster ranged missile selection and flight for nonweapon ammunition",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -48973,7 +48973,7 @@
     {
       "id": "div-goto-level-travelcc-seed0014-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Restore goto_level travel destination reset after successful level departure",
       "cFile": "do.c",
       "sessions": [
@@ -49075,7 +49075,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
+        "screens": 9880,
+        "rng": 718022
+      },
+      "parkedReason": "Park central integration briefly while worker A delivers the higher-ranked mthrowu span; worker B retains its reserved goto_level scope for follow-up after A validation."
     }
   ]
 }
