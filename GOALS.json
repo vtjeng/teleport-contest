@@ -49865,6 +49865,76 @@
         "rng": 739061
       },
       "parkedReason": "Park while B-r2-4 correction is accepted and the A-r2-4 source-backed revalidation path is prepared; preserve the A delivery, failed checkpoint, and queued dependent work."
+    },
+    {
+      "id": "port-trap-water-damage-seed0106-20260915",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port trap.c water_damage and wire fountain, rust-trap, and fail-closed caller paths for water-damaged equipment and inventory.",
+      "cFile": "trap.c",
+      "sessions": [
+        "holdout/seed0106-priest-extcmd-sweep"
+      ],
+      "selectionReason": "The refreshed seed0106 holdout investigation identifies trap.c water_damage as the first current source owner after select_rwep and goto_level; the worker delivery ports the complete function and reaches the fountain entry point with an independent recording.",
+      "detail": "The selected span covers trap.c water_damage() lines 4712-4852, including lit items, grease, containers, scrolls, spellbooks, potions, and default erosion behavior. Preserve unported caller branches fail-closed and retain source order.",
+      "spans": [
+        {
+          "name": "water_damage",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "water_damage"
+          ]
+        }
+      ],
+      "openedAt": "833393b3012ea4cbd7afde2af8b3cd28a6bd50f3",
+      "openStanding": {
+        "sha": "833393b3012ea4cbd7afde2af8b3cd28a6bd50f3",
+        "screens": 10037,
+        "rng": 739105
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "water_damage",
+          "line": 4712,
+          "endLine": 4854,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4712,
+        "to": 4854
+      },
+      "activeStanding": {
+        "sha": "833393b3012ea4cbd7afde2af8b3cd28a6bd50f3",
+        "screens": 10037,
+        "rng": 739105
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 110,
+          "kind": "stop",
+          "function": "water_damage",
+          "functionDeclared": true,
+          "sourceFile": "trap.c",
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: water_damage requires potion dilution/destruction in water_damage()",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 157,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "previousRemainingScreensUpperBound": 227
+          }
+        }
+      ]
     }
   ]
 }
