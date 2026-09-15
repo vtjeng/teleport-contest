@@ -47610,7 +47610,7 @@
     {
       "id": "div-uhitm-do-attack-seed0014-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix do_attack bare-hand bash transition and preserve source-ordered combat continuation.",
       "cFile": "uhitm.c",
       "sessions": [],
@@ -47619,8 +47619,8 @@
       "spans": [
         {
           "name": "do-attack-unarmed-transition",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "135b9a3f713ab40606bc97b4c33bd02dee416e2e",
           "functions": [
             "do_attack"
           ]
@@ -47632,8 +47632,11 @@
         "screens": 9670,
         "rng": 699339
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "135b9a3f713ab40606bc97b4c33bd02dee416e2e",
+      "delivered": {
+        "screens": 30,
+        "rng": 6815
+      },
       "function": "do_attack",
       "session": "seed0014-dequa-fountain-explore",
       "step": 624,
@@ -47706,7 +47709,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "135b9a3f713ab40606bc97b4c33bd02dee416e2e",
+        "screens": 9700,
+        "rng": 706154
+      }
     }
   ]
 }
