@@ -95,6 +95,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     NOWEBMSG,
+    NO_TRAP,
     N_DIRS,
     PASSES_WALLS,
     PIT,
@@ -127,6 +128,7 @@ import {
     TELEDS_TELEPORT,
     TEST_MOVE,
     TRAPDOOR,
+    TRAPNUM,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     TRAP_CLEARLY_IMMUNE,
@@ -142,6 +144,7 @@ import {
     TT_PIT,
     TT_WEB,
     UNENCUMBERED,
+    Upolyd,
     VIBRATING_SQUARE,
     WATER,
     WEB,
@@ -174,6 +177,7 @@ import {
     surface,
 } from './dungeon.js';
 import { done } from './end.js';
+import { rank_of } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
@@ -230,12 +234,13 @@ import { make_hallucinated } from './potion.js';
 import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
-import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { dismount_steed, Punished } from './steed.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { trap_to_defsym } from './symbols.js';
+import { halu_trapnames } from './trap_names_data.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
 import { dotrap, mintrap } from './trap_effects.js';
@@ -1266,22 +1271,29 @@ export async function float_down(hmask, emask, state = game) {
     return 1;
 }
 
-// C ref: trap.c trapname() (7099-7155), the live return at 7154 alone.
-//
-// C's second parameter, `override`, only suppresses the hallucinating branch
-// at 7106-7152. That branch draws rn2_on_display_rng() once and can build a
-// name from the hero's role and rank, so it is unported and the parameter is
-// left off rather than carried dead: every caller here formats the true name.
-// Monnam(), which shares mintrap()'s escape line at C 3771-3772, carries the
-// same gap -- js/do_name.js monsterCommonName() drops the saddle adjective for
-// a hallucinating hero and returns the true species name -- so the line as a
-// whole is correct exactly while the hero is not hallucinating.
-//
-// defsyms[].explanation is generated as CMAP_EXPLANATIONS, so this reads the
-// table the symbol set is built from rather than a copy of it. trap_to_defsym()
-// rejects NO_TRAP and anything at or past TRAPNUM, which is C's own indexable
-// range.
-export function trapname(ttyp) {
+// C ref: trap.c trapname() (7100-7155). The display RNG chooses the name;
+// only the extra role/rank entry also spends a core rn2(3).
+export function trapname(ttyp, override = false, state = game,
+                         random = { rn2, rn2_on_display_rng }) {
+    const hallu = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    if (hallu?.intrinsic && !(resistance?.intrinsic || resistance?.extrinsic)
+        && !override) {
+        const totalNames = TRAPNUM + halu_trapnames.length;
+        const nameidx = random.rn2_on_display_rng(totalNames + 1);
+        if (nameidx === totalNames) {
+            const female = Upolyd(state) ? state.u.mfemale : state.flags.female;
+            const title = random.rn2(3)
+                ? ((female && state.urole.name.f)
+                    ? state.urole.name.f : state.urole.name.m)
+                : rank_of(state.u.ulevel, state.urole.mnum, female, state);
+            // C's char roletrap[33], minus sizeof " trap" (six bytes),
+            // leaves room for 27 name characters before appending the suffix.
+            return `${title.slice(0, 27)} trap`.toLowerCase();
+        }
+        if (nameidx >= TRAPNUM) return halu_trapnames[nameidx - TRAPNUM];
+        if (nameidx !== NO_TRAP) ttyp = nameidx;
+    }
     return CMAP_EXPLANATIONS[trap_to_defsym(ttyp)];
 }
 

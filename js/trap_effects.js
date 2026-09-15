@@ -1,9 +1,9 @@
 // Trap triggering, for the hero and for monsters.
 // C ref: trap.c -- wearing_iron_shoes(), floor_trigger(), check_in_air(),
-// seetrap(), feeltrap(), trapnote(), t_missile(), thitm(),
+// seetrap(), feeltrap(), trapnote(), mu_maybe_destroy_web(), t_missile(), thitm(),
 // trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_rocktrap(),
 // trapeffect_bear_trap(), trapeffect_slp_gas_trap(),
-// mselftouch(), trapeffect_pit(), trapeffect_telep_trap(),
+// mselftouch(), trapeffect_pit(), trapeffect_telep_trap(), trapeffect_web(),
 // trapeffect_statue_trap(), trapeffect_magic_trap(),
 // trapeffect_rolling_boulder_trap(),
 // launch_drop_spot(), launch_obj(), trapeffect_selector(), dotrap(), mintrap().
@@ -19,8 +19,11 @@ import {
     ANTIMAGIC,
     ANTI_MAGIC,
     ARROW_TRAP,
+    ARTICLE_NONE,
+    ARTICLE_THE,
     A_CON,
     A_DEX,
+    A_STR,
     BEAR_TRAP,
     BOLT_LIM,
     DART_TRAP,
@@ -38,6 +41,7 @@ import {
     FORCEBUNGLE,
     FORCETRAP,
     FROMOUTSIDE,
+    FUMBLING,
     HALF_PHDAM,
     HALLUC,
     HALLUC_RES,
@@ -56,6 +60,7 @@ import {
     MAGIC_PORTAL,
     MAGIC_TRAP,
     INVIS,
+    NOWEBMSG,
     PIT,
     POLY_TRAP,
     RIGHT_SIDE,
@@ -71,10 +76,12 @@ import {
     SPINE,
     SQKY_BOARD,
     STATUE_TRAP,
+    SUPPRESS_SADDLE,
     TELEP_TRAP,
     TOOKPLUNGE,
     TRAPDOOR,
     TT_BEARTRAP,
+    TT_WEB,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
     Trap_Is_Gone,
@@ -85,6 +92,7 @@ import {
     VIBRATING_SQUARE,
     WEB,
     W_ARMF,
+    has_mgivenname,
     helpless,
     is_hole,
     is_pit,
@@ -92,7 +100,7 @@ import {
     u_at,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { exercise, poisoned } from './attrib.js';
+import { acurr, exercise, poisoned } from './attrib.js';
 import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
 import {
@@ -105,6 +113,7 @@ import {
     capitalizedMonsterName,
     monsterCommonName,
     mon_nam,
+    x_monnam,
 } from './do_name.js';
 import { game } from './gstate.js';
 import { setmangry } from './mon.js';
@@ -115,6 +124,7 @@ import {
     losehp,
     nh_delay_output,
     nomul,
+    u_locomotion,
 } from './hack.js';
 import { done } from './end.js';
 import {
@@ -131,10 +141,13 @@ import {
 import { count_wsegs } from './makemon_create.js';
 import { maybe_unhide_at, monkilled, wake_nearto } from './mon.js';
 import {
+    acidic,
     amorphous,
     attacktype,
     breathless,
     defended,
+    extra_nasty,
+    flaming,
     grounded,
     is_floater,
     is_flyer,
@@ -152,9 +165,11 @@ import {
     passes_rocks,
     passes_walls,
     resists_magm,
+    strongmonst,
     throws_rocks,
     touch_petrifies,
     unsolid,
+    webmaker,
 } from './mondata.js';
 import {
     AD_MAGM,
@@ -166,14 +181,29 @@ import {
     AT_MAGC,
     MZ_HUGE,
     MZ_SMALL,
+    PM_BALROG,
+    PM_BALUCHITHERIUM,
     PM_BUGBEAR,
+    PM_CYCLOPS,
+    PM_GELATINOUS_CUBE,
+    PM_IRON_GOLEM,
+    PM_JABBERWOCK,
+    PM_KRAKEN,
     PM_LEATHER_GOLEM,
+    PM_LORD_SURTUR,
+    PM_MASTODON,
+    PM_NORN,
+    PM_ORION,
     PM_OWLBEAR,
     PM_PAPER_GOLEM,
     PM_PIT_FIEND,
     PM_PIT_VIPER,
+    PM_PURPLE_WORM,
     PM_STRAW_GOLEM,
+    PM_TITANOTHERE,
     PM_WOOD_GOLEM,
+    S_DRAGON,
+    S_GIANT,
 } from './monsters.js';
 import { finish_meating } from './dogmove.js';
 import { m_at } from './monst.js';
@@ -196,7 +226,7 @@ import { BOULDER, CORPSE, DART, IRON, ROCK } from './objects.js';
 import { an, donameFresh, just_an, xnameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -208,6 +238,7 @@ import {
     Levitation,
     deltrap,
     unconscious,
+    reset_utrap,
     set_utrap,
     t_at,
     trapname,
@@ -263,7 +294,7 @@ const A_Your = Object.freeze(['A', 'Your']);
 function heroTrapEnv(state) {
     return {
         state,
-        random: { d, rn1, rn2, rnd, rne },
+        random: { d, rn1, rn2, rnd, rne, rnl },
         message: (line, target) => ttyPline(line, target ?? state),
         redraw: (x, y) => newsym(x, y),
         unsupported: (reason) => {
@@ -355,6 +386,50 @@ export function feeltrap(trap, env) {
     trap.tseen = true;
     map_trap(trap, 1, env.state);
     redraw(trap.tx, trap.ty);
+}
+
+// C ref: trap.c mu_maybe_destroy_web() (972-1014).
+export async function mu_maybe_destroy_web(monster, domsg, trap, env) {
+    const { state } = env;
+    const species = monster.data;
+    const isyou = monster === state.youmonst;
+    if (!(amorphous(species) || is_whirly(species) || flaming(species)
+        || unsolid(species) || species.pmidx === PM_GELATINOUS_CUBE))
+        return false;
+
+    const article = a_your[Number(Boolean(trap.madeby_u))];
+    const message = requireTrapOperation(env, 'message');
+    if (flaming(species) || acidic(species)) {
+        if (domsg) {
+            if (isyou) {
+                await message(`You ${flaming(species) ? 'burn' : 'dissolve'}`
+                    + ` ${article} spider web!`, state, env);
+            } else {
+                await message(messageAt(
+                    `${capitalizedMonsterName(monster, state)}`
+                    + ` ${flaming(species) ? 'burns' : 'dissolves'}`
+                    + ` ${article} spider web!`,
+                    monster.mx, monster.my, state,
+                ), state, env);
+            }
+        }
+        deltrap(trap, state);
+        requireTrapOperation(env, 'redraw')(trap.tx, trap.ty);
+        return true;
+    }
+    if (domsg) {
+        if (isyou) {
+            await message(`You flow through ${article} spider web.`, state, env);
+        } else {
+            await message(messageAt(
+                `${capitalizedMonsterName(monster, state)}`
+                + ` flows through ${article} spider web.`,
+                monster.mx, monster.my, state,
+            ), state, env);
+            seetrap(trap, env);
+        }
+    }
+    return true;
 }
 
 // C ref: trap.c trapnote()'s tnnames[].
@@ -2107,6 +2182,152 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
     return Trap_Effect_Finished;
 }
 
+// C ref: trap.c trapeffect_web() (2106-2276).
+export async function trapeffect_web(monster, trap, trflags, env) {
+    const { state, random } = env;
+    const message = requireTrapOperation(env, 'message');
+    const redraw = requireTrapOperation(env, 'redraw');
+    const article = a_your[Number(Boolean(trap.madeby_u))];
+    if (monster === state.youmonst) {
+        let webmsgok = (trflags & NOWEBMSG) === 0;
+        const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0;
+        const viasitting = (trflags & VIASITTING) !== 0;
+        const steed = state.u.usteed;
+        const steedArticle = steed && has_mgivenname(steed) && !Hallucination(state)
+            ? ARTICLE_NONE : ARTICLE_THE;
+
+        feeltrap(trap, env);
+        if (await mu_maybe_destroy_web(monster, webmsgok, trap, env))
+            return Trap_Effect_Finished;
+        if (webmaker(monster.data)) {
+            if (webmsgok)
+                await message(trap.madeby_u ? 'You take a walk on your web.'
+                    : 'There is a spider web here.', state, env);
+            return Trap_Effect_Finished;
+        }
+        if (webmsgok) {
+            let verb;
+            if (forcetrap || viasitting) {
+                verb = 'are caught by';
+            } else if (steed) {
+                verb = `lead ${x_monnam(steed, steedArticle, 'poor',
+                    SUPPRESS_SADDLE, false, state)} into`;
+            } else {
+                verb = `${u_locomotion('stumble', state)} into`;
+            }
+            await message(`You ${verb} ${article} spider web!`, state, env);
+        }
+        set_utrap(1, TT_WEB, state);
+        let str = acurr(state, A_STR);
+        if (steed && webmsgok) {
+            steed.mx = state.u.ux;
+            steed.my = state.u.uy;
+            // monmove.js imports mintrap(). Resolve its existing owners only
+            // at the mounted call, after module initialization has completed.
+            const { m_in_air, youHear } = await import('./monmove.js');
+            const result = await mintrap(steed, trflags, {
+                ...env, mInAir: m_in_air, heroDeaf: heroIsDeaf, youHear,
+            });
+            if (result !== Trap_Effect_Finished) {
+                steed.mtrapped = false;
+                if (strongmonst(steed.data)) str = 17;
+            } else {
+                reset_utrap(false, state);
+                return Trap_Effect_Finished;
+            }
+            webmsgok = false;
+        }
+        let tim;
+        if (str <= 3) tim = random.rn1(6, 6);
+        else if (str < 6) tim = random.rn1(6, 4);
+        else if (str < 9) tim = random.rn1(4, 4);
+        else if (str < 12) tim = random.rn1(4, 2);
+        else if (str < 15) tim = random.rn1(2, 2);
+        else if (str < 18) tim = random.rnd(2);
+        else if (str < 69) tim = 1;
+        else {
+            tim = 0;
+            if (webmsgok)
+                await message(`You tear through ${article} web!`, state, env);
+            deltrap(trap, state);
+            redraw(state.u.ux, state.u.uy);
+        }
+        set_utrap(tim, TT_WEB, state);
+        return Trap_Effect_Finished;
+    }
+
+    const inSight = canSeeMonster(monster, state) || monster === state.u.usteed;
+    const forcetrap = (trflags & FORCETRAP) !== 0;
+    const species = monster.data;
+    if (webmaker(species)) return Trap_Effect_Finished;
+    if (await mu_maybe_destroy_web(monster, inSight, trap, env))
+        return Trap_Effect_Finished;
+    let tearWeb = false;
+    switch (species.pmidx) {
+    case PM_OWLBEAR:
+    case PM_BUGBEAR:
+        if (!inSight) {
+            // Soundeffect(se_roar, 60) has no output in the tty recorder.
+            const heard = requireTrapOperation(env, 'youHear')(
+                'the roaring of a confused bear!', state,
+            );
+            if (heard) await message(heard, state, env);
+            monster.mtrapped = true;
+            break;
+        }
+        // Falls through to the ordinary visible catch.
+    default:
+        if (species.mlet === S_GIANT
+            || (species.mlet === S_DRAGON && extra_nasty(species))
+            || (monster.wormno && count_wsegs(monster, state) > 5)) {
+            tearWeb = true;
+        } else if (inSight) {
+            await message(messageAt(
+                `${capitalizedMonsterName(monster, state)}`
+                + ` is caught in ${article} spider web.`,
+                monster.mx, monster.my, state,
+            ), state, env);
+            seetrap(trap, env);
+        }
+        monster.mtrapped = !tearWeb;
+        break;
+    case PM_TITANOTHERE:
+    case PM_BALUCHITHERIUM:
+    case PM_PURPLE_WORM:
+    case PM_JABBERWOCK:
+    case PM_IRON_GOLEM:
+    case PM_BALROG:
+    case PM_KRAKEN:
+    case PM_MASTODON:
+    case PM_ORION:
+    case PM_NORN:
+    case PM_CYCLOPS:
+    case PM_LORD_SURTUR:
+        tearWeb = true;
+        break;
+    }
+    if (tearWeb) {
+        if (inSight)
+            await message(messageAt(
+                `${capitalizedMonsterName(monster, state)}`
+                + ` tears through ${article} spider web!`,
+                monster.mx, monster.my, state,
+            ), state, env);
+        deltrap(trap, state);
+        redraw(monster.mx, monster.my);
+    } else if (forcetrap && !monster.mtrapped) {
+        if (inSight) {
+            await message(messageAt(
+                `${capitalizedMonsterName(monster, state)}`
+                + ` avoids ${article} spider web!`,
+                monster.mx, monster.my, state,
+            ), state, env);
+            seetrap(trap, env);
+        }
+    }
+    return monster.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
 // Local helper: checks the Deaf property on the hero. youprop.h defines Deaf
 // as the intrinsic or the extrinsic of property index 16 (DEAF), plus
 // uroleplay.deaf.
@@ -2129,7 +2350,6 @@ const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
     RUST_TRAP,
     SPIKED_PIT,
-    WEB,
     LANDMINE,
     POLY_TRAP,
     VIBRATING_SQUARE,
@@ -2177,6 +2397,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_magic_portal(monster, trap, trflags, env);
     if (trap.ttyp === TELEP_TRAP)
         return trapeffect_telep_trap(monster, trap, trflags, env);
+    if (trap.ttyp === WEB)
+        return trapeffect_web(monster, trap, trflags, env);
     if (trap.ttyp === STATUE_TRAP)
         return trapeffect_statue_trap(monster, trap, trflags, env);
     if (trap.ttyp === ROLLING_BOULDER_TRAP)
@@ -2193,13 +2415,13 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //
 // The stops, and what each of them needs:
 //   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, TELEP_TRAP,
-//     and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
+//     WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a trap the hero has already seen -- trapname(), for the "You step over
+//   a trap other than WEB the hero has already seen -- the "You step over
 //     ..." line at trap.c:3028 and the "You escape ..." line at :3039, and
 //     with it the one-in-five rn2(5) escape roll at :3038 that decides
 //     between them, plus Fumbling, conjoined_pits() and
@@ -2211,7 +2433,7 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 export function preflight_dotrap(trap, state = game) {
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
-        && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== TELEP_TRAP && trap.ttyp !== WEB
         && trap.ttyp !== ROLLING_BOULDER_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
@@ -2231,12 +2453,12 @@ export function preflight_dotrap(trap, state = game) {
             );
         }
     }
-    if (trap.tseen) {
+    if (trap.tseen && trap.ttyp !== WEB) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
         );
     }
-    if (state.u.usteed) {
+    if (state.u.usteed && trap.ttyp !== WEB) {
         // trap.c:1276 (dart trap) calls steedintrap(); trap.c:1507-1511 (bear
         // trap) names the steed through s_suffix(mon_nam()) and mbodypart();
         // trap.c:2313 (magic trap) calls steedintrap().
@@ -2257,12 +2479,9 @@ export function preflight_dotrap(trap, state = game) {
 // C ref: trap.c dotrap() (2995-3060). The hero's counterpart to mintrap():
 // hack.c spoteffects() calls it for the trap under the hero's feet.
 //
-// C computes forcebungle, plunged, conj_pit and adj_pit at 3002-3005 and reads
-// all four only inside the escape branch at 3035-3044, which preflight_dotrap()
-// refuses. They are therefore absent here rather than computed and discarded;
-// conjoined_pits() and adj_nonconjoined_pit() would in any case answer FALSE,
-// because each requires is_pit() of `trap` itself and BEAR_TRAP is the only
-// type admitted.
+// The seen-web escape branch includes C's forcebungle, plunged and Fumbling
+// gates. Its conjoined-pit, adjacent-pit and clinger terms are false for WEB.
+// Other seen trap types remain outside preflight_dotrap()'s admitted scope.
 export async function dotrap(trap, trflags, state = game) {
     // First, and before nomul(0): a refusal has to precede the state change,
     // not follow it.
@@ -2299,7 +2518,19 @@ export async function dotrap(trap, trflags, state = game) {
             if (already_seen) env.unsupported('stepping over a seen trap');
             return;
         }
-        if (already_seen) env.unsupported('escaping a seen trap');
+        if (already_seen) {
+            // C ref: trap.c:3035-3044. WEB is destroyable, is not ANTI_MAGIC,
+            // and cannot be a conjoined or adjacent pit. Other seen trap
+            // types remain outside preflight_dotrap()'s admitted scope.
+            const fumbling = u.uprops?.[FUMBLING];
+            if (!(fumbling?.intrinsic || fumbling?.extrinsic)
+                && !(flags & (FORCEBUNGLE | TOOKPLUNGE))
+                && !env.random.rn2(5)) {
+                await env.message(`You escape ${a_your[Number(Boolean(trap.madeby_u))]}`
+                    + ` ${trapname(ttype, false, state)}.`, state);
+                return;
+            }
+        }
     }
 
     if (u.usteed) mon_learns_traps(u.usteed, ttype);
@@ -2404,7 +2635,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                 await message(
                     messageAt(
                         `${capitalizedMonsterName(monster, state)} pulls free`
-                        + ` of the ${trapname(tt)}.`,
+                        + ` of the ${trapname(tt, false, state)}.`,
                         monster.mx,
                         monster.my,
                         state,
@@ -2416,7 +2647,8 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
             // C assigns 0 to an unsigned bitfield; js/monst.js and
             // js/makemon_create.js both keep mtrapped as a boolean.
             monster.mtrapped = false;
-        } else if (metallivorous(species)) {
+        } else if (metallivorous(species)
+            && (tt === BEAR_TRAP || tt === SPIKED_PIT)) {
             // 3775-3787. A metallivore that did not pull free eats the bear
             // trap outright through deltrap(), or turns a spiked pit back into
             // a pit. M1_METALLIVORE appears on three species in monsters.h --
