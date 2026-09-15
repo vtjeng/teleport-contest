@@ -49278,7 +49278,7 @@
     {
       "id": "div-goto-level-travelcc-seed0014-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore goto_level travel destination reset after successful level departure",
       "cFile": "do.c",
       "sessions": [
@@ -49289,8 +49289,8 @@
       "spans": [
         {
           "name": "goto_level",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "80a950a8ec82b54cf051b9aabccd748056bf66ac",
           "functions": [
             "goto_level"
           ]
@@ -49302,8 +49302,11 @@
         "screens": 9880,
         "rng": 718022
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "80a950a8ec82b54cf051b9aabccd748056bf66ac",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "goto_level",
       "session": "seed0014-dequa-fountain-explore",
       "step": 647,
@@ -49390,7 +49393,12 @@
         "screens": 9880,
         "rng": 718022
       },
-      "parkedReason": "Park central integration briefly while worker A delivers the higher-ranked mthrowu span; worker B retains its reserved goto_level scope for follow-up after A validation."
+      "parkedReason": "Park central integration briefly while worker A delivers the higher-ranked mthrowu span; worker B retains its reserved goto_level scope for follow-up after A validation.",
+      "closeStanding": {
+        "sha": "80a950a8ec82b54cf051b9aabccd748056bf66ac",
+        "screens": 9892,
+        "rng": 728094
+      }
     }
   ]
 }
