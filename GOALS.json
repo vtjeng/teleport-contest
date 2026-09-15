@@ -48492,6 +48492,162 @@
         "screens": 9788,
         "rng": 714576
       }
+    },
+    {
+      "id": "port-wiz-fila-20260915",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the Wizard quest filler level program and wire its deterministic level-load path",
+      "luaFile": "Wiz-fila.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "The current seed0360 mismatch is nhlib.lua shuffle during the Wizard quest world tour; Wiz-fila.lua is the level program that exercises this path, and the worker has a source-complete delivery ready for validation.",
+      "detail": "Use the existing seed0360 recipe and level-load recording; refresh stale count 53 evidence to current 49-screen queue before closure.",
+      "spans": [
+        {
+          "name": "Wiz-fila.lua",
+          "status": "closed",
+          "closedBy": "af3a49fd79faa9914c9446204229554790850b3d",
+          "functions": [
+            "Wiz-fila.lua"
+          ]
+        }
+      ],
+      "openedAt": "9b9e98634fb85004dc24de5476fd9e255e6f01dc",
+      "openStanding": {
+        "sha": "525ae853af8b0a48c579cdd42715cf025fbfed11",
+        "screens": 9810,
+        "rng": 714995
+      },
+      "closedAt": "af3a49fd79faa9914c9446204229554790850b3d",
+      "delivered": {
+        "screens": 0,
+        "rng": 1844
+      },
+      "functions": [
+        {
+          "name": "Wiz-fila.lua",
+          "line": 1,
+          "endLine": 59,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "activeStanding": {
+        "sha": "525ae853af8b0a48c579cdd42715cf025fbfed11",
+        "screens": 9810,
+        "rng": 714995
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 784,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 49,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "previousRemainingScreensUpperBound": 53
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Wiz-fila.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizFila",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Wiz-fila.lua program, lines 1-59. Compared every top-level des.room() and its contents callback: six ordinary rooms, up stair in the first, down stair in the fourth, nine random objects, four random traps, four hostile imp-class descriptors, four named vampire bats, and the final random_corridors() call. The room callbacks execute in source order with the existing active-room coordinate frame. Calls use the same positional and table forms as Lua, preserving monster-name gender draws and interleaved trap/object generation. Production registration selects Wiz-fila in the existing quest filler branch, replacing ordinary-generation fall-through for this program. Read the required lspo_room(), l_create_stairway(), des.object(), lspo_trap(), lspo_monster(), and lspo_random_corridors() adapters and their source references. No unported callee, obsolete guard, injected substitute, or swallowed refusal remains in the Lua program.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() lines 1275-1285: In_quest() selects <role>-fila when the destination depth is above the locate level and calls makemaz(fillname). The new registry entry makes the existing Wizard branch execute this loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The runtime dispatcher merges QUEST_LEVEL_LOADERS before looking up the Wizard filler prototype."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "mkmaze.c makemaz() invokes sp_lev.c load_special(), which evaluates the whole Wiz-fila.lua program and applies special-level post-processing."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Wiz-fila is registered to wizFila for the role-specific filler prototype."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mklev-themerooms.test.mjs",
+              "scripts/mklev-room-coordinates.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Wiz-fila.lua/wizard-filler-above.session.json",
+              "recordings/Wiz-fila.lua/wizard-filler-above-variation.session.json"
+            ],
+            "checkedAt": "af3a49fd79faa9914c9446204229554790850b3d"
+          }
+        ],
+        "entryPointReview": "The complete Wiz-fila.lua program is one quest filler entry point. Both independent recipes enter the Wizard quest locate level and teleport to Home 2, causing makelevel() to select the filler above the locate level. The fresh matrix verifies that the destination is in the Wizard quest, is not a named special level, and lies above Wiz-loca; it checks six ordinary rooms, at least the eight requested monsters, and up/down stairs. The two independent seeds and male/female characters exercise distinct generated room layouts and population while preserving full C parity. No blocked recipe was introduced by this span.",
+        "entryPoints": [
+          {
+            "name": "Wiz-fila quest filler load",
+            "functions": [
+              "Wiz-fila.lua"
+            ],
+            "recordings": [
+              "recordings/Wiz-fila.lua/wizard-filler-above.session.json",
+              "recordings/Wiz-fila.lua/wizard-filler-above-variation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 787,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported special room: do_mkroom(8)",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 46,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "previousRemainingScreensUpperBound": 49
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "af3a49fd79faa9914c9446204229554790850b3d",
+        "screens": 9810,
+        "rng": 716839
+      }
     }
   ]
 }
