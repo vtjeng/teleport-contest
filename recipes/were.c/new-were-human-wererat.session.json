@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7710052,
+      "datetime": "20270318143000",
+      "nethackrc": "OPTIONS=name:WereProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+      "moves": ".\u0007human wererat\nm."
+    }
+  ]
+}

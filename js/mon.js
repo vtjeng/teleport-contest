@@ -503,6 +503,8 @@ import {
     m_can_break_boulder,
     can_hide_under_obj,
     m_in_air,
+    monnear,
+    monflee,
     monhaskey,
     onscary,
     youHear,
@@ -2690,25 +2692,11 @@ function preflightNewWere(monster, normalized) {
     const targetIndex = counter_were(monster.data?.pmidx);
     const target = state.mons?.[targetIndex];
     if (!target || target.pmidx !== targetIndex) {
-        throw new UnsupportedMonsterDistressError(
-            `unknown lycanthrope ${monster.data?.pmidx}`,
-        );
-    }
-    // No live initial-D:1 generator admits a lycanthrope. Preserve the exact
-    // inventory-free transformation for focused boundary tests and fail
-    // before feedback/state changes if later gameplay supplies gear or a
-    // monster-moving scary-square interaction.
-    if (monster.minvent || monster.misc_worn_check
-        || monster.mleashed || state.u?.usteed === monster
-        || state.u?.ustuck === monster) {
-        throw new UnsupportedMonsterDistressError(
-            'equipped or attached lycanthrope',
-        );
-    }
-    if (state.context?.mon_moving) {
-        throw new UnsupportedMonsterDistressError(
-            'monster-moving lycanthrope fear check',
-        );
+        // C reports an impossible state and returns without refusing the
+        // caller. Keep that discarded diagnostic explicit until pline.c's
+        // impossible() path is ported.
+        note_unported('pline.c impossible');
+        return null;
     }
     if (typeof normalized.redrawSquare !== 'function') {
         throw new TypeError(
@@ -2726,38 +2714,79 @@ function applyNewWereForm(monster, target, state, redrawSquare) {
         monster.mcanmove = true;
     }
     const healing = Math.trunc((monster.mhpmax - monster.mhp) / 4);
-    monster.mhp = Math.min(monster.mhp + healing, monster.mhpmax);
+    healmon(monster, healing, 0);
     redrawSquare(monster.mx, monster.my, state);
     return true;
 }
 
-// C ref: were.c new_were(), bounded to the inventory-free, non-mon_moving
-// distress state. Transformation feedback precedes the data change; wakeup,
-// one-quarter lost-HP regeneration, and redraw preserve source order.
+function noteNewWereEquipmentGaps(monster) {
+    let wornObject = Boolean(monster.mw || monster.misc_worn_check);
+    for (let object = monster.minvent; object && !wornObject;
+        object = object.nobj) {
+        wornObject = Boolean(object.owornmask);
+    }
+    if (wornObject)
+        note_unported('worn.c mon_break_armor');
+    if (monster.mw)
+        note_unported('weapon.c possibly_unwield');
+}
+
+function newWereTargetName(target) {
+    return is_human(target)
+        ? 'human'
+        : (target.pmnames?.[2] ?? '').slice(4);
+}
+
+async function announceNewWere(monster, target, normalized) {
+    if (normalized.canSeeMonster(monster, normalized)
+        && !heroHallucinating(normalized.state)) {
+        await normalized.message(
+            `${distressMonnam(monster)} changes into a ${newWereTargetName(target)}.`,
+            normalized.state,
+            normalized,
+        );
+    }
+}
+
+// C ref: were.c new_were() (95-138). Feedback precedes set_mon_data(); the
+// source then wakes helpless monsters, heals a quarter of lost HP, redraws,
+// checks equipment, and finally handles the monster-moving fear branch.
 export async function new_were(monster, rawEnv = {}) {
     const normalized = normalizedDistressEnv(rawEnv);
     const { state } = normalized;
     const target = preflightNewWere(monster, normalized);
     if (!target) return false;
 
-    if (normalized.canSeeMonster(monster, normalized)
-        && !heroHallucinating(state)) {
-        const targetName = is_human(target)
-            ? 'human'
-            : (target.pmnames?.[2] ?? '').slice(4);
-        await normalized.message(
-            `${distressMonnam(monster)} changes into a ${targetName}.`,
-            state,
-            normalized,
-        );
-    }
+    await announceNewWere(monster, target, normalized);
 
-    return applyNewWereForm(
+    const changed = applyNewWereForm(
         monster,
         target,
         state,
         (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
     );
+    noteNewWereEquipmentGaps(monster);
+
+    const onScary = normalized.onScary ?? onscary;
+    const nearMonster = normalized.monNear ?? monnear;
+    if (state.context?.mon_moving && !monster.mpeaceful
+        && onScary(monster.mux, monster.muy, monster, state)
+        && nearMonster(monster, monster.mux, monster.muy, state)) {
+        const flee = normalized.monFlee ?? monflee;
+        await flee(
+            monster,
+            normalized.random.rn1(9, 2),
+            true,
+            true,
+            {
+                ...normalized,
+                canSeeMonster: normalized.canSeeMonster,
+                fleeMessage: normalized.fleeMessage ?? responseFleeMessage,
+            },
+        );
+    }
+
+    return changed;
 }
 
 // C ref: mon.c m_respond_shrieker(). makemon() ignores its return here, but
@@ -3215,28 +3244,22 @@ function restoreWereShapeSynchronously(monster, state, rawEnv) {
     const target = preflightNewWere(monster, normalized);
     if (!target) return false;
 
-    if (normalized.canSeeMonster(monster, normalized)
-        && !heroHallucinating(state)) {
-        const targetName = is_human(target)
-            ? 'human'
-            : (target.pmnames?.[2] ?? '').slice(4);
-        const pending = normalized.message(
-            distressMonnam(monster) + ' changes into a ' + targetName + '.',
-            state,
-            normalized,
-        );
+    const pending = announceNewWere(monster, target, normalized);
+    if (pending && typeof pending.catch === 'function') {
         // normal_shape() is a synchronous C callback used by iter_mons().
         // Preserve its state-change ordering while allowing the shared TTY
         // message adapter to finish its asynchronous display work afterward.
-        if (pending && typeof pending.catch === 'function') pending.catch(() => {});
+        pending.catch(() => {});
     }
 
-    return applyNewWereForm(
+    const changed = applyNewWereForm(
         monster,
         target,
         state,
         (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
     );
+    noteNewWereEquipmentGaps(monster);
+    return changed;
 }
 
 // C ref: mon.c normal_shape() (4434-4464). Revert a chameleon or vampire to

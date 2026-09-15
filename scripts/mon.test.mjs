@@ -37,6 +37,7 @@ import {
     mon_regen,
     movemon,
     movemon_singlemon,
+    new_were,
     mpickstuff,
     seemimic,
     wake_msg,
@@ -55,11 +56,13 @@ import {
     PM_DWARF,
     PM_GNOME,
     PM_HUMAN_WEREWOLF,
+    PM_HUMAN_WERERAT,
     PM_SMALL_MIMIC,
     PM_PURPLE_WORM,
     PM_SANDESTIN,
     PM_VAMPIRE,
     PM_VLAD_THE_IMPALER,
+    PM_WERERAT,
     PM_WEREWOLF,
     S_EEL,
     monst_globals_init,
@@ -897,6 +900,122 @@ test('were_change draws before preflighting an unsuccessful human conversion',
         assert.deepEqual(calls, [50]);
         assert.equal(subject.data, state.mons[PM_HUMAN_WEREWOLF]);
         assert.equal(state.gw.were_changes, 0);
+    });
+
+test('new_were permits carried unworn inventory and preserves source order',
+    async () => {
+        const state = {
+            fixedDatetime: '20260720120000',
+            flags: { moonphase: 0 },
+            gw: { were_changes: 0 },
+            u: { uprops: [] },
+        };
+        monst_globals_init(state);
+        const carried = { otyp: 302, owornmask: 0, nobj: null };
+        const subject = newMonster({
+            data: state.mons[PM_HUMAN_WERERAT],
+            mhp: 17,
+            mhpmax: 25,
+            msleeping: true,
+            mfrozen: 4,
+            mcanmove: false,
+            minvent: carried,
+            mx: 4,
+            my: 4,
+        });
+        const events = [];
+        const unexpectedDraw = (name) => () =>
+            assert.fail(`new_were called unexpected ${name}`);
+        const random = {
+            d: unexpectedDraw('d'),
+            rn1: unexpectedDraw('rn1'),
+            rn2: unexpectedDraw('rn2'),
+            rnd: unexpectedDraw('rnd'),
+            rne: unexpectedDraw('rne'),
+        };
+
+        assert.equal(await new_were(subject, {
+            state,
+            random,
+            canSeeMonster: () => true,
+            message: () => { events.push('message'); },
+            redrawSquare: () => { events.push('redraw'); },
+        }), true);
+        assert.deepEqual(events, ['message', 'redraw']);
+        assert.equal(subject.data, state.mons[PM_WERERAT]);
+        assert.equal(subject.mnum, PM_WERERAT);
+        assert.equal(subject.mhp, 19);
+        assert.equal(subject.mhpmax, 25);
+        assert.equal(subject.msleeping, false);
+        assert.equal(subject.mfrozen, 0);
+        assert.equal(subject.mcanmove, true);
+        assert.equal(subject.minvent, carried);
+    });
+
+test('new_were reaches the source monster-moving fear branch after redraw',
+    async () => {
+        const state = {
+            fixedDatetime: '20260720120000',
+            flags: { moonphase: 0 },
+            gw: { were_changes: 0 },
+            context: { mon_moving: true },
+            u: { uprops: [] },
+        };
+        monst_globals_init(state);
+        const subject = newMonster({
+            data: state.mons[PM_HUMAN_WERERAT],
+            mhp: 20,
+            mhpmax: 20,
+            mpeaceful: false,
+            mux: 7,
+            muy: 8,
+            mx: 7,
+            my: 7,
+        });
+        const events = [];
+        const random = {
+            d: () => assert.fail('new_were called unexpected d'),
+            rn1(number, base) {
+                events.push(['rn1', number, base]);
+                assert.deepEqual([number, base], [9, 2]);
+                return 6;
+            },
+            rn2: () => assert.fail('new_were called unexpected rn2'),
+            rnd: () => assert.fail('new_were called unexpected rnd'),
+            rne: () => assert.fail('new_were called unexpected rne'),
+        };
+
+        assert.equal(await new_were(subject, {
+            state,
+            random,
+            canSeeMonster: () => false,
+            redrawSquare: () => { events.push('redraw'); },
+            onScary: (...args) => {
+                events.push('scary');
+                assert.deepEqual(args, [7, 8, subject, state]);
+                return true;
+            },
+            monNear: (...args) => {
+                events.push('near');
+                assert.deepEqual(args, [subject, 7, 8, state]);
+                return true;
+            },
+            monFlee: (...args) => {
+                events.push(['flee', args[1], args[2], args[3]]);
+                assert.equal(args[0], subject);
+                assert.equal(args[1], 6);
+                assert.equal(args[2], true);
+                assert.equal(args[3], true);
+            },
+        }), true);
+        assert.deepEqual(events, [
+            'redraw',
+            'scary',
+            'near',
+            ['rn1', 9, 2],
+            ['flee', 6, true, true],
+        ]);
+        assert.equal(subject.data, state.mons[PM_WERERAT]);
     });
 
 test('iter_mons_safe visits its original identities despite list mutation', async () => {
