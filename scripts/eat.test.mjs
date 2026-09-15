@@ -77,6 +77,8 @@ function state() {
 }
 
 test('temp_resist follows eat.c timeout-only resistance rules', () => {
+    // Seven turns is a nonzero timeout; FROMFORM, worn armor, and any
+    // nonzero blocker separately select C453–470's zero-result branches.
     const subject = state();
     subject.u = { uprops: [] };
     subject.u.uprops[ACID_RES] = { intrinsic: 7,

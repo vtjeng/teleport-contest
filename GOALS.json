@@ -47049,7 +47049,7 @@
           "line": 1487,
           "endLine": 2008,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -47124,7 +47124,58 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "attributes_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "attributes_enlightenment",
+            "sourceReview": "Read insight.c attributes_enlightenment() 1487-2005 in full and implemented its alignment, all resistance, vision, warning, appearance, transportation, physical, shape-change, movement, luck, deity-anger and death-disclosure branches in source order. The source-named item_resistance_message(), enlght_combatinc(), enlght_halfdmg() and walking_on_water() helpers preserve C thresholds and predicates. zap.c item_what() now uses the source armor/accessory categories, both-rings wording and byte-precise %.40s clipping; eat.c temp_resist() enforces timeout-only intrinsic protection; artifact.c what_gives() reads the canonical state.uwep. attrib.c from_what() calls the existing objnam.c bare_artifactname implementation for artifact sources. No branch in the selected function remains an UnsupportedEnlightenmentError refusal. The reference DEBUG named-fruit block is excluded by the recorder build, as documented by its compile condition. Coordinator independently read whole attributes_enlightenment1487–2005, the complete source helpers item_resistance_message1468–1483, enlght_combatinc160–199, enlght_halfdmg201–222, walking_on_water224–231 and N_times362–374; whole attrib.c from_what905–1005, artifact.c what_gives2372–2424, objnam.c bare_artifactname2502–2515, zap.c u_adtyp_resistance_obj5675–5698 and item_what5722–5762, eat.c temp_resist453–470, and pray.c can_pray2124–2173. Checked property definitions in youprop.h, source spell/monster/armor helpers, production enlightenment/doattributes/end disclosure/artifact invocation dispatch, all changed production code and source-pinned tests. Corrected source discrepancies include timeout-only resistance, equipment-category wording and bounded strings, exact blocked-flight comparison, vampire and lycanthrope source identities, final periodic-shape wording, integer tux threshold, mortality N_times/ordin, infravision provenance and canonical Sunsword state. Existing missing potion enlightenment, parent polymorph/alive-final admission and status_enlightenment conditions remain independent caller boundaries, not new refusals in this unit. Only the selected A7 commits were cherry-picked; separate07d51ee6 doppelganger admission and all web changes are excluded. No fixed-session total from the worker branch establishes integration completion; the combined checkpoint provides that evidence.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "Routes MAGICENLIGHTENMENT to attributes_enlightenment(), matching insight.c enlightenment() 416-421; the existing polymorphed-hero guard belongs to enlightenment() and is outside this selected function."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs",
+              "scripts/eat.test.mjs",
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-pilot.session.json",
+              "recordings/insight.c/attributes-enlightenment-wizard-orc.session.json",
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ],
+            "checkedAt": "b820c38965882a307cc57e11612363d32d1534d6"
+          }
+        ],
+        "entryPointReview": "This helper generates the magic attributes section through enlightenment; it adds no separate command dispatcher. Independent recordings exercise the in-progress wizard/explore mode through Ctrl-X and the dead-final mode through end.c disclose. Seven startup segments include one ordinary-mode negative control that does not execute attributes; an additional orc Wizard varies equipment and racial provenance. The ninth segment is a new death-disclosure route: its recorded step26 visibly contains Final Attributes, cold resistance and mortality after paging beyond Background/Characteristics. Coordinator inspected those actual C screens. The existing artifact invocation forwards the same in-progress magic mode; potion enlightenment and parent polymorph/alive-final admission remain separate unimplemented caller boundaries. This is not a claim to have completed all enlightenment callers or status_enlightenment.",
+        "entryPoints": [
+          {
+            "name": "In-progress magic attributes",
+            "functions": [
+              "attributes_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-pilot.session.json",
+              "recordings/insight.c/attributes-enlightenment-wizard-orc.session.json"
+            ]
+          },
+          {
+            "name": "Final-death attributes disclosure",
+            "functions": [
+              "attributes_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-final-disclosure.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

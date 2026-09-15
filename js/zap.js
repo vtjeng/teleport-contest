@@ -1589,7 +1589,7 @@ export function inventory_resistance_check(
 // C ref: zap.c item_what() (5722-5762).  This wizard-only formatter names the
 // equipment that protects inventory from an element.  The source deliberately
 // chooses category-specific simple names, reports both rings together, and
-// clips the final name to forty characters before adding the possessive prefix.
+// clips the final name to forty bytes before adding the possessive prefix.
 export function item_what(dmgtyp, state = game) {
     if (!state.wizard) return '';
     const prop = adtyp_to_prop(dmgtyp);

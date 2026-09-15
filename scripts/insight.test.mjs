@@ -1476,6 +1476,7 @@ test('mortality disclosure follows N_times and ordin', async () => {
 test('tux penalty uses C integer threshold boundaries', async () => {
     const state = await readyGame();
     state.iflags.tux_penalty = true;
+    // 4*9/5 truncates to7 in C; equality must skip "partly offsetting".
     state.urole.spelarmr = 9;
     state.u.uhitinc = 7;
     state.u.umonnum = state.u.umonster;
