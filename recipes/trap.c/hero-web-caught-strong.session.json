@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent web inputs selected by scanning seeds 8970000 through 8974999 at the fixed clock for a web reachable within 30 orthogonal floor steps; 8 of 5000 seeds qualified. No recorded session supplied these inputs. Barbarian strength and naturally present monsters provide cheap variations.",
+  "segments": [
+    {
+      "seed": 8971187,
+      "datetime": "20370609112743",
+      "nethackrc": "OPTIONS=name:Silk,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "hhhhhhhhkhhh "
+    }
+  ]
+}

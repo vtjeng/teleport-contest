@@ -13,6 +13,7 @@
 import { artifact_light } from './artifacts.js';
 import {
     BEAR_TRAP,
+    WEB,
     BURN,
     CORR,
     DOOR,
@@ -327,23 +328,11 @@ function assertSimpleActionState(monster, state) {
     // js/quest.js refuses every conversation branch it does not carry.
     if (monster.mfrozen)
         unsupported('inconsistent frozen monster state');
-    // trap.c mintrap()'s mtmp->mtrapped arm, which monmove.c m_move()'s
-    // prologue reaches at :1734, is admitted for the bear trap alone, and this
-    // gate is the sole guard rather than the outer half of two. mtrapped does
-    // not say which trap holds the monster, so the gate reads the square.
-    //
-    // What the ported arm would do with the others, if this gate let them by:
-    // a web is handled completely, since C's own line at 3768-3770 covers
-    // BEAR_TRAP and WEB alike; a pit stops at js/trap_effects.js's is_pit()
-    // refusal before any write; and only MAGIC_TRAP reaches C:3771's silent
-    // `else`, which messageAt() cannot reproduce, and its refusal fires only
-    // on the branch where the roll frees a visible monster. A web is excluded
-    // here anyway, because the metallivore refusal further down that arm is
-    // unconditional where C's block is conditional on ttyp. Keeping the gate
-    // ahead of dochug() is what stops a turn being half-spent on any of them.
+    // trap.c mintrap()'s held-monster arm is ported for bear traps and webs.
+    // Other trap types retain their source-specific escape dependencies.
     if (monster.mtrapped) {
         const heldBy = t_at(monster.mx, monster.my, state);
-        if (heldBy && heldBy.ttyp !== BEAR_TRAP)
+        if (heldBy && heldBy.ttyp !== BEAR_TRAP && heldBy.ttyp !== WEB)
             unsupported('a trapped monster');
     }
     if (monster.mtame && !monster.isminion) {
