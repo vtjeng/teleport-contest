@@ -47371,7 +47371,7 @@
     {
       "id": "div-teleport-teleds-ball-seed4500-20260914",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "open",
       "summary": "Fix teleds active punishment-ball transit and restore source-ordered chain movement.",
       "cFile": "teleport.c",
       "sessions": [],
@@ -47486,7 +47486,7 @@
     {
       "id": "div-sounds-domonnoise-seed0106-20260914",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Fix domonnoise ordinary monster sound branches and restore #chat responses.",
       "cFile": "sounds.c",
       "sessions": [],
@@ -47587,7 +47587,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+        "screens": 9659,
+        "rng": 699110
+      },
+      "parkedReason": "Park the second central goal while the first worker's immutable teleds delivery is integrated and validated. Worker B keeps its reserved sounds scope and continues independently."
     }
   ]
 }
