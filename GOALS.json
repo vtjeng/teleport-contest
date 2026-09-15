@@ -47013,6 +47013,109 @@
         "screens": 9653,
         "rng": 699110
       }
+    },
+    {
+      "id": "pilot-insight-attributes-seed0361",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete attribute enlightenment and source helpers",
+      "cFile": "insight.c",
+      "sessions": [
+        "seed0361-archeologist-tour"
+      ],
+      "selectionReason": "The user-authorized seed-worker pilot continues the A stream after its Archeologist Lua ports. investigations/seed0361-archeologist-tour.json identifies whole attributes_enlightenment at first mismatch360 with remaining-screen upper bound6. This existing delivery is completed before pilot wind-down; it excludes the separate unvalidated doppelganger admission and web work. Other ranked source owners remain outside this bounded stream.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "00b94f29879e61d02101787db15e471c66de74eb",
+      "openStanding": {
+        "sha": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+        "screens": 9653,
+        "rng": 699110
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "attributes_enlightenment",
+          "line": 1487,
+          "endLine": 2008,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1487,
+        "to": 2008
+      },
+      "activeStanding": {
+        "sha": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+        "screens": 9653,
+        "rng": 699110
+      },
+      "openMismatches": [
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 360,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: the attributes window requires Halluc_resistance",
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 6,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 6,
+              "status": "complete",
+              "commit": "6369a93eff1bde89dc9d15feedaa7ff2b1ea8298",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 360,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: the attributes window requires Halluc_resistance",
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 6
+              },
+              "summary": "All Archeologist level loaders now match. The first stop is the attributes command at zero-based step360: attributes_enlightenment refuses Halluc_resistance before rendering the magic attributes. This is missing behavior in a partial C function, so complete the whole attributes_enlightenment source unit, not isolated property branches.",
+              "source": {
+                "file": "nethack-c/upstream/src/insight.c",
+                "functions": [
+                  "attributes_enlightenment"
+                ],
+                "branch": "Whole attributes_enlightenment1487–2005, including the Halluc_resistance branch1559–1561 and every later property/capability/final-status branch. The selected command is wizard or explore Ctrl-X with MAGICENLIGHTENMENT.",
+                "callers": [
+                  "insight.c doattributes2010–2020 adds MAGICENLIGHTENMENT in wizard/explore mode and calls enlightenment.",
+                  "insight.c enlightenment416–422 dispatches attributes_enlightenment for magic disclosure; js/insight.js doattributes -> enlightenment -> attributes_enlightenment is the existing production route."
+                ],
+                "dependencies": [
+                  "Verify attrib.c from_what and every consumed-return property/naming helper across the complete source function; port missing consumed-return behavior, retaining only allowed discarded-return gaps.",
+                  "The existing JavaScript UNPORTED_ENLIGHTENMENT_PROPERTIES guards identify missing branches, not completed implementations. Whole-source evidence and independent matching entrypoint recordings are required."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Checkpoint6369a93e run-ehAf46 passes all gates and all200recordings; queue moves first mismatch333→360 and remaining upper bound33→6.",
+                "Coordinator read C1487–1600,1990–2020 and enlightenment405–425, and traced the existing JavaScript property guard and dispatch. Halluc_resistance is the first missing branch, not the complete implementation scope.",
+                "Worker branch commits7eafcb45,2a382c70,22bb8f7b add some missing branches but leave the C function partial; they remain unaccepted work in progress pending whole-function completion."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
