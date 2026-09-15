@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7317,
+      "datetime": "20311123110000",
+      "nethackrc": "OPTIONS=name:EndStairProbe,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0016?\n x",
+      "comment": "Independently selected seed 7317 and Priest setup. Wizard-mode level change to the second-page minend entry loads the bottom-of-Mines special map; its source-defined down stair reaches mklev.c mkstairs() at the dungeon endpoint, while the level-change redraw reaches display.c cls()."
+    }
+  ]
+}
