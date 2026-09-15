@@ -83,6 +83,16 @@ test('a child allocation exceeding the cgroup cap does not kill the observer', {
     assert.equal(process.pid, before);
 });
 
+test('OOM before helper startup still removes its private environment snapshot', { skip: !enabled }, () => {
+    // One MiB is below Node's startup footprint, so execute() cannot consume
+    // and delete the snapshot itself. The reaper must perform that cleanup.
+    const result = cli(command('console.log("must not run")', ['--memory-mib', '1']));
+    assert.notEqual(result.status, 0);
+    assert.equal(result.stdout, '');
+    assert.ok(receipt(result.id).reapedAt);
+    assert.equal(existsSync(join(state, result.id, 'environment.json')), false);
+});
+
 test('timeout kills a SIGTERM-resistant descendant and releases the reservation', { skip: !enabled }, () => {
     const result = cli(command('process.on("SIGTERM",()=>{}); for (;;) {}', ['--seconds', '1']));
     assert.equal(result.status, 124); // Runtime timeout, including forced stop after the grace period.
@@ -146,6 +156,17 @@ test('independent focused services can overlap and share the same bounded slice'
 });
 
 test('different full commands contend for one slot across working directories', { skip: !enabled }, async (t) => {
+    // Do not interfere with an existing checkpoint while running this probe.
+    // An unrelated owner could finish between observation and the probe; only
+    // a service this test owns can establish a stable exclusion schedule.
+    const existing = spawnSync('systemctl', ['--user', 'show', 'teleport-validation-full.service',
+        '--property=Description', '--value'], { encoding: 'utf8', timeout: 15_000 });
+    assert.equal(existing.status, 0, existing.stderr);
+    const existingId = /^teleport validation (run-[A-Za-z0-9]{6})/u.exec(existing.stdout)?.[1];
+    if (existingId) {
+        t.skip(`Full slot owned by ${existingId}; rerun this probe after its owner finishes.`);
+        return;
+    }
     const a = await start(t, ['full', '--seconds', '15', '--', process.execPath, '-e', 'setTimeout(()=>{},10000)']);
     const second = cli(['full', '--', process.execPath, '-e', 'console.log("must not run")'], { cwd: '/tmp' });
     assert.notEqual(second.status, 0);

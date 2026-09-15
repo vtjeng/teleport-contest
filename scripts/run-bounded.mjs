@@ -32,8 +32,9 @@ const USAGE = `Usage:
 focused: 2 GiB / 120 seconds. full: 6 GiB / 900 seconds; one full run at a time.
 All runs share a 10 GiB slice, with no swap and a two-second stop grace.
 Options may lower limits, never raise them. Commands receive the caller's cwd,
-arguments and environment, but no interactive stdin. stdout/stderr are retained
-separately and streamed while waiting. Receipts and logs live in ${STATE}.
+arguments and environment. stdin is closed: pass scripts as files or with -e,
+not through pipes or heredocs. stdout/stderr are retained separately and streamed
+while waiting. Receipts and logs live in ${STATE}.
 A duplicate launch fails with the existing run ID; wait reattaches without rerunning.
 SIGINT/SIGTERM stop the service; losing the launcher does not remove its limits.
 Requires Linux, cgroup v2, systemd 254+ and a working user manager. Run outside
@@ -160,6 +161,7 @@ function launch(id) {
         `--property=RuntimeMaxSec=${receipt.seconds}s`, `--property=TimeoutStopSec=${STOP_SECONDS}s`,
         '--property=KillMode=control-group', '--property=OOMPolicy=kill',
         '--property=ExitType=cgroup', '--property=LimitCORE=0',
+        '--property=StandardInput=null',
         `--property=StandardOutput=append:${join(dir, 'stdout.log')}`,
         `--property=StandardError=append:${join(dir, 'stderr.log')}`,
         '--setenv=NODE_OPTIONS=', process.execPath, SCRIPT, '--exec', id]);
@@ -177,6 +179,10 @@ function finish(id, stop) {
         receipt.result = { reason: 'stopped', exitCode: 143 };
     }
     if (!receipt.result) return receipt;
+    // A cap below Node's startup footprint can kill the helper before it reads
+    // its private environment snapshot. Do not retain that snapshot with logs.
+    const environment = join(directory(id), 'environment.json');
+    if (existsSync(environment)) unlinkSync(environment);
     receipt.finishedAt ||= new Date().toISOString();
     // Save the outcome before releasing the reservation. Other waiters take
     // the same flock and read this receipt instead of touching a reused unit.
