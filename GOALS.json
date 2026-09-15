@@ -49399,6 +49399,121 @@
         "screens": 9892,
         "rng": 728094
       }
+    },
+    {
+      "id": "div-domove-engraving-seed0009-20260915",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore source-ordered movement success bookkeeping and engraving-run cancellation for the seed0009 divergence.",
+      "cFile": "hack.c",
+      "sessions": [
+        "holdout/seed0009-swimmer-mforce"
+      ],
+      "selectionReason": "An existing independent investigation of holdout/seed0009-swimmer-mforce traces its first mismatch at step 19 to hack.c domove()/domove_core() and engrave.c read_engr_at(), with 54 remaining screens. The current top-ranked pray.c candidate is a separate later-turn scope; this earlier source-traced movement boundary is independent of all live reservations and was atomically claimed by worker A.",
+      "detail": "C clears domove_attempting after the explicit move, records domove_succeeded only for WALK/RUSH attempts, and skips maybe_smudge_engr() on automatic continuations. C engrave.c read_engr_at() cancels context.run after displaying a sensed engraving; JavaScript currently smudges unconditionally and leaves the run active. Implement the source owners together, preserve explicit movement RNG and output ordering, and use named gaps only for discarded unported callees.",
+      "spans": [
+        {
+          "name": "domove/domove_core/read_engr_at",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "domove",
+            "domove_core",
+            "read_engr_at"
+          ]
+        }
+      ],
+      "openedAt": "92e1b26453aa87716c10a7df61dec39bbfe32a7e",
+      "openStanding": {
+        "sha": "80a950a8ec82b54cf051b9aabccd748056bf66ac",
+        "screens": 9892,
+        "rng": 728094
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "domove",
+      "session": "holdout/seed0009-swimmer-mforce",
+      "step": 19,
+      "activeStanding": {
+        "sha": "80a950a8ec82b54cf051b9aabccd748056bf66ac",
+        "screens": 9892,
+        "rng": 728094
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 19,
+          "kind": "rng",
+          "function": "mcalcmove",
+          "functionDeclared": true,
+          "sourceFile": "mon.c",
+          "cFile": "mon.c",
+          "luaFile": null,
+          "line": 1164,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 54,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 54,
+              "status": "complete",
+              "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "step": 19,
+                "kind": "rng",
+                "function": "mcalcmove",
+                "functionDeclared": true,
+                "sourceFile": "mon.c",
+                "cFile": "mon.c",
+                "luaFile": null,
+                "line": 1164,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 73,
+                "remainingScreensUpperBound": 54
+              },
+              "summary": "A repeated run step reaches an engraving with domove_attempting already zero. C hack.c:domove() suppresses its engraving-wear call unless domove_core() recorded a successful WALK/RUSH attempt; JS unconditionally smudges after every moved step, inserting rnd(5) before the expected mcalcmove draw. A second omission in engrave.c:read_engr_at() leaves running active after reading the engraving, so the hero continues two extra tiles into a wall. Repair the movement-success bookkeeping and the engraving run-cancellation contract together; the mcalcmove annotation is downstream.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "domove()",
+                  "domove_core()"
+                ],
+                "branch": "hack.c:2695-2709 and 2964-2968: an automatic movement continuation comes from allmain.c:moveloop_core() with gd.domove_attempting == 0 because the first domove() cleared it. Although the hero changes position, gd.domove_succeeded receives no DOMOVE_WALK/DOMOVE_RUSH bit, so domove() must skip maybe_smudge_engr(). At the same destination, a nonempty sensed engraving and svc.context.run > 0 require engrave.c:read_engr_at() to call nomul(0) after both messages and engraving-memory writes.",
+                "callers": [
+                  "cmd.c:set_move_cmd():1387-1399 sets DOMOVE_RUSH for H; cmd.c:rhack():3792-3801 calls the first domove(), establishing multi and context.mv. JS cmd.js:set_move_cmd():2104-2115 and executeMovement():2683-2717 provide this path.",
+                  "allmain.c:moveloop_core():513-534 repeats domove() directly while multi > 0 and context.mv, without another set_move_cmd(); JS allmain.js:1515-1533 preserves that caller distinction.",
+                  "hack.c:domove_core():2964-2980 records success before spoteffects(TRUE); hack.c:spoteffects():3379-3381 calls pickup(1), pickup.c:702-708 calls read_engr_at() when no object is present. The pinned replay stack reaches JS hack.js:4183, hack.js:4963, pickup.js:1206, and engrave.js:497 in that order."
+                ],
+                "dependencies": [
+                  "engrave.c:read_engr_at():317-405, including sensed-message branches, bounded display text, remembered/pristine text handling, and final nomul(0) when run > 0. JS engrave.js:423-505 currently omits cancellation; reconcile the whole function while wiring the existing hack.js:nomul() implementation.",
+                  "hack.c:nomul():4161-4173 and end_running():4130-4158 clear multi, run, mv, travel, travelmap, sleep/invulnerability and the canned command queue. JS hack.js:1037-1051 and 884-901 already own these updates; do not replace nomul(0) with isolated run-field assignments.",
+                  "hack.c:maybe_smudge_engr():3019-3030 and engrave.c:can_reach_floor()/wipe_engr_at() consume return values/state at the post-move boundary. Preserve their random calls for successful explicit WALK/RUSH attempts while restoring the source mask that excludes continuations.",
+                  "cmd.c:set_move_cmd()/rhack()/dotravel_target() and allmain.c:moveloop_core() own initial versus repeated movement intent. Preserve their caller distinction and clear gd.domove_attempting after every domove() return.",
+                  "mkmaze.c:maybe_adjust_hero_bubble():1929-1941 shares hack.c:domove()'s success-mask branch with maybe_smudge_engr(). It returns immediately off the Water Plane; on that plane a nonzero direction plus hero_bubble permits rn2(2) and bubble-direction writes. The function already exists in js/mkmaze.js:654, so wire it at the source call when restoring the whole domove() wrapper.",
+                  "pickup.c:check_here()/pickup(), invent.c:look_here(), and allmain.c:moveloop_preamble() also reach read_engr_at(); preserve sensing, message/input ordering, and run cancellation consistently across those callers."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Pinned source provenance: git show a0986b8404a83d232bee4bd2b5a9433337cf2739:<path>; the upstream gitlink is 16ff59115315917b93185d026aeefea06db9b0f4, inspected with git -C nethack-c/upstream show. The former count-56 describe_decor refusal was repaired before this commit; the assigned queue now starts at step 19 with count 54.",
+                "The single assigned session replay was run in .cache/seed0009-investigation-a0986b8/workspace, extracted from the pinned commit and overlaid with its frozen/isaac64.js, frozen/terminal.js, and frozen/storage.js. Reproduce from the repository root with node .cache/seed0009-investigation-a0986b8/replay.mjs; its artifact is .cache/seed0009-investigation-a0986b8/replay.json. It replays only sessions/holdout/seed0009-swimmer-mforce.session.json, observes input-boundary state through the existing capture hook, and makes no game-source changes.",
+                "Replay and recording agree through RNG index 3520. At index 3521, step 19, C expects rn2(12)=3 from mon.c:mcalcmove():1164, while JS emits rnd(5)=1. The previous step has matching twelve-call upkeep slices, so this is the first extra call, not a mismatch inferred from aggregate totals.",
+                "At step 18's engraving More boundary the pinned JS state is moves=4, hero=(8,5), multi=80, context.run=1, context.mv=1, domoveAttempting=0. The destination engraving has type ENGRAVE (2), text \"Move diagonally with b u n y\", and eread=false because the second pline is awaiting dismissal. The observed call stack is read_engr_at -> pickup -> spoteffects -> domove_core.",
+                "C cmd.c:1396-1398 sets the attempt bit only when a movement command is dispatched. hack.c:2706 clears it after that first domove(); allmain.c:525-526 calls domove() directly for subsequent run steps. hack.c:2966-2967 ORs the attempt mask into domove_succeeded, and hack.c:2702 tests that mask before maybe_smudge_engr(). JS hack.js:3805-3808 has no success record and hack.js:4190 calls maybe_smudge_engr() unconditionally, despite the observed zero attempt bit. This deterministically explains the first extra rnd(5) before normal upkeep.",
+                "C engrave.c:396-402 prints the reading, remembers text, marks eread/erevealed, then calls nomul(0) when context.run > 0. JS engrave.js:497-504 performs the output and memory writes but returns without cancellation. Thus the same recording's step 19 keeps the C cursor at [7,6,1] and only the reading message, while JS reaches cursor [5,6,1] with \"It's a wall.\" appended and moves=7. JS continued two westward moves beyond the engraving.",
+                "Implementation scope: restore the whole domove() wrapper and domove_core() success-record writes as a divergence fix, maintaining gd.domove_attempting and gd.domove_succeeded as distinct source values and preserving the source position-change condition and early-return behavior. Include the source-complete read_engr_at() correction and nomul caller wiring needed to stop the same run. Do not alter mcalcmove or insert compensating RNG calls.",
+                "Validation targets for the implementing worker: independent recorded cases with an engraving reached by the first explicit move versus a later automatic run/count continuation; an empty/unseen engraving case that preserves running; and a sensed engraving case that stops it. Preserve explicit-move smudge draws, skipped continuation draws, output/input boundaries, and all nomul state updates. The later step-29 decor-description refusal in the unchanged replay is a separate source boundary and no additional gain is predicted from the count-54 upper bound."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
