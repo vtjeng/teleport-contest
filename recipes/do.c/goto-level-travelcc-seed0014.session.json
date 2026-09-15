@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 14,
+      "datetime": "20260503050437",
+      "nethackrc": "OPTIONS=name:TravelReset,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!tips\n",
+      "moves": "   _lll.\u00162\n"
+    }
+  ]
+}
