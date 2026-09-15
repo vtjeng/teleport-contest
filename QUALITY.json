@@ -278,6 +278,7 @@
         "js/iactions.js",
         "js/input.js",
         "js/lock.js",
+        "js/music.js",
         "js/pager.js",
         "js/pline.js",
         "js/sit.js",

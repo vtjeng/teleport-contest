@@ -1,23 +1,49 @@
-// dbridge.js -- port of NetHack 5.0 src/dbridge.c: drawbridge creation.
-// Only create_drawbridge() is ported; the rest of the file (the entities
-// under and beside a bridge, open/close/destroy) is not.
-
+// dbridge.c — drawbridge creation and portcullis lookup predicates.
 import {
-    DBWALL,
-    DB_EAST,
-    DB_LAVA,
-    DB_NORTH,
-    DB_SOUTH,
-    DB_WEST,
-    DOOR,
-    DRAWBRIDGE_DOWN,
-    DRAWBRIDGE_UP,
-    D_NODOOR,
-    IS_WALL,
-    LAVAPOOL,
-    W_NONDIGGABLE,
+    DB_DIR, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST, DBWALL, DOOR,
+    DB_LAVA, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, D_NODOOR, IS_WALL,
+    IS_DRAWBRIDGE, LAVAPOOL, W_NONDIGGABLE, isok,
 } from './const.js';
 import { game } from './gstate.js';
+
+// C ref: dbridge.c is_drawbridge_wall() (137-162). Return the direction,
+// including DB_NORTH=0, or -1; callers must not test JavaScript truthiness.
+export function is_drawbridge_wall(x, y, state = game) {
+    if (!isok(x, y)) return -1;
+    const location = state.level.at(x, y);
+    if (location.typ !== DOOR && location.typ !== DBWALL) return -1;
+    for (const [dx, dy, direction] of [
+        [1, 0, DB_WEST], [-1, 0, DB_EAST],
+        [0, -1, DB_SOUTH], [0, 1, DB_NORTH],
+    ]) {
+        if (!isok(x + dx, y + dy)) continue;
+        const neighbor = state.level.at(x + dx, y + dy);
+        if (IS_DRAWBRIDGE(neighbor.typ)
+            && ((neighbor.flags || neighbor.drawbridgemask || 0) & DB_DIR)
+                === direction) return direction;
+    }
+    return -1;
+}
+
+// C ref: dbridge.c is_db_wall() (170-173).
+export function is_db_wall(x, y, state = game) {
+    return state.level.at(x, y).typ === DBWALL;
+}
+
+// C ref: dbridge.c find_drawbridge() (180-205). The coordinate object
+// represents C's two in/out arguments; failure leaves both unchanged.
+export function find_drawbridge(position, state = game) {
+    if (IS_DRAWBRIDGE(state.level.at(position.x, position.y).typ)) return true;
+    const direction = is_drawbridge_wall(position.x, position.y, state);
+    if (direction < 0) return false;
+    switch (direction) {
+    case DB_NORTH: position.y++; break;
+    case DB_SOUTH: position.y--; break;
+    case DB_EAST: position.x--; break;
+    case DB_WEST: position.x++; break;
+    }
+    return true;
+}
 
 // C ref: dbridge.c create_drawbridge(). Creation of a drawbridge at (x, y)
 // facing `dir`; `flag` true wants the bridge open. The square beyond it in

@@ -18,16 +18,11 @@ import {
     CLOUD,
     COULD_SEE,
     CORR,
-    DB_DIR,
-    DB_EAST,
     DB_FLOOR,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
-    DB_NORTH,
-    DB_SOUTH,
     DB_UNDER,
-    DB_WEST,
     DBWALL,
     DOOR,
     DRAWBRIDGE_DOWN,
@@ -87,6 +82,7 @@ import {
     isok,
 } from './const.js';
 import { cansee } from './vision.js';
+import { is_drawbridge_wall } from './dbridge.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
@@ -1091,45 +1087,8 @@ function drawbridgeMask(location) {
     return location?.flags || location?.drawbridgemask || 0;
 }
 
-function isDrawbridge(location) {
-    return [DRAWBRIDGE_UP, DRAWBRIDGE_DOWN].includes(location?.typ);
-}
-
-// C ref: dbridge.c is_drawbridge_wall() (148-159). C returns a direction or
-// -1; the port answers a boolean because every caller only tests >= 0.
-// This and is_db_wall() below belong in a js/dbridge.js port of that file.
-// is_drawbridge_wall() lives here because this file held its first caller;
-// is_db_wall() sits beside its sibling from the same C file, and its only
-// caller is js/hack.js test_move().
-export function is_drawbridge_wall(x, y, state) {
-    if (!isok(x, y)) return false;
-    const location = state.level?.at(x, y);
-    if (![DOOR, DBWALL].includes(location?.typ)) return false;
-    for (const [dx, dy, direction] of [
-        [1, 0, DB_WEST],
-        [-1, 0, DB_EAST],
-        [0, -1, DB_SOUTH],
-        [0, 1, DB_NORTH],
-    ]) {
-        if (!isok(x + dx, y + dy)) continue;
-        const neighbor = state.level?.at(x + dx, y + dy);
-        if (isDrawbridge(neighbor)
-            && (drawbridgeMask(neighbor) & DB_DIR) === direction) return true;
-    }
-    return false;
-}
-
-// C ref: dbridge.c is_db_wall() (167-173). The narrower question its comment
-// draws out: this square is a drawbridge wall that is up, where
-// is_drawbridge_wall() answers for a portcullis whether the bridge is up or
-// down. C reads levl[x][y].typ with no isok() guard and no neighbour walk, so
-// the whole predicate is the type test.
-export function is_db_wall(x, y, state) {
-    return state.level?.at(x, y)?.typ === DBWALL;
-}
-
 function doorDescription(location, x, y, state) {
-    if (is_drawbridge_wall(x, y, state))
+    if (is_drawbridge_wall(x, y, state) >= 0)
         return 'open drawbridge portcullis';
     const mask = location.flags || location.doormask || 0;
     if ((mask & ~D_TRAPPED) === D_BROKEN) return 'broken door';

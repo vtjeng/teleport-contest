@@ -172,7 +172,7 @@ import { artifactTouchable, artifact_light } from './artifacts.js';
 import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
 import { newsym, vobj_at } from './display.js';
-import { Amonnam, capitalizedMonsterName, monsterCommonName } from './do_name.js';
+import { Adjmonnam, Amonnam, Monnam, capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { is_digging } from './dig.js';
 import { could_reach_item } from './dogmove.js';
@@ -324,7 +324,7 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import { lined_up, m_has_launcher_and_ammo } from './mthrowu.js';
-import { an, xnameFresh } from './objnam.js';
+import { an, bare_artifactname, xnameFresh, yname } from './objnam.js';
 import {
     find_defensive, find_offensive, searches_for_item, use_defensive,
 } from './muse.js';
@@ -1976,6 +1976,38 @@ function isSokoPrize(obj, state) {
 // calls for the five source kinds below. release_hero() is now ported above;
 // createGasCloud owns create_gas_cloud(). Required downstream operations are
 // checked before release or flee-state mutation.
+// Source monflee's pline_mon/verbalize output, shared with instrument fear.
+// The decision and its random draws remain in monflee below.
+export async function monfleeMessage(monster, detail, env = {}) {
+    if (env.planning) return;
+    const state = env.state ?? game;
+    const message = env.message ?? ttyPline;
+    let text;
+    switch (detail.kind) {
+    case 'immobile-flinch':
+        text = `${Adjmonnam(monster, 'immobile', state)} seems to flinch.`;
+        break;
+    case 'frightened':
+        text = `${Monnam(monster, state)} is frightened.`;
+        break;
+    case 'painful-light': {
+        const source = detail.lightSource;
+        const light = source && source === state.uwep ? bare_artifactname(source, state)
+            : source && source === state.uarm ? yname(source, state) : '[its imagination?]';
+        text = `${Monnam(monster, state)} flees from the painful light of ${light}.`;
+        break;
+    }
+    case 'bright-light':
+        if (!state.flags.acoustics) return;
+        text = '"Bright light!"';
+        break;
+    default:
+        text = `${Monnam(monster, state)} turns to flee.`;
+        break;
+    }
+    return message(messageAt(text, monster.mx, monster.my, state), state, env);
+}
+
 export async function monflee(
     monster,
     fleeTime,

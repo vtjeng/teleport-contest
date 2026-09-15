@@ -2,12 +2,13 @@
 // C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
 // use_stethoscope(), its_dead(), and reset_trapset().
 //
-// doapply()'s switch has thirty-odd named arms. Seven are live: CREAM_PIE,
+// doapply()'s switch has thirty-odd named arms. The live groups are CREAM_PIE,
 // STETHOSCOPE, the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
 // pick_lock() serves, MAGIC_MARKER which delegates to write.c dowrite() in
 // js/write.js, the container arm (LARGE_BOX/CHEST/ICE_BOX/SACK/BAG_OF_HOLDING/
 // OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
 // BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
+// musical instruments through music.c, HORN_OF_PLENTY through mkobj.c,
 // and the ordinary CARROT unknown-use result. Ordinary armor reaches the same
 // switch-default refusal. Every other named arm, the default's weapon
 // redirects, and the wand, spellbook and coin shortcuts above the switch stop
@@ -142,6 +143,7 @@ import {
 } from './mondata.js';
 import { closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
+import { do_play_instrument } from './music.js';
 import { get_mtraits } from './corpstat.js';
 import { discover_object } from './o_init.js';
 import {
@@ -178,6 +180,16 @@ import {
     FOOD_CLASS,
     GEM_CLASS,
     HORN_OF_PLENTY,
+    BUGLE,
+    DRUM_OF_EARTHQUAKE,
+    FIRE_HORN,
+    FROST_HORN,
+    LEATHER_DRUM,
+    MAGIC_FLUTE,
+    MAGIC_HARP,
+    TOOLED_HORN,
+    WOODEN_FLUTE,
+    WOODEN_HARP,
     LENSES,
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
@@ -1277,6 +1289,18 @@ export async function doapply(state = game, env = {}) {
         // C's res starts as ECMD_TIME; hornoplenty doesn't change it.
         await hornoplenty(obj, false, null, { state });
         return ECMD_TIME;
+    case WOODEN_FLUTE:
+    case MAGIC_FLUTE:
+    case TOOLED_HORN:
+    case FROST_HORN:
+    case FIRE_HORN:
+    case WOODEN_HARP:
+    case MAGIC_HARP:
+    case BUGLE:
+    case LEATHER_DRUM:
+    case DRUM_OF_EARTHQUAKE:
+        // apply.c:4372-4383. All musical instruments share this owner.
+        return do_play_instrument(obj, state, env);
     default:
         // apply.c:4407-4417. CARROT is not a named switch arm, and it cannot
         // be a polearm, pick, or axe because those macros admit only

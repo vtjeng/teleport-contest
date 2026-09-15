@@ -209,7 +209,7 @@ import { newsym, obj_to_glyph } from './display.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
-import { is_drawbridge_wall } from './startup_a11y.js';
+import { is_drawbridge_wall } from './dbridge.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at, Levitation } from './trap.js';
 import { hidden_gold } from './vault.js';
@@ -488,7 +488,7 @@ export function dfeature_at(x, y, state = game) {
             break;
         }
         /* override door description for open drawbridge */
-        if (is_drawbridge_wall(x, y, state)) {
+        if (is_drawbridge_wall(x, y, state) >= 0) {
             dfeature = 'open drawbridge portcullis';
             cmap = -1;
         }

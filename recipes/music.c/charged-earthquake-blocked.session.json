@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent representative charged case just beyond the depleted-drum variation. Blocked by music.c do_earthquake, an explicit missing discarded-return callee of the whole do_improvisation owner. No passing recording is committed for this case.",
+  "segments": [
+    {
+      "seed": 8547721,
+      "datetime": "20350812112743",
+      "nethackrc": "OPTIONS=name:MusicPilot,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed drum of earthquake (0:1)\nae "
+    }
+  ]
+}
