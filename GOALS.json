@@ -46777,7 +46777,16 @@
       ],
       "selectionReason": "User-authorized seed-worker pilot continues the seed0002 stream. Its first mismatch587 leaves upper bound8 in investigations/holdout/seed0002-healer-reflection-drummer.json. Source-traced owner is whole objnam.c obj_typename with required xcalled and existing naming caller corrections; other ranked sessions remain assigned or outside this bounded pilot stream.",
       "detail": "",
-      "spans": [],
+      "spans": [
+        {
+          "name": "obj_typename",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "obj_typename"
+          ]
+        }
+      ],
       "openedAt": "5f9c8425864d2012e022ca7206eb59d9ccbaf9d4",
       "openStanding": {
         "sha": "894a6122f42097baed2fdaef0295969c591d570e",
