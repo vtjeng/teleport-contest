@@ -49813,15 +49813,15 @@
           "name": "fix_curse_trouble",
           "line": 349,
           "endLine": 372,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "fix_worst_trouble",
           "line": 373,
           "endLine": 609,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -49864,7 +49864,86 @@
         "screens": 10023,
         "rng": 739061
       },
-      "parkedReason": "Park while B-r2-4 correction is accepted and the A-r2-4 source-backed revalidation path is prepared; preserve the A delivery, failed checkpoint, and queued dependent work."
+      "parkedReason": "Park while B-r2-4 correction is accepted and the A-r2-4 source-backed revalidation path is prepared; preserve the A delivery, failed checkpoint, and queued dependent work.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "fix_curse_trouble",
+            "implementation": "js/pray.js",
+            "symbol": "fix_curse_trouble",
+            "sourceReview": "The existing port was re-read against pray.c:348-370. It preserves the null-object boundary, Glib glove-clearing branch and early return, Blind/Blindfolded_only visibility gate, amber glow message, last_msg and bknown writes, then uncurse and update_inventory in source order. Unported helper calls remain explicit note_unported() boundaries.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:456,489,494,503,512,531,539 calls fix_curse_trouble() from the collapsing, cursed-equipment, blindfold, fumbling, and cursed-item arms"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:1139-1156 reaches fix_worst_trouble() after prayer_done() selects a trouble-repair action"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "failClosedCommand",
+                "source": "pray.c:2197 #pray dispatches dopray(); js/cmd.js routes the extended command to dopray(), which schedules prayer_done() and then pleased()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/wizard-confusion-prayer-seed4507.session.json"
+            ],
+            "checkedAt": "7e1d98c227f9cad94ae005dccd38230c37215e02"
+          },
+          {
+            "name": "fix_worst_trouble",
+            "implementation": "js/pray.js",
+            "symbol": "fix_worst_trouble",
+            "sourceReview": "The complete pray.c:373-600 switch was re-read. This correction is limited to the saddle arm at pray.c:591-598: C calls Yobjnam2(), hcolor(), set_bknown(otmp, 1), then uncurse(otmp). JavaScript now calls the existing set_bknown(otmp, 1, { state }) owner at that source point instead of writing otmp.bknown directly, preserving the message, knowledge update, uncurse order, and no new RNG calls. Every other arm and fallthrough remains unchanged; unported callees continue to use explicit note_unported() boundaries.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c:1139-1156 calls fix_worst_trouble() for action 4/5 all-trouble repair, action 3 plus major-trouble repair, and action 1 worst-major repair"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:2276-2343 calls pleased() for the successful p_type 0 and wizard-forced reward paths"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "failClosedCommand",
+                "source": "pray.c:2197 #pray command reaches dopray(), whose afternmv callback reaches prayer_done()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/wizard-confusion-prayer-seed4507.session.json"
+            ],
+            "checkedAt": "7e1d98c227f9cad94ae005dccd38230c37215e02"
+          }
+        ],
+        "entryPointReview": "The source range is helper-only; its production entry point is #pray. cmd.c:2197 dispatches dopray(), prayer_done() invokes pleased() at pray.c:2333/2340, and pleased() invokes fix_worst_trouble() at pray.c:1139,1145,1151,1156. The existing independent wizard-mode recording reaches the timed-trouble repair path; the correction's saddle test reaches the corrected source arm directly with source-pinned assertions.",
+        "entryPoints": [
+          {
+            "name": "#pray successful timed-trouble repair",
+            "functions": [
+              "fix_curse_trouble",
+              "fix_worst_trouble"
+            ],
+            "recordings": [
+              "recordings/pray.c/wizard-confusion-prayer-seed4507.session.json"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "port-trap-water-damage-seed0106-20260915",
