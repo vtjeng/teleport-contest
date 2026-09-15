@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fresh production witness: a debug-created hobbit receives a sling and rocks, then spends a rock through thrwmu(), monshoot(), and m_throw().",
+  "segments": [
+    {
+      "seed": 9510006,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:StoneProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,rest_on_space,!safe_wait\n",
+      "moves": " \u0007hobbit\nllllssssssss"
+    }
+  ]
+}
