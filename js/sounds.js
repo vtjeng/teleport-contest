@@ -2,6 +2,8 @@
 // C refs: sounds.c dosounds() through sound_speak().
 
 import {
+    A_LAWFUL,
+    BLOOD,
     ANY_SHOP,
     BARRACKS,
     BEEHIVE,
@@ -23,6 +25,8 @@ import {
     INVIS,
     IRONBARS,
     IS_WALL,
+    FULL_MOON,
+    In_endgame,
     Is_astralevel,
     MALE,
     M_AP_FURNITURE,
@@ -32,6 +36,9 @@ import {
     MS_ARREST,
     MS_BARK,
     MS_BELLOW,
+    MS_BONES,
+    MS_BURBLE,
+    MS_BRIBE,
     MS_BOAST,
     MS_BUZZ,
     MS_CHIRP,
@@ -41,6 +48,7 @@ import {
     MS_GROWL,
     MS_GRUNT,
     MS_GUARD,
+    MS_GURGLE,
     MS_GUARDIAN,
     MS_HISS,
     MS_HUMANOID,
@@ -50,14 +58,17 @@ import {
     MS_MEW,
     MS_MOO,
     MS_MUMBLE,
+    MS_NEMESIS,
     MS_NEIGH,
     MS_NURSE,
     MS_ORACLE,
     MS_ORC,
     MS_PRIEST,
     MS_ROAR,
+    MS_RIDER,
     MS_SEDUCE,
     MS_SELL,
+    MS_SHRIEK,
     MS_SILENT,
     MS_SOLDIER,
     MS_SPELL,
@@ -89,7 +100,9 @@ import {
     sff_default,
     sff_havedir_append_rest,
     voice_deity,
+    voice_death,
     voice_talking_artifact,
+    Upolyd,
 } from './const.js';
 import { getdir } from './cmd.js';
 import {
@@ -104,9 +117,11 @@ import { cursed } from './do_wear.js';
 import {
     capitalizedMonsterName,
     monsterCommonName,
+    noveltitle,
     pmname,
     rndmonnam,
 } from './do_name.js';
+import { night, midnight } from './calendar.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
@@ -115,40 +130,67 @@ import {
     encodeUtf8ByteString,
 } from './hacklib.js';
 import { search_special } from './mkroom.js';
-import { get_iter_mons, wake_nearto } from './mon.js';
+import { genus, get_iter_mons, wake_nearto } from './mon.js';
 import {
     carnivorous,
     haseyes,
     herbivorous,
     humanoid,
     is_animal,
+    is_dwarf,
     is_flyer,
+    is_gnome,
+    is_elf,
     is_lord,
+    is_minion,
+    is_mplayer,
     is_mercenary,
     is_prince,
     is_silent,
     is_undead,
     is_vampshifter,
+    likes_magic,
     mhis,
+    monsndx,
     perceives,
+    same_race,
 } from './mondata.js';
 import {
+    PM_ARCHEOLOGIST,
+    PM_BABY_SILVER_DRAGON,
+    PM_DEATH,
+    PM_DINGO,
     PM_GECKO,
+    PM_HOBBIT,
+    PM_HEALER,
+    PM_HUMAN_WERERAT,
     PM_LONG_WORM,
     PM_ORACLE,
+    PM_PRISONER,
+    PM_RAVEN,
+    PM_SILVER_DRAGON,
+    PM_TOURIST,
+    PM_VAMPIRE,
+    PM_VAMPIRE_LEADER,
+    PM_WATER_DEMON,
+    PM_WINTER_WOLF,
+    PM_WINTER_WOLF_CUB,
+    PM_WOLF,
     S_NYMPH,
     S_ANT,
     S_EEL,
+    S_CENTAUR,
 } from './monsters.js';
 import { accessible } from './monmove.js';
 import { m_at } from './monst.js';
-import { g_at } from './obj.js';
+import { g_at, is_weptool } from './obj.js';
 import { an, helm_simple_name, vtense } from './objnam.js';
-import { STATUE } from './objects.js';
+import { currency, money_cnt, u_have_novel } from './invent.js';
+import { STATUE, WEAPON_CLASS } from './objects.js';
 import { halu_gname } from './pray.js';
 import { body_part, poly_gender } from './polyself.js';
 import { quest_chat } from './quest.js';
-import { inhistemple, p_coaligned, temple_occupied } from './priest.js';
+import { inhistemple, mon_aligntyp, p_coaligned, temple_occupied } from './priest.js';
 import { rn1, rn2 } from './rng.js';
 import { genders } from './roles.js';
 import { canSpotMonster } from './startup_a11y.js';
@@ -158,6 +200,8 @@ import { ttyPline } from './tty_message.js';
 import { cansee, canseemon, couldsee } from './vision.js';
 import { vault_occupied } from './vault.js';
 import { which_armor } from './worn.js';
+import { t_at } from './trap.js';
+import { note_unported } from './unported.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -931,81 +975,441 @@ export class UnsupportedChatError extends Error {
 
 // C ref: sounds.c domonnoise() (679-1247). The leader is identified by its
 // persistent m_id rather than by its current species, because the leader can
-// be polymorphed and still speaks with quest-leader dialogue. This span also
-// ports the ordinary MS_SEDUCE response; other sound families remain
-// fail-closed at this boundary until their own slices land.
-async function domonnoise(mtmp, state) {
+// be polymorphed and still speaks with quest-leader dialogue. The switch is
+// kept in the source order so its fall-through and random draws stay visible.
+export async function domonnoise(mtmp, state = game) {
+    const ptr = mtmp.data;
     if (Deaf(state)) return ECMD_OK;
-    if (is_silent(mtmp.data) && !mtmp.isshk) return ECMD_OK;
+    if (is_silent(ptr) && !mtmp.isshk) return ECMD_OK;
 
-    let msound = mtmp.data?.msound;
+    let msound = ptr?.msound ?? MS_SILENT;
     const leaderId = state.svq?.quest_status?.leader_m_id;
-    if (mtmp.m_id === leaderId && msound > MS_ANIMAL)
+    if (mtmp.m_id === leaderId && msound > MS_ANIMAL) {
         msound = MS_LEADER;
+    } else if (msound === MS_GUARDIAN
+               && ptr !== state.mons?.[state.urole?.guardnum]) {
+        const generic = state.mons?.[genus(monsndx(ptr), 1, state)];
+        msound = generic?.msound ?? MS_SILENT;
+    } else if (mtmp.isshk) {
+        msound = MS_SELL;
+    } else if (msound === MS_ORC
+               && (same_race(ptr, state.youmonst?.data)
+                   || same_race(ptr, state.mons?.[state.urace?.mnum])
+                   || Hallucination(state))) {
+        msound = MS_HUMANOID;
+    } else if (msound === MS_MOO && !mtmp.mtame) {
+        msound = MS_BELLOW;
+    } else if (Hallucination(state) && mon_is_gecko(mtmp, state)) {
+        msound = MS_SELL;
+    }
 
-    // sounds.c:717-721. The monster is marked invisible before its sound arm
-    // runs, including when the arm ultimately has no visual name.
     if (!canSpotMonster(mtmp, state))
         map_invisible(mtmp.mx, mtmp.my, state);
 
     let plineMsg = null;
     let verbalMsg = null;
-    if (msound === MS_LEADER) {
-        // quest.c chat_with_leader() raises the caller's own class for the
-        // conversation arms this port does not carry, so #chat keeps reporting
-        // them as chat boundaries with the arm named.
-        await quest_chat(mtmp, state, {
+    let verbalMsgMcan = null;
+    const dogHungryTime = mtmp.mextra?.edog?.hungrytime
+        ?? mtmp.hungrytime ?? 0;
+    const moves = state.moves ?? state.svm?.moves ?? 0;
+
+    switch (msound) {
+    case MS_ORACLE:
+        throw new UnsupportedChatError('oracle consultation (doconsult())');
+    case MS_PRIEST:
+        note_unported('priest.c priest_talk');
+        break;
+    case MS_LEADER:
+    case MS_NEMESIS:
+    case MS_GUARDIAN:
+        if (!await quest_chat(mtmp, state, {
             unsupported: (reason) => { throw new UnsupportedChatError(reason); },
-        });
-    } else if (msound === MS_SEDUCE) {
-        let swval;
-        // sys.c:100 initializes SYSOPT_SEDUCE to one. Keep an explicit state
-        // override for source-shaped tests and future configuration wiring.
+        })) {
+            note_unported('quest.c quest_chat nemesis/guardian dialogue');
+        }
+        break;
+    case MS_SELL:
+        if (!Hallucination(state) || is_silent(ptr)
+            || (mtmp.isshk && !rn2(2))) {
+            note_unported('shk.c shk_chat');
+        } else {
+            verbalMsg = `15 minutes could save you 15 ${currency(15, state)}.`;
+        }
+        break;
+    case MS_VAMPIRE: {
+        const isNight = night(state);
+        const kindred = Boolean(Upolyd(state.u)
+            && (state.u.umonnum === PM_VAMPIRE
+                || state.u.umonnum === PM_VAMPIRE_LEADER));
+        const nightchild = Boolean(Upolyd(state.u)
+            && (state.u.umonnum === PM_WOLF
+                || state.u.umonnum === PM_WINTER_WOLF
+                || state.u.umonnum === PM_WINTER_WOLF_CUB));
+        const raceNoun = state.flags?.female && state.urace?.individual?.f
+            ? state.urace.individual.f
+            : state.urace?.individual?.m || state.urace?.noun;
+
+        if (mtmp.mtame) {
+            if (kindred) {
+                verbalMsg = `Good ${isNight ? 'evening' : 'day'} to you Master`
+                    + (isNight ? '!' : '.  Why do we not rest?');
+            } else {
+                verbalMsg = (nightchild ? 'Child of the night, ' : '')
+                    + (midnight(state)
+                        ? 'I can stand this craving no longer!'
+                        : isNight
+                            ? 'I beg you, help me satisfy this growing craving!'
+                            : 'I find myself growing a little weary.');
+            }
+        } else if (mtmp.mpeaceful) {
+            if (kindred && isNight)
+                verbalMsg = `Good feeding ${state.flags?.female ? 'sister' : 'brother'}!`;
+            else if (nightchild && isNight)
+                verbalMsg = 'How nice to hear you, child of the night!';
+            else
+                verbalMsg = 'I only drink... potions.';
+        } else if (kindred) {
+            verbalMsg = 'This is my hunting ground that you dare to prowl!';
+        } else if (state.youmonst?.data === state.mons?.[PM_SILVER_DRAGON]
+                   || state.youmonst?.data === state.mons?.[PM_BABY_SILVER_DRAGON]) {
+            verbalMsg = `${state.youmonst?.data === state.mons?.[PM_SILVER_DRAGON]
+                ? 'Fool' : 'Young Fool'}!  Your silver sheen does not frighten me!`;
+        } else {
+            const vampIndex = rn2(2);
+            verbalMsg = vampIndex === 0
+                ? `I vant to suck your ${body_part(BLOOD, state.youmonst)}!`
+                : `I vill come after ${state.u?.umonnum !== state.u?.umonster
+                    ? an(pmname(state.mons?.[state.u.umonnum],
+                                state.flags?.female ? FEMALE : MALE))
+                    : an(raceNoun)} without regret!`;
+        }
+        break;
+    }
+    case MS_WERE:
+        if (state.flags?.moonphase === FULL_MOON
+            && (night(state) ^ !rn2(13))) {
+            await ttyPline(
+                `${capitalizedMonsterName(mtmp, state)} throws back ${mhis(mtmp)} head `
+                + `and lets out a blood curdling ${ptr === state.mons?.[PM_HUMAN_WERERAT]
+                    ? 'shriek' : 'howl'}!`, state,
+            );
+            await wake_nearto(mtmp.mx, mtmp.my, 11 * 11, { state });
+        } else {
+            plineMsg = 'whispers inaudibly.  All you can make out is "moon".';
+        }
+        break;
+    case MS_BARK:
+        if (state.flags?.moonphase === FULL_MOON && night(state)) {
+            plineMsg = 'howls.';
+        } else if (mtmp.mpeaceful) {
+            if (mtmp.mtame
+                && (mtmp.mconf || mtmp.mflee || mtmp.mtrapped
+                    || moves > dogHungryTime || mtmp.mtame < 5)) {
+                plineMsg = 'whines.';
+            } else if (mtmp.mtame && dogHungryTime > moves + 1000) {
+                plineMsg = 'yips.';
+            } else if (ptr !== state.mons?.[PM_DINGO]) {
+                plineMsg = 'barks.';
+            }
+        } else {
+            plineMsg = 'growls.';
+        }
+        break;
+    case MS_MEW:
+        if (mtmp.mtame) {
+            if (mtmp.mconf || mtmp.mflee || mtmp.mtrapped || mtmp.mtame < 5)
+                plineMsg = 'yowls.';
+            else if (moves > dogHungryTime)
+                plineMsg = 'meows.';
+            else if (dogHungryTime > moves + 1000)
+                plineMsg = 'purrs.';
+            else
+                plineMsg = 'mews.';
+            break;
+        }
+        // FALLTHROUGH: a non-tame cat uses the generic growl arm.
+    case MS_GROWL:
+        plineMsg = mtmp.mpeaceful ? 'snarls.' : 'growls!';
+        break;
+    case MS_ROAR:
+        plineMsg = mtmp.mpeaceful ? 'snarls.' : 'roars!';
+        break;
+    case MS_SQEEK:
+        plineMsg = 'squeaks.';
+        break;
+    case MS_SQAWK:
+        if (ptr === state.mons?.[PM_RAVEN] && !mtmp.mpeaceful)
+            verbalMsg = 'Nevermore!';
+        else
+            plineMsg = 'squawks.';
+        break;
+    case MS_HISS:
+        if (!mtmp.mpeaceful) plineMsg = 'hisses!';
+        else return ECMD_OK;
+        break;
+    case MS_BUZZ:
+        plineMsg = mtmp.mpeaceful ? 'drones.' : 'buzzes angrily.';
+        break;
+    case MS_GRUNT:
+        plineMsg = 'grunts.';
+        break;
+    case MS_NEIGH:
+        if (mtmp.mtame < 5) plineMsg = 'neighs.';
+        else if (moves > dogHungryTime) plineMsg = 'whinnies.';
+        else plineMsg = 'whickers.';
+        break;
+    case MS_MOO:
+        plineMsg = 'moos.';
+        break;
+    case MS_BELLOW:
+        plineMsg = 'bellows!';
+        break;
+    case MS_CHIRP:
+        plineMsg = 'chirps.';
+        break;
+    case MS_WAIL:
+        plineMsg = 'wails mournfully.';
+        break;
+    case MS_GROAN:
+        if (!rn2(3)) plineMsg = 'groans.';
+        break;
+    case MS_GURGLE:
+        plineMsg = 'gurgles.';
+        break;
+    case MS_BURBLE:
+        plineMsg = 'burbles.';
+        break;
+    case MS_ANIMAL: // C names this enum value MS_TRUMPET.
+        plineMsg = 'trumpets!';
+        await wake_nearto(mtmp.mx, mtmp.my, 11 * 11, { state });
+        break;
+    case MS_SHRIEK:
+        plineMsg = 'shrieks.';
+        note_unported('wizard.c aggravate');
+        break;
+    case MS_IMITATE:
+        plineMsg = 'imitates you.';
+        break;
+    case MS_BONES:
+        await ttyPline(`${capitalizedMonsterName(mtmp, state)} rattles noisily.`, state);
+        await ttyPline('You freeze for a moment.', state);
+        nomul(-2, state);
+        state.multi_reason = 'scared by rattling';
+        state.gn ??= {};
+        state.gn.nomovemsg = null;
+        break;
+    case MS_LAUGH:
+        plineMsg = ['giggles.', 'chuckles.', 'snickers.', 'laughs.'][rn2(4)];
+        break;
+    case MS_MUMBLE:
+        plineMsg = 'mumbles incomprehensibly.';
+        break;
+    case MS_ORC:
+        plineMsg = 'grunts.';
+        break;
+    case MS_DJINNI:
+        if (mtmp.mtame) verbalMsg = "Sorry, I'm all out of wishes.";
+        else if (mtmp.mpeaceful && ptr === state.mons?.[PM_WATER_DEMON])
+            plineMsg = 'gurgles.';
+        else if (mtmp.mpeaceful) verbalMsg = "I'm free!";
+        else if (ptr !== state.mons?.[PM_PRISONER])
+            verbalMsg = 'This will teach you not to disturb me!';
+        else verbalMsg = 'Get me out of here.';
+        break;
+    case MS_BOAST:
+        if (!mtmp.mpeaceful) {
+            switch (rn2(4)) {
+            case 0:
+                await ttyPline(
+                    `${capitalizedMonsterName(mtmp, state)} boasts about ${mhis(mtmp)} gem collection.`,
+                    state,
+                );
+                break;
+            case 1:
+                plineMsg = 'complains about a diet of mutton.';
+                break;
+            default:
+                plineMsg = 'shouts "Fee Fie Foe Foo!" and guffaws.';
+                await wake_nearto(mtmp.mx, mtmp.my, 7 * 7, { state });
+                break;
+            }
+            break;
+        }
+        // FALLTHROUGH: peaceful giants use generic humanoid dialogue.
+    case MS_HUMANOID:
+        if (!mtmp.mpeaceful) {
+            if (In_endgame(state.u?.uz) && is_mplayer(ptr))
+                note_unported('sounds.c mplayer_talk');
+            else
+                plineMsg = 'threatens you.';
+            break;
+        }
+        if (mtmp.mflee) plineMsg = 'wants nothing to do with you.';
+        else if (mtmp.mhp < mtmp.mhpmax / 4) plineMsg = 'moans.';
+        else if (mtmp.mconf || mtmp.mstun)
+            verbalMsg = !rn2(3) ? 'Huh?' : rn2(2) ? 'What?' : 'Eh?';
+        else if (!mtmp.mcansee) verbalMsg = "I can't see!";
+        else if (mtmp.mtrapped) {
+            const trap = t_at(mtmp.mx, mtmp.my, state);
+            if (trap) trap.tseen = 1;
+            verbalMsg = "I'm trapped!";
+        } else if (mtmp.mhp < mtmp.mhpmax / 2) {
+            plineMsg = 'asks for a potion of healing.';
+        } else if (mtmp.mtame && !mtmp.isminion && moves > dogHungryTime) {
+            verbalMsg = "I'm hungry.";
+        } else if (is_elf(ptr)) plineMsg = 'curses orcs.';
+        else if (is_dwarf(ptr)) plineMsg = 'talks about mining.';
+        else if (likes_magic(ptr)) plineMsg = 'talks about spellcraft.';
+        else if (ptr?.mlet === S_CENTAUR) plineMsg = 'discusses hunting.';
+        else if (is_gnome(ptr)) {
+            if (Hallucination(state) && (rn2(4) % 2)) {
+                verbalMsg = rn2(2)
+                    ? 'Phase one, collect underpants.'
+                    : 'Phase three, profit!';
+            } else {
+                verbalMsg = 'Many enter the dungeon, and few return to the sunlit lands.';
+            }
+        } else {
+            switch (monsndx(ptr)) {
+            case PM_HOBBIT:
+                plineMsg = mtmp.mhp < mtmp.mhpmax
+                    && (mtmp.mhpmax <= 10 || mtmp.mhp <= mtmp.mhpmax - 10)
+                    ? 'complains about unpleasant dungeon conditions.'
+                    : 'asks you about the One Ring.';
+                break;
+            case PM_ARCHEOLOGIST:
+                plineMsg = 'describes a recent article in "Spelunker Today" magazine.';
+                break;
+            case PM_TOURIST:
+                verbalMsg = 'Aloha.';
+                break;
+            default:
+                plineMsg = 'discusses dungeon exploration.';
+                break;
+            }
+        }
+        break;
+    case MS_SEDUCE: {
         const seductionEnabled = state.sysopt?.seduce === undefined
             ? true : Boolean(state.sysopt.seduce);
-        if (seductionEnabled) {
-            // sounds.c:1109-1113 calls could_seduce()/doseduce() for the
-            // non-nymph arm. Those mhitu.c routines are still unported, so
-            // retain a source-named boundary for that path. Nymphs bypass
-            // both calls and continue to the response selection below.
-            if (mtmp.data?.mlet !== S_NYMPH) {
-                throw new UnsupportedChatError(
-                    'mhitu.c could_seduce()/doseduce()',
-                );
-            }
-            // poly_gender() and Mgender() both return 0 for male and 1 for
-            // female. Matching genders take the source's zero arm without a
-            // random draw.
-            swval = poly_gender(state) !== Number(Boolean(mtmp.female))
-                ? rn2(3) : 0;
+        if (seductionEnabled && ptr?.mlet !== S_NYMPH) {
+            throw new UnsupportedChatError(
+                'mhitu.c could_seduce()/doseduce()',
+            );
+        }
+        const swval = seductionEnabled
+            ? poly_gender(state) !== Number(Boolean(mtmp.female)) ? rn2(3) : 0
+            : poly_gender(state) === 0 ? rn2(3) : 0;
+        if (swval === 2) verbalMsg = 'Hello, sailor.';
+        else if (swval === 1) plineMsg = 'comes on to you.';
+        else plineMsg = 'cajoles you.';
+        break;
+    }
+    case MS_ARREST:
+        if (mtmp.mpeaceful)
+            verbalMsg = `Just the facts, ${state.flags?.female ? "Ma'am" : 'Sir'}.`;
+        else {
+            const messages = [
+                'Anything you say can be used against you.',
+                "You're under arrest!", 'Stop in the name of the Law!',
+            ];
+            verbalMsg = messages[rn2(3)];
+        }
+        break;
+    case MS_BRIBE:
+        if (mtmp.mpeaceful && !mtmp.mtame) {
+            note_unported('minion.c demon_talk');
+            break;
+        }
+        // FALLTHROUGH: the non-bribable arm is cuss().
+    case MS_CUSS:
+        if (!mtmp.mpeaceful) note_unported('sounds.c cuss');
+        else if (is_minion(ptr) && mon_aligntyp(mtmp) === A_LAWFUL)
+            verbalMsg = "It's not too late.";
+        else verbalMsg = "We're all doomed.";
+        break;
+    case MS_SPELL:
+        plineMsg = 'seems to mutter a cantrip.';
+        break;
+    case MS_NURSE:
+        verbalMsgMcan = 'I hate this job!';
+        if (state.uwep && (state.uwep.oclass === WEAPON_CLASS
+                           || is_weptool(state.uwep, state))) {
+            verbalMsg = 'Put that weapon away before you hurt someone!';
+        } else if (state.uarmc || state.uarm || state.uarmh || state.uarms
+                   || state.uarmg || state.uarmf) {
+            verbalMsg = state.urole?.mnum === PM_HEALER
+                ? "Doc, I can't help you unless you cooperate."
+                : 'Please undress so I can examine you.';
+        } else if (state.uarmu) {
+            verbalMsg = 'Take off your shirt, please.';
         } else {
-            swval = poly_gender(state) === 0 ? rn2(3) : 0;
+            verbalMsg = "Relax, this won't hurt a bit.";
         }
-        switch (swval) {
-        case 2:
-            verbalMsg = 'Hello, sailor.';
-            break;
-        case 1:
-            plineMsg = 'comes on to you.';
-            break;
-        default:
-            plineMsg = 'cajoles you.';
-            break;
+        break;
+    case MS_GUARD:
+        verbalMsg = money_cnt(state.invent)
+            ? 'Please drop that gold and follow me.' : 'Please follow me.';
+        break;
+    case MS_SOLDIER: {
+        const foe = [
+            'Resistance is useless!', "You're dog meat!", 'Surrender!',
+        ];
+        const pax = [
+            'What lousy pay we\'re getting here!',
+            "The food's not fit for Orcs!", 'My feet hurt, I\'ve been on them all day!',
+        ];
+        verbalMsg = (mtmp.mpeaceful ? pax : foe)[rn2(3)];
+        break;
+    }
+    case MS_RIDER:
+        if (ptr === state.mons?.[PM_DEATH]
+            && !state.svc?.context?.tribute?.Deathnotice
+            && u_have_novel(state)) {
+            const book = u_have_novel(state);
+            const title = noveltitle(book.novelidx, { random: { rn2 } });
+            book.novelidx = title.novelidx;
+            verbalMsg = `Ah, so you have a copy of /${title.title}/.`;
+            if (title.title.toLowerCase() !== 'snuff'
+                && title.title.toLowerCase() !== 'the wee free men') {
+                verbalMsg += '  I may have been misquoted there.';
+            }
+            state.svc ??= {};
+            state.svc.context ??= {};
+            state.svc.context.tribute ??= {};
+            state.svc.context.tribute.Deathnotice = 1;
+        } else if (ptr === state.mons?.[PM_DEATH] && rn2(3)) {
+            throw new UnsupportedChatError('files.c Death_quote');
+        } else if (ptr === state.mons?.[PM_DEATH] && !rn2(10)) {
+            plineMsg = 'is busy reading a copy of Sandman #8.';
+        } else {
+            verbalMsg = 'Who do you think you are, War?';
         }
-    } else {
-        // Preserve the existing public boundary for every ordinary monster;
-        // only the quest-leader and nymph arms are admitted by this slice.
-        throw new UnsupportedChatError('a monster occupying the target square');
+        break;
+    default:
+        break;
     }
 
-    // sounds.c:1229-1244. pline_msg uses Monnam directly; verbal responses
-    // set the monster voice and quote the text through verbalize1().
     if (plineMsg) {
-        await ttyPline(
-            `${capitalizedMonsterName(mtmp, state)} ${plineMsg}`,
-            state,
-        );
+        await ttyPline(`${capitalizedMonsterName(mtmp, state)} ${plineMsg}`, state);
+    } else if (mtmp.mcan && verbalMsgMcan) {
+        set_voice(mtmp, 0, 80, 0, state);
+        state.gp.pline_flags |= PLINE_VERBALIZE;
+        try {
+            await ttyPline(`"${verbalMsgMcan}"`, state);
+        } finally {
+            state.gp.pline_flags &= ~PLINE_VERBALIZE;
+        }
     } else if (verbalMsg) {
+        if (ptr === state.mons?.[PM_DEATH]) {
+            // files.c tribute dialogue is emitted by pline1() without
+            // quotation marks and Death's voice uses the special voice bit.
+            const deathMessage = verbalMsg.toUpperCase();
+            await ttyPline(deathMessage, state);
+            set_voice(null, 0, 80, voice_death, state);
+            sound_speak(deathMessage, state);
+            return ECMD_TIME;
+        }
         set_voice(mtmp, 0, 80, 0, state);
         state.gp.pline_flags |= PLINE_VERBALIZE;
         try {
@@ -1014,9 +1418,6 @@ async function domonnoise(mtmp, state) {
             state.gp.pline_flags &= ~PLINE_VERBALIZE;
         }
     }
-
-    // C's quest_chat() is void; domonnoise() returns ECMD_TIME after the
-    // selected sound arm and common response tail have completed.
     return ECMD_TIME;
 }
 

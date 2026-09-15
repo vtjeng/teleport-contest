@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Priest seed 8210003 starts with a tame little dog beside the hero; #chat reaches sounds.c domonnoise() case MS_BARK.",
+  "segments": [
+    {
+      "seed": 8210003,
+      "datetime": "20320607080910",
+      "nethackrc": "OPTIONS=name:BarkProbe,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!acoustics\n",
+      "moves": " #chat\ny"
+    }
+  ]
+}

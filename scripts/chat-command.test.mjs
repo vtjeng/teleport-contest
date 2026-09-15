@@ -10,8 +10,8 @@
 // The rest cover what no C case can reach: the four speech guards, each of
 // which needs a hero who is polymorphed, strangled, swallowed or submerged;
 // the shop quote, which needs the hero standing on a shop's stock; and the
-// ordinary pet arm, which continues into domonnoise() and stops at its
-// still-unported sound family.
+// ordinary pet arm, which continues into domonnoise() and exercises the
+// source's MS_BARK response.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -405,22 +405,23 @@ test('a mounted hero chats past the steed arm unless she aims down',
         assert.match(boundary.message, /a chat aimed down at a steed/u);
     });
 
-test('chatting at a monster stops at domonnoise()', async () => {
+test('chatting at a monster reaches domonnoise() MS_BARK', async () => {
     // The pet starts beside the hero, so this is the shortest input sequence
-    // that puts a monster on the target square. Its own start is one seed
-    // over from the matrix's, which has no pet.
+    // that puts a barking monster on the target square. This independent
+    // Priest start selects a little dog rather than the kitten used by the
+    // ordinary Valkyrie start.
     let boundary = null;
     await runSegment({
-        seed: 4410002,
-        datetime: '20310203040506',
+        seed: 8210003,
+        datetime: '20320607080910',
         nethackrc: [
-            'OPTIONS=name:Chatter,role:Valkyrie,race:human,gender:female,'
-            + 'align:neutral',
+            'OPTIONS=name:BarkProbe,role:Priest,race:human,gender:male,'
+            + 'align:lawful',
             'OPTIONS=!legacy,!tutorial,!splash_screen',
             'OPTIONS=!acoustics',
             '',
         ].join('\n'),
-        moves: '#chat\n',
+        moves: ' #chat\n',
     }, { onBoundary: (error) => { boundary = error; } });
     assert.equal(boundary, null, 'the start alone must not stop');
 
@@ -435,22 +436,22 @@ test('chatting at a monster stops at domonnoise()', async () => {
     // while number_pad is off.
     const key = 'ykuh.lbjn'[(dy + 1) * 3 + (dx + 1)];
     await runSegment({
-        seed: 4410002,
-        datetime: '20310203040506',
+        seed: 8210003,
+        datetime: '20320607080910',
         nethackrc: [
-            'OPTIONS=name:Chatter,role:Valkyrie,race:human,gender:female,'
-            + 'align:neutral',
+            'OPTIONS=name:BarkProbe,role:Priest,race:human,gender:male,'
+            + 'align:lawful',
             'OPTIONS=!legacy,!tutorial,!splash_screen',
             'OPTIONS=!acoustics',
             '',
         ].join('\n'),
-        moves: `#chat\n${key}`,
+        moves: ` #chat\n${key}`,
     }, { onBoundary: (error) => { boundary = error; } });
     // sounds.c:1374-1377 lets a detected monster through to the naming arms
-    // and finally to domonnoise() at :1408. The pet's MS_BARK arm remains
-    // outside the selected MS_SEDUCE span.
-    assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
-    assert.match(boundary.message, /a monster occupying the target square/u);
+    // and finally to domonnoise() at :1408. The tame little dog's ordinary
+    // MS_BARK branch at :837-854 prints its source message and spends time.
+    assert.equal(boundary, null);
+    assert.equal(toplines(game), 'The little dog barks.');
 });
 
 function* findPets(state) {
