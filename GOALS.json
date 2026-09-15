@@ -48079,17 +48079,30 @@
     {
       "id": "port-trap-web-20260915",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port whole web-trap hero and monster effects with web-destruction dependency and production dispatch",
       "cFile": "trap.c",
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
-      "selectionReason": "Worker A initial assignment uses holdout/seed0399-wizard-hallu-actions, remaining-screen upper bound119, valid investigations/holdout/seed0399-wizard-hallu-actions.json, source trap.c trapeffect_web and mu_maybe_destroy_web. It was the first ready actionable investigation at dispatch; higher-ranked4500 and0106 were awaiting stale-cache investigation. No reserved source overlap.",
+      "selectionReason": "Integrate earliest ready independent A1 web-trap delivery 2298aee594642dda3edd0c60ef5136272b14bd86 for holdout/seed0399-wizard-hallu-actions, remaining-screen upper bound119, current investigation complete at that count. Source scope trap.c trapeffect_web; implementation includes its required helper and WEB caller behavior. B1 is already closed; B2 remains worker continuation. No higher-priority ready delivery is pending.",
       "detail": "",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "trapeffect_web",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "trapeffect_web"
+          ]
+        }
+      ],
+      "openedAt": "f2e58817f5a5ff0ae91b282766c7df149c204d05",
+      "openStanding": {
+        "sha": "57f217d61f4395736b9503f7675ab29325ceea6b",
+        "screens": 9788,
+        "rng": 714576
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -48104,7 +48117,85 @@
       "range": {
         "from": 2106,
         "to": 2278
-      }
+      },
+      "activeStanding": {
+        "sha": "57f217d61f4395736b9503f7675ab29325ceea6b",
+        "screens": 9788,
+        "rng": 714576
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 413,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires trap activation",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 119,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 119,
+              "status": "complete",
+              "commit": "633f7c8902cf590eaf2c4af42c0229697dba8ae0",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 413,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires trap activation",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 119
+              },
+              "summary": "An elf-lady enters a web during the monster movement plan. The selector refuses WEB before the live round, although C catches the monster and reveals the web. Port the whole trap.c trapeffect_web function, including its hero and monster branches, and its missing return-valued mu_maybe_destroy_web helper; remove WEB from the blanket activation refusal and wire both production dispatch paths.",
+              "source": {
+                "file": "trap.c",
+                "functions": [
+                  "trapeffect_web"
+                ],
+                "branch": "The observed branch is trap.c:2204-2275: a non-hero monster, not a webmaker and not amorphous, whirly, flaming, unsolid or a gelatinous cube, enters WEB. An ordinary elf-lady is not a giant, adult extra-nasty dragon, long worm or one of the listed web-tearing species. If visible, C prints the caught message and calls seetrap, then sets mtrapped and returns Trap_Caught_Mon. Whole-function scope also includes the hero's NOWEBMSG/FORCETRAP/FAILEDUNTRAP/VIASITTING, mounted and Strength-duration branches, plus monster immunity, destruction, unseen-bear, tearing and forced-avoidance branches.",
+                "callers": [
+                  "trap.c:2936-2992 trapeffect_selector dispatches WEB to trapeffect_web at2971-2972. js/trap_effects.js:2153-2185 instead keeps WEB in UNPORTED_TRAP_EFFECTS at2133 and raises the generic trap activation refusal.",
+                  "The observed runtime path is allmain.js planElapsedTurn -> preflightSimpleMonsterActions -> monmove.js postmov:3105 -> trap_effects.js mintrap:2469 -> trapeffect_selector:2185. C monmove.c postmov:1508-1517 calls mintrap after movement and before subsequent square effects; trap.c mintrap:3732-3840 owns trap-learning, avoidance and the selected effect result.",
+                  "Hero entry is hack.c spoteffects -> trap.c dotrap:2995-3060 -> trapeffect_selector. js/trap_effects.js dotrap:2267-2320 already dispatches the hero, but preflight_dotrap:2212-2217 excludes WEB. Complete the selected web caller wiring without treating that refusal as evidence that its hero branches are implemented.",
+                  "A previously caught monster reaches mintrap through monmove.js m_move:3325-3335, corresponding to monmove.c:1733-1742. The existing non-pit trapped-monster path in trap_effects.js:2389-2419 already reveals webs and implements the rn2(40) release/message. Reuse it and verify its interaction with newly set mtrapped."
+                ],
+                "dependencies": [
+                  "Required same-span return-valued dependency: trap.c mu_maybe_destroy_web:972-1014 is called at2124 and2213. It has no JavaScript definition at the examined commit. Translate the complete helper: immune forms either burn/dissolve and delete the web, or flow through and optionally reveal it; its boolean decides whether trapeffect_web returns early. Do not replace this result with note_unported.",
+                  "Existing source-backed predicates are in js/mondata.js: amorphous224, unsolid365, acidic434, extra_nasty474, webmaker544, is_whirly549 and flaming559. Existing js/makemon_create.js count_wsegs:859-862 represents worm.c:836-845 over the stored tail array; pass the selected state explicitly so a planning call does not read the live worm slots.",
+                  "Existing trap state helpers include trap_effects.js feeltrap351-357 and seetrap335-342, and trap.js deltrap716-729, set_utrap1130-1139 and reset_utrap1147 onward. Web deletion does not enter deltrap's Sokoban pit/hole tail. Preserve message-before-seetrap ordering, trap identity in the cloned trap list, and source return codes.",
+                  "The hero branch consumes mintrap's result for a steed and uses acurr(A_STR), strongmonst, u_locomotion and the source rn1/rnd duration table. Existing hack.js u_locomotion:5041-5046 and monmove.js mintrap environment bindings are starting points; heroTrapEnv:263-272 lacks mintrap's full random/visibility/message environment. Resolve that mounted call's required owners instead of installing a new injected substitute.",
+                  "The observed ordinary monster web effect makes no core RNG call; prior mintrap avoidance/aggravation draws retain their order. Monster naming and messages must use the existing planning/live naming and output conventions. The unseen owlbear/bugbear branch has Soundeffect and You_hear in C; preserve source semantics using supported output owners, recording genuinely unported discarded-result callees rather than inventing behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned /tmp/seed-pilot-af26cca9-queue.json entry has stop413, recordedSteps532 and remainingScreensUpperBound119. The former cache's count232 concerned the resolved Bell/addinv boundary and is stale for this assignment.",
+                "A focused scanRecordedSession replay of only sessions/holdout/seed0399-wizard-hallu-actions.session.json emitted413 screens, reported no earlier screen/RNG/cursor divergence, and stopped with simple monster action requires trap activation. No aggregate scan, scorer, checkpoint or C recorder was run.",
+                "A read-only Node inspector breakpoint at js/trap_effects.js:2185, conditioned on UNPORTED_TRAP_EFFECTS.has(trap.ttyp), captured planning=true, moves3, trflags0, WEB18 at(58,13), tseen=false, madeby_u=false, and monster m_id170, PM_ELF_LORD268, position(58,13), mhp26, mtrapped=false. The stack was trapeffect_selector -> mintrap:2469 -> postmov:3105. These values locate the source branch; they are test evidence, not implementation conditions.",
+                "The original C recording's step416 message is 'The elf-lady is caught in a spider web.  The elf-lady picks up a bag.--More--'. The queue stops earlier at413 because the JS planner checks the complete forthcoming monster round before its live messages. Removing this blocker does not establish that all119 remaining screens will match.",
+                "Read complete trap.c trapeffect_web:2106-2276 and mu_maybe_destroy_web:972-1014. A search for trapeffect_web or mu_maybe_destroy_web under js returned no matches, while the actual selector retains WEB in its unported set. This is missing C behavior, not a declaration-only completion or a JS-only planner repair.",
+                "Implementation is expected in existing js/trap_effects.js with imports, selector dispatch, hero admission/environment wiring, focused source-pinned tests and independent hero/monster web recipes. It shares that file and possibly environment imports with worker B5's missile work, but the web effect does not depend on mthrowu or dokick projectile behavior. There is no source or module overlap with worker A's Arc-loca/Arc-goal quest_levels work. Coordinate the shared trap_effects file before parallel edits.",
+                "Investigation started at 2026-09-14T21:47:35Z. HEAD remained 633f7c8902cf590eaf2c4af42c0229697dba8ae0. Root subsequently removed an unused timeout.js import and its test import during the survey; no inspected trap, movement or planner source changed. The investigator changed only this assigned cache."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-wiz-loca-20260915",
