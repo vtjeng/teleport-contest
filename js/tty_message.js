@@ -333,15 +333,16 @@ export async function tty_message_menu(
         : 0;
 }
 
-// C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, TRUE). An explicit STOP
-// display calls more(), temporarily restores NEED_MORE, and clears the message
-// window. A wrapped message has already called more(); the second source call
-// sees an empty top line and consumes no input.
-// C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, FALSE). The message
-// window is always blocking on the TTY, so a pending --More-- is dismissed
-// before the caller continues with its source-ordered state changes.
+// C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, TRUE/FALSE). Only a
+// TOPLINE_NEED_MORE message enters more(); an already acknowledged physical
+// line is retired logically by the nonblocking call and remains on screen.
+// The blocking-looking TTY implementation therefore must not inspect merely
+// _pending_message: callers such as invent.c look_here() can have a stale
+// physical line with TOPLINE_NON_EMPTY and no input boundary to consume.
 export async function displayPendingTtyMessageWindow(state) {
-    const waited = await dismissPendingTtyMessage(state);
+    const waitingForMore = state.nhDisplay?.toplin === TOPLINE_NEED_MORE;
+    const waited = waitingForMore
+        ? await dismissPendingTtyMessage(state) : false;
     if (waited) {
         state.nhDisplay.toplin = TOPLINE_NEED_MORE;
         clearTtyMessageWindow(state);

@@ -141,7 +141,11 @@ import {
 import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
 import { reset_utrap } from './trap.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
@@ -1182,6 +1186,11 @@ async function really_done(how, state) {
     paygd(silently, state);
     clearpriests(state);
 
+    // C end.c really_done() displays WIN_MESSAGE at 1247 before disclosure.
+    // Its nonblocking TTY message-window arm retires an acknowledged topline
+    // without erasing its physical bytes; later disclosure menus clear only a
+    // topline created by their immediately preceding yn_function().
+    await displayPendingTtyMessageWindow(state);
     identifyInventoryForDisclosure(state);
     // C: if (strcmp(flags.end_disclose, "none")) disclose(how, taken);
     // The "none" sentinel is a special all-suppress setting.  The option

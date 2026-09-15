@@ -20,6 +20,7 @@ import {
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
     MORE_PROMPT,
+    TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     xwaitforspace,
 } from './tty_message.js';
@@ -336,19 +337,19 @@ export async function displayTtyMenuTextWindow(
     if (!display)
         throw new Error('tty menu text window requires an initialized display');
 
-    // wintty.c tty_display_nhwindow(WIN_MESSAGE, FALSE) flushes an
-    // unacknowledged message and then clears its message-window state. An
-    // already acknowledged line is only marked TOPLINE_EMPTY; its physical
-    // bytes remain available underneath a corner NHW_MENU. The later menu
-    // renderer clears only its own right-hand region, matching
-    // tty_clear_nhwindow(WIN_MESSAGE)'s TOPLINE_EMPTY arm.
-    if (display.toplin === TOPLINE_NEED_MORE) {
-        if (await dismissPendingTtyMessage(state)) {
-            display.toplin = TOPLINE_NEED_MORE;
-            clearTtyMessageWindow(state);
-        } else {
-            display.toplin = TOPLINE_EMPTY;
-        }
+    // wintty.c tty_display_nhwindow(NHW_MENU) first flushes an
+    // unacknowledged message, then calls tty_clear_nhwindow(WIN_MESSAGE) for
+    // a corner menu. The latter clears an already acknowledged top line too;
+    // only the full-screen branch's term_clear_screen() can provide that
+    // clearing without this message-window operation.
+    if (display.toplin === TOPLINE_NEED_MORE)
+        await dismissPendingTtyMessage(state);
+    if (display.toplin !== TOPLINE_EMPTY) {
+        // dismissPendingTtyMessage() leaves TOPLINE_EMPTY after its More
+        // response. Restore NEED_MORE so clearTtyMessageWindow() follows the
+        // source's `more(); toplin = NEED_MORE; tty_clear_nhwindow()` order.
+        display.toplin = TOPLINE_NEED_MORE;
+        clearTtyMessageWindow(state);
     }
 
     const layout = ttyMenuTextLayout(

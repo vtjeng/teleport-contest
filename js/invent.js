@@ -182,7 +182,11 @@ import {
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
-import { ttyPline, tty_message_menu } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyPline,
+    tty_message_menu,
+} from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import {
@@ -2678,6 +2682,10 @@ export async function look_here(
                 break;
             }
         }
+        // C invent.c look_here() first calls display_nhwindow(WIN_MESSAGE,
+        // FALSE) at 4289. On TTY that retires the logical topline while
+        // preserving an already acknowledged physical line for a corner menu.
+        await displayPendingTtyMessageWindow(state);
         await displayObjectPile(lines, state);
         if (feltCockatrice)
             await feel_cockatrice(feltCockatrice, false, state, { message });

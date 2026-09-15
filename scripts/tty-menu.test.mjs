@@ -11,7 +11,12 @@ import {
 } from '../js/hacklib.js';
 import { parseNethackrc } from '../js/options.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
-import { ttyPline } from '../js/tty_message.js';
+import { tty_yn_function } from '../js/getline.js';
+import {
+    displayPendingTtyMessageWindow,
+    TOPLINE_EMPTY,
+    ttyPline,
+} from '../js/tty_message.js';
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
@@ -348,6 +353,44 @@ test('NHW_MENU text dismisses a pending topline before drawing the window',
         assert.deepEqual(boundaries[1].cursor, [49, 2]);
         assert.equal(state.nhDisplay.inputQueueLength, 0);
     });
+
+// C ref: wintty.c tty_display_nhwindow()'s NHW_MENU arm (1919-1941).
+// After tty_yn_function() answers a prompt, the corner-menu path still calls
+// tty_clear_nhwindow(WIN_MESSAGE), so an acknowledged prompt cannot remain
+// underneath the first menu line.
+test('NHW_MENU text clears an acknowledged topline before drawing', async () => {
+    const state = menuState('y ');
+    await tty_yn_function('Do you want to see your attributes?',
+        'ynq', 'n', state);
+    assert.equal(rowText(state, 0),
+        'Do you want to see your attributes? [ynq] (n)');
+
+    const boundaries = [];
+    state._preNhgetchHook = () => boundaries.push(rowText(state, 0));
+    await displayTtyMenuTextWindow(state, [
+        'Vanquished creatures:',
+        '',
+    ]);
+
+    assert.deepEqual(boundaries, [
+        `${' '.repeat(41)}Vanquished creatures:`,
+    ]);
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+});
+
+// C ref: wintty.c tty_display_nhwindow(WIN_MESSAGE, FALSE) (1873-1884).
+// A nonblocking message-window display retires TOPLINE_NON_EMPTY without
+// erasing its physical row; invent.c uses that state before a corner menu.
+test('nonblocking message display retires but does not erase acknowledged topline', async () => {
+    const state = menuState('y');
+    await tty_yn_function('Do you want to continue?', 'yn', 'n', state);
+    const before = rowText(state, 0);
+
+    await displayPendingTtyMessageWindow(state);
+
+    assert.equal(rowText(state, 0), before);
+    assert.equal(state.nhDisplay.toplin, TOPLINE_EMPTY);
+});
 
 test('NHW_MENU text restores partial and full byte-window regions', async () => {
     for (const [label, overlay, line] of [
