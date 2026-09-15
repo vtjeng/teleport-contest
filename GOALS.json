@@ -49869,7 +49869,7 @@
     {
       "id": "port-trap-water-damage-seed0106-20260915",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port trap.c water_damage and wire fountain, rust-trap, and fail-closed caller paths for water-damaged equipment and inventory.",
       "cFile": "trap.c",
       "sessions": [
@@ -49880,8 +49880,8 @@
       "spans": [
         {
           "name": "water_damage",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "94226abc2082e8074613853d1736eeea0c0f20ca",
           "functions": [
             "water_damage"
           ]
@@ -49893,15 +49893,18 @@
         "screens": 10037,
         "rng": 739105
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "94226abc2082e8074613853d1736eeea0c0f20ca",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "water_damage",
           "line": 4712,
           "endLine": 4854,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -49934,7 +49937,93 @@
             "previousRemainingScreensUpperBound": 227
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "water_damage",
+            "implementation": "js/trap_water_damage.js",
+            "symbol": "water_damage",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:4712-4852 in full. The implementation preserves the null return, splash_lit short circuit, explicit description, can-of-grease and towel arms, grease removal and acid follow-up, container and cursed-waterproof-container split, force-gated luck protection, scroll blanking, Book of the Dead and blank spellbook handling, novel reset, potion acid destruction/dilution, and default ERODE_RUST/EF_NONE delegation. Traced trap.c's water_damage callers in fountain.c dipfountain() and wash_hands(), fountain.c dipsink(), potion.c potion dip and H2O dip paths, sit.c, dokick.c, do.c flooreffects(), trap.c trapeffect_rust_trap(), and water_damage_chain(). The implemented production callers are js/fountain.js dipfountain()/wash_hands() and js/trap_effects.js trapeffect_rust_trap(); remaining callers are explicitly fail-closed at their unported parent paths or delegated to water_damage_chain(), wet_a_towel(), pot_acid_damage(), and blank_novel() seams without invented state or random behavior.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:394-554; water_damage() is called at fountain.c:451 and the JS caller wires it at js/fountain.js:695."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "wash_hands",
+                "source": "fountain.c:556-577; water_damage() is called at fountain.c:571 and the JS caller wires it at js/fountain.js:843."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_rust_trap",
+                "source": "trap.c:1595-1727; the hero rust-trap arm passes selected hero items to water_damage(), while the monster arm uses the separate worn-equipment adapter."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "flooreffects",
+                "source": "do.c:161-357; the pool arm remains fail-closed in the unported free-object path, so it does not silently call water_damage()."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodip",
+                "source": "potion.c:2267-2372; the fountain path reaches dipfountain(), while sink/pool and potion-into-potion branches remain explicitly refused."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-water-damage.test.mjs",
+              "scripts/dip.test.mjs",
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/water-damage-fountain-seed7710023.session.json"
+            ],
+            "checkedAt": "94226abc2082e8074613853d1736eeea0c0f20ca"
+          }
+        ],
+        "entryPointReview": "The fresh recipe reaches the production fountain dip path and verifies the first Valkyrie spear is rusted by water_damage() in a fresh process; the existing seed0106 holdout remains the source-backed mismatch witness.",
+        "entryPoints": [
+          {
+            "name": "fountain item water damage",
+            "functions": [
+              "water_damage"
+            ],
+            "recordings": [
+              "recordings/trap.c/water-damage-fountain-seed7710023.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 110,
+          "kind": "stop",
+          "function": "water_damage",
+          "functionDeclared": true,
+          "sourceFile": "trap.c",
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: water_damage requires potion dilution/destruction in water_damage()",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 157,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "previousRemainingScreensUpperBound": 227
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "833393b3012ea4cbd7afde2af8b3cd28a6bd50f3",
+        "screens": 10037,
+        "rng": 739105
+      }
     }
   ]
 }
