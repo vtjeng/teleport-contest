@@ -1072,6 +1072,7 @@ test('teleds drags the punished ball through the holdout teleport', async () => 
         'the prefix emits one screen for every input and its launch screen');
     // The C recording's step 789 lands at (65,17). Both punishment objects
     // are floor objects there after move_bc() and the teleds() tail.
+    assert.deepEqual([game.u.ux0, game.u.uy0], [33, 5]);
     assert.deepEqual([game.u.ux, game.u.uy], [65, 17]);
     assert.deepEqual([game.uball.ox, game.uball.oy], [65, 17]);
     assert.deepEqual([game.uchain.ox, game.uchain.oy], [65, 17]);
