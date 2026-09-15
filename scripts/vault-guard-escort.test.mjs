@@ -227,6 +227,69 @@ test('gd_move triggers cleanup when gddone is already set', async () => {
     try { remove_monster(0, 0, game); } catch { /* ok */ }
 });
 
+// vault.c:854-862: pline() runs before gd_move_cleanup() returns. The live
+// tty adapter is asynchronous, so the production cleanup must await it rather
+// than letting m_move() continue into later monster turns first.
+test('gd_move waits for the cleanup disappearance message', async () => {
+    await startedGame();
+    // startedGame() deliberately ends on the startup screen; retire that
+    // unrelated message window so cleanup's display boundary is isolated.
+    game._pending_message = '';
+    game.nhDisplay.toplin = 0;
+    const grd = makeGuard(game.u.ux + 1, game.u.uy);
+    const egrd = grd.mextra.egd;
+    egrd.gddone = 1;
+    egrd.vroom = 0;
+    egrd.fcend = 1;
+    egrd.fakecorr[0] = {
+        fx: game.u.ux,
+        fy: game.u.uy,
+        ftyp: game.level.at(game.u.ux, game.u.uy).typ,
+        flags: game.level.at(game.u.ux, game.u.uy).flags,
+    };
+    if (!game.level.rooms[0]) game.level.rooms[0] = {};
+    const room = game.level.rooms[0];
+    room.rtype = VAULT;
+    room.lx = 30; room.hx = 30;
+    room.ly = 10; room.hy = 10;
+
+    const messages = [];
+    let release;
+    const gate = new Promise((resolve) => { release = resolve; });
+    const message = async (text) => {
+        messages.push(`start:${text}`);
+        if (text.endsWith('disappears.')) {
+            await gate;
+            messages.push(`done:${text}`);
+        }
+    };
+    const pending = gd_move(grd, {
+        state: game,
+        random: fixedRng([]),
+        message,
+    });
+    for (let i = 0; i < 10 && messages.length === 0; ++i)
+        await Promise.resolve();
+    assert.match(
+        messages.at(-1),
+        /^start:Suddenly, the .* disappears\.$/,
+        'cleanup should start its disappearance message',
+    );
+
+    let settled = false;
+    pending.then(() => { settled = true; });
+    await Promise.resolve();
+    assert.equal(settled, false,
+        'gd_move must not return before ttyPline completes');
+    release();
+    assert.equal(await pending, 1);
+    assert.match(
+        messages.at(-1),
+        /^done:Suddenly, the .* disappears\.$/,
+        'cleanup should complete its disappearance message before returning',
+    );
+});
+
 // ── hostile guard branch throws ──
 
 // vault.c:919: a hostile guard should throw UnsupportedVaultGuardError

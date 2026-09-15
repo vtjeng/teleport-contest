@@ -73,7 +73,10 @@ import { contained_gold } from './shk.js';
 import { rloc } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
 import { t_at, deltrap } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import {
     block_point, canseemon, cansee, couldsee, recalc_block_point, unblock_point,
 } from './vision.js';
@@ -401,7 +404,7 @@ function gd_mv_monaway(grd, nx, ny, state, env) {
 // C ref: vault.c gd_move_cleanup() (836-866). Final cleanup when the guard
 // escort is done: park the guard off-map, restore vault walls, and remove
 // the temporary corridor. Returns 1 (guard moved/disappeared) or -2 (died).
-function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
+async function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
     const x = grd.mx;
     const y = grd.my;
     const see_guard = canspotmon(grd, state);
@@ -411,10 +414,19 @@ function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
     if (!semi_dead && (in_fcorridor(grd, state.u.ux, state.u.uy)
         || cansee(x, y, state))) {
         if (!disappear_msg_seen && see_guard)
-            env.message(
+            // C's pline() completes before gd_move() returns. ttyPline() is
+            // awaitable in JS, and monmove.c:m_move() awaits gd_move(), so
+            // preserve that source ordering before the turn is captured.
+            await env.message(
                 `Suddenly, ${alwaysVisibleMonsterName(grd, state)} disappears.`,
                 state, env,
             );
+            // The C pline() call leaves its completed message in the TTY
+            // window before gd_move_cleanup() returns; when that window is
+            // awaiting More, it also prevents later monster turns from
+            // consuming RNG before the next input. Complete that same
+            // display-window boundary in the awaitable JS TTY adapter.
+            await displayPendingTtyMessageWindow(state);
         return 1;
     }
     return -2;
