@@ -23,6 +23,9 @@ function object(state, type, overrides = {}) {
 }
 
 async function shop() {
+    // Independent startup fixture; the room and keeper below isolate payment
+    // from level generation. Keeper HP10 is alive, ID3 is a distinct owner,
+    // and the adjacent tile puts that owner within C's payment distance.
     await runSegment({ seed: 5518321, datetime: '20350306100412',
         nethackrc: 'OPTIONS=name:Buyer,role:Valkyrie,race:human,gender:female,'
             + 'align:neutral,!legacy,!tutorial,!splash_screen,pettype:none', moves: '' });
@@ -43,7 +46,7 @@ async function shop() {
     state.level.monlist = keeper;
     state.u.ushops = [ROOMOFFSET, 0, 0, 0, 0];
     state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
-    state.u.acurr.a[A_CHA] = 11;
+    state.u.acurr.a[A_CHA] = 11; // get_cost's neutral charisma price bracket.
     state.u.abon[A_CHA] = state.u.atemp[A_CHA] = 0;
     // A known sack uses its source base price2, not unknown-item markup.
     state.objects[SACK].oc_name_known = true;
@@ -73,13 +76,15 @@ test('sortbill_cmp puts used rows first, then descending price and ascending bil
         { usedup: KnownContainer, cost: 100, bidx: 3 },
     ].sort(sortbill_cmp);
     assert.deepEqual(rows.map(row => row.bidx), [1, 2, 3, 0]);
+    // The negative terminator lies outside the counted rows and is ignored.
     assert.equal(cheapest_item(rows.length, [...rows, { cost: -1 }]), 8);
     // C's comparator returns int even though the subtraction uses long.
     assert.equal(sortbill_cmp({ usedup: 4, cost: 0 }, { usedup: 4, cost: 2147483648 }), -2147483648);
 });
 
 test('find_oid visits every C root in order and bp_to_obj separates used bill objects', () => {
-    const id = 17;
+    const id = 17; // One arbitrary duplicate ID distinguishes root precedence.
+    // Seven live-object roots plus the separate used-up bill-object chain.
     const roots = Array.from({ length: 8 }, (_, i) => ({ o_id: id, where: i, nobj: null }));
     const state = { invent: roots[0], level: { objlist: roots[1], buriedobjlist: roots[2],
         monlist: { minvent: roots[4] } }, gm: { migrating_objs: roots[3],
@@ -218,6 +223,8 @@ test('traditional payment itemizes a single stack and rejects insufficient funds
 });
 
 test('dopay wakes an owing keeper before clearing debit and loan with credit or cash', async () => {
+    // Debit6 partitions these credits into cash-only, mixed and credit-only;
+    // starting gold20 covers the largest cash payment without a refusal.
     for (const credit of [0, 2, 10]) {
         const { state, keeper, eshk, env, gold, messages } = await shop();
         await gold(20);

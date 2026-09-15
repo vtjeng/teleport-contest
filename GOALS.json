@@ -46274,8 +46274,8 @@
           "name": "dopay",
           "line": 1743,
           "endLine": 2044,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -46352,7 +46352,93 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dopay",
+            "implementation": "js/shk.js",
+            "symbol": "dopay",
+            "sourceReview": "Read and translated whole shk.c dopay:1743–2035, including its final itemized-bill cleanup, iflags.menu_requested reset and return. Preserved shopkeeper selection and source-position counts, visibility/telepathy and distance checks, wake-before-debt ordering, robbery/angry branches, credit/debit/loan arithmetic, itemized purchase outcomes, money transfer and mute/deaf-aware output. Required family read whole: sortbill_cmp:1499–1518, cheapest_item:1522–1539, make_itemized_bill:1545–1663, menu_pick_pay_items:1668–1739, pay_billed_items:2045–2167, update_bill:2171–2211, dopayobj:2220–2302, buy_container:2309–2411, reject_purchase:2419–2451, insufficient_funds:2455–2481, check_credit:1278–1294, pay:1297–1313, rouse_shk:1381–1392, bp_to_obj:2759–2769, find_oid:2777–2804, shk_names_obj:3413–3445; objnam.c Doname2:2303–2309 and paydoname:2313–2355. Preserved used versus intact rows, source sorting including long-to-int comparator conversion, container aggregation and contents-before-container billing, original ebillct snapshot, bill-entry pointer identity during last-entry compaction, and OBJ_ONBILL extraction/deallocation. Prompt and naming flags are restored before returning. Source pay quantities and temporary unpaid/no_charge changes remain in source order. Existing get_cost/getprice/get_pricing_units, naming, money and inventory owners remain independent consumed-return boundaries. No fabricated return values or new Unsupported errors. Missing discarded-return make_happy_shk is explicitly noted at each reached source call; this delivery does not claim that separate function complete. No seed-specific runtime behavior. Coordinator read the entire C family, every changed production function and dispatcher, and all new tests and recipe/entrypoint verifier definitions at immutable67d9efd4. Verified the long-to-int sort conversion, source bill-entry identity and old ebillct iteration bounds, source default quantity/flag restoration, ordinary/count/extended dispatch and the non-awaiting false-verbosity rouse_shk callers. Constructed tests cover source prices, partial-use compaction, hidden contents, cancellation, insufficient funds, and all credit-versus-debit partitions. Six independently chosen shop recipes exercise actual paid/unpaid ownership and cash transfer; full combined validation follows separately.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c command dispatch routes ordinary p to dopay; pay is admitted and counted p reaches dopay's C1743–1755 multi reset instead of the old unported-count guard. ECMD time results use the existing dispatcher contract."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extended command table routes #pay to the same dopay owner; menu-request prefix state is consumed and reset by dopay."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "rob_shop",
+                "source": "shk.c rob_shop:694 calls rouse_shk(TRUE); the previous discarded call marker is replaced by awaited source-ordered wake output. Existing false-verbosity callers retain synchronous state mutation because they do not enter the async output branch."
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "paydoname",
+                "source": "shk.c itemized menu and purchase feedback call objnam.c paydoname with temporary quantity/known-container/price flags restored afterward."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/shop-payment.test.mjs",
+              "scripts/shop-billing.test.mjs",
+              "scripts/shk.test.mjs",
+              "scripts/objnam.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/scan-sessions.test.mjs",
+              "scripts/paybill-end-cleanup.test.mjs",
+              "scripts/hero-death.test.mjs",
+              "scripts/end-done-object-cleanup.test.mjs"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-menu.session.json",
+              "recordings/shk.c/pay-cloak-menu.session.json",
+              "recordings/shk.c/pay-boots-traditional.session.json",
+              "recordings/shk.c/pay-boots-cancel.session.json",
+              "recordings/shk.c/pay-boots-extended.session.json",
+              "recordings/shk.c/pay-boots-counted.session.json"
+            ],
+            "checkedAt": "6ad58089d5153789d5e5539eebe79ac584924094"
+          }
+        ],
+        "entryPointReview": "Ordinary p, #pay, menu-requested traditional payment, cancellation and counted p all reach the real payment owner. Six independently chosen recipes enter a generated shop, acquire specific unpaid boots or a cloak, then pay or cancel. The verifier requires the intended inventory object, source-correct unpaid state, active bill identity on cancellation, real cash transfer on purchase, and complete input consumption. Source-pinned tests cover sorting/cheapest bounds, object lookup precedence, used/partly-used rows, itemized container grouping, bill compaction, credit and cash, debt/loan clearing and wake-before-mutation. These isolated tests are not claimed as fresh recording coverage of every helper branch.",
+        "entryPoints": [
+          {
+            "name": "Ordinary and counted pay command",
+            "functions": [
+              "dopay"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-menu.session.json",
+              "recordings/shk.c/pay-cloak-menu.session.json",
+              "recordings/shk.c/pay-boots-counted.session.json"
+            ]
+          },
+          {
+            "name": "Extended pay command",
+            "functions": [
+              "dopay"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-extended.session.json"
+            ]
+          },
+          {
+            "name": "Requested traditional itemization and cancelled menu",
+            "functions": [
+              "dopay"
+            ],
+            "recordings": [
+              "recordings/shk.c/pay-boots-traditional.session.json",
+              "recordings/shk.c/pay-boots-cancel.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
