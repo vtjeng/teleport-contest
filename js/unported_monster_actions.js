@@ -198,6 +198,7 @@ import {
     setmnotwielded,
 } from './weapon.js';
 import { mwelded, will_weld } from './wield.js';
+import { is_pole } from './worn.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
