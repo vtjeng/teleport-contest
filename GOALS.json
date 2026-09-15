@@ -46769,7 +46769,7 @@
     {
       "id": "pilot-objnam-type-names-seed0002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port object type aliases and their bounded naming callers",
       "cFile": "objnam.c",
       "sessions": [
@@ -46780,8 +46780,8 @@
       "spans": [
         {
           "name": "obj_typename",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
           "functions": [
             "obj_typename"
           ]
@@ -46793,8 +46793,11 @@
         "screens": 9651,
         "rng": 699110
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "obj_typename",
@@ -46940,6 +46943,75 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 589,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: the attributes window requires the deafness status",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 6,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 6,
+              "status": "complete",
+              "commit": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "step": 589,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: the attributes window requires the deafness status",
+                "unlocatedKinds": [],
+                "recordedSteps": 595,
+                "remainingScreensUpperBound": 6
+              },
+              "summary": "Object type aliases now let discoveries finish. The next attributes command stops in the existing partial status_enlightenment on DEAF. C insight.c1073–1074 emits the deafness line through from_what. Complete the whole status_enlightenment unit as a separate future goal; A's current attributes_enlightenment unit does not include it.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "status_enlightenment"
+                ],
+                "branch": "Whole status_enlightenment940–1266 includes obvious movement, polymorph/riding, ailments including DEAF1073–1074, punishment, traps, held/swallowed hero, wounded legs, transient conditions, hunger, encumbrance, weapon status, suit penalty and nudity. Deaf combines intrinsic, extrinsic and role-play state; the drum established real timed deafness here. This is not a naming defect.",
+                "callers": [
+                  "cmd.c attributes command -> insight.c doattributes:2009 -> enlightenment -> status_enlightenment; JS doattributes/enlightenment reaches the existing status owner in the same order."
+                ],
+                "dependencies": [
+                  "from_what(DEAF) is a consumed naming dependency. Also verify whole status helpers trap_predicament, walking_on_water, weapon_insight and consumed monster/body/equipment naming at their C call sites; no guessed return or seed-specific line is permitted.",
+                  "The source unit is separate from attributes_enlightenment. The pilot starts no new substantial unit after its cutoff; implementation remains future work.",
+                  "The remaining six-screen bound includes the current attributes result and later inputs; it is not a prediction of gain."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Combined checkpoint4e0ebd97 completed2026-09-15T01:00:34.132Z with all218regression recordings passing. Fixed workload27/44;9653/11405screens,699110/792838RNG. Post-checkpoint canonical queue confirms first mismatch589 and upper bound6.",
+                "Worker independently replayed the same next stop at immutable33b0b9c. Coordinator read the complete C status_enlightenment body940–1266, the DEAF macro, and existing JavaScript refusal and caller. The independently worked attributes unit is not claimed to implement this separate status unit.",
+                "Naming's first combined checkpoint failed only four older error-boundary fixtures that used an alias refusal. Those tests now use the remaining lit-candle naming refusal; all targeted tests and the second full checkpoint pass. No status implementation is included."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+        "screens": 9653,
+        "rng": 699110
       }
     }
   ]

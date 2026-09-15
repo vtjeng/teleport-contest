@@ -1,11 +1,11 @@
 {
   "session": "holdout/seed0002-healer-reflection-drummer",
-  "remainingScreensUpperBound": 8,
+  "remainingScreensUpperBound": 6,
   "status": "complete",
-  "commit": "894a6122f42097baed2fdaef0295969c591d570e",
+  "commit": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
-    "step": 587,
+    "step": 589,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -13,31 +13,31 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: user-assigned type name",
+    "message": "unsupported hero command: an unported branch of this command: the attributes window requires the deafness status",
     "unlocatedKinds": [],
     "recordedSteps": 595,
-    "remainingScreensUpperBound": 8
+    "remainingScreensUpperBound": 6
   },
-  "summary": "Instrument playback now reaches step587. The discoveries command stops on an assigned object-type alias. Complete objnam.c obj_typename and its consumed xcalled helper, then wire their existing naming callers. Preserve bounded C strings, appearance suffixes and Samurai discoveries explanations.",
+  "summary": "Object type aliases now let discoveries finish. The next attributes command stops in the existing partial status_enlightenment on DEAF. C insight.c1073–1074 emits the deafness line through from_what. Complete the whole status_enlightenment unit as a separate future goal; A's current attributes_enlightenment unit does not include it.",
   "source": {
-    "file": "objnam.c",
+    "file": "insight.c",
     "functions": [
-      "obj_typename",
-      "xcalled"
+      "status_enlightenment"
     ],
-    "branch": "Read whole obj_typename201–293 and xcalled558–572. Four alias insertions preserve each class prefix and reserve the appearance suffix before truncating the user name. Discoveries calls obj_typename through o_init.c disco_typename and disco_append_typename.",
+    "branch": "Whole status_enlightenment940–1266 includes obvious movement, polymorph/riding, ailments including DEAF1073–1074, punishment, traps, held/swallowed hero, wounded legs, transient conditions, hunger, encumbrance, weapon status, suit penalty and nudity. Deaf combines intrinsic, extrinsic and role-play state; the drum established real timed deafness here. This is not a naming defect.",
     "callers": [
-      "o_init.c disco_typename661–689 consumes obj_typename; disco_append_typename694–721 retains a long name's appearance suffix. The Samurai explanation is inserted before called or appearance text.",
-      "objnam.c simple_typename suppresses and restores oc_uname; existing xname_flags class arms call xcalled for inventory and ordinary messages. Completing these helpers does not establish whole-xname_flags completion."
+      "cmd.c attributes command -> insight.c doattributes:2009 -> enlightenment -> status_enlightenment; JS doattributes/enlightenment reaches the existing status owner in the same order."
     ],
     "dependencies": [
-      "Existing source naming tables, Japanese_item_name and GemStone predicates supply actual and appearance names.",
-      "xcalled needs byte-precision truncation and the C NUL capacity; reuse existing hacklib byte helpers. No absent consumed-return dependency was found in these selected functions."
+      "from_what(DEAF) is a consumed naming dependency. Also verify whole status helpers trap_predicament, walking_on_water, weapon_insight and consumed monster/body/equipment naming at their C call sites; no guessed return or seed-specific line is permitted.",
+      "The source unit is separate from attributes_enlightenment. The pilot starts no new substantial unit after its cutoff; implementation remains future work.",
+      "The remaining six-screen bound includes the current attributes result and later inputs; it is not a prediction of gain."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Combined checkpoint894a6122 completed2026-09-15T00:30:28.788Z with all215regression recordings passing. Fixed workload27/44;9651/11405screens,699110/792838RNG. Canonical post-checkpoint queue reports first mismatch587 and remaining-screen upper bound8; this is not a predicted gain.",
-    "Coordinator read both selected C functions in full and the complete o_init.c formatting callers. Worker independently located the same owner and supplied a separate immutable delivery while instruments were validated. No alias implementation is included in this measured candidate."
+    "Combined checkpoint4e0ebd97 completed2026-09-15T01:00:34.132Z with all218regression recordings passing. Fixed workload27/44;9653/11405screens,699110/792838RNG. Post-checkpoint canonical queue confirms first mismatch589 and upper bound6.",
+    "Worker independently replayed the same next stop at immutable33b0b9c. Coordinator read the complete C status_enlightenment body940–1266, the DEAF macro, and existing JavaScript refusal and caller. The independently worked attributes unit is not claimed to implement this separate status unit.",
+    "Naming's first combined checkpoint failed only four older error-boundary fixtures that used an alias refusal. Those tests now use the remaining lit-candle naming refusal; all targeted tests and the second full checkpoint pass. No status implementation is included."
   ]
 }
