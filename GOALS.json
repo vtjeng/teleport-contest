@@ -48652,7 +48652,7 @@
     {
       "id": "port-mthrowu-seed4500-20260915",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port monster ranged missile selection and flight for nonweapon ammunition",
       "cFile": "mthrowu.c",
       "sessions": [
@@ -48837,11 +48837,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "b788f5aae00c2953253518b1148a43481551e29e",
-        "screens": 9810,
-        "rng": 716839
+        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
+        "screens": 9880,
+        "rng": 718022
       },
-      "parkedReason": "Worker B delivery 189e0058 is ready and must be integrated individually; preserve worker A task A-r2-1 and its queued m_throw..thrwmu span while opening B for central validation."
+      "parkedReason": "Park central integration briefly while worker B executes the independent queued seed0014 goto_level travel-cache divergence; worker A continues its already-reserved mthrowu span and remains the higher-ranked active implementation."
     },
     {
       "id": "div-select-rwep-seed0106-20260915",
@@ -48973,7 +48973,7 @@
     {
       "id": "div-goto-level-travelcc-seed0014-20260915",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore goto_level travel destination reset after successful level departure",
       "cFile": "do.c",
       "sessions": [
@@ -48981,14 +48981,101 @@
       ],
       "selectionReason": "Select seed0014-dequa-fountain-explore at 67 remaining screens from investigations/seed0014-dequa-fountain-explore.json, whose complete source trace identifies do.c goto_level() as the actionable owner. The higher-ranked seed0106 and seed0399 entries are stale and await refreshed investigations; seed2200 is complete but classified machine-local because its mismatch depends on an absent HOME-derived pathname, so it has no portable gameplay fix. The 67-screen seed0014 case is independent of worker A’s reserved mthrowu.c functions and follows the per-session ordering.",
       "detail": "Investigation at do.c:1601-1608 shows C clears iflags.travelcc.x and iflags.travelcc.y after reset_trapset() during successful level departure; js/do.js:1351-1354 omits that assignment. Restore the source-ordered reset and remove the obsolete unported-travel comment. The existing dotravel/getpos callers consume this shared state.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "goto_level",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "goto_level"
+          ]
+        }
+      ],
+      "openedAt": "5ca534c80c511414dc9837332b8c643cd2b1802d",
+      "openStanding": {
+        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
+        "screens": 9880,
+        "rng": 718022
+      },
       "closedAt": null,
       "delivered": null,
       "function": "goto_level",
       "session": "seed0014-dequa-fountain-explore",
-      "step": 647
+      "step": 647,
+      "activeStanding": {
+        "sha": "c944340d09c4e5ac64f209196b4e36aef5795841",
+        "screens": 9880,
+        "rng": 718022
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 647,
+          "kind": "cursor",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 67,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 67,
+              "status": "complete",
+              "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 647,
+                "kind": "cursor",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 67
+              },
+              "summary": "goto_level() leaves the old level’s travel destination cached. C clears iflags.travelcc after reset_trapset(); JavaScript skips that assignment under an obsolete unported-travel comment. After descending, the next travel prompt starts at the old destination instead of the hero. The mismatch is deterministic state left behind by level departure.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "goto_level"
+                ],
+                "branch": "A successful level change passes the same-level and quest guards while iflags.travelcc holds a destination selected on the departing level. Clear both cached coordinates during context discard, after reset_trapset() and before clearing the polearm target. Rejected or same-level transitions return before that reset.",
+                "callers": [
+                  "js/cmd.js:3361 and 5643 dispatch the > command through dodown(); js/do.js:1174 calls next_level(!trap, state, { gotoLevel: goto_level }). This matches do.c dodown():1288-1291.",
+                  "js/dungeon.js:764-787 next_level() invokes the injected goto_level() with the staircase destination, matching dungeon.c next_level():1497-1514. The observed step 599 descends through this path.",
+                  "js/cmd.js:2596-2626 dotravel() reads iflags.travelcc; cmd.c dotravel():5314-5341 uses the hero position only when both cached coordinates are zero. js/getpos.js:529-550 positions the prompt cursor at those coordinates."
+                ],
+                "dependencies": [
+                  "iflags.travelcc is the existing travel destination cache shared by cmd.c dotravel()/dotravel_target(), hack.c findtravelpath(), and level departure. Retain that single state location; u.tx/u.ty are distinct C fields and are not reset by do.c:1607.",
+                  "Existing maybe_reset_pick(), reset_trapset(), and context.polearm.hitmon establish the source ordering. This correction needs no additional callee or random draw."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Pinned source: a0986b8404a83d232bee4bd2b5a9433337cf2739 records nethack-c/upstream at 16ff59115315917b93185d026aeefea06db9b0f4. All JavaScript source reads used git show at the examined commit; C reads used the pinned submodule revision.",
+                ".cache/scan-cache.json at the examined commit records 655 emitted screens, first cursor mismatch at segment 0 step 647 key _, C [6,9,1], JavaScript [65,12,1], and no RNG or screen divergence in its compared prefix. The old cache’s step 624 first-bash-message refusal is already implemented in js/uhitm.js do_attack().",
+                ".cache/seed0014-investigation-a0986b84/replay.mjs replays only the assigned fixed session from a Git archive of the examined commit with frozen isaac64.js, terminal.js, and storage.js overlaid. Its capture-hook wrapper records state without changing game behavior; replay.json contains the output. All per-step RNG calls agree across 655 captured boundaries, and decoded cells agree throughout steps 7-654, including the mismatch. Startup banner cells at steps 0-6 differ in this direct runner and do not participate in the travel-state diagnosis.",
+                "Replay steps 591-598 select and retain travelcc {x:66,y:11} on dungeon 2 level 1. Step 599 changes u.uz to {dnum:2,dlevel:2}, arrives at {ux:69,uy:19}, and retains travelcc {x:66,y:11}. At step 647, u is {ux:7,uy:8}; getpos receives {66,11}, yielding terminal cursor [65,12,1]. C records [6,9,1], the cursor for the current hero square, while the prompt cells and RNG agree.",
+                "nethack-c/upstream/src/do.c:1583 returns for the same level. Its context-discard block at 1601-1608 calls maybe_reset_pick(NULL), reset_trapset(), assigns iflags.travelcc.x = iflags.travelcc.y = 0, then clears context.polearm.hitmon. js/do.js:1351-1354 makes the first two calls but replaces the travel assignment with the stale comment that travel and its field are unported.",
+                "The actionable scope is a divergence fix in the whole goto_level() source unit (do.c:1479-1998; js/do.js:1262 onward): restore the missing context-discard assignment at the C position and remove the obsolete comment. Verify that successful level changes reset the cache, same-level or rejected transitions preserve it, and the next travel prompt starts at the hero. Existing cmd.c/getpos.c cursor handling already follows its supplied state; changing cursor placement would conceal the earlier state defect.",
+                "The replay still stops at step 655 with simple monster action requires trap activation. This later source gap is separate; remainingScreensUpperBound 67 is a queue priority bound, not a predicted gain from the travel-cache correction."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
