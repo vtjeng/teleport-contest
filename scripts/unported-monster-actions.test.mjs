@@ -2504,58 +2504,54 @@ test('simple preflight refuses each turn-preamble state on its own',
     });
 
 // trap.c mintrap()'s mtmp->mtrapped arm, which monmove.c m_move() reaches at
-// :1734, is ported for the bear trap alone, so the gate reads the square under
+// :1734, is ported for bear traps and webs, so the gate reads the square under
 // the monster rather than its mtrapped bit. A pit needs fill_pit() and
-// m_easy_escape_pit(); a web reaches C:3771's message but not the seetrap()
-// path that puts a monster in one, and every remaining type escapes with no
-// line at all.
-test('simple preflight admits a monster held in a bear trap alone',
+// m_easy_escape_pit(); every remaining type escapes with no line at all.
+test('simple preflight admits a monster held in a bear trap or web',
     async () => {
-        const held = await prepareSelectedAction();
-        held.monster.mtrapped = true;
-        game.level.traps.push({
-            tx: held.monsterX,
-            ty: held.heroY,
-            ttyp: BEAR_TRAP,
-            tseen: true,
-        });
-        const before = completeSecondTurnSnapshot(game, held.replay);
-
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await preflightSimpleMonsterActions(game);
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, held.replay),
-                before,
-                `bear trap, attempt ${attempt + 1}`,
-            );
-        }
-
-        for (const [label, ttyp] of [['pit', PIT], ['web', WEB]]) {
-            const other = await prepareSelectedAction();
-            other.monster.mtrapped = true;
+        for (const [label, ttyp] of [['bear trap', BEAR_TRAP], ['web', WEB]]) {
+            const held = await prepareSelectedAction();
+            held.monster.mtrapped = true;
             game.level.traps.push({
-                tx: other.monsterX,
-                ty: other.heroY,
+                tx: held.monsterX,
+                ty: held.heroY,
                 ttyp,
                 tseen: true,
             });
-            const otherBefore = completeSecondTurnSnapshot(
-                game, other.replay,
-            );
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'a trapped monster'
-                ),
-                label,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, other.replay),
-                otherBefore,
-                label,
-            );
+            const before = completeSecondTurnSnapshot(game, held.replay);
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await preflightSimpleMonsterActions(game);
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, held.replay),
+                    before,
+                    `${label}, attempt ${attempt + 1}`,
+                );
+            }
         }
+
+        const other = await prepareSelectedAction();
+        other.monster.mtrapped = true;
+        game.level.traps.push({
+            tx: other.monsterX,
+            ty: other.heroY,
+            ttyp: PIT,
+            tseen: true,
+        });
+        const otherBefore = completeSecondTurnSnapshot(game, other.replay);
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'a trapped monster'
+            ),
+            'pit',
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, other.replay),
+            otherBefore,
+            'pit',
+        );
     });
 
 // monmove.c m_move()'s mtrapped prologue hands mintrap() a `redraw` and a
