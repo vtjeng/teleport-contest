@@ -46765,6 +46765,109 @@
         "screens": 9651,
         "rng": 699110
       }
+    },
+    {
+      "id": "pilot-objnam-type-names-seed0002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port object type aliases and their bounded naming callers",
+      "cFile": "objnam.c",
+      "sessions": [
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "User-authorized seed-worker pilot continues the seed0002 stream. Its first mismatch587 leaves upper bound8 in investigations/holdout/seed0002-healer-reflection-drummer.json. Source-traced owner is whole objnam.c obj_typename with required xcalled and existing naming caller corrections; other ranked sessions remain assigned or outside this bounded pilot stream.",
+      "detail": "",
+      "spans": [],
+      "openedAt": "5f9c8425864d2012e022ca7206eb59d9ccbaf9d4",
+      "openStanding": {
+        "sha": "894a6122f42097baed2fdaef0295969c591d570e",
+        "screens": 9651,
+        "rng": 699110
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "obj_typename",
+          "line": 201,
+          "endLine": 297,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 201,
+        "to": 297
+      },
+      "activeStanding": {
+        "sha": "894a6122f42097baed2fdaef0295969c591d570e",
+        "screens": 9651,
+        "rng": 699110
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 587,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: user-assigned type name",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 8,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 8,
+              "status": "complete",
+              "commit": "894a6122f42097baed2fdaef0295969c591d570e",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "step": 587,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: user-assigned type name",
+                "unlocatedKinds": [],
+                "recordedSteps": 595,
+                "remainingScreensUpperBound": 8
+              },
+              "summary": "Instrument playback now reaches step587. The discoveries command stops on an assigned object-type alias. Complete objnam.c obj_typename and its consumed xcalled helper, then wire their existing naming callers. Preserve bounded C strings, appearance suffixes and Samurai discoveries explanations.",
+              "source": {
+                "file": "objnam.c",
+                "functions": [
+                  "obj_typename",
+                  "xcalled"
+                ],
+                "branch": "Read whole obj_typename201–293 and xcalled558–572. Four alias insertions preserve each class prefix and reserve the appearance suffix before truncating the user name. Discoveries calls obj_typename through o_init.c disco_typename and disco_append_typename.",
+                "callers": [
+                  "o_init.c disco_typename661–689 consumes obj_typename; disco_append_typename694–721 retains a long name's appearance suffix. The Samurai explanation is inserted before called or appearance text.",
+                  "objnam.c simple_typename suppresses and restores oc_uname; existing xname_flags class arms call xcalled for inventory and ordinary messages. Completing these helpers does not establish whole-xname_flags completion."
+                ],
+                "dependencies": [
+                  "Existing source naming tables, Japanese_item_name and GemStone predicates supply actual and appearance names.",
+                  "xcalled needs byte-precision truncation and the C NUL capacity; reuse existing hacklib byte helpers. No absent consumed-return dependency was found in these selected functions."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Combined checkpoint894a6122 completed2026-09-15T00:30:28.788Z with all215regression recordings passing. Fixed workload27/44;9651/11405screens,699110/792838RNG. Canonical post-checkpoint queue reports first mismatch587 and remaining-screen upper bound8; this is not a predicted gain.",
+                "Coordinator read both selected C functions in full and the complete o_init.c formatting callers. Worker independently located the same owner and supplied a separate immutable delivery while instruments were validated. No alias implementation is included in this measured candidate."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
