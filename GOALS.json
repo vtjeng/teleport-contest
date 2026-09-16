@@ -53856,7 +53856,7 @@
     {
       "id": "port-mkroom-do-mkroom-seed0360-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete special-room dispatch and its ant availability predicate",
       "cFile": "mkroom.c",
       "sessions": [
@@ -53867,8 +53867,8 @@
       "spans": [
         {
           "name": "do_mkroom",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "fe2f53f3b4368178646a97febaef392f9cadb797",
           "functions": [
             "do_mkroom"
           ]
@@ -54034,7 +54034,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 2
+      },
+      "parkedStanding": {
+        "sha": "fe2f53f3b4368178646a97febaef392f9cadb797",
+        "screens": 10349,
+        "rng": 756145
+      },
+      "parkedReason": "The do_mkroom span passes combined checkpoint at fe2f53f3, with two independent ZOO recordings. Remaining special-room dispatch entries lack matching recordings; keep the source goal open for their evidence. The first selected-session cause is now whole Wiz-filb.lua and its loader."
     }
   ]
 }

@@ -2,7 +2,7 @@
   "session": "seed0360-wizard-world-tour",
   "remainingScreensUpperBound": 46,
   "status": "complete",
-  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+  "commit": "90527aab97ad80578ba1ae090eb3c7c40118bf34",
   "mismatch": {
     "session": "seed0360-wizard-world-tour",
     "step": 787,
@@ -18,30 +18,30 @@
     "recordedSteps": 833,
     "remainingScreensUpperBound": 46
   },
-  "summary": "Worker B submitted the special-room dispatcher and ant-availability guard as B12 f76a0caa. Two independent ZOO entry recordings match on the worker branch; combined main validation is queued behind the flee correction. The accepted mismatch remains step 787 with 46 remaining screens.",
+  "summary": "The special-room dispatcher passes combined validation at fe2f53f3, adding three matching development screens. This session still first diverges at step787: C loads the whole Wiz-filb.lua quest filler, while JavaScript has no registered loader and falls through to ordinary generation. The next source goal is the complete Lua program and its load_special/makelevel wiring; the later shapechanger stop follows the already divergent map.",
   "source": {
-    "file": "mkroom.c",
+    "file": "Wiz-filb.lua",
     "functions": [
-      "do_mkroom"
+      "Wiz-filb.lua"
     ],
-    "branch": "Whole C mkroom.c do_mkroom() dispatcher (lines 50-92): roomtype >= SHOPBASE calls mkshop(); COURT, ZOO, BEEHIVE, MORGUE, and BARRACKS call mkzoo(); SWAMP calls mkswamp(); TEMPLE calls mktemple(); and LEPREHALL, COCKNEST, and ANTHOLE call mkzoo() with their type. The observed stop is the ZOO case at mkroom.c:61-63, selected by mklev.c makelevel() at lines 1357-1358 on Quest Home 4. The current JS dispatcher handles shops, TEMPLE, COURT, BEEHIVE, MORGUE, and BARRACKS but throws for ZOO and the other omitted cases.",
+    "branch": "Whole top-level dat/Wiz-filb.lua program (lines 6-58): six ordinary rooms with source-ordered up/down stairs, objects, traps, hostile imps, hostile vampire bats, and a final random-corridors directive. On Quest Home 4, C mklev.c makelevel() selects the \"filb\" suffix because u.uz.dlevel is at or below the Wizard locate level, then unconditionally calls makemaz(\"Wiz-filb\"); load_special() executes this complete Lua chunk after nhlib.lua shuffles its private alignment table. The JavaScript branch only calls makemaz when SPECIAL_LEVEL_LOADERS[\"Wiz-filb\"] exists, so the missing loader sends this level into ordinary generation and changes RNG order before any room generation.",
     "callers": [
-      "nethack-c/upstream/src/mklev.c:1344-1375 makelevel() selects at most one depth-gated special room and calls do_mkroom(); the ZOO branch is lines 1357-1358, and special rooms are filled afterward by fill_special_room() at lines 1414-1418.",
-      "js/mklev.js:772-819 makelevel() mirrors the depth-gated selection and calls do_mkroom(ZOO) at lines 798-799; it then iterates rooms through fill_special_room() at lines 850-852.",
-      "js/mkroom.js:801-817 is the production do_mkroom() implementation; its current dispatch stops at an UnsupportedSpecialRoomError for omitted room types.",
-      "js/mklev.js:542-605 fill_special_room() routes ZOO to fill_zoo() and still throws for ANTHOLE, COCKNEST, and LEPREHALL after dispatch is widened."
+      "nethack-c/upstream/src/mklev.c:1275-1285 makelevel() handles In_quest levels, forms <role-filecode>-filb for this dlevel, and unconditionally calls makemaz(fillname).",
+      "nethack-c/upstream/src/mkmaze.c:1184-1195 makemaz() appends the level extension and calls sp_lev.c load_special() for the selected prototype; nethack-c/upstream/src/sp_lev.c owns the Lua descriptor execution and post-processing.",
+      "js/mklev.js:692-707 makelevel() computes Wiz-filb and only calls makemaz() if the registry contains a loader; with no Wiz-filb entry it falls through to the medusa check and regular generation at lines 709-727.",
+      "js/mklev.js:1762-1783 load_special() and lines 1786-1815 makemaz() are the production JavaScript special-level dispatcher, while js/quest_levels.js:1829-1852 supplies QUEST_LEVEL_LOADERS and currently registers Wiz-fila without Wiz-filb."
     ],
     "dependencies": [
-      "nethack-c/upstream/include/mkroom.h:50-66 defines ZOO=8, SWAMP=9, TEMPLE=10, LEPREHALL=11, COCKNEST=12, ANTHOLE=13, and SHOPBASE=14; this maps the observed do_mkroom(8) message to ZOO.",
-      "nethack-c/upstream/src/mkroom.c:243-254 mkzoo() picks a room and sets rtype and needfill; js/mkroom.js:488-495 already implements this dependency.",
-      "nethack-c/upstream/src/mkroom.c:275-452 fill_zoo() stocks ZOO rooms and sets has_zoo; js/mkroom.js:624-765 already contains the ZOO fill arm, so the current stop is before this code.",
-      "nethack-c/upstream/src/mkroom.c:529-574 mkswamp() is required by the whole dispatcher but has no JavaScript owner; js/mkroom.js:388-393 only records note_unported() for the SHOPTYPE swamp path.",
-      "nethack-c/upstream/src/mkroom.c:501-527 antholemon() supplies C's ANTHOLE selection guard at mklev.c:1366-1367; js/mklev.js:807-810 omits that guard, and js/mklev.js:567-572 still refuses the ANTHOLE, COCKNEST, and LEPREHALL fill families.",
-      ".cache/seed0360-investigation-18a56313/inspect-boundary.json records the replay state at the stop: dnum 3, dlevel 4, absolute depth 18, eight rooms with a vault and no selected special room yet, proving the failure occurs during ordinary-level room selection before ZOO filling.",
-      "js/quest_levels.js:1788-1852 registers Wiz-fila and the assigned replay's step 784 now passes that loader; the step-787 boundary is therefore owned by mkroom.c rather than Wiz-fila.lua."
+      "nethack-c/upstream/dat/Wiz-filb.lua:6-58 is the complete source program: six ordinary-room descriptors, an up stair in the first room, a down stair in the fourth, object/trap/monster calls, and des.random_corridors().",
+      "nethack-c/upstream/dat/nhlib.lua:17-25 implements shuffle(); loading a special level consumes rn2(3) then rn2(2) for the three-entry alignment table before Wiz-filb.lua executes.",
+      "nethack-c/upstream/src/mklev.c:1275-1285 is the Quest filler selection precondition; at dnum 3, dlevel 4, with Wiz-loca at dlevel 3, the selected prototype is Wiz-filb.",
+      "nethack-c/upstream/src/mkmaze.c:1184-1195 and sp_lev.c load_special() define the C loader path that the JavaScript registry and special-level API must reproduce.",
+      "js/quest_levels.js:1788-1852 has the existing Wiz-fila implementation and registry convention, but no Wiz-filb program or registry entry; this is why the current makelevel() fallback reaches ordinary generation.",
+      "js/mklev.js:709-727 consumes the regular-generation medusa rn2(5) before initialize_themeroom_branch(); the B12 exact scan identifies this as JavaScript rn2(5)=0 against C nhlib shuffle rn2(3)=2 at RNG index 116709.",
+      "js/mklev.js:717-819 and js/mkroom.js:834-860 are downstream ordinary/special-room generation. B12 now dispatches ZOO, and its later distress shapechanger 270 boundary is a candidate consequence after the step-787 source mismatch, not the owner of the first cause."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "lua-port",
   "evidence": [
     "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
     "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
@@ -52,6 +52,21 @@
     "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
     "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
     "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted.",
-    "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains."
+    "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains.",
+    "Current candidate source trace: nethack-c/upstream/src/mklev.c:1275-1285 unconditionally calls makemaz(\"Wiz-filb\") for this Quest dlevel, while js/mklev.js:692-707 only dispatches when a registry loader exists and js/quest_levels.js:1829-1852 has no Wiz-filb entry.",
+    "Saved .cache/B12-checkpoint-scan-cache.json is the exact candidate observation for commit 90527aab97ad80578ba1ae090eb3c7c40118bf34: step 787 first diverges with C nhlib shuffle rn2(3)=2 versus JavaScript rn2(5)=0, with differing map cell and cursor; its later distress shapechanger boundary is downstream.",
+    "nethack-c/upstream/dat/Wiz-filb.lua:6-58 defines the whole Lua scope, and nethack-c/upstream/dat/nhlib.lua:17-25 explains the expected two shuffle draws. This establishes a lua-port owner rather than a do_mkroom divergence fix.",
+    "No game source, central queue, SCORE.tsv, recordings, commits, or aggregate score were changed; only this assigned investigation file was updated, with candidate diagnostics retained in the existing session-scoped .cache artifacts.",
+    "Combined checkpoint at fe2f53f3b4368178646a97febaef392f9cadb797 passes every required check and all278 recordings. The exact 44-session cached scan in .cache/B12-retry-checkpoint-scan-cache.json confirms step787 remains the first divergence and the queue count stays46. Two independent ZOO recordings add12 matching recording screens and14738 RNG. Frozen challenge v1 is unchanged at2/9 cases,534/918 screens."
+  ],
+  "acceptedScoreContext": {
+    "acceptedQueueCount": 46,
+    "acceptedMismatch": "At validated fe2f53f3 the first divergence remains step787; C nhlib shuffle rn2(3)=2 differs from ordinary-generator rn2(5)=0. Original mismatch provenance is retained above.",
+    "checkpoint": "fe2f53f3b4368178646a97febaef392f9cadb797/run-b8ldRi: 31/44 sessions, 10349/11405 screens, 756145/792838 RNG, 10379/11405 cursors; all278 recordings pass."
+  },
+  "candidateObservations": [
+    "Saved .cache/B12-checkpoint-scan-cache.json row for seed0360-wizard-world-tour on candidate 90527aab97ad80578ba1ae090eb3c7c40118bf34 reports screensEmitted 805, first screen/RNG/cursor divergence at step 787, C rn2(3)=2 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19), JavaScript rn2(5)=0, and later boundary unsupported initial-level monster creation: distress shapechanger 270.",
+    "The B12 row records the step-787 C cursor [33,9,1] versus JavaScript [44,5,1] and differing map cells, confirming that the regular-level fallback changes generated topology; this diagnostic remains candidate evidence rather than an accepted aggregate score.",
+    "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary."
   ]
 }
