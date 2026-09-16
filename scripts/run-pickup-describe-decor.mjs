@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 
-// Fresh production recordings for pickup.c describe_decor().  Each segment
-// starts at the generated upstairs, walks through ordinary terrain, and
-// arrives on a generated doorway.  C suppresses the doorway feature noun but
-// still remembers DOOR in iflags.prev_decor; the verifier checks that source
-// state after the same production movement path.
+// Fresh production recordings for pickup.c describe_decor() and
+// deferred_decor().  The doorway segments start at generated upstairs,
+// walk through ordinary terrain, and arrive on a generated doorway.  C
+// suppresses the doorway feature noun but still remembers DOOR in
+// iflags.prev_decor.  The deferred segments enable Levitation, leave the
+// generated staircase, arm one-turn Fumbling, and return to the staircase;
+// pickup.c defers that terrain description and timeout.c catches it up.
 
 import { DOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { readFileSync } from 'node:fs';
 
 export function loadPickupDescribeDecorRecipes() {
     return validateCleanRecipe({
@@ -32,6 +35,20 @@ export function loadPickupDescribeDecorRecipes() {
             },
         ],
     }, 'pickup describe_decor doorway recipe');
+}
+
+export function loadPickupDeferredDecorRecipes() {
+    return validateCleanRecipe(JSON.parse(readFileSync(
+        new URL('../recipes/pickup.c/deferred-decor-fumble-independent.session.json', import.meta.url),
+        'utf8',
+    )), 'pickup deferred_decor production recipe');
+}
+
+export function loadPickupDeferredDecorVariationRecipes() {
+    return validateCleanRecipe(JSON.parse(readFileSync(
+        new URL('../recipes/pickup.c/deferred-decor-fumble-variation.session.json', import.meta.url),
+        'utf8',
+    )), 'pickup deferred_decor variation recipe');
 }
 
 function storageProbe() {
@@ -65,14 +82,58 @@ export async function verifyPickupDescribeDecorSegment(segment) {
     }
 }
 
+export async function verifyPickupDeferredDecorSegment(segment) {
+    let boundary = null;
+    const replay = await runSegment(
+        { ...segment, storage: storageProbe() },
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    if (boundary) throw boundary;
+    const { u } = game;
+    const location = game.level.at(u.ux, u.uy);
+    const stairs = game.stairs;
+    if (!stairs || u.ux !== stairs.sx || u.uy !== stairs.sy
+        || game.iflags.prev_decor !== location?.typ) {
+        throw new Error('deferred route did not remember staircase terrain'
+            + ` (seed=${segment.seed}, pos=${u.ux},${u.uy},`
+            + ` terrain=${location?.typ}, prev=${game.iflags.prev_decor},`
+            + ` stairs=${stairs?.sx},${stairs?.sy})`);
+    }
+    if (game.iflags.defer_decor !== false) {
+        throw new Error('timeout route left deferred decoration pending');
+    }
+    if (game._ttyMessageStopped || game.nhDisplay.inputQueueLength !== 0) {
+        throw new Error('deferred route left a message or input boundary');
+    }
+    if (game.context.run !== 0 || game.multi !== 0 || replay.getRngLog().length < 1) {
+        throw new Error('deferred route did not finish as an ordinary move');
+    }
+}
+
+export async function verifyPickupDecorSegment(segment) {
+    if (segment.seed === 7744223 || segment.seed === 7744224)
+        return verifyPickupDeferredDecorSegment(segment);
+    return verifyPickupDescribeDecorSegment(segment);
+}
+
 export async function runPickupDescribeDecorMatrix() {
     return runFreshMatrix({
-        entries: [{
-            label: 'pickup describe_decor doorway',
-            recipe: loadPickupDescribeDecorRecipes(),
-        }],
-        summaryLabel: 'PICKUP DESCRIBE_DECOR DOORWAY',
-        verifySegment: verifyPickupDescribeDecorSegment,
+        entries: [
+            {
+                label: 'pickup describe_decor doorway',
+                recipe: loadPickupDescribeDecorRecipes(),
+            },
+            {
+                label: 'pickup deferred_decor fumble',
+                recipe: loadPickupDeferredDecorRecipes(),
+            },
+            {
+                label: 'pickup deferred_decor fumble variation',
+                recipe: loadPickupDeferredDecorVariationRecipes(),
+            },
+        ],
+        summaryLabel: 'PICKUP DESCRIBE_DECOR/DEFERRED_DECOR',
+        verifySegment: verifyPickupDecorSegment,
     });
 }
 

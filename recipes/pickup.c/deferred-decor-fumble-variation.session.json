@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "probe",
+  "segments": [
+    {
+      "seed": 7744224,
+      "datetime": "20420518131423",
+      "nethackrc": "OPTIONS=name:A15FumbleC,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,mention_decor,!autopickup,!debug_mongen,!verbose\n",
+      "moves": " .#wizintrinsic\nq\n h#wizintrinsic\n>1s\n l      "
+    }
+  ]
+}
