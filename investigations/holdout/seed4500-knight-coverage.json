@@ -1,48 +1,43 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 921,
+  "remainingScreensUpperBound": 836,
   "status": "complete",
-  "commit": "05d27d52442218a4ab1347a545f49bccaa18805b",
+  "commit": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 893,
-    "kind": "screen",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "step": 978,
+    "kind": "stop",
+    "function": "makemon",
+    "functionDeclared": true,
+    "sourceFile": "makemon.c",
+    "cFile": "makemon.c",
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "unsupported hero command: an unported branch of the command: unsupported initial-level monster creation: makemon() monster 146",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 921
+    "remainingScreensUpperBound": 836
   },
-  "summary": "At current step 893, #overview omits the source-ordered `Stairs down to The Gnomish Mines.` row. The row is emitted by dungeon.c print_mapseen() only when its mapseen entry has br set; the JS entry remains br:null because recbranch_mapseen() has no port and goto_level() never records a real cross-dungeon stair transition. Port the complete recbranch_mapseen() helper and wire its at_stairs/falling/portal caller branch before assigning u.uz, preserving the reverse-branch early return and existing mapseen/branch state.",
+  "summary": "The dungeon.c recbranch_mapseen() correction and the post-arrival get_annotation()/print_level_annotation() wiring now match through the prior holdout/seed4500 mismatch at step 909. The next first boundary is the declared makemon.c makemon() branch at step 978, where the current JavaScript replay stops on unsupported initial-level monster creation for monster 146; this is the next source-owned investigation.",
   "source": {
-    "file": "dungeon.c",
+    "file": "makemon.c",
     "functions": [
-      "recbranch_mapseen"
+      "makemon"
     ],
-    "branch": "do.c goto_level() changes dungeon only after a stair, falling, or portal transition. recbranch_mapseen() ignores same-dungeon changes, accepts only a forward svb.branches endpoint pair, returns for a reverse traversal or missing branch, and assigns the matching branch to find_mapseen(source), preserving the impossible diagnostic when source mapseen is absent. print_mapseen() then emits the branch description after the remembered-feature rows.",
+    "branch": "The current boundary is the initial-level monster creation path reached by the fixed holdout recording. Inspect the complete makemon() source and its return-valued callers before selecting a span; do not treat the observed monster identity as a session-specific exception.",
     "callers": [
-      "do.c:goto_level():1673 calls recbranch_mapseen(&u.uz, newlevel) when (at_stairs || falling || portal) and the dungeon number changes.",
-      "js/do.js:goto_level():1260-1740 performs the corresponding level transition but currently omits the recbranch_mapseen call before assign_level(u.uz0, u.uz).",
-      "dungeon.c:print_mapseen():3685-3695 reads mptr->br and emits the branch row in #overview; js/dungeon.js:2074-2079 already has the source-shaped formatter but receives br:null."
+      "The fixed holdout replay reaches the boundary at step 978 after the wizard level-tour commands; the exact C and JavaScript caller chain must be read before assigning a makemon.c span.",
+      "The prior dungeon.c recbranch_mapseen() and level-arrival annotation fixes are already integrated and covered by the A13 checkpoint."
     ],
     "dependencies": [
-      "dungeon.c:find_mapseen():2638-2649 / js/dungeon.js:2176-2178",
-      "dungeon.c:on_level() / js/dungeon.js:on_level()",
-      "dungeon.c:svb.branches and branch endpoint ordering / js state.branches and insert_branch()",
-      "do.c:goto_level() accepted B-r2-2 delivery 66713a234567660146fecaea7c569169ed56b103; the correction only restores its omitted source branch and does not replace that delivery."
+      "Read makemon.c and all direct JavaScript callers; the current mismatch is a declared source branch but no span has been selected yet.",
+      "Preserve the unsupported boundary until a source-backed goal and independently chosen entry-point evidence are available."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Bounded queue refresh run-VJaFB0 reports the current canonical session at step 893, kind screen, 1814 recorded steps, remainingScreensUpperBound 921, and invalidates the prior cached count 972; source owner is unresolved in the queue until this investigation.",
-    "Bounded single-session replay run-4S5uS5 at the examined worker commit emits 978 screens before the later unsupported makemon(146) boundary. At screen 893 C has `Stairs down to The Gnomish Mines.` at row 6, while JS has no row; C then places `(end)` at row 12 and `qqq` at row 13, while JS places the footer one row early and leaves the hero glyph under it. The C and JS map/cursor outputs otherwise align through the preceding overview rows; the first meaningful difference is the missing branch row.",
-    "The same replay's runtime state shows every JS svm.mapseenchn entry has br:null, including the Dungeons of Doom level whose recorded branch reaches The Gnomish Mines. js/dungeon.js print_mapseen() already appends br_string2(mptr.br) when br exists, so the missing row is state establishment rather than formatter text.",
-    "Read nethack-c/upstream/src/dungeon.c:2446-2473 recbranch_mapseen() completely and nethack-c/upstream/src/do.c:1665-1674 completely. C checks source/destination dungeon identity, scans svb.branches in source order, rejects reverse travel, assigns mptr->br, and calls it immediately before assign_level(); js/do.js:1398-1418 saves the old level and assigns u.uz but contains no equivalent call.",
-    "Read nethack-c/upstream/src/dungeon.c:3516-3734 print_mapseen() completely and js/dungeon.js:1956-2110. Both format an existing branch after annotations; the JS formatter's synthetic unit test supplies br manually and therefore did not establish production branch recording. The exact independent correction scope is dungeon.c:recbranch_mapseen plus the js/dungeon.js helper and js/do.js:goto_level caller wiring."
+    "Full checkpoint run-kDZtJm at integrated A13 commit 315551e7c1b6a551e62c7eea7ac357fa636dba7e passes all checks, including 253/253 recordings and no end-of-input over-read; the fixed development score is 10070/11405 screens and 30/44 sessions.",
+    "Post-checkpoint bounded queue refresh run-YYTl7E at the same commit reports holdout/seed4500-knight-coverage stopping at declared makemon.c:makemon step 978 with remainingScreensUpperBound 836. It also shows the prior annotation mismatch at step 909 is no longer first.",
+    "A13's independently chosen level-teleport arrival recording reaches get_annotation()/print_level_annotation(), and the coordinator focused suite passed 32/32 including the source-pinned annotation and goto_level wiring tests."
   ]
 }

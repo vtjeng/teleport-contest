@@ -50326,7 +50326,7 @@
     {
       "id": "div-print-level-annotation-seed4500-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the source-ordered level annotation emitted after level arrival in holdout/seed4500-knight-coverage: dungeon.c get_annotation() finds the current mapseen custom annotation and print_level_annotation() emits it after assign_level() and monster notices, while js/do.js goto_level() currently omits the production call.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -50337,8 +50337,8 @@
       "spans": [
         {
           "name": "get-annotation-print-level-annotation",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
           "functions": [
             "get_annotation",
             "print_level_annotation"
@@ -50351,8 +50351,11 @@
         "screens": 10067,
         "rng": 739263
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
+      "delivered": {
+        "screens": 3,
+        "rng": 0
+      },
       "function": "get_annotation",
       "session": "holdout/seed4500-knight-coverage",
       "step": 909,
@@ -50382,7 +50385,12 @@
             "previousRemainingScreensUpperBound": 921
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
+        "screens": 10070,
+        "rng": 739263
+      }
     }
   ]
 }
