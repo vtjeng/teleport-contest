@@ -207,7 +207,7 @@ import {
     pmname,
     y_monnam,
 } from './do_name.js';
-import { set_mon_data } from './makemon_create.js';
+import { set_mon_data } from './mondata.js';
 import { mkclass_poly } from './makemon.js';
 import { cloak_simple_name, cxname, otense, simpleonames, an } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';

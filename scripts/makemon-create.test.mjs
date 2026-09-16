@@ -249,6 +249,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { timeout_globals_init } from '../js/timeout.js';
+import { InMemoryStorage } from '../js/storage.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
@@ -279,7 +280,12 @@ function initialLevelState() {
             lovemask: 0,
             hatemask: M2_ORC,
         },
+        // record-session.mjs creates the empty scorefile before the first
+        // segment.  Shapechange tests that exercise tt_doppel use the same
+        // startup-owned storage contract instead of a production fallback.
+        mockStorage: new InMemoryStorage(),
     };
+    state.mockStorage.setItem('vfs:record', '');
     state.level.flags.rndmongen = true;
     state.level.at(MON_X, MON_Y).typ = ROOM;
     monst_globals_init(state);

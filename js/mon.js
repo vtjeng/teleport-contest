@@ -42,6 +42,8 @@ import {
     CORPSTAT_INIT,
     CORPSTAT_MALE,
     CORPSTAT_NONE,
+    NC_SHOW_MSG,
+    NC_VIA_WAND_OR_SPELL,
     DEAF,
     DOOR,
     D_CLOSED,
@@ -89,6 +91,7 @@ import {
     LL_UMONST,
     LS_MONSTER,
     MAX_CARR_CAP,
+    MAXMONNO,
     M_AP_FURNITURE,
     M_AP_MONSTER,
     M_AP_NOTHING,
@@ -151,6 +154,8 @@ import {
     IN_SIGHT,
     MALE,
     W_AMUL,
+    W_ARM,
+    W_ARMG,
     W_SADDLE,
     WT_HUMAN,
     XKILL_GIVEMSG,
@@ -220,6 +225,7 @@ import {
     nxtobj,
     obj_extract_self,
     stackobj,
+    update_inventory,
 } from './invent.js';
 import {
     any_light_source,
@@ -231,20 +237,23 @@ import { change_luck } from './moveloop_preamble.js';
 import {
     freemcorpsenm,
     is_home_elemental,
+    mbirth_limit,
     mkclass_poly,
+    newmonhp,
 } from './makemon.js';
 import {
     count_wsegs,
     dmonsfree,
-    accept_newcham_form,
+    get_wormno,
+    hideunder as creationHideunder,
+    initworm,
+    isRogueLevel,
     makemon_runtime,
     mongone,
-    newcham,
-    newcham_distress,
-    preflight_newcham_distress,
+    permanentlyInvisible,
+    place_worm_tail_randomly,
     remove_worm,
     set_mimic_sym,
-    set_mon_data,
     wormgone,
 } from './makemon_create.js';
 import { expels, m_next2u } from './mhitu.js';
@@ -307,14 +316,18 @@ import {
     name_to_mon,
     name_to_monclass,
     nohands,
+    nolimbs,
     notake,
     noncorporeal,
     nonliving,
     on_fire,
     passes_bars,
     passes_walls,
+    polyok,
     regenerates,
     resist_conflict,
+    is_whirly,
+    sticks,
     strongmonst,
     throws_rocks,
     tunnels,
@@ -324,6 +337,7 @@ import {
     vegan,
     verysmall,
     zombie_form,
+    set_mon_data,
     dead_species,
     olfaction,
 } from './mondata.js';
@@ -357,6 +371,8 @@ import {
     M1_TPORT,
     M1_TPORT_CNTRL,
     M2_COLLECT,
+    M2_NOPOLY,
+    M2_SHAPESHIFTER,
     MS_GUARDIAN,
     MS_LEADER,
     MS_NEMESIS,
@@ -365,9 +381,12 @@ import {
     PM_ABBOT,
     PM_ACOLYTE,
     PM_ARCHEOLOGIST,
+    PM_ARCHON,
     PM_ATTENDANT,
     PM_BABY_PURPLE_WORM,
     PM_BARBARIAN,
+    PM_CHAMELEON,
+    PM_DOPPELGANGER,
     PM_GARGOYLE,
     PM_KILLER_BEE,
     PM_QUEEN_BEE,
@@ -392,6 +411,7 @@ import {
     PM_FLESH_GOLEM,
     PM_FOG_CLOUD,
     PM_GIANT_MUMMY,
+    PM_GIANT,
     PM_GIANT_ZOMBIE,
     PM_GLASS_GOLEM,
     PM_GNOME_MUMMY,
@@ -416,6 +436,7 @@ import {
     PM_HUMAN_WEREWOLF,
     PM_HUMAN_ZOMBIE,
     PM_IRON_GOLEM,
+    PM_JABBERWOCK,
     PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
     PM_HUNTER,
@@ -472,6 +493,7 @@ import {
     PM_WOLF,
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
+    PM_SANDESTIN,
     PM_WRAITH,
     PM_WOOD_GOLEM,
     PM_YELLOW_DRAGON,
@@ -509,6 +531,7 @@ import {
     MR_STONE,
     MZ_TINY,
     SPECIAL_PM,
+    monsterClassSymbol,
 } from './monsters.js';
 import {
     accessible,
@@ -546,6 +569,10 @@ import {
     sobj_at,
     splitobj,
     weight,
+    Dragon_mail_to_pm,
+    Dragon_scales_to_pm,
+    Is_dragon_mail,
+    Is_dragon_scales,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
@@ -615,8 +642,9 @@ import {
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { mon_has_amulet, mon_has_special } from './wizard.js';
+import { mon_has_amulet, mon_has_special, pick_nasty } from './wizard.js';
 import { getlin } from './windows.js';
+import { tt_doppel } from './topten.js';
 import {
     cansee,
     canseemon,
@@ -2411,6 +2439,643 @@ function newchamDistressEnv(normalized) {
     };
 }
 
+/*
+ * C ref: mon.c select_newcham_form(), accept_newcham_form(),
+ * mgender_from_permonst(), and newcham().  These functions live with the
+ * other mon.c code in this module.  makemon_create.js keeps only the level
+ * builder's call adapter; it must not own a second shape-change
+ * implementation.
+ */
+function newchamEnv(rawEnv = {}) {
+    const normalized = normalizedDistressEnv(rawEnv);
+    return {
+        ...normalized,
+        hooks: rawEnv.hooks ?? {},
+    };
+}
+
+function newchamIsRogue(state) {
+    return isRogueLevel(state);
+}
+
+// C ref: mon.c select_newcham_form() (5157-5225).  The optional flag lets
+// newcham() pause after the species-specific arm for the wizard query, before
+// entering this function's ordinary random fallback.
+function select_newcham_form(monster, normalized, { allowFallback = true } = {}) {
+    const { random, state } = normalized;
+    let mndx = NON_PM;
+    let tryct;
+    // C applies monpolycontrol after the species-specific choice and before
+    // the ordinary random fallback. The async prompt is answered by
+    // newcham(), while synchronous creation may provide its answer through
+    // the same selector input.
+    const useForcedForm = state.wizard && state.iflags?.mon_polycontrol
+        && Number.isInteger(normalized.forcedForm);
+    if (monster.cham === PM_SANDESTIN) {
+        if (random.rn2(7)) {
+            mndx = pick_nasty(
+                state.mons[PM_ARCHON].difficulty - 1,
+                normalized,
+            );
+        }
+    } else if (monster.cham === PM_DOPPELGANGER) {
+        if (!random.rn2(7)) {
+            mndx = pick_nasty(
+                state.mons[PM_JABBERWOCK].difficulty - 1,
+                normalized,
+            );
+        } else if (random.rn2(3)) {
+            mndx = tt_doppel(monster, normalized);
+        } else if (!random.rn2(3)) {
+            mndx = random.rn1(
+                PM_APPRENTICE - PM_STUDENT + 1,
+                PM_STUDENT,
+            );
+            if (mndx === state.urole?.guardnum) mndx = NON_PM;
+        } else {
+            tryct = 5;
+            do {
+                mndx = random.rn1(SPECIAL_PM - LOW_PM, LOW_PM);
+                if (humanoid(state.mons[mndx])
+                    && polyok(state.mons[mndx])) break;
+            } while (--tryct > 0);
+            if (!tryct) mndx = NON_PM;
+        }
+    } else if (monster.cham === PM_CHAMELEON) {
+        if (!random.rn2(3)) {
+            mndx = pick_animal(normalized);
+            // mon.c:4855-4868 retries one animal on Rogue when its glyph is
+            // lowercase; the second choice is accepted regardless of case.
+            if (newchamIsRogue(state) && !isUpperMonster(state.mons[mndx]))
+                mndx = pick_animal(normalized);
+        }
+    } else if (monster.cham === PM_VLAD_THE_IMPALER
+               || monster.cham === PM_VAMPIRE
+               || monster.cham === PM_VAMPIRE_LEADER) {
+        mndx = pickvampshape(monster, normalized);
+    } else if (monster.cham === NON_PM) {
+        const armor = which_armor(monster, W_ARM, state);
+        if (armor && Is_dragon_scales(armor)) {
+            mndx = Dragon_scales_to_pm(armor, state).pmidx;
+        } else if (armor && Is_dragon_mail(armor)) {
+            mndx = Dragon_mail_to_pm(armor, state).pmidx;
+        }
+    }
+    if (useForcedForm) return normalized.forcedForm;
+    if (mndx === NON_PM && !allowFallback) return NON_PM;
+    if (mndx === NON_PM) {
+        tryct = 50;
+        do {
+            mndx = random.rn1(SPECIAL_PM - LOW_PM, LOW_PM);
+        } while (--tryct > 0
+                 && !validspecmon(monster, mndx, state)
+                 && (tryct > 40 && newchamIsRogue(state)
+                     && !isUpperMonster(state.mons[mndx])));
+    }
+    return mndx;
+}
+
+// C's random fallback is part of select_newcham_form(), but must be callable
+// separately when monpolycontrol is active: the prompt sits between the
+// species-specific selection and this fallback in the C source.
+function random_newcham_form(monster, normalized) {
+    const { random, state } = normalized;
+    let mndx = NON_PM;
+    let tryct = 50;
+    do {
+        mndx = random.rn1(SPECIAL_PM - LOW_PM, LOW_PM);
+    } while (--tryct > 0
+             && !validspecmon(monster, mndx, state)
+             && (tryct > 40 && newchamIsRogue(state)
+                 && !isUpperMonster(state.mons[mndx])));
+    return mndx;
+}
+
+function pick_animal(normalized) {
+    const { state } = normalized;
+    if (!state.ga?.animal_list) mon_animal_list(true, state);
+    if (!state.ga?.animal_list_count) return NON_PM;
+    return state.ga.animal_list[
+        normalized.random.rn2(state.ga.animal_list_count)
+    ];
+}
+
+function isUpperMonster(species) {
+    const symbol = monsterClassSymbol(species?.mlet);
+    return typeof symbol === 'string'
+        ? symbol >= 'A' && symbol <= 'Z' : false;
+}
+
+// C ref: mon.c accept_newcham_form() (5229-5252).
+export function accept_newcham_form(monster, mndx, state = game) {
+    if (!Number.isInteger(mndx) || mndx < LOW_PM
+        || mndx >= state.mons.length) return null;
+    const species = state.mons[mndx];
+    if ((state.mvitals?.[mndx]?.mvflags ?? 0) & G_GENOD) return null;
+    if (mndx === PM_ORC || mndx === PM_GIANT
+        || mndx === PM_ELF || mndx === PM_HUMAN) return null;
+    if (is_mplayer(species)) return species;
+    if ((species.mflags2 & M2_SHAPESHIFTER)
+        && mndx === monster.cham) return species;
+    return species.mflags2 & M2_NOPOLY ? null : species;
+}
+
+// C ref: mon.c mgender_from_permonst() (5254-5272).
+function mgender_from_permonst(monster, species, random) {
+    if (is_male(species)) monster.female = false;
+    else if (is_female(species)) monster.female = true;
+    else if (!is_neuter(species) && !random.rn2(10)
+             // C's is_vampshifter() includes Vlad, even while it is in a
+             // non-vampire visible form.
+             && species.mlet !== S_VAMPIRE
+             && !is_vampshifter(monster)) {
+        monster.female = !monster.female;
+    }
+}
+
+function shapeLeashable(species) {
+    return species?.pmidx !== PM_LONG_WORM
+        && !unsolid(species)
+        && (!nolimbs(species) || has_head(species));
+}
+
+function shapeRedraw(x, y, normalized) {
+    if (typeof normalized.redrawSquare === 'function') {
+        normalized.redrawSquare(x, y, normalized.state, normalized);
+    } else if (typeof normalized.hooks?.newsym === 'function') {
+        normalized.hooks.newsym(x, y, normalized);
+    } else if (normalized.state === game) {
+        newsym(x, y, normalized.state);
+    }
+}
+
+function shapeUnsupported(normalized, operation) {
+    if (typeof normalized.unsupported === 'function')
+        normalized.unsupported(operation);
+    else note_unported(operation);
+}
+
+function shapeObjectNext(obj) {
+    return obj?.nobj ?? null;
+}
+
+function shapeOldNames(monster, state, msg) {
+    const oldname = msg
+        ? x_monnam(monster, monster.mtame ? ARTICLE_YOUR : ARTICLE_THE,
+            null, SUPPRESS_SADDLE, false, state)
+        : '';
+    const l_oldname = x_monnam(
+        monster,
+        ARTICLE_THE,
+        null,
+        has_mgivenname(monster) ? SUPPRESS_SADDLE : 0,
+        false,
+        state,
+    );
+    return {
+        oldname: oldname ? oldname[0].toUpperCase() + oldname.slice(1) : '',
+        l_oldname,
+    };
+}
+
+function shapeNameForMessage(monster, state, article, suppress = 0, env = {}) {
+    return x_monnam(
+        monster,
+        article,
+        null,
+        suppress,
+        false,
+        state,
+        env,
+    );
+}
+
+function shapeIsDigesting(species) {
+    return Boolean(attacktype_fordmg(species, AT_ENGL, AD_DGST));
+}
+
+function apply_newcham(
+    monster,
+    target,
+    normalized,
+    ncflags = 0,
+    capturedNames = null,
+) {
+    const steps = apply_newcham_steps(
+        monster,
+        target,
+        normalized,
+        ncflags,
+        capturedNames,
+    );
+    const advance = (value, failed = false) => {
+        const step = failed ? steps.throw(value) : steps.next(value);
+        if (step.done) return step.value;
+        if (step.value && typeof step.value.then === 'function') {
+            return Promise.resolve(step.value).then(
+                (result) => advance(result),
+                (error) => advance(error, true),
+            );
+        }
+        return advance(step.value);
+    };
+    return advance(undefined);
+}
+
+function* apply_newcham_steps(
+    monster,
+    target,
+    normalized,
+    ncflags = 0,
+    capturedNames = null,
+) {
+    const { random, state } = normalized;
+    const polyspot = Boolean(ncflags & NC_VIA_WAND_OR_SPELL);
+    let msg = Boolean(ncflags & NC_SHOW_MSG);
+    const seenorsensed = Boolean(normalized.canSpotMonster(monster, normalized));
+    const olddata = monster.data;
+    if (target === olddata) {
+        normalized.syncResult = false;
+        return false;
+    }
+
+    const names = capturedNames ?? shapeOldNames(monster, state, msg);
+    const oldname = names.oldname;
+    const l_oldname = names.l_oldname;
+
+    mgender_from_permonst(monster, target, random);
+    if (In_endgame(state.u?.uz) && is_mplayer(olddata)
+        && has_mgivenname(monster)) {
+        const given = monster.mextra?.mgivenname;
+        if (typeof given === 'string') {
+            const index = given.indexOf(' the ');
+            if (index >= 0) monster.mextra.mgivenname = given.slice(0, index);
+        }
+    }
+
+    if (monster.wormno) {
+        const mx = monster.mx;
+        const my = monster.my;
+        remove_worm(monster, normalized);
+        wormgone(monster, state);
+        place_monster(monster, mx, my, state);
+    }
+    if (M_AP_TYPE(monster) && target.mlet !== S_MIMIC)
+        seemimic(monster, state, { newsym: (x, y) => shapeRedraw(x, y, normalized) });
+
+    const hpn = monster.mhp;
+    const hpd = monster.mhpmax;
+    newmonhp(monster, target.pmidx, normalized);
+    monster.mhp = Math.trunc(hpn * monster.mhp / hpd);
+    if (monster.mhp < 0 || monster.mhp > monster.mhpmax)
+        monster.mhp = monster.mhpmax;
+    if (!monster.mhp) monster.mhp = 1;
+    set_mon_data(monster, target, state);
+
+    if (monster.mleashed) {
+        if (!shapeLeashable(target)) {
+            // m_unleash() returns void in C; preserve the source boundary while
+            // clearing the leash only through the caller supplied owner.
+            if (typeof normalized.unleash === 'function')
+                normalized.unleash(monster, true, normalized);
+            else note_unported('apply.c m_unleash');
+        } else {
+            update_inventory(normalized);
+        }
+    }
+
+    if (emits_light(olddata) !== emits_light(target)) {
+        if (emits_light(olddata)) del_light_source(LS_MONSTER, monster, state);
+        if (emits_light(target)) {
+            new_light_source(monster.mx, monster.my, emits_light(target),
+                LS_MONSTER, monster, state);
+        }
+    }
+    if (!monster.perminvis || permanentlyInvisible(olddata))
+        monster.perminvis = permanentlyInvisible(target);
+    monster.minvis = monster.invis_blkd ? false : monster.perminvis;
+    if (monster.mundetected) {
+        // C discards hideunder()'s return value.  Do not catch an error after
+        // partially applying this state transition: the canonical helper (or
+        // an explicitly supplied complete owner) must own the whole call.
+        (normalized.hideunder ?? creationHideunder)(monster, normalized.state);
+    }
+
+    if (state.u?.ustuck === monster) {
+        if (state.u.uswallow) {
+            if (!attacktype(target, AT_ENGL)
+                && !noncorporeal(target) && !is_whirly(target)
+                && !(amorphous(target) || target.mlet === S_LIGHT)) {
+                let trail = '';
+                if (is_vampshifter(monster)) {
+                    trail = ` which was a shapeshifted ${
+                        x_monnam(monster, ARTICLE_NONE, null,
+                            SUPPRESS_NAME, false, state)}`;
+                } else if (shapeIsDigesting(target)) {
+                    trail = "'s stomach";
+                }
+                yield normalized.message(
+                    `You ${amorphous(olddata) || is_whirly(olddata)
+                        ? 'emerge from' : 'break out of'} ${l_oldname}${trail}!`,
+                    state,
+                    normalized,
+                );
+                msg = false;
+                monster.mhp = 1;
+            }
+            if (attacktype(target, AT_ENGL)) {
+                note_unported('mhitu.c swallowed');
+            } else {
+                yield expels(monster, {
+                    ...normalized,
+                    state,
+                    expulsionMessage: false,
+                });
+            }
+        } else if ((!sticks(target) && !sticks(state.youmonst?.data))
+                   || unsolid(target)) {
+            // A12 owns the asynchronous cleanup contract; pass the complete
+            // environment so its ball/chain and vision order remain intact.
+            yield unstuck(monster, state, {
+                ...normalized,
+                unsupported: (operation) => shapeUnsupported(normalized, operation),
+            });
+        }
+    }
+
+    if (target.pmidx === PM_LONG_WORM
+        && (monster.wormno = get_wormno(state)) !== 0) {
+        initworm(monster, random.rn2(5), state);
+        place_worm_tail_randomly(monster, monster.mx, monster.my, normalized);
+    }
+    monster.meverseen = false;
+    shapeRedraw(monster.mx, monster.my, normalized);
+
+    if (msg) {
+        const seenNow = Boolean(normalized.canSpotMonster(monster, normalized));
+        if (!seenNow) {
+            if (seenorsensed)
+                yield normalized.message(messageAt(`${oldname} disappears!`,
+                    monster.mx, monster.my, state), state, normalized);
+            yield usmellmon(target, normalized);
+        } else if (!seenorsensed) {
+            const current = shapeNameForMessage(
+                monster,
+                state,
+                monster.mtame ? ARTICLE_YOUR : ARTICLE_A,
+                0,
+                normalized,
+            );
+            yield normalized.message(messageAt(`${upstart(current)} appears!`,
+                monster.mx, monster.my, state), state, normalized);
+        } else {
+            yield normalized.message(messageAt(
+                `${oldname} turns into ${shapeNameForMessage(
+                    monster,
+                    state,
+                    ARTICLE_A,
+                    SUPPRESS_NAME,
+                    normalized,
+                )}!`,
+                monster.mx,
+                monster.my,
+                state,
+            ), state, normalized);
+        }
+    }
+
+    if (monster.cham === NON_PM && target.mlet === S_VAMPIRE
+        && !distressPropertyActive(state, PROT_FROM_SHAPE_CHANGERS)) {
+        monster.cham = pm_to_cham(monsndx(target), state);
+    }
+
+    // These C calls discard their result. Keep the explicit source gaps while
+    // allowing the state transition itself to complete for every inventory.
+    if (monster.mw) note_unported('weapon.c possibly_unwield');
+    note_unported('worn.c mon_break_armor');
+    if (!(monster.misc_worn_check & W_ARMG))
+        // C discards trap.c mselftouch()'s result.  Its full trap-side effect
+        // is not in this source span, so preserve the named source boundary.
+        note_unported('trap.c mselftouch');
+    check_gear_next_turn(monster);
+
+    if (monster.minvent && !throws_rocks(target)) {
+        for (let object = monster.minvent;
+            object && monster.mhp > 0;) {
+            // mon.c saves otmp2 before extraction.  flooreffects() may kill
+            // the monster or change the extracted object's nobj link, but C
+            // still advances to that saved successor.
+            const next = shapeObjectNext(object);
+            if (object.otyp !== BOULDER) {
+                object = next;
+                continue;
+            }
+            if (polyspot) object.bypass = true;
+            obj_extract_self(object, normalized);
+            const floorEffects = normalized.floorEffects ?? flooreffects;
+            const effect = floorEffects(object, monster.mx, monster.my, '', {
+                ...normalized,
+                state,
+                unsupported: (operation) => shapeUnsupported(normalized, operation),
+            });
+            if (effect && typeof effect.then === 'function') {
+                if (yield effect) {
+                    object = next;
+                    continue;
+                }
+            } else if (effect) {
+                object = next;
+                continue;
+            }
+            place_object(object, monster.mx, monster.my, {
+                ...normalized,
+                state,
+                blockPoint: normalized.hooks?.blockPoint
+                    ?? ((x, y) => recalc_block_point(x, y, state)),
+            });
+            object = next;
+        }
+    }
+    if (monster === state.u?.usteed) note_unported('steed.c poly_steed');
+
+    if (state.context?.mon_moving) {
+        if (!u_at(monster.mux, monster.muy)) set_apparxy(monster, normalized);
+        if (!monster.mpeaceful
+            && onscary(monster.mux, monster.muy, monster, state)
+            && monnear(monster, monster.mux, monster.muy, state)) {
+            yield monflee(monster, random.rn1(9, 2), true, true, {
+                ...normalized,
+                state,
+                random,
+                canSeeMonster: normalized.canSeeMonster,
+                fleeMessage: normalized.fleeMessage ?? responseFleeMessage,
+            });
+        }
+    }
+    normalized.syncResult = true;
+    return true;
+}
+
+function newchamSourceGate(monster, state) {
+    const olddata = monster.data;
+    // C checks ordinary-monster immunity and uncancellation before it names
+    // the old form or draws a replacement shape.
+    if (monster.cham !== NON_PM) return true;
+    if (is_rider(olddata)) return false;
+    if (mbirth_limit(monsndx(olddata)) < MAXMONNO) return false;
+    if (monster.mcan && !distressPropertyActive(
+        state,
+        PROT_FROM_SHAPE_CHANGERS,
+    )) {
+        monster.cham = pm_to_cham(monsndx(olddata), state);
+        if (monster.cham !== NON_PM) monster.mcan = false;
+    }
+    return true;
+}
+
+// C ref: mon.c newcham() (5278-5534), including the NULL target selector.
+export async function newcham(monster, target = null, rawEnv = {}) {
+    const normalized = newchamEnv(rawEnv);
+    const { state } = normalized;
+    if (!monster || !monster.data) return false;
+    if (!newchamSourceGate(monster, state)) return false;
+    const ncflags = rawEnv.ncflags ?? 0;
+    const capturedNames = shapeOldNames(
+        monster,
+        state,
+        Boolean(ncflags & NC_SHOW_MSG),
+    );
+    if (target == null) {
+        let tryct = 20;
+        do {
+            // select_newcham_form() first consumes the species-specific
+            // branch.  C then asks the wizard (when enabled), and only an
+            // unanswered/invalid choice reaches its random fallback.
+            let mndx = select_newcham_form(monster, normalized, {
+                allowFallback: false,
+            });
+            if (mndx === NON_PM
+                && state.wizard && state.iflags?.mon_polycontrol) {
+                mndx = await wiz_force_cham_form(monster, normalized);
+            }
+            if (mndx === NON_PM)
+                mndx = random_newcham_form(monster, normalized);
+            target = accept_newcham_form(
+                monster,
+                mndx,
+                state,
+            );
+            if (target && tryct > 15 && newchamIsRogue(state)
+                && !isUpperMonster(target)) target = null;
+        } while (!target && --tryct > 0);
+        if (!target) return false;
+    } else if (state.mons?.[target.pmidx] !== target) {
+        throw new TypeError('newcham target must be a catalog monster');
+    } else if (state.mvitals?.[target.pmidx]?.mvflags & G_GENOD) {
+        return false;
+    }
+    return apply_newcham(
+        monster,
+        target,
+        normalized,
+        ncflags,
+        capturedNames,
+    );
+}
+
+// The C callers normal_shape(), restore_cham(), and synchronous level
+// appearance code discard newcham()'s integer result.  Their call sites are
+// synchronous in this port too, so keep a checked adapter rather than
+// launching an asynchronous transition whose tail could run after the
+// caller.  Any used-result asynchronous owner (notably flooreffects) must use
+// newcham() and await it instead.
+export function newcham_sync(monster, target, rawEnv = {}, ncflags = 0) {
+    const normalized = newchamEnv(rawEnv);
+    const { state } = normalized;
+    if (!monster || !monster.data || !target) return false;
+    if (!newchamSourceGate(monster, state)) return false;
+    if (state.mons?.[target.pmidx] !== target)
+        throw new TypeError('newcham target must be a catalog monster');
+    if (state.mvitals?.[target.pmidx]?.mvflags & G_GENOD) return false;
+    if (target === monster.data) return false;
+    apply_newcham(
+        monster,
+        target,
+        normalized,
+        ncflags,
+        shapeOldNames(monster, state, Boolean(ncflags & NC_SHOW_MSG)),
+    );
+    if (normalized.syncResult !== undefined) return normalized.syncResult;
+    // A synchronous C caller cannot safely own a Promise-returning callee.
+    // Make an unexpected async dependency visible at the boundary instead of
+    // allowing a fire-and-forget state transition.
+    throw new TypeError('synchronous newcham caller reached an async effect');
+}
+
+// makemon.c invokes newcham() while constructing a level synchronously.  Its
+// newly created monsters have no inventory or hero attachment, so all of the
+// source state work completes before the async floor-effects seam can be
+// reached.  Keep this narrow synchronous adapter for that caller; runtime
+// callers use newcham() and await its used flooreffects result.
+export function newcham_initial(monster, rawEnv = {}) {
+    const normalized = newchamEnv(rawEnv);
+    const { state } = normalized;
+    if (!newchamSourceGate(monster, state)) return false;
+    const capturedNames = shapeOldNames(monster, state, false);
+    let target = null;
+    let tryct = 20;
+    do {
+        target = accept_newcham_form(
+            monster,
+            select_newcham_form(monster, normalized),
+            state,
+        );
+        if (target && tryct > 15 && newchamIsRogue(state)
+            && !isUpperMonster(target)) target = null;
+    } while (!target && --tryct > 0);
+    if (!target || target === monster.data) return false;
+    apply_newcham(monster, target, normalized, 0, capturedNames);
+    if (normalized.syncResult !== undefined) return normalized.syncResult;
+    // makemon.c calls this during synchronous level construction. The C
+    // path reaches no asynchronous owner before inventory is initialized;
+    // surface an explicit contract error if a future caller violates that.
+    throw new TypeError('makemon newcham reached an asynchronous effect');
+}
+
+// C ref: mon.c newcham(..., NC_SHOW_MSG), the monster-turn caller. Its
+// selected target is passed through unchanged so only one selector consumes
+// random calls.
+export async function newcham_distress(monster, target = null, rawEnv = {}) {
+    const normalized = newchamEnv(rawEnv);
+    preflight_newcham_distress(monster, normalized);
+    return newcham(monster, target, {
+        ...normalized,
+        ncflags: NC_SHOW_MSG,
+    });
+}
+
+export function preflight_newcham_distress(monster, rawEnv = {}) {
+    const normalized = newchamEnv(rawEnv);
+    const supported = monster?.cham === PM_SANDESTIN
+        || monster?.cham === PM_DOPPELGANGER
+        || monster?.cham === PM_CHAMELEON
+        || monster?.cham === PM_VAMPIRE
+        || monster?.cham === PM_VAMPIRE_LEADER
+        || monster?.cham === PM_VLAD_THE_IMPALER
+        || monster?.cham === NON_PM;
+    if (!supported)
+        throw new UnsupportedMonsterDistressError(`shapechanger ${monster?.cham}`);
+    if (!Number.isInteger(monster.mhpmax) || monster.mhpmax <= 0
+        || !Number.isInteger(monster.mhp) || monster.mhp <= 0) {
+        throw new TypeError('newcham_distress requires positive integer hit points');
+    }
+    if (typeof normalized.canSpotMonster !== 'function'
+        || typeof normalized.message !== 'function') {
+        throw new TypeError('newcham_distress requires perception and message operations');
+    }
+    return true;
+}
+
 function coordinateDescriptionForPrompt(x, y, state, mode) {
     const dx = x - (state.u?.ux ?? 0);
     const dy = y - (state.u?.uy ?? 0);
@@ -3293,7 +3958,12 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
     const mcham = Number(mon.cham);
     if (ismnum(mcham)) {
         const mcan = mon.mcan;
-        newcham(mon, state.mons?.[mcham], { ...rawEnv, state });
+        newcham_sync(
+            mon,
+            state.mons?.[mcham],
+            { ...rawEnv, state },
+            0,
+        );
         mon.cham = NON_PM;
         // newcham() may uncancel a polymorphing monster; C overrides that.
         if (mcan) mon.mcan = 1;
@@ -4004,7 +4674,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
             await import('./polyself.js').then(({ uunstick }) => uunstick(state));
     }
 
-    const revived = newcham(mtmp, state.mons[mndx], { ...env, state });
+    const revived = await newcham(mtmp, state.mons[mndx], { ...env, state });
     if (!revived) return mtmp.mhp >= 1;
     mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
 
@@ -5073,7 +5743,7 @@ export async function mon_to_stone(mtmp, state = game, env = {}) {
                 env,
             );
         }
-        if (newcham(mtmp, state.mons[PM_STONE_GOLEM], { ...env, state })) {
+        if (await newcham(mtmp, state.mons[PM_STONE_GOLEM], { ...env, state })) {
             if (canseemon(mtmp, state)) {
                 await message(
                     `Now it's ${an(pmname(mtmp.data, gender(mtmp)))}`,
@@ -5134,7 +5804,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                 // return value and its window owner is not ported.
                 note_unported('windows.c display_nhwindow');
             }
-            newcham(mtmp, state.mons[mndx], { ...env, state });
+            await newcham(mtmp, state.mons[mndx], { ...env, state });
             mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
             if (canSpotMonster(mtmp, state)) {
                 await message(
@@ -5158,7 +5828,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
         mtmp.mfrozen = 0;
         set_mon_min_mhpmax(mtmp, 10);
         mtmp.mhp = mtmp.mhpmax;
-        newcham(mtmp, state.mons[mtmp.cham], { ...env, state });
+        await newcham(mtmp, state.mons[mtmp.cham], { ...env, state });
         newsym(mtmp.mx, mtmp.my, state);
         return false;
     }

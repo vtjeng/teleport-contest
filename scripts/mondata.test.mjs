@@ -91,6 +91,7 @@ import {
     resists_blnd,
     resist_conflict,
     same_race,
+    set_mon_data,
     slimeproof,
     slithy,
     strongmonst,
@@ -753,6 +754,20 @@ test('movement predicates are exact projections of permonst flags', () => {
                 || species.mattk.some((attack) => attack.aatyp === AT_WEAP),
         );
     }
+});
+
+test('set_mon_data keeps C movement ownership and slow-form proration', () => {
+    const state = monsterState();
+    state.u = { umovement: 12 };
+    const monster = {
+        data: state.mons[M.PM_HUMAN],
+        mnum: M.PM_HUMAN,
+        movement: 10,
+    };
+    set_mon_data(monster, state.mons[M.PM_GNOME], state);
+    assert.equal(monster.movement, 5);
+    assert.equal(monster.mnum, M.PM_GNOME);
+    assert.equal(state.u.umovement, 12);
 });
 
 test('locomotion follows source trait precedence for movement messages', () => {

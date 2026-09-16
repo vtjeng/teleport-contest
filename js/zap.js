@@ -624,7 +624,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             if (corpse.oextra?.omid) free_omid(corpse);
             if (corpse.oextra?.omonst) free_omonst(corpse);
             if (monster.cham === PM_DOPPELGANGER) {
-                newcham_revival(monster, originalSpecies, env);
+                await newcham_revival(monster, originalSpecies, env);
             }
         }
     } else if (corpse.oextra?.omonst) {
