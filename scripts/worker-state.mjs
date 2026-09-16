@@ -310,7 +310,10 @@ function applyEvent(state, event, at) {
         check(!received.receivedAt, 'delivery already received');
         received.receivedAt = at;
     } else if (type === 'feedback') {
-        requireStatus('ready', 'changes-required');
+        // Focused integration checks can require a correction before a full
+        // checkpoint exists. Keep that failure as feedback, not a fabricated
+        // checkpoint result, and release the integration slot for rework.
+        requireStatus('ready', 'integrating', 'changes-required');
         check(delivery?.delivery === event.delivery, 'feedback must identify the current delivery SHA');
         string(event.reason, 'reason');
         Object.assign(delivery, { feedbackAt: at, feedback: event.reason });

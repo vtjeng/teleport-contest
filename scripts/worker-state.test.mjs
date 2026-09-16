@@ -99,6 +99,27 @@ test('failed validation retains ownership and a correction has its own immutable
         .deliveries[SECOND].publishedAt);
 });
 
+test('focused integration feedback releases the slot and preserves delivery ownership', () => {
+    const f = fixture();
+    f.assign(); f.ready();
+    f.assign('next-a', 'A', ['source:monmove.c:postmov']);
+    f.send({ type: 'integrating', task: 'one', integration: INTEGRATION });
+    const state = f.send({ type: 'feedback', task: 'one', delivery: FIRST,
+        reason: 'An affected focused test still expects the removed callback.' });
+    assert.equal(state.tasks.one.status, 'changes-required');
+    assert.equal(nextActions(state).integration, null);
+    assert.equal(nextActions(state).corrections[0].afterTask, 'next-a');
+    assert.deepEqual(state.reservations[RESERVATION], { worker: 'A', tasks: ['one'] });
+    assert.equal(state.deliveries[FIRST].checkpoint, undefined);
+    assert.throws(() => f.send({ type: 'accepted', task: 'one' }), /validated/);
+    assert.throws(() => f.assign('overlap', 'B'), /reserved/);
+    f.send({ type: 'park', task: 'next-a', reason: 'clean task boundary' });
+    f.send({ type: 'resume', task: 'one' });
+    assert.throws(() => f.ready(), /delivery.*exists/);
+    f.ready('one', SECOND);
+    assert.equal(f.accept().tasks.one.status, 'accepted');
+});
+
 test('out-of-order events and silent replacement of a current assignment fail', () => {
     const f = fixture();
     f.assign();
