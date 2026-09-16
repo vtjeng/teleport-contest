@@ -276,6 +276,7 @@ import {
     doattributes,
     doconduct,
     do_gamelog,
+    dovanquished,
     remove_achievement,
     UnsupportedEnlightenmentError,
 } from './insight.js';
@@ -1814,7 +1815,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
-    'overview', 'chronicle', 'conduct',
+    'overview', 'chronicle', 'conduct', 'vanquished',
     'inventtype', 'adjust', 'altadjust',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
@@ -5115,6 +5116,10 @@ async function doextcmd(key, state) {
         // C ref: insight.c doconduct(), reached from the #conduct row.
         // show_conduct owns the voluntary-challenges text window and wait.
         return await doconduct(state);
+    case 'dovanquished':
+        // C ref: insight.c dovanquished(), reached from the #vanquished row.
+        // list_vanquished owns sort selection, list formatting, and its wait.
+        return await dovanquished(state);
     case 'doextversion':
         // C ref: version.c doextversion(), reached from cmd.c's #version row.
         return await doextversion(state, {

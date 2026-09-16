@@ -7,6 +7,8 @@
 // status_enlightenment(), weapon_insight(), attributes_enlightenment(),
 // doattributes(), align_str(), size_str(), piousness(), mstatusline(), and
 // ustatusline().
+// The same source file also owns the complete vanquished-monster family:
+// vanqsort_cmp(), set_vanq_order(), dovanquished(), and list_vanquished().
 //
 // `doattributes()` is the normal caller, so `mode` is BASICENLIGHTENMENT, or
 // BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
@@ -151,6 +153,7 @@ import {
     OVERLOADED,
     P_ISRESTRICTED,
     P_NONE,
+    PICK_ONE,
     P_SKILLED,
     P_TWO_WEAPON_COMBAT,
     P_UNSKILLED,
@@ -191,6 +194,14 @@ import {
     UNENCUMBERED,
     Upolyd,
     VOMITING,
+    VANQ_ALPHA_MIX,
+    VANQ_ALPHA_SEP,
+    VANQ_COUNT_H_L,
+    VANQ_COUNT_L_H,
+    VANQ_MCLS_HTOL,
+    VANQ_MCLS_LTOH,
+    VANQ_MLVL_MNDX,
+    VANQ_MSTR_MNDX,
     WARN_OF_MON,
     WARN_UNDEAD,
     W_AMUL,
@@ -212,6 +223,7 @@ import { newuexp } from './exper.js';
 import { inv_weight, near_capacity } from './hack.js';
 import {
     lcase, lowc, highc, mungspaces, ordin, strsubst, truncateByteString,
+    upstart,
 } from './hacklib.js';
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
@@ -243,7 +255,9 @@ import {
     is_swimmer,
     is_vampire,
     is_vampshifter,
+    is_rider,
     lays_eggs,
+    type_is_pname,
 } from './mondata.js';
 import {
     AD_ACID,
@@ -265,7 +279,15 @@ import {
     PM_GREEN_SLIME,
     PM_HIGH_CLERIC,
     G_UNIQ,
+    S_ZOMBIE,
+    S_LIZARD,
+    S_EEL,
+    S_GOLEM,
+    S_GHOST,
+    S_DEMON,
+    S_HUMAN,
 } from './monsters.js';
+import { MONSTER_CLASS_EXPLANATIONS } from './symbol_data.js';
 import { pmname, x_monnam } from './do_name.js';
 import { mon_aligntyp } from './priest.js';
 import { align_gname, can_pray, u_gname } from './pray.js';
@@ -278,6 +300,7 @@ import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
 } from './tty_menu.js';
+import { select_menu } from './windows.js';
 import {
     genders,
     rankOf,
@@ -1913,6 +1936,279 @@ export function remove_achievement(achidx, state = game) {
         ++index;
     } while (achievements[index]);
     return true;
+}
+
+// C ref: insight.c's shared vanquished-list data and UniqCritterIndx macro
+// (2776-2781).  The list is state-owned: mvitals and mons are read from the
+// state passed by the caller so a planning clone never consults the live game.
+export function monsterVitals(state) {
+    return state.svm?.mvitals ?? state.mvitals ?? [];
+}
+
+export function ordinaryMonsterEntries(state, flags = 0) {
+    return monsterVitals(state).flatMap((vital, index) => {
+        const monster = state.mons?.[index];
+        if (!monster || (flags && (vital.mvflags & flags) === 0)) return [];
+        return [{ index, monster, vital }];
+    });
+}
+
+export function isUniqueMonster(index, monster) {
+    return (monster?.geno ?? 0) & G_UNIQ
+        ? index !== PM_HIGH_CLERIC : false;
+}
+
+export function vanquishedName(entry) {
+    return entry.monster.pmnames?.[NEUTRAL]
+        ?? entry.monster.pmnames?.find(Boolean) ?? 'monster';
+}
+
+export function vanquishedPrefix(text) {
+    const lower = text.toLowerCase();
+    if (lower.startsWith('the ')) return 0;
+    if (lower.startsWith('an ')) return 1;
+    if (lower.startsWith('a ')) return 2;
+    // C tests digit(buf[2]), where the count's left padding is already in
+    // `text`; this leaves articles flush and aligns ordinary entries under
+    // the count column.
+    return /\d/u.test(text[2] ?? '') ? 0 : 4;
+}
+
+const VANQ_PUNCT_CLASSES = Object.freeze([
+    S_LIZARD, S_EEL, S_GOLEM, S_GHOST, S_DEMON, S_HUMAN,
+]);
+
+function vanquishedIndex(value) {
+    return typeof value === 'number' ? value : value.index;
+}
+
+function strcmpi(left, right) {
+    const first = lcase(String(left));
+    const second = lcase(String(right));
+    return first < second ? -1 : first > second ? 1 : 0;
+}
+
+// C ref: insight.c vanqsort_cmp() (2621-2715).  The C qsort callback gets
+// monster indices; accepting either indices or the list-entry objects keeps
+// this source-shaped comparator useful to the JavaScript array sort and to
+// source-pinned tests without introducing another state owner.
+export function vanqsort_cmp(first, second, state = game) {
+    const index1 = vanquishedIndex(first);
+    const index2 = vanquishedIndex(second);
+    const monster1 = state.mons[index1];
+    const monster2 = state.mons[index2];
+    const mode = state.flags?.vanq_sortmode ?? VANQ_MLVL_MNDX;
+    let result;
+
+    switch (mode) {
+    default:
+    case VANQ_MLVL_MNDX:
+        result = (monster2?.mlevel ?? 0) - (monster1?.mlevel ?? 0);
+        break;
+    case VANQ_MSTR_MNDX:
+        result = (monster2?.difficulty ?? 0) - (monster1?.difficulty ?? 0);
+        break;
+    case VANQ_ALPHA_SEP: {
+        const unique1 = isUniqueMonster(index1, monster1) ? 1 : 0;
+        const unique2 = isUniqueMonster(index2, monster2) ? 1 : 0;
+        if (unique1 !== unique2) {
+            result = unique2 - unique1;
+            break;
+        }
+        // Fall through: both unique or both ordinary use the same case-blind
+        // name comparison as VANQ_ALPHA_MIX.
+        result = strcmpi(vanquishedName({ monster: monster1 }),
+            vanquishedName({ monster: monster2 }));
+        break;
+    }
+    case VANQ_ALPHA_MIX:
+        result = strcmpi(vanquishedName({ monster: monster1 }),
+            vanquishedName({ monster: monster2 }));
+        break;
+    case VANQ_MCLS_HTOL:
+    case VANQ_MCLS_LTOH: {
+        let class1 = monster1?.mlet ?? 0;
+        let class2 = monster2?.mlet ?? 0;
+        // C remaps punctuation classes only when both classes are in the
+        // punctuation range.  Letter classes retain their source values.
+        if (class1 > S_ZOMBIE && class2 > S_ZOMBIE) {
+            const remap = (value) => {
+                const offset = VANQ_PUNCT_CLASSES.indexOf(value);
+                return offset < 0 ? value : S_ZOMBIE + 1 + offset;
+            };
+            class1 = remap(class1);
+            class2 = remap(class2);
+        }
+        result = class1 - class2;
+        if (result === 0) {
+            // Riders share the major-demon class, so they sort before demons.
+            result = Number(is_rider(monster2)) - Number(is_rider(monster1));
+            if (result) break;
+            result = (monster1?.mlevel ?? 0) - (monster2?.mlevel ?? 0);
+            if (mode === VANQ_MCLS_HTOL) result = -result;
+        }
+        break;
+    }
+    case VANQ_COUNT_H_L:
+    case VANQ_COUNT_L_H:
+        result = (state.svm?.mvitals?.[index2]?.died ?? 0)
+            - (state.svm?.mvitals?.[index1]?.died ?? 0);
+        if (mode === VANQ_COUNT_L_H) result = -result;
+        break;
+    }
+    return result || index1 - index2;
+}
+
+const VANQ_ORDERS = Object.freeze([
+    [VANQ_MLVL_MNDX, 't', 'traditional: by monster level, by internal monster index'],
+    [VANQ_MSTR_MNDX, 'd', 'by monster difficulty rating, by internal monster index'],
+    [VANQ_ALPHA_SEP, 'a', 'alphabetically, first unique monsters, then others'],
+    [VANQ_MCLS_LTOH, 'c', 'by monster class, low to high level within class'],
+    [VANQ_COUNT_H_L, 'n', 'by count, high to low, by internal index within tied count'],
+    [VANQ_COUNT_L_H, 'z', 'by count, low to high, by internal index within tied count'],
+]);
+
+// C ref: insight.c set_vanq_order() (2718-2766).  The two uppercase modes
+// are implemented by the comparator but suppressed from this menu; C's
+// preselected row is represented by `selected` and the menu owner returns its
+// `anything.a_int - 1` value directly.
+export async function set_vanq_order(
+    forVanquished, state = game, { menu = select_menu } = {},
+) {
+    state.flags ??= {};
+    const items = [];
+    for (const [sourceIndex, selector, description] of VANQ_ORDERS) {
+        // VANQ_ORDERS omits alpha-mix and class-high-to-low, matching C's
+        // explicit skip of those rows.
+        if (!forVanquished
+            && (sourceIndex === VANQ_COUNT_H_L
+                || sourceIndex === VANQ_COUNT_L_H)) continue;
+        const text = !forVanquished && sourceIndex === VANQ_ALPHA_SEP
+            ? 'alphabetically' : description;
+        items.push({
+            selector,
+            value: sourceIndex,
+            label: text,
+            selected: sourceIndex === state.flags.vanq_sortmode,
+        });
+    }
+    const selected = await menu(state, {
+        items,
+        how: PICK_ONE,
+        title: `Sort order for ${forVanquished
+            ? 'vanquished monster counts (also genocided types)'
+            : 'genocided monster types (also vanquished counts)'}`,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected === null || selected === undefined) return -1;
+    state.flags.vanq_sortmode = Number(selected);
+    return state.flags.vanq_sortmode;
+}
+
+// C ref: insight.c list_vanquished() (2784-2948).  `displayTextWindow` is an
+// injected window owner for source-pinned tests; production uses the same
+// NHW_MENU text owner as the other insight reports.
+export async function list_vanquished(
+    defquery, ask, state = game,
+    { displayTextWindow = displayTtyMenuTextWindow, menu = select_menu } = {},
+) {
+    const entries = ordinaryMonsterEntries(state).filter((entry) => (
+        Number(entry.vital.died) !== 0
+    ));
+    const forceSort = defquery === 'A';
+    const dumping = defquery === 'd';
+    if (forceSort) await set_vanq_order(true, state, { menu });
+    if (dumping || forceSort) {
+        defquery = 'y';
+        ask = false;
+    }
+    let totalKilled = 0;
+    for (const entry of entries) totalKilled += Math.trunc(entry.vital.died);
+
+    if (!entries.length) {
+        if (!state.program_state?.gameover && !dumping)
+            await ttyPline('No creatures have been vanquished.', state);
+        return;
+    }
+
+    let answer;
+    if (ask) {
+        let responses = entries.length > 1 ? 'ynaq' : 'ynq\u001ba';
+        if (entries.length === 1 && defquery === 'a') defquery = 'y';
+        answer = await yn_function(
+            'Do you want an account of creatures vanquished?',
+            responses,
+            defquery,
+            true,
+            state,
+        );
+    } else {
+        answer = defquery.charCodeAt(0);
+    }
+    if (answer === 'q'.charCodeAt(0)) {
+        discloseStop(state);
+        return;
+    }
+    if (answer !== 'y'.charCodeAt(0) && answer !== 'a'.charCodeAt(0)) return;
+    if (answer === 'a'.charCodeAt(0) && entries.length > 1
+        && await set_vanq_order(true, state, { menu }) < 0) return;
+
+    const mode = state.flags?.vanq_sortmode ?? VANQ_MLVL_MNDX;
+    const uniqueHeader = mode === VANQ_ALPHA_SEP;
+    const classHeader = (mode === VANQ_MCLS_LTOH || mode === VANQ_MCLS_HTOL)
+        && entries.length > 1;
+    entries.sort((left, right) => vanqsort_cmp(left, right, state));
+    const lines = ['Vanquished creatures:'];
+    if (!dumping) lines.push('');
+    let previousClass = 0;
+    let hadUnique = false;
+    let specialHeader = false;
+    for (const entry of entries) {
+        const count = Math.trunc(entry.vital.died);
+        const monster = entry.monster;
+        const rider = is_rider(monster);
+        const mlet = monster.mlet ?? 0;
+        if (classHeader
+            && (mlet !== previousClass || (specialHeader && !rider))) {
+            const header = rider ? 'Rider'
+                : MONSTER_CLASS_EXPLANATIONS[mlet] ?? '';
+            lines.push(upstart(header));
+            specialHeader = rider;
+            previousClass = mlet;
+        }
+        let text;
+        if (isUniqueMonster(entry.index, monster)) {
+            text = `${type_is_pname(monster) ? '' : 'the '}${vanquishedName(entry)}`;
+            if (count > 1) text += ` (${N_times(count)})`;
+            hadUnique = true;
+        } else {
+            if (uniqueHeader && hadUnique) {
+                lines.push('');
+                hadUnique = false;
+            }
+            text = count === 1 ? an(vanquishedName(entry))
+                : `${String(count).padStart(3, ' ')} ${makeplural(
+                    vanquishedName(entry),
+                )}`;
+        }
+        lines.push(`${' '.repeat(vanquishedPrefix(text) + (classHeader ? 1 : 0))}${text}`);
+    }
+    if (entries.length > 1) {
+        if (!dumping) lines.push('');
+        lines.push(`${totalKilled} creatures vanquished.`);
+    }
+    await displayTextWindow(state, lines.map((text) => ({ text })));
+}
+
+// C ref: insight.c dovanquished() (2769-2775).  The menu-requested flag is
+// consumed after list_vanquished returns, even when its sort menu is escaped.
+export async function dovanquished(state = game, options = {}) {
+    const defquery = state.iflags?.menu_requested ? 'A' : 'y';
+    await list_vanquished(defquery, false, state, options);
+    state.iflags ??= {};
+    state.iflags.menu_requested = false;
+    return ECMD_OK;
 }
 
 // C ref: insight.c num_genocides() (2953-2966). The reference walks every
