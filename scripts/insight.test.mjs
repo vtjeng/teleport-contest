@@ -36,6 +36,11 @@ import {
     show_conduct,
     sokoban_in_play,
     vanqsort_cmp,
+    isUniqueMonster,
+    num_extinct,
+    num_gone,
+    list_genocided,
+    dogenocided,
     record_achievement,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
@@ -64,6 +69,8 @@ import {
     LL_SPOILER,
     ACH_SOKO,
     G_GENOD,
+    G_EXTINCT,
+    G_GONE,
     ACH_BELL,
     ACH_MINE_PRIZE,
     ACH_RNK4,
@@ -100,6 +107,10 @@ import {
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
     PM_HIGH_CLERIC,
+    PM_ORCUS,
+    PM_DEATH,
+    PM_PESTILENCE,
+    PM_FAMINE,
     PM_WOLF,
 } from '../js/monsters.js';
 import {
@@ -1658,6 +1669,29 @@ test('vanqsort_cmp follows every source vanquished ordering', () => {
         [0, 1, 2]);
 });
 
+test('vanqsort_cmp uses the source rider and high-cleric identities', () => {
+    const state = monsterCatalog();
+    state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
+    // C's major-demon class puts riders before ordinary demons at the
+    // source-defined class tie break.  Use the real catalog entries rather
+    // than synthetic indices so the rider predicate is actually exercised.
+    assert.deepEqual(
+        [PM_DEATH, PM_ORCUS].sort((a, b) => vanqsort_cmp(a, b, state)),
+        [PM_DEATH, PM_ORCUS],
+    );
+    state.flags.vanq_sortmode = VANQ_MCLS_HTOL;
+    assert.deepEqual(
+        [PM_PESTILENCE, PM_ORCUS].sort((a, b) => vanqsort_cmp(a, b, state)),
+        [PM_PESTILENCE, PM_ORCUS],
+    );
+    // UniqCritterIndx intentionally excludes PM_HIGH_CLERIC, while the
+    // actual Riders remain unique.  This is the source exception used by
+    // both the comparator and the genocide selectors.
+    assert.equal(isUniqueMonster(PM_HIGH_CLERIC,
+        state.mons[PM_HIGH_CLERIC]), false);
+    assert.equal(isUniqueMonster(PM_FAMINE, state.mons[PM_FAMINE]), true);
+});
+
 test('set_vanq_order exposes source menu rows and stores the choice', async () => {
     const state = { flags: { vanq_sortmode: VANQ_MLVL_MNDX } };
     let menuSpec;
@@ -1836,6 +1870,81 @@ test('num_genocides excludes the source high-cleric unique exception', () => {
     // The fixture's only genocide is the special high-cleric index in C's
     // table, which is flagged unique but excluded by UniqCritterIndx.
     assert.equal(num_genocides(state), 1);
+});
+
+test('genocide selectors follow source flags and unique filtering', () => {
+    const state = monsterCatalog();
+    state.svm = {
+        mvitals: Array.from({ length: state.mons.length }, () => ({
+            mvflags: 0,
+        })),
+    };
+    state.svm.mvitals[PM_WOLF].mvflags = G_EXTINCT;
+    state.svm.mvitals[PM_HIGH_CLERIC].mvflags = G_EXTINCT;
+    state.svm.mvitals[PM_DEATH].mvflags = G_EXTINCT;
+    state.svm.mvitals[PM_ORCUS].mvflags = G_GENOD;
+
+    // The high cleric is the deliberate UniqCritterIndx exception; Riders
+    // and Orcus are unique and therefore excluded from extinct/genocide
+    // reporting by num_extinct()/num_gone().
+    assert.equal(num_extinct(state), 2);
+    assert.deepEqual(num_gone(G_GONE, state), [PM_WOLF, PM_HIGH_CLERIC]);
+    assert.deepEqual(num_gone(G_GENOD, state), []);
+});
+
+test('list_genocided includes extinctions only in wizard disclosure', async () => {
+    const state = monsterCatalog();
+    state.svm = {
+        mvitals: Array.from({ length: state.mons.length }, () => ({
+            mvflags: 0,
+        })),
+    };
+    state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
+    state.svm.mvitals[PM_HIGH_CLERIC].mvflags = G_EXTINCT;
+    state.wizard = true;
+    state.program_state = {};
+    let lines;
+    await list_genocided('y', false, state, {
+        displayTextWindow: (_state, values) => {
+            lines = values.map((value) => value.text);
+        },
+    });
+    assert.deepEqual(lines, [
+        'Genocided or extinct species:', '', ' high clerics (extinct)',
+        ' wolves', '',
+        '1 species genocided.', '1 species extinct.',
+    ]);
+});
+
+test('dogenocided admits the command and formats the selected list', async () => {
+    const state = monsterCatalog();
+    state.svm = {
+        mvitals: Array.from({ length: state.mons.length }, () => ({
+            mvflags: 0,
+        })),
+    };
+    state.svm.mvitals[PM_VAMPIRE].mvflags = G_GENOD;
+    state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
+    state.flags = { vanq_sortmode: VANQ_MLVL_MNDX };
+    state.iflags = { menu_requested: true };
+    state.program_state = {};
+    let menuRows;
+    let lines;
+    const result = await dogenocided(state, {
+        menu: async (_state, spec) => {
+            menuRows = spec.items.map((item) => item.selector);
+            return VANQ_ALPHA_SEP;
+        },
+        displayTextWindow: (_state, values) => {
+            lines = values.map((value) => value.text);
+        },
+    });
+    assert.equal(result, 0);
+    assert.deepEqual(menuRows, ['t', 'd', 'a', 'c']);
+    assert.deepEqual(lines, [
+        'Genocided species:', '', ' vampires', ' wolves', '',
+        '2 species genocided.',
+    ]);
 });
 
 // pline.c stores the producer-provided turn and appends without reordering;
