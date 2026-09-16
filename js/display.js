@@ -3457,15 +3457,21 @@ export function newsym(x, y) {
 
 // ── see_monsters ──
 // C ref: display.c see_monsters() (1487-1522). Redraws every monster on the
-// level after something changed what the hero can perceive. newsym() reads the
-// module-global game, so this does too, and refuses any other state rather
-// than iterating one game's monsters while drawing another's map.
+// level after something changed what the hero can perceive. `redraw` is an
+// optional caller-owned seam for planning clones: newsym() still draws the
+// live game, while a clone can supply a silent or state-local repaint. The
+// monster-list state changes (meverseen and warning count) always belong to
+// the state passed by the caller.
 //
 // gd.defer_see_monsters is not modeled: goto_level() is its only setter and no
 // level change is ported.
-export function see_monsters(state = game) {
-    if (state !== game)
-        throw new TypeError('see_monsters() draws the global game state');
+export function see_monsters(state = game, { redraw = null } = {}) {
+    if (state !== game && typeof redraw !== 'function') {
+        throw new TypeError(
+            'see_monsters() on a clone requires a redraw callback',
+        );
+    }
+    const repaint = redraw ?? newsym;
 
     let new_warn_obj_cnt = 0;
 
@@ -3478,7 +3484,7 @@ export function see_monsters(state = game) {
     for (let mon = state.level?.monlist ?? null; mon; mon = mon.nmon) {
         if (mon.mhp < 1) continue; /* DEADMONSTER() */
         if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
-        newsym(mon.mx, mon.my);
+        repaint(mon.mx, mon.my, state);
         if (mon.wormno) {
             // worm.c see_wsegs() redraws tail segments. The current level
             // generator can still create one, but its tail placement is not
@@ -3503,7 +3509,7 @@ export function see_monsters(state = game) {
     }
 
     /* when mounted, hero's location gets caught by the monster loop */
-    if (!state.u.usteed) newsym(state.u.ux, state.u.uy);
+    if (!state.u.usteed) repaint(state.u.ux, state.u.uy, state);
 }
 
 // C ref: display.c see_objects() (1558-1570). Repaint the top object at each
