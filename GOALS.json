@@ -51727,13 +51727,13 @@
     {
       "id": "port-zap-dobuzz-seed4500-20260916",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port the complete beam traversal and monster breath caller",
       "cFile": "zap.c",
       "sessions": [
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage,817 remaining-screen upper bound,investigations/holdout/seed4500-knight-coverage.json. The source-traced first mismatch is zap.c dobuzz at step997: breamm skips the beam call. Worker A owns this highest-ranked independent source scope; B owns dosacrifice.",
+      "selectionReason": "Resume the oldest dependency-ready A4 delivery for holdout/seed4500-knight-coverage, count817 at step997; investigations/holdout/seed4500-knight-coverage.json traces complete zap.c dobuzz and required return-value helpers. B6 is closed and published, and the source/purity corrections are ready in immutable95a818cc. This is the highest per-session queue entry; preserve unverified caller entries after span acceptance.",
       "detail": "Complete zap.c dobuzz lines4779-5037 and required zhitm/zap_over_floor return-value dependencies, with production breamm wiring and clone-safe lethal monster damage. Independent monster-fire-breath recordings match. Hero wand/spell and forced-miss entry evidence must be reconciled separately; do not close unverified source entries.",
       "spans": [
         {
@@ -51767,9 +51767,9 @@
         "to": 5039
       },
       "activeStanding": {
-        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
-        "screens": 10148,
-        "rng": 752563
+        "sha": "9f756715b5a3158e677087ed813efad39bb910ee",
+        "screens": 10212,
+        "rng": 752565
       },
       "openMismatches": [
         {
