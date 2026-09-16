@@ -36,6 +36,7 @@ import {
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
     PM_MEDUSA,
+    PM_MINOTAUR,
     PM_NEWT,
     PM_SHOPKEEPER,
     PM_WIZARD,
@@ -395,6 +396,30 @@ test('^G creates the named monster beside the hero without spending a turn',
         // the flag first, which is what pins the restore.
         assert.equal(game.iflags.debug_mongen, false);
     });
+
+test('^G admits a minotaur through the generic makemon path', async () => {
+    // C read.c:create_particular_creation() passes a named species directly to
+    // makemon(); it does not carry a fill_empty_maze-only admission marker.
+    // Keep this production caller case independent from the fixed wizard
+    // genesis matrix and pin the explicit PM_MINOTAUR lifecycle here.
+    const segment = {
+        seed: 9631047,
+        datetime: '20340825172133',
+        nethackrc: 'OPTIONS=name:MinotaurProbe,role:Ranger,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\n'
+            + 'OPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n',
+        moves: `${WAIT_KEY}${GENESIS_KEY}minotaur\n`,
+    };
+    const boundaries = [];
+    const { added } = await createdBy(segment, segment.moves, {
+        onBoundary: (error) => boundaries.push(error),
+    });
+    assert.deepEqual(boundaries, []);
+    const minotaurs = added.filter(({ mnum }) => mnum === PM_MINOTAUR);
+    assert.equal(minotaurs.length, 1);
+    assert.equal(minotaurs[0].data.pmidx, PM_MINOTAUR);
+    assert.equal(topLine(), 'A minotaur appears next to you.');
+});
 
 test('^G puts iflags.debug_mongen back after clearing it', async () => {
     // wizcmds.c:206-210 saves the flag, clears it, creates, and restores. A
