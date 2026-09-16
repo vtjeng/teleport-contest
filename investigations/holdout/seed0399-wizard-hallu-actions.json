@@ -2,49 +2,63 @@
   "session": "holdout/seed0399-wizard-hallu-actions",
   "remainingScreensUpperBound": 119,
   "status": "complete",
-  "commit": "633f7c8902cf590eaf2c4af42c0229697dba8ae0",
+  "commit": "4472ef98aab95a2e75f6553da9e0962e822b69fc",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "step": 413,
+    "step": 435,
     "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "function": "thitmonst",
+    "functionDeclared": true,
+    "sourceFile": "dothrow.c",
+    "cFile": "dothrow.c",
     "luaFile": null,
-    "line": null,
-    "message": "simple monster action requires trap activation",
+    "line": 2011,
+    "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
     "unlocatedKinds": [],
     "recordedSteps": 532,
     "remainingScreensUpperBound": 119
   },
-  "summary": "An elf-lady enters a web during the monster movement plan. The selector refuses WEB before the live round, although C catches the monster and reveals the web. Port the whole trap.c trapeffect_web function, including its hero and monster branches, and its missing return-valued mu_maybe_destroy_web helper; remove WEB from the blanket activation refusal and wire both production dispatch paths.",
+  "summary": "The saved WEB candidate is stale/fixed on published main: trap_effects.js now implements trapeffect_web() and dispatches WEB. A bounded replay at current main reaches step 435, where throwing gray dragon scale mail at the soldier ant enters the partial dothrow.c thitmonst() and stops at the non-weapon thrown-object branch. The smallest current source owner is the complete dothrow.c thitmonst() function; its final C branch calls tmiss() and returns, while JS still raises the non-weapon refusal.",
   "source": {
-    "file": "trap.c",
-    "functions": ["trapeffect_web"],
-    "branch": "The observed branch is trap.c:2204-2275: a non-hero monster, not a webmaker and not amorphous, whirly, flaming, unsolid or a gelatinous cube, enters WEB. An ordinary elf-lady is not a giant, adult extra-nasty dragon, long worm or one of the listed web-tearing species. If visible, C prints the caught message and calls seetrap, then sets mtrapped and returns Trap_Caught_Mon. Whole-function scope also includes the hero's NOWEBMSG/FORCETRAP/FAILEDUNTRAP/VIASITTING, mounted and Strength-duration branches, plus monster immunity, destruction, unseen-bear, tearing and forced-avoidance branches.",
+    "file": "dothrow.c",
+    "functions": ["thitmonst"],
+    "branch": "At recorded step 435 the Wizard throws gray dragon scale mail west at the soldier ant. C thitmonst() (2011-2308) computes its base hit state and rnd(20), then the object is neither a weapon/tool/gem, heavy iron ball, boulder, egg/cream pie/venom, potion, tame-food gift, nor swallowed object. The final else at2300 calls tmiss(obj, mon, TRUE), which prints the miss and may wake the monster with rn2(3), then thitmonst() returns 0. Current JS thitmonst() computes rnd(20) but handles only the cream-pie path among this family and raises unsupported('non-weapon thrown-object hit') at1595 instead of the C tmiss branch. No Lua source is involved.",
     "callers": [
-      "trap.c:2936-2992 trapeffect_selector dispatches WEB to trapeffect_web at2971-2972. js/trap_effects.js:2153-2185 instead keeps WEB in UNPORTED_TRAP_EFFECTS at2133 and raises the generic trap activation refusal.",
-      "The observed runtime path is allmain.js planElapsedTurn -> preflightSimpleMonsterActions -> monmove.js postmov:3105 -> trap_effects.js mintrap:2469 -> trapeffect_selector:2185. C monmove.c postmov:1508-1517 calls mintrap after movement and before subsequent square effects; trap.c mintrap:3732-3840 owns trap-learning, avoidance and the selected effect result.",
-      "Hero entry is hack.c spoteffects -> trap.c dotrap:2995-3060 -> trapeffect_selector. js/trap_effects.js dotrap:2267-2320 already dispatches the hero, but preflight_dotrap:2212-2217 excludes WEB. Complete the selected web caller wiring without treating that refusal as evidence that its hero branches are implemented.",
-      "A previously caught monster reaches mintrap through monmove.js m_move:3325-3335, corresponding to monmove.c:1733-1742. The existing non-pit trapped-monster path in trap_effects.js:2389-2419 already reveals webs and implements the rn2(40) release/message. Reuse it and verify its interaction with newly set mtrapped."
+      "The observed C production chain is dothrow.c dothrow():352-376 -> throw_obj():87-348 -> throwit():1510-1849 -> bhit():1674-1677 -> throwit_mon_hit():1482-1505 -> thitmonst():2011-2304. The object reaches the target through the ordinary THROWN_WEAPON bhit path.",
+      "The current JS production chain is dothrow.js dothrow():815-842 -> throw_obj() -> throwit():1310-1481 -> bhit():1390-1391 -> throwit_mon_hit():1207-1223 -> thitmonst():1488-1597. The current refusal is the direct production boundary, not a test-only stub.",
+      "The same C thitmonst() owner is also called by dokick.c kick_monster():736-750 for non-gold kicked objects and apply.c use_pole():3508-3521 and use_grappling_hook():3842-3849 for ranged wielded weapons. Those callers are downstream scope to verify when the whole function is opened; the current seed reaches the dothrow.c throwit_mon_hit() caller.",
+      "The prior queue investigation's observed path trap.c mintrap() -> trapeffect_selector() -> trapeffect_web() is fixed on current main: js/trap_effects.js trapeffect_web():2231-2630 is implemented and selector dispatches WEB at2691-2692; WEB is absent from UNPORTED_TRAP_EFFECTS at2639-2645."
     ],
     "dependencies": [
-      "Required same-span return-valued dependency: trap.c mu_maybe_destroy_web:972-1014 is called at2124 and2213. It has no JavaScript definition at the examined commit. Translate the complete helper: immune forms either burn/dissolve and delete the web, or flow through and optionally reveal it; its boolean decides whether trapeffect_web returns early. Do not replace this result with note_unported.",
-      "Existing source-backed predicates are in js/mondata.js: amorphous224, unsolid365, acidic434, extra_nasty474, webmaker544, is_whirly549 and flaming559. Existing js/makemon_create.js count_wsegs:859-862 represents worm.c:836-845 over the stored tail array; pass the selected state explicitly so a planning call does not read the live worm slots.",
-      "Existing trap state helpers include trap_effects.js feeltrap351-357 and seetrap335-342, and trap.js deltrap716-729, set_utrap1130-1139 and reset_utrap1147 onward. Web deletion does not enter deltrap's Sokoban pit/hole tail. Preserve message-before-seetrap ordering, trap identity in the cloned trap list, and source return codes.",
-      "The hero branch consumes mintrap's result for a steed and uses acurr(A_STR), strongmonst, u_locomotion and the source rn1/rnd duration table. Existing hack.js u_locomotion:5041-5046 and monmove.js mintrap environment bindings are starting points; heroTrapEnv:263-272 lacks mintrap's full random/visibility/message environment. Resolve that mounted call's required owners instead of installing a new injected substitute.",
-      "The observed ordinary monster web effect makes no core RNG call; prior mintrap avoidance/aggravation draws retain their order. Monster naming and messages must use the existing planning/live naming and output conventions. The unseen owlbear/bugbear branch has Soundeffect and You_hear in C; preserve source semantics using supported output owners, recording genuinely unported discarded-result callees rather than inventing behavior."
+      "The complete thitmonst() port must preserve source evaluation order across its shared hit calculation and all object classes. The current branch specifically requires existing JS tmiss() at1184-1202, wakeup(), message output, and thrown-object lifecycle; do not replace the branch with a generic message or invented RNG.",
+      "The shared function has existing source-backed helpers find_mac(), omon_adj(), engulfing_u(), object predicates, hmon(), gem_accept(), and should_mulch_missile(). Resolve only any helper whose return value or side effects are needed by each admitted branch; the current non-weapon miss uses tmiss() and wakeup().",
+      "The dothrow.js throwit_mon_hit() wrapper currently calls thitmonst() without forwarding an environment object, while thitmonst() defaults to ttyPline and the game RNG. Preserve the caller's object clearing and shopkeeper follow-up after a source-faithful return.",
+      "The current seed's object is gray dragon scale mail, so it exercises the final non-weapon miss arm. The saved queue's later WEB path is not evidence for this owner and must not be used as a special case."
     ]
   },
   "goalKind": "file-port",
+  "currentReplay": {
+    "commit": "4472ef98aab95a2e75f6553da9e0962e822b69fc",
+    "runner": "node scripts/run-bounded.mjs focused -- node --input-type=module -e <single-session scanRecordedSession>",
+    "run": "run-6z7M46",
+    "screensEmitted": 435,
+    "recordedSteps": 532,
+    "divergence": null,
+    "boundary": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+    "key": "h",
+    "message": "The gray dragon scale mail misses the soldier ant.--More--",
+    "rngAtBoundary": [
+      "rnd(20)=13 @ thitmonst(dothrow.c:2152)",
+      "rn2(3)=0 @ tmiss(dothrow.c:1964)",
+      "rn2(100)=13 @ obj_resists(zap.c:1469)"
+    ]
+  },
   "evidence": [
-    "The assigned /tmp/seed-pilot-af26cca9-queue.json entry has stop413, recordedSteps532 and remainingScreensUpperBound119. The former cache's count232 concerned the resolved Bell/addinv boundary and is stale for this assignment.",
-    "A focused scanRecordedSession replay of only sessions/holdout/seed0399-wizard-hallu-actions.session.json emitted413 screens, reported no earlier screen/RNG/cursor divergence, and stopped with simple monster action requires trap activation. No aggregate scan, scorer, checkpoint or C recorder was run.",
-    "A read-only Node inspector breakpoint at js/trap_effects.js:2185, conditioned on UNPORTED_TRAP_EFFECTS.has(trap.ttyp), captured planning=true, moves3, trflags0, WEB18 at(58,13), tseen=false, madeby_u=false, and monster m_id170, PM_ELF_LORD268, position(58,13), mhp26, mtrapped=false. The stack was trapeffect_selector -> mintrap:2469 -> postmov:3105. These values locate the source branch; they are test evidence, not implementation conditions.",
-    "The original C recording's step416 message is 'The elf-lady is caught in a spider web.  The elf-lady picks up a bag.--More--'. The queue stops earlier at413 because the JS planner checks the complete forthcoming monster round before its live messages. Removing this blocker does not establish that all119 remaining screens will match.",
-    "Read complete trap.c trapeffect_web:2106-2276 and mu_maybe_destroy_web:972-1014. A search for trapeffect_web or mu_maybe_destroy_web under js returned no matches, while the actual selector retains WEB in its unported set. This is missing C behavior, not a declaration-only completion or a JS-only planner repair.",
-    "Implementation is expected in existing js/trap_effects.js with imports, selector dispatch, hero admission/environment wiring, focused source-pinned tests and independent hero/monster web recipes. It shares that file and possibly environment imports with worker B5's missile work, but the web effect does not depend on mthrowu or dokick projectile behavior. There is no source or module overlap with worker A's Arc-loca/Arc-goal quest_levels work. Coordinate the shared trap_effects file before parallel edits.",
-    "Investigation started at 2026-09-14T21:47:35Z. HEAD remained 633f7c8902cf590eaf2c4af42c0229697dba8ae0. Root subsequently removed an unused timeout.js import and its test import during the survey; no inspected trap, movement or planner source changed. The investigator changed only this assigned cache."
+    "The saved .cache/resume-queue-current.json entry supplied stop413, recordedSteps532, and remainingScreensUpperBound119 at its older investigated commit; this artifact retains 119 as the queue provenance while recording the current-main boundary separately.",
+    "A bounded focused single-session replay of sessions/holdout/seed0399-wizard-hallu-actions.session.json at published main 4472ef98 emitted 435 screens, found no earlier screen/RNG/cursor divergence, and stopped at the production refusal for dothrow.c thitmonst()'s non-weapon thrown-object hit. It did not run an aggregate scan, scorer, checkpoint, or C recorder.",
+    "The fixed recording's step 435 is key h after the throw command's object and direction prompts. Its C RNG annotations are rnd(20)=13 at thitmonst(dothrow.c:2152), rn2(3)=0 at tmiss(dothrow.c:1964), and rn2(100)=13 at obj_resists(zap.c:1469); its top line is 'The gray dragon scale mail misses the soldier ant.--More--'. These calls identify the final C tmiss branch rather than the earlier WEB boundary.",
+    "Complete upstream reads establish dothrow.c thitmonst():2011-2304, tmiss():1951-1973, throwit_mon_hit():1482-1505, throwit():1510-1849, throw_obj():87-348, and dothrow():352-376. The current JS source has the corresponding partial thitmonst():1483-1597 and direct caller chain at dothrow.js:815-842, 1204-1223, and 1307-1403.",
+    "Current published main contains the previously missing WEB implementation: js/trap_effects.js trapeffect_web():2231-2630, selector dispatch at2691-2692, and WEB removed from UNPORTED_TRAP_EFFECTS at2639-2645. Therefore the saved trap.c:trapeffect_web candidate is stale/fixed on current main, not the current queue owner.",
+    "The assigned investigation changed only investigations/holdout/seed0399-wizard-hallu-actions.json in the worker worktree. A8/A9, A13/A14, seed0014, seed4500 investigation WIP, root GOALS/SCORE/instructions, source reservations, and central evidence were not edited."
   ]
 }
