@@ -373,8 +373,8 @@ test('hitmm prints a nymph engagement before its seduction damage arm',
 
 // uhitm.c mhitm_ad_sedu():4702-4748. A non-cursed object is detached from the
 // defender, named before add_to_minv() can merge it, and then transferred to a
-// nymph. The level's no-teleport flag keeps this focused test on the ordered
-// inventory and message writes rather than rloc()'s map search.
+// nymph. The level's no-teleport flag then makes tele_restrict() report the
+// blocked relocation after the inventory transfer.
 test('mhitm seduction transfers the first eligible inventory object',
     async () => {
         await hero();
@@ -406,6 +406,7 @@ test('mhitm seduction transfers the first eligible inventory object',
         assert.deepEqual(env.lines, [
             'The water nymph smiles at the little dog engagingly.',
             'The water nymph steals an apple from the little dog!',
+            'A mysterious force prevents the water nymph from teleporting!',
         ]);
         assert.deepEqual(env.bounds, [
             'rnd(20)', 'd(0,0)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
