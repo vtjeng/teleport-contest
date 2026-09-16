@@ -10,7 +10,9 @@ import {
     DOOR,
     EXT_ENCUMBER,
     FUMBLING,
+    HALLUC,
     HVY_ENCUMBER,
+    ICE,
     INCLUDE_HERO,
     INVORDER_SORT,
     LOST_DROPPED,
@@ -351,6 +353,28 @@ test('decor preflight reads either changed coordinate without mutation',
             assert.equal(state._ttyToplines ?? '', '', label);
         }
     });
+
+test('decor preflight leaves ICE state and display RNG untouched', async () => {
+    const state = await heroOnAnEmptySquare();
+    const location = state.level.at(state.u.ux, state.u.uy);
+    location.typ = ICE;
+    state.flags.mention_decor = true;
+    state.iflags.prev_decor = ROOM;
+    state.iflags.ice_rating = 77;
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    const displayBefore = structuredClone(state.displayCtx);
+
+    // pickup.c:353-425 calls dfeature_at() only after movement commits. Its
+    // ICE description mutates ice_rating and its hallucinated water name can
+    // draw from the display RNG, so neither effect may occur in admission.
+    assert.equal(
+        preflight_describe_decor_at(state.u.ux, state.u.uy, state),
+        true,
+    );
+    assert.equal(state.iflags.ice_rating, 77);
+    assert.deepEqual(state.displayCtx, displayBefore);
+    assert.equal(state._ttyToplines ?? '', '');
+});
 
 test('describe_decor remembers silent ordinary terrain transitions',
     async () => {
