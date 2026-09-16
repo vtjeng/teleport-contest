@@ -841,8 +841,11 @@ test('object-pile exclusions stop before names, output, or engraving',
         }
     });
 
-test('a blind object pile uses the tactile heading before petrification',
+test('a blind object pile uses the source tactile heading before petrification',
     async () => {
+    // C invent.c:look_here() (4289-4296) builds this line as
+    // "Things that you feel here:"; the blind predicate includes "that"
+    // just as the sighted arm includes "that are".
     const built = pileLookState({
         blind: true,
         first: CORPSE,
@@ -858,7 +861,7 @@ test('a blind object pile uses the tactile heading before petrification',
 
     assert.deepEqual(events, [
         ['message', 'You try to feel what is lying here on the floor.'],
-        ['display', ['Things you feel here:', 'a cockatrice corpse...']],
+        ['display', ['Things that you feel here:', 'a cockatrice corpse...']],
         ['message', 'Touching the cockatrice corpse is a fatal mistake...'],
         ['engraving'],
     ]);
