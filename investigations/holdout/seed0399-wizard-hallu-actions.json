@@ -1,71 +1,35 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
-  "remainingScreensUpperBound": 97,
-  "status": "complete",
-  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+  "remainingScreensUpperBound": 84,
+  "status": "partial",
+  "commit": "828660e9679142e24baf7f00c26130aa1c6a3207",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "step": 435,
+    "step": 448,
     "kind": "stop",
-    "function": "thitmonst",
-    "functionDeclared": true,
-    "sourceFile": "dothrow.c",
-    "cFile": "dothrow.c",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+    "message": "the amulet of life saving",
     "unlocatedKinds": [],
     "recordedSteps": 532,
-    "remainingScreensUpperBound": 97
+    "remainingScreensUpperBound": 84
   },
-  "summary": "The armor throw stops in thitmonst’s final non-weapon miss arm. Source review also requires the surviving object to continue through breakage and floor placement; combat dependencies must preserve the stagger RNG check and await floor effects before deciding whether the object survived.",
+  "summary": "The refreshed replay reaches step 448 with a life-saving amulet equipped: C continues through end.c done() to consume the amulet and call savelife(), while JavaScript end.js done() still refuses the entire Lifesaved branch. Source owner and the complete lethal caller/dependency scope are being traced; the prior thitmonst and floor-effects diagnosis is superseded for this queue boundary.",
   "source": {
-    "file": "dothrow.c",
+    "file": "end.c",
     "functions": [
-      "thitmonst"
-    ],
-    "branch": "At recorded step 435, dothrow.c dothrow() -> throw_obj() -> throwit() -> bhit() -> throwit_mon_hit() calls thitmonst() for the gray dragon scale mail and soldier ant. C thitmonst() (2011-2304) establishes hmode, the base hit calculation, distance and equipment modifiers, unicorn and quest-leader arms, and dieroll = rnd(20) at 2152. The object is neither a weapon/tool/gem, heavy iron ball, boulder, egg/cream pie/venom, potion, tame-food gift, nor swallowed object, so the final else at 2299-2300 calls tmiss(obj, mon, TRUE), which prints the miss and wakes the target when rn2(3) is zero, then returns 0. At the examined commit, JS thitmonst() (1483-1597) has the shared calculation, cream-pie path, and explicit unsupported branches for weapons, balls/boulders, and potionhit(); its final unsupported call at 1595 replaces this source final else.",
-    "callers": [
-      "C dothrow.c dothrow():352-376 selects the object and calls throw_obj(); throw_obj():87-348 calls throwit(); throwit():1510-1849 calls bhit(); bhit() dispatches its monster hit callback to throwit_mon_hit():1482-1505, which calls thitmonst():2011-2304.",
-      "At the examined commit, JS dothrow.js dothrow():815-842 calls throw_obj(); throw_obj() -> throwit():1310-1481 -> bhit():1390-1391 -> throwit_mon_hit():1207-1223 -> thitmonst():1488-1597. The observed stop is this production boundary, not a direct test or an input exhaustion artifact.",
-      "The same C thitmonst() is shared by dothrow.c kick_monster():736-750 for non-gold kicked objects and apply.c use_pole():3508-3521 and use_grappling_hook():3842-3849 for ranged wielded weapons. Those callers must be reviewed when the complete function is implemented; this session exercises the ordinary thrown-object caller."
-    ],
-    "dependencies": [
-      "The source tmiss() helper is dothrow.c:1951-1967 and the existing JS tmiss() at dothrow.js:1184-1202 already perform visibility-aware miss output, rn2(3), and wakeup(). The implementation must call that helper with the active message/random environment and preserve its result and side effects.",
-      "The complete function must preserve C evaluation and RNG order across all arms: shared hit modifiers before the pre-roll unicorn/leader checks, rnd(20) at the same point, then object-class branches and any second rnd(25) or helper draws. Existing consumed-result helpers include find_mac(), omon_adj(), engulfing_u(), hmon(), gem_accept(), object predicates, and should_mulch_missile(); resolve any helper needed by an admitted branch from its source contract rather than inventing draws.",
-      "throwit_mon_hit() currently forwards the object and state to thitmonst(), then clears state.thrownobj when the returned object is gone and performs its shopkeeper follow-up. Preserve this lifecycle and return contract while replacing only the source-unfaithful thitmonst() refusals in the complete port; no Lua dependency or separate trap owner is present."
-    ]
-  },
-  "goalKind": "file-port",
-  "currentReplay": {
-    "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
-    "runner": "node scripts/run-bounded.mjs focused -- node --input-type=module -e <single-session scanRecordedSession>",
-    "run": "run-1sMKsF",
-    "screensEmitted": 435,
-    "recordedSteps": 532,
-    "divergence": null,
-    "boundary": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
-    "key": "h",
-    "command": "movewest",
-    "keyCursor": "answer",
-    "message": "The gray dragon scale mail misses the soldier ant.--More--",
-    "rngAtBoundary": [
-      "rnd(20)=13 @ thitmonst(dothrow.c:2152)",
-      "rn2(3)=0 @ tmiss(dothrow.c:1964)",
-      "rn2(100)=13 @ obj_resists(zap.c:1469)"
+      "done",
+      "savelife"
     ]
   },
   "evidence": [
-    "The assigned .cache/resume-queue-20260916.json entry at commit 18a56313c56723cde906c27449d0fc2c6c085bf0 identifies holdout/seed0399-wizard-hallu-actions at stop step 435, kind stop, function thitmonst, sourceFile dothrow.c, and remainingScreensUpperBound 97.",
-    "A bounded single-session scanRecordedSession replay at the assigned commit emitted 435 screens from 532 recorded steps, reported divergence null, and stopped at the production boundary `unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit`. The result is saved at .cache/seed0399-wizard-hallu-actions/replay-result.json. No other session, aggregate scan, scorer, checkpoint, or C recorder was run.",
-    "The assigned recording has one segment (seed 399, datetime 20000110090000). Its step 435 is key h after the throw command and direction prompt; its C RNG annotations are rnd(20)=13 @ thitmonst(dothrow.c:2152), rn2(3)=0 @ tmiss(dothrow.c:1964), and rn2(100)=13 @ obj_resists(zap.c:1469). The C top line is `The gray dragon scale mail misses the soldier ant.--More--`, establishing the final non-weapon miss arm and its wakeup draw.",
-    "Pinned upstream source at nethack-c/upstream commit 16ff59115315917b93185d026aeefea06db9b0f4 was read for dothrow.c thitmonst():2011-2304, tmiss():1951-1967, throwit_mon_hit():1482-1505, throwit():1510-1849, throw_obj():87-348, and dothrow():352-376. The source confirms the final else calls tmiss(obj, mon, TRUE) at 2299-2300 and returns 0 at 2303-2304.",
-    "At the assigned JavaScript commit, dothrow.js thitmonst():1483-1597 computes the shared modifiers and dieroll, admits only the cream-pie hit arm in this object-family tail, and raises UnsupportedThrowError at 1595 for the observed object. The current JS caller chain is dothrow.js:815-842, 1207-1223, and 1310-1481, so the refusal is reachable production behavior.",
-    "Actionable whole-source scope is a dothrow.c file-port span for thitmonst(), including all source branches and its existing callers’ return/object lifecycle contracts. The ordinary thrown-object miss needs only existing tmiss()/wakeup() behavior; weapon, heavy-ball/boulder, potion, tame-food, swallowed, unicorn, leader, and applied/kicked arms require source review and named dependencies as they become reachable. This investigation does not claim source completion.",
-    "C dothrow.c throwit() continues through breaktest and floor placement when thitmonst() leaves the object alive. Its callers must preserve canonical state.gt.thrownobj, shopkeeper pick snatch and outside-shop pursuit conditions. thitmonst() also requires the tame-unicorn catch-and-drop branch and the shared gem_accept() teleport tail.",
-    "The consumed-result dependency trace reaches hmon()/hmon_hitmon(), tamedog(), breakobj() and flooreffects(). Each needs source branches and return contracts; swallowing an Unsupported error or substituting selected random calls does not implement that contract. Unported discarded calls remain named at their actual source sites.",
-    "At candidate 6e2a28fcc7ee58641c98688cdbe88499d723d14a, drop_throw() converted flooreffects()’s Promise to true and skipped missile placement. C mthrowu.c drop_throw() tests the completed floor-effects result before place_object(). Correction 6a7c0d47605aa46445fd56f7e7de5d6f2abc371d awaits that result.",
-    "The same candidate removed hmon_hitmon_stagger() and its rnd(100) skill check, causing the seed0012 vault replay to diverge at step36. C uhitm.c1570–1585 requires that check before size and skin guards and consumes mhurtle_to_doom()’s death result; uhitm.c1942–1957 updates the cached species after the discarded mhurtle() call. Correction 6a7c0d47605aa46445fd56f7e7de5d6f2abc371d restores those branches. The vault replay passes with this behavior restored; the whole candidate still requires combined validation.",
-    "Unicorn, quest-leader, kicked-object and applied-weapon entry points lack complete matching production recordings. This investigation identifies their source scope without claiming goal completion."
+    "Bounded focused replay run-GOxTFS, receipt /tmp/teleport-validation-1000/run-GOxTFS/receipt.json, used only sessions/holdout/seed0399-wizard-hallu-actions.session.json at commit 828660e9679142e24baf7f00c26130aa1c6a3207. It emitted 448 screens and stopped at the current non-command boundary; replay-result is saved at .cache/investigate-seed0399-828660e9/replay-result.json.",
+    "The saved A12 queue identifies step 448, message “the amulet of life saving”, and remainingScreensUpperBound 84. The C top line at that step is “You die...  But wait...  Your medallion begins to glow!--More--”; the step consumes rn2(19)=15 at exercise(attrib.c:509) before the life-saving display.",
+    "Current JavaScript end.js:638-642 enters Lifesaved(state) and throws UnsupportedEndOfGameError before consuming the amulet or calling savelife(); end.js:221-300 already contains a partial savelife() owner, so its exact reachable branches and the lethal caller contract remain to be reconciled with end.c.",
+    "The stale count-97 record’s thitmonst source diagnosis is superseded by the count-84 boundary. Preserve its counter-evidence for later source work: prior focused comparisons attributed the missing dagger/wipe RNG to an un-awaited flooreffects() result and found no demonstrated concurrency defect."
   ]
 }
