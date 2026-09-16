@@ -29,6 +29,7 @@ import {
     glyph_is_invisible,
     glyph_to_cmap,
     map_background,
+    map_object,
     map_glyphinfo,
     map_invisible,
     trap_to_glyph,
@@ -538,7 +539,7 @@ test('an unseen empty square is thin air, not an unknown obstacle', async () => 
 
 // ── hack.c domove_fight_empty(), the arms that stop ──
 
-test('a force-fight this port cannot answer stops by name', async () => {
+test('unported force-fight branches stop before their source effects', async () => {
     // hack.c:2302-2305's else. Terrain that is neither remembered nor rock
     // nor a secret door is "an unknown obstacle".
     const unseen = await heroInARoom();
@@ -553,21 +554,54 @@ test('a force-fight this port cannot answer stops by name', async () => {
     assert.equal(target(unseen).remembered_glyph, painted);
     assert.equal(toplines(unseen), '');
 
-    // hack.c:2255-2260 and 2314. objnam.c ansimpleoname() names the boulder
-    // or the statue, and has no port.
-    for (const otyp of [BOULDER, STATUE]) {
-        const state = await heroInARoom();
-        targetTerrain(state, FOUNTAIN);
-        mksobj_at(
-            otyp,
-            state.u.ux + WEST[0],
-            state.u.uy + WEST[1],
-            true,
-            false,
-            objectGenerationEnv({ state }),
-        );
-        await refusedWest(state, /boulder or statue/u);
-    }
+    // hack.c:2255-2260 and 2314. C always starts with a boulder, but only
+    // replaces it with a statue when the drawn glyph says statue (or
+    // hallucination makes a monster glyph look like one). ansimpleoname() is
+    // already ported, so both selected-object branches run through the same
+    // source owner and spend the turn.
+    const boulder = await heroInARoom();
+    targetTerrain(boulder, FOUNTAIN);
+    mksobj_at(
+        BOULDER,
+        boulder.u.ux + WEST[0],
+        boulder.u.uy + WEST[1],
+        true,
+        false,
+        objectGenerationEnv({ state: boulder }),
+    );
+    await forceFightWest(boulder);
+    assert.equal(toplines(boulder), 'You harmlessly attack a boulder.');
+
+    const hiddenStatue = await heroInARoom();
+    targetTerrain(hiddenStatue, FOUNTAIN);
+    mksobj_at(
+        STATUE,
+        hiddenStatue.u.ux + WEST[0],
+        hiddenStatue.u.uy + WEST[1],
+        true,
+        false,
+        objectGenerationEnv({ state: hiddenStatue }),
+    );
+    await forceFightWest(hiddenStatue);
+    assert.equal(
+        toplines(hiddenStatue), 'You harmlessly attack the fountain.',
+    );
+
+    const visibleStatue = await heroInARoom();
+    targetTerrain(visibleStatue, ROOM);
+    const statue = mksobj_at(
+        STATUE,
+        visibleStatue.u.ux + WEST[0],
+        visibleStatue.u.uy + WEST[1],
+        true,
+        false,
+        objectGenerationEnv({ state: visibleStatue }),
+    );
+    map_object(statue, true, visibleStatue);
+    await forceFightWest(visibleStatue);
+    assert.equal(
+        toplines(visibleStatue), 'You harmlessly attack a statue.',
+    );
 
     // hack.c:2269-2276. dig.c use_pick_axe2() digs instead of swinging
     // whenever dig_typ() answers something other than DIGTYP_UNDIGGABLE, and
