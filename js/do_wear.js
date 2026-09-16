@@ -694,7 +694,7 @@ export async function Ring_on(obj, state = game) {
         state.u.udaminc += obj.spe;
         break;
     case RIN_PROTECTION_FROM_SHAPE_CHAN:
-        rescham(state);
+        await rescham(state);
         break;
     case RIN_PROTECTION:
         /* usually learn enchantment and discover type;

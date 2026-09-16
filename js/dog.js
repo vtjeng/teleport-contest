@@ -808,7 +808,7 @@ export function update_mlstmv(state = game) {
 // displacement and mnearto()/rloc() -- serve gm.migrating_mons, which is empty
 // on a first descent because keep_mon_accessible() admits only the Wizard, a
 // shopkeeper, a priest or a vault guard.
-function mon_arrive(monster, when, env) {
+async function mon_arrive(monster, when, env) {
     const { state } = env;
     const u = state.u;
 
@@ -838,7 +838,7 @@ function mon_arrive(monster, when, env) {
     // C reads the destination fields overloaded into mtrack here; the
     // With_you arm below uses none of them.
     mon_track_clear(monster);
-    restore_cham(monster, state);
+    await restore_cham(monster, state, env);
 
     if (monster === u.usteed) {
         // js/apply_next_to_u.js refuses a mounted hero before the descent, so
@@ -869,7 +869,7 @@ function mon_arrive(monster, when, env) {
 // Four of its five phases have nothing to do on a first descent, and each is
 // written out below with the state that empties it. What runs is the gm.mydogs
 // walk, which drains the list keepdogs() filled on the way out.
-export function losedogs(rawEnv = {}) {
+export async function losedogs(rawEnv = {}) {
     const env = dogEnv(rawEnv);
     const { state } = env;
     state.gm ??= {};
@@ -912,7 +912,7 @@ export function losedogs(rawEnv = {}) {
     let mtmp;
     while ((mtmp = state.gm.mydogs) !== null && mtmp !== undefined) {
         state.gm.mydogs = mtmp.nmon;
-        mon_arrive(mtmp, MON_ARRIVE_WITH_YOU, env);
+        await mon_arrive(mtmp, MON_ARRIVE_WITH_YOU, env);
     }
 
     // The failed_arrivals list is filled by mon_arrive()'s independent-arrival

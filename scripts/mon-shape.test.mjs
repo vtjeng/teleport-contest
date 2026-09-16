@@ -94,9 +94,10 @@ test('get_iter_mons_xy passes coordinates and returns the first match', () => {
     assert.deepEqual(seen, [[1, 17, 19], [2, 17, 19]]);
 });
 
-test('normal_shape restores a chameleon and preserves cancellation', () => {
+test('normal_shape restores a chameleon and preserves cancellation', async () => {
     const state = monsterState();
     const chameleon = monster(state, M.PM_CHAMELEON);
+    state.youmonst = { data: state.mons[M.PM_HUMAN] };
     const shifted = monster(state, M.PM_DOG, {
         cham: M.PM_CHAMELEON,
         mcan: true,
@@ -104,7 +105,7 @@ test('normal_shape restores a chameleon and preserves cancellation', () => {
         my: 4,
     });
 
-    normal_shape(shifted, state, {
+    await normal_shape(shifted, state, {
         random: {
             d: () => 1,
             rn1: () => 1,
@@ -113,6 +114,9 @@ test('normal_shape restores a chameleon and preserves cancellation', () => {
             rne: () => 1,
             rnz: () => 1,
         },
+        canSpotMonster: () => false,
+        message: () => {},
+        redrawSquare: () => {},
     });
 
     assert.equal(shifted.data, chameleon.data);

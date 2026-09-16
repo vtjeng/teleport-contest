@@ -3125,6 +3125,57 @@ test('initial doppelganger tt_doppel branch picks a role-monster form', () => {
         'shapeshifted form skips inventory');
 });
 
+test('initial doppelganger runs wizard monpolycontrol after species selection',
+    async () => {
+        const state = initialLevelState();
+        state.quest_dnum = 99;
+        state.dungeons[1] = {
+            depth_start: 5,
+            dunlev_ureached: 1,
+            entry_lev: 1,
+            flags: { align: 0, hellish: false },
+            num_dunlevs: 4,
+        };
+        state.u.uz = { dnum: 1, dlevel: 1 };
+        state.urole = { guardnum: 369 };
+        state.wizard = true;
+        state.iflags = { mon_polycontrol: true };
+
+        const random = scriptedRandom([
+            step('rnd', [2], 1),              // next_ident
+            step('d', [8, 8], 40),             // initial doppelganger HP
+            step('rn2', [2], 0),               // initial gender
+            step('rn2', [7], 1),               // skip pick_nasty
+            step('rn2', [3], 1),               // enter role/score selector
+            step('rn2', [13], 0),              // empty scorefile role branch
+            step('rn1', [13, PM_ARCHEOLOGIST], PM_WIZARD),
+            // wiz_force_cham_form() chooses the requested Wizard without RNG.
+            step('rn2', [10], 5),              // target gender remains male
+            step('d', [9, 8], 36),              // target HP
+        ]);
+        const result = makemon(
+            state.mons[PM_DOPPELGANGER],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            {
+                state,
+                random: random.random,
+                getlin: async () => 'wizard',
+                message: async () => {},
+                canSpotMonster: () => false,
+                redrawSquare: () => {},
+            },
+        );
+        assert.equal(typeof result?.then, 'function',
+            'wizard control must expose its asynchronous prompt');
+        const monster = await result;
+        random.assertExhausted();
+        assert.equal(monster.mnum, PM_WIZARD);
+        assert.equal(monster.cham, PM_DOPPELGANGER);
+        assert.equal(monster.minvent, null);
+    });
+
 test('initial doppelganger tt_doppel calls rnd(10) when rn2(13) is nonzero', () => {
     // When rn2(13) != 0, get_rnd_toptenentry calls rnd(10) before returning
     // NULL (empty recorder scorefile). The role result is the same.

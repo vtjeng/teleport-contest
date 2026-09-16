@@ -180,7 +180,6 @@ import {
     dealloc_monst,
     newcham,
     newcham_initial,
-    newcham_sync,
 } from './mon.js';
 import { shkgone } from './shk.js';
 import {
@@ -3074,7 +3073,10 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
         throw new UnsupportedMonsterCreationError('waiting-vampire target');
     if (state.mvitals[mndx].mvflags & G_GENOD) return false;
     if (monster.data === target) return false;
-    return newcham_sync(monster, target, normalized);
+    // Explicit-target newcham is hybrid: synchronous for an ordinary
+    // no-message transition and Promise-returning when a caller supplied an
+    // asynchronous floor/attachment owner is reached.
+    return newcham(monster, target, normalized);
 }
 
 // C ref: zap.c revive():991-994, the explicit-target newcham() used after a
@@ -3347,101 +3349,112 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (mndx === PM_VLAD_THE_IMPALER) mitem = CANDELABRUM_OF_INVOCATION;
     monster.cham = NON_PM;
     const naturalShape = pm_to_cham(mndx, state);
+    let initialShape = false;
     if (!heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)
         && naturalShape !== NON_PM) {
         monster.cham = naturalShape;
         // C ref: makemon.c:1361. Vlad stays in his normal form so he
         // can carry the Candelabrum of Invocation.
-        if (mndx !== PM_VLAD_THE_IMPALER
-            && newcham_initial(monster, normalized))
-            allowMinvent = false;
-    } else if (mndx === PM_WIZARD_OF_YENDOR) {
-        monster.iswiz = true;
-        state.context.no_of_wizards = (state.context.no_of_wizards || 0) + 1;
-        if (state.context.no_of_wizards === 1
-            && on_level(state.u?.uz, state.earth_level))
-            mitem = SPE_DIG;
-    } else if (mndx === PM_GHOST) {
-        // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
-        // savebones() passes MM_NONAME and then christen_monst separately.
-        if (!(mmflags & MM_NONAME)) {
-            christen_monst(monster, rndghostname(normalized), {
-                updateInventory: () => update_inventory(normalized),
-            });
-        }
-    } else if (mndx === PM_CROESUS) {
-        mitem = TWO_HANDED_SWORD;
-    } else if (ptr.msound === MS_NEMESIS) {
-        mitem = BELL_OF_OPENING;
-    } else if (mndx === PM_PESTILENCE) {
-        mitem = POT_SICKNESS;
-    }
-    if (mitem !== STRANGE_OBJECT && allowMinvent)
-        mongets(monster, mitem, normalized);
-    if (state.in_mklev
-        && mklevSleeperSpecies(ptr)
-        && !state.u.uhave.amulet
-        && random.rn2(5)) {
-        monster.msleeping = true;
-    }
-    if (byHero && !state.in_mklev) {
-        // C makemon.c calls newsym() and then set_apparxy() here, using the
-        // original byyou flag even after enexto() moved the monster away from
-        // the hero's square. Preserve both source calls so displaced and
-        // unseen heroes consume the same placement draw as C.
-        redrawSquare(monster.mx, monster.my, normalized);
-        set_apparxy(monster, normalized);
-    }
-    // C ref: makemon.c:1405-1408.
-    if (mndx === PM_LONG_WORM) {
-        monster.wormno = get_wormno(state);
-        if (monster.wormno) {
-            initworm(monster, allowtail ? random.rn2(5) : 0, state);
-            const record = wormSlots(state)[monster.wormno];
-            if (record && record.segments.length > 1)
-                place_worm_tail_randomly(monster, x, y, normalized);
+        if (mndx !== PM_VLAD_THE_IMPALER) {
+            initialShape = newcham_initial(monster, normalized);
         }
     }
-    set_malign(monster, state);
+    const finishAfterInitial = (initialChanged) => {
+        if (initialChanged) allowMinvent = false;
+        if (naturalShape === NON_PM) {
+            if (mndx === PM_WIZARD_OF_YENDOR) {
+                monster.iswiz = true;
+                state.context.no_of_wizards
+                    = (state.context.no_of_wizards || 0) + 1;
+                if (state.context.no_of_wizards === 1
+                    && on_level(state.u?.uz, state.earth_level))
+                    mitem = SPE_DIG;
+            } else if (mndx === PM_GHOST) {
+                // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
+                // savebones() passes MM_NONAME and then christen_monst separately.
+                if (!(mmflags & MM_NONAME)) {
+                    christen_monst(monster, rndghostname(normalized), {
+                        updateInventory: () => update_inventory(normalized),
+                    });
+                }
+            } else if (mndx === PM_CROESUS) {
+                mitem = TWO_HANDED_SWORD;
+            } else if (ptr.msound === MS_NEMESIS) {
+                mitem = BELL_OF_OPENING;
+            } else if (mndx === PM_PESTILENCE) {
+                mitem = POT_SICKNESS;
+            }
+        }
+        if (mitem !== STRANGE_OBJECT && allowMinvent)
+            mongets(monster, mitem, normalized);
+        if (state.in_mklev
+            && mklevSleeperSpecies(ptr)
+            && !state.u.uhave.amulet
+            && random.rn2(5)) {
+            monster.msleeping = true;
+        }
+        if (byHero && !state.in_mklev) {
+            // C makemon.c calls newsym() and then set_apparxy() here, using the
+            // original byyou flag even after enexto() moved the monster away from
+            // the hero's square. Preserve both source calls so displaced and
+            // unseen heroes consume the same placement draw as C.
+            redrawSquare(monster.mx, monster.my, normalized);
+            set_apparxy(monster, normalized);
+        }
+        // C ref: makemon.c:1405-1408.
+        if (mndx === PM_LONG_WORM) {
+            monster.wormno = get_wormno(state);
+            if (monster.wormno) {
+                initworm(monster, allowtail ? random.rn2(5) : 0, state);
+                const record = wormSlots(state)[monster.wormno];
+                if (record && record.segments.length > 1)
+                    place_worm_tail_randomly(monster, x, y, normalized);
+            }
+        }
+        set_malign(monster, state);
 
-    if (!state.in_mklev) {
-        const continuation = normalized.runtimeContinuation;
-        if (!continuation || continuation.claimed) {
-            throw new UnsupportedMonsterCreationError(
-                'runtime creation without an unused async continuation',
-            );
+        if (!state.in_mklev) {
+            const continuation = normalized.runtimeContinuation;
+            if (!continuation || continuation.claimed) {
+                throw new UnsupportedMonsterCreationError(
+                    'runtime creation without an unused async continuation',
+                );
+            }
+            Object.assign(continuation, {
+                claimed: true,
+                monster,
+                ptr,
+                anymon,
+                allowMinvent,
+            });
+            return monster;
         }
-        Object.assign(continuation, {
-            claimed: true,
+
+        if (anymon && !(mmflags & MM_NOGRP)) {
+            if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
+                m_initgrp(monster, 3, mmflags, normalized);
+            } else if (ptr.geno & G_LGROUP) {
+                m_initgrp(
+                    monster,
+                    random.rn2(3) ? 10 : 3,
+                    mmflags,
+                    normalized,
+                );
+            }
+        }
+        finishMonsterInventoryAndStrategy(
             monster,
             ptr,
-            anymon,
             allowMinvent,
-        });
+            mmflags,
+            normalized,
+        );
+
         return monster;
-    }
-
-    if (anymon && !(mmflags & MM_NOGRP)) {
-        if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
-            m_initgrp(monster, 3, mmflags, normalized);
-        } else if (ptr.geno & G_LGROUP) {
-            m_initgrp(
-                monster,
-                random.rn2(3) ? 10 : 3,
-                mmflags,
-                normalized,
-            );
-        }
-    }
-    finishMonsterInventoryAndStrategy(
-        monster,
-        ptr,
-        allowMinvent,
-        mmflags,
-        normalized,
-    );
-
-    return monster;
+    };
+    if (initialShape && typeof initialShape.then === 'function')
+        return initialShape.then(finishAfterInitial);
+    return finishAfterInitial(initialShape);
 }
 
 // Async adapter for makemon.c's runtime suffix.  The synchronous constructor
@@ -3462,7 +3475,9 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         norepMessage,
         runtimeContinuation,
     });
-    const monster = makemon(ptr, x, y, mmflags, normalized);
+    const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    const monster = maybeMonster && typeof maybeMonster.then === 'function'
+        ? await maybeMonster : maybeMonster;
     if (!monster) return null;
     if (!runtimeContinuation.claimed
         || runtimeContinuation.monster !== monster) {
@@ -3515,21 +3530,25 @@ export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
         revival: true,
         runtimeContinuation,
     });
-    const monster = makemon(ptr, x, y, mmflags, normalized);
-    if (!monster) return null;
-    if (!runtimeContinuation.claimed
-        || runtimeContinuation.monster !== monster) {
-        throw new Error('revival continuation was not claimed');
-    }
-    finishMonsterInventoryAndStrategy(
-        monster,
-        runtimeContinuation.ptr,
-        runtimeContinuation.allowMinvent,
-        mmflags,
-        normalized,
-    );
-    redrawSquare(monster.mx, monster.my, normalized);
-    return monster;
+    const finish = (monster) => {
+        if (!monster) return null;
+        if (!runtimeContinuation.claimed
+            || runtimeContinuation.monster !== monster) {
+            throw new Error('revival continuation was not claimed');
+        }
+        finishMonsterInventoryAndStrategy(
+            monster,
+            runtimeContinuation.ptr,
+            runtimeContinuation.allowMinvent,
+            mmflags,
+            normalized,
+        );
+        redrawSquare(monster.mx, monster.my, normalized);
+        return monster;
+    };
+    const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    return maybeMonster && typeof maybeMonster.then === 'function'
+        ? maybeMonster.then(finish) : finish(maybeMonster);
 }
 
 // C ref: makemon.c makemon() (1385-1392), species half of the mklev-only

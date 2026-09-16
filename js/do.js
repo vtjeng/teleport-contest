@@ -1478,7 +1478,7 @@ export async function goto_level(
         // getlev() restores the level from the in-memory snapshot that
         // savelev() saved. oinit() reassigns gem probabilities for the new
         // depth.
-        getlev(new_ledger, state);
+        await getlev(new_ledger, state);
         oinit(state);
     }
 
@@ -1617,7 +1617,7 @@ export async function goto_level(
     // arrival and before migrating objects are delivered.
     if (Punished(state)) placebc(state);
     obj_delivery(false, state);
-    losedogs({ state });
+    await losedogs({ state });
     kill_genocided_monsters(state);
     // "Expire all timers that have gone off while away. Must be after
     // migrating monsters and objects are delivered."

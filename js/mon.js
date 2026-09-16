@@ -173,6 +173,7 @@ import {
     glyph_is_invisible,
     map_monster_glyph_info,
     newsym,
+    swallowed,
     unmap_object,
 } from './display.js';
 import {
@@ -242,7 +243,6 @@ import {
     count_wsegs,
     dmonsfree,
     get_wormno,
-    hideunder as creationHideunder,
     initworm,
     isRogueLevel,
     makemon_runtime,
@@ -302,6 +302,7 @@ import {
     is_unicorn,
     is_watch,
     is_vampshifter,
+    is_vampire,
     is_were,
     likes_lava,
     locomotion,
@@ -1171,14 +1172,13 @@ export function pm_to_cham(mndx, state = game) {
 //
 // The forced-revert arm delegates to normal_shape(), which also preserves the
 // cancellation bit when newcham() clears it.
-export function restore_cham(monster, state = game) {
+export function restore_cham(monster, state = game, rawEnv = {}) {
     const shapeChangerProtection
         = state.u?.uprops?.[PROT_FROM_SHAPE_CHANGERS];
     if (shapeChangerProtection?.intrinsic
         || shapeChangerProtection?.extrinsic
         || monster.mcan) {
-        normal_shape(monster, state);
-        return;
+        return normal_shape(monster, state, rawEnv);
     }
     if (monster.cham === NON_PM)
         monster.cham = pm_to_cham(monsndx(monster.data), state);
@@ -2463,11 +2463,9 @@ function select_newcham_form(monster, normalized, { allowFallback = true } = {})
     let mndx = NON_PM;
     let tryct;
     // C applies monpolycontrol after the species-specific choice and before
-    // the ordinary random fallback. The async prompt is answered by
-    // newcham(), while synchronous creation may provide its answer through
-    // the same selector input.
-    const useForcedForm = state.wizard && state.iflags?.mon_polycontrol
-        && Number.isInteger(normalized.forcedForm);
+    // the ordinary random fallback.  The caller owns the prompt because it
+    // is asynchronous; this selector only performs the source's
+    // species-specific arm.
     if (monster.cham === PM_SANDESTIN) {
         if (random.rn2(7)) {
             mndx = pick_nasty(
@@ -2518,7 +2516,6 @@ function select_newcham_form(monster, normalized, { allowFallback = true } = {})
             mndx = Dragon_mail_to_pm(armor, state).pmidx;
         }
     }
-    if (useForcedForm) return normalized.forcedForm;
     if (mndx === NON_PM && !allowFallback) return NON_PM;
     if (mndx === NON_PM) {
         tryct = 50;
@@ -2584,7 +2581,7 @@ function mgender_from_permonst(monster, species, random) {
     else if (!is_neuter(species) && !random.rn2(10)
              // C's is_vampshifter() includes Vlad, even while it is in a
              // non-vampire visible form.
-             && species.mlet !== S_VAMPIRE
+             && !is_vampire(species)
              && !is_vampshifter(monster)) {
         monster.female = !monster.female;
     }
@@ -2616,10 +2613,10 @@ function shapeObjectNext(obj) {
     return obj?.nobj ?? null;
 }
 
-function shapeOldNames(monster, state, msg) {
+function shapeOldNames(monster, state, msg, env = {}) {
     const oldname = msg
         ? x_monnam(monster, monster.mtame ? ARTICLE_YOUR : ARTICLE_THE,
-            null, SUPPRESS_SADDLE, false, state)
+            null, SUPPRESS_SADDLE, false, state, env)
         : '';
     const l_oldname = x_monnam(
         monster,
@@ -2628,6 +2625,7 @@ function shapeOldNames(monster, state, msg) {
         has_mgivenname(monster) ? SUPPRESS_SADDLE : 0,
         false,
         state,
+        env,
     );
     return {
         oldname: oldname ? oldname[0].toUpperCase() + oldname.slice(1) : '',
@@ -2696,7 +2694,8 @@ function* apply_newcham_steps(
         return false;
     }
 
-    const names = capturedNames ?? shapeOldNames(monster, state, msg);
+    const names = capturedNames
+        ?? shapeOldNames(monster, state, msg, normalized);
     const oldname = names.oldname;
     const l_oldname = names.l_oldname;
 
@@ -2755,7 +2754,10 @@ function* apply_newcham_steps(
         // C discards hideunder()'s return value.  Do not catch an error after
         // partially applying this state transition: the canonical helper (or
         // an explicitly supplied complete owner) must own the whole call.
-        (normalized.hideunder ?? creationHideunder)(monster, normalized.state);
+        yield (normalized.hideunder ?? hideunder)(monster, {
+            ...normalized,
+            state,
+        });
     }
 
     if (state.u?.ustuck === monster) {
@@ -2767,7 +2769,7 @@ function* apply_newcham_steps(
                 if (is_vampshifter(monster)) {
                     trail = ` which was a shapeshifted ${
                         x_monnam(monster, ARTICLE_NONE, null,
-                            SUPPRESS_NAME, false, state)}`;
+                            SUPPRESS_NAME, false, state, normalized)}`;
                 } else if (shapeIsDigesting(target)) {
                     trail = "'s stomach";
                 }
@@ -2781,7 +2783,11 @@ function* apply_newcham_steps(
                 monster.mhp = 1;
             }
             if (attacktype(target, AT_ENGL)) {
-                note_unported('mhitu.c swallowed');
+                // C calls display.c swallowed(FALSE) to refresh the stomach
+                // glyphs after a swallowed monster changes form.  Its return
+                // is discarded, but its asynchronous redraw must finish in
+                // source order.
+                yield swallowed(false, state);
             } else {
                 yield expels(monster, {
                     ...normalized,
@@ -2931,7 +2937,12 @@ function newchamSourceGate(monster, state) {
 }
 
 // C ref: mon.c newcham() (5278-5534), including the NULL target selector.
-export async function newcham(monster, target = null, rawEnv = {}) {
+// This is deliberately a hybrid return: source paths with no asynchronous
+// owner finish synchronously, while wizard control, messages, floor effects,
+// and attachment cleanup return the Promise for their caller to await.  This
+// lets the synchronous level constructor preserve its contract without
+// launching an unfinished shape transition.
+export function newcham(monster, target = null, rawEnv = {}) {
     const normalized = newchamEnv(rawEnv);
     const { state } = normalized;
     if (!monster || !monster.data) return false;
@@ -2941,102 +2952,89 @@ export async function newcham(monster, target = null, rawEnv = {}) {
         monster,
         state,
         Boolean(ncflags & NC_SHOW_MSG),
+        normalized,
     );
-    if (target == null) {
+    const applyTarget = (selected) => {
+        if (!selected) return false;
+        return apply_newcham(
+            monster,
+            selected,
+            normalized,
+            ncflags,
+            capturedNames,
+        );
+    };
+    const chooseTarget = () => {
         let tryct = 20;
         do {
-            // select_newcham_form() first consumes the species-specific
-            // branch.  C then asks the wizard (when enabled), and only an
-            // unanswered/invalid choice reaches its random fallback.
             let mndx = select_newcham_form(monster, normalized, {
                 allowFallback: false,
             });
-            if (mndx === NON_PM
-                && state.wizard && state.iflags?.mon_polycontrol) {
-                mndx = await wiz_force_cham_form(monster, normalized);
-            }
             if (mndx === NON_PM)
                 mndx = random_newcham_form(monster, normalized);
-            target = accept_newcham_form(
-                monster,
-                mndx,
-                state,
-            );
-            if (target && tryct > 15 && newchamIsRogue(state)
-                && !isUpperMonster(target)) target = null;
-        } while (!target && --tryct > 0);
+            const selected = accept_newcham_form(monster, mndx, state);
+            if (selected && tryct > 15 && newchamIsRogue(state)
+                && !isUpperMonster(selected)) {
+                // Keep C's retry countdown and selection order intact.
+                continue;
+            }
+            if (selected) return selected;
+        } while (--tryct > 0);
+        return null;
+    };
+    if (target == null) {
+        // C calls wiz_force_cham_form after every species-specific selector,
+        // even when that selector already supplied a valid form.  The prompt
+        // is therefore part of the transition rather than an optional test
+        // override.
+        if (state.wizard && state.iflags?.mon_polycontrol) {
+            const chooseWithWizard = async () => {
+                let tryct = 20;
+                do {
+                    const speciesChoice = select_newcham_form(
+                        monster,
+                        normalized,
+                        { allowFallback: false },
+                    );
+                    const forced = await wiz_force_cham_form(
+                        monster,
+                        normalized,
+                    );
+                    let mndx = forced;
+                    if (mndx === NON_PM)
+                        mndx = random_newcham_form(monster, normalized);
+                    const selected = accept_newcham_form(
+                        monster,
+                        mndx,
+                        state,
+                    );
+                    // `speciesChoice` is intentionally evaluated first even
+                    // though wizard control replaces it, matching C's
+                    // source call/RNG order.
+                    void speciesChoice;
+                    if (selected && tryct > 15 && newchamIsRogue(state)
+                        && !isUpperMonster(selected)) continue;
+                    if (selected) return applyTarget(selected);
+                } while (--tryct > 0);
+                return false;
+            };
+            return chooseWithWizard();
+        }
+        target = chooseTarget();
         if (!target) return false;
     } else if (state.mons?.[target.pmidx] !== target) {
         throw new TypeError('newcham target must be a catalog monster');
     } else if (state.mvitals?.[target.pmidx]?.mvflags & G_GENOD) {
         return false;
     }
-    return apply_newcham(
-        monster,
-        target,
-        normalized,
-        ncflags,
-        capturedNames,
-    );
+    return applyTarget(target);
 }
 
-// The C callers normal_shape(), restore_cham(), and synchronous level
-// appearance code discard newcham()'s integer result.  Their call sites are
-// synchronous in this port too, so keep a checked adapter rather than
-// launching an asynchronous transition whose tail could run after the
-// caller.  Any used-result asynchronous owner (notably flooreffects) must use
-// newcham() and await it instead.
-export function newcham_sync(monster, target, rawEnv = {}, ncflags = 0) {
-    const normalized = newchamEnv(rawEnv);
-    const { state } = normalized;
-    if (!monster || !monster.data || !target) return false;
-    if (!newchamSourceGate(monster, state)) return false;
-    if (state.mons?.[target.pmidx] !== target)
-        throw new TypeError('newcham target must be a catalog monster');
-    if (state.mvitals?.[target.pmidx]?.mvflags & G_GENOD) return false;
-    if (target === monster.data) return false;
-    apply_newcham(
-        monster,
-        target,
-        normalized,
-        ncflags,
-        shapeOldNames(monster, state, Boolean(ncflags & NC_SHOW_MSG)),
-    );
-    if (normalized.syncResult !== undefined) return normalized.syncResult;
-    // A synchronous C caller cannot safely own a Promise-returning callee.
-    // Make an unexpected async dependency visible at the boundary instead of
-    // allowing a fire-and-forget state transition.
-    throw new TypeError('synchronous newcham caller reached an async effect');
-}
-
-// makemon.c invokes newcham() while constructing a level synchronously.  Its
-// newly created monsters have no inventory or hero attachment, so all of the
-// source state work completes before the async floor-effects seam can be
-// reached.  Keep this narrow synchronous adapter for that caller; runtime
-// callers use newcham() and await its used flooreffects result.
 export function newcham_initial(monster, rawEnv = {}) {
-    const normalized = newchamEnv(rawEnv);
-    const { state } = normalized;
-    if (!newchamSourceGate(monster, state)) return false;
-    const capturedNames = shapeOldNames(monster, state, false);
-    let target = null;
-    let tryct = 20;
-    do {
-        target = accept_newcham_form(
-            monster,
-            select_newcham_form(monster, normalized),
-            state,
-        );
-        if (target && tryct > 15 && newchamIsRogue(state)
-            && !isUpperMonster(target)) target = null;
-    } while (!target && --tryct > 0);
-    if (!target || target === monster.data) return false;
-    apply_newcham(monster, target, normalized, 0, capturedNames);
-    if (normalized.syncResult !== undefined) return normalized.syncResult;
-    // makemon.c calls this during synchronous level construction. The C
-    // path reaches no asynchronous owner before inventory is initialized;
-    // surface an explicit contract error if a future caller violates that.
-    throw new TypeError('makemon newcham reached an asynchronous effect');
+    // makemon.c invokes the same NULL-target newcham selector.  In particular,
+    // wizard mon_polycontrol owns the prompt here; forcedForm is not a
+    // production input and is intentionally ignored.
+    return newcham(monster, null, { ...rawEnv, ncflags: 0 });
 }
 
 // C ref: mon.c newcham(..., NC_SHOW_MSG), the monster-turn caller. Its
@@ -3272,9 +3270,9 @@ export async function wiz_force_cham_form(monster, rawEnv = {}) {
 // C ref: mon.c decide_to_shapeshift(). The only naturally live initial-D:1
 // shifters are restored Mausoleum vampires with STRAT_WAITFORU, which exit
 // without RNG. The remaining empty-inventory chameleon/vampire cases are
-// retained for the same source boundary. Relocating an amorphous shifted
-// vampire out of a closed door belongs to the general enexto()/rloc_to()
-// owner and is rejected before any draw.
+// retained for the same source boundary. An amorphous shifted vampire that
+// changes inside a closed door is moved through the canonical teleport owner
+// before the shape transition, as in C.
 export async function decide_to_shapeshift(monster, rawEnv = {}) {
     const normalized = normalizedDistressEnv(rawEnv);
     const { random, state } = normalized;
@@ -3283,14 +3281,6 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
         && (monster.mstrategy & STRAT_WAITFORU)) {
         return false;
     }
-    if (vampireShifter && monster.data?.mlet !== S_VAMPIRE
-        && amorphous(monster.data)
-        && closedDoorAt(monster.mx, monster.my, state)) {
-        throw new UnsupportedMonsterDistressError(
-            'closed-door vampire relocation',
-        );
-    }
-
     const shapeEnv = newchamDistressEnv(normalized);
     preflight_newcham_distress(monster, shapeEnv);
     let target = null;
@@ -3336,6 +3326,22 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
         change = true;
     }
 
+    if (change && vampireShifter && monster.data?.mlet !== S_VAMPIRE
+        && amorphous(monster.data)
+        && closedDoorAt(monster.mx, monster.my, state)) {
+        const destination = enexto(
+            monster.mx,
+            monster.my,
+            target ?? monster.data,
+            { ...shapeEnv, state },
+        );
+        if (destination) {
+            rloc_to(monster, destination.x, destination.y, {
+                ...shapeEnv,
+                state,
+            });
+        }
+    }
     if (!change) return false;
     const changed = await newcham_distress(monster, target, shapeEnv);
     if (changed && is_vampshifter(monster)) {
@@ -3924,70 +3930,67 @@ export function seemimic(mtmp, state = game, env = {}) {
     (env.newsym ?? newsym)(mtmp.mx, mtmp.my);
 }
 
-function restoreWereShapeSynchronously(monster, state, rawEnv) {
-    const normalized = normalizedDistressEnv({ ...rawEnv, state });
-    const target = preflightNewWere(monster, normalized);
-    if (!target) return false;
-
-    const pending = announceNewWere(monster, target, normalized);
-    if (pending && typeof pending.catch === 'function') {
-        // normal_shape() is a synchronous C callback used by iter_mons().
-        // Preserve its state-change ordering while allowing the shared TTY
-        // message adapter to finish its asynchronous display work afterward.
-        pending.catch(() => {});
-    }
-
-    const changed = applyNewWereForm(
-        monster,
-        target,
-        state,
-        (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
-    );
-    noteNewWereEquipmentGaps(monster);
-    return changed;
-}
-
 // C ref: mon.c normal_shape() (4434-4464). Revert a chameleon or vampire to
 // its recorded natural form, turn a werecreature back into human form, and
-// reveal a mimic. The C caller ignores newcham()/new_were() return values, but
-// their state transitions and the saved cancellation bit remain observable.
+// reveal a mimic. A Promise is returned whenever the shared transition crosses
+// an asynchronous owner, so callers can preserve C's state and output order.
 export function normal_shape(mon, state = game, rawEnv = {}) {
     const mcham = Number(mon.cham);
+    const finishMimic = () => {
+        if (M_AP_TYPE(mon) !== M_AP_NOTHING) {
+            if (!mon.meating) {
+                if (M_AP_TYPE(mon) !== M_AP_MONSTER) mon.msleeping = 1;
+                seemimic(mon, state);
+            } else {
+                finish_meating(mon, {
+                    redraw: (x, y) => newsym(x, y, state),
+                });
+            }
+        }
+        return undefined;
+    };
+    const finishWere = () => {
+        if (!(is_were(mon.data) && mon.data.mlet !== S_HUMAN))
+            return finishMimic();
+        const redrawSquare = rawEnv.redrawSquare
+            ?? ((x, y) => newsym(x, y, state));
+        return new_were(mon, {
+            ...rawEnv,
+            state,
+            redrawSquare,
+        }).then(finishMimic);
+    };
     if (ismnum(mcham)) {
         const mcan = mon.mcan;
-        newcham_sync(
+        const target = state.mons?.[mcham];
+        if (!target) return finishWere();
+        const pending = newcham(
             mon,
-            state.mons?.[mcham],
-            { ...rawEnv, state },
-            0,
+            target,
+            { ...rawEnv, state, ncflags: NC_SHOW_MSG },
         );
-        mon.cham = NON_PM;
-        // newcham() may uncancel a polymorphing monster; C overrides that.
-        if (mcan) mon.mcan = 1;
-        newsym(mon.mx, mon.my);
+        const afterShape = () => {
+            mon.cham = NON_PM;
+            // newcham() may uncancel a polymorphing monster; C overrides that.
+            if (mcan) mon.mcan = 1;
+            newsym(mon.mx, mon.my, state);
+            return finishWere();
+        };
+        if (pending && typeof pending.then === 'function')
+            return pending.then(afterShape);
+        return afterShape();
     }
-    if (is_were(mon.data) && mon.data.mlet !== S_HUMAN)
-        restoreWereShapeSynchronously(mon, state, rawEnv);
-
-    if (M_AP_TYPE(mon) !== M_AP_NOTHING) {
-        if (!mon.meating) {
-            if (M_AP_TYPE(mon) !== M_AP_MONSTER) mon.msleeping = 1;
-            seemimic(mon, state);
-        } else {
-            finish_meating(mon, {
-                redraw: (x, y) => newsym(x, y),
-            });
-        }
-    }
+    return finishWere();
 }
 
 // C ref: mon.c rescham() (4621-4626). Protection from shape changers applies
-// to every living monster currently on the level, including mimics.
-export function rescham(state = game, rawEnv = {}) {
-    iter_mons(
-        (monster) => normal_shape(monster, state, rawEnv),
-        state,
-    );
+// to every living monster currently on the level, including mimics. Await each
+// normal_shape() result so a Promise-returning transition cannot be dropped.
+export async function rescham(state = game, rawEnv = {}) {
+    const monsters = [];
+    iter_mons((monster) => monsters.push(monster), state);
+    for (const monster of monsters)
+        await normal_shape(monster, state, rawEnv);
 }
 
 // C ref: mon.c m_restartcham() (4629-4638). A cancelled shapechanger stays
