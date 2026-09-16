@@ -54429,29 +54429,29 @@
           "name": "num_extinct",
           "line": 2970,
           "endLine": 2984,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "num_gone",
           "line": 2985,
           "endLine": 3006,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "list_genocided",
           "line": 3007,
           "endLine": 3134,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dogenocided",
           "line": 3135,
           "endLine": 3144,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -54574,7 +54574,132 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "num_extinct",
+            "implementation": "js/insight.js",
+            "symbol": "num_extinct",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:2969-2981 in full. The source loops from LOW_PM through NUMMONS, skips UniqCritterIndx entries, and increments only when (svm.mvitals[i].mvflags & G_GONE) == G_EXTINCT. The JavaScript reads the caller's state-owned svm.mvitals and mons in the same order, has no random draw, output, or mutation, and preserves the PM_HIGH_CLERIC UniqCritterIndx exception through the existing isUniqueMonster owner.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "list_genocided",
+                "source": "insight.c:list_genocided calls num_extinct only when final disclosure, wizard, or explore mode exposes extinctions."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "7cc93717b6ed00bff63118a7b711ae293534c333"
+          },
+          {
+            "name": "num_gone",
+            "implementation": "js/insight.js",
+            "symbol": "num_gone",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:2984-3003 in full. The source clears its compact index array, walks LOW_PM through NUMMONS, skips UniqCritterIndx entries, and appends each index whose mvflags intersect the uchar mask. The JavaScript returns the compact indexes in that same order from state-owned mvitals, with no random draw, output, or state mutation; clearing the temporary C array has no observable JavaScript counterpart.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "list_genocided",
+                "source": "insight.c:list_genocided calls num_gone with G_GENOD and conditionally G_EXTINCT before filtering the disclosure list."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "7cc93717b6ed00bff63118a7b711ae293534c333"
+          },
+          {
+            "name": "list_genocided",
+            "implementation": "js/insight.js",
+            "symbol": "list_genocided",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:3006-3131 in full. The port preserves dumping and genoing query conversion, the gameover/wizard/discover extinction gate, count and mask evaluation order, the single-versus-multiple yn response strings, q stopprint handling, y/a admission, shared set_vanq_order selection, count-mode temporary alpha-mix substitution and restoration, class headers, plural names and exact extinct marker, blank lines, summaries, text-window display, and the ordinary no-entry pline. Existing set_vanq_order, vanqsort_cmp, ttyPline, and displayTtyMenuTextWindow owners are called directly; no random call or invented side effect substitutes a missing callee. The DUMPLOG game-over putstr arm is explicitly compile-time excluded from this recorder build. The final-disclosure caller supplies the existing yn_function owner, while the command caller uses the non-asking source path. Correction verification: Read nethack-c/upstream/src/insight.c:3006-3131 in full. Its class_header branch calls putstr with ask ? ATR_NONE : iflags.menu_headings.attr before upstart(buf). The correction preserves that exact condition and passes the resulting attr on the heading line while leaving titles, blank lines, species rows, extinct suffixes, and totals unstyled. The existing tty text-window owner already consumes line.attr, so no alternate display state or invented output path was added.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "dogenocided",
+                "source": "insight.c:dogenocided calls list_genocided(iflags.menu_requested ? 'a' : 'y', FALSE) for the #genocided extended command."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "insight.c:end disclosure calls list_genocided after the prior disclosure categories and passes the configured query owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/genocided-command-independent.session.json",
+              "recordings/insight.c/genocided-command-variation.session.json"
+            ],
+            "checkedAt": "7cc93717b6ed00bff63118a7b711ae293534c333"
+          },
+          {
+            "name": "dogenocided",
+            "implementation": "js/insight.js",
+            "symbol": "dogenocided",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:3135-3141 in full. The wrapper selects 'a' only when iflags.menu_requested is set, otherwise 'y', calls list_genocided with ask FALSE, and returns ECMD_OK without clearing menu_requested. The JavaScript keeps that exact flag read, delegates the complete list family, and returns ECMD_OK; the resulting disclosure output is therefore owned by list_genocided rather than reconstructed here.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's extended-command dispatch invokes dogenocided for the #genocided row; js/cmd.js admits the row and dispatches dogenocided through the same production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/genocided-command-independent.session.json",
+              "recordings/insight.c/genocided-command-variation.session.json"
+            ],
+            "checkedAt": "7cc93717b6ed00bff63118a7b711ae293534c333"
+          }
+        ],
+        "entryPointReview": "The #genocided row is admitted by js/cmd.js and reaches doextcmd -> dogenocided -> list_genocided; both independent fresh recordings execute that production no-entry branch with strict C parity. A source-pinned test exercises a two-species production-shaped dogenocided call with the shared sort menu and another exercises wizard-mode extinct formatting. The final end.js disclose caller is wired and reviewed but has no separate recording for this span. Positive genocide setup and game-over disclosure remain explicit entry-point coverage limits, and the DUMPLOG-only branch is excluded by the recorder build. Coordinator checked C3083-3089 against correction8d6c6e8e: the class-header attribute uses the configured menu heading for command output and ATR_NONE when ask is true. Source-pinned output assertions cover both. No positive/class-order or final-disclosure recording is claimed from the two no-entry witnesses.",
+        "entryPoints": [
+          {
+            "name": "#genocided command with no genocided species",
+            "functions": [
+              "num_gone",
+              "list_genocided",
+              "dogenocided"
+            ],
+            "recordings": [
+              "recordings/insight.c/genocided-command-independent.session.json",
+              "recordings/insight.c/genocided-command-variation.session.json"
+            ]
+          },
+          {
+            "name": "#genocided positive genocided/extinct list and shared sort menu",
+            "functions": [
+              "num_extinct",
+              "num_gone",
+              "list_genocided",
+              "dogenocided"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "final disclosure genocided/extinct list",
+            "functions": [
+              "num_extinct",
+              "num_gone",
+              "list_genocided"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
