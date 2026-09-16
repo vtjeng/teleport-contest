@@ -1,51 +1,48 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 972,
+  "remainingScreensUpperBound": 921,
   "status": "complete",
-  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
+  "commit": "05d27d52442218a4ab1347a545f49bccaa18805b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 842,
-    "kind": "stop",
+    "step": 893,
+    "kind": "screen",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "simple monster action requires monster special missile action",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 972
+    "remainingScreensUpperBound": 921
   },
-  "summary": "A hobbit attempts to shoot rocks from a sling during prayer. weapon.c select_rwep accepts this ammunition, but js/mthrowu.js thrwmu rejects every selected object outside WEAPON_CLASS; ROCK belongs to GEM_CLASS. m_throw has a second class restriction that would reject the same rock. Complete the whole thrwmu and m_throw functions with their required helpers and production wiring; removing only the observed class guards would leave their other source branches incomplete.",
+  "summary": "At current step 893, #overview omits the source-ordered `Stairs down to The Gnomish Mines.` row. The row is emitted by dungeon.c print_mapseen() only when its mapseen entry has br set; the JS entry remains br:null because recbranch_mapseen() has no port and goto_level() never records a real cross-dungeon stair transition. Port the complete recbranch_mapseen() helper and wire its at_stairs/falling/portal caller branch before assigning u.uz, preserving the reverse-branch early return and existing mapseen/branch state.",
   "source": {
-    "file": "mthrowu.c",
+    "file": "dungeon.c",
     "functions": [
-      "m_throw",
-      "thrwmu"
+      "recbranch_mapseen"
     ],
-    "branch": "mattacku enters its AT_WEAP range2 arm outside the Rogue level. thrwmu selects ranged ammunition, passes lined_up, and does not take the retreat RNG gate when the hero has not moved away. A nonweapon missile accepted by select_rwep must then reach monshoot and m_throw. The observed monster is a hostile hobbit at (34,2), targeting the hero at (38,2), with six uncursed, ungreased rocks; JavaScript stops at thrwmu:1592 before monshoot. C has no object-class restriction here or at m_throw entry. m_throw extracts one missile, performs source-ordered flight and catch checks, applies its object-specific hit arm, and settles or returns the missile.",
+    "branch": "do.c goto_level() changes dungeon only after a stair, falling, or portal transition. recbranch_mapseen() ignores same-dungeon changes, accepts only a forward svb.branches endpoint pair, returns for a reverse traversal or missing branch, and assigns the matching branch to find_mapseen(source), preserving the impossible diagnostic when source mapseen is absent. print_mapseen() then emits the branch description after the remembered-feature rows.",
     "callers": [
-      "mhitu.c mattacku():883-886 calls thrwmu for AT_WEAP when range2 and outside the Rogue level. js/mhitu.js:945-950 calls the throwRangedWeapon operation; js/unported_monster_actions.js:1393-1428 binds that operation to thrwmu and monsterMissileEnv.",
-      "mthrowu.c thrwmu():1260 calls monshoot(); monshoot():262-314 computes monmulti, reports the shot, then calls m_throw once per missile. js/mthrowu.js:1449-1596 implements the corresponding chain but stops at the selected-object class guard.",
-      "Runtime diagnostic stack reaches thrwmu from mattacku, dochug, dochugw, movemon_singlemon, and planSimpleMonsterTurn. js/unported_monster_actions.js:1251-1360 supplies planning and live missile adapters; both must follow the same source order and input boundaries."
+      "do.c:goto_level():1673 calls recbranch_mapseen(&u.uz, newlevel) when (at_stairs || falling || portal) and the dungeon number changes.",
+      "js/do.js:goto_level():1260-1740 performs the corresponding level transition but currently omits the recbranch_mapseen call before assign_level(u.uz0, u.uz).",
+      "dungeon.c:print_mapseen():3685-3695 reads mptr->br and emits the branch row in #overview; js/dungeon.js:2074-2079 already has the source-shaped formatter but receives br:null."
     ],
     "dependencies": [
-      "weapon.c select_rwep():533-695 includes ROCK in rwep and selects a sling for P_SLING ammunition. Existing js/weapon.js:635-762 reaches that result. makemon.c m_initweap():362-374 equips hobbits with a sling and flint or rocks through its ordinary random selection. Preserve this general selection; no species-specific permission is needed.",
-      "The whole thrwmu():1174-1263 also includes polearm range/visibility/damage and autoreturn_weapon handling, currently refused by js/mthrowu.js:1560 and by the production throwRangedWeapon wrapper. Include these branches and the required mon_wield_item, autoreturn_weapon, mwelded, mswings_verb, dmgval, thitu, lined_up, monshoot, stop_occupation and nomul wiring when completing this source unit.",
-      "The whole m_throw():572-844 includes cursed/greased misfire, tethered return flight, monster interception, gem and ordinary catching, potion/egg/pie/venom hits, poison, blindness, petrification, flight termination and settlement. JS still refuses several of these and hard-codes tethered_weapon=false. Read and complete required return-valued helpers, including ucatchgem():505-529, u_catch_thrown_obj():531-549, ohitmon, shade_miss, hits_bars, can_blnd and the petrification test; preserve existing implementations that are correct.",
-      "JS u_catch_thrown_obj():486-503 still refuses a successful catch although its result is consumed by m_throw. It must implement hold_another_object and source settlement when included in the completed flight unit. Existing return_from_mtoss and the remaining drop_throw, monmulti, monshoot, thitu and object helpers require source/wiring verification; declarations alone are not completion evidence.",
-      "For the observed ordinary rock miss, thitu():75-155 already has the generic hit/miss and stone_missile branches in js/mthrowu.js:1624-1742. The reference draw sequence is monmulti, splitobj/next_ident, per-square flight, failed catch, dmgval, thitu miss, then final flight. Preserve RNG order, inventory ownership, thrownobj, and tty input boundaries through planning and live execution."
+      "dungeon.c:find_mapseen():2638-2649 / js/dungeon.js:2176-2178",
+      "dungeon.c:on_level() / js/dungeon.js:on_level()",
+      "dungeon.c:svb.branches and branch endpoint ordering / js state.branches and insert_branch()",
+      "do.c:goto_level() accepted B-r2-2 delivery 66713a234567660146fecaea7c569169ed56b103; the correction only restores its omitted source branch and does not replace that delivery."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    ".cache/resume-queue.json assigns holdout/seed4500-knight-coverage first stop 842, recordedSteps 1814, and remainingScreensUpperBound 972 at examined commit a0986b8404a83d232bee4bd2b5a9433337cf2739. The queue message is `simple monster action requires monster special missile action`; its generic label alone did not identify the cause.",
-    ".cache/investigate-seed4500-a0986b8/diagnostic.json and replay.log record a focused replay of only the assigned fixed session using an immutable git-archive snapshot of a0986b8 with the scorer frozen-file overlays. Diagnostic-only logging identifies thrwmu guard site 2, monster mnum 43, ROCK otyp 474/GEM_CLASS 13, quantity 6, and the unchanged stop after 842 screens and 61406 RNG calls. Source constants in js/monsters.js:281 and js/objects.js:20,162,549 identify the hobbit, gem class, sling and rock.",
-    "The examined commit gitlink and local C checkout both equal 16ff59115315917b93185d026aeefea06db9b0f4. Read complete C m_throw():572-844 and thrwmu():1174-1263, plus monmulti/monshoot():201-314, ucatchgem/u_catch_thrown_obj():505-549, thitu/drop_throw():75-196 and select_rwep():533-695. Their source accepts nonweapon ammunition; the two JS refusal sites are mthrowu.js:873 and :1592.",
-    "sessions/holdout/seed4500-knight-coverage.session.json normalized segment 0 step 842 records `It misses.  You finish your prayer.  You feel that Lugh is displeased.` The ranged sequence contains rnd(1)=1 at monmulti, rnd(2)=1 at next_ident, flight rn2(5) results 1/2/1, rn2(91)=19 at u_catch_thrown_obj, rnd(3)=3 at dmgval, rnd(20)=20 at thitu, and flight rn2(5)=0. This confirms C executes an ordinary missile miss before completing prayer.",
-    "Whole-source scope is the thrwmu/m_throw family and its required consumed helpers, with matching caller changes. A two-line admission patch alone does not complete either function: their other refusal branches, tethered-flight substitute, and catch behavior remain part of the same source units. Independent recipes should exercise sling rocks and a cheap ammunition variation, then the selected functions other entry points; the fixed input is diagnostic evidence only.",
-    "The previous cache at f922afc3f15d8ced63b8ed86b407b68ff36b49ca described teleds punishment-ball handling at step 789 and count 1025. That boundary has passed: the assigned scan and pinned replay now reach 842. Prior mk_knox_portal, mkshop and self_lookat findings remain historical context and are not the current owner. The count 972 is an upper bound, not a predicted gain."
+    "Bounded queue refresh run-VJaFB0 reports the current canonical session at step 893, kind screen, 1814 recorded steps, remainingScreensUpperBound 921, and invalidates the prior cached count 972; source owner is unresolved in the queue until this investigation.",
+    "Bounded single-session replay run-4S5uS5 at the examined worker commit emits 978 screens before the later unsupported makemon(146) boundary. At screen 893 C has `Stairs down to The Gnomish Mines.` at row 6, while JS has no row; C then places `(end)` at row 12 and `qqq` at row 13, while JS places the footer one row early and leaves the hero glyph under it. The C and JS map/cursor outputs otherwise align through the preceding overview rows; the first meaningful difference is the missing branch row.",
+    "The same replay's runtime state shows every JS svm.mapseenchn entry has br:null, including the Dungeons of Doom level whose recorded branch reaches The Gnomish Mines. js/dungeon.js print_mapseen() already appends br_string2(mptr.br) when br exists, so the missing row is state establishment rather than formatter text.",
+    "Read nethack-c/upstream/src/dungeon.c:2446-2473 recbranch_mapseen() completely and nethack-c/upstream/src/do.c:1665-1674 completely. C checks source/destination dungeon identity, scans svb.branches in source order, rejects reverse travel, assigns mptr->br, and calls it immediately before assign_level(); js/do.js:1398-1418 saves the old level and assigns u.uz but contains no equivalent call.",
+    "Read nethack-c/upstream/src/dungeon.c:3516-3734 print_mapseen() completely and js/dungeon.js:1956-2110. Both format an existing branch after annotations; the JS formatter's synthetic unit test supplies br manually and therefore did not establish production branch recording. The exact independent correction scope is dungeon.c:recbranch_mapseen plus the js/dungeon.js helper and js/do.js:goto_level caller wiring."
   ]
 }

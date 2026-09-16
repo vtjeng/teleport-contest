@@ -50258,7 +50258,7 @@
     {
       "id": "div-recbranch-mapseen-seed4500-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Record forward branch mapseen state before cross-dungeon level assignment so #overview can report remembered dungeon branches.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -50269,8 +50269,8 @@
       "spans": [
         {
           "name": "recbranch-mapseen",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0148bafc173459f4ddcdb3c3a1c08497c77b04b2",
           "functions": [
             "recbranch_mapseen"
           ]
@@ -50282,8 +50282,11 @@
         "screens": 10065,
         "rng": 739263
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0148bafc173459f4ddcdb3c3a1c08497c77b04b2",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "function": "recbranch_mapseen",
       "session": "holdout/seed4500-knight-coverage",
       "step": 893,
@@ -50313,7 +50316,12 @@
             "previousRemainingScreensUpperBound": 972
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "0148bafc173459f4ddcdb3c3a1c08497c77b04b2",
+        "screens": 10067,
+        "rng": 739263
+      }
     }
   ]
 }
