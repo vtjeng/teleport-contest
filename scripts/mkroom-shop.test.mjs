@@ -44,6 +44,7 @@ import {
     pick_room,
     squadmon,
 } from '../js/mkroom.js';
+import { fill_special_room } from '../js/mklev.js';
 import { m_at } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -57,6 +58,7 @@ import {
     PM_GNOME_RULER,
     PM_HOBGOBLIN,
     PM_HUMAN,
+    PM_DOG,
     PM_KILLER_BEE,
     PM_LICHEN,
     PM_QUEEN_BEE,
@@ -65,6 +67,8 @@ import {
     PM_SERGEANT,
     PM_LIEUTENANT,
     PM_CAPTAIN,
+    M2_SHAPESHIFTER,
+    SPECIAL_PM,
     M2_GNOME,
     S_MIMIC,
     S_GNOME,
@@ -1184,6 +1188,81 @@ test('Beehive center relocates when irregular room center is outside', () => {
     }
     assert.ok(foundQueen, 'queen bee placed somewhere in the room');
 });
+
+test('special-room fill waits for delayed monster completion before cell work',
+    async () => {
+        // sp_lev.c fills special rooms after level_finalize_topology() has
+        // cleared in_mklev.  A wizard-controlled shape change therefore
+        // returns a Promise from makemon(), but the BEEHIVE cell's rn2(3)
+        // jelly decision must remain after that Promise resolves.
+        const state = initializedCourtState();
+        const room = shopCandidate(state, {
+            lx: 10, ly: 5, hx: 11, hy: 5,
+        });
+        room.rtype = BEEHIVE;
+        room.needfill = FILL_NORMAL;
+        room.doorct = 0;
+        state.in_mklev = false;
+        state.wizard = true;
+        state.iflags = { mon_polycontrol: true };
+        state.u.ux = 40;
+        state.u.uy = 20;
+        state.mons[PM_KILLER_BEE].mflags2 |= M2_SHAPESHIFTER;
+
+        const events = [];
+        let releaseQuery;
+        const delayedQuery = new Promise((resolve) => {
+            releaseQuery = () => {
+                events.push('query:done');
+                resolve('*');
+            };
+        });
+        const random = {
+            d: (count) => count,
+            rn1: (bound, base) => bound === SPECIAL_PM ? PM_DOG : base,
+            rn2(bound) {
+                if (bound === 3) {
+                    events.push('cell:item-roll');
+                    return 1;
+                }
+                return 0;
+            },
+            rnd: () => 1,
+            rne: () => 1,
+            rnz: (value) => value,
+        };
+        const pending = fill_special_room(room, {
+            state,
+            random,
+            getlin: () => {
+                events.push('query:start');
+                return delayedQuery;
+            },
+            hooks: { newsym: () => events.push('redraw') },
+            message: () => {},
+            norepMessage: () => {},
+        });
+
+        assert.equal(typeof pending?.then, 'function');
+        assert.deepEqual(events, ['query:start']);
+        releaseQuery();
+        await pending;
+        assert.ok(
+            events.indexOf('query:done') < events.indexOf('cell:item-roll'),
+            'post-monster cell work waits for the wizard shape result',
+        );
+        assert.ok(
+            events.indexOf('redraw') < events.indexOf('cell:item-roll'),
+            'post-finalization redraw completes before the next cell',
+        );
+        assert.equal(
+            m_at(10, 5, state)?.data?.pmidx,
+            PM_DOG,
+            'the delayed shape transition completed before the next cell',
+        );
+        assert.equal(m_at(11, 5, state)?.mnum, PM_QUEEN_BEE);
+        assert.equal(state.level.flags.has_beehive, true);
+    });
 
 // Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
 // and read back the shop that makelevel() stocked on D:2. Every seed and walk

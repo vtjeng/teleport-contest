@@ -1348,6 +1348,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     const mainDungeonLevel = isMainDungeonLevel(state);
     const tutorialLevel = isTutorialLevel(state);
+    // sp_lev.c's lspo_finalize_level() calls level_finalize_topology() before
+    // filling special rooms.  That source path clears in_mklev, but its
+    // fill_zoo() makemon calls are still level-generation calls, so admit the
+    // explicit marker without changing in_mklev-dependent initialization.
+    const specialRoomCall = normalized._specialRoomFill === true;
     const runtimeRandomCall = !state.in_mklev
         && randomCoordinates
         && !ptr
@@ -1470,9 +1475,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'shopkeeper creation outside shkinit',
         );
     }
-    if (!state.in_mklev && !runtimeCall) {
+    if (!state.in_mklev && !runtimeCall && !specialRoomCall) {
         throw new UnsupportedMonsterCreationError('outside mklev');
     }
+    if (specialRoomCall && !ptr) normalized._rndmonMklev = true;
     if (state.in_mklev && (mmflags & MM_EDOG)) {
         throw new UnsupportedMonsterCreationError(
             'edog creation during mklev',
@@ -1529,9 +1535,9 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // loop).  Outside mklev the allowlist always applies.
         if (!revivalCall
             && !statueInventoryCall
-            && (!state.in_mklev
-                || (isMainDungeonLevel(state)
-                    && !normalized._rndmonMklev))) {
+            && !specialRoomCall
+            && (!state.in_mklev || (isMainDungeonLevel(state)
+                && !normalized._rndmonMklev))) {
             assertSupportedSpecies(ptr);
         }
         if (state.mons[ptr.pmidx] !== ptr) {
@@ -3143,16 +3149,18 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     if (appearance) {
         await normalized.norepMessage(appearance, state, normalized);
     }
-    await dochugw(monster, false, {
-        ...normalized,
-        state,
-        canSpotMonster: (subject) => canSpotMonster(subject, state),
-        couldSee: (x, y) => couldsee(x, y, state),
-        stopOccupation: () => normalized.hooks.stopOccupation(
-            monster,
-            normalized,
-        ),
-    });
+    if (state.go?.occupation) {
+        await dochugw(monster, false, {
+            ...normalized,
+            state,
+            canSpotMonster: (subject) => canSpotMonster(subject, state),
+            couldSee: (x, y) => couldsee(x, y, state),
+            stopOccupation: () => normalized.hooks.stopOccupation(
+                monster,
+                normalized,
+            ),
+        });
+    }
 }
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
@@ -3413,7 +3421,11 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         }
         set_malign(monster, state);
 
-        if (!state.in_mklev) {
+        // sp_lev.c fills special rooms after level_finalize_topology() clears
+        // in_mklev.  That call is still part of level creation, identified by
+        // fill_special_room()'s marker, so it must skip only makemon_runtime's
+        // continuation bookkeeping and still run C's post-creation tail.
+        if (!state.in_mklev && !normalized._specialRoomFill) {
             const continuation = normalized.runtimeContinuation;
             if (!continuation || continuation.claimed) {
                 throw new UnsupportedMonsterCreationError(
@@ -3449,6 +3461,18 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             mmflags,
             normalized,
         );
+
+        if (!state.in_mklev && normalized._specialRoomFill) {
+            // C's post-finalization fill still redraws the created monster,
+            // emits its normal appearance line when visible, and checks the
+            // active occupation.  Use the same asynchronous owner as runtime
+            // creation, with default message sinks for the level builder.
+            return finishRuntimeCreationTail(monster, mmflags, {
+                ...normalized,
+                message: normalized.message ?? ttyPline,
+                norepMessage: normalized.norepMessage ?? ttyNorep,
+            });
+        }
 
         return monster;
     };
