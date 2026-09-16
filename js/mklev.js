@@ -27,6 +27,7 @@ import {
 import { UnsupportedLevelChangeError } from './do.js';
 import {
     UnsupportedSpecialRoomError,
+    antholemon,
     do_mkroom,
     fill_zoo,
     mk_tt_object,
@@ -804,7 +805,7 @@ async function makelevel(specialLevelLoader = null) {
             do_mkroom(BEEHIVE, g);
         } else if (u_depth > 11 && !rn2(6)) {
             do_mkroom(MORGUE, g);
-        } else if (u_depth > 12 && !rn2(8)) {
+        } else if (u_depth > 12 && !rn2(8) && antholemon(g)) {
             // C's antholemon() picks the ant species that fills the hole and
             // answers NON_PM when every candidate is gone.
             do_mkroom(ANTHOLE, g);

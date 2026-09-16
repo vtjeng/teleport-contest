@@ -44,6 +44,7 @@ import {
     SINK,
     STAIRS,
     STONE,
+    SWAMP,
     TDWALL,
     THRONE,
     TLCORNER,
@@ -75,11 +76,14 @@ import {
     PM_DWARF_RULER,
     PM_ELVEN_MONARCH,
     PM_GHOST,
+    PM_GIANT_ANT,
     PM_GNOME_RULER,
     PM_HOBGOBLIN,
     PM_KILLER_BEE,
+    PM_FIRE_ANT,
     PM_OGRE_TYRANT,
     PM_QUEEN_BEE,
+    PM_SOLDIER_ANT,
     PM_SOLDIER,
     PM_SERGEANT,
     PM_LIEUTENANT,
@@ -531,6 +535,35 @@ export function morguemon(state = game, random = SOURCE_RANDOM) {
             : mkclass(S_ZOMBIE, 0, { state, random });
 }
 
+// C ref: mkroom.c antholemon(). The birthday and level difficulty choose the
+// first ant class, then the three classes are tried in order while genocided
+// classes are skipped. This selector is pure: it only reads the level's
+// birthday, difficulty, and monster-vital flags.
+export function antholemon(state = game) {
+    const birthday = Math.trunc(state.ubirthday ?? 0);
+    const index = (birthday % 3) + level_difficulty(state);
+    let monsterIndex = PM_GIANT_ANT;
+    let tryCount = 0;
+    do {
+        switch ((index + tryCount) % 3) {
+        case 0:
+            monsterIndex = PM_SOLDIER_ANT;
+            break;
+        case 1:
+            monsterIndex = PM_FIRE_ANT;
+            break;
+        default:
+            monsterIndex = PM_GIANT_ANT;
+            break;
+        }
+    } while (++tryCount < 3
+             && (state.mvitals[monsterIndex].mvflags & G_GONE));
+
+    return (state.mvitals[monsterIndex].mvflags & G_GONE)
+        ? null
+        : state.mons[monsterIndex];
+}
+
 const squadprob = Object.freeze([
     { pm: PM_SOLDIER, prob: 80 },
     { pm: PM_SERGEANT, prob: 15 },
@@ -809,10 +842,19 @@ export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
         mktemple(state, random);
         return;
     }
-    if (roomtype === COURT || roomtype === BEEHIVE || roomtype === MORGUE
-        || roomtype === BARRACKS) {
+    if (roomtype === COURT || roomtype === ZOO || roomtype === BEEHIVE
+        || roomtype === MORGUE || roomtype === BARRACKS
+        || roomtype === LEPREHALL || roomtype === COCKNEST
+        || roomtype === ANTHOLE) {
         mkzoo(roomtype, state, random);
         return;
     }
-    throw new UnsupportedSpecialRoomError(`do_mkroom(${roomtype})`);
+    if (roomtype === SWAMP) {
+        // C discards mkswamp()'s result; the room population helper remains
+        // outside this span, so preserve the source call as a named gap.
+        note_unported('mkroom.c mkswamp');
+        return;
+    }
+    // C's impossible() result is discarded by do_mkroom().
+    note_unported('mkroom.c impossible');
 }

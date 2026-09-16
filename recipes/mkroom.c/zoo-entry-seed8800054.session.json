@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "datetime": "20300914112234",
+      "nethackrc": "OPTIONS=name:ZooProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "\u001610\n.",
+      "seed": 8800054,
+      "comment": "Independent debug level change to D:10. The C makelevel() branch rejects SHOP, COURT, and LEPREHALL, then dispatches ZOO through mkroom.c do_mkroom(); one wait stops before the unrelated later distfleeck path."
+    }
+  ]
+}

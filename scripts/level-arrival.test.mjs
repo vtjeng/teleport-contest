@@ -465,9 +465,14 @@ test('do_mkroom takes the room the level would gain', () => {
     state.level.rooms[0].rtype = OROOM;
     state.level.rooms[0].needfill = FILL_NONE;
 
-    // The next room type reaches the named later-family boundary.
-    assert.throws(() => do_mkroom(ZOO, state), /do_mkroom\(8\)/u);
+    // ZOO uses the same mkzoo() dispatcher as COURT and marks this room for
+    // the later fill_special_room() phase.
+    do_mkroom(ZOO, state, { rn2: () => 0 });
+    assert.equal(state.level.rooms[0].rtype, ZOO);
+    assert.equal(state.level.rooms[0].needfill, FILL_NORMAL);
 
+    state.level.rooms[0].rtype = OROOM;
+    state.level.rooms[0].needfill = FILL_NONE;
     // A room the shop search rejects leaves the level unchanged: mkshop()
     // walks past a room that already holds the down staircase.
     drawn = 0;
