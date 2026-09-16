@@ -841,7 +841,7 @@ async function makelevel(specialLevelLoader = null) {
     for (let index = 0; index < g.level.nroom; ++index) {
         const room = g.level.rooms[index];
         const fillable = roomIsFillable(room);
-        fill_ordinary_room(
+        await fill_ordinary_room(
             room,
             fillable && bonusItemRoomCountdown === 0,
         );
@@ -2208,22 +2208,29 @@ export function lspo_monster(args, croom, rawEnv = {}) {
         tmpmons.class = state.mons[tmpmons.id].mlet;
 
     const mtmp = create_monster(tmpmons, croom, env);
-
-    if ((tmpmons.has_invent & CUSTOM_INVENT)
-        && typeof inventory === 'function') {
-        const context = env.spObjectContext;
-        try {
-            inventory(mtmp, env);
-        } catch (e) {
-            // C has no exception path; keep the shared carrier from leaking
-            // into a later descriptor when the callback fails.
-            context.inventCarryingMonster = null;
-            throw e;
+    const finishInventory = (resolvedMtmp) => {
+        if ((tmpmons.has_invent & CUSTOM_INVENT)
+            && typeof inventory === 'function') {
+            const context = env.spObjectContext;
+            try {
+                // C lspo_monster runs the custom inventory closure after
+                // create_monster() has returned.  Shape-changing monster
+                // creation can now cross an async floor-effects or wizard
+                // control owner, so preserve that source order when the
+                // constructor returns a Promise as well.
+                inventory(resolvedMtmp, env);
+            } catch (e) {
+                // C has no exception path; keep the shared carrier from
+                // leaking into a later descriptor when the callback fails.
+                context.inventCarryingMonster = null;
+                throw e;
+            }
+            spo_end_moninvent(context, env);
         }
-        spo_end_moninvent(context, env);
-    }
-
-    return mtmp;
+        return resolvedMtmp;
+    };
+    return mtmp && typeof mtmp.then === 'function'
+        ? mtmp.then(finishInventory) : finishInventory(mtmp);
 }
 
 // C ref: sp_lev.c get_table_int_or_random(). The field's integer, or
@@ -8049,34 +8056,20 @@ export function fill_ordinary_room(croom, bonusItems) {
 
     const subrooms = croom.sbrooms ?? [];
     const subroomCount = croom.nsubrooms ?? subrooms.length;
-    for (let index = 0; index < subroomCount; ++index) {
-        const subroom = subrooms[index];
-        if (!subroom) return;
-        fill_ordinary_room(subroom, false);
-    }
+    const fillRoom = () => {
+        if (croom.needfill !== FILL_NORMAL) return;
 
-    if (croom.needfill !== FILL_NORMAL) return;
+        const env = levelObjectEnv({
+            hooks: { bydoor, makeMonster: makemon, somexyspace },
+        });
+        const position = { x: 0, y: 0 };
+        let tryCount = 0;
 
-    const env = levelObjectEnv({
-        hooks: { bydoor, makeMonster: makemon, somexyspace },
-    });
-    const position = { x: 0, y: 0 };
-    let tryCount = 0;
-
-    if ((state.u.uhave.amulet || !rn2(3))
-        && somexyspace(croom, position)) {
-        const monster = makemon(
-            null,
-            position.x,
-            position.y,
-            MM_NOGRP,
-            env,
-        );
-        if (monster?.data === state.mons[PM_GIANT_SPIDER]
-            && !occupied(position.x, position.y, state)) {
-            maketrap(position.x, position.y, WEB, env);
-        }
-    }
+        const finishMonster = (monster) => {
+            if (monster?.data === state.mons[PM_GIANT_SPIDER]
+                && !occupied(position.x, position.y, state)) {
+                maketrap(position.x, position.y, WEB, env);
+            }
 
     let chance = 8 - Math.trunc(level_difficulty(state) / 6);
     if (chance <= 1) chance = 2;
@@ -8188,6 +8181,29 @@ export function fill_ordinary_room(croom, bonusItems) {
             }
         }
     }
+            return true;
+        };
+
+        const maybeMonster = (state.u.uhave.amulet || !rn2(3))
+            && somexyspace(croom, position)
+            ? makemon(null, position.x, position.y, MM_NOGRP, env)
+            : null;
+        return maybeMonster && typeof maybeMonster.then === 'function'
+            ? maybeMonster.then(finishMonster) : finishMonster(maybeMonster);
+    };
+
+    const finishSubrooms = (index) => {
+        for (let current = index; current < subroomCount; ++current) {
+            const subroom = subrooms[current];
+            if (!subroom) return;
+            const maybeChild = fill_ordinary_room(subroom, false);
+            if (maybeChild && typeof maybeChild.then === 'function') {
+                return maybeChild.then(() => finishSubrooms(current + 1));
+            }
+        }
+        return fillRoom();
+    };
+    return finishSubrooms(0);
 }
 
 // ============================================================

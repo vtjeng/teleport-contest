@@ -826,6 +826,7 @@ export function spo_end_moninvent(context, env) {
 export function create_monster(m, croom, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     assertSupportedMonsterAppearance(m);
+    const maybeMtmp = createMonsterBody(m, croom, env);
 
     const finish = (mtmp) => {
         if (mtmp) {
@@ -847,8 +848,8 @@ export function create_monster(m, croom, rawEnv = {}) {
         }
         return mtmp;
     };
-    return mtmp && typeof mtmp.then === 'function'
-        ? mtmp.then(finish) : finish(mtmp);
+    return maybeMtmp && typeof maybeMtmp.then === 'function'
+        ? maybeMtmp.then(finish) : finish(maybeMtmp);
 }
 
 function replaceSelectedTerrain(selection, predicate, toTerrain, env) {

@@ -503,55 +503,60 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
         NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_NOMSG,
         env,
     );
-    if (!dummy) return null;
+    const finish = (resolvedDummy) => {
+        if (!resolvedDummy) return null;
 
-    if (dummy.m_lev < dummy.data.mlevel) {
-        const targetLevel = random.rnd(dummy.data.mlevel + 1);
-        if (targetLevel > dummy.m_lev) {
-            while (dummy.m_lev < targetLevel) {
-                ++dummy.m_lev;
-                dummy.mhpmax += monhp_per_lvl(dummy, env);
+        if (resolvedDummy.m_lev < resolvedDummy.data.mlevel) {
+            const targetLevel = random.rnd(resolvedDummy.data.mlevel + 1);
+            if (targetLevel > resolvedDummy.m_lev) {
+                while (resolvedDummy.m_lev < targetLevel) {
+                    ++resolvedDummy.m_lev;
+                    resolvedDummy.mhpmax += monhp_per_lvl(resolvedDummy, env);
+                }
+                saved.m_lev = resolvedDummy.m_lev;
             }
-            saved.m_lev = dummy.m_lev;
         }
-    }
-    if (dummy.mhpmax > saved.mhpmax) saved.mhpmax = dummy.mhpmax;
-    saved.mhp = saved.mhpmax;
+        if (resolvedDummy.mhpmax > saved.mhpmax)
+            saved.mhpmax = resolvedDummy.mhpmax;
+        saved.mhp = saved.mhpmax;
 
-    saved.minvent = dummy.minvent;
-    if (dummy.m_id) {
-        saved.m_id = dummy.m_id;
-        const quest = state.svq?.quest_status;
-        if (quest?.leader_is_dead && saved.m_id === quest.leader_m_id)
-            quest.leader_is_dead = false;
-    }
-    for (const field of [
-        'mx', 'my', 'mux', 'muy', 'mw', 'wormno', 'misc_worn_check',
-        'weapon_check', 'mtrapseen', 'mflee', 'mburied', 'mundetected',
-        'mfleetim', 'mlstmv', 'm_ap_type',
-    ]) {
-        saved[field] = dummy[field];
-    }
-    saved.mrevived = true;
-    saved.mavenge = false;
-    saved.meating = 0;
-    saved.mleashed = false;
-    saved.mtrapped = false;
-    saved.msleeping = false;
-    saved.mfrozen = 0;
-    saved.mcanmove = true;
-    saved.mcan = false;
-    saved.mcansee = true;
-    saved.mblinded = 0;
-    saved.mstun = false;
-    saved.mconf = false;
-    saved.mstate = dummy.mstate;
+        saved.minvent = resolvedDummy.minvent;
+        if (resolvedDummy.m_id) {
+            saved.m_id = resolvedDummy.m_id;
+            const quest = state.svq?.quest_status;
+            if (quest?.leader_is_dead && saved.m_id === quest.leader_m_id)
+                quest.leader_is_dead = false;
+        }
+        for (const field of [
+            'mx', 'my', 'mux', 'muy', 'mw', 'wormno', 'misc_worn_check',
+            'weapon_check', 'mtrapseen', 'mflee', 'mburied', 'mundetected',
+            'mfleetim', 'mlstmv', 'm_ap_type',
+        ]) {
+            saved[field] = resolvedDummy[field];
+        }
+        saved.mrevived = true;
+        saved.mavenge = false;
+        saved.meating = 0;
+        saved.mleashed = false;
+        saved.mtrapped = false;
+        saved.msleeping = false;
+        saved.mfrozen = 0;
+        saved.mcanmove = true;
+        saved.mcan = false;
+        saved.mcansee = true;
+        saved.mblinded = 0;
+        saved.mstun = false;
+        saved.mconf = false;
+        saved.mstate = resolvedDummy.mstate;
 
-    replmon(dummy, saved, state);
-    newsym(saved.mx, saved.my, state);
-    if (saved.cham === NON_PM)
-        saved.cham = pm_to_cham(saved.mnum, state);
-    return saved;
+        replmon(resolvedDummy, saved, state);
+        newsym(saved.mx, saved.my, state);
+        if (saved.cham === NON_PM)
+            saved.cham = pm_to_cham(saved.mnum, state);
+        return saved;
+    };
+    return dummy && typeof dummy.then === 'function'
+        ? dummy.then(finish) : finish(dummy);
 }
 
 // C ref: zap.c revive() (884-1100), for a floor corpse and a non-hero cause.
@@ -617,7 +622,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     );
     let monster = null;
     if (substitution.changed) {
-        monster = makemon_revival(
+        monster = await makemon_revival(
             state.mons[substitution.mtype], x, y, mmflags, env,
         );
         if (monster) {
@@ -628,11 +633,11 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             }
         }
     } else if (corpse.oextra?.omonst) {
-        monster = montraits(corpse, { x, y }, false, env);
+        monster = await montraits(corpse, { x, y }, false, env);
         if (monster?.mtame && !monster.isminion)
             note_unported('dog.c wary_dog');
     } else {
-        monster = makemon_revival(
+        monster = await makemon_revival(
             originalSpecies,
             x,
             y,
