@@ -54714,7 +54714,7 @@
     {
       "id": "port-display-feel-location-seed4500-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port whole tactile location display and canonical search and boulder callers",
       "cFile": "display.c",
       "sessions": [
@@ -54725,8 +54725,8 @@
       "spans": [
         {
           "name": "feel_location",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "21f19e7250c11460c7152ee5abb5d297d212db02",
           "functions": [
             "feel_location"
           ]
@@ -54972,7 +54972,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "21f19e7250c11460c7152ee5abb5d297d212db02",
+        "screens": 10403,
+        "rng": 756196
+      },
+      "parkedReason": "Whole tactile source span and blind-search entry pass combined validation. Punished tactile, underwater/levitation, blind boulder, lock and kick feature entries still need matching production recordings; sighted punishment setup is supplemental only."
     }
   ]
 }
