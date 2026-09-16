@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent uhitm.c mhitm_ad_blnd witness: a fresh debug Wizard genesis creates a raven through the ordinary named-species path, then one wait lets the real monster attack the hero. The seed, clock, character, and inputs are independent of the seed4500 holdout.",
+  "segments": [
+    {
+      "seed": 9654321,
+      "datetime": "20330714112233",
+      "nethackrc": "OPTIONS=name:BlindProbe,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007raven\nj "
+    }
+  ]
+}

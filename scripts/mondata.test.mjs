@@ -4,9 +4,12 @@ import test from 'node:test';
 
 import {
     A_CHA,
+    BLINDED,
+    FAINTED,
     FEMALE,
     MALE,
     NEUTRAL,
+    W_TOOL,
 } from '../js/const.js';
 import {
     ARTILIST_TEMPLATE,
@@ -22,6 +25,7 @@ import {
     big_to_little,
     bigmonst,
     can_breathe,
+    can_blnd,
     can_teleport,
     can_be_hatched,
     dmgtype,
@@ -84,6 +88,7 @@ import {
     perceives,
     poisonous,
     regenerates,
+    resists_blnd,
     resist_conflict,
     same_race,
     slimeproof,
@@ -103,6 +108,9 @@ import {
 import * as M from '../js/monsters.js';
 import {
     ALCHEMY_SMOCK,
+    BLINDING_VENOM,
+    CREAM_PIE,
+    LENSES,
     OBJECT_TEMPLATES,
     RIN_POISON_RESISTANCE,
 } from '../js/objects.js';
@@ -888,6 +896,83 @@ test('compound movement predicates preserve source special cases', () => {
         assert.equal(passes_bars(species(mndx)), true, mndx);
     }
     assert.equal(passes_bars(species(M.PM_HUMAN)), false);
+});
+
+test('blindness predicates distinguish eyewear and the source Unaware state', () => {
+    const state = monsterState();
+    state.u = {
+        uprops: [],
+        ucreamed: 0,
+        uhs: 0,
+        usleep: false,
+    };
+    state.youmonst = {
+        data: state.mons[M.PM_HUMAN],
+        mcansee: 1,
+    };
+    state.invent = null;
+    state.uwep = null;
+    state.multi = 0;
+
+    // youprop.h:88-96: lenses occupy ublindf but do not set EBlinded. Thus
+    // cream pie's AT_WEAP arm admits lenses, while venom and a raven's
+    // AT_CLAW arm explicitly reject every ublindf, including lenses.
+    state.ublindf = { otyp: LENSES };
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_WEAP,
+            { otyp: CREAM_PIE }, state),
+        true,
+    );
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_WEAP,
+            { otyp: BLINDING_VENOM }, state),
+        false,
+    );
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_CLAW, null, state),
+        false,
+    );
+
+    // A blindfold sets EBlinded and therefore protects cream pie too. With
+    // no eyewear, venom and claw both become admissible again.
+    state.ublindf = { otyp: 0 };
+    state.u.uprops[BLINDED] = { extrinsic: W_TOOL };
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_WEAP,
+            { otyp: CREAM_PIE }, state),
+        false,
+    );
+    state.ublindf = null;
+    state.u.uprops[BLINDED].extrinsic = 0;
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_WEAP,
+            { otyp: BLINDING_VENOM }, state),
+        true,
+    );
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_CLAW, null, state),
+        true,
+    );
+
+    // youprop.h:125 reads the turn multiplier from `multi`, then combines
+    // trap.c unconscious() with eat.c is_fainted(). A stale gm.multi or
+    // nonexistent u.unconscious/u.fainted must not make a hero Unaware.
+    state.gm = { multi: -1 };
+    state.u.uhs = FAINTED;
+    assert.equal(resists_blnd(state.youmonst, state), false,
+        'gm.multi alone does not make a sighted hero Unaware');
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_ENGL, null, state),
+        true,
+        'FAINTED is ignored while the source multi is nonnegative',
+    );
+    state.multi = -1;
+    assert.equal(resists_blnd(state.youmonst, state), true);
+    assert.equal(
+        can_blnd(null, state.youmonst, M.AT_ENGL, null, state),
+        false,
+        'FAINTED under a negative multi makes AT_ENGL harmless',
+    );
 });
 
 test('movement attack, life-state, web, and trap queries match source tables', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent uhitm.c mhitm_ad_blnd monster-to-monster witness attempt: a Valkyrie's starting pet and a debug-generated raven are created independently. BLOCKED: the generated hostile raven targets the hero and reaches the monster-to-hero arm before dying; the setup does not reach mhitm.c mdamagem() with a monster defender, so no monster-to-monster recording is claimed.",
+  "segments": [
+    {
+      "seed": 9654325,
+      "datetime": "20330716112233",
+      "nethackrc": "OPTIONS=name:BlindPair,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,rest_on_space,!safe_wait\n",
+      "moves": " \u0007raven\n                                        "
+    }
+  ]
+}

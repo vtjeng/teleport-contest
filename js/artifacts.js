@@ -2811,8 +2811,13 @@ export function glow_verb(count, ingsfx) {
 
 // C ref: artifact.c Sting_effects() (2465-2502). Warning glow for Sting,
 // Orcrist, and Grimtooth.
-export async function Sting_effects(orc_count, state = game) {
-    const uwep = state.u?.uwep;
+export async function Sting_effects(orc_count, state = game, env = {}) {
+    // `uwep` is a game-level equipment pointer in decl.h. Planning clones
+    // remap that pointer at their top level, so do not read the stale nested
+    // shape here. A caller-owned message seam keeps the source call usable
+    // without painting a planning clone onto the live terminal.
+    const uwep = state.uwep;
+    const message = env.message ?? ttyPline;
     if (uwep
         && (uwep.oartifact === ART_STING
             || uwep.oartifact === ART_ORCRIST
@@ -2821,26 +2826,26 @@ export async function Sting_effects(orc_count, state = game) {
         const oldstr = glow_strength(warn_cnt);
         const newstr = glow_strength(orc_count);
 
-        const blind = (state.u.uprops?.[44]?.intrinsic ?? 0) !== 0
-            || (state.u.uprops?.[44]?.extrinsic ?? 0) !== 0;
+        const blind = (state.u.uprops?.[BLINDED]?.intrinsic ?? 0) !== 0
+            || (state.u.uprops?.[BLINDED]?.extrinsic ?? 0) !== 0;
 
         if (orc_count === -1 && warn_cnt > 0) {
-            await ttyPline(
+            await message(
                 `${bare_artifactname(uwep, state)} is ${glow_verb(blind ? 0 : warn_cnt, true)}.`,
                 state);
         } else if (newstr > 0 && newstr !== oldstr) {
             await maybe_lvltport_feedback(state);
 
             if (!blind)
-                await ttyPline(
+                await message(
                     `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(orc_count, false))} ${glow_color(uwep.oartifact, state)}${(newstr > oldstr) ? '!' : '.'}`,
                     state);
             else if (oldstr === 0)
-                await ttyPline(
+                await message(
                     `${bare_artifactname(uwep, state)} ${otense(uwep, glow_verb(0, false))} slightly.`,
                     state);
         } else if (orc_count === 0 && warn_cnt > 0) {
-            await ttyPline(
+            await message(
                 `${bare_artifactname(uwep, state)} stops ${glow_verb(blind ? 0 : warn_cnt, true)}.`,
                 state);
         }

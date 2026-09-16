@@ -16,7 +16,7 @@ import {
     A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    TIMEOUT,
+    TELEPAT, TIMEOUT,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
@@ -59,18 +59,106 @@ import {
     bottlename,
     incr_itimeout,
     make_confused,
+    make_blinded,
     make_glib,
     peffects,
     potionbreathe,
     potionhit,
     set_itimeout,
     speed_up,
+    toggle_blindness,
 } from '../js/potion.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 import {
     loadQuaffBoozeRecipes, loadQuaffHealingRecipes,
     verifyBoozeSegment, verifyHealingSegment,
 } from './run-quaff-confusion.mjs';
+
+test('make_blinded silently extends an existing timed blindness', async () => {
+    const state = {
+        u: { uprops: [] },
+        disp: { botl: false },
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 3, extrinsic: 0, blocked: 0 };
+    const lines = [];
+    await make_blinded(9, false, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 9);
+    assert.deepEqual(lines, []);
+    assert.equal(state.disp.botl, false,
+        'an extension that remains blind does not toggle status display');
+});
+
+test('make_blinded uses injected vision state for planned blindness', async () => {
+    const live = {
+        u: { uprops: [] },
+        disp: { botl: false },
+    };
+    live.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const planned = {
+        u: { uprops: [{}, ...live.u.uprops.slice(1)] },
+        disp: { botl: false },
+    };
+    planned.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const visionCalls = [];
+    const lines = [];
+    await make_blinded(4, false, planned, {
+        message: async (line) => lines.push(line),
+        visionRecalc: (control, options) => {
+            visionCalls.push([control, options.state, options.redraw]);
+        },
+    });
+    assert.equal(planned.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
+    assert.equal(live.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
+    assert.deepEqual(lines, []);
+    assert.equal(visionCalls.length, 1);
+    assert.equal(visionCalls[0][0], 0);
+    assert.equal(visionCalls[0][1], planned);
+    assert.equal(typeof visionCalls[0][2], 'function');
+});
+
+test('toggle_blindness refreshes sensed monsters through a clone redraw seam',
+    async () => {
+    const planned = {
+        u: {
+            ux: 4,
+            uy: 4,
+            uprops: [],
+            usteed: null,
+            uwep: null,
+        },
+        disp: { botl: false },
+        level: {
+            monlist: {
+                mx: 6,
+                my: 4,
+                mhp: 1,
+                mstate: 0,
+                mcansee: 1,
+                mblinded: 0,
+                data: { mflags2: 0 },
+                nmon: null,
+            },
+        },
+        warn_obj_cnt: 0,
+    };
+    planned.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+    planned.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0 };
+    const redraws = [];
+
+    // C display.c:1487-1522 updates meverseen and redraws each monster plus
+    // the hero. The clone callback is deliberately state-aware and never
+    // touches the live display owned by newsym().
+    await toggle_blindness(planned, {
+        visionRecalc: () => {},
+        redraw: (x, y, state) => redraws.push([x, y, state]),
+    });
+    assert.deepEqual(redraws.map(([x, y]) => [x, y]), [[6, 4], [4, 4]]);
+    assert.ok(redraws.every(([, , state]) => state === planned));
+    assert.equal(planned.level.monlist.meverseen, undefined);
+    assert.equal(planned.disp.botl, true);
+});
 
 test('make_glib preserves C boolean XOR and refreshes worn gloves', () => {
     // potion.c:462-468 uses !old ^ !!xtime, including the equal-state cases.
