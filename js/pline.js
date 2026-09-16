@@ -5,10 +5,10 @@
 // list is game state because insight.c #chronicle reads it.
 
 import { game } from './gstate.js';
+import { livelog_add } from './files.js';
 import { truncateByteString } from './hacklib.js';
 import { BUFSZ, PLINE_VERBALIZE } from './const.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 
 // C ref: pline.c verbalize() (476-490). This helper is already used by
 // random-text, prayer, and shop callers; keep it beside the other pline.c
@@ -36,12 +36,14 @@ export function gamelog_add(glflags, gltime, text, state = game) {
 }
 
 // C formats the variadic line, appends it at svm.moves, replaces tabs for the
-// external sink, then calls livelog_add(). The sink has no browser owner and
-// its result is discarded, so record that gap without manufacturing output.
+// external sink, then calls files.c livelog_add(). The sink guard belongs to
+// that source owner, so the chronicle remains present when the default mask
+// makes the external call return immediately.
 export function livelog_printf(ll_type, text, state = game) {
     // C's vsnprintf() uses a BUFSZ * 2 byte buffer, including its terminator.
     const gamelogText = truncateByteString(String(text), BUFSZ * 2 - 1);
     gamelog_add(ll_type, state.moves ?? 0, gamelogText, state);
-    if (state === game)
-        note_unported('pline.c livelog_add');
+    // C's strNsubst() changes only the buffer passed to the external sink;
+    // the in-memory chronicle retains the original tab bytes.
+    livelog_add(ll_type, gamelogText.replaceAll('\t', '_'), state);
 }
