@@ -2368,6 +2368,14 @@ export async function list_genocided(
             extinct && genocided ? ' or extinct' : ''} species:`;
         lines.push({ text: title });
         if (!dumping) lines.push({ text: '' });
+        // C insight.c:3083-3089 passes ask ? ATR_NONE :
+        // iflags.menu_headings.attr to putstr() for class headings. The
+        // command keeps the configured menu heading attribute; final
+        // disclosure suppresses it because `ask` is true at that call site.
+        const classHeadingAttr = ask
+            ? ATR_NONE
+            : Number.isInteger(state.iflags?.menu_headings?.attr)
+                ? state.iflags.menu_headings.attr : ATR_INVERSE;
         let previousClass = null;
         for (const index of indexes) {
             const monster = state.mons?.[index] ?? {};
@@ -2375,6 +2383,7 @@ export async function list_genocided(
             if (classHeader && mlet !== previousClass) {
                 lines.push({
                     text: upstart(MONSTER_CLASS_EXPLANATIONS[mlet] ?? ''),
+                    attr: classHeadingAttr,
                 });
                 previousClass = mlet;
             }

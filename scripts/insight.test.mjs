@@ -1976,6 +1976,44 @@ test('list_genocided includes extinctions only in wizard disclosure', async () =
     ]);
 });
 
+test('list_genocided preserves C class-heading attributes', async () => {
+    const state = monsterCatalog();
+    state.svm = {
+        mvitals: Array.from({ length: state.mons.length }, () => ({
+            mvflags: 0,
+        })),
+    };
+    state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
+    state.svm.mvitals[PM_VAMPIRE].mvflags = G_GENOD;
+    state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
+    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.program_state = {};
+
+    let commandLines;
+    await list_genocided('y', false, state, {
+        displayTextWindow: (_state, values) => {
+            commandLines = values;
+        },
+    });
+    assert.deepEqual(commandLines.filter((line) => line.attr !== undefined), [
+        { text: 'Dog or other canine', attr: ATR_BOLD },
+        { text: 'Vampire', attr: ATR_BOLD },
+    ]);
+
+    let finalLines;
+    await list_genocided('y', true, state, {
+        queryFunction: () => 'y'.charCodeAt(0),
+        displayTextWindow: (_state, values) => {
+            finalLines = values;
+        },
+    });
+    assert.deepEqual(finalLines.filter((line) => line.text === 'Dog or other canine'
+        || line.text === 'Vampire'), [
+        { text: 'Dog or other canine', attr: ATR_NONE },
+        { text: 'Vampire', attr: ATR_NONE },
+    ]);
+});
+
 test('dogenocided admits the command and formats the selected list', async () => {
     const state = monsterCatalog();
     state.svm = {
