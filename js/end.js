@@ -334,9 +334,9 @@ async function savelife(how, state = game) {
 // C ref: end.c fuzzer_savelife() (945-1016).  The debug fuzzer calls this
 // before done() initializes the killer or mortality fields.  It is a
 // return-valued source helper: TRUE returns from done(), while FALSE lets the
-// ordinary death path continue.  peffects() and wiz_makemap() have discarded
-// results/callback effects here but their source owners are not ported, so
-// retain named gaps and do not invent potion effects or a queued level rebuild.
+// ordinary death path continue.  peffects() has a discarded result here and
+// remains a named gap; wiz_makemap() has an unported callback, but its
+// source-required command-queue mutation is retained below.
 async function fuzzer_savelife(how, state = game, source = {}) {
     const programState = state.program_state ?? {};
     if (programState.panicking || how === PANICKED || how === TRICKED)
