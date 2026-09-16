@@ -50395,7 +50395,7 @@
     {
       "id": "div-makemon-red-dragon-seed4500-20260915",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit the source-supported explicit red dragon created by wizard #genesis in holdout/seed4500-knight-coverage: C read.c create_particular_creation() passes PM_RED_DRAGON through makemon.c makemon(), but JavaScript's generic species admission guard rejects it before the already-portable ordinary S_DRAGON lifecycle.",
       "cFile": "makemon.c",
       "sessions": [
@@ -50406,8 +50406,8 @@
       "spans": [
         {
           "name": "makemon-red-dragon-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "80451a85689f96ea7510f40dae30614506f17887",
           "functions": [
             "makemon"
           ]
@@ -50419,8 +50419,11 @@
         "screens": 10070,
         "rng": 739263
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "80451a85689f96ea7510f40dae30614506f17887",
+      "delivered": {
+        "screens": 7,
+        "rng": 100
+      },
       "function": "makemon",
       "session": "holdout/seed4500-knight-coverage",
       "step": 978,
@@ -50492,7 +50495,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "80451a85689f96ea7510f40dae30614506f17887",
+        "screens": 10077,
+        "rng": 739363
+      }
     }
   ]
 }
