@@ -10,6 +10,8 @@ import {
     IRONBARS,
     IS_OBSTRUCTED,
     IS_TREE,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
     M_AP_TYPE,
     M_ATTK_AGR_DIED,
     M_ATTK_AGR_DONE,
@@ -21,17 +23,19 @@ import {
     NATTK,
     NORMAL_SPEED,
     PASSES_WALLS,
+    SLEEP_RES,
     helpless,
     ismnum,
 } from './const.js';
 import {
     capitalizedMonsterName,
+    Monnam,
     mon_nam,
     mon_nam_too,
     monsterPossessive,
 } from './do_name.js';
 import { game } from './gstate.js';
-import { dist2, distmin } from './hacklib.js';
+import { dist2, distmin, s_suffix } from './hacklib.js';
 import { grow_up } from './makemon.js';
 import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
 import {
@@ -39,7 +43,9 @@ import {
     mon_offmap,
     monkilled,
     set_ustuck,
+    unstuck,
     zombie_maker,
+    seemimic,
 } from './mon.js';
 import {
     is_elf,
@@ -52,6 +58,8 @@ import {
     touch_petrifies,
     unsolid,
     zombie_form,
+    defended,
+    monster_resists_element,
 } from './mondata.js';
 import { closed_door, monnear, youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -80,6 +88,7 @@ import {
     AD_COLD,
     AD_ELEC,
     AD_FIRE,
+    AD_SLEE,
     AD_PLYS,
     AD_STUN,
     MZ_HUGE,
@@ -89,6 +98,7 @@ import {
     PM_MEDUSA,
     PM_NURSE,
     PM_WRAITH,
+    S_MIMIC,
     S_TROLL,
 } from './monsters.js';
 import { ART_TROLLSBANE } from './artifacts.js';
@@ -101,6 +111,59 @@ import { cansee } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { possibly_unwield } from './weapon.js';
 import { find_mac } from './worn.js';
+import { finish_meating } from './dogmove.js';
+import { note_unported } from './unported.js';
+import { resist } from './zap.js';
+import { ttyPline } from './tty_message.js';
+
+// C ref: mhitm.c sleep_monst() (1221-1245). zap.c discards its boolean
+// result while trap_effects consumes it; the state transition remains owned
+// by this source module.
+export async function sleep_monst(mtmp, amount, how, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    // C reveals a furniture/object mimic before applying the resistance test;
+    // this happens even when the monster is already helpless.
+    if (how >= 0 && !mtmp.msleeping && !mtmp.mfrozen
+        && mtmp.data?.mlet === S_MIMIC
+        && (M_AP_TYPE(mtmp) === M_AP_FURNITURE
+            || M_AP_TYPE(mtmp) === M_AP_OBJECT)) {
+        seemimic(mtmp, state, env);
+    }
+    let resisted = monster_resists_element(mtmp, SLEEP_RES, state)
+        || defended(mtmp, AD_SLEE, state);
+    if (!resisted && how >= 0) {
+        resisted = await resist(mtmp, how, 0, false, state, random);
+    }
+    if (resisted) {
+        note_unported('display.c shieldeff');
+        return false;
+    }
+    if (!mtmp.mcanmove) return false;
+    finish_meating(mtmp, { state, redraw: env.redraw });
+    amount += mtmp.mfrozen ?? 0;
+    if (amount > 0) {
+        mtmp.mcanmove = false;
+        mtmp.mfrozen = Math.min(amount, 127);
+    } else {
+        mtmp.msleeping = true;
+    }
+    return true;
+}
+
+// C ref: mhitm.c slept_monst() (1250-1258). Sleep that leaves a grabber
+// helpless releases the hero after the source's visible grip message.
+export async function slept_monst(mtmp, env = {}) {
+    const state = env.state ?? game;
+    if (!helpless(mtmp) || mtmp !== state.u?.ustuck
+        || sticks(state.youmonst?.data) || state.u?.uswallow)
+        return;
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const name = Monnam(mtmp, state);
+    await message(`${s_suffix(name)} grip relaxes.`, state, env);
+    unstuck(mtmp, state, env);
+}
 
 // The operations mhitm.c reaches that this file cannot import: the caller owns
 // the terminal and the fail-closed boundary its own segment stops on.

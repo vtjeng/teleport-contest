@@ -734,6 +734,30 @@ export function deltrap(trap, state = game) {
     }
 }
 
+// C ref: trap.c delfloortrap() (6667-6690). Delete floor traps that a
+// terrain effect consumes, clearing the actor's trap state or a monster's
+// trapped flag before unlinking the trap. Keep the trap IDs from const.js in
+// one owner; callers such as fountain gushes and zap floor effects share it.
+export function delfloortrap(trap, state = game) {
+    if (trap && (trap.ttyp === SQKY_BOARD || trap.ttyp === BEAR_TRAP
+        || trap.ttyp === LANDMINE || trap.ttyp === FIRE_TRAP
+        || is_pit(trap.ttyp) || is_hole(trap.ttyp)
+        || trap.ttyp === TELEP_TRAP || trap.ttyp === LEVEL_TELEP
+        || trap.ttyp === WEB || trap.ttyp === MAGIC_TRAP
+        || trap.ttyp === ANTI_MAGIC)) {
+        if (state.u.ux === trap.tx && state.u.uy === trap.ty) {
+            if ((state.u.utraptype ?? TT_NONE) !== TT_BURIEDBALL)
+                reset_utrap(true, state);
+        } else {
+            const monster = m_at(trap.tx, trap.ty, state);
+            if (monster) monster.mtrapped = 0;
+        }
+        deltrap(trap, state);
+        return true;
+    }
+    return false;
+}
+
 // C ref: trap.c conjoined_pits() (6552-6579). Check whether two adjacent
 // pit traps are conjoined (linked in a direction pair). The hero must be
 // entering trap2 while trapped in a pit at trap1.

@@ -221,7 +221,7 @@ export function dig_typ(otmp, x, y, state = game) {
 // C ref: dbridge.c is_moat() (100-112). is_pool() deliberately remains a
 // separate predicate: on Juiblex's level C still calls MOAT terrain a pool,
 // but is_moat() excludes it when fillholetyp() chooses a liquid.
-function is_moat(x, y, state) {
+export function is_moat(x, y, state) {
     const location = state.level?.at(x, y);
     const current = state.u?.uz;
     const juiblex = state.juiblex_level;

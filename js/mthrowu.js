@@ -237,7 +237,7 @@ import { autoreturn_weapon, dmgval, mon_wield_item, select_rwep } from './weapon
 import { spec_abon, Stone_resistance } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { mwelded } from './wield.js';
-import { exclam, hit, miss } from './zap.js';
+import { dobuzz, exclam, hit, miss } from './zap.js';
 import { harmless_missile } from './dothrow.js';
 import { observe_object, discover_object } from './o_init.js';
 import { make_blinded, potionhit } from './potion.js';
@@ -1575,10 +1575,18 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                 }
                 state.gb ??= {};
                 state.gb.buzzer = mtmp;
-                // dobuzz() is void in C. The beam animation, damage, and side
-                // effects are all inside dobuzz; skipping it means the breath
-                // attack produces no effect beyond the RNG draws already made.
-                note_unported('zap.c dobuzz');
+                // C discards dobuzz()'s return value, but the call itself owns
+                // the beam walk, damage, messages, and all of its RNG draws.
+                // Keep the attack environment available so the planning clone
+                // can route output through its silent message seam.
+                await dobuzz(
+                    -20 - BZ_OFS_AD(typ),
+                    mattk.damn,
+                    mtmp.mx, mtmp.my,
+                    sgn(state.gt.tbx), sgn(state.gt.tby),
+                    utarget, utarget, false,
+                    state, random, env,
+                );
                 state.gb.buzzer = 0;
                 nomul(0, state);
                 /* breath runs out sometimes. Also, give monster some
