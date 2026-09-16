@@ -825,12 +825,14 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         splash.level.at(9, 4).typ = POOL;
         splash._ttyToplines = '';
         await throwit(item(splash, DAGGER), 0, false, null, splash);
-        assert.equal(splash._ttyToplines, 'Splash!  The dagger rusts!');
+        assert.equal(splash._ttyToplines, 'Splash!');
         // rm.h:129 puts POOL at 16 and DRAWBRIDGE_UP at 19, so IS_POOL and
         // with it IS_SOFT (rm.h:140) hold here, and dothrow.c:1780's
         // `!IS_SOFT(...) && breaktest(obj)` short-circuits before breaktest().
         // The sound itself has no roll; water_damage's rust protection draw
-        // follows the landing message.
+        // follows the landing message.  erode_obj's visobj gate suppresses
+        // the rust line on a pool square, matching trap.c's submerged-object
+        // visibility test.
         assert.deepEqual(draws(), ['rn2(20)']);
 
         // The same pool, at exactly WT_SPLASH_THRESHOLD: C wants strictly
@@ -840,7 +842,7 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         plop._ttyToplines = '';
         await throwit(item(plop, DART, { quan: 9, owt: 9 }),
             0, false, null, plop);
-        assert.equal(plop._ttyToplines, 'Plop!  The darts rust!');
+        assert.equal(plop._ttyToplines, 'Plop!');
         assert.deepEqual(draws(), ['rn2(20)']);
 
         // One dart more clears it. The fixture carries a deliberately stale
@@ -852,7 +854,7 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         heavier._ttyToplines = '';
         await throwit(item(heavier, DART, { quan: 10, owt: 1 }),
             0, false, null, heavier);
-        assert.equal(heavier._ttyToplines, 'Splash!  The darts rust!');
+        assert.equal(heavier._ttyToplines, 'Splash!');
         assert.deepEqual(draws(), ['rn2(20)']);
 
         // The same weight() call refuses for a food the hero has bitten:
@@ -885,35 +887,38 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         // it draws before the sound.
         assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
 
-        // A wooden club over the same lava is flammable, so C says nothing
-        // and leaves the burning to flooreffects() -> lava_damage().
+        // A wooden club over the same lava is flammable, so the landing sound
+        // is suppressed and flooreffects() -> lava_damage() reports its
+        // destruction instead.
         const burns = arena();
         burns.level.at(9, 4).typ = LAVAPOOL;
         burns._ttyToplines = '';
         await throwit(item(burns, CLUB), 0, false, null, burns);
-        assert.equal(burns._ttyToplines, '');
-        // Silent, but not draw-free: breaktest() runs for lava whatever the
-        // object is made of, and is_flammable() only decides the sound.
-        assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
+        assert.equal(burns._ttyToplines, 'It burns up!');
+        // Silent landing sound, but not draw-free: breaktest() runs for lava
+        // whatever the object is made of, then lava_damage() asks obj_resists
+        // once more before reporting the destruction.
+        assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)', 'rn2(100)']);
 
         // youprop.h Deaf (125) has three sources and the roleplay conduct is
-        // the one a game can start with. A deaf hero hears no splash.
+        // the one a game can start with. A deaf hero hears no splash, and the
+        // pool's visobj gate also keeps the floor rust line hidden.
         const conduct = arena();
         conduct.level.at(9, 4).typ = POOL;
         conduct.u.uroleplay = { deaf: true };
         conduct._ttyToplines = '';
         await throwit(item(conduct, DAGGER), 0, false, null, conduct);
-        assert.equal(conduct._ttyToplines, 'The dagger rusts!');
+        assert.equal(conduct._ttyToplines, '');
         assert.deepEqual(draws(), ['rn2(20)']);
 
-        // The DEAF property also suppresses the splash but does not suppress
-        // water_damage's rust message.
+        // The DEAF property also suppresses the splash; the floor erosion
+        // remains hidden on the pool square.
         const deafened = arena();
         deafened.level.at(9, 4).typ = POOL;
         deafened.u.uprops[DEAF].intrinsic = 1;
         deafened._ttyToplines = '';
         await throwit(item(deafened, DAGGER), 0, false, null, deafened);
-        assert.equal(deafened._ttyToplines, 'The dagger rusts!');
+        assert.equal(deafened._ttyToplines, '');
         assert.deepEqual(draws(), ['rn2(20)']);
 
         // youprop.h Underwater (279) is u.uinwater, which dothrow.c:1637 has

@@ -1890,7 +1890,7 @@ async function release_hero(mon, env = {}) {
             // expels(mon, mon->data, TRUE) is void and not exported.
             note_unported('mhitu.c expels');
         } else if (!sticks(state.youmonst?.data)) {
-            unstuck(mon, state, env);
+            await unstuck(mon, state, env);
             await message('You get released!', state, env);
         }
     }

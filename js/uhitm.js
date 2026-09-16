@@ -140,6 +140,7 @@ import {
     seemimic,
     setmangry,
     set_ustuck,
+    unstuck,
     wakeup,
     xkilled,
 } from './mon.js';
@@ -1566,7 +1567,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             observe_object(obj, state);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
-                note_unported('mon.c minstapetrify');
+                note_unported('trap.c minstapetrify');
             if (!monster_resists_element(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
@@ -1606,7 +1607,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             else useupall(obj, lifeEnv);
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
-                note_unported('mon.c minstapetrify');
+                note_unported('trap.c minstapetrify');
             if (!monster_resists_element(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
@@ -3288,7 +3289,7 @@ export async function mhitm_knockback(
                 ? `and ${y_monnam(state.u.usteed, state, env)} ` : '';
             await message(`You ${suffix}don't budge.`, state);
         } else if (canseemon(mdef, state)) {
-            await message(`${y_monnam(mdef, state, env)} doesn't budge.`, state);
+            await message(`${Monnam(mdef, state)} doesn't budge.`, state);
         }
         return false;
     }
@@ -3317,7 +3318,7 @@ export async function mhitm_knockback(
     }
 
     if (state.u?.ustuck && (u_def || u_agr))
-        set_ustuck(null, state);
+        await unstuck(state.u.ustuck, state, { ...env, state, random: rng });
 
     if (u_def) {
         if (dismount) {
@@ -3325,16 +3326,16 @@ export async function mhitm_knockback(
             state.u.dy = dy;
             note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
         } else {
-            note_unported('uhitm.c hurtle');
+            note_unported('dothrow.c hurtle');
             flags.value |= M_ATTK_HIT;
         }
         set_apparxy(magr, { ...env, state });
         if (!state.u?.uprops?.[STUNNED]?.intrinsic
             && !rng.rn2(4)) {
-            note_unported('timeout.c make_stunned');
+            note_unported('potion.c make_stunned');
         }
     } else {
-        note_unported('uhitm.c mhurtle');
+        note_unported('dothrow.c mhurtle');
         if (!u_agr) flags.value |= M_ATTK_HIT;
         if (mdef.mhp < 1) {
             if (!was_u) flags.value |= M_ATTK_DEF_DIED;

@@ -116,6 +116,7 @@ import {
     NOGARLIC,
     NORMAL_SPEED,
     NOTONL,
+    OBJ_FLOOR,
     OBJ_MINVENT,
     ONAME_NO_FLAGS,
     OPENDOOR,
@@ -165,6 +166,7 @@ import { get_mleash } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
+    docrt,
     glyph_is_invisible,
     map_monster_glyph_info,
     newsym,
@@ -3564,47 +3566,55 @@ export function zombie_maker(mon) {
 // C ref: mon.c unstuck() (3437-3467). Releases a monster that is holding the
 // hero, and re-arms its holding attack so it cannot grab again immediately.
 //
-// 3448-3456's swallowed arm is admitted only for mhitu.c expels(), which
-// supplies allowSwallowedExpulsion after its own source checks. The ball and
-// chain path remains refused because do.c placebc() is not ported; expels()
-// owns the display.c docrt() call after this synchronous state update.
-// Return protocol: undefined means the monster was not the current holder;
-// null means it was released without a deferred cooldown; and `{ mtmp,
-// random }` is the deferred cooldown work item used by mhitu.c expels().
-export function unstuck(mtmp, state = game, env = {}) {
+// set_ustuck() clears both u.ustuck and the swallowed timer before any redraw,
+// exactly as C requires so docrt() sees the released state. The owner is
+// asynchronous because punished-ball placement and the full redraw are
+// asynchronous JS operations; callers must await it on swallowed paths.
+export async function unstuck(mtmp, state = game, env = {}) {
     if (state.u.ustuck !== mtmp) return;
     const random = env.random ?? { rnd };
     const ptr = mtmp.data;
+    const swallowed = Boolean(state.u.uswallow);
 
-    if (state.u.uswallow) {
-        if (!env.allowSwallowedExpulsion) {
-            requiredKillOperation(env, 'unsupported')(
-                'releasing an engulfer',
-            );
-        }
-        if (state.uball || state.uchain) {
-            requiredKillOperation(env, 'unsupported')(
-                'releasing a punished swallowed hero',
-            );
-        }
-        const swallowed = state.u.uswallow;
+    /* do this first so that docrt()'s botl update is accurate; clears
+       u.uswallow as well as setting u.ustuck to Null */
+    set_ustuck(null, state);
 
-        /* set_ustuck(NULL) clears u.uswallow and u.uswldtim. */
-        set_ustuck(null, state);
+    if (swallowed) {
         state.gm ??= {};
         state.gm.mswallower = null;
         state.u.ux = mtmp.mx;
         state.u.uy = mtmp.my;
-        if (swallowed) {
-            // C sets vision_full_recalc before docrt() restores the visible
-            // map around the newly freed hero. The caller performs docrt()
-            // because it is asynchronous in this port.
-            state.vision_full_recalc = 1;
+        if (state.uball && state.uchain
+            && state.uchain.where !== OBJ_FLOOR) {
+            const place = env.placebc
+                ?? (await import('./ball.js')).placebc;
+            await place(state, {
+                ...env,
+                state,
+                redraw: env.planning ? env.redraw ?? (() => {}) : env.redraw,
+            });
         }
-    } else {
-        /* "do this first so that docrt()'s botl update is accurate;
-           clears u.uswallow as well as setting u.ustuck to Null" */
-        set_ustuck(null, state);
+        state.vision_full_recalc = 1;
+        if (typeof env.docrt === 'function') {
+            await env.docrt({ ...env, state, overlayMonsters: false });
+        } else if (!env.planning) {
+            await docrt({ overlayMonsters: false });
+        } else if (typeof env.redraw === 'function') {
+            await env.redraw(state);
+        }
+        // display.c docrt_flags() brackets its map pass with vision_recalc(2)
+        // and vision_recalc(0).  The JavaScript docrt() keeps those controls
+        // with callers, so finish the same bracket here after the swallowed
+        // redraw.  A planning clone supplies its own redraw; without one it
+        // still consumes the pending flag without touching the live view.
+        if (state === game) {
+            vision_recalc(0, { state });
+        } else if (typeof env.redraw === 'function') {
+            vision_recalc(0, { ...env, state });
+        } else {
+            state.vision_full_recalc = 0;
+        }
     }
 
     /* "prevent holder/engulfer from immediately re-holding/re-engulfing
@@ -3614,12 +3624,9 @@ export function unstuck(mtmp, state = game, env = {}) {
     const needsCooldown = !mtmp.mspec_used
         && (dmgtype(ptr, AD_STCK) || attacktype(ptr, AT_ENGL)
             || attacktype(ptr, AT_HUGS));
-    // mhitu.c expels() reaches docrt() from unstuck() before this draw. The
-    // synchronous callers keep the ordinary source order; expels() defers
-    // only this final assignment while it awaits the redraw.
-    if (needsCooldown && !env.deferCooldown)
+    if (needsCooldown)
         mtmp.mspec_used = random.rnd(2);
-    return needsCooldown ? { mtmp, random } : null;
+    return undefined;
 }
 
 // C ref: mon.c relmon() (2558-2594), the replacement path used by replmon().
