@@ -431,7 +431,12 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
     // C makes no transition when both old and xtime are zero, including
     // permanent and blindfold blindness: those sources remain in place.
     const unchangedTimeout = xtime === 0 && old === 0;
-    if (!silentBlindnessChange && !restoresWipedSight && !unchangedTimeout) {
+    // wizcmds.c calls make_blinded(newtimeout, TRUE) for #wizintrinsic.
+    // When a timed blindness is already active, this is the source's silent
+    // extension path: there is no visual transition and no pline().
+    const extendsTimedBlindness = talk === true && old > 0 && xtime > 0;
+    if (!silentBlindnessChange && !restoresWipedSight
+        && !unchangedTimeout && !extendsTimedBlindness) {
         throw new UnsupportedPotionError(
             'make_blinded() outside the ordinary cream-pie transitions',
         );
