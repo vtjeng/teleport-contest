@@ -1773,6 +1773,26 @@ test('list_vanquished preserves C class-heading attributes', async () => {
     ]);
 });
 
+test('list_vanquished uses the canonical default query owner', async () => {
+    // end.c disclose() calls list_vanquished() without queryFunction. Keep
+    // that production call shape here so the prompt comes from cmd.c's
+    // yn_function() rather than an injected test adapter.
+    const state = await readyGame();
+    state.svm.mvitals[PM_WOLF].died = 1;
+    // readyGame() leaves its startup message at the normal --More--
+    // boundary; dismiss it before the disclosure question.
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey('y'.charCodeAt(0));
+    let lines;
+    await list_vanquished('y', true, state, {
+        displayTextWindow: (_state, values) => {
+            lines = values;
+        },
+    });
+    assert.ok(lines.some((line) => /wolf/u.test(line.text)));
+    assert.equal(state.program_state.input_state, 'other');
+});
+
 test('dovanquished consumes the menu-requested flag', async () => {
     const state = {
         iflags: { menu_requested: true },
