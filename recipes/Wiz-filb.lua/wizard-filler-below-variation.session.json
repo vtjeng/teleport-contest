@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 830402,
+      "datetime": "20500613091500",
+      "nethackrc": "OPTIONS=name:WizFilbFresh,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": ".#levelchange\n20\n                   \u0016?\n z  \u00164\n"
+    }
+  ],
+  "comment": "Cheap independent gender variation for the Wizard Quest Home 4 loader. It keeps the source-relevant level route while changing startup character metadata and seed/date."
+}

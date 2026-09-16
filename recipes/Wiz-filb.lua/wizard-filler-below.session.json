@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 830401,
+      "datetime": "20500612091500",
+      "nethackrc": "OPTIONS=name:WizFilbFresh,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": ".#levelchange\n20\n                   \u0016?\n z  \u00164\n"
+    }
+  ],
+  "comment": "Independent Wizard Quest Home 4 route for dat/Wiz-filb.lua: the seed, date, name, and moves were selected separately from the existing Wiz-fila fixtures. The level-teleport menu first enters the Wizard quest and then requests Home 4, which selects the filb loader."
+}
