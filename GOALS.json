@@ -50258,7 +50258,7 @@
     {
       "id": "div-recbranch-mapseen-seed4500-20260915",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Record forward branch mapseen state before cross-dungeon level assignment so #overview can report remembered dungeon branches.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -50266,14 +50266,54 @@
       ],
       "selectionReason": "The current fixed-workload queue selects holdout/seed4500-knight-coverage at step 893 after the fresh bounded investigation measured 921 remaining screens. The first mismatch is source-traced to dungeon.c:recbranch_mapseen, and its source reservation is free; higher-ranked candidates are stale, blocked by unported producer chains, machine-local, immutable parked work, or reserved by another worker. The independent A-r2-12 delivery is eligible under seed continuation and current ownership.",
       "detail": "Fixed-workload holdout/seed4500-knight-coverage, segment 0, input step 893 (#overview). Fresh replay shows a screen/cursor mismatch at the overview branch row after the preceding cross-dungeon transition; upstream nethack-c/upstream/src/dungeon.c:recbranch_mapseen lines 2446-2473 scans svb.branches in source order, matches the forward endpoint, and records the branch pointer, while do.c:goto_level lines 1665-1674 calls it before assign_level() when crossing dungeon numbers. JavaScript goto_level omitted this production call, leaving print_mapseen without the remembered branch. JS owners are js/dungeon.js:recbranch_mapseen and js/do.js:goto_level.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "recbranch-mapseen",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "recbranch_mapseen"
+          ]
+        }
+      ],
+      "openedAt": "cdc0ffb1815d1bf415860f094bd7c02aa3324742",
+      "openStanding": {
+        "sha": "72c56eca4ffc77dd73d12f5055d20dd1a17c080f",
+        "screens": 10065,
+        "rng": 739263
+      },
       "closedAt": null,
       "delivered": null,
       "function": "recbranch_mapseen",
       "session": "holdout/seed4500-knight-coverage",
-      "step": 893
+      "step": 893,
+      "activeStanding": {
+        "sha": "72c56eca4ffc77dd73d12f5055d20dd1a17c080f",
+        "screens": 10065,
+        "rng": 739263
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 893,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 921,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 972
+          }
+        }
+      ]
     }
   ]
 }
