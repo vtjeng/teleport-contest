@@ -53090,6 +53090,626 @@
         "screens": 10319,
         "rng": 756143
       }
+    },
+    {
+      "id": "div-wiz-intrinsic-blind-timeout-seed4500-20260916",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Use the blindness timeout owner for wizard intrinsic changes",
+      "cFile": "wizcmds.c",
+      "sessions": [],
+      "selectionReason": "Highest eligible session holdout/seed4500-knight-coverage has720 remaining screens; investigations/holdout/seed4500-knight-coverage.json traces first screen/cursor mismatch1094 to wizcmds.c wiz_intrinsic. A10 is the oldest ready independent delivery.",
+      "detail": "C wizcmds.c1020-1022 sends BLINDED to make_blinded(newtimeout,TRUE), whose positive-to-positive timer path in potion.c261-331 is silent. JavaScript currently uses generic timeout text and More. Wire the canonical caller and admit the existing silent extension branch, preserving timeout probes and sight-transition handling. Worker menu-runtime and source-pinned tests pass; replay has no screen/cursor/RNG divergence before the later wounded-monster stop at1096.",
+      "spans": [
+        {
+          "name": "wizard-blindness-timeout",
+          "status": "closed",
+          "closedBy": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+          "functions": [
+            "wiz_intrinsic",
+            "make_blinded"
+          ]
+        }
+      ],
+      "openedAt": "9a863c114e6b9a74ec78ab30d5d7a7f313f6ad39",
+      "openStanding": {
+        "sha": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
+        "screens": 10319,
+        "rng": 756143
+      },
+      "closedAt": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
+      "function": "wiz_intrinsic",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1094,
+      "activeStanding": {
+        "sha": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
+        "screens": 10319,
+        "rng": 756143
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1094,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 720,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 720,
+              "status": "complete",
+              "commit": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1094,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 720
+              },
+              "summary": "The blind object-pile heading now matches the C source. The next mismatch is the wizard-intrinsic blindness prompt at step1094: C extends existing blindness silently, while JavaScript uses the generic timeout message and More prompt. A10 has submitted the source-backed caller correction; A11 is tracing the later wounded-monster flee branch.",
+              "source": {
+                "file": "wizcmds.c",
+                "functions": [
+                  "wiz_intrinsic"
+                ],
+                "branch": "With timed blindness already positive, selecting BLINDED in #wizintrinsic increases its timeout. C wizcmds.c1020-1022 calls make_blinded(newtimeout,TRUE), whose potion.c261-331 positive-to-positive timer path neither toggles sight nor prints a message. JavaScript routes BLINDED through the generic timeout/message arm, producing an extra More boundary at screen/cursor1094.",
+                "callers": [
+                  "C cmd.c extcmdlist dispatches #wizintrinsic to wizcmds.c wiz_intrinsic; JavaScript js/cmd.js doextcmd routes the same menu command to js/wizcmds.js wiz_intrinsic.",
+                  "wiz_intrinsic must call canonical js/potion.js make_blinded for BLINDED, preserving the existing menu selection and timeout computation."
+                ],
+                "dependencies": [
+                  "potion.c make_blinded temporarily probes blindness with set_itimeout, restores the prior timeout, then writes the new timeout and calls toggle_blindness only when sight changes. Permit the existing silent positive-to-positive path with talk=true.",
+                  "Keep unrelated blindness transitions and other wizard intrinsic gaps separate; this correction does not claim a complete potion.c or wizcmds.c source port.",
+                  "Later wounded-monster handling belongs to uhitm.c known_hitum and is owned by A11; the wizard-blindness prompt is the earlier mismatch."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Bounded focused replay run-2hERtY, receipt /tmp/teleport-validation-1000/run-2hERtY/receipt.json, used only sessions/holdout/seed4500-knight-coverage.session.json at commit 153fb5a8ff37f5684a897e36cedfa18c7f2b2b56. It emitted 1034 screens and stopped at the queue boundary with no earlier behavioral divergence; replay-result is saved at .cache/investigate-seed4500-153fb5a8/replay-result.json.",
+                "The saved queue entry identifies step 1034, function makemon, sourceFile makemon.c, message “unsupported initial-level monster creation: makemon() monster 177”, and remainingScreensUpperBound 780. The witness is seed 4500, 20000601120000, Knight Coverage, one segment, and the input through the stop ends with #wizgenesis followed by minotaur and newline.",
+                "At the stop, the C session records collect_coords() draws, next_ident(mkobj.c:521), d(16,8)=78 at newmonhp(makemon.c:1042), rn2(2)=1 at makemon(makemon.c:1279), rn2(8)=1 at m_initinv(makemon.c:740), rn2(50)=28 and rn2(100)=17 at m_initinv(makemon.c:826), and rn2(100) at makemon(makemon.c:1447). This proves the C path creates the named minotaur and reaches the generic inventory tail after the current JavaScript refusal.",
+                "C read.c:3212 resolves the typed name through name_to_mon(), :3275-3315 reaches the explicit named-species loop and makemon() call, while C wizcmds.c:203-210 establishes the production #wizgenesis caller. JavaScript read.js:1115-1129 resolves the same PM_MINOTAUR and read.js:1171-1173 invokes makemon_runtime(), confirming the caller is already live up to preflight.",
+                "PM_MINOTAUR is catalog index 177 (js/monsters.js:415) with S_GIANT class (js/monsters.js:211); its existing js/makemon_create.js m_initinv arm matches C’s PM_MINOTAUR WAN_DIGGING branch. The refusal therefore comes from assertSupportedSpecies(), not from missing species data or an unimplemented minotaur inventory branch.",
+                "The replay result lists trap.c selftouch and ball.c set_bc as unrelated accumulated unported state after the boundary; neither is the step-1034 cause. No game code, tests, central records, C recorder, score, scan aggregate, or other session was modified.",
+                "Accepted candidate a0342880e606384b48903ac656ccc92a770b232c checkpoint run-r1BdaY passes: 31/44 sessions,10249/11405 screens,753558/792838 RNG,10271/11405 cursors,267/267 recordings. The beam span adds37 screens,993 RNG values and two independent monster-breath recordings totaling45 screens and6243 RNG calls. The prior candidate153fb5a8 matched the same recordings and score but failed an obsolete naming-call inventory count; correction7ead0433 changes that test from2 to3 after verifying all calls forward state.",
+                "The beam source goal remains parked after span acceptance because monster-to-monster breath, hero spell/polymorph/horn, monster spell, priest/storm and forced-miss ray entries lack matching production evidence. Verified entries are monster-to-hero fire breath and the existing hero fire-wand reflection recording. Runtime minotaur admission is a separate source-traced next goal, not unverified beam scope.",
+                "Immutable minotaur delivery b45491d463555c3738f1674737491096bfccc28c and variation correction fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d preserve generic runtime and stocked-maze callers without the former _fillEmptyMazeMinotaur/allowMinotaur marker. A fresh Ranger genesis case matches2852 RNG and12 screens; an independent role/options variation also matches. Source identity, HP/gender, placement and inventory ordering are covered by focused makemon and wizard-genesis checks. Coordinator integration remains pending.",
+                "Worker A independently claimed A7 from fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d after a focused seed4500 continuation reached step1048. Its source trace identifies hack.c domove_fight_empty: C consults a remembered invisible glyph and does not describe a floor statue unless glyph_is_statue holds; JavaScript looked up the statue unconditionally. The worker reports a source-aligned correction progressing to a separate mon.c invisible-marker planning boundary; A7 remains unvalidated and is not main progress.",
+                "Coordinator integrated A6 as candidate5620e1e2db7c384c622c6a7a828129cc6642763f. Bounded affected run-TBfK0X passed569/569 tests; lint run-RzEkq7 and quality run-OCBfHK passed. Full checkpoint run-YPsR5B is running; no new score is claimed.",
+                "A7 immutable2386a18bea35cd76c6df8aa7801eef898e85741f adds glyph-gated boulder/statue selection and two independent force-fight recordings totaling20 screens and5833 RNG values. Coordinator source review found that the newly admitted selected-object arm could still hit the hoisted unseen-solid-terrain refusal, although C skips its solid-message arm when an object is selected. Feedback requests a !boulder guard and a source-pinned unseen-furniture witness; the delivery is not accepted.",
+                "Coordinator read C hack.c domove_fight_empty2227-2338 in full and compared submitted2386a18b. The selected object is chosen at2254-2260, then unmap_object, optional map_object and newsym precede the object/underwater/solid/thin-air message chain. The source result for the remembered invisible marker is thin air even when a statue exists on the floor. Exact candidate scan cache5620e1e2 contains44 sessions and emits1048 screens for this session with the boulder/statue refusal, beyond prior minotaur step1034.",
+                "A7 correction1a2b0831c83e8c5a94d6a3a09585799608aae9c4 adds !boulder to the hoisted terrain refusal and pins a selected boulder above unseen fountain terrain. Worker focused force-fight checks and lint pass; coordinator source comparison confirms the correction. The worker merged accepted main b9f73e9f at HEAD4b334d9ac99cec3023d60b23281837466569061b before this correction and preserved the submitted commits.",
+                "Full checkpoint5620e1e2db7c384c622c6a7a828129cc6642763f run-uaP28g passes all checks:31/44 sessions,10273/11405 screens,754203/792838 RNG,10295/11405 cursors and271/271 recordings. The minotaur fix gains14 development screens and614 RNG values, adds two independent recordings totaling24 screens and5356 RNG calls, and advances the first boundary from makemon step1034 to domove_fight_empty step1048. Saved scan .cache/A6-development-scan.json and queue run-l0blNy establish the766-screen suffix.",
+                "Worker A8 claimed divergence task div-mondead-planning-map-memory-seed4500-20260916 at immutable1a2b0831c83e8c5a94d6a3a09585799608aae9c4 after the force-fight correction. Scope is mon.c mondead invisible-marker cleanup and clone-owned planning map memory; it is tracing deterministic state and clone initialization before changing source behavior. This worker continuation remains outside validated main and does not change the766-screen queue suffix.",
+                "Coordinator integrated originalA7 2386a18b and correction1a2b0831 as candidate df20c4723600647befa2a614ded8f7eb0f0814cd. Bounded affected run-dXSmUh passed1466/1466 tests, lint run-LKhGXJ and quality run-oJRG5Y passed; full checkpoint run-ubqmkt is running. Chronicle remains separate on preserved recovery branch codex/b8-validation-failed-20260916.",
+                "A8 immutable deliveryd5b93ff2fcc7a39b89963b3861554d4b8bb4cc22 changes mon.c mondead and JavaScript planningState: clone level.locations before unmap_object, preserve unmap-before-m_detach order, and keep relobj redraw silent during planning. Focused mon-kill, monster-action planning and allmain tests plus lint pass; the fixed worker continuation emits1101 screens before a wounded-monster losing-nerve boundary. These are unaccepted worker diagnostics; no A8 development gain is recorded.",
+                "Coordinator inspection of A8 saved replay run-EAKmBb found an earlier screen mismatch at step1063 (row0,column47: C t, JS y) and cursor mismatch at1094, before its later1101 wounded-monster refusal; RNG comparison reports no mismatch. Worker A has been directed to trace step1063 first when selecting A9, rather than treating the later refusal as the first failure. It merged accepted de39cccc at d7103cff and reran197 affected tests successfully.",
+                "A7 exact candidate scan cache df20c472 contains44 sessions and emits1048 screens for this session with boundary simple monster action requires forgetting a remembered invisible monster on a plan. It has no earlier screen/RNG divergence, replacing the former hack.c boulder/statue refusal at the same input step.",
+                "Read-only A8 source check confirms C mon.c3167-3175 ordering, m_detach -> mon_leaving_level -> relobj, and clone map-cell ownership. display.js map memory operations replace remembered_glyph rather than mutating nested fields, so shallow cells isolate the source writes. The planned redraw callback and existing killRedraw guard keep the live terminal unchanged. The source-pinned test reaches clone marker removal while preserving live marker/monster and RNG state. No changed-code defect was found; later screen1063 remains a separate investigation until traced.",
+                "Full checkpoint df20c4723600647befa2a614ded8f7eb0f0814cd/run-FWopIj passes all checks: 31/44 sessions, 10273/11405 screens, 754203/792838 RNG, 10295/11405 cursors and 273/273 recordings. A7 adds two independent recordings totaling 20 screens and 5833 RNG values; the first failure moves from hack.c domove_fight_empty to mon.c mondead at the same step1048. Saved scan .cache/A7-development-scan.json and queue .cache/A7-queue.json establish the unchanged 766-screen suffix.",
+                "Worker A9 traced the first A8-branch screen mismatch at1063 to C invent.c look_here4289-4298: its blind multi-object heading includes that. JavaScript omitted that word. The worker reports a source-backed correction, 71/71 focused tests and lint passing, with no RNG or cursor change at that screen. It remains unaccepted worker work.",
+                "A9 immutable4b070b70417d076bcd014287cd0ba31f2a5bdd84 corrects the blind-pile heading and passes71 focused tests and lint; it is queued after A8. Worker A merged accepted dc91c66d at b376fcbe8b5adb68e2288424320cb9353ec7d766 and reran71 tests. Its next first mismatch is screen/cursor1094 during #wizintrinsic blindness: C remains in the intrinsic menu while JavaScript produces a timeout More prompt; RNG still matches. A10 has claimed wizcmds.c wiz_intrinsic and potion.c make_blinded for that source trace, separate from B8 toggle_blindness.",
+                "Coordinator integrated A8 immutable d5b93ff2 as2c0f1a3b8256da162502ea5246acd9f98ddc05ec. Preflight passes, affected run-BI4lyt passes927/927 tests, lint run-sPXsGY and quality run-4DCwJE pass. Full combined checkpoint is now running; no new development score is claimed.",
+                "At exact candidate2c0f1a3b, the saved44-row checkpoint scan emits1101 screens but its FIRST screen divergence is1063, row0 column47 (C t, JS y); RNG divergence is null. The first cursor divergence is1094, C[38,13,1] and JS[44,0,1]. The later wounded-monster refusal must not replace1063 as the next goal.",
+                "Coordinator compared immutable A9 4b070b70417d076bcd014287cd0ba31f2a5bdd84 with C invent.c look_here multi-object branch: C Sprintf supplies that outside the conditional predicate, and the corrected JavaScript heading has identical blind and sighted output. Its source-pinned object-pile/cockatrice test preserves output order.",
+                "A10 immutable481b11ae4ec50b0e7dfae01d042364b33ec3571d routes BLINDED from wizcmds.c wiz_intrinsic1020-1022 to canonical potion.c make_blinded and admits silent positive-to-positive timed blindness. Two source-pinned/menu-runtime tests, lint and bounded replay pass on its worker branch:1096 emitted screens with no screen/cursor/RNG divergence before the existing wounded-monster stop. This delivery is unaccepted and has no main score claim.",
+                "Worker A traced the first remaining boundary after A10 to C uhitm.c known_hitum623-633: on the wounded-monster branch, rn2(25) precedes !rn2(3)?rnd(100):0, monmove.c monflee(mon,fleeTime,FALSE,TRUE), and possible u.ustuck release. JavaScript consumes rn2(25) then refuses. A11 will wire the existing canonical monflee and set_ustuck owners; this remains separate queued worker progress beyond accepted main.",
+                "Full checkpoint2c0f1a3b8256da162502ea5246acd9f98ddc05ec/run-7lxyS6 passes all checks:31/44 sessions,10318/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A8 gains45 development screens,1940 RNG values and46 cursors; no new recording is added and all10473 recording screens remain matched. Saved .cache/A8-development-scan.json and .cache/A8-queue.json move the first mismatch from1048 to1063 and the queue suffix from766 to751. Frozen syntheticv1 remains2/9 sessions and534/918 screens.",
+                "Coordinator integrated A9 4b070b70 as e9d1b8fb and clarified its source comment in1cb6d227b4f61a249660388e3dd24f3fbf4d67d5. Bounded affected run-Qu2X9U passed1022/1022 tests; lint run-WzpAcs and quality run-TJUGSp passed. Final preflight passes32 test-file coverage checks; full checkpoint is running at1cb6d227.",
+                "Exact candidate1cb6d227 checkpoint cache contains44 sessions. Its seed4500 row emits1101 screens, with first screen AND cursor mismatch now1094: C blank at row0,column0 while JS begins Timeout, and cursors C[38,13,1] versus JS[44,0,1]. RNG divergence remains null. This confirms the blind-pile first mismatch1063 is past its source function.",
+                "Worker A11 reports bounded replay run-s4Z7OM reaches all1814 recorded screens without screen/cursor/RNG divergence after wiring known_hitum to canonical monflee. It is still unaccepted worker evidence; the Vrock createGasCloud dependency and focused checks are being completed before submission.",
+                "Full checkpoint1cb6d227b4f61a249660388e3dd24f3fbf4d67d5/run-eHkVlg passes all checks:31/44 sessions,10319/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A9 gains one development screen and preserves all10473 recording screens. The refreshed queue moves the first mismatch from1063 to1094 and the suffix from751 to720. Syntheticv1 remains2/9 sessions and534/918 screens."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+        "screens": 10321,
+        "rng": 756143
+      }
+    },
+    {
+      "id": "port-insight-chronicle-seed0106-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port the Chronicle command and canonical source event history",
+      "cFile": "insight.c",
+      "sessions": [
+        "holdout/seed0106-priest-extcmd-sweep"
+      ],
+      "selectionReason": "Integrate oldest dependency-ready worker delivery B8 for holdout/seed0106-priest-extcmd-sweep,79 remaining screens at step188; investigations/holdout/seed0106-priest-extcmd-sweep.json traces insight.c do_gamelog/show_gamelog. Higher seed4500 is covered by ready A11 and seed0399 is active A12. Retry the preserved Chronicle candidate with files.c logging-mask correction ffc0b5d5; B9 awaits accepted ancestry.",
+      "detail": "Port insight.c do_gamelog2532-2544 and show_gamelog2561-2595, canonical pline.c gamelog history and existing producers. Independent two-segment Chronicle recording matches30 screens and4596 RNG. Corrected files.c livelog_add honors sysopt.livelog=LL_NONE; prior combined failure0fe050f9 was solely the seed2200 end-of-input gap. Final Major-window and broader producer entry recordings remain unverified, so close the span then park the source goal.",
+      "spans": [
+        {
+          "name": "do_gamelog..show_gamelog",
+          "status": "closed",
+          "closedBy": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
+          "functions": [
+            "do_gamelog",
+            "show_gamelog"
+          ]
+        }
+      ],
+      "openedAt": "307c7a538dc2331a2a84f9974d1c25d7b6a27038",
+      "openStanding": {
+        "sha": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+        "screens": 10321,
+        "rng": 756143
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_gamelog",
+          "line": 2532,
+          "endLine": 2560,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "show_gamelog",
+          "line": 2561,
+          "endLine": 2620,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2532,
+        "to": 2620
+      },
+      "activeStanding": {
+        "sha": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+        "screens": 10321,
+        "rng": 756143
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 188,
+          "kind": "stop",
+          "function": "do_gamelog",
+          "functionDeclared": false,
+          "sourceFile": "insight.c",
+          "cFile": "insight.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: do_gamelog() for the extended command 'chronicle' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 79,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "result": {
+              "session": "holdout/seed0106-priest-extcmd-sweep",
+              "remainingScreensUpperBound": 79,
+              "status": "complete",
+              "commit": "9f756715b5a3158e677087ed813efad39bb910ee",
+              "mismatch": {
+                "session": "holdout/seed0106-priest-extcmd-sweep",
+                "step": 188,
+                "kind": "stop",
+                "function": "do_gamelog",
+                "functionDeclared": false,
+                "sourceFile": "insight.c",
+                "cFile": "insight.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: do_gamelog() for the extended command 'chronicle' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 267,
+                "remainingScreensUpperBound": 79
+              },
+              "summary": "Chronicle B8 is queued for a combined retry with its source-defined disabled-log guard. Conduct B9 waits for accepted Chronicle ancestry; Vanquished B10 has submitted its menu correction. Worker B continues at the next #genocided source boundary as B11, while all four deliveries remain outside accepted main.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "do_gamelog",
+                  "show_gamelog"
+                ],
+                "branch": "With CHRONICLE enabled, do_gamelog displays gg.gamelog through show_gamelog(ENL_GAMEINPROGRESS), or emits No chronicled events. show_gamelog iterates stored turn, flags and text in order; final mode filters major events and ordinary nonwizard play hides spoilers. The JavaScript extended-command row exists but dispatch reaches its unsupported do_gamelog boundary.",
+                "callers": [
+                  "C cmd.c extcmdlist chronicle row invokes insight.c do_gamelog; its CHRONICLE arm calls show_gamelog.",
+                  "JavaScript extcmdlist_data.js registers do_gamelog; cmd.js doextcmd must dispatch to the canonical insight.js owner."
+                ],
+                "dependencies": [
+                  "C pline.c gamelog_add lines495-513 appends gg.gamelog entries; livelog_printf lines516-528 records svm.moves before external-log tab sanitization. Implement one in-memory state owner and source-required producer wiring.",
+                  "Preserve history through initialization, planning clones, saves and restored segments. Trace all existing producers rather than reconstructing events from the fixed recording.",
+                  "Reuse the text-window owner and preserve flags, major/spoiler filtering, message order and ECMD_OK. External livelog output is a separate discarded-result dependency."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
+                "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
+                "nethack-c/upstream/src/pray.c:1852-1896 is the complete dosacrifice() body. Its first guard is source-deterministic: altar/swallow status selects the message, then Confusion/Stunned is checked, and only the later floorfood() call can ask for input or reach offering behavior.",
+                "Current JavaScript source confirms js/cmd.js:289 imports only dopray/doturn from pray.js and js/cmd.js:5162-5167 sends the offer row to the generic unsupported-command boundary. js/pray.js has no dosacrifice export. js/eat.js:2363-2370 documents that #offer/#tin are unported and js/eat.js:2376-2377 throws for the sacrifice call.",
+                "Parked prior delivery 124d7ddb (not an ancestor of current main) added the source-shaped dosacrifice() guard implementation and doextcmd() case, plus scripts/pray.test.mjs and an independent recipes/pray.c/dosacrifice-fresh-ember.session.json with recordings/pray.c/dosacrifice-fresh-ember.session.json. That delivery confirms the guard-only witness but explicitly left floorfood('sacrifice', 1) and altar offering helpers as source gaps; it is useful prior work, not current parity evidence.",
+                "Worker B task B-20260916-5 started from c1d1f813f667b497fca98048757de1270bcb0e2b after the seed0014 worker replay matched all 714 screens. Its source reservations cover pray.c dosacrifice, eat.c floorfood and offer_ok, with command/item-action wiring. The work remains unsubmitted.",
+                "Read-only source survey confirms dosacrifice computes altar alignment before its altar/swallow and Confusion/Stunned guards, which consume no RNG or selector input. The used floorfood return requires its offering path, ordered skip-floor predicate, getobj_else lifetime, source prompts and cockatrice handling. Pure offer_ok uses exact class/type filters and Astral XOR; DOWNPLAY remains selectable by the queued inventory key.",
+                "Worker B reports an independently chosen offering-command differential passing run-S9GiYR with 10 screens/cursors and 2487 RNG values. It preserved its WIP while submitting the unrelated fountain validation correction, then resumed task B-20260916-5. Source coverage, additional entry evidence and immutable delivery are still in progress; these are not main score figures.",
+                "Coordinator review of C eat.c floorfood lines3577-3730 found the worker selector still omitted the pool/lava skip condition and retained metal-eating and tinning refusals. The dependency must preserve bear-trap extraction, iron-bar hands_obj selection, gold and ordinary floor iteration, tin_ok, exact getobj_else cleanup, and the source three-way candidate predicate. Worker B is completing that whole function and reusing existing owners before submission.",
+                "Worker B preserved its WIP, merged validated main17c7e13e at a clean boundary, and restored the work on merged HEAD957b2ba1. Submitted B4 commits remain unchanged. Focused checks affected by the merge are being rerun.",
+                "Worker B completed the floorfood liquid short-circuit, bear-trap extraction guard, rust-monster pointer comparison, tinning classifier and iron-bar hands_obj caller path. Its bounded node --test run of scripts/eat.test.mjs, scripts/eat-prompt.test.mjs and scripts/pray.test.mjs passed all three files with no failures; /tmp/B5-focused.log records the worker result. The independent altar probes did not reach selection because unanswered More and location-tip prompts consumed their command keys; a simpler production setup is being investigated.",
+                "Checkpoint d000a93a661324725f4a20144d811b2c3b83aff6 run-pM0K7h passes:31/44 complete sessions,10199/11405 screens,752563/792838 RNG,10226/11405 cursors,265/265 recordings. The sacrifice span adds51 screens and two independent recordings totaling74 screens and7990 RNG calls.",
+                "Saved scan .cache/B5-development-scan.json and mismatch queue run-BlyNK7 locate this session at step175, doextversion stop,92 remaining-screen upper bound. Source inspection confirms the generated row and existing callee, isolating missing command dispatch.",
+                "Worker B claimed B-20260916-6 from immutable23e44e40705da27c6f57ff61485d5e22c6575d09 with cmd.c doextcmd, version.c doextversion and the version text-window contract reserved. It is implementing the independent same-session continuation.",
+                "Checkpoint 9f756715b5a3158e677087ed813efad39bb910ee run-6ztYn5 passes all checks: 31/44 sessions, 10212/11405 screens, 752565/792838 RNG, 10239/11405 cursors, and 265/265 recordings. Relative to B5 it gains 13 screens and 2 RNG values; no new raw recording was added. The independent version matrix run-poSId8 matched after its documented Linux/Darwin host-string normalization.",
+                "Saved scan .cache/B6-development-scan.json and queue run-F9fQzR locate step 188 at do_gamelog with a 79-screen upper bound. Coordinator source read of insight.c2532-2595 and pline.c495-528 confirms the command, display filters, chronological state and turn capture. Worker B claimed B-20260916-8 for this same-session continuation; its earlier unedited thitmonst claim B7 is parked and owns no source.",
+                "Worker B8 reports an independent chronicle recipe using seed812345 and date20360110090000 matching 15 screens/cursors and2443 RNG calls, plus four focused suites and lint. These are worker results, not accepted main figures. Canonical state.gamelog entries capture state.moves, text and flags; save/restore rebuilds history and planning clones copy its entries independently.",
+                "Read-only source survey identified insight.c record_achievement lines2415-2471 and achieve_msg57-100 as the central missing producer for existing do/music/rooms/priest/shk/invent/exper callers. Other already-ported producers include polymorph, chewing and pet deaths, artifact naming/discovery, shop robbery, alignment, literacy and wishes. Wire each exact source call and branch text; startup pet initialization must remain silent before program_state.in_moveloop. Unported gameplay paths retain their explicit gaps.",
+                "Latest worker B8 work includes source-backed polymorph, shop robbery and supported eating events, plus central record_achievement town/shop and dynamic rank/prize text. Remaining implemented invent/engrave/dog/mon/pray event callers are being checked; expanded focused validation is still pending. These unfinished worker changes do not alter accepted main figures.",
+                "Chronicle delivery1f7b5dd8 was reviewed and preserved while combined focused checks passed4541/4548 and lint/quality passed. Corrections cover seven fixtures, source do.c goto_level and end.c really_done producers, full botl.c describe_level formatting and message/RNG ownership through inventory learning after blindness. Worker source checks identify the earlier seed0106 screen difference at step176 as host-specific #version output, separate from the later distfleeck RNG divergence. No B8 game change or gain is accepted on main yet.",
+                "Correction 8556380de8adb6f7c709a524e35e2ee1a2f02a16 supplies the omitted goto_level and really_done events, source-pinned describe_level formatting, inventory callback propagation and the seven fixture corrections. Worker B merged accepted main b9f73e9f at a clean boundary to HEAD67342e5a252e812c5b7a0c03492ffe89cc839c5c and reran 12 affected suites plus lint successfully. B8 remains queued behind minotaur validation; these checks are not main score evidence.",
+                "Worker B9 at immutable base67342e5a252e812c5b7a0c03492ffe89cc839c5c traced the first gameplay stop after the known platform-specific #version screen to #conduct: js/cmd.js ADMITTED_COMMANDS omits conduct, while js/end.js has a partial show_conduct with refusals. C insight.c doconduct2081 calls show_conduct(ENL_GAMEINPROGRESS), and show_conduct2089-2236 owns the complete voluntary-challenges window. The worker claimed both functions, return-used num_genocides/sokoban_in_play and command/final-disclosure wiring; the later step265 distfleeck RNG annotation is downstream and does not establish the root cause.",
+                "Coordinator merged immutable Chronicle delivery1f7b5dd8, correction8556380d and the reviewed removal of the redundant no-state-assertion matrix. Candidate0fe050f97e38a833c7b5ffa87b23dca931faa4cf has recorded source/caller evidence; three bounded affected groups passed1532+1914+1391=4837 tests, lint run-KfYCp8 and quality run-HEBOO6 passed. Full checkpoint is running; final Major-window and broader producer entry recordings remain unverified.",
+                "Worker B9 delivered47aaacee6689a43391ecbdd9590ac6e6735c7c6f, porting insight.c doconduct/show_conduct and return-used num_genocides/sokoban_in_play, admitting #conduct and wiring final disclosure. Its independent Wizard/elf/female/chaotic recipe matched12 screens/cursors and3256 RNG values. The worker then merged accepted main dcfa9eab into cde3febd7d4a4dccdbe0febd10097cc7529ba0bb and reports a pettype:cat variation matching12 screens/cursors and2299 RNG values, with focused checks and lint passing; immutable correction is pending. The next worker-only gameplay boundary is #vanquished; the version banner and later distfleeck trace remain distinct diagnostics.",
+                "B9 variation correctionb40996d7e30dd60e8c04f4e90bba265f54639c2e is submitted and received, based on mergedcde3febd7d4a4dccdbe0febd10097cc7529ba0bb. Its final committed variation uses OPTIONS=blind and exercises the blind-from-birth row, matching12 screens/cursors and2611 RNG values; the earlier pet probe was not the submitted variation. The two committed conduct recordings total24 matching screens/cursors and5867 RNG values. Combined integration remains pending.",
+                "Read-only source check of B9 commit47aaacee, independently confirmed by coordinator: end.c disclose685 passes how>=PANICKED?1:2 to show_conduct, while the current JS caller still passes2 even for QUIT=13. insight.c num_genocides2953-2966 uses UniqCritterIndx2776-2778, which excludes PM_HIGH_CLERIC from the G_UNIQ diagnostic; the JS count is correct but the diagnostic predicate lacks that exclusion. Feedback is queued against latestB9b40996d7 for correction at the next safe task boundary. Command wiring, conduct line order/text and sokoban_in_play matched source; final show_achievements remains an explicit missing void-output dependency.",
+                "B9 source correction958b41a13910cf60fc2ba6a19a5f8e348682ac24 now passes the C-derived alive/dead selector from disclose and excludes PM_HIGH_CLERIC from the unique-genocide diagnostic. Coordinator source comparison verifies both fixes. The immutable packet preserves the original47aaacee implementation, b40996d7 variation and focused/lint evidence; combined acceptance is still pending.",
+                "Checkpoint0fe050f97e38a833c7b5ffa87b23dca931faa4cf run-rNWDtK passed full tests, static/generated checks, development scoring and272/272 recordings (10483 screens,1392471 RNG), but failed end-of-input-over-read for seed2200 segment0 with pline.c livelog_add as its only gap. Measured10284 development screens are unaccepted candidate figures; published standing remains10273. C files.c livelog_add3667-3719 returns before external output when ll_type & sysopt.livelog is zero; sys.c sys_early_init63 initializes LL_NONE and the installed upstream sysconf LIVELOG setting is commented. JavaScript pline.js records that gap unconditionally and names the wrong source file. Correction must wire the source gate, retaining canonical Chronicle history and the over-read validator.",
+                "Coordinator preserved conduct-only candidate on codex/b9-integration-wait-20260916 at7b6d17dc after bounded run-y5pdQH passed1397/1397 affected tests and run-FtcQrH lint passed. Selective cherry-picks f0f8ce10,3b685eab,e515f596 exclude unaccepted Chronicle source; c4a4c64e adds independent ACH_SOKO and ECMD_OK imports inherited from the worker base. Preflight cannot match original47aaacee patch identity after those conflict resolutions, so B9 is parked pending accepted B8 ancestry; no B9 score or acceptance is claimed. Published main remains the passing force-fight result.",
+                "B10 owns insight.c vanqsort_cmp, set_vanq_order, dovanquished and list_vanquished with production extended-command and final-disclosure wiring. It remains worker work outside validated main. B8 correction follows at a clean boundary: preserve gamelog_add and honor files.c livelog_add3667-3719 early return when ll_type does not intersect sysopt.livelog; sys.c sys_early_init sets LL_NONE and the recorder sysconf leaves LIVELOG commented.",
+                "B10 immutable14df042b465eb874019a727176e9c97be88ecd79 plus28483fb3 contains insight.c vanquished-family source and three fresh recordings totaling71 screens and8327 RNG values. Focused166 tests and lint pass on the worker branch. Source check identified a menu contract defect: C set_vanq_order2744-2764 returns the current mode on an empty Return/Space commit, but JS omits preselected/emptyValue and the menu owner returnsnull, aborting disclosure selection a. Correction is queued after B8; explicit Escape must remain-1. Comparator tests also need real rider/high-cleric catalog indices or narrower coverage claims.",
+                "B8 correctionffc0b5d569a32e4f90a414436d50a3bea9d36e16 adds the files.c livelog_add mask guard, initializes canonical sysopt.livelog to LL_NONE in the existing startup owner, preserves gamelog history and changes tabs only in the external-sink buffer. Bounded focused run-LxKAyO passes529 tests; runtime/insight checks and lint pass. Fresh Chronicle run-BTCLQp matches30 screens and4596 RNG. Saved seed2200 over-read witness run-iPmnCa exits0 with no boundary or unported entries, retaining the known host-path mismatch. Full combined retry remains pending. Worker B merged accepted10ca859d at ed0fbd2b and reran123 affected tests successfully.",
+                "B10 menu correction79c168c5bd0903801bee435595c14bda656035e1 supplies current flags.vanq_sortmode as preselected, preserving empty Return/Space commits and hidden genocide count modes while Escape cancels. Focused159 tests and lint pass; fresh positive vanquished replay matches41 screens and2817 RNG. Worker B merged accepted9a863c11 at35a21617279726082734a4cc0c4ceb816a8e22e5 and reran230 affected tests. B8 and B10 submitted commits remain immutable and unaccepted.",
+                "Worker B11 claimed insight.c num_extinct, num_gone, list_genocided and dogenocided with production command admission after a focused seed0106 continuation reached #genocided. Pending B10 comparator coverage correction will be handled at its next clean task boundary; source menu correction79c168c5 is already queued."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_gamelog",
+            "implementation": "js/insight.js",
+            "symbol": "do_gamelog",
+            "sourceReview": "Read insight.c do_gamelog() at lines 2532-2544 in full. The active CHRONICLE branch checks the canonical gamelog pointer, calls show_gamelog(ENL_GAMEINPROGRESS) when nonempty, otherwise emits the no-events message, and returns ECMD_OK. js/insight.js mirrors those branches with the state-owned gamelog array, awaits text-window dismissal, and preserves the return value. The compile-time-disabled branch remains outside the active recorder build.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches the #chronicle extended-command row to insight.c do_gamelog(); js/cmd.js admits chronicle through the existing extended-command dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/chronicle-command-independent.session.json"
+            ],
+            "checkedAt": "f909ea80bbc6569ae4f679b0a8d5a2e260fb752c"
+          },
+          {
+            "name": "show_gamelog",
+            "implementation": "js/insight.js",
+            "symbol": "show_gamelog",
+            "sourceReview": "Read insight.c show_gamelog() at lines 2561-2595 in full. The port preserves linked-list insertion order, the Logged/Major title, one initial Turn heading, final LL_majors filtering, in-progress spoiler filtering for non-wizards, the no-events fallback, C Snprintf(BUFSZ) display-line truncation, and the blocking NHW_TEXT display/destroy sequence through displayTtyTextWindow. pline.c livelog_printf() supplies state.moves timestamps and a BUFSZ*2 formatted event string before this display bound.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "do_gamelog",
+                "source": "insight.c do_gamelog() calls show_gamelog(ENL_GAMEINPROGRESS) for a nonempty canonical gamelog; js/insight.js passes the same in-progress selector and text-window owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/chronicle-command-independent.session.json"
+            ],
+            "checkedAt": "f909ea80bbc6569ae4f679b0a8d5a2e260fb752c"
+          }
+        ],
+        "entryPointReview": "The selected production entry point is #chronicle in the active CHRONICLE build. The committed independent recipe has two segments with independent role, seed, date, and input variations; both reach do_gamelog/show_gamelog and the fresh C/JavaScript differential passes with 30 screens, 30 cursors, and 4,596 PRNG calls. The canonical pline.c in-memory gamelog owner records producer text at state.moves and preserves planning/save/restore ownership. Source review also wires the supported read.c generic first-literacy arm, quest.c worthy first-assignment arm, do.c new-level LL_DEBUG/LL_ACHIEVE event, and end.c ordinary LL_DUMP event. botl.c describe_level is pure and source-pinned. Inventory sight restoration carries message/update owners through potion.c and timeout.c without painting planning clones. Unsupported object/effect, quest, external dump, and final Major recording gaps remain explicit; the final Major window has source-pinned tests but no production recording in this span. Retry correction ffc0b5d5 adds files.c livelog_add mask gating and sys.c LL_NONE initialization; pline.c livelog_printf appends canonical history before replacing tabs in its external-sink buffer. The source gate fixes the prior seed2200 end-of-input regression without suppressing the validator. This record verifies only the selected insight.c functions; the enabled external sink remains an explicit unported dependency.",
+        "entryPoints": [
+          {
+            "name": "#chronicle in-progress logged-events window",
+            "functions": [
+              "do_gamelog",
+              "show_gamelog"
+            ],
+            "recordings": [
+              "recordings/insight.c/chronicle-command-independent.session.json"
+            ]
+          },
+          {
+            "name": "final Major chronicle window",
+            "functions": [
+              "show_gamelog"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "source-required gamelog producer wiring",
+            "functions": [
+              "do_gamelog",
+              "show_gamelog"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 11,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
+        "screens": 10332,
+        "rng": 756143
+      },
+      "parkedReason": "The completed Chronicle command span passes checkpoint341ff4fd and its independent recording. Final Major-window and broader source-producer entry recordings remain unverified; preserve them while integrating the next fixed mismatch at doconduct199."
+    },
+    {
+      "id": "port-insight-conduct-seed0106-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port the voluntary conduct command and final-disclosure caller",
+      "cFile": "insight.c",
+      "sessions": [
+        "holdout/seed0106-priest-extcmd-sweep"
+      ],
+      "selectionReason": "Integrate resumed oldest-ready B9 for holdout/seed0106-priest-extcmd-sweep,68 remaining screens at step199; investigations/holdout/seed0106-priest-extcmd-sweep.json traces insight.c doconduct/show_conduct. Accepted Chronicle ancestry now permits exact delivery merging. Higher seed4500 has ready A11 and seed0399 has active A12; preserve those separate results.",
+      "detail": "Port complete insight.c doconduct2081-2085/show_conduct2089-2236 and return-used num_genocides/sokoban_in_play. Wire cmd admission and end.c disclose how>=PANICKED alive selector; preserve PM_HIGH_CLERIC uniqueness exception. Two independent recordings total24 screens and5867 RNG. Final disclosure entry remains unrecorded, so close the span then park the source goal.",
+      "spans": [
+        {
+          "name": "doconduct..show_conduct",
+          "status": "closed",
+          "closedBy": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+          "functions": [
+            "doconduct",
+            "show_conduct"
+          ]
+        }
+      ],
+      "openedAt": "868dfe058712c42d4c18aa7e6ccc4395bc2e5858",
+      "openStanding": {
+        "sha": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
+        "screens": 10332,
+        "rng": 756143
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doconduct",
+          "line": 2081,
+          "endLine": 2088,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "show_conduct",
+          "line": 2089,
+          "endLine": 2242,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2081,
+        "to": 2242
+      },
+      "activeStanding": {
+        "sha": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
+        "screens": 10332,
+        "rng": 756143
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 199,
+          "kind": "stop",
+          "function": "doconduct",
+          "functionDeclared": false,
+          "sourceFile": "insight.c",
+          "cFile": "insight.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: doconduct() for the extended command 'conduct' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 68,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "result": {
+              "session": "holdout/seed0106-priest-extcmd-sweep",
+              "remainingScreensUpperBound": 68,
+              "status": "complete",
+              "commit": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
+              "mismatch": {
+                "session": "holdout/seed0106-priest-extcmd-sweep",
+                "step": 199,
+                "kind": "stop",
+                "function": "doconduct",
+                "functionDeclared": false,
+                "sourceFile": "insight.c",
+                "cFile": "insight.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: doconduct() for the extended command 'conduct' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 267,
+                "remainingScreensUpperBound": 68
+              },
+              "summary": "Chronicle passes combined validation, advancing the first mismatch from188 to199. The next source gap is #conduct: the command is not admitted and the end-disclosure implementation is partial. B9 is submitted with source corrections and two independent recordings; it can resume integration once Chronicle publication is recorded.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "doconduct",
+                  "show_conduct"
+                ],
+                "branch": "C insight.c2081-2085 calls show_conduct(ENL_GAMEINPROGRESS) and returns ECMD_OK. Complete show_conduct2089-2236 displays source-ordered roleplay, food/religion/combat/literacy/genocide/polymorph/wish conduct and related achievement rows. JavaScript cmd.js omits conduct admission and end.js holds a partial disclosure owner.",
+                "callers": [
+                  "cmd.c extended-command dispatch calls doconduct for #conduct; wire the corresponding js/cmd.js admission and dispatch to js/insight.js.",
+                  "C end.c disclose passes ENL_GAMEOVERALIVE when how>=PANICKED and ENL_GAMEOVERDEAD otherwise; move the partial js/end.js owner to the canonical insight.js family."
+                ],
+                "dependencies": [
+                  "Return-used insight.c num_genocides and sokoban_in_play belong in the same span. UniqCritterIndx excludes PM_HIGH_CLERIC despite G_UNIQ.",
+                  "Preserve canonical conduct counters, achievement state, menu_requested and text-window order; missing void show_achievements remains an explicit source gap.",
+                  "B9 immutable47aaacee,b40996d7,958b41a1 contains command and source corrections plus24 independently recorded screens; final disclosure entry lacks matching recorded evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
+                "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
+                "nethack-c/upstream/src/pray.c:1852-1896 is the complete dosacrifice() body. Its first guard is source-deterministic: altar/swallow status selects the message, then Confusion/Stunned is checked, and only the later floorfood() call can ask for input or reach offering behavior.",
+                "Current JavaScript source confirms js/cmd.js:289 imports only dopray/doturn from pray.js and js/cmd.js:5162-5167 sends the offer row to the generic unsupported-command boundary. js/pray.js has no dosacrifice export. js/eat.js:2363-2370 documents that #offer/#tin are unported and js/eat.js:2376-2377 throws for the sacrifice call.",
+                "Parked prior delivery 124d7ddb (not an ancestor of current main) added the source-shaped dosacrifice() guard implementation and doextcmd() case, plus scripts/pray.test.mjs and an independent recipes/pray.c/dosacrifice-fresh-ember.session.json with recordings/pray.c/dosacrifice-fresh-ember.session.json. That delivery confirms the guard-only witness but explicitly left floorfood('sacrifice', 1) and altar offering helpers as source gaps; it is useful prior work, not current parity evidence.",
+                "Worker B task B-20260916-5 started from c1d1f813f667b497fca98048757de1270bcb0e2b after the seed0014 worker replay matched all 714 screens. Its source reservations cover pray.c dosacrifice, eat.c floorfood and offer_ok, with command/item-action wiring. The work remains unsubmitted.",
+                "Read-only source survey confirms dosacrifice computes altar alignment before its altar/swallow and Confusion/Stunned guards, which consume no RNG or selector input. The used floorfood return requires its offering path, ordered skip-floor predicate, getobj_else lifetime, source prompts and cockatrice handling. Pure offer_ok uses exact class/type filters and Astral XOR; DOWNPLAY remains selectable by the queued inventory key.",
+                "Worker B reports an independently chosen offering-command differential passing run-S9GiYR with 10 screens/cursors and 2487 RNG values. It preserved its WIP while submitting the unrelated fountain validation correction, then resumed task B-20260916-5. Source coverage, additional entry evidence and immutable delivery are still in progress; these are not main score figures.",
+                "Coordinator review of C eat.c floorfood lines3577-3730 found the worker selector still omitted the pool/lava skip condition and retained metal-eating and tinning refusals. The dependency must preserve bear-trap extraction, iron-bar hands_obj selection, gold and ordinary floor iteration, tin_ok, exact getobj_else cleanup, and the source three-way candidate predicate. Worker B is completing that whole function and reusing existing owners before submission.",
+                "Worker B preserved its WIP, merged validated main17c7e13e at a clean boundary, and restored the work on merged HEAD957b2ba1. Submitted B4 commits remain unchanged. Focused checks affected by the merge are being rerun.",
+                "Worker B completed the floorfood liquid short-circuit, bear-trap extraction guard, rust-monster pointer comparison, tinning classifier and iron-bar hands_obj caller path. Its bounded node --test run of scripts/eat.test.mjs, scripts/eat-prompt.test.mjs and scripts/pray.test.mjs passed all three files with no failures; /tmp/B5-focused.log records the worker result. The independent altar probes did not reach selection because unanswered More and location-tip prompts consumed their command keys; a simpler production setup is being investigated.",
+                "Checkpoint d000a93a661324725f4a20144d811b2c3b83aff6 run-pM0K7h passes:31/44 complete sessions,10199/11405 screens,752563/792838 RNG,10226/11405 cursors,265/265 recordings. The sacrifice span adds51 screens and two independent recordings totaling74 screens and7990 RNG calls.",
+                "Saved scan .cache/B5-development-scan.json and mismatch queue run-BlyNK7 locate this session at step175, doextversion stop,92 remaining-screen upper bound. Source inspection confirms the generated row and existing callee, isolating missing command dispatch.",
+                "Worker B claimed B-20260916-6 from immutable23e44e40705da27c6f57ff61485d5e22c6575d09 with cmd.c doextcmd, version.c doextversion and the version text-window contract reserved. It is implementing the independent same-session continuation.",
+                "Checkpoint 9f756715b5a3158e677087ed813efad39bb910ee run-6ztYn5 passes all checks: 31/44 sessions, 10212/11405 screens, 752565/792838 RNG, 10239/11405 cursors, and 265/265 recordings. Relative to B5 it gains 13 screens and 2 RNG values; no new raw recording was added. The independent version matrix run-poSId8 matched after its documented Linux/Darwin host-string normalization.",
+                "Saved scan .cache/B6-development-scan.json and queue run-F9fQzR locate step 188 at do_gamelog with a 79-screen upper bound. Coordinator source read of insight.c2532-2595 and pline.c495-528 confirms the command, display filters, chronological state and turn capture. Worker B claimed B-20260916-8 for this same-session continuation; its earlier unedited thitmonst claim B7 is parked and owns no source.",
+                "Worker B8 reports an independent chronicle recipe using seed812345 and date20360110090000 matching 15 screens/cursors and2443 RNG calls, plus four focused suites and lint. These are worker results, not accepted main figures. Canonical state.gamelog entries capture state.moves, text and flags; save/restore rebuilds history and planning clones copy its entries independently.",
+                "Read-only source survey identified insight.c record_achievement lines2415-2471 and achieve_msg57-100 as the central missing producer for existing do/music/rooms/priest/shk/invent/exper callers. Other already-ported producers include polymorph, chewing and pet deaths, artifact naming/discovery, shop robbery, alignment, literacy and wishes. Wire each exact source call and branch text; startup pet initialization must remain silent before program_state.in_moveloop. Unported gameplay paths retain their explicit gaps.",
+                "Latest worker B8 work includes source-backed polymorph, shop robbery and supported eating events, plus central record_achievement town/shop and dynamic rank/prize text. Remaining implemented invent/engrave/dog/mon/pray event callers are being checked; expanded focused validation is still pending. These unfinished worker changes do not alter accepted main figures.",
+                "Chronicle delivery1f7b5dd8 was reviewed and preserved while combined focused checks passed4541/4548 and lint/quality passed. Corrections cover seven fixtures, source do.c goto_level and end.c really_done producers, full botl.c describe_level formatting and message/RNG ownership through inventory learning after blindness. Worker source checks identify the earlier seed0106 screen difference at step176 as host-specific #version output, separate from the later distfleeck RNG divergence. No B8 game change or gain is accepted on main yet.",
+                "Correction 8556380de8adb6f7c709a524e35e2ee1a2f02a16 supplies the omitted goto_level and really_done events, source-pinned describe_level formatting, inventory callback propagation and the seven fixture corrections. Worker B merged accepted main b9f73e9f at a clean boundary to HEAD67342e5a252e812c5b7a0c03492ffe89cc839c5c and reran 12 affected suites plus lint successfully. B8 remains queued behind minotaur validation; these checks are not main score evidence.",
+                "Worker B9 at immutable base67342e5a252e812c5b7a0c03492ffe89cc839c5c traced the first gameplay stop after the known platform-specific #version screen to #conduct: js/cmd.js ADMITTED_COMMANDS omits conduct, while js/end.js has a partial show_conduct with refusals. C insight.c doconduct2081 calls show_conduct(ENL_GAMEINPROGRESS), and show_conduct2089-2236 owns the complete voluntary-challenges window. The worker claimed both functions, return-used num_genocides/sokoban_in_play and command/final-disclosure wiring; the later step265 distfleeck RNG annotation is downstream and does not establish the root cause.",
+                "Coordinator merged immutable Chronicle delivery1f7b5dd8, correction8556380d and the reviewed removal of the redundant no-state-assertion matrix. Candidate0fe050f97e38a833c7b5ffa87b23dca931faa4cf has recorded source/caller evidence; three bounded affected groups passed1532+1914+1391=4837 tests, lint run-KfYCp8 and quality run-HEBOO6 passed. Full checkpoint is running; final Major-window and broader producer entry recordings remain unverified.",
+                "Worker B9 delivered47aaacee6689a43391ecbdd9590ac6e6735c7c6f, porting insight.c doconduct/show_conduct and return-used num_genocides/sokoban_in_play, admitting #conduct and wiring final disclosure. Its independent Wizard/elf/female/chaotic recipe matched12 screens/cursors and3256 RNG values. The worker then merged accepted main dcfa9eab into cde3febd7d4a4dccdbe0febd10097cc7529ba0bb and reports a pettype:cat variation matching12 screens/cursors and2299 RNG values, with focused checks and lint passing; immutable correction is pending. The next worker-only gameplay boundary is #vanquished; the version banner and later distfleeck trace remain distinct diagnostics.",
+                "B9 variation correctionb40996d7e30dd60e8c04f4e90bba265f54639c2e is submitted and received, based on mergedcde3febd7d4a4dccdbe0febd10097cc7529ba0bb. Its final committed variation uses OPTIONS=blind and exercises the blind-from-birth row, matching12 screens/cursors and2611 RNG values; the earlier pet probe was not the submitted variation. The two committed conduct recordings total24 matching screens/cursors and5867 RNG values. Combined integration remains pending.",
+                "Read-only source check of B9 commit47aaacee, independently confirmed by coordinator: end.c disclose685 passes how>=PANICKED?1:2 to show_conduct, while the current JS caller still passes2 even for QUIT=13. insight.c num_genocides2953-2966 uses UniqCritterIndx2776-2778, which excludes PM_HIGH_CLERIC from the G_UNIQ diagnostic; the JS count is correct but the diagnostic predicate lacks that exclusion. Feedback is queued against latestB9b40996d7 for correction at the next safe task boundary. Command wiring, conduct line order/text and sokoban_in_play matched source; final show_achievements remains an explicit missing void-output dependency.",
+                "B9 source correction958b41a13910cf60fc2ba6a19a5f8e348682ac24 now passes the C-derived alive/dead selector from disclose and excludes PM_HIGH_CLERIC from the unique-genocide diagnostic. Coordinator source comparison verifies both fixes. The immutable packet preserves the original47aaacee implementation, b40996d7 variation and focused/lint evidence; combined acceptance is still pending.",
+                "Checkpoint0fe050f97e38a833c7b5ffa87b23dca931faa4cf run-rNWDtK passed full tests, static/generated checks, development scoring and272/272 recordings (10483 screens,1392471 RNG), but failed end-of-input-over-read for seed2200 segment0 with pline.c livelog_add as its only gap. Measured10284 development screens are unaccepted candidate figures; published standing remains10273. C files.c livelog_add3667-3719 returns before external output when ll_type & sysopt.livelog is zero; sys.c sys_early_init63 initializes LL_NONE and the installed upstream sysconf LIVELOG setting is commented. JavaScript pline.js records that gap unconditionally and names the wrong source file. Correction must wire the source gate, retaining canonical Chronicle history and the over-read validator.",
+                "Coordinator preserved conduct-only candidate on codex/b9-integration-wait-20260916 at7b6d17dc after bounded run-y5pdQH passed1397/1397 affected tests and run-FtcQrH lint passed. Selective cherry-picks f0f8ce10,3b685eab,e515f596 exclude unaccepted Chronicle source; c4a4c64e adds independent ACH_SOKO and ECMD_OK imports inherited from the worker base. Preflight cannot match original47aaacee patch identity after those conflict resolutions, so B9 is parked pending accepted B8 ancestry; no B9 score or acceptance is claimed. Published main remains the passing force-fight result.",
+                "B10 owns insight.c vanqsort_cmp, set_vanq_order, dovanquished and list_vanquished with production extended-command and final-disclosure wiring. It remains worker work outside validated main. B8 correction follows at a clean boundary: preserve gamelog_add and honor files.c livelog_add3667-3719 early return when ll_type does not intersect sysopt.livelog; sys.c sys_early_init sets LL_NONE and the recorder sysconf leaves LIVELOG commented.",
+                "B10 immutable14df042b465eb874019a727176e9c97be88ecd79 plus28483fb3 contains insight.c vanquished-family source and three fresh recordings totaling71 screens and8327 RNG values. Focused166 tests and lint pass on the worker branch. Source check identified a menu contract defect: C set_vanq_order2744-2764 returns the current mode on an empty Return/Space commit, but JS omits preselected/emptyValue and the menu owner returnsnull, aborting disclosure selection a. Correction is queued after B8; explicit Escape must remain-1. Comparator tests also need real rider/high-cleric catalog indices or narrower coverage claims.",
+                "B8 correctionffc0b5d569a32e4f90a414436d50a3bea9d36e16 adds the files.c livelog_add mask guard, initializes canonical sysopt.livelog to LL_NONE in the existing startup owner, preserves gamelog history and changes tabs only in the external-sink buffer. Bounded focused run-LxKAyO passes529 tests; runtime/insight checks and lint pass. Fresh Chronicle run-BTCLQp matches30 screens and4596 RNG. Saved seed2200 over-read witness run-iPmnCa exits0 with no boundary or unported entries, retaining the known host-path mismatch. Full combined retry remains pending. Worker B merged accepted10ca859d at ed0fbd2b and reran123 affected tests successfully.",
+                "B10 menu correction79c168c5bd0903801bee435595c14bda656035e1 supplies current flags.vanq_sortmode as preselected, preserving empty Return/Space commits and hidden genocide count modes while Escape cancels. Focused159 tests and lint pass; fresh positive vanquished replay matches41 screens and2817 RNG. Worker B merged accepted9a863c11 at35a21617279726082734a4cc0c4ceb816a8e22e5 and reran230 affected tests. B8 and B10 submitted commits remain immutable and unaccepted.",
+                "Worker B11 claimed insight.c num_extinct, num_gone, list_genocided and dogenocided with production command admission after a focused seed0106 continuation reached #genocided. Pending B10 comparator coverage correction will be handled at its next clean task boundary; source menu correction79c168c5 is already queued.",
+                "Coordinator merged exact8556380d Chronicle ancestry, cherry-picked disabled-log correctionffc0b5d5 and redundant-runner removalce02566c. Candidate341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd records source evidence; affected batches run-7BlfoE,CyG2Po,ku5IrC,jtLYKi pass1657+1144+1363+1110=5274 tests. Lint run-6ne55t and quality run-0KGA3I pass. Focused seed2200 check run-DJxMr5 has no unported entries or boundary, with only the known machine-path display difference. Full checkpoint retry is running; no new accepted score is claimed.",
+                "B11 immutablefb12e71ce785bd0e62a29d83d0990b0e9bd3e09d ports insight.c num_extinct/num_gone/list_genocided/dogenocided and admits #genocided. Its two independent no-entry recordings total28 screens and5580 RNG values; worker focused163 tests and lint pass. Saved worker continuation reaches all267 recorded screens without boundary or divergence, but combined main validation is pending. Positive list and final-disclosure entry recordings remain unverified. Real rider/high-cleric comparator cases are also in this commit; a separate B10 comment correction is requested to keep the earlier delivery independently reviewable.",
+                "Full checkpoint341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd/run-eCwNQu passes all checks, including the previous end-of-input failure:31/44 sessions,10332/11405 screens,756143/792838 RNG,10354/11405 cursors and274/274 recordings. B8 gains11 development screens and11 cursors; its new two-segment recording adds30 screens and4596 RNG, bringing recording totals to10503 screens and1398304 RNG. Saved scan .cache/B8-retry-development-scan.json and queue .cache/B8-retry-queue.json locate doconduct at199 with68 remaining screens.",
+                "B10 correction91e6530e07646e9634df402c4b86746cf78bff7e narrows the synthetic comparator test claim. Real catalog rider/high-cleric cases remain in queued B11. Worker B has completed this correction and is selecting the next eligible independent mismatch; all B9-B11 gains remain unaccepted."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doconduct",
+            "implementation": "js/insight.js",
+            "symbol": "doconduct",
+            "sourceReview": "Read insight.c doconduct() at lines 2081-2085 in full. It calls show_conduct(ENL_GAMEINPROGRESS) and returns ECMD_OK; the JavaScript dispatcher awaits the same canonical show_conduct implementation and preserves the command result.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's extcmdlist row names doconduct; js/cmd.js admits the conduct command and its doextcmd switch routes the row to doconduct after the # prompt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/conduct-command-independent.session.json",
+              "recordings/insight.c/conduct-command-variation.session.json"
+            ],
+            "checkedAt": "9ed3fc816db4cd7739271f8180d50756e142a1cf"
+          },
+          {
+            "name": "show_conduct",
+            "implementation": "js/insight.js",
+            "symbol": "show_conduct",
+            "sourceReview": "Read insight.c show_conduct() at lines 2089-2236 in full. The port preserves the NHW_MENU title, source row order, reroll and roleplay branches, food/vegan/vegetarian and atheist conduct, wielded-weapon and pacifist rows, literacy and pet rows, num_genocides result, polymorph and form rows, wish/artifact wording, the entered-Sokoban check and violation wording, the show_achievements void-call boundary, and the blocking menu display. Existing enl_msg/you_have helpers preserve present/past tense and contractions. The wizard/final positive-achievement show_achievements branch remains an explicit discarded gap because its return is unused and that adjacent source function is outside this span.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "doconduct",
+                "source": "insight.c doconduct() calls show_conduct(ENL_GAMEINPROGRESS); js/insight.js forwards the in-progress selector and returns ECMD_OK to doextcmd()."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c disclose() calls show_conduct(2) when the conduct disclosure answer is yes; js/end.js imports the canonical insight.js implementation for that existing caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/conduct-command-independent.session.json",
+              "recordings/insight.c/conduct-command-variation.session.json"
+            ],
+            "checkedAt": "9ed3fc816db4cd7739271f8180d50756e142a1cf"
+          }
+        ],
+        "entryPointReview": "The selected production entry point is #conduct in the active extcmdlist. C insight.c doconduct() calls show_conduct(ENL_GAMEINPROGRESS); JS now admits conduct in ADMITTED_COMMANDS and dispatches the row to the canonical insight.js family. Independent Wizard/elf/female/chaotic and Wizard/elf/male blind-roleplay fresh recordings reach the menu and match C at 12 screens/cursors with 3256 and 2611 PRNG values respectively; the variation exercises the blind-from-birth conduct row. The same show_conduct implementation is wired into end.c disclose() for final conduct disclosure, with ENL_GAMEOVERALIVE selected for how >= PANICKED and ENL_GAMEOVERDEAD otherwise. Final disclosure with positive achievements remains explicitly unverified because insight.c show_achievements() is outside this span and its void result is discarded. The known #version Unix/MacOS and urandom/random text is a host-normalized difference; the later distfleeck marker was downstream of the formerly unadmitted command. Supporting dependency review, not additional source-unit completion in this goal: Read insight.c sokoban_in_play() at lines 2517-2528 in full. It scans the zero-terminated achievement list for ACH_SOKO and returns a boolean; the JavaScript loop preserves that source criterion and does not infer the current dungeon from branch state. Source-pinned checks: scripts/insight.test.mjs. Read insight.c num_genocides() at lines 2953-2966 in full. It walks svm.mvitals from LOW_PM through NUMMONS, counts G_GENOD, and sends impossible() for a unique genocide except PM_HIGH_CLERIC, without using that diagnostic result; the high-cleric species is still counted. The JavaScript walks the state-owned mvitals array, preserves the count, and records the discarded impossible diagnostic only for that invalid state. Source-pinned checks: scripts/insight.test.mjs.",
+        "entryPoints": [
+          {
+            "name": "#conduct in-progress voluntary-challenges window",
+            "functions": [
+              "doconduct",
+              "show_conduct"
+            ],
+            "recordings": [
+              "recordings/insight.c/conduct-command-independent.session.json",
+              "recordings/insight.c/conduct-command-variation.session.json"
+            ]
+          },
+          {
+            "name": "final disclosure conduct window",
+            "functions": [
+              "show_conduct"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 14,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "parkedReason": "The Conduct command span and independent recordings pass checkpointf82a3ae8. Final conduct disclosure still lacks a matching entry recording; preserve that incomplete goal while integrating the next eligible delivered work."
     }
   ]
 }

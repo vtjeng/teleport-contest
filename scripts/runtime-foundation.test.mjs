@@ -774,6 +774,7 @@ test('set_playmode applies recorder authorization before new-game state', () => 
     assert.equal(authorized.gp.plnamelen, 6);
     assert.equal(authorized.iflags.wiz_error_flag, undefined);
     assert.deepEqual(authorized.sysopt, {
+        livelog: 0,
         wizards: 'root games',
         // The recorder's linux-minimal hints omit SYSCF, so cnf_line_WIZARDS()
         // never runs and fmtd_wizard_list stays unset.

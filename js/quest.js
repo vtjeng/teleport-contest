@@ -9,6 +9,7 @@ import {
     A_WIS,
     MIN_QUEST_ALIGN,
     MIN_QUEST_LEVEL,
+    LL_ACHIEVE,
     helpless,
     UTOTYPE_NONE,
     UTOTYPE_PORTAL,
@@ -26,6 +27,8 @@ import { MS_DJINNI, MS_NEMESIS } from './monsters.js';
 import { qt_pager, QUEST_PAGER_OUTPUT } from './questpgr.js';
 import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { noit_mon_nam } from './do_name.js';
+import { livelog_printf } from './pline.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
@@ -42,6 +45,7 @@ function questConversation(env = {}) {
     return {
         state,
         random,
+        displayRandom: env.displayRandom,
         unsupported: env.unsupported,
         message: env.message ?? ttyPline,
         yn: env.yn ?? yn_function,
@@ -188,8 +192,16 @@ async function chat_with_leader(mtmp, ops) {
             await ops.pager('assignquest');
             await exercise(A_WIS, true, state, ops.random);
             qs.got_quest = true;
-            // C follows with livelog_printf(LL_ACHIEVE, ...); the port has no
-            // livelog, and nothing the player or the scorer can observe.
+            // C's first assignment records the leader's source-owned name in
+            // the chronicle after the assignment state change. Thread the
+            // conversation environment through noit_mon_nam() so a planning
+            // caller retains its private display/random owners.
+            livelog_printf(
+                LL_ACHIEVE,
+                `${noit_mon_nam(mtmp, state, ops)} has granted access `
+                    + 'to proceed deeper into the quest',
+                state,
+            );
         }
     }
 }

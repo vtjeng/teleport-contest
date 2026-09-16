@@ -704,6 +704,11 @@ export function planningState(state) {
             : state.displayCtx,
         disp: structuredClone(state.disp),
         flags: structuredClone(state.flags),
+        // pline.c's gg.gamelog is mutable linked-list state. Monster planning
+        // may invoke an already ported producer, so give the dry run its own
+        // entries and keep producer turn timestamps isolated from the live
+        // game. The live list remains the single canonical owner.
+        gamelog: state.gamelog?.map((entry) => ({ ...entry })) ?? [],
         // quest.c chat_with_leader() writes svq.quest_status the first time
         // the hero stands beside the leader. Sharing the record would let the
         // dry run consume met_leader, so the live pass would find a leader it

@@ -12,6 +12,7 @@ import {
     GETOBJ_SUGGEST,
     HALLUC,
     HALLUC_RES,
+    LL_CONDUCT,
     MAXULEV,
 } from './const.js';
 import { exercise } from './attrib.js';
@@ -23,7 +24,7 @@ import { update_inventory } from './invent.js';
 import { nohands } from './mondata.js';
 import { PM_WIZARD } from './monsters.js';
 import { bcsign, mksobj, objectType } from './obj.js';
-import { aobjnam, The, yname } from './objnam.js';
+import { an, aobjnam, The, yname } from './objnam.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
     OBJ_DESCR,
@@ -68,6 +69,7 @@ import {
 } from './spell.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
+import { livelog_printf } from './pline.js';
 import { getlin } from './windows.js';
 import { Glib } from './wield.js';
 
@@ -345,11 +347,12 @@ export async function dowrite(pen, state = game) {
 
     /* KMH, conduct */
     state.u.uconduct ??= {};
-    if (!state.u.uconduct.literate++) {
-        // C: livelog_printf(LL_CONDUCT, "became literate by writing %s",
-        //                   an(typeword));
-        // The livelog is not ported; the conduct counter is incremented above.
-    }
+    if (!state.u.uconduct.literate++)
+        livelog_printf(
+            LL_CONDUCT,
+            `became literate by writing ${an(typeword)}`,
+            state,
+        );
 
     // C: mksobj(i, FALSE, FALSE). init=false skips property initialization;
     // artif=false skips artifact creation. The env needs state for object

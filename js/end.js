@@ -46,6 +46,7 @@ import {
     DISCLOSE_SPECIAL_WITHOUT_PROMPT,
     DISCLOSE_YES_WITHOUT_PROMPT,
     ESCAPED,
+    ENL_GAMEOVERALIVE,
     ENL_GAMEOVERDEAD,
     G_EXTINCT,
     G_GENOD,
@@ -85,6 +86,7 @@ import {
     MGIVENNAME,
     NON_PM,
     In_tutorial,
+    LL_DUMP,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
@@ -126,7 +128,8 @@ import {
     an, doname_with_price, the, thesimpleoname, the_unique_pm,
     xnameFresh,
 } from './objnam.js';
-import { enlightenment } from './insight.js';
+import { enlightenment, num_genocides, show_conduct } from './insight.js';
+import { livelog_printf } from './pline.js';
 import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
@@ -861,9 +864,10 @@ async function list_genocided(defquery, ask, state) {
             sensitivity: 'base',
         }) || left.index - right.index
     ));
-    const genocided = entries.filter((entry) => (
-        (entry.vital.mvflags & G_GENOD) !== 0
-    )).length;
+    // insight.c list_genocided() obtains this count from num_genocides(),
+    // whose unique-species diagnostic and full mvital walk are shared with
+    // show_conduct().
+    const genocided = num_genocides(state);
     const extinct = entries.filter((entry) => (
         (entry.vital.mvflags & G_EXTINCT) !== 0
         && (entry.vital.mvflags & G_GENOD) === 0
@@ -879,55 +883,6 @@ async function list_genocided(defquery, ask, state) {
     lines.push('');
     if (genocided) lines.push(`${genocided} species genocided.`);
     if (extinct) lines.push(`${extinct} species extinct.`);
-    await displayTtyMenuTextWindow(state, menuLines(lines));
-}
-
-function conductValue(state, key) {
-    return Math.trunc(state.u.uconduct?.[key] ?? 0);
-}
-
-// C ref: insight.c show_conduct(). The normal, non-wizard final path includes
-// the challenge lines whose counters are zero and omits the wizard-only
-// positive counters. Achievements and Sokoban are deliberately left at the
-// boundary because this slice covers an ordinary early death.
-async function show_conduct(final, state) {
-    if (state.wizard || state.discover)
-        throw new UnsupportedEndOfGameError('show_conduct() alternate mode');
-    if (state.u.uachieved?.some(Boolean))
-        throw new UnsupportedEndOfGameError('show_conduct() achievements');
-
-    const lines = ['Voluntary challenges:'];
-    const roleplay = state.u.uroleplay ?? {};
-    if (!roleplay.reroll) lines.push(' Character rerolling was not enabled.');
-    else if (!roleplay.numrerolls) lines.push(' Your character was not rerolled.');
-    else {
-        throw new UnsupportedEndOfGameError(
-            'show_conduct() character-reroll count',
-        );
-    }
-    if (roleplay.blind || roleplay.deaf || roleplay.pauper || roleplay.nudist)
-        throw new UnsupportedEndOfGameError('show_conduct() roleplay challenge');
-
-    if (!conductValue(state, 'food')) lines.push(' You went without food.');
-    else if (!conductValue(state, 'unvegan'))
-        lines.push(' You followed a strict vegan diet.');
-    else if (!conductValue(state, 'unvegetarian'))
-        lines.push(' You were vegetarian.');
-    if (!conductValue(state, 'gnostic')) lines.push(' You were an atheist.');
-    if (!conductValue(state, 'weaphit'))
-        lines.push(' You never hit with a wielded weapon.');
-    if (!conductValue(state, 'killer')) lines.push(' You were a pacifist.');
-    if (!conductValue(state, 'literate')) lines.push(' You were illiterate.');
-    if (!conductValue(state, 'pets')) lines.push(' You never had a pet.');
-
-    const genocided = ordinaryMonsterEntries(state, G_GENOD).length;
-    if (!genocided) lines.push(' You never genocided any monsters.');
-    else throw new UnsupportedEndOfGameError('show_conduct() genocide count');
-    if (!conductValue(state, 'polypiles'))
-        lines.push(' You never polymorphed an object.');
-    if (!conductValue(state, 'polyselfs')) lines.push(' You never changed form.');
-    if (!conductValue(state, 'wishes')) lines.push(' You used no wishes.');
-
     await displayTtyMenuTextWindow(state, menuLines(lines));
 }
 
@@ -997,7 +952,12 @@ async function disclose(how, taken, state) {
             true,
             state,
         ) : defquery;
-        if (c === KEY_Y) await show_conduct(2, state);
+        if (c === KEY_Y) {
+            await show_conduct(
+                how >= PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD,
+                state,
+            );
+        }
         if (c === KEY_Q) discloseStop(state);
     }
     if (!disclosureStopprint(state)) {
@@ -1197,8 +1157,11 @@ async function really_done(how, state) {
     // parser above never stores it; the test therefore always passes.
     await disclose(how, taken, state);
 
-    // C ref: end.c:1285-1290 livelog_printf + dump_everything.  Neither is
-    // ported; they produce no RNG draws or game-state mutations.
+    // C ref: end.c:1285-1290. formatkiller() builds the same death text that
+    // the final dump records, and livelog_printf() keeps the LL_DUMP event in
+    // the in-memory Chronicle even though the external dump file is absent.
+    const deathBuf = formatkiller(how, true, state);
+    livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
 
     // C ref: end.c:1297-1298 keepdogs for ESCAPED/ASCENDED.
     // Not applicable: how === DIED.

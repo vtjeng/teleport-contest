@@ -18,7 +18,7 @@
     "recordedSteps": 833,
     "remainingScreensUpperBound": 46
   },
-  "summary": "The assigned replay reaches Quest Home 4 at recorded step 787 after the already implemented Wiz-fila level at step 784. The C level generator is at absolute depth 18 and its mklev.c depth-gated ordinary-level branch selects ZOO=8, so mkroom.c do_mkroom() dispatches to mkzoo(ZOO) and later fill_special_room() stocks it. JavaScript makelevel() reaches the same branch, but js/mkroom.js do_mkroom() omits ZOO and throws before the existing mkzoo/fill_zoo path can run. The owner is the C mkroom.c dispatcher and its whole function scope; this is not a Lua-level loader mismatch. Completing the whole function also requires the remaining C dispatch cases and their source-backed fillers: mkswamp() has no JavaScript owner, and ANTHOLE, COCKNEST, and LEPREHALL still stop in fill_special_room().",
+  "summary": "Worker B has claimed B12 for this46-screen mismatch after completing the Priest continuation on its branch. The source owner is mkroom.c do_mkroom: its missing ZOO dispatch is reached at step787, with whole-dispatch dependencies and the antholemon caller guard also in scope. Source and caller tracing are complete and implementation is active.",
   "source": {
     "file": "mkroom.c",
     "functions": [
@@ -49,6 +49,8 @@
     "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
     "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
     "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
-    "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written."
+    "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
+    "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
+    "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted."
   ]
 }

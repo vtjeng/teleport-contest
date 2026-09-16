@@ -49,6 +49,28 @@ import {
     AC_MAX,
     ACH_RNK1,
     ACH_RNK8,
+    ACH_AMUL,
+    ACH_ASTR,
+    ACH_BELL,
+    ACH_BGRM,
+    ACH_BOOK,
+    ACH_CNDL,
+    ACH_ENDG,
+    ACH_HELL,
+    ACH_INVK,
+    ACH_MEDU,
+    ACH_MINE,
+    ACH_MINE_PRIZE,
+    ACH_NOVL,
+    ACH_ORCL,
+    ACH_SOKO,
+    ACH_SOKO_PRIZE,
+    ACH_SHOP,
+    ACH_TOWN,
+    ACH_TMPL,
+    ACH_TUNE,
+    ACH_UWIN,
+    BUFSZ,
     ACID_RES,
     ADORNED,
     AGGRAVATE_MONSTER,
@@ -67,6 +89,7 @@ import {
     DISPLACED,
     DRAIN_RES,
     EDOG,
+    ECMD_OK,
     ENL_GAMEINPROGRESS,
     ENL_GAMEOVERDEAD,
     EXT_ENCUMBER,
@@ -79,6 +102,7 @@ import {
     FREE_ACTION,
     FULL_MOON,
     FUMBLING,
+    G_GENOD,
     GLIB,
     HALF_PHDAM,
     HALF_SPDAM,
@@ -102,6 +126,16 @@ import {
     JUMPING,
     LEVITATION,
     LIFESAVED,
+    LL_ACHIEVE,
+    LL_ARTIFACT,
+    LL_DIVINEGIFT,
+    LL_DUMP,
+    LL_GENOCIDE,
+    LL_LIFESAVE,
+    LL_MINORAC,
+    LL_SPOILER,
+    LL_UMONST,
+    LL_WISH,
     LOW_PM,
     M_AP_NOTHING,
     MALE,
@@ -170,14 +204,14 @@ import {
 import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
-import { enc_stat } from './display.js';
+import { enc_stat, rank_of } from './display.js';
 import { depth, dunlev, endgamelevelname } from './dungeon.js';
 import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
 import { inv_weight, near_capacity } from './hack.js';
 import {
-    lcase, lowc, highc, mungspaces, ordin, strsubst,
+    lcase, lowc, highc, mungspaces, ordin, strsubst, truncateByteString,
 } from './hacklib.js';
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
@@ -196,6 +230,7 @@ import {
     ROBE,
     SHIELD_OF_REFLECTION,
     TOWEL,
+    OBJ_NAME,
 } from './objects.js';
 import { stuck_ring } from './do_wear.js';
 import { magic_negation } from './mhitu.js';
@@ -228,6 +263,8 @@ import {
     MZ_TINY,
     PM_LONG_WORM,
     PM_GREEN_SLIME,
+    PM_HIGH_CLERIC,
+    G_UNIQ,
 } from './monsters.js';
 import { pmname, x_monnam } from './do_name.js';
 import { mon_aligntyp } from './priest.js';
@@ -238,6 +275,10 @@ import { body_part, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
 import { mhidden_description } from './startup_a11y.js';
 import {
+    displayTtyMenuTextWindow,
+    displayTtyTextWindow,
+} from './tty_menu.js';
+import {
     genders,
     rankOf,
     ROLE_FEMALE,
@@ -247,6 +288,8 @@ import {
 import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
+import { livelog_printf } from './pline.js';
+import { note_unported } from './unported.js';
 import { hidden_gold } from './vault.js';
 import { find_mac } from './worn.js';
 import {
@@ -281,6 +324,9 @@ const have = 'have ';
 const had = 'had ';
 const can = 'can ';
 const could = 'could ';
+const have_been = 'have been ';
+const have_never = 'have never ';
+const never = 'never ';
 
 // C ref: insight.c enlght_line()'s contra[].
 const contra = Object.freeze([
@@ -376,6 +422,16 @@ function you_can(lines, final, attr, ps) {
 // rather than `had`, so under final disclosure the line reads "You <X>."
 function you_have_X(lines, final, something) {
     enl_msg(lines, final, You_, have, '', something, '');
+}
+
+// C ref: insight.c's conduct-only sentence macros. They share the same
+// tense/contraction handling as the enlightenment lines above.
+function you_have_been(lines, final, goodthing) {
+    enl_msg(lines, final, You_, have_been, were, goodthing, '');
+}
+
+function you_have_never(lines, final, badthing) {
+    enl_msg(lines, final, You_, have_never, never, badthing, '');
 }
 
 // C ref: insight.c align_str().
@@ -1730,23 +1786,11 @@ export async function enlightenment(mode, final, state = game) {
     return lines;
 }
 
-// C ref: insight.c record_achievement(). exper.c pluslvl() is the only caller
-// this port reaches, and it always passes a rank achievement.
-//
-// Appending to u.uachieved[] is the whole reachable body. Three of C's other
-// effects have no owner here and reach nothing observable:
-//
-//   SoundAchievement()   the optional sound interface
-//   livelog_printf()     a file this port cannot write, the treatment
-//                        recorded at js/do.js:658-660. Its three arms are the
-//                        only readers of botl.c rank_to_xlev(), of
-//                        achieve_msg[] and of the `program_state.gameover`
-//                        early return, so none of those has a consumer either
-//   impossible()         a corrupt achievement index, which pluslvl() cannot
-//                        produce because xlev_to_rank() answers 1..8 for
-//                        every level it reaches. The range test below throws
-//                        rather than warning, so a wrong index cannot be
-//                        recorded silently
+// C ref: insight.c record_achievement() (2406-2471). The achievement list is
+// kept in u.uachieved, while the chronicle event is owned by pline.c. The
+// optional SoundAchievement() interface has no browser owner and is recorded
+// as a discarded side effect; all state and text used by the source event is
+// retained here.
 export function record_achievement(achidx, state = game) {
     const u = state.u;
     const absidx = Math.abs(achidx);
@@ -1769,9 +1813,89 @@ export function record_achievement(achidx, state = game) {
         }
     }
 
+    // C plays the achievement sound even for a duplicate. The sound result is
+    // discarded by its caller and the browser has no sound-achievement owner.
+    note_unported('sounds.c SoundAchievement');
     if (repeat_achievement)
         return; /* already recorded, don't duplicate it */
     u.uachieved[i] = achidx;
+
+    // Final disclosure records the achievement list but deliberately omits
+    // the ordinary chronicle event; really_done() owns the separate ascension
+    // entry in C.
+    if (state.program_state?.gameover)
+        return;
+
+    if (absidx >= ACH_RNK1 && absidx <= ACH_RNK8) {
+        const rank = absidx - (ACH_RNK1 - 1);
+        const level = rank < 1 ? 1 : rank < 2 ? 3
+            : rank < 8 ? rank * 4 - 2 : 30;
+        const title = rank_of(
+            level,
+            state.urole?.mnum,
+            achidx < 0,
+            state,
+        );
+        livelog_printf(
+            rank < 4 ? LL_MINORAC | LL_DUMP : LL_ACHIEVE,
+            `attained the rank of ${title} (level ${state.u.ulevel})`,
+            state,
+        );
+    } else if (absidx === ACH_MINE_PRIZE || absidx === ACH_SOKO_PRIZE) {
+        const tracking = state.context?.achieveo ?? {};
+        const otyp = absidx === ACH_SOKO_PRIZE
+            ? tracking.soko_prize_otyp
+            : tracking.mines_prize_otyp;
+        const msg = absidx === ACH_SOKO_PRIZE
+            ? 'acquired the Sokoban'
+            : "acquired the Mines' End";
+        const flags = absidx === ACH_SOKO_PRIZE
+            ? LL_ACHIEVE | LL_SPOILER : LL_ACHIEVE | LL_SPOILER;
+        livelog_printf(
+            flags,
+            `${msg} ${OBJ_NAME(state.objects?.[otyp], state) ?? ''}`,
+            state,
+        );
+    } else {
+        const messages = {
+            [ACH_BELL]: 'acquired the Bell of Opening',
+            [ACH_HELL]: 'entered Gehennom',
+            [ACH_CNDL]: 'acquired the Candelabrum of Invocation',
+            [ACH_BOOK]: 'acquired the Book of the Dead',
+            [ACH_INVK]: 'performed the invocation',
+            [ACH_AMUL]: 'acquired The Amulet of Yendor',
+            [ACH_ENDG]: 'entered the Elemental Planes',
+            [ACH_ASTR]: 'entered the Astral Plane',
+            [ACH_UWIN]: 'ascended',
+            [ACH_MEDU]: 'killed Medusa',
+            [ACH_MINE]: 'entered the Gnomish Mines',
+            [ACH_TOWN]: 'reached Mine Town',
+            [ACH_SHOP]: 'entered a shop',
+            [ACH_TMPL]: 'entered a temple',
+            [ACH_ORCL]: 'consulted the Oracle',
+            [ACH_NOVL]: 'read a Discworld novel',
+            [ACH_SOKO]: 'entered Sokoban',
+            [ACH_BGRM]: 'entered the Bigroom',
+            [ACH_TUNE]: "learned castle drawbridge's tune",
+        };
+        const flags = {
+            [ACH_MINE]: LL_MINORAC | LL_DUMP,
+            [ACH_TOWN]: LL_ACHIEVE,
+            [ACH_SHOP]: LL_MINORAC,
+            [ACH_TMPL]: LL_MINORAC,
+            [ACH_ORCL]: LL_ACHIEVE,
+            [ACH_NOVL]: LL_MINORAC | LL_DUMP,
+            [ACH_SOKO]: LL_ACHIEVE,
+            [ACH_BGRM]: LL_ACHIEVE,
+            [ACH_TUNE]: LL_MINORAC,
+            [ACH_MEDU]: LL_ACHIEVE | LL_UMONST,
+        };
+        livelog_printf(
+            flags[absidx] ?? LL_ACHIEVE,
+            messages[absidx] ?? '',
+            state,
+        );
+    }
 }
 
 // C ref: insight.c remove_achievement() (2476-2493). The signed value keeps
@@ -1789,6 +1913,210 @@ export function remove_achievement(achidx, state = game) {
         ++index;
     } while (achievements[index]);
     return true;
+}
+
+// C ref: insight.c num_genocides() (2953-2966). The reference walks every
+// species' mvital flags, including unique species; an impossible() diagnostic
+// for a unique genocide has no gameplay return value, so its unported message
+// is recorded only when that otherwise-invalid state is encountered.
+export function num_genocides(state = game) {
+    const mvitals = state.svm?.mvitals ?? state.mvitals ?? [];
+    const monsters = state.mons ?? [];
+    let count = 0;
+    for (let index = LOW_PM; index < mvitals.length; ++index) {
+        if ((mvitals[index]?.mvflags ?? 0) & G_GENOD) {
+            ++count;
+            if ((monsters[index]?.geno ?? 0) & G_UNIQ
+                && index !== PM_HIGH_CLERIC)
+                note_unported('pline.c impossible');
+        }
+    }
+    return count;
+}
+
+// C ref: insight.c sokoban_in_play() (2517-2528). This intentionally follows
+// the entered-Sokoban achievement rather than the current dungeon branch.
+export function sokoban_in_play(state = game) {
+    for (const achievement of state.u?.uachieved ?? []) {
+        if (!achievement) break;
+        if (achievement === ACH_SOKO) return true;
+    }
+    return false;
+}
+
+// C ref: insight.c show_conduct() (2089-2236). The text-window helper models
+// C's NHW_MENU display and dismissal; all line construction preserves the
+// source order and its present/past tense helpers. show_achievements() is a
+// void callee whose ordinary in-progress non-wizard branch returns before
+// producing output. Its wizard/final disclosure branch remains an explicit
+// discarded gap until that adjacent source function is ported.
+export async function show_conduct(final = ENL_GAMEINPROGRESS,
+                                   state = game,
+                                   { displayMenuWindow = displayTtyMenuTextWindow } = {}) {
+    const u = state.u ?? {};
+    const conduct = u.uconduct ?? {};
+    const roleplay = u.uroleplay ?? {};
+    const lines = ['Voluntary challenges:'];
+    const count = (key) => Math.trunc(conduct[key] ?? 0);
+
+    if (!roleplay.reroll) {
+        lines.push(' Character rerolling was not enabled.');
+    } else if (!roleplay.numrerolls) {
+        lines.push(' Your character was not rerolled.');
+    } else {
+        enlght_out(lines, ` Your character was rerolled ${N_times(
+            roleplay.numrerolls,
+        )}.`);
+    }
+    if (roleplay.blind) you_have_been(lines, final, 'blind from birth');
+    if (roleplay.deaf) you_have_been(lines, final, 'deaf from birth');
+    if (roleplay.pauper) {
+        enl_msg(lines, final, You_, state.invent ? 'started' : 'are',
+            'started out', ' without possessions', '');
+    }
+    if (roleplay.nudist) you_have_been(lines, final, 'faithfully nudist');
+
+    if (!count('food')) {
+        enl_msg(lines, final, You_, 'have gone', 'went', ' without food', '');
+    } else if (!count('unvegan')) {
+        you_have_X(lines, final, 'followed a strict vegan diet');
+    } else if (!count('unvegetarian')) {
+        you_have_been(lines, final, 'vegetarian');
+    }
+
+    if (!count('gnostic')) you_have_been(lines, final, 'an atheist');
+
+    if (!count('weaphit')) {
+        you_have_never(lines, final, 'hit with a wielded weapon');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `hit with a wielded weapon ${count('weaphit')} time${
+                plur(count('weaphit'))
+            }`);
+    }
+    if (!count('killer')) you_have_been(lines, final, 'a pacifist');
+
+    if (!count('literate')) {
+        you_have_been(lines, final, 'illiterate');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `read items or engraved ${count('literate')} time${
+                plur(count('literate'))
+            }`);
+    }
+    if (!count('pets')) you_have_never(lines, final, 'had a pet');
+
+    const genocided = num_genocides(state);
+    if (!genocided) {
+        you_have_never(lines, final, 'genocided any monsters');
+    } else {
+        you_have_X(lines, final,
+            `genocided ${genocided} type${plur(genocided)} of monster${
+                plur(genocided)
+            }`);
+    }
+
+    if (!count('polypiles')) {
+        you_have_never(lines, final, 'polymorphed an object');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `polymorphed ${count('polypiles')} item${plur(count('polypiles'))}`);
+    }
+    if (!count('polyselfs')) {
+        you_have_never(lines, final, 'changed form');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `changed form ${count('polyselfs')} time${plur(count('polyselfs'))}`);
+    }
+
+    if (!count('wishes')) {
+        you_have_X(lines, final, 'used no wishes');
+    } else {
+        let wishText = `used ${count('wishes')} wish${
+            count('wishes') > 1 ? 'es' : ''
+        }`;
+        if (count('wisharti')) {
+            const artifactText = count('wisharti') === count('wishes')
+                ? (count('wisharti') > 2 ? 'all '
+                    : count('wisharti') === 2 ? 'both ' : '')
+                : `${count('wisharti')} `;
+            wishText += ` (${artifactText}for ${count('wisharti') === 1
+                ? 'an artifact' : 'artifacts'})`;
+        }
+        you_have_X(lines, final, wishText);
+        if (!count('wisharti')) {
+            enl_msg(lines, final, You_, 'have not wished', 'did not wish',
+                ' for any artifacts', '');
+        }
+    }
+
+    if (sokoban_in_play(state)) {
+        let presentverb = 'have violated';
+        let pastverb = 'violated';
+        let sokobuf;
+        if (!count('sokocheat')) {
+            presentverb = 'have not violated';
+            pastverb = 'did not violate';
+            sokobuf = ' any of the special Sokoban rules';
+        } else {
+            sokobuf = ` the special Sokoban rules ${N_times(
+                count('sokocheat'),
+            )}`;
+        }
+        enl_msg(lines, final, You_, presentverb, pastverb, sokobuf, '');
+    }
+
+    let hasAchievement = false;
+    for (const achievement of u.uachieved ?? []) {
+        if (!achievement) break;
+        hasAchievement = true;
+        break;
+    }
+    if ((final !== ENL_GAMEINPROGRESS || state.wizard) && hasAchievement)
+        note_unported('insight.c show_achievements');
+    await displayMenuWindow(state, lines.map((text) => ({ text })));
+}
+
+// C ref: insight.c doconduct() (2081-2085).
+export async function doconduct(state = game,
+                                { showConduct = show_conduct } = {}) {
+    await showConduct(ENL_GAMEINPROGRESS, state);
+    return ECMD_OK;
+}
+
+// C ref: insight.c do_gamelog() (2532-2544) and show_gamelog()
+// (2561-2595). The linked list is stored by pline.c; this function only
+// selects and formats it. displayTtyTextWindow owns NHW_TEXT's blocking
+// display and dismissal, preserving the command's wait for input.
+const LL_MAJORS = LL_WISH | LL_ACHIEVE | LL_UMONST | LL_DIVINEGIFT
+    | LL_LIFESAVE | LL_ARTIFACT | LL_GENOCIDE | LL_DUMP;
+
+export async function show_gamelog(final = ENL_GAMEINPROGRESS,
+                                   state = game,
+                                   { displayTextWindow = displayTtyTextWindow } = {}) {
+    const isFinal = Boolean(final);
+    const lines = [`${isFinal ? 'Major' : 'Logged'} events:`];
+    let eventCount = 0;
+    for (const event of state.gamelog ?? []) {
+        if (isFinal && !(event.flags & LL_MAJORS)) continue;
+        if (!isFinal && !state.wizard && (event.flags & LL_SPOILER)) continue;
+        if (!eventCount++) lines.push(' Turn');
+        lines.push(truncateByteString(
+            `${String(event.turn).padStart(5, ' ')}: ${event.text}`,
+            BUFSZ - 1,
+        ));
+    }
+    if (!eventCount) lines.push(' none');
+    await displayTextWindow(state, lines.map((text) => ({ text })));
+}
+
+export async function do_gamelog(state = game,
+                                 { displayTextWindow = displayTtyTextWindow } = {}) {
+    if (state.gamelog?.length)
+        await show_gamelog(ENL_GAMEINPROGRESS, state, { displayTextWindow });
+    else
+        await ttyPline('No chronicled events.', state);
+    return ECMD_OK;
 }
 
 // C ref: insight.c achieve_rank(). The complement encodes a female hero so

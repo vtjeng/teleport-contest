@@ -32,7 +32,9 @@ import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { acurr } from './attrib.js';
 import { near_capacity } from './hack.js';
-import { In_hell, depth, dunlev, on_level, update_lastseentyp } from './dungeon.js';
+import {
+    In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
+} from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee, seenv_matrix } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
@@ -67,7 +69,8 @@ import {
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     IS_STWALL, isok, u_at, Ugender, Upolyd,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
-    In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level, MAXTCHARS,
+    In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
+    MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
@@ -4333,6 +4336,49 @@ function _statusLevelDescription(u, short = false) {
         && u.uz?.dnum === game.tutorial_dnum;
     const label = short ? 'Dl' : tutorial ? 'Tutorial' : 'Dlvl';
     return `${label}:${depth(u.uz)}`;
+}
+
+// C ref: botl.c describe_level() (441-477). dflgs bit 1 appends the
+// trailing space used by status fields; bit 2 expands an ordinary dungeon
+// level to the source's livelog form and appends its branch name. The result
+// is returned instead of written to a caller-owned buffer.
+export function describe_level(dflgs = 0, state = game) {
+    const level = state.u?.uz;
+    const addSpace = Boolean(dflgs & 1);
+    let addBranch = Boolean(dflgs & 2);
+    let result;
+    const dungeon = state.dungeons?.[level?.dnum];
+    const isKnox = Boolean(state.knox_level
+        && level?.dnum === state.knox_level.dnum
+        && level?.dlevel === state.knox_level.dlevel);
+    const isQuest = Boolean(level
+        && level.dnum === state.quest_dnum);
+    const isEndgame = Boolean(level && state.astral_level
+        && level.dnum === state.astral_level.dnum);
+
+    if (isKnox) {
+        result = dungeon?.dname ?? '';
+        addBranch = false;
+    } else if (isQuest) {
+        result = `Home ${dunlev(level)}`;
+    } else if (isEndgame) {
+        result = endgamelevelname(depth(level, state));
+        if (!addBranch)
+            result = result.replace('Plane of ', '');
+        addBranch = false;
+    } else {
+        result = !addBranch
+            ? `${Number.isInteger(state.tutorial_dnum)
+                && level?.dnum === state.tutorial_dnum
+                ? 'Tutorial' : 'Dlvl'}:${String(depth(level, state)).padEnd(2, ' ')}`
+            : `level ${depth(level, state)}`;
+    }
+    if (addBranch) {
+        result += `, ${dungeon?.dname ?? ''}`;
+        // hacklib.c strsubst() replaces only the first matching prefix.
+        result = result.replace('The ', 'the ');
+    }
+    return addSpace ? `${result} ` : result;
 }
 
 // C ref: botl.c do_statusline2() (140-142) and bot_via_windowport() (1036-1037)

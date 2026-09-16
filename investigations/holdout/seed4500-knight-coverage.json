@@ -1,38 +1,36 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 720,
+  "remainingScreensUpperBound": 718,
   "status": "complete",
-  "commit": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
+  "commit": "bd5bd75d5589afb23b89f09891596e7d53578dda",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1094,
-    "kind": "screen",
+    "step": 1096,
+    "kind": "stop",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "unsupported hero move: a wounded monster losing its nerve",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 720
+    "remainingScreensUpperBound": 718
   },
-  "summary": "The blind object-pile heading now matches the C source. The next mismatch is the wizard-intrinsic blindness prompt at step1094: C extends existing blindness silently, while JavaScript uses the generic timeout message and More prompt. A10 has submitted the source-backed caller correction; A11 is tracing the later wounded-monster flee branch.",
+  "summary": "The wizard-blindness correction passes combined validation and advances the first mismatch from1094 to1096. The next boundary is the wounded-survivor morale branch in uhitm.c known_hitum. A11 is submitted and its worker replay reaches the recorded end; combined validation remains pending.",
   "source": {
-    "file": "wizcmds.c",
+    "file": "uhitm.c",
     "functions": [
-      "wiz_intrinsic"
+      "known_hitum"
     ],
-    "branch": "With timed blindness already positive, selecting BLINDED in #wizintrinsic increases its timeout. C wizcmds.c1020-1022 calls make_blinded(newtimeout,TRUE), whose potion.c261-331 positive-to-positive timer path neither toggles sight nor prints a message. JavaScript routes BLINDED through the generic timeout/message arm, producing an extra More boundary at screen/cursor1094.",
+    "branch": "C uhitm.c623-633 first spends rn2(25), then for a surviving monster below half health and not engulfing chooses !rn2(3)?rnd(100):0, calls monflee(mon,time,FALSE,TRUE), and releases u.ustuck if still attached without swallowing or sticky form. JavaScript currently spends rn2(25) then refuses before this behavior.",
     "callers": [
-      "C cmd.c extcmdlist dispatches #wizintrinsic to wizcmds.c wiz_intrinsic; JavaScript js/cmd.js doextcmd routes the same menu command to js/wizcmds.js wiz_intrinsic.",
-      "wiz_intrinsic must call canonical js/potion.js make_blinded for BLINDED, preserving the existing menu selection and timeout computation."
+      "js/cmd.js movement -> js/hack.js do_attack -> js/uhitm.js known_hitum is the production hero-hit path, matching C uhitm.c attack dispatch."
     ],
     "dependencies": [
-      "potion.c make_blinded temporarily probes blindness with set_itimeout, restores the prior timeout, then writes the new timeout and calls toggle_blindness only when sight changes. Permit the existing silent positive-to-positive path with talk=true.",
-      "Keep unrelated blindness transitions and other wizard intrinsic gaps separate; this correction does not claim a complete potion.c or wizcmds.c source port.",
-      "Later wounded-monster handling belongs to uhitm.c known_hitum and is owned by A11; the wizard-blindness prompt is the earlier mismatch."
+      "Use existing monmove.c monflee and mon.c set_ustuck owners with canonical state and planning-safe message/random callbacks.",
+      "Vrock monflee discards create_gas_cloud return; preserve the explicit region.c gap until its positive-damage cloud implementation is ported."
     ]
   },
   "goalKind": "divergence-fix",
@@ -70,6 +68,8 @@
     "Coordinator integrated A9 4b070b70 as e9d1b8fb and clarified its source comment in1cb6d227b4f61a249660388e3dd24f3fbf4d67d5. Bounded affected run-Qu2X9U passed1022/1022 tests; lint run-WzpAcs and quality run-TJUGSp passed. Final preflight passes32 test-file coverage checks; full checkpoint is running at1cb6d227.",
     "Exact candidate1cb6d227 checkpoint cache contains44 sessions. Its seed4500 row emits1101 screens, with first screen AND cursor mismatch now1094: C blank at row0,column0 while JS begins Timeout, and cursors C[38,13,1] versus JS[44,0,1]. RNG divergence remains null. This confirms the blind-pile first mismatch1063 is past its source function.",
     "Worker A11 reports bounded replay run-s4Z7OM reaches all1814 recorded screens without screen/cursor/RNG divergence after wiring known_hitum to canonical monflee. It is still unaccepted worker evidence; the Vrock createGasCloud dependency and focused checks are being completed before submission.",
-    "Full checkpoint1cb6d227b4f61a249660388e3dd24f3fbf4d67d5/run-eHkVlg passes all checks:31/44 sessions,10319/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A9 gains one development screen and preserves all10473 recording screens. The refreshed queue moves the first mismatch from1063 to1094 and the suffix from751 to720. Syntheticv1 remains2/9 sessions and534/918 screens."
+    "Full checkpoint1cb6d227b4f61a249660388e3dd24f3fbf4d67d5/run-eHkVlg passes all checks:31/44 sessions,10319/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A9 gains one development screen and preserves all10473 recording screens. The refreshed queue moves the first mismatch from1063 to1094 and the suffix from751 to720. Syntheticv1 remains2/9 sessions and534/918 screens.",
+    "A11 immutable1c361cb15bfbecfc6b1ebbbf0ba1c965fc38d053 wires known_hitum623-633 to canonical monflee, preserves rn2(25),rn2(3),conditional rnd(100) order and set_ustuck, and records the discarded Vrock gas-cloud gap. Worker focused29+13+142 tests and lint pass; saved replay run-crtrTW reaches1814 with divergence null before the later tactile-floor boundary. Coordinator source comparison confirms the changed branch and its callbacks; full acceptance is pending.",
+    "Full checkpoint bd5bd75d5589afb23b89f09891596e7d53578dda/run-IuRLQr passes all checks:31/44 sessions,10321/11405 screens,756143/792838 RNG,10343/11405 cursors and273/273 recordings. A10 gains two development screens and two cursors, preserving all10473 recording screens. Saved scan .cache/A10-development-scan.json and queue .cache/A10-queue.json place the next stop at1096 with718 remaining screens; no earlier screen/cursor/RNG divergence remains."
   ]
 }

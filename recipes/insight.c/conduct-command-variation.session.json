@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 910236,
+      "datetime": "20380117080910",
+      "nethackrc": "OPTIONS=name:ConductBlindVariation,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=blind,!acoustics,symset:DECgraphics,pettype:none\n",
+      "moves": " #conduct\n ",
+      "comment": "Cheap source-relevant conduct variation: the blind roleplay option exercises show_conduct's blind-from-birth row while independently varying seed, date, name, and gender."
+    }
+  ]
+}

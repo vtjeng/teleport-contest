@@ -143,7 +143,7 @@ import { SHTYPES } from './shtypes_data.js';
 import { m_at } from './monst.js';
 import { m_next2u } from './mhitu.js';
 import { mbodypart, poly_gender } from './polyself.js';
-import { verbalize } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -763,9 +763,8 @@ export async function remote_burglary(
         await call_kops(shopkeeper, false, state, { message });
 }
 
-// C ref: shk.c rob_shop() (684-719). hot_pursuit() and the
-// livelog_printf() result are discarded here because those C helpers are not
-// ported; preserve their reached gaps without inventing state or output.
+// C ref: shk.c rob_shop() (684-719). hot_pursuit() remains an explicit gap;
+// the robbery chronicle event is retained in pline.c's in-memory owner.
 async function rob_shop(
     shopkeeper,
     state = game,
@@ -794,7 +793,13 @@ async function rob_shop(
         `You stole ${total} ${currency(total, state)} worth of merchandise.`,
         state,
     );
-    note_unported('pline.c livelog_printf');
+    livelog_printf(
+        LL_ACHIEVE,
+        `stole ${total} ${currency(total, state)} worth of merchandise from `
+            + `${s_suffix(shkname(shopkeeper, state))} `
+            + `${SHTYPES[eshk.shoptype - SHOPBASE]?.name ?? ''}`,
+        state,
+    );
     if (state.urole?.mnum !== PM_ROGUE)
         adjalign(-sgn(state.u.ualign.type), state);
     note_unported('shk.c hot_pursuit');

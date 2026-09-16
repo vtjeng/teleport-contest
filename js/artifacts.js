@@ -30,8 +30,12 @@ import {
     HALLUC_RES,
     I_SPECIAL,
     INVIS,
+    OBJ_CONTAINED,
+    OBJ_FLOOR,
+    OBJ_MINVENT,
     LAST_PROP,
     LEVITATION,
+    LL_ARTIFACT,
     Never_mind,
     NON_PM,
     nothing_happens,
@@ -94,6 +98,7 @@ import {
     NECK,
 } from './const.js';
 import { game } from './gstate.js';
+import { inside_shop } from './shk.js';
 import { HCOLORS } from './random_text_data.js';
 import {
     AT_MAGC,
@@ -194,6 +199,7 @@ import { d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { livelog_printf } from './pline.js';
 import { freeinv, getobj, hold_another_object, nxtobj, obj_extract_self, obfree, update_inventory } from './invent.js';
 import {
     aobjnam, bare_artifactname, distant_name, killer_xname, otense, simple_typename,
@@ -648,9 +654,7 @@ export function found_artifact(a, state = game) {
 }
 
 // C refs: artifact.c find_artifact() (422-459). Calls found_artifact() and
-// generates a livelog event. The browser port has no livelog sink; the
-// persisted artiexist[].found bit is the gameplay state consumed by later
-// naming and disclosure.
+// records where the artifact was found before its owner changes its location.
 export function find_artifact(obj, state = game) {
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
     if (index === ART_NONARTIFACT) return false;
@@ -661,6 +665,15 @@ export function find_artifact(obj, state = game) {
         throw new Error(`artifact ${index} does not exist`);
     if (state.artiexist[index].found) return false;
     state.artiexist[index].found = 1;
+    const where = obj.where === OBJ_FLOOR
+        ? (inside_shop(obj.ox, obj.oy, state) ? ' in a shop' : ' on the floor')
+        : obj.where === OBJ_CONTAINED ? ' in a container'
+            : obj.where === OBJ_MINVENT ? ' carried by a monster' : '';
+    livelog_printf(
+        LL_ARTIFACT,
+        `found ${bare_artifactname(obj, state)}${where}`,
+        state,
+    );
     return true;
 }
 

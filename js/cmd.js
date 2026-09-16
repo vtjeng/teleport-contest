@@ -274,6 +274,8 @@ import {
 } from './invent.js';
 import {
     doattributes,
+    doconduct,
+    do_gamelog,
     remove_achievement,
     UnsupportedEnlightenmentError,
 } from './insight.js';
@@ -1812,7 +1814,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
-    'overview',
+    'overview', 'chronicle', 'conduct',
     'inventtype', 'adjust', 'altadjust',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
@@ -5103,6 +5105,16 @@ async function doextcmd(key, state) {
         // C ref: pray.c dosacrifice(), which returns ECMD_OK for its refusal
         // guards and ECMD_TIME after a selected offering.
         return await dosacrifice(state);
+    case 'do_gamelog':
+        // C ref: insight.c do_gamelog(), reached from the #chronicle row.
+        // show_gamelog owns the text-window wait and returns ECMD_OK.
+        return await do_gamelog(state, {
+            displayTextWindow: displayTtyTextWindow,
+        });
+    case 'doconduct':
+        // C ref: insight.c doconduct(), reached from the #conduct row.
+        // show_conduct owns the voluntary-challenges text window and wait.
+        return await doconduct(state);
     case 'doextversion':
         // C ref: version.c doextversion(), reached from cmd.c's #version row.
         return await doextversion(state, {

@@ -24,6 +24,7 @@ import {
     HALLUC_RES,
     HMON_APPLIED,
     HMON_MELEE,
+    LL_CONDUCT,
     IS_DOOR,
     M_ATTK_AGR_DIED,
     M_ATTK_AGR_DONE,
@@ -83,6 +84,7 @@ import {
     pmname,
     x_monnam,
 } from './do_name.js';
+import { livelog_printf } from './pline.js';
 import { makeplural } from './fruit.js';
 import {
     glyph_at,
@@ -241,9 +243,11 @@ import { add_to_minv, obfree, useup } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
     an,
+    bare_artifactname,
     cxname,
     donameFresh,
     is_plural,
+    obj_is_pname,
     otense,
     simpleonames,
     The,
@@ -1735,7 +1739,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
             /* note: caller has already incremented u.uconduct.weaphit
                so we test for 1; 0 shouldn't be able to happen here... */
             && hmd.dmg > 0 && state.u.uconduct.weaphit <= 1)
-            first_weapon_hit();
+            first_weapon_hit(obj, state);
         mon.mhp -= hmd.dmg;
     }
     /* adjustments might have made tmp become less than what
@@ -1806,10 +1810,25 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
 
 // C ref: uhitm.c first_weapon_hit() (1962-1990). The whole body builds a
 // livelog line for the first hit with a wielded weapon. pline.c
-// livelog_printf() appends to gg.gamelog and to the live log file; this port
-// writes neither, and js/eat.js:1479 records the same treatment for the food
-// conduct. Nothing else in the function changes state or draws.
-function first_weapon_hit() {
+// livelog_printf() appends to the in-memory chronicle and to the external
+// live log; only the latter sink remains unavailable here. Nothing else in
+// the function changes state or draws.
+function first_weapon_hit(weapon, state = game) {
+    let text = '';
+    // C includes a known cursed prefix but intentionally leaves blessed out.
+    if (weapon.cursed && weapon.bknown) text += 'cursed ';
+    if (obj_is_pname(weapon, state)) {
+        text += weapon.oextra?.oname ?? '';
+    } else {
+        text += simpleonames(weapon, state);
+        if (weapon.oartifact && weapon.dknown)
+            text += ` named ${bare_artifactname(weapon, state)}`;
+    }
+    livelog_printf(
+        LL_CONDUCT,
+        `hit with a wielded weapon (${text}) for the first time`,
+        state,
+    );
 }
 
 // C ref: uhitm.c mhitm_ad_sedu() (4623-4748). Seduction / item theft attack.

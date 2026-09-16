@@ -72,6 +72,7 @@ import {
     INVIS,
     LAVAWALL,
     LAVAPOOL,
+    LL_CONDUCT,
     LEFT_SIDE,
     LEVITATION,
     MAX_CARR_CAP,
@@ -422,6 +423,7 @@ import {
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects } from './o_init.js';
 import { note_unported } from './unported.js';
+import { livelog_printf } from './pline.js';
 import { select_menu } from './windows.js';
 import { do_attack, is_safemon, stumble_onto_mimic } from './uhitm.js';
 import {
@@ -1973,8 +1975,17 @@ export async function still_chewing(x, y, state = game) {
     }
 
     state.u.uconduct ??= {};
-    if (!(state.u.uconduct.food ?? 0))
-        note_unported('pline.c livelog_printf');
+    if (!(state.u.uconduct.food ?? 0)) {
+        const target = boulder ? 'a boulder'
+            : IS_TREE(lev.typ) ? 'a tree'
+                : IS_OBSTRUCTED(lev.typ) ? 'rock'
+                    : lev.typ === IRONBARS ? 'iron bars' : 'a door';
+        livelog_printf(
+            LL_CONDUCT,
+            `ate for the first time, by chewing through ${target}`,
+            state,
+        );
+    }
     state.u.uconduct.food = Math.trunc(state.u.uconduct.food ?? 0) + 1;
     state.u.uhunger += rnd(20);
 
@@ -4733,7 +4744,7 @@ export async function domove_swap_with_pet(
         const hadNoKillers = !state.u.uconduct.killer;
         state.u.uconduct.killer = Math.trunc(state.u.uconduct.killer ?? 0) + 1;
         if (hadNoKillers)
-            note_unported('hack.c domove_swap_with_pet() livelog_printf');
+            livelog_printf(LL_CONDUCT, 'killed for the first time', state);
         const mndx = monsndx(monster.data);
         const deaths = state.svm?.mvitals?.[mndx]?.died ?? 0;
         const gained = experience(monster, deaths, state);

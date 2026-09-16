@@ -13,6 +13,7 @@ import {
     CLAIRVOYANT,
     COLNO,
     CQ_CANNED,
+    LL_ACHIEVE,
     EXT_ENCUMBER,
     FAST,
     HALLUC,
@@ -66,7 +67,8 @@ import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
 import { depth, init_dungeons } from './dungeon.js';
 import { init_artifacts, mkot_trap_warn } from './artifacts.js';
-import { role_init, welcomeMessage } from './role_init.js';
+import { role_init, welcomeIdentity, welcomeMessage } from './role_init.js';
+import { livelog_printf } from './pline.js';
 import { u_init_misc } from './u_init.js';
 import {
     find_ac,
@@ -291,6 +293,14 @@ export async function newgame() {
 
     // C ref: allmain.c welcome(TRUE) -> pline().
     await ttyPline(welcomeMessage(g), g);
+    // C ref: allmain.c welcome(TRUE) also records the first major event.
+    // The event uses the same identity text as the just-emitted welcome and
+    // the current svm.moves value, which is 1 after u_init_role().
+    livelog_printf(
+        LL_ACHIEVE,
+        `${g.plname} the ${welcomeIdentity(g)} entered the dungeon`,
+        g,
+    );
     // C re-enables monster notices only after the welcome, then chooses
     // between #lookaround and the distance-sorted monster notice pass.
     g.a11y.mon_notices_blocked = Math.max(

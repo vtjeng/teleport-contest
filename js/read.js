@@ -56,6 +56,7 @@ import {
     Is_waterlevel,
     isok,
     ismnum,
+    LL_CONDUCT,
 } from './const.js';
 import {
     PM_ALIGNED_CLERIC,
@@ -106,6 +107,7 @@ import {
     SCROLL_CLASS,
     SCR_DESTROY_ARMOR,
     SCR_ENCHANT_WEAPON,
+    SCR_BLANK_PAPER,
     TOOL_CLASS,
     WAND_CLASS,
     SCR_IDENTIFY,
@@ -154,6 +156,7 @@ import { del_light_source } from './light.js';
 import { do_clear_area, vision_recalc } from './vision.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { m_at } from './monst.js';
+import { livelog_printf } from './pline.js';
 
 // A selected scroll or spellbook enters doread()'s effect arms. Raising before
 // pickup_prev changes keeps every unsupported object and the turn retryable
@@ -518,6 +521,23 @@ export async function doread(state = game) {
 
     scroll.pickup_prev = false;
     state.u.uconduct ??= {};
+    // C doread()'s generic readable-object arm (read.c:598-604) logs the
+    // first literacy conduct before incrementing it. The supported reader
+    // arms above all land here for an ordinary scroll or spellbook, while
+    // winning-game books and blank paper are excluded exactly as in C.
+    const countsLiteracy = scroll.otyp !== SPE_BOOK_OF_THE_DEAD
+        && scroll.otyp !== SPE_NOVEL
+        && scroll.otyp !== SPE_BLANK_PAPER
+        && scroll.otyp !== SCR_BLANK_PAPER;
+    if (countsLiteracy && !state.u.uconduct.literate) {
+        const readable = scroll.oclass === SPBOOK_CLASS ? 'a book'
+            : scroll.oclass === SCROLL_CLASS ? 'a scroll' : 'something';
+        livelog_printf(
+            LL_CONDUCT,
+            `became literate by reading ${readable}`,
+            state,
+        );
+    }
     state.u.uconduct.literate
         = Math.trunc(state.u.uconduct.literate ?? 0) + 1;
     if (knownHealing) {

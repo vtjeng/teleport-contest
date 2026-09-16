@@ -1,0 +1,19 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 812345,
+      "datetime": "20360110090000",
+      "nethackrc": "OPTIONS=name:ChronicleProbe,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,symset:DECgraphics\n",
+      "moves": " #chronicle\n  ",
+      "comment": "Independent direct command reaches insight.c do_gamelog/show_gamelog with the startup chronicle entry."
+    },
+    {
+      "seed": 812346,
+      "datetime": "20360111090000",
+      "nethackrc": "OPTIONS=name:ChronicleVariation,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,symset:DECgraphics\n",
+      "moves": " #chronicle\n  ",
+      "comment": "Cheap role and seed variation reaches the same Chronicle entry with a different startup identity."
+    }
+  ]
+}

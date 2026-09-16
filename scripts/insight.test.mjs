@@ -22,14 +22,24 @@ import {
     attrval,
     attributes_enlightenment,
     cause_known,
+    do_gamelog,
+    doconduct,
     enlightenment,
     fmt_elapsed_time,
     N_times,
+    num_genocides,
     size_str,
+    show_gamelog,
+    show_conduct,
+    sokoban_in_play,
+    record_achievement,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
+import { describe_level } from '../js/display.js';
 import { item_what } from '../js/zap.js';
+import { gamelog_add, livelog_printf } from '../js/pline.js';
+import { initUnported } from '../js/unported.js';
 import {
     ART_GRAYSWANDIR,
 } from '../js/artifacts.js';
@@ -44,6 +54,14 @@ import {
     HALLUC_RES,
     HVY_ENCUMBER,
     LEVITATION,
+    LL_ACHIEVE,
+    LL_CONDUCT,
+    LL_SPOILER,
+    ACH_SOKO,
+    G_GENOD,
+    ACH_BELL,
+    ACH_MINE_PRIZE,
+    ACH_RNK4,
     LIFESAVED,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
@@ -68,6 +86,7 @@ import {
     M2_DEMON,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
+    PM_HIGH_CLERIC,
     PM_WOLF,
 } from '../js/monsters.js';
 import {
@@ -121,6 +140,38 @@ function monsterCatalog() {
     monst_globals_init(state);
     return state;
 }
+
+test('describe_level preserves C branch and dflgs formatting', () => {
+    // botl.c:441-477. This helper is pure: it only reads the level topology
+    // and returns the text that do.c puts into a Chronicle event.
+    const state = {
+        u: { uz: { dnum: 0, dlevel: 3 } },
+        dungeons: [
+            { dname: 'The Dungeons', depth_start: 1 },
+            { dname: 'The Quest', depth_start: 1 },
+            { dname: 'The Endgame', depth_start: -5 },
+        ],
+        quest_dnum: 1,
+        astral_level: { dnum: 2, dlevel: 1 },
+        knox_level: { dnum: 0, dlevel: 99 },
+    };
+    assert.equal(describe_level(0, state), 'Dlvl:3 ');
+    assert.equal(describe_level(1, state), 'Dlvl:3  ');
+    assert.equal(describe_level(2, state), 'level 3, the Dungeons');
+
+    state.tutorial_dnum = 0;
+    assert.equal(describe_level(0, state), 'Tutorial:3 ');
+
+    state.u.uz = { dnum: 1, dlevel: 2 };
+    assert.equal(describe_level(2, state), 'Home 2, the Quest');
+
+    state.u.uz = { dnum: 2, dlevel: 2 };
+    assert.equal(describe_level(0, state), 'Water');
+    assert.equal(describe_level(2, state), 'Plane of Water');
+
+    state.u.uz = { dnum: 0, dlevel: 99 };
+    assert.equal(describe_level(2, state), 'The Dungeons');
+});
 
 test('align_str names the four alignments insight.c switches on', () => {
     // insight.c align_str(); the default arm covers every other value.
@@ -1507,4 +1558,218 @@ test('final blocked shape changes use source past wording', async () => {
     assert.ok(lines.includes(
         ' You would have changed shape periodically if not locked into your current form.',
     ));
+});
+
+// insight.c:show_gamelog() walks the linked list in insertion order, hides
+// spoiler events during an in-progress view, and keeps only major flags for a
+// final view. The injected text-window owner makes those source filters
+// independently testable without mutating the live terminal.
+test('show_gamelog preserves source order and final filters', async () => {
+    const events = [
+        { turn: 1, flags: LL_ACHIEVE, text: 'entered' },
+        { turn: 2, flags: LL_CONDUCT, text: 'conduct' },
+        { turn: 3, flags: LL_SPOILER, text: 'spoiler' },
+    ];
+    const state = { gamelog: events, wizard: false };
+    const windows = [];
+    const displayTextWindow = (_state, lines) => {
+        windows.push(lines.map((line) => line.text));
+    };
+
+    await show_gamelog(ENL_GAMEINPROGRESS, state, { displayTextWindow });
+    assert.deepEqual(windows[0], [
+        'Logged events:', ' Turn', '    1: entered', '    2: conduct',
+    ]);
+
+    await show_gamelog(1, state, { displayTextWindow });
+    assert.deepEqual(windows[1], [
+        'Major events:', ' Turn', '    1: entered',
+    ]);
+});
+
+test('do_gamelog dispatches the in-progress chronicle window', async () => {
+    const windows = [];
+    const state = {
+        gamelog: [{ turn: 7, flags: LL_ACHIEVE, text: 'entry' }],
+        wizard: false,
+    };
+    const result = await do_gamelog(state, {
+        displayTextWindow: (_state, lines) => {
+            windows.push(lines.map((line) => line.text));
+        },
+    });
+    assert.equal(result, 0);
+    assert.deepEqual(windows, [['Logged events:', ' Turn', '    7: entry']]);
+});
+
+// insight.c show_conduct() keeps the challenge rows in source order and uses
+// present-tense forms for #conduct. The injected menu owner makes its window
+// output independently testable without consuming a terminal key.
+test('show_conduct follows source tense and conduct order', async () => {
+    const state = {
+        u: {
+            uconduct: {},
+            uroleplay: {},
+            uachieved: [0],
+        },
+        svm: { mvitals: [] },
+        wizard: false,
+        invent: null,
+    };
+    const windows = [];
+    await show_conduct(ENL_GAMEINPROGRESS, state, {
+        displayMenuWindow: (_state, lines) => {
+            windows.push(lines.map((line) => line.text));
+        },
+    });
+    assert.deepEqual(windows, [[
+        'Voluntary challenges:',
+        ' Character rerolling was not enabled.',
+        ' You have gone without food.',
+        ' You have been an atheist.',
+        " You have never hit with a wielded weapon.",
+        ' You have been a pacifist.',
+        ' You have been illiterate.',
+        ' You have never had a pet.',
+        " You have never genocided any monsters.",
+        ' You have never polymorphed an object.',
+        ' You have never changed form.',
+        ' You have used no wishes.',
+    ]]);
+});
+
+test('doconduct invokes the in-progress conduct window and returns ECMD_OK',
+    async () => {
+        const calls = [];
+        const state = { marker: 'conduct-state' };
+        const result = await doconduct(state, {
+            showConduct: async (final, passedState) => {
+                calls.push({ final, passedState });
+            },
+        });
+        assert.equal(result, 0);
+        assert.deepEqual(calls, [{
+            final: ENL_GAMEINPROGRESS,
+            passedState: state,
+        }]);
+    });
+
+// insight.c num_genocides() and sokoban_in_play() are pure state selectors;
+// pin their source-defined flags and achievement tests separately from the
+// impure text-window entry point.
+test('conduct selectors count genocides and entered Sokoban', () => {
+    const state = {
+        u: { uachieved: [ACH_SOKO, 0] },
+        svm: { mvitals: [{ mvflags: 0 }, { mvflags: G_GENOD }] },
+        mons: [{ geno: 0 }, { geno: 0 }],
+    };
+    assert.equal(num_genocides(state), 1);
+    assert.equal(sokoban_in_play(state), true);
+    // C's achievement array is zero-terminated; entries after that marker
+    // are outside the source loop and must not make Sokoban appear entered.
+    state.u.uachieved = [0, ACH_SOKO];
+    assert.equal(sokoban_in_play(state), false);
+});
+
+test('num_genocides excludes the source high-cleric unique exception', () => {
+    const mvitals = Array.from(
+        { length: PM_HIGH_CLERIC + 1 },
+        () => ({ mvflags: 0 }),
+    );
+    const mons = Array.from(
+        { length: PM_HIGH_CLERIC + 1 },
+        () => ({ geno: 0 }),
+    );
+    mvitals[PM_HIGH_CLERIC].mvflags = G_GENOD;
+    mons[PM_HIGH_CLERIC].geno = 4096;
+    const state = {
+        u: { uachieved: [0] },
+        svm: { mvitals },
+        mons,
+    };
+    // The fixture's only genocide is the special high-cleric index in C's
+    // table, which is flagged unique but excluded by UniqCritterIndx.
+    assert.equal(num_genocides(state), 1);
+});
+
+// pline.c stores the producer-provided turn and appends without reordering;
+// livelog_printf() uses svm.moves at the call site rather than reconstructing
+// a timestamp from another conduct counter.
+test('gamelog_add and livelog_printf retain C event fields', () => {
+    const state = { moves: 23 };
+    gamelog_add(LL_CONDUCT, 4, 'first', state);
+    livelog_printf(LL_ACHIEVE, 'second', state);
+    assert.deepEqual(state.gamelog, [
+        { turn: 4, flags: LL_CONDUCT, text: 'first' },
+        { turn: 23, flags: LL_ACHIEVE, text: 'second' },
+    ]);
+});
+
+test('livelog_add honors sys.c LL_NONE while preserving the chronicle', () => {
+    const previous = {
+        sysopt: game.sysopt,
+        gamelog: game.gamelog,
+        moves: game.moves,
+        unported: game.unported,
+    };
+    try {
+        initUnported();
+        game.sysopt = { livelog: 0 };
+        game.moves = 31;
+        game.gamelog = [];
+        livelog_printf(LL_ACHIEVE, 'tab\tvalue', game);
+        assert.deepEqual(game.gamelog, [{
+            turn: 31,
+            flags: LL_ACHIEVE,
+            text: 'tab\tvalue',
+        }]);
+        assert.equal(game.unported.has('files.c livelog_add'), false);
+
+        game.sysopt = { livelog: LL_ACHIEVE };
+        game.gamelog = [];
+        livelog_printf(LL_ACHIEVE, 'enabled\tvalue', game);
+        assert.deepEqual(game.gamelog, [{
+            turn: 31,
+            flags: LL_ACHIEVE,
+            text: 'enabled\tvalue',
+        }]);
+        assert.equal(game.unported.has('files.c livelog_add'), true);
+    } finally {
+        game.sysopt = previous.sysopt;
+        game.gamelog = previous.gamelog;
+        game.moves = previous.moves;
+        game.unported = previous.unported;
+    }
+});
+
+// insight.c record_achievement() supplies dynamic rank text and the two
+// object-bearing prize messages before handing the line to pline.c.
+test('record_achievement appends source rank and prize events', async () => {
+    const state = await readyGame();
+    state.gamelog = [];
+    state.u.uachieved = [];
+    record_achievement(ACH_RNK4, state);
+    assert.equal(state.gamelog.length, 1);
+    assert.equal(state.gamelog[0].flags, LL_ACHIEVE);
+    assert.match(state.gamelog[0].text, /^attained the rank of /u);
+    assert.match(state.gamelog[0].text, /\(level 1\)$/u);
+
+    state.gamelog = [];
+    state.u.uachieved = [];
+    state.context.achieveo = { mines_prize_otyp: LUCKSTONE };
+    record_achievement(ACH_MINE_PRIZE, state);
+    assert.deepEqual(state.gamelog, [{
+        turn: state.moves,
+        flags: LL_ACHIEVE | LL_SPOILER,
+        text: "acquired the Mines' End luckstone",
+    }]);
+    // A static achievement uses the table entry and duplicate calls only
+    // replay the discarded sound side effect, never append a second line.
+    state.gamelog = [];
+    state.u.uachieved = [];
+    record_achievement(ACH_BELL, state);
+    record_achievement(ACH_BELL, state);
+    assert.deepEqual(state.gamelog.map((event) => event.text), [
+        'acquired the Bell of Opening',
+    ]);
 });
