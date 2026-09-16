@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 910234,
+      "datetime": "20380115080910",
+      "nethackrc": "OPTIONS=name:ConductProbe,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!acoustics,symset:DECgraphics,pettype:none\n",
+      "moves": " #conduct\n ",
+      "comment": "Independent wizard conduct command reaches insight.c doconduct/show_conduct; wizard startup varies the role, race, gender, and alignment while keeping the menu entry reachable."
+    }
+  ]
+}

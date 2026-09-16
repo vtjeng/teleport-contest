@@ -102,6 +102,7 @@ import {
     FREE_ACTION,
     FULL_MOON,
     FUMBLING,
+    G_GENOD,
     GLIB,
     HALF_PHDAM,
     HALF_SPDAM,
@@ -262,6 +263,7 @@ import {
     MZ_TINY,
     PM_LONG_WORM,
     PM_GREEN_SLIME,
+    G_UNIQ,
 } from './monsters.js';
 import { pmname, x_monnam } from './do_name.js';
 import { mon_aligntyp } from './priest.js';
@@ -271,7 +273,10 @@ import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
 import { body_part, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
 import { mhidden_description } from './startup_a11y.js';
-import { displayTtyTextWindow } from './tty_menu.js';
+import {
+    displayTtyMenuTextWindow,
+    displayTtyTextWindow,
+} from './tty_menu.js';
 import {
     genders,
     rankOf,
@@ -318,6 +323,9 @@ const have = 'have ';
 const had = 'had ';
 const can = 'can ';
 const could = 'could ';
+const have_been = 'have been ';
+const have_never = 'have never ';
+const never = 'never ';
 
 // C ref: insight.c enlght_line()'s contra[].
 const contra = Object.freeze([
@@ -413,6 +421,16 @@ function you_can(lines, final, attr, ps) {
 // rather than `had`, so under final disclosure the line reads "You <X>."
 function you_have_X(lines, final, something) {
     enl_msg(lines, final, You_, have, '', something, '');
+}
+
+// C ref: insight.c's conduct-only sentence macros. They share the same
+// tense/contraction handling as the enlightenment lines above.
+function you_have_been(lines, final, goodthing) {
+    enl_msg(lines, final, You_, have_been, were, goodthing, '');
+}
+
+function you_have_never(lines, final, badthing) {
+    enl_msg(lines, final, You_, have_never, never, badthing, '');
 }
 
 // C ref: insight.c align_str().
@@ -1894,6 +1912,174 @@ export function remove_achievement(achidx, state = game) {
         ++index;
     } while (achievements[index]);
     return true;
+}
+
+// C ref: insight.c num_genocides() (2953-2966). The reference walks every
+// species' mvital flags, including unique species; an impossible() diagnostic
+// for a unique genocide has no gameplay return value, so its unported message
+// is recorded only when that otherwise-invalid state is encountered.
+export function num_genocides(state = game) {
+    const mvitals = state.svm?.mvitals ?? state.mvitals ?? [];
+    const monsters = state.mons ?? [];
+    let count = 0;
+    for (let index = LOW_PM; index < mvitals.length; ++index) {
+        if ((mvitals[index]?.mvflags ?? 0) & G_GENOD) {
+            ++count;
+            if ((monsters[index]?.geno ?? 0) & G_UNIQ)
+                note_unported('pline.c impossible');
+        }
+    }
+    return count;
+}
+
+// C ref: insight.c sokoban_in_play() (2517-2528). This intentionally follows
+// the entered-Sokoban achievement rather than the current dungeon branch.
+export function sokoban_in_play(state = game) {
+    for (const achievement of state.u?.uachieved ?? []) {
+        if (!achievement) break;
+        if (achievement === ACH_SOKO) return true;
+    }
+    return false;
+}
+
+// C ref: insight.c show_conduct() (2089-2236). The text-window helper models
+// C's NHW_MENU display and dismissal; all line construction preserves the
+// source order and its present/past tense helpers. show_achievements() is a
+// void callee whose ordinary in-progress non-wizard branch returns before
+// producing output. Its wizard/final disclosure branch remains an explicit
+// discarded gap until that adjacent source function is ported.
+export async function show_conduct(final = ENL_GAMEINPROGRESS,
+                                   state = game,
+                                   { displayMenuWindow = displayTtyMenuTextWindow } = {}) {
+    const u = state.u ?? {};
+    const conduct = u.uconduct ?? {};
+    const roleplay = u.uroleplay ?? {};
+    const lines = ['Voluntary challenges:'];
+    const count = (key) => Math.trunc(conduct[key] ?? 0);
+
+    if (!roleplay.reroll) {
+        lines.push(' Character rerolling was not enabled.');
+    } else if (!roleplay.numrerolls) {
+        lines.push(' Your character was not rerolled.');
+    } else {
+        enlght_out(lines, ` Your character was rerolled ${N_times(
+            roleplay.numrerolls,
+        )}.`);
+    }
+    if (roleplay.blind) you_have_been(lines, final, 'blind from birth');
+    if (roleplay.deaf) you_have_been(lines, final, 'deaf from birth');
+    if (roleplay.pauper) {
+        enl_msg(lines, final, You_, state.invent ? 'started' : 'are',
+            'started out', ' without possessions', '');
+    }
+    if (roleplay.nudist) you_have_been(lines, final, 'faithfully nudist');
+
+    if (!count('food')) {
+        enl_msg(lines, final, You_, 'have gone', 'went', ' without food', '');
+    } else if (!count('unvegan')) {
+        you_have_X(lines, final, 'followed a strict vegan diet');
+    } else if (!count('unvegetarian')) {
+        you_have_been(lines, final, 'vegetarian');
+    }
+
+    if (!count('gnostic')) you_have_been(lines, final, 'an atheist');
+
+    if (!count('weaphit')) {
+        you_have_never(lines, final, 'hit with a wielded weapon');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `hit with a wielded weapon ${count('weaphit')} time${
+                plur(count('weaphit'))
+            }`);
+    }
+    if (!count('killer')) you_have_been(lines, final, 'a pacifist');
+
+    if (!count('literate')) {
+        you_have_been(lines, final, 'illiterate');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `read items or engraved ${count('literate')} time${
+                plur(count('literate'))
+            }`);
+    }
+    if (!count('pets')) you_have_never(lines, final, 'had a pet');
+
+    const genocided = num_genocides(state);
+    if (!genocided) {
+        you_have_never(lines, final, 'genocided any monsters');
+    } else {
+        you_have_X(lines, final,
+            `genocided ${genocided} type${plur(genocided)} of monster${
+                plur(genocided)
+            }`);
+    }
+
+    if (!count('polypiles')) {
+        you_have_never(lines, final, 'polymorphed an object');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `polymorphed ${count('polypiles')} item${plur(count('polypiles'))}`);
+    }
+    if (!count('polyselfs')) {
+        you_have_never(lines, final, 'changed form');
+    } else if (state.wizard) {
+        you_have_X(lines, final,
+            `changed form ${count('polyselfs')} time${plur(count('polyselfs'))}`);
+    }
+
+    if (!count('wishes')) {
+        you_have_X(lines, final, 'used no wishes');
+    } else {
+        let wishText = `used ${count('wishes')} wish${
+            count('wishes') > 1 ? 'es' : ''
+        }`;
+        if (count('wisharti')) {
+            const artifactText = count('wisharti') === count('wishes')
+                ? (count('wisharti') > 2 ? 'all '
+                    : count('wisharti') === 2 ? 'both ' : '')
+                : `${count('wisharti')} `;
+            wishText += ` (${artifactText}for ${count('wisharti') === 1
+                ? 'an artifact' : 'artifacts'})`;
+        }
+        you_have_X(lines, final, wishText);
+        if (!count('wisharti')) {
+            enl_msg(lines, final, You_, 'have not wished', 'did not wish',
+                ' for any artifacts', '');
+        }
+    }
+
+    if (sokoban_in_play(state)) {
+        let presentverb = 'have violated';
+        let pastverb = 'violated';
+        let sokobuf;
+        if (!count('sokocheat')) {
+            presentverb = 'have not violated';
+            pastverb = 'did not violate';
+            sokobuf = ' any of the special Sokoban rules';
+        } else {
+            sokobuf = ` the special Sokoban rules ${N_times(
+                count('sokocheat'),
+            )}`;
+        }
+        enl_msg(lines, final, You_, presentverb, pastverb, sokobuf, '');
+    }
+
+    let hasAchievement = false;
+    for (const achievement of u.uachieved ?? []) {
+        if (!achievement) break;
+        hasAchievement = true;
+        break;
+    }
+    if ((final !== ENL_GAMEINPROGRESS || state.wizard) && hasAchievement)
+        note_unported('insight.c show_achievements');
+    await displayMenuWindow(state, lines.map((text) => ({ text })));
+}
+
+// C ref: insight.c doconduct() (2081-2085).
+export async function doconduct(state = game,
+                                { showConduct = show_conduct } = {}) {
+    await showConduct(ENL_GAMEINPROGRESS, state);
+    return ECMD_OK;
 }
 
 // C ref: insight.c do_gamelog() (2532-2544) and show_gamelog()

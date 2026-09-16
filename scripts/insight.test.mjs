@@ -23,11 +23,15 @@ import {
     attributes_enlightenment,
     cause_known,
     do_gamelog,
+    doconduct,
     enlightenment,
     fmt_elapsed_time,
     N_times,
+    num_genocides,
     size_str,
     show_gamelog,
+    show_conduct,
+    sokoban_in_play,
     record_achievement,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
@@ -52,6 +56,8 @@ import {
     LL_ACHIEVE,
     LL_CONDUCT,
     LL_SPOILER,
+    ACH_SOKO,
+    G_GENOD,
     ACH_BELL,
     ACH_MINE_PRIZE,
     ACH_RNK4,
@@ -1592,6 +1598,75 @@ test('do_gamelog dispatches the in-progress chronicle window', async () => {
     });
     assert.equal(result, 0);
     assert.deepEqual(windows, [['Logged events:', ' Turn', '    7: entry']]);
+});
+
+// insight.c show_conduct() keeps the challenge rows in source order and uses
+// present-tense forms for #conduct. The injected menu owner makes its window
+// output independently testable without consuming a terminal key.
+test('show_conduct follows source tense and conduct order', async () => {
+    const state = {
+        u: {
+            uconduct: {},
+            uroleplay: {},
+            uachieved: [0],
+        },
+        svm: { mvitals: [] },
+        wizard: false,
+        invent: null,
+    };
+    const windows = [];
+    await show_conduct(ENL_GAMEINPROGRESS, state, {
+        displayMenuWindow: (_state, lines) => {
+            windows.push(lines.map((line) => line.text));
+        },
+    });
+    assert.deepEqual(windows, [[
+        'Voluntary challenges:',
+        ' Character rerolling was not enabled.',
+        ' You have gone without food.',
+        ' You have been an atheist.',
+        " You have never hit with a wielded weapon.",
+        ' You have been a pacifist.',
+        ' You have been illiterate.',
+        ' You have never had a pet.',
+        " You have never genocided any monsters.",
+        ' You have never polymorphed an object.',
+        ' You have never changed form.',
+        ' You have used no wishes.',
+    ]]);
+});
+
+test('doconduct invokes the in-progress conduct window and returns ECMD_OK',
+    async () => {
+        const calls = [];
+        const state = { marker: 'conduct-state' };
+        const result = await doconduct(state, {
+            showConduct: async (final, passedState) => {
+                calls.push({ final, passedState });
+            },
+        });
+        assert.equal(result, 0);
+        assert.deepEqual(calls, [{
+            final: ENL_GAMEINPROGRESS,
+            passedState: state,
+        }]);
+    });
+
+// insight.c num_genocides() and sokoban_in_play() are pure state selectors;
+// pin their source-defined flags and achievement tests separately from the
+// impure text-window entry point.
+test('conduct selectors count genocides and entered Sokoban', () => {
+    const state = {
+        u: { uachieved: [ACH_SOKO, 0] },
+        svm: { mvitals: [{ mvflags: 0 }, { mvflags: G_GENOD }] },
+        mons: [{ geno: 0 }, { geno: 0 }],
+    };
+    assert.equal(num_genocides(state), 1);
+    assert.equal(sokoban_in_play(state), true);
+    // C's achievement array is zero-terminated; entries after that marker
+    // are outside the source loop and must not make Sokoban appear entered.
+    state.u.uachieved = [0, ACH_SOKO];
+    assert.equal(sokoban_in_play(state), false);
 });
 
 // pline.c stores the producer-provided turn and appends without reordering;
