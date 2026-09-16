@@ -55027,7 +55027,7 @@
           "line": 1,
           "endLine": 58,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -55135,7 +55135,56 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Wiz-filb.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizFilb",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Wiz-filb.lua lines 6-58 and compared every top-level descriptor in order. The JavaScript program creates six ordinary rooms; room 1 calls stair(up), object, and a hostile class-X monster; room 2 calls two objects and a hostile class-i monster; room 3 calls object, trap, object, and hostile class-X monster; room 4 calls stair(down), object, trap, hostile class-i monster, and vampire bat; room 5 calls two objects, trap, and hostile class-i monster; room 6 calls object, trap, and vampire bat; then it calls random_corridors. The existing special-level API preserves callback execution order and the existing load_special() performs nhlib.lua's alignment shuffle before invoking this loader and post-processing afterward. No unported callee, injected substitute, swallowed refusal, or extra random draw is introduced.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() selects the Wizard quest filler suffix and calls makemaz(\"Wiz-filb\") on Quest Home 4."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the selected prototype and calls load_special() for the registered level program."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() finds the special-level loader, performs the existing nhlib.lua alignment shuffle, invokes the loader API, and applies special-level post-processing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-filb-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Wiz-filb.lua/wizard-filler-below.session.json",
+              "recordings/Wiz-filb.lua/wizard-filler-below-variation.session.json"
+            ],
+            "checkedAt": "cf293c096e40f3cfda0fbd62f13c4b40268bff91"
+          }
+        ],
+        "entryPointReview": "The source program has one production entry point: the Quest Home 4 makelevel() route selecting Wiz-filb and executing the complete Lua descriptor. The two independent recipes exercise the same loader with new seeds, date-times, and male/female character metadata. The source-pinned test checks the complete top-level callback order; the fresh matrix checks the resulting six-room level state, seven source monster descriptors or more after generation, and the two source stairs. The generic load_special() shuffle and post-processing are existing owners and are cited as caller dependencies rather than duplicated here.",
+        "entryPoints": [
+          {
+            "name": "Wizard Quest Home 4 Wiz-filb special-level load",
+            "functions": [
+              "Wiz-filb.lua"
+            ],
+            "recordings": [
+              "recordings/Wiz-filb.lua/wizard-filler-below.session.json",
+              "recordings/Wiz-filb.lua/wizard-filler-below-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
