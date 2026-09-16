@@ -53473,7 +53473,7 @@
     {
       "id": "port-insight-conduct-seed0106-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the voluntary conduct command and final-disclosure caller",
       "cFile": "insight.c",
       "sessions": [
@@ -53484,8 +53484,8 @@
       "spans": [
         {
           "name": "doconduct..show_conduct",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
           "functions": [
             "doconduct",
             "show_conduct"
@@ -53699,7 +53699,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 14,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "parkedReason": "The Conduct command span and independent recordings pass checkpointf82a3ae8. Final conduct disclosure still lacks a matching entry recording; preserve that incomplete goal while integrating the next eligible delivered work."
     }
   ]
 }
