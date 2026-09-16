@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6201035,
+      "datetime": "20350714112233",
+      "nethackrc": "OPTIONS=name:DoorTrapFresh,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!safe_wait\n",
+      "moves": " \u00165\n                              s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s ",
+      "comment": "D:5 numeric wizard teleport followed by prompt dismissals and wait inputs; the naturally generated trapped doorway is exercised by a monster at step 49."
+    }
+  ],
+  "comment": "Independent D:5 natural trapped-door witness selected from bounded seeds 6201002-6201035. Seed 6201035, the 2035 clock, DoorTrapFresh Valkyrie, numeric wizard level teleport, and wait inputs are independent of the fixed workload; C reaches mb_trapped() from postmov() at step 49."
+}

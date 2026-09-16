@@ -1932,9 +1932,9 @@ test('simple movement admits a passwall wall candidate', async () => {
 // C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its
 // move on a doorless, broken or open doorway reaches no arm of that block, so
 // the move completes with the doormask, the map and the message window
-// untouched. Of the masks that do reach an arm, only D_CLOSED under can_open
-// is ported; the test below this one owns that one.
-test('simple movement admits an inert doorway and no other mask', async () => {
+// untouched. Locked and trapped masks enter their source branches and are
+// planned without refusing the turn.
+test('simple movement admits inert and trapped doorway masks', async () => {
     for (const representation of ['flags', 'doormask']) {
         for (const mask of [D_NODOOR, D_BROKEN, D_ISOPEN]) {
             const doorway = await prepareSelectedAction();
@@ -1989,19 +1989,9 @@ test('simple movement admits an inert doorway and no other mask', async () => {
                     await preflightSimpleMonsterActions(game);
                 } else {
                     // mfndpos() admits a trapped doorway when the gnome can
-                    // open it; postmov() then checks the trap before changing
-                    // the doormask.
-                    await assert.rejects(
-                        preflightSimpleMonsterActions(game),
-                        (error) => (
-                            error
-                                instanceof UnsupportedSimpleMonsterActionError
-                            && error.reason
-                                === 'a door trap under a monster'
-                        ),
-                        `${representation} mask ${mask}, `
-                            + `attempt ${attempt + 1}`,
-                    );
+                    // open it; postmov() checks and handles the trap before
+                    // changing the doormask.
+                    await preflightSimpleMonsterActions(game);
                 }
                 assert.deepEqual(
                     completeSecondTurnSnapshot(game, activeDoor.replay),
@@ -2757,18 +2747,14 @@ test('simple preflight ignores an unselected rock during item search',
     });
 
 // C ref: mon.c can_touch_safely():1971 asks artifact.c touch_artifact() about
-// every item a monster considers, and that function can blast the toucher for
-// d(4,10) and print. m_move()'s env answers it with a refusal, which the two
-// cases below reach by the two routes the running game has: a hostile
-// monster's m_search_items(), and a pet's dog_invent() and dog_goal() under
-// movePet(). Neither route used to supply the operation at all, so both raised
-// a bare TypeError, which escapes runSegment() and discards the segment's
-// matching prefix instead of ending the segment on it.
-test('simple item search refuses an artifact it cannot touch', async () => {
+// every item a monster considers. The production m_move() adapter now uses
+// artifact.c's synchronous monster arm, which applies the source restriction
+// predicate without the hero blast or a planning refusal.
+test('simple item search admits a touchable artifact', async () => {
     // A gnome is M2_COLLECT, so mon_would_take_item() claims a weapon and
     // m_search_items() asks can_carry() -> can_touch_safely() about it. Sting
-    // is artilist.h:138, the elven dagger; only obj->oartifact reaches the
-    // refusal, so any artifact of a wanted class would do.
+    // is artilist.h:138, the elven dagger; obj->oartifact reaches the source
+    // artifact gate, so any artifact of a wanted class would do.
     const target = await prepareSelectedAction({ pmidx: PM_GNOME });
     // A blind monster off the hero's line runs the item search; the sighted
     // fixture keeps approach == 1 and skips it.
@@ -2785,14 +2771,7 @@ test('simple item search refuses an artifact it cannot touch', async () => {
     const before = completeSecondTurnSnapshot(game, target.replay);
 
     for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster artifact item selection'
-            ),
-            `attempt ${attempt + 1}`,
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
@@ -2852,7 +2831,7 @@ test('monster retaliation keeps artifact and welded selections closed',
         }
     });
 
-test('a pet fetching an artifact refuses instead of crashing', async () => {
+test('a pet fetching a touchable artifact uses the source gate', async () => {
     // The same fixture as the planned-pickup case below, with the dagger made
     // an artifact: dog_invent() reads the pet's own square, finds no food in
     // a weapon, and asks can_carry() -> can_touch_safely() whether to fetch.
@@ -2869,14 +2848,7 @@ test('a pet fetching an artifact refuses instead of crashing', async () => {
     const before = completeSecondTurnSnapshot(game, target.replay);
 
     for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster artifact item selection'
-            ),
-            `attempt ${attempt + 1}`,
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
@@ -2892,12 +2864,8 @@ test('a pet fetching an artifact refuses instead of crashing', async () => {
 });
 
 // C ref: dogmove.c:466-470. dog_invent()'s carry arm hands an AT_WEAP pet
-// straight to weapon.c mon_wield_item() once mpickobj() has taken the object,
-// and moveSimplePet()'s wieldPickedItem injection answers that call with a
-// refusal. Without the injection dog_invent() raises a bare TypeError from
-// inventoryOperation(), which escapes runSegment() and discards the segment's
-// matching prefix instead of ending the segment on its last matching screen --
-// the same failure the artifact pair above covers for can_touch_safely().
+// straight to weapon.c mon_wield_item() once mpickobj() has taken the object;
+// the artifact branch now uses touch_artifact()'s synchronous monster gate.
 //
 // The arm needs a fabricated pet. assertSimpleActionState() admits a tame
 // monster only when its species is one of the three starting pets, and none of
