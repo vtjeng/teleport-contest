@@ -53505,15 +53505,15 @@
           "name": "doconduct",
           "line": 2081,
           "endLine": 2088,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "show_conduct",
           "line": 2089,
           "endLine": 2242,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -53625,7 +53625,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doconduct",
+            "implementation": "js/insight.js",
+            "symbol": "doconduct",
+            "sourceReview": "Read insight.c doconduct() at lines 2081-2085 in full. It calls show_conduct(ENL_GAMEINPROGRESS) and returns ECMD_OK; the JavaScript dispatcher awaits the same canonical show_conduct implementation and preserves the command result.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's extcmdlist row names doconduct; js/cmd.js admits the conduct command and its doextcmd switch routes the row to doconduct after the # prompt."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/conduct-command-independent.session.json",
+              "recordings/insight.c/conduct-command-variation.session.json"
+            ],
+            "checkedAt": "9ed3fc816db4cd7739271f8180d50756e142a1cf"
+          },
+          {
+            "name": "show_conduct",
+            "implementation": "js/insight.js",
+            "symbol": "show_conduct",
+            "sourceReview": "Read insight.c show_conduct() at lines 2089-2236 in full. The port preserves the NHW_MENU title, source row order, reroll and roleplay branches, food/vegan/vegetarian and atheist conduct, wielded-weapon and pacifist rows, literacy and pet rows, num_genocides result, polymorph and form rows, wish/artifact wording, the entered-Sokoban check and violation wording, the show_achievements void-call boundary, and the blocking menu display. Existing enl_msg/you_have helpers preserve present/past tense and contractions. The wizard/final positive-achievement show_achievements branch remains an explicit discarded gap because its return is unused and that adjacent source function is outside this span.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "doconduct",
+                "source": "insight.c doconduct() calls show_conduct(ENL_GAMEINPROGRESS); js/insight.js forwards the in-progress selector and returns ECMD_OK to doextcmd()."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c disclose() calls show_conduct(2) when the conduct disclosure answer is yes; js/end.js imports the canonical insight.js implementation for that existing caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/conduct-command-independent.session.json",
+              "recordings/insight.c/conduct-command-variation.session.json"
+            ],
+            "checkedAt": "9ed3fc816db4cd7739271f8180d50756e142a1cf"
+          }
+        ],
+        "entryPointReview": "The selected production entry point is #conduct in the active extcmdlist. C insight.c doconduct() calls show_conduct(ENL_GAMEINPROGRESS); JS now admits conduct in ADMITTED_COMMANDS and dispatches the row to the canonical insight.js family. Independent Wizard/elf/female/chaotic and Wizard/elf/male blind-roleplay fresh recordings reach the menu and match C at 12 screens/cursors with 3256 and 2611 PRNG values respectively; the variation exercises the blind-from-birth conduct row. The same show_conduct implementation is wired into end.c disclose() for final conduct disclosure, with ENL_GAMEOVERALIVE selected for how >= PANICKED and ENL_GAMEOVERDEAD otherwise. Final disclosure with positive achievements remains explicitly unverified because insight.c show_achievements() is outside this span and its void result is discarded. The known #version Unix/MacOS and urandom/random text is a host-normalized difference; the later distfleeck marker was downstream of the formerly unadmitted command. Supporting dependency review, not additional source-unit completion in this goal: Read insight.c sokoban_in_play() at lines 2517-2528 in full. It scans the zero-terminated achievement list for ACH_SOKO and returns a boolean; the JavaScript loop preserves that source criterion and does not infer the current dungeon from branch state. Source-pinned checks: scripts/insight.test.mjs. Read insight.c num_genocides() at lines 2953-2966 in full. It walks svm.mvitals from LOW_PM through NUMMONS, counts G_GENOD, and sends impossible() for a unique genocide except PM_HIGH_CLERIC, without using that diagnostic result; the high-cleric species is still counted. The JavaScript walks the state-owned mvitals array, preserves the count, and records the discarded impossible diagnostic only for that invalid state. Source-pinned checks: scripts/insight.test.mjs.",
+        "entryPoints": [
+          {
+            "name": "#conduct in-progress voluntary-challenges window",
+            "functions": [
+              "doconduct",
+              "show_conduct"
+            ],
+            "recordings": [
+              "recordings/insight.c/conduct-command-independent.session.json",
+              "recordings/insight.c/conduct-command-variation.session.json"
+            ]
+          },
+          {
+            "name": "final disclosure conduct window",
+            "functions": [
+              "show_conduct"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
