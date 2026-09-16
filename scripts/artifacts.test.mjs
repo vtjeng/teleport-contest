@@ -50,6 +50,7 @@ import {
     undiscovered_artifact,
     createArtifactTable,
     init_artifacts,
+    monster_touch_artifact,
     touch_artifact,
     what_gives,
 } from '../js/artifacts.js';
@@ -301,6 +302,7 @@ test('monster artifact touching applies alignment, class, and bane gates', async
     // A neutral kitten refuses restricted lawful Demonbane, while an
     // otherwise identical lawful monster can touch it.
     assert.equal(await touch_artifact(demonbane, kitten, { state }), false);
+    assert.equal(monster_touch_artifact(demonbane, kitten, state), false);
     const lawful = {
         data: { ...kitten.data, maligntyp: 5 },
     };
@@ -319,11 +321,13 @@ test('monster artifact touching applies alignment, class, and bane gates', async
         data: { ...kitten.data, mflags3: M3_COVETOUS },
     };
     assert.equal(await touch_artifact(demonbane, covetous, { state }), true);
+    assert.equal(monster_touch_artifact(demonbane, covetous, state), true);
     const playerMonster = {
         data: { ...kitten.data, pmidx: PM_WIZARD },
     };
     assert.equal(
         await touch_artifact(demonbane, playerMonster, { state }), true);
+    assert.equal(monster_touch_artifact(demonbane, playerMonster, state), true);
 
     // An ordinary monster also refuses a self-willed role artifact even when
     // no artifact alignment mismatch is needed to reject it.
@@ -331,6 +335,11 @@ test('monster artifact touching applies alignment, class, and bane gates', async
         { oartifact: ART_MAGIC_MIRROR_OF_MERLIN },
         lawful,
         { state },
+    ), false);
+    assert.equal(monster_touch_artifact(
+        { oartifact: ART_MAGIC_MIRROR_OF_MERLIN },
+        lawful,
+        state,
     ), false);
 });
 
@@ -371,13 +380,9 @@ test('the artifact touch seam answers only the settled half', () => {
         touchArtifact: () => true,
     }), true);
 
-    // A caller that supplies no operation at all has broken the contract, and
-    // js/unported_monster_actions.js is what keeps the running game from
-    // being one: this throw is not a gameplay boundary and nothing admits it.
-    assert.throws(
-        () => artifactTouchable(demonbane, kitten, { state }),
-        /touchArtifact/,
-    );
+    // A live monster caller needs no injected operation: the synchronous
+    // source owner applies the same class/alignment gate without a Promise.
+    assert.equal(artifactTouchable(demonbane, kitten, { state }), false);
 });
 
 test('per-game tables and tracking state do not leak across initialization', () => {

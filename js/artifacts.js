@@ -830,27 +830,50 @@ export async function touch_artifact(obj, monster, env = game) {
     return true;
 }
 
-// The seam every monster-side C caller of touch_artifact() reaches instead of
-// touch_artifact() itself: mon.c can_touch_safely() in js/weapon.js, and mon.c
-// meatmetal() through js/monmove.js select_postmove_object_action(). Both call
-// touch_artifact() directly in C, so they share this one wrapper.
-//
-// The ART_NONARTIFACT return above is repeated here because it is the half
-// that is settled: an ordinary object is touchable, and asking costs no draw,
-// no message, and no state. For an artifact the wrapper asks the caller
-// instead of the port above. Answering from the port would let a monster
-// carry, wield or eat an artifact, and nothing downstream of that decision has
-// ever run against a C recording. QUALITY.json holds the wiring as
-// touch-artifact-ported-but-unwired; until it lands, every caller injects a
-// refusal, and the segment stops on its last matching screen.
+// The seam every monster-side C caller of touch_artifact() reaches: mon.c
+// can_touch_safely() in js/weapon.js, and mon.c meatmetal()/meatobj() through
+// js/mon.js. Ordinary objects are touchable without an operation. Artifact
+// callers may still inject a planning or focused-test predicate, while live
+// monster callers use the synchronous monster_touch_artifact() owner below.
 export function artifactTouchable(obj, monster, env) {
     if (!obj.oartifact) return true;
-    if (typeof env.touchArtifact !== 'function') {
-        throw new TypeError(
-            'artifact touch requires a touchArtifact operation',
-        );
+    if (typeof env?.touchArtifact === 'function')
+        return Boolean(env.touchArtifact(obj, monster, env));
+    return monster_touch_artifact(obj, monster, env?.state ?? game);
+}
+
+// C ref: artifact.c touch_artifact() (908-976), monster arm. Monsters never
+// receive the hero's blast, damage, or messages; they only need the boolean
+// gate that decides whether an artifact may be touched. Keep this synchronous
+// owner separate from the async hero-facing touch_artifact() so selectors do
+// not turn a Promise into a truthy pickup decision.
+export function monster_touch_artifact(obj, monster, state = game) {
+    const normalized = artifactTables(state);
+    const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
+    if (index === ART_NONARTIFACT) return true;
+    const artifact = normalized.artilist[index];
+    if (!artifact?.otyp) return false;
+
+    const selfWilled = Boolean(artifact.spfx & SPFX_INTEL);
+    const monsterPlayer = Boolean((monster.data?.mflags3 ?? 0) & M3_COVETOUS)
+        || isMonsterPlayer(monster);
+    let badclass = false;
+    let badalign = false;
+    if (!monsterPlayer) {
+        badclass = selfWilled
+            && artifact.role !== NON_PM
+            && index !== ART_EXCALIBUR;
+        badalign = Boolean(artifact.spfx & SPFX_RESTR)
+            && artifact.alignment !== A_NONE
+            && artifact.alignment !== monsterAlignment(monster);
     }
-    return Boolean(env.touchArtifact(obj, monster, env));
+    if (!badalign)
+        badalign = artifactBaneApplies(artifact, monster, false, normalized);
+
+    // In the monster arm C rejects every bad alignment, and every bad class
+    // on a self-willed artifact. The hero-only rn2(4) and damage branch never
+    // runs for this caller.
+    return !(((badclass || badalign) && selfWilled) || badalign);
 }
 
 const ORIGIN_FLAGS = Object.freeze([
