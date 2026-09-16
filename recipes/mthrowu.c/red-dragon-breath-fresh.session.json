@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent debug red-dragon genesis reaches mthrowu.c breamu() -> breamm() -> zap.c dobuzz(). Seed 20260916, datetime 20320415101723, role, genesis name, and contiguous west moves are independently chosen. The rest_on_space option preserves the C command-binding setup used by this debug witness. The matching C recording reaches breamm(mthrowu.c:1117), dobuzz(zap.c:4823), zap_hit(zap.c:4709), zhitu(zap.c:4422), and burnarmor(trap.c:113), with five beam frames; JavaScript matches its 20 screens, cursors, frames, and 3109 random calls completely.",
+  "segments": [
+    {
+      "seed": 20260916,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:Probe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,rest_on_space\n",
+      "moves": " \u0007red dragon\nhhhhh."
+    }
+  ]
+}

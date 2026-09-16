@@ -773,6 +773,49 @@ test('a downward ray kills the hero and stops on the death More', async () => {
     assert.equal(game.killer.format, KILLED_BY_AN);
 });
 
+test('a planned monster fire death crosses the existing live handoff', async () => {
+    // zap.c dobuzz():4852-4961 and zhitu():4588. The clone pass must consume
+    // the same range, hit, damage, and burnarmor draws, then raise the
+    // caller's planningDeath signal before losehp() can enter urgent_pline()
+    // or done() against the planning state. Calling dobuzz() with a one-HP
+    // hero isolates this source boundary from the outer monster scheduler.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    game.u.uhp = 1;
+    const calls = [];
+    const random = {
+        d: (...args) => { calls.push(['d', ...args]); return args[0]; },
+        rn1: (...args) => { calls.push(['rn1', ...args]); return args[1]; },
+        rn2: (bound) => { calls.push(['rn2', bound]); return 1; },
+        rnd: (bound) => { calls.push(['rnd', bound]); return bound; },
+        rnl: (bound) => { calls.push(['rnl', bound]); return 1; },
+        rnz: (value) => { calls.push(['rnz', value]); return value; },
+    };
+    let subject;
+    await assert.rejects(
+        () => dobuzz(
+            -21, 6, game.u.ux, game.u.uy, 0, 0,
+            true, false, false, game, random,
+            {
+                planning: true,
+                planningDeath: (monster) => {
+                    subject = monster;
+                    return new Error('planned monster death');
+                },
+            },
+        ),
+        /planned monster death/u,
+    );
+    assert.equal(subject, undefined);
+    assert.equal(game.u.uhp, -5,
+        'the clone records the same lethal damage before handing off');
+    assert.deepEqual(calls, [
+        ['rn1', 7, 7], ['rn2', 20], ['d', 6, 6],
+        ['rn2', 5], ['rn2', 3], ['rn2', 3],
+    ]);
+});
+
 test('burnarmor rolls again for a slot the hero has nothing in', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),

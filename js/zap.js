@@ -171,6 +171,7 @@ import {
     isok,
     u_at,
     uhim,
+    Upolyd,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, exercise } from './attrib.js';
@@ -206,7 +207,7 @@ import { more_experienced } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import {
-    check_capacity, in_town, losehp, may_dig, nh_delay_output, nomul,
+    check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul,
     set_uinwater,
 } from './hack.js';
 import {
@@ -2036,7 +2037,13 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
 // no damage but still has the full roll fed to ugolemeffects() and to
 // destroy_items(). Only the else at 4428-4431 is ported, where the two are
 // equal.
-async function zhitu(type, nd, fltxt, sx, sy, state, random) {
+async function zhitu(type, nd, fltxt, sx, sy, state, random, rawEnv = {}) {
+    // The monster-turn preflight reaches hero damage on a planning clone.  In
+    // C burnarmor(), destroy_items() and ignite_items() all receive the same
+    // live call context; forwarding it here keeps their messages and display
+    // seams on the clone instead of writing into the live terminal (or
+    // consuming its input while a planned message waits for --More--).
+    const env = { ...rawEnv, state, random };
     let dam = 0;
     const abstyp = zaptype(type);
     let orig_dam = 0;
@@ -2062,12 +2069,12 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
         monstunseesu(M_SEEN_FIRE, state);
         burn_away_slime(state);
         /* "body hit" */
-        if (await burnarmor(state.youmonst, { state, random })) {
+        if (await burnarmor(state.youmonst, { ...env })) {
             if (!random.rn2(3))
                 await destroy_items(state.youmonst, AD_FIRE, orig_dam,
-                    { state, random });
+                    { ...env });
             if (!random.rn2(3))
-                await ignite_items(state.invent, { state, random });
+                await ignite_items(state.invent, { ...env });
         }
         break;
 
@@ -2077,7 +2084,24 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
         );
     }
     const killed = zhituLosehpArguments(type, abstyp, dam, fltxt, state);
-    await losehp(killed.dam, killed.kbuf, KILLED_BY_AN, state);
+    if (env.planning && !Upolyd(state.u)
+        && killed.dam >= state.u.uhp
+        && typeof env.planningDeath === 'function') {
+        // C's losehp() enters end.c done() on this monster-turn death.  The
+        // planning clone cannot run its urgent message or death query, so
+        // carry the source damage write and attacker identity across the
+        // existing atomic planning/live handoff used by mhitu.c.
+        end_running(true, state);
+        state.disp ??= {};
+        state.disp.botl = true;
+        state.u.uhp -= killed.dam;
+        throw env.planningDeath(state.gb?.buzzer);
+    }
+    await losehp(killed.dam, killed.kbuf, KILLED_BY_AN, state, {
+        ...env,
+        fromMonster: type < 0 || Boolean(env.fromMonster),
+        message: env.message,
+    });
 }
 
 // C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
@@ -2936,7 +2960,7 @@ export async function dobuzz(
                          * hallucination */
                         await zhitu(
                             type, nd, flash_str(fltyp, true, state, random), sx, sy,
-                            state, random,
+                            state, random, env,
                         );
                         monstunseesu(M_SEEN_REFL, state);
                     }
