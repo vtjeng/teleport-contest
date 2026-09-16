@@ -108,7 +108,7 @@ import {
     incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
     make_hallucinated, set_itimeout,
 } from './potion.js';
-import { encumber_msg } from './pickup.js';
+import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';
 import { the } from './objnam.js';
@@ -854,8 +854,11 @@ async function decrement_property_timeouts(state, env) {
             property.intrinsic &= ~FROMOUTSIDE;
             if (propertySource(state, FUMBLING))
                 incr_itimeout(property, random.rnd(20));
+            // timeout.c calls deferred_decor(FALSE) after the Fumbling clock
+            // has expired.  Planning clones cannot emit the catch-up line;
+            // the live timeout owns the source message and clears the flag.
             if (state.iflags?.defer_decor && !env.planning)
-                note_unported('pickup.c deferred_decor');
+                await deferred_decor(false, state);
             break;
         case DETECT_MONSTERS:
             see_monsters(state);
