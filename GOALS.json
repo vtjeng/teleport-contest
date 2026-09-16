@@ -51396,7 +51396,7 @@
     {
       "id": "div-priest-pri-move-seed0014-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve conceptual room indices in nested temple priest initialization and membership.",
       "cFile": "priest.c",
       "sessions": [],
@@ -51405,8 +51405,8 @@
       "spans": [
         {
           "name": "nested-temple-room-indices",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
           "functions": [
             "temple_occupied",
             "histemple_at",
@@ -51421,8 +51421,11 @@
         "screens": 10104,
         "rng": 747316
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+      "delivered": {
+        "screens": 42,
+        "rng": 5145
+      },
       "function": "pri_move",
       "session": "seed0014-dequa-fountain-explore",
       "step": 669,
@@ -51504,7 +51507,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+        "screens": 10146,
+        "rng": 752461
+      }
     }
   ]
 }
