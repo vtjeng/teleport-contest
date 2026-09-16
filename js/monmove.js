@@ -273,6 +273,7 @@ import {
     passes_walls,
     perceives,
     sticks,
+    locomotion,
     telepathic,
     throws_rocks,
     touch_petrifies,
@@ -427,7 +428,7 @@ import {
     rloc,
     tele_restrict,
 } from './teleport.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
 import {
@@ -3097,6 +3098,9 @@ export async function postmov(
     const message = env.planning
         ? async () => {}
         : (rawEnv.message ?? ttyPline);
+    const norepMessage = env.planning
+        ? async () => {}
+        : (rawEnv.norepMessage ?? ttyNorep);
     const redraw = env.planning ? () => {} : (rawEnv.redraw ?? newsym);
     // vision.c recalc_block_point() and vision_recalc(), which UnblockDoor
     // calls in that order.  recalc_block_point() already takes the state it
@@ -3340,8 +3344,13 @@ export async function postmov(
                     || metallivorous(species))) {
                 if (canseemon(monster, state)) {
                     await message(
-                        `${capitalizedMonsterName(monster, state)}`
-                        + ' eats through the iron bars.',
+                        messageAt(
+                            `${Monnam(monster, state, env)}`
+                            + ' eats through the iron bars.',
+                            monster.mx,
+                            monster.my,
+                            state,
+                        ),
                         state,
                         env,
                     );
@@ -3349,11 +3358,15 @@ export async function postmov(
                 dissolve_bars(monster.mx, monster.my, state);
                 return MMOVE_DONE;
             } else if (state.flags?.verbose && canseemon(monster, state)) {
-                // C: Norep("%s %s %s the iron bars.", ...). Norep is not
-                // ported; skip the message for now. The locomotion and
-                // makeplural owners are implemented in mondata.js and
-                // fruit.js respectively.
-                note_unported('pline.c Norep');
+                // C uses makeplural() to conjugate the movement verb and
+                // Norep() to suppress a repeated message on the top line.
+                await norepMessage(
+                    `${Monnam(monster, state, env)} `
+                    + `${makeplural(locomotion(species, 'pass'))} `
+                    + `${passes_walls(species) ? 'through' : 'between'} the iron bars.`,
+                    state,
+                    env,
+                );
             }
         }
         if (canTunnel && may_dig(monster.mx, monster.my, state)) {

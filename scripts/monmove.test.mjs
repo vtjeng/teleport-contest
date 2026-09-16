@@ -796,9 +796,6 @@ test('postmov opens the door silently for verbose, Deaf and acoustics',
         }
     });
 
-// C ref: monmove.c:1624-1647. Iron bars are the door block's sibling: a rust
-// monster or a metallivore eats through them and anything else squeezes past
-// with a Norep() message. Neither is ported.
 // C ref: monmove.c:1509. mintrap() runs for every MMOVE_MOVED, including a
 // monster whose square did not change — dog_move() returns MMOVE_MOVED even
 // when the pet stays put, so the call reads the monster's live square rather
@@ -1406,14 +1403,17 @@ test('postmov fires an already-seen dart trap that survives its roll',
         assert.equal(state.level.objects[5][4].otyp, DART);
     });
 
-// A monster that cannot eat through iron bars (no AD_RUST, AD_CORR, or
-// metallivorous) passes through without throwing.  The verbose Norep message
-// arm records a note_unported gap.
-test('postmov does not throw for an ordinary monster on iron bars', async () => {
+// C ref: monmove.c:1636-1640 sends the ordinary iron-bars message through
+// Norep(), using makeplural(locomotion(ptr, "pass")) for its verb.
+test('postmov reports passage between iron bars through the Norep owner', async () => {
     const { locations, state } = makeState();
     const monster = ordinaryMonster(state, { mx: 5, my: 4 });
     locations.set('5,4', { typ: IRONBARS, flags: 0, wall_info: 0 });
+    state.flags = { verbose: true };
+    seeSquare(state, 5, 4);
+    const repeatedMessages = [];
     const { env } = postmovEnv(state, {
+        norepMessage: (text) => { repeatedMessages.push(text); },
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
@@ -1423,6 +1423,10 @@ test('postmov does not throw for an ordinary monster on iron bars', async () => 
         monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env,
     );
     assert.ok(result !== undefined);
+    assert.deepEqual(repeatedMessages, ['The giant rat passes between the iron bars.']);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true,
+        { ...env, planning: true });
+    assert.equal(repeatedMessages.length, 1, 'planning does not call live Norep');
 });
 
 // C ref: monmove.c:1650-1656. An engulfer drags the hero along, but only when

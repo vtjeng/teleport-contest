@@ -52374,7 +52374,7 @@
     {
       "id": "port-monmove-postmov-seed0383-20260916",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete monster post-move handling and trapped-door activation",
       "cFile": "monmove.c",
       "sessions": [
@@ -52406,7 +52406,7 @@
           "line": 1455,
           "endLine": 1714,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -52414,9 +52414,9 @@
         "to": 1714
       },
       "activeStanding": {
-        "sha": "a0342880e606384b48903ac656ccc92a770b232c",
-        "screens": 10249,
-        "rng": 753558
+        "sha": "5e7f02a1f29b3131adcbd150f9e5c659f60c7218",
+        "screens": 10259,
+        "rng": 753589
       },
       "openMismatches": [
         {
@@ -52501,7 +52501,88 @@
         "screens": 10259,
         "rng": 753589
       },
-      "parkedReason": "Preserve reviewed postmov work and its ready weapon-test correction while integrating the older ready independent B8 chronicle delivery first."
+      "parkedReason": "Preserve reviewed postmov work and its ready weapon-test correction while integrating the older ready independent B8 chronicle delivery first.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "postmov",
+            "implementation": "js/monmove.js",
+            "symbol": "postmov",
+            "sourceReview": "Read nethack-c/upstream/src/monmove.c:1454-1705 in full and compared every branch, state write, message/redraw order, and return-value test with js/monmove.js. The JavaScript implementation keeps the source-order seenFlags, canTunnel, canUnlock, canOpen signature at every production m_move() call; brackets mintrap() and its killed/moved/off-map returns with the source redraw; refreshes species after mintrap; preserves the magic-key D_TRAPPED disarm; uses source whole-mask door conditions and mb_trapped() results; calls existing detect.c, vision.c, trap.c, dig.c, mon.c, and artifact.c owners; sets hero ux0/uy0 before u_on_newpos(); keeps C ELSE redraw semantics for swallowing; calls meatmetal/meatobj/meatcorpse and checks their exact source statuses; propagates mpickstuff; repaints minvis and records the discarded worm.c see_wsegs gap; runs maybe_spin_web and concealment in order; and calls after_shk_move(). The web helper uses the existing naming/display owners and source soko_allow_web clear_path test. The monster artifact gate is synchronous and shares touch_artifact() restrictions, while m_consume_obj() calls healmon() before delobj() as C does. Gaps are limited to discarded-result or planning-display callees explicitly named in the entryPointReview: worm.c see_wsegs, display.c swallowed clone redraw without a callback, and shk.c add_damage. No new Unsupported refusal stands in for a selected postmov branch. Integration also wires the already-ported ttyNorep owner for ordinary iron-bars passage, with source locomotion/makeplural wording and planning suppression; the adjacent bars-eating message uses the C pline_mon location wrapper.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:1773-2073 routes pet, specialist, teleport, item-search, stationary, and ordinary movement results through postmov(); js/monmove.js m_move() normalizes those paths through its source-ordered postMonsterMove closure."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c dochug() dispatches each active monster turn to m_move(); js/monmove.js dochug() reaches the same production m_move() path."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimpleOrdinary",
+                "source": "unported_monster_actions.js moveSimpleOrdinary() is the live ordinary-monster adapter into m_move(); its artifact selection now leaves touchArtifact unset so m_search_items()/postmov() use artifactTouchable() and the synchronous monster touch_artifact() owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monmove.test.mjs",
+              "scripts/monster-hiding.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/dogmove-quickmimic.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/monmove.c/postmov-trapped-door-independent-d5.session.json",
+              "recordings/monmove.c/postmov-trapped-door-independent-quiet.session.json"
+            ],
+            "checkedAt": "5e7f02a1f29b3131adcbd150f9e5c659f60c7218"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete monmove.c postmov() function (1454-1705), reached by the production m_move() dispatcher for pet, specialist, item-search, stationary, and ordinary movement statuses. Source review follows C evaluation order: pre-move seen flags and vampire rollback, mintrap and post-polymorph species refresh, magic-key trapped-door disarm, amorphous/locked/open/crash door masks and mb_trapped returns, iron-bars dissolution, mdig_tunnel return handling, engulfed-hero ux0/uy0 and u_on_newpos sequencing, object eater and mpickstuff return handling, minvis redraw and worm tail, maybe_spin_web gating/message, hides_under or eel concealment, and after_shk_move. The independent D:5 recording reaches the production m_move() -> postmov() trapped-door path at recording steps[49] (the 50th input step), including C mb_trapped() at monmove.c:65, and matches the JavaScript replay completely. A cheap independent variation with acoustics disabled reaches the same C arm at recording step 45 and also matches completely. Neither fresh recording reaches post-move object pickup, so this delivery claims only the trapped-door entry; focused source-pinned tests cover the remaining source branches and helper contracts. The synchronous monster_touch_artifact() owner shares the canonical touch_artifact() restriction predicate and resets touch_blasted on every call. moveSimpleOrdinary() no longer injects the former artifact Unsupported refusal, so live m_search_items()/postmov() selection reaches that owner; m_consume_obj() calls the source healmon() owner before object deletion. Genuinely discarded unported callees remain explicit: worm.c see_wsegs for worm-tail redraw, display.c swallowed clone redraw when no clone callback exists, and shk.c add_damage for shop accounting in the door/web arms. maybe_spin_web() now uses existing YMonnam/messageAt owners and source soko_allow_web path; its discarded shop accounting remains noted. Return-valued meatmetal (exact ==2), meatobj/meatcorpse (>=2), mpickstuff, mdig_tunnel, and artifact/object gates are preserved. Pet/specialist, object-pickup, web/concealment-only, iron-bars/tunnel, and engulfed-only fresh entry recordings remain open where no independent production recipe reaches them; they are not claimed complete by this delivery. The integrated candidate replaces the obsolete Norep gap with ttyNorep and verifies the source message callback and planning suppression in scripts/monmove.test.mjs.",
+        "entryPoints": [
+          {
+            "name": "monster movement into a trapped doorway",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": [
+              "recordings/monmove.c/postmov-trapped-door-independent-d5.session.json",
+              "recordings/monmove.c/postmov-trapped-door-independent-quiet.session.json"
+            ]
+          },
+          {
+            "name": "post-move object pickup",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "pet and specialist movement status through postmov",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "iron-bars, tunnel, or engulfed-hero transition",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "web, concealment, and shop follow-up after movement",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
