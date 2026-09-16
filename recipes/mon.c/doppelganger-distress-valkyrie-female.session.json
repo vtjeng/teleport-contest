@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent B15 variation: changed seed/date and Valkyrie female metadata for doppelganger distress.",
+  "segments": [{
+    "seed": 9131017,
+    "datetime": "20261025130000",
+    "nethackrc": "OPTIONS=name:DoppelDistressJ,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": " \u0007doppelganger\nm."
+  }]
+}

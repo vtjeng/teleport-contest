@@ -130,7 +130,7 @@ import {
     oname,
     rndghostname,
 } from './do_name.js';
-import { newsym } from './display.js';
+import { newsym, rank_of } from './display.js';
 import {
     depth,
     In_hell,
@@ -1315,6 +1315,10 @@ function assertSupportedSpecies(species) {
             // creates it for the spitmu recipe that covers mthrowu.c's
             // spit-venom entry point.
             && species.pmidx !== PM_COBRA
+            // A doppelganger is a natural shapechanger. Its mon.c selector
+            // and bounded distress caller below are admitted for the
+            // inventoryless runtime branch.
+            && species.pmidx !== PM_DOPPELGANGER
             // read.c create_particular_creation() passes an explicitly named
             // red dragon to makemon() unchanged. Its ordinary S_DRAGON path
             // has no creation-only helper or inventory branch, so the C
@@ -3305,9 +3309,23 @@ function newcham_initial(monster, normalized) {
     return target ? apply_newcham_form(monster, target, normalized) : false;
 }
 
-function distressShapechangeName(monster) {
+function distressShapechangeName(monster, state) {
     const assigned = monster.mextra?.mgivenname;
     if (assigned) return String(assigned);
+    // C do_name.c:x_monnam() uses the role rank when a doppelganger takes on
+    // a player-monster form outside the endgame.  pmnames contains the role
+    // name and would produce a different shapechange message.
+    if (is_mplayer(monster.data)
+        && !(state.astral_level
+            && state.u?.uz
+            && state.u.uz.dnum === state.astral_level.dnum)) {
+        return rank_of(
+            monster.m_lev,
+            monster.data.pmidx,
+            monster.female,
+            state,
+        ).toLowerCase();
+    }
     const names = monster.data?.pmnames ?? [];
     return names[monster.female ? 1 : 0] ?? names[2] ?? 'monster';
 }
@@ -3334,19 +3352,19 @@ function distressShapechangeArticle(name) {
     return (vowel && !oneException && !longU) || pronouncedX ? 'an' : 'a';
 }
 
-function distressShapechangeOldName(monster) {
+function distressShapechangeOldName(monster, state) {
     const assigned = monster.mextra?.mgivenname;
     if (assigned) {
         const text = String(assigned);
         return text ? text[0].toUpperCase() + text.slice(1) : text;
     }
-    const name = distressShapechangeName(monster);
+    const name = distressShapechangeName(monster, state);
     const article = monster.mtame ? 'Your' : 'The';
     return `${article} ${name}`;
 }
 
-function distressShapechangeNewName(monster) {
-    const name = distressShapechangeName(monster);
+function distressShapechangeNewName(monster, state) {
+    const name = distressShapechangeName(monster, state);
     return `${distressShapechangeArticle(name)} ${name}`.trim();
 }
 
@@ -3363,6 +3381,7 @@ function requiredDistressShapechangeOperation(env, name) {
 function preflightDistressShapechange(monster, normalized) {
     const { state } = normalized;
     const supportedShifter = monster?.cham === PM_SANDESTIN
+        || monster?.cham === PM_DOPPELGANGER
         || monster?.cham === PM_CHAMELEON
         || monster?.cham === PM_VAMPIRE
         || monster?.cham === PM_VAMPIRE_LEADER;
@@ -3371,11 +3390,11 @@ function preflightDistressShapechange(monster, normalized) {
             `distress shapechanger ${monster?.cham}`,
         );
     }
-    // The initial-D:1 forms admitted here are empty-inventory chameleons,
-    // Sandestins, and Mausoleum vampires. General newcham() has additional
-    // owners for worm teardown, disguise, leash/steed/engulfment, armor,
-    // wielding, and self-touch. Refuse those states before selection can
-    // consume RNG.
+    // The initial-D:1 forms admitted here are empty-inventory doppelgangers,
+    // chameleons, Sandestins, and Mausoleum vampires. General newcham() has
+    // additional owners for worm teardown, disguise, leash/steed/engulfment,
+    // armor, wielding, and self-touch. Refuse those states before selection
+    // can consume RNG.
     if (monster.minvent || monster.wormno || monster.m_ap_type
         || monster.mleashed || state.u?.ustuck === monster
         || state.u?.usteed === monster) {
@@ -3422,7 +3441,7 @@ export async function newcham_distress(
     );
 
     const seenOrSensed = Boolean(canSpotMonster(monster, normalized));
-    const oldName = distressShapechangeOldName(monster);
+    const oldName = distressShapechangeOldName(monster, state);
     let selected = target;
     if (selected == null) {
         for (let attempt = 0; attempt < 20 && !selected; ++attempt) {
@@ -3452,14 +3471,16 @@ export async function newcham_distress(
         const { usmellmon } = await import('./mon.js');
         await usmellmon(selected, normalized);
     } else if (!seenOrSensed) {
-        const newName = distressShapechangeNewName(monster);
+        const newName = distressShapechangeNewName(monster, state);
         const appeared = newName
             ? newName[0].toUpperCase() + newName.slice(1)
             : newName;
         await message(`${appeared} appears!`, state, normalized);
     } else {
         await message(
-            `${oldName} turns into ${distressShapechangeNewName(monster)}!`,
+            `${oldName} turns into ${distressShapechangeNewName(
+                monster, state,
+            )}!`,
             state,
             normalized,
         );
