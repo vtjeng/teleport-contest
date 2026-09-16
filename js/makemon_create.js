@@ -1308,6 +1308,9 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             // creates it for the spitmu recipe that covers mthrowu.c's
             // spit-venom entry point.
             && species.pmidx !== PM_COBRA
+            // A doppelganger is a complete natural shapechanger: its
+            // mon.c:newcham() selector and distress caller are ported below.
+            && species.pmidx !== PM_DOPPELGANGER
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(
             `makemon() monster ${species?.pmidx ?? 'null'}`,
