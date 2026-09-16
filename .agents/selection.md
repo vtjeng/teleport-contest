@@ -89,7 +89,8 @@ Before editing, check the current runtime ledger and pending scope
 announcements for active and pending-delivery reservations. Prepare the next
 worker-local span context and notify the orchestrator of the base commit,
 next mismatch, source scope, dependencies, and write set. Claim that scope
-with the atomic `assign` operation in `.agents/loop.md` before editing.
+with an atomic `assign` event as `.claude/agents/span-worker.md`, "Claiming
+and submitting work", specifies, before editing.
 Do not wait for acknowledgement after a successful claim.
 If ownership is unclear, another worker reserves the function, or a shared
 contract must change, ask the orchestrator to resolve that dependency and
@@ -101,7 +102,7 @@ assignment. Respect the user's task bounds and stop requests throughout.
 Explain seed continuation or a reserved higher-ranked candidate in
 `--selection-reason`; do not describe it as globally highest priority.
 A fresh worker-branch observation stays tied to that commit and does not
-replace the integration branch's investigation cache. Recheck selection and
+replace main's investigation cache. Recheck selection and
 existing completion evidence before integrating each delivery; reconcile
 work made redundant by intervening integrations rather than implementing it
 again. A submitted delivery may be integrated while another worker proceeds;

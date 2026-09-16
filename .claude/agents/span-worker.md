@@ -12,15 +12,15 @@ Read these sources:
   source line ranges, line count, JavaScript file, and the sessions whose
   first mismatch the goal addresses. The orchestrator prepares the initial
   context; you prepare subsequent contexts using the `goal-log.mjs` planner's
-  schema and source-order rules under `.agents/loop.md`
+  schema and source-order rules under `.agents/selection.md`
 - The orchestrator's initial assignment and your subsequent scope
   announcements: absolute worktree, branch and base SHA, source reservations,
-  allowed paths, dependencies and delivery ID. Preserve each delivery's context.
+  allowed paths, dependencies and task ID. Preserve each delivery's context.
   `GOALS.json` supplies existing completion evidence, but its current open
   goal belongs to central integration and may differ from your assignment
 - `.agents/validation.md`: what validating this span requires
 - `.agents/glossary.md`: the work vocabulary
-- `.agents/loop.md`: worker scheduling and the merge-request protocol
+- `.agents/loop.md`: the orchestrator's scheduling and acceptance procedures
 - `.agents/selection.md`: source scope, reservations and seed continuation
 
 Use the orchestrator's selected mismatch entry for the initial work and your
@@ -43,8 +43,8 @@ discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole source units and wire their callers", states.
 
 Select subsequent work under `.agents/selection.md`, "Seed continuation".
-Claim your next scope and submit deliveries through `worker-state.mjs` as
-`.agents/loop.md` specifies. Leave central goal-selection commands,
+Claim your next scope and submit deliveries through `worker-state.mjs` using
+the procedure below. Leave central goal-selection commands,
 integration, acceptance and publication to the orchestrator.
 Do not open `.agents/review.md`; formal reviews belong to the orchestrator.
 This restriction overrides the AGENTS.md reading row that names it.
@@ -67,7 +67,7 @@ Beyond code and tests:
   applies the assignment before combined validation.
 - Leave central `GOALS.json`, `SCORE.tsv`, quality/review records, instructions,
   aggregate scans and scoring to the orchestrator. Never merge worker copies
-  of those records into the integration branch.
+  of those records into main.
 
 Do not run formal review passes or launch reviewer skills. If the span
 needs one, say so in your report.
@@ -88,6 +88,42 @@ completion only when no process handle or notification is available.
 Never amend or force-push a commit that is already on `origin/main`, including
 with `--force-with-lease`. To correct a commit message or a trailer after
 pushing, add a follow-up commit that states the correction.
+
+## Claiming and submitting work
+
+Use the orchestrator's absolute shared-ledger path with
+`scripts/worker-state.mjs --file`. Read `--help` for event fields and command
+syntax. Record your connection, turn state, task, scope changes, and delivery
+as they happen; do not edit the ledger JSON by hand.
+
+Before editing, claim the task with an `assign` event through `event --json`.
+The command checks ownership and records the claim atomically. If another
+worker owns the scope, choose independent work. Reserve the functions and
+shared-state contracts you need; do not reserve whole files indefinitely.
+Ask the orchestrator before changing another worker's reserved function or
+a shared contract. Update your allowed paths and reservations with a `scope`
+event before expanding your edits.
+
+After the completion conditions below are met, run `worker-state.mjs submit`.
+Preserve each delivery's context and evidence separately. Include exact base
+and delivery commits, dependencies, changed scope, check results, source
+evidence, recordings and entry points, and unfinished work. Then send
+`READY_TO_MERGE` with the saved submission reference and your next task or
+blocker. Submit before choosing the next task. If notification fails, the
+saved submission still stands. Report an unfinished span's progress or
+blocker without calling it ready.
+
+The orchestrator replies `QUEUED_FOR_MERGE`, then `ACCEPTED` after combined
+validation or `CHANGES_REQUIRED` with findings. Submission frees you to start
+independent work, but its reservations remain until acceptance or parking.
+Acceptance of an earlier task leaves your current task's reservations intact.
+Acceptance does not mean the work has been pushed or that CI has passed.
+
+If corrections are requested while you are working on another task, finish
+or deliberately park that task before making the correction. Use new commits
+and identify affected dependent work; never amend a submitted commit. Merge
+validated main into your worktree at clean task boundaries, preserving
+pending work and history.
 
 ## Subagents
 
@@ -130,7 +166,7 @@ Pass every restriction in this document to each subagent you spawn.
   every owned process is reaped or explicitly handed off with its handle.
   Include the exact base and delivery SHAs; never amend a submitted snapshot.
 
-Send `READY_TO_MERGE` as `.agents/loop.md`, "Merge requests", specifies, or
+Send `READY_TO_MERGE` as "Claiming and submitting work" specifies, or
 report a concrete blocker promptly. This handoff does not end your worker
 assignment. Select and announce the next independent scope using the standing
 continuation procedure; do not wait for fresh permission, acknowledgement,
@@ -146,8 +182,7 @@ done, and commit integration artifacts once they stabilize.
 ## What to report
 
 At each delivery, report to the main orchestrator in one brief
-`READY_TO_MERGE` message. Follow its acknowledgement and acceptance protocol
-in `.agents/loop.md`, "Merge requests". Cover:
+`READY_TO_MERGE` message. Follow "Claiming and submitting work" above. Cover:
 
 - Base and delivery commits, exact delivery commit list, dependency SHAs,
   changed paths/functions, focused/lint/fresh-case commands and results,
