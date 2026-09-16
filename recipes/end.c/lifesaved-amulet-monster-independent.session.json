@@ -1,0 +1,12 @@
+{
+  "_comment": "Independent end.c done() witness: a debug Wizard named LifeMonster wishes and wears a life-saving amulet, then wishes a hostile minotaur adjacent and walks into it. Its second attack reaches done()'s already-consumed-amulet death query after the first attack has exercised the monster-damage reprieve; the bounded recording matches through that later query.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 917332,
+      "datetime": "20310922101500",
+      "nethackrc": "OPTIONS=name:LifeMonster,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017amulet of life saving\nWn\u0007minotaur\n jj   "
+    }
+  ]
+}

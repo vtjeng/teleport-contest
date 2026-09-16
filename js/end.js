@@ -6,14 +6,14 @@
 // defaults, the mortality count and the hit-point force, the wizard-and-
 // explore-mode query at 1112 that asks whether the hero really dies, and
 // the survive path (1113-1122) that calls savelife() and returns when the
-// player declines death. The life-saving amulet's earlier reprieve remains
-// refused. really_done() covers the mounted-slip prefix through cleanup, time
+// player declines death. The life-saving amulet reprieve at 1082-1103 is
+// ported too. really_done() covers the mounted-slip prefix through cleanup, time
 // bookkeeping, inventory identification, disclosure, grave creation, score
 // calculation, the Save bones? prompt, and ordinary final-game display.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
-// death is declined in wizard or explore mode. Two of its branches remain
-// refused: expels() (not ported) and make_sick() (not ported).
+// death is declined in wizard or explore mode or after the amulet fires. Its
+// two unported calls are explicit discarded-result gaps.
 // endmultishot(FALSE) is now ported.
 //
 // done_in_by() (end.c:185-344) sets up the killer string from a monster
@@ -26,7 +26,7 @@
 // edges are safe because their imported bindings are read only inside
 // functions, after module initialization; neither belongs in a module-scope
 // value initializer while the cycle remains.
-import { acurr, minuhpmax, setuhpmax } from './attrib.js';
+import { acurr, adjattrib, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
@@ -85,11 +85,12 @@ import {
     NON_PM,
     In_tutorial,
     LL_DUMP,
+    LL_LIFESAVE,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
 import { schedule_goto } from './do.js';
-import { m_monnam, pmname } from './do_name.js';
+import { m_monnam, mon_nam, Monnam, pmname } from './do_name.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
@@ -97,8 +98,8 @@ import { clearpriests } from './priest.js';
 import { paybill } from './shk.js';
 import { paygd } from './vault.js';
 import { curs_on_u, nomul } from './hack.js';
-import { zombie_maker } from './mon.js';
-import { gender, is_vampshifter, type_is_pname } from './mondata.js';
+import { unstuck, zombie_maker } from './mon.js';
+import { gender, is_vampshifter, sticks, type_is_pname } from './mondata.js';
 import { G_NOCORPSE } from './monsters.js';
 import {
     G_UNIQ,
@@ -121,7 +122,14 @@ import {
 } from './invent.js';
 import { isContainer, place_object, remove_object } from './obj.js';
 import { discover_object } from './o_init.js';
-import { BAG_OF_TRICKS, CORPSE, LARGE_BOX, STATUE, TIN } from './objects.js';
+import {
+    AMULET_OF_LIFE_SAVING,
+    BAG_OF_TRICKS,
+    CORPSE,
+    LARGE_BOX,
+    STATUE,
+    TIN,
+} from './objects.js';
 import {
     an, doname_with_price, the, thesimpleoname, the_unique_pm,
     xnameFresh,
@@ -137,7 +145,7 @@ import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
 } from './tty_menu.js';
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
@@ -157,6 +165,8 @@ import { hidden_gold } from './u_init_inventory_attrs.js';
 import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
+import { setwornEnv } from './do_wear.js';
+import { setnotworn } from './worn.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -201,9 +211,8 @@ function nowrap_add(a, b) {
 }
 
 // C ref: youprop.h:387 Lifesaved, the extrinsic alone. The amulet of life
-// saving is the only item that confers it. No ported command can put that
-// amulet on: it uses do_wear.c doputon(), and js/cmd.js dispatches no command
-// row to that handler. Lifesaved is therefore FALSE in every reachable game.
+// saving is the only item that confers it; do_wear.c Amulet_on() supplies the
+// worn-slot state that makes this property active.
 function Lifesaved(state) {
     return Boolean(state.u?.uprops?.[LIFESAVED]?.extrinsic);
 }
@@ -220,9 +229,10 @@ function ParanoidDie(state) {
 
 // C ref: end.c savelife() (704-756). Restores the hero to a viable state
 // after being killed, when wizard or explore mode lets the player decline
-// death (or when the amulet of life saving fires, which is not yet ported).
+// death or when the amulet of life saving fires.
 //
-// Two branches remain refused because their targets are not ported:
+// Two calls remain explicit discarded-result gaps because their source
+// functions are not ported on those branches:
 //   expels()             -- only when u.uswallow (hero is engulfed)
 //   make_sick(0L, ...)   -- only when (Sick & TIMEOUT) == 1L (one-turn sick)
 // endmultishot(FALSE) is now ported: it stops a multi-shot volley in progress
@@ -254,10 +264,9 @@ async function savelife(how, state = game) {
     // cure impending doom of sickness hero won't have time to fix
     // C ref: Sick is u.uprops[SICK].intrinsic; TIMEOUT is 0x00FFFFFF.
     if (((u.uprops?.[SICK]?.intrinsic ?? 0) & TIMEOUT) === 1) {
-        // make_sick() lives in eat.c and is not ported.
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs make_sick() for one-turn sickness cure',
-        );
+        // C discards make_sick()'s result. Its cure effects remain an explicit
+        // boundary until eat.c ports that function.
+        note_unported('eat.c make_sick');
     }
 
     state.nomovemsg = 'You survived that attempt on your life.';
@@ -285,17 +294,26 @@ async function savelife(how, state = game) {
         endmultishot(false, state);
     }
     if (u.uswallow) {
-        // might drop hero onto a trap that kills her all over again
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs expels() while hero is engulfed',
-        );
+        // C discards expels()'s result. The TRUE message arm depends on the
+        // unported digestive callers, so retain this source boundary without
+        // inventing its relocation or redraw effects.
+        note_unported('mhitu.c expels');
     } else if (u.ustuck) {
-        // C prints a release message and calls unstuck(). Both message
-        // branches need unported formatters (mon_nam, Monnam, sticks), so
-        // the whole arm is refused.
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs mon_nam()/Monnam() for stuck monster release',
-        );
+        // C prints before unstuck() clears u.ustuck. Keep the holder in a
+        // local so the source call receives the same monster after output.
+        const holder = u.ustuck;
+        if (Upolyd(u) && sticks(state.youmonst.data)) {
+            await ttyPline(
+                `You release ${mon_nam(holder, state, { state })}.`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `${Monnam(holder, state, { state })} releases you.`,
+                state,
+            );
+        }
+        await unstuck(holder, state, { state });
     }
 }
 
@@ -545,7 +563,9 @@ export async function done2(state = game) {
 // C's `boolean survive` variable at 1048 tracks whether savelife() ran. The
 // port inlines the survive path: the query's "no" arm at 1113-1116 calls
 // savelife(), clears the killer at 1120-1121, and returns. The life-saving
-// amulet's arm at 1082-1103 still throws, so it cannot set survive.
+// amulet's arm at 1082-1103 performs the same state restoration and returns
+// through the source's `survive` flag for every death through GENOCIDED except
+// a still-genocided hero.
 //
 // gd.done_seq is not carried either. C maintains it at 1053-1054 for exactly
 // two readers: fuzzer_savelife(), which the debug_fuzzer guard below refuses,
@@ -553,6 +573,22 @@ export async function done2(state = game) {
 // for. Storing a counter no ported line reads would be a second home for a
 // value the port cannot yet spend.
 //
+// useup() needs the worn-slot hooks when the life-saving amulet is consumed.
+// The optional caller hooks let a live window supply its own inventory
+// refresh; a no-op keeps this end-of-game mutation valid in the recorder TTY,
+// whose permanent inventory window is not active.
+function lifeSavingInventoryEnv(state, source = {}) {
+    const sourceHooks = source.hooks ?? {};
+    const hooks = {
+        ...sourceHooks,
+        updateInventory: sourceHooks.updateInventory ?? (() => {}),
+        setNotWorn: sourceHooks.setNotWorn ?? ((obj, env) => (
+            setnotworn(obj, setwornEnv(env.state))
+        )),
+    };
+    return { ...source, state, hooks };
+}
+
 // When the player declines death in wizard or explore mode, done() calls
 // savelife() and returns normally. When the player accepts death or quits,
 // done() continues into really_done(). Unsupported special death branches
@@ -569,6 +605,7 @@ export async function done(how, state = game, source = {}) {
     }
     const killer = state.killer;
     const programState = state.program_state;
+    let survive = false;
 
     // paranoid_ynq()'s spelled-out input arm can return to done() through a
     // declined death and savelife(). Detect it before the status paint and
@@ -636,13 +673,52 @@ export async function done(how, state = game, source = {}) {
         }
     }
     if (Lifesaved(state) && how <= GENOCIDED) {
-        // 1082-1103. "But wait...", the medallion's four lines, useup() of
-        // the amulet, adjattrib(A_CON, -1) and savelife(), then either the
-        // still-genocided line or livelog_printf(LL_LIFESAVE).
-        throw new UnsupportedEndOfGameError('the amulet of life saving');
+        // end.c:1082-1103. Keep discovery, the four messages, object
+        // consumption, constitution adjustment, and savelife() in C order.
+        await ttyPline('But wait...', state);
+        const lifeEnv = lifeSavingInventoryEnv(state, source);
+        discover_object(
+            AMULET_OF_LIFE_SAVING, true, true, true, state, lifeEnv,
+        );
+        await ttyPline(
+            `Your medallion ${heroIsBlind(state)
+                ? 'feels warm' : 'begins to glow'}!`,
+            state,
+        );
+        if (how === CHOKING)
+            await ttyPline('You vomit ...', state);
+        await ttyPline('You feel much better!', state);
+        await ttyPline('The medallion crumbles to dust!', state);
+        if (state.uamul)
+            useup(state.uamul, lifeEnv);
+        const attributeEnv = {
+            ...source,
+            ...(source.random ? { random: source.random } : {}),
+            encumberMessage: source.encumberMessage ?? (async (subject) => {
+                const { encumber_msg } = await import('./pickup.js');
+                return encumber_msg(subject, {
+                    message: source.message ?? ttyPline,
+                });
+            }),
+        };
+        await adjattrib(
+            A_CON, -1, true, state, attributeEnv,
+        );
+        await savelife(how, state);
+        if (how === GENOCIDED) {
+            await ttyPline(
+                'Unfortunately you are still genocided...', state,
+            );
+        } else {
+            const killbuf = formatkiller(how, false, state);
+            livelog_printf(
+                LL_LIFESAVE, `averted death (${killbuf})`, state,
+            );
+            survive = true;
+        }
     }
     /* explore and wizard modes offer player the option to keep playing */
-    if ((state.wizard || state.discover) && how <= GENOCIDED) {
+    if (!survive && (state.wizard || state.discover) && how <= GENOCIDED) {
         if (state.program_state?.done_hup) {
             // The HANGUPHANDLING term at 1110. Its right conjunct spends
             // gd.done_seq, which has no port; C evaluates it only for a
@@ -670,6 +746,13 @@ export async function done(how, state = game, source = {}) {
             killer.format = KILLED_BY_AN; // reset to 0
             return;
         }
+    }
+    if (survive) {
+        // end.c:1118-1122. A life-saving amulet clears the killer only after
+        // savelife() and its optional life-log event have completed.
+        killer.name = '';
+        killer.format = KILLED_BY_AN;
+        return;
     }
     // steed.c constructs every failed-mount death from this fixed semantic
     // prefix followed by x_monnam(), so the species and optional given name

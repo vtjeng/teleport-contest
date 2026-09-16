@@ -137,6 +137,14 @@ function answerQuery(key) {
     game.nhDisplay.pushKey(key.charCodeAt(0));
 }
 
+// The life-saving reprieve prints four messages. Keep enough independent
+// spaces queued for the TTY's --More-- waits while leaving command answers
+// (such as the post-genocide keep-playing query) explicit at the call site.
+function dismissLifeSavingMessages(count = 40) {
+    for (let i = 0; i < count; ++i)
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+}
+
 async function refusal(how) {
     let caught = null;
     try {
@@ -413,16 +421,21 @@ test('a death that arrives already at zero leaves the polymorph field alone',
     assert.equal(game.disp.botl, false);
 });
 
-test('the life-saving amulet stops every death it covers', async () => {
+test('the life-saving amulet stops every ordinary death it covers', async () => {
     for (const how of [DIED, GENOCIDED]) {
-        await dyingGame();
+        await dyingGame({ playmode: how === GENOCIDED ? 'debug' : null });
         // youprop.h:387 Lifesaved is the extrinsic alone. end.c:1081 covers
-        // every how through GENOCIDED, its highest.
+        // every how through GENOCIDED, its highest. The GENOCIDED arm then
+        // asks the debug-mode keep-playing question because C leaves
+        // `survive` false for a still-genocided hero.
         game.u.uprops[LIFESAVED].extrinsic = 1;
-        const topLine = game._ttyToplines;
-        assert.match(await refusal(how), /amulet of life saving/u);
-        // The refusal stands at end.c:1082, before "But wait...".
-        assert.equal(game._ttyToplines, topLine);
+        dismissLifeSavingMessages();
+        if (how === GENOCIDED)
+            game.nhDisplay.pushKey('n'.charCodeAt(0));
+        await done(how, game);
+        assert.equal(game.u.uhp, 10, 'savelife restores the hero HP');
+        assert.equal(game.u.umortality, 1);
+        assert.equal(game.killer.name, '', 'reprieve clears the killer');
     }
 });
 
@@ -779,16 +792,14 @@ test('the query preflight preserves every earlier exclusion', async () => {
     game.u.uhp = 5;
     game.u.mh = 4;
     game.u.umortality = 0;
-    assert.match(await refusal(DIED), /amulet of life saving/u);
-    // end.c:1035-1081 reaches this refusal only after the status repaint and
-    // the complete death-state prefix.
-    assert.match(statusRow(), /HP:5\(10\)/u);
-    assert.deepEqual(game.killer, { name: 'died', format: KILLED_BY_AN });
+    dismissLifeSavingMessages();
+    await done(DIED, game);
+    // Lifesaved bypasses the ParanoidDie preflight. end.c:1035-1103 still
+    // reaches the complete death-state prefix before restoring the hero.
     assert.equal(game.u.umortality, 1);
-    assert.equal(game.u.uhp, 0);
+    assert.equal(game.u.uhp, 10);
     assert.equal(game.u.mh, 0);
-    assert.equal(game.disp.botl, true);
-    assert.equal(game.disp.botlx, false);
+    assert.equal(game.killer.name, '');
 
     await dyingGame({ options: ['paranoid_confirmation:die'] });
     // Ordinary mode never reaches end.c:1105, so the parsed query bit is

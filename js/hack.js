@@ -1073,8 +1073,9 @@ export const You_can_move_again = 'You can move again.';
 // green slime, gated on `Upolyd && !strncmpi(gn.nomovemsg, "You survived that
 // ", 18)`. Both halves are unreachable: js/u_init.js is the port's only writer
 // of u.umonnum and sets it equal to u.umonster, and the one C writer of that
-// message is done()'s life-saving arm, which is not ported. It is left out
-// rather than refused because no ported state can reach it to be refused.
+// message is done()'s life-saving arm. It is left out rather than refused
+// because no ported state can reach it to be refused: savelife() does not
+// schedule an unmul() callback.
 export async function unmul(msg_override, state = game) {
     state.disp ??= {};
     state.disp.botl = true;
