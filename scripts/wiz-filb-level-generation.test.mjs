@@ -7,9 +7,9 @@ function recordingDes() {
     const calls = [];
     const des = new Proxy({}, {
         get(_target, name) {
-            return (...args) => {
+            return async (...args) => {
                 calls.push({ name, args });
-                args[0]?.contents?.();
+                await args[0]?.contents?.();
             };
         },
     });

@@ -48,18 +48,18 @@ function recordingDes() {
         'non_passwall', 'monster', 'object', 'trap', 'terrain',
     ];
     for (const property of methods) {
-        des[property] = (...args) => {
+        des[property] = async (...args) => {
             calls.push({ property, args });
             const specification = args[0];
             if (property === 'region'
                 && typeof specification?.contents === 'function') {
-                specification.contents();
+                await specification.contents();
             }
         };
     }
-    des.map = (specification) => {
+    des.map = async (specification) => {
         calls.push({ property: 'map', args: [specification] });
-        specification.contents();
+        await specification.contents();
         // center alignment in the 78x20 maze area places this 29x13 map at
         // (25,5), which is also the frame used by map-relative descriptors.
         return { xstart: 25, ystart: 5, xsize: 29, ysize: 13 };
