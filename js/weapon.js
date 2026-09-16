@@ -225,6 +225,7 @@ import { is_pool } from './trap.js';
 import { y_n } from './cmd.js';
 import { select_menu } from './windows.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import { couldsee } from './vision.js';
 import { mwelded, will_weld } from './wield.js';
 import { which_armor } from './worn.js';
@@ -1595,15 +1596,15 @@ export async function enhance_weapon_skill(
 // more than minimal damage, which is the only way a hero's P_ADVANCE rises in
 // combat.
 //
-// A restricted skill takes neither the practice nor the message, so the
-// give_may_advance_msg() arm needs a skill that was already advanceable-but-for
-// -practice; see add_weapon_skill() below for why that arm stays fail-closed.
+// A restricted skill takes neither the practice nor the message.  The C
+// give_may_advance_msg() call is a discarded notification; its owner is still
+// outside this port, so record that void boundary after preserving practice.
 export function use_skill(skill, degree, state = game) {
     if (skill !== P_NONE && P_SKILL(skill, state) !== P_ISRESTRICTED) {
         const advance_before = can_advance(skill, false, state);
         skillSlot(skill, state).advance += degree;
         if (!advance_before && can_advance(skill, false, state))
-            throw new UnsupportedWeaponSkillError('give_may_advance_msg(skill)');
+            note_unported('weapon.c give_may_advance_msg(skill)');
     }
 }
 

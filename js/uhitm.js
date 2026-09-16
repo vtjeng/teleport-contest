@@ -101,7 +101,9 @@ import {
     monsterCommonName,
     monsterPossessive,
     pmname,
+    some_mon_nam,
     x_monnam,
+    y_monnam,
 } from './do_name.js';
 import { livelog_printf } from './pline.js';
 import { ttyPline } from './tty_message.js';
@@ -343,7 +345,6 @@ import {
 } from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
-    UnsupportedWeaponSkillError,
     abon,
     dbon,
     dmgval,
@@ -1911,18 +1912,10 @@ function hmon_hitmon_dmg_recalc(hmd, obj, state, env) {
            enhancement */
         if (hmd.train_weapon_skill) {
             /* [this assumes that `!thrown' implies wielded...] */
-            try {
-                const skill = hmd.thrown
-                    ? weapon_type(skillwep, state)
-                    : uwep_skill_type(state);
-                use_skill(skill, 1, state);
-            } catch (error) {
-                if (!(error instanceof UnsupportedWeaponSkillError)) throw error;
-                // C discards the optional "may advance" notification's
-                // return; keep the practice update and record only that
-                // notification as an unported void consequence.
-                note_unported(`weapon.c ${error.branch}`);
-            }
+            const skill = hmd.thrown
+                ? weapon_type(skillwep, state)
+                : uwep_skill_type(state);
+            use_skill(skill, 1, state);
         }
     }
 
@@ -3275,7 +3268,7 @@ export async function mhitm_knockback(
     }
 
     /* monsters must be alive */
-    if ((!u_agr && magr.mhp < 1) || mdef.mhp < 1) return false;
+    if ((!u_agr && magr.mhp < 1) || (!u_def && mdef.mhp < 1)) return false;
 
     /* attacker must be much larger than defender */
     if (!(magr.data.msize > (mdef.data.msize + 1))) return false;
@@ -3292,10 +3285,10 @@ export async function mhitm_knockback(
         const message = requireAttackOperation(env, 'message');
         if (u_def || (state.u?.usteed && mdef === state.u.usteed)) {
             const suffix = state.u?.usteed
-                ? `and ${monsterCommonName(state.u.usteed, state)} ` : '';
-            await message(`${suffix}don't budge.`, state);
+                ? `and ${y_monnam(state.u.usteed, state, env)} ` : '';
+            await message(`You ${suffix}don't budge.`, state);
         } else if (canseemon(mdef, state)) {
-            await message(`${Monnam(mdef, state)} doesn't budge.`, state);
+            await message(`${y_monnam(mdef, state, env)} doesn't budge.`, state);
         }
         return false;
     }
@@ -3306,9 +3299,9 @@ export async function mhitm_knockback(
     const message = requireAttackOperation(env, 'message');
     if (u_def || canseemon(mdef, state)) {
         const attacker = u_agr ? 'You' : Monnam(magr, state);
-        const defender = u_def || was_u ? 'you' : monsterCommonName(mdef, state);
+        const defender = u_def || was_u ? 'you' : y_monnam(mdef, state, env);
         const extra = was_u && state.u?.usteed
-            ? ` and ${monsterCommonName(state.u.usteed, state)}` : '';
+            ? ` and ${y_monnam(state.u.usteed, state, env)}` : '';
         const adjective = rng.rn2(2) ? 'forceful' : 'powerful';
         const noun = rng.rn2(2) ? 'blow' : 'strike';
         await message(
@@ -3318,7 +3311,7 @@ export async function mhitm_knockback(
         );
     } else if (u_agr) {
         await message(
-            `You feel ${monsterCommonName(mdef, state)} be knocked ${knockedhow}!`,
+            `You feel ${some_mon_nam(mdef, state, env)} be knocked ${knockedhow}!`,
             state,
         );
     }
