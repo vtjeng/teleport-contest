@@ -52960,7 +52960,7 @@
     {
       "id": "div-invent-look-here-blind-heading-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match the source heading for blind object piles",
       "cFile": "invent.c",
       "sessions": [],
@@ -52969,8 +52969,8 @@
       "spans": [
         {
           "name": "blind-pile-heading",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
           "functions": [
             "look_here"
           ]
@@ -52982,8 +52982,11 @@
         "screens": 10318,
         "rng": 756143
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "look_here",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1063,
@@ -53081,7 +53084,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
+        "screens": 10319,
+        "rng": 756143
+      }
     }
   ]
 }
