@@ -2136,6 +2136,13 @@ export async function zap_over_floor(
         : (env.norepMessage ?? ttyNorep);
     const redrawAt = env.planning ? () => {}
         : (env.newsym ?? newsym);
+    // hliquid() consumes the display stream. Keep the core random source in
+    // `random` out of this environment when a planning caller omits an
+    // explicit displayRandom callback.
+    const liquid = (preferred) => hliquid(preferred, {
+        state,
+        displayRandom: env.displayRandom,
+    });
     const lev = state.level.at(x, y);
     let rangemod = 0;
     const lavawall = lev.typ === LAVAWALL;
@@ -2266,7 +2273,7 @@ export async function zap_over_floor(
             if (IS_WATERWALL(lev.typ) || (lavawall && random.rn2(chance))) {
                 if (seeIt) {
                     await message(
-                        `The ${hliquid(lavawall ? 'lava' : 'water', env)} freezes for a moment.`,
+                        `The ${liquid(lavawall ? 'lava' : 'water')} freezes for a moment.`,
                         state, env,
                     );
                 } else if (!heroIsDeaf(state)) {
@@ -2276,7 +2283,7 @@ export async function zap_over_floor(
             } else {
                 // C computes this before changing the drawbridge or terrain;
                 // the string is specifically needed for a moat.
-                const buf = waterbody_name(x, y, state);
+                const buf = waterbody_name(x, y, state, env);
                 rangemod -= 3;
                 const underMask = lev.flags ?? lev.drawbridgemask ?? 0;
                 if (lev.typ === DRAWBRIDGE_UP) {
@@ -2305,9 +2312,9 @@ export async function zap_over_floor(
                 note_unported('dig.c bury_objs');
                 if (seeIt) {
                     await norepMessage(
-                        lava ? `The ${hliquid('lava', env)} cools and solidifies.`
+                        lava ? `The ${liquid('lava')} cools and solidifies.`
                             : moat ? `The ${buf} is bridged with ice!`
-                                : `The ${hliquid('water', env)} freezes.`, state, env,
+                                : `The ${liquid('water')} freezes.`, state, env,
                     );
                     redrawAt(x, y, state);
                 } else if (!lava && !heroIsDeaf(state)) {

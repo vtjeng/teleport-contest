@@ -40,6 +40,7 @@ import {
     has_mcorpsenm,
     MCORPSENM,
     u_at,
+    isok,
 } from './const.js';
 import { hliquid, pmname } from './do_name.js';
 import { trapped_chest_at, trapped_door_at } from './detect.js';
@@ -81,7 +82,7 @@ import { HELP_TEXT_FILES } from './help_data.js';
 import { display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
-import { S_invisible } from './monsters.js';
+import { PM_SAMURAI, S_invisible } from './monsters.js';
 import { ok_to_quest } from './quest.js';
 import {
     an,
@@ -164,7 +165,7 @@ import { t_at, trapname } from './trap.js';
 import { couldsee } from './vision.js';
 import { getlin, select_menu } from './windows.js';
 import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
-import { on_level } from './dungeon.js';
+import { on_level, surface_typ } from './dungeon.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -773,17 +774,41 @@ function visibleGlyphCharacter(glyphinfo) {
     return glyphinfo.ch;
 }
 
-// C ref: pager.c waterbody_name() (560-612). Returns the terrain name for
-// water, lava, and ice tiles.
-export function waterbody_name(x, y, state = game) {
-    const loc = state.level?.at(x, y);
-    const typ = loc?.typ;
-    const liquid = (pref) => hliquid(pref, { state });
+// C ref: pager.c waterbody_name() (560-612). `SURFACE_AT()` is the shared
+// dungeon owner, so a raised drawbridge is named for what lies beneath it.
+// The optional environment carries the display RNG used by hliquid(); this
+// keeps hallucinated descriptions in planning clones off the live stream.
+export function waterbody_name(x, y, state = game, env = {}) {
+    if (!isok(x, y)) return 'drink';
+    const loc = state.level?.at?.(x, y);
+    const typ = surface_typ(loc);
+    const liquid = (preferred) => hliquid(preferred, {
+        state,
+        displayRandom: env.displayRandom,
+    });
+    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !Boolean(
+            state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+        )
+        && !state.program_state?.gameover;
     if (typ === LAVAPOOL) return `molten ${liquid('lava')}`;
-    if (typ === ICE) return 'ice';
+    if (typ === ICE)
+        return hallucinating ? `frozen ${liquid('water')}` : 'ice';
     if (typ === POOL) return `pool of ${liquid('water')}`;
-    if (typ === MOAT) return 'moat';
-    if (typ === WATER) return `wall of ${liquid('water')}`;
+    if (typ === MOAT) {
+        if (hallucinating) return `deep ${liquid('water')}`;
+        const level = state.u?.uz;
+        if (on_level(level, state.medusa_level)) return 'shallow sea';
+        if (on_level(level, state.juiblex_level)) return 'swamp';
+        if (state.urole?.mnum === PM_SAMURAI
+            && on_level(level, state.qstart_level)) return 'pond';
+        return 'moat';
+    }
+    if (typ === WATER) {
+        return on_level(state.u?.uz, state.water_level)
+            ? 'limitless water' : `wall of ${liquid('water')}`;
+    }
     if (typ === LAVAWALL) return `wall of ${liquid('lava')}`;
     return 'water';
 }

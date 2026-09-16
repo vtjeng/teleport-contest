@@ -19,7 +19,16 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { autokey, doclose, doopen, doopen_indir, picking_lock } from '../js/lock.js';
+import {
+    autokey,
+    doclose,
+    doopen,
+    doopen_indir,
+    pick_lock,
+    PICKLOCK_DID_SOMETHING,
+    picking_at,
+    picking_lock,
+} from '../js/lock.js';
 import { M1_NOHANDS } from '../js/monsters.js';
 import { is_magic_key } from '../js/artifacts.js';
 import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
@@ -633,4 +642,52 @@ test('picking_lock returns null when occupation is not picklock', () => {
     const otherFn = () => {};
     const state = { go: { occupation: otherFn }, u: { ux: 5, uy: 5 } };
     assert.equal(picking_lock(state), null);
+});
+
+test('picking_at follows the canonical gx.xlock door pointer without mutation',
+    async () => {
+    // Establish the private picklock callback through the real lock.c tail;
+    // the source function is static, so production setup is the only valid
+    // way for this pure query to observe an active occupation.
+    const { x, y, door } = await closedDoorBesideHero();
+    door.flags = D_LOCKED;
+    door.doormask = D_LOCKED;
+    clearPendingMessages();
+    answer('h', 'y'); // west toward the adjacent locked door, then confirm
+    assert.equal(
+        await pick_lock({ otyp: LOCK_PICK }, 0, 0, null, game),
+        PICKLOCK_DID_SOMETHING,
+    );
+    const occupation = game.go.occupation;
+    const canonical = {
+        go: { occupation },
+        xlock: { door },
+        level: { at: () => door },
+    };
+    assert.equal(picking_at(x, y, canonical), true,
+        'the active occupation and exact level-cell pointer match');
+
+    const inactive = {
+        go: { occupation: () => {} },
+        xlock: { door },
+        level: { at: () => { throw new Error('inactive query dereferenced level'); } },
+    };
+    assert.equal(picking_at(x, y, inactive), false,
+        'the occupation guard short-circuits before reading the level');
+
+    const sameCoordinates = {
+        go: { occupation },
+        xlock: { door: { x, y } },
+        level: { at: () => door },
+    };
+    assert.equal(picking_at(x, y, sameCoordinates), false,
+        'a restored coordinate-shaped object is not the canonical pointer');
+
+    const uninitialized = {
+        go: { occupation },
+        level: { at: () => door },
+    };
+    assert.equal(picking_at(x, y, uninitialized), false);
+    assert.equal(Object.hasOwn(uninitialized, 'xlock'), false,
+        'the pure query does not initialize gx.xlock');
 });

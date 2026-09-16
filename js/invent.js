@@ -68,8 +68,6 @@ import {
     DRAWBRIDGE_UP,
     CORR,
     ICE,
-    LAVAPOOL,
-    LAVAWALL,
     IRONBARS,
     IS_ALTAR,
     IS_DOOR,
@@ -79,9 +77,6 @@ import {
     IS_THRONE,
     ROOM,
     TREE,
-    MOAT,
-    POOL,
-    WATER,
     MELT_ICE_AWAY,
     P_BOW,
     P_CROSSBOW,
@@ -178,7 +173,6 @@ import {
     LOW_PM,
     PM_ARCHEOLOGIST,
     PM_CLERIC,
-    PM_SAMURAI,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part } from './polyself.js';
@@ -221,7 +215,8 @@ import { cansee } from './vision.js';
 import { spot_time_left } from './timeout.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
-import { on_level, surface } from './dungeon.js';
+import { surface } from './dungeon.js';
+import { waterbody_name } from './pager.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -329,7 +324,7 @@ import {
     yname,
     corpse_xname,
 } from './objnam.js';
-import { hliquid, noit_Monnam } from './do_name.js';
+import { noit_Monnam } from './do_name.js';
 import { in_rooms } from './rooms.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -382,39 +377,11 @@ export class UnsupportedFeatureDescriptionError extends Error {
     }
 }
 
-// C ref: pager.c waterbody_name() and ice_descr() (560-649). These helpers
-// are used by invent.c's terrain description, so keep the source's distance
-// and timer thresholds here rather than substituting surface().
+// C ref: pager.c waterbody_name() and ice_descr() (560-649). The terrain name
+// has one canonical pager owner; invent.c only owns the ice distance/timer
+// wording around it.
 function iceWaterbodyName(x, y, state) {
-    const typ = state.level?.at(x, y)?.typ;
-    const hallucinating = Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
-        && !Boolean(
-            state.u?.uprops?.[HALLUC_RES]?.intrinsic
-            || state.u?.uprops?.[HALLUC_RES]?.extrinsic,
-        )
-        && !state.program_state?.gameover;
-    if (typ === LAVAPOOL) return `molten ${hliquid('lava', { state })}`;
-    if (typ === ICE
-        || (typ === DRAWBRIDGE_UP
-            && ((state.level?.at(x, y)?.flags ?? 0) & DB_UNDER) === DB_ICE)) {
-        return hallucinating ? `frozen ${hliquid('water', { state })}` : 'ice';
-    }
-    if (typ === POOL) return `pool of ${hliquid('water', { state })}`;
-    if (typ === MOAT) {
-        if (hallucinating) return `deep ${hliquid('water', { state })}`;
-        const level = state.u?.uz;
-        if (on_level(level, state.medusa_level)) return 'shallow sea';
-        if (on_level(level, state.juiblex_level)) return 'swamp';
-        if (state.urole?.mnum === PM_SAMURAI
-            && on_level(level, state.qstart_level)) return 'pond';
-        return 'moat';
-    }
-    if (typ === WATER) {
-        return on_level(state.u?.uz, state.water_level)
-            ? 'limitless water' : `wall of ${hliquid('water', { state })}`;
-    }
-    if (typ === LAVAWALL) return `wall of ${hliquid('lava', { state })}`;
-    return 'water';
+    return waterbody_name(x, y, state);
 }
 
 function ice_descr(x, y, state) {

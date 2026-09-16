@@ -6,15 +6,27 @@ import {
     BEAR_TRAP,
     DART_TRAP,
     D_BROKEN,
+    DB_ICE,
+    DB_LAVA,
+    DB_MOAT,
     D_TRAPPED,
     DOOR,
+    DRAWBRIDGE_UP,
     GRAVE,
+    HALLUC,
+    HALLUC_RES,
     HEADSTONE,
+    ICE,
+    LAVAPOOL,
+    LAVAWALL,
+    MOAT,
     OBJ_FLOOR,
+    POOL,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     TRAPNUM,
     TIP_GETPOS,
+    WATER,
 } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
 import { trapped_chest_at } from '../js/detect.js';
@@ -55,6 +67,7 @@ import {
 } from '../js/glyph_offsets.js';
 import {
     NUMMONS,
+    PM_SAMURAI,
     PM_PLAINS_CENTAUR,
     monst_globals_init,
 } from '../js/monsters.js';
@@ -78,6 +91,7 @@ import {
     look_region_nearby,
     self_lookat,
     trap_description,
+    waterbody_name,
     whatisMenuItems,
 } from '../js/pager.js';
 import {
@@ -302,6 +316,99 @@ function terrainDescription(cmap, flags = 0) {
     const state = terrainDescriptionState(cmap, flags);
     return do_screen_description({ x: 3, y: 4 }, true, 0, state);
 }
+
+function waterbodyState(typ, {
+    flags = 0,
+    hallucinating = false,
+    gameover = false,
+    uz = { dnum: 0, dlevel: 1 },
+    medusaLevel,
+    juiblexLevel,
+    questStartLevel,
+    waterLevel,
+    role,
+} = {}) {
+    const state = {
+        u: { ux: 10, uy: 10, uz, uprops: [] },
+        level: new GameMap(),
+        program_state: { gameover },
+        medusa_level: medusaLevel,
+        juiblex_level: juiblexLevel,
+        qstart_level: questStartLevel,
+        water_level: waterLevel,
+        urole: role ? { mnum: role } : undefined,
+    };
+    if (hallucinating) state.u.uprops[HALLUC] = { intrinsic: 1 };
+    if (hallucinating && gameover) {
+        state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    }
+    const location = state.level.at(10, 10);
+    location.typ = typ;
+    location.flags = flags;
+    return state;
+}
+
+test('waterbody_name follows pager.c terrain and level naming branches', () => {
+    const level = { dnum: 0, dlevel: 1 };
+    const otherLevel = { dnum: 0, dlevel: 2 };
+    const cases = [
+        [LAVAPOOL, {}, 'molten lava'],
+        [ICE, {}, 'ice'],
+        [POOL, {}, 'pool of water'],
+        [MOAT, {}, 'moat'],
+        [MOAT, { uz: level, medusaLevel: level }, 'shallow sea'],
+        [MOAT, { uz: level, juiblexLevel: level }, 'swamp'],
+        [MOAT, {
+            uz: level, questStartLevel: level, role: PM_SAMURAI,
+        }, 'pond'],
+        [WATER, { uz: level, waterLevel: level }, 'limitless water'],
+        [WATER, { uz: otherLevel, waterLevel: level }, 'wall of water'],
+        [LAVAWALL, {}, 'wall of lava'],
+        [DRAWBRIDGE_UP, { flags: DB_ICE }, 'ice'],
+        [DRAWBRIDGE_UP, { flags: DB_LAVA }, 'molten lava'],
+        [DRAWBRIDGE_UP, { flags: DB_MOAT }, 'moat'],
+    ];
+    for (const [typ, options, expected] of cases) {
+        assert.equal(
+            waterbody_name(10, 10, waterbodyState(typ, options)),
+            expected,
+            `${typ} => ${expected}`,
+        );
+    }
+    assert.equal(
+        waterbody_name(0, 0, waterbodyState(POOL)),
+        'drink',
+        'invalid coordinates use C\'s defensive return',
+    );
+});
+
+test('waterbody_name keeps hallucinated hliquid draws on the display stream',
+    () => {
+    const draws = [];
+    const state = waterbodyState(MOAT, { hallucinating: true });
+    const result = waterbody_name(10, 10, state, {
+        displayRandom: (bound) => {
+            draws.push(bound);
+            return 0;
+        },
+        random: () => assert.fail('core RNG must not name terrain'),
+    });
+    assert.equal(result, 'deep yoghurt');
+    assert.deepEqual(draws, [41]);
+
+    draws.length = 0;
+    const gameoverState = waterbodyState(ICE, { hallucinating: true, gameover: true });
+    assert.equal(
+        waterbody_name(10, 10, gameoverState, {
+            displayRandom: (bound) => {
+                draws.push(bound);
+                return 0;
+            },
+        }),
+        'ice',
+    );
+    assert.deepEqual(draws, []);
+});
 
 function statueDescription() {
     // A statue is rendered with its species' monster symbol. pager.c first
