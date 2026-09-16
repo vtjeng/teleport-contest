@@ -33,6 +33,7 @@ import {
     DOOR,
     P_BASIC,
     P_KNIFE,
+    P_BARE_HANDED_COMBAT,
     P_SKILLED,
     ROWNO,
 } from '../js/const.js';
@@ -357,23 +358,24 @@ test('the stagger and knockback arms divide by hand and by damage',
     async () => {
         // A Tourist wields nothing and wears no body armor or shield, so
         // uhitm.c:1786's hmd.unarmed holds. rnd(2)=2 is above the bar, so
-        // hmon_hitmon_stagger() is a discarded helper; its mhurtle_to_doom()
-        // dependency is recorded as a source gap rather than substituted.
+        // hmon_hitmon_stagger() makes its source rnd(100) skill check.
         await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
         const staggered = hitEnv({ rolls: [2, 99] });
         await hmon(target(), null, HMON_MELEE, 10, game, staggered);
-        assert.deepEqual(staggered.bounds, ['rnd(2)']);
+        assert.deepEqual(staggered.bounds, ['rnd(2)', 'rnd(100)']);
 
-        // rnd(2)=1 is not, and no discarded helper draw is substituted.
+        // rnd(2)=1 is not, so the stagger helper is never called.
         const minimal = hitEnv({ rolls: [1] });
         await hmon(target(), null, HMON_MELEE, 10, game, minimal);
         assert.deepEqual(minimal.bounds, ['rnd(2)']);
 
-        // The source helper is explicitly unported because its return-valued
-        // mhurtle_to_doom() dependency is outside this span.
-        const struck = hitEnv({ rolls: [2, 0] });
+        // A roll below Skilled reaches the source message and suppresses
+        // the ordinary hit line even while mhurtle remains a named gap.
+        skillSlot(P_BARE_HANDED_COMBAT, game).skill = P_SKILLED;
+        const struck = hitEnv({ rolls: [2, 1] });
         await hmon(target(), null, HMON_MELEE, 10, game, struck);
-        assert.deepEqual(struck.bounds, ['rnd(2)']);
+        assert.deepEqual(struck.bounds, ['rnd(2)', 'rnd(100)']);
+        assert.ok(struck.lines.some(line => line.includes('powerful strike')));
 
         // A wielded weapon takes the other arm: uhitm.c:1830 sets
         // maybe_knockback and mhitm_knockback() spends rn2(3) then rn2(6).
@@ -984,12 +986,12 @@ test('a glove takes the place of the ring beneath it', async () => {
     // Bare hands: weapon.c:408-414 reaches the ring, draws rnd(20) for it and
     // sets silverhit, which uhitm.c:865-867 copies into
     // hmd.barehand_silver_rings and 880-881 turns into hmd.silvermsg -- the
-    // message this slice does not own. The later stagger helper is a named
-    // void gap, so it contributes no substitute draw.
+    // later silver-hit message. The combined damage also reaches the
+    // stagger helper's rnd(100) skill check.
     const bare = hitEnv({ rolls: [1, 1] });
     const bareTarget = target(PM_VAMPIRE);
     assert.equal(await hmon(bareTarget, null, HMON_MELEE, 10, game, bare), true);
-    assert.deepEqual(bare.bounds, ['rnd(2)', 'rnd(20)']);
+    assert.deepEqual(bare.bounds, ['rnd(2)', 'rnd(20)', 'rnd(100)']);
     assert.ok(bareTarget.mhp < 99);
 
     // The same hand inside a blessed leather glove: weapon.c:388-389 finds the
@@ -1003,7 +1005,7 @@ test('a glove takes the place of the ring beneath it', async () => {
     const gloved = target(PM_VAMPIRE);
     const covered = hitEnv({ rolls: [1, 1] });
     await hmon(gloved, null, HMON_MELEE, 10, game, covered);
-    assert.deepEqual(covered.bounds, ['rnd(2)', 'rnd(4)']);
+    assert.deepEqual(covered.bounds, ['rnd(2)', 'rnd(4)', 'rnd(100)']);
     assert.equal(gloved.mhp, 97);
 
     game.uarmg = null;
@@ -1185,12 +1187,10 @@ test('the weapon shatter arm needs all six of its terms', async () => {
     assert.ok(bystander.mhp < 99);
 });
 
-// uhitm.c:1576-1577. The stagger helper is a discarded void source gap in
-// this span because its mhurtle_to_doom() dependency is not ported.
+// uhitm.c:1576-1577. Size and thick skin suppress the stagger after its roll.
 test('a staggering punch spares a big or thick-skinned target', async () => {
     await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
-    // The source call remains a named gap; the hit itself must still land.
-    //
+    skillSlot(P_BARE_HANDED_COMBAT, game).skill = P_SKILLED;
     // One species per conjunct, each chosen so that it is the only one it
     // fails: a rothe is msize 3 without M1_THICK_HIDE, so bigmonst() alone
     // spares it, and a xorn is msize 2 with M1_THICK_HIDE, so thick_skinned()
@@ -1198,15 +1198,15 @@ test('a staggering punch spares a big or thick-skinned target', async () => {
     for (const pmidx of [PM_ROTHE, PM_XORN, PM_BABY_GRAY_DRAGON]) {
         const spared = target(pmidx);
         await hmon(spared, null, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [2, 0] }));
+                   hitEnv({ rolls: [2, 1] }));
         assert.ok(spared.mhp < 99, String(pmidx));
     }
-    // A lichen is neither, so the same hit reaches the source helper call
-    // site; its void helper is recorded without substituting a draw.
+    // A lichen is neither, so the same hit reaches the stagger message.
     const lichen = target();
-    const stagger = hitEnv({ rolls: [2, 0] });
+    const stagger = hitEnv({ rolls: [2, 1] });
     assert.equal(await hmon(lichen, null, HMON_MELEE, 10, game, stagger), true);
-    assert.deepEqual(stagger.bounds, ['rnd(2)']);
+    assert.deepEqual(stagger.bounds, ['rnd(2)', 'rnd(100)']);
+    assert.ok(stagger.lines.some(line => line.includes('powerful strike')));
 });
 
 // uhitm.c:1607-1625. Six of hmon_hitmon_splitmon()'s tests are checked here,
@@ -1342,8 +1342,8 @@ test('the melee arm separates every guard a recording leaves undecided',
             game.u.twoweap = 0;
         }
 
-        // uhitm.c:1571's stagger helper is a named void gap; no replacement
-        // draw is made for its missing mhurtle_to_doom() dependency.
+        // uhitm.c:1576 uses a strict comparison: a Basic skill value of one
+        // cannot stagger on rnd(100)=1.
         await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
         const unshaken = target();
         await hmon(unshaken, null, HMON_MELEE, 10, game,

@@ -541,7 +541,7 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
             broken = await ship_object(obj, x, y, false, env);
         if (!broken) {
             let monster = monsterAt(x, y, state);
-            broken = Boolean(floorEffects(obj, x, y, 'fall', env));
+            broken = Boolean(await floorEffects(obj, x, y, 'fall', env));
             if (!broken) {
                 placeObject(obj, x, y, env);
                 if (!monster && u_at(x, y, state)) monster = state.youmonst;
