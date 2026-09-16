@@ -1217,7 +1217,7 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             },
         },
         {
-            // STATUE_TRAP still reaches detect.c activate_statue_trap(), which
+            // STATUE_TRAP still reaches trap.c activate_statue_trap(), which
             // is unported. PIT is admitted now that trap.c handles its hero
             // fall path, so it cannot stand in for this refusal anymore.
             name: 'hidden statue trap',

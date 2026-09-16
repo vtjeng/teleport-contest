@@ -468,7 +468,7 @@ test('the seam consults its destination checks only where the rules allow',
         destination.typ = DOOR;
         destination.flags = destination.doormask = D_ISOPEN;
         // A statue trap remains outside preflight_dotrap()'s admitted hero
-        // types and stands in for detect.c activate_statue_trap().
+        // types and stands in for trap.c activate_statue_trap().
         game.level.traps = [{
             tx: ux + 1, ty: uy + 1, ttyp: STATUE_TRAP, tseen: true,
         }];
