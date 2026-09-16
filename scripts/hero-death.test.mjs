@@ -32,14 +32,15 @@ import {
 } from '../js/const.js';
 import { moveloop_core, UnsupportedTurnBoundaryError } from '../js/allmain.js';
 import { can_make_bones } from '../js/bones.js';
-import { failClosedCommandRefusals } from '../js/cmd.js';
+import { failClosedCommandRefusals, paranoid_query } from '../js/cmd.js';
 import { UnsupportedEndOfGameError, deaths, done, done_in_by }
     from '../js/end.js';
 import { game } from '../js/gstate.js';
-import { losehp } from '../js/hack.js';
+import { losehp, unmul } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { set_mon_data } from '../js/mondata.js';
 import { tty_wait_synch } from '../js/tty_rawprint.js';
 import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 import {
@@ -169,6 +170,15 @@ test('killer formats and ParanoidDie match their C definitions', () => {
     assert.equal(PARANOID_DIE, integerDefine(FLAG_H, 'PARANOID_DIE'));
 });
 
+test('ParanoidDie uses the source spelled-out line query', async () => {
+    await dyingGame({ playmode: 'debug' });
+    game.flags.paranoia_bits |= PARANOID_DIE;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    for (const key of ['n', 'o', '\r'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await paranoid_query(true, 'Die?', game), false);
+});
+
 test('deaths[] matches C order and supplies unnamed killers', async () => {
     // end.c:44-50, "the array of death". Read the C initializer back rather
     // than a copy of it, so a renamed or reordered row fails here.
@@ -190,12 +200,11 @@ test('deaths[] matches C order and supplies unnamed killers', async () => {
     assert.deepEqual(jsGameEndValues, cGameEndValues);
     assert.deepEqual([...deaths], rows);
 
-    // done() reads the table only for a caller that named no killer, so the
-    // refusal message is where a copied row reaches the running game.
+    // done() reads the table only for a caller that named no killer. The
+    // source's first-move really_done boundary then stops this fixture.
     await dyingGame();
     game.killer.name = '';
-    assert.match(await refusal(DIED),
-                 new RegExp(`killer "${rows[DIED]}"`, 'u'));
+    assert.match(await refusal(DIED), /really_done\(\) first-move/u);
 });
 
 test('the status arm forces a full repaint outside the three skip cases',
@@ -284,20 +293,20 @@ test('the forced status update raises disp.botlx before bot() reads it',
     assert.match(statusRow(), STARTING_HP_STATUS);
 });
 
-test('done(TRICKED) refuses before status or death-state changes', async () => {
+test('done(TRICKED) clears the killer before the wizard return', async () => {
     await dyingGame();
+    game.wizard = true;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     const trickedStatus = statusRow();
-    const trickedKiller = { ...game.killer };
     const trickedMortality = game.u.umortality;
-    assert.match(await refusal(TRICKED), /paniclog\(\)/u);
-    // With this named killer, the refusal is at end.c:1026's paniclog(), before
-    // the TRICKED arm clears the name or reaches the later status/state writes.
+    await done(TRICKED, game);
+    assert.equal(game.killer.name, '');
+    assert.equal(game.killer.format, KILLED_BY_AN);
     assert.equal(statusRow(), trickedStatus);
-    assert.deepEqual(game.killer, trickedKiller);
     assert.equal(game.u.umortality, trickedMortality);
 });
 
-test('debug-fuzzer death refuses after status and before death state',
+test('debug-fuzzer death keeps the source branch boundary after status',
      async () => {
     await dyingGame();
     // moveloop_preamble() copies iflags.fuzzerpending here; only earlyarg.c's
@@ -306,12 +315,29 @@ test('debug-fuzzer death refuses after status and before death state',
     game.killer = { name: '', format: KILLED_BY_AN };
     game.u.uhp = 0;
     game.u.umortality = 0;
-    assert.match(await refusal(DIED), /fuzzer_savelife\(\)/u);
-    // fuzzer_savelife() follows the status update but precedes the killer
-    // defaults, mortality increment, and HP force at end.c:1056.
+    const message = await refusal(DIED);
+    assert.doesNotMatch(message, /fuzzer_savelife\(\)/u);
+    // The recorder has no fuzzer level-rebuild owner, so the explicit gap is
+    // recorded and done() continues through the ordinary source prefix.
     assert.match(statusRow(), /HP:0\(10\)/u);
-    assert.deepEqual(game.killer, { name: '', format: KILLED_BY_AN });
-    assert.equal(game.u.umortality, 0);
+    assert.equal(game.u.umortality, 1);
+});
+
+test('unmul follows a life-saving message with the current polymorph form',
+     async () => {
+    await dyingGame();
+    game.u.umonnum = PM_GIANT_BAT;
+    game.u.mfemale = 0;
+    set_mon_data(game.youmonst, game.mons[PM_GIANT_BAT], game);
+    game.nomovemsg = 'You survived that attempt on your life.';
+    game.multi = -1;
+    for (let i = 0; i < 20; ++i) game.nhDisplay.pushKey(0x20);
+    await unmul(null, game);
+    assert.match(game._ttyToplines,
+                 /You survived that attempt on your life\./u);
+    assert.match(game._ttyToplines, /You are a giant bat\./u);
+    assert.equal(game.nomovemsg, null);
+    assert.equal(game.multi, 0);
 });
 
 test('an unnamed death takes both format defaults and the deaths[] name',
@@ -322,17 +348,19 @@ test('an unnamed death takes both format defaults and the deaths[] name',
     // is neither ASCENDED, GENOCIDED, STARVING nor BURNING, so the format
     // survives untouched while 1066-1067 supplies the name.
     assert.equal(await refusal(DIED),
-                 `really_done(${DIED}) for killer "died"`
-                 + ` in format ${KILLED_BY_AN}`);
+                 'really_done() first-move death message');
+    assert.deepEqual(game.killer, {
+        name: 'died', format: KILLED_BY_AN,
+    });
 
     await dyingGame();
     game.killer = { name: '', format: KILLED_BY_AN };
     // end.c:1064's second default, "Avoid killed by \"a\" starvation".
-    assert.equal(
-        await refusal(STARVING),
-        `really_done(${STARVING}) for killer "starvation"`
-        + ` in format ${KILLED_BY}`,
-    );
+    assert.equal(await refusal(STARVING),
+                 'really_done() first-move death message');
+    assert.deepEqual(game.killer, {
+        name: 'starvation', format: KILLED_BY,
+    });
 
     for (const [how, name, format] of [
         // end.c:1061's right disjunct, at the highest actual death.
@@ -342,10 +370,9 @@ test('an unnamed death takes both format defaults and the deaths[] name',
     ]) {
         await dyingGame();
         game.killer = { name: '', format: KILLED_BY_AN };
-        assert.equal(
-            await refusal(how),
-            `really_done(${how}) for killer "${name}" in format ${format}`,
-        );
+        assert.equal(await refusal(how),
+                     'really_done() first-move death message');
+        assert.deepEqual(game.killer, { name, format });
     }
 });
 
@@ -354,11 +381,11 @@ test('an ascension resets the format even with a killer already named',
     await dyingGame();
     // end.c:1061's left disjunct ignores svk.killer.name, so a named killer
     // still loses its format here.
-    assert.equal(
-        await refusal(ASCENDED),
-        `really_done(${ASCENDED}) for killer "ascended"`
-        + ` in format ${NO_KILLER_PREFIX}`,
-    );
+    assert.equal(await refusal(ASCENDED),
+                 'really_done() first-move death message');
+    assert.deepEqual(game.killer, {
+        name: 'ascended', format: NO_KILLER_PREFIX,
+    });
 });
 
 test('a how at or above PANICKED renames the killer and skips the death block',
@@ -370,8 +397,8 @@ test('a how at or above PANICKED renames the killer and skips the death block',
     // deaths[] row whatever the caller named. end.c:1069 excludes them from
     // the mortality count and the hit-point force.
     assert.equal(await refusal(PANICKED),
-                 `really_done(${PANICKED}) for killer "panic"`
-                 + ` in format ${KILLED_BY_AN}`);
+                 'really_done() first-move death message');
+    assert.deepEqual(game.killer, { name: 'panic', format: KILLED_BY_AN });
     assert.equal(game.u.umortality, 0);
     assert.equal(game.u.uhp, 5);
 });
@@ -439,21 +466,28 @@ test('the life-saving amulet stops every ordinary death it covers', async () => 
     }
 });
 
+test('a genocided life-saving hero still receives the ParanoidDie query',
+     async () => {
+    await dyingGame({ playmode: 'debug' });
+    game.u.uprops[LIFESAVED].extrinsic = 1;
+    game.flags.paranoia_bits |= PARANOID_DIE;
+    dismissLifeSavingMessages();
+    for (const key of ['n', 'o', '\n'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    await done(GENOCIDED, game);
+    assert.equal(game.killer.name, '');
+    assert.equal(game.u.uhp, 10);
+});
+
 test('life saving and the query stop above GENOCIDED', async () => {
     await dyingGame();
     game.u.uprops[LIFESAVED].extrinsic = 1;
-    assert.match(
-        await refusal(PANICKED),
-        new RegExp(`^really_done\\(${PANICKED}\\)`, 'u'),
-    );
+    assert.equal(await refusal(PANICKED),
+                 'really_done() first-move death message');
 
     await dyingGame({ playmode: 'debug' });
-    // No key is queued. Removing the query's upper bound would read one and
-    // fail with "Input queue empty" instead of reaching really_done().
-    assert.match(
-        await refusal(PANICKED),
-        new RegExp(`^really_done\\(${PANICKED}\\)`, 'u'),
-    );
+    assert.equal(await refusal(PANICKED),
+                 'really_done() first-move death message');
 });
 
 test('the keep-playing query opens for debug mode and for explore mode',
@@ -499,10 +533,8 @@ test('the query covers every how through GENOCIDED and accepts the death',
     await dyingGame({ playmode: 'debug' });
     // 'y' accepts, so C falls past the block into really_done().
     answerQuery('y');
-    assert.match(
-        await refusal(DIED),
-        new RegExp(`^really_done\\(${DIED}\\)`, 'u'),
-    );
+    assert.equal(await refusal(DIED),
+                 'really_done() first-move death message');
 });
 
 test('losehp() waits for done() before it returns', async () => {
@@ -750,37 +782,34 @@ test('the map wait leaves the dirty status line unchanged', async () => {
     );
 });
 
-test('the query stops for a hung-up game and preflights ParanoidDie',
+test('the query stops for a hung-up game and reads ParanoidDie',
      async () => {
     await dyingGame({ playmode: 'debug' });
     game.program_state.done_hup = true;
-    assert.match(await refusal(DIED), /gd\.done_seq/u);
+    assert.equal(await refusal(DIED), 'really_done() after hangup');
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
     });
     assert.equal(game.flags.paranoid_confirmation, undefined);
     assert.notEqual(game.flags.paranoia_bits & PARANOID_DIE, 0);
-    // Leave the displayed HP at 10 while the state says zero. A misplaced
-    // preflight after bot() would repaint this row before it refused.
+    // Leave the displayed HP at 10 while the state says zero. The source
+    // paints the status and death state before asking the line query.
     game.u.uhp = 0;
-    const rawStatus = statusRow();
-    const rawKiller = { ...game.killer };
-    const rawMortality = game.u.umortality;
-    const rawHp = game.u.uhp;
-    assert.match(await refusal(DIED), /paranoid_ynq\(\)/u);
-    assert.equal(statusRow(), rawStatus);
-    assert.deepEqual(game.killer, rawKiller);
-    assert.equal(game.u.umortality, rawMortality);
-    assert.equal(game.u.uhp, rawHp);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('n'.charCodeAt(0));
+    game.nhDisplay.pushKey('\r'.charCodeAt(0));
+    await done(DIED, game);
+    assert.equal(game.u.umortality, 1);
+    assert.ok(game.u.uhp > 0);
+    assert.equal(game.killer.name, '');
 });
 
-test('the query preflight preserves every earlier exclusion', async () => {
-    await dyingGame({
-        playmode: 'debug', options: ['paranoid_confirmation:die'],
-    });
+test('the query preserves every earlier death-state arm', async () => {
+    await dyingGame();
     game.iflags.debug_fuzzer = 1;
-    assert.match(await refusal(DIED), /fuzzer_savelife\(\)/u);
+    assert.equal(await refusal(DIED),
+                 'really_done() first-move death message');
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
@@ -803,20 +832,19 @@ test('the query preflight preserves every earlier exclusion', async () => {
 
     await dyingGame({ options: ['paranoid_confirmation:die'] });
     // Ordinary mode never reaches end.c:1105, so the parsed query bit is
-    // irrelevant to this done() call and must not preempt really_done().
-    assert.match(
-        await refusal(DIED),
-        new RegExp(`^really_done\\(${DIED}\\)`, 'u'),
-    );
+    // irrelevant to this done() call and it reaches really_done().
+    assert.equal(await refusal(DIED),
+                 'really_done() first-move death message');
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
     });
     // GENOCIDED is end.c:1105's inclusive upper boundary.
-    assert.match(
-        await refusal(GENOCIDED),
-        /paranoid_ynq\(\)/u,
-    );
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('n'.charCodeAt(0));
+    game.nhDisplay.pushKey('\r'.charCodeAt(0));
+    await done(GENOCIDED, game);
+    assert.equal(game.killer.name, '');
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
@@ -832,7 +860,7 @@ test('the query preflight preserves every earlier exclusion', async () => {
     game.disp.botlx = true;
     game.disp.time_botl = true;
     const hungUpStatus = statusRow();
-    assert.match(await refusal(DIED), /gd\.done_seq/u);
+    assert.equal(await refusal(DIED), 'really_done() after hangup');
     // done_hup skips the repaint but still reaches the killer, mortality, and
     // hit-point prefix before end.c:1110 consults gd.done_seq.
     assert.equal(statusRow(), hungUpStatus);
@@ -845,7 +873,7 @@ test('the query preflight preserves every earlier exclusion', async () => {
     assert.equal(game.disp.time_botl, false);
 });
 
-test('ParanoidDie reads its bit before status or death-state changes',
+test('ParanoidDie reads its bit after the source death-state prefix',
      async () => {
     await dyingGame({ playmode: 'debug' });
     // flag.h:85 PARANOID_DIE. options.c initoptions_init():7173 leaves it out
@@ -853,23 +881,20 @@ test('ParanoidDie reads its bit before status or death-state changes',
     // paranoid_ynq()'s spelled-out arm is what it selects.
     assert.equal((game.flags.paranoia_bits & PARANOID_DIE), 0);
     game.flags.paranoia_bits |= PARANOID_DIE;
-    // Keep the status row stale so a preflight moved below bot() is visible.
+    // Keep the status row stale so the source status update is visible before
+    // the line query runs.
     game.u.uhp = 0;
     const paranoidStatus = statusRow();
-    const paranoidKiller = { ...game.killer };
-    const paranoidMortality = game.u.umortality;
-    const paranoidHp = game.u.uhp;
-    let caught = null;
-    try {
-        await done(DIED, game);
-    } catch (error) {
-        caught = error;
-    }
-    assert.match(caught.message, /paranoid_ynq\(\)/u);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('n'.charCodeAt(0));
+    game.nhDisplay.pushKey('\r'.charCodeAt(0));
+    await done(DIED, game);
+    // bot() may coalesce the stale status row with the subsequent savelife
+    // update, but the state prefix is observable in mortality and HP.
     assert.equal(statusRow(), paranoidStatus);
-    assert.deepEqual(game.killer, paranoidKiller);
-    assert.equal(game.u.umortality, paranoidMortality);
-    assert.equal(game.u.uhp, paranoidHp);
+    assert.equal(game.u.umortality, 1);
+    assert.ok(game.u.uhp > 0);
+    assert.equal(game.killer.name, '');
 });
 
 test('the hero-death matrix carries replay inputs only', () => {
@@ -988,13 +1013,13 @@ test('a monster death with KILLED_BY reaches really_done()', async () => {
     await dyingGame();
     game.moves = 1;
     game.killer = { name: 'named monster', format: KILLED_BY };
-    // done()'s production caller marker remains a gate: a named KILLED_BY
-    // record from a non-monster caller still stops before really_done().
+    // A direct done() call follows the same source path once its killer has
+    // been named; the first-move guard in really_done() is the next boundary.
     await assert.rejects(
         done(DIED, game),
-        /really_done\(0\) for killer "named monster" in format 1/u,
+        /really_done\(\) first-move death message/u,
     );
-    assert.equal(game.program_state.gameover, undefined);
+    assert.equal(game.program_state.gameover, 1);
 });
 
 test('done_in_by sets ugrave_arise for a wraith', async () => {

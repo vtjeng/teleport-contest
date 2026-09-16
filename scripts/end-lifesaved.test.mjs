@@ -10,6 +10,7 @@ import test from 'node:test';
 
 import {
     DIED,
+    BLINDED,
     LIFESAVED,
     OBJ_DELETED,
     W_AMUL,
@@ -109,10 +110,25 @@ test('the blind message is selected before the life-saving glow', async () => {
     );
     addinv(amulet, { state: game });
     await Amulet_on(amulet, game);
-    game.u.uprops[15].intrinsic = 1;
+    game.u.uprops[BLINDED].intrinsic = 1;
     dismissMore();
     game.killer = { name: 'a falling rock trap', format: 1 };
+    const observedMessages = [];
+    const display = game.nhDisplay;
+    const setCell = display.setCell.bind(display);
+    display.setCell = (column, row, ch, color, attr) => {
+        if (row === 0 && column === 0 && game._pending_message)
+            observedMessages.push(game._pending_message);
+        return setCell(column, row, ch, color, attr);
+    };
     await done(DIED, game);
+    display.setCell = setCell;
+    assert.ok(observedMessages.some((message) => (
+        message.includes('Your medallion feels warm!')
+    )));
+    assert.ok(observedMessages.every((message) => (
+        !message.includes('Your medallion begins to glow!')
+    )));
     assert.match(game._ttyToplines, /medallion crumbles to dust/u);
     assert.equal(game.uamul, null);
 });

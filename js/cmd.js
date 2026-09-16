@@ -77,6 +77,7 @@ import {
     N_DIRS,
     N_DIRS_Z,
     Never_mind,
+    PARANOID_CONFIRM,
     PICK_ANY,
     PICK_NONE,
     PICK_ONE,
@@ -882,7 +883,7 @@ export async function y_n(query, state = game) {
 // answer; without it, one non-"yes", non-"quit" answer defaults to no. pray.c
 // first tests ParanoidPray and passes ParanoidConfirm; end.c passes ParanoidDie
 // directly. The spelled-out arm uses a different prompt, reader, and history
-// entry from the single-key arm, so it stops rather than being approximated.
+// entry from the single-key arm.
 //
 // C's `char c` is a key byte here, which is what yn_function() answers and
 // what readchar() below it produces, so the comparisons are against codes.
@@ -898,9 +899,31 @@ async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
     let c = KEY_N; /* default result */
 
     if (be_paranoid) {
-        throw new UnsupportedGetlinBoundaryError(
-            'paranoid_ynq() reading "yes" or "no" under paranoid_confirm',
+        // cmd.c:5587-5649.  Paranoid confirmation reads a line and accepts
+        // only the complete words "yes" and (when ParanoidConfirm is set)
+        // "no".  An empty line, Escape, or an exhausted retry count is the
+        // source's negative result.  Keep this in the canonical command
+        // owner so end.c done() and the other paranoid callers share the
+        // same line reader and retry order.
+        const paranoidConfirm = Boolean(
+            state.flags?.paranoia_bits & PARANOID_CONFIRM,
         );
+        const responseType = paranoidConfirm
+            ? (accept_q ? '[yes|no|quit]' : '[yes|no]')
+            : (accept_q ? '[yes|n|q] (n)' : '[yes|n] (n)');
+        let promptPrefix = '';
+        let tryLimit = 6;
+        do {
+            const answer = mungspaces(await getlin(
+                `${promptPrefix}${prompt} ${responseType}`, state,
+            )).toLowerCase();
+            if (answer === 'yes') return KEY_Y;
+            if (answer === 'quit' || answer.startsWith('\x1b'))
+                return accept_q ? KEY_Q : KEY_N;
+            promptPrefix = '"Yes" or "No": ';
+            if (!paranoidConfirm || answer === 'no') return KEY_N;
+        } while (--tryLimit > 0);
+        return KEY_N;
     } else if (accept_q) {
         /* 'y', 'n', or 'q' */
         c = await yn_function(prompt, ynqchars, 'n', false, state);

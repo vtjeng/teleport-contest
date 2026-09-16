@@ -5,7 +5,6 @@
 // passiveum(), and gulp_blnd_check().
 
 import {
-    A_CON,
     AC_VALUE,
     BLINDED,
     CONFLICT,
@@ -42,7 +41,6 @@ import {
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
 import { ART_SNICKERSNEE } from './artifacts.js';
-import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
 import {
     bot,
@@ -1464,31 +1462,13 @@ export async function mdamageu(mtmp, n, state, env) {
         // module-level game and paranoid_query() reads input, so it cannot
         // run on the planning pass's clone.
         if (env.planning) {
-            if (state.wizard || state.discover) {
-                // In wizard or discover mode, done() asks "Die? [yn]" and the
-                // player answers "n". done() then calls savelife(), which
-                // restores the hero to a viable state, and returns normally.
-                // Neither done() nor savelife() makes a random-number call, so
-                // the planning pass can simulate survival by applying the same
-                // state changes without running done()'s display operations
-                // (bot(), paranoid_query(), curs_on_u()) that need the live
-                // terminal.
-                //
-                // C ref: end.c done():1071 u.umortality++, :1077 u.uhp=0, then
-                // savelife():719-722 restores HP from CON.
-                state.u.umortality++;
-                state.u.uhp = 0;
-                const uhpmin = minuhpmax(10, state);
-                if (state.u.uhpmax < uhpmin)
-                    setuhpmax(uhpmin, true, state);
-                const givehp = 50
-                    + 10 * Math.trunc(acurr(state, A_CON) / 2);
-                state.u.uhp = Math.min(state.u.uhpmax, givehp);
-                state.context.move = 0;
-                state.multi = -1;
-            } else {
-                throw new MonsterDeathPlanningError(mtmp);
-            }
+            // C's lethal mdamageu() enters done_in_by(), whose live path owns
+            // the amulet/query ordering, CON adjustment, and any resulting
+            // RNG. A planning clone cannot consume that input or safely replay
+            // those effects: doing so would model savelife twice and could
+            // leave the live pass with a different amulet/state. Hand the
+            // exact lethal boundary back to the live replay instead.
+            throw new MonsterDeathPlanningError(mtmp);
         } else {
             // Live pass: done_in_by() calls done(), which in wizard/discover
             // mode asks "Die?"; savelife() runs on the real game state.

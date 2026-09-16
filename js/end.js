@@ -266,7 +266,7 @@ async function savelife(how, state = game) {
     if (((u.uprops?.[SICK]?.intrinsic ?? 0) & TIMEOUT) === 1) {
         // C discards make_sick()'s result. Its cure effects remain an explicit
         // boundary until eat.c ports that function.
-        note_unported('eat.c make_sick');
+        note_unported('potion.c make_sick');
     }
 
     state.nomovemsg = 'You survived that attempt on your life.';
@@ -567,11 +567,9 @@ export async function done2(state = game) {
 // through the source's `survive` flag for every death through GENOCIDED except
 // a still-genocided hero.
 //
-// gd.done_seq is not carried either. C maintains it at 1053-1054 for exactly
-// two readers: fuzzer_savelife(), which the debug_fuzzer guard below refuses,
-// and the hangup term at 1110, which the done_hup refusal below stands in
-// for. Storing a counter no ported line reads would be a second home for a
-// value the port cannot yet spend.
+// C keeps gd.done_seq alongside gh.hero_seq. done() refreshes it before the
+// debug-fuzzer branch and the HANGUPHANDLING query guard reads/increments it;
+// keep the same state owner so a hangup cannot accidentally ask for input.
 //
 // useup() needs the worn-slot hooks when the life-saving amulet is consumed.
 // The optional caller hooks let a live window supply its own inventory
@@ -591,37 +589,28 @@ function lifeSavingInventoryEnv(state, source = {}) {
 
 // When the player declines death in wizard or explore mode, done() calls
 // savelife() and returns normally. When the player accepts death or quits,
-// done() continues into really_done(). Unsupported special death branches
-// still stop at their source boundary there.
+// done() continues into really_done(), preserving the source call for every
+// killer format and end reason.
 export async function done(how, state = game, source = {}) {
-    if (how === TRICKED) {
-        // 1024-1034. The arm paniclogs the killer and, in wizard mode, prints
-        // "You are a very tricky wizard, it seems." and returns without
-        // ending the game. paniclog() writes a file, which game code may not
-        // do, so the port stops here rather than guessing at the log.
-        // Nothing reaches it today: losehp() is the only ported caller and it
-        // passes DIED.
-        throw new UnsupportedEndOfGameError('done(TRICKED) needs paniclog()');
-    }
+    state.killer ??= { name: '', format: KILLED_BY_AN };
     const killer = state.killer;
     const programState = state.program_state;
-    let survive = false;
-
-    // paranoid_ynq()'s spelled-out input arm can return to done() through a
-    // declined death and savelife(). Detect it before the status paint and
-    // death-state prefix below. The other exclusions are the branches that
-    // stop before end.c:1105 in this port, so they retain their own refusal.
-    if (!state.iflags.debug_fuzzer
-        && !Lifesaved(state)
-        && (state.wizard || state.discover)
-        && how <= GENOCIDED
-        && !programState?.done_hup) {
-        if (ParanoidDie(state)) {
-            throw new UnsupportedEndOfGameError(
-                'paranoid_ynq() reading "yes" or "no" for ParanoidDie',
-            );
+    if (how === TRICKED) {
+        // end.c:1024-1034. paniclog()'s return is discarded by C and its
+        // filesystem side effect has no browser owner, so retain the named
+        // gap while keeping the killer clear and the wizard return branch.
+        if (killer.name) {
+            note_unported('end.c paniclog');
+            killer.name = '';
+        }
+        if (state.wizard) {
+            await ttyPline('You are a very tricky wizard, it seems.', state);
+            killer.format = KILLED_BY_AN;
+            return;
         }
     }
+    let survive = false;
+    state.done_seq ??= 0;
     if (programState?.panicking
         || programState?.done_hup
         || (how === QUIT && programState?.stopprint)) {
@@ -643,13 +632,16 @@ export async function done(how, state = game, source = {}) {
         await bot();
     }
 
-    if (state.iflags.debug_fuzzer) {
-        // 1056-1059. fuzzer_savelife() rebuilds the level and keeps the
-        // fuzzer playing; gd.done_seq, which it reads, has no port. Only
-        // earlyarg.c's command-line switch raises iflags.fuzzerpending, and
-        // runSegment() supplies no command line, so nothing reaches this.
-        throw new UnsupportedEndOfGameError('fuzzer_savelife()');
-    }
+    // C end.c:1044-1046. Refresh the death sequence before the debug-fuzzer
+    // branch; HANGUPHANDLING below compares and increments this value.
+    if (state.done_seq < (state.hero_seq ?? 0))
+        state.done_seq = state.hero_seq ?? 0;
+
+    // end.c:1056-1059. The recorder has no earlyarg command-line owner for
+    // this debug-only mode, but preserve the source branch as an explicit
+    // boundary rather than refusing done() before its death-state work.
+    if (state.iflags.debug_fuzzer)
+        note_unported('end.c fuzzer_savelife');
 
     if (how === ASCENDED || (!killer.name && how === GENOCIDED))
         killer.format = NO_KILLER_PREFIX;
@@ -719,20 +711,17 @@ export async function done(how, state = game, source = {}) {
     }
     /* explore and wizard modes offer player the option to keep playing */
     if (!survive && (state.wizard || state.discover) && how <= GENOCIDED) {
-        if (state.program_state?.done_hup) {
-            // The HANGUPHANDLING term at 1110. Its right conjunct spends
-            // gd.done_seq, which has no port; C evaluates it only for a
-            // hung-up game, and nothing in this port hangs up.
-            throw new UnsupportedEndOfGameError(
-                'gd.done_seq for a hung-up game',
-            );
-        }
-        // Reaching this point means the preflight evaluated ParanoidDie(state)
-        // as false; every path that skipped that evaluation refused before
-        // this call. The supported query therefore uses the single-key arm.
-        // Porting a life-saving path through here must revise that proof and
-        // pass the live bit without moving the refusal below observable work.
-        if (!await paranoid_query(false, 'Die?', state)) {
+        // end.c:1110-1112. HANGUPHANDLING's post-increment is part of the
+        // condition; when it suppresses the query the source falls through
+        // to really_done() with no input read. paranoid_query() receives the
+        // actual ParanoidDie bit, so its line-reader arm is source-faithful.
+        const skipHungupQuery = Boolean(
+            state.program_state?.done_hup
+            && state.done_seq++ === (state.hero_seq ?? 0),
+        );
+        if (!skipHungupQuery && !await paranoid_query(
+            ParanoidDie(state), 'Die?', state,
+        )) {
             // 1113-1116. "OK, so you don't die/choke.", PLNMSG_OK_DONT_DIE,
             // savelife(), then the survive return path at 1119-1122.
             await ttyPline(
@@ -754,34 +743,10 @@ export async function done(how, state = game, source = {}) {
         killer.format = KILLED_BY_AN;
         return;
     }
-    // steed.c constructs every failed-mount death from this fixed semantic
-    // prefix followed by x_monnam(), so the species and optional given name
-    // are deliberately variable. This slice owns that death source, not one
-    // recorded pony spelling.
-    //
-    // zapyourself() constructs the death-ray killer from uhim(), so the
-    // pronoun varies by gender but the surrounding text is fixed.
-    if (how === QUIT) {
-        await really_done(how, state);
-        return;
-    }
-    if (how === DIED
-        && killer.format === NO_KILLER_PREFIX
-        && (killer.name.startsWith('slipped while mounting ')
-            || killer.name.endsWith('self with a death ray'))) {
-        await really_done(how, state);
-        return;
-    }
-    if (how === DIED && source.fromMonster
-        && (killer.format === KILLED_BY_AN || killer.format === KILLED_BY)
-        && killer.name) {
-        await really_done(how, state);
-        return;
-    }
-    throw new UnsupportedEndOfGameError(
-        `really_done(${how}) for killer "${killer.name ?? ''}"`
-        + ` in format ${killer.format}`,
-    );
+    // end.c:1124. really_done() is a NORETURN call whose result is discarded;
+    // preserve it for every killer string and game-end reason rather than
+    // filtering admission by the spelling produced by a particular caller.
+    await really_done(how, state);
 }
 
 const DISCLOSURE_OPTIONS = 'iavgco';
