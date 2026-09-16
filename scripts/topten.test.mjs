@@ -1,10 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { observable_depth, topten } from '../js/topten.js';
+import {
+    classmon,
+    get_rnd_toptenentry,
+    observable_depth,
+    topten,
+    tt_doppel,
+} from '../js/topten.js';
 import {
     DIED, PANICKED, PERSMAX, KILLED_BY_AN,
 } from '../js/const.js';
+import { PM_CLERIC, PM_RANGER } from '../js/monsters.js';
+import { runSegment } from '../js/jsmain.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
 
 // --- readentry / writeentry round-trip ---
@@ -195,6 +203,90 @@ test('topten enforces PERSMAX per-player limit', () => {
     } finally {
         setStorageForTesting(null);
     }
+});
+
+// C refs: topten.c classmon() (1355-1375), get_rnd_toptenentry()
+// (1381-1419), and tt_doppel() (1445-1463).  Keep an absent VFS file's
+// fopen early return distinct from an existing empty file, whose rank draw is
+// still consumed before the null result.
+test('scorefile shape selection preserves source rank and role mapping', () => {
+    const mem = new InMemoryStorage();
+    setStorageForTesting(mem);
+    try {
+        const missing = {
+            mockStorage: mem,
+            sysopt: { tt_oname_maxrank: 2 },
+        };
+        assert.equal(get_rnd_toptenentry({
+            state: missing,
+            random: { rnd: () => assert.fail('missing file drew rank') },
+        }), null);
+
+        mem.setItem('vfs:record', '');
+        const draws = [];
+        assert.equal(get_rnd_toptenentry({
+            state: missing,
+            random: { rnd: (bound) => { draws.push(bound); return 2; } },
+        }), null);
+        assert.deepEqual(draws, [2], 'empty file still consumes rnd(maxrank)');
+
+        const valid = '5.0.0 100 0 1 1 3 4 0 20260101 20260101 501 '
+            + 'Pri Hum Mal Law Alice,died\n';
+        // C does not filter malformed entries before choosing a rank.  A bad
+        // first row makes the requested second row unavailable, then the
+        // rank-one retry reads that same bad row and returns null.
+        mem.setItem('vfs:record', `malformed\n${valid}`);
+        assert.equal(get_rnd_toptenentry({
+            state: missing,
+            random: { rnd: () => 2 },
+        }), null, 'a malformed preceding row is not skipped');
+
+        // With a valid first row, C reads it before the malformed second row,
+        // then retries rank one and returns the first entry.
+        mem.setItem('vfs:record', `${valid}malformed\n`);
+        const entry = get_rnd_toptenentry({
+            state: missing,
+            random: { rnd: () => 2 },
+        });
+        assert.equal(entry.plrole, 'Pri');
+        assert.equal(classmon(entry.plrole), PM_CLERIC);
+        assert.equal(classmon('E'), PM_RANGER,
+            'legacy one-character Elf role maps to Ranger');
+
+        const doppel = { female: true };
+        const selected = tt_doppel(doppel, {
+            state: missing,
+            random: {
+                rn2: (bound) => { assert.equal(bound, 13); return 1; },
+                rnd: (bound) => { assert.equal(bound, 2); return 1; },
+                rn1: () => assert.fail('nonempty score entry used fallback'),
+            },
+            canSeeMonster: () => false,
+        });
+        assert.equal(selected, PM_CLERIC);
+        assert.equal(doppel.female, false, 'score gender applies before class');
+    } finally {
+        setStorageForTesting(null);
+    }
+});
+
+test('production startup creates the empty scorefile before play', async () => {
+    // This is the independent Wizard doppelganger startup recipe used by the
+    // mon.c source span. NethackGame.start() owns creation of recorder state;
+    // this witness verifies that path rather than a test-only fallback.
+    const storage = new InMemoryStorage();
+    await runSegment({
+        seed: 9131009,
+        datetime: '20261017130000',
+        nethackrc: 'OPTIONS=name:DoppelDistressB,role:Wizard,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
+            + 'OPTIONS=playmode:debug,pettype:none,!acoustics\n',
+        moves: ' \x07doppelganger\nm.',
+        storage,
+    });
+    assert.equal(storage.getItem('vfs:record'), '',
+        'startup creates an empty record file when storage is new');
 });
 
 // --- Helper to build a minimal game state for topten() ---

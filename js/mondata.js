@@ -98,6 +98,23 @@ import { unconscious } from './trap.js';
 // already do, and neither side uses the other's exports at module scope.
 import { m_canseeu } from './vision.js';
 import { mon_has_amulet } from './wizard.js';
+
+// C ref: mondata.c set_mon_data() (12-38).  `movement` belongs to the
+// monster instance while the hero's pointer is state.u.umovement; only
+// unused movement is prorated when a slower form is installed.
+export function set_mon_data(monster, species, state = game) {
+    const oldSpeed = monster.data?.mmove ?? 0;
+    const hero = monster === state.youmonst;
+    monster.data = species;
+    monster.mnum = species.pmidx;
+    let movement = hero ? state.u?.umovement : monster.movement;
+    if (movement && species.mmove < oldSpeed) {
+        movement *= species.mmove;
+        if (oldSpeed > 0) movement = Math.trunc(movement / oldSpeed);
+        if (hero) state.u.umovement = movement;
+        else monster.movement = movement;
+    }
+}
 import { which_armor } from './worn.js';
 
 function hasAttackType(species, attackType) {
