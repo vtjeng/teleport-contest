@@ -70,6 +70,7 @@ import {
     on_level,
     interest_mapseen,
     print_mapseen,
+    recbranch_mapseen,
     recalc_mapseen,
     room_discovered,
     surface,
@@ -579,6 +580,93 @@ test('print_mapseen emits source-ordered overview rows', () => {
         '      The castle (play 5-note tune to open or close drawbridge).',
         '      Stairs up to The Gnomish Mines, level 6.',
     ]);
+});
+
+test('recbranch_mapseen remembers only a forward branch transition', () => {
+    // dungeon.c:2446-2473. The branch list is the C svb.branches linked list;
+    // mapseenchn owns the one overview record whose `br` field is changed.
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('\nrecbranch_mapseen(');
+    const cEnd = cSource.indexOf('\nstaticfn char *', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'the complete upstream recbranch_mapseen definition is present');
+    const cFunction = cSource.slice(cStart, cEnd);
+    assert.match(cFunction, /source->dnum == dest->dnum/u);
+    assert.match(cFunction, /on_level\(source, &br->end1\)/u);
+    assert.match(cFunction, /on_level\(dest, &br->end2\)/u);
+    assert.match(cFunction, /mptr->br = br/u);
+
+    const forward = {
+        next: null,
+        type: BR_STAIR,
+        end1: { dnum: 0, dlevel: 6 },
+        end2: { dnum: 1, dlevel: 1 },
+        end1_up: false,
+    };
+    const unrelated = {
+        next: forward,
+        type: BR_PORTAL,
+        end1: { dnum: 0, dlevel: 8 },
+        end2: { dnum: 2, dlevel: 1 },
+        end1_up: false,
+    };
+    const sourceMapseen = {
+        lev: { dnum: 0, dlevel: 6 },
+        br: null,
+    };
+    const state = {
+        svb: { branches: unrelated },
+        svm: { mapseenchn: [sourceMapseen] },
+    };
+
+    // The matching branch is found after an unrelated C-list entry.
+    recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 1, dlevel: 1 }, state,
+    );
+    assert.equal(sourceMapseen.br, forward);
+
+    // Reverse travel is explicitly ignored, even after the forward branch
+    // has been remembered.
+    const remembered = sourceMapseen.br;
+    recbranch_mapseen(
+        { dnum: 1, dlevel: 1 }, { dnum: 0, dlevel: 6 }, state,
+    );
+    assert.equal(sourceMapseen.br, remembered);
+
+    // Same-dungeon movement and an unrelated cross-dungeon destination both
+    // leave the record alone. An unseen source also follows C's diagnostic
+    // return without manufacturing an overview record.
+    recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 0, dlevel: 7 }, state,
+    );
+    recbranch_mapseen(
+        { dnum: 0, dlevel: 6 }, { dnum: 2, dlevel: 1 }, state,
+    );
+    recbranch_mapseen(
+        { dnum: 0, dlevel: 7 }, { dnum: 1, dlevel: 1 }, state,
+    );
+    assert.equal(sourceMapseen.br, remembered);
+});
+
+test('goto_level wires recbranch_mapseen before assign_level', () => {
+    // do.c:1669-1675. Pin the production caller and its source ordering in
+    // addition to the helper's constructed-state behavior above.
+    const source = readFileSync(
+        new URL('../js/do.js', import.meta.url),
+        'utf8',
+    );
+    const branchCall = source.indexOf(
+        'recbranch_mapseen(u.uz, newlevel, state);',
+    );
+    const levelAssignment = source.indexOf(
+        'assign_level(u.uz, newlevel);', branchCall,
+    );
+    assert.ok(branchCall >= 0, 'goto_level calls recbranch_mapseen');
+    assert.ok(levelAssignment > branchCall,
+        'branch recording precedes the u.uz assignment');
 });
 
 test('interest_mapseen filters tutorial, unreachable, and deepest levels', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9300001,
+      "datetime": "20360102030405",
+      "nethackrc": "OPTIONS=name:BranchProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u00164\nllj> .#overview\n\u001b",
+      "comment": "Independently selected seed 9300001 from a bounded 9300000-9300029 startup scan. Its generated Gnomish Mines branch is at D:4; three independent movement keys reach that branch stair and > enters the Mines before #overview renders the remembered branch."
+    }
+  ]
+}

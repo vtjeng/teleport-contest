@@ -2178,6 +2178,37 @@ export function find_mapseen(lev, state = game) {
         ?? null;
 }
 
+// C ref: dungeon.c recbranch_mapseen() (2446-2473). A staircase, portal, or
+// fall can cross a dungeon boundary without proving that the transition used
+// the branch recorded in the source topology. Remember only a matching
+// forward branch on the level being left; reverse travel and non-branch
+// transitions leave the overview unchanged.
+export function recbranch_mapseen(source, dest, state = game) {
+    if (!source || !dest || source.dnum === dest.dnum) return;
+
+    let branch = state.svb?.branches ?? null;
+    for (; branch; branch = branch.next) {
+        if (on_level(source, branch.end1)
+            && on_level(dest, branch.end2)) {
+            break;
+        }
+        if (on_level(source, branch.end2)
+            && on_level(dest, branch.end1)) {
+            return;
+        }
+    }
+
+    // No matching branch means this was not a real dungeon branch. C's
+    // impossible() diagnostics here have no gameplay-visible effect.
+    if (!branch) return;
+
+    const mapseen = find_mapseen(source, state);
+    if (!mapseen) return;
+    // C reports an impossible diagnostic when a different branch was already
+    // remembered, then assigns the newly observed forward branch anyway.
+    mapseen.br = branch;
+}
+
 // C ref: dungeon.c find_mapseen_by_str() (2651-2663).
 function find_mapseen_by_str(value, state = game) {
     const folded = value.toLowerCase();
