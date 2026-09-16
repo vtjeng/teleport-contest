@@ -59,13 +59,32 @@ authorizes that choice without user approval. A source-traced dependency or a
 condition blocking
 implementation can still justify a different choice; record that reason.
 
+Keep goal prose specific to the decision: `summary` names the behavior,
+`selectionReason` explains its priority, and `detail` holds the concise source
+trace required for a divergence fix. Reference `investigations/<session>.json`
+for the full diagnosis instead of copying its report into these fields.
+Keep worker activity and delivery progress in the runtime ledger. Preserve
+goal lifecycle, score boundaries, source-completion evidence, and
+remaining-work reasons.
+
 `queue-goal`, `open-goal`, `next-span`, and a divergence fix's `queue-span`
 still check selection against grouped candidates and the recorded reason.
 The orchestrator applies the completed-investigation priority described here.
 Reconsider priority between spans. When an open goal no longer addresses the
 first eligible session under these scheduling rules, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
-Resume it with `open-goal --id <id>` when its priority permits.
+State the remaining source or coverage work and the condition for resuming
+in the existing reason. Name a blocking function or goal when one is known;
+if only closure records remain, say so. Reconsider these reasons at loop
+startup and when a named dependency lands. Resume with `open-goal --id <id>`
+when the condition is met and its priority permits.
+
+When source review shows that another goal replaces a queued or parked plan,
+retire the old plan with `supersede-goal --goal <old-id> --by <replacement-id>
+--reason "<source-based reason>"`. This preserves its evidence, spans, and
+measurements without claiming completion or adding a score event. Superseded
+plans leave the current queue and cannot be reopened; their replacement owns
+any remaining work. Keep a goal parked when it still has independent work.
 
 Use `node scripts/goal-log.mjs roadmap` for fallback work only when the
 mismatch queue is empty. Complete unverified C function groups and Lua
@@ -130,8 +149,9 @@ Each JSON object contains:
 - `commit` and `mismatch`: the full examined commit SHA and original session
   queue entry, retained as provenance. Omit its `investigation` field to avoid
   copying earlier cached results into later ones.
-- `summary`: a short source-backed finding for the dashboard; for a partial
-  result, state what is known and what remains unresolved.
+- `summary`: the current source-backed finding for the dashboard, including
+  the unresolved behavior or blocker. For a partial result, state what is
+  known and what remains unresolved. Keep worker activity out of this field.
 - `source`: an object with `file` and `branch` strings, plus `functions`,
   `callers`, and `dependencies` arrays of strings. Name the preconditions in
   `branch`.
@@ -144,6 +164,22 @@ Each JSON object contains:
   artifact references, and explanations of the cause and implementation scope. For a partial result,
   include the next source-backed probe. Include enough source detail to read
   the finding in CI without access to local diagnostic artifacts.
+
+Update a tracked investigation when its diagnosis, source scope, supporting
+evidence, or unresolved blocker changes. Replace superseded explanations
+with the current finding; retain counter-evidence that prevents repeating a
+failed approach and every unresolved source defect. Git preserves earlier
+versions. Do not append worker activity checks, submission acknowledgements,
+correction scheduling, or repeated checkpoint totals to `evidence`; those
+belong in the runtime ledger, delivery packet, or saved validation result.
+
+The dashboard reads investigation status, summary, and source names. Keep
+those fields current when publishing a changed finding, and retain the
+source detail workers need even when the dashboard does not display it.
+Changes to record writers or schemas must preserve the dashboard's goal
+history, score attribution, parked-work reasons, source coverage, and
+investigation states. Check the affected dashboard data and rendering when
+changing that contract; routine finding updates do not require a new replay.
 
 After each current scan, compare each session's `remainingScreensUpperBound`
 with its cached value. Invalidate only that session's investigation when the

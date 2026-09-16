@@ -853,6 +853,39 @@ test('goal lifecycle records suppress score milestones and phantom open goals', 
     assert.equal(data.goals[1].screensDelta, 10);
 });
 
+test('superseded plans cannot reappear as open or closed goals through historical fallback', () => {
+    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-superseded-'));
+    git(fixture, ['init', '--quiet']);
+    git(fixture, ['config', 'user.name', 'Dashboard Test']);
+    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
+    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
+    const opening = commit(fixture, 'Open old-plan goal', '2026-01-01T00:05:00Z');
+    const replacement = commit(fixture, 'Replacement accepted', '2026-01-01T00:10:00Z');
+    const register = { goals: [
+        { id: 'old-plan', status: 'superseded', openedAt: opening, spans: [],
+            supersededBy: 'replacement', supersededReason: 'Reclassified source owner.' },
+        // Missing lifecycle fields deliberately select historical fallback.
+        { id: 'replacement', status: 'closed', spans: [] },
+    ] };
+    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify(register));
+    for (const rows of [[], [scoreRow({ utc: '2026-01-01T00:10:00Z', sha: replacement,
+        event: 'goal', screens: 12, note: 'old-plan closes.' })]]) {
+        writeFileSync(join(fixture, 'SCORE.tsv'), [SCORE_HEADER, ...rows, ''].join('\n'));
+        const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
+            cwd: fixture, encoding: 'utf8',
+        }));
+        assert.ok(!data.goals.some(goal => goal.name === 'old-plan'));
+        assert.equal(data.summary.inProgressGoals, 0);
+        const retired = data.workGoals.find(goal => goal.id === 'old-plan');
+        assert.equal(retired.status, 'superseded');
+        assert.equal(retired.supersededBy, 'replacement');
+        assert.equal(retired.supersededReason, 'Reclassified source owner.');
+        const rendered = renderDashboard(data);
+        assert.doesNotMatch(rendered.get('pausedWork').innerHTML, /old-plan/u);
+        assert.doesNotMatch(rendered.get('currentWork').innerHTML, /old-plan/u);
+    }
+});
+
 test('parked goals retain their work without extending into later goals', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-parked-'));
     git(fixture, ['init', '--quiet']);

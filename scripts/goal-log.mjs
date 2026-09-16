@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Owns GOALS.json, the record of queued, open, parked, and closed goals and
+// Owns GOALS.json, the record of queued, open, parked, closed, and superseded goals and
 // spans. A goal is a C/Lua source port or divergence fix (.agents/glossary.md); the
 // orchestrator writes it through the subcommands below. Goals recorded before
 // 2026-09-05 carry the retired boundary, forecast, and slices fields. The
@@ -24,7 +24,7 @@ export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
     import.meta.url));
 export const SPAN_CONTEXT_PATH = join(PROJECT_ROOT, '.cache', 'span-context.json');
 
-export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'parked', 'closed']);
+export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'parked', 'closed', 'superseded']);
 export const GOAL_KINDS = Object.freeze(['file-port', 'lua-port', 'divergence-fix']);
 
 // A span stops growing at this many C lines. The cap was 400 from 2026-09-05
@@ -98,6 +98,23 @@ export function validateGoals(store) {
                     `span ${span.name} has unknown status ${span.status}`,
                 );
             }
+        }
+    }
+    const byId = new Map(store.goals.map((goal) => [goal.id, goal]));
+    for (const goal of store.goals) {
+        if (goal.status !== 'superseded') continue;
+        if (!nonempty(goal.supersededReason)
+            || !/^[a-f0-9]{40}$/u.test(goal.supersededAt ?? '')) {
+            throw new Error(`superseded goal ${goal.id} needs a reason and commit`);
+        }
+        const seen = new Set([goal.id]);
+        let current = goal;
+        while (current.status === 'superseded') {
+            const next = byId.get(current.supersededBy);
+            if (!next) throw new Error(`superseded goal ${current.id} needs an existing replacement`);
+            if (seen.has(next.id)) throw new Error(`goal supersession cycle at ${next.id}`);
+            seen.add(next.id);
+            current = next;
         }
     }
     const open = store.goals.filter((goal) => goal.status === 'open');
@@ -340,6 +357,9 @@ export function formatGoal(goal, { detail = false } = {}) {
     const lines = [
         `${goal.status.toUpperCase()} ${goal.id}: ${goalSummary(goal)}`,
     ];
+    if (goal.status === 'superseded') {
+        lines.push(`  replaced by: ${goal.supersededBy}`, `  reason: ${goal.supersededReason}`);
+    }
     if (isSourcePort(goal)) {
         const { declared, complete, total } = completionCount(goal);
         lines.push(`  ${goal.kind} of ${sourceFile(goal)}: ${complete} of ${total} `
@@ -376,7 +396,7 @@ export function formatGoal(goal, { detail = false } = {}) {
 export function roadmapRows(files, names, goals) {
     const latestGoal = new Map();
     for (const goal of goals) {
-        if (goal.kind === 'file-port') latestGoal.set(goal.cFile, goal);
+        if (goal.kind === 'file-port' && goal.status !== 'superseded') latestGoal.set(goal.cFile, goal);
     }
     return files.map(({ name, text }) => {
         const functions = parseCFunctions(text);
@@ -508,6 +528,13 @@ Queueing does not open the goal; use open-goal before planning a span.`,
         description: 'Remove a queued goal from GOALS.json.',
         usage: '--id <id> --reason <text>',
         details: 'Only queued goals can be discarded; open or parked goals cannot.',
+    },
+    'supersede-goal': {
+        description: 'Retire a replaced plan while preserving its evidence and history.',
+        usage: '--goal <id> --by <replacement-id> --reason <text>',
+        details: 'Requires a queued or parked goal and an existing replacement goal.\n'
+            + 'Preserves spans, measurements, and evidence; does not claim completion or score gains.\n'
+            + 'Superseded goals leave --current and cannot be reopened.',
     },
     'close-goal': {
         description: 'Close an open goal and record its delivered progress.',
@@ -708,7 +735,7 @@ async function main(args) {
         if (unexpected) throw new Error(`unexpected argument: ${unexpected}`);
         const detail = rest.includes('--detail');
         const store = readGoals();
-        const visible = store.goals.filter((goal) => goal.status !== 'closed');
+        const visible = store.goals.filter((goal) => ['queued', 'open', 'parked'].includes(goal.status));
         if (visible.length === 0) {
             console.log('No open or queued goal.');
             return;
@@ -895,6 +922,21 @@ async function main(args) {
         store.goals.splice(index, 1);
         writeGoals(store);
         console.log(`discarded ${goal.id}: ${options.reason}`);
+        return;
+    }
+    if (mode === 'supersede-goal') {
+        required(options, ['goal', 'by', 'reason']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        if (!['queued', 'parked'].includes(goal.status)) {
+            throw new Error('only queued or parked goals can be superseded');
+        }
+        goal.status = 'superseded';
+        goal.supersededBy = options.by;
+        goal.supersededReason = options.reason;
+        goal.supersededAt = repositoryHead();
+        writeGoals(store);
+        console.log(formatGoal(goal));
         return;
     }
     if (mode === 'close-goal') {
