@@ -3721,7 +3721,7 @@ async function domove_fight_empty(x, y, state) {
     // screen the port has already diverged from. It is hoisted instead, which
     // is the one place the port deliberately departs from C's order, and only
     // on the arm it refuses.
-    if (solid
+    if (!boulder && solid
         && !(location.seenv || IS_STWALL(location.typ)
              || location.typ === SDOOR || location.typ === SCORR)) {
         throw new UnsupportedHeroMoveBoundaryError(

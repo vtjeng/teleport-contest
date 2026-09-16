@@ -560,7 +560,10 @@ test('unported force-fight branches stop before their source effects', async () 
     // already ported, so both selected-object branches run through the same
     // source owner and spend the turn.
     const boulder = await heroInARoom();
-    targetTerrain(boulder, FOUNTAIN);
+    // The C chain is `if (boulder) ... else if (solid) ...`: an object
+    // selected by the glyph remains attackable even when its furniture square
+    // has no remembered terrain appearance.
+    targetTerrain(boulder, FOUNTAIN, { seenv: 0 });
     mksobj_at(
         BOULDER,
         boulder.u.ux + WEST[0],
