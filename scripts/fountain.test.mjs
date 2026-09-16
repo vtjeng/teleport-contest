@@ -11,6 +11,8 @@ import test from 'node:test';
 
 import {
     ALTAR,
+    COULD_SEE,
+    DEAF,
     FIRE_RES,
     FAST,
     FAINTING,
@@ -18,6 +20,7 @@ import {
     FROMOUTSIDE,
     G_GONE,
     HALLUC,
+    IN_SIGHT,
     LEVITATION,
     MM_NOMSG,
     ROOM,
@@ -28,7 +31,13 @@ import {
     TIMEOUT,
     UNCHANGING,
 } from '../js/const.js';
-import { breaksink, drinkfountain, drinksink } from '../js/fountain.js';
+import {
+    breaksink,
+    drinkfountain,
+    drinksink,
+    dryup,
+    watchman_warn_fountain,
+} from '../js/fountain.js';
 import { game } from '../js/gstate.js';
 import { UnsupportedEatError, vomit } from '../js/eat.js';
 import {
@@ -37,9 +46,11 @@ import {
     PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN,
     PM_YELLOW_DRAGON,
+    PM_WATCHMAN,
 } from '../js/monsters.js';
 import { DILITHIUM_CRYSTAL, LUCKSTONE, POTION_CLASS, POT_SPEED, POT_WATER } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
+import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 
 // fountain.c drinksink() chooses one of twenty fates, then only its default
@@ -278,6 +289,148 @@ async function startedGame() {
     });
     return game;
 }
+
+function watchman(overrides = {}) {
+    return newMonster({
+        data: game.mons[PM_WATCHMAN],
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 10,
+        mhpmax: 10,
+        mpeaceful: true,
+        ...overrides,
+    });
+}
+
+test('dryup warns through the first visible peaceful watchman', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(source, /SET_FOUNTAIN_WARNED\(x, y\);[\s\S]*?get_iter_mons\(watchman_warn_fountain\)/u);
+    assert.match(source, /Amonnam\(mtmp\)[\s\S]*?verbalize\("Hey, stop using that fountain!"\)/u);
+
+    await startedGame();
+    const { ux: x, uy: y } = game.u;
+    const location = game.level.at(x, y);
+    location.typ = FOUNTAIN;
+    location.flags = 0;
+    game.level.flags.has_town = true;
+    game.level.rooms = [];
+    const guard = watchman();
+    game.viz_array[guard.my][guard.mx] = COULD_SEE | IN_SIGHT;
+    game.level.monlist = guard;
+    const messages = [];
+
+    await dryup(x, y, true, game, {
+        message: (line) => messages.push(line),
+        random: { rn2: (bound) => {
+            assert.equal(bound, 3);
+            return 0;
+        } },
+    });
+
+    assert.deepEqual(messages, [
+        'A watchman yells:',
+        '"Hey, stop using that fountain!"',
+    ]);
+    assert.equal(location.flags, 2); // F_WARNED; warning returns before drying.
+    assert.equal(location.typ, FOUNTAIN);
+});
+
+test('watchman_warn_fountain uses the deaf gesture arm', async () => {
+    await startedGame();
+    const guard = watchman();
+    game.viz_array[guard.my][guard.mx] = COULD_SEE | IN_SIGHT;
+    game.u.uprops[DEAF].intrinsic = 1;
+    const messages = [];
+    const queued = [];
+    assert.equal(watchman_warn_fountain(guard, game, {
+        message: (line) => messages.push(line),
+        pendingMessages: queued,
+    }), true);
+    const operations = queued.splice(0);
+    for (const operation of operations) await operation();
+    assert.equal(operations.length, 1);
+    assert.deepEqual(messages, ['A watchman earnestly waves his arms!']);
+    assert.deepEqual(queued, []);
+});
+
+test('dryup keeps an in-town fountain when no watchman can warn', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(
+        source,
+        /if \(!mtmp\)\s+pline_The\("flow reduces to a trickle\."\)/u,
+    );
+
+    await startedGame();
+    const { ux: x, uy: y } = game.u;
+    const location = game.level.at(x, y);
+    location.typ = FOUNTAIN;
+    location.flags = 0;
+    game.level.flags.has_town = true;
+    game.level.rooms = [];
+    game.level.monlist = null;
+    const messages = [];
+
+    await dryup(x, y, true, game, {
+        message: (line) => messages.push(line),
+        random: { rn2: (bound) => {
+            assert.equal(bound, 3);
+            return 0;
+        } },
+    });
+
+    assert.deepEqual(messages, ['The flow reduces to a trickle.']);
+    assert.equal(location.flags, 2); // F_WARNED; warning returns before drying.
+    assert.equal(location.typ, FOUNTAIN);
+});
+
+test('dryup uses state-safe visibility and redraw callbacks', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(source, /if \(cansee\(x, y\)\)/u);
+    assert.match(source, /newsym\(x, y\);/u);
+
+    await startedGame();
+    const { ux: x, uy: y } = game.u;
+    const location = game.level.at(x, y);
+    location.typ = FOUNTAIN;
+    location.flags = 0;
+    game.level.flags.has_town = false;
+    const messages = [];
+    const redraws = [];
+
+    await dryup(x, y, true, game, {
+        message: (line) => messages.push(line),
+        random: { rn2: (bound) => {
+            assert.equal(bound, 3);
+            return 0;
+        } },
+        canSeeSquare: (tx, ty) => {
+            assert.deepEqual([tx, ty], [x, y]);
+            return true;
+        },
+        glyphAt: (tx, ty) => {
+            assert.deepEqual([tx, ty], [x, y]);
+            return -1; // A non-cmap glyph keeps the source message arm.
+        },
+        redraw: (tx, ty, state) => {
+            redraws.push([tx, ty, state]);
+        },
+    });
+
+    assert.deepEqual(messages, ['The fountain dries up!']);
+    assert.equal(location.typ, ROOM);
+    assert.equal(location.flags, 0);
+    assert.equal(location.horizontal, 0);
+    assert.deepEqual(redraws, [[x, y, game]]);
+});
 
 test('dowatersnakes follows fountain.c for the ordinary visible arm',
     async () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7001,
+      "datetime": "20310417113000",
+      "nethackrc": "OPTIONS=name:FountainTown7001,role:Wizard,race:dwarf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u0016?\n wjjqy ",
+      "comment": "Independent debug Minetown recipe from seed 7001. Ctrl-V selects the special level, and two southward moves reach an in-town fountain with a peaceful watchman in view; the trailing space dismisses the warning pause so dryup() completes its source warning arm."
+    }
+  ]
+}
