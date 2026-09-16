@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Independent production witness for pickup.c describe_decor doorway suppression. Segment one uses seed 7744221, date 20380412080910, Rogue A15DoorA, and the route space-lkl; segment two changes seed, date, role, name, and route to exercise the same doorway memory through a separate generated map, with a second space dismissing its new-moon notice.",
+  "segments": [
+    {
+      "seed": 7744221,
+      "datetime": "20380412080910",
+      "nethackrc": "OPTIONS=name:A15DoorA,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,mention_decor,!autopickup\n",
+      "moves": " lkl"
+    },
+    {
+      "seed": 7744222,
+      "datetime": "20390523060711",
+      "nethackrc": "OPTIONS=name:A15DoorB,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,mention_decor\n",
+      "moves": "  jj"
+    }
+  ]
+}

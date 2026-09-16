@@ -66,7 +66,6 @@ import {
     DB_UNDER,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
-    CORR,
     ICE,
     IRONBARS,
     IS_ALTAR,
@@ -75,7 +74,6 @@ import {
     IS_GRAVE,
     IS_SINK,
     IS_THRONE,
-    ROOM,
     TREE,
     MELT_ICE_AWAY,
     P_BOW,
@@ -2435,14 +2433,17 @@ export function preflight_look_here(
             );
         }
         if (state.flags.mention_decor) {
-            const terrain = state.level.at(ux, uy)?.typ;
             if (skip_objects) {
                 throw new UnsupportedFeatureDescriptionError(
                     'mention-decor pile-limit count',
                 );
             }
-            if ((terrain !== ROOM && terrain !== CORR)
-                || (decorTerrain ?? state.iflags.prev_decor) !== terrain) {
+            // describe_decor() owns every terrain family, including
+            // furniture and ordinary doorways.  The caller supplies the
+            // terrain it projected before committing movement; only a stale
+            // projection is unsafe for the subsequent object menu.
+            const terrain = state.level.at(ux, uy)?.typ;
+            if ((decorTerrain ?? state.iflags.prev_decor) !== terrain) {
                 throw new UnsupportedFeatureDescriptionError(
                     'describe_decor() before an object-pile menu',
                 );
@@ -2636,8 +2637,9 @@ export async function look_here(
             throw new TypeError('look_here needs an object-pile display owner');
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
-        // C invent.c look_here() (4289-4296) uses "%s that %s here:";
-        // both the blind and sighted predicates retain the common "that".
+        // C invent.c:look_here() (4289-4296) formats the prefix and predicate
+        // as one sentence using "%s that %s here:"; both blind and sighted
+        // piles retain the common "that" in the heading.
         lines.push(`${pickedSome ? 'Other things' : 'Things'} ${blind ? 'that you feel' : 'that are'} here:`);
         let feltCockatrice = null;
         for (let object = otmp; object; object = object.nexthere) {

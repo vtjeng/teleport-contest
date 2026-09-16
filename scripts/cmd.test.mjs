@@ -1485,21 +1485,6 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.flags = destination.doormask = 0;
             },
         })),
-        // pickup.c describe_decor() owns the line an arrival on a decorated
-        // square prints when mention_decor is on, and tracks iflags.prev_decor
-        // across arrivals; neither is ported.
-        {
-            name: 'stairs arrival with mention_decor',
-            reason: 'decor description',
-            install: ({ destination }) => {
-                game.flags.mention_decor = true;
-                destination.typ = STAIRS;
-            },
-            remove: ({ destination }) => {
-                game.flags.mention_decor = false;
-                destination.typ = ROOM;
-            },
-        },
     ];
 
     for (const refusal of cases) {
@@ -2560,23 +2545,18 @@ test('a blind hero feels the surface named under one object', async () => {
 });
 
 // pickup.c check_here() calls describe_decor() under flags.mention_decor.
-// pickup.c:392-410 mentions a furniture square even when the terrain has not
-// changed, because its `ltyp == iflags.prev_decor` test carries
-// `&& !IS_FURNITURE(ltyp)`. The silent ROOM and CORR branches are owned after
-// the startup staircase memory; furniture remains refused.
-// The doorway rows matter as much as the furniture ones: the guard's
-// predicate is `IS_FURNITURE(location.typ) || doorway`, and without a doorway
-// case the `|| doorway` term can be deleted with the whole suite still green.
-// C reaches a doorway here to blank the dfeature and rewrite prev_decor, which
-// is why it is refused rather than admitted.
-test('a furniture square with mention_decor stays refused', async () => {
-    for (const [label, terrain, mask, admitted] of [
-        ['fountain', FOUNTAIN, 0, false],
-        ['altar', ALTAR, 0, false],
-        ['open doorway', DOOR, D_ISOPEN, false],
-        ['doorless doorway', DOOR, D_NODOOR, false],
-        ['room', ROOM, 0, true],
-        ['corridor', CORR, 0, true],
+// pickup.c:392-410 speaks for furniture even when the terrain is unchanged,
+// and suppresses ordinary open-door/doorway feature text while remembering
+// the destination terrain. All of these arrivals are admitted before the
+// post-move pickup path runs.
+test('a furniture square or doorway with mention_decor is source-admitted', async () => {
+    for (const [label, terrain, mask] of [
+        ['fountain', FOUNTAIN, 0],
+        ['altar', ALTAR, 0],
+        ['open doorway', DOOR, D_ISOPEN],
+        ['doorless doorway', DOOR, D_NODOOR],
+        ['room', ROOM, 0],
+        ['corridor', CORR, 0],
     ]) {
         const { destination, x, y } = await prepareHeroMoveAdmission();
         destination.typ = terrain;
@@ -2586,82 +2566,27 @@ test('a furniture square with mention_decor stays refused', async () => {
         // and remembered the traversed D:1 staircase.
         game.iflags.prev_decor = STAIRS;
 
-        if (admitted) {
-            await domove(game);
-            assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
-            continue;
-        }
-        await assert.rejects(
-            domove(game),
-            (error) => (
-                error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'decor description'
-            ),
-            label,
-        );
+        game.nhDisplay.pushKey(commandKeyCode(' '));
+        await domove(game);
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+        assert.equal(game.iflags.prev_decor, terrain, label);
     }
 });
 
-test('decor preflight translations preserve the raw movement reason',
+test('decor preflight admits a transition from remembered furniture',
     async () => {
-        const expectedReason = 'ordinary decor after unowned prior terrain';
         const ordinary = await prepareHeroMoveAdmission();
         game.flags.mention_decor = true;
-        // FOUNTAIN is neither the startup staircase nor the ROOM destination,
-        // so ordinaryDecorPlan reaches its unsupported prior-terrain branch.
+        // A previous furniture value is a real terrain-memory transition, not
+        // a movement refusal. The source plan admits the ROOM destination and
+        // the committed pickup path stores that new terrain.
         game.iflags.prev_decor = FOUNTAIN;
-        const ordinaryBefore = heroMoveAdmissionSnapshot(ordinary.replay);
-        await assert.rejects(
-            domove(game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === expectedReason
-                && error.message
-                    === `unsupported hero move: ${expectedReason}`,
-        );
-        assert.deepEqual(
-            heroMoveAdmissionSnapshot(ordinary.replay),
-            ordinaryBefore,
-        );
+        const { x: ordinaryX, y: ordinaryY } = ordinary;
+        game.nhDisplay.pushKey(commandKeyCode(' '));
+        await domove(game);
+        assert.deepEqual([game.u.ux, game.u.uy], [ordinaryX, ordinaryY]);
+        assert.equal(game.iflags.prev_decor, ROOM);
 
-        const replay = await runSegment({
-            seed: 840024,
-            datetime: COMMAND_DATETIME,
-            nethackrc: 'OPTIONS=name:PetDecorReason,role:Valkyrie,'
-                + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen,mention_decor',
-            moves: ' ',
-        });
-        const pet = game.level.monlist;
-        assert.ok(pet?.mtame, 'the starting pet is on the level');
-        const x = game.u.ux + 1;
-        const y = game.u.uy;
-        game.level.at(x, y).typ = ROOM;
-        game.level.monsters[pet.mx][pet.my] = null;
-        pet.mx = x;
-        pet.my = y;
-        game.level.monsters[x][y] = pet;
-        game.level.objects[x][y] = null;
-        game.level.traps = [];
-        game.level.regions = [];
-        game.head_engr = null;
-        game.iflags.prev_decor = FOUNTAIN;
-        game.u.dx = 1;
-        game.u.dy = 0;
-        game.context.move = 1;
-        game.domoveAttempting = 1;
-        const petBefore = heroMoveAdmissionSnapshot(replay);
-        const petPosition = [pet.mx, pet.my];
-
-        await assert.rejects(
-            domove(game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === expectedReason
-                && error.message
-                    === `unsupported hero move: ${expectedReason}`,
-        );
-        assert.deepEqual(heroMoveAdmissionSnapshot(replay), petBefore);
-        assert.deepEqual([pet.mx, pet.my], petPosition);
-        assert.equal(game.iflags.prev_decor, FOUNTAIN);
     });
 
 test('a run onto a doorway or a furniture square ends on the square it reaches',

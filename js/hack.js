@@ -1430,13 +1430,9 @@ export function requireSimpleHeroDestination(
     }
     // pickup.c pickup() returns before look_here() when the square holds no
     // object, running describe_decor() and read_engr_at(); check_here() calls
-    // describe_decor() before counting when the square holds one. The port
-    // owns the two silent ROOM/CORR results. Every furniture and doorway result
-    // remains outside the boundary because it can print or suppress a feature.
-    if (state.flags?.mention_decor
-        && (IS_FURNITURE(location.typ) || doorway)) {
-        throw new UnsupportedHeroMoveBoundaryError('decor description');
-    }
+    // describe_decor() before counting when the square holds one. The complete
+    // pickup.c describe_decor() owner now handles ordinary, furniture, liquid,
+    // ICE and doorway transitions before movement is committed.
     // cmd.c set_move_cmd() copies a pending reqmenu prefix to context.nopick
     // before domove(). executeMovement() runs this temporary admission seam
     // first, so read the pending prefix as the same movement intent here.
@@ -1639,17 +1635,12 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
     // spoteffects() reaches only its IS_SINK && Levitation arm, refused there;
     // and C's pickup(1) returns at pickup.c:702-707 without look_here(),
     // because this seam refuses an object on the square. What is left on that
-    // return is describe_decor() (pickup.c:376-425), which pickup.c:392's
-    // `ltyp == prev_decor` shortcut cannot silence on furniture -- the test
-    // carries `&& !IS_FURNITURE(ltyp)` -- so with mention_decor set it always
-    // speaks a line this port cannot produce.
+    // return is describe_decor() (pickup.c:376-425), whose furniture and
+    // doorway branches are now implemented by the pickup.c source owner.
     //
-    // ROOM and CORR share the walking seam's silent owner. Furniture and
-    // doorways can print or suppress feature feedback and remain refused.
-    if (state.flags?.mention_decor
-        && (IS_FURNITURE(destination.typ) || destination.typ === DOOR)) {
-        throw new UnsupportedHeroMoveBoundaryError('decor description');
-    }
+    // ROOM, CORR, furniture and doorway arrivals share describe_decor()'s
+    // source owner. Its preflight reads are mutation-free and run before the
+    // swap, while the committed pickup() call emits any feature message.
     if (state.flags?.mention_decor) {
         try {
             preflight_describe_decor_at(x, y, state);

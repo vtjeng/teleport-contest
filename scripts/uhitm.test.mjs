@@ -370,17 +370,9 @@ test('live movement swaps with a pet standing on every furniture square',
 // C reaches describe_decor() (pickup.c:376-425) after the swap, through
 // spoteffects()'s pickup(1) and its object-free arm at pickup.c:702-707. On a
 // furniture square that call always speaks, because pickup.c:392's silencing
-// test carries `&& !IS_FURNITURE(ltyp)`, so it never fires there whatever
-// iflags.prev_decor holds. Neither describe_decor() nor prev_decor is ported,
-// and js/hack.js spoteffects() calls check_here() rather than pickup(), so
-// nothing downstream would refuse: the seam has to, and it has to before the
-// swap so that no line is written first.
-//
-// A bare ROOM square stays admitted after startup has remembered STAIRS, as it
-// is at the walking seam. There dfeature_at() finds nothing and the silent
-// transition stores ROOM. The complete furniture table and the doorway pin
-// the refusal predicate's bounds.
-test('a pet swap onto furniture or a doorway refuses mention_decor before it moves',
+// test carries `&& !IS_FURNITURE(ltyp)`, while open-door and doorway text is
+// suppressed and prev_decor still records the destination terrain.
+test('a pet swap onto furniture or a doorway describes after it moves',
     async () => {
         for (const [label, terrain] of [
             ['stairs', STAIRS],
@@ -398,20 +390,15 @@ test('a pet swap onto furniture or a doorway refuses mention_decor before it mov
             game.iflags.prev_decor = STAIRS;
             initRng(1);
             game.nhDisplay.pushKey('l'.charCodeAt(0));
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-            await assert.rejects(
-                moveloop_core(),
-                (error) => (
-                    error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'decor description'
-                ),
-                label,
-            );
-            assert.deepEqual([game.u.ux, game.u.uy], oldHero, label);
-            assert.deepEqual([pet.mx, pet.my], destination, label);
-            // Empty, not absent: runSegment() leaves the pending top line
-            // cleared, and the refusal writes nothing over it.
-            assert.equal(game._pending_message, '', label);
+            await moveloop_core().catch((error) => {
+                assert.match(String(error?.message ?? ''),
+                    /Input queue empty/u, label);
+            });
+            assert.deepEqual([game.u.ux, game.u.uy], destination, label);
+            assert.deepEqual([pet.mx, pet.my], oldHero, label);
+            assert.equal(game.iflags.prev_decor, terrain, label);
         }
 
         const roomPet = await startingPet({ pettype: 'cat' });
