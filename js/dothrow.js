@@ -1684,7 +1684,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         // is discarded and that source helper is not ported yet.
         if (cansee(bx, by, state)) {
             await ttyPline(
-                `${Monnam(mon, state)} snatches up ${the(xname(obj), state)}.`,
+                `${Monnam(mon, state)} snatches up ${the(xnameFresh(obj, state), state)}.`,
                 state,
             );
         }

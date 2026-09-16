@@ -788,8 +788,8 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     pre_mm_attack(magr, mdef, env);
 
     const compat = !magr.mcan ? could_seduce(magr, mdef, mattk, env) : 0;
-    if (!compat && shade_miss(magr, mdef, mwep, false, state.gv.vis,
-                              state, env))
+    if (!compat && await shade_miss(magr, mdef, mwep, false, state.gv.vis,
+                                    state, env))
         return M_ATTK_MISS; /* bypass mdamagem() */
 
     if (state.gv.vis) {

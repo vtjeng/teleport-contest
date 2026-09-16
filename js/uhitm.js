@@ -2181,7 +2181,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         hmd.dmg = (hmd.get_dmg_bonus && !mon_is_shade) ? 1 : 0;
         if (mon_is_shade && !hmd.hittxt
             && thrown !== HMON_THROWN && thrown !== HMON_KICKED)
-            hmd.hittxt = shade_miss(
+            hmd.hittxt = await shade_miss(
                 state.youmonst,
                 mon,
                 obj,
@@ -2861,7 +2861,7 @@ export async function mhitm_ad_phys(
 
         if (mattk.aatyp !== AT_WEAP && mattk.aatyp !== AT_CLAW) mwep = null;
 
-        if (shade_miss(magr, mdef, mwep, false, vis, state, env)) {
+        if (await shade_miss(magr, mdef, mwep, false, vis, state, env)) {
             mhm.damage = 0;
         } else if (mattk.aatyp === AT_KICK && thick_skinned(pd)) {
             /* [no 'kicking boots' check needed; monsters with kick attacks
@@ -2890,16 +2890,16 @@ export async function mhitm_ad_phys(
 // monster vs monster; also handles monster vs hero but that won't happen
 // because hero can't be a shade".
 //
-// Partial: the head is the whole answer for every defender that is not a
-// shade, and it is FALSE. C's `||` short-circuits on the species test, so
-// dmgval() is not reached for one and is called here only when it is.
+// The head is the whole answer for every defender that is not a shade, and it
+// is FALSE. C's `||` short-circuits on the species test, so dmgval() is not
+// reached for one and is called here only when it is.
 //
-// A shade defender refuses. Everything below the head prints -- through
-// objnam.c cxname() and hacklib.c vtense(), neither of them ported for this
-// line -- and then marks the square and clears the shade's msleeping. The
-// refusal sits above all of it, and above the TRUE that would tell the caller
-// the blow passed harmlessly through.
-export function shade_miss(
+// A shade defender that takes no damage is reported through the supplied
+// message operation, then its square is marked and its msleeping is cleared.
+// The message operation may suspend for live TTY input or a planning clone
+// (whose default is a no-op), so every caller awaits this source result before
+// consuming its TRUE pass-through answer.
+export async function shade_miss(
     magr,
     mdef,
     obj,
@@ -2922,20 +2922,20 @@ export function shade_miss(
         || sensesMonster(mdef, state)
         || (youagr && m_next2u(mdef, state));
     if (verbose && visible) {
-        const what = !obj || shade_glare(obj, state)
+        const what = !obj || shade_aware(obj, state)
             ? 'attack' : cxname(obj, state);
         const target = youdef ? 'you' : mon_nam(mdef, state);
         if (!thrown) {
             const whose = youagr
                 ? 'Your' : s_suffix(Monnam(magr, state, env));
-            void message(
+            await message(
                 `${whose} ${what} ${vtense(what, 'pass')}`
                 + ` harmlessly through ${target}.`,
                 state,
                 env,
             );
         } else {
-            void message(
+            await message(
                 `${The(what, state)} ${vtense(what, 'pass')}`
                 + ` harmlessly through ${target}.`,
                 state,

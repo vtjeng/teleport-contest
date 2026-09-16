@@ -34,6 +34,7 @@ import {
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
+    MIRROR,
     ORCISH_DAGGER,
     SCR_ENCHANT_ARMOR,
     SCR_SCARE_MONSTER,
@@ -598,7 +599,7 @@ test('shade_miss answers only for a shade and stops there', async () => {
     };
 
     assert.equal(
-        shade_miss(attacker, ordinary, null, false, true, game, env),
+        await shade_miss(attacker, ordinary, null, false, true, game, env),
         false,
     );
     // The head decides before dmgval() runs; passing an object that would
@@ -606,7 +607,7 @@ test('shade_miss answers only for a shade and stops there', async () => {
     // shade, and the msleeping clear at :2056 never happens either.
     const dagger = mksobj(ORCISH_DAGGER, false, false, { state: game });
     assert.equal(
-        shade_miss(attacker, ordinary, dagger, false, true, game, env),
+        await shade_miss(attacker, ordinary, dagger, false, true, game, env),
         false,
     );
     assert.equal(ordinary.msleeping, 1);
@@ -617,22 +618,70 @@ test('shade_miss answers only for a shade and stops there', async () => {
     const silver = mksobj(SILVER_DAGGER, false, false, { state: game });
     assert.ok(dmgval(silver, shade, game) > 0);
     assert.equal(
-        shade_miss(attacker, shade, silver, false, true, game, env),
+        await shade_miss(attacker, shade, silver, false, true, game, env),
         false,
     );
 
     // A shade the attack passes through returns TRUE after the source
     // harmless-feedback message and clears its sleep state.
     assert.equal(
-        shade_miss(attacker, shade, null, false, true, game, env),
+        await shade_miss(attacker, shade, null, false, true, game, env),
         true,
     );
     assert.equal(shade.msleeping, 0);
     assert.ok(lines.some((line) => line.includes('harmlessly through')));
     assert.equal(
-        shade_miss(attacker, shade, dagger, false, true, game, env),
+        await shade_miss(attacker, shade, dagger, false, true, game, env),
         true,
     );
+
+    // uhitm.c:2035 shade_aware() treats reflective surfaces as an attack,
+    // even though artifact.c shade_glare() is reserved for damage. The
+    // message must therefore keep the source's generic noun.
+    const mirror = mksobj(MIRROR, false, false, { state: game });
+    const mirrorLines = [];
+    assert.equal(
+        await shade_miss(attacker, shade, mirror, false, true, game, {
+            message: (line) => { mirrorLines.push(line); },
+        }),
+        true,
+    );
+    assert.ok(mirrorLines.some((line) => line.startsWith('Your attack ')));
+});
+
+test('shade_miss waits for deferred feedback before cleanup', async () => {
+    await runSegment({
+        seed: 7710052, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const shade = {
+        data: game.mons[PM_SHADE],
+        msleeping: 1,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const events = [];
+    let release;
+    const pendingMessage = new Promise((resolve) => {
+        release = () => {
+            events.push('message-resolved');
+            resolve();
+        };
+    });
+    const pending = shade_miss(game.youmonst, shade, null, false, true,
+        game, {
+            message: () => {
+                events.push('message-start');
+                return pendingMessage;
+            },
+        });
+    await Promise.resolve();
+    assert.deepEqual(events, ['message-start']);
+    assert.equal(shade.msleeping, 1,
+        'cleanup waits for the deferred message');
+    release();
+    assert.equal(await pending, true);
+    assert.equal(shade.msleeping, 0);
+    assert.deepEqual(events, ['message-start', 'message-resolved']);
 });
 
 test('mhitm_ad_drst preserves the poison guard and resistance arm',

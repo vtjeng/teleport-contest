@@ -44,6 +44,7 @@ import {
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
+    OBJ_MINVENT,
     POOL,
     P_CROSSBOW,
     P_DAGGER,
@@ -128,6 +129,7 @@ import {
     MINERAL,
     LENSES,
     LUCKSTONE,
+    PICK_AXE,
     ORCISH_ARROW,
     ORCISH_BOW,
     POT_WATER,
@@ -156,6 +158,8 @@ import {
     timeout_globals_init,
 } from '../js/timeout.js';
 import { skiprange } from '../js/zap.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { PM_SHOPKEEPER } from '../js/monsters.js';
 
 function makeState() {
     const state = {};
@@ -673,6 +677,30 @@ test('throwit() lands a thrown weapon at the end of its range', async () => {
     // :1823 clears gt.thrownobj once the missile is on the floor.
     assert.equal(state.gt.thrownobj, null);
 });
+
+test('throwit() names a pick caught by a shopkeeper with the supplied state',
+    async () => {
+        // dothrow.c:1809-1816 runs after the missile's landing effects when a
+        // shopkeeper catches a pick. Keep the target helpless so thitmonst()
+        // leaves the object alive for that source tail, then assert that the
+        // production call reaches it without an unbound xname() helper.
+        const shopState = arena({ last: 9 });
+        shopState.u.ualign = { type: 0, record: 0, abuse: 0 };
+        const shopkeeper = newMonster({
+            data: shopState.mons[PM_SHOPKEEPER],
+            m_id: 1,
+            mhp: 1000,
+            mhpmax: 1000,
+            mcanmove: false,
+            mpeaceful: true,
+            isshk: true,
+        });
+        place_monster(shopkeeper, 7, 4, shopState);
+        const pick = item(shopState, PICK_AXE);
+        await throwit(pick, 0, false, null, shopState);
+        assert.equal(pick.where, OBJ_MINVENT);
+        assert.equal(pick.ocarry, shopkeeper);
+    });
 
 test('throwit() draws rn2(7) only for a cursed or greased missile',
     async () => {

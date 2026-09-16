@@ -966,7 +966,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 
         { /* C ref: m_throw lines 679-693 -- monster hit or hero hit */
             let mtmp = monsterAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-            if (mtmp && shade_miss(monster, mtmp, singleobj, true, true, state, env)) {
+            if (mtmp && await shade_miss(monster, mtmp, singleobj, true, true, state, env)) {
                 /* shade: missile passes harmlessly through */
                 mtmp = null;
             } else if (mtmp) {
