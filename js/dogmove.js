@@ -15,6 +15,7 @@ import {
     CADAVER,
     COLNO,
     CONFLICT,
+    COST_CONTENTS,
     D_CLOSED,
     D_LOCKED,
     DEAF,
@@ -61,7 +62,7 @@ import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { eaten_stat } from './eat.js';
 import { game } from './gstate.js';
-import { obj_extract_self } from './invent.js';
+import { currency, obj_extract_self } from './invent.js';
 import { On_stairs } from './stairs.js';
 import {
     dist2,
@@ -140,7 +141,9 @@ import {
 import { may_dig } from './hack.js';
 import { sobj_at, splitobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { an, distant_name, donameFresh, vtense } from './objnam.js';
+import {
+    an, distant_name, donameFresh, vtense, xnameFresh,
+} from './objnam.js';
 import {
     BALL_CLASS,
     BOULDER,
@@ -182,6 +185,7 @@ import {
     do_clear_area,
 } from './vision.js';
 import { which_armor } from './worn.js';
+import { unpaid_cost } from './shk.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -495,8 +499,9 @@ export function dog_nutrition(mtmp, obj, state = game) {
 }
 
 // C ref: dogmove.c dog_eat() (218-345), for a tame pet eating food from the
-// floor.  Shops, pools, special eaters, and non-food objects remain atomic
-// fail-closed paths.
+// floor. The devour flag is used by tamedog() after it has installed a new
+// EDOG record; it changes meating and nutrition before the common consume
+// path and therefore must retain its return value.
 export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const edog = mtmp?.mextra?.edog;
@@ -508,20 +513,20 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     if (!edog) stop('a tame pet with edog');
     if (obj?.oclass !== FOOD_CLASS)
         stop('a food item');
-    if (obj.unpaid || obj.oartifact || obj.cobj)
-        stop('one ordinary floor food');
-    if (devour) stop('the ordinary eat path');
-    if (is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater)
-        stop('a dry eating square');
     if (mtmp.data?.pmidx === PM_KILLER_BEE
         && obj.otyp === LUMP_OF_ROYAL_JELLY)
         stop('bee_eat_jelly');
+    const nutrit = dog_nutrition(mtmp, obj, state);
+    if (devour && mtmp.meating > 1)
+        mtmp.meating = Math.trunc(mtmp.meating / 2);
+    const adjustedNutrition = devour
+        ? (nutrit > 1 ? Math.trunc(nutrit * 3 / 4) : nutrit)
+        : nutrit;
     if (obj.quan > 1)
         obj = splitobj(obj, 1, objectGenerationEnv(rawEnv));
 
     if (edog.hungrytime < state.moves) edog.hungrytime = state.moves;
-    const nutrit = dog_nutrition(mtmp, obj, state);
-    edog.hungrytime += nutrit;
+    edog.hungrytime += adjustedNutrition;
     mtmp.mconf = 0;
     if (edog.mhpmax_penalty) {
         mtmp.mhpmax += edog.mhpmax_penalty;
@@ -537,13 +542,15 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         redraw(mtmp.mx, mtmp.my);
     }
 
-    const seeobj = cansee(mtmp.mx, mtmp.my, state);
-    const sawpet = cansee(x, y, state) && monsterVisible(mtmp, state);
+    const inPool = is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater;
+    const seeobj = !inPool && cansee(mtmp.mx, mtmp.my, state);
+    const sawpet = !inPool && cansee(x, y, state)
+        && monsterVisible(mtmp, state);
     const message = rawEnv.message ?? ttyPline;
     if (sawpet || (seeobj && canSpotMonster(mtmp, state))) {
         const objName = distant_name(obj, donameFresh, state);
         const action = tunnels(mtmp.data) ? 'digs in'
-            : `eats ${objName}`;
+            : `${devour ? 'devours' : 'eats'} ${objName}`;
         await message(
             messageAt(
                 `${capitalizedAlwaysVisibleMonsterName(mtmp, state, rawEnv)}`
@@ -556,7 +563,19 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         );
     } else if (seeobj) {
         const objName = distant_name(obj, donameFresh, state);
-        await message(`It eats ${objName}.`, state);
+        await message(`It ${devour ? 'devours' : 'eats'} ${objName}.`, state);
+    }
+
+    // dogmove.c:319-326.  The pet's unpaid caught food is named before
+    // m_consume_obj deletes it, and the bill lookup's return is used in the
+    // source message.
+    if (obj.unpaid) {
+        const price = unpaid_cost(obj, COST_CONTENTS, state);
+        await message(
+            `That ${xnameFresh(obj, state)} will cost you ${price} `
+                + `${currency(price, state)}.`,
+            state,
+        );
     }
 
     if (classifyDogFood(mtmp, obj, { ...rawEnv, state }) === DOGFOOD
