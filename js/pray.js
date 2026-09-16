@@ -23,6 +23,7 @@ import {
     A_NONE,
     A_STR,
     A_WIS,
+    AM_SANCTUM,
     AM_SHRINE,
     AM_MASK,
     Amask2align,
@@ -46,6 +47,7 @@ import {
     MAXULEV,
     NOTELL,
     IS_OBSTRUCTED,
+    nothing_happens,
     PARANOID_CONFIRM,
     PARANOID_PRAY,
     PASSES_WALLS,
@@ -78,6 +80,7 @@ import {
 import { confers_luck, hcolor } from './artifacts.js';
 import { adjalign, adjattrib, exercise, setuhpmax } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
+import { floorfood } from './eat.js';
 import { xlev_to_rank } from './display.js';
 import { heal_legs } from './do.js';
 import { stuck_ring, unchanger } from './do_wear.js';
@@ -116,6 +119,9 @@ import { Glib } from './wield.js';
 import { is_weptool, set_bknown, sobj_at, uncurse } from './obj.js';
 import {
     BOULDER,
+    AMULET_OF_YENDOR,
+    CORPSE,
+    FAKE_AMULET_OF_YENDOR,
     FUMBLE_BOOTS,
     GAUNTLETS_OF_FUMBLING,
     HELM_OF_OPPOSITE_ALIGNMENT,
@@ -141,7 +147,12 @@ import { region_danger } from './region.js';
 import { losexp, pluslvl } from './exper.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { Punished } from './steed.js';
-import { is_pool_or_lava, reset_utrap } from './trap.js';
+import {
+    Flying,
+    Levitation,
+    is_pool_or_lava,
+    reset_utrap,
+} from './trap.js';
 import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, couldsee } from './vision.js';
@@ -224,6 +235,56 @@ function on_altar(state) {
 // C ref: pray.c:107 `#define a_align(x, y)`.
 function a_align(x, y, state) {
     return Amask2align(state.level.at(x, y).altarmask & AM_MASK);
+}
+
+// C ref: pray.c dosacrifice() (1854-1896). The floorfood() selector is shared
+// with eat.c and returns the selected object before the offering helper arms.
+// Those helper bodies remain explicit source gaps because they discard their
+// results here; preserving the dispatch and ECMD result keeps this function's
+// caller contract source-shaped without inventing their messages or effects.
+export async function dosacrifice(state = game) {
+    const u = state.u;
+    const altaralign = a_align(u.ux, u.uy, state);
+
+    if (!on_altar(state) || u.uswallow) {
+        await ttyPline(
+            `You are not ${Levitation(state) || Flying(state) ? 'over' : 'on'} an altar.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+    if (intrinsic(state, CONFUSION) || intrinsic(state, STUNNED)) {
+        await ttyPline('You are too impaired to perform the rite.', state);
+        return ECMD_OK;
+    }
+    const altar = state.level.at(u.ux, u.uy);
+    const highaltar = Boolean(altar.altarmask & AM_SANCTUM);
+    const otmp = await floorfood('sacrifice', 1, state);
+    if (!otmp) return ECMD_OK;
+
+    if (otmp.otyp === AMULET_OF_YENDOR) {
+        if (!highaltar) {
+            note_unported('pray.c offer_too_soon');
+            return ECMD_TIME;
+        }
+        note_unported('pray.c offer_real_amulet');
+        // C marks offer_real_amulet() NOTREACHED. Its return is void, so the
+        // source control flow continues to the final nothing_happens arm if
+        // this still-unported helper unexpectedly returns.
+    }
+    if (otmp.otyp === FAKE_AMULET_OF_YENDOR) {
+        note_unported('pray.c offer_fake_amulet');
+        return ECMD_TIME;
+    }
+    if (otmp.otyp === CORPSE) {
+        note_unported('pray.c offer_corpse');
+        return ECMD_TIME;
+    }
+
+    // The selector currently accepts only corpses and amulets, but C retains
+    // this final arm for a directly supplied object that reaches dosacrifice.
+    await ttyPline(nothing_happens, state);
+    return ECMD_TIME;
 }
 
 // The intrinsic half of a youprop.h macro. Every trouble test below that reads

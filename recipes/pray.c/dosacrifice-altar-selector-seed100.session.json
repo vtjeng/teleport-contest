@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 100,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:AltarSearch,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "\u001610\n\u0014  hhhhhhhhjjjjjjjjjjj.\u0017amulet of yendor\n  nothing\n#offer\n\u001b",
+      "comment": "Independent wizard setup: Ctrl-V to D:10, farlook teleport to the generated altar, wish an Amulet of Yendor, decline its bonus wish, then #offer and cancel. The altar selection reaches pray.c dosacrifice() -> eat.c floorfood() -> offer_ok() without committing the unported offering effect."
+    }
+  ]
+}

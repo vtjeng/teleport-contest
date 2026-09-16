@@ -51723,6 +51723,405 @@
         "screens": 10148,
         "rng": 752563
       }
+    },
+    {
+      "id": "port-zap-dobuzz-seed4500-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port the complete beam traversal and monster breath caller",
+      "cFile": "zap.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage,817 remaining-screen upper bound,investigations/holdout/seed4500-knight-coverage.json. The source-traced first mismatch is zap.c dobuzz at step997: breamm skips the beam call. Worker A owns this highest-ranked independent source scope; B owns dosacrifice.",
+      "detail": "Complete zap.c dobuzz lines4779-5037 and required zhitm/zap_over_floor return-value dependencies, with production breamm wiring and clone-safe lethal monster damage. Independent monster-fire-breath recordings match. Hero wand/spell and forced-miss entry evidence must be reconciled separately; do not close unverified source entries.",
+      "spans": [
+        {
+          "name": "dobuzz",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dobuzz"
+          ]
+        }
+      ],
+      "openedAt": "f27915ce7aed003db7de55737d70deb556580f5c",
+      "openStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dobuzz",
+          "line": 4780,
+          "endLine": 5039,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4780,
+        "to": 5039
+      },
+      "activeStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 997,
+          "kind": "rng",
+          "function": "dobuzz",
+          "functionDeclared": true,
+          "sourceFile": "zap.c",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 4823,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 817,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 817,
+              "status": "complete",
+              "commit": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 997,
+                "kind": "rng",
+                "function": "dobuzz",
+                "functionDeclared": true,
+                "sourceFile": "zap.c",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 4823,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 817
+              },
+              "summary": "Worker A corrected the beam planning boundary. The original independent dragon recording now matches all25 screens,3134 RNG calls and4 animation frames; a second variation matches20 screens,3109 RNG calls and5 frames. Focused ray, destruction and ranged-attack checks pass. The worker is preparing its immutable delivery; the published first mismatch remains step997 at dobuzz and no main score gain is claimed.",
+              "source": {
+                "file": "zap.c",
+                "functions": [
+                  "dobuzz",
+                  "zhitm",
+                  "zap_over_floor"
+                ],
+                "branch": "After a successful breamm breath-admission draw, C calls dobuzz and draws rn1(7,7) for beam range. JavaScript breamm currently skips dobuzz, so the next cooldown draw occurs in its place. Existing dobuzz implements only some ray types and must be completed, with all return-used zhitm and zap_over_floor paths, before wiring the monster-breath caller.",
+                "callers": [
+                  "nethack-c/upstream/src/mthrowu.c:breamm() dispatches a selected monster breath into zap.c dobuzz(), preserving the monster buzzer and target direction, then performs cooldown draws.",
+                  "nethack-c/upstream/src/zap.c:dobuzz(), lines 4780-5037, owns beam range, map traversal, reflection, creature hits, terrain effects, bouncing and final explosion/shop handling.",
+                  "js/mthrowu.js:breamm() currently records note_unported(zap.c dobuzz); js/zap.js has a partial dobuzz owner used by other ray callers."
+                ],
+                "dependencies": [
+                  "zhitm() returns damage and an optional destroyed armor object; implement every damage-type branch and required return-valued callees, including electrical item destruction and hero spell bonuses.",
+                  "zap_over_floor() returns range adjustments and shop damage; preserve terrain changes, trap activation, visibility snapshots, Norep messages, existing gas/object/timeout owners and source RNG order.",
+                  "The fountain.c dryup/watchman_warn_fountain dependency is accepted in tested main 17c7e13e. Worker A merged published main and now calls that canonical owner with the live/planning state and message context.",
+                  "Planning and live execution must use the same state and RNG owners; forward message/redraw callbacks through the beam helpers without drawing to the live terminal from a clone."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Main checkpoint 54c48995b41e8b554d743779884ff13a7e01cd0b run-NweKAH passes: 30/44 sessions, 10104/11405 screens,747316/792838 RNG,10142/11405 cursors,261/261 recordings. The blindness span adds three fixed-workload screens and an independent 11-screen,3352-RNG recording.",
+                "Current mismatch-queue run-aOoyQt locates step997 at dobuzz(zap.c:4823), count817. C rn2(7)=3 at RNG index86673 contrasts with JS rn2(3)=1 after breamm omits the beam call; the source range draw explains the first RNG and screen mismatch.",
+                "Worker A task A-20260916-4 owns complete dobuzz and breamm integration. Its uncommitted breath/pool implementation progresses through screen1000 in a focused replay, but legal type families and required damage/terrain branches remain unfinished; this is not a delivered score gain.",
+                "Read-only source surveys identify existing trap, gas-cloud, equipment-destruction, reflection, and terrain owners. The floor fire branch must snapshot visibility before steam, use PIT rather than TT_PIT, preserve one Norep message, reveal swimmers, and call existing dotrap/mintrap. These details are source obligations, not session exceptions.",
+                "The accepted mhitm_ad_blnd span retains two unverified production entries: the hero raven recipe is blocked in hmonas, and the monster-to-monster recipe has no matching production recording. Its source goal is parked, not closed.",
+                "A later read-only electrical destruction survey traced zap.c maybe_destroy_item/destroy_items: hero gloves live at state.uarmg, worn rings must call existing do_wear.js Ring_gone, destruction clears state.current_wand when applicable, and monster wand damage honors shock resistance. Charged-ring recharge is a discarded read.c call on hero inventory only. These are source obligations for worker A’s unfinished electrical return-value dependency; no additional main score is claimed.",
+                "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery.",
+                "Worker A reports focused ray tests 48/48 and electrical destruction tests 29/29 with lint passing. Source corrections move mstrategy clearing before the ordinary monster hit label and exclude reflecting steeds before the shared hit arm, matching C's goto path. These checks cover unfinished worker code and do not change the published score.",
+                "The shared sleep_monst source review requires direct use of the existing zap.c resist owner with real RNG and preserves the trap callers that consume its boolean result. The source-owned terrain helper movement and dryup caller still require integration checks and independent recordings.",
+                "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings.",
+                "Fountain dependency dryup is accepted in tested main 17c7e13e and published in d9ee2ab9. Worker A must merge validated main at a clean WIP boundary and replace the temporary injected dryup path with the accepted source owner before its final fresh differentials and immutable delivery.",
+                "Worker A reports the ordinary death-ray assignment tmp=mon.mhp+1 and final mutable-type Knight multiplier corrected from C zap.c, with visual-only resistance handling and 50/50 ray tests passing. Electrical destruction tests remain 29/29 passing. These are focused worker results; whole-source entry recordings and combined validation remain outstanding.",
+                "Worker A preserved WIP commit1ba06cf8 and merged published main d9ee2ab9 at a clean boundary, producing HEAD511824bfc298fb5751ce3a9775a6d9ea6bd3a94a. Its focused checks report 50 ray,29 electrical-destruction and16 fountain tests passing, with lint passing; no immutable beam delivery exists yet.",
+                "Coordinator bounded replay run-ZKryD2 used the frozen serializer on worker A code and the independently recorded red-dragon recipe. C step24 waits after the breath and hero-hit messages with3134 RNG calls. JavaScript instead shows You die...--More-- with only3125 RNG calls and unchanged live HP6/12; no unsupported boundary or unported gap is reported. Both recordings print Unknown command for earlier space keys, so their first-breath disagreement is not caused by different space-command options. The existing MonsterDeathPlanningError handoff is being checked to keep clone effects off the live terminal.",
+                "Worker A reused the existing planned-death handoff for non-polymorphed lethal monster damage and forwarded message/state context through zhitu to burnarmor, destroy_items and ignite_items. Its original no-rest_on_space recipe passes bounded differential run-mi4BxU:25 screens/cursors,3134 RNG calls,4 animation frames. Independent contiguous-move variation run-BHxZoO also passes:20 screens/cursors,3109 RNG calls,5 frames. C source traces reach breamm, dobuzz, zhitu and burnarmor in both witnesses. Focused ray tests pass51/51(run-3D6UCL), destruction29/29(run-hskW1F), ranged36/36(run-ZN7s2r), and lint passes. These results establish worker evidence only; combined main validation remains pending."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "parkedReason": "Preserve exact A4 integration on codex/a4-integration-wait-20260916 while worker completes picking_at purity, whole waterbody_name return dependency and obsolete refusal test correction; independent ready B5 can be validated now."
+    },
+    {
+      "id": "port-pray-dosacrifice-seed0106-20260916",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port sacrifice command selection and refusal behavior",
+      "cFile": "pray.c",
+      "sessions": [
+        "holdout/seed0106-priest-extcmd-sweep"
+      ],
+      "selectionReason": "Independent ready delivery B5 for holdout/seed0106-priest-extcmd-sweep,143 remaining-screen upper bound,investigations/holdout/seed0106-priest-extcmd-sweep.json. Source owner is pray.c dosacrifice at step124. Higher-ranked seed4500 count817 is reserved by A and its integration is parked for required helper corrections; B5 is the next independent ready delivery.",
+      "detail": "Port whole pray.c dosacrifice with complete used-return floorfood/offer_ok/tin_ok and tinnable dependencies. Both off-altar guard and altar selection/cancel have independent matching recordings. Offering-effect helpers remain explicit discarded-return gaps. Wire typed and item-action command callers through the shared command dispatch.",
+      "spans": [
+        {
+          "name": "dosacrifice",
+          "status": "closed",
+          "closedBy": "d000a93a661324725f4a20144d811b2c3b83aff6",
+          "functions": [
+            "dosacrifice"
+          ]
+        }
+      ],
+      "openedAt": "35e5a76500a04a287490fa0d2ec906ee6dbf132e",
+      "openStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "closedAt": "d000a93a661324725f4a20144d811b2c3b83aff6",
+      "delivered": {
+        "screens": 51,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dosacrifice",
+          "line": 1854,
+          "endLine": 1898,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1854,
+        "to": 1898
+      },
+      "activeStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 124,
+          "kind": "stop",
+          "function": "dosacrifice",
+          "functionDeclared": false,
+          "sourceFile": "pray.c",
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: dosacrifice() for the extended command 'offer' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 143,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "result": {
+              "session": "holdout/seed0106-priest-extcmd-sweep",
+              "remainingScreensUpperBound": 143,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "holdout/seed0106-priest-extcmd-sweep",
+                "step": 124,
+                "kind": "stop",
+                "function": "dosacrifice",
+                "functionDeclared": false,
+                "sourceFile": "pray.c",
+                "cFile": "pray.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: dosacrifice() for the extended command 'offer' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 267,
+                "remainingScreensUpperBound": 143
+              },
+              "summary": "Worker B has implemented the dosacrifice command and complete floorfood selector dependency, with focused eat, prompt and prayer checks passing. An independent off-altar command witness matches; an altar-selection recording is still needed before submission. The published first mismatch remains step124 and no new main score is claimed.",
+              "source": {
+                "file": "pray.c",
+                "branch": "The recorded extended command is the offer row with a normal command boundary. At pray.c:1860-1867, !on_altar() or u.uswallow takes the first refusal and Confusion or Stunned takes the second; this replay reaches the first arm with the hero at (45,17), tile typ 28 (ROOM), altarmask zero, swallowed false, and both status properties clear. The complete dosacrifice() scope then computes highaltar, calls floorfood('sacrifice', 1), returns ECMD_OK for no selected object, dispatches real and fake amulets and corpses, and emits nothing_happens for any other selected object.",
+                "functions": [
+                  "dosacrifice"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1775-1776 extcmdlist[] binds M('o') and the offer name to dosacrifice().",
+                  "js/extcmdlist_data.js:89 reproduces the offer row; js/cmd.js:4887-5168 resolves and dispatches extended commands, but its default at 5164-5167 currently refuses dosacrifice().",
+                  "nethack-c/upstream/src/iactions.c:472-482 queues dosacrifice() for the item-action sacrifice choice; js/iactions.js:568-578 queues the same handler, so the implementation must serve both the typed #offer route and item-action route."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/eat.c:3579-3730 floorfood() supplies dosacrifice()'s used return value. js/eat.js:2371-2446 implements only verb='eat', and explicitly raises UnsupportedEatError for corpsecheck/sacrifice, so the on-altar offering path remains blocked until the sacrifice selector is ported or handed off as a dependency.",
+                  "nethack-c/upstream/src/pray.c:1446-1728 contains consume_offering(), offer_too_soon(), offer_real_amulet(), offer_negative_valued(), offer_fake_amulet(), offer_different_alignment_altar(), sacrifice_your_race(), and bestow_artifact(); pray.c:1959-2098 contains offer_corpse(). dosacrifice() uses the amulet and corpse helpers, whose JavaScript owners are not present as a complete offering path.",
+                  "The guard arm uses existing source-shaped helpers: pray.c:105 on_altar() and :107 a_align(), plus youprop.h Levitation/Flying/Confusion/Stunned macros. js/pray.js already has on_altar()/a_align(), and js/trap.js:811-822 has Levitation()/Flying(); these are sufficient for the observed non-altar branch and do not consume RNG."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
+                "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
+                "nethack-c/upstream/src/pray.c:1852-1896 is the complete dosacrifice() body. Its first guard is source-deterministic: altar/swallow status selects the message, then Confusion/Stunned is checked, and only the later floorfood() call can ask for input or reach offering behavior.",
+                "Current JavaScript source confirms js/cmd.js:289 imports only dopray/doturn from pray.js and js/cmd.js:5162-5167 sends the offer row to the generic unsupported-command boundary. js/pray.js has no dosacrifice export. js/eat.js:2363-2370 documents that #offer/#tin are unported and js/eat.js:2376-2377 throws for the sacrifice call.",
+                "Parked prior delivery 124d7ddb (not an ancestor of current main) added the source-shaped dosacrifice() guard implementation and doextcmd() case, plus scripts/pray.test.mjs and an independent recipes/pray.c/dosacrifice-fresh-ember.session.json with recordings/pray.c/dosacrifice-fresh-ember.session.json. That delivery confirms the guard-only witness but explicitly left floorfood('sacrifice', 1) and altar offering helpers as source gaps; it is useful prior work, not current parity evidence.",
+                "Worker B task B-20260916-5 started from c1d1f813f667b497fca98048757de1270bcb0e2b after the seed0014 worker replay matched all 714 screens. Its source reservations cover pray.c dosacrifice, eat.c floorfood and offer_ok, with command/item-action wiring. The work remains unsubmitted.",
+                "Read-only source survey confirms dosacrifice computes altar alignment before its altar/swallow and Confusion/Stunned guards, which consume no RNG or selector input. The used floorfood return requires its offering path, ordered skip-floor predicate, getobj_else lifetime, source prompts and cockatrice handling. Pure offer_ok uses exact class/type filters and Astral XOR; DOWNPLAY remains selectable by the queued inventory key.",
+                "Worker B reports an independently chosen offering-command differential passing run-S9GiYR with 10 screens/cursors and 2487 RNG values. It preserved its WIP while submitting the unrelated fountain validation correction, then resumed task B-20260916-5. Source coverage, additional entry evidence and immutable delivery are still in progress; these are not main score figures.",
+                "Coordinator review of C eat.c floorfood lines3577-3730 found the worker selector still omitted the pool/lava skip condition and retained metal-eating and tinning refusals. The dependency must preserve bear-trap extraction, iron-bar hands_obj selection, gold and ordinary floor iteration, tin_ok, exact getobj_else cleanup, and the source three-way candidate predicate. Worker B is completing that whole function and reusing existing owners before submission.",
+                "Worker B preserved its WIP, merged validated main17c7e13e at a clean boundary, and restored the work on merged HEAD957b2ba1. Submitted B4 commits remain unchanged. Focused checks affected by the merge are being rerun.",
+                "Worker B completed the floorfood liquid short-circuit, bear-trap extraction guard, rust-monster pointer comparison, tinning classifier and iron-bar hands_obj caller path. Its bounded node --test run of scripts/eat.test.mjs, scripts/eat-prompt.test.mjs and scripts/pray.test.mjs passed all three files with no failures; /tmp/B5-focused.log records the worker result. The independent altar probes did not reach selection because unanswered More and location-tip prompts consumed their command keys; a simpler production setup is being investigated."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dosacrifice",
+            "implementation": "js/pray.js",
+            "symbol": "dosacrifice",
+            "sourceReview": "Read nethack-c/upstream/src/pray.c dosacrifice() at lines 1854-1896 in full. Verified altar alignment is evaluated before the on_altar/uswallow and Confusion/Stunned guards, the high altar test precedes floorfood(\"sacrifice\", 1), and the real, fake, corpse, and final nothing_happens arms preserve C ordering and ECMD results. The selected offering path is wired through js/eat.js floorfood(), including offer_ok(), tin_ok(), and tinnable() source dependencies; pure tinnable behavior is pinned by scripts/eat.test.mjs. C helper calls whose return values are discarded remain explicit note_unported gaps: pray.c offer_too_soon, offer_real_amulet, offer_fake_amulet, offer_corpse, and the eat.c impossible() diagnostic. Obsolete refusal and invented selector effects were removed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist registers the offer row with dosacrifice and doextcmd dispatches the selected handler; js/cmd.js doextcmd() maps the dosacrifice handler to dosacrifice(state)."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c itemactions_pushkeys() queues dosacrifice through the offer extended-command row for IA_SACRIFICE; js/iactions.js itemactions_pushkeys() queues extcmdRow('offer') and the object's inventory key."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/eat.test.mjs",
+              "scripts/eat-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/dosacrifice-ordinary-seed8106001.session.json",
+              "recordings/pray.c/dosacrifice-altar-selector-seed100.session.json"
+            ],
+            "checkedAt": "b26474db97f7b4d30249be1eb1886c980d4c7ab4"
+          }
+        ],
+        "entryPointReview": "The selected range has two production entry routes: the dosacrifice guard path and the altar selector path that reaches floorfood and offer_ok. Both have independent matching fresh recordings. The selected corpse arm and the floorfood tin and metallivore branches are source-pinned and caller-wired; their unported offering or impossible diagnostic helpers are recorded in sourceReview and no production recording claims those helper effects. The two preserved blocked altar probes document setup blockers and are intentionally excluded from matching recordings.",
+        "entryPoints": [
+          {
+            "name": "dosacrifice guard",
+            "functions": [
+              "dosacrifice"
+            ],
+            "recordings": [
+              "recordings/pray.c/dosacrifice-ordinary-seed8106001.session.json"
+            ]
+          },
+          {
+            "name": "dosacrifice altar selector / offer_ok",
+            "functions": [
+              "dosacrifice"
+            ],
+            "recordings": [
+              "recordings/pray.c/dosacrifice-altar-selector-seed100.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 175,
+          "kind": "stop",
+          "function": "doextversion",
+          "functionDeclared": true,
+          "sourceFile": "version.c",
+          "cFile": "version.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: doextversion() for the extended command 'version' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 92,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "result": {
+              "session": "holdout/seed0106-priest-extcmd-sweep",
+              "remainingScreensUpperBound": 92,
+              "status": "complete",
+              "commit": "d000a93a661324725f4a20144d811b2c3b83aff6",
+              "mismatch": {
+                "session": "holdout/seed0106-priest-extcmd-sweep",
+                "step": 175,
+                "kind": "stop",
+                "function": "doextversion",
+                "functionDeclared": true,
+                "sourceFile": "version.c",
+                "cFile": "version.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: doextversion() for the extended command 'version' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 267,
+                "remainingScreensUpperBound": 92
+              },
+              "summary": "The validated sacrifice span adds51 matching screens and moves this session from step124 to step175. The next stop is #version: cmd.js does not dispatch its doextversion handler even though version.js already implements it. Worker B is wiring that existing owner and its text-window/RNG context;92 screens remain in this queue suffix.",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "doextcmd"
+                ],
+                "branch": "C cmd.c doextcmd lines493-519 reads the selected extcmdlist function and calls it, returning its ECMD result. The version row at cmd.c1924-1925 names doextversion. JavaScript has the generated version row and version.js doextversion, but cmd.js doextcmd has no matching case and reaches UnsupportedHeroCommandBoundaryError at step175.",
+                "callers": [
+                  "C cmd.c extcmdlist registers version with doextversion and doextcmd invokes the selected function pointer.",
+                  "js/extcmdlist_data.js version row carries doextversion, while js/cmd.js doextcmd currently falls through to its unsupported default.",
+                  "js/pager.js already calls js/version.js doextversion with displayTextWindow and random; the command path must supply the same source-owned interfaces."
+                ],
+                "dependencies": [
+                  "Reuse the existing version.c doextversion implementation in js/version.js, including the text-window renderer and runtime-information RNG ordering.",
+                  "Preserve ECMD_OK and command dispatch state. Keep machine-local configuration path differences under open question Q1 rather than adding recorded environment values."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
+                "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
+                "nethack-c/upstream/src/pray.c:1852-1896 is the complete dosacrifice() body. Its first guard is source-deterministic: altar/swallow status selects the message, then Confusion/Stunned is checked, and only the later floorfood() call can ask for input or reach offering behavior.",
+                "Current JavaScript source confirms js/cmd.js:289 imports only dopray/doturn from pray.js and js/cmd.js:5162-5167 sends the offer row to the generic unsupported-command boundary. js/pray.js has no dosacrifice export. js/eat.js:2363-2370 documents that #offer/#tin are unported and js/eat.js:2376-2377 throws for the sacrifice call.",
+                "Parked prior delivery 124d7ddb (not an ancestor of current main) added the source-shaped dosacrifice() guard implementation and doextcmd() case, plus scripts/pray.test.mjs and an independent recipes/pray.c/dosacrifice-fresh-ember.session.json with recordings/pray.c/dosacrifice-fresh-ember.session.json. That delivery confirms the guard-only witness but explicitly left floorfood('sacrifice', 1) and altar offering helpers as source gaps; it is useful prior work, not current parity evidence.",
+                "Worker B task B-20260916-5 started from c1d1f813f667b497fca98048757de1270bcb0e2b after the seed0014 worker replay matched all 714 screens. Its source reservations cover pray.c dosacrifice, eat.c floorfood and offer_ok, with command/item-action wiring. The work remains unsubmitted.",
+                "Read-only source survey confirms dosacrifice computes altar alignment before its altar/swallow and Confusion/Stunned guards, which consume no RNG or selector input. The used floorfood return requires its offering path, ordered skip-floor predicate, getobj_else lifetime, source prompts and cockatrice handling. Pure offer_ok uses exact class/type filters and Astral XOR; DOWNPLAY remains selectable by the queued inventory key.",
+                "Worker B reports an independently chosen offering-command differential passing run-S9GiYR with 10 screens/cursors and 2487 RNG values. It preserved its WIP while submitting the unrelated fountain validation correction, then resumed task B-20260916-5. Source coverage, additional entry evidence and immutable delivery are still in progress; these are not main score figures.",
+                "Coordinator review of C eat.c floorfood lines3577-3730 found the worker selector still omitted the pool/lava skip condition and retained metal-eating and tinning refusals. The dependency must preserve bear-trap extraction, iron-bar hands_obj selection, gold and ordinary floor iteration, tin_ok, exact getobj_else cleanup, and the source three-way candidate predicate. Worker B is completing that whole function and reusing existing owners before submission.",
+                "Worker B preserved its WIP, merged validated main17c7e13e at a clean boundary, and restored the work on merged HEAD957b2ba1. Submitted B4 commits remain unchanged. Focused checks affected by the merge are being rerun.",
+                "Worker B completed the floorfood liquid short-circuit, bear-trap extraction guard, rust-monster pointer comparison, tinning classifier and iron-bar hands_obj caller path. Its bounded node --test run of scripts/eat.test.mjs, scripts/eat-prompt.test.mjs and scripts/pray.test.mjs passed all three files with no failures; /tmp/B5-focused.log records the worker result. The independent altar probes did not reach selection because unanswered More and location-tip prompts consumed their command keys; a simpler production setup is being investigated.",
+                "Checkpoint d000a93a661324725f4a20144d811b2c3b83aff6 run-pM0K7h passes:31/44 complete sessions,10199/11405 screens,752563/792838 RNG,10226/11405 cursors,265/265 recordings. The sacrifice span adds51 screens and two independent recordings totaling74 screens and7990 RNG calls.",
+                "Saved scan .cache/B5-development-scan.json and mismatch queue run-BlyNK7 locate this session at step175, doextversion stop,92 remaining-screen upper bound. Source inspection confirms the generated row and existing callee, isolating missing command dispatch.",
+                "Worker B claimed B-20260916-6 from immutable23e44e40705da27c6f57ff61485d5e22c6575d09 with cmd.c doextcmd, version.c doextversion and the version text-window contract reserved. It is implementing the independent same-session continuation."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "d000a93a661324725f4a20144d811b2c3b83aff6",
+        "screens": 10199,
+        "rng": 752563
+      }
     }
   ]
 }

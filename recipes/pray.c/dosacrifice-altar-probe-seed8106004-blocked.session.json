@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8106004,
+      "datetime": "20310306081500",
+      "nethackrc": "OPTIONS=name:Offering,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .#levelchange\n20\n                     \u0016?\n>v     #teleport\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhk. #wizwish\nhuman corpse\n#offer\ny  ",
+      "comment": "Blocked setup probe preserved for provenance: an unanswered level-teleport --More-- prompt discards the intended movement and later wish/offer keys. No passing recording is claimed."
+    }
+  ]
+}

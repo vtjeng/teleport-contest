@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8106001,
+      "datetime": "20310305081500",
+      "nethackrc": "OPTIONS=name:Offering,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": " #offer\n "
+    }
+  ]
+}
