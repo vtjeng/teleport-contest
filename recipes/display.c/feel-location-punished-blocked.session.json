@@ -8,5 +8,5 @@
       "moves": "\u0017scroll of punishment\nrp \u0014@"
     }
   ],
-  "comment": "Independent wizard-mode punishment setup for display.c feel_location. The first strict screen mismatch is during the getlin wish input at screen step 17 (key h): C clears/shortens the status rows while JS retains the full status display. This prompt/status-window rendering gap is outside this display.c span (win/tty/getline.c hooked_tty_getlin and its status refresh owner), so the punishment feel_location entry remains unverified. The later zap.c obj_resists call at zap.c:1469 is downstream and is not the first blocker; retain this recipe until the prompt/status gap is implemented and do not treat it as a passing recording."
+  "comment": "Preserved failed independent setup diagnostic. The initial Ctrl-W is consumed by the startup --More-- prompt, so the following wish/read/teleport bytes do not create punishment or exercise display.c feel_location. Its later potion-menu/obj_resists mismatch is therefore unrelated to this source span. Keep this recipe as a failed setup record; use the corrected recipe with an initial space for production evidence."
 }
