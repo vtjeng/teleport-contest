@@ -50696,6 +50696,24 @@
           }
         }
       ]
+    },
+    {
+      "id": "div-steal-urgent-pline-seed4500-20260915-r2",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve C steal.c steal() urgent_pline sequencing for monster theft and wire the planning-safe caller callback so the theft page matches the source-defined message boundary.",
+      "cFile": "steal.c",
+      "sessions": [],
+      "selectionReason": "Selected holdout/seed4500-knight-coverage under the current saved fixed-workload queue run-GP6UMD: remainingScreensUpperBound 827 is the highest currently investigated eligible session; its refreshed complete investigation identifies steal.c:steal() at screen step 987. The queued trap landmine work owns trap.c only, and parked B18/B19 reservations are released, so steal.c:steal is independent. The investigation is tied to published execution commit f38c5066, whose execution tree is unchanged by the current root bookkeeping commit.",
+      "detail": "Current C/JS trace: nethack-c/upstream/src/steal.c:steal() calls worn_item_removal() through ordinary pline(), then urgent_pline() for the final theft line before mpickobj(); js/steal.js currently routes both through env.message. The production path is mhitu.c:mattacku() -> hitmu() -> uhitm.c:mhitm_adtyping()/mhitm_ad_sedu() -> steal(). Add only the source-backed urgent-message distinction and caller wiring, preserving no-RNG order, planning silence, weapon-slot side effects, and existing theft branches. Independent evidence must cover the complete divergence path; do not special-case seed4500.",
+      "spans": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "steal",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 987
     }
   ]
 }
