@@ -51727,7 +51727,7 @@
     {
       "id": "port-zap-dobuzz-seed4500-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete beam traversal and monster breath caller",
       "cFile": "zap.c",
       "sessions": [
@@ -51851,7 +51851,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "parkedReason": "Preserve exact A4 integration on codex/a4-integration-wait-20260916 while worker completes picking_at purity, whole waterbody_name return dependency and obsolete refusal test correction; independent ready B5 can be validated now."
     }
   ]
 }
