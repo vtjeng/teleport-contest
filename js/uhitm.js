@@ -915,13 +915,11 @@ export async function do_attack(monster, state = game, env = {}) {
     // 577-580. C marks the square with an 'I' when a forced blow leaves a
     // target the hero cannot spot alive. Nothing in this port reaches that
     // tail: attack_checks() admits a force-fight only against a target the
-    // hero can spot, and the arms between there and here that could take that
-    // back stop before they get to. passive() refuses every counter-attack
-    // damage type but AD_PHYS, so no blow blinds the hero, and
-    // mhitm_knockback() refuses the knockback that could carry the target out
-    // of sight. What keeps the tail out of reach is that spot check together
-    // with !DEADMONSTER(mtmp); C's `!glyph_is_invisible(...)` conjunct is not
-    // reached at all, so whether a marker sits on the square is moot.
+    // hero can spot, and the arms between there and here do not produce an
+    // invisible surviving target. The marker's `!glyph_is_invisible(...)`
+    // conjunct is therefore not reached, so whether a marker sits on the
+    // square is moot. Knockback remains a separate source arm and does not
+    // decide this reachability condition.
     return true;
 }
 
