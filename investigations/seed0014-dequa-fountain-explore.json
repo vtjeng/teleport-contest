@@ -1,48 +1,52 @@
 {
   "session": "seed0014-dequa-fountain-explore",
-  "remainingScreensUpperBound": 47,
+  "remainingScreensUpperBound": 45,
   "status": "complete",
-  "commit": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+  "commit": "aface44fb504a9d8296da4400543983d4677d5fd",
   "mismatch": {
     "session": "seed0014-dequa-fountain-explore",
-    "step": 667,
+    "step": 669,
     "kind": "rng",
-    "function": "set_mimic_sym",
+    "function": "pri_move",
     "functionDeclared": true,
-    "sourceFile": "makemon.c",
-    "cFile": "makemon.c",
+    "sourceFile": "priest.c",
+    "cFile": "priest.c",
     "luaFile": null,
-    "line": 2468,
+    "line": 194,
     "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 714,
-    "remainingScreensUpperBound": 47
+    "remainingScreensUpperBound": 45
   },
-  "summary": "The landmine stop at step 655 is resolved. The first remaining mismatch is step 667 in set_mimic_sym(): a nested shop room index is missing from the direct JavaScript room array, so the mimic takes the ordinary appearance branch. Worker B has submitted the shared room lookup fix with a matching independent recording; its next worker-only mismatch is priest movement at step 669, now under investigation.",
+  "summary": "The mimic mismatch is resolved. At step 669, a nested temple priest has shrine-room number 2 and no recognized temple membership, so JavaScript skips priest movement. Worker B corrected the conceptual room lookup and shrine-room initialization; an independent recording now matches. Focused checks and combined validation remain pending.",
   "source": {
-    "file": "makemon.c",
+    "file": "priest.c",
     "functions": [
-      "set_mimic_sym"
+      "priestini",
+      "temple_occupied",
+      "histemple_at",
+      "pri_move"
     ],
-    "branch": "C reads levl[mx][my].roomno - ROOMOFFSET through the flat svr.rooms allocation, which includes subrooms. At a shop rtype >= SHOPBASE, it consumes rn2(10) before choosing stock. JavaScript reads only level.rooms[roomIndex]; nested shops are stored under parent sbrooms with conceptual roomnoidx values, so the missing direct entry supplies rtype 0 and selects the ordinary MIMIC_SYMBOLS rn2(17) branch.",
+    "branch": "C pri_move() returns -1 only when histemple_at() fails, then otherwise consumes two rn1(3,-1) calls to mill around the altar. C priestini() initializes EPRI.shroom from the conceptual flat room array, and histemple_at() compares it with in_rooms(TEMPLE). JavaScript priestini() uses level.rooms.indexOf(sroom), which returns -1 for a nested subroom; rooms.js roomType() and priest.js temple_occupied() also search only the top-level array. These source-inconsistent room values cause ordinary movement to run instead of temple movement.",
     "callers": [
-      "nethack-c/upstream/src/makemon.c:2393-2577 defines set_mimic_sym(), with the room lookup at 2405-2415 and shop selection at 2467-2486. makemon() calls it for a newly placed mimic at 1305, including shop-stock mimics.",
-      "js/makemon_create.js:makemon() calls set_mimic_sym(); its room lookup currently indexes state.level.rooms directly before choosing the shop or ordinary branch.",
-      "js/mklev.js:add_subroom() persists subrooms under their parent and assigns MAXNROFROOMS + 1 + nsubroom as roomnoidx. js/mines_levels.js generates nested Minetown shops using this representation."
+      "nethack-c/upstream/src/priest.c:142-157 defines temple_occupied()/histemple_at(); pri_move() at 176-225 tests the priest room before its first two rn1(3,-1) calls at 194-195.",
+      "nethack-c/upstream/src/priest.c:priestini(), around 247, sets shroom to (sroom - svr.rooms) + ROOMOFFSET. JS priestini() initializes the persistent mextra.epri record when special-level temple generation creates its priest.",
+      "js/monmove.js:m_move() calls js/priest.js:pri_move() for priest movement and falls back to ordinary movement when it returns -1. The later peaceful movement gate consumes rn2(10).",
+      "js/priest.js:histemple_at() calls js/rooms.js:in_rooms(); its roomType() helper must resolve conceptual indices for both top-level rooms and subrooms."
     ],
     "dependencies": [
-      "js/dungeon.js:mapseen_room() already resolves conceptual room indices through top-level rooms and recursive sbrooms; the submitted fix exports and reuses this owner without another room graph or RNG draw.",
-      "Preserve get_shop_item(), temporary mkobj()/obfree(), monster-based object overlays, fruit state, altar selection and does_block()/block_point() order. Only the source-defined room lookup changes.",
-      "Worker B delivery 93b6ff5aa25e64c391a92b5f0b09b1496bb8d4b1 is ready with 125 focused tests, lint and a strict fresh differential. It remains separate from the validated landmine candidate."
+      "Reuse js/dungeon.js:mapseen_room(), now available from the accepted mimic fix, for type lookup through the persisted parent/subroom graph. Do not add a second room-index representation.",
+      "Use sroom.roomnoidx for the priest shrine-room number when available, retaining the ordinary room-array index for top-level rooms. Cover temple_occupied() and in_rooms() pure return values with source-pinned tests.",
+      "Preserve the existing pri_move() random-call order. Its unrelated hostile/Conflict branches remain outside this initialization and membership divergence fix. Worker B owns B-20260916-3 and the shared conceptual-room membership contract."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Checkpoint 25bec4a9fe647b574a4418fef4e1d3e90ac01e93, run-IpwzMi, passed: 30/44 sessions, 10101/11405 screens, 745419/792838 RNG, 10134/11405 cursors; all 259 recordings match. Compared with f0ff954d, seed0014 improves from 655 to 670 matching screens, giving the 15-screen overall gain. New landmine hero/monster recordings contribute 31 matching screens.",
-    "Fresh fixed-workload queue run-Ny5bQI identifies step 667, kind rng, function set_mimic_sym, 47 remaining screens as an upper bound. Every other session retains its investigation count.",
-    "Read complete C set_mimic_sym() and JavaScript room creation/lookup paths. C selects rn2(10)=0 at makemon.c:2468; the old JavaScript fallback selects rn2(17)=10. This is a state/branch mismatch, not a random-bound substitution.",
-    "Worker instrumentation captured the affected mimic at moves 910, depth 3, tile [54,13], roomno 55, conceptual roomIndex 52. level.rooms[52] is undefined; the persisted subroom resolver finds rtype 19, a shop. These are diagnostic facts only; no input or position is special-cased.",
-    "Independent existing blocked recipe recipes/hack.c/minetown-mimic-boundary.session.json uses seed 8124 and a different clock/character. After the room lookup fix, fresh run-E65Kbo matches and recording recordings/hack.c/minetown-mimic-boundary.session.json is included in the immutable delivery.",
-    "A focused worker-only replay after 93b6ff5a moves the first mismatch to step 669 in pri_move(): C consumes rn2(3), while JavaScript consumes rn2(10) before the priest path. Worker B and a read-only helper are tracing its preconditions; this is not yet an accepted main result."
+    "Checkpoint aface44fb504a9d8296da4400543983d4677d5fd, run-Bexd1h, passed: 30/44 sessions, 10101/11405 screens, 745424/792838 RNG and 10134/11405 cursors. All 260 recordings match; the newly matching Minetown case contributes 7 screens and 4524 RNG values. Screen totals are unchanged from the landmine baseline, with 5 additional matching RNG values.",
+    "Fresh fixed-workload queue run-vKtWha identifies step 669, kind rng, function pri_move, with 45 remaining screens as an upper bound. This supersedes the mimic investigation at step 667/count 47; every other investigation count remains current.",
+    "Focused worker replay reports C rn2(3)=0 at pri_move(priest.c:194) while JS consumes rn2(10)=2 before priest movement. Read-only helper and coordinator source checks identify the nested temple initialization and membership defects. Worker B is collecting the exact runtime state and independent fresh evidence before submission.",
+    "The preceding accepted mimic fix resolves conceptual roomno 55/index 52 to shop rtype 19 and removes the C rn2(10) versus JS rn2(17) branch mismatch. Its independent recipe uses seed 8124 and a different clock and character; no session value is special-cased.",
+    "Worker B captured the pre-fix priest id 456 at (36,6), epri.shroom=2 and in_rooms(TEMPLE)=[], which makes pri_move return -1 before its two source rn1 calls. In the fixed full replay, the priest has shroom 48, shrine (37,7), level (dnum 2,dlevel 3), map roomno 48/index 45, in_rooms(TEMPLE)=[48], and resolved rtype TEMPLE (10). The source roomnoidx is 45.",
+    "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main."
   ]
 }

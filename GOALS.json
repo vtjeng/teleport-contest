@@ -51078,7 +51078,7 @@
     {
       "id": "div-makemon-set-mimic-sym-seed0014-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Resolve nested shop room indices before mimic appearance selection.",
       "cFile": "makemon.c",
       "sessions": [],
@@ -51087,8 +51087,8 @@
       "spans": [
         {
           "name": "nested-shop-room-lookup",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "aface44fb504a9d8296da4400543983d4677d5fd",
           "functions": [
             "set_mimic_sym"
           ]
@@ -51100,8 +51100,11 @@
         "screens": 10101,
         "rng": 745419
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "aface44fb504a9d8296da4400543983d4677d5fd",
+      "delivered": {
+        "screens": 0,
+        "rng": 5
+      },
       "function": "set_mimic_sym",
       "session": "seed0014-dequa-fountain-explore",
       "step": 667,
@@ -51178,7 +51181,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "aface44fb504a9d8296da4400543983d4677d5fd",
+        "screens": 10101,
+        "rng": 745424
+      }
     }
   ]
 }

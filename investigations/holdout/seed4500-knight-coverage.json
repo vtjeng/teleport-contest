@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 820
   },
-  "summary": "The first main stop remains step 994 at mhitm_ad_blnd(). Worker A submitted the complete attack function and shared blindness fixes with 210 focused checks and a matching monster-to-hero recording. Review is correcting the hero recipe to use a raven because yellow-light explosions bypass this function; monster-to-monster coverage remains blocked by unported disposition parsing. The next worker-only mismatch is missing monster-breath dobuzz wiring at step 997.",
+  "summary": "Main still stops at step 994 at mhitm_ad_blnd(). Worker A has submitted the attack and shared blindness fixes with 210 focused checks and a matching monster-to-hero recording. Its corrected raven recipe identifies an unported hmonas() caller; monster-to-monster entry coverage remains incomplete. The delivery is queued for combined validation while worker A implements the next missing monster-breath dobuzz call.",
   "source": {
     "file": "uhitm.c",
     "functions": [
@@ -49,6 +49,8 @@
     "Read-only dependency review confirmed C decl.c:49 vision_clears is \"vision quickly clears.\", mondata.c can_blnd() uses distinct eyewear predicates by attack type, and youprop.h:399 Unaware reads gm.multi with unconscious()/is_fainted(). Root verified the corresponding JS stale fields and missing clone see_monsters() callback; these are pending worker corrections, not accepted gains.",
     "Immutable worker delivery d1eb2d27558d480c1e9ee33a6629262c26c761b9 passes 210 focused checks and fresh run-r2dAI5 (11 screens, 3352 RNG) through the monster-to-hero entry. Root is requesting a new recipe correction before integration: C hmonas() sends yellow-light AT_EXPL directly to explum(), whereas raven AT_CLAW reaches damageum()->mhitm_adtyping()->mhitm_ad_blnd. Clearing Wizard cloak/staff before raven polymorph avoids the previous automatic-drop setup.",
     "The source-defined monster-to-monster setup can create a sleeping hostile giant beetle followed by a tame raven; C read.c create_particular_parse()/create_particular() supports these dispositions, but current js/read.js refuses them. Keep that entry unverified; a failed setup does not establish source entry coverage.",
-    "A worker-only replay after the blinding delivery reaches step 997: C dobuzz(zap.c:4823) consumes rn2(7)=3 after breamm rn2(3)=1, while JS breamm skips dobuzz via note_unported and consumes its subsequent cooldown rn2(3). This identifies missing beam invocation, not a random-bound error; accepted main still stops at 994."
+    "A worker-only replay after the blinding delivery reaches step 997: C dobuzz(zap.c:4823) consumes rn2(7)=3 after breamm rn2(3)=1, while JS breamm skips dobuzz via note_unported and consumes its subsequent cooldown rn2(3). This identifies missing beam invocation, not a random-bound error; accepted main still stops at 994.",
+    "Correction 5bf58b67777294bf99518332fa56e7a62426a4a2 replaces the yellow-light setup with a raven and clears equipment first. The source-valid C attack reaches hmonas()->damageum(), while JS lacks the hmonas caller. Neither that entry nor the monster-to-monster entry is claimed complete. Worker A merged published main 184edff5 at c1eb0ae9 and reran A3, landmine/movement checks and lint successfully.",
+    "Worker A now owns the complete zap.c dobuzz source scope and mthrowu.c breamm caller under A-20260916-4. Source review is checking all beam types, return-valued dependencies, planning callbacks and water-floor effects; no new beam behavior is accepted yet."
   ]
 }
