@@ -276,6 +276,7 @@ import {
     doattributes,
     doconduct,
     do_gamelog,
+    dogenocided,
     dovanquished,
     remove_achievement,
     UnsupportedEnlightenmentError,
@@ -1815,7 +1816,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
-    'overview', 'chronicle', 'conduct', 'vanquished',
+    'overview', 'chronicle', 'conduct', 'vanquished', 'genocided',
     'inventtype', 'adjust', 'altadjust',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
@@ -5120,6 +5121,10 @@ async function doextcmd(key, state) {
         // C ref: insight.c dovanquished(), reached from the #vanquished row.
         // list_vanquished owns sort selection, list formatting, and its wait.
         return await dovanquished(state);
+    case 'dogenocided':
+        // C ref: insight.c dogenocided(), reached from the #genocided row.
+        // list_genocided owns the species filtering, sort selection, and wait.
+        return await dogenocided(state);
     case 'doextversion':
         // C ref: version.c doextversion(), reached from cmd.c's #version row.
         return await doextversion(state, {

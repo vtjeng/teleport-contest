@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 721032,
+      "datetime": "20410913131415",
+      "nethackrc": "OPTIONS=name:GenoVariation,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " #genocided\n ",
+      "comment": "Cheap role/race/seed variation reaches the same genocided-species command and no-entry report."
+    }
+  ]
+}
