@@ -14,7 +14,7 @@ const OWNERSHIP_EDGES = Object.freeze([
     ['js/objnam.js', 'Tobjnam', 'The', 1],
     ['js/eat.js', 'food_xname', 'the', 1],
     ['js/sit.js', 'dosit', 'the', 2],
-    ['js/dothrow.js', 'throwit', 'the', 1],
+    ['js/dothrow.js', 'throwit', 'the', 2],
     ['js/do_wear.js', 'on_msg', 'the', 1],
     ['js/do_wear.js', 'select_off', 'the', 1],
     ['js/hack.js', 'dopush', 'the', 1],

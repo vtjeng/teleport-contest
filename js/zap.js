@@ -1544,7 +1544,7 @@ export async function bhit(
             break;
         }
 
-        const mtmp = m_at(x, y, state);
+        let mtmp = m_at(x, y, state);
         const ttmp = t_at(x, y, state);
         if (!mtmp && ttmp && ttmp.ttyp === WEB && random.rn2(3) === 0) {
             if (cansee(x, y, state)) {
@@ -1590,19 +1590,21 @@ export async function bhit(
         // belongs to a call type the head of this function refuses, so only
         // the THROWN_WEAPON half is here.
         //
-        // shade_miss() answers false for every defender that is not a shade,
-        // and js/uhitm.js refuses rather than answering true for one, so the
-        // `mtmp = 0` C writes on a true answer has no reachable site to be
-        // written at. Its false answer still costs a dmgval() roll for a shade
+        // shade_miss() answers false for every defender that is not a shade.
+        // C assigns mtmp = 0 when a shade cannot be hurt, letting the missile
+        // continue; its false answer still costs a dmgval() roll for a shade
         // that the missile can hurt, which is why it is called rather than
         // skipped.
         if (mtmp) {
-            shade_miss(state.youmonst, mtmp, obj, true, true, state, {
-                unsupported: (what) => {
-                    throw new UnsupportedBhitError(what);
+            const passedShade = shade_miss(
+                state.youmonst, mtmp, obj, true, true, state, {
+                    unsupported: (what) => {
+                        throw new UnsupportedBhitError(what);
+                    },
                 },
-            });
-            if (M_AP_TYPE(mtmp) === M_AP_OBJECT) {
+            );
+            if (passedShade) mtmp = null;
+            if (mtmp && M_AP_TYPE(mtmp) === M_AP_OBJECT) {
                 // The three glyph tests at 3987-3989 ask what the hero sees
                 // drawn on the square, which display.c glyph_at() reads out of
                 // gg.gbuf as a glyph number. This port's glyph buffer stores
