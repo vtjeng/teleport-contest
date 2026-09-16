@@ -53235,7 +53235,7 @@
     {
       "id": "port-insight-chronicle-seed0106-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the Chronicle command and canonical source event history",
       "cFile": "insight.c",
       "sessions": [
@@ -53246,8 +53246,8 @@
       "spans": [
         {
           "name": "do_gamelog..show_gamelog",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
           "functions": [
             "do_gamelog",
             "show_gamelog"
@@ -53458,7 +53458,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 11,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "341ff4fdb557c9b6a0a59cdf01c47b462ce93dbd",
+        "screens": 10332,
+        "rng": 756143
+      },
+      "parkedReason": "The completed Chronicle command span passes checkpoint341ff4fd and its independent recording. Final Major-window and broader source-producer entry recordings remain unverified; preserve them while integrating the next fixed mismatch at doconduct199."
     }
   ]
 }
