@@ -2091,7 +2091,8 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
 // answer is 0, which is why a ray across a plain room draws nothing here.
 //
 // The fire arm consumes a web through delfloortrap(), records the discarded
-// melt_ice() and dryup() calls, and handles the water cloud/pit path. The cold,
+// melt_ice() call, invokes fountain.c dryup() through its canonical owner, and
+// handles the water cloud/pit path. The cold,
 // gas, lightning, and acid terrain arms, then the secret-door, closed-door,
 // and floor-object tail, follow in source order.
 export async function zap_over_floor(
@@ -2223,10 +2224,11 @@ export async function zap_over_floor(
             if (seeIt)
                 await message('Steam billows from the fountain.', state, env);
             rangemod -= 1;
-            if (typeof env.dryup === 'function')
-                await env.dryup(x, y, type > 0, state, env);
-            else
-                note_unported('fountain.c dryup');
+            // C zap.c calls fountain.c dryup() directly after the steam
+            // message.  Load the canonical owner lazily because fountain.js
+            // already imports zap.js for elemental resistance.
+            const { dryup } = await import('./fountain.js');
+            await dryup(x, y, type > 0, state, { ...env, random });
         }
         break; /* ZT_FIRE */
     }
