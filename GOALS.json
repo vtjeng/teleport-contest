@@ -50573,13 +50573,13 @@
     {
       "id": "port-trap-landmine-seed0014-20260915-r2",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port trap.c trapeffect_landmine and its complete blow_up_landmine explosion path, including selector admission and mintrap integration, preserving C trap gates, random order, monster and hero effects, trap conversion, pit filling, and source-owned dependency seams.",
       "cFile": "trap.c",
       "sessions": [
         "seed0014-dequa-fountain-explore"
       ],
-      "selectionReason": "The current bounded queue refresh run-GP6UMD at published f38c5066 ranks seed0014-dequa-fountain-explore at step 655 with remainingScreensUpperBound 59 and a complete current investigation. Higher-ranked seed4500 and seed0106/0399 entries are stale investigations or reserved/parked work; seed2200 is machine-local. A14 has now been accepted and published, resolving the investigation’s exact explode.c:scatter dependency. The source:trap.c:trapeffect_landmine scope is unreserved and is the first valid complete investigation available for B after preserving the immutable B18/B19 corrections and parked historical packets.",
+      "selectionReason": "Resume worker B seed0014 continuation at step 655, remainingScreensUpperBound 59, from investigations/seed0014-dequa-fountain-explore.json. B-20260916-1 was assigned before the current investigation refresh and has now delivered complete source-traced landmine work and corrections; integrate this existing independent delivery at its normal handoff. The higher-ranked seed4500 blinding scope remains owned by A; seed0106/0399 remain ready for a later worker selection, and seed2200 is machine-local. This is seed continuation and acceptance of already-owned work, not a claim of global highest rank.",
       "detail": "Current investigation identifies monmove.c postmov() -> trap.c mintrap() -> trapeffect_selector() -> trapeffect_landmine() at seed0014 step 655, with blow_up_landmine() as the required explosion helper. Implement the full source function and production admission/wiring; do not special-case the recording or omit hero/monster branches.",
       "spans": [
         {
@@ -50613,8 +50613,8 @@
         "to": 2660
       },
       "activeStanding": {
-        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
-        "screens": 10084,
+        "sha": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+        "screens": 10086,
         "rng": 741703
       },
       "openMismatches": [
