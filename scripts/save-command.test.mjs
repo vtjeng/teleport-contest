@@ -84,6 +84,11 @@ test('dosave serializes state and ends the segment on Friday 13th', async () => 
         typeof snapshot.moves === 'number' && snapshot.moves > 0,
         `snapshot.moves must be a positive number, got ${snapshot.moves}`,
     );
+    assert.deepEqual(snapshot.gamelog?.[0], {
+        turn: 1,
+        flags: 2,
+        text: 'Sneaky the chaotic female human Rogue entered the dungeon',
+    });
     // dungeon.c savegamestate() serializes svm.mapseenchn independently of
     // the live level. The current level's record must survive the segment.
     assert.deepEqual(snapshot.mapseenchn, game.svm.mapseenchn);

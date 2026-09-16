@@ -48,6 +48,7 @@ import {
     JUMPING,
     KILLED_BY,
     KILLED_BY_AN,
+    LL_ALIGNMENT,
     LUCKADD,
     MAXULEV,
     MOD_ENCUMBER,
@@ -140,6 +141,7 @@ import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
 import { summon_furies } from './makemon.js';
 import { note_unported } from './unported.js';
+import { livelog_printf } from './pline.js';
 import { add_weapon_skill } from './weapon.js';
 
 const EXERCISE_LIMIT = 50;
@@ -1353,8 +1355,6 @@ function Hallucination(state) {
 // conversion), A_CG_HELM_ON (putting on helm of opposite alignment), or
 // A_CG_HELM_OFF (taking it off).
 //
-// livelog_printf() writes a file this port does not produce; the calls are
-// omitted.
 export async function uchangealign(newalign, reason, state = game) {
     const oldalign = state.u.ualign.type;
 
@@ -1365,7 +1365,11 @@ export async function uchangealign(newalign, reason, state = game) {
     state.disp.botl = true;
     if (reason === A_CG_CONVERT) {
         /* conversion via altar */
-        // livelog_printf(LL_ALIGNMENT, "permanently converted to %s", ...)
+        livelog_printf(
+            LL_ALIGNMENT,
+            `permanently converted to ${aligns[1 - newalign]?.adj ?? ''}`,
+            state,
+        );
         state.u.ualignbase[A_CURRENT] = newalign;
         /* worn helm of opposite alignment might block change */
         if (!state.uarmh
@@ -1388,7 +1392,11 @@ export async function uchangealign(newalign, reason, state = game) {
             if (Is_astralevel(state.u?.uz)
                 || (rn2(50) < state.u.ualign.abuse))
                 summon_furies(Is_astralevel(state.u?.uz) ? 0 : 1, state);
-            // livelog_printf(LL_ALIGNMENT, "used a helm to turn %s", ...)
+            livelog_printf(
+                LL_ALIGNMENT,
+                `used a helm to turn ${aligns[1 - newalign]?.adj ?? ''}`,
+                state,
+            );
         } else if (reason === A_CG_HELM_OFF) {
             await ttyPline(
                 `Your mind is ${Hallucination(state) ? 'much of a muchness' : 'back in sync with your body'}.`,

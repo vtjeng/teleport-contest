@@ -64,6 +64,8 @@ import {
     Is_waterlevel,
     KILLED_BY,
     KILLED_BY_AN,
+    LL_CONDUCT,
+    LL_MINORAC,
     LANDMINE,
     LEG,
     LEVEL_TELEP,
@@ -216,6 +218,7 @@ import { update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import { livelog_printf } from './pline.js';
 import {
     deltrap, is_pool, is_pool_or_lava, maketrap, set_utrap, t_at,
 } from './trap.js';
@@ -855,8 +858,14 @@ export async function polymon(mntmp, state = game) {
 
     // KMH, conduct
     u.uconduct ??= {};
+    if (!(u.uconduct.polyselfs ?? 0)) {
+        livelog_printf(
+            LL_CONDUCT,
+            `changed form for the first time, becoming ${an(pmname(mdat, state.flags.female ? FEMALE : MALE))}`,
+            state,
+        );
+    }
     u.uconduct.polyselfs = (u.uconduct.polyselfs || 0) + 1;
-    // livelog_printf for first polymorph — livelog is not ported
 
     // exercise: C does CON then WIS at polyself.c:758-759
     await exercise(A_CON, false, state, { rn2 },
@@ -1166,9 +1175,8 @@ export function change_sex(state = game) {
 
 // ---------- livelog_newform ---------------------------------------------
 // C ref: polyself.c livelog_newform() (306-333). "log a message if
-// non-poly'd hero's gender has changed". The line is built as C builds it;
-// pline.c livelog_printf(), which appends it to the chronicle and the live
-// log, is unported and C discards its result, so the write records its gap.
+// non-poly'd hero's gender has changed". The event is appended to pline.c's
+// in-memory chronicle; its external live-log sink remains unavailable.
 export function livelog_newform(viapoly, oldgend, newgend, state = game) {
     const u = state.u;
     const urole = state.urole;
@@ -1183,13 +1191,11 @@ export function livelog_newform(viapoly, oldgend, newgend, state = game) {
             const newrank = rank_of(u.ulevel, urole.mnum, newgend, state);
             const buf = `${genders[state.flags.female ? 1 : 0].adj.slice(0, 10)}`
                         + ` ${newrank.slice(0, 30)}`;
-            // `line` is the text livelog_printf(LL_MINORAC, "%s into %s",
-            // ...) would append; the append itself is the recorded gap.
             const line = `${viapoly ? 'polymorphed' : 'transformed'} into `
                          + an(newrole !== oldrole ? newrole
                                 : newrank !== oldrank ? newrank
                                     : buf);
-            note_unported('pline.c livelog_printf');
+            livelog_printf(LL_MINORAC, line, state);
         }
     }
 }
@@ -1202,9 +1208,8 @@ export function livelog_newform(viapoly, oldgend, newgend, state = game) {
 // polyman(). A level outside 1..127, or hit points at or below zero without
 // polymorph control, is the "unsuccessful polymorph" death.
 //
-// pline.c livelog_printf() appends to the chronicle and the live log,
-// neither of which the port keeps; C discards its result, so the call
-// records its gap and is skipped. The `dead` flag stands for C's `goto dead`
+// pline.c livelog_printf() appends to the in-memory chronicle and an external
+// live log; only the former is owned here. The `dead` flag stands for C's `goto dead`
 // into the middle of the u.uhp <= 0 arm.
 export async function newman(state = game) {
     const u = state.u;
@@ -1318,7 +1323,11 @@ export async function newman(state = game) {
     /* note: newman() bypasses achievements for new ranks attained and
        doesn't log "new <form>" when that isn't accompanied by level change */
     if (newlvl !== oldlvl)
-        note_unported('pline.c livelog_printf');
+        livelog_printf(
+            LL_MINORAC,
+            `became experience level ${newlvl} as a new ${newform}`,
+            state,
+        );
     else
         livelog_newform(true, oldgend, newgend, state);
 

@@ -49,6 +49,28 @@ import {
     AC_MAX,
     ACH_RNK1,
     ACH_RNK8,
+    ACH_AMUL,
+    ACH_ASTR,
+    ACH_BELL,
+    ACH_BGRM,
+    ACH_BOOK,
+    ACH_CNDL,
+    ACH_ENDG,
+    ACH_HELL,
+    ACH_INVK,
+    ACH_MEDU,
+    ACH_MINE,
+    ACH_MINE_PRIZE,
+    ACH_NOVL,
+    ACH_ORCL,
+    ACH_SOKO,
+    ACH_SOKO_PRIZE,
+    ACH_SHOP,
+    ACH_TOWN,
+    ACH_TMPL,
+    ACH_TUNE,
+    ACH_UWIN,
+    BUFSZ,
     ACID_RES,
     ADORNED,
     AGGRAVATE_MONSTER,
@@ -67,6 +89,7 @@ import {
     DISPLACED,
     DRAIN_RES,
     EDOG,
+    ECMD_OK,
     ENL_GAMEINPROGRESS,
     ENL_GAMEOVERDEAD,
     EXT_ENCUMBER,
@@ -102,6 +125,16 @@ import {
     JUMPING,
     LEVITATION,
     LIFESAVED,
+    LL_ACHIEVE,
+    LL_ARTIFACT,
+    LL_DIVINEGIFT,
+    LL_DUMP,
+    LL_GENOCIDE,
+    LL_LIFESAVE,
+    LL_MINORAC,
+    LL_SPOILER,
+    LL_UMONST,
+    LL_WISH,
     LOW_PM,
     M_AP_NOTHING,
     MALE,
@@ -170,14 +203,14 @@ import {
 import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
-import { enc_stat } from './display.js';
+import { enc_stat, rank_of } from './display.js';
 import { depth, dunlev, endgamelevelname } from './dungeon.js';
 import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
 import { inv_weight, near_capacity } from './hack.js';
 import {
-    lcase, lowc, highc, mungspaces, ordin, strsubst,
+    lcase, lowc, highc, mungspaces, ordin, strsubst, truncateByteString,
 } from './hacklib.js';
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
@@ -196,6 +229,7 @@ import {
     ROBE,
     SHIELD_OF_REFLECTION,
     TOWEL,
+    OBJ_NAME,
 } from './objects.js';
 import { stuck_ring } from './do_wear.js';
 import { magic_negation } from './mhitu.js';
@@ -237,6 +271,7 @@ import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
 import { body_part, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
 import { mhidden_description } from './startup_a11y.js';
+import { displayTtyTextWindow } from './tty_menu.js';
 import {
     genders,
     rankOf,
@@ -247,6 +282,8 @@ import {
 import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
+import { livelog_printf } from './pline.js';
+import { note_unported } from './unported.js';
 import { hidden_gold } from './vault.js';
 import { find_mac } from './worn.js';
 import {
@@ -1730,23 +1767,11 @@ export async function enlightenment(mode, final, state = game) {
     return lines;
 }
 
-// C ref: insight.c record_achievement(). exper.c pluslvl() is the only caller
-// this port reaches, and it always passes a rank achievement.
-//
-// Appending to u.uachieved[] is the whole reachable body. Three of C's other
-// effects have no owner here and reach nothing observable:
-//
-//   SoundAchievement()   the optional sound interface
-//   livelog_printf()     a file this port cannot write, the treatment
-//                        recorded at js/do.js:658-660. Its three arms are the
-//                        only readers of botl.c rank_to_xlev(), of
-//                        achieve_msg[] and of the `program_state.gameover`
-//                        early return, so none of those has a consumer either
-//   impossible()         a corrupt achievement index, which pluslvl() cannot
-//                        produce because xlev_to_rank() answers 1..8 for
-//                        every level it reaches. The range test below throws
-//                        rather than warning, so a wrong index cannot be
-//                        recorded silently
+// C ref: insight.c record_achievement() (2406-2471). The achievement list is
+// kept in u.uachieved, while the chronicle event is owned by pline.c. The
+// optional SoundAchievement() interface has no browser owner and is recorded
+// as a discarded side effect; all state and text used by the source event is
+// retained here.
 export function record_achievement(achidx, state = game) {
     const u = state.u;
     const absidx = Math.abs(achidx);
@@ -1769,9 +1794,89 @@ export function record_achievement(achidx, state = game) {
         }
     }
 
+    // C plays the achievement sound even for a duplicate. The sound result is
+    // discarded by its caller and the browser has no sound-achievement owner.
+    note_unported('sounds.c SoundAchievement');
     if (repeat_achievement)
         return; /* already recorded, don't duplicate it */
     u.uachieved[i] = achidx;
+
+    // Final disclosure records the achievement list but deliberately omits
+    // the ordinary chronicle event; really_done() owns the separate ascension
+    // entry in C.
+    if (state.program_state?.gameover)
+        return;
+
+    if (absidx >= ACH_RNK1 && absidx <= ACH_RNK8) {
+        const rank = absidx - (ACH_RNK1 - 1);
+        const level = rank < 1 ? 1 : rank < 2 ? 3
+            : rank < 8 ? rank * 4 - 2 : 30;
+        const title = rank_of(
+            level,
+            state.urole?.mnum,
+            achidx < 0,
+            state,
+        );
+        livelog_printf(
+            rank < 4 ? LL_MINORAC | LL_DUMP : LL_ACHIEVE,
+            `attained the rank of ${title} (level ${state.u.ulevel})`,
+            state,
+        );
+    } else if (absidx === ACH_MINE_PRIZE || absidx === ACH_SOKO_PRIZE) {
+        const tracking = state.context?.achieveo ?? {};
+        const otyp = absidx === ACH_SOKO_PRIZE
+            ? tracking.soko_prize_otyp
+            : tracking.mines_prize_otyp;
+        const msg = absidx === ACH_SOKO_PRIZE
+            ? 'acquired the Sokoban'
+            : "acquired the Mines' End";
+        const flags = absidx === ACH_SOKO_PRIZE
+            ? LL_ACHIEVE | LL_SPOILER : LL_ACHIEVE | LL_SPOILER;
+        livelog_printf(
+            flags,
+            `${msg} ${OBJ_NAME(state.objects?.[otyp], state) ?? ''}`,
+            state,
+        );
+    } else {
+        const messages = {
+            [ACH_BELL]: 'acquired the Bell of Opening',
+            [ACH_HELL]: 'entered Gehennom',
+            [ACH_CNDL]: 'acquired the Candelabrum of Invocation',
+            [ACH_BOOK]: 'acquired the Book of the Dead',
+            [ACH_INVK]: 'performed the invocation',
+            [ACH_AMUL]: 'acquired The Amulet of Yendor',
+            [ACH_ENDG]: 'entered the Elemental Planes',
+            [ACH_ASTR]: 'entered the Astral Plane',
+            [ACH_UWIN]: 'ascended',
+            [ACH_MEDU]: 'killed Medusa',
+            [ACH_MINE]: 'entered the Gnomish Mines',
+            [ACH_TOWN]: 'reached Mine Town',
+            [ACH_SHOP]: 'entered a shop',
+            [ACH_TMPL]: 'entered a temple',
+            [ACH_ORCL]: 'consulted the Oracle',
+            [ACH_NOVL]: 'read a Discworld novel',
+            [ACH_SOKO]: 'entered Sokoban',
+            [ACH_BGRM]: 'entered the Bigroom',
+            [ACH_TUNE]: "learned castle drawbridge's tune",
+        };
+        const flags = {
+            [ACH_MINE]: LL_MINORAC | LL_DUMP,
+            [ACH_TOWN]: LL_ACHIEVE,
+            [ACH_SHOP]: LL_MINORAC,
+            [ACH_TMPL]: LL_MINORAC,
+            [ACH_ORCL]: LL_ACHIEVE,
+            [ACH_NOVL]: LL_MINORAC | LL_DUMP,
+            [ACH_SOKO]: LL_ACHIEVE,
+            [ACH_BGRM]: LL_ACHIEVE,
+            [ACH_TUNE]: LL_MINORAC,
+            [ACH_MEDU]: LL_ACHIEVE | LL_UMONST,
+        };
+        livelog_printf(
+            flags[absidx] ?? LL_ACHIEVE,
+            messages[absidx] ?? '',
+            state,
+        );
+    }
 }
 
 // C ref: insight.c remove_achievement() (2476-2493). The signed value keeps
@@ -1789,6 +1894,41 @@ export function remove_achievement(achidx, state = game) {
         ++index;
     } while (achievements[index]);
     return true;
+}
+
+// C ref: insight.c do_gamelog() (2532-2544) and show_gamelog()
+// (2561-2595). The linked list is stored by pline.c; this function only
+// selects and formats it. displayTtyTextWindow owns NHW_TEXT's blocking
+// display and dismissal, preserving the command's wait for input.
+const LL_MAJORS = LL_WISH | LL_ACHIEVE | LL_UMONST | LL_DIVINEGIFT
+    | LL_LIFESAVE | LL_ARTIFACT | LL_GENOCIDE | LL_DUMP;
+
+export async function show_gamelog(final = ENL_GAMEINPROGRESS,
+                                   state = game,
+                                   { displayTextWindow = displayTtyTextWindow } = {}) {
+    const isFinal = Boolean(final);
+    const lines = [`${isFinal ? 'Major' : 'Logged'} events:`];
+    let eventCount = 0;
+    for (const event of state.gamelog ?? []) {
+        if (isFinal && !(event.flags & LL_MAJORS)) continue;
+        if (!isFinal && !state.wizard && (event.flags & LL_SPOILER)) continue;
+        if (!eventCount++) lines.push(' Turn');
+        lines.push(truncateByteString(
+            `${String(event.turn).padStart(5, ' ')}: ${event.text}`,
+            BUFSZ - 1,
+        ));
+    }
+    if (!eventCount) lines.push(' none');
+    await displayTextWindow(state, lines.map((text) => ({ text })));
+}
+
+export async function do_gamelog(state = game,
+                                 { displayTextWindow = displayTtyTextWindow } = {}) {
+    if (state.gamelog?.length)
+        await show_gamelog(ENL_GAMEINPROGRESS, state, { displayTextWindow });
+    else
+        await ttyPline('No chronicled events.', state);
+    return ECMD_OK;
 }
 
 // C ref: insight.c achieve_rank(). The complement encodes a female hero so

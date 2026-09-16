@@ -20,6 +20,7 @@ import {
     HEADSTONE,
     ICE,
     LEVITATION,
+    LL_CONDUCT,
     MARK,
     N_ENGRAVE,
     P_BASIC,
@@ -54,6 +55,7 @@ import {
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
+import { livelog_printf } from './pline.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -289,8 +291,15 @@ export async function doengrave(state, env) {
     if (bytes.some((byte) => byte < 0x20 || byte > 0x7e) || nonspaces > 10)
         throw new UnsupportedEngraveError('at most ten printable ASCII bytes');
 
-    if (nonspaces !== 1 || (!text.includes('x') && !text.includes('X')))
-        state.u.uconduct.literate++;
+    state.u.uconduct ??= {};
+    if (nonspaces !== 1 || (!text.includes('x') && !text.includes('X'))) {
+        if (!state.u.uconduct.literate++)
+            livelog_printf(
+                LL_CONDUCT,
+                `became literate by engraving "${text}"`,
+                state,
+            );
+    }
 
     const mixed = [];
     for (const byte of bytes) {

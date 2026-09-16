@@ -30,6 +30,8 @@ import {
     HALLUC_RES,
     HAND,
     INFRAVISION,
+    LL_ARTIFACT,
+    LL_CONDUCT,
     ismnum,
     MALE,
     MD_PAD_BOGONS,
@@ -142,7 +144,8 @@ import {
     VENOM_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from './objects.js';
 import {
-    an, is_plural, just_an, safe_qbuf, simpleonames, The, vtense,
+    an, ansimpleoname, bare_artifactname, is_plural, just_an, safe_qbuf,
+    simpleonames, The, vtense,
     xnameFresh, Ysimple_name2,
 } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
@@ -151,7 +154,7 @@ import { rn1, rn2, rn2_on_display_rng, rnd_on_display_rng } from './rng.js';
 import { getlin } from './windows.js';
 import { note_unported } from './unported.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
-import { verbalize } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import { wipeout_text } from './engrave.js';
 import { acurr } from './attrib.js';
 import { hides_under } from './mondata.js';
@@ -293,14 +296,24 @@ export function oname(obj, name, oflgs, env = {}) {
         if (obj.unpaid)
             alter_cost(obj, 0, state);
         if (via_naming) {
-            // do_name.c:414-424 violates illiteracy conduct and writes a
-            // livelog event. The counter is gameplay state; the file event is
-            // outside the browser port.
             state.u.uconduct ??= {};
+            const firstNaming = !(state.u.uconduct.literate ?? 0);
             state.u.uconduct.literate = Math.trunc(
                 state.u.uconduct.literate ?? 0,
             ) + 1;
-            note_unported('do_name.c livelog_printf()');
+            if (firstNaming) {
+                livelog_printf(
+                    LL_CONDUCT | LL_ARTIFACT,
+                    `became literate by naming ${bare_artifactname(obj, state)}`,
+                    state,
+                );
+            } else {
+                livelog_printf(
+                    LL_ARTIFACT,
+                    `chose ${ansimpleoname(obj, state)} to be named "${bare_artifactname(obj, state)}"`,
+                    state,
+                );
+            }
         }
     }
     if (carried(obj) && !skip_inv_update)

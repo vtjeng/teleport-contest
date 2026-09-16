@@ -163,6 +163,8 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
     );
     // restoregamestate() restores the overview chain before gameplay resumes.
     assert.deepEqual(game.svm.mapseenchn, savedSnapshot.mapseenchn);
+    assert.deepEqual(game.gamelog, savedSnapshot.gamelog,
+        'restore must rebuild the saved chronicle entries');
 
     // Check that the save file was deleted after successful restore
     // (C ref: dorecover():904 delete_savefile).

@@ -222,6 +222,18 @@ export function dorestore(state = game) {
     state.multi_reason = snapshot.multi_reason ?? null;
     if (snapshot.ubirthday != null) state.ubirthday = snapshot.ubirthday;
     if (snapshot.urealtime != null) state.urealtime = snapshot.urealtime;
+    // C restore.c:restore_gamelog() rebuilds gg.gamelog by calling
+    // gamelog_add() for each serialized line. Keep the saved linked-list
+    // order and the producer's original turn timestamps.
+    if (Array.isArray(snapshot.gamelog)) {
+        state.gamelog = snapshot.gamelog.map((entry) => ({
+            turn: entry.turn,
+            flags: entry.flags,
+            text: entry.text,
+        }));
+    } else {
+        state.gamelog = [];
+    }
     // C ref: restore.c:625. Reset the timing epoch to the current clock so
     // fmt_elapsed_time counts from restore, not from the original session.
     state.urealtime.start_timing = getnow(state);

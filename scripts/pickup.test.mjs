@@ -628,7 +628,7 @@ test('pickup preflights every reachable addinv dependency before unlinking',
             {
                 name: 'Archeologist scroll label',
                 otyp: SCR_IDENTIFY,
-                expected: /archeologistDeciphersScroll is not available/u,
+                accepts: true,
                 prepare(object, state) {
                     state.urole = { ...state.urole, filecode: 'Arc' };
                     state.objects[object.otyp].oc_name_known = 0;
@@ -651,6 +651,24 @@ test('pickup preflights every reachable addinv dependency before unlinking',
             const object = typedObjectUnderHero(state, specimen.otyp);
             specimen.prepare?.(object, state);
             const links = { nobj: object.nobj, nexthere: object.nexthere };
+
+            if (specimen.accepts) {
+                // The source branch prints the deciphering line and the
+                // ordinary pickup description, each of which can pause on
+                // --More--. Feed enough dismissals to inspect the resulting
+                // state instead of retaining the obsolete hook refusal.
+                state.nhDisplay.terminal._inputQueue.push(
+                    ...new Array(8).fill(' '.charCodeAt(0)),
+                );
+                await pickup(1, state);
+                assert.equal(
+                    state.gamelog.at(-1)?.text,
+                    'became literate by deciphering a scroll label',
+                    specimen.name,
+                );
+                assert.equal(object.where, OBJ_INVENT, specimen.name);
+                continue;
+            }
 
             await assert.rejects(
                 () => pickup(1, state),

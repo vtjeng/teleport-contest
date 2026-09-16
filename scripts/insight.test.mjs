@@ -22,14 +22,18 @@ import {
     attrval,
     attributes_enlightenment,
     cause_known,
+    do_gamelog,
     enlightenment,
     fmt_elapsed_time,
     N_times,
     size_str,
+    show_gamelog,
+    record_achievement,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
 import { item_what } from '../js/zap.js';
+import { gamelog_add, livelog_printf } from '../js/pline.js';
 import {
     ART_GRAYSWANDIR,
 } from '../js/artifacts.js';
@@ -44,6 +48,12 @@ import {
     HALLUC_RES,
     HVY_ENCUMBER,
     LEVITATION,
+    LL_ACHIEVE,
+    LL_CONDUCT,
+    LL_SPOILER,
+    ACH_BELL,
+    ACH_MINE_PRIZE,
+    ACH_RNK4,
     LIFESAVED,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
@@ -1507,4 +1517,91 @@ test('final blocked shape changes use source past wording', async () => {
     assert.ok(lines.includes(
         ' You would have changed shape periodically if not locked into your current form.',
     ));
+});
+
+// insight.c:show_gamelog() walks the linked list in insertion order, hides
+// spoiler events during an in-progress view, and keeps only major flags for a
+// final view. The injected text-window owner makes those source filters
+// independently testable without mutating the live terminal.
+test('show_gamelog preserves source order and final filters', async () => {
+    const events = [
+        { turn: 1, flags: LL_ACHIEVE, text: 'entered' },
+        { turn: 2, flags: LL_CONDUCT, text: 'conduct' },
+        { turn: 3, flags: LL_SPOILER, text: 'spoiler' },
+    ];
+    const state = { gamelog: events, wizard: false };
+    const windows = [];
+    const displayTextWindow = (_state, lines) => {
+        windows.push(lines.map((line) => line.text));
+    };
+
+    await show_gamelog(ENL_GAMEINPROGRESS, state, { displayTextWindow });
+    assert.deepEqual(windows[0], [
+        'Logged events:', ' Turn', '    1: entered', '    2: conduct',
+    ]);
+
+    await show_gamelog(1, state, { displayTextWindow });
+    assert.deepEqual(windows[1], [
+        'Major events:', ' Turn', '    1: entered',
+    ]);
+});
+
+test('do_gamelog dispatches the in-progress chronicle window', async () => {
+    const windows = [];
+    const state = {
+        gamelog: [{ turn: 7, flags: LL_ACHIEVE, text: 'entry' }],
+        wizard: false,
+    };
+    const result = await do_gamelog(state, {
+        displayTextWindow: (_state, lines) => {
+            windows.push(lines.map((line) => line.text));
+        },
+    });
+    assert.equal(result, 0);
+    assert.deepEqual(windows, [['Logged events:', ' Turn', '    7: entry']]);
+});
+
+// pline.c stores the producer-provided turn and appends without reordering;
+// livelog_printf() uses svm.moves at the call site rather than reconstructing
+// a timestamp from another conduct counter.
+test('gamelog_add and livelog_printf retain C event fields', () => {
+    const state = { moves: 23 };
+    gamelog_add(LL_CONDUCT, 4, 'first', state);
+    livelog_printf(LL_ACHIEVE, 'second', state);
+    assert.deepEqual(state.gamelog, [
+        { turn: 4, flags: LL_CONDUCT, text: 'first' },
+        { turn: 23, flags: LL_ACHIEVE, text: 'second' },
+    ]);
+});
+
+// insight.c record_achievement() supplies dynamic rank text and the two
+// object-bearing prize messages before handing the line to pline.c.
+test('record_achievement appends source rank and prize events', async () => {
+    const state = await readyGame();
+    state.gamelog = [];
+    state.u.uachieved = [];
+    record_achievement(ACH_RNK4, state);
+    assert.equal(state.gamelog.length, 1);
+    assert.equal(state.gamelog[0].flags, LL_ACHIEVE);
+    assert.match(state.gamelog[0].text, /^attained the rank of /u);
+    assert.match(state.gamelog[0].text, /\(level 1\)$/u);
+
+    state.gamelog = [];
+    state.u.uachieved = [];
+    state.context.achieveo = { mines_prize_otyp: LUCKSTONE };
+    record_achievement(ACH_MINE_PRIZE, state);
+    assert.deepEqual(state.gamelog, [{
+        turn: state.moves,
+        flags: LL_ACHIEVE | LL_SPOILER,
+        text: "acquired the Mines' End luckstone",
+    }]);
+    // A static achievement uses the table entry and duplicate calls only
+    // replay the discarded sound side effect, never append a second line.
+    state.gamelog = [];
+    state.u.uachieved = [];
+    record_achievement(ACH_BELL, state);
+    record_achievement(ACH_BELL, state);
+    assert.deepEqual(state.gamelog.map((event) => event.text), [
+        'acquired the Bell of Opening',
+    ]);
 });

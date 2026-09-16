@@ -47,6 +47,7 @@ import {
     MAXULEV,
     NOTELL,
     IS_OBSTRUCTED,
+    LL_CONDUCT,
     nothing_happens,
     PARANOID_CONFIRM,
     PARANOID_PRAY,
@@ -88,6 +89,7 @@ import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { near_capacity, nomul, You_can_move_again } from './hack.js';
+import { livelog_printf } from './pline.js';
 import { dist2 } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
@@ -869,11 +871,10 @@ export async function dopray(state = game) {
             return ECMD_OK;
     }
 
-    /* breaking conduct should probably occur in can_pray() at "You begin
-     * praying to %s" ... -- C's livelog_printf(LL_CONDUCT) on the first
-     * prayer writes gg.gamelog and the live-log file, neither of which this
-     * port has; the conduct counter itself is saved state, so it is kept.
-     */
+    // C logs the first broken gnostic conduct before can_pray() may refuse
+    // the prayer. The counter and chronicle entry advance together.
+    if (!state.u.uconduct.gnostic)
+        livelog_printf(LL_CONDUCT, 'rejected atheism with a prayer', state);
     state.u.uconduct.gnostic++;
 
     /* set up p_type and p_alignment */

@@ -5,6 +5,7 @@
 import {
     A_WIS,
     LARGEST_INT,
+    LL_MINORAC,
     MAGICAL_BREATHING,
     MAXULEV,
     NATTK,
@@ -14,6 +15,7 @@ import {
 import { adjabil, acurr, newhp, setuhpmax } from './attrib.js';
 import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
+import { livelog_printf } from './pline.js';
 import { achieve_rank, record_achievement } from './insight.js';
 import { amphibious, extra_nasty } from './mondata.js';
 import {
@@ -57,6 +59,9 @@ export async function losexp(drainer = null, state = game, env = {}) {
         );
     }
     u.uexp = 0;
+    // C's level-one divine-anger arm records this minor achievement after
+    // resetting experience and before the remaining HP bookkeeping.
+    livelog_printf(LL_MINORAC, 'lost all experience', state);
     state.disp ??= {};
     state.disp.botl = true;
 }
@@ -280,9 +285,8 @@ export async function newexplevel(state = game, env = {}) {
 //
 // The Upolyd block, which adds monhp_per_lvl() to u.mh, cannot run because
 // js/u_init.js is this port's only writer of u.umonnum and sets it equal to
-// u.umonster. livelog_printf() writes a file this port cannot write, the
-// treatment recorded at js/do.js:658-660. It is the only reader of C's
-// `old_ach_cnt`, so count_achievements() has no consumer here either.
+// u.umonster. livelog_printf() writes an external file this port cannot
+// write, while its in-memory chronicle event is retained by pline.js.
 export async function pluslvl(incr, state = game, env = {}) {
     const message = env.message;
     if (typeof message !== 'function')
@@ -333,9 +337,22 @@ export async function pluslvl(incr, state = game, env = {}) {
         /* give new intrinsics; adjabil() prints through the same owner so a
            You_feel() gain shares this call's --More-- chain */
         await adjabil(u.ulevel - 1, u.ulevel, state, { message });
+        // C counts achievements after adjabil() and before record_achievement
+        // so a newly attained rank supplies its own event. A recovered level
+        // or a level without a new rank gets the simpler minor event instead.
+        const oldAchievementCount = (u.uachieved ?? [])
+            .filter(Boolean).length;
         const newrank = xlev_to_rank(u.ulevel);
         if (newrank > oldrank)
             record_achievement(achieve_rank(newrank, state), state);
+        if ((u.uachieved ?? []).filter(Boolean).length
+            === oldAchievementCount) {
+            livelog_printf(
+                LL_MINORAC,
+                `${u.ulevel <= u.ulevelpeak ? 're' : ''}gained experience level ${u.ulevel}`,
+                state,
+            );
+        }
         if (u.ulevel > u.ulevelpeak) u.ulevelpeak = u.ulevel;
     }
     state.disp.botl = true;
