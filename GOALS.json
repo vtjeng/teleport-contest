@@ -50573,7 +50573,7 @@
     {
       "id": "port-trap-landmine-seed0014-20260915-r2",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port trap.c trapeffect_landmine and its complete blow_up_landmine explosion path, including selector admission and mintrap integration, preserving C trap gates, random order, monster and hero effects, trap conversion, pit filling, and source-owned dependency seams.",
       "cFile": "trap.c",
       "sessions": [
@@ -50695,7 +50695,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
+        "screens": 10084,
+        "rng": 741703
+      },
+      "parkedReason": "User requested loop pause. B-r2-20 landmine implementation remains unvalidated and is preserved in the archived worker stash; resume the open span only after an explicit restart with the required seed0014 witness."
     },
     {
       "id": "div-steal-urgent-pline-seed4500-20260915-r2",
