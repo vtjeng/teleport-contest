@@ -1787,7 +1787,7 @@ test('empty-shop suppression resets with each recorder segment', async () => {
     }
 });
 
-test('the first later room family remains a named live generation boundary',
+test('the first later room family reaches the LEPREHALL population boundary',
     async () => {
         let boundary = null;
         await runSegment({
@@ -1803,7 +1803,10 @@ test('the first later room family remains a named live generation boundary',
         }, { onBoundary: (error) => { boundary = error; } });
 
         assert.equal(boundary?.name, 'UnsupportedSpecialRoomError');
-        assert.equal(boundary?.message, 'unsupported special room: do_mkroom(11)');
+        assert.equal(
+            boundary?.message,
+            'unsupported special room: fill_special_room(11) beyond the Morgue boundary',
+        );
         assert.equal(game.u.uz.dlevel, 6);
         assert.equal(game._commandDispatchCount, 2);
     });
