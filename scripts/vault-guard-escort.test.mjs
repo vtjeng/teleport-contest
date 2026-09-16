@@ -268,7 +268,11 @@ test('gd_move waits for the cleanup disappearance message', async () => {
         random: fixedRng([]),
         message,
     });
-    for (let i = 0; i < 10 && messages.length === 0; ++i)
+    // wallify_vault() may finish a source-order migration on an awaited
+    // cleanup path before the disappearance pline starts.
+    for (let i = 0; i < 10
+        && !messages.some((text) => text.endsWith('disappears.'));
+        ++i)
         await Promise.resolve();
     assert.match(
         messages.at(-1),

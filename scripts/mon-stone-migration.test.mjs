@@ -112,7 +112,7 @@ test('m_into_limbo records limbo migration destination and source map state',
         await hero();
         const monster = placeFixture(fixture(PM_CLAY_GOLEM));
         monster.mtrack = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
-        m_into_limbo(monster, game, env());
+        await m_into_limbo(monster, game, env());
 
         assert.equal(m_at(monster.mx, monster.my, game), null);
         assert.ok(monster.mstate & MON_LIMBO);
@@ -121,3 +121,28 @@ test('m_into_limbo records limbo migration destination and source map state',
         assert.equal(monster.my, 0);
         assert.equal(game.gm.migrating_mons, monster);
     });
+
+test('m_into_limbo waits for swallowed unstuck before migration', async () => {
+    await hero();
+    const monster = placeFixture(fixture(PM_CLAY_GOLEM));
+    monster.mtrack = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
+    game.u.ustuck = monster;
+    game.u.uswallow = 1;
+    const order = [];
+    const release = env();
+    release.docrt = async () => order.push('docrt');
+    release.redraw = () => order.push('redraw');
+    release.visionRecalc = (control) => {
+        order.push(`vision${control}`);
+        if (control === 0) game.vision_full_recalc = 0;
+    };
+
+    await m_into_limbo(monster, game, release);
+
+    assert.deepEqual(order.slice(0, 3), [
+        'vision2', 'docrt', 'vision0',
+    ]);
+    assert.equal(monster.mx, 0);
+    assert.equal(monster.my, 0);
+    assert.equal(game.u.ustuck, null);
+});

@@ -191,7 +191,7 @@ function blackout(x, y, state) {
 // from the vault to the rest of the map. If the guard or hero is still inside
 // or visible corridor cells cannot be cleared yet, returns false and the
 // corridor stays for now.
-function clear_fcorr(grd, forceshow, state, env) {
+async function clear_fcorr(grd, forceshow, state, env) {
     const egrd = EGD(grd);
     if (!on_level(egrd.gdlevel, state.u.uz)) return true;
 
@@ -221,7 +221,7 @@ function clear_fcorr(grd, forceshow, state, env) {
             } else {
                 // Tame monster: yelp is not exercised in the witness path.
                 if (!rloc(mtmp, RLOC_MSG, { state })) {
-                    m_into_limbo(mtmp, state, env);
+                    await m_into_limbo(mtmp, state, env);
                 }
             }
         }
@@ -255,8 +255,8 @@ function clear_fcorr(grd, forceshow, state, env) {
 // try to make the guard disappear. If clear_fcorr fails (hero or guard still
 // in the way), the guard remains parked at (0,0) and restfakecorr will be
 // retried on the next gd_move call.
-function restfakecorr(grd, state, env) {
-    if (clear_fcorr(grd, false, state, env)) {
+async function restfakecorr(grd, state, env) {
+    if (await clear_fcorr(grd, false, state, env)) {
         grd.isgd = 0; // dmonsfree() should delete this mon
         // The guard was parked at (0,0) by parkguard(). JS's mongone checks
         // isok(mx,my) which is false for (0,0), so it won't clean the grid
@@ -286,7 +286,7 @@ function parkguard(grd, state) {
 // guard escort is done. Gold at wall positions moves into the vault, rocks and
 // boulders are subsumed into walls, traps are destroyed, and the vault
 // boundary is rebuilt.
-function wallify_vault(grd, state, env) {
+async function wallify_vault(grd, state, env) {
     const vlt = EGD(grd).vroom;
     const room = state.level.rooms[vlt];
     const lox = room.lx - 1;
@@ -311,7 +311,7 @@ function wallify_vault(grd, state, env) {
                 const mon = m_at(x, y, state);
                 if (mon && mon !== grd) {
                     if (!rloc(mon, RLOC_MSG, { state })) {
-                        m_into_limbo(mon, state, env);
+                        await m_into_limbo(mon, state, env);
                     }
                 }
                 // Gold at wall position: move into vault
@@ -387,7 +387,7 @@ function wallify_vault(grd, state, env) {
 
 // C ref: vault.c gd_mv_monaway() (733-747). Move a monster out of the guard's
 // way at position (nx, ny).
-function gd_mv_monaway(grd, nx, ny, state, env) {
+async function gd_mv_monaway(grd, nx, ny, state, env) {
     const mtmp = m_at(nx, ny, state);
     if (mtmp && mtmp !== grd) {
         if (!Deaf(state)) {
@@ -395,7 +395,7 @@ function gd_mv_monaway(grd, nx, ny, state, env) {
         }
         if (!rloc(mtmp, RLOC_ERR | RLOC_MSG, { state })
             || m_at(nx, ny, state)) {
-            m_into_limbo(mtmp, state, env);
+            await m_into_limbo(mtmp, state, env);
         }
         recalc_block_point(nx, ny, state);
     }
@@ -409,8 +409,8 @@ async function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
     const y = grd.my;
     const see_guard = canspotmon(grd, state);
     parkguard(grd, state);
-    wallify_vault(grd, state, env);
-    restfakecorr(grd, state, env);
+    await wallify_vault(grd, state, env);
+    await restfakecorr(grd, state, env);
     if (!semi_dead && (in_fcorridor(grd, state.u.ux, state.u.uy)
         || cansee(x, y, state))) {
         if (!disappear_msg_seen && see_guard)
@@ -469,7 +469,7 @@ export async function gd_move(grd, env = {}) {
     const grd_in_vault = in_rooms(grd.mx, grd.my, VAULT, state).length > 0
         && in_rooms(grd.mx, grd.my, VAULT, state)[0] !== 0;
     if (!u_in_vault && !grd_in_vault)
-        wallify_vault(grd, state, gdEnv);
+        await wallify_vault(grd, state, gdEnv);
 
     if (!grd.mpeaceful) {
         // Hostile guard path: not exercised by the witness
@@ -595,7 +595,7 @@ export async function gd_move(grd, env = {}) {
                 && !sticks(state.youmonst?.data ?? state.u.umonster))) {
             await message('"Move along!"', state, gdEnv);
         }
-        restfakecorr(grd, state, gdEnv);
+        await restfakecorr(grd, state, gdEnv);
         return 0; // didn't move
     }
 
@@ -626,7 +626,7 @@ export async function gd_move(grd, env = {}) {
                     egrd.gddone = 1;
                     if (ACCESSIBLE(typ)) {
                         // goto newpos
-                        gd_mv_monaway(grd, nx, ny, state, gdEnv);
+                        await gd_mv_monaway(grd, nx, ny, state, gdEnv);
                         return gd_move_cleanup(grd, semi_dead, false, state, gdEnv);
                     }
                     crm.typ = (typ === SCORR) ? CORR : DOOR;
@@ -649,7 +649,7 @@ export async function gd_move(grd, env = {}) {
 
 // C ref: vault.c gd_move() lines 1111-1200, the "nextpos" and "proceed"
 // labels. The guard walks toward (gdx, gdy), creating corridor tiles as needed.
-function gd_move_nextpos(grd, x, y, semi_dead, state, env) {
+async function gd_move_nextpos(grd, x, y, semi_dead, state, env) {
     const egrd = EGD(grd);
     let nx = x;
     let ny = y;
@@ -710,7 +710,7 @@ function gd_move_nextpos(grd, x, y, semi_dead, state, env) {
 
 // C ref: vault.c gd_move() lines 1156-1200, the "proceed" and "newpos" labels.
 // Handle unblocking, fakecorr tracking, and actual guard movement.
-function gd_move_proceed(
+async function gd_move_proceed(
     grd, x, y, nx, ny, origTyp, semi_dead, newspot, state, env,
 ) {
     const egrd = EGD(grd);
@@ -748,7 +748,7 @@ function gd_move_proceed(
     }
 
     // newpos label
-    gd_mv_monaway(grd, nx, ny, state, env);
+    await gd_mv_monaway(grd, nx, ny, state, env);
     if (egrd.gddone)
         return gd_move_cleanup(grd, semi_dead, false, state, env);
     egrd.ogx = grd.mx;
@@ -762,7 +762,7 @@ function gd_move_proceed(
     } else {
         newsym(grd.mx, grd.my);
     }
-    restfakecorr(grd, state, env);
+    await restfakecorr(grd, state, env);
     return 1;
 }
 
