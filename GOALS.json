@@ -51222,8 +51222,8 @@
           "name": "mhitm_ad_blnd",
           "line": 2958,
           "endLine": 3014,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -51311,7 +51311,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_blnd",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_blnd",
+            "sourceReview": "Read the complete uhitm.c mhitm_ad_blnd() body at lines 2958-3008 and ported its hero-to-monster, monster-to-hero, and monster-to-monster arms in source order. The implementation preserves each can_blnd gate, visibility feedback, hero timeout calculation, quick-clear vision_clears message, monster mblinded accumulation and 127 cap, mcansee and STRAT_WAITFORU writes, the monster-versus-monster damage roll, and the discarded mhm damage reset. mhitm_adtyping() now dispatches AD_BLND. make_blinded() and toggle_blindness() carry the attack environment through the planning-safe state and message seams; Sting_effects() is the existing artifact owner and now accepts that seam. Remaining source gaps are explicit: ball.c set_bc is recorded with note_unported on the punished live transition, and the existing Archon gazemm caller is unported; neither is claimed complete. Coordinator review limits supporting claims to the new silent attack transitions and clone callbacks: make_blinded retains unsupported talking paths; display.c see_monsters still has its existing unported warning-count change and worm-tail display paths. No complete source evidence is claimed for those helper functions. Hero entry remains blocked in the upstream hmonas caller and monster entry lacks a matching production recording; retain both entries as unverified.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping():4782-4832 dispatches AD_BLND to mhitm_ad_blnd()."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1191 calls mhitm_adtyping() for a monster attack against the hero."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 calls mhitm_adtyping() for a monster attack against a monster."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4854 calls mhitm_adtyping() for a hero attack against a monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/mondata.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/light-vision.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-blnd-fresh.session.json"
+            ],
+            "checkedAt": "5593942c88caecba82ce14ea836e0e74d3e85822"
+          }
+        ],
+        "entryPointReview": "The selected source range has hero-to-monster, monster-to-hero, and monster-to-monster direction arms. The fresh independent recording reaches the production monster-to-hero path through mhitu.c hitmu -> uhitm.c mhitm_adtyping -> mhitm_ad_blnd and matches completely. The hero-to-monster recipe now uses a source-valid raven AT_CLAW attack after clearing the Wizard's equipment and records an explicit BLOCKED result because the production JavaScript hmonas() caller is unported: C reaches damageum()'s d(1,6), while the current JS path consumes rnd(2) before that source call. The monster-to-monster recipe is retained with an explicit BLOCKED comment because the generated hostile raven targets the hero and dies before mhitm.c mdamagem() selects a monster defender. Source-pinned tests cover both blocked direction arms' arithmetic, visibility, strategy, and state behavior. The existing Archon-specific gazemm caller remains unported and is not claimed complete.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_BLND",
+            "functions": [
+              "mhitm_ad_blnd"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-blnd-fresh.session.json"
+            ]
+          },
+          {
+            "name": "hero-to-monster AD_BLND",
+            "functions": [
+              "mhitm_ad_blnd"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-monster AD_BLND",
+            "functions": [
+              "mhitm_ad_blnd"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
