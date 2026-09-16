@@ -51074,6 +51074,111 @@
         "screens": 10086,
         "rng": 741703
       }
+    },
+    {
+      "id": "div-makemon-set-mimic-sym-seed0014-20260916",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Resolve nested shop room indices before mimic appearance selection.",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "Continue worker B seed0014 after the accepted landmine port. The next source-traced mismatch is set_mimic_sym at step 667; this ready independent delivery does not overlap worker A blindness and beam work.",
+      "detail": "At seed0014 step 667, C set_mimic_sym reads a conceptual subroom index through svr.rooms and selects its SHOPBASE rn2(10) branch. JavaScript indexes level.rooms directly, sees no nested entry, and selects ordinary rn2(17). Runtime tracing found roomno 55, index 52, rtype 19. Reuse dungeon.js mapseen_room to resolve the persisted parent/subroom graph. Independent recipe seed8124 reaches Minetown shop mimic generation and matches after this fix.",
+      "spans": [
+        {
+          "name": "nested-shop-room-lookup",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "set_mimic_sym"
+          ]
+        }
+      ],
+      "openedAt": "184edff5a9c890eefef70a5e7ba114407e04f66b",
+      "openStanding": {
+        "sha": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+        "screens": 10101,
+        "rng": 745419
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "set_mimic_sym",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 667,
+      "activeStanding": {
+        "sha": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+        "screens": 10101,
+        "rng": 745419
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 667,
+          "kind": "rng",
+          "function": "set_mimic_sym",
+          "functionDeclared": true,
+          "sourceFile": "makemon.c",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": 2468,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 47,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 47,
+              "status": "complete",
+              "commit": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 667,
+                "kind": "rng",
+                "function": "set_mimic_sym",
+                "functionDeclared": true,
+                "sourceFile": "makemon.c",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": 2468,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 47
+              },
+              "summary": "The landmine stop at step 655 is resolved. The first remaining mismatch is step 667 in set_mimic_sym(): a nested shop room index is missing from the direct JavaScript room array, so the mimic takes the ordinary appearance branch. Worker B has submitted the shared room lookup fix with a matching independent recording; its next worker-only mismatch is priest movement at step 669, now under investigation.",
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "set_mimic_sym"
+                ],
+                "branch": "C reads levl[mx][my].roomno - ROOMOFFSET through the flat svr.rooms allocation, which includes subrooms. At a shop rtype >= SHOPBASE, it consumes rn2(10) before choosing stock. JavaScript reads only level.rooms[roomIndex]; nested shops are stored under parent sbrooms with conceptual roomnoidx values, so the missing direct entry supplies rtype 0 and selects the ordinary MIMIC_SYMBOLS rn2(17) branch.",
+                "callers": [
+                  "nethack-c/upstream/src/makemon.c:2393-2577 defines set_mimic_sym(), with the room lookup at 2405-2415 and shop selection at 2467-2486. makemon() calls it for a newly placed mimic at 1305, including shop-stock mimics.",
+                  "js/makemon_create.js:makemon() calls set_mimic_sym(); its room lookup currently indexes state.level.rooms directly before choosing the shop or ordinary branch.",
+                  "js/mklev.js:add_subroom() persists subrooms under their parent and assigns MAXNROFROOMS + 1 + nsubroom as roomnoidx. js/mines_levels.js generates nested Minetown shops using this representation."
+                ],
+                "dependencies": [
+                  "js/dungeon.js:mapseen_room() already resolves conceptual room indices through top-level rooms and recursive sbrooms; the submitted fix exports and reuses this owner without another room graph or RNG draw.",
+                  "Preserve get_shop_item(), temporary mkobj()/obfree(), monster-based object overlays, fruit state, altar selection and does_block()/block_point() order. Only the source-defined room lookup changes.",
+                  "Worker B delivery 93b6ff5aa25e64c391a92b5f0b09b1496bb8d4b1 is ready with 125 focused tests, lint and a strict fresh differential. It remains separate from the validated landmine candidate."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Checkpoint 25bec4a9fe647b574a4418fef4e1d3e90ac01e93, run-IpwzMi, passed: 30/44 sessions, 10101/11405 screens, 745419/792838 RNG, 10134/11405 cursors; all 259 recordings match. Compared with f0ff954d, seed0014 improves from 655 to 670 matching screens, giving the 15-screen overall gain. New landmine hero/monster recordings contribute 31 matching screens.",
+                "Fresh fixed-workload queue run-Ny5bQI identifies step 667, kind rng, function set_mimic_sym, 47 remaining screens as an upper bound. Every other session retains its investigation count.",
+                "Read complete C set_mimic_sym() and JavaScript room creation/lookup paths. C selects rn2(10)=0 at makemon.c:2468; the old JavaScript fallback selects rn2(17)=10. This is a state/branch mismatch, not a random-bound substitution.",
+                "Worker instrumentation captured the affected mimic at moves 910, depth 3, tile [54,13], roomno 55, conceptual roomIndex 52. level.rooms[52] is undefined; the persisted subroom resolver finds rtype 19, a shop. These are diagnostic facts only; no input or position is special-cased.",
+                "Independent existing blocked recipe recipes/hack.c/minetown-mimic-boundary.session.json uses seed 8124 and a different clock/character. After the room lookup fix, fresh run-E65Kbo matches and recording recordings/hack.c/minetown-mimic-boundary.session.json is included in the immutable delivery.",
+                "A focused worker-only replay after 93b6ff5a moves the first mismatch to step 669 in pri_move(): C consumes rn2(3), while JavaScript consumes rn2(10) before the priest path. Worker B and a read-only helper are tracing its preconditions; this is not yet an accepted main result."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
