@@ -83,8 +83,8 @@ Recheck later work affected by a correction. Other workers continue.
 
 Keep a task's reservations until it is accepted or parked. If a worker has
 already started a second task, accepting its first task releases only the
-first task's reservations. Have workers merge validated main into their
-worktrees at clean task boundaries, preserving pending work and history.
+first task's reservations. After an integration passes combined validation, notify every implementation worker of the accepted main SHA and have each merge it into its worktree at the next clean task boundary, before selecting new work, preserving pending work and submitted commits.
+Workers report the resulting HEAD and rerun focused checks affected by the merge; never rebase or amend submitted delivery commits.
 
 ## Integration and publication
 
@@ -198,6 +198,8 @@ and cache path in the completion message. When the count changes, stop or
 finish the old investigation before replacing it so an old result cannot
 overwrite a newer one. Collect worker findings into main's investigation
 files and publish them at a safe commit boundary.
+Keep the deployed dashboard current with completed and partial investigations and the latest validated score; publish newly available records at the next safe commit boundary without waiting for an implementation delivery.
+After each push, verify the dashboard deployment and its displayed mismatch queue against the published records.
 
 ## Reports
 

@@ -667,12 +667,13 @@ async function relocateToFixedDestination(monster, x, y, env) {
 // C ref: teleport.c tele_restrict() (1950-1960). Returns true when the
 // level forbids teleportation, printing a message if the hero can see the
 // monster.
-export async function tele_restrict(mon, state = game) {
+export async function tele_restrict(mon, state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
     if (noteleport_level(mon, state)) {
         if (canseemon(mon, state)) {
-            await ttyPline(
+            await message(
                 'A mysterious force prevents '
-                    + monsterCommonName(mon, state)
+                    + monsterCommonName(mon, state, 0, rawEnv)
                     + ' from teleporting!',
                 state,
             );

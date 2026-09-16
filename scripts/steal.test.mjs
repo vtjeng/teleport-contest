@@ -25,16 +25,20 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import { count_unpaid } from '../js/invent.js';
-import { AT_ENGL } from '../js/monsters.js';
+import { AT_ENGL, PM_WOOD_NYMPH } from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
 import {
     findgold,
     mpickobj,
     preflight_mpickobj,
     relobj,
+    steal,
     UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
+import { runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
@@ -131,6 +135,57 @@ function state(overrides = {}) {
     init_objects(gameState, () => 0);
     return gameState;
 }
+
+test('steal sends the worn-item preface and theft line to separate callbacks',
+    async () => {
+    // steal.c:326 uses ordinary pline() for worn_item_removal(), while
+    // steal.c:594 uses urgent_pline() for the final line. A zero selector draw
+    // chooses the Valkyrie's wielded weapon, so this reaches both calls and
+    // the W_WEAPONS removal path without depending on a recorded session.
+    const nethackrc = [
+        'OPTIONS=name:CallbackProbe,role:Valkyrie,race:human,gender:female,align:neutral',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        'OPTIONS=pettype:none,!acoustics,time',
+        '',
+    ].join('\n');
+    await runSegment({
+        seed: 7710143,
+        datetime: '20260401120000',
+        nethackrc,
+        moves: '',
+    });
+
+    const nymph = newMonster({
+        data: game.mons[PM_WOOD_NYMPH],
+        m_id: 7043,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mcansee: true,
+        mcanmove: true,
+        mhp: 10,
+        mhpmax: 10,
+        minvent: null,
+    });
+    const ordinary = [];
+    const urgent = [];
+    const randomBounds = [];
+    const result = await steal(nymph, game, {
+        random: {
+            rn2: bound => {
+                randomBounds.push(bound);
+                return 0;
+            },
+        },
+        message: async text => ordinary.push(text),
+        urgentMessage: async text => urgent.push(text),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(randomBounds, [8]);
+    assert.equal(ordinary.length, 1);
+    assert.match(ordinary[0], /^The wood nymph disarms your /u);
+    assert.deepEqual(urgent, ['She stole a +1 spear.']);
+});
 
 test('mpickobj preserves missing and attached-object return values', () => {
     const carrier = monster();
