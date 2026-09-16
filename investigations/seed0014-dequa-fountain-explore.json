@@ -18,7 +18,7 @@
     "recordedSteps": 714,
     "remainingScreensUpperBound": 45
   },
-  "summary": "The mimic mismatch is resolved. At step 669, a nested temple priest has shrine-room number 2 and no recognized temple membership, so JavaScript skips priest movement. Worker B corrected the conceptual room lookup and shrine-room initialization; an independent recording now matches. Focused checks and combined validation remain pending.",
+  "summary": "The current main mismatch is the nested temple priest at step669. Worker B submitted the conceptual room lookup and shrine initialization fix as c8d7f37c, with 154 focused tests and an independent ten-screen recording passing. It is queued for combined validation after the blindness span; the worker has synced published main and is implementing the next fountain warning dependency.",
   "source": {
     "file": "priest.c",
     "functions": [
@@ -47,6 +47,7 @@
     "Focused worker replay reports C rn2(3)=0 at pri_move(priest.c:194) while JS consumes rn2(10)=2 before priest movement. Read-only helper and coordinator source checks identify the nested temple initialization and membership defects. Worker B is collecting the exact runtime state and independent fresh evidence before submission.",
     "The preceding accepted mimic fix resolves conceptual roomno 55/index 52 to shop rtype 19 and removes the C rn2(10) versus JS rn2(17) branch mismatch. Its independent recipe uses seed 8124 and a different clock and character; no session value is special-cased.",
     "Worker B captured the pre-fix priest id 456 at (36,6), epri.shroom=2 and in_rooms(TEMPLE)=[], which makes pri_move return -1 before its two source rn1 calls. In the fixed full replay, the priest has shroom 48, shrine (37,7), level (dnum 2,dlevel 3), map roomno 48/index 45, in_rooms(TEMPLE)=[48], and resolved rtype TEMPLE (10). The source roomnoidx is 45.",
-    "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main."
+    "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main.",
+    "Immutable priest delivery c8d7f37c80662779ea6348f45f011c4d18a41bfe is queued: focused run-Oaz13U 154/154, lint run-75CRuc, independent fresh run-75RoQK 10 screens/cursors and4283 RNG pass. Source owner and current main count45 are unchanged. Post-sync worker HEAD8399ab55459a4c3a3e269025c0d53b0938577ecc passes the affected154-test suite; its continuation reaches dryup town warning, which task B-20260916-4 now owns."
   ]
 }

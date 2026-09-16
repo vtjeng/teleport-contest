@@ -51191,7 +51191,7 @@
     {
       "id": "port-uhitm-mhitm-ad-blnd-seed4500-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port all mhitm_ad_blnd attack directions and their shared blindness transitions.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -51202,8 +51202,8 @@
       "spans": [
         {
           "name": "mhitm_ad_blnd",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "54c48995b41e8b554d743779884ff13a7e01cd0b",
           "functions": [
             "mhitm_ad_blnd"
           ]
@@ -51381,7 +51381,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 1892
+      },
+      "parkedStanding": {
+        "sha": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+        "screens": 10104,
+        "rng": 747316
+      },
+      "parkedReason": "The selected source span and monster-to-hero entry recording pass, but hero-to-monster production entry remains blocked in hmonas and monster-to-monster has no matching entry recording. Current fixed mismatch has advanced to dobuzz at step 997; preserve these entry gaps while integrating the next independent ready priest delivery."
     }
   ]
 }
