@@ -52587,7 +52587,7 @@
     {
       "id": "div-makemon-minotaur-admission-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow the implemented minotaur lifecycle through generic monster creation",
       "cFile": "makemon.c",
       "sessions": [],
@@ -52596,8 +52596,8 @@
       "spans": [
         {
           "name": "minotaur-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "5620e1e2db7c384c622c6a7a828129cc6642763f",
           "functions": [
             "makemon"
           ]
@@ -52609,8 +52609,11 @@
         "screens": 10259,
         "rng": 753589
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5620e1e2db7c384c622c6a7a828129cc6642763f",
+      "delivered": {
+        "screens": 14,
+        "rng": 614
+      },
       "function": "makemon",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1034,
@@ -52694,7 +52697,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "5620e1e2db7c384c622c6a7a828129cc6642763f",
+        "screens": 10273,
+        "rng": 754203
+      }
     }
   ]
 }
