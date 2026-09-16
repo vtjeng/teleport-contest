@@ -52583,6 +52583,126 @@
           }
         ]
       }
+    },
+    {
+      "id": "div-makemon-minotaur-admission-seed4500-20260916",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Allow the implemented minotaur lifecycle through generic monster creation",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "Highest-ranked independent completed investigation: holdout/seed4500-knight-coverage,780-screen suffix at step1034, investigations/holdout/seed4500-knight-coverage.json. Worker A6 is the oldest ready delivery; B8 chronicle corrections became ready later. This is a defect in the admission guard for the existing minotaur lifecycle, not a same-seed continuation of postmov.",
+      "detail": "At step1034 the named wizard-genesis minotaur reaches read.c create_particular_creation -> makemon_runtime -> preflightCreation. C makemon.c1147-1509 has no species allowlist and already-portable minotaur m_initinv owns its WAN_DIGGING gate; JavaScript admits that species only under _fillEmptyMazeMinotaur. Remove that marker from both runtime admission and the stocked-maze caller, preserving generic lifecycle and source newsym then set_apparxy for by-you creation after relocation. Independent Ranger and role/options variation genesis recordings match C, with focused creation and command tests. This divergence scope does not claim completion of all makemon branches.",
+      "spans": [
+        {
+          "name": "minotaur-admission",
+          "status": "closed",
+          "closedBy": "5620e1e2db7c384c622c6a7a828129cc6642763f",
+          "functions": [
+            "makemon"
+          ]
+        }
+      ],
+      "openedAt": "b9f73e9f62fa01dab06e1a2519abe530e74babe3",
+      "openStanding": {
+        "sha": "fe323c00a944128df256d6561f76d05282718db5",
+        "screens": 10259,
+        "rng": 753589
+      },
+      "closedAt": "5620e1e2db7c384c622c6a7a828129cc6642763f",
+      "delivered": {
+        "screens": 14,
+        "rng": 614
+      },
+      "function": "makemon",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1034,
+      "activeStanding": {
+        "sha": "fe323c00a944128df256d6561f76d05282718db5",
+        "screens": 10259,
+        "rng": 753589
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1034,
+          "kind": "stop",
+          "function": "makemon",
+          "functionDeclared": true,
+          "sourceFile": "makemon.c",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 177",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 780,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 780,
+              "status": "complete",
+              "commit": "153fb5a8ff37f5684a897e36cedfa18c7f2b2b56",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1034,
+                "kind": "stop",
+                "function": "makemon",
+                "functionDeclared": true,
+                "sourceFile": "makemon.c",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 177",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 780
+              },
+              "summary": "Main stops at runtime minotaur creation at step 1034. Worker A delivered removal of the obsolete species admission marker and the source newsym/set_apparxy tail, with matching independent genesis cases and a role/option variation. Focused tests and lint pass; combined validation and integration are pending. The queue suffix remains 780 screens.",
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "makemon"
+                ],
+                "branch": "For an explicit PM_MINOTAUR at the hero's coordinates outside mklev, read.c supplies MM_NOEXCLAM and wiz_genesis() temporarily clears debug_mongen. C makemon() has no species allowlist: it moves the explicit monster to a nearby valid square, checks genocide, propagates, allocates it, assigns identity/HP/gender, places it, initializes inventory, wears it, and applies the saddle roll. The current JavaScript preflight species guard runs for this runtime call and admits PM_MINOTAUR only when a fill_empty_maze marker is present, which is false for wiz_genesis().",
+                "callers": [
+                  "nethack-c/upstream/src/wizcmds.c:203-214 wiz_genesis() saves iflags.debug_mongen, clears it, calls create_particular(), and restores it; js/wizcmds.js:212-222 mirrors this production command path.",
+                  "nethack-c/upstream/src/read.c:3137-3249 create_particular_parse() resolves the typed minotaur name to PM_MINOTAUR, and :3252-3357 create_particular_creation() builds MM_NOEXCLAM then calls makemon(whichpm, u.ux, u.uy, mmflags) at :3315; js/read.js:1036-1130 and :1140-1190 mirror the named-species path.",
+                  "js/cmd.js:5959-5970 dispatches wizgenesis through runGenesisCommand(), and js/cmd.js:3444-3448 plus :5139-5140 route it into js/wizcmds.js and then the read/makemon chain."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/makemon.c:1179-1185 calls enexto_core() for the hero-square request; the assigned step records its collect_coords() rn2 sequence before monster construction, so the admission fix must not bypass or reorder that coordinate search.",
+                  "nethack-c/upstream/src/makemon.c:1202-1279 performs the explicit-species genocide check, propagate(), next_ident(), newmonhp(), and gender assignment. The assigned C trace then shows d(16,8)=78 and rn2(2)=1; js/makemon_create.js:3601-3673 owns the corresponding generic lifecycle.",
+                  "nethack-c/upstream/src/makemon.c:1441-1451 calls m_initweap() only for is_armed() species, then m_initinv(), m_dowear(), and the generic rn2(100) saddle check. Minotaur has no AT_WEAP attack, so no weapon-init draws belong in this witness.",
+                  "nethack-c/upstream/src/makemon.c:738-741 gives S_GIANT PM_MINOTAUR a one-in-eight WAN_DIGGING roll; js/makemon_create.js:2466-2474 already implements this branch. The assigned trace records rn2(8)=1 at m_initinv, followed by the existing rn2(50), rn2(100), and makemon saddle rn2(100) tail draws.",
+                  "js/read.js:1140-1190 already supplies the plain named-monster caller and js/makemon_create.js:3879-3930 already supplies makemon_runtime() plus the runtime inventory continuation. The missing behavior is the preflight admission, not a new parser or constructor substitute.",
+                  "js/makemon_create.js:1259-1327 and :1513-1533 contain the injected species allowlist. Its allowMinotaur option is currently true only for js/mklev.js:5584-5593 fill_empty_maze() via _fillEmptyMazeMinotaur; that level-generation caller is a distinct source branch and must remain distinct from runtime wizard genesis."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Bounded focused replay run-2hERtY, receipt /tmp/teleport-validation-1000/run-2hERtY/receipt.json, used only sessions/holdout/seed4500-knight-coverage.session.json at commit 153fb5a8ff37f5684a897e36cedfa18c7f2b2b56. It emitted 1034 screens and stopped at the queue boundary with no earlier behavioral divergence; replay-result is saved at .cache/investigate-seed4500-153fb5a8/replay-result.json.",
+                "The saved queue entry identifies step 1034, function makemon, sourceFile makemon.c, message “unsupported initial-level monster creation: makemon() monster 177”, and remainingScreensUpperBound 780. The witness is seed 4500, 20000601120000, Knight Coverage, one segment, and the input through the stop ends with #wizgenesis followed by minotaur and newline.",
+                "At the stop, the C session records collect_coords() draws, next_ident(mkobj.c:521), d(16,8)=78 at newmonhp(makemon.c:1042), rn2(2)=1 at makemon(makemon.c:1279), rn2(8)=1 at m_initinv(makemon.c:740), rn2(50)=28 and rn2(100)=17 at m_initinv(makemon.c:826), and rn2(100) at makemon(makemon.c:1447). This proves the C path creates the named minotaur and reaches the generic inventory tail after the current JavaScript refusal.",
+                "C read.c:3212 resolves the typed name through name_to_mon(), :3275-3315 reaches the explicit named-species loop and makemon() call, while C wizcmds.c:203-210 establishes the production #wizgenesis caller. JavaScript read.js:1115-1129 resolves the same PM_MINOTAUR and read.js:1171-1173 invokes makemon_runtime(), confirming the caller is already live up to preflight.",
+                "PM_MINOTAUR is catalog index 177 (js/monsters.js:415) with S_GIANT class (js/monsters.js:211); its existing js/makemon_create.js m_initinv arm matches C’s PM_MINOTAUR WAN_DIGGING branch. The refusal therefore comes from assertSupportedSpecies(), not from missing species data or an unimplemented minotaur inventory branch.",
+                "The replay result lists trap.c selftouch and ball.c set_bc as unrelated accumulated unported state after the boundary; neither is the step-1034 cause. No game code, tests, central records, C recorder, score, scan aggregate, or other session was modified.",
+                "Accepted candidate a0342880e606384b48903ac656ccc92a770b232c checkpoint run-r1BdaY passes: 31/44 sessions,10249/11405 screens,753558/792838 RNG,10271/11405 cursors,267/267 recordings. The beam span adds37 screens,993 RNG values and two independent monster-breath recordings totaling45 screens and6243 RNG calls. The prior candidate153fb5a8 matched the same recordings and score but failed an obsolete naming-call inventory count; correction7ead0433 changes that test from2 to3 after verifying all calls forward state.",
+                "The beam source goal remains parked after span acceptance because monster-to-monster breath, hero spell/polymorph/horn, monster spell, priest/storm and forced-miss ray entries lack matching production evidence. Verified entries are monster-to-hero fire breath and the existing hero fire-wand reflection recording. Runtime minotaur admission is a separate source-traced next goal, not unverified beam scope.",
+                "Immutable minotaur delivery b45491d463555c3738f1674737491096bfccc28c and variation correction fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d preserve generic runtime and stocked-maze callers without the former _fillEmptyMazeMinotaur/allowMinotaur marker. A fresh Ranger genesis case matches2852 RNG and12 screens; an independent role/options variation also matches. Source identity, HP/gender, placement and inventory ordering are covered by focused makemon and wizard-genesis checks. Coordinator integration remains pending.",
+                "Worker A independently claimed A7 from fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d after a focused seed4500 continuation reached step1048. Its source trace identifies hack.c domove_fight_empty: C consults a remembered invisible glyph and does not describe a floor statue unless glyph_is_statue holds; JavaScript looked up the statue unconditionally. The worker reports a source-aligned correction progressing to a separate mon.c invisible-marker planning boundary; A7 remains unvalidated and is not main progress."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "5620e1e2db7c384c622c6a7a828129cc6642763f",
+        "screens": 10273,
+        "rng": 754203
+      }
     }
   ]
 }
