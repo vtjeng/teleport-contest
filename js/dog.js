@@ -35,6 +35,7 @@ import {
     STRAT_ARRIVE,
     STRAT_WAITFORU,
     TELEPAT,
+    Upolyd,
     W_SADDLE,
     helpless,
     isok,
@@ -61,6 +62,7 @@ import {
     is_demon,
     is_human,
     levl_follower,
+    sticks,
 } from './mondata.js';
 import { monnear } from './monmove.js';
 import { restore_cham, wake_nearto } from './mon.js';
@@ -103,7 +105,7 @@ import {
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
-import { an, donameFresh } from './objnam.js';
+import { an, donameFresh, the, Tobjnam, xnameFresh } from './objnam.js';
 import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
 import { mksobj, place_object, unknow_object } from './obj.js';
@@ -117,6 +119,7 @@ import {
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     canSeeMonster,
+    canSpotMonster,
     sensesMonster,
 } from './startup_a11y.js';
 import { night } from './calendar.js';
@@ -270,7 +273,7 @@ export async function tamedog(
     if (monster.iswiz || monster.data.pmidx === PM_MEDUSA
         || (monster.data.mflags3 & M3_WANTSARTI)) return false;
 
-    if (giveMessage && !monster.mpeaceful && canseemon(monster, state)) {
+    if (giveMessage && !monster.mpeaceful && canSpotMonster(monster, state)) {
         await message(
             `${Monnam(monster, state)} seems `
             + `${heroHallucinating(state) ? 'really chill' : 'more amiable'}.`,
@@ -297,7 +300,7 @@ export async function tamedog(
             if (typeof normalized.expels === 'function')
                 await normalized.expels(monster, normalized);
             else note_unported('mhitu.c expels');
-        } else {
+        } else if (!(Upolyd(state.u) && sticks(state.youmonst?.data))) {
             const { unstuck } = await import('./mon.js');
             unstuck(monster, state, normalized);
         }
@@ -306,30 +309,37 @@ export async function tamedog(
     // Feeding an existing pet is the first object-bearing branch. C places
     // the free thrown object on the pet's square before dog_eat().
     if (monster.mtame && obj) {
-        const { dogfood } = await import('./dogfood.js');
-        const tasty = dogfood(monster, obj, normalized);
         const edog = monster.mextra?.edog;
-        if (monster.mcanmove && !monster.mconf && !monster.meating
-            && (tasty === DOGFOOD
+        if (monster.mcanmove && !monster.mconf && !monster.meating) {
+            const { dogfood } = await import('./dogfood.js');
+            const tasty = dogfood(monster, obj, normalized);
+            if (tasty === DOGFOOD
                 || (tasty <= ACCFOOD
-                    && (edog?.hungrytime ?? 0) <= (state.moves ?? 0)))) {
-            if (canseemon(monster, state)) {
-                await message(
-                    `${Monnam(monster, state)} catches `
-                    + `${donameFresh(obj, state)}.`,
+                    && (edog?.hungrytime ?? 0) <= (state.moves ?? 0))) {
+                if (canseemon(monster, state)) {
+                    const { CORPSE } = await import('./objects.js');
+                    const bigCorpse = obj.otyp === CORPSE
+                        && Number.isInteger(obj.corpsenm)
+                        && (state.mons?.[obj.corpsenm]?.msize ?? 0)
+                            > (monster.data?.msize ?? 0);
+                    await message(
+                        `${Monnam(monster, state)} catches `
+                            + `${the(xnameFresh(obj, state), state)}`
+                            + `${bigCorpse ? ', or vice versa!' : '.'}`,
+                        state,
+                    );
+                } else if (cansee(monster.mx, monster.my, state)) {
+                    await message(`${Tobjnam(obj, 'stop', state)}.`, state);
+                }
+                if (obj.where === OBJ_FREE)
+                    place_object(obj, monster.mx, monster.my, normalized);
+                const { dog_eat } = await import('./dogmove.js');
+                await dog_eat(monster, obj, monster.mx, monster.my, false, {
+                    ...normalized,
                     state,
-                );
-            } else if (cansee(monster.mx, monster.my, state)) {
-                await message('The food stops.', state);
+                });
+                return true;
             }
-            if (obj.where === OBJ_FREE)
-                place_object(obj, monster.mx, monster.my, normalized);
-            const { dog_eat } = await import('./dogmove.js');
-            await dog_eat(monster, obj, monster.mx, monster.my, false, {
-                ...normalized,
-                state,
-            });
-            return true;
         }
         return false;
     }
@@ -373,7 +383,7 @@ export async function tamedog(
         if (eaten === 2) return true;
     }
 
-    if (giveMessage && canseemon(monster, state)) {
+    if (giveMessage && canSpotMonster(monster, state)) {
         await message(
             `${Monnam(monster, state)} seems `
             + `${heroHallucinating(state) ? 'quite approachable' : 'quite friendly'}.`,

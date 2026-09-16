@@ -1911,7 +1911,7 @@ export function find_pmmonst(pm, state = game) {
 // C ref: monmove.c bee_eat_jelly() (394-422). A killer bee on a spot with
 // royal jelly eats it and grows into a queen bee if no queen is present.
 // Returns 1 if the bee died, 0 if it ate and lived, -1 if it did not eat.
-async function bee_eat_jelly(mon, obj, env = {}) {
+export async function bee_eat_jelly(mon, obj, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message ?? ttyPline;

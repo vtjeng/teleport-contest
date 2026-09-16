@@ -1325,7 +1325,7 @@ export async function meatbox(mon, obj, rawEnv = {}) {
             note_unported('mkobj.c removed_from_icebox');
         if (engulfContents) {
             mpickobj(mon, child, rawEnv);
-        } else if (!flooreffects(
+        } else if (!await flooreffects(
             child,
             x,
             y,
@@ -4593,7 +4593,7 @@ export async function monstone(mdef, state = game, env = {}) {
             extract_from_minvent(mdef, obj, true, true, { ...env, state });
             if (obj.otyp === BOULDER
                 || obj_resists(obj, 0, 0, { ...env, state, random })) {
-                if (flooreffects(obj, x, y, 'fall', { ...env, state }))
+                if (await flooreffects(obj, x, y, 'fall', { ...env, state }))
                     continue;
                 place_object(obj, x, y,
                              objectGenerationEnv({ ...env, state, random }));
@@ -4928,7 +4928,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                                         ONAME_NO_FLAGS, state);
                     }
                     delobj(otmp, dropEnv);
-                } else if (!flooreffects(otmp, x, y, nomsg ? '' : 'fall',
+                } else if (!await flooreffects(otmp, x, y, nomsg ? '' : 'fall',
                                          dropEnv)) {
                     place_object(otmp, x, y, dropEnv);
                     stackobj(otmp, objectGenerationEnv(dropEnv));

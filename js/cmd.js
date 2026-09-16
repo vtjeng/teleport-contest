@@ -2554,7 +2554,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     initrack(state);
     if (Punished(state)) {
         unplacebc(state);
-        placebc(state);
+        await placebc(state);
     }
     await docrt();
     await flush_screen(1);

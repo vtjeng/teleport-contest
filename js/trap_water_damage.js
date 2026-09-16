@@ -10,12 +10,17 @@ import {
     BURIED_TOO,
     CONTAINED_TOO,
     DEAF,
+    EF_DESTROY,
+    ERODE_BURN,
+    FIRE_RES,
     EF_NONE,
     ERODE_RUST,
     ER_DAMAGED,
+    ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
     FLYING,
+    Has_contents,
     HALLUC,
     HALLUC_RES,
     LEVITATION,
@@ -25,19 +30,45 @@ import {
     W_ARMOR,
     W_WEP,
 } from './const.js';
+import { catch_item_light } from './apply_catch_lit.js';
 import { splash_monster_light } from './apply_splash_lit.js';
-import { carried, isCandle, isContainer } from './obj.js';
-import { cxname, otense, vtense, Yname2, yname } from './objnam.js';
+import { obj_resists } from './bury.js';
+import {
+    carried,
+    isCandle,
+    isContainer,
+    objectType,
+} from './obj.js';
+import { cxname, is_plural, otense, vtense, Yname2, yname } from './objnam.js';
 import { hliquid } from './do_name.js';
 import { get_obj_location } from './light.js';
 import { game } from './gstate.js';
+import { obj_extract_self, obfree } from './invent.js';
 import { discover_object } from './o_init.js';
+import {
+    DRAGON_HIDE,
+    ICE_BOX,
+    CHEST,
+    LARGE_BOX,
+    POT_OIL,
+    SCR_FIRE,
+    SPE_BOOK_OF_THE_DEAD,
+    SPE_FIREBALL,
+    STATUE,
+    POTION_CLASS,
+    SCROLL_CLASS,
+    SPBOOK_CLASS,
+    WAN_FIRE,
+    FIRE_HORN,
+} from './objects.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { end_burn } from './timeout.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { note_unported } from './unported.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
+import { couldsee } from './vision.js';
+import { destroy_strings } from './zap_destroy_items.js';
 
 function propertyActive(hero, property) {
     const value = hero?.uprops?.[property];
@@ -225,6 +256,172 @@ function waterOperation(env, name, fallback) {
         );
     }
     return operation;
+}
+
+function floorFireVisible(x, y, state) {
+    return !heroIsBlind(state) && couldsee(x, y, state);
+}
+
+function fireChance(obj, force, state, random, chance) {
+    return force || (Math.trunc(state.u?.luck ?? state.luck ?? 0) + 5
+        <= random.rn2(chance));
+}
+
+// C ref: trap.c fire_damage() (4455-4542).  This is the return-valued callee
+// used by lava_damage(); containers release each child through flooreffects,
+// while ordinary scrolls, spellbooks, potions, and flammable objects either
+// disappear or delegate their erosion result to erode_obj().
+export async function fire_damage(obj, force, x, y, rawEnv = {}) {
+    if (!obj) return false;
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? (await import('./rng.js'));
+    const message = rawEnv.message ?? ttyPline;
+    const visible = floorFireVisible(x, y, state);
+
+    // apply.c catch_lit() returns TRUE when the fire is handled by starting a
+    // controlled burn.  It has a complete floor-object owner; use it before
+    // the destruction tests, as the C call does.
+    const catchLit = rawEnv.catchLit ?? catch_item_light;
+    if (await catchLit(obj, {
+        ...rawEnv,
+        state,
+        random,
+        squareVisible: (sx, sy) => floorFireVisible(sx, sy, state),
+        message,
+    })) return false;
+
+    const container = isContainer(obj) || obj.otyp === STATUE;
+    if (container) {
+        let chance = 20;
+        if (obj.otyp === CHEST) chance = 40;
+        else if (obj.otyp === LARGE_BOX) chance = 30;
+        else if (obj.otyp === ICE_BOX || obj.otyp === STATUE)
+            return false;
+        if (!fireChance(obj, force, state, random, chance)) return false;
+        if (visible)
+            await message(`${Yname2(obj, state)} catches fire and burns.`, state);
+        if (Has_contents(obj)) {
+            if (visible) await message('Its contents fall out.', state);
+            const { place_object } = await import('./obj.js');
+            const { flooreffects } = await import('./do.js');
+            for (let child = obj.cobj; child;) {
+                const next = child.nobj;
+                obj_extract_self(child, objectGenerationEnv({
+                    ...rawEnv,
+                    state,
+                    hooks: rawEnv.hooks ?? {},
+                }));
+                if (!await flooreffects(child, x, y, '', {
+                    ...rawEnv,
+                    state,
+                    random,
+                })) {
+                    place_object(child, x, y, objectGenerationEnv({
+                        ...rawEnv,
+                        state,
+                    }));
+                }
+                child = next;
+            }
+        }
+        const { setnotworn } = await import('./worn.js');
+        if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
+        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        return true;
+    }
+
+    if (!force && !fireChance(obj, false, state, random, 20)) return false;
+    const destroyIndex = obj.oclass === SCROLL_CLASS ? 3
+        : obj.oclass === SPBOOK_CLASS ? 4 : null;
+    if (destroyIndex != null) {
+        if (obj.otyp === SCR_FIRE || obj.otyp === SPE_FIREBALL)
+            return false;
+        if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
+            if (visible) await message(`Smoke rises from ${yname(obj, state)}.`, state);
+            return false;
+        }
+        if (visible) {
+            const text = destroy_strings[destroyIndex][obj.quan > 1 ? 1 : 0];
+            await message(`${Yname2(obj, state)} ${text}.`, state);
+        }
+        const { setnotworn } = await import('./worn.js');
+        if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
+        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        return true;
+    }
+    if (obj.oclass === POTION_CLASS) {
+        if (visible) {
+            const index = obj.otyp === POT_OIL ? 2 : 1;
+            const text = destroy_strings[index][obj.quan > 1 ? 1 : 0];
+            await message(`${Yname2(obj, state)} ${text}.`, state);
+        }
+        const { setnotworn } = await import('./worn.js');
+        if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
+        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        return true;
+    }
+
+    const result = await erode_obj(
+        obj,
+        null,
+        ERODE_BURN,
+        EF_DESTROY,
+        {
+            ...rawEnv,
+            state,
+            random,
+            canSeeObject: () => visible,
+        },
+    );
+    return result === ER_DESTROYED;
+}
+
+// C ref: trap.c lava_damage() (4576-4614).  The material fast path consumes
+// free objects before fire_damage; glass, containers, scrolls, and books fall
+// through to fire_damage for their source-specific messages and returns.
+export async function lava_damage(obj, x, y, rawEnv = {}) {
+    if (!obj) return false;
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? (await import('./rng.js'));
+    const type = objectType(obj, state);
+    const resistant = obj_resists(obj, 0, 0, {
+        ...rawEnv,
+        state,
+        random,
+    });
+    if (resistant && obj.otyp !== SPE_BOOK_OF_THE_DEAD) return false;
+    if (type.oc_material < DRAGON_HIDE
+        && obj.oclass !== SCROLL_CLASS
+        && obj.oclass !== SPBOOK_CLASS
+        && type.oc_oprop !== FIRE_RES
+        && obj.otyp !== WAN_FIRE
+        && obj.otyp !== FIRE_HORN
+        && !obj.oerodeproof
+        && !Has_contents(obj)) {
+        const visible = floorFireVisible(x, y, state);
+        if (visible) {
+            const message = rawEnv.message ?? ttyPline;
+            if (obj === state.gt?.thrownobj || obj === state.gk?.kickedobj) {
+                await message(
+                    `${is_plural(obj) ? 'They' : 'It'} `
+                    + `${otense(obj, 'burn')} up!`,
+                    state,
+                );
+            } else {
+                await message(
+                    `${Yname2(obj, state)} hit lava and burn up!`,
+                    state,
+                );
+            }
+        }
+        if (obj.owornmask) {
+            const { setnotworn } = await import('./worn.js');
+            setnotworn(obj, { ...rawEnv, state });
+        }
+        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        return true;
+    }
+    return fire_damage(obj, true, x, y, { ...rawEnv, state, random });
 }
 
 // Rust traps pass force=TRUE and only select worn armor or MON_WEP().

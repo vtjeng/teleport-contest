@@ -422,8 +422,8 @@ export async function punish(scroll, state = game) {
             throw new UnsupportedReadError(`punish() floor effect: ${reason}`);
         },
     };
-    flooreffects(chain, state.u.ux, state.u.uy, '', floorEffects);
-    flooreffects(ball, state.u.ux, state.u.uy, '', floorEffects);
+    await flooreffects(chain, state.u.ux, state.u.uy, '', floorEffects);
+    await flooreffects(ball, state.u.ux, state.u.uy, '', floorEffects);
     // The glyph is sampled before newsym() paints the objects.
     place_object(ball, state.u.ux, state.u.uy, { state });
     state.u.bc_order = 1; // BCPOS_CHAIN from ball.c:108.

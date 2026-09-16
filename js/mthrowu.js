@@ -1350,7 +1350,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
         if (notcaught) {
             note_unported('apply.c snuff_candle'); /* (void) snuff_candle() */
             if (!await ship_object(otmp, x, y, false, env)) {
-                if (flooreffects(otmp, x, y, 'drop', env)) {
+                if (await flooreffects(otmp, x, y, 'drop', env)) {
                     if (cansee(x, y, state)) {
                         if (typeof env.newsym === 'function')
                             env.newsym(x, y, state);
