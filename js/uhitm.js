@@ -252,7 +252,6 @@ import {
     PM_SHADE,
     PM_SHRIEKER,
     PM_STEAM_VORTEX,
-    MZ_HUGE,
     S_BLOB,
     S_EEL,
     S_EYE,
