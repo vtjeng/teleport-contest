@@ -2325,7 +2325,7 @@ function count_feat_lastseentyp(mapseen, x, y, state) {
 // JS keeps subrooms under their persisted parent room, but retains C's
 // roomnoidx values. Resolve that conceptual index through the parent graph so
 // mapseen's equally source-sized msrooms[] array reads either half correctly.
-function mapseen_room(roomIndex, state) {
+export function mapseen_room(roomIndex, state) {
     const rooms = state.level?.rooms ?? [];
     const direct = rooms[roomIndex];
     if (direct && (direct.roomnoidx ?? roomIndex) === roomIndex)
