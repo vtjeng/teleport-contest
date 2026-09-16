@@ -51,6 +51,7 @@ import {
 } from '../js/detect.js';
 import {
     back_to_glyph,
+    feel_location,
     GLYPH_INVISIBLE,
     glyph_is_invisible,
     trap_to_glyph,
@@ -648,13 +649,10 @@ test('blind global search maps an ordinary trap through tactile defaults', async
     assertCompleteMappedGlyph(location, expected);
 });
 
-test('blind tactile mapping refuses a floor the hero cannot feel', async () => {
-    // display.c feel_location() branches on can_reach_floor(), u.uinwater and
-    // Punished, and the port computes none of those answers, so each one has
-    // to stop. The two ball-and-chain fields live on the state root, not on
-    // `u`: youprop.h:77 makes Punished `(uball != 0)` on the file-scope
-    // object, and js/worn.js setworn() writes state.uball and state.uchain
-    // through its W_BALL and W_CHAIN slots. u.uinwater really is a hero field.
+test('blind tactile mapping delegates unavailable floors to display.c', async () => {
+    // display.c feel_location() owns the water-level early return and the
+    // independent Punished ball/chain memory terms. The two object fields live
+    // on the state root, not on `u`, exactly as youprop.h:77 defines Punished.
     const cases = [
         ['uinwater', (state) => { state.u.uinwater = true; }],
         ['uball', (state) => { state.uball = { owornmask: W_BALL }; }],
@@ -662,14 +660,14 @@ test('blind tactile mapping refuses a floor the hero cannot feel', async () => {
     ];
     for (const [label, punish] of cases) {
         const target = await globalSearchState();
-        installUnseenAntiMagicTrap(target);
         punish(game);
-
-        await assert.rejects(
-            dosearch0(1, { state: game, random: tactileSearchRandom(8) }),
-            /automatic search reached an unsupported tactile floor state/u,
-            label,
-        );
+        const square = game.level.at(target.x, target.y);
+        feel_location(target.x, target.y, game);
+        if (label === 'uinwater') {
+            assert.equal(square.seenv ?? 0, 0, label);
+        } else {
+            assert.notEqual(square.seenv ?? 0, 0, label);
+        }
     }
 });
 
@@ -1334,13 +1332,13 @@ const FOUND_DOOR_EVENTS = Object.freeze([
 ]);
 
 // C keeps every branch this port cannot finish behind one of dosearch0()'s
-// three `!aflag` tests: feel_location() at detect.c:2040 and mfind0() at 2064,
-// plus the Norep() at 2023 that a swallowed hero reaches. The third,
-// unmap_invisible() at 2076, refuses nothing now that both of its arms are
-// ported. UnsupportedSearchError therefore belongs to the explicit `s`
-// command alone, which js/cmd.js failClosedCommand() converts into a retryable
-// command boundary. allmain.c:342-344 drives the automatic arm from
-// moveloop_core(), where no converting wrapper exists, so a refusal that
+// three `!aflag` tests: mfind0() at detect.c:2064 and the Norep() at 2023
+// that a swallowed hero reaches. The tactile feel_location() arm at 2040 is
+// implemented by display.c's canonical owner and therefore remains active in
+// explicit searches. UnsupportedSearchError belongs to the remaining
+// explicit `s` command gaps, which js/cmd.js failClosedCommand() converts into
+// a retryable command boundary. allmain.c:342-344 drives the automatic arm
+// from moveloop_core(), where no converting wrapper exists, so a refusal that
 // leaked across the aflag split would escape runSegment() and cost the segment
 // every screen it had already matched. Each row proves the split holds on one
 // shared state: explicit refuses before its first draw, then automatic runs
@@ -1369,19 +1367,6 @@ test('every explicit search refusal leaves the automatic arm intact', async () =
                 mflags1: M1_CONCEAL,
             });
         }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
-        // Both operands of detect.c:2040.
-        ['a blind hero', (state) => {
-            state.u.uprops[BLINDED] = {
-                intrinsic: 1, extrinsic: 0, blocked: 0,
-            };
-        }, /feels every adjacent square/, [0], FOUND_DOOR_EVENTS],
-        ['a visible region', (state) => {
-            const region = create_region([{
-                lx: 11, ly: 11, hx: 11, hy: 11,
-            }]);
-            region.visible = true;
-            state.level.regions.push(region);
-        }, /feels every adjacent square/, [0], FOUND_DOOR_EVENTS],
         // detect.c:2079-2088 is the one block C does not gate on aflag, so the
         // automatic arm reaches the same two unported branches. It refuses
         // them from preflightTrap() as plain Errors, after the rnl(8) that
@@ -1585,31 +1570,42 @@ test('explicit search admits a monster carrying only the dknown flag', async () 
     random.done();
 });
 
-test('explicit search refuses the feel_location arm before any draw', async () => {
-    const blind = explicitSearchState();
-    blind.level.at(9, 9).typ = SDOOR;
-    blind.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    let events = [];
-    let random = scriptedRandom(events, []);
-    await assert.rejects(dosearch0(0, {
-        state: blind, random, ...recordingOperations(blind, events),
-    }), /feels every adjacent square/);
-    assert.deepEqual(events, []);
-    random.done();
-
-    // The other operand of detect.c:2038: a visible region over one square.
-    const covered = explicitSearchState();
-    covered.level.at(9, 9).typ = SDOOR;
-    const region = create_region([{ lx: 11, ly: 11, hx: 11, hy: 11 }]);
-    region.visible = true;
-    covered.level.regions.push(region);
-    events = [];
-    random = scriptedRandom(events, []);
-    await assert.rejects(dosearch0(0, {
-        state: covered, random, ...recordingOperations(covered, events),
-    }), /feels every adjacent square/);
-    assert.deepEqual(events, []);
-    random.done();
+test('explicit search feels blind and visible-region squares before drawing', async () => {
+    for (const [label, setup] of [
+        ['blind', (state) => {
+            state.u.uprops[BLINDED] = {
+                intrinsic: 1, extrinsic: 0, blocked: 0,
+            };
+        }],
+        ['visible region', (state) => {
+            const region = create_region([
+                { lx: 9, ly: 9, hx: 9, hy: 9 },
+            ]);
+            region.visible = true;
+            state.level.regions.push(region);
+        }],
+    ]) {
+        const state = explicitSearchState();
+        state.level.at(9, 9).typ = SDOOR;
+        setup(state);
+        const events = [];
+        const random = scriptedRandom(events, [0], [18]);
+        assert.equal(await dosearch0(0, {
+            state,
+            random,
+            ...recordingOperations(state, events),
+            newSym: (x, y) => events.push(`newSym(${x},${y})`),
+        }), 1, label);
+        // The tactile call precedes detect.c's secret-door rnl() and the
+        // second call is the source's post-conversion display refresh. The
+        // blind case then feels the remaining six squares before returning;
+        // the visible-region case has no such extra calls.
+        assert.equal(events[0], 'feelLocation(9,9)', label);
+        assert.equal(events[5], 'feelLocation(9,9)', label);
+        assert.match(events[6], /^message\(9,9,You find a hidden door\.\)$/u,
+            label);
+        random.done();
+    }
 });
 
 test('explicit search clears a remembered invisible monster', async () => {

@@ -1,42 +1,40 @@
 {
   "session": "holdout/seed0106-priest-extcmd-sweep",
-  "remainingScreensUpperBound": 54,
+  "remainingScreensUpperBound": 0,
   "status": "complete",
-  "commit": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+  "commit": "c9fb352bd6b7fa21ed2551ee1c3851c7d2459b97",
   "mismatch": {
     "session": "holdout/seed0106-priest-extcmd-sweep",
-    "step": 213,
-    "kind": "stop",
-    "function": "dovanquished",
+    "step": null,
+    "kind": "resolved",
+    "function": null,
     "functionDeclared": false,
     "sourceFile": "insight.c",
     "cFile": "insight.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: dovanquished() for the extended command 'vanquished' is not ported",
+    "message": "All 267 recorded screens, RNG values and cursors match at the completed session.",
     "unlocatedKinds": [],
     "recordedSteps": 267,
-    "remainingScreensUpperBound": 54
+    "remainingScreensUpperBound": 0
   },
-  "summary": "Accepted conduct support advances this session to step213, where #vanquished remains the first stop (54 remaining screens). B10 vanquished and B11 genocided implementations are submitted, but source review found the B10 final-disclosure default query calls an unimported yn_function; a narrow correction and production-default prompt check are queued for worker B at its next clean boundary. No listing gain is accepted yet.",
+  "summary": "The complete num_extinct through dogenocided family passes combined validation and resolves the Priest session:267/267 screens, no remaining stop or divergence. Shared sorting and final-disclosure callers are wired. The accepted span adds41 development screens and two independent no-entry recordings; positive genocide and final-disclosure entry recordings remain outstanding, so the source goal is parked.",
   "source": {
     "file": "insight.c",
     "functions": [
-      "vanqsort_cmp",
-      "set_vanq_order",
-      "dovanquished",
-      "list_vanquished"
+      "num_extinct",
+      "num_gone",
+      "list_genocided",
+      "dogenocided"
     ],
-    "branch": "C insight.c2621-2950 owns vanquished sorting, its sort-order menu, command wrapper and full list formatting. dovanquished uses menu_requested to choose A or y, clears that flag after display, and returns ECMD_OK. Current main does not admit this command.",
+    "branch": "C insight.c2969–3141 counts non-unique extinct/genocided species, applies the wizard/explore/gameover extinction gate, preserves shared sort preference and query behavior, renders the full list and totals, or emits the no-genocide message. dogenocided chooses a/y from menu_requested and calls list_genocided with ask=FALSE. The current production extended command refuses before this family.",
     "callers": [
-      "cmd.c extended-command dispatch calls insight.c dovanquished; corresponding js/cmd.js admission and dispatch are missing on accepted main.",
-      "end.c disclose calls list_vanquished with its configured query and ask flag; use the canonical insight.js owner and existing menu/text-window callbacks."
+      "C cmd.c1728–1730 registers #genocided to dogenocided; js/extcmdlist_data.js69 has the matching command row, but current cmd.js dispatch has no admitted dogenocided owner.",
+      "C insight.c3135–3141 dogenocided delegates to list_genocided; end.c final disclosure also calls list_genocided. The current js/end.js partial list is replaced by the canonical insight.js owner in submitted B11."
     ],
     "dependencies": [
-      "Sort comparator preserves level/difficulty/name/class/count order, index tie-breaks, rider ordering and PM_HIGH_CLERIC uniqueness exception.",
-      "C set_vanq_order returns the current mode on an empty Return/Space commit and -1 on Escape; submitted79c168c5 supplies this menu contract.",
-      "C list_vanquished2873-2885 class headers use ask?ATR_NONE:iflags.menu_headings.attr. Submitted B10 still loses these attributes; its next correction must match command and final-disclosure output.",
-      "Three submitted independent vanquished recordings total71 screens and8327 RNG. Shared #genocided sort and final-disclosure entry recordings remain unverified."
+      "insight.c set_vanq_order and vanqsort_cmp now exist in main from validated B10.",
+      "Existing num_genocides and canonical state.svm.mvitals/monster catalog supply source counts; canonical yn_function and the tty text window own prompting and output."
     ]
   },
   "goalKind": "file-port",
@@ -85,6 +83,10 @@
     "Coordinator inspected sibling B10 list_vanquished after the B11 attribute finding: C2873-2885 uses ask?ATR_NONE:iflags.menu_headings.attr, while JavaScript pushes a plain header string and later maps every line to text-only. B10 latest91e6530e is marked changes-required alongside B11; worker B will submit separate immutable corrections after B12.",
     "Worker B completed the B12 handoff and merged accepted main 483f78f68ef6c09cb8522ae67049a55488936133 at the clean boundary, producing 3aa35bde2724e24a877070d00a9f04e1288d3076. B10 is active for the class-header attribute correction; B11 follows in a separate immutable commit. The accepted Priest mismatch and score remain unchanged.",
     "B10 immutable correction680f3ced8e1497d2406f7b00c04d47376173c9ee preserves ask ? ATR_NONE : iflags.menu_headings.attr for vanquished class headers;65 focused tests and lint pass. B11 immutable correction8d6c6e8eaf4f2529e19197f416a28beffe440d2a applies the sibling genocided fix;66 focused tests and lint pass. Both delivery packets are received and queued, with no new accepted gains.",
-    "Coordinator verified B10 correction680f3ced insight.js2160 calls undeclared yn_function when ask=true, while only tty_yn_function is imported at315 and end.js disclose797 passes no queryFunction. C insight.c2831–2843 uses canonical yn_function with addcmdq=TRUE. Feedback B10-feedback-final-disclosure-query-owner requires source-aligned prompt wiring and a default-path check without injected queryFunction before acceptance; existing submitted commits remain immutable."
+    "Coordinator verified B10 correction680f3ced insight.js2160 calls undeclared yn_function when ask=true, while only tty_yn_function is imported at315 and end.js disclose797 passes no queryFunction. C insight.c2831–2843 uses canonical yn_function with addcmdq=TRUE. Feedback B10-feedback-final-disclosure-query-owner requires source-aligned prompt wiring and a default-path check without injected queryFunction before acceptance; existing submitted commits remain immutable.",
+    "B10 b32aae5bccb22f9f71b0641144754d0158359884 resolves cmd.js yn_function lazily for the default ask=true disclosure path, preserving addcmdq=TRUE. A production-shaped test omits queryFunction; supplemental bounded named diagnostic reports67 tests passing. Root integrated original14df042b and corrections79c168c5,91e6530e,680f3ced,b32aae5b, excluding unrelated B13 WIP. Main combined validation remains pending.",
+    "Combined checkpoint8e39b4e8269a5e58a7b91eeb88746ff59d38177f/run-FJTOef passes with31/44 sessions,10362/11405 screens,756145/792838 RNG,10392/11405 cursors and281/281 recordings. Exact saved scan .cache/B10-checkpoint-scan-cache.json emits226 Priest screens with no earlier divergence, then refuses dogenocided; the current mismatch queue records41 remaining screens.",
+    "Coordinator re-read C insight.c2969–3141 and cmd.c1728–1730 against the validated command boundary and submitted B11 fb12e71c plus8d6c6e8e. The former complete vanquished diagnosis is resolved; the new actionable source range is num_extinct through dogenocided, with complete production dispatch/disclosure wiring required. Existing B11 source evidence and two independent no-entry recordings support immediate integration without another diagnostic replay.",
+    "Combined checkpointc9fb352bd6b7fa21ed2551ee1c3851c7d2459b97/run-YPgP6o passes all checks:32/44 sessions,10403/11405 screens,756196/792838 RNG,10433/11405 cursors and283/283 recordings (10638screens,1432816RNG). B11 gains41screens,51RNG and41cursors. Exact44-row cache .cache/B11-checkpoint-scan-cache.json emits all267 Priest screens with divergence/boundary null, inputExhausted true, recordingMatched true and no unported entries."
   ]
 }

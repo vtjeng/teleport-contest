@@ -48,9 +48,7 @@ import {
     ESCAPED,
     ENL_GAMEOVERALIVE,
     ENL_GAMEOVERDEAD,
-    G_EXTINCT,
     G_GENOD,
-    G_GONE,
     GENOCIDED,
     isok,
     IS_GRAVE,
@@ -80,9 +78,6 @@ import {
     UNCHANGING,
     UTOTYPE_ATSTAIRS,
     Upolyd,
-    VANQ_ALPHA_MIX,
-    VANQ_COUNT_H_L,
-    VANQ_COUNT_L_H,
     has_ebones,
     has_mgivenname,
     ismnum,
@@ -133,14 +128,9 @@ import {
 } from './objnam.js';
 import {
     enlightenment,
-    isUniqueMonster,
+    list_genocided,
     list_vanquished,
-    num_genocides,
-    ordinaryMonsterEntries,
     show_conduct,
-    set_vanq_order,
-    vanquishedName,
-    vanqsort_cmp,
 } from './insight.js';
 import { livelog_printf } from './pline.js';
 import { select_menu } from './windows.js';
@@ -154,7 +144,6 @@ import {
     depth, dunlev, show_overview,
     single_level_branch,
 } from './dungeon.js';
-import { makeplural } from './fruit.js';
 import { Goodbye } from './role_init.js';
 import { reset_utrap } from './trap.js';
 import {
@@ -754,64 +743,6 @@ function discloseStop(state) {
     state.program_state.stopprint = (state.program_state.stopprint ?? 0) + 1;
 }
 
-function menuLines(texts) {
-    return texts.map((text) => ({ text }));
-}
-
-// C ref: insight.c list_genocided(). No menu or prompt is produced when the
-// ordinary final state has no genocided or extinct species; that is the only
-// common branch in this slice. The shared vanquished sort family handles the
-// alternate order requested by the source's #genocided path as well.
-async function list_genocided(defquery, ask, state) {
-    const entries = ordinaryMonsterEntries(state, G_GENOD | G_EXTINCT)
-        .filter((entry) => !isUniqueMonster(entry.index, entry.monster));
-    if (!entries.length) return;
-
-    const answer = ask ? await yn_function(
-            'Do you want a list of genocided species?',
-            entries.length > 1 ? 'ynaq' : 'ynq\u001ba',
-            defquery,
-            true,
-            state,
-        ) : defquery.charCodeAt(0);
-    if (answer === KEY_Q) {
-        discloseStop(state);
-        return;
-    }
-    if (answer !== KEY_Y && answer !== KEY_A) return;
-
-    if (answer === KEY_A && entries.length > 1
-        && await set_vanq_order(false, state) < 0) return;
-    const savedSortmode = state.flags?.vanq_sortmode;
-    if (state.flags
-        && (savedSortmode === VANQ_COUNT_H_L
-            || savedSortmode === VANQ_COUNT_L_H))
-        state.flags.vanq_sortmode = VANQ_ALPHA_MIX;
-    entries.sort((left, right) => vanqsort_cmp(left, right, state));
-    if (state.flags && savedSortmode !== undefined)
-        state.flags.vanq_sortmode = savedSortmode;
-    // insight.c list_genocided() obtains this count from num_genocides(),
-    // whose unique-species diagnostic and full mvital walk are shared with
-    // show_conduct().
-    const genocided = num_genocides(state);
-    const extinct = entries.filter((entry) => (
-        (entry.vital.mvflags & G_EXTINCT) !== 0
-        && (entry.vital.mvflags & G_GENOD) === 0
-    )).length;
-    const title = `${genocided ? 'Genocided' : 'Extinct'} species:`;
-    const lines = [title, ''];
-    for (const entry of entries) {
-        let text = ` ${makeplural(vanquishedName(entry))}`;
-        if ((entry.vital.mvflags & G_GONE) === G_EXTINCT)
-            text += ' (extinct)';
-        lines.push(text);
-    }
-    lines.push('');
-    if (genocided) lines.push(`${genocided} species genocided.`);
-    if (extinct) lines.push(`${extinct} species extinct.`);
-    await displayTtyMenuTextWindow(state, menuLines(lines));
-}
-
 // C ref: end.c disclose() (619-699). Walks each disclosure category in order.
 async function disclose(how, taken, state) {
     if (state.invent && !disclosureStopprint(state)) {
@@ -867,7 +798,9 @@ async function disclose(how, taken, state) {
     }
     if (!disclosureStopprint(state)) {
         const { ask, defquery } = should_query_disclose_option('g', state);
-        await list_genocided(defquery, ask, state);
+        await list_genocided(defquery, ask, state, {
+            queryFunction: yn_function,
+        });
     }
     if (!disclosureStopprint(state)) {
         const { ask, defquery } = should_query_disclose_option('c', state);

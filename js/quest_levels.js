@@ -1826,6 +1826,46 @@ async function wizFila(des) {
     des.random_corridors();
 }
 
+// C ref: dat/Wiz-filb.lua. Six rooms below the Wizard quest locate level,
+// with imps, vampire bats, and source-ordered stairs, objects, and traps.
+async function wizFilb(des) {
+    des.room({ type: 'ordinary', contents() {
+        des.stair('up');
+        des.object();
+        des.monster({ class: 'X', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.monster({ class: 'i', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.object();
+        des.monster({ class: 'X', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.stair('down');
+        des.object();
+        des.trap();
+        des.monster({ class: 'i', peaceful: 0 });
+        des.monster('vampire bat');
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.object();
+        des.trap();
+        des.monster({ class: 'i', peaceful: 0 });
+    }});
+    des.room({ type: 'ordinary', contents() {
+        des.object();
+        des.trap();
+        des.monster('vampire bat');
+    }});
+    des.random_corridors();
+}
+
 export const QUEST_LEVEL_LOADERS = {
     'Bar-strt': barStrt,
     'Bar-fila': barFila,
@@ -1845,6 +1885,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Wiz-strt': wizStrt,
     'Wiz-loca': wizLoca,
     'Wiz-fila': wizFila,
+    'Wiz-filb': wizFilb,
     oracle,
     tower1,
     tower2,

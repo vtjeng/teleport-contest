@@ -104,7 +104,9 @@ import {
     FREE_ACTION,
     FULL_MOON,
     FUMBLING,
+    G_EXTINCT,
     G_GENOD,
+    G_GONE,
     GLIB,
     HALF_PHDAM,
     HALF_SPDAM,
@@ -310,6 +312,7 @@ import {
 } from './roles.js';
 import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
+import { tty_yn_function } from './getline.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { livelog_printf } from './pline.js';
 import { note_unported } from './unported.js';
@@ -2263,6 +2266,150 @@ export function num_genocides(state = game) {
         }
     }
     return count;
+}
+
+// C ref: insight.c num_extinct() (2969-2981).  The source excludes unique
+// species because they cannot be genocided and are not reported as extinct.
+// This selector is pure: it reads only the state-owned mvital flags and the
+// monster catalog.
+export function num_extinct(state = game) {
+    const mvitals = state.svm?.mvitals ?? state.mvitals ?? [];
+    const monsters = state.mons ?? [];
+    let count = 0;
+    for (let index = LOW_PM; index < mvitals.length; ++index) {
+        if (isUniqueMonster(index, monsters[index])) continue;
+        if (((mvitals[index]?.mvflags ?? 0) & G_GONE) === G_EXTINCT)
+            ++count;
+    }
+    return count;
+}
+
+// C ref: insight.c num_gone() (2984-3003).  Return the source's compact list
+// of non-unique species whose mvital flags intersect the requested mask.
+// Clearing the C array is not observable in JavaScript; the returned indexes
+// are already compacted in the same LOW_PM-to-NUMMONS order.
+export function num_gone(mvflags, state = game) {
+    const mvitals = state.svm?.mvitals ?? state.mvitals ?? [];
+    const monsters = state.mons ?? [];
+    const indexes = [];
+    for (let index = LOW_PM; index < mvitals.length; ++index) {
+        if (isUniqueMonster(index, monsters[index])) continue;
+        if ((mvitals[index]?.mvflags ?? 0) & mvflags)
+            indexes.push(index);
+    }
+    return indexes;
+}
+
+function disclosureStop(state) {
+    state.program_state ??= {};
+    state.program_state.stopprint = (state.program_state.stopprint ?? 0) + 1;
+}
+
+// C ref: insight.c list_genocided() (3006-3131).  The optional prompt, menu,
+// and text-window owners keep the production call sites source-shaped while
+// allowing the pure selectors and state transitions to be tested in isolation.
+// DUMPLOG's game-over output is compile-time excluded from the recorder build.
+export async function list_genocided(
+    defquery, ask, state = game,
+    {
+        displayTextWindow = displayTtyMenuTextWindow,
+        menu = select_menu,
+        queryFunction = null,
+    } = {},
+) {
+    const dumping = defquery === 'd';
+    const genoing = defquery === 'g';
+    let both = Boolean(state.program_state?.gameover
+        || state.wizard || state.discover);
+    if (dumping || genoing) defquery = 'y';
+    if (genoing) both = false;
+
+    const genocided = num_genocides(state);
+    const extinct = both ? num_extinct(state) : 0;
+    const gone = num_gone(G_GENOD | (both ? G_EXTINCT : 0), state);
+    if (gone.length > 0) {
+        const query = `Do you want a list of ${extinct && !genocided
+            ? 'extinct ' : ''}species${genocided ? ' genocided' : ''}${
+            extinct && genocided ? ' and extinct' : ''}?`;
+        const responses = gone.length > 1 ? 'ynaq' : 'ynq\u001ba';
+        const answer = ask
+            ? queryFunction
+                ? await queryFunction(query, responses, defquery, true, state)
+                : await tty_yn_function(query, responses, defquery, state)
+            : defquery.charCodeAt(0);
+        const keyQ = 'q'.charCodeAt(0);
+        const keyY = 'y'.charCodeAt(0);
+        const keyA = 'a'.charCodeAt(0);
+        if (answer === keyQ) disclosureStop(state);
+        if (answer !== keyY && answer !== keyA) return;
+
+        let indexes = gone;
+        let classHeader = false;
+        if (gone.length > 1) {
+            if (answer === keyA
+                && await set_vanq_order(false, state, { menu }) < 0)
+                return;
+            const savedSortmode = state.flags?.vanq_sortmode;
+            if (state.flags
+                && (savedSortmode === VANQ_COUNT_H_L
+                    || savedSortmode === VANQ_COUNT_L_H))
+                state.flags.vanq_sortmode = VANQ_ALPHA_MIX;
+            indexes = [...gone].sort((left, right) => vanqsort_cmp(
+                left, right, state,
+            ));
+            classHeader = state.flags?.vanq_sortmode === VANQ_MCLS_LTOH
+                || state.flags?.vanq_sortmode === VANQ_MCLS_HTOL;
+            if (state.flags && savedSortmode !== undefined)
+                state.flags.vanq_sortmode = savedSortmode;
+        }
+
+        const lines = [];
+        const title = `${genocided ? 'Genocided' : 'Extinct'}${
+            extinct && genocided ? ' or extinct' : ''} species:`;
+        lines.push({ text: title });
+        if (!dumping) lines.push({ text: '' });
+        // C insight.c:3083-3089 passes ask ? ATR_NONE :
+        // iflags.menu_headings.attr to putstr() for class headings. The
+        // command keeps the configured menu heading attribute; final
+        // disclosure suppresses it because `ask` is true at that call site.
+        const classHeadingAttr = ask
+            ? ATR_NONE
+            : Number.isInteger(state.iflags?.menu_headings?.attr)
+                ? state.iflags.menu_headings.attr : ATR_INVERSE;
+        let previousClass = null;
+        for (const index of indexes) {
+            const monster = state.mons?.[index] ?? {};
+            const mlet = monster.mlet ?? 0;
+            if (classHeader && mlet !== previousClass) {
+                lines.push({
+                    text: upstart(MONSTER_CLASS_EXPLANATIONS[mlet] ?? ''),
+                    attr: classHeadingAttr,
+                });
+                previousClass = mlet;
+            }
+            let text = ` ${makeplural(vanquishedName({ monster }))}`;
+            if (((monsterVitals(state)[index]?.mvflags ?? 0) & G_GONE)
+                === G_EXTINCT)
+                text += ' (extinct)';
+            lines.push({ text });
+        }
+        if (!dumping) lines.push({ text: '' });
+        if (genocided) lines.push({ text: `${genocided} species genocided.` });
+        if (extinct) lines.push({ text: `${extinct} species extinct.` });
+        await displayTextWindow(state, lines);
+        return;
+    }
+
+    if (!state.program_state?.gameover && !dumping)
+        await ttyPline(`No creatures have been genocided${genoing ? ' yet' : ''}.`, state);
+}
+
+// C ref: insight.c dogenocided() (3135-3141).  The command's menu-requested
+// flag selects the all-species query; list_genocided() owns the actual report.
+export async function dogenocided(state = game, options = {}) {
+    const defquery = state.iflags?.menu_requested ? 'a' : 'y';
+    await list_genocided(defquery, false, state, options);
+    return ECMD_OK;
 }
 
 // C ref: insight.c sokoban_in_play() (2517-2528). This intentionally follows

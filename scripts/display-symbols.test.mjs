@@ -5,6 +5,8 @@ import { createArtifactTable } from '../js/artifacts.js';
 import {
     ALTAR,
     AM_CHAOTIC,
+    BC_BALL,
+    BC_CHAIN,
     AM_LAWFUL,
     AM_MASK,
     AM_NEUTRAL,
@@ -83,6 +85,7 @@ import {
     STRANGLED,
     STUNNED,
     SVALL,
+    SV7,
     SYM_NOTHING,
     SYM_BOULDER,
     TDWALL,
@@ -172,7 +175,6 @@ import {
     trap_to_glyph,
     tty_capacity_status,
     unmap_invisible,
-    UnsupportedMapMemoryError,
     UnsupportedStatusRefreshError,
     SCORER_DEC_MAP,
     weapon_status,
@@ -247,6 +249,7 @@ import {
 import {
     ARROW,
     BOULDER,
+    BALL_CLASS,
     CHEST,
     CLOAK_OF_PROTECTION,
     COIN_CLASS,
@@ -257,7 +260,10 @@ import {
     FIRST_OBJECT,
     FOOD_CLASS,
     GOLD_PIECE,
+    HEAVY_IRON_BALL,
     ILLOBJ_CLASS,
+    CHAIN_CLASS,
+    IRON_CHAIN,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LOW_BOOTS,
@@ -2180,7 +2186,7 @@ test('newsym uses the rogue level pair of darkening rules', () => {
     );
 });
 
-test('feel_location stops on a sensed monster and a distant square', () => {
+test('feel_location maps a sensed monster after tactile memory updates', () => {
     const x = 7;
     const y = 4;
     const state = feelingHeroBeside(x, y);
@@ -2198,33 +2204,17 @@ test('feel_location stops on a sensed monster and a distant square', () => {
         intrinsic: 0, extrinsic: 1, blocked: 0,
     };
     // C runs this test last, after set_seenv(), _map_location() and the
-    // dark-room rewrite; the port hoists it above all three so the stop
-    // leaves the map exactly as it found it. Nothing else holds the hoist in
-    // place, so the square is read back here field by field. `seenv`,
-    // `remembered_glyph` and `lastseentyp` are the three map-memory writes,
-    // and `disp_ch` is the drawn cell a show_glyph_cell() below the guard
-    // would have painted.
+    // dark-room rewrite. display_monster() is a discarded callee whose full
+    // mimic/intermediate-display owner is still an explicit gap here.
     const square = state.level.at(x, y);
-    const rememberedBefore = square.remembered_glyph ?? null;
-    const cellBefore = {
-        seenv: square.seenv ?? null,
-        disp_ch: square.disp_ch ?? null,
-        disp_color: square.disp_color ?? null,
-        lastseentyp: state.level.lastseentyp?.[x]?.[y] ?? null,
-    };
-    assert.throws(
-        () => feel_location(x, y, state),
-        UnsupportedMapMemoryError,
+    feel_location(x, y, state);
+    assert.notEqual(square.seenv ?? 0, 0);
+    assert.equal(
+        glyph_to_cmap(square.remembered_glyph.glyph), S_darkroom,
     );
-    // Compared by identity: every map-memory write replaces the record with a
-    // fresh object, so a surviving reference means no write happened.
-    assert.equal(square.remembered_glyph ?? null, rememberedBefore);
-    assert.deepEqual({
-        seenv: square.seenv ?? null,
-        disp_ch: square.disp_ch ?? null,
-        disp_color: square.disp_color ?? null,
-        lastseentyp: state.level.lastseentyp?.[x]?.[y] ?? null,
-    }, cellBefore);
+    assert.equal(state.level.lastseentyp[x][y], ROOM);
+    assert.ok(game.unported.has('display.c display_monster'));
+    assert.equal(state.level.monsters[x][y].meverseen, undefined);
 
     // Without the sensing the same square is felt normally.
     state.u.uprops[DETECT_MONSTERS] = {
@@ -2236,9 +2226,6 @@ test('feel_location stops on a sensed monster and a distant square', () => {
         S_darkroom,
     );
 
-    // C's comment restricts the square to the hero's own or one adjacent to
-    // it; this port asserts that rather than assuming it.
-    assert.throws(() => feel_location(x + 2, y, state), /adjacent square/);
 });
 
 test('reglyph_darkroom points S_darkroom at S_room or at nothing', () => {
@@ -2552,9 +2539,8 @@ test('same_remembered_glyph separates two objects that draw the same cell',
 });
 
 test('feel_location keeps its four tactile-state terms apart', () => {
-    // display.c:769-771 and 776-891. Each state has its own single writer in
-    // js/, so each is set on its own here; a guard that had folded them into
-    // one condition would let three of the four through.
+    // display.c:769-771 and 776-891. Each state has its own source branch,
+    // and each is set on its own here so a collapsed guard cannot hide one.
     const x = 7;
     const y = 4;
     for (const set of [
@@ -2571,10 +2557,14 @@ test('feel_location keeps its four tactile-state terms apart', () => {
         const state = feelingHeroBeside(x, y);
         state.level.at(x, y).typ = ROOM;
         set(state);
-        assert.throws(
-            () => feel_location(x, y, state),
-            /unsupported tactile floor state/,
-        );
+        const square = state.level.at(x, y);
+        feel_location(x, y, state);
+        if (state.u.uinwater) {
+            assert.equal(square.seenv ?? 0, 0);
+            assert.equal(square.remembered_glyph, undefined);
+        } else {
+            assert.notEqual(square.seenv ?? 0, 0);
+        }
     }
 
     // C passes FALSE, so a hero teetering at the edge of a pit she can see
@@ -2589,6 +2579,69 @@ test('feel_location keeps its four tactile-state terms apart', () => {
         glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
         S_darkroom,
     );
+});
+
+test('feel_location tracks the first ball or chain on a floor pile', () => {
+    // display.c:865-891. Punished memory is independent for the two objects,
+    // and C only sets a bit when that object is the pile head at the felt
+    // coordinates. A later floor object clears the corresponding bit.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    state.objects[HEAVY_IRON_BALL] = {
+        oc_class: BALL_CLASS, oc_color: CLR_GRAY,
+    };
+    state.objects[IRON_CHAIN] = {
+        oc_class: CHAIN_CLASS, oc_color: CLR_GRAY,
+    };
+    const ball = {
+        otyp: HEAVY_IRON_BALL,
+        oclass: BALL_CLASS,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+    };
+    const chain = {
+        otyp: IRON_CHAIN,
+        oclass: CHAIN_CLASS,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+    };
+    state.uball = ball;
+    state.uchain = chain;
+    state.u.bc_felt = BC_BALL | BC_CHAIN;
+    state.level.at(x, y).typ = ROOM;
+
+    state.level.objects[x][y] = chain;
+    feel_location(x, y, state);
+    assert.equal(state.u.bc_felt & BC_CHAIN, BC_CHAIN);
+    assert.equal(state.u.bc_felt & BC_BALL, 0);
+
+    chain.nexthere = ball;
+    state.level.objects[x][y] = ball;
+    feel_location(x, y, state);
+    assert.equal(state.u.bc_felt & BC_CHAIN, 0);
+    assert.equal(state.u.bc_felt & BC_BALL, BC_BALL);
+
+    state.level.objects[x][y] = null;
+    feel_location(x, y, state);
+    assert.equal(state.u.bc_felt & (BC_BALL | BC_CHAIN), 0);
+});
+
+test('feel_location clamps distant boulder-push directions', () => {
+    // display.c set_seenv() reduces coordinates to signs. hack.c moverock()
+    // can feel a boulder's destination two cells away, which must use the
+    // same east viewing vector as an adjacent square.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    const destination = state.level.at(x + 2, y);
+    destination.typ = ROOM;
+    feel_location(x + 2, y, state);
+    assert.equal(destination.seenv, SV7);
 });
 
 test('feel_location reveals only an engraving that can be felt', () => {
