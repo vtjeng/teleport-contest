@@ -1,38 +1,36 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 766,
+  "remainingScreensUpperBound": 751,
   "status": "complete",
-  "commit": "df20c4723600647befa2a614ded8f7eb0f0814cd",
+  "commit": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1048,
-    "kind": "stop",
+    "step": 1063,
+    "kind": "screen",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "simple monster action requires forgetting a remembered invisible monster on a plan",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 766
+    "remainingScreensUpperBound": 751
   },
-  "summary": "Validated force-fight correction df20c472 clears the hack.c branch. The first blocker remains at input step 1048 and now belongs to mon.c mondead planning map-memory cleanup. A8 is ready for combined validation; A9 has traced its later first screen mismatch at 1063 to the blind object-pile heading in invent.c look_here. The validated suffix remains 766 screens.",
+  "summary": "Monster-death planning cleanup advances the first mismatch from step1048 to screen1063. C invent.c look_here includes that in the blind multi-object heading, while JavaScript omits it. A9 is ready for combined validation; A10 addresses the later wizard-blindness prompt at1094. The new queue suffix is751 screens.",
   "source": {
-    "file": "mon.c",
+    "file": "invent.c",
     "functions": [
-      "mondead"
+      "look_here"
     ],
-    "branch": "After logdeadmon, C mondead3167-3175 clears a remembered invisible-monster glyph with unmap_object before m_detach. Current JavaScript refuses that cleanup during planning because planningState shares level.locations with the live game. Clone map-memory cells before simulation so the source cleanup can run without erasing the live marker, and preserve the source cleanup/detach/drop order with planned redraws isolated.",
+    "branch": "For a blind hero on a multi-object pile with object display enabled, C invent.c look_here4289-4298 formats %s that %s here: using Things/Other things and you feel/are. JavaScript omits that only in the blind predicate, shifting the displayed text at screen1063 without an RNG change.",
     "callers": [
-      "C monster-death paths call mon.c mondead, whose marker branch precedes m_detach; js/mon.js mondead reaches the same branch from ordinary planned monster actions after the force-fight turn.",
-      "JavaScript unported_monster_actions.js planningState constructs the temporary turn state used by production monster-action preflight; its cloned level must own cells before mon.c marker cleanup."
+      "C pickup.c check_here calls invent.c look_here after movement or pickup, while invent.c dolook is the explicit look command. JavaScript js/pickup.js check_here and js/invent.js dolook use the same canonical look_here implementation and existing object-pile display callback."
     ],
     "dependencies": [
-      "display.c unmap_object408-438 mutates map memory. JavaScript map_background/map_trap replace remembered_glyph records, so shallow per-cell cloning isolates the observed writes without copying mutable nested records.",
-      "mon.c m_detach calls mon_leaving_level then steal.c relobj; preserve their source order and use the planning redraw owner so inventory release cannot paint the live terminal.",
-      "Keep preexisting engraving refusal and unrelated life-saving, vampire, vault-guard and special-death gaps distinct. This is a planning state-ownership divergence, not a claim that the whole mon.c source is complete."
+      "Preserve existing dfeature output, object naming, cockatrice handling, menu dismissal and engraving order. The correction changes only the source heading string.",
+      "The cursor/More mismatch at1094 belongs to wizcmds.c wiz_intrinsic blindness handling and is queued separately as A10; the later wounded-monster refusal is downstream of both."
     ]
   },
   "goalKind": "divergence-fix",
@@ -60,6 +58,12 @@
     "Read-only A8 source check confirms C mon.c3167-3175 ordering, m_detach -> mon_leaving_level -> relobj, and clone map-cell ownership. display.js map memory operations replace remembered_glyph rather than mutating nested fields, so shallow cells isolate the source writes. The planned redraw callback and existing killRedraw guard keep the live terminal unchanged. The source-pinned test reaches clone marker removal while preserving live marker/monster and RNG state. No changed-code defect was found; later screen1063 remains a separate investigation until traced.",
     "Full checkpoint df20c4723600647befa2a614ded8f7eb0f0814cd/run-FWopIj passes all checks: 31/44 sessions, 10273/11405 screens, 754203/792838 RNG, 10295/11405 cursors and 273/273 recordings. A7 adds two independent recordings totaling 20 screens and 5833 RNG values; the first failure moves from hack.c domove_fight_empty to mon.c mondead at the same step1048. Saved scan .cache/A7-development-scan.json and queue .cache/A7-queue.json establish the unchanged 766-screen suffix.",
     "Worker A9 traced the first A8-branch screen mismatch at1063 to C invent.c look_here4289-4298: its blind multi-object heading includes that. JavaScript omitted that word. The worker reports a source-backed correction, 71/71 focused tests and lint passing, with no RNG or cursor change at that screen. It remains unaccepted worker work.",
-    "A9 immutable4b070b70417d076bcd014287cd0ba31f2a5bdd84 corrects the blind-pile heading and passes71 focused tests and lint; it is queued after A8. Worker A merged accepted dc91c66d at b376fcbe8b5adb68e2288424320cb9353ec7d766 and reran71 tests. Its next first mismatch is screen/cursor1094 during #wizintrinsic blindness: C remains in the intrinsic menu while JavaScript produces a timeout More prompt; RNG still matches. A10 has claimed wizcmds.c wiz_intrinsic and potion.c make_blinded for that source trace, separate from B8 toggle_blindness."
+    "A9 immutable4b070b70417d076bcd014287cd0ba31f2a5bdd84 corrects the blind-pile heading and passes71 focused tests and lint; it is queued after A8. Worker A merged accepted dc91c66d at b376fcbe8b5adb68e2288424320cb9353ec7d766 and reran71 tests. Its next first mismatch is screen/cursor1094 during #wizintrinsic blindness: C remains in the intrinsic menu while JavaScript produces a timeout More prompt; RNG still matches. A10 has claimed wizcmds.c wiz_intrinsic and potion.c make_blinded for that source trace, separate from B8 toggle_blindness.",
+    "Coordinator integrated A8 immutable d5b93ff2 as2c0f1a3b8256da162502ea5246acd9f98ddc05ec. Preflight passes, affected run-BI4lyt passes927/927 tests, lint run-sPXsGY and quality run-4DCwJE pass. Full combined checkpoint is now running; no new development score is claimed.",
+    "At exact candidate2c0f1a3b, the saved44-row checkpoint scan emits1101 screens but its FIRST screen divergence is1063, row0 column47 (C t, JS y); RNG divergence is null. The first cursor divergence is1094, C[38,13,1] and JS[44,0,1]. The later wounded-monster refusal must not replace1063 as the next goal.",
+    "Coordinator compared immutable A9 4b070b70417d076bcd014287cd0ba31f2a5bdd84 with C invent.c look_here multi-object branch: C Sprintf supplies that outside the conditional predicate, and the corrected JavaScript heading has identical blind and sighted output. Its source-pinned object-pile/cockatrice test preserves output order.",
+    "A10 immutable481b11ae4ec50b0e7dfae01d042364b33ec3571d routes BLINDED from wizcmds.c wiz_intrinsic1020-1022 to canonical potion.c make_blinded and admits silent positive-to-positive timed blindness. Two source-pinned/menu-runtime tests, lint and bounded replay pass on its worker branch:1096 emitted screens with no screen/cursor/RNG divergence before the existing wounded-monster stop. This delivery is unaccepted and has no main score claim.",
+    "Worker A traced the first remaining boundary after A10 to C uhitm.c known_hitum623-633: on the wounded-monster branch, rn2(25) precedes !rn2(3)?rnd(100):0, monmove.c monflee(mon,fleeTime,FALSE,TRUE), and possible u.ustuck release. JavaScript consumes rn2(25) then refuses. A11 will wire the existing canonical monflee and set_ustuck owners; this remains separate queued worker progress beyond accepted main.",
+    "Full checkpoint2c0f1a3b8256da162502ea5246acd9f98ddc05ec/run-7lxyS6 passes all checks:31/44 sessions,10318/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A8 gains45 development screens,1940 RNG values and46 cursors; no new recording is added and all10473 recording screens remain matched. Saved .cache/A8-development-scan.json and .cache/A8-queue.json move the first mismatch from1048 to1063 and the queue suffix from766 to751. Frozen syntheticv1 remains2/9 sessions and534/918 screens."
   ]
 }
