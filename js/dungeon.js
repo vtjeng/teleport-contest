@@ -1588,7 +1588,7 @@ function db_under_typ(mask) {
 
 // C ref: rm.h SURFACE_AT() (146-149). DRAWBRIDGE_UP is the square in front of a
 // closed drawbridge rather than a surface, so it reports what lies beneath.
-function surface_typ(location) {
+export function surface_typ(location) {
     if (location?.typ !== DRAWBRIDGE_UP) return location?.typ;
     return db_under_typ(location.flags || location.drawbridgemask || 0);
 }

@@ -150,15 +150,14 @@ export function picking_lock(state = game) {
     return null;
 }
 
-// C ref: lock.c picking_at() (30-36). The xlock door pointer is canonical;
-// comparing coordinates also handles fixtures that restore only its map
-// location rather than the object identity.
+// C ref: lock.c picking_at() (30-36). gx.xlock.door is a pointer to the
+// canonical level cell, so this pure query must compare that identity rather
+// than initialize xlock or substitute a coordinate comparison.
 export function picking_at(x, y, state = game) {
-    const lock = xlockContext(state);
-    if (state.go?.occupation !== picklock) return false;
-    const door = lock.door;
-    return door === state.level?.at(x, y)
-        || (door?.x === x && door?.y === y);
+    const door = state.xlock?.door;
+    return state.go?.occupation === picklock
+        && door != null
+        && door === state.level?.at(x, y);
 }
 
 // C ref: lock.c reset_pick() (258-266).

@@ -35,6 +35,7 @@ import {
     OBJ_FLOOR,
     LAVAPOOL,
     LAVAWALL,
+    MOAT,
     OBJ_INVENT,
     POOL,
     REFLECTING,
@@ -1094,6 +1095,34 @@ test('a cold bolt over water or lava stops at what it would freeze',
         );
         assert.ok(result <= 0, `${typ}`);
     }
+});
+
+test('hallucinated cold water names use display RNG, not core RNG', async () => {
+    await aimedWand(-1, 0, 0, WAN_COLD);
+    const square = game.level.at(game.u.ux - 1, game.u.uy);
+    square.typ = MOAT;
+    game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const displayCalls = [];
+    const messages = [];
+    const random = {
+        ...straightThrough(),
+        rn2: () => assert.fail('core RNG must not name hallucinated water'),
+    };
+    await zap_over_floor(
+        game.u.ux - 1, game.u.uy, 2, { value: false }, true, 0,
+        game, random,
+        {
+            displayRandom: (bound) => {
+                displayCalls.push(bound);
+                return 0;
+            },
+            message: async (line) => messages.push(line),
+            norepMessage: async (line) => messages.push(line),
+        },
+    );
+    assert.deepEqual(displayCalls, [41]);
+    assert.deepEqual(messages, ['The deep yoghurt is bridged with ice!']);
 });
 
 test('a hero the bolt cannot burn stops it before the damage roll',

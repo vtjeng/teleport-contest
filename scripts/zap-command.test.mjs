@@ -1032,10 +1032,9 @@ test('every zap refusal names a zap.c function the port has not ported',
     // - zapyourself() is that function's `default:`, where C calls
     //   impossible(); it covers every object type but the two that sleep.
     //
-    // The rest are the ray's, in the order the section declares them:
-    // flash_str(), zap_hit(), zhitu(), zap_over_floor(), dobuzz(), ubuzz(),
-    // and weffects(), with dig.c zap_dig()'s three unported branch boundaries
-    // immediately before the zap.c caller's remaining boundaries.
+    // The rest are the ray's, in source order. Ported branches have no
+    // refusal inventory entry; calls whose result is discarded remain
+    // explicit note_unported() gaps instead.
     assert.deepEqual(
         [...source.matchAll(
             /new UnsupportedZapError\(\s*['"`]([^'"`]*)/gu,
@@ -1043,42 +1042,13 @@ test('every zap refusal names a zap.c function the port has not ported',
         [
             // dozap() and zapyourself().
             'backfire', 'losehp', 'shieldeff', 'zapyourself',
-            // resist(): the killed-by-damage arms.
+            // resist(): the still-unported killed-by-damage arms.
             'resist',
-            // zhitm() monster arm: the fire-spell arm, the cold-spell arm,
-            // and the remaining unported damage types.
-            'spell_damage_bonus', 'spell_damage_bonus', 'zhitm',
-            // flash_str() and zap_hit().
-            'rnd_hallublast', 'spell_hit_bonus',
-            // zhitu(): the fire-resistant hero and the other six damage types.
+            // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
-            // zap_over_floor(): the exploding-wand caller, then the four
-            // terrains the fire arm acts on, the cold arm's two, poison gas,
-            // iron bars, and the three arms of the shared tail.
-            'zap_over_floor',
-            'delfloortrap', 'melt_ice', 'create_gas_cloud', 'dryup',
-            'start_melt_ice_timeout', 'start_melt_ice_timeout',
-            'create_gas_cloud', 'dissolve_bars',
-            'cvt_sdoor_to_door', 'add_damage', 'burn_floor_objects',
-            // dobuzz(): a type that is not a hero wand zap, a hallucinating
-            // hero, the swallowed hero, the Rider arm, PM_DEATH absorption,
-            // disintegrate_mon(), armor disintegration, slept_monst(), the
-            // steed, the reflecting hero, lightning's flashburn(), the Plane
-            // of Air and the shop door.
-            'dobuzz', 'rnd_hallublast', 'dobuzz',
-            'dobuzz', 'dobuzz', 'disintegrate_mon',
-            'monster kill path: ${what}',
-            'armor disintegration in dobuzz', 'slept_monst',
-            'dobuzz',
-            'flashburn', 'Is_airlevel', 'pay_for_damage',
-            // zapnodir() retains its default for the other directionless
-            // types. dig.c zap_dig() has no UnsupportedZapError boundary now:
-            // its vertical dighole() and adjacent-pit dighole()/pit_flow()
-            // calls are discarded-result gaps recorded with note_unported().
-            // weffects() retains the steed, immediate wand, cast spell, and C
-            // impossible() refusals.
-            'zapnodir', 'zap_steed', 'zapsetup', 'ubuzz',
-            'weffects',
+            // zapnodir() and weffects() retain their source defaults for
+            // directionless or unsupported caller families.
+            'zapnodir', 'zap_steed', 'zapsetup', 'ubuzz', 'weffects',
         ],
     );
 });
