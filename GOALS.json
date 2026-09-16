@@ -55538,7 +55538,7 @@
     {
       "id": "port-potion-peffect-extra-healing-seed4500-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete extra-healing potion effect and quaff dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -55549,8 +55549,8 @@
       "spans": [
         {
           "name": "peffect_extra_healing",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
           "functions": [
             "peffect_extra_healing"
           ]
@@ -55562,8 +55562,11 @@
         "screens": 10539,
         "rng": 759995
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+      "delivered": {
+        "screens": 0,
+        "rng": 1
+      },
       "functions": [
         {
           "name": "peffect_extra_healing",
@@ -55738,6 +55741,548 @@
               "recordings/potion.c/extra-healing-blessed-independent.session.json",
               "recordings/potion.c/extra-healing-uncursed-independent.session.json",
               "recordings/potion.c/extra-healing-cursed-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1204,
+          "kind": "stop",
+          "function": "make_blinded",
+          "functionDeclared": true,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: a potion's vapors require make_blinded() outside the ordinary cream-pie transitions",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 610,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 610,
+              "status": "complete",
+              "commit": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1204,
+                "kind": "stop",
+                "function": "make_blinded",
+                "functionDeclared": true,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: a potion's vapors require make_blinded() outside the ordinary cream-pie transitions",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 610
+              },
+              "summary": "Extra healing now reaches healup, but make_blinded refuses the timed-blindness cure at step1204 before the sight-restoration screen. Complete potion.c make_blinded and its shared callers, preserving the visibility probe, source messages and final vision update.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "make_blinded"
+                ],
+                "branch": "C potion.c261-331 probes Blind with a temporary timeout, restores the old flags, suppresses speech while Unaware, and distinguishes actual visibility changes from timed blindness under an eyeless form, permanent blindness, a blindfold or the Eyes of the Overworld. It commits the timeout and calls toggle_blindness only when visibility changes. At the examined JavaScript commit, an allowlist refuses the talking cure before this branch unless a narrowly specified wipeoff state holds.",
+                "callers": [
+                  "The admitted quaff command reaches dodrink -> dopotion -> peffects(POT_EXTRA_HEALING) -> peffect_extra_healing -> healup(cureblind=TRUE) -> make_blinded(0,TRUE), matching potion.c peffects1399, peffect_extra_healing1128-1143 and healup1428-1458.",
+                  "make_blinded is also called by wipeoff, wiz_intrinsic, monster blindness attacks, cream-pie application, timeouts and other status effects; preserve each caller’s live or planning-state ownership."
+                ],
+                "dependencies": [
+                  "Use canonical Blind/Hallucination/Unaware/property predicates, set_itimeout, body_part/eyecount, makeplural/vtense and toggle_blindness in C order. Hallucination resistance and non-timeout intrinsic flags must survive the probe.",
+                  "C uses Your for both blindfold messages and identifies strange_feeling as potion.c1461. The ball.c set_bc and potion.c strange_feeling calls discard results and may remain explicitly named gaps; do not manufacture their effects.",
+                  "Record a genuinely blinded-to-sighted production transition and a cheap independent variation. The existing extra-healing recordings begin sighted and exercise the unchanged-zero call, so they do not establish this new cure transition."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Exact committed scan .cache/A13-development-scan.json at3b1823e02943b8176b7f4832b7f90f59ceeb1820 emits1204 of1814 screens with divergence=null and stops in make_blinded. The recorded C message is You feel much better. You can see again.; the quaff path has passed the previously missing extra-healing dispatcher.",
+                "Source comparison read C potion.c261-331 and current js/potion.js make_blinded402-467. The refusal gate precedes the C visibility transition; completing peffect_extra_healing alone cannot remove it.",
+                "Candidate525904a90cd268eccc559224773cec1574553222 supplies the broader transition branches but omits Your in the two blindfold messages and misattributes strange_feeling to pline.c. These source defects and the missing blinded cure recording must be corrected before acceptance.",
+                "Historical counter-evidence: a later refusal does not establish the first mismatch. Earlier comparisons emitted1101 screens but first diverged at1063 in the blind pile heading, then1094 in blindness state. Compare screens, cursors and RNG before treating an emitted-screen count as parity.",
+                "Historical tactile recipe counter-evidence: the initial welcome More prompt consumed Ctrl-W in the invalid punishment setup, so the subsequent inventory screen and obj_resists mismatch did not establish a feel_location defect. The corrected sighted punishment recording verifies setup only; it does not reach feel_location. Unrecorded active tactile and beam entry points remain tracked in their parked goals.",
+                "Historical return-contract counter-evidence: feel_location must complete before the wounded-monster continuation is accepted; the earlier source candidate threw inside the incomplete segment and the scorer discarded it. The recovered failure is preserved in checkpoint history and is not a new score gain."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+        "screens": 10539,
+        "rng": 759996
+      }
+    },
+    {
+      "id": "port-mon.c-doppelganger-distress-seed0360-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete monster form selection and shapechange state transitions",
+      "cFile": "mon.c",
+      "sessions": [
+        "seed0360-wizard-world-tour",
+        "seed0361-archeologist-tour"
+      ],
+      "selectionReason": "Worker B continued seed0360 after the Wizard filler port and traced its step805 doppelganger stop to mon.c newcham and form selection. This is the oldest dependency-ready delivery; its accepted A12 dependency is now available, while the higher-ranked Knight make_blinded scope remains with worker A. Source details are in investigations/seed0360-wizard-world-tour.json.",
+      "detail": "Select the complete select_newcham_form through newcham family. The complete decide_to_shapeshift caller and source-required creation, revival, restoration and special-level callers are supporting wiring. Record unverified active entry families explicitly and park the goal after its verified span until their production recordings exist.",
+      "spans": [
+        {
+          "name": "select_newcham_form..newcham",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "select_newcham_form",
+            "accept_newcham_form",
+            "mgender_from_permonst",
+            "newcham"
+          ]
+        }
+      ],
+      "openedAt": "f65810013f63bc5987abdb53a5b7ae70b06d3a13",
+      "openStanding": {
+        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+        "screens": 10539,
+        "rng": 759996
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "select_newcham_form",
+          "line": 5157,
+          "endLine": 5228,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "accept_newcham_form",
+          "line": 5229,
+          "endLine": 5255,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "mgender_from_permonst",
+          "line": 5256,
+          "endLine": 5277,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "newcham",
+          "line": 5278,
+          "endLine": 5545,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 5157,
+        "to": 5545
+      },
+      "activeStanding": {
+        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+        "screens": 10539,
+        "rng": 759996
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 805,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: distress shapechanger 270",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 28,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 28,
+              "status": "complete",
+              "commit": "81a0190a9566fc609190ba5d930bb72cb938120f",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "step": 805,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported initial-level monster creation: distress shapechanger 270",
+                "unlocatedKinds": [],
+                "recordedSteps": 833,
+                "remainingScreensUpperBound": 28
+              },
+              "summary": "A doppelganger reaches an incomplete newcham path at step805. The source requires complete form selection and state changes, including wizard-controlled creation; Promise-returning creation must finish before level descriptors, inventory and revival callers consume the monster.",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "decide_to_shapeshift",
+                  "select_newcham_form",
+                  "accept_newcham_form",
+                  "mgender_from_permonst",
+                  "newcham"
+                ],
+                "branch": "mon.c decide_to_shapeshift4872–4938 handles regular natural shapeshifters with !mspec_used && !rn2(6), assigns3+rn2(10), then calls newcham with NC_SHOW_MSG. A doppelganger is a regular shapeshifter, but the examined JavaScript preflight admits only Sandestin/chameleon/vampire families and throws before this branch. Complete the selected newcham5278–5534 source and selector/gender helpers, including attachment, inventory and message behavior; admission alone does not complete the functions.",
+                "callers": [
+                  "mon.c mcalcdistress invokes decide_to_shapeshift for natural shapeshifters; js/mon.js mcalcdistress uses the corresponding operation.",
+                  "js/mon.js decide_to_shapeshift at the examined commit invokes makemon_create.js preflight_newcham_distress before choosing a form, then newcham_distress; both must be replaced by complete canonical mon.c owners and their production callers.",
+                  "makemon.c initial natural-shapechanger creation and explicit newcham callers share form-selection/application behavior; B15 must preserve those callers while moving mon.c source ownership to js/mon.js."
+                ],
+                "dependencies": [
+                  "mon.c select_newcham_form5157–5225, accept_newcham_form5229–5253 and mgender_from_permonst5254–5273 define source form selection, rejection and gender/RNG order.",
+                  "mon.c newcham5278–5534 defines the whole state transition; all return-valued callees must be implemented, while unported discarded-result calls may be named gaps only at their actual source sites.",
+                  "do.c flooreffects returns an asynchronous result used by the former-giant boulder-drop branch; newcham must await the canonical implementation before continuing inventory traversal.",
+                  "mon.c unstuck owns asynchronous swallowed cleanup and cooldown; newcham must await it rather than duplicate or suppress a partial refusal.",
+                  "topten.c tt_doppel, get_rnd_toptenentry and classmon are required-return dependencies; preserve the existing-empty-file rank draw and nonempty score-entry behavior through the canonical storage-backed topten.js owner. mon.c pick_animal also needs its Rogue-level retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At accepted commit81a0190a9566fc609190ba5d930bb72cb938120f, the saved fixed-workload scan places the first remaining mismatch at step805 with28 screens remaining. The earlier Quest-generation mismatch is resolved by the complete Wiz-filb.lua port; repeating the old ZOO-dispatch diagnosis would target a superseded cause.",
+                "C mon.c mcalcdistress() invokes decide_to_shapeshift() for natural shapeshifters. Its non-vampire branch at4872–4938 checks mspec_used and rn2(6), assigns3+rn2(10), and calls newcham(..., NC_SHOW_MSG). The examined JavaScript rejects PM_DOPPELGANGER before that branch.",
+                "The required whole-source scope is mon.c newcham5278–5534 with select_newcham_form5157–5225, accept_newcham_form5229–5253, mgender_from_permonst5254–5273 and their consumed-result helpers. Preserve form rejection and Rogue retries, gender and naming RNG order, attachment cleanup, boulder successor traversal, and canonical set_mon_data ownership.",
+                "C topten.c1355–1463 reads score entries sequentially, stops at an invalid or zero entry, then retries rank one when needed. Direct indexing into a later entry is incorrect. A missing scorefile differs from an existing empty file; production startup must install the recorder-equivalent empty record through existing storage operations and preserve later segments. Frozen correction81390616 implements this dependency and its startup path; storage.js remains unchanged.",
+                "C mon.c5209–5211 always asks for a wizard-controlled form after species-specific selection when wizard && mon_polycontrol, even if selection already found a species. Initial makemon creation uses the same newcham path. Frozen correction2cef77943faea9994f47af156af93d817574a140 fixes that ordering, canonical hideunder()/swallowed() calls, and the closed-door vampire enexto()/rloc_to() branch.",
+                "Source completion requires every consumer to await possible shape-changing creation. Candidate549c05470aaa6826f30e27906deb5f45aba3e971 corrects lspo_monster, zap.c montraits/revive, Medusa-statue creation and ordinary-room completion; candidate5853c4b9ab711ca0f3fb0277f5a50c834bc53129 also waits for custom inventory/contents callbacks, Hell descriptors and themed-room fill. These candidates establish the needed return contract but have not passed combined validation.",
+                "At5853c4b9, registered level loaders still discard possible des.monster/des.object Promises. For example, quest_levels.js wizStrt invokes custom inventory and the next chest/monster descriptors without awaiting completion. mklev.js lspo_room runs table.contents before spo_endroom/add_doors, map runs spec.contents before reset_xystart_size, and lspo_region has the same callback gap. The load_special loader await cannot serialize work that the loader itself does not await. Propagate completion through loader bodies and nested room/map/region/inventory/contents callbacks before later argument RNG and context cleanup; queuing descriptor operations afterward cannot repair RNG already evaluated by callers.",
+                "The claimed ordinary-room ordering defect was rejected: at549c0547, the later object and gold work lies inside finishMonster, which is invoked only after maybeMonster resolves. Preserve that ordering; indentation alone did not demonstrate an early random draw."
+              ],
+              "acceptedScoreContext": {
+                "acceptedQueueCount": 28,
+                "acceptedMismatch": "At validated81a0190a the first stop is805, unsupported distress shapechanger270, with no earlier scan divergence.",
+                "checkpoint": "81a0190a9566fc609190ba5d930bb72cb938120f/run-H7h3MP:32/44sessions,10526/11405screens,759963/792838RNG,10548/11405cursors;287/287recordings."
+              },
+              "candidateObservations": [
+                "Saved .cache/B12-checkpoint-scan-cache.json row for seed0360-wizard-world-tour on candidate 90527aab97ad80578ba1ae090eb3c7c40118bf34 reports screensEmitted 805, first screen/RNG/cursor divergence at step 787, C rn2(3)=2 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19), JavaScript rn2(5)=0, and later boundary unsupported initial-level monster creation: distress shapechanger 270.",
+                "The B12 row records the step-787 C cursor [33,9,1] versus JavaScript [44,5,1] and differing map cells, confirming that the regular-level fallback changes generated topology; this diagnostic remains candidate evidence rather than an accepted aggregate score.",
+                "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary.",
+                "B14 combined candidate81a0190a9566fc609190ba5d930bb72cb938120f development score is32/44 sessions,10526/11405 screens,759963/792838 RNG,10548/11405 cursors. Exact scan shows805screens emitted with no divergence before unsupported distress shapechanger270; recordings/checkpoint acceptance still pending at observation time."
+              ]
+            }
+          }
+        },
+        {
+          "session": "seed0361-archeologist-tour",
+          "step": 363,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: distress shapechanger 270",
+          "unlocatedKinds": [],
+          "recordedSteps": 366,
+          "remainingScreensUpperBound": 3,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0361-archeologist-tour.json",
+            "result": {
+              "session": "seed0361-archeologist-tour",
+              "remainingScreensUpperBound": 3,
+              "status": "complete",
+              "commit": "1c15a0dc8ab1e2b351bb39bd6aa3765f411e2b60",
+              "mismatch": {
+                "session": "seed0361-archeologist-tour",
+                "step": 363,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported initial-level monster creation: distress shapechanger 270",
+                "unlocatedKinds": [],
+                "recordedSteps": 366,
+                "remainingScreensUpperBound": 3
+              },
+              "summary": "The remaining stop at step363 rejects a doppelganger before the source shapeshift decision. Complete the shared newcham family and propagate asynchronous creation through its callers; the detailed shared dependency findings are in the seed0360 investigation.",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "newcham"
+                ],
+                "branch": "During monster distress, a doppelganger reaches decide_to_shapeshift. JavaScript rejects its species before the non-vampire mspec_used/rn2(6) decision. C accepts regular shapechangers and, when a change is chosen, selects and applies a form through newcham. Whole newcham5278–5534, its required select_newcham_form5157–5225/accept_newcham_form5229–5253 and consumed helpers must be checked; preserve C decision, RNG, attachment, equipment, naming and relocation order.",
+                "callers": [
+                  "mon.c distress calls decide_to_shapeshift at1197; decide_to_shapeshift4872–4938 calls newcham at4928 when dochng is true and reads its result.",
+                  "js/mon.js decide_to_shapeshift2591 invokes preflight_newcham_distress before the decision, then newcham_distress on a chosen change. js/makemon_create.js preflightDistressShapechange3354 rejects the doppelganger."
+                ],
+                "dependencies": [
+                  "Verify whole decide_to_shapeshift and return-valued form-selection/application helpers against mon.c. Existing declarations and narrow admission tests are not completion evidence.",
+                  "The existing adapter refuses attachments and omits broader newcham behavior. Preserve valid work while completing the whole selected source unit; do not turn the observed species into a session-specific exception.",
+                  "Worker commit07d51ee634e89803555d4eb9e7da01cc09819d22 adds doppelganger admission and a focused test but has no accepted independent recording. It is preserved only on the worker branch and explicitly excluded from this combined candidate."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Passing checkpoint1c15a0dc run-4d7xME completed2026-09-15T01:24:25.317Z: all221regression recordings pass. The post-checkpoint queue moves this session's first mismatch360→363, remaining-screen upper bound6→3.",
+                "Coordinator read the full mon.c shapechange sources during candidate assessment and rechecked decide_to_shapeshift4872–4938, select_newcham_form5157–5225, newcham's selection loop5278–5350 and the JavaScript preflight/caller. PM_DOPPELGANGER is270 in js/monsters.js; the current queue names distress shapechanger270.",
+                "The shared newcham implementation and caller defects are recorded in investigations/seed0360-wizard-world-tour.json. The ordinary doppelganger admission patch alone does not cover wizard form selection, attachment/inventory transitions, or asynchronous level-creation and revival callers."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+        "screens": 10539,
+        "rng": 759996
+      },
+      "parkedReason": "Preserved combined candidate d3625bdc64e51c8d65304cc7e985720cf0c6e556 on codex/B15-pending-20260916 while worker B completes source-ordered fill_zoo and post-finalization makemon continuation. Resume when the corrected delivery is ready; active wizard-control, revival, restoration and special-level entry recordings also remain incomplete. Measure ready make_blinded independently first."
+    },
+    {
+      "id": "port-potion-make-blinded-seed4500-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete blindness timeout changes and source-ordered sight restoration",
+      "cFile": "potion.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "holdout/seed4500-knight-coverage is the highest-priority saved mismatch:610 remaining screens at step1204, investigations/holdout/seed4500-knight-coverage.json traces make_blinded. Worker A14 correction71308346 is ready; B15 is preserved and parked pending its post-finalization creation correction, allowing separate attribution of this independent cure.",
+      "detail": "Port whole potion.c make_blinded261-331, visibility probe and intrinsic flag preservation, Unaware and Hallucination branches, blindfold and eye messages, and final toggle_blindness. Fresh independently chosen Wizard human and elf recordings actually become timed-blind and recover through extra healing.",
+      "spans": [
+        {
+          "name": "make_blinded",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "make_blinded"
+          ]
+        }
+      ],
+      "openedAt": "58f4c4b5cb72e10e2c479f06242ba136bbe297cc",
+      "openStanding": {
+        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+        "screens": 10539,
+        "rng": 759996
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "make_blinded",
+          "line": 261,
+          "endLine": 335,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 261,
+        "to": 335
+      },
+      "activeStanding": {
+        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+        "screens": 10539,
+        "rng": 759996
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1204,
+          "kind": "stop",
+          "function": "make_blinded",
+          "functionDeclared": true,
+          "sourceFile": "potion.c",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: a potion's vapors require make_blinded() outside the ordinary cream-pie transitions",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 610,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 610,
+              "status": "complete",
+              "commit": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1204,
+                "kind": "stop",
+                "function": "make_blinded",
+                "functionDeclared": true,
+                "sourceFile": "potion.c",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: a potion's vapors require make_blinded() outside the ordinary cream-pie transitions",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 610
+              },
+              "summary": "Extra healing now reaches healup, but make_blinded refuses the timed-blindness cure at step1204 before the sight-restoration screen. Complete potion.c make_blinded and its shared callers, preserving the visibility probe, source messages and final vision update.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "make_blinded"
+                ],
+                "branch": "C potion.c261-331 probes Blind with a temporary timeout, restores the old flags, suppresses speech while Unaware, and distinguishes actual visibility changes from timed blindness under an eyeless form, permanent blindness, a blindfold or the Eyes of the Overworld. It commits the timeout and calls toggle_blindness only when visibility changes. At the examined JavaScript commit, an allowlist refuses the talking cure before this branch unless a narrowly specified wipeoff state holds.",
+                "callers": [
+                  "The admitted quaff command reaches dodrink -> dopotion -> peffects(POT_EXTRA_HEALING) -> peffect_extra_healing -> healup(cureblind=TRUE) -> make_blinded(0,TRUE), matching potion.c peffects1399, peffect_extra_healing1128-1143 and healup1428-1458.",
+                  "make_blinded is also called by wipeoff, wiz_intrinsic, monster blindness attacks, cream-pie application, timeouts and other status effects; preserve each caller’s live or planning-state ownership."
+                ],
+                "dependencies": [
+                  "Use canonical Blind/Hallucination/Unaware/property predicates, set_itimeout, body_part/eyecount, makeplural/vtense and toggle_blindness in C order. Hallucination resistance and non-timeout intrinsic flags must survive the probe.",
+                  "C uses Your for both blindfold messages and identifies strange_feeling as potion.c1461. The ball.c set_bc and potion.c strange_feeling calls discard results and may remain explicitly named gaps; do not manufacture their effects.",
+                  "The two independently chosen timed-blind extra-healing recordings reach the blinded-to-sighted production transition and its cheap variation. The three older extra-healing recordings begin sighted and establish the unchanged-zero call only."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Exact committed scan .cache/A13-development-scan.json at3b1823e02943b8176b7f4832b7f90f59ceeb1820 emits1204 of1814 screens with divergence=null and stops in make_blinded. The recorded C message is You feel much better. You can see again.; the quaff path has passed the previously missing extra-healing dispatcher.",
+                "Source comparison read C potion.c261-331 and current js/potion.js make_blinded402-467. The refusal gate precedes the C visibility transition; completing peffect_extra_healing alone cannot remove it.",
+                "Corrected candidate7130834669fc73f380e3dcc9a6a9130a3282373b restores Your in both blindfold messages and attributes strange_feeling to potion.c. Two independent timed-blind recipes now record A cloud of darkness falls upon you. followed by the production extra-healing cure You feel much better. You can see again.; all five extra-healing fresh cases match 13,655 RNG values and228 screens/cursors. Combined acceptance remains pending.",
+                "Historical counter-evidence: a later refusal does not establish the first mismatch. Earlier comparisons emitted1101 screens but first diverged at1063 in the blind pile heading, then1094 in blindness state. Compare screens, cursors and RNG before treating an emitted-screen count as parity.",
+                "Historical tactile recipe counter-evidence: the initial welcome More prompt consumed Ctrl-W in the invalid punishment setup, so the subsequent inventory screen and obj_resists mismatch did not establish a feel_location defect. The corrected sighted punishment recording verifies setup only; it does not reach feel_location. Unrecorded active tactile and beam entry points remain tracked in their parked goals.",
+                "Historical return-contract counter-evidence: feel_location must complete before the wounded-monster continuation is accepted; the earlier source candidate threw inside the incomplete segment and the scorer discarded it. The recovered failure is preserved in checkpoint history and is not a new score gain."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_blinded",
+            "implementation": "js/potion.js",
+            "symbol": "make_blinded",
+            "sourceReview": "Read nethack-c/upstream/src/potion.c:261-331 in full. The port preserves BlindedTimeout extraction, the one-turn visibility probe and restoration of non-timeout flags, Unaware talk suppression, C's Hallucination (including resistance) test, PermaBlind and Blindfolded branches, exact regain/clear/loss/temporary blindness messages, final timeout commit, and the XOR call to the canonical toggle_blindness owner. The C eye-count macro is represented for cyclops/floating-eye forms, including the Your prefix required by potion.c:293 and :319. The discarded potion.c strange_feeling and ball.c set_bc calls are recorded with note_unported only for the live game; planning clones stay silent. The old state-specific refusal and injected substitutes are removed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "wipeoff",
+                "source": "do.c wipeoff"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c pleased"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyman",
+                "source": "polyself.c polyman"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c wiz_intrinsic"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_cream_pie",
+                "source": "apply.c use_cream_pie"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_blnd",
+                "source": "uhitm.c mhitm_ad_blnd"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c decrement_property_timeouts"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_healing",
+                "source": "artifact.c invoke_healing"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "scrolltele",
+                "source": "teleport.c scrolltele"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "rottenfood",
+                "source": "eat.c rottenfood"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c fpostfx"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_see_invisible",
+                "source": "potion.c peffect_see_invisible"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "healup",
+                "source": "potion.c healup"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c m_throw"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "flashburn",
+                "source": "zap.c flashburn"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/cast-healing.test.mjs",
+              "scripts/apply-cream-pie.test.mjs",
+              "scripts/wipe-occupation.test.mjs",
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/extra-healing-blessed-independent.session.json",
+              "recordings/potion.c/extra-healing-uncursed-independent.session.json",
+              "recordings/potion.c/extra-healing-cursed-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-variation.session.json"
+            ],
+            "checkedAt": "cd348d992e9f8c27e3ea417d22c28a9db4d6cd29"
+          }
+        ],
+        "entryPointReview": "make_blinded is a shared impure helper rather than a standalone command. The production peffect_extra_healing -> healup -> make_blinded path is exercised by three independently chosen BUC recipes and two independently chosen timed-blind recipes with strict recordings. The timed-blind recordings begin with #wizintrinsic 50i, show C's A cloud of darkness falls upon you. setup, and reach You feel much better.  You can see again. through the production cure transition. The other callers above are source-traced and covered by their existing command or status tests; the seed4500 continuation replay remains diagnostic only. No entry point is claimed beyond these five matching production recordings.",
+        "entryPoints": [
+          {
+            "name": "peffect_extra_healing -> healup(cureblind) -> make_blinded",
+            "functions": [
+              "make_blinded"
+            ],
+            "recordings": [
+              "recordings/potion.c/extra-healing-blessed-independent.session.json",
+              "recordings/potion.c/extra-healing-uncursed-independent.session.json",
+              "recordings/potion.c/extra-healing-cursed-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-variation.session.json"
             ]
           }
         ]
