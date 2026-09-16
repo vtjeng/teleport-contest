@@ -26,11 +26,13 @@ import {
     FIRE_RES,
     FROMFORM,
     FROMOUTSIDE,
+    GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_NONINVENT,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    IRONBARS,
     HEALTHY_TIN,
     HOMEMADE_TIN,
     HUNGER,
@@ -38,10 +40,12 @@ import {
     HALLUC,
     HALLUC_RES,
     Is_airlevel,
+    Is_astralevel,
     Is_waterlevel,
     KILLED_BY_AN,
     LAST_PROP,
     LIGHT_HEADED,
+    MAGICAL_BREATHING,
     NOT_HUNGRY,
     POISON_RES,
     PROTECTION,
@@ -78,28 +82,40 @@ import {
     W_SADDLE,
     W_TOOL,
     W_WEP,
+    W_NONDIGGABLE,
+    WWALKING,
+    TT_BEARTRAP,
+    BEAR_TRAP,
     NEUTRAL,
 } from './const.js';
 import { adjalign, gainstr, poison_strdmg } from './attrib.js';
 import { set_occupation, yn_function } from './cmd.js';
-import { surface } from './dungeon.js';
+import { tinnable } from './apply.js';
+import { on_level, surface } from './dungeon.js';
+import { newsym } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
+import { note_unported } from './unported.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
+    still_chewing,
     You_can_move_again,
 } from './hack.js';
 import { dist2, lcase } from './hacklib.js';
 import {
     INVLET_BASIC,
     addinv_nomerge,
+    feel_cockatrice,
     freeinv,
     getobj,
+    hands_obj,
+    obj_extract_self,
     obj_here,
     useup,
     useupf,
     will_feel_cockatrice,
 } from './invent.js';
+import { dropy } from './do.js';
 import { iter_mons_safe, mon_offmap } from './mon.js';
 import {
     acidic,
@@ -115,6 +131,7 @@ import {
     herbivorous,
     is_giant,
     is_rider,
+    is_clinger,
     is_were,
     metallivorous,
     poisonous,
@@ -126,6 +143,7 @@ import {
     your_race,
     is_undead,
     olfaction,
+    breathless,
 } from './mondata.js';
 import { AD_ACID, AD_DISE, AT_BREA } from './monsters.js';
 import { monflee } from './monmove.js';
@@ -175,6 +193,7 @@ import {
     PM_NURSE,
     PM_PESTILENCE,
     PM_QUANTUM_MECHANIC,
+    PM_RUST_MONSTER,
     PM_SANDESTIN,
     PM_SMALL_MIMIC,
     PM_WRAITH,
@@ -225,6 +244,8 @@ import {
     remove_object,
     splitobj,
     weight,
+    g_at,
+    mksobj,
 } from './obj.js';
 import {
     ansimpleoname, corpse_xname, donameFresh, otense, safe_qbuf,
@@ -232,6 +253,8 @@ import {
 } from './objnam.js';
 import {
     APPLE,
+    AMULET_CLASS,
+    AMULET_OF_YENDOR,
     CANDY_BAR,
     CARROT,
     CLOVE_OF_GARLIC,
@@ -264,7 +287,9 @@ import {
     SPRIG_OF_WOLFSBANE,
     TIN,
     TRIPE_RATION,
+    BEARTRAP,
 } from './objects.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { discover_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
@@ -272,7 +297,10 @@ import { heroIsBlind } from './startup_a11y.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { obj_stop_timers } from './timeout.js';
-import { Levitation, is_pool_or_lava, unconscious } from './trap.js';
+import {
+    Flying,
+    Levitation, deltrap, is_pool_or_lava, reset_utrap, t_at, unconscious,
+} from './trap.js';
 import { ttyPline } from './tty_message.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -2360,61 +2388,175 @@ function eat_ok(obj, state = game) {
     return GETOBJ_EXCLUDE_SELECTABLE;
 }
 
-// C ref: eat.c floorfood() (3577-3730). Covers the `verb === "eat"` call
-// doeat() makes with corpsecheck 0. Walks the floor object chain and offers
-// each edible candidate through yn_function(). The metallivore's bear-trap,
-// iron-bars and gold questions remain unported.
-//
-// corpsecheck is the sacrifice and tinning selector; #offer and #tin are
-// unported, so only doeat()'s 0 arrives and the tail that rejects a non-corpse
-// for them has no reachable input.
+// C ref: eat.c offer_ok() (3539-3567), the getobj() callback used by
+// pray.c dosacrifice(). Corpses are suggested on ordinary levels while
+// amulets are downplayed away from Astral; the inverse is true on Astral.
+// This callback is pure: it only classifies the candidate and reads the
+// caller's floor-alternative counter for the null candidate.
+export function offer_ok(obj, state = game) {
+    if (!obj)
+        return getobj_else ? GETOBJ_EXCLUDE_NONINVENT : GETOBJ_EXCLUDE;
+
+    if (obj.oclass !== FOOD_CLASS && obj.oclass !== AMULET_CLASS)
+        return GETOBJ_EXCLUDE;
+
+    if (obj.otyp !== CORPSE && obj.otyp !== AMULET_OF_YENDOR
+        && obj.otyp !== FAKE_AMULET_OF_YENDOR)
+        return GETOBJ_EXCLUDE_SELECTABLE;
+
+    // C's `Is_astralevel(&u.uz) ^ (obj->oclass == AMULET_CLASS)` suppresses
+    // corpses on Astral and amulets elsewhere from the suggested set.
+    const astral = Is_astralevel(state.u?.uz);
+    if (Boolean(astral) !== (obj.oclass === AMULET_CLASS))
+        return GETOBJ_DOWNPLAY;
+
+    return GETOBJ_SUGGEST;
+}
+
+// C ref: eat.c tin_ok() (3569-3575). Like offer_ok(), this callback is pure;
+// its null result preserves floorfood()'s "else" wording after a declined
+// floor corpse.
+export function tin_ok(obj, state = game) {
+    if (!obj)
+        return getobj_else ? GETOBJ_EXCLUDE_NONINVENT : GETOBJ_EXCLUDE;
+    if (obj.oclass !== FOOD_CLASS)
+        return GETOBJ_EXCLUDE;
+    if (obj.otyp !== CORPSE || !tinnable(obj, state))
+        return GETOBJ_EXCLUDE_SELECTABLE;
+    return GETOBJ_SUGGEST;
+}
+
+// C ref: eat.c floorfood() (3577-3730). The eat and sacrifice selectors share
+// the floor-object and inventory prompt ordering. The bear-trap, iron-bars,
+// gold, and tinning branches below preserve the same source call order.
 export async function floorfood(verb, corpsecheck, state = game) {
     const u = state.u;
     const uptr = state.youmonst?.data;
     const feeding = verb === 'eat'; /* corpsecheck==0 */
-
-    if (!feeding || corpsecheck)
-        throw new UnsupportedEatError(`floorfood() for '${verb}'`);
+    const offering = verb === 'sacrifice'; /* corpsecheck==1 */
 
     getobj_else = 0; /* haven't asked about floor food */
 
     /* if we can't touch floor objects then use invent food only;
        same when 'm' prefix is used--for #eat, it means "skip floor food" */
+    const walking = Boolean(
+        state.u?.uprops?.[WWALKING]?.intrinsic
+        || state.u?.uprops?.[WWALKING]?.extrinsic,
+    ) && !Is_waterlevel(u.uz);
+    const breathlessHero = Boolean(
+        state.u?.uprops?.[MAGICAL_BREATHING]?.intrinsic
+        || state.u?.uprops?.[MAGICAL_BREATHING]?.extrinsic,
+    ) || breathless(uptr);
     const skipfloor = state.iflags.menu_requested
         || !can_reach_floor(true, state)
         || (feeding && u.usteed);
-
-    if (!skipfloor) {
-        // C skips the floor as well when the hero is over a pool or lava and
-        // Wwalking, is_clinger() or (Flying && !Breathless) keeps them out of
-        // it, and otherwise walks the chain below. Either way the hero has to
-        // be standing on liquid, which the destination admission in
-        // js/hack.js does not allow, so one stop covers both arms.
-        if (is_pool_or_lava(u.ux, u.uy, state))
-            throw new UnsupportedEatError('floorfood() over water or lava');
+    if (!skipfloor
+        && !(is_pool_or_lava(u.ux, u.uy, state)
+            && (walking || is_clinger(uptr)
+                || (Flying(state) && !breathlessHero)))) {
 
         if (feeding && metallivorous(uptr)) {
-            // The bear-trap, iron-bars and gold questions, and with them the
-            // &hands_obj return that doeat() treats as digging.
-            throw new UnsupportedEatError(
-                'floorfood() for a metallivorous hero',
-            );
+            const trap = t_at(u.ux, u.uy, state);
+            if (trap && trap.tseen && trap.ttyp === BEAR_TRAP) {
+                const uInBeartrap = Boolean(
+                    u.utrap && u.utraptype === TT_BEARTRAP,
+                );
+                const qbuf = `There is a bear trap here (${uInBeartrap
+                    ? 'holding you' : 'armed'}); eat it?`;
+                const c = await yn_function(qbuf, 'ynq', 'n', true, state);
+                if (c === 'y'.charCodeAt(0)) {
+                    deltrap(trap, state);
+                    if (uInBeartrap) reset_utrap(true, state);
+                    const objectEnv = objectGenerationEnv({ state });
+                    const beartrap = mksobj(
+                        BEARTRAP, true, false, objectEnv,
+                    );
+                    const dropQbuf = `You only manage to ${uInBeartrap
+                        ? 'free yourself from' : 'disarm'} the bear trap.`;
+                    if (await check_capacity(dropQbuf, state) && beartrap) {
+                        obj_extract_self(beartrap, { state });
+                        await dropy(beartrap, {
+                            ...objectEnv,
+                            hooks: {
+                                ...objectEnv.hooks,
+                                encumberMessage: encumber_msg,
+                                extractExternalObject: remove_object,
+                                newsym,
+                            },
+                        });
+                        return null;
+                    }
+                    return beartrap;
+                } else if (c === 'q'.charCodeAt(0)) {
+                    return null;
+                }
+                ++getobj_else;
+            }
+
+            if (state.level.at(u.ux, u.uy).typ === IRONBARS) {
+                const nodig = Boolean(
+                    state.level.at(u.ux, u.uy).wall_info & W_NONDIGGABLE,
+                );
+                let c = 'n'.charCodeAt(0);
+                const qbuf = 'There are iron bars here';
+                if (nodig || u.uhunger > 1500) {
+                    await ttyPline(
+                        `${qbuf} but you ${nodig ? 'cannot' : 'are too full to'} eat them.`,
+                        state,
+                    );
+                } else {
+                    const digging = state.context?.digging;
+                    const resume = Boolean(
+                        digging?.chew
+                        && digging.pos?.x === u.ux
+                        && digging.pos?.y === u.uy
+                        && on_level(digging.level, u.uz),
+                    );
+                    c = await yn_function(
+                        `${qbuf}; ${resume ? 'resume eating them' : 'eat them'}?`,
+                        'ynq', 'n', true, state,
+                    );
+                }
+                if (c === 'y'.charCodeAt(0)) return hands_obj;
+                if (c === 'q'.charCodeAt(0)) return null;
+                ++getobj_else;
+            }
+
+            if (uptr !== state.mons?.[PM_RUST_MONSTER]) {
+                const gold = g_at(u.ux, u.uy, state);
+                if (gold) {
+                    const qbuf = gold.quan === 1
+                        ? 'There is 1 gold piece here; eat it?'
+                        : `There are ${gold.quan} gold pieces here; eat them?`;
+                    const c = await yn_function(
+                        qbuf, 'ynq', 'n', true, state,
+                    );
+                    if (c === 'y'.charCodeAt(0)) return gold;
+                    if (c === 'q'.charCodeAt(0)) return null;
+                    ++getobj_else;
+                }
+            }
         }
 
         /* Is there some food (probably a heavy corpse) here on the ground? */
         for (let otmp = state.level.objects[u.ux]?.[u.uy] ?? null;
             otmp;
             otmp = otmp.nexthere) {
-            if (otmp.oclass !== COIN_CLASS && is_edible(otmp, state)) {
+            const candidate = corpsecheck
+                ? (otmp.otyp === CORPSE
+                    && (corpsecheck === 1 || tinnable(otmp, state)))
+                : feeding
+                    ? (otmp.oclass !== COIN_CLASS && is_edible(otmp, state))
+                    : otmp.oclass === FOOD_CLASS;
+            if (candidate) {
                 if (otmp.otyp === CORPSE
                     && will_feel_cockatrice(otmp, false, state)) {
-                    throw new UnsupportedEatError(
-                        'floorfood() cockatrice corpse on the floor',
-                    );
+                    await feel_cockatrice(otmp, false, state);
+                    return null;
                 }
                 const one = (otmp.quan ?? 1) === 1;
                 const prefix = `There ${otense(otmp, 'are')} `;
-                const suffix = ` here; eat ${one ? 'it' : 'one'}?`;
+                const suffix = ` here; ${verb} ${one ? 'it' : 'one'}?`;
                 const qbuf = safe_qbuf(
                     prefix, suffix, otmp, donameFresh, ansimpleoname,
                     one ? 'something' : 'things', state,
@@ -2432,7 +2574,27 @@ export async function floorfood(verb, corpsecheck, state = game) {
     /* skipfloor: */
     /* We cannot use GETOBJ_PROMPT since we don't want a prompt in the case
        where nothing edible is being carried. */
-    const otmp = await getobj('eat', eat_ok, GETOBJ_NOFLAGS, state);
+    let otmp;
+    if (feeding) {
+        otmp = await getobj('eat', eat_ok, GETOBJ_NOFLAGS, state);
+    } else if (offering) {
+        otmp = await getobj('sacrifice', offer_ok, GETOBJ_NOFLAGS, state);
+    } else if (corpsecheck === 2) {
+        otmp = await getobj(verb, tin_ok, GETOBJ_NOFLAGS, state);
+    } else {
+        // C's impossible() arm has no return value and leaves no selected
+        // object. Preserve the source gap until an owning diagnostic sink
+        // is ported; this call is deliberately not used as data.
+        note_unported('pline.c impossible');
+        otmp = null;
+    }
+    if (otmp && corpsecheck && !(offering && otmp.oclass === AMULET_CLASS)) {
+        if (otmp.otyp !== CORPSE
+            || (corpsecheck === 2 && !tinnable(otmp, state))) {
+            await ttyPline(`You can't ${verb} that!`, state);
+            otmp = null;
+        }
+    }
     /* resetting 'getobj_else' here isn't essential; it will be cleared the
        next time it needs to be used */
     getobj_else = 0;
@@ -2470,8 +2632,15 @@ export async function doeat(state = game, env = {}) {
         throw new UnsupportedEatError('edibility_prompts()');
     }
 
-    /* from floorfood(), &hands_obj means iron bars at current spot; only the
-       metallivorous arm floorfood() refuses can return it. */
+    /* from floorfood(), &hands_obj means iron bars at current spot; the
+       metallivorous arm treats this as digging rather than as an object meal. */
+    if (otmp === hands_obj) {
+        if (await still_chewing(u.ux, u.uy, state)
+            && state.level.at(u.ux, u.uy).typ === IRONBARS) {
+            await ttyPline('You pause to swallow.', state);
+        }
+        return ECMD_TIME;
+    }
 
     /* We have to make non-foods take 1 move to eat, unless we want to
      * do ridiculous amounts of coding to deal with partly eaten plate

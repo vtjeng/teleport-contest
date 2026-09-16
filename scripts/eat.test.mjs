@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     ACID_RES,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_SELECTABLE,
+    GETOBJ_SUGGEST,
     A_STR,
     CONFLICT,
     FAINTED,
@@ -33,13 +38,17 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
-    eatfood, eating_dangerous_corpse, gethungry, set_tin_variety,
-    temp_resist,
+    eatfood, eating_dangerous_corpse, gethungry, offer_ok,
+    set_tin_variety, temp_resist, tin_ok,
 } from '../js/eat.js';
 import {
+    AMULET_CLASS,
     AMULET_OF_LIFE_SAVING,
+    AMULET_OF_YENDOR,
     CORPSE,
     FAKE_AMULET_OF_YENDOR,
+    FOOD_CLASS,
+    FOOD_RATION,
     MEAT_RING,
     RIN_ADORNMENT,
     RIN_PROTECTION,
@@ -47,6 +56,15 @@ import {
     RIN_SLOW_DIGESTION,
     objects_globals_init,
 } from '../js/objects.js';
+import { tinnable } from '../js/apply.js';
+import { game } from '../js/gstate.js';
+
+const EAT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
+);
+const APPLY_C = readFileSync(
+    new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
+);
 import {
     M1_CARNIVORE,
     M1_HERBIVORE,
@@ -75,6 +93,64 @@ function state() {
     monst_globals_init(result);
     return result;
 }
+
+test('offer_ok follows eat.c corpse and amulet alignment', () => {
+    // eat.c:3539-3567. The callback suggests corpses off Astral and amulets
+    // on Astral, downplaying the opposite class so getobj() still exposes it
+    // through the alternate inventory choices.
+    assert.match(EAT_C, /offer_ok\(struct obj \*obj\)/u);
+    assert.match(EAT_C, /Is_astralevel\(&u\.uz\) \^/u);
+    const subject = state();
+    subject.u = { uz: { dnum: 0, dlevel: 2 } };
+    const savedAstralLevel = game.astral_level;
+    game.astral_level = { dnum: 0, dlevel: 1 };
+    const corpse = { oclass: FOOD_CLASS, otyp: CORPSE };
+    const amulet = { oclass: AMULET_CLASS, otyp: AMULET_OF_YENDOR };
+    try {
+        assert.equal(offer_ok(null, subject), GETOBJ_EXCLUDE);
+        assert.equal(offer_ok(corpse, subject), GETOBJ_SUGGEST);
+        assert.equal(offer_ok(amulet, subject), GETOBJ_DOWNPLAY);
+        subject.u.uz.dlevel = 1;
+        assert.equal(offer_ok(corpse, subject), GETOBJ_DOWNPLAY);
+        assert.equal(offer_ok(amulet, subject), GETOBJ_SUGGEST);
+        assert.equal(
+            offer_ok({ oclass: FOOD_CLASS, otyp: FOOD_RATION }, subject),
+            GETOBJ_EXCLUDE_SELECTABLE,
+        );
+    } finally {
+        game.astral_level = savedAstralLevel;
+    }
+});
+
+test('tin_ok follows eat.c and apply.c corpse checks', () => {
+    // eat.c:3569-3575 and apply.c:2167-2173. Tinning accepts only an
+    // uneaten corpse whose species supplies nutrition.
+    assert.match(EAT_C, /tin_ok\(struct obj \*obj\)/u);
+    assert.match(APPLY_C, /tinnable\(struct obj \*corpse\)/u);
+    const subject = state();
+    const corpse = { oclass: FOOD_CLASS, otyp: CORPSE, corpsenm: 18 };
+    assert.equal(tin_ok(null, subject), GETOBJ_EXCLUDE);
+    assert.equal(tin_ok(corpse, subject), GETOBJ_SUGGEST);
+    corpse.oeaten = 1;
+    assert.equal(tin_ok(corpse, subject), GETOBJ_EXCLUDE_SELECTABLE);
+    corpse.oeaten = 0;
+    subject.mons[18].cnutrit = 0;
+    assert.equal(tin_ok(corpse, subject), GETOBJ_EXCLUDE_SELECTABLE);
+});
+
+test('tinnable follows apply.c nutrition and eaten checks', () => {
+    // apply.c:2167-2173. The pure helper checks oeaten before the species'
+    // cnutrit field, so each condition is pinned independently.
+    assert.match(APPLY_C, /boolean\s+tinnable\(struct obj \*corpse\)/u);
+    const subject = state();
+    const corpse = { corpsenm: 18, oeaten: 0 };
+    assert.equal(tinnable(corpse, subject), true);
+    corpse.oeaten = 1;
+    assert.equal(tinnable(corpse, subject), false);
+    corpse.oeaten = 0;
+    subject.mons[18].cnutrit = 0;
+    assert.equal(tinnable(corpse, subject), false);
+});
 
 test('temp_resist follows eat.c timeout-only resistance rules', () => {
     // Seven turns is a nonzero timeout; FROMFORM, worn armor, and any

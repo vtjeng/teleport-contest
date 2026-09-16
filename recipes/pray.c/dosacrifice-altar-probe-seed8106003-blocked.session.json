@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8106003,
+      "datetime": "20310305081500",
+      "nethackrc": "OPTIONS=name:Offering,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .#wizwish\nhuman corpse\n#levelchange\n20\n                     \u0016?\n>v#teleport\nhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhk.\n#offer\ne ",
+      "comment": "Blocked setup probe preserved for provenance: the Master lich --More-- boundary consumes the subsequent level-change keys before the altar route can run. No passing recording is claimed."
+    }
+  ]
+}

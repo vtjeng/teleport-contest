@@ -268,6 +268,14 @@ export class UnsupportedApplyError extends Error {
     }
 }
 
+// C ref: apply.c tinnable() (2167-2173). An uneaten corpse can be canned only
+// when its species supplies nutrition; this pure predicate is shared by
+// eat.c floorfood()'s tin_ok() and its final corpsecheck validation.
+export function tinnable(corpse, state = game) {
+    if (corpse?.oeaten) return false;
+    return Boolean(state.mons?.[corpse?.corpsenm]?.cnutrit);
+}
+
 // C ref: youprop.h:120 Hallucination, which is the intrinsic timeout alone
 // minus resistance from either source.
 function heroHallucinating(state) {
