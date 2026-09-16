@@ -50391,6 +50391,108 @@
         "screens": 10070,
         "rng": 739263
       }
+    },
+    {
+      "id": "div-makemon-red-dragon-seed4500-20260915",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Admit the source-supported explicit red dragon created by wizard #genesis in holdout/seed4500-knight-coverage: C read.c create_particular_creation() passes PM_RED_DRAGON through makemon.c makemon(), but JavaScript's generic species admission guard rejects it before the already-portable ordinary S_DRAGON lifecycle.",
+      "cFile": "makemon.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The current published-main queue reaches declared makemon.c:makemon at step 978 with the largest remaining bound; B's independent source trace identifies the generic PM_RED_DRAGON refusal as the smallest owner, and its fresh #genesis witness reaches the same entry point with an unrelated seed and character configuration.",
+      "detail": "Current scan at a5b02c92 reports holdout/seed4500-knight-coverage stopping at step 978 on unsupported makemon() monster 146. C read.c create_particular_creation() explicitly names PM_RED_DRAGON and calls makemon(); makemon.c has no species allowlist and the ordinary S_DRAGON path uses the generic constructor/lifecycle. JS js/makemon_create.js assertSupportedSpecies() rejects PM_RED_DRAGON before construction. B's fresh bounded witness uses seeds 9520007 and 9520013, new dates/options, and #genesis red-dragon/female-red-dragon inputs; focused 124/124, lint, and fresh 1/1 (2797 RNG calls, 14 screens/cursors) passed on immutable delivery 8aa998b3ab0cf61b6062b3b990fd95ec55f4657d.",
+      "spans": [
+        {
+          "name": "makemon-red-dragon-admission",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "makemon"
+          ]
+        }
+      ],
+      "openedAt": "a5b02c92dec1499b53e93daf280e211de64a9811",
+      "openStanding": {
+        "sha": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
+        "screens": 10070,
+        "rng": 739263
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 978,
+      "activeStanding": {
+        "sha": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
+        "screens": 10070,
+        "rng": 739263
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 978,
+          "kind": "stop",
+          "function": "makemon",
+          "functionDeclared": true,
+          "sourceFile": "makemon.c",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 146",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 836,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 836,
+              "status": "complete",
+              "commit": "315551e7c1b6a551e62c7eea7ac357fa636dba7e",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 978,
+                "kind": "stop",
+                "function": "makemon",
+                "functionDeclared": true,
+                "sourceFile": "makemon.c",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of the command: unsupported initial-level monster creation: makemon() monster 146",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 836
+              },
+              "summary": "The dungeon.c recbranch_mapseen() correction and the post-arrival get_annotation()/print_level_annotation() wiring now match through the prior holdout/seed4500 mismatch at step 909. The next first boundary is the declared makemon.c makemon() branch at step 978, where the current JavaScript replay stops on unsupported initial-level monster creation for monster 146; this is the next source-owned investigation.",
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "makemon"
+                ],
+                "branch": "The current boundary is the initial-level monster creation path reached by the fixed holdout recording. Inspect the complete makemon() source and its return-valued callers before selecting a span; do not treat the observed monster identity as a session-specific exception.",
+                "callers": [
+                  "The fixed holdout replay reaches the boundary at step 978 after the wizard level-tour commands; the exact C and JavaScript caller chain must be read before assigning a makemon.c span.",
+                  "The prior dungeon.c recbranch_mapseen() and level-arrival annotation fixes are already integrated and covered by the A13 checkpoint."
+                ],
+                "dependencies": [
+                  "Read makemon.c and all direct JavaScript callers; the current mismatch is a declared source branch but no span has been selected yet.",
+                  "Preserve the unsupported boundary until a source-backed goal and independently chosen entry-point evidence are available."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Full checkpoint run-kDZtJm at integrated A13 commit 315551e7c1b6a551e62c7eea7ac357fa636dba7e passes all checks, including 253/253 recordings and no end-of-input over-read; the fixed development score is 10070/11405 screens and 30/44 sessions.",
+                "Post-checkpoint bounded queue refresh run-YYTl7E at the same commit reports holdout/seed4500-knight-coverage stopping at declared makemon.c:makemon step 978 with remainingScreensUpperBound 836. It also shows the prior annotation mismatch at step 909 is no longer first.",
+                "A13's independently chosen level-teleport arrival recording reaches get_annotation()/print_level_annotation(), and the coordinator focused suite passed 32/32 including the source-pinned annotation and goto_level wiring tests."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
