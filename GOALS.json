@@ -55301,7 +55301,7 @@
     {
       "id": "port-dothrow-thitmonst-seed0399-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the whole thrown-object monster-hit gate and required return-valued dependencies",
       "cFile": "dothrow.c",
       "sessions": [
@@ -55312,8 +55312,8 @@
       "spans": [
         {
           "name": "thitmonst",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "828660e9679142e24baf7f00c26130aa1c6a3207",
           "functions": [
             "thitmonst"
           ]
@@ -55523,7 +55523,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 13,
+        "rng": 32
+      },
+      "parkedStanding": {
+        "sha": "828660e9679142e24baf7f00c26130aa1c6a3207",
+        "screens": 10539,
+        "rng": 759995
+      },
+      "parkedReason": "The thitmonst span passed combined validation at 828660e9 with an independent thrown final-miss recording. Unicorn-gem, quest-leader catch/return, kicked-object and applied polearm/grapnel entries remain active but lack matching production recordings; preserve them for source-goal completion."
     }
   ]
 }
