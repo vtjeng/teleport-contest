@@ -1433,6 +1433,8 @@ test('postmov updates an engulfer and admits one that did not move',
         const monster = ordinaryMonster(state, { mx: 5, my: 4 });
         state.u.uswallow = 1;
         state.u.ustuck = monster;
+        state.u.ux0 = -1;
+        state.u.uy0 = -1;
         const events = [];
         const { env } = postmovEnv(state, {
             swallowed: async (first, swallowedState) => {
@@ -1446,6 +1448,9 @@ test('postmov updates an engulfer and admits one that did not move',
             MMOVE_MOVED,
         );
         assert.deepEqual(events, [['swallowed', false, 5, 4]]);
+        // monmove.c assigns ux0/uy0 from the hero's old location before
+        // u_on_newpos(); this source value feeds subsequent redraw logic.
+        assert.deepEqual([state.u.ux0, state.u.uy0], [5, 4]);
         assert.deepEqual([state.u.ux, state.u.uy], [5, 4]);
 
         const { env: stayEnv, redraws } = postmovEnv(state);
@@ -1895,6 +1900,54 @@ test('maybe_spin_web creates a WEB trap and sets mspec_used on success',
         const webTrap = state.level.traps.find(
             t => t.tx === 5 && t.ty === 4 && t.ttyp === WEB);
         assert.ok(webTrap, 'WEB trap created at spider coordinates');
+    });
+
+test('maybe_spin_web marks a visible web and emits its source message',
+    async () => {
+        const { locations, state } = makeState();
+        const monster = ordinaryMonster(state, {
+            data: state.mons[PM_CAVE_SPIDER],
+            mnum: PM_CAVE_SPIDER,
+            mx: 5,
+            my: 4,
+            mspec_used: 0,
+            mcanmove: true,
+        });
+        sealNeighborhood(locations, monster.mx, monster.my);
+        seeSquare(state, monster.mx, monster.my);
+        const { env, messages } = postmovEnv(state, {
+            random: {
+                rn2: (bound) => {
+                    if (bound === 1000) return 0;
+                    // The cave spider's concealment arm follows the web arm
+                    // and spends its own source rn2(5) on this move.
+                    assert.equal(bound, 5);
+                    return 0;
+                },
+                d: (n, s) => {
+                    assert.deepEqual([n, s], [4, 4]);
+                    return 10;
+                },
+            },
+        });
+
+        await postmov(
+            monster,
+            4,
+            4,
+            MMOVE_MOVED,
+            0,
+            false,
+            false,
+            false,
+            env,
+        );
+
+        assert.deepEqual(messages, ['The cave spider spins a web.']);
+        const webTrap = state.level.traps.find(
+            t => t.tx === monster.mx && t.ty === monster.my && t.ttyp === WEB,
+        );
+        assert.equal(webTrap?.tseen, 1);
     });
 
 test('maybe_spin_web skips the rn2 draw when mspec_used is nonzero',
