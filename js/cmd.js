@@ -274,6 +274,7 @@ import {
 } from './invent.js';
 import {
     doattributes,
+    doconduct,
     do_gamelog,
     remove_achievement,
     UnsupportedEnlightenmentError,
@@ -1813,7 +1814,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
     'seeall', 'seetools', 'teleport',
-    'overview', 'chronicle',
+    'overview', 'chronicle', 'conduct',
     'inventtype', 'adjust', 'altadjust',
     'terrain', 'travel', 'dip', 'invoke', 'untrap', 'herecmdmenu', 'therecmdmenu',
 ]);
@@ -5110,6 +5111,10 @@ async function doextcmd(key, state) {
         return await do_gamelog(state, {
             displayTextWindow: displayTtyTextWindow,
         });
+    case 'doconduct':
+        // C ref: insight.c doconduct(), reached from the #conduct row.
+        // show_conduct owns the voluntary-challenges text window and wait.
+        return await doconduct(state);
     case 'doextversion':
         // C ref: version.c doextversion(), reached from cmd.c's #version row.
         return await doextversion(state, {
