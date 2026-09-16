@@ -524,86 +524,110 @@ export function fill_special_room(croom, env = {}) {
     if (!croom) return;
 
     const state = env.state ?? game;
-    const normalized = { ...env, state };
+    // C can fill rooms from lspo_finalize_level() after level_finalize_topology
+    // has cleared in_mklev.  Preserve that state while identifying this
+    // internal level-generation call for makemon's admission gate.
+    const normalized = { ...env, state, _specialRoomFill: true };
     const randomOneBased = env.random?.rn1 ?? rn1;
     const subrooms = croom.sbrooms ?? [];
     const subroomCount = croom.nsubrooms ?? subrooms.length;
-    for (let index = 0; index < subroomCount; ++index)
-        fill_special_room(subrooms[index], normalized);
-
-    if (croom.rtype === OROOM || croom.rtype === THEMEROOM
-        || croom.needfill === FILL_NONE) {
-        return;
-    }
-
-    const flags = state.level?.flags;
-    if (!flags)
-        throw new Error('fill_special_room requires initialized level flags');
-
-    if (croom.needfill === FILL_NORMAL) {
-        if (croom.rtype >= SHOPBASE) {
-            const stockRoom = env.stockRoom ?? stock_room;
-            stockRoom(croom.rtype - SHOPBASE, croom, normalized);
-            flags.has_shop = true;
+    const finishOwnRoom = () => {
+        if (croom.rtype === OROOM || croom.rtype === THEMEROOM
+            || croom.needfill === FILL_NONE) {
             return;
         }
 
-        switch (croom.rtype) {
-        case VAULT: {
-            const amountRange = Math.abs(depth(state.u?.uz, state)) * 100;
-            for (let x = croom.lx; x <= croom.hx; ++x) {
-                for (let y = croom.ly; y <= croom.hy; ++y) {
-                    mkgold(randomOneBased(amountRange, 51), x, y, normalized);
-                }
+        const flags = state.level?.flags;
+        if (!flags)
+            throw new Error('fill_special_room requires initialized level flags');
+
+        if (croom.needfill === FILL_NORMAL) {
+            if (croom.rtype >= SHOPBASE) {
+                const stockRoom = env.stockRoom ?? stock_room;
+                stockRoom(croom.rtype - SHOPBASE, croom, normalized);
+                flags.has_shop = true;
+                return;
             }
-            break;
+
+            switch (croom.rtype) {
+            case VAULT: {
+                const amountRange = Math.abs(depth(state.u?.uz, state)) * 100;
+                for (let x = croom.lx; x <= croom.hx; ++x) {
+                    for (let y = croom.ly; y <= croom.hy; ++y) {
+                        mkgold(randomOneBased(amountRange, 51), x, y, normalized);
+                    }
+                }
+                break;
+            }
+            case COURT:
+            case BEEHIVE:
+            case MORGUE:
+            case BARRACKS:
+            case ZOO: {
+                const maybeFill = fill_zoo(croom, normalized);
+                if (maybeFill && typeof maybeFill.then === 'function')
+                    return maybeFill.then(() => finishFlags());
+                break;
+            }
+            case ANTHOLE:
+            case COCKNEST:
+            case LEPREHALL:
+                throw new UnsupportedSpecialRoomError(
+                    `fill_special_room(${croom.rtype}) beyond the Morgue boundary`,
+                );
+            default:
+                break;
+            }
         }
-        case COURT:
-        case BEEHIVE:
-        case MORGUE:
-        case BARRACKS:
-        case ZOO:
-            fill_zoo(croom, normalized);
+
+        return finishFlags();
+    };
+
+    const finishFlags = () => {
+        const flags = state.level?.flags;
+        if (!flags)
+            throw new Error('fill_special_room requires initialized level flags');
+        switch (croom.rtype) {
+        case VAULT:
+            flags.has_vault = true;
             break;
-        case ANTHOLE:
-        case COCKNEST:
-        case LEPREHALL:
-            throw new UnsupportedSpecialRoomError(
-                `fill_special_room(${croom.rtype}) beyond the Morgue boundary`,
-            );
+        case ZOO:
+            flags.has_zoo = true;
+            break;
+        case COURT:
+            flags.has_court = true;
+            break;
+        case MORGUE:
+            flags.has_morgue = true;
+            break;
+        case BEEHIVE:
+            flags.has_beehive = true;
+            break;
+        case BARRACKS:
+            flags.has_barracks = true;
+            break;
+        case TEMPLE:
+            flags.has_temple = true;
+            break;
+        case SWAMP:
+            flags.has_swamp = true;
+            break;
         default:
             break;
         }
-    }
+    };
 
-    switch (croom.rtype) {
-    case VAULT:
-        flags.has_vault = true;
-        break;
-    case ZOO:
-        flags.has_zoo = true;
-        break;
-    case COURT:
-        flags.has_court = true;
-        break;
-    case MORGUE:
-        flags.has_morgue = true;
-        break;
-    case BEEHIVE:
-        flags.has_beehive = true;
-        break;
-    case BARRACKS:
-        flags.has_barracks = true;
-        break;
-    case TEMPLE:
-        flags.has_temple = true;
-        break;
-    case SWAMP:
-        flags.has_swamp = true;
-        break;
-    default:
-        break;
-    }
+    const visitSubrooms = (index) => {
+        while (index < subroomCount) {
+            const maybeSubroom = fill_special_room(subrooms[index], normalized);
+            ++index;
+            if (maybeSubroom && typeof maybeSubroom.then === 'function')
+                return maybeSubroom.then(() => visitSubrooms(index));
+        }
+        return finishOwnRoom();
+    };
+
+    return visitSubrooms(0);
 }
 
 function roomIsFillable(croom) {
@@ -674,7 +698,7 @@ async function makelevel(specialLevelLoader = null) {
         g.specialLevelAlign = align;
         const specialLevelApi = createSpecialLevelApi(g);
         await specialLevelLoader(specialLevelApi, g);
-        specialLevelApi.finish();
+        await specialLevelApi.finish();
         return;
     }
 
@@ -762,7 +786,7 @@ async function makelevel(specialLevelLoader = null) {
             const vaultRoom = g.level.rooms[g.level.nroom - 1];
             if (vaultRoom) {
                 vaultRoom.needfill = FILL_NORMAL;
-                fill_special_room(vaultRoom);
+                await fill_special_room(vaultRoom);
             }
             mk_knox_portal(vx.v + vw.v, vy.v + vh.v);
             if (!g.level.flags.noteleport && !rn2(3))
@@ -850,7 +874,7 @@ async function makelevel(specialLevelLoader = null) {
 
     const specialRoomEnv = levelObjectEnv();
     for (let index = 0; index < g.level.nroom; ++index)
-        fill_special_room(g.level.rooms[index], specialRoomEnv);
+        await fill_special_room(g.level.rooms[index], specialRoomEnv);
 
     // themerooms_post_level_generate() is completed by
     // level_finalize_topology(), after every ordinary and special room fill.
@@ -1778,7 +1802,7 @@ export async function load_special(name, state) {
     // count_level_features, solidify_map, fixup_special, premap_detect, and
     // fill_special_room. ensure_way_out (conditional on check_inaccessibles)
     // is recorded as a gap.
-    specialLevelApi.finish();
+    await specialLevelApi.finish();
 
     return true;
 }
@@ -4306,7 +4330,7 @@ export async function lspo_finalize_level(args, env) {
     level_finalize_topology();
 
     for (let i = 0; i < state.level.nroom; ++i) {
-        fill_special_room(state.level.rooms[i], levelObjectEnv());
+        await fill_special_room(state.level.rooms[i], levelObjectEnv());
     }
 
     const { makemap_prepost } = await import('./cmd.js');
@@ -4620,7 +4644,7 @@ function createSpecialLevelApi(state) {
 
         async finalize_level(...args) { return lspo_finalize_level(args, env); },
 
-        finish() {
+        async finish() {
             link_doors_rooms();
             remove_boundary_syms(frame, state);
 
@@ -4660,7 +4684,7 @@ function createSpecialLevelApi(state) {
             const nroom = state.level?.nroom ?? 0;
             const rooms = state.level?.rooms ?? [];
             for (let i = 0; i < nroom; i++) {
-                fill_special_room(rooms[i], levelObjectEnv());
+                await fill_special_room(rooms[i], levelObjectEnv());
             }
         },
     });
