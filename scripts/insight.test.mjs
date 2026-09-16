@@ -85,6 +85,7 @@ import {
     M2_DEMON,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
+    PM_HIGH_CLERIC,
     PM_WOLF,
 } from '../js/monsters.js';
 import {
@@ -1667,6 +1668,27 @@ test('conduct selectors count genocides and entered Sokoban', () => {
     // are outside the source loop and must not make Sokoban appear entered.
     state.u.uachieved = [0, ACH_SOKO];
     assert.equal(sokoban_in_play(state), false);
+});
+
+test('num_genocides excludes the source high-cleric unique exception', () => {
+    const mvitals = Array.from(
+        { length: PM_HIGH_CLERIC + 1 },
+        () => ({ mvflags: 0 }),
+    );
+    const mons = Array.from(
+        { length: PM_HIGH_CLERIC + 1 },
+        () => ({ geno: 0 }),
+    );
+    mvitals[PM_HIGH_CLERIC].mvflags = G_GENOD;
+    mons[PM_HIGH_CLERIC].geno = 4096;
+    const state = {
+        u: { uachieved: [0] },
+        svm: { mvitals },
+        mons,
+    };
+    // The fixture's only genocide is the special high-cleric index in C's
+    // table, which is flagged unique but excluded by UniqCritterIndx.
+    assert.equal(num_genocides(state), 1);
 });
 
 // pline.c stores the producer-provided turn and appends without reordering;

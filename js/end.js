@@ -46,6 +46,7 @@ import {
     DISCLOSE_SPECIAL_WITHOUT_PROMPT,
     DISCLOSE_YES_WITHOUT_PROMPT,
     ESCAPED,
+    ENL_GAMEOVERALIVE,
     ENL_GAMEOVERDEAD,
     G_EXTINCT,
     G_GENOD,
@@ -951,7 +952,12 @@ async function disclose(how, taken, state) {
             true,
             state,
         ) : defquery;
-        if (c === KEY_Y) await show_conduct(2, state);
+        if (c === KEY_Y) {
+            await show_conduct(
+                how >= PANICKED ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD,
+                state,
+            );
+        }
         if (c === KEY_Q) discloseStop(state);
     }
     if (!disclosureStopprint(state)) {

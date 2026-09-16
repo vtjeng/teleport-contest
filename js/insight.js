@@ -263,6 +263,7 @@ import {
     MZ_TINY,
     PM_LONG_WORM,
     PM_GREEN_SLIME,
+    PM_HIGH_CLERIC,
     G_UNIQ,
 } from './monsters.js';
 import { pmname, x_monnam } from './do_name.js';
@@ -1925,7 +1926,8 @@ export function num_genocides(state = game) {
     for (let index = LOW_PM; index < mvitals.length; ++index) {
         if ((mvitals[index]?.mvflags ?? 0) & G_GENOD) {
             ++count;
-            if ((monsters[index]?.geno ?? 0) & G_UNIQ)
+            if ((monsters[index]?.geno ?? 0) & G_UNIQ
+                && index !== PM_HIGH_CLERIC)
                 note_unported('pline.c impossible');
         }
     }
