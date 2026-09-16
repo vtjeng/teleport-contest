@@ -1432,28 +1432,25 @@ export async function makewish(state = game) {
 // and mon.c's writers use the same name. Every caller reads it after the call
 // rather than the return value, which is the monster hit.
 //
-// Only THROWN_WEAPON is ported, because dothrow.c throwit() is bhit()'s only
-// ported caller. Everything the other five call types reach -- zap_map(),
+// Only THROWN_WEAPON is ported here, because dothrow.c throwit() is bhit()'s
+// caller in this port. Everything the other five call types reach -- zap_map(),
 // bhitpile(), flash_hits_mon(), hits_bars(), doorlock() -- belongs to the
 // commands that use them.
 //
-// Ten branches inside the thrown-weapon walk stop, each at its own condition:
-// a shopkeeper catching a pick-axe, a lit object lighting the squares it
-// passes, iron bars, a rock skipping over water, a mimic disguised as an
-// object, a heavy iron ball's four range limits, and a shade the missile
-// passes through.
-//
-// Nine of the ten stop before changing anything. The shade does not: C's
-// shade_miss() at uhitm.c:1575 reads dmgval() for zero or not-zero, and
-// dmgval() rolls the damage dice, so the draw is spent before the refusal is
-// raised. It is raised through an injected callback rather than a visible
-// throw here, which is why it is easy to miss in this list.
+// The thrown-weapon walk has several early-stop branches: a shopkeeper
+// catching a pick-axe, a lit object lighting the squares it passes, iron bars,
+// a rock skipping over water, a mimic disguised as an object, and a heavy iron
+// ball's four range limits. The shade branch is different: C's shade_miss()
+// at uhitm.c:2013 reads dmgval() for zero or not-zero, and dmgval() rolls the
+// damage dice, so the draw is spent before harmless feedback is emitted. The
+// async message is awaited before the missile target is cleared, preserving
+// the source's output and continuation order.
 //
 // A monster in the path is not one of them. C's THROWN_WEAPON arm at 4021-4029
 // ends the flight, maps an unseen monster and returns it, leaving the caller
-// to decide what hits it: dothrow.c throwit() reaches thitmonst() through
-// throwit_mon_hit():1492, and dothrow.c throw_gold():2712 reaches dokick.c
-// ghitm(). Neither is ported, and each caller refuses under its own name.
+// to decide what hits it: dothrow.c throwit() reaches the ported thitmonst()
+// through throwit_mon_hit():1492, while dothrow.c throw_gold():2712 reaches
+// dokick.c ghitm(), which remains outside this call type.
 export class UnsupportedBhitError extends Error {
     constructor(branch) {
         super(`zap.c bhit() reached ${branch}`);
@@ -1596,7 +1593,7 @@ export async function bhit(
         // that the missile can hurt, which is why it is called rather than
         // skipped.
         if (mtmp) {
-            const passedShade = shade_miss(
+            const passedShade = await shade_miss(
                 state.youmonst, mtmp, obj, true, true, state, {
                     unsupported: (what) => {
                         throw new UnsupportedBhitError(what);
