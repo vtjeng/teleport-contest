@@ -51187,6 +51187,131 @@
         "screens": 10101,
         "rng": 745424
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-blnd-seed4500-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port all mhitm_ad_blnd attack directions and their shared blindness transitions.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The highest remaining-screen session stops at step 994 in missing mhitm_ad_blnd. Worker A has an immutable source delivery and corrected blocked entry recipe; this integration is independent of worker B priest room work.",
+      "detail": "C uhitm.c mhitm_ad_blnd lines2958-3008 handles hero-to-monster, monster-to-hero and monster-to-monster attacks. Wire AD_BLND dispatch, can_blnd predicates, shared make_blinded/toggle_blindness and planning callbacks. A fresh monster-to-hero recording matches. Hero entry is blocked in unported hmonas and monster entry lacks a matching production recording, so the source goal must remain open after span acceptance until entry evidence is complete.",
+      "spans": [
+        {
+          "name": "mhitm_ad_blnd",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mhitm_ad_blnd"
+          ]
+        }
+      ],
+      "openedAt": "77656e762d37df44b2c9f5c3be57e67123e8bfb9",
+      "openStanding": {
+        "sha": "aface44fb504a9d8296da4400543983d4677d5fd",
+        "screens": 10101,
+        "rng": 745424
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_blnd",
+          "line": 2958,
+          "endLine": 3014,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2958,
+        "to": 3014
+      },
+      "activeStanding": {
+        "sha": "aface44fb504a9d8296da4400543983d4677d5fd",
+        "screens": 10101,
+        "rng": 745424
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 994,
+          "kind": "stop",
+          "function": "mhitm_ad_blnd",
+          "functionDeclared": false,
+          "sourceFile": "uhitm.c",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires uhitm.c mhitm_ad_blnd()",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 820,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 820,
+              "status": "complete",
+              "commit": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 994,
+                "kind": "stop",
+                "function": "mhitm_ad_blnd",
+                "functionDeclared": false,
+                "sourceFile": "uhitm.c",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires uhitm.c mhitm_ad_blnd()",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 820
+              },
+              "summary": "Main still stops at step 994 at mhitm_ad_blnd(). Worker A has submitted the attack and shared blindness fixes with 210 focused checks and a matching monster-to-hero recording. Its corrected raven recipe identifies an unported hmonas() caller; monster-to-monster entry coverage remains incomplete. The delivery is queued for combined validation while worker A implements the next missing monster-breath dobuzz call.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_blnd"
+                ],
+                "branch": "A landed AD_BLND attack dispatches through mhitm_adtyping(). C mhitm_ad_blnd() handles hero-to-monster, monster-to-hero, and monster-to-monster separately: it checks can_blnd(), emits visibility-gated messages, clamps monster blindness to 127, clears damage and monster waiting strategy, and sends hero timeout changes through make_blinded(). JavaScript currently refuses AD_BLND before this body.",
+                "callers": [
+                  "C uhitm.c mhitm_adtyping() dispatches AD_BLND to mhitm_ad_blnd(); js/uhitm.js mhitm_adtyping() still contains the corresponding unsupported boundary at the examined commit.",
+                  "C mhitu.c hitmu() calls mhitm_adtyping() after the hit/damage rolls; js/mhitu.js hitmu() is reached by mattacku() in the production monster turn. The planning pass executes the same path against a clone before live execution.",
+                  "Hero polymorph attacks and monster-to-monster attacks also use mhitm_adtyping(); implement all three direction arms in the whole selected C function."
+                ],
+                "dependencies": [
+                  "C uhitm.c mhitm_ad_blnd():2958-3008 consumes can_blnd() and uses mon_nam()/Monnam() for source visibility-dependent text; preserve display RNG ownership in planning environments.",
+                  "C potion.c make_blinded():261-331 probes the future Blind property, restores the old timeout, applies messages and Punished set_bc(0), writes the new timeout and calls toggle_blindness() only when sight changes. Existing js/potion.js has a limited cream-pie transition guard; extending it is necessary for already-blind or punished attack victims. Keep one timeout owner.",
+                  "C potion.c toggle_blindness():335-363 updates status and vision, recalculates visibility, refreshes sensed monsters, resets Sting feedback and learns unseen inventory on sight restoration. Clone execution must update clone state without writing to the live terminal.",
+                  "Worker A owns A-20260916-3, including mhitm_ad_blnd, dispatch, make_blinded and toggle_blindness. Required fresh entry-point evidence and combined validation remain pending.",
+                  "Source review of mondata.c:248-398 distinguishes Blindfolded (EBlinded) from ublindf (any eyewear, including lenses) and defines Unaware through multi < 0 plus unconscious()/is_fainted(). Existing JavaScript conflates eyewear cases and reads obsolete state fields. Worker A owns these return-valued dependencies and their source-pinned tests.",
+                  "display.c see_monsters() changes monster recognition/warning state as well as drawing. The planning environment must execute those state changes on the clone and use its rendering/randomness owners; merely skipping the call in toggle_blindness() is incomplete.",
+                  "The existing artifact.c Sting_effects() owner now has a worker-branch message callback and reads canonical state.uwep; toggle_blindness() calls it through the planning environment. These changes remain pending combined integration."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Checkpoint f0ff954d2222b1db27e4fa7925448efdc980e1e5, run-Y8ACFR, passed all checks: development 10086/11405 screens, 741703/792838 RNG, 10108/11405 cursors, 30/44 complete sessions; all 257 recordings pass. This is a two-screen gain over the previous accepted 10084 baseline.",
+                "Fresh fixed-workload queue run-aplFna at this commit identifies step 994, kind stop, message simple monster action requires uhitm.c mhitm_ad_blnd(), with 1814 recorded steps and an upper bound of 820 remaining screens. No other session investigation count changed.",
+                "Read complete C uhitm.c mhitm_ad_blnd():2958-3008 and potion.c make_blinded()/toggle_blindness():261-363. The source contains the three actor directions and a shared hero blindness transition; a separate attack-local timeout implementation would duplicate state ownership and skip ball/vision effects.",
+                "The preceding theft fix restores all four tele_restrict() sites in mhitm_ad_sedu(), retains ordinary disarm and urgent final-theft output, and passes the attack environment to monster naming. Independent fresh theft recordings match 36 screens/15001 RNG and 29 screens/2977 RNG; the previous urgency-only hypothesis was falsified before this source correction.",
+                "Read-only dependency review confirmed C decl.c:49 vision_clears is \"vision quickly clears.\", mondata.c can_blnd() uses distinct eyewear predicates by attack type, and youprop.h:399 Unaware reads gm.multi with unconscious()/is_fainted(). Root verified the corresponding JS stale fields and missing clone see_monsters() callback; these are pending worker corrections, not accepted gains.",
+                "Immutable worker delivery d1eb2d27558d480c1e9ee33a6629262c26c761b9 passes 210 focused checks and fresh run-r2dAI5 (11 screens, 3352 RNG) through the monster-to-hero entry. Root is requesting a new recipe correction before integration: C hmonas() sends yellow-light AT_EXPL directly to explum(), whereas raven AT_CLAW reaches damageum()->mhitm_adtyping()->mhitm_ad_blnd. Clearing Wizard cloak/staff before raven polymorph avoids the previous automatic-drop setup.",
+                "The source-defined monster-to-monster setup can create a sleeping hostile giant beetle followed by a tame raven; C read.c create_particular_parse()/create_particular() supports these dispositions, but current js/read.js refuses them. Keep that entry unverified; a failed setup does not establish source entry coverage.",
+                "A worker-only replay after the blinding delivery reaches step 997: C dobuzz(zap.c:4823) consumes rn2(7)=3 after breamm rn2(3)=1, while JS breamm skips dobuzz via note_unported and consumes its subsequent cooldown rn2(3). This identifies missing beam invocation, not a random-bound error; accepted main still stops at 994.",
+                "Correction 5bf58b67777294bf99518332fa56e7a62426a4a2 replaces the yellow-light setup with a raven and clears equipment first. The source-valid C attack reaches hmonas()->damageum(), while JS lacks the hmonas caller. Neither that entry nor the monster-to-monster entry is claimed complete. Worker A merged published main 184edff5 at c1eb0ae9 and reran A3, landmine/movement checks and lint successfully.",
+                "Worker A now owns the complete zap.c dobuzz source scope and mthrowu.c breamm caller under A-20260916-4. Source review is checking all beam types, return-valued dependencies, planning callbacks and water-floor effects; no new beam behavior is accepted yet."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
