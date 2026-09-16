@@ -55297,6 +55297,167 @@
         "screens": 10526,
         "rng": 759963
       }
+    },
+    {
+      "id": "port-dothrow-thitmonst-seed0399-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the whole thrown-object monster-hit gate and required return-valued dependencies",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "A12 retained its pre-existing independent claim through normal handoff. The complete investigation for holdout/seed0399-wizard-hallu-actions has remainingScreensUpperBound 97 at investigations/holdout/seed0399-wizard-hallu-actions.json and identifies dothrow.c thitmonst as the first owner. Higher-ranked Knight peffect_extra_healing is now worker A13; machine-path seed2200 is Q1. B15 owns shapechanging. Integrate the ready A12 dependency before dependent B15.",
+      "detail": "Complete dothrow.c thitmonst2011-2304 and source-required hmon, taming, erosion, floor-effect and holder-release return contracts. Source review and independent final-miss recording establish the ordinary thrown entry; unicorn, quest-leader, kicked and applied entries remain active but unrecorded, so this goal will be parked after span closure rather than falsely closed. Planning reconciliation: the historical closed cream-pie goal explicitly retained unsupported weapon, ball, potion, taming and swallowed branches, so its inherited completion flag cannot establish whole-function completion. Preserve that historical evidence and plan thitmonst again under the current whole-source rule; the default next-span command skipped it because that older evidence is still present.",
+      "spans": [
+        {
+          "name": "thitmonst",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "thitmonst"
+          ]
+        }
+      ],
+      "openedAt": "9ac68b8a0368821464fc9ecab67cf7e687d24740",
+      "openStanding": {
+        "sha": "9ac68b8a0368821464fc9ecab67cf7e687d24740",
+        "screens": 10526,
+        "rng": 759963
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "thitmonst",
+          "line": 2011,
+          "endLine": 2308,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2011,
+        "to": 2308
+      },
+      "activeStanding": {
+        "sha": "9ac68b8a0368821464fc9ecab67cf7e687d24740",
+        "screens": 10526,
+        "rng": 759963
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 435,
+          "kind": "stop",
+          "function": "thitmonst",
+          "functionDeclared": true,
+          "sourceFile": "dothrow.c",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 97,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 97,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 435,
+                "kind": "stop",
+                "function": "thitmonst",
+                "functionDeclared": true,
+                "sourceFile": "dothrow.c",
+                "cFile": "dothrow.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 97
+              },
+              "summary": "A12 immutable delivery 41d5c84c is received and queued for combined integration. Source review confirms the corrected erosion, floor-effect and swallowed-migration ordering, and its independent final-miss recording matches. Remaining active entry families are explicitly unrecorded; no A12 score gain is accepted yet.",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "thitmonst"
+                ],
+                "branch": "At recorded step 435, dothrow.c dothrow() -> throw_obj() -> throwit() -> bhit() -> throwit_mon_hit() calls thitmonst() for the gray dragon scale mail and soldier ant. C thitmonst() (2011-2304) establishes hmode, the base hit calculation, distance and equipment modifiers, unicorn and quest-leader arms, and dieroll = rnd(20) at 2152. The object is neither a weapon/tool/gem, heavy iron ball, boulder, egg/cream pie/venom, potion, tame-food gift, nor swallowed object, so the final else at 2299-2300 calls tmiss(obj, mon, TRUE), which prints the miss and wakes the target when rn2(3) is zero, then returns 0. Current JS thitmonst() (1483-1597) has the shared calculation, cream-pie path, and explicit unsupported branches for weapons, balls/boulders, and potionhit(); its final unsupported call at 1595 replaces this source final else.",
+                "callers": [
+                  "C dothrow.c dothrow():352-376 selects the object and calls throw_obj(); throw_obj():87-348 calls throwit(); throwit():1510-1849 calls bhit(); bhit() dispatches its monster hit callback to throwit_mon_hit():1482-1505, which calls thitmonst():2011-2304.",
+                  "Current JS dothrow.js dothrow():815-842 calls throw_obj(); throw_obj() -> throwit():1310-1481 -> bhit():1390-1391 -> throwit_mon_hit():1207-1223 -> thitmonst():1488-1597. The observed stop is this production boundary, not a direct test or an input exhaustion artifact.",
+                  "The same C thitmonst() is shared by dothrow.c kick_monster():736-750 for non-gold kicked objects and apply.c use_pole():3508-3521 and use_grappling_hook():3842-3849 for ranged wielded weapons. Those callers must be reviewed when the complete function is implemented; this session exercises the ordinary thrown-object caller."
+                ],
+                "dependencies": [
+                  "The source tmiss() helper is dothrow.c:1951-1967 and the existing JS tmiss() at dothrow.js:1184-1202 already perform visibility-aware miss output, rn2(3), and wakeup(). The implementation must call that helper with the active message/random environment and preserve its result and side effects.",
+                  "The complete function must preserve C evaluation and RNG order across all arms: shared hit modifiers before the pre-roll unicorn/leader checks, rnd(20) at the same point, then object-class branches and any second rnd(25) or helper draws. Existing consumed-result helpers include find_mac(), omon_adj(), engulfing_u(), hmon(), gem_accept(), object predicates, and should_mulch_missile(); resolve any helper needed by an admitted branch from its source contract rather than inventing draws.",
+                  "throwit_mon_hit() currently forwards the object and state to thitmonst(), then clears state.thrownobj when the returned object is gone and performs its shopkeeper follow-up. Preserve this lifecycle and return contract while replacing only the source-unfaithful thitmonst() refusals in the complete port; no Lua dependency or separate trap owner is present."
+                ]
+              },
+              "goalKind": "file-port",
+              "currentReplay": {
+                "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+                "runner": "node scripts/run-bounded.mjs focused -- node --input-type=module -e <single-session scanRecordedSession>",
+                "run": "run-1sMKsF",
+                "screensEmitted": 435,
+                "recordedSteps": 532,
+                "divergence": null,
+                "boundary": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+                "key": "h",
+                "command": "movewest",
+                "keyCursor": "answer",
+                "message": "The gray dragon scale mail misses the soldier ant.--More--",
+                "rngAtBoundary": [
+                  "rnd(20)=13 @ thitmonst(dothrow.c:2152)",
+                  "rn2(3)=0 @ tmiss(dothrow.c:1964)",
+                  "rn2(100)=13 @ obj_resists(zap.c:1469)"
+                ]
+              },
+              "evidence": [
+                "The assigned .cache/resume-queue-20260916.json entry at commit 18a56313c56723cde906c27449d0fc2c6c085bf0 identifies holdout/seed0399-wizard-hallu-actions at stop step 435, kind stop, function thitmonst, sourceFile dothrow.c, and remainingScreensUpperBound 97.",
+                "A bounded single-session scanRecordedSession replay at the assigned commit emitted 435 screens from 532 recorded steps, reported divergence null, and stopped at the production boundary `unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit`. The result is saved at .cache/seed0399-wizard-hallu-actions/replay-result.json. No other session, aggregate scan, scorer, checkpoint, or C recorder was run.",
+                "The assigned recording has one segment (seed 399, datetime 20000110090000). Its step 435 is key h after the throw command and direction prompt; its C RNG annotations are rnd(20)=13 @ thitmonst(dothrow.c:2152), rn2(3)=0 @ tmiss(dothrow.c:1964), and rn2(100)=13 @ obj_resists(zap.c:1469). The C top line is `The gray dragon scale mail misses the soldier ant.--More--`, establishing the final non-weapon miss arm and its wakeup draw.",
+                "Pinned upstream source at nethack-c/upstream commit 16ff59115315917b93185d026aeefea06db9b0f4 was read for dothrow.c thitmonst():2011-2304, tmiss():1951-1967, throwit_mon_hit():1482-1505, throwit():1510-1849, throw_obj():87-348, and dothrow():352-376. The source confirms the final else calls tmiss(obj, mon, TRUE) at 2299-2300 and returns 0 at 2303-2304.",
+                "At the assigned JavaScript commit, dothrow.js thitmonst():1483-1597 computes the shared modifiers and dieroll, admits only the cream-pie hit arm in this object-family tail, and raises UnsupportedThrowError at 1595 for the observed object. The current JS caller chain is dothrow.js:815-842, 1207-1223, and 1310-1481, so the refusal is reachable production behavior.",
+                "Actionable whole-source scope is a dothrow.c file-port span for thitmonst(), including all source branches and its existing callers’ return/object lifecycle contracts. The ordinary thrown-object miss needs only existing tmiss()/wakeup() behavior; weapon, heavy-ball/boulder, potion, tame-food, swallowed, unicorn, leader, and applied/kicked arms require source review and named dependencies as they become reachable. This investigation does not claim source completion.",
+                "A12 claimed from synchronized worker HEAD db985629231fb7870ef4806471fd69f867de1014, reserving dothrow.c thitmonst and its object-lifecycle contract. Source review covers C2011-2304 and return-used dependencies before implementation. No new main score or accepted code is claimed.",
+                "Worker A12 found C throwit continues through breaktest and floor placement when thitmonst leaves the thrown object alive. The JavaScript caller returned early, omitting obj_resists and landing. Its current continuation reports448 emitted screens against532 recorded steps with divergence null; the remaining boundary and complete coverage still require verification. Source-pinned lifecycle checks and independent recorded entry evidence are in progress.",
+                "Read-only source check of A12 WIP found four required corrections: use canonical state.gt.thrownobj across throwit/thitmonst owners; preserve C throwit1808-1816 shopkeeper pick snatch; implement tame unicorn gem catch-and-drop at2087-2098; and use C1497-1503 outside-shop predicate for hot_pursuit. Findings were sent to worker A for verification before submission. No new main result is claimed.",
+                "Worker A corrected canonical state.gt.thrownobj ownership, tame-unicorn catch-and-drop, shopkeeper pick snatch and pursuit condition, and uses canonical delobj after the swallowed-corpse branch. Its fresh final-miss recording initially matched19 screens and3032 RNG. Whole-source completion still requires return-used tamedog, breakobj and flooreffects behavior; the coordinator expanded A12 reservations and allowed paths for these dependencies and dog_eat after the worker scope command hit a coordinator-only restriction. No immutable delivery or main gain is claimed.",
+                "A12 progress reports source-shaped tamedog admission and pet-food calls, dog_eat devour adjustments, and asynchronous breakobj lifecycle with throwit awaiting it. Focused dothrow tests pass 51/51 and lint syntax passes; remaining floor, pool and unpaid-food contracts are still being traced. No immutable A12 delivery or accepted score is claimed.",
+                "Source assistance traced every flooreffects consumer and identified Promise truthiness, free-object erosion visibility, obj_meld survivor assignment and bhitpos restoration risks. A12 scope now includes the direct callers, placebc propagation, do.c boulder_hits_pool and trap.c lava_damage in the existing split trap module. Dog focused tests pass28/28; the complete dependency implementation remains in progress.",
+                "Coordinator source review of A12 tamedog and dog_eat found food classification hoisted ahead of mcanmove/confusion/eating guards, which adds an obj_resists RNG draw; canspotmon visibility and sticky-holder release guards also differed. Catch messages, large-corpse wording and unseen-food naming require source corrections, and dog_eat still needs nonfood/royal-jelly, price suppression and rustproof-rust-monster contracts. Findings were sent to worker A for verification before submission; focused passing cases are not whole-function completion.",
+                "Latest A12 worker update reports dog/throw/floor/water/erosion focused checks, monmove142/142 and lint passing, including a source-pinned floor-object erosion case. The source audit corrected throwit_mon_hit hot_pursuit eligibility and records snuff_candle as a discarded-call gap. Full dependency review and immutable submission remain pending; no aggregate gain is claimed.",
+                "At worker af13d6a4019929b9f044bb01239a4c884f119f27, C dothrow.c gem_accept2309–2380 always reaches the shared tele_restrict/rloc tail, including accepted gifts, while JS returns1 early. thitmonst C2104 excludes HMON_APPLIED for special-object leader catches; C2139 emits hands/tosses back-to-you before sho_obj_return/addinv. Its maybe_polyd/your_race hit modifiers and s_suffix swallowed-message helper also need the full source conditions. These concrete findings were sent to the implementation owner.",
+                "Coordinator also required source review of hmon/hmon_hitmon used-return owners: a blanket unsupported callback returning note_unported cannot establish those bodies as complete. Individual C-discarded void callees may remain explicitly named gaps, without fabricated replacement RNG or state. This is active source work, not an accepted score change.",
+                "Dog-family follow-up confirms remaining source differences: C dogmove.c increments suppress_price before ordinary distant_name/doname output and decrements after saving xname, while worker af13d6a4 still brackets xname only; rustproof spit output requires canseemon rather than sensed-monster visibility. tamedog must read canonical state.svq.quest_status.leader_m_id, matching quest.js, rather than a separate root quest_status field. Corrections are assigned to worker A.",
+                "A12 used-return trace confirmed missing source behavior in uhitm.c hmon/hmon_hitmon and direct damage dispatch. The shared ledger now reserves those owners, including ranged, potion, miscellaneous-object and poison helpers, under A12-root-expand-hmon-return-owners. Worker A is implementing the required source conditions; no partial callback-based return is treated as completed behavior.",
+                "Coordinator helper rechecked current A12 WIP on2026-09-16: dogmove.js561-598 increments suppress_price after FOOD split and before distant_name/doname output, saves xname while raised, then decrements before rustproof/billing; rustproof spit uses canseemon at600-606; tamedog reads state.svq.quest_status.leader_m_id atdog.js370. These three earlier findings are fixed against dogmove.c261-307 and dog.c1250.",
+                "Worker A reports29/29 hmon checks and passing dothrow/floor/dog/monmove focused groups after corrections to launcher/poison/shatter conditions, potion and egg handling, source message grammar/order, polymorph reactions and pet RNG forwarding. Partial stagger/joust substitutes were removed: hmon_hitmon may name those discarded void helpers as gaps, but mhurtle_to_doom itself has a used boolean return and is not treated as void. Final fresh evidence and immutable submission remain pending.",
+                "Coordinator verified source findings at worker98c2d9b5: Cuhitm1818-1822 suppresses shade_miss for thrown/kicked hits;1911-1917 consumes resist for confused touch;1886-1889 saves the post-poison object name before possible killed/free handling and1919-1921 emits Your plus vtense;1927-1931 uses mhitm_knockback boolean separately from M_ATTK_DEF_DIED. A12-root-expand-knockback-return-owner reserves whole mhitm_knockback, m_is_steadfast, dothrow will_hurtle and mhitm/mhitu callers. Actual hurtle/mhurtle void gaps may be recorded at their source sites; return-valued helpers and hitflags must be implemented.",
+                "Worker A reports committed source corrections64c9c2fc and a clean accepted-main31f46698 merge, with affected display184/detect41/cmd99 checks passing. Fresh differential run-R5Dp9m passes19screens,3032RNG and19cursors. Root expanded scripts/dogmove-quickmimic.test.mjs after confirming it contains actual A12 nutrition/devour/billing/pool corrections beyond main. A read-only helper is checking the frozen knockback owner and all three hitflag callers; no new accepted A12 gain is claimed.",
+                "Coordinator reviewed frozen64c9c2fc with a read-only helper and verified remaining defects at0862d589: mhitm_knockback must condition DEADMONSTER(mdef) on !u_def, and direct set_ustuck(null) does not reproduce mon.c unstuck cleanup/cooldown. Source message naming also requires You/y_monnam/some_mon_nam. Worker A received these precise corrections; named discarded-result gaps for unported hurtle, mhurtle, dismount_steed and make_stunned remain allowed. Hitflags wiring now distinguishes knockback occurrence from defender death across hmon_hitmon, mdamagem and hitmu. New production final-miss witness reports19screens3032RNG; all worker results remain separate from accepted main.",
+                "Further root review of frozen0862d589 identified two source-policy corrections: thitmonst disables potionhit monster-target refusal through a note callback while retaining its partial bottlename draw, and hmon_hitmon_damage catches UnsupportedWeaponSkillError after partial use_skill state. Worker A must replace unported discarded calls with named gaps at their actual source call sites, or complete canonical owners; swallowed refusals and selected substitute effects cannot establish whole-source completion. Fire/lava/erosion used-return dependency review is also underway.",
+                "Fire/lava/erosion used-return source review at0862d589 confirmed missing moreluck composition, obfree in place of delobj (skipping resistance RNG/extraction), omitted carried lava deletion, lava/book naming and visibility differences, incorrect underwater erosion visibility, unwanted floor grease message, and the retained worn-destruction refusal. Root verified source sites and assigned all corrections to A12. Canonical mon.c unstuck and weapon.c use_skill reservations now belong to A12; B15 coordinates these dependencies without copying a moving worker tip.",
+                "Worker A merged accepted a20ae2dd at d919ec17, preserving correction commit b1c65b2f. The use_skill catch removal and hero death guard are present; root identified a new naming mistake in the non-hero steadfast message (C requires Monnam there) and missing pline_mon accessibility coordinates in tamedog messages. These were returned to A along with the existing canonical unstuck and erosion corrections; focused checks and immutable submission remain pending.",
+                "Worker A committed correction 3c25d3896e62a274435b98eaba9035bc9b22b403, then merged published main 345101d5 at d3c2c038e2f8db6d7d2916db06839ebf65934ca8. Reported focused tests/lint pass and fresh run YsWBh1 matches 19 screens, 3032 RNG and 19 cursors. Root is reviewing this frozen correction before an immutable delivery or combined checkpoint; these are worker results only.",
+                "Root review of 3c25d389 found remaining erode_obj defects: EF_DESTROY uses visible-monster status rather than monster ownership for extraction, omits EF_PAY billing, substitutes setnotworn for remove_worn_item, includes floor objects in feedback C excludes, and misses cxname/leading-article handling. Non-carried victim derivation must follow C without a free/floor-only refusal. The lava carried path also substitutes equipment removal, and water_damage still omits moreluck. All were returned with exact C source references; a separate helper is checking canonical unstuck and combat/skill corrections.",
+                "Read-only review of frozen 3c25d389, verified by the coordinator, confirms knockback death flags, steadfast naming, awaited holder release and the use_skill void-gap site. It also finds that unstuck omits vision_recalc(2) before docrt and see_monsters after vision_recalc(0), although these operations were removed from the old expels owner. mon.c migrate_mon still invokes asynchronous unstuck without awaiting before migrate_to_level. C mon.c3437-3467 and3857-3860, plus display.c1739-1761, establish the required order. Worker A received these corrections and reports the separate erosion fixes passing focused checks; equipment removal must use a complete owner or an explicit discarded-call gap.",
+                "The complete thitmonst source pass confirms its main branch order. A remaining passive_obj call still invokes a partial AD_PHYS-only owner under a suppressed-refusal callback; the coordinator requested the explicit uhitm.c passive_obj discarded-call gap unless that owner is completed. The migration survey identified invoke_banish, m_into_limbo, elemental_clog, deal_with_overcrowding, level-entry and vault helper callers. Worker A is updating cleanup and propagation; no new immutable delivery has been submitted.",
+                "Worker A reports five migration checks passing after changing unstuck/migrate_mon to return a Promise only for swallowed cleanup. Root inspected the corrected vision2, docrt, vision0 and monster-overlay order and the direct uhitm.c passive_obj gap. Ordinary migration remains synchronous, but clear_fcorr can displace an engulfer when the guard is dead; wallify_vault and gd_mv_monaway also lack a holder exclusion. The bounded caller map reaches existing async gd_move and gd_move_cleanup through clear_fcorr/restfakecorr and gd_mv_monaway/gd_move_proceed/gd_move_nextpos. Worker A received the remaining propagation requirement before packaging its final delivery.",
+                "A12 submitted immutable41d5c84c071958cb7a083e37e5d08defc46b08b5 with eleven required source commits preserved in its packet. The coordinator received it and confirmed the final vault async propagation; a bounded read-only verification found no remaining defect in the changed erode_obj, lava_damage and water_damage branches. Worker validation reports20 file-level suites passing, lint passing, and fresh run-lRdSiG matching19 screens,3032 RNG calls and19 cursors. Source completion records will cover only the selected whole thitmonst; partial throwit branches and unrecorded unicorn, leader, kicked and applied entries are not claimed complete. The coordinator is preparing combined validation after publishing the approved tooling cleanup."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
