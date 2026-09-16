@@ -65,12 +65,10 @@ import {
     SIGNAL_ESCAPE,
     SHOPBASE,
     SLT_ENCUMBER,
-    STAIRS,
     STONE,
     STONE_RES,
     STUNNED,
     TIMEOUT,
-    ROOM,
     SELL_NORMAL,
     SORTLOOT_INVLET,
     SORTLOOT_LOOT,
@@ -78,7 +76,6 @@ import {
     SORTLOOT_PETRIFY,
     USE_INVLET,
     UNPAID_TYPES,
-    CORR,
     IS_FURNITURE,
     IS_LAVA,
     IS_POOL,
@@ -176,7 +173,6 @@ import {
     addtobill, check_unpaid_usage, costly_spot, pick_pick, remote_burglary,
     sellobj_state,
 } from './shk.js';
-import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
 import { back_on_ground, is_lava, is_pool, t_at, chest_trap } from './trap.js';
@@ -1208,8 +1204,9 @@ export async function pickup(what, state = game) {
 
     const trap = t_at(u.ux, u.uy, state);
     if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
-        // The unconditional describe_decor() on this arm has no owner, and
-        // reaching the arm at all needs levitation, a steed or a pit.
+        // The unconditional describe_decor() on this arm is owned above;
+        // reaching the remaining pickup work still needs levitation, a steed
+        // or a pit.
         throw new UnsupportedPickupError(
             'pickup() by a hero who cannot reach the floor',
         );
