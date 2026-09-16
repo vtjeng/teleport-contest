@@ -419,6 +419,25 @@ test('fumbling expiry preserves its caller around unported slip branches', async
     }
 });
 
+test('fumbling expiry catches deferred decoration through pickup owner', async () => {
+    const state = plainFumblingState();
+    state.flags.mention_decor = true;
+    state.iflags.defer_decor = true;
+    state.u.umoved = false;
+    state.level.at(state.u.ux, state.u.uy).typ = ROOM;
+
+    await nh_timeout(state, {
+        random: { rn2: () => 0, rnd: () => 5 },
+        message: async () => {},
+    });
+
+    // timeout.c:929 calls deferred_decor(FALSE) after the fumble clock is
+    // updated.  The canonical pickup owner must catch up the silent ROOM
+    // transition and clear the one-turn deferral in the same order.
+    assert.equal(state.iflags.defer_decor, false);
+    assert.equal(state.iflags.prev_decor, ROOM);
+});
+
 test('timeout globals reset source-owned fields without replacing owners', () => {
     const state = timerState();
     assert.equal(state.gt.other, true);

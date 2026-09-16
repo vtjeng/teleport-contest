@@ -36,6 +36,7 @@ import {
     FUMBLING,
     HAND,
     HVY_ENCUMBER,
+    ICE,
     INCLUDE_HERO,
     INCLUDE_VENOM,
     INVORDER_SORT,
@@ -58,6 +59,7 @@ import {
     PICK_ONE,
     JUSTPICKED,
     PARANOID_AUTOALL,
+    PLNMSG_BACK_ON_GROUND,
     PLNMSG_OBJNAM_ONLY,
     SIGNAL_NOMENU,
     SIGNAL_ESCAPE,
@@ -67,6 +69,7 @@ import {
     STONE,
     STONE_RES,
     STUNNED,
+    TIMEOUT,
     ROOM,
     SELL_NORMAL,
     SORTLOOT_INVLET,
@@ -76,6 +79,9 @@ import {
     USE_INVLET,
     UNPAID_TYPES,
     CORR,
+    IS_FURNITURE,
+    IS_LAVA,
+    IS_POOL,
     W_ACCESSORY,
     W_ARMOR,
     W_WEP,
@@ -97,7 +103,7 @@ import { container_contents } from './end.js';
 import { autokey, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
-import { ceiling, surface } from './dungeon.js';
+import { ceiling, surface, surface_typ } from './dungeon.js';
 import { dropy } from './do.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
 import { makesingular } from './fruit.js';
@@ -161,7 +167,7 @@ import {
     SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD, STATUE, VENOM_CLASS,
 } from './objects.js';
 import {
-    Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
+    an, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
     doname_with_price, otense, safe_qbuf, the, The, thesimpleoname, xnameFresh, yname,
     ysimple_name,
 } from './objnam.js';
@@ -172,7 +178,8 @@ import {
 } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { menuTitleStyle } from './tty_menu.js';
-import { is_lava, is_pool, t_at, chest_trap } from './trap.js';
+import { waterbody_name } from './pager.js';
+import { back_on_ground, is_lava, is_pool, t_at, chest_trap } from './trap.js';
 import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
 import {
     add_menu, add_menu_heading, getlin, select_menu,
@@ -279,94 +286,60 @@ function heroHasProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-// This is the bounded branch of pickup.c describe_decor() reached by
-// allmain.c moveloop_preamble(FALSE): a new hero stands on the traversed D:1
-// staircase before the first command. Later terrain and repeated descriptions
-// remain fail-closed at their existing callers.
-function startupStairDecor(state) {
-    const { u } = state;
-    const cell = state.level?.at(u.ux, u.uy);
-    const stair = stairway_at(u.ux, u.uy, state);
-    const ordinaryExit = cell?.typ === STAIRS
-        && stair?.up === true
-        && stair.isladder === false
-        && stair.u_traversed === true
-        && u.uz?.dnum === 0
-        && u.uz?.dlevel === 1
-        && !u.uhave?.amulet
-        && dfeature_at(u.ux, u.uy, state)
-            === 'staircase up out of the dungeon';
-    if (!ordinaryExit) {
-        throw new UnsupportedPickupError(
-            'mention_decor outside the initial D:1 staircase',
-        );
-    }
-    if (u.uinwater || heroHasProperty(state, FUMBLING)
-        || state.iflags?.defer_decor
-        || state.decor_fumble_override
-        || state.decor_levitate_override) {
-        throw new UnsupportedPickupError(
-            'exceptional initial decor description',
-        );
-    }
-    if (state.iflags?.prev_decor !== STONE) {
-        throw new UnsupportedPickupError(
-            'repeated initial decor description',
-        );
-    }
-    return 'staircase up out of the dungeon';
-}
-
-// This source-bounded plan covers describe_decor()'s two silent ordinary
-// terrain results. The first step from the remembered startup staircase, or
-// from C's initial STONE sentinel, returns TRUE and stores ROOM or CORR. A
-// following step on the same ordinary terrain returns FALSE and stores the
-// same value. Other prior terrain can invoke back_on_ground(), and every
-// feature-bearing or exceptional state can print, defer, or suppress
-// feedback, so those states remain outside this owner.
-function ordinaryDecorPlan(x, y, state) {
-    const typ = state.level?.at(x, y)?.typ;
-    if (typ !== ROOM && typ !== CORR) return null;
+// C ref: pickup.c deferred_decor() (337-350). The flag is deliberately stored
+// beside prev_decor, so a timeout can defer one terrain message and the next
+// pickup or movement can catch it up in source order.
+export async function deferred_decor(setup, state = game) {
+    state.iflags ??= {};
     if (!state.flags?.mention_decor) {
-        throw new UnsupportedPickupError(
-            'ordinary describe_decor without mention_decor',
-        );
+        state.iflags.defer_decor = false;
+    } else if (setup) {
+        state.iflags.defer_decor = true;
+    } else {
+        await describe_decor(state);
+        state.iflags.defer_decor = false;
     }
-    if (state.u.uinwater || heroHasProperty(state, FUMBLING)
-        || state.iflags?.defer_decor
-        || state.decor_fumble_override
-        || state.decor_levitate_override) {
-        throw new UnsupportedPickupError(
-            'exceptional ordinary decor description',
-        );
-    }
-    if (dfeature_at(x, y, state)) {
-        throw new UnsupportedPickupError(
-            'feature-bearing ordinary decor description',
-        );
-    }
-    const previous = state.iflags?.prev_decor;
-    if (previous !== STONE && previous !== STAIRS && previous !== typ) {
-        throw new UnsupportedPickupError(
-            'ordinary decor after unowned prior terrain',
-        );
-    }
-    return { typ, result: previous !== typ };
 }
 
-// Admission calls this before movement so an excluded describe_decor() branch
-// cannot move the hero and then fail. The function reads the destination and
-// returns C's boolean result without changing terrain memory or output.
-export function preflight_describe_decor_at(x, y, state = game) {
-    const ordinary = ordinaryDecorPlan(x, y, state);
-    if (ordinary) return ordinary.result;
-    if (x !== state.u.ux || y !== state.u.uy) {
-        throw new UnsupportedPickupError(
-            'mention_decor outside silent ordinary terrain',
-        );
+// C ref: pickup.c describe_decor() (353-425). This plan performs the same
+// source reads without changing prev_decor or writing a message. Movement
+// admission uses it before committing the hero's destination; the actual
+// describe_decor() call repeats the reads after domove() has committed it.
+function describeDecorPlan(x, y, state = game) {
+    const location = state.level?.at(x, y);
+    const ltyp = surface_typ(location);
+    const previous = state.iflags?.prev_decor ?? STONE;
+    const fumbling = Number(state.u?.uprops?.[FUMBLING]?.intrinsic ?? 0);
+    if ((fumbling & TIMEOUT) === 1
+        && !state.iflags?.defer_decor
+        && !state.decor_fumble_override) {
+        return { result: false, deferred: true };
     }
-    startupStairDecor(state);
-    return true;
+
+    let dfeature = dfeature_at(x, y, state);
+    const doorhere = dfeature === 'open door' || dfeature === 'doorway';
+    const waterhere = dfeature === 'pool of water';
+    const underwater = Boolean(state.u?.uinwater);
+    if (doorhere || underwater
+        || (ltyp === ICE && IS_POOL(previous))) {
+        dfeature = null;
+    }
+    return {
+        result: ltyp !== previous || IS_FURNITURE(ltyp),
+        ltyp,
+        previous,
+        dfeature,
+        waterhere,
+        underwater,
+        groundTransition: !underwater
+            && (IS_POOL(previous) || IS_LAVA(previous) || previous === ICE),
+    };
+}
+
+// Admission calls this before movement. It mirrors describe_decor()'s
+// boolean result without changing terrain memory, output, or coordinates.
+export function preflight_describe_decor_at(x, y, state = game) {
+    return describeDecorPlan(x, y, state).result;
 }
 
 // Temporary startup admission for the portion of pickup(1) selected by this
@@ -379,23 +352,46 @@ export function preflight_initial_pickup(state = game) {
     if (state.level?.objects?.[u.ux]?.[u.uy]) {
         throw new UnsupportedPickupError('initial floor object');
     }
-    if (state.flags?.mention_decor) startupStairDecor(state);
+    if (state.flags?.mention_decor)
+        preflight_describe_decor_at(u.ux, u.uy, state);
 }
 
-// C ref: pickup.c describe_decor(). This owns the startup staircase output and
-// the silent STAIRS-to-ROOM/CORR and equal-ROOM/CORR branches described above.
-export async function describe_decor(state) {
-    const ordinary = ordinaryDecorPlan(state.u.ux, state.u.uy, state);
-    if (ordinary) {
-        state.iflags.prev_decor = ordinary.typ;
-        return ordinary.result;
+// C ref: pickup.c describe_decor(). This owns terrain transitions, furniture
+// and liquid wording, ICE's Norep path, Fumbling deferral, and back_on_ground.
+// The source ltyp is stored only after its message/transition is complete.
+export async function describe_decor(state = game, env = {}) {
+    state.iflags ??= {};
+    const { u } = state;
+    const plan = describeDecorPlan(u.ux, u.uy, state);
+    if (plan.deferred) {
+        await deferred_decor(true, state);
+        return false;
     }
-    const feature = startupStairDecor(state);
-    await ttyPline(state.flags?.verbose === true
-        ? `There is a ${feature} here.`
-        : `A ${feature}.`, state);
-    state.iflags.prev_decor = STAIRS;
-    return true;
+
+    const message = env.message ?? ttyPline;
+    const norepMessage = env.norepMessage ?? ttyNorep;
+    if (plan.dfeature) {
+        let feature = plan.dfeature;
+        if (plan.waterhere)
+            feature = waterbody_name(u.ux, u.uy, state, env);
+        if (feature !== 'swamp' && plan.ltyp !== ICE)
+            feature = an(feature);
+
+        const text = state.flags?.verbose === true
+            ? `There is ${feature} here.`
+            : `${upstart(feature)}.`;
+        if (plan.ltyp === ICE && state.flags?.mention_decor)
+            await norepMessage(text, state);
+        else
+            await message(text, state);
+    } else if (plan.groundTransition) {
+        if (state.iflags.last_msg !== PLNMSG_BACK_ON_GROUND)
+            await back_on_ground(false, state);
+    }
+
+    state.iflags.prev_decor = state.flags?.mention_decor
+        ? plan.ltyp : STONE;
+    return plan.result;
 }
 
 // C ref: pickup.c u_safe_from_fatal_corpse() (272-281). The tests are ORed in

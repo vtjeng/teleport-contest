@@ -2435,14 +2435,17 @@ export function preflight_look_here(
             );
         }
         if (state.flags.mention_decor) {
-            const terrain = state.level.at(ux, uy)?.typ;
             if (skip_objects) {
                 throw new UnsupportedFeatureDescriptionError(
                     'mention-decor pile-limit count',
                 );
             }
-            if ((terrain !== ROOM && terrain !== CORR)
-                || (decorTerrain ?? state.iflags.prev_decor) !== terrain) {
+            // describe_decor() owns every terrain family, including
+            // furniture and ordinary doorways.  The caller supplies the
+            // terrain it projected before committing movement; only a stale
+            // projection is unsafe for the subsequent object menu.
+            const terrain = state.level.at(ux, uy)?.typ;
+            if ((decorTerrain ?? state.iflags.prev_decor) !== terrain) {
                 throw new UnsupportedFeatureDescriptionError(
                     'describe_decor() before an object-pile menu',
                 );
