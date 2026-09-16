@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c hero landmine setup: seed 7949 and the D:8 layout expose a natural mine at (35,12), one square east of the hero. The hero walks onto it, converts it to a pit, and reaches trapeffect_pit through dotrap(RECURSIVETRAP). The route differs from the monster steering witness while keeping the setup bounded and source-derived.",
+  "segments": [
+    {
+      "seed": 7949,
+      "datetime": "20330405060708",
+      "nethackrc": "OPTIONS=name:MineProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,time\nOPTIONS=playmode:debug\n",
+      "moves": "  \u0016?\n xl"
+    }
+  ]
+}
