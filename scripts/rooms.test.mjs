@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    MAXNROFROOMS,
     OROOM,
     ROOM,
     ROOMOFFSET,
@@ -56,6 +57,26 @@ test('in_rooms returns a regular room only when its type matches', () => {
 
     // SHOPBASE is the source's umbrella query for every concrete shop type.
     defineRoom(state, roomno, SHOPBASE + 1);
+    assert.deepEqual(in_rooms(12, 6, SHOPBASE, state), [roomno]);
+});
+
+test('in_rooms resolves nested rooms through the conceptual room index', () => {
+    const state = initializedState();
+    const nestedRoom = {
+        roomnoidx: MAXNROFROOMS + 1,
+        rtype: SHOPBASE + 2,
+    };
+    state.level.rooms = [{
+        roomnoidx: 0,
+        rtype: OROOM,
+        nsubrooms: 1,
+        sbrooms: [nestedRoom],
+    }];
+    const roomno = nestedRoom.roomnoidx + ROOMOFFSET;
+    state.level.at(12, 6).roomno = roomno;
+
+    // C keeps top-level rooms and subrooms in one contiguous rooms[] array;
+    // the JS level stores this subroom under its parent.
     assert.deepEqual(in_rooms(12, 6, SHOPBASE, state), [roomno]);
 });
 

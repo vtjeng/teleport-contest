@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 133,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:PriestFresh,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "\u001610\n.....",
+      "comment": "Independent debug level change to D:10 followed by five waits; generated temple priest movement exercises priest.c priestini(), histemple_at(), pri_move(), and move_special()."
+    }
+  ]
+}

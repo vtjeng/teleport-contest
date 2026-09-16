@@ -7,8 +7,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ALTAR,
+    AM_LAWFUL,
+    MAXNROFROOMS,
     OROOM,
     ROOM,
+    ROOMOFFSET,
+    TEMPLE,
 } from '../js/const.js';
 import { runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
@@ -17,7 +22,13 @@ import { init_objects } from '../js/o_init.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { monst_globals_init, reset_mvitals } from '../js/monsters.js';
 import { timeout_globals_init } from '../js/timeout.js';
-import { newepri, p_coaligned } from '../js/priest.js';
+import {
+    histemple_at,
+    newepri,
+    p_coaligned,
+    priestini,
+    temple_occupied,
+} from '../js/priest.js';
 import { pick_room } from '../js/mkroom.js';
 
 function initializedTempleState() {
@@ -99,6 +110,74 @@ test('newepri does not overwrite an existing extension', () => {
     newepri(monster);
     assert.equal(monster.mextra.epri, existing,
         'should keep the existing epri');
+});
+
+function nestedTempleState() {
+    const state = initializedTempleState();
+    const nested = {
+        roomnoidx: MAXNROFROOMS + 1,
+        rtype: TEMPLE,
+        lx: 5,
+        ly: 5,
+        hx: 9,
+        hy: 9,
+        nsubrooms: 0,
+        sbrooms: [],
+    };
+    state.level.rooms = [{
+        roomnoidx: 0,
+        rtype: OROOM,
+        lx: 1,
+        ly: 1,
+        hx: 15,
+        hy: 15,
+        nsubrooms: 1,
+        sbrooms: [nested],
+    }];
+    state.level.nroom = 1;
+    for (let x = 1; x <= 15; ++x)
+        for (let y = 1; y <= 15; ++y)
+            state.level.at(x, y).typ = ROOM;
+    const roomno = nested.roomnoidx + ROOMOFFSET;
+    state.level.at(7, 7).roomno = roomno;
+    state.level.at(7, 7).typ = ALTAR;
+    state.level.at(7, 7).altarmask = AM_LAWFUL;
+    return { nested, roomno, state };
+}
+
+test('priest room queries resolve nested conceptual room numbers', () => {
+    const { roomno, state } = nestedTempleState();
+    const priest = {
+        ispriest: true,
+        mx: 7,
+        my: 7,
+        mextra: {
+            epri: {
+                shroom: roomno,
+                shrlevel: { ...state.u.uz },
+            },
+        },
+    };
+
+    assert.equal(temple_occupied([roomno, 0, 0, 0, 0], state), roomno);
+    assert.equal(histemple_at(priest, 7, 7, state), true);
+});
+
+test('priestini stores a nested shrine room using its conceptual index', () => {
+    const { nested, state } = nestedTempleState();
+    const random = {
+        d: () => 1,
+        rn1: (_bound, base) => base,
+        rn2: () => 0,
+        rnd: () => 1,
+        rne: () => 1,
+    };
+    priestini(state.u.uz, nested, 7, 7, false, { state, random });
+
+    assert.equal(
+        state.level.monlist?.mextra?.epri?.shroom,
+        nested.roomnoidx + ROOMOFFSET,
+    );
 });
 
 test('p_coaligned compares hero alignment with priest shrine alignment', () => {
