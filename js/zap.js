@@ -29,6 +29,8 @@
 import { artifact_origin } from './artifacts.js';
 import {
     ACID_RES,
+    A_INT,
+    A_DEX,
     AC_VALUE,
     ANTIMAGIC,
     ARM,
@@ -36,10 +38,15 @@ import {
     BLINDED,
     BUFSZ,
     COLD_RES,
+    COLNO,
     CORR,
+    D_BROKEN,
     DIR_180,
     DIR_ERR,
     D_NODOOR,
+    DB_FLOOR,
+    DB_ICE,
+    DB_UNDER,
     DISINT_RES,
     DISP_BEAM,
     DISP_CHANGE,
@@ -57,7 +64,10 @@ import {
     HALLUC,
     HALLUC_RES,
     HEAD,
+    HWALL,
     ICE,
+    ICED_MOAT,
+    ICED_POOL,
     IRONBARS,
     IS_FOUNTAIN,
     IS_OBSTRUCTED,
@@ -69,14 +79,26 @@ import {
     In_mines,
     DIED,
     DOOR,
+    DRAWBRIDGE_UP,
+    EXPL_FIERY,
     KILLED_BY_AN,
     LL_ARTIFACT,
     LL_CONDUCT,
     LL_WISH,
     NO_KILLER_PREFIX,
+    NO_TRAP_FLAGS,
     PHYS_EXPL_TYPE,
+    PLNMSG_ENVELOPED_IN_GAS,
+    POOL,
+    PIT,
+    P_BASIC,
+    P_EXPERT,
+    P_ISRESTRICTED,
+    P_SKILLED,
+    P_UNSKILLED,
     Is_airlevel,
     Is_earthlevel,
+    Is_rogue_level,
     Is_waterlevel,
     LAVAWALL,
     M_AP_OBJECT,
@@ -90,6 +112,7 @@ import {
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
     CXN_PFX_THE,
+    DEAF,
     MM_FEMALE,
     MM_MALE,
     MM_NOCOUNTBIRTH,
@@ -101,14 +124,22 @@ import {
     NOTELL,
     REFLECTING,
     ROOM,
+    ROWNO,
     SDOOR,
     SCORR,
     SHOCK_RES,
+    POISON_RES,
     SHOPBASE,
+    SHOP_BARS_COST,
+    SHOP_DOOR_COST,
     STONE,
     STOMACH,
     STRAT_WAITMASK,
+    TT_INFLOOR,
+    TT_LAVA,
     TT_PIT,
+    MELT_ICE_AWAY,
+    VWALL,
     is_pit,
     nothing_happens,
     ONAME_KNOW_ARTI,
@@ -137,14 +168,17 @@ import {
     W_WEP,
     W_NONDIGGABLE,
     XKILL_GIVEMSG,
+    XKILL_NOMSG,
     XKILL_NOCORPSE,
     ZAP_POS,
+    engulfing_u,
     isok,
     u_at,
     uhim,
+    Upolyd,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { exercise } from './attrib.js';
+import { acurr, exercise } from './attrib.js';
 import { dirtocoord, getdir, xytodir } from './cmd.js';
 import {
     bot,
@@ -161,6 +195,7 @@ import {
 } from './display.js';
 import {
     christen_monst,
+    hliquid,
     Monnam,
     mon_nam,
     monsterCommonName,
@@ -168,7 +203,7 @@ import {
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat } from './eat.js';
 import { cvt_sdoor_to_door, findit } from './detect.js';
-import { adj_pit_checks, fillholetyp, watch_dig } from './dig.js';
+import { adj_pit_checks, fillholetyp, is_moat, watch_dig } from './dig.js';
 import { dropx, preflight_dropx } from './do.js';
 import { ceiling } from './dungeon.js';
 import { done } from './end.js';
@@ -176,7 +211,8 @@ import { more_experienced } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import {
-    check_capacity, in_town, losehp, may_dig, nh_delay_output, nomul,
+    check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul,
+    set_uinwater,
 } from './hack.js';
 import {
     lcase, mungspaces, s_suffix, truncateByteString, upstart,
@@ -205,7 +241,12 @@ import {
     is_whirly,
     is_mplayer,
     is_rider,
+    is_vampshifter,
+    is_swimmer,
     monster_resists_element,
+    resists_magm,
+    resists_blnd,
+    resists_blnd_by_arti,
     monstseesu,
     monstunseesu,
     nonliving,
@@ -221,6 +262,8 @@ import {
     AD_DISN,
     AD_ELEC,
     AD_FIRE,
+    AD_DRST,
+    AD_MAGM,
     AD_RBRE,
     AD_WRAP,
     AT_ENGL,
@@ -228,10 +271,12 @@ import {
     PM_CLAY_GOLEM,
     PM_DEATH,
     PM_DOPPELGANGER,
+    PM_KNIGHT,
     PM_GREMLIN,
     S_EEL,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
+import { obj_resists } from './bury.js';
 import {
     free_omid,
     free_omonst,
@@ -240,12 +285,14 @@ import {
     is_pick,
     mksobj_at,
     objectType,
+    obj_ice_effects,
     remove_object,
     splitobj,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     CORPSE,
+    AMULET_OF_LIFE_SAVING,
     DWARVISH_CLOAK,
     HEAVY_IRON_BALL,
     IMMEDIATE,
@@ -267,10 +314,13 @@ import {
     WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHTNING,
+    WAN_STRIKING,
     WAN_MAGIC_MISSILE,
     WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
     WAN_TELEPORTATION,
+    POT_OIL,
+    SCR_FIRE,
     SPE_TELEPORT_AWAY,
     GLASS,
 } from './objects.js';
@@ -299,8 +349,10 @@ import {
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { cant_revive } from './read.js';
+import { is_quest_artifact } from './questpgr.js';
 import { body_part, mbodypart, rehumanize } from './polyself.js';
-import { healup } from './potion.js';
+import { P_SKILL, spell_skilltype } from './startup_skills.js';
+import { healup, make_blinded } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
     shieldeff_mon,
@@ -309,10 +361,13 @@ import {
     pm_to_cham,
     replmon,
     seemimic,
+    healmon,
     wakeup,
     xkilled,
 } from './mon.js';
 import { expels } from './mhitu.js';
+import { sleep_monst, slept_monst } from './mhitm.js';
+import { explode } from './explode.js';
 import {
     m_at,
 } from './monst.js';
@@ -321,24 +376,36 @@ import { in_rooms } from './rooms.js';
 import { check_unpaid, inside_shop } from './shk.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { S_digbeam } from './symbols.js';
-import { closed_door } from './monmove.js';
+import { closed_door, dissolve_bars, m_in_air, youHear } from './monmove.js';
 import { stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
 import { burnarmor } from './trap_erode_obj.js';
-import { conjoined_pits, is_lava, is_pool, t_at } from './trap.js';
+import {
+    conjoined_pits, delfloortrap, is_lava, is_pool, maketrap, reset_utrap,
+    set_utrap, t_at,
+} from './trap.js';
+import { dotrap, mintrap } from './trap_effects.js';
 import { shade_miss } from './uhitm.js';
 import { enexto, tele } from './teleport.js';
 import {
-    cansee, canseemon, couldsee, recalc_block_point, unblock_point,
+    block_point, cansee, canseemon, couldsee, recalc_block_point, unblock_point,
 } from './vision.js';
-import { find_mac } from './worn.js';
-import { burn_away_slime, fall_asleep } from './timeout.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import { find_mac, which_armor } from './worn.js';
+import {
+    burn_away_slime, fall_asleep, spot_stop_timers, spot_time_left,
+} from './timeout.js';
+import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
+import { create_gas_cloud } from './region.js';
 import { ignite_items } from './apply_catch_lit.js';
-import { hits_bars } from './mthrowu.js';
+import {
+    hits_bars, m_useup, m_useupall, rnd_hallublast,
+} from './mthrowu.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
+import { waterbody_name } from './pager.js';
+import { fix_wall_spines } from './mklev.js';
+import { picking_at, reset_pick } from './lock.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
@@ -358,6 +425,14 @@ function heroIsBlind(state) {
     const blinded = state.u?.uprops?.[BLINDED];
     return Boolean((blinded?.intrinsic || blinded?.extrinsic)
         && !blinded?.blocked);
+}
+
+// C ref: youprop.h Deaf, either an intrinsic property or the role-play
+// option. zap_over_floor() uses this to select the water-boiling message.
+function heroIsDeaf(state) {
+    const property = state.u?.uprops?.[DEAF];
+    return Boolean(property?.intrinsic || property?.extrinsic
+        || state.u?.uroleplay?.deaf);
 }
 
 // C ref: zap.c lightdamage() (3024-3056). Scrolls pass ordinary=TRUE, but
@@ -965,15 +1040,43 @@ export async function resist(mtmp, oclass, damage, tell, state = game, random = 
     return resisted ? 1 : 0;
 }
 
+// C ref: zap.c spell_damage_bonus() (3480-3505).  The adjustment is pure:
+// it reads effective intelligence and level, then clamps the low-intelligence
+// penalty so a zero damage roll remains zero and a positive roll remains at
+// least one.
+export function spell_damage_bonus(damage, state = game) {
+    const intelligence = acurr(state, A_INT);
+    if (intelligence <= 9) {
+        if (damage > 1)
+            return damage <= 3 ? 1 : damage - 3;
+        return damage;
+    }
+    if (intelligence <= 13 || (state.u?.ulevel ?? 0) < 5)
+        return damage;
+    if (intelligence <= 18) return damage + 1;
+    if (intelligence <= 24 || (state.u?.ulevel ?? 0) < 14)
+        return damage + 2;
+    return damage + 3;
+}
+
 // C ref: zap.c zhitm() (4238-4398). Damage a bolt does to a monster. The
 // caller (dobuzz() monster arm) is responsible for killing the monster when
 // damage is fatal. Returns the damage dealt. Sets *ootmp (here returned as
 // the second element) to a piece of armor to disintegrate when appropriate.
 //
-// The ZT_FIRE and ZT_COLD branches are ported; every other damage type throws.
-// `is_hero_spell(type)` is `type >= 10 && type < 20`. For a wand zap (type
-// 0-9), `spellcaster` is false and `spell_damage_bonus` is never called.
-export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
+// Every damage branch is kept here because dobuzz() uses zhitm()'s returned
+// damage and armor pointer to decide the rest of the monster arm.  Calls whose
+// C result is discarded (acid damage and armor erosion) are recorded as
+// unported at their exact source boundary below.
+export async function zhitm(
+    mon,
+    type,
+    nd,
+    state = game,
+    random = { d, rn2, rnd },
+    rawEnv = {},
+) {
+    const env = { ...rawEnv, state, random };
     let tmp = 0;
     let otmp = null;
     const damgtype = zaptype(type) % 10;
@@ -981,6 +1084,14 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
     const spellcaster = type >= 10 && type < 20; /* is_hero_spell(type) */
 
     switch (damgtype) {
+    case ZT_MAGIC_MISSILE:
+        if (resists_magm(mon, state) || defended(mon, AD_MAGM, state)) {
+            sho_shieldeff = true;
+            break;
+        }
+        tmp = random.d(nd, 6);
+        if (spellcaster) tmp = spell_damage_bonus(tmp, state);
+        break;
     case ZT_FIRE:
         if (monster_resists_element(mon, FIRE_RES, state)
             || defended(mon, AD_FIRE, state)) {
@@ -988,21 +1099,17 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
             break;
         }
         tmp = random.d(nd, 6);
-        if (spellcaster) {
-            throw new UnsupportedZapError(
-                'spell_damage_bonus() for a fire spell a hero cast',
-            );
-        }
+        if (spellcaster) tmp = spell_damage_bonus(tmp, state);
         /* includes spell bonus but not monster vuln to fire */
         {
             const orig_dmg = tmp;
             if (monster_resists_element(mon, COLD_RES, state))
                 tmp += 7;
-            if (await burnarmor(mon, { state, random })) {
+            if (await burnarmor(mon, { ...env })) {
                 if (!random.rn2(3)) {
                     tmp += await destroy_items(mon, AD_FIRE, orig_dmg,
-                        { state, random });
-                    await ignite_items(mon.minvent, { state, random });
+                        { ...env });
+                    await ignite_items(mon.minvent, { ...env });
                 }
             }
         }
@@ -1014,11 +1121,7 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
             break;
         }
         tmp = random.d(nd, 6);
-        if (spellcaster) {
-            throw new UnsupportedZapError(
-                'spell_damage_bonus() for a cold spell a hero cast',
-            );
-        }
+        if (spellcaster) tmp = spell_damage_bonus(tmp, state);
         /* includes spell bonus but not monster vuln to cold */
         {
             const orig_dmg = tmp;
@@ -1026,25 +1129,119 @@ export async function zhitm(mon, type, nd, state = game, random = { d, rn2 }) {
                 tmp += random.d(nd, 3);
             if (!random.rn2(3))
                 tmp += await destroy_items(mon, AD_COLD, orig_dmg,
-                    { state, random });
+                    { ...env });
         }
         break;
 
+    case ZT_SLEEP:
+        // C deliberately discards sleep_monst()'s boolean result.  The owner
+        // still changes the monster's helpless state and releases a grabber.
+        tmp = 0;
+        await sleep_monst(mon, random.d(nd, 25),
+            type === ZT_SLEEP ? WAND_CLASS : 0,
+            { ...env });
+        break;
+
+    case ZT_DEATH:
+        if (Math.abs(type) !== 20 + ZT_DEATH) {
+            if (mon.data === state.mons?.[PM_DEATH]) {
+                healmon(mon, Math.trunc((mon.mhpmax ?? mon.mhp) * 3 / 2),
+                    Math.trunc((mon.mhpmax ?? mon.mhp) / 2));
+                if ((mon.mhpmax ?? 0) >= 1000) mon.mhpmax = 999;
+                tmp = 0;
+                break;
+            }
+            if (nonliving(mon.data) || is_demon(mon.data)
+                || is_vampshifter(mon) || resists_magm(mon, state)) {
+                sho_shieldeff = true;
+                break;
+            }
+            // C sets type=-1 here so the final resist() saving throw is not
+            // attempted.  Keep the local value as the source does.
+            type = -1;
+            // zap.c:4340. An ordinary death ray kills a living, non-resistant
+            // monster by applying mhp + 1 after the source type is cleared.
+            tmp = mon.mhp + 1;
+        } else if (monster_resists_element(mon, DISINT_RES, state)
+                   || defended(mon, AD_DISN, state)) {
+            sho_shieldeff = true;
+        } else if (mon.misc_worn_check & W_ARMS) {
+            otmp = which_armor(mon, W_ARMS, state);
+        } else if (mon.misc_worn_check & W_ARM) {
+            otmp = which_armor(mon, W_ARM, state);
+            const cloak = which_armor(mon, W_ARMC, state);
+            if (cloak) m_useup(mon, cloak, { ...env });
+        } else {
+            // MAGIC_COOKIE is the sentinel used by dobuzz() to call
+            // disintegrate_mon(), rather than ordinary damage handling.
+            tmp = 1000;
+            const cloak = which_armor(mon, W_ARMC, state);
+            if (cloak) m_useup(mon, cloak, { ...env });
+            const shirt = which_armor(mon, W_ARMU, state);
+            if (shirt) m_useup(mon, shirt, { ...env });
+        }
+        type = -1;
+        break;
+
+    case ZT_LIGHTNING: {
+        tmp = random.d(nd, 6);
+        if (spellcaster) tmp = spell_damage_bonus(tmp, state);
+        const orig_dmg = tmp;
+        if (monster_resists_element(mon, SHOCK_RES, state)
+            || defended(mon, AD_ELEC, state)) {
+            sho_shieldeff = true;
+            tmp = 0;
+        }
+        if (!resists_blnd(mon, state)
+            && !(type > 0 && engulfing_u(mon, state)) && nd > 2) {
+            const blindAmount = random.rnd(50);
+            mon.mcansee = false;
+            mon.mblinded = Math.min(127,
+                Math.trunc(mon.mblinded ?? 0) + blindAmount);
+        }
+        if (!random.rn2(3))
+            tmp += await destroy_items(mon, AD_ELEC, orig_dmg,
+                { ...env });
+        break;
+    }
+
+    case ZT_POISON_GAS:
+        if (monster_resists_element(mon, POISON_RES, state)
+            || defended(mon, AD_DRST, state)) {
+            sho_shieldeff = true;
+            break;
+        }
+        tmp = random.d(nd, 6);
+        break;
+
+    case ZT_ACID:
+        if (monster_resists_element(mon, ACID_RES, state)
+            || defended(mon, AD_ACID, state)) {
+            sho_shieldeff = true;
+            break;
+        }
+        tmp = random.d(nd, 6);
+        if (!random.rn2(6)) note_unported('trap.c acid_damage');
+        if (!random.rn2(6)) note_unported('uhitm.c erode_armor');
+        break;
+
     default:
-        throw new UnsupportedZapError(
-            `zhitm() monster arm for damage type ${damgtype}`,
-        );
+        // zaptype() only yields the eight source damage families above.
+        throw new RangeError(`invalid zap damage type ${damgtype}`);
     }
 
     if (sho_shieldeff) {
-        // shieldeff() is a visual animation with no game-state or RNG effect.
-        // A newt that resists cold would show a shield glyph here, but
-        // shieldeff() is not ported and no RNG call is lost by skipping it.
-        // For now, do nothing; the shield animation is cosmetic.
-        void 0;
+        // C's shieldeff() is a visual animation with no resistance message;
+        // keep the display.c gap explicit without borrowing shieldeff_mon(),
+        // whose separate mon.c owner prints a visible "resists!" line.
+        note_unported('display.c shieldeff');
     }
-    // is_hero_spell(type) && Role_if(PM_KNIGHT) && u.uhave.questart => 2x
+    // is_hero_spell(type) && Role_if(PM_KNIGHT) && u.uhave.questart => 2x.
     // For wand zaps (type 0-9), is_hero_spell is false so this never fires.
+    if (type >= 10 && type < 20
+        && state.urole?.mnum === PM_KNIGHT
+        && state.u?.uhave?.questart)
+        tmp *= 2;
     // resist() halves damage for a wand zap (type < ZT_SPELL(0) = 10)
     if (tmp > 0 && type >= 0
         && await resist(mon, type < 10 /* ZT_SPELL(0) */
@@ -1140,7 +1337,8 @@ export async function makewish(state = game) {
         artifact_origin(otmp, ONAME_WISH | ONAME_KNOW_ARTI, state);
     }
     // 6387-6388 saves u.uconduct.wisharti from before the wish only to pick
-    // one of three chronicle strings. readobjnam() owns the wisharti counter.
+    // one of three livelog strings with it, so nothing outside the livelog
+    // file reads it.
 
     const holdEnv = {
         state,
@@ -1590,12 +1788,10 @@ function Half_spell_damage(state) {
 // player reads afterwards names the bolt that killed them. The hallucinating
 // arm needs rnd_hallublast(), which draws, so it stops; dobuzz() stops on the
 // same property one call earlier.
-export function flash_str(typ, nohallu, state = game) {
+export function flash_str(typ, nohallu, state = game, random = { rn2 }) {
     typ = zaptype(typ);
     if (!nohallu && Hallucination(state)) {
-        throw new UnsupportedZapError(
-            'rnd_hallublast() for a hallucinating hero',
-        );
+        return `blast of ${rnd_hallublast(random)}`;
     }
     return flash_types[typ];
 }
@@ -1764,14 +1960,38 @@ export function bounce_dir(
 // `type` is a hero-cast spell type or 0; every ported caller passes 0, because
 // dobuzz()'s `spell_type` is 0 for a wand. The rn2(20) precedes the
 // spell_hit_bonus() the refusal stands in for, exactly as C evaluates them.
-export function zap_hit(ac, type, random = { rn2, rnd }) {
-    const chance = random.rn2(20);
-    if (type) {
-        throw new UnsupportedZapError(
-            'spell_hit_bonus() for a spell the hero cast',
-        );
+// C ref: zap.c spell_hit_bonus() (3508-3539). `skill` is the spell object
+// type used by zap_hit(); spell_skilltype() and P_SKILL() are the shared
+// startup skill owners, so the bonus follows the current hero's skill state.
+export function spell_hit_bonus(skill, state = game) {
+    let hitBonus = 0;
+    switch (P_SKILL(spell_skilltype(skill, state), state)) {
+    case P_ISRESTRICTED:
+    case P_UNSKILLED:
+        hitBonus = -4;
+        break;
+    case P_BASIC:
+        break;
+    case P_SKILLED:
+        hitBonus = 2;
+        break;
+    case P_EXPERT:
+        hitBonus = 3;
+        break;
+    default:
+        break;
     }
-    const spell_bonus = 0;
+    const dexterity = acurr(state, A_DEX);
+    if (dexterity < 4) hitBonus -= 3;
+    else if (dexterity < 6) hitBonus -= 2;
+    else if (dexterity < 8) hitBonus -= 1;
+    else if (dexterity >= 14) hitBonus += dexterity - 14;
+    return hitBonus;
+}
+
+export function zap_hit(ac, type, random = { rn2, rnd }, state = game) {
+    const chance = random.rn2(20);
+    const spell_bonus = type ? spell_hit_bonus(type, state) : 0;
 
     /* small chance for naked target to avoid being hit */
     if (!chance)
@@ -1850,7 +2070,13 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
 // no damage but still has the full roll fed to ugolemeffects() and to
 // destroy_items(). Only the else at 4428-4431 is ported, where the two are
 // equal.
-async function zhitu(type, nd, fltxt, sx, sy, state, random) {
+async function zhitu(type, nd, fltxt, sx, sy, state, random, rawEnv = {}) {
+    // The monster-turn preflight reaches hero damage on a planning clone.  In
+    // C burnarmor(), destroy_items() and ignite_items() all receive the same
+    // live call context; forwarding it here keeps their messages and display
+    // seams on the clone instead of writing into the live terminal (or
+    // consuming its input while a planned message waits for --More--).
+    const env = { ...rawEnv, state, random };
     let dam = 0;
     const abstyp = zaptype(type);
     let orig_dam = 0;
@@ -1876,12 +2102,12 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
         monstunseesu(M_SEEN_FIRE, state);
         burn_away_slime(state);
         /* "body hit" */
-        if (await burnarmor(state.youmonst, { state, random })) {
+        if (await burnarmor(state.youmonst, { ...env })) {
             if (!random.rn2(3))
                 await destroy_items(state.youmonst, AD_FIRE, orig_dam,
-                    { state, random });
+                    { ...env });
             if (!random.rn2(3))
-                await ignite_items(state.invent, { state, random });
+                await ignite_items(state.invent, { ...env });
         }
         break;
 
@@ -1891,7 +2117,24 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
         );
     }
     const killed = zhituLosehpArguments(type, abstyp, dam, fltxt, state);
-    await losehp(killed.dam, killed.kbuf, KILLED_BY_AN, state);
+    if (env.planning && !Upolyd(state.u)
+        && killed.dam >= state.u.uhp
+        && typeof env.planningDeath === 'function') {
+        // C's losehp() enters end.c done() on this monster-turn death.  The
+        // planning clone cannot run its urgent message or death query, so
+        // carry the source damage write and attacker identity across the
+        // existing atomic planning/live handoff used by mhitu.c.
+        end_running(true, state);
+        state.disp ??= {};
+        state.disp.botl = true;
+        state.u.uhp -= killed.dam;
+        throw env.planningDeath(state.gb?.buzzer);
+    }
+    await losehp(killed.dam, killed.kbuf, KILLED_BY_AN, state, {
+        ...env,
+        fromMonster: type < 0 || Boolean(env.fromMonster),
+        message: env.message,
+    });
 }
 
 // C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
@@ -1904,11 +2147,11 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
 // ordinary room floor with nothing on it, every arm below is skipped and the
 // answer is 0, which is why a ray across a plain room draws nothing here.
 //
-// Each terrain the fire arm acts on stops by name instead: a web
-// (delfloortrap()), ice (melt_ice()), water (create_gas_cloud() and the pit
-// maketrap() leaves behind) and a fountain (dryup()). So do the two arms the
-// other wand damage types reach, and the secret door, the closed door and the
-// floor objects in the shared tail.
+// The fire arm consumes a web through delfloortrap(), records the discarded
+// melt_ice() call, invokes fountain.c dryup() through its canonical owner, and
+// handles the water cloud/pit path. The cold,
+// gas, lightning, and acid terrain arms, then the secret-door, closed-door,
+// and floor-object tail, follow in source order.
 export async function zap_over_floor(
     x, y,
     type,
@@ -1917,11 +2160,29 @@ export async function zap_over_floor(
     exploding_wand_typ,
     state = game,
     random = { rn2, rnd },
+    rawEnv = {},
 ) {
+    const env = { ...rawEnv, state, random };
+    const message = env.planning ? async () => {}
+        : (env.message ?? ttyPline);
+    const norepMessage = env.planning ? async () => {}
+        : (env.norepMessage ?? ttyNorep);
+    const redrawAt = env.planning ? () => {}
+        : (env.newsym ?? newsym);
+    // hliquid() consumes the display stream. Keep the core random source in
+    // `random` out of this environment when a planning caller omits an
+    // explicit displayRandom callback.
+    const liquid = (preferred) => hliquid(preferred, {
+        state,
+        displayRandom: env.displayRandom,
+    });
     const lev = state.level.at(x, y);
-    const rangemod = 0;
+    let rangemod = 0;
     const lavawall = lev.typ === LAVAWALL;
     const damgtype = zaptype(type) % 10;
+    // C snapshots cansee() before create_gas_cloud() or the terrain mutation;
+    // later messages and the post-effect redraw use this same source value.
+    const seeIt = cansee(x, y, state);
 
     // 5157-5160's PHYS_EXPL_TYPE (hack.h:1470, -1) is explode.c's gas-spore
     // constant; ubuzz() cannot produce a negative type.
@@ -1930,62 +2191,261 @@ export async function zap_over_floor(
         return -1000;
     }
 
-    if (exploding_wand_typ) {
-        throw new UnsupportedZapError(
-            'zap_over_floor() for a wand that broke or burning oil',
-        );
-    }
-
     switch (damgtype) {
     case ZT_FIRE: {
         const t = t_at(x, y, state);
         if (t && t.ttyp === WEB) {
-            throw new UnsupportedZapError(
-                'delfloortrap() for a web the bolt burns',
-            );
+            if (seeIt) await norepMessage('A web bursts into flames!', state, env);
+            // delfloortrap() owns the trap unlink and actor state transition;
+            // its boolean result is discarded by zap_over_floor() in C.
+            delfloortrap(t, state);
+            if (seeIt) redrawAt(x, y, state);
         }
         if (is_ice(x, y, state)) {
-            throw new UnsupportedZapError('melt_ice() under the bolt');
+            // melt_ice() returns no value and has no ported owner yet.
+            note_unported('zap.c melt_ice');
         } else if (is_pool(x, y, state)) {
-            throw new UnsupportedZapError(
-                'create_gas_cloud() over the water the bolt boils',
-            );
+            const onWaterLevel = Is_waterlevel(state.u.uz);
+            let messageGiven = false;
+            let evaporatedTrap = null;
+            let msgtxt = !heroIsDeaf(state)
+                ? 'You hear hissing gas.'
+                : type >= 0 ? 'That seemed remarkably uneventful.' : null;
+
+            // C ref: zap.c:5186. create_gas_cloud() is an existing region
+            // owner; this caller supplies its live and planning operations so
+            // the source's BFS draws and visible-region update are preserved.
+            if (!onWaterLevel) {
+                await create_gas_cloud(x, y, random.rnd(5), 0, {
+                    ...env,
+                    blockPoint: env.blockPoint
+                        ?? ((cx, cy) => block_point(cx, cy, state)),
+                    canSee: env.canSee
+                        ?? ((cx, cy) => cansee(cx, cy, state)),
+                    newsym: env.newsym ?? redrawAt,
+                    message: async (text, cloudState) => {
+                        await message(text, cloudState ?? state, env);
+                    },
+                });
+                messageGiven = state.iflags?.last_msg
+                    === PLNMSG_ENVELOPED_IN_GAS;
+            }
+
+            if (lev.typ !== POOL) {
+                // C clears the local trap pointer for MOAT, DRAWBRIDGE_UP,
+                // and WATER. The JavaScript floor tail has no later use for
+                // that local pointer, so only the source's terrain message is
+                // observable on this arm.
+                if (onWaterLevel)
+                    msgtxt = (seeIt || !heroIsDeaf(state))
+                        ? 'Some water boils.' : null;
+                else if (seeIt)
+                    msgtxt = 'Some water evaporates.';
+            } else {
+                rangemod -= 3;
+                lev.typ = ROOM;
+                lev.flags = 0;
+                evaporatedTrap = maketrap(x, y, PIT, env);
+                if (seeIt) msgtxt = 'The water evaporates.';
+            }
+            if (msgtxt && !messageGiven)
+                await norepMessage(msgtxt, state, env);
+
+            // C forces hidden swimmers out of the water before newsym()
+            // redraws the changed square, then lets the existing trap owners
+            // decide whether the newly made pit catches its actor. This block
+            // follows the evaporation message in zap.c.
+            if (lev.typ === ROOM) {
+                const mon = m_at(x, y, state);
+                if (mon && is_swimmer(mon.data) && mon.mundetected)
+                    mon.mundetected = false;
+                redrawAt(x, y, state);
+                if (evaporatedTrap && u_at(x, y, state)) {
+                    await dotrap(evaporatedTrap, NO_TRAP_FLAGS, state);
+                } else if (evaporatedTrap && mon) {
+                    await mintrap(mon, NO_TRAP_FLAGS, {
+                        ...env,
+                        mInAir: env.mInAir ?? m_in_air,
+                        heroDeaf: env.heroDeaf ?? heroIsDeaf,
+                        youHear: env.youHear ?? youHear,
+                        message: env.message ?? message,
+                        redraw: env.redraw ?? redrawAt,
+                    });
+                }
+            }
         } else if (IS_FOUNTAIN(lev.typ)) {
-            throw new UnsupportedZapError(
-                'dryup() at the fountain the bolt boils',
-            );
+            await create_gas_cloud(x, y, random.rnd(3), 0, {
+                ...env,
+                blockPoint: env.blockPoint
+                    ?? ((cx, cy) => block_point(cx, cy, state)),
+                canSee: env.canSee
+                    ?? ((cx, cy) => cansee(cx, cy, state)),
+                newsym: env.newsym ?? redrawAt,
+                message: async (text, cloudState) => {
+                    await message(text, cloudState ?? state, env);
+                },
+            });
+            if (seeIt)
+                await message('Steam billows from the fountain.', state, env);
+            rangemod -= 1;
+            // C zap.c calls fountain.c dryup() directly after the steam
+            // message.  Load the canonical owner lazily because fountain.js
+            // already imports zap.js for elemental resistance.
+            const { dryup } = await import('./fountain.js');
+            await dryup(x, y, type > 0, state, { ...env, random });
         }
         break; /* ZT_FIRE */
     }
 
     case ZT_COLD:
         if (is_pool(x, y, state) || is_lava(x, y, state) || lavawall) {
-            throw new UnsupportedZapError(
-                'start_melt_ice_timeout() for the water or lava a cold bolt '
-                + 'freezes',
-            );
+            const lava = is_lava(x, y, state) || lavawall;
+            const moat = is_moat(x, y, state);
+            const temperature = Math.trunc(state.level?.flags?.temperature ?? 0);
+            const chance = Math.max(2, 5 + temperature * 10);
+            if (IS_WATERWALL(lev.typ) || (lavawall && random.rn2(chance))) {
+                if (seeIt) {
+                    await message(
+                        `The ${liquid(lavawall ? 'lava' : 'water')} freezes for a moment.`,
+                        state, env,
+                    );
+                } else if (!heroIsDeaf(state)) {
+                    await message('You hear a soft crackling.', state, env);
+                }
+                rangemod -= 1000;
+            } else {
+                // C computes this before changing the drawbridge or terrain;
+                // the string is specifically needed for a moat.
+                const buf = waterbody_name(x, y, state, env);
+                rangemod -= 3;
+                const underMask = lev.flags ?? lev.drawbridgemask ?? 0;
+                if (lev.typ === DRAWBRIDGE_UP) {
+                    lev.flags = (underMask & ~DB_UNDER)
+                        | (lava ? DB_FLOOR : DB_ICE);
+                    lev.drawbridgemask = lev.flags;
+                } else {
+                    lev.icedpool = lava ? 0
+                        : lev.typ === POOL ? ICED_POOL : ICED_MOAT;
+                    if (lavawall) {
+                        const vertical = (isok(x, y - 1)
+                            && IS_WALL(state.level.at(x, y - 1).typ))
+                            || (isok(x, y + 1)
+                                && IS_WALL(state.level.at(x, y + 1).typ));
+                        lev.typ = vertical ? VWALL : HWALL;
+                        fix_wall_spines(
+                            Math.max(0, x - 1), Math.max(0, y - 1),
+                            Math.min(COLNO - 1, x + 1),
+                            Math.min(ROWNO - 1, y + 1), state,
+                        );
+                    } else {
+                        lev.typ = lava ? ROOM : ICE;
+                    }
+                }
+                // bury_objs() discards its result and remains unported.
+                note_unported('dig.c bury_objs');
+                if (seeIt) {
+                    await norepMessage(
+                        lava ? `The ${liquid('lava')} cools and solidifies.`
+                            : moat ? `The ${buf} is bridged with ice!`
+                                : `The ${liquid('water')} freezes.`, state, env,
+                    );
+                    redrawAt(x, y, state);
+                } else if (!lava && !heroIsDeaf(state)) {
+                    await message('You hear a crackling sound.', state, env);
+                }
+                if (u_at(x, y, state)) {
+                    if (state.u.uinwater) {
+                        set_uinwater(false, state);
+                        state.u.uundetected = 0;
+                        if (typeof env.docrt === 'function') env.docrt(state);
+                        else note_unported('display.c docrt');
+                        state.vision_full_recalc = true;
+                    } else if (state.u.utrap
+                               && state.u.utraptype === TT_LAVA) {
+                        if (typeof env.passesWalls === 'function'
+                            ? env.passesWalls(state)
+                            : Boolean(state.u?.uprops?.[0]?.extrinsic)) {
+                            await message(
+                                'You pass through the now-solid rock.', state, env,
+                            );
+                            reset_utrap(true, state);
+                        } else {
+                            set_utrap(random.rn1(50, 20), TT_INFLOOR, state);
+                            await message(
+                                'You are firmly stuck in the cooling rock.', state, env,
+                            );
+                        }
+                    }
+                } else {
+                    const mon = m_at(x, y, state);
+                    if (mon && is_swimmer(mon.data) && mon.mundetected) {
+                        mon.mundetected = false;
+                        redrawAt(x, y, state);
+                    }
+                }
+                if (!lava) {
+                    note_unported('zap.c start_melt_ice_timeout');
+                    obj_ice_effects(x, y, true, env);
+                }
+            }
         } else if (is_ice(x, y, state)) {
-            throw new UnsupportedZapError(
-                'start_melt_ice_timeout() firming up ice the cold bolt crossed',
-            );
+            const meltTime = spot_time_left(x, y, MELT_ICE_AWAY, state);
+            if (meltTime) {
+                spot_stop_timers(x, y, MELT_ICE_AWAY, state);
+                note_unported('zap.c start_melt_ice_timeout');
+            }
         }
         break; /* ZT_COLD */
 
     case ZT_POISON_GAS:
-        // Unreachable from a wand: BZ_OFS_WAN() answers 0..5 for the six ray
-        // wands and this arm needs 6. Dragon breath and an iron golem's are
-        // what reach it, through buzz() and mcastu(), neither of them ported.
-        throw new UnsupportedZapError(
-            'create_gas_cloud() for a poison-gas zap',
-        );
+        // Poison gas with range one is the green dragon/iron golem breath
+        // arm.  Wall squares are deliberately ignored by C's ZAP_POS test.
+        if (ZAP_POS(lev.typ)) {
+            await create_gas_cloud(x, y, 1, 8, {
+                ...env,
+                allowPositiveDamage: true,
+                blockPoint: env.blockPoint
+                    ?? ((cx, cy) => block_point(cx, cy, state)),
+                canSee: env.canSee
+                    ?? ((cx, cy) => cansee(cx, cy, state)),
+                newsym: env.newsym ?? redrawAt,
+                message: async (text, cloudState) => {
+                    await message(text, cloudState ?? state, env);
+                },
+            });
+        }
 
     case ZT_LIGHTNING:
         /* FALLTHRU */
     case ZT_ACID:
         if (lev.typ === IRONBARS) {
-            throw new UnsupportedZapError(
-                'dissolve_bars() for the iron bars the bolt melts',
-            );
+            if (damgtype === ZT_LIGHTNING && random.rn2(10)) break;
+            if ((lev.wall_info ?? 0) & W_NONDIGGABLE) {
+                if (seeIt)
+                    await norepMessage(
+                        `The iron bars ${damgtype === ZT_ACID ? 'corrode' : 'melt'} somewhat but remain intact.`,
+                        state, env,
+                    );
+            } else {
+                rangemod -= 3;
+                if (seeIt)
+                    await norepMessage(
+                        `The iron bars ${damgtype === ZT_ACID ? 'corrode away' : 'melt'}.`,
+                        state, env,
+                    );
+                dissolve_bars(x, y, state);
+                if (in_rooms(x, y, SHOPBASE, state).length) {
+                    if (typeof env.addDamage === 'function')
+                        await env.addDamage(
+                            x, y, type >= 0 ? SHOP_BARS_COST : 0, state, env,
+                        );
+                    else note_unported('shk.c add_damage');
+                    if (type >= 0) {
+                        if (shopdamage && typeof shopdamage === 'object')
+                            shopdamage.value = true;
+                    }
+                }
+            }
         }
         break; /* ZT_ACID */
 
@@ -1993,42 +2453,323 @@ export async function zap_over_floor(
         break;
     }
 
-    // 5376-5395 builds `yourzap` and `zapverb` for the door feedback alone,
-    // and both door arms below stop, so neither is computed here.
+    // 5376-5395 builds `yourzap` and `zapverb` for the door feedback alone.
+    const yourzap = type >= 0 && !exploding_wand_typ;
+    let zapverb = 'blast';
+    if (!exploding_wand_typ) {
+        const ztype = zaptype(type);
+        if (ztype < 10) zapverb = 'bolt';
+        else if (ztype < 20) zapverb = 'spell';
+    } else if (exploding_wand_typ === POT_OIL
+               || exploding_wand_typ === SCR_FIRE) {
+        exploding_wand_typ = 0;
+    }
 
     /* secret door gets revealed, converted into regular door */
     if (lev.typ === SDOOR) {
-        throw new UnsupportedZapError(
-            'cvt_sdoor_to_door() for the secret door the bolt reveals',
-        );
+        cvt_sdoor_to_door(lev, state);
+        recalc_block_point(x, y, state);
+        redrawAt(x, y, state);
+        if (seeIt) {
+            await message(
+                `${yourzap ? 'Your' : 'The'} ${zapverb} reveals a secret door.`,
+                state, env,
+            );
+        } else if (Is_rogue_level(state.u?.uz)) {
+            note_unported('dig.c draft_message');
+        }
     }
 
     /* regular door absorbs remaining zap range, possibly gets destroyed */
     if (closed_door(x, y, state)) {
-        throw new UnsupportedZapError(
-            'add_damage() for the closed door that absorbs the bolt or burns '
-            + 'away',
-        );
+        rangemod = -1000;
+        let newDoormask = -1;
+        let seeText = null;
+        let senseText = null;
+        let hearText = null;
+        switch (damgtype) {
+        case ZT_FIRE:
+            newDoormask = D_NODOOR;
+            seeText = 'The door is consumed in flames!';
+            senseText = 'You smell smoke.';
+            break;
+        case ZT_COLD:
+            newDoormask = D_NODOOR;
+            seeText = 'The door freezes and shatters!';
+            hearText = 'You hear a deep cracking sound.';
+            break;
+        case ZT_DEATH:
+            if (Math.abs(type) === 20 + ZT_DEATH) {
+                newDoormask = D_NODOOR;
+                seeText = 'The door disintegrates!';
+                hearText = 'You hear crashing wood.';
+            }
+            break;
+        case ZT_LIGHTNING:
+            newDoormask = D_BROKEN;
+            seeText = 'The door splinters!';
+            hearText = 'You hear crackling.';
+            break;
+        default:
+            if (exploding_wand_typ > 0
+                && exploding_wand_typ === WAN_STRIKING) {
+                newDoormask = D_BROKEN;
+                seeText = 'The door crashes open!';
+                senseText = 'You feel a burst of cool air.';
+            } else if (seeIt) {
+                await message(
+                    exploding_wand_typ ? 'The door remains intact.'
+                        : `The door absorbs ${yourzap ? 'your' : 'the'} ${zapverb}!`,
+                    state, env,
+                );
+            } else {
+                await message('You feel vibrations.', state, env);
+            }
+            break;
+        }
+        if (newDoormask >= 0) {
+            if (in_rooms(x, y, SHOPBASE, state).length) {
+                if (typeof env.addDamage === 'function') {
+                    await env.addDamage(
+                        x, y, type >= 0 ? SHOP_DOOR_COST : 0, state, env,
+                    );
+                } else {
+                    note_unported('shk.c add_damage');
+                }
+                if (type >= 0 && shopdamage
+                    && typeof shopdamage === 'object')
+                    shopdamage.value = true;
+            }
+            lev.flags = newDoormask;
+            lev.doormask = newDoormask;
+            recalc_block_point(x, y, state);
+            if (seeIt) {
+                await message(seeText, state, env);
+                redrawAt(x, y, state);
+            } else if (senseText) {
+                await message(senseText, state, env);
+            } else if (hearText) {
+                await message(hearText, state, env);
+            }
+            if (picking_at(x, y, state)) {
+                await stop_occupation(state, { message: ttyPline });
+                reset_pick(state);
+            }
+        }
     }
 
     if (OBJ_AT(x, y, state) && damgtype === ZT_FIRE) {
-        await burn_floor_objects(x, y, false, type > 0, {
+        const burned = await burn_floor_objects(x, y, false, type > 0, {
+            ...env,
             state,
             random,
-            // js/zap_destroy_items.js keeps the hero-caused half fail-closed,
-            // because useupf() charges a shopkeeper for what it burns.
-            unsupported: (reason) => {
-                throw new UnsupportedZapError(
-                    `burn_floor_objects() reached ${reason}`,
-                );
-            },
+            igniteItems: env.igniteItems
+                ?? ((head, igniteEnv) => ignite_items(head, igniteEnv)),
         });
+        if (burned && couldsee(x, y, state)) {
+            redrawAt(x, y, state);
+            await message(
+                `${heroIsBlind(state) ? 'You smell a whiff' : 'You see a puff'} of smoke.`,
+                state, env,
+            );
+        }
     }
     if (!ignoremon) {
         const mon = m_at(x, y, state);
         if (mon) await wakeup(mon, type >= 0, { state, random });
     }
     return rangemod;
+}
+
+// C ref: zap.c disintegrate_mon() (5050-5095).  The caller intentionally
+// consumes no damage from zhitm's MAGIC_COOKIE; this helper removes every
+// non-protected carried item before delegating the ordinary monster death
+// owner, preserving the source's no-corpse flags and killer direction.
+async function disintegrate_mon(mon, type, fltxt, state, random, env) {
+    const visible = canseemon(mon, state);
+    const message = env.message ?? ttyPline;
+    if (visible) {
+        await message(
+            `${monsterCommonName(mon, state)} is disintegrated!`, state, env,
+        );
+    }
+    for (let obj = mon.minvent; obj;) {
+        const next = obj.nobj;
+        const protectedByProperty = objectType(obj, state).oc_oprop
+            === DISINT_RES;
+        const protectedByResist = protectedByProperty
+            ? false : obj_resists(obj, 5, 50, { state, random });
+        const protectedByQuest = is_quest_artifact(obj, state);
+        const lifesaver = obj.otyp === AMULET_OF_LIFE_SAVING
+            && (obj.owornmask ?? 0);
+        if (!protectedByProperty && !protectedByResist
+            && !protectedByQuest && !lifesaver)
+            m_useupall(mon, obj, { state, random });
+        obj = next;
+    }
+    const killEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        unsupported: env.unsupported
+            ?? ((reason) => note_unported(`mon.c ${reason}`)),
+    };
+    if (type < 0)
+        await monkilled(mon, null, -AD_RBRE, state, killEnv);
+    else
+        await xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE, state, killEnv);
+    void fltxt;
+}
+
+// C ref: zap.c flashburn() (3060-3087). A lightning hit rolls its blindness
+// duration once, reports the flash, then lets potion.c own the silent timer
+// transition and its immediate vision-clear message.
+async function flashburn(duration, viaLightning, state, env = {}) {
+    const message = env.message ?? ttyPline;
+    if (!resists_blnd(state.youmonst, state)) {
+        await message('You are blinded by the flash!', state, env);
+        await make_blinded(duration, false, state, { ...env, message });
+        if (!heroIsBlind(state))
+            await message('Your vision quickly clears.', state, env);
+        return true;
+    }
+    if (!viaLightning && resists_blnd_by_arti(state.youmonst, state)) {
+        note_unported('zap.c shieldeff');
+        return true;
+    }
+    return false;
+}
+
+// C ref: zap.c's `buzzmonst:` arm inside dobuzz() (4864-4956).  The hero's
+// mount reaches this label with `goto`, so both an ordinary monster and a
+// steed must share reflection, zhitm, Rider/Death handling, disintegration,
+// death ownership, and the sleeping-grabber release below.
+async function buzzmonst(
+    mon,
+    type,
+    nd,
+    fltyp,
+    damgtype,
+    spellType,
+    sayhit,
+    saymiss,
+    forcemiss,
+    state,
+    random,
+    env,
+) {
+    const message = env.planning ? async () => {}
+        : (env.message ?? ttyPline);
+    state.gn ??= {};
+    state.gn.notonhead = (mon.mx !== state.gb.bhitpos.x
+        || mon.my !== state.gb.bhitpos.y);
+
+    if (forcemiss
+        || !zap_hit(find_mac(mon, state), spellType, random, state)) {
+        if (saymiss
+            || (canseemon(mon, state)
+                && !(mon.m_ap_type
+                    && (mon.m_ap_type & 0x7) !== 2 /* M_AP_MONSTER */)))
+            await miss(flash_str(fltyp, false, state, random), mon, state, env);
+        return { hit: false, reflected: false, clearGas: false, stop: false };
+    }
+
+    if (await mon_reflects(mon, null, state)) {
+        const seen = cansee(mon.mx, mon.my, state);
+        if (seen) {
+            await hit(flash_str(fltyp, false, state, random), mon,
+                exclam(0), state, env);
+            // shieldeff(mon.mx, mon.my) is a visual animation with no game
+            // state or RNG effect, so the shared owner has no call here.
+            await mon_reflects(mon, 'But it reflects from %s %s!', state);
+        }
+        return { hit: true, reflected: true, clearGas: seen, stop: false };
+    }
+
+    const monCouldMove = mon.mcanmove;
+    const zhitResult = await zhitm(mon, type, nd, state, random, env);
+    const tmp = zhitResult.damage;
+    const otmp = zhitResult.otmp;
+
+    if (is_rider(mon.data)
+        && Math.abs(type) === 20 + ZT_DEATH /* ZT_BREATH(ZT_DEATH) */) {
+        if (canseemon(mon, state)) {
+            await hit(flash_str(fltyp, false, state, random), mon,
+                exclam(0), state, env);
+            await message(`${Monnam(mon, state)} disintegrates.`, state, env);
+            await message(
+                `${s_suffix(Monnam(mon, state))} body reintegrates `
+                + `before your eyes!`, state, env,
+            );
+            await message(`${Monnam(mon, state)} resurrects!`, state, env);
+        }
+        mon.mhp = mon.mhpmax;
+        return { hit: true, reflected: false, clearGas: false, stop: true };
+    }
+    if (mon.data === state.mons?.[PM_DEATH] && damgtype === ZT_DEATH) {
+        if (canseemon(mon, state)) {
+            await hit(flash_str(fltyp, false, state, random), mon,
+                exclam(0), state, env);
+            await message(
+                `${Monnam(mon, state)} absorbs the deadly `
+                + `${Math.abs(type) === 20 + ZT_DEATH ? 'blast' : 'ray'}!`,
+                state, env,
+            );
+            await message('It seems even stronger than before.', state, env);
+        }
+        return { hit: true, reflected: false, clearGas: false, stop: true };
+    }
+
+    if (tmp === 1000 /* MAGIC_COOKIE */) {
+        await disintegrate_mon(mon, type,
+            flash_str(fltyp, false, state, random), state, random, env);
+    } else if (mon.mhp < 1) { /* DEADMONSTER */
+        const killEnv = {
+            ...env,
+            state,
+            random,
+            message,
+            unsupported: env.unsupported
+                ?? ((what) => note_unported(`mon.c ${what}`)),
+        };
+        if (type < 0) {
+            /* killed by another monster */
+            await monkilled(mon,
+                flash_str(fltyp, false, state, random), AD_RBRE, state,
+                killEnv);
+        } else {
+            let xkflags = XKILL_GIVEMSG; /* killed(mon) */
+            /* fire on highly flammable monsters: no corpse */
+            if (damgtype === ZT_FIRE && completelyburns(mon.data))
+                xkflags |= XKILL_NOCORPSE;
+            await xkilled(mon, xkflags, state, killEnv);
+        }
+    } else {
+        if (!otmp) {
+            /* normal non-fatal hit */
+            if (sayhit || canseemon(mon, state))
+                await hit(flash_str(fltyp, false, state, random), mon,
+                    exclam(tmp), state, env);
+        } else {
+            /* some armor was destroyed; no damage done */
+            if (canseemon(mon, state)) {
+                await message(
+                    `${s_suffix(Monnam(mon, state))} `
+                    + `${xnameFresh(otmp, state)} is disintegrated!`,
+                    state, env,
+                );
+            }
+            m_useup(mon, otmp, { state, random });
+        }
+        if (monCouldMove && !mon.mcanmove) { /* ZT_SLEEP */
+            // slept_monst() releases a sleeping grabber.
+            await slept_monst(mon, { ...env, message });
+        }
+        if (damgtype !== ZT_SLEEP)
+            await wakeup(mon, type >= 0, { state, random });
+    }
+    return { hit: true, reflected: false, clearGas: false, stop: false };
 }
 
 // C ref: zap.c dobuzz() (4779-5037). One `while (range-- > 0)` loop that walks
@@ -2038,10 +2779,10 @@ export async function zap_over_floor(
 // `sayhit` and `saymiss` "report out of sight hit/miss events" and belong to
 // the monster arm; `forcemiss` is muse.c's. ubuzz() passes TRUE, FALSE, FALSE.
 //
-// The monster arm (4864-4956) is ported: zap_hit(), mon_reflects(), zhitm()
-// (ZT_COLD branch), resist(), xkilled() and monkilled(). The Rider
-// resurrection, PM_DEATH absorption, disintegrate_mon(), slept_monst() and
-// armor-disintegration sub-arms throw because no witness exercises them.
+// The monster arm (4864-4956) is ported through its shared buzzmonst label:
+// zap_hit(), mon_reflects(), zhitm(), Rider resurrection, PM_DEATH absorption,
+// disintegration, xkilled()/monkilled(), armor disintegration, and
+// slept_monst(). Any still-unported callee is recorded at its source boundary.
 //
 // The arms that still stop, each before it changes state, draws or writes:
 // u.uswallow (4802-4820), u.usteed (4959-4961), flashburn() (4988-4989),
@@ -2055,40 +2796,62 @@ export async function dobuzz(
     forcemiss,
     state = game,
     random = { d, rn1, rn2, rnd, rne, rnl, rnz },
+    rawEnv = {},
 ) {
+    const env = { ...rawEnv, state, random };
+    const message = env.planning ? async () => {}
+        : (env.message ?? ttyPline);
+    const redraw = env.planning ? () => {}
+        : (env.redraw ?? newsym);
+    const markInvisible = env.planning ? () => {}
+        : (env.markInvisible ?? map_invisible);
+    const unmarkInvisible = env.planning ? () => {}
+        : (env.unmarkInvisible ?? unmap_invisible);
+    const drawBeam = env.planning ? async () => {} : tmp_at;
+    const delayOutput = env.planning ? async () => {} : nh_delay_output;
     const fltyp = zaptype(type);
     const damgtype = fltyp % 10;
+    const spellType = type >= 10 && type < 20
+        ? SPE_MAGIC_MISSILE + damgtype : 0;
 
-    // Supported type ranges: 0..9 (hero wand) and -19..-10 (monster spell
-    // via buzzmu). Hero spell (10..19), hero breath (20..29), monster breath
-    // (-29..-20), and monster wand (-39..-30) remain unsupported.
-    const isHeroWand = type >= 0 && type <= 9;
-    const isMonsterSpell = type >= -19 && type <= -10;
-    if (!isHeroWand && !isMonsterSpell) {
-        throw new UnsupportedZapError(
-            `dobuzz() for a spell, breath or monster zap of type ${type}`,
-        );
-    }
-    if (Hallucination(state)) {
-        // hdmgtype is `Hallucination ? rn2(6) : damgtype` at 4797, so a
-        // hallucinating hero draws for the beam's colour before anything else
-        // in the loop, and flash_str() then draws again for every message.
-        throw new UnsupportedZapError(
-            "rnd_hallublast() and the rn2(6) beam colour a hallucinating "
-            + 'hero draws',
-        );
-    }
-    const hdmgtype = damgtype;
+    // C accepts every hero wand/spell/breath band (0..29), and every monster
+    // spell/breath/wand band (-39..-10).  zaptype() normalizes all of them for
+    // the beam glyph and damage switch; callers supply the source type.
+    if (!((type >= 0 && type <= 29)
+          || (type >= -39 && type <= -10)))
+        throw new RangeError(`invalid zap type ${type}`);
+    // C draws the beam colour before the first square when hallucinating.
+    const hdmgtype = Hallucination(state) ? random.rn2(6) : damgtype;
 
     if (state.u.uswallow) {
-        throw new UnsupportedZapError(
-            "dobuzz()'s swallowed hero, over zhitm() on the engulfer",
+        // C handles a hero's own ray inside the engulfer before it allocates
+        // a beam or range.  A monster-origin ray has no effect in this state.
+        if (type < 0) return;
+        const engulfer = state.u.ustuck;
+        const swallowedResult = await zhitm(
+            engulfer, type, nd, state, random, env,
         );
+        const swallowedDamage = swallowedResult.damage;
+        if (!state.u.ustuck) {
+            state.u.uswallow = 0;
+        } else {
+            await message(
+                `${The(flash_str(fltyp, false, state, random), state)} rips into `
+                + `${mon_nam(state.u.ustuck, state)}${exclam(swallowedDamage)}`,
+                state,
+            );
+            if (swallowedDamage === 1000)
+                state.u.ustuck.mhp = 0;
+            if (state.u.ustuck.mhp < 1)
+                await xkilled(state.u.ustuck, XKILL_GIVEMSG, state,
+                    { state, random, message });
+        }
+        return;
     }
     // C ref: zap.c:4821-4822. When a monster fires, repaint the hero's cell
     // so the beam glyph replaces the hero glyph during the animation.
     if (type < 0)
-        newsym(state.u.ux, state.u.uy);
+        redraw(state.u.ux, state.u.uy, state);
     let range = random.rn1(7, 7);
     if (dx === 0 && dy === 0)
         range = 1;
@@ -2104,7 +2867,7 @@ export async function dobuzz(
     const fireball = (type === 10 + ZT_FIRE);
     let gas_hit = false;
 
-    await tmp_at(DISP_BEAM, zapdir_to_glyph(dx, dy, hdmgtype, state), state);
+    await drawBeam(DISP_BEAM, zapdir_to_glyph(dx, dy, hdmgtype, state), state);
     while (range-- > 0) {
         const lsx = sx;
         sx += dx;
@@ -2117,13 +2880,13 @@ export async function dobuzz(
             if (cansee(sx, sy, state)) {
                 /* reveal/unreveal invisible monsters before tmp_at() */
                 if (mon && !canSpotMonster(mon, state))
-                    map_invisible(sx, sy, state);
+                    markInvisible(sx, sy, state);
                 else if (!mon)
-                    unmap_invisible(sx, sy, state);
+                    unmarkInvisible(sx, sy, state);
                 if (ZAP_POS(state.level.at(sx, sy).typ)
                     || (isok(lsx, lsy) && cansee(lsx, lsy, state)))
-                    await tmp_at(sx, sy, state);
-                await nh_delay_output(state); /* wait a little */
+                    await drawBeam(sx, sy, state);
+                await delayOutput(state); /* wait a little */
             }
 
             /* hit() and miss() need gb.bhitpos to match the target */
@@ -2134,6 +2897,7 @@ export async function dobuzz(
             if (!fireball && !gas_hit) {
                 range += await zap_over_floor(
                     sx, sy, type, shopdamage, true, 0, state, random,
+                    { ...env, newsym: redraw },
                 );
             }
             /* zap with fire -> melt ice -> drown monster, so monster
@@ -2141,121 +2905,55 @@ export async function dobuzz(
             mon = m_at(sx, sy, state);
 
             if (mon) {
-                // C ref: zap.c dobuzz() (4864-4956), the monster arm.
-                // fireball is always false for a wand zap.
+                // A hero fireball explodes on the square before an obstacle;
+                // it never runs the ordinary monster arm in this loop.
+                if (fireball) break;
+                // C clears the ordinary monster's waiting strategy before
+                // falling through to buzzmonst. The steed goto below skips
+                // this statement, so keep the mutation at this caller rather
+                // than putting it in the shared label helper.
                 if (type >= 0)
                     mon.mstrategy &= ~STRAT_WAITMASK;
-                // buzzmonst:
-                state.gn ??= {};
-                state.gn.notonhead = (mon.mx !== state.gb.bhitpos.x
-                    || mon.my !== state.gb.bhitpos.y);
-                if (!forcemiss
-                    && zap_hit(find_mac(mon, state), 0 /* spell_type */, random)) {
-                    if (await mon_reflects(mon, null, state)) {
-                        if (cansee(mon.mx, mon.my, state)) {
-                            await hit(flash_str(fltyp, false, state), mon,
-                                exclam(0), state);
-                            // shieldeff(mon.mx, mon.my) is a visual animation;
-                            // skipped because it has no game-state or RNG effect.
-                            await mon_reflects(mon,
-                                'But it reflects from %s %s!', state);
-                        }
-                        dx = negate(dx);
-                        dy = negate(dy);
+                // C ref: zap.c dobuzz() (4864-4956), the shared
+                // `buzzmonst:` arm (the steed path jumps to this same label).
+                const monsterResult = await buzzmonst(
+                    mon, type, nd, fltyp, damgtype, spellType,
+                    sayhit, saymiss, forcemiss, state, random, env,
+                );
+                if (monsterResult.stop)
+                    break;
+                if (monsterResult.reflected) {
+                    dx = negate(dx);
+                    dy = negate(dy);
+                    if (monsterResult.clearGas)
                         gas_hit = false;
-                    } else {
-                        const mon_could_move = mon.mcanmove;
-                        const zhitResult = await zhitm(mon, type, nd, state, random);
-                        const tmp = zhitResult.damage;
-                        const otmp = zhitResult.otmp;
-
-                        if (is_rider(mon.data)
-                            && Math.abs(type) === 20 + ZT_DEATH /* ZT_BREATH(ZT_DEATH) */) {
-                            // Rider disintegration/reintegration. Not exercised
-                            // by any ported witness.
-                            throw new UnsupportedZapError(
-                                "dobuzz()'s Rider resurrection arm",
-                            );
-                        }
-                        if (mon.data === state.mons?.[PM_DEATH]
-                            && damgtype === ZT_DEATH) {
-                            // PM_DEATH absorbs the deadly ray/blast. Not
-                            // exercised by any ported witness.
-                            throw new UnsupportedZapError(
-                                "dobuzz()'s PM_DEATH absorption arm",
-                            );
-                        }
-
-                        if (tmp === 1000 /* MAGIC_COOKIE */) {
-                            // disintegrate_mon(). Not exercised.
-                            throw new UnsupportedZapError(
-                                'disintegrate_mon() in dobuzz() monster arm',
-                            );
-                        } else if (mon.mhp < 1) { /* DEADMONSTER */
-                            const killEnv = {
-                                state,
-                                random,
-                                message: ttyPline,
-                                unsupported: (what) => {
-                                    throw new UnsupportedZapError(
-                                        `monster kill path: ${what}`,
-                                    );
-                                },
-                            };
-                            if (type < 0) {
-                                /* killed by another monster */
-                                await monkilled(mon,
-                                    flash_str(fltyp, false, state),
-                                    AD_RBRE, state, killEnv);
-                            } else {
-                                let xkflags = XKILL_GIVEMSG; /* killed(mon) */
-                                /* fire on highly flammable monsters: no corpse */
-                                if (damgtype === ZT_FIRE
-                                    && completelyburns(mon.data))
-                                    xkflags |= XKILL_NOCORPSE;
-                                await xkilled(mon, xkflags, state, killEnv);
-                            }
-                        } else {
-                            if (!otmp) {
-                                /* normal non-fatal hit */
-                                if (sayhit || canseemon(mon, state))
-                                    await hit(flash_str(fltyp, false, state),
-                                        mon, exclam(tmp), state);
-                            } else {
-                                /* some armor was destroyed; no damage done */
-                                // disintegration armor destruction. Not exercised.
-                                throw new UnsupportedZapError(
-                                    'armor disintegration in dobuzz() monster arm',
-                                );
-                            }
-                            if (mon_could_move && !mon.mcanmove) { /* ZT_SLEEP */
-                                // slept_monst() releases a sleeping grabber.
-                                throw new UnsupportedZapError(
-                                    'slept_monst() in dobuzz() monster arm',
-                                );
-                            }
-                            if (damgtype !== ZT_SLEEP)
-                                await wakeup(mon, type >= 0, { state });
-                        }
-                    }
-                    range -= 2;
-                } else {
-                    if (saymiss
-                        || (canseemon(mon, state)
-                            && !(mon.m_ap_type
-                                 && (mon.m_ap_type & 0x7) !== 2 /* M_AP_MONSTER */)))
-                        await miss(flash_str(fltyp, false, state), mon, state);
                 }
+                if (monsterResult.hit)
+                    range -= 2;
             } else if (u_at(sx, sy, state) && range >= 0) {
                 nomul(0, state);
-                if (state.u.usteed) {
-                    // 4959-4961 gives the steed a 1-in-3 chance of taking the
-                    // bolt instead, through the same monster arm above.
-                    throw new UnsupportedZapError(
-                        "dobuzz()'s steed taking the bolt",
+                if (state.u.usteed && !random.rn2(3)
+                    && !(await mon_reflects(state.u.usteed, null, state))) {
+                    // C jumps to buzzmonst for the steed. The helper preserves
+                    // the exact shared reflection, death, and wakeup path.
+                    const steed = state.u.usteed;
+                    const steedResult = await buzzmonst(
+                        steed, type, nd, fltyp, damgtype, spellType,
+                        sayhit, saymiss, forcemiss, state, random, env,
                     );
+                    if (steedResult.stop)
+                        break;
+                    if (steedResult.reflected) {
+                        dx = negate(dx);
+                        dy = negate(dy);
+                        if (steedResult.clearGas)
+                            gas_hit = false;
+                    }
+                    if (steedResult.hit)
+                        range -= 2;
                 } else if (!forcemiss
-                           && zap_hit(Math.trunc(state.u.uac), 0, random)) {
+                           && zap_hit(Math.trunc(state.u.uac), spellType,
+                               random, state)) {
                     range -= 2;
                     // C ref: pline.c pline_dir() (113-123) over set_msg_dir()
                     // (83-89): the message is placed at the square the bolt
@@ -2271,10 +2969,10 @@ export async function dobuzz(
                     // own square.
                     const from = dirtocoord(xytodir(-dx, -dy))
                         ?? { x: 0, y: 0 };
-                    await ttyPline(
+                    await message(
                         messageAt(
                             `${The(
-                                flash_str(fltyp, false, state), state,
+                                flash_str(fltyp, false, state, random), state,
                             )} hits you!`,
                             state.u.ux + from.x, state.u.uy + from.y, state,
                         ),
@@ -2286,7 +2984,7 @@ export async function dobuzz(
                                 'But %s reflects from your %s!', 'it', state,
                             );
                         } else {
-                            await ttyPline(
+                            await message(
                                 'For some reason you are not affected.',
                                 state,
                             );
@@ -2301,27 +2999,26 @@ export async function dobuzz(
                         /* flash_str here only used for killer; suppress
                          * hallucination */
                         await zhitu(
-                            type, nd, flash_str(fltyp, true, state), sx, sy,
-                            state, random,
+                            type, nd, flash_str(fltyp, true, state, random), sx, sy,
+                            state, random, env,
                         );
                         monstunseesu(M_SEEN_REFL, state);
                     }
                 } else if (!heroIsBlind(state)) {
-                    await ttyPline(
-                        `${The(flash_str(fltyp, false, state), state)} whizzes `
+                    await message(
+                        `${The(flash_str(fltyp, false, state, random), state)} whizzes `
                         + 'by you!',
                         state,
                     );
                 } else if (damgtype === ZT_LIGHTNING) {
-                    await ttyPline(
+                    await message(
                         `Your ${body_part(ARM, state.youmonst)} tingles.`,
                         state,
                     );
                 }
                 if (damgtype === ZT_LIGHTNING) {
-                    throw new UnsupportedZapError(
-                        'flashburn() for the lightning that blinds the hero',
-                    );
+                    await flashburn(random.d(nd, 50), true, state,
+                        { ...env, message });
                 }
                 await stop_occupation(state, { message: ttyPline });
                 nomul(0, state);
@@ -2331,6 +3028,7 @@ export async function dobuzz(
             if (gas_hit) {
                 range += await zap_over_floor(
                     sx, sy, type, shopdamage, true, 0, state, random,
+                    { ...env, newsym: redraw },
                 );
             }
 
@@ -2345,30 +3043,39 @@ export async function dobuzz(
                 : (In_mines(state.u.uz)
                    && IS_WALL(state.level.at(sx, sy).typ)) ? 20
                     : 75;
-            if (--range > 0 && isok(lsx, lsy) && cansee(lsx, lsy, state)) {
+            const visibleBounce = --range > 0 && isok(lsx, lsy)
+                && cansee(lsx, lsy, state);
+            if (visibleBounce || fireball) {
                 if (Is_airlevel(state.u.uz)) { /* nothing to bounce off of */
-                    throw new UnsupportedZapError(
-                        "Is_airlevel()'s bolt vanishing into the aether",
+                    await message(
+                        `The ${flash_str(fltyp, false, state, random)} vanishes `
+                        + 'into the aether!', state,
                     );
+                    if (fireball) type = ZT_FIRE;
+                    break;
+                } else if (fireball) {
+                    sx = lsx;
+                    sy = lsy;
+                    break;
                 }
-                await ttyPline(
-                    `The ${flash_str(fltyp, false, state)} bounces!`, state,
+                await message(
+                    `The ${flash_str(fltyp, false, state, random)} bounces!`, state,
                 );
             }
             ({ dx, dy } = bounce_dir(
                 sx, sy, dx, dy, bchance, state, random,
             ));
-            await tmp_at(
+            await drawBeam(
                 DISP_CHANGE, zapdir_to_glyph(dx, dy, hdmgtype, state), state,
             );
         }
     }
-    await tmp_at(DISP_END, 0, state);
-    if (shopdamage.value) {
-        throw new UnsupportedZapError(
-            'pay_for_damage() for the shop door the bolt destroyed',
-        );
-    }
+    await drawBeam(DISP_END, 0, state);
+    if (fireball)
+        await explode(sx, sy, type, random.d(12, 6), 0, EXPL_FIERY, state,
+            env);
+    if (shopdamage.value)
+        note_unported('shk.c pay_for_damage');
     state.gb.bhitpos = save_bhitpos;
 }
 
