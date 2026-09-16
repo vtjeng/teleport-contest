@@ -18,7 +18,7 @@
     "recordedSteps": 833,
     "remainingScreensUpperBound": 46
   },
-  "summary": "The accepted first mismatch remains the missing Wiz-filb loader at787, with46 remaining screens. Whole Lua delivery B14 d9b34423 is queued: it preserves all six room descriptors and production registry wiring, with two matching independent level-entry recordings. The worker merged accepted main and is tracing this session beyond the new loader; no worker-branch gain is counted as accepted.",
+  "summary": "Whole Wiz-filb.lua delivery B14 d9b34423 is queued with matching independent entry recordings. Accepted main still first diverges at787 with46 remaining screens. On the completed worker branch it advances to805, then distress refuses PM_DOPPELGANGER270; B15 owns the general monster-shapechange source family for that continuation.",
   "source": {
     "file": "Wiz-filb.lua",
     "functions": [
@@ -59,7 +59,8 @@
     "No game source, central queue, SCORE.tsv, recordings, commits, or aggregate score were changed; only this assigned investigation file was updated, with candidate diagnostics retained in the existing session-scoped .cache artifacts.",
     "Combined checkpoint at fe2f53f3b4368178646a97febaef392f9cadb797 passes every required check and all278 recordings. The exact 44-session cached scan in .cache/B12-retry-checkpoint-scan-cache.json confirms step787 remains the first divergence and the queue count stays46. Two independent ZOO recordings add12 matching recording screens and14738 RNG. Frozen challenge v1 is unchanged at2/9 cases,534/918 screens.",
     "B14 immutable d9b34423bf3c1b01be5ca2f458cc0ef9657f80ee ports all dat/Wiz-filb.lua6-58 to quest_levels.js wizFilb and registers Wiz-filb. Coordinator compared every descriptor and callback order with Lua and traced mklev.c1275-1285 through makemaz/load_special and QUEST_LEVEL_LOADERS. The independent male/female recordings total94screens,14494RNG and94cursors; the state matrix establishes a nonspecial Wizard quest filler at/below locate, six ordinary rooms, seven source monster descriptors and both stairs. The worker reports registry focused checks and lint passing; combined acceptance is pending.",
-    "After merging accepted main into the queued B14 worker branch, the assigned seed0360 replay emits805/833 screens without a prior screen divergence, then refuses distress shapechanger270 on movewest. That source boundary is now being traced as the preferred next seed continuation. The reported sounds.c SoundAchievement and shk.c discard_damage_owned_by gaps are accumulated state and are not established as the first cause. This worker observation does not replace accepted main count46 or step787 until B14 passes combined validation."
+    "After merging accepted main into the queued B14 worker branch, the assigned seed0360 replay emits805/833 screens without a prior screen divergence, then refuses distress shapechanger270 on movewest. That source boundary is now being traced as the preferred next seed continuation. The reported sounds.c SoundAchievement and shk.c discard_damage_owned_by gaps are accumulated state and are not established as the first cause. This worker observation does not replace accepted main count46 or step787 until B14 passes combined validation.",
+    "Worker B claimed B15 at525803423e66a28d0a266f6d0d7ce6000ec4fb12: mon.c decide_to_shapeshift, select_newcham_form, accept_newcham_form, mgender_from_permonst and newcham, plus canonical monster-shapechange-state and production admission/caller wiring. Exact source reservations do not overlap A12 mon.c meatbox/monstone/mondead ownership. This is worker continuation at805, not a newly accepted main boundary."
   ],
   "acceptedScoreContext": {
     "acceptedQueueCount": 46,

@@ -1,40 +1,41 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 718,
+  "remainingScreensUpperBound": 610,
   "status": "complete",
-  "commit": "21f19e7250c11460c7152ee5abb5d297d212db02",
+  "commit": "817420d55ec8fc5a594550ca1e6b64a11365e322",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1096,
+    "step": 1204,
     "kind": "stop",
-    "function": null,
+    "function": "peffect_extra_healing",
     "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "sourceFile": "potion.c",
+    "cFile": "potion.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero move: a wounded monster losing its nerve",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_extra_healing()",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 718
+    "remainingScreensUpperBound": 610
   },
-  "summary": "Whole feel_location and its canonical callers now pass combined validation without regressions. The accepted first Knight mismatch remains known_hitum at1096 with718 remaining screens because A11 has not been reintegrated. Its formerly blocking tactile floor refusal is removed; A11 can now retry. B13 records blind search, while punished tactile, underwater/levitation, boulder, lock and kick entries remain unrecorded and the source goal remains parked.",
+  "summary": "The wounded-monster flight fix now passes combined validation after the tactile dependency, advancing Knight from1096 to1204 matching screens. The next stop is missing potion.c peffect_extra_healing, leaving610 screens. Its complete14-line C function and dispatcher case are the next source port; existing healing/status helpers and quaff callers are available, with no A12/B15 reservation overlap.",
   "source": {
-    "file": "uhitm.c",
+    "file": "potion.c",
     "functions": [
-      "known_hitum"
+      "peffect_extra_healing"
     ],
-    "branch": "C uhitm.c623-633 first spends rn2(25), then for a surviving monster below half health and not engulfing chooses !rn2(3)?rnd(100):0, calls monflee(mon,time,FALSE,TRUE), and releases u.ustuck if still attached without swallowing or sticky form. JavaScript currently spends rn2(25) then refuses before this behavior.",
+    "branch": "C potion.c1128-1141 emits You feel much better, consumes d(4+2*bcsign(otmp),8), calls healup(16+roll, blessed?5:uncursed?2:0, !cursed, TRUE), clears hallucination with make_hallucinated(0,TRUE,0), exercises CON then STR, and heals wounded legs for a blessed potion while not riding. JavaScript POT_EXTRA_HEALING dispatch still refuses this missing owner.",
     "callers": [
-      "js/cmd.js movement -> js/hack.js do_attack -> js/uhitm.js known_hitum is the production hero-hit path, matching C uhitm.c attack dispatch."
+      "js/cmd.js quaff dispatch reaches potion.js dodrink/dopotion/peffects; js/potion.js965-970 POT_EXTRA_HEALING throws UnsupportedQuaffError instead of calling the source effect.",
+      "C potion.c peffects dispatch invokes peffect_extra_healing for POT_EXTRA_HEALING and the surrounding dopotion/dodrink path owns identification, consumption and command time."
     ],
     "dependencies": [
-      "Use existing monmove.c monflee and mon.c set_ustuck owners with canonical state and planning-safe message/random callbacks.",
-      "Vrock monflee discards create_gas_cloud return; preserve the explicit region.c gap until its positive-damage cloud implementation is ported.",
-      "C display.c feel_location865-891 updates u.bc_felt for ball and chain floor-list ownership. At the next candidate boundary the hero can reach the floor, is not underwater, and has both uball and uchain; js/display.js rejects this as an allegedly unreachable state before those source updates. Whole feel_location source port is required before accepting A11."
+      "Use existing potion.js healup and make_hallucinated owners in source order, preserving awaited output/status effects.",
+      "Use canonical bcsign, dice, exercise(A_CON/ A_STR) and do.js heal_legs owners; independently vary blessed, uncursed and cursed potion inputs rather than copying the recorded game.",
+      "The source function does not conflict with current A12 combat/throwing or B15 monster-shapechange reservations."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
     "Bounded focused replay run-2hERtY, receipt /tmp/teleport-validation-1000/run-2hERtY/receipt.json, used only sessions/holdout/seed4500-knight-coverage.session.json at commit 153fb5a8ff37f5684a897e36cedfa18c7f2b2b56. It emitted 1034 screens and stopped at the queue boundary with no earlier behavioral divergence; replay-result is saved at .cache/investigate-seed4500-153fb5a8/replay-result.json.",
     "The saved queue entry identifies step 1034, function makemon, sourceFile makemon.c, message “unsupported initial-level monster creation: makemon() monster 177”, and remainingScreensUpperBound 780. The witness is seed 4500, 20000601120000, Knight Coverage, one segment, and the input through the stop ends with #wizgenesis followed by minotaur and newline.",
@@ -80,6 +81,8 @@
     "Coordinator inspected /tmp/b13-punished-c.session.json: initial screen shows the welcome --More-- prompt; step1 receives Ctrl-W but remains at that prompt, and step17 is the potion-of-invisibility action menu. The prior screen mismatch and later obj_resists call belong to misrouted setup inputs, not established punishment/feel_location blockers. Worker B will dismiss startup, verify actual scroll reading and Punished state from a fresh trace, and use a blind tactile caller. C read.c3019–3062 and teleport.c448–573 themselves use placebc/newsym for sighted punishment/teleport and do not establish feel_location reachability.",
     "B13 immutable ed8320c0 includes source0d4b13a7, the blind witness (4screens,5075RNG across two independent roles), and corrected sighted punishment setup (29screens,2394RNG). Coordinator rejected its tactile reachability claim: this recipe has no blindness, and getpos has no direct feel_location caller. Worker B must classify it as setup-only or supply an actual blind tactile witness; punished tactile entry coverage remains unrecorded. The obsolete setup-invalid recipe will be removed from current recipes while its artifacts and immutable history are preserved.",
     "B13 correctiona91a0aa8 removes the known-invalid setup recipe and renames the sighted witness to feel-location-punishment-setup. The evidence now counts only the independent blind-search variation for feel_location. Coordinator re-read complete display.c736-909 and canonical detect/hack call-site changes against source0d4b13a7: suppression, underwater, sign-reduced seenv, levitation, floor mapping, bc_felt and final discarded display_monster gap retain source order. B13 awaits combined validation before A11 can retry.",
-    "Combined B13 checkpoint21f19e7250c11460c7152ee5abb5d297d212db02/run-HOuHAl passes all checks:32/44 sessions,10403/11405 screens,756196/792838 RNG,10433/11405 cursors and285/285 recordings (10671screens,1440285RNG). The development counts are unchanged. Two recordings add33screens and7469RNG: the two-segment blind-search variation reaches feel_location; the sighted punishment recording verifies setup alone. Canonical source evidence lists the unrecorded feature entries explicitly."
+    "Combined B13 checkpoint21f19e7250c11460c7152ee5abb5d297d212db02/run-HOuHAl passes all checks:32/44 sessions,10403/11405 screens,756196/792838 RNG,10433/11405 cursors and285/285 recordings (10671screens,1440285RNG). The development counts are unchanged. Two recordings add33screens and7469RNG: the two-segment blind-search variation reaches feel_location; the sighted punishment recording verifies setup alone. Canonical source evidence lists the unrecorded feature entries explicitly.",
+    "A11 retry checkpoint817420d55ec8fc5a594550ca1e6b64a11365e322/run-Wnh9nH passes all checks:32/44 sessions,10511/11405 screens,756434/792838 RNG,10541/11405 cursors and285/285 recordings. Compared all44 session-results against accepted B13: only Knight changes, gaining108screens,238RNG and108cursors; no metric regresses in any session. No new recording is added. The earlier rejected9250-screen candidate is preserved history and is not a baseline for these gains.",
+    "Exact candidate scan .cache/A11-retry-checkpoint-scan-cache.json emits1204 of1814 Knight screens with divergence null, then refuses peffect_extra_healing on the quaff selection. Root/helper read complete C potion.c1128-1141 and current JS potion.js965-970: this is absent effect behavior, so select a whole source port rather than another known_hitum divergence. An independent blessed/uncursed/cursed wish-and-quaff recipe family can exercise its production entry and branch variation."
   ]
 }
