@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 820
   },
-  "summary": "The theft-page mismatch is resolved by the restored tele_restrict() calls. The next stop is step 994 at uhitm.c mhitm_ad_blnd(), which is absent from JavaScript dispatch. Worker A is porting its complete hero/monster attack branches and extending the shared potion.c blindness owner for planning clones; this work is not yet integrated.",
+  "summary": "The theft mismatch is resolved; the next stop is step 994 at missing uhitm.c mhitm_ad_blnd(). Worker A is implementing the complete attack function and shared blindness transitions. Source review also found incorrect eyewear/unconsciousness predicates in can_blnd()/resists_blnd() and missing clone visibility refresh in toggle_blindness(); those dependencies are included before validation.",
   "source": {
     "file": "uhitm.c",
     "functions": [
@@ -34,7 +34,9 @@
       "C uhitm.c mhitm_ad_blnd():2958-3008 consumes can_blnd() and uses mon_nam()/Monnam() for source visibility-dependent text; preserve display RNG ownership in planning environments.",
       "C potion.c make_blinded():261-331 probes the future Blind property, restores the old timeout, applies messages and Punished set_bc(0), writes the new timeout and calls toggle_blindness() only when sight changes. Existing js/potion.js has a limited cream-pie transition guard; extending it is necessary for already-blind or punished attack victims. Keep one timeout owner.",
       "C potion.c toggle_blindness():335-363 updates status and vision, recalculates visibility, refreshes sensed monsters, resets Sting feedback and learns unseen inventory on sight restoration. Clone execution must update clone state without writing to the live terminal.",
-      "Worker A owns A-20260916-3, including mhitm_ad_blnd, dispatch, make_blinded and toggle_blindness. Required fresh entry-point evidence and combined validation remain pending."
+      "Worker A owns A-20260916-3, including mhitm_ad_blnd, dispatch, make_blinded and toggle_blindness. Required fresh entry-point evidence and combined validation remain pending.",
+      "Source review of mondata.c:248-398 distinguishes Blindfolded (EBlinded) from ublindf (any eyewear, including lenses) and defines Unaware through multi < 0 plus unconscious()/is_fainted(). Existing JavaScript conflates eyewear cases and reads obsolete state fields. Worker A owns these return-valued dependencies and their source-pinned tests.",
+      "display.c see_monsters() changes monster recognition/warning state as well as drawing. The planning environment must execute those state changes on the clone and use its rendering/randomness owners; merely skipping the call in toggle_blindness() is incomplete."
     ]
   },
   "goalKind": "file-port",
@@ -42,6 +44,7 @@
     "Checkpoint f0ff954d2222b1db27e4fa7925448efdc980e1e5, run-Y8ACFR, passed all checks: development 10086/11405 screens, 741703/792838 RNG, 10108/11405 cursors, 30/44 complete sessions; all 257 recordings pass. This is a two-screen gain over the previous accepted 10084 baseline.",
     "Fresh fixed-workload queue run-aplFna at this commit identifies step 994, kind stop, message simple monster action requires uhitm.c mhitm_ad_blnd(), with 1814 recorded steps and an upper bound of 820 remaining screens. No other session investigation count changed.",
     "Read complete C uhitm.c mhitm_ad_blnd():2958-3008 and potion.c make_blinded()/toggle_blindness():261-363. The source contains the three actor directions and a shared hero blindness transition; a separate attack-local timeout implementation would duplicate state ownership and skip ball/vision effects.",
-    "The preceding theft fix restores all four tele_restrict() sites in mhitm_ad_sedu(), retains ordinary disarm and urgent final-theft output, and passes the attack environment to monster naming. Independent fresh theft recordings match 36 screens/15001 RNG and 29 screens/2977 RNG; the previous urgency-only hypothesis was falsified before this source correction."
+    "The preceding theft fix restores all four tele_restrict() sites in mhitm_ad_sedu(), retains ordinary disarm and urgent final-theft output, and passes the attack environment to monster naming. Independent fresh theft recordings match 36 screens/15001 RNG and 29 screens/2977 RNG; the previous urgency-only hypothesis was falsified before this source correction.",
+    "Read-only dependency review confirmed C decl.c:49 vision_clears is \"vision quickly clears.\", mondata.c can_blnd() uses distinct eyewear predicates by attack type, and youprop.h:399 Unaware reads gm.multi with unconscious()/is_fainted(). Root verified the corresponding JS stale fields and missing clone see_monsters() callback; these are pending worker corrections, not accepted gains."
   ]
 }

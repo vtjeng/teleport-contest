@@ -18,7 +18,7 @@
     "recordedSteps": 714,
     "remainingScreensUpperBound": 59
   },
-  "summary": "At step 655, a grounded gnome reaches an unseen LANDMINE through postmov(), mintrap(), and trapeffect_selector(); published JavaScript stops before the effect. Worker B has matching fresh C recordings for hero and monster activation, including the recursive pit. Integration review found incomplete long-worm pit handling, dotrap gates, and steedintrap caller wiring; those corrections are underway. No landmine gain is accepted yet.",
+  "summary": "At step 655, published JavaScript still refuses LANDMINE. Worker B has matching fresh hero/monster recordings and has corrected pit gates, worm handling and steedintrap wiring after review. A focused worker replay now passes the landmine and first diverges in RNG at step 667; clone scatter rendering, mounted-dart object hooks and an unported dismount call are being addressed before a corrected delivery and combined validation.",
   "source": {
     "file": "trap.c",
     "functions": [
@@ -27,7 +27,8 @@
       "trapeffect_pit",
       "trapeffect_selector",
       "dotrap",
-      "mintrap"
+      "mintrap",
+      "steedintrap"
     ],
     "branch": "The observed ordinary grounded gnome movement enters an unseen LANDMINE at (45,17) from (45,16), after monmove.c m_move() has selected the destination and monmove.c postmov() has moved the monster. mintrap() passes the no-trap, held-monster, floor-trigger, check_in_air(), and already-seen gates, records trap knowledge, and dispatches the LANDMINE case. The complete trapeffect_landmine() scope must preserve its first rnd(16), iron-shoes reduction, grounded-monster trigger-weight rn2(), in-air branch, visibility/messages, blow_up_landmine(), thitm() damage/death result, recursive FORCETRAP mintrap(), fill_pit(), unconsciousness, and Trap_Killed_Mon/Trap_Caught_Mon return order; its hero arm and all other source branches remain part of the whole function port.",
     "callers": [
@@ -57,6 +58,8 @@
     "nethack-c/upstream/src/monmove.c:1455-1517 establishes that postmov() invokes mintrap() immediately after movement and before the remaining destination effects. nethack-c/upstream/src/trap.c:3733-3840 establishes mintrap()'s gate, trap-learning writes, selector dispatch, and result return; nethack-c/upstream/src/trap.c:2528-2658 is the complete trapeffect_landmine() body and nethack-c/upstream/src/trap.c:3170-3219 is the complete blow_up_landmine() helper.",
     "js/trap_effects.js:2340-2407 shows LANDMINE in the blanket UNPORTED_TRAP_EFFECTS set and the generic refusal; js/trap_effects.js:2553-2718 shows the already-wired mintrap() gates and selector call. js/monmove.js:3141-3158 confirms postmov() calls this mintrap() after movement, while js/unported_monster_actions.js:1842-1966 confirms the planning clone is the boundary-producing production path.",
     "2026-09-16 source recheck at published main 4339e106073ce57fc149d2fa6a1745c9e5c870bc: js/explode.js exports scatter(), while js/trap_effects.js still refuses LANDMINE in its selector and ordinary hero PIT in preflight_dotrap()/trapeffect_pit(). Read complete C trapeffect_landmine(), blow_up_landmine(), and trapeffect_pit(); recursive pit calls require the complete existing source branch conditions. This updates dependency and ownership information without changing the saved first mismatch or claiming implementation completion.",
-    "2026-09-16 integration review of B delivery 05b9ec75: fresh hero and monster recipes match C (9 screens/3427 RNG and 22 screens/3690 RNG respectively). C trapeffect_pit() joins count_wsegs()>5 with the airborne avoidance/drag branch; the delivery retained an obsolete refusal there. Its newly reachable recursive pit also needs complete dotrap() Sokoban, conjoined/adjacent-pit and clinger escape gates, and the new steedintrap() helper must replace old caller placeholders. Worker B is correcting these source gaps and stale refusal tests before a new immutable submission."
+    "2026-09-16 integration review of B delivery 05b9ec75: fresh hero and monster recipes match C (9 screens/3427 RNG and 22 screens/3690 RNG respectively). C trapeffect_pit() joins count_wsegs()>5 with the airborne avoidance/drag branch; the delivery retained an obsolete refusal there. Its newly reachable recursive pit also needs complete dotrap() Sokoban, conjoined/adjacent-pit and clinger escape gates, and the new steedintrap() helper must replace old caller placeholders. Worker B is correcting these source gaps and stale refusal tests before a new immutable submission.",
+    "Further source/caller review found scatter() reads env.newsym while trap planning supplies env.redraw, so the landmine caller must map that callback to avoid drawing global state during planning. The new mounted dart call must carry its objectEnv into steedintrap()/thitm(). dismount_steed(DISMOUNT_POLY) is still unported; its discarded return permits an explicit source gap until that branch is implemented. Worker B is correcting these before resubmission.",
+    "Worker-only focused run-gEI2gh replays seed0014 after the initial source corrections: the landmine boundary is gone, the earliest RNG mismatch is step 667 in the mimic path, the first screen mismatch is 670, and a later potion_dip stop leaves 703/714 emitted screens. These diagnostics are attached to unaccepted worker work and do not change the main mismatch count or score."
   ]
 }
