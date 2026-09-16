@@ -52126,7 +52126,7 @@
     {
       "id": "div-cmd-doextversion-seed0106-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire the existing version display into extended-command dispatch",
       "cFile": "cmd.c",
       "sessions": [],
@@ -52135,8 +52135,8 @@
       "spans": [
         {
           "name": "doextversion-dispatch",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "9f756715b5a3158e677087ed813efad39bb910ee",
           "functions": [
             "doextcmd"
           ]
@@ -52148,8 +52148,11 @@
         "screens": 10199,
         "rng": 752563
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9f756715b5a3158e677087ed813efad39bb910ee",
+      "delivered": {
+        "screens": 13,
+        "rng": 2
+      },
       "function": "doextcmd",
       "session": "holdout/seed0106-priest-extcmd-sweep",
       "step": 175,
@@ -52233,7 +52236,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "9f756715b5a3158e677087ed813efad39bb910ee",
+        "screens": 10212,
+        "rng": 752565
+      }
     }
   ]
 }

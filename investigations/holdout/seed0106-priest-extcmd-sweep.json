@@ -1,41 +1,42 @@
 {
   "session": "holdout/seed0106-priest-extcmd-sweep",
-  "remainingScreensUpperBound": 92,
+  "remainingScreensUpperBound": 79,
   "status": "complete",
-  "commit": "d000a93a661324725f4a20144d811b2c3b83aff6",
+  "commit": "9f756715b5a3158e677087ed813efad39bb910ee",
   "mismatch": {
     "session": "holdout/seed0106-priest-extcmd-sweep",
-    "step": 175,
+    "step": 188,
     "kind": "stop",
-    "function": "doextversion",
-    "functionDeclared": true,
-    "sourceFile": "version.c",
-    "cFile": "version.c",
+    "function": "do_gamelog",
+    "functionDeclared": false,
+    "sourceFile": "insight.c",
+    "cFile": "insight.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: doextversion() for the extended command 'version' is not ported",
+    "message": "unsupported hero command: do_gamelog() for the extended command 'chronicle' is not ported",
     "unlocatedKinds": [],
     "recordedSteps": 267,
-    "remainingScreensUpperBound": 92
+    "remainingScreensUpperBound": 79
   },
-  "summary": "The validated sacrifice span adds51 matching screens and moves this session from step124 to step175. The next stop is #version: cmd.js does not dispatch its doextversion handler even though version.js already implements it. Worker B is wiring that existing owner and its text-window/RNG context;92 screens remain in this queue suffix.",
+  "summary": "The validated version-command fix adds 13 matching screens and moves this session from step 175 to step 188. The next stop is #chronicle: insight.c do_gamelog/show_gamelog and the in-memory pline.c gamelog history are missing. Worker B is implementing that source-owned history, its existing producers and command dispatch; 79 screens remain in this queue suffix.",
   "source": {
-    "file": "cmd.c",
+    "file": "insight.c",
     "functions": [
-      "doextcmd"
+      "do_gamelog",
+      "show_gamelog"
     ],
-    "branch": "C cmd.c doextcmd lines493-519 reads the selected extcmdlist function and calls it, returning its ECMD result. The version row at cmd.c1924-1925 names doextversion. JavaScript has the generated version row and version.js doextversion, but cmd.js doextcmd has no matching case and reaches UnsupportedHeroCommandBoundaryError at step175.",
+    "branch": "With CHRONICLE enabled, do_gamelog displays gg.gamelog through show_gamelog(ENL_GAMEINPROGRESS), or emits No chronicled events. show_gamelog iterates stored turn, flags and text in order; final mode filters major events and ordinary nonwizard play hides spoilers. The JavaScript extended-command row exists but dispatch reaches its unsupported do_gamelog boundary.",
     "callers": [
-      "C cmd.c extcmdlist registers version with doextversion and doextcmd invokes the selected function pointer.",
-      "js/extcmdlist_data.js version row carries doextversion, while js/cmd.js doextcmd currently falls through to its unsupported default.",
-      "js/pager.js already calls js/version.js doextversion with displayTextWindow and random; the command path must supply the same source-owned interfaces."
+      "C cmd.c extcmdlist chronicle row invokes insight.c do_gamelog; its CHRONICLE arm calls show_gamelog.",
+      "JavaScript extcmdlist_data.js registers do_gamelog; cmd.js doextcmd must dispatch to the canonical insight.js owner."
     ],
     "dependencies": [
-      "Reuse the existing version.c doextversion implementation in js/version.js, including the text-window renderer and runtime-information RNG ordering.",
-      "Preserve ECMD_OK and command dispatch state. Keep machine-local configuration path differences under open question Q1 rather than adding recorded environment values."
+      "C pline.c gamelog_add lines495-513 appends gg.gamelog entries; livelog_printf lines516-528 records svm.moves before external-log tab sanitization. Implement one in-memory state owner and source-required producer wiring.",
+      "Preserve history through initialization, planning clones, saves and restored segments. Trace all existing producers rather than reconstructing events from the fixed recording.",
+      "Reuse the text-window owner and preserve flags, major/spoiler filtering, message order and ECMD_OK. External livelog output is a separate discarded-result dependency."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
     "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
     "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
@@ -50,6 +51,8 @@
     "Worker B completed the floorfood liquid short-circuit, bear-trap extraction guard, rust-monster pointer comparison, tinning classifier and iron-bar hands_obj caller path. Its bounded node --test run of scripts/eat.test.mjs, scripts/eat-prompt.test.mjs and scripts/pray.test.mjs passed all three files with no failures; /tmp/B5-focused.log records the worker result. The independent altar probes did not reach selection because unanswered More and location-tip prompts consumed their command keys; a simpler production setup is being investigated.",
     "Checkpoint d000a93a661324725f4a20144d811b2c3b83aff6 run-pM0K7h passes:31/44 complete sessions,10199/11405 screens,752563/792838 RNG,10226/11405 cursors,265/265 recordings. The sacrifice span adds51 screens and two independent recordings totaling74 screens and7990 RNG calls.",
     "Saved scan .cache/B5-development-scan.json and mismatch queue run-BlyNK7 locate this session at step175, doextversion stop,92 remaining-screen upper bound. Source inspection confirms the generated row and existing callee, isolating missing command dispatch.",
-    "Worker B claimed B-20260916-6 from immutable23e44e40705da27c6f57ff61485d5e22c6575d09 with cmd.c doextcmd, version.c doextversion and the version text-window contract reserved. It is implementing the independent same-session continuation."
+    "Worker B claimed B-20260916-6 from immutable23e44e40705da27c6f57ff61485d5e22c6575d09 with cmd.c doextcmd, version.c doextversion and the version text-window contract reserved. It is implementing the independent same-session continuation.",
+    "Checkpoint 9f756715b5a3158e677087ed813efad39bb910ee run-6ztYn5 passes all checks: 31/44 sessions, 10212/11405 screens, 752565/792838 RNG, 10239/11405 cursors, and 265/265 recordings. Relative to B5 it gains 13 screens and 2 RNG values; no new raw recording was added. The independent version matrix run-poSId8 matched after its documented Linux/Darwin host-string normalization.",
+    "Saved scan .cache/B6-development-scan.json and queue run-F9fQzR locate step 188 at do_gamelog with a 79-screen upper bound. Coordinator source read of insight.c2532-2595 and pline.c495-528 confirms the command, display filters, chronological state and turn capture. Worker B claimed B-20260916-8 for this same-session continuation; its earlier unedited thitmonst claim B7 is parked and owns no source."
   ]
 }
