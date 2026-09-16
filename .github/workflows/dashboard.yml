@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir _site
           node scripts/build-dashboard.mjs _site/index.html
+          cp docs/drafts/loop-instructions.html _site/loop-instructions-draft.html
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
