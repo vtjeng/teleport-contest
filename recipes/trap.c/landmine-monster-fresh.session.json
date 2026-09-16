@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c landmine setup: seed 7949 was selected from the bounded 7300-8299 mine scan because the D:8 layout places a natural mine beside the independent hero start. Moving one square, #wizgenesis creates a large dog on the mine; u-k steers the hero while the dog enters the mine and falls into the resulting pit. This uses a new seed, clock, character, and input rather than copying a recorded trap case.",
+  "segments": [
+    {
+      "seed": 7949,
+      "datetime": "20330405060708",
+      "nethackrc": "OPTIONS=name:MineProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,time\nOPTIONS=playmode:debug\n",
+      "moves": "  \u0016?\n xj\u0007large dog\nuk"
+    }
+  ]
+}
