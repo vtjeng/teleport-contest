@@ -26,6 +26,7 @@ const runDifferentialFn = runDifferentialAcceptingHostStrings([
 ]);
 
 export const HELP_VERSION_MOVES = '?a  ';
+export const EXTENDED_VERSION_MOVES = ' #version\n  ';
 
 function nethackrc() {
     return [
@@ -50,16 +51,38 @@ export function loadHelpVersionRecipe() {
     }, 'help version-information recipe');
 }
 
+export function loadExtendedVersionRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            // This independent direct-command route enters cmd.c doextcmd()
+            // before invoking the already-portable version.c implementation.
+            seed: 617_204,
+            datetime: '20351117080910',
+            nethackrc: [
+                'OPTIONS=name:VersionProbe,role:Priest,race:human,gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,!autopickup',
+                'OPTIONS=pettype:none,!acoustics,symset:DECgraphics',
+                '',
+            ].join('\n'),
+            moves: EXTENDED_VERSION_MOVES,
+        }],
+    }, 'extended version command recipe');
+}
+
 export async function runHelpVersionMatrix() {
     const result = await runFreshMatrix({
         entries: [{
             label: 'help version information',
             recipe: loadHelpVersionRecipe(),
+        }, {
+            label: 'direct extended version command',
+            recipe: loadExtendedVersionRecipe(),
         }],
         summaryLabel: 'HELP VERSION INFORMATION',
         runDifferentialFn,
     });
-    if (result.passed) assert.equal(result.totals.segments, 1);
+    if (result.passed) assert.equal(result.totals.segments, 2);
     return result;
 }
 
