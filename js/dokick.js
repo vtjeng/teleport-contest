@@ -276,7 +276,7 @@ export async function kickdmg(mon, clumsy, state = game) {
     }
 
     if (M_AP_TYPE(mon)) seemimic(mon, state);
-    check_caitiff(mon, state, env);
+    await check_caitiff(mon, state, env);
 
     if (mon.mtame) {
         await abuse_dog(mon, state, env.random);
@@ -383,7 +383,7 @@ export async function kick_monster(mon, x, y, state = game) {
     if (Upolyd(state.u) && attacktype(state.youmonst.data, AT_KICK)) {
         const counters = { attknum: 0, role_roll_penalty: 0 };
         // find_roll_to_hit() mutates the pointer-shaped counters object.
-        const hitRoll = find_roll_to_hit(mon, AT_KICK, null, counters,
+        const hitRoll = await find_roll_to_hit(mon, AT_KICK, null, counters,
             state, env);
         mon_maybe_unparalyze(mon, env.random);
         for (const uattk of state.youmonst.data.mattk ?? []) {

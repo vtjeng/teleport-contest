@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent uhitm.c check_caitiff() witness: a lawful Knight attacks a naturally sleeping hostile wood nymph on a fresh wizard-mode D:2 arrival. The seed, timestamp, role, destination, and command sequence are new and are not copied from the holdout case.",
+  "segments": [
+    {
+      "seed": 9650044,
+      "datetime": "20320516111723",
+      "nethackrc": "OPTIONS=name:LanternProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,!verbose\n",
+      "moves": ".\u00162\n.u"
+    }
+  ]
+}
