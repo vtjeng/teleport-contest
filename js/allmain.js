@@ -48,7 +48,6 @@ import {
     movemon_singlemon,
     restrap,
     UnsupportedHideError,
-    UnsupportedMonsterDistressError,
     were_change,
 } from './mon.js';
 import {
@@ -1032,7 +1031,6 @@ function elapsedTurnPlanningRefusals() {
         UnsupportedHideError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedHungerTransitionError,
-        UnsupportedMonsterDistressError,
         UnsupportedMonsterCreationError,
         // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
         // mpickstuff()'s -- call distant_name(), splitobj() and mpickobj()

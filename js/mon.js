@@ -2334,14 +2334,6 @@ export function mon_regen(monster, digestMeal = false, state = game) {
     }
 }
 
-export class UnsupportedMonsterDistressError extends Error {
-    constructor(operation) {
-        super(`unsupported monster distress state: ${operation}`);
-        this.name = 'UnsupportedMonsterDistressError';
-        this.operation = operation;
-    }
-}
-
 function distressRandom(env = {}) {
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne']) {
@@ -3054,15 +3046,6 @@ export async function newcham_distress(monster, target = null, rawEnv = {}) {
 
 export function preflight_newcham_distress(monster, rawEnv = {}) {
     const normalized = newchamEnv(rawEnv);
-    const supported = monster?.cham === PM_SANDESTIN
-        || monster?.cham === PM_DOPPELGANGER
-        || monster?.cham === PM_CHAMELEON
-        || monster?.cham === PM_VAMPIRE
-        || monster?.cham === PM_VAMPIRE_LEADER
-        || monster?.cham === PM_VLAD_THE_IMPALER
-        || monster?.cham === NON_PM;
-    if (!supported)
-        throw new UnsupportedMonsterDistressError(`shapechanger ${monster?.cham}`);
     if (!Number.isInteger(monster.mhpmax) || monster.mhpmax <= 0
         || !Number.isInteger(monster.mhp) || monster.mhp <= 0) {
         throw new TypeError('newcham_distress requires positive integer hit points');
