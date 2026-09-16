@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9382712,
+      "datetime": "20331222104500",
+      "nethackrc": "OPTIONS=name:GlyphThinVar,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!autopickup,pettype:none,!acoustics\n",
+      "moves": " .#forceh",
+      "comment": "Cheap role/race variation of the independently chosen force-fight setup. The same westward floor swing reaches domove_fight_empty() through #force while exercising a different starting inventory and character configuration."
+    }
+  ]
+}
