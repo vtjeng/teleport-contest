@@ -54049,7 +54049,7 @@
     {
       "id": "port-insight-vanquished-seed0106-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete vanquished list, sorting, and command family",
       "cFile": "insight.c",
       "sessions": [
@@ -54060,8 +54060,8 @@
       "spans": [
         {
           "name": "vanqsort_cmp..list_vanquished",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f",
           "functions": [
             "vanqsort_cmp",
             "set_vanq_order",
@@ -54380,7 +54380,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 13,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f",
+        "screens": 10362,
+        "rng": 756145
+      },
+      "parkedReason": "The complete vanquished family passes checkpoint at8e39b4e8 with three matching command/sort recordings. Shared genocided sorting, final disclosure and class-order output still need matching entry recordings; retain that evidence work while integrating the next command family."
     }
   ]
 }
