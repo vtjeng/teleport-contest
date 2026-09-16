@@ -27,7 +27,6 @@ import {
     HMON_KICKED,
     OBJ_MINVENT,
     OBJ_DELETED,
-    FLYING,
     LEVITATION,
     D_CLOSED,
     D_NODOOR,
