@@ -1170,7 +1170,7 @@ export async function toggle_blindness(state = game, env = {}) {
     // C ref: potion.c:362-363. learn_unseen_invent() marks dknown on objects
     // the hero picked up while blind. Fires only when the hero regains sight.
     if (!heroIsBlind(state)) {
-        await learn_unseen_invent(state);
+        await learn_unseen_invent(state, env);
     }
 }
 

@@ -373,6 +373,14 @@ function serializeGameState(state) {
         ubirthday: state.ubirthday,
         urealtime: state.urealtime,
         track: state.track,
+        // C save.c:save_gamelog() serializes each gg.gamelog_line before
+        // releasing the linked list. Preserve order, turn, flags, and text;
+        // the restore path recreates the canonical in-memory list.
+        gamelog: state.gamelog?.map((entry) => ({
+            turn: entry.turn,
+            flags: entry.flags,
+            text: entry.text,
+        })) ?? [],
         // Calendar state needed for restore's moveloop_preamble
         fixedDatetime: state.fixedDatetime,
         recorderIsDst: state.recorderIsDst,

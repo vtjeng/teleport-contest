@@ -153,6 +153,7 @@ import {
     WORN_SHIRT,
     INV_IN_USE,
     INV_SHOW_GOLD,
+    LL_CONDUCT,
     WIN_ERR,
     WC_PERM_INVENT,
     ALL_FINISHED,
@@ -204,6 +205,7 @@ import {
 import { hides_under, poly_when_stoned, touch_petrifies } from './mondata.js';
 import { maybe_unhide_at } from './mon.js';
 import { newsym, obj_to_glyph } from './display.js';
+import { livelog_printf } from './pline.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
@@ -2908,7 +2910,7 @@ export async function identify_pack(idLimit, learningId, state = game) {
 // (which sets dknown via observe_object()) and triggering any reactions
 // that seeing the object for the first time produces (addinv_core2).
 //
-export async function learn_unseen_invent(state = game) {
+export async function learn_unseen_invent(state = game, env = {}) {
     if (heroIsBlind(state))
         return; /* sanity check */
 
@@ -2928,27 +2930,28 @@ export async function learn_unseen_invent(state = game) {
         // sets dknown, and also sets bknown for clerics.
         xnameFresh(otmp, state);
         // C ref: invent.c:2766 and addinv_core2(). A newly visible luckstone
-        // recalculates luck; an Archeologist can decipher an unknown scroll
-        // label immediately after xname() has established dknown.
+        // recalculates luck; addinv_core2() also handles an Archeologist's
+        // unknown scroll label immediately after xname() establishes dknown.
         if (otmp.otyp === LUCKSTONE
             || (otmp.oartifact && confers_luck(otmp, state)))
             set_moreluck(state);
-        if (state.urole?.mnum === PM_ARCHEOLOGIST
-            && otmp.oclass === SCROLL_CLASS
-            && otmp.otyp !== SCR_BLANK_PAPER
-            && !heroIsBlind(state)
-            && !state.objects[otmp.otyp]?.oc_name_known) {
-            observe_object(otmp, state);
-            await ttyPline(`You decipher the label on ${yname(otmp, state)}.`, state);
-            discover_object(otmp.otyp, true, true, true, state);
-            state.u.uconduct ??= {};
-            state.u.uconduct.literate = Math.trunc(
-                state.u.uconduct.literate ?? 0,
-            ) + 1;
-        }
+        const effects = addinv_core2(
+            otmp,
+            {
+                ...env,
+                state,
+                hooks: {
+                    ...(env.hooks ?? {}),
+                    message: env.hooks?.message ?? env.message
+                        ?? (state === game ? ttyPline : async () => {}),
+                },
+            },
+            { confersLuck: false },
+        );
+        if (isThenable(effects)) await effects;
     }
     if (invupdated)
-        update_inventory({ state });
+        update_inventory({ ...env, state });
 }
 
 // C ref: invent.c update_inventory(). Calls before the move loop and while
@@ -4121,13 +4124,6 @@ function preflightAddinvCores(obj, env) {
     const prize = specialPrize(obj, env.state);
     const confersLuck = obj.otyp === LUCKSTONE
         || (Boolean(obj.oartifact) && confers_luck(obj, env.state));
-    if (env.state.urole?.filecode === 'Arc'
-        && obj.oclass === SCROLL_CLASS
-        && obj.otyp !== SCR_BLANK_PAPER
-        && !isBlind(env)
-        && !objectType(obj, env.state).oc_name_known) {
-        requiredHook(env, 'archeologistDeciphersScroll', obj);
-    }
     return { confersLuck, prize };
 }
 
@@ -4137,14 +4133,51 @@ function addinv_core2(obj, env, facts) {
             set_moreluck(env.state);
     }
 
-    // The Archeologist's scroll-label side effect can become reachable only
-    // after its startup inventory changes; keep it behind a named seam.
+    // C exposes the scroll label only after the object has entered the
+    // inventory.  observe_object() precedes the message and makeknown(), so a
+    // later naming/display call sees the same dknown and discovery state.
     if (env.state.urole?.filecode === 'Arc'
         && obj.oclass === SCROLL_CLASS
         && obj.otyp !== SCR_BLANK_PAPER
         && !isBlind(env)
         && !objectType(obj, env.state).oc_name_known) {
-        requiredHook(env, 'archeologistDeciphersScroll', obj)(obj, env);
+        observe_object(obj, env.state);
+        const message = env.hooks?.message ?? env.message;
+        let output = null;
+        if (typeof message === 'function') {
+            output = message(
+                `You decipher the label on ${yname(obj, env.state)}.`,
+                env.state,
+            );
+        } else {
+            // The synchronous startup addinv() API has no message owner. C's
+            // pline result is discarded here; runtime pickup supplies the
+            // asynchronous owner and completes this arm below.
+            note_unported('invent.c addinv_core2 pline');
+        }
+        const finishDiscovery = () => {
+            discover_object(
+                obj.otyp,
+                true,
+                true,
+                true,
+                env.state,
+                // Preserve the caller's actual display and inventory hooks;
+                // C makeknown() lets discover_object() perform its own live
+                // update_inventory() call instead of replacing that owner
+                // with a silent no-op.
+                env,
+            );
+            env.state.u.uconduct ??= {};
+            if (!env.state.u.uconduct.literate++)
+                livelog_printf(
+                    LL_CONDUCT,
+                    'became literate by deciphering a scroll label',
+                    env.state,
+                );
+        };
+        if (isThenable(output)) return Promise.resolve(output).then(finishDiscovery);
+        finishDiscovery();
     }
 }
 
@@ -4448,10 +4481,14 @@ function finishAddinv(context, obj, inserted, updatePermInvent = true) {
         && shouldAutoquiver(obj, state))
         setQuiver(obj, normalized);
     obj.pickup_prev = true;
-    addinv_core2(obj, normalized, addinvFacts);
-    carry_obj_effects(obj, normalized, carryEffects);
-    if (updatePermInvent) update_inventory(normalized);
-    return obj;
+    const finish = () => {
+        carry_obj_effects(obj, normalized, carryEffects);
+        if (updatePermInvent) update_inventory(normalized);
+        return obj;
+    };
+    const effects = addinv_core2(obj, normalized, addinvFacts);
+    if (isThenable(effects)) return Promise.resolve(effects).then(finish);
+    return finish();
 }
 
 // C ref: invent.c addinv_core0().
@@ -4508,7 +4545,17 @@ async function addinvCore0Runtime(
     obj, env = {}, prepared = null, updatePermInvent,
     otherObj = null,
 ) {
-    const context = beginAddinv(obj, env, prepared);
+    // Live addinv() may be called by a wish or a container path with only a
+    // state argument. Supply ttyPline to the async addinv_core2() arm while
+    // leaving synchronous startup addinv() free of an unawaited Promise.
+    const liveEnv = {
+        ...env,
+        hooks: {
+            ...(env.hooks ?? {}),
+            message: env.hooks?.message ?? env.message ?? ttyPline,
+        },
+    };
+    const context = beginAddinv(obj, liveEnv, prepared);
     if (!context) return null;
     const { normalized, state } = context;
     let inserted;

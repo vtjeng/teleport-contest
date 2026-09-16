@@ -85,6 +85,7 @@ import {
     MGIVENNAME,
     NON_PM,
     In_tutorial,
+    LL_DUMP,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
@@ -127,6 +128,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { enlightenment } from './insight.js';
+import { livelog_printf } from './pline.js';
 import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
@@ -1197,8 +1199,11 @@ async function really_done(how, state) {
     // parser above never stores it; the test therefore always passes.
     await disclose(how, taken, state);
 
-    // C ref: end.c:1285-1290 livelog_printf + dump_everything.  Neither is
-    // ported; they produce no RNG draws or game-state mutations.
+    // C ref: end.c:1285-1290. formatkiller() builds the same death text that
+    // the final dump records, and livelog_printf() keeps the LL_DUMP event in
+    // the in-memory Chronicle even though the external dump file is absent.
+    const deathBuf = formatkiller(how, true, state);
+    livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
 
     // C ref: end.c:1297-1298 keepdogs for ESCAPED/ASCENDED.
     // Not applicable: how === DIED.

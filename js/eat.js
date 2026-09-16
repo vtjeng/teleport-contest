@@ -43,6 +43,7 @@ import {
     Is_astralevel,
     Is_waterlevel,
     KILLED_BY_AN,
+    LL_CONDUCT,
     LAST_PROP,
     LIGHT_HEADED,
     MAGICAL_BREATHING,
@@ -96,6 +97,7 @@ import { newsym } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
+import { livelog_printf } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
     still_chewing,
@@ -248,7 +250,7 @@ import {
     mksobj,
 } from './obj.js';
 import {
-    ansimpleoname, corpse_xname, donameFresh, otense, safe_qbuf,
+    an, ansimpleoname, corpse_xname, donameFresh, otense, safe_qbuf,
     singular, the, the_unique_pm, xnameFresh,
 } from './objnam.js';
 import {
@@ -765,6 +767,45 @@ export function vegetarian(monster) {
     return vegan(monster)
         || (monster.mlet === S_PUDDING
             && monster.pmidx !== PM_BLACK_PUDDING);
+}
+
+// C ref: eat.c eating_conducts() (576-599).  The helper is used by the
+// mind-flayer brain attack and by start_tin(); those callers remain explicit
+// unsupported boundaries until their surrounding effects are ported.  Keep
+// this helper source-complete so both callers can share the conduct state and
+// first-event suppression when they are admitted.
+export async function eating_conducts(pd, state = game) {
+    const u = state.u;
+    u.uconduct ??= {};
+    let ll_conduct = 0;
+    const name = pd?.pmnames?.[NEUTRAL] ?? '';
+
+    if (!(u.uconduct.food ?? 0)) {
+        livelog_printf(LL_CONDUCT, `ate for the first time - ${name}`, state);
+        ll_conduct++;
+    }
+    u.uconduct.food = Math.trunc(u.uconduct.food ?? 0) + 1;
+
+    if (!vegan(pd)) {
+        if (!(u.uconduct.unvegan ?? 0) && !ll_conduct) {
+            livelog_printf(
+                LL_CONDUCT,
+                `consumed animal products (${name}) for the first time`,
+                state,
+            );
+            ll_conduct++;
+        }
+        u.uconduct.unvegan = Math.trunc(u.uconduct.unvegan ?? 0) + 1;
+    }
+    if (!vegetarian(pd)) {
+        if (!(u.uconduct.unvegetarian ?? 0) && !ll_conduct)
+            livelog_printf(
+                LL_CONDUCT,
+                `tasted meat (${name}) for the first time`,
+                state,
+            );
+        await violated_vegetarian(state);
+    }
 }
 
 // C ref: eat.c tin_variety(). `displ` means the caller is only formatting a
@@ -1845,13 +1886,30 @@ async function eatcorpse(otmp, state) {
     }
 
     /* KMH, conduct */
-    // C's livelog_printf() calls append to gg.gamelog and the live log file;
-    // neither is ported, so the `ll_conduct` flag that gates them has no port
-    // either, exactly as in doeat().
-    if (!vegan(corpse))
-        u.uconduct.unvegan++;
-    if (!vegetarian(corpse))
+    // C's local ll_conduct suppresses the meat event only when the same
+    // corpse also establishes the first animal-products conduct.
+    let ll_conduct = 0;
+    u.uconduct ??= {};
+    if (!vegan(corpse)) {
+        if (!(u.uconduct.unvegan ?? 0)) {
+            livelog_printf(
+                LL_CONDUCT,
+                `consumed animal products for the first time, by eating ${an(food_xname(otmp, false, state))}`,
+                state,
+            );
+            ll_conduct++;
+        }
+        u.uconduct.unvegan = Math.trunc(u.uconduct.unvegan ?? 0) + 1;
+    }
+    if (!vegetarian(corpse)) {
+        if (!(u.uconduct.unvegetarian ?? 0) && !ll_conduct)
+            livelog_printf(
+                LL_CONDUCT,
+                `tasted meat for the first time, by eating ${an(food_xname(otmp, false, state))}`,
+                state,
+            );
         await violated_vegetarian(state);
+    }
 
     if (!nonrotting_corpse(mnum, state)) {
         const age = peek_at_iced_corpse_age(otmp, state);
@@ -2011,8 +2069,16 @@ async function fpostfx(otmp, state, env) {
             { message: env.message ?? ttyPline },
         );
         if (!heroIsBlind(state)) {
-            // C's livelog_printf() has no screen or game-state result.
-            state.u.uconduct.literate++;
+            const firstLiterate = !(state.u.uconduct.literate ?? 0);
+            state.u.uconduct.literate = Math.trunc(
+                state.u.uconduct.literate ?? 0,
+            ) + 1;
+            if (firstLiterate)
+                livelog_printf(
+                    LL_CONDUCT,
+                    'became literate by reading the fortune inside a cookie',
+                    state,
+                );
         }
         break;
     case LUMP_OF_ROYAL_JELLY:
@@ -2692,11 +2758,18 @@ export async function doeat(state = game, env = {}) {
         throw new UnsupportedEatError('start_tin()');
     }
 
-    // C ref: `if (!u.uconduct.food++) livelog_printf(...)`. pline.c
-    // livelog_printf() appends to gg.gamelog and the live log file; neither is
-    // ported, and neither draws randomness nor writes to the screen, so the
-    // `ll_conduct` flag that gates the later livelog calls has no port either.
-    u.uconduct.food++;
+    // C ref: `if (!u.uconduct.food++) livelog_printf(...)`. The chronicle is
+    // state; only the external live-log sink is unavailable.
+    let ll_conduct = 0;
+    if (!(u.uconduct.food ?? 0)) {
+        livelog_printf(
+            LL_CONDUCT,
+            `ate for the first time - ${food_xname(otmp, false, state)}`,
+            state,
+        );
+        ll_conduct++;
+    }
+    u.uconduct.food = Math.trunc(u.uconduct.food ?? 0) + 1;
 
     const already_partly_eaten = Boolean(otmp.oeaten);
     if (already_partly_eaten) {
@@ -2735,14 +2808,35 @@ export async function doeat(state = game, env = {}) {
          * all handled in the != FOOD_CLASS case, above.
          */
         if (objectType(otmp, state).oc_material === FLESH) {
-            u.uconduct.unvegan++;
-            if (otmp.otyp !== EGG)
+            if (!(u.uconduct.unvegan ?? 0) && !ll_conduct) {
+                livelog_printf(
+                    LL_CONDUCT,
+                    `consumed animal products for the first time, by eating ${an(food_xname(otmp, false, state))}`,
+                    state,
+                );
+                ll_conduct++;
+            }
+            u.uconduct.unvegan = Math.trunc(u.uconduct.unvegan ?? 0) + 1;
+            if (otmp.otyp !== EGG) {
+                if (!(u.uconduct.unvegetarian ?? 0) && !ll_conduct)
+                    livelog_printf(
+                        LL_CONDUCT,
+                        `tasted meat for the first time, by eating ${an(food_xname(otmp, false, state))}`,
+                        state,
+                    );
                 await violated_vegetarian(state);
+            }
         } else if (otmp.otyp === PANCAKE
             || otmp.otyp === FORTUNE_COOKIE /*eggs*/
             || otmp.otyp === CREAM_PIE || otmp.otyp === CANDY_BAR /*milk*/
             || otmp.otyp === LUMP_OF_ROYAL_JELLY) {
-            u.uconduct.unvegan++;
+            if (!(u.uconduct.unvegan ?? 0) && !ll_conduct)
+                livelog_printf(
+                    LL_CONDUCT,
+                    `consumed animal products (${food_xname(otmp, false, state)}) for the first time`,
+                    state,
+                );
+            u.uconduct.unvegan = Math.trunc(u.uconduct.unvegan ?? 0) + 1;
         }
 
         meal.reqtime = objectType(otmp, state).oc_delay;

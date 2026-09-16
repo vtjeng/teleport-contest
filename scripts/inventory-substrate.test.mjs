@@ -1691,6 +1691,7 @@ test('Mines prize records its achievement and merges after pickup', () => {
 
     state.context.achieveo = {
         mines_prize_oid: prizeId,
+        mines_prize_otyp: LUCKSTONE,
         soko_prize_oid: 0,
     };
     const prize = instance(LUCKSTONE, state, {
@@ -1715,6 +1716,7 @@ test('Sokoban prize clears tracking and its temporary nomerge flag', () => {
     state.context.achieveo = {
         mines_prize_oid: 0,
         soko_prize_oid: prizeId,
+        soko_prize_otyp: BAG_OF_HOLDING,
     };
     const prize = instance(BAG_OF_HOLDING, state, {
         nomerge: true,
@@ -1735,6 +1737,7 @@ test('special-prize achievement is direct and source-ordered', () => {
     state.context.achieveo = {
         mines_prize_oid: 0,
         soko_prize_oid: prizeId,
+        soko_prize_otyp: BAG_OF_HOLDING,
     };
     state.u.uachieved = [];
     const prize = instance(BAG_OF_HOLDING, state, {

@@ -111,6 +111,8 @@ import {
     TAINT_AGE,
     W_AMUL,
     W_SADDLE,
+    LL_ACHIEVE,
+    LL_UMONST,
 } from '../js/const.js';
 import { newedog } from '../js/dog.js';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
@@ -945,13 +947,34 @@ test('mondead stops on the arms it does not own', async () => {
     // is the first arm below 3135, so its own death is already counted.
     await stopped(spawn(PM_KEYSTONE_KOP),
                   'a Keystone Kop coming back', 1, 'Kop');
-    // A unique monster would be live-logged, and so would a revived one:
-    // 3009's mrevived exemption applies to the High Priest alone, which is the
-    // one species unique_corpstat() admits that is not literally unique.
-    const logged = 'the live-log line for a unique or shopkeeper kill';
-    await stopped(spawn(PM_VLAD_THE_IMPALER), logged, 1, 'Vlad');
-    await stopped(spawn(PM_VLAD_THE_IMPALER, { mrevived: 1 }),
-                  logged, 1, 'revived Vlad');
+    // A unique monster is now fully handled by mondead(): it increments the
+    // vanquished count, appends C's first-kill major event (later kills retain
+    // LL_UMONST), and detaches the monster. The mrevived exemption applies to
+    // the High Priest alone.
+    const completes = async (mon, label, ordinal, flags) => {
+        const x = mon.mx;
+        const y = mon.my;
+        const mndx = mon.data.pmidx;
+        const died = game.svm.mvitals[mndx].died;
+        const env = killEnv();
+        await mondead(mon, game, env);
+        assert.deepEqual(env.bounds, [], `${label}: drew nothing`);
+        assert.deepEqual(env.lines, [], `${label}: printed nothing`);
+        assert.equal(m_at(x, y, game), null, `${label}: detached`);
+        assert.equal(game.svm.mvitals[mndx].died, died + 1,
+                     `${label}: vanquished count`);
+        const event = game.gamelog.at(-1);
+        assert.equal(event.flags, flags,
+                     `${label}: source event flags`);
+        assert.match(event.text, new RegExp(
+            `^destroyed Vlad the Impaler${ordinal ? ` \\(${ordinal} time\\)` : ''}$`,
+            'u',
+        ));
+    };
+    await completes(spawn(PM_VLAD_THE_IMPALER), 'Vlad', '',
+                    LL_UMONST | LL_ACHIEVE);
+    await completes(spawn(PM_VLAD_THE_IMPALER, { mrevived: 1 }),
+                    'revived Vlad', '2nd', LL_UMONST);
     // A monster carrying a worn amulet of life saving. lifesaved_monster()
     // runs above everything else in mondead(), so nothing is counted.
     const saved = spawn(PM_NEWT);

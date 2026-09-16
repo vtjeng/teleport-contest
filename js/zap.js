@@ -36,6 +36,7 @@ import {
     ARM,
     A_WIS,
     BLINDED,
+    BUFSZ,
     COLD_RES,
     COLNO,
     CORR,
@@ -81,6 +82,9 @@ import {
     DRAWBRIDGE_UP,
     EXPL_FIERY,
     KILLED_BY_AN,
+    LL_ARTIFACT,
+    LL_CONDUCT,
+    LL_WISH,
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
     PHYS_EXPL_TYPE,
@@ -398,6 +402,7 @@ import {
     hits_bars, m_useup, m_useupall, rnd_hallublast,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
+import { livelog_printf } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { picking_at, reset_pick } from './lock.js';
@@ -1257,6 +1262,7 @@ export async function zhitm(
 // the `iflags.cmdassist && tries > 0` suffix at 6330 cannot be appended, and
 // the third operand of the 6334 test below holds.
 export async function makewish(state = game) {
+    state.u.uconduct ??= {};
     state.context ??= {};
     // svc.context.resume_wish. allmain.c:200 is its only reader, restarting a
     // wish that a saved game left standing at this prompt; that call site is
@@ -1303,8 +1309,9 @@ export async function makewish(state = game) {
      *  denied.  Wishing for "nothing" requires a separate value to remain
      *  distinct.
      */
-    // C's bufcpy holds the typed line for wish_history_add() and the three
-    // livelog strings, none of which this port writes.
+    // C's bufcpy holds the typed line for wish_history_add(), which is
+    // compile-time DEBUG-only here; the three livelog strings are retained in
+    // the in-memory chronicle by pline.js.
     // C's `struct obj nothing` is a stack object whose address alone matters.
     const nothing = Object.freeze({});
     // readobjnam()'s typfnd: tail calls mksobj(), which reaches the same
@@ -1312,6 +1319,7 @@ export async function makewish(state = game) {
     // container is the arm a wish reaches today. The hooks obj.js requires for
     // those arms are the ones every other mksobj() caller assembles, so this
     // wish path assembles them the same way rather than a subset of its own.
+    const oldwisharti = Math.trunc(state.u.uconduct.wisharti ?? 0);
     const otmp = readobjnam(buf, nothing, objectGenerationEnv({ state }));
     // readobjnam() answering null -- the MAXWISHTRY retry loop at 6360-6368 --
     // and &hands_obj -- wizterrainwish() at 6374-6377 -- are both refused
@@ -1319,8 +1327,7 @@ export async function makewish(state = game) {
     if (otmp === nothing) {
         /* explicitly wished for "nothing", presumably attempting
            to retain wishless conduct */
-        // livelog_printf(LL_WISH, "declined to make a wish") writes the
-        // livelog file, which is not a screen.
+        livelog_printf(LL_WISH, 'declined to make a wish', state);
         return;
     }
     // wish_history_add() sits inside `#ifdef DEBUG` at zap.c:6229, and no
@@ -1336,6 +1343,7 @@ export async function makewish(state = game) {
     const holdEnv = {
         state,
         hooks: {
+            message: ttyPline,
             encumberMessage: encumber_msg,
             // do.c dropz() -> stackobj() -> invent.c merged() reaches
             // mkobj.c obj_extract_self() for the pile member the landing
@@ -1360,12 +1368,37 @@ export async function makewish(state = game) {
     // consumed after addinv() reaches the source drop_it branch.
     const holdDropAdmission = prepareHoldDropAdmission(otmp, holdEnv);
 
-    // 6398 builds the livelog string.  Its three arms differ only in the text
-    // they write to the livelog file, but doname() runs for all of them and
-    // its xname() marks the object seen, so the call stays.
-    donameFresh(otmp, state);
+    // 6398 builds a BUFSZ-sized local string before livelog_printf() receives
+    // it. Keep that inner truncation separate from pline.c's larger formatted
+    // buffer, because the former controls what the chronicle stores here.
+    const wish = truncateByteString(
+        `"${buf}", got "${donameFresh(otmp, state)}"`,
+        BUFSZ - 1,
+    );
+    const maybeLlArti = oldwisharti < Math.trunc(state.u.uconduct.wisharti ?? 0)
+        ? LL_ARTIFACT : 0;
     /* KMH, conduct */
+    const firstWish = !state.u.uconduct.wishes;
     state.u.uconduct.wishes++;
+    if (firstWish) {
+        livelog_printf(
+            LL_CONDUCT | LL_WISH | maybeLlArti,
+            `made ${state.flags?.female ? 'her' : 'his'} first wish - ${wish}`,
+            state,
+        );
+    } else if (!oldwisharti && state.u.uconduct.wisharti) {
+        livelog_printf(
+            LL_CONDUCT | LL_WISH | LL_ARTIFACT,
+            `made ${state.flags?.female ? 'her' : 'his'} first artifact wish - ${wish}`,
+            state,
+        );
+    } else {
+        livelog_printf(
+            LL_WISH | maybeLlArti,
+            `wished for ${wish}`,
+            state,
+        );
+    }
 
     // 6405-6420.  readobjnam() refuses a corpse, so otmp->wishedfor is 0 and
     // both tests that read it take their other branch.

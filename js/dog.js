@@ -14,6 +14,7 @@ import {
     EDOG,
     HALLUC,
     HALLUC_RES,
+    LL_CONDUCT,
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_TYPMASK,
@@ -40,7 +41,9 @@ import {
     ledger_to_dnum,
 } from './dungeon.js';
 import { newsym } from './display.js';
-import { capitalizedMonsterName, christen_monst } from './do_name.js';
+import {
+    capitalizedMonsterName, christen_monst, mon_pmname,
+} from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
 import { add_to_minv, update_inventory } from './invent.js';
@@ -51,6 +54,7 @@ import { attacktype, levl_follower } from './mondata.js';
 import { monnear } from './monmove.js';
 import { restore_cham } from './mon.js';
 import { m_at, mon_track_clear, remove_monster } from './monst.js';
+import { livelog_printf } from './pline.js';
 import {
     AT_WEAP,
     M1_AMORPHOUS,
@@ -86,7 +90,8 @@ import {
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
-import { donameFresh } from './objnam.js';
+import { an, donameFresh } from './objnam.js';
+import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
 import { mksobj, unknow_object } from './obj.js';
 import {
@@ -189,6 +194,16 @@ export function initedog(monster, everything = true, env = {}) {
         Math.trunc(state.moves ?? 0) + 1000,
     );
     state.u.uconduct ??= {};
+    // C deliberately excludes the startup pet: initedog() runs before the
+    // move loop starts. Later taming paths record the first pet before the
+    // conduct counter advances.
+    if (!state.u.uconduct.pets && state.program_state?.in_moveloop) {
+        livelog_printf(
+            LL_CONDUCT,
+            `obtained ${genders[state.flags?.female ? 1 : 0].his} first pet (${an(mon_pmname(monster, state))})`,
+            state,
+        );
+    }
     state.u.uconduct.pets = Math.trunc(state.u.uconduct.pets ?? 0) + 1;
     return monster;
 }

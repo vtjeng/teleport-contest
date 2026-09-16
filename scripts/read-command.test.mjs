@@ -22,6 +22,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     GETOBJ_PROMPT,
+    LL_CONDUCT,
     OBJ_FLOOR,
     ROOMOFFSET,
     ROWNO,
@@ -384,6 +385,10 @@ test('an ordinary enchant-weapon scroll raises the wielded weapon', async () => 
     assert.equal(game.uwep?.spe, 2);
     assert.equal(game.objects[SCR_ENCHANT_WEAPON].oc_name_known, 1);
     assert.equal(game.u.uconduct.literate, 1);
+    assert.ok(game.gamelog.some((entry) => (
+        entry.flags === LL_CONDUCT
+        && entry.text === 'became literate by reading a scroll'
+    )));
     assert.equal(game.moves, 4);
     assert.equal(game.nhDisplay.toplines,
         'Your quarterstaff glows blue for a moment.');

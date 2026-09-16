@@ -72,6 +72,8 @@ import {
     W_SADDLE,
     HALLUC,
     HALLUC_RES,
+    LL_ACHIEVE,
+    LL_DEBUG,
     is_hole,
     plur,
     something,
@@ -84,6 +86,7 @@ import { next_to_u } from './apply_next_to_u.js';
 import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
 import {
     check_gold_symbol,
+    describe_level,
     docrt,
     flush_screen,
     newsym,
@@ -121,6 +124,7 @@ import {
 import { more_experienced, newexplevel } from './exper.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
+import { livelog_printf } from './pline.js';
 import { dist2 } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
@@ -1737,9 +1741,18 @@ export async function goto_level(
     await temperature_change_msg(prev_temperature, state);
 
     if (isNew) {
-        // do.c:1944-1953 describe_level() and livelog_printf(). The livelog is
-        // a file the port does not write, and describe_level()'s buffer has no
-        // other reader here, so neither reaches the screen.
+        // do.c:1944-1953. describe_level() supplies the branch-aware level
+        // string before the source's Tourist-only experience arm. livelog is
+        // also kept in the in-memory Chronicle by pline.c's canonical owner.
+        const levelIsEndgame = Boolean(state.astral_level
+            && u.uz?.dnum === state.astral_level.dnum);
+        const isAstral = Boolean(levelIsEndgame
+            && u.uz?.dlevel === state.astral_level.dlevel);
+        const levelIsQuest = Boolean(state.quest_dnum !== undefined
+            && u.uz?.dnum === state.quest_dnum);
+        const major = (levelIsEndgame && !isAstral) || levelIsQuest;
+        const dloc = describe_level(2, state);
+        livelog_printf(major ? LL_ACHIEVE : LL_DEBUG, `entered ${dloc}`, state);
         if (state.urole?.mnum === PM_TOURIST) {
             // do.c:1961-1964. A Tourist alone is paid for sightseeing. Both
             // calls run after docrt() and flush_screen(-1) above, so neither
