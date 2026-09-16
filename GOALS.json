@@ -53094,7 +53094,7 @@
     {
       "id": "div-wiz-intrinsic-blind-timeout-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Use the blindness timeout owner for wizard intrinsic changes",
       "cFile": "wizcmds.c",
       "sessions": [],
@@ -53103,8 +53103,8 @@
       "spans": [
         {
           "name": "wizard-blindness-timeout",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "bd5bd75d5589afb23b89f09891596e7d53578dda",
           "functions": [
             "wiz_intrinsic",
             "make_blinded"
@@ -53117,8 +53117,11 @@
         "screens": 10319,
         "rng": 756143
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "function": "wiz_intrinsic",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1094,
@@ -53222,7 +53225,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+        "screens": 10321,
+        "rng": 756143
+      }
     }
   ]
 }
