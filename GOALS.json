@@ -55858,28 +55858,28 @@
           "line": 5157,
           "endLine": 5228,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "accept_newcham_form",
           "line": 5229,
           "endLine": 5255,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mgender_from_permonst",
           "line": 5256,
           "endLine": 5277,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "newcham",
           "line": 5278,
           "endLine": 5545,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -56051,7 +56051,222 @@
         "screens": 10539,
         "rng": 759996
       },
-      "parkedReason": "Preserved combined candidate d3625bdc64e51c8d65304cc7e985720cf0c6e556 on codex/B15-pending-20260916 while worker B completes source-ordered fill_zoo and post-finalization makemon continuation. Resume when the corrected delivery is ready; active wizard-control, revival, restoration and special-level entry recordings also remain incomplete. Measure ready make_blinded independently first."
+      "parkedReason": "Preserved combined candidate d3625bdc64e51c8d65304cc7e985720cf0c6e556 on codex/B15-pending-20260916 while worker B completes source-ordered fill_zoo and post-finalization makemon continuation. Resume when the corrected delivery is ready; active wizard-control, revival, restoration and special-level entry recordings also remain incomplete. Measure ready make_blinded independently first.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "select_newcham_form",
+            "implementation": "js/mon.js",
+            "symbol": "select_newcham_form",
+            "sourceReview": "Read mon.c:5157-5225 in full. Species-specific Sandestin, doppelganger, chameleon, controlled-vampire, wizard-control, worn dragon armor, Rogue uppercase retry, and random fallback branches are source ordered. The caller performs wizard mon_polycontrol after this selector even when a species-specific selection was produced, preserving the source prompt and RNG order.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c newcham calls select_newcham_form before wizard control, acceptance and application."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c makemon() reaches newcham_initial() before allowMinvent and therefore the shared selector/acceptance path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          },
+          {
+            "name": "accept_newcham_form",
+            "implementation": "js/mon.js",
+            "symbol": "accept_newcham_form",
+            "sourceReview": "Read mon.c:5229-5253 in full. This function only evaluates catalog, genocide, placeholder, player-monster, shapeshifter and polyok predicates and returns the accepted form. It makes no RNG call, output or state mutation, so it is pure; source-pinned accepted and rejected cases cover its result.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c newcham validates each selected form before retrying or applying it."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c makemon() reaches newcham_initial() before allowMinvent and therefore the shared selector/acceptance path."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          },
+          {
+            "name": "mgender_from_permonst",
+            "implementation": "js/mon.js",
+            "symbol": "mgender_from_permonst",
+            "sourceReview": "Read mon.c:5254-5273 in full. Fixed-gender and neuter cases precede the conditional rn2(10) flip; the flip is suppressed for both vampire species and all vampire shifters including Vlad. The JS predicate and draw order match C.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "apply_newcham_steps",
+                "source": "mon.c newcham calls mgender_from_permonst before HP scaling and set_mon_data."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          },
+          {
+            "name": "newcham",
+            "implementation": "js/mon.js",
+            "symbol": "newcham",
+            "sourceReview": "Read mon.c:5278-5534 in full. The implementation captures old names before selection, evaluates species selection and wizard control in source order, accepts and applies the form, scales HP, updates canonical mondata, handles light/invisibility, yields canonical mon.hideunder and display.swallowed, preserves unstuck/flooreffects ordering, updates worm state and visibility, emits source-ordered messages, rechecks equipment, traverses inventory through saved successors, and returns the actual resolved Boolean. Production callers now await the hybrid Promise path, including Hell populatemaze descriptors, themed-room Mausoleum callbacks and fill loops, custom monster inventory, and special-object contents cleanup. Discarded-result source calls outside this span remain explicit note_unported gaps rather than substitute refusals or fire-and-forget work. Explicit discarded-call gaps are apply.c m_unleash, weapon.c possibly_unwield, worn.c mon_break_armor, trap.c mselftouch and steed.c poly_steed; the async unstuck/flooreffects calls consume canonical completed results. Canonical hideunder clears obsolete mundetected for an ordinary new form and uses the shape caller's redraw owner. The species allowlist refusal in distress was removed after the full family became available. Post-topology room filling preserves in_mklev=false and awaits the canonical runtime appearance/redraw/occupation tail before returning the created monster. Court throne completion precedes cell eligibility checks, and each cell completes before the next cell's source operations; helpers are initialized before any Promise continuation can use them.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham_distress",
+                "source": "mon.c distress handling reaches newcham with NC_SHOW_MSG; the JS wrapper awaits the result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham_initial",
+                "source": "makemon.c initial creation reaches newcham before allowMinvent; makemon propagates and awaits the resolved result."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "newcham_revival",
+                "source": "zap.c revive reaches the explicit-target transition and propagates its result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "normal_shape",
+                "source": "mon.c normal_shape restores a canceled shape and awaits newcham before cancellation and were/mimic continuation."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "vamp_shift",
+                "source": "monmove.c vampire relocation reaches the canonical async shape transition."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_monster",
+                "source": "sp_lev.c lspo_monster waits for the resolved create_monster result before custom inventory."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "montraits",
+                "source": "zap.c montraits waits for the resolved makemon_revival result before saved-trait replacement."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "fill_ordinary_room",
+                "source": "mklev.c fill_ordinary_room waits for makemon before its data check and later room generation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/mon-shape.test.mjs",
+              "scripts/mondata.test.mjs",
+              "scripts/topten.test.mjs",
+              "scripts/shapechange-async-callers.test.mjs",
+              "scripts/hellfill-level-loader.test.mjs",
+              "scripts/sp-lev-object.test.mjs",
+              "scripts/themeroom-fill.test.mjs",
+              "scripts/mkroom-shop.test.mjs",
+              "scripts/special-level.test.mjs",
+              "scripts/quest-levels.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          }
+        ],
+        "entryPointReview": "The central range selects select_newcham_form through newcham in C order; decide_to_shapeshift is reviewed supporting caller wiring. Two independent matching recordings reach initial doppelganger creation and later distress changes. All other active entry families below remain unrecorded, so only the span can close and the source goal must be parked. Registered special-level descriptor callers await creation, nested inventory and contents, room/map/region cleanup and finalization. A synthetic BEEHIVE test marks a bee as a shapechanger to force delayed selection through the actual caller chain; it establishes callback ordering, not a C-valid bee entry. A separate unmodified-species Court regression reaches valid post-topology creation and verifies retained monster pointers, ruler sleep, hostile subjects, runtime redraws and completion flags. Canonical concealment is checked through a hidden eel changing to a sewer rat with exact RNG and redraw order.",
+        "entryPoints": [
+          {
+            "name": "regular doppelganger distress shapechange",
+            "functions": [
+              "select_newcham_form",
+              "accept_newcham_form",
+              "mgender_from_permonst",
+              "newcham"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ]
+          },
+          {
+            "name": "initial doppelganger form selection and application",
+            "functions": [
+              "select_newcham_form",
+              "accept_newcham_form",
+              "mgender_from_permonst",
+              "newcham"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ]
+          },
+          {
+            "name": "wizard-controlled form selection during creation",
+            "functions": [
+              "select_newcham_form",
+              "accept_newcham_form",
+              "mgender_from_permonst",
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "revival and explicit-target shape transition",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "restoration and cancellation shape transition",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "special-level and themed-room monster creation",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "post-topology special-room monster creation",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     },
     {
       "id": "port-potion-make-blinded-seed4500-20260916",

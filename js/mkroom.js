@@ -685,6 +685,7 @@ export function fill_zoo(sroom, env = {}) {
     let tx = 0;
     let ty = 0;
     let goldlim = 0;
+    let pendingThroneMonster = null;
     if (type === ZOO) {
         goldlim = 500 * level_difficulty(state);
     } else if (type === COURT) {
@@ -695,10 +696,7 @@ export function fill_zoo(sroom, env = {}) {
         } while (occupied(throne.x, throne.y, state) && --remaining > 0);
         tx = throne.x;
         ty = throne.y;
-        const maybeThroneMonster = mk_zoo_thronemon(tx, ty, normalized);
-        if (maybeThroneMonster && typeof maybeThroneMonster.then === 'function') {
-            return maybeThroneMonster.then(() => fillZooCells());
-        }
+        pendingThroneMonster = mk_zoo_thronemon(tx, ty, normalized);
     } else if (type === BEEHIVE) {
         // C ref: fill_zoo() lines 305-316. Center of the room; irregular rooms
         // relocate the queen when the center is outside the room.
@@ -721,15 +719,8 @@ export function fill_zoo(sroom, env = {}) {
     // Keep the source's cell and post-monster item order when makemon's
     // shapechange continuation yields.  The common case remains synchronous,
     // so existing direct callers retain the C-shaped return behavior.
-    const cells = [];
-    for (let x = sroom.lx; x <= sroom.hx; ++x) {
-        for (let y = sroom.ly; y <= sroom.hy; ++y) {
-            if (!courtCellIsFillable(sroom, x, y, state)) continue;
-            // C ref: line 342 — skip an explicitly placed throne (COURT only).
-            if (type === COURT && state.level.at(x, y).typ === THRONE) continue;
-            cells.push({ x, y });
-        }
-    }
+    let nextX = sroom.lx;
+    let nextY = sroom.ly;
 
     const finishCell = (x, y, monster) => {
         if (monster && type === COURT && monster.mpeaceful) {
@@ -768,9 +759,17 @@ export function fill_zoo(sroom, env = {}) {
         }
     };
 
-    const fillZooCells = (index = 0) => {
-        while (index < cells.length) {
-            const { x, y } = cells[index];
+    const fillZooCells = () => {
+        while (nextX <= sroom.hx) {
+            const x = nextX;
+            const y = nextY;
+            if (++nextY > sroom.hy) {
+                nextY = sroom.ly;
+                ++nextX;
+            }
+            if (!courtCellIsFillable(sroom, x, y, state)) continue;
+            // Check each cell in source order after the previous monster.
+            if (type === COURT && state.level.at(x, y).typ === THRONE) continue;
             // C ref: lines 344-361 — type-specific monster selection.
             // ZOO passes null: makemon picks a random monster.
             const species = type === COURT
@@ -791,15 +790,13 @@ export function fill_zoo(sroom, env = {}) {
                 MM_ASLEEP | MM_NOGRP,
                 normalized,
             );
-            const next = (monster) => {
-                finishCell(x, y, monster);
-                return fillZooCells(index + 1);
-            };
-            if (maybeMonster && typeof maybeMonster.then === 'function')
-                return maybeMonster.then(next);
-            const result = next(maybeMonster);
-            if (result && typeof result.then === 'function') return result;
-            return result;
+            if (maybeMonster && typeof maybeMonster.then === 'function') {
+                return maybeMonster.then((monster) => {
+                    finishCell(x, y, monster);
+                    return fillZooCells();
+                });
+            }
+            finishCell(x, y, maybeMonster);
         }
 
         // C ref: fill_zoo() lines 420-451 — post-loop, type-specific finalization.
@@ -838,7 +835,9 @@ export function fill_zoo(sroom, env = {}) {
         }
     };
 
-    return fillZooCells();
+    return pendingThroneMonster
+        && typeof pendingThroneMonster.then === 'function'
+        ? pendingThroneMonster.then(fillZooCells) : fillZooCells();
 }
 
 // C ref: mkroom.c shrine_pos(). Returns the center of a room, adjusted
