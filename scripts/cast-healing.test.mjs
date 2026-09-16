@@ -31,7 +31,7 @@ import {
 import { acurr } from '../js/attrib.js';
 import { morehungry } from '../js/eat.js';
 import { can_chant } from '../js/mondata.js';
-import { healup, UnsupportedPotionError } from '../js/potion.js';
+import { healup } from '../js/potion.js';
 import { game } from '../js/gstate.js';
 import { formatReport } from './diff-fresh.mjs';
 import {
@@ -255,11 +255,10 @@ test('healup leaves extrinsic blindfold blindness in place', async () => {
     assert.equal(state.disp.botl, true);
 });
 
-test('healup keeps timed blindness behind the make_blinded boundary', async () => {
-    // potion.c healup() clears a BLINDED timeout through make_blinded(), whose
-    // remaining transition branches retain their existing refusal. Permanent intrinsic blindness uses FROMOUTSIDE rather
-    // than TIMEOUT and therefore does not enter this branch. Use TIMEOUT's
-    // highest bit so the test rejects a check that reads only the low bit.
+test('healup clears timed blindness through make_blinded', async () => {
+    // potion.c healup() clears a BLINDED timeout through make_blinded(). The
+    // probe distinguishes timed blindness from permanent blindness, and the
+    // final set_itimeout() removes only timeout bits.
     const highTimeoutBit = 1 << 23;
     const timed = {
         u: {
@@ -274,10 +273,8 @@ test('healup keeps timed blindness behind the make_blinded boundary', async () =
         disp: {},
     };
 
-    await assert.rejects(
-        () => healup(0, 0, false, true, timed),
-        (error) => error instanceof UnsupportedPotionError,
-    );
+    await healup(0, 0, false, true, timed);
+    assert.equal(timed.u.uprops[BLINDED].intrinsic, 0);
 
     const ordinaryTimed = {
         u: {
@@ -288,10 +285,8 @@ test('healup keeps timed blindness behind the make_blinded boundary', async () =
         },
         disp: {},
     };
-    await assert.rejects(
-        () => healup(0, 0, false, true, ordinaryTimed),
-        (error) => error instanceof UnsupportedPotionError,
-    );
+    await healup(0, 0, false, true, ordinaryTimed);
+    assert.equal(ordinaryTimed.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
 
     const permanent = {
         u: {
@@ -317,10 +312,8 @@ test('healup keeps timed blindness behind the make_blinded boundary', async () =
         },
         disp: {},
     };
-    await assert.rejects(
-        () => healup(0, 0, false, true, mixed),
-        (error) => error instanceof UnsupportedPotionError,
-    );
+    await healup(0, 0, false, true, mixed);
+    assert.equal(mixed.u.uprops[BLINDED].intrinsic, FROMOUTSIDE);
 });
 
 // ── spelleffects_check uses A_INT, not A_DEX ────────────────────────────────
