@@ -5,7 +5,9 @@ import {
     COULD_SEE,
     FORCETRAP,
     IN_SIGHT,
+    MAX_NUM_WORMS,
     PIT,
+    TT_PIT,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
     Trap_Killed_Mon,
@@ -444,37 +446,51 @@ test('a wielded cockatrice corpse stops the fall', async () => {
     assert.equal(await mintrap(egg.mon, 0, pitEnv([4])), Trap_Caught_Mon);
 });
 
-// trap.c trapeffect_pit():1975. The worm term is worm.c count_wsegs(), which
-// is not ported; C reads it only for a grounded monster, so the clinger above
-// keeps walking over the pit whatever its wormno says.
-test('a long worm stops where C would count its segments', async () => {
+// trap.c trapeffect_pit():1975-1986. The grounded worm term uses the same
+// avoidance/forced/Sokoban branch as an airborne victim. count_wsegs() reads
+// the real worm segment slot; a worm number without a slot has zero segments.
+test('the pit worm branch follows the source segment count', async () => {
     await hero();
-    const { mon } = victimInPit(PM_JACKAL, 9, { wormno: 3 });
-    await refusesAsync(
-        () => mintrap(mon, 0, pitEnv([4])), 'a long worm falling into a pit',
-    );
+    game.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    const short = victimInPit(PM_JACKAL, 9, { wormno: 3 });
+    assert.equal(await mintrap(short.mon, 0, pitEnv([4])), Trap_Caught_Mon);
+    assert.deepEqual(short.trap.tseen, true);
+    assert.deepEqual(short.mon.mhp, 5);
 
-    const clinger = victimInPit(PM_ROCK_PIERCER, 9, { wormno: 3 });
+    // C's hidden co-located head is the final entry, so seven entries make
+    // six counted segments and take the shared falling branch.
+    game.level.worms[3] = {
+        segments: Array.from({ length: 7 }, () => ({ x: 0, y: 0 })),
+    };
+    const long = victimInPit(PM_JACKAL, 9, { wormno: 3 });
     assert.equal(
-        await mintrap(clinger.mon, 0, pitEnv()), Trap_Effect_Finished,
+        await mintrap(long.mon, 0, pitEnv()), Trap_Effect_Finished,
     );
+    assert.equal(long.mon.mhp, 9);
+    assert.equal(long.mon.mtrapped, false);
+    assert.equal(long.trap.tseen, false);
 });
 
-// trap.c trapeffect_pit():1835. dotrap() cannot reach a pit -- js/hack.js
-// refuses the hero's move onto one before it happens -- so this arm is only
-// reachable through trapeffect_selector() itself, and it must stop before the
-// hero arm sets u.utrap or spends rn1(6, 2).
-test('the hero arm of the pit refuses', async () => {
+// trap.c trapeffect_pit():1835-1959. The direct selector test pins the source
+// timer, damage and fall message while the fresh hero recording covers the
+// production dotrap() route.
+test('the hero pit arm sets its timer and takes pit damage', async () => {
     await hero();
     const trap = { tx: game.u.ux, ty: game.u.uy, ttyp: PIT, tseen: false };
-    const env = pitEnv();
-    await refusesAsync(
-        () => trapeffect_selector(game.youmonst, trap, 0, env),
-        'a hero falling into a pit',
+    const hp = game.u.uhp;
+    const env = pitEnv([2, 4]);
+    assert.equal(
+        await trapeffect_selector(game.youmonst, trap, 0, env),
+        Trap_Effect_Finished,
     );
-    assert.equal(game.u.utrap, 0, 'no hero trap timer');
-    assert.deepEqual(env.bounds, []);
-    assert.deepEqual(env.lines, []);
+    assert.equal(game.u.utraptype, TT_PIT);
+    assert.equal(game.u.utrap, 4, 'rn1(6, 2) sets the pit timer');
+    assert.equal(game.u.uhp, hp - 4, 'rnd(6) applies fall damage');
+    assert.deepEqual(env.bounds, [
+        'rn1(6,2)', 'rnd(6)', 'rn2(2)', 'rn2(2)',
+    ]);
+    assert.deepEqual(env.lines, ['You fall into a pit!']);
+    assert.equal(trap.tseen, true, 'feeltrap() marks the trap known');
 });
 
 // mon.c copy_mextra() (2596-2646). Its live caller is save_mtraits(), which

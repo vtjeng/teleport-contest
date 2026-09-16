@@ -5,7 +5,8 @@
 // trapeffect_bear_trap(), trapeffect_slp_gas_trap(),
 // mselftouch(), trapeffect_pit(), trapeffect_telep_trap(), trapeffect_web(),
 // trapeffect_statue_trap(), trapeffect_magic_trap(),
-// trapeffect_rolling_boulder_trap(),
+// trapeffect_rolling_boulder_trap(), trapeffect_landmine(),
+// blow_up_landmine(),
 // launch_drop_spot(), launch_obj(), trapeffect_selector(), dotrap(), mintrap().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
@@ -32,8 +33,10 @@ import {
     DISP_END,
     DISP_FLASH,
     D_CLOSED,
+    D_BROKEN,
     D_LOCKED,
     DOOR,
+    DRAWBRIDGE_DOWN,
     FAILEDUNTRAP,
     FIRE_TRAP,
     FIRE_RES,
@@ -55,6 +58,8 @@ import {
     In_quest,
     KILLED_BY,
     KILLED_BY_AN,
+    NO_KILLER_PREFIX,
+    NOTELL,
     LANDMINE,
     LAUNCH_KNOWN,
     LAUNCH_UNSEEN,
@@ -67,6 +72,8 @@ import {
     PIT,
     POLY_TRAP,
     RIGHT_SIDE,
+    RECURSIVETRAP,
+    ROOM,
     ROCKTRAP,
     ROLL,
     ROLLING_BOULDER_TRAP,
@@ -84,6 +91,7 @@ import {
     TOOKPLUNGE,
     TRAPDOOR,
     TT_BEARTRAP,
+    TT_PIT,
     TT_WEB,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
@@ -105,17 +113,23 @@ import {
     W_ARMU,
     W_SWAPWEP,
     W_WEP,
+    IS_DOOR,
+    WT_ELF,
     has_mgivenname,
     helpless,
     is_hole,
     is_pit,
     isok,
+    undestroyable_trap,
     u_at,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
+import { placebc, unplacebc } from './ball.js';
 import { acurr, exercise, poisoned } from './attrib.js';
 import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
+import { del_engr_at } from './engrave.js';
+import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
 import {
     at_dgn_entrance,
     Can_fall_thru,
@@ -130,16 +144,24 @@ import {
 } from './do_name.js';
 import { game } from './gstate.js';
 import { setmangry } from './mon.js';
-import { dist2, distmin, sgn } from './hacklib.js';
+import { dist2, distmin, sgn, upstart } from './hacklib.js';
 import {
     UnsupportedHeroMoveBoundaryError,
     curs_on_u,
     losehp,
     nh_delay_output,
     nomul,
+    spot_checks,
     u_locomotion,
 } from './hack.js';
 import { done } from './end.js';
+import {
+    SCATTER_MAY_DESTROY,
+    SCATTER_MAY_FRACTURE,
+    SCATTER_MAY_HIT,
+    SCATTER_VIS_EFFECTS,
+    scatter,
+} from './explode.js';
 import {
     obj_extract_self,
     obfree,
@@ -163,6 +185,7 @@ import {
     extra_nasty,
     flaming,
     grounded,
+    is_clinger,
     is_floater,
     is_flyer,
     is_neuter,
@@ -216,6 +239,7 @@ import {
     PM_PIT_FIEND,
     PM_PIT_VIPER,
     PM_PURPLE_WORM,
+    PM_RANGER,
     PM_STRAW_GOLEM,
     PM_TITANOTHERE,
     PM_WOOD_GOLEM,
@@ -229,6 +253,7 @@ import { ohitmon, thitu } from './mthrowu.js';
 import { splash_monster_light } from './apply_splash_lit.js';
 import {
     dealloc_obj,
+    carried,
     isCandle,
     mksobj,
     objectType,
@@ -253,6 +278,8 @@ import {
     OIL_LAMP,
     POT_OIL,
     ROCK,
+    SADDLE,
+    WAND_CLASS,
 } from './objects.js';
 import {
     an,
@@ -279,6 +306,9 @@ import {
     Flying,
     Levitation,
     deltrap,
+    fill_pit,
+    conjoined_pits,
+    adj_nonconjoined_pit,
     unconscious,
     reset_utrap,
     set_utrap,
@@ -286,6 +316,8 @@ import {
     trapname,
 } from './trap.js';
 import { mlevel_tele_trap, mtele_trap, tele_trap } from './teleport.js';
+import { resist } from './zap.js';
+import { Punished } from './steed.js';
 import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -717,10 +749,13 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         const otmp = t_missile(DART, trap, { ...env, objectEnv });
         if (!random.rn2(6)) otmp.opoisoned = true;
         const dam = dmgval(otmp, state.youmonst, state, { random });
-        // C 1276: u.usteed arm. preflight_dotrap() refuses when u.usteed is
-        // set, so this is unreachable here. The rn2(2) that C spends for
-        // steedintrap() does not fire because its guard (u.usteed) is false.
-        const hit = await thitu(
+        // C 1276: a mounted hero gives the dart to the steed on a successful
+        // one-in-two gate; steedintrap()'s return supplies that gate's value.
+        const steedHit = state.u.usteed && !random.rn2(2)
+            && await steedintrap(trap, otmp, { ...env, objectEnv });
+        if (steedHit) {
+            // nothing
+        } else if (await thitu(
             7,
             Maybe_Half_Phys(dam, state),
             otmp,
@@ -735,8 +770,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
                     { encumberMessage: (subject) => encumber_msg(subject) },
                 ),
             },
-        );
-        if (hit) {
+        )) {
             if (otmp) {
                 if (otmp.opoisoned) {
                     await poisoned(
@@ -1067,10 +1101,9 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
             await fall_asleep(-random.rnd(25), true, state, { message });
             monstunseesu(M_SEEN_SLEEP, state);
         }
-        // The return value is discarded. The mounted case is admitted only
-        // after preflight_dotrap() rejects it because steedintrap() is not
-        // ported, while an unmounted hero reaches C's no-op guard here.
-        note_unported('trap.c steedintrap');
+        // C discards steedintrap()'s return. An unmounted hero takes its
+        // no-op guard; a mounted hero gives the gas effect to its steed.
+        await steedintrap(trap, null, env);
     } else {
         const in_sight = canSeeMonster(mtmp, state)
             || mtmp === state.u?.usteed;
@@ -1114,26 +1147,264 @@ export function mselftouch(mon, _arg, _byplayer, env) {
         unsupported('a monster touching its wielded corpse');
 }
 
+// C ref: trap.c steedintrap() (3102-3159). The helper is shared by the hero
+// arms of dart, bear, magic and land mines, and trapeffect_pit() consumes its
+// non-zero result before applying damage to the rider. Keep the return value
+// separate from the monster result constants: C returns 1 for a hit steed and
+// Trap_Killed_Mon only when the steed dies.
+async function steedintrap(trap, otmp, env) {
+    const { state } = env;
+    const random = env.random;
+    const message = requireTrapOperation(env, 'message');
+    const steed = state.u?.usteed;
+
+    if (!steed || !trap) return Trap_Effect_Finished;
+    steed.mx = state.u.ux;
+    steed.my = state.u.uy;
+
+    let trapkilled = false;
+    let steedhit = false;
+    switch (trap.ttyp) {
+    case ARROW_TRAP:
+        if (!otmp) {
+            note_unported('trap.c impossible steed arrow');
+            return Trap_Effect_Finished;
+        }
+        trapkilled = await thitm(8, steed, otmp, 0, false, env);
+        steedhit = true;
+        break;
+    case DART_TRAP:
+        if (!otmp) {
+            note_unported('trap.c impossible steed dart');
+            return Trap_Effect_Finished;
+        }
+        trapkilled = await thitm(7, steed, otmp, 0, false, env);
+        steedhit = true;
+        break;
+    case SLP_GAS_TRAP:
+        if (!monster_resists_element(steed, SLEEP_RES, state)
+            && !breathless(steed.data) && !helpless(steed)
+            && sleep_monst(steed, random.rnd(25), -1, env)) {
+            await message(
+                `${capitalizedMonsterName(steed, state, env)} suddenly falls asleep!`,
+                state,
+                env,
+            );
+        }
+        steedhit = true;
+        break;
+    case LANDMINE:
+        trapkilled = await thitm(0, steed, null, random.rnd(16), false, env);
+        steedhit = true;
+        break;
+    case PIT:
+    case SPIKED_PIT:
+        trapkilled = steed.mhp < 1
+            || await thitm(
+                0,
+                steed,
+                null,
+                random.rnd(trap.ttyp === PIT ? 6 : 10),
+                false,
+                env,
+            );
+        steedhit = true;
+        break;
+    case POLY_TRAP:
+        if (!resists_magm(steed, state)
+            && !await resist(steed, WAND_CLASS, 0, NOTELL, state, random)) {
+            // C discards newcham()'s return. The general shape-changing path
+            // still needs inventory and attachment handling, so retain the
+            // explicit source gap while preserving the resistance draw.
+            note_unported('mon.c newcham steed');
+        }
+        steedhit = true;
+        break;
+    default:
+        break;
+    }
+
+    if (trapkilled) {
+        // C discards dismount_steed() here. Its poly-dismount body is not
+        // ported, so preserve the source call as an explicit boundary gap
+        // rather than raising after the steed's trap result is computed.
+        note_unported('steed.c dismount_steed DISMOUNT_POLY');
+        return Trap_Killed_Mon;
+    }
+    return steedhit ? 1 : 0;
+}
+
 // C ref: trap.c trapeffect_pit() (1824-2010), monster arm (1966-2008).
 //
-// The hero arm (1835-1965) stops the scan. preflight_dotrap() below already
-// refuses every trap type but BEAR_TRAP ahead of the hero's move, so nothing
-// reaches the stop here; it stands because trapeffect_selector() no longer
-// refuses PIT on the way in, and a hero arm that fell through would set
-// u.utrap and spend rn1(6, 2) with none of its messages written.
-//
-// trapeffect_selector() dispatches PIT here and still refuses SPIKED_PIT, so
-// C's `relevant_spikes` (1833) is always FALSE and is absent, together with
-// the two places that read it: the wearing_iron_shoes() test at 2001 that
-// clears it and the rnd(10) it would choose at 2003. Whoever ports SPIKED_PIT
-// restores all three.
+// trapeffect_selector() dispatches both PIT and SPIKED_PIT here. The selector's
+// hero preflight admits both trap types, and the complete monster arm and
+// source spike branches remain available to their respective callers.
 async function trapeffect_pit(mtmp, trap, trflags, env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
     const unsupported = requireTrapOperation(env, 'unsupported');
 
-    if (mtmp === state.youmonst) unsupported('a hero falling into a pit');
+    if (mtmp === state.youmonst) {
+        const plunged = (trflags & TOOKPLUNGE) !== 0;
+        const viasitting = (trflags & VIASITTING) !== 0;
+        const trapWithHero = t_at(state.u.ux0, state.u.uy0, state);
+        const conjPit = conjoined_pits(trap, trapWithHero, true, state);
+        const adjPit = adj_nonconjoined_pit(trap, state);
+        const alreadyKnown = Boolean(trap.tseen);
+        let deliberate = false;
+        let steedArticle = ARTICLE_THE;
+        const steed = state.u.usteed;
+
+        if (steed && has_mgivenname(steed) && !Hallucination(state))
+            steedArticle = ARTICLE_NONE;
+
+        // KMH -- You can't escape the Sokoban level traps.
+        const sokoban = Boolean(state.level?.flags?.sokoban_rules);
+        if (!sokoban && (Levitation(state)
+            || (Flying(state) && !plunged && !viasitting)))
+            return Trap_Effect_Finished;
+
+        feeltrap(trap, env);
+        if (!sokoban && is_clinger(state.youmonst.data) && !plunged) {
+            if (alreadyKnown) {
+                await message(
+                    `${heroIsBlind(state) ? 'You sense' : 'You see'} `
+                        + `${a_your[trap.madeby_u ? 1 : 0]} ${trap.ttyp === SPIKED_PIT
+                            ? 'spiked ' : ''}pit below you.`,
+                    state,
+                    env,
+                );
+            } else {
+                await message(
+                    `${A_Your[trap.madeby_u ? 1 : 0]} pit ${trap.ttyp === SPIKED_PIT
+                        ? 'full of spikes ' : ''}opens up under you!`,
+                    state,
+                    env,
+                );
+                await message("You don't fall in!", state, env);
+            }
+            return Trap_Effect_Finished;
+        }
+
+        if (!sokoban) {
+            let verbbuf = '';
+            if (steed) {
+                if ((trflags & RECURSIVETRAP) !== 0) {
+                    verbbuf = `and ${x_monnam(steed, steedArticle, null,
+                        SUPPRESS_SADDLE, false, state, env)} fall`;
+                } else {
+                    verbbuf = `lead ${x_monnam(steed, steedArticle, 'poor',
+                        SUPPRESS_SADDLE, false, state, env)}`;
+                }
+            } else if (state.iflags?.menu_requested && alreadyKnown) {
+                await message(
+                    `You carefully ${u_locomotion('lower yourself', state)} into the pit.`,
+                    state,
+                    env,
+                );
+                deliberate = true;
+            } else if (conjPit) {
+                await message('You move into an adjacent pit.', state, env);
+            } else if (adjPit) {
+                const between = !random.rn2(5) ? ' between the pits' : '';
+                await message(`You stumble over debris${between}.`, state, env);
+            } else {
+                verbbuf = !plunged ? 'fall' : (Flying(state) ? 'dive' : 'plunge');
+            }
+            if (verbbuf)
+                await message(`You ${verbbuf} into ${a_your[trap.madeby_u ? 1 : 0]} pit!`, state, env);
+        }
+
+        // Wumpus reference. Is_qlocate() is on_level() against the quest's
+        // locate level in this port; `trap.once` is C's one-shot latch.
+        if (state.urole?.mnum === PM_RANGER
+            && !trap.madeby_u && !trap.once && In_quest(state.u.uz)
+            && on_level(state.u.uz, state.qlocate_level)) {
+            await message('Fortunately it has a bottom after all...', state, env);
+            trap.once = true;
+        } else if (state.u.umonnum === PM_PIT_VIPER
+            || state.u.umonnum === PM_PIT_FIEND) {
+            await message("How pitiful.  Isn't that the pits?", state, env);
+        }
+
+        let relevantSpikes = trap.ttyp === SPIKED_PIT;
+        if (relevantSpikes && wearing_iron_shoes(mtmp, state)) {
+            await message(
+                `${Yname2(state.uarmf, state)} protects you from the sharp iron spikes.`,
+                state,
+                env,
+            );
+            relevantSpikes = false;
+        } else if (relevantSpikes) {
+            const predicament = 'on a set of sharp iron spikes';
+            if (steed) {
+                await message(`${upstart(x_monnam(steed, steedArticle, 'poor',
+                    SUPPRESS_SADDLE, false, state, env))} ${conjPit ? 'steps' : 'lands'} ${predicament}!`, state, env);
+            } else {
+                await message(`You ${conjPit ? 'step' : 'land'} ${predicament}!`, state, env);
+            }
+        }
+
+        set_utrap(random.rn1(6, 2), TT_PIT, state);
+        // C's return-valued helper is ported above; a zero result means the
+        // steed did not absorb this trap's damage.
+        if (!(await steedintrap(trap, null, env))) {
+            if (relevantSpikes) {
+                const oldumort = state.u.umortality ?? 0;
+                const spikeDamage = random.rnd(conjPit ? 4 : adjPit ? 6 : 10);
+                await losehp(
+                    Maybe_Half_Phys(spikeDamage, state),
+                    plunged ? 'deliberately plunged into a pit of iron spikes'
+                        : (conjPit || deliberate) ? 'stepped into a pit of iron spikes'
+                            : adjPit ? 'stumbled into a pit of iron spikes'
+                                : 'fell into a pit of iron spikes',
+                    NO_KILLER_PREFIX,
+                    state,
+                    env,
+                );
+                if (!random.rn2(6)) {
+                    const poisonDamage = (state.u.umortality ?? 0) > oldumort ? 0 : 8;
+                    await poisoned('spikes', A_STR,
+                        (conjPit || adjPit || deliberate)
+                            ? 'stepping on poison spikes' : 'fall onto poison spikes',
+                        poisonDamage, false, state, {
+                            ...env,
+                            message: (text) => message(text, state),
+                            losehp: (amount, killer, format) =>
+                                losehp(amount, killer, format, state),
+                            done: (how) => done(how, state),
+                            encumberMessage: (subject) => encumber_msg(subject),
+                        });
+                }
+            } else if (!conjPit && !deliberate
+                && !(plunged && (Flying(state) || is_clinger(state.youmonst.data)))) {
+                await losehp(
+                    Maybe_Half_Phys(random.rnd(adjPit ? 3 : 6), state),
+                    plunged ? 'deliberately plunged into a pit' : 'fell into a pit',
+                    NO_KILLER_PREFIX,
+                    state,
+                    env,
+                );
+            }
+            // ball.c's three calls have no JavaScript ballfall counterpart;
+            // preserve source order while recording only the missing middle
+            // operation; all three calls have discarded return values.
+            if (Punished(state) && !carried(state.uball)) {
+                unplacebc(state);
+                note_unported('ball.c ballfall after pit');
+                placebc(state);
+            }
+            if (!conjPit) note_unported('trap.c selftouch');
+            state.vision_full_recalc = 1;
+            const exerciseEnv = {
+                encumberMessage: (subject) => encumber_msg(subject),
+            };
+            await exercise(A_STR, false, state, random, exerciseEnv);
+            await exercise(A_DEX, false, state, random, exerciseEnv);
+        }
+        return Trap_Effect_Finished;
+    }
 
     const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
     const forcetrap = (trflags & FORCETRAP) !== 0;
@@ -1142,20 +1413,19 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
     const mptr = mtmp.data;
     let fallverb = 'falls';
 
-    const airborne = !grounded(mptr, state);
-    // C ref: trap.c:1975. C reads the worm term only when the monster is on
-    // the ground, and worm.c count_wsegs() is not ported, so the stop sits
-    // exactly where C would call it rather than at the top of the arm.
-    if (!airborne && mtmp.wormno)
-        unsupported('a long worm falling into a pit');
-    if (airborne) {
+    // C ref: trap.c:1975. The airborne and long-worm terms share one
+    // avoidance/forced/Sokoban branch; count_wsegs() is source-faithful in
+    // makemon_create.js and is evaluated only when wormno is nonzero.
+    const falling = !grounded(mptr, state)
+        || (mtmp.wormno && count_wsegs(mtmp, state) > 5);
+    if (falling) {
         if (forcetrap && !sokoban) {
             /* openfallingtrap; not inescapable here */
             if (in_sight) {
                 seetrap(trap, env);
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(mtmp, state)} doesn't fall`
+                        `${capitalizedMonsterName(mtmp, state, env)} doesn't fall`
                         + ' into the pit.',
                         mtmp.mx,
                         mtmp.my,
@@ -1178,7 +1448,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
     if (in_sight) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mtmp, state)} ${fallverb} into`
+                `${capitalizedMonsterName(mtmp, state, env)} ${fallverb} into`
                 + ` ${a_your[trap.madeby_u ? 1 : 0]} pit!`,
                 mtmp.mx,
                 mtmp.my,
@@ -1193,10 +1463,14 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         seetrap(trap, env);
     }
     mselftouch(mtmp, 'Falling, ', false, env);
+    let relevantSpikes = trap.ttyp === SPIKED_PIT;
+    if (wearing_iron_shoes(mtmp, state))
+        relevantSpikes = false;
     // C ref: trap.c:2002-2004. The damage roll is thitm()'s argument, so a
-    // monster mselftouch() already killed spends no rnd(6).
+    // monster mselftouch() already killed spends no damage roll. Iron shoes
+    // make a spiked pit use the ordinary pit damage die.
     const trapkilled = mtmp.mhp < 1 /* DEADMONSTER() */
-        || await thitm(0, mtmp, null, random.rnd(6), false, env);
+        || await thitm(0, mtmp, null, random.rnd(relevantSpikes ? 10 : 6), false, env);
 
     return trapkilled ? Trap_Killed_Mon
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
@@ -1668,9 +1942,6 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 // branch, and otherwise dispatches to domagictrap(). The 1/30 explosion
 // branch calls deltrap() and is refused.
 //
-// steedintrap() at line 2313 is effectively dead: preflight_dotrap() refuses
-// mounted heroes before the trap fires, so u.usteed is always null here.
-//
 async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
@@ -1687,9 +1958,9 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
         } else {
             await domagictrap(env);
         }
-        // C line 2313: (void) steedintrap(trap, (struct obj *) 0);
-        // preflight_dotrap() refuses mounted heroes, so u.usteed is null and
-        // steedintrap() would return 0 without side effects.
+        // C line 2313 discards steedintrap()'s return. An unmounted hero
+        // takes its no-op guard; a mounted hero gives the effect to its steed.
+        await steedintrap(trap, null, env);
         return Trap_Effect_Finished;
     }
     // C:2315-2317. Monsters usually resist magic traps; a zero roll turns the
@@ -2627,19 +2898,277 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
 }
 
+// C ref: trap.c blow_up_landmine() (3170-3219). The explosion's scatter and
+// liquid-flow item/monster effects belong to explode.c, dig.c and apply.c;
+// this caller owns the terrain, trap, engraving, wake-up and vision effects
+// that follow the discarded calls in C.
+export async function blow_up_landmine(trap, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const x = trap.tx;
+    const y = trap.ty;
+    const location = state.level?.at?.(x, y);
+    if (!location) return;
+
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const oldTyp = location.typ;
+
+    // C discards scatter()'s return value. Its side effects are fully ported,
+    // so keep the call (including its random and object hooks) in source order.
+    await scatter(
+        x,
+        y,
+        4,
+        SCATTER_MAY_DESTROY | SCATTER_MAY_HIT | SCATTER_MAY_FRACTURE
+            | SCATTER_VIS_EFFECTS,
+        null,
+        state,
+        {
+            ...env,
+            random,
+            // explode.c scatter() reads `newsym`; the planning env exposes
+            // the same redraw operation under that seam.
+            newsym: env.newsym ?? env.redraw
+                ?? ((rx, ry) => newsym(rx, ry, state)),
+        },
+    );
+    del_engr_at(x, y, state);
+    await wake_nearto(x, y, 400, env);
+
+    if (IS_DOOR(location.typ))
+        location.doormask = D_BROKEN;
+
+    // destroy_drawbridge() still has no implementation. C discards its
+    // result, so record the call only after the source lookup succeeds.
+    if (location.typ === DRAWBRIDGE_DOWN
+        || is_drawbridge_wall(x, y, state) >= 0) {
+        const bridge = { x, y };
+        if (find_drawbridge(bridge, state))
+            note_unported('dbridge.c destroy_drawbridge');
+    }
+
+    const remaining = t_at(x, y, state);
+    if (remaining) {
+        const level = state.u?.uz;
+        const waterLevel = state.water_level;
+        const airLevel = state.air_level;
+        const isWaterLevel = Boolean(level && waterLevel
+            && level.dnum === waterLevel.dnum
+            && level.dlevel === waterLevel.dlevel);
+        const isAirLevel = Boolean(level && airLevel
+            && level.dnum === airLevel.dnum
+            && level.dlevel === airLevel.dlevel);
+        if (isWaterLevel || isAirLevel) {
+            // C calls deltrap() here and discards its result. deltrap() is
+            // complete for ordinary levels and the trap is gone in either
+            // water or air, matching the source.
+            deltrap(remaining, state);
+        } else {
+            // fillholetyp() is a shared source helper. Keep this lazy import
+            // to avoid pulling dig.c's monmove edge into this module cycle.
+            const { fillholetyp } = await import('./dig.js');
+            const typ = fillholetyp(x, y, false, state, { rn2: random.rn2 });
+            if (typ !== ROOM) {
+                location.typ = typ;
+                // liquid_flow()'s return is discarded by C. Its item and
+                // monster damage effects are not ported, so record and skip
+                // that callee without inventing a trap deletion or message.
+                note_unported('dig.c liquid_flow');
+            } else {
+                remaining.ttyp = PIT;
+                remaining.madeby_u = false;
+                seetrap(remaining, {
+                    ...env,
+                    redraw: env.redraw ?? ((rx, ry) => newsym(rx, ry, state)),
+                });
+            }
+        }
+    }
+
+    fill_pit(x, y, state);
+    // C discards maybe_dunk_boulders(); the helper remains unported.
+    note_unported('apply.c maybe_dunk_boulders');
+    recalc_block_point(x, y, state);
+    spot_checks(x, y, oldTyp, state, env);
+}
+
+// C ref: trap.c trapeffect_landmine() (2527-2658). The hero and monster arms
+// share the damage roll and then follow their source-specific trigger paths.
+export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const message = requireTrapOperation(env, 'message');
+    const damageBase = random.rnd(16);
+    const damage = wearing_iron_shoes(mtmp, state)
+        ? Math.trunc((damageBase + 3) / 4) : damageBase;
+
+    if (mtmp === state.youmonst) {
+        let steedMid = 0;
+        let saddle = null;
+        const alreadySeen = Boolean(trap.tseen);
+        const forcetrap = (trflags & FORCETRAP) !== 0
+            || (trflags & FAILEDUNTRAP) !== 0;
+        const forcebungle = (trflags & FORCEBUNGLE) !== 0;
+
+        if ((Levitation(state) || Flying(state)) && !forcetrap) {
+            if (!alreadySeen && random.rn2(3))
+                return Trap_Effect_Finished;
+            feeltrap(trap, env);
+            await message(
+                `${alreadySeen ? 'There is' : 'You discover'} `
+                    + `${trap.madeby_u ? 'the trigger of your mine' : 'a trigger'}`
+                    + ' in a pile of soil below you.',
+                state,
+                env,
+            );
+            if (alreadySeen && random.rn2(3))
+                return Trap_Effect_Finished;
+            // C's Soundeffect() is terminal-only and has no captured state;
+            // preserve the source call as a named gap before the pline.
+            note_unported('sounds.c Soundeffect');
+            await message(
+                `KAABLAMM!!!  ${forcebungle ? 'Your inept attempt sets'
+                    : 'The air currents set'}${alreadySeen
+                    ? ` ${a_your[Number(Boolean(trap.madeby_u))]} land mine`
+                    : ' it'} off!`,
+                state,
+                env,
+            );
+        } else {
+            // C's static guard protects the steed-dismount recursion. A state
+            // field gives the same lifetime for one game without a module
+            // global shared by concurrent game instances.
+            if (state.trapRecursiveMine)
+                return Trap_Effect_Finished;
+            feeltrap(trap, env);
+            await message(
+                `KAABLAMM!!!  You triggered ${a_your[
+                    Number(Boolean(trap.madeby_u))
+                ]} land mine!`,
+                state,
+                env,
+            );
+            steedMid = state.u.usteed?.m_id ?? 0;
+            state.trapRecursiveMine = true;
+            try {
+                await steedintrap(trap, null, env);
+            } finally {
+                state.trapRecursiveMine = false;
+            }
+            // C performs this lookup after steedintrap(), then keeps the
+            // saddle only if that call killed the mounted steed.
+            saddle = sobj_at(SADDLE, state.u.ux, state.u.uy, state);
+            await set_wounded_legs(LEFT_SIDE, random.rn1(35, 41), state);
+            await set_wounded_legs(RIGHT_SIDE, random.rn1(35, 41), state);
+            await exercise(A_DEX, false, state, random, {
+                encumberMessage: (subject) => encumber_msg(subject),
+            });
+        }
+
+        // Add the pit before losehp(), exactly as C does for bones handling.
+        trap.ttyp = PIT;
+        trap.madeby_u = false;
+        await losehp(
+            Maybe_Half_Phys(damage, state),
+            'land mine',
+            KILLED_BY_AN,
+            state,
+            env,
+        );
+        await blow_up_landmine(trap, env);
+        if (steedMid && saddle && !state.u.usteed)
+            note_unported('trap.c keep_saddle_with_steedcorpse');
+        newsym(state.u.ux, state.u.uy, state);
+        const nextTrap = t_at(state.u.ux, state.u.uy, state);
+        if (nextTrap)
+            await dotrap(nextTrap, RECURSIVETRAP, state);
+        fill_pit(state.u.ux, state.u.uy, state);
+        return Trap_Effect_Finished;
+    }
+
+    const mInAir = requireTrapOperation(env, 'mInAir');
+    const heroDeaf = requireTrapOperation(env, 'heroDeaf');
+    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const tx = trap.tx;
+    const ty = trap.ty;
+    const triggerWeight = Math.trunc(mtmp.data?.cwt ?? 0);
+    if (random.rn2(triggerWeight + 1) < WT_ELF / 2)
+        return Trap_Effect_Finished;
+
+    if (mInAir(mtmp, state)) {
+        const alreadySeen = Boolean(trap.tseen);
+        if (inSight && !alreadySeen) {
+            await message(
+                messageAt(
+                    `A trigger appears in a pile of soil below ${mon_nam(mtmp, state, env)}.`,
+                    mtmp.mx,
+                    mtmp.my,
+                    state,
+                ),
+                state,
+                env,
+            );
+            seetrap(trap, env);
+        }
+        if (random.rn2(3))
+            return Trap_Effect_Finished;
+        if (inSight) {
+            requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my);
+            await message(
+                // C uses pline_The(), which leaves the message unpositioned;
+                // this differs from the preceding pline_mon() line.
+                `The air currents set ${alreadySeen ? 'a land mine' : 'it'} off!`,
+                state,
+                env,
+            );
+        }
+    } else if (inSight) {
+        requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my);
+        await message(
+            messageAt(
+                `${heroDeaf(state) ? '' : 'KAABLAMM!!!  '}`
+                    + `${capitalizedMonsterName(mtmp, state, env)} triggers`
+                    + ` ${a_your[Number(Boolean(trap.madeby_u))]} land mine!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+            env,
+        );
+    }
+    if (!inSight && !heroDeaf(state))
+        await message('Kaablamm!  You hear an explosion in the distance!', state, env);
+
+    await blow_up_landmine(trap, env);
+    let trapkilled = mtmp.mhp < 1;
+    if (!trapkilled)
+        trapkilled = await thitm(0, mtmp, null, damage, false, env);
+    if (!trapkilled) {
+        const result = await mintrap(mtmp, trflags | FORCETRAP, env);
+        if (result === Trap_Killed_Mon)
+            trapkilled = true;
+    }
+    fill_pit(tx, ty, state);
+    if (mtmp.mhp < 1) trapkilled = true;
+    if (unconscious(state)) {
+        state.multi = -1;
+        state.nomovemsg = 'The explosion awakens you!';
+    }
+    return trapkilled ? Trap_Killed_Mon
+        : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
 // The trap types whose trapeffect_*() body has no arm in the port yet. C
 // dispatches all of them; each stops the scan before the effect changes state,
 // draws, or writes a message. BEAR_TRAP, DART_TRAP, MAGIC_TRAP and SLP_GAS_TRAP
 // are absent because their hero arms are ported. ROCKTRAP is absent for the
 // mirror reason: its monster arm is ported and its own body refuses the hero
-// arm. PIT is absent because its own body owns the refusal: its monster arm is
-// ported and its hero arm stops there. SPIKED_PIT stays here even though C
-// sends it to trapeffect_pit() as well, because neither arm's spike handling is
-// ported.
+// arm. PIT and SPIKED_PIT both dispatch to the complete trapeffect_pit() body;
+// hero preflight admits those two trap types directly.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
-    SPIKED_PIT,
-    LANDMINE,
     POLY_TRAP,
     VIBRATING_SQUARE,
 ]));
@@ -2670,7 +3199,7 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_rocktrap(monster, trap, trflags, env);
     if (trap.ttyp === BEAR_TRAP)
         return trapeffect_bear_trap(monster, trap, trflags, env);
-    if (trap.ttyp === PIT)
+    if (trap.ttyp === PIT || trap.ttyp === SPIKED_PIT)
         return trapeffect_pit(monster, trap, trflags, env);
     if (trap.ttyp === FIRE_TRAP)
         return trapeffect_fire_trap(monster, trap, trflags, env);
@@ -2692,6 +3221,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_web(monster, trap, trflags, env);
     if (trap.ttyp === STATUE_TRAP)
         return trapeffect_statue_trap(monster, trap, trflags, env);
+    if (trap.ttyp === LANDMINE)
+        return trapeffect_landmine(monster, trap, trflags, env);
     if (trap.ttyp === ROLLING_BOULDER_TRAP)
         return trapeffect_rolling_boulder_trap(monster, trap, trflags, env);
     if (UNPORTED_TRAP_EFFECTS.has(trap.ttyp)) unsupported('trap activation');
@@ -2706,25 +3237,26 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //
 // The stops, and what each of them needs:
 //   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, RUST_TRAP,
-//     TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
+//     LANDMINE, PIT, SPIKED_PIT, TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP --
+//     its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a trap other than WEB the hero has already seen -- the "You step over
-//     ..." line at trap.c:3028 and the "You escape ..." line at :3039, and
-//     with it the one-in-five rn2(5) escape roll at :3038 that decides
-//     between them, plus Fumbling, conjoined_pits() and
-//     adj_nonconjoined_pit(), which are read nowhere else in dotrap();
-//   a mounted hero -- steedintrap() at trap.c:1276 (dart trap),
-//     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
-//     and steedintrap() at trap.c:2313 (magic trap);
+//   a trap other than WEB, PIT and SPIKED_PIT the hero has already seen -- the
+//     "You step over ..." line at trap.c:3028 and the "You escape ..." line at
+//     :3039 are outside those effects;
+//   a mounted hero -- s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509
+//     (bear trap), while steedintrap() handles the dart, gas, magic, landmine
+//     and pit arms admitted below;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
-export function preflight_dotrap(trap, state = game) {
+export function preflight_dotrap(trap, state = game, trflags = 0) {
+    const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
         && trap.ttyp !== ROLLING_BOULDER_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
@@ -2745,15 +3277,19 @@ export function preflight_dotrap(trap, state = game) {
             );
         }
     }
-    if (trap.tseen && trap.ttyp !== WEB) {
+    if (trap.tseen && trap.ttyp !== WEB && trap.ttyp !== LANDMINE
+        && !pitTrap) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
         );
     }
-    if (state.u.usteed && trap.ttyp !== WEB) {
-        // trap.c:1276 (dart trap) calls steedintrap(); trap.c:1507-1511 (bear
-        // trap) names the steed through s_suffix(mon_nam()) and mbodypart();
-        // trap.c:2313 (magic trap) calls steedintrap().
+    if (state.u.usteed && trap.ttyp !== WEB
+        && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
+        && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
+        && !pitTrap) {
+        // trap.c:1507-1511 names a bear-trap steed through
+        // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call
+        // steedintrap() and are admitted above.
         throw new UnsupportedHeroMoveBoundaryError(
             trap.ttyp === BEAR_TRAP
                 ? 'a bear trap closing on a steed'
@@ -2769,19 +3305,24 @@ export function preflight_dotrap(trap, state = game) {
 }
 
 // C ref: trap.c dotrap() (2995-3060). The hero's counterpart to mintrap():
-// hack.c spoteffects() calls it for the trap under the hero's feet.
-//
-// The seen-web escape branch includes C's forcebungle, plunged and Fumbling
-// gates. Its conjoined-pit, adjacent-pit and clinger terms are false for WEB.
-// Other seen trap types remain outside preflight_dotrap()'s admitted scope.
+// hack.c spoteffects() calls it for the trap under the hero's feet. The pit
+// and spiked-pit arms are admitted here because trapeffect_pit() is complete.
 export async function dotrap(trap, trflags, state = game) {
     // First, and before nomul(0): a refusal has to precede the state change,
     // not follow it.
-    preflight_dotrap(trap, state);
+    preflight_dotrap(trap, state, trflags);
 
     const u = state.u;
     const ttype = trap.ttyp;
     const already_seen = trap.tseen;
+    const plunged = (trflags & TOOKPLUNGE) !== 0;
+    const conjPit = conjoined_pits(
+        trap,
+        t_at(state.u.ux0, state.u.uy0, state),
+        true,
+        state,
+    );
+    const adjPit = adj_nonconjoined_pit(trap, state);
     const env = heroTrapEnv(state);
     let flags = trflags;
     let forcetrap = (flags & FORCETRAP) !== 0 || (flags & FAILEDUNTRAP) !== 0;
@@ -2796,32 +3337,43 @@ export async function dotrap(trap, trflags, state = game) {
     /* KMH -- You can't escape the Sokoban level traps */
     if (state.level?.flags?.sokoban_rules
         && (is_pit(ttype) || is_hole(ttype))) {
-        // trap.c:3021-3023, the "Air currents pull you down" line, needs
-        // trapname(). It fires only for a pit or a hole, and preflight_dotrap()
-        // has already refused every type but BEAR_TRAP, so this cannot run.
-        env.unsupported('a Sokoban pit or hole');
+        // trap.c:3021-3023. TRUE forces "pit" for a hallucinating hero and
+        // trapname() keeps its display-RNG call in the source position.
+        await env.message(
+            `Air currents pull you down into ${a_your[Number(Boolean(trap.madeby_u))]}`
+                + ` ${trapname(ttype, true, state)}!`,
+            state,
+        );
         /* then proceed to normal trap effect */
     } else if (!forcetrap) {
         if (floor_trigger(ttype)
             && check_in_air(state.youmonst, flags, state)) {
-            // trap.c:3027-3032. A hero who floats or flies over an unseen trap
-            // triggers nothing and is told nothing; the "You step over ..."
-            // line for a seen one needs trapname() and is refused above.
-            if (already_seen) env.unsupported('stepping over a seen trap');
+            // trap.c:3027-3032. A hero who floats or flies over a seen trap
+            // is told so; an unseen trap is silently crossed.
+            if (already_seen) {
+                await env.message(
+                    `You ${u_locomotion('step', state)} over `
+                        + `${a_your[Number(Boolean(trap.madeby_u))]} `
+                        + `${trapname(ttype, false, state)}.`,
+                    state,
+                );
+            }
             return;
         }
-        if (already_seen) {
-            // C ref: trap.c:3035-3044. WEB is destroyable, is not ANTI_MAGIC,
-            // and cannot be a conjoined or adjacent pit. Other seen trap
-            // types remain outside preflight_dotrap()'s admitted scope.
-            const fumbling = u.uprops?.[FUMBLING];
-            if (!(fumbling?.intrinsic || fumbling?.extrinsic)
-                && !(flags & (FORCEBUNGLE | TOOKPLUNGE))
-                && !env.random.rn2(5)) {
-                await env.message(`You escape ${a_your[Number(Boolean(trap.madeby_u))]}`
-                    + ` ${trapname(ttype, false, state)}.`, state);
-                return;
-            }
+        const fumbling = u.uprops?.[FUMBLING];
+        const isFumbling = fumbling?.intrinsic || fumbling?.extrinsic;
+        if (already_seen && !isFumbling && !undestroyable_trap(ttype)
+            && ttype !== ANTI_MAGIC && !(flags & FORCEBUNGLE)
+            && !plunged && !conjPit && !adjPit
+            // C evaluates rn2(5) before checking the clinger exception.
+            && (!env.random.rn2(5)
+                || (is_pit(ttype) && is_clinger(state.youmonst.data)))) {
+            await env.message(
+                `You escape ${a_your[Number(Boolean(trap.madeby_u))]}`
+                    + ` ${trapname(ttype, false, state)}.`,
+                state,
+            );
+            return;
         }
     }
 

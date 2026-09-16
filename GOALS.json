@@ -50573,19 +50573,19 @@
     {
       "id": "port-trap-landmine-seed0014-20260915-r2",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port trap.c trapeffect_landmine and its complete blow_up_landmine explosion path, including selector admission and mintrap integration, preserving C trap gates, random order, monster and hero effects, trap conversion, pit filling, and source-owned dependency seams.",
       "cFile": "trap.c",
       "sessions": [
         "seed0014-dequa-fountain-explore"
       ],
-      "selectionReason": "The current bounded queue refresh run-GP6UMD at published f38c5066 ranks seed0014-dequa-fountain-explore at step 655 with remainingScreensUpperBound 59 and a complete current investigation. Higher-ranked seed4500 and seed0106/0399 entries are stale investigations or reserved/parked work; seed2200 is machine-local. A14 has now been accepted and published, resolving the investigation’s exact explode.c:scatter dependency. The source:trap.c:trapeffect_landmine scope is unreserved and is the first valid complete investigation available for B after preserving the immutable B18/B19 corrections and parked historical packets.",
+      "selectionReason": "Resume worker B seed0014 continuation at step 655, remainingScreensUpperBound 59, from investigations/seed0014-dequa-fountain-explore.json. B-20260916-1 was assigned before the current investigation refresh and has now delivered complete source-traced landmine work and corrections; integrate this existing independent delivery at its normal handoff. The higher-ranked seed4500 blinding scope remains owned by A; seed0106/0399 remain ready for a later worker selection, and seed2200 is machine-local. This is seed continuation and acceptance of already-owned work, not a claim of global highest rank.",
       "detail": "Current investigation identifies monmove.c postmov() -> trap.c mintrap() -> trapeffect_selector() -> trapeffect_landmine() at seed0014 step 655, with blow_up_landmine() as the required explosion helper. Implement the full source function and production admission/wiring; do not special-case the recording or omit hero/monster branches.",
       "spans": [
         {
           "name": "trapeffect_landmine",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
           "functions": [
             "trapeffect_landmine"
           ]
@@ -50597,15 +50597,18 @@
         "screens": 10084,
         "rng": 741703
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+      "delivered": {
+        "screens": 15,
+        "rng": 3716
+      },
       "functions": [
         {
           "name": "trapeffect_landmine",
           "line": 2528,
           "endLine": 2660,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -50613,8 +50616,8 @@
         "to": 2660
       },
       "activeStanding": {
-        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
-        "screens": 10084,
+        "sha": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+        "screens": 10086,
         "rng": 741703
       },
       "openMismatches": [
@@ -50705,7 +50708,139 @@
         "screens": 10084,
         "rng": 741703
       },
-      "parkedReason": "User requested loop pause. B-r2-20 landmine implementation remains unvalidated and is preserved in the archived worker stash; resume the open span only after an explicit restart with the required seed0014 witness."
+      "parkedReason": "User requested loop pause. B-r2-20 landmine implementation remains unvalidated and is preserved in the archived worker stash; resume the open span only after an explicit restart with the required seed0014 witness.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_landmine",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_landmine",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c:2527-2660 in full and compared both hero and monster arms in source order. Checked the shared rnd(16) and iron-shoe reduction, levitation/flying discovery and force-bungle gates, feeltrap and recursive-mine guard, function-local steed_mid and saddle lifetime/order, steedintrap return use, wound and exercise draws, PIT conversion before losehp(), blow_up_landmine(), recursive dotrap(RECURSIVETRAP), monster trigger-weight and m_in_air gates, visibility/deaf messages, pline_The ordering for the airborne monster mine message, thitm damage, mintrap(FORCETRAP), fill_pit(), and unconscious-state updates. The source-valued steedintrap() dependency was ported in the same delivery, and its caller arms in trapeffect_dart_trap(), trapeffect_slp_gas_trap(), and trapeffect_magic_trap() are wired with their source return/discard semantics. The discarded newcham() result and steed.c dismount_steed(DISMOUNT_POLY) remain explicit note_unported() gaps. The landmine path records only discarded, unported side effects: keep_saddle_with_steedcorpse() after the exact steed_mid/saddle guard, and blow_up_landmine()'s dbridge.c destroy_drawbridge(), dig.c liquid_flow(), and apply.c maybe_dunk_boulders(). No session-specific branch or seed check was added; obsolete selector refusal and injected explosion substitutes were removed. Supporting helper review: Read nethack-c/upstream/src/trap.c:3170-3219 in full. Checked old terrain capture, scatter() flags and discarded return, the env.newsym/env.redraw wiring consumed by explode.c scatter(), engraving deletion, wake_nearto(400), broken-door update, drawbridge lookup, water/air-level deletion, fillholetyp() evaluation and liquid-flow branch, ordinary ROOM-to-PIT conversion with madeby_u cleared and seetrap(), fill_pit(), maybe_dunk_boulders(), recalc_block_point(), and spot_checks() order. explode.c scatter() is fully wired; only discarded unported calls are dbridge.c destroy_drawbridge(), dig.c liquid_flow(), apply.c maybe_dunk_boulders(), and the scatter path's unowned object/floor subcalls where their own source gaps remain. Each is represented by note_unported() without invented side effects. Read complete trap.c trapeffect_pit():1824-2010, steedintrap():3102-3159, and dotrap():2995-3060 for this caller dependency. Corrected the long-worm term to share the source avoidance/forced/Sokoban branch; preserved conjoined/adjacent-pit, clinger, deliberate entry, spike, steed, damage, and exercise ordering. Mounted dart passes objectEnv into steedintrap/thitm. Additional discarded source gaps are sounds.c Soundeffect, ball.c ballfall, and trap.c selftouch. This goal records completion only for the selected trapeffect_landmine unit; helper review is retained here without marking unrelated roadmap units complete.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:2985-2986, 2990-2992; trapeffect_selector() dispatches LANDMINE to trapeffect_landmine() for the production trap effect path."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c:3827-3828; mintrap() reaches trapeffect_selector() for a monster standing on a triggered land mine."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:3058-3060; dotrap() reaches trapeffect_selector() for a hero entering the land mine, including the recursive PIT call after the explosion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-landmine.test.mjs",
+              "scripts/monster-pit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/landmine-hero-fresh.session.json",
+              "recordings/trap.c/landmine-monster-fresh.session.json"
+            ],
+            "checkedAt": "e6718b489e09825c66cbdf61f1c5bceea5131a28"
+          }
+        ],
+        "entryPointReview": "The selected trap.c range has a single LANDMINE selector entry with two runtime arms. The independent hero recipe walks onto a fresh natural D:8 mine and reaches trapeffect_landmine(), blow_up_landmine(), dotrap(RECURSIVETRAP), and the recursive trapeffect_pit() path. The independent monster recipe uses #wizgenesis to place a heavy large dog on the same fresh D:8 layout's mine and reaches the monster arm, blow_up_landmine(), mintrap(FORCETRAP), and the resulting PIT. The same delivery completes the source-valued trapeffect_pit() hero and monster dependency branches, dotrap() pit gates, preflight admission for implemented PIT/SPIKED_PIT/LANDMINE and mounted steedintrap arms, and steedintrap() callers in dart, sleep gas and magic traps. Both recipes contain replay inputs only and match fresh patched-C recordings. The central goal selects trapeffect_landmine only; both named recordings reach that function, and dependent helper reviews do not close other source goals.",
+        "entryPoints": [
+          {
+            "name": "hero landmine activation",
+            "functions": [
+              "trapeffect_landmine"
+            ],
+            "recordings": [
+              "recordings/trap.c/landmine-hero-fresh.session.json"
+            ]
+          },
+          {
+            "name": "monster landmine activation",
+            "functions": [
+              "trapeffect_landmine"
+            ],
+            "recordings": [
+              "recordings/trap.c/landmine-monster-fresh.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 667,
+          "kind": "rng",
+          "function": "set_mimic_sym",
+          "functionDeclared": true,
+          "sourceFile": "makemon.c",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": 2468,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 47,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 47,
+              "status": "complete",
+              "commit": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 667,
+                "kind": "rng",
+                "function": "set_mimic_sym",
+                "functionDeclared": true,
+                "sourceFile": "makemon.c",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": 2468,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 47
+              },
+              "summary": "The landmine stop at step 655 is resolved. The first remaining mismatch is step 667 in set_mimic_sym(): a nested shop room index is missing from the direct JavaScript room array, so the mimic takes the ordinary appearance branch. Worker B has submitted the shared room lookup fix with a matching independent recording; its next worker-only mismatch is priest movement at step 669, now under investigation.",
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "set_mimic_sym"
+                ],
+                "branch": "C reads levl[mx][my].roomno - ROOMOFFSET through the flat svr.rooms allocation, which includes subrooms. At a shop rtype >= SHOPBASE, it consumes rn2(10) before choosing stock. JavaScript reads only level.rooms[roomIndex]; nested shops are stored under parent sbrooms with conceptual roomnoidx values, so the missing direct entry supplies rtype 0 and selects the ordinary MIMIC_SYMBOLS rn2(17) branch.",
+                "callers": [
+                  "nethack-c/upstream/src/makemon.c:2393-2577 defines set_mimic_sym(), with the room lookup at 2405-2415 and shop selection at 2467-2486. makemon() calls it for a newly placed mimic at 1305, including shop-stock mimics.",
+                  "js/makemon_create.js:makemon() calls set_mimic_sym(); its room lookup currently indexes state.level.rooms directly before choosing the shop or ordinary branch.",
+                  "js/mklev.js:add_subroom() persists subrooms under their parent and assigns MAXNROFROOMS + 1 + nsubroom as roomnoidx. js/mines_levels.js generates nested Minetown shops using this representation."
+                ],
+                "dependencies": [
+                  "js/dungeon.js:mapseen_room() already resolves conceptual room indices through top-level rooms and recursive sbrooms; the submitted fix exports and reuses this owner without another room graph or RNG draw.",
+                  "Preserve get_shop_item(), temporary mkobj()/obfree(), monster-based object overlays, fruit state, altar selection and does_block()/block_point() order. Only the source-defined room lookup changes.",
+                  "Worker B delivery 93b6ff5aa25e64c391a92b5f0b09b1496bb8d4b1 is ready with 125 focused tests, lint and a strict fresh differential. It remains separate from the validated landmine candidate."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Checkpoint 25bec4a9fe647b574a4418fef4e1d3e90ac01e93, run-IpwzMi, passed: 30/44 sessions, 10101/11405 screens, 745419/792838 RNG, 10134/11405 cursors; all 259 recordings match. Compared with f0ff954d, seed0014 improves from 655 to 670 matching screens, giving the 15-screen overall gain. New landmine hero/monster recordings contribute 31 matching screens.",
+                "Fresh fixed-workload queue run-Ny5bQI identifies step 667, kind rng, function set_mimic_sym, 47 remaining screens as an upper bound. Every other session retains its investigation count.",
+                "Read complete C set_mimic_sym() and JavaScript room creation/lookup paths. C selects rn2(10)=0 at makemon.c:2468; the old JavaScript fallback selects rn2(17)=10. This is a state/branch mismatch, not a random-bound substitution.",
+                "Worker instrumentation captured the affected mimic at moves 910, depth 3, tile [54,13], roomno 55, conceptual roomIndex 52. level.rooms[52] is undefined; the persisted subroom resolver finds rtype 19, a shop. These are diagnostic facts only; no input or position is special-cased.",
+                "Independent existing blocked recipe recipes/hack.c/minetown-mimic-boundary.session.json uses seed 8124 and a different clock/character. After the room lookup fix, fresh run-E65Kbo matches and recording recordings/hack.c/minetown-mimic-boundary.session.json is included in the immutable delivery.",
+                "A focused worker-only replay after 93b6ff5a moves the first mismatch to step 669 in pri_move(): C consumes rn2(3), while JavaScript consumes rn2(10) before the priest path. Worker B and a read-only helper are tracing its preconditions; this is not yet an accepted main result."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+        "screens": 10101,
+        "rng": 745419
+      }
     },
     {
       "id": "div-steal-urgent-pline-seed4500-20260915-r2",
