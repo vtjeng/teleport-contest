@@ -53267,15 +53267,15 @@
           "name": "do_gamelog",
           "line": 2532,
           "endLine": 2560,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "show_gamelog",
           "line": 2561,
           "endLine": 2620,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -53383,7 +53383,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_gamelog",
+            "implementation": "js/insight.js",
+            "symbol": "do_gamelog",
+            "sourceReview": "Read insight.c do_gamelog() at lines 2532-2544 in full. The active CHRONICLE branch checks the canonical gamelog pointer, calls show_gamelog(ENL_GAMEINPROGRESS) when nonempty, otherwise emits the no-events message, and returns ECMD_OK. js/insight.js mirrors those branches with the state-owned gamelog array, awaits text-window dismissal, and preserves the return value. The compile-time-disabled branch remains outside the active recorder build.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() dispatches the #chronicle extended-command row to insight.c do_gamelog(); js/cmd.js admits chronicle through the existing extended-command dispatch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/chronicle-command-independent.session.json"
+            ],
+            "checkedAt": "f909ea80bbc6569ae4f679b0a8d5a2e260fb752c"
+          },
+          {
+            "name": "show_gamelog",
+            "implementation": "js/insight.js",
+            "symbol": "show_gamelog",
+            "sourceReview": "Read insight.c show_gamelog() at lines 2561-2595 in full. The port preserves linked-list insertion order, the Logged/Major title, one initial Turn heading, final LL_majors filtering, in-progress spoiler filtering for non-wizards, the no-events fallback, C Snprintf(BUFSZ) display-line truncation, and the blocking NHW_TEXT display/destroy sequence through displayTtyTextWindow. pline.c livelog_printf() supplies state.moves timestamps and a BUFSZ*2 formatted event string before this display bound.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "do_gamelog",
+                "source": "insight.c do_gamelog() calls show_gamelog(ENL_GAMEINPROGRESS) for a nonempty canonical gamelog; js/insight.js passes the same in-progress selector and text-window owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/chronicle-command-independent.session.json"
+            ],
+            "checkedAt": "f909ea80bbc6569ae4f679b0a8d5a2e260fb752c"
+          }
+        ],
+        "entryPointReview": "The selected production entry point is #chronicle in the active CHRONICLE build. The committed independent recipe has two segments with independent role, seed, date, and input variations; both reach do_gamelog/show_gamelog and the fresh C/JavaScript differential passes with 30 screens, 30 cursors, and 4,596 PRNG calls. The canonical pline.c in-memory gamelog owner records producer text at state.moves and preserves planning/save/restore ownership. Source review also wires the supported read.c generic first-literacy arm, quest.c worthy first-assignment arm, do.c new-level LL_DEBUG/LL_ACHIEVE event, and end.c ordinary LL_DUMP event. botl.c describe_level is pure and source-pinned. Inventory sight restoration carries message/update owners through potion.c and timeout.c without painting planning clones. Unsupported object/effect, quest, external dump, and final Major recording gaps remain explicit; the final Major window has source-pinned tests but no production recording in this span. Retry correction ffc0b5d5 adds files.c livelog_add mask gating and sys.c LL_NONE initialization; pline.c livelog_printf appends canonical history before replacing tabs in its external-sink buffer. The source gate fixes the prior seed2200 end-of-input regression without suppressing the validator. This record verifies only the selected insight.c functions; the enabled external sink remains an explicit unported dependency.",
+        "entryPoints": [
+          {
+            "name": "#chronicle in-progress logged-events window",
+            "functions": [
+              "do_gamelog",
+              "show_gamelog"
+            ],
+            "recordings": [
+              "recordings/insight.c/chronicle-command-independent.session.json"
+            ]
+          },
+          {
+            "name": "final Major chronicle window",
+            "functions": [
+              "show_gamelog"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "source-required gamelog producer wiring",
+            "functions": [
+              "do_gamelog",
+              "show_gamelog"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
