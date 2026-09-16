@@ -67,7 +67,9 @@ import {
     DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
-    IS_STWALL, isok, u_at, Ugender, Upolyd,
+    BC_BALL, BC_CHAIN,
+    IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL,
+    isok, u_at, Ugender, Upolyd,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
     In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
     MAXTCHARS,
@@ -116,7 +118,7 @@ import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
 import { status_version } from './version.js';
-import { is_weptool } from './obj.js';
+import { is_weptool, sobj_at } from './obj.js';
 import { newuexp, UnsupportedExperienceChangeError } from './exper.js';
 import { weapon_type } from './startup_skills.js';
 import { weapon_descr } from './weapon.js';
@@ -276,7 +278,9 @@ import {
 // C ref: drawing.c defsyms[].color, the last column of every defsym.h PCHAR
 // row, which display.c reads back through its cmap_color() macro.
 import { CMAP_COLORS } from './symbol_data.js';
-import { t_at } from './trap.js';
+import { is_pool_or_lava, t_at } from './trap.js';
+import { is_ice } from './terrain.js';
+import { note_unported } from './unported.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
 // rather than keeping a second copy here.
@@ -2574,8 +2578,8 @@ export function same_remembered_glyph(before, after) {
     return before.glyph === after.glyph;
 }
 
-// C ref: display.c feel_location() (736-905), the branch taken by a hero who
-// can reach the floor. Two ported callers reach it, and one of them twice:
+// C ref: display.c feel_location() (736-905). This is the complete tactile
+// map update used by detect.c, hack.c and lock.c.
 //
 //   hack.c test_move() calls it from its obstructed arm (js/hack.js, the
 //     IS_OBSTRUCTED branch), where the square is stone or a wall, and again
@@ -2588,90 +2592,157 @@ export function same_remembered_glyph(before, after) {
 //     square holding no door, who may be sighted and may be pointing at room
 //     floor, an object, a seen trap or a felt engraving.
 //
-// So every layer _map_location() dispatches on is live here; the terrain arm
-// is not the only one a walking hero can reach.
-//
-// Three blocks stop rather than run, and no running game can reach any of
-// them: the Underwater return (769-771), the Levitation Rules (776-858) and
-// the Punished bc_felt work (865-891). js/detect.js:255-283 enumerates the
-// single writer of each of the four states behind them, and the guard below
-// pins all four terms. They stay bare Errors for the reason recorded there.
-//
-// C's comment says the square is the hero's own or one of the eight adjacent
-// to it. This asserts that instead of assuming it, because the hero's own
-// square would additionally need display_self() and neither caller passes it.
+// Its branches retain C's source order: suppression, bounds, the accurate
+// invisible marker, underwater gate, tactile map, punishment memory, and the
+// final sensed monster overlay.
 export function feel_location(x, y, state = game) {
     if (state !== game) {
         throw new Error(
             'feel_location requires the active display state',
         );
     }
+    // display.c:703-717. Level construction, save and restore suppress map
+    // output before any other tactile state is inspected.
+    if (suppressMapOutput(state)) return;
     if (!isok(x, y)) return;
     const location = state.level?.at(x, y);
     if (!location) return;
+
     // display.c:763-767. An accurate memory of an invisible monster is left
     // alone so that searching does not rediscover it every turn.
     if (glyph_is_invisible(location.remembered_glyph?.glyph)
         && m_at(x, y, state)) return;
-    // display.c:902-905 finishes by drawing a monster the hero senses on top
-    // of everything else, through display_monster(), which this port has only
-    // as newsym()'s inlined arms. sensemon() needs telepathy, monster
-    // detection or a warning match. js/lock.js pick_lock() cannot supply one,
-    // because its m_at() refusal stops for any monster at all; test_move() can
-    // in principle, since hack.c domove_core() falls through to it with a pet
-    // it neither attacked nor displaced still standing on the square. The test
-    // is hoisted above every write below so that the stop leaves the map
-    // exactly as it found it; C runs it last, after the writes.
-    const monster = u_at(x, y, state) ? null : m_at(x, y, state);
-    if (monster && sensesMonster(monster, state)) {
-        throw new UnsupportedMapMemoryError(
-            'feeling a square that holds a sensed monster',
-        );
-    }
+
+    // display.c:769-771. Underwater feeling is limited to lava, ice and
+    // water-level squares. is_pool_or_lava() owns drawbridge-under behavior.
+    if (state.u?.uinwater
+        && !on_level(state.u?.uz, state.water_level)
+        && !is_pool_or_lava(x, y, state)
+        && !is_ice(x, y, state)) return;
+
+    // display.c:774 and :3367-3377, set_seenv(). C reduces each coordinate
+    // difference to its sign, because boulder pushes can ask about a square
+    // beyond the eight neighbours as well as ordinary tactile callers.
     const dx = x - state.u.ux;
     const dy = y - state.u.uy;
-    if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || (!dx && !dy)) {
-        throw new Error(
-            'feel_location subset requires an adjacent square',
-        );
-    }
-    if (!can_reach_floor(false, state)
-        || state.u.uinwater || state.uball || state.uchain) {
-        throw new Error(
-            'feel_location reached an unsupported tactile floor state',
-        );
-    }
-    // display.c:774, set_seenv(), which indexes hero.y - target.y rather than
-    // this function's target-relative dy.
     location.seenv = (location.seenv ?? 0)
-        | seenv_matrix[1 - dy][dx + 1];
+        | seenv_matrix[Math.sign(state.u.uy - y) + 1]
+            [Math.sign(x - state.u.ux) + 1];
 
-    // display.c:859-860.
-    const engraving = engr_at(x, y, state);
-    if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
+    if (!can_reach_floor(false, state)) {
+        // display.c:776-858. Levitation can identify obstructing walls and
+        // closed doors, then boulders, doors, room/water squares and finally
+        // corridors in that order. Boulders are checked before an open door.
+        if (IS_OBSTRUCTED(location.typ)
+            || (IS_DOOR(location.typ)
+                && ((location.flags || location.doormask || 0)
+                    & (D_LOCKED | D_CLOSED)))) {
+            map_background(x, y, 1, state);
+        } else {
+            const boulder = sobj_at(BOULDER, x, y, state);
+            if (boulder) {
+                map_object(boulder, 1, state);
+            } else if (IS_DOOR(location.typ)) {
+                map_background(x, y, 1, state);
+            } else if (IS_ROOM(location.typ) || IS_POOL(location.typ)) {
+                let doRoomGlyph = false;
+                const remembered = location.remembered_glyph?.glyph;
+                if (remembered === objnum_to_glyph(BOULDER)
+                    || glyph_is_invisible(remembered)) {
+                    if (location.typ !== ROOM && location.seenv)
+                        map_background(x, y, 1, state);
+                    else
+                        doRoomGlyph = true;
+                } else if (remembered >= cmap_to_glyph(S_stone, state)
+                           && remembered < cmap_to_glyph(S_darkroom, state)) {
+                    doRoomGlyph = true;
+                }
+                if (doRoomGlyph) {
+                    const dark = Boolean(
+                        state.flags?.dark_room
+                        && state.iflags?.wc_color
+                        && !on_level(state.u?.uz, state.rogue_level),
+                    );
+                    const cmap = dark
+                        ? S_darkroom : location.waslit ? S_room : S_stone;
+                    location.remembered_glyph = rememberedGlyphNumber(
+                        cmap_to_glyph(cmap, state), state,
+                    );
+                    show_glyph_cell(
+                        x, y, map_glyphinfo(cmap_to_glyph(cmap, state), state),
+                    );
+                }
+            } else {
+                map_background(x, y, 1, state);
+                // Corridors are never felt as lit unless their memory says so.
+                if (location.typ === CORR
+                    && location.remembered_glyph?.glyph
+                        === cmap_to_glyph(S_litcorr, state)
+                    && !location.waslit) {
+                    showRememberedCmap(x, y, S_corr, state);
+                } else if (location.typ === ROOM
+                           && state.flags?.dark_room
+                           && state.iflags?.wc_color
+                           && location.remembered_glyph?.glyph
+                               === cmap_to_glyph(S_room, state)) {
+                    showRememberedCmap(x, y, S_darkroom, state);
+                }
+            }
+        }
+    } else {
+        // display.c:859-860.
+        const engraving = engr_at(x, y, state);
+        if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
 
-    map_location(x, y, 1, state);
+        map_location(x, y, 1, state);
 
-    // display.c:893-900. Floor spaces are dark if unlit, corridors are dark if
-    // unlit. C assigns levl[x][y].glyph directly here rather than through
-    // map_background(), so this write ignores hero_memory exactly as C does.
-    //
-    // The first arm is what lock.c:584 observes: with 'dark_room' and colour
-    // both on, a lit room square the hero already remembers moves from S_room
-    // to S_darkroom, and only the glyph number says so, because
-    // reglyph_darkroom() has made the two draw the same byte.
-    const darkroom = Boolean(state.flags?.dark_room);
-    const remembered = location.remembered_glyph?.glyph;
-    if (location.typ === ROOM
-        && remembered === cmap_to_glyph(S_room, state)
-        && (!location.waslit || (darkroom && state.iflags?.wc_color))) {
-        showRememberedCmap(
-            x, y, darkroom ? S_darkroom : S_stone, state,
-        );
-    } else if (location.typ === CORR
-               && remembered === cmap_to_glyph(S_litcorr, state)
-               && !location.waslit) {
-        showRememberedCmap(x, y, S_corr, state);
+        // display.c:865-891. C's Punished macro is the file-scope uball;
+        // each object is felt only when it is the first object on this floor
+        // pile. The bits are independent and clear when another object covers
+        // either one.
+        if (state.uball) {
+            const chain = state.uchain;
+            const ball = state.uball;
+            const head = state.level.objects?.[x]?.[y] ?? null;
+            if (chain && chain.where === OBJ_FLOOR
+                && chain.ox === x && chain.oy === y && head === chain)
+                state.u.bc_felt = (state.u.bc_felt ?? 0) | BC_CHAIN;
+            else
+                state.u.bc_felt = (state.u.bc_felt ?? 0) & ~BC_CHAIN;
+            if (ball && ball.where === OBJ_FLOOR
+                && ball.ox === x && ball.oy === y && head === ball)
+                state.u.bc_felt = (state.u.bc_felt ?? 0) | BC_BALL;
+            else
+                state.u.bc_felt = (state.u.bc_felt ?? 0) & ~BC_BALL;
+        }
+
+        // display.c:893-900. C assigns levl[x][y].glyph directly here rather
+        // than through map_background(), so this write ignores hero_memory.
+        const darkroom = Boolean(state.flags?.dark_room);
+        const remembered = location.remembered_glyph?.glyph;
+        if (location.typ === ROOM
+            && remembered === cmap_to_glyph(S_room, state)
+            && (!location.waslit || (darkroom && state.iflags?.wc_color))) {
+            showRememberedCmap(
+                x, y, darkroom ? S_darkroom : S_stone, state,
+            );
+        } else if (location.typ === CORR
+                   && remembered === cmap_to_glyph(S_litcorr, state)
+                   && !location.waslit) {
+            showRememberedCmap(x, y, S_corr, state);
+        }
+    }
+
+    // display.c:902-905. This call is intentionally last: map memory and
+    // punishment bits are already updated when the sensed monster floats over
+    // the square. sensemon() excludes direct sight, matching the C macro.
+    const monster = !u_at(x, y, state) ? m_at(x, y, state) : null;
+    if (monster && sensesMonster(monster, state)) {
+        // display.c:902-905 discards display_monster()'s return, but that
+        // callee owns mimic-memory/intermediate drawing and worm-tail glyphs.
+        // No callable JS owner exists yet, so preserve this source boundary
+        // explicitly instead of approximating those side effects here.
+        note_unported('display.c display_monster');
     }
 }
 
@@ -2785,15 +2856,14 @@ export function map_object(obj, show, state = game) {
 
 // C ref: display.c feel_newsym(). Used where the hero knows what happened to a
 // square whether or not she can see it, such as the door she has just pulled
-// open in lock.c doopen_indir(). js/hack.js refuses a blind hero before the
-// autoopen branch runs, so only the sighted arm is live today.
+// open in lock.c doopen_indir(). The blind arm delegates the complete
+// display.c feel_location() owner; its boulder-push callers may pass a square
+// beyond the ordinary eight neighbours.
 //
 // The two arms treat `state` differently, which a later caller has to know.
 // newsym() ignores it and paints the module-level `game`; feel_location()
-// throws a plain Error for `state !== game` and for any non-adjacent square,
-// neither of which C's feel_newsym restricts. A caller outside a command
-// boundary gets that bare Error rather than a retryable refusal, because
-// js/cmd.js converts only the Unsupported* classes.
+// requires that same active display state, matching its map writes and the
+// display globals that C reads.
 export function feel_newsym(x, y, state = game) {
     if (_propertyActiveUnblocked(state.u, BLINDED)) feel_location(x, y, state);
     else newsym(x, y);

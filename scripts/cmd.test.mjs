@@ -4844,12 +4844,12 @@ test('an adjacent statue trap stops retryably at the `s` key', async () => {
     });
 });
 
-test('a search branch this port lacks stops retryably at the `s` key', async () => {
+test('a blind search feels adjacent squares at the `s` key', async () => {
     // detect.c dosearch0() feels every adjacent square when the hero is blind,
-    // which reaches feel_location() branches this port does not own. The
-    // refusal has to reach the player as the retryable command boundary, and
-    // it has to be decided before the loop draws its first rnl().
-    const replay = await runSegment({
+    // before its secret-terrain and trap draws. Disable safe_wait after
+    // startup so the seed's nearby monster does not prevent the command from
+    // reaching that source arm.
+    await runSegment({
         seed: 840021,
         datetime: COMMAND_DATETIME,
         nethackrc: 'OPTIONS=name:BlindSearch,role:Healer,race:human,'
@@ -4857,41 +4857,23 @@ test('a search branch this port lacks stops retryably at the `s` key', async () 
             + 'pettype:none,!acoustics,blind',
         moves: '',
     });
+    game.flags.safe_wait = false;
     const searchKey = commandKeyCode('s');
     assert.equal(commandForKey(createCommandBindingModel(game), searchKey),
         'search');
-    const drawsBefore = replay.getRngLog().length;
     game.nhDisplay.pushKey(searchKey);
-
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === searchKey
-            && /feels every adjacent square/.test(error.message),
-    );
-    // Nothing was spent: the preflight decided over all eight squares before
-    // dosearch0()'s loop could draw, so the segment keeps its whole prefix and
-    // the command remains retryable.
-    assert.equal(replay.getRngLog().length, drawsBefore);
+    await moveloop_core();
+    const felt = [];
+    for (let x = game.u.ux - 1; x <= game.u.ux + 1; ++x) {
+        for (let y = game.u.uy - 1; y <= game.u.uy + 1; ++y) {
+            if (x === game.u.ux && y === game.u.uy) continue;
+            felt.push(game.level.at(x, y).seenv ?? 0);
+        }
+    }
+    assert.ok(felt.every((seenv) => seenv !== 0));
     assert.equal(game.moves, 1);
-    assert.equal(game.context.move, 0);
-    assert.deepEqual(replay.getRngSlices().at(-1), []);
-    assert.deepEqual(game.context.pendingCommand, {
-        key: searchKey,
-        commandCount: 0,
-        lastCommandCount: 0,
-        multi: 0,
-    });
-
-    // Retrying the retained command reproduces the same refusal and still
-    // spends nothing.
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === searchKey,
-    );
-    assert.equal(replay.getRngLog().length, drawsBefore);
-    assert.equal(game.moves, 1);
+    assert.equal(game.context.move, 1);
+    assert.equal(game.context.pendingCommand, undefined);
 });
 
 test("both of eat.js's stop classes convert at the command seam", () => {

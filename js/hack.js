@@ -2209,11 +2209,10 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     movobj(otmp, rx, ry, state); /* does newsym(rx,ry) */
     // 210-215.
     if (heroIsBlind(state)) {
-        // The local display port currently exposes feel_location() only for
-        // adjacent squares; C also asks it to feel the boulder's two-step
-        // destination here. Keep the source call's gap explicit while still
-        // preserving the adjacent-square memory update.
-        note_unported('display.c feel_location boulder destination');
+        // hack.c:211-212 feels both the boulder's destination and the square
+        // it left.  The destination may be two cells away, so feel_location()
+        // must use display.c's sign-clamped seenv indexing.
+        feel_location(rx, ry, state);
         feel_location(sx, sy, state);
     } else {
         newsym(sx, sy);

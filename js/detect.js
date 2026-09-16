@@ -65,6 +65,7 @@ import {
     glyph_is_trap,
     glyph_is_warning,
     glyph_at,
+    feel_location,
     glyph_to_cmap,
     hero_glyph_info,
     map_glyphinfo,
@@ -84,9 +85,7 @@ import {
 } from './display.js';
 import { on_level, room_discovered } from './dungeon.js';
 import {
-    can_reach_floor,
     engr_at,
-    engr_can_be_felt,
 } from './engrave.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
@@ -118,7 +117,6 @@ import {
 import {
     cansee,
     do_clear_area,
-    seenv_matrix,
     unblock_point,
     vision_reset,
 } from './vision.js';
@@ -597,84 +595,12 @@ function mappedSearchLayer(x, y, state) {
     return map_glyphinfo(back_to_glyph(x, y, state), state);
 }
 
-// C ref: display.c feel_location(), specialized to the reachable-floor,
-// adjacent-square branch used by intrinsic searching in a fresh blind game.
-// Secret doors and corridors cannot contain floor objects; an ordinary trap
-// may be covered by an object, which must remain visible as clutter so
-// find_trap() can perform its temporary clear-and-wait sequence.
+// C ref: display.c feel_location(), as called by detect.c's explicit-search
+// blind/visible-region arm. Keep the canonical display owner here rather than
+// maintaining a second tactile map implementation in detect.js.
 function defaultFeelSearchLocation(x, y, env) {
     const { state } = env;
-    if (state !== game) {
-        throw new Error(
-            'automatic search requires an injected tactile mapping '
-            + 'for non-global state',
-        );
-    }
-    if (!propertyActiveUnblocked(state.u, BLINDED)) {
-        defaultSearchDisplay(x, y, env);
-        return;
-    }
-    const dx = x - state.u.ux;
-    const dy = y - state.u.uy;
-    if (!isok(x, y) || Math.abs(dx) > 1 || Math.abs(dy) > 1
-        || (!dx && !dy)) {
-        throw new Error(
-            'automatic search tactile mapping requires an adjacent square',
-        );
-    }
-    // The ball and chain live on the state root, not on `u`: C's Punished is
-    // `(uball != 0)` on the file-scope object (youprop.h:77), and js/worn.js
-    // setworn() writes `state.uball`/`state.uchain` through its W_BALL and
-    // W_CHAIN slots. Reading `state.u.uball` here answered undefined, so these
-    // two clauses never fired and the guard was live only through
-    // can_reach_floor(). `u.uinwater` really is a hero field and stays.
-    //
-    // This refuses three unported blocks of display.c feel_location(): the
-    // Levitation Rules at 777-858, the Underwater return at 769-771, and the
-    // Punished bc_felt work at 865-891. detect.c:2049 calls feel_location()
-    // outside dosearch0()'s `!aflag` tests, so the automatic arm does reach it
-    // -- but no running game can be in any of the four states, which is why it
-    // stays a bare Error rather than converting:
-    //
-    //   u.uinwater has one writer, js/hack.js set_uinwater(), and both call
-    //     sites pass false (js/do.js goto_level()).
-    //   state.uball and state.uchain have one writer, js/worn.js setworn(),
-    //     and no call site passes W_BALL or W_CHAIN; js/bury.js only clears
-    //     the fields.
-    //   can_reach_floor(FALSE) answers false for an engulfed hero, whom
-    //     detect.c:2022 returns before the loop for; for a hero held by an
-    //     AT_HUGS monster, which needs u.ustuck, and every set_ustuck() call
-    //     site in js/ passes null; for a levitating hero, and LEVITATION is
-    //     extrinsic-only here, so it needs setworn(), which no ported command
-    //     reaches -- js/cmd.js dispatches neither dowear() nor doputon(), and
-    //     ini_inv_use_obj() wears role armor alone; for a hero riding below
-    //     P_BASIC, which needs a tame saddled steed, and apply.c use_saddle()
-    //     is unported while the one tame steed ordinary play offers is the
-    //     Knight's pony, whose rider holds P_BASIC already; and for a hiding
-    //     ceiling-clinger, which needs polymorph.
-    //
-    // The test below pins all four terms of the guard.
-    if (!can_reach_floor(false, state)
-        || state.u.uinwater || state.uball || state.uchain) {
-        throw new Error(
-            'automatic search reached an unsupported tactile floor state',
-        );
-    }
-
-    const location = state.level.at(x, y);
-    // set_seenv() indexes hero.y - target.y, the opposite of this function's
-    // target-relative dy.
-    location.seenv = (location.seenv ?? 0)
-        | seenv_matrix[1 - dy][dx + 1];
-    const engraving = engr_at(x, y, state);
-    if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
-
-    const glyph = mappedSearchLayer(x, y, state);
-    if (state.level.flags?.hero_memory)
-        location.remembered_glyph = remembered_glyph_from_presentation(glyph);
-    show_glyph_cell(x, y, glyph);
-    if (state.level.lastseentyp?.[x])
-        state.level.lastseentyp[x][y] = location.typ;
+    return feel_location(x, y, state);
 }
 
 function defaultFeelSearchNewSym(x, y, env) {
@@ -964,20 +890,9 @@ function preflightExplicitSearch(env) {
             'searching while swallowed is not ported',
         );
     }
-    const blind = propertyActiveUnblocked(u, BLINDED);
     for (let x = u.ux - 1; x < u.ux + 2; ++x) {
         for (let y = u.uy - 1; y < u.uy + 2; ++y) {
             if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
-            // detect.c:2038-2039. Explicit searching feels every adjacent
-            // square, whatever is on it; js/display.js feel_location() owns
-            // only the blind-obstacle subset and detect.js's own tactile
-            // mapping only converted secret terrain and ordinary floor traps.
-            if (blind || visible_region_at(x, y, state)) {
-                throw new UnsupportedSearchError(
-                    'explicit searching feels every adjacent square when the '
-                    + 'hero is blind or a visible region covers one',
-                );
-            }
             const location = state.level.at(x, y);
             // detect.c deliberately finds nothing else on an SDOOR or SCORR.
             if (location.typ === SDOOR) {
@@ -1299,9 +1214,14 @@ export async function dosearch0(aflag, rawEnv = {}) {
         for (let y = u.uy - 1; y < u.uy + 2; ++y) {
             if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
             const location = state.level.at(x, y);
-            // detect.c:2038-2039 calls feel_location() here for an explicit
-            // search when Blind or a visible region covers the square. The
-            // preflight refuses both, so nothing reaches it.
+            // detect.c:2038-2039 calls feel_location() before dispatching the
+            // square's terrain branch whenever Blind or a visible region
+            // covers it. Keep this ahead of SDOOR/SCORR and trap handling;
+            // the canonical display owner performs all tactile memory work.
+            if (explicit && (propertyActiveUnblocked(u, BLINDED)
+                || visible_region_at(x, y, state))) {
+                await env.feelLocation(x, y, env);
+            }
             if (location.typ === SDOOR) {
                 if (env.random.rnl(7 - fund)) continue;
                 preflightSecretDoor(env);
@@ -1332,9 +1252,8 @@ export async function dosearch0(aflag, rawEnv = {}) {
                     if (found === -1) continue;
                     if (found > 0) return found;
                 }
-                // See if an invisible monster has moved; when Blind,
-                // feel_location() has already done it. The preflight refuses a
-                // blind explicit search, so that arm never applies here.
+                // See if an invisible monster has moved. When Blind,
+                // feel_location() has already handled the tactile display.
                 if (explicit && !monster
                     && !propertyActiveUnblocked(u, BLINDED)) {
                     unmap_invisible(x, y, state);
