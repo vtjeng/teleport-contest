@@ -1,11 +1,11 @@
 {
   "session": "seed0360-wizard-world-tour",
-  "remainingScreensUpperBound": 46,
+  "remainingScreensUpperBound": 28,
   "status": "complete",
-  "commit": "90527aab97ad80578ba1ae090eb3c7c40118bf34",
+  "commit": "81a0190a9566fc609190ba5d930bb72cb938120f",
   "mismatch": {
     "session": "seed0360-wizard-world-tour",
-    "step": 787,
+    "step": 805,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -13,35 +13,35 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported special room: do_mkroom(8)",
+    "message": "unsupported initial-level monster creation: distress shapechanger 270",
     "unlocatedKinds": [],
     "recordedSteps": 833,
-    "remainingScreensUpperBound": 46
+    "remainingScreensUpperBound": 28
   },
-  "summary": "Whole Wiz-filb.lua delivery B14 d9b34423 is queued with matching independent entry recordings. Accepted main still first diverges at787 with46 remaining screens. On the completed worker branch it advances to805, then distress refuses PM_DOPPELGANGER270; B15 owns the general monster-shapechange source family for that continuation.",
+  "summary": "Wiz-filb.lua is validated at81a0190a: the first stop advances from787 to805, with28 remaining screens. The next source owner is mon.c decide_to_shapeshift/newcham: the JavaScript preflight refuses a regular doppelganger before the source selection path. Worker B owns B15 whole-function completion; its first candidate reached the recorded end but was returned for incomplete attachment/equipment branches. B15 depends on A12 canonical flooreffects and unstuck owners.",
   "source": {
-    "file": "Wiz-filb.lua",
+    "file": "mon.c",
     "functions": [
-      "Wiz-filb.lua"
+      "decide_to_shapeshift",
+      "select_newcham_form",
+      "accept_newcham_form",
+      "mgender_from_permonst",
+      "newcham"
     ],
-    "branch": "Whole top-level dat/Wiz-filb.lua program (lines 6-58): six ordinary rooms with source-ordered up/down stairs, objects, traps, hostile class-X/class-i monsters, vampire bats, and a final random-corridors directive. On Quest Home 4, C mklev.c makelevel() selects the \"filb\" suffix because u.uz.dlevel is at or below the Wizard locate level, then unconditionally calls makemaz(\"Wiz-filb\"); load_special() executes this complete Lua chunk after nhlib.lua shuffles its private alignment table. The JavaScript branch only calls makemaz when SPECIAL_LEVEL_LOADERS[\"Wiz-filb\"] exists, so the missing loader sends this level into ordinary generation and changes RNG order before any room generation.",
+    "branch": "mon.c decide_to_shapeshift4872–4938 handles regular natural shapeshifters with !mspec_used && !rn2(6), assigns3+rn2(10), then calls newcham with NC_SHOW_MSG. A doppelganger is a regular shapeshifter, but the current JavaScript preflight admits only Sandestin/chameleon/vampire families and throws before this branch. Complete the selected newcham5278–5534 source and selector/gender helpers, including attachment, inventory and message behavior; admission alone does not complete the functions.",
     "callers": [
-      "nethack-c/upstream/src/mklev.c:1275-1285 makelevel() handles In_quest levels, forms <role-filecode>-filb for this dlevel, and unconditionally calls makemaz(fillname).",
-      "nethack-c/upstream/src/mkmaze.c:1184-1195 makemaz() appends the level extension and calls sp_lev.c load_special() for the selected prototype; nethack-c/upstream/src/sp_lev.c owns the Lua descriptor execution and post-processing.",
-      "js/mklev.js:692-707 makelevel() computes Wiz-filb and only calls makemaz() if the registry contains a loader; with no Wiz-filb entry it falls through to the medusa check and regular generation at lines 709-727.",
-      "js/mklev.js:1762-1783 load_special() and lines 1786-1815 makemaz() are the production JavaScript special-level dispatcher, while js/quest_levels.js:1829-1852 supplies QUEST_LEVEL_LOADERS and currently registers Wiz-fila without Wiz-filb."
+      "mon.c mcalcdistress invokes decide_to_shapeshift for natural shapeshifters; js/mon.js mcalcdistress uses the corresponding operation.",
+      "js/mon.js decide_to_shapeshift currently invokes makemon_create.js preflight_newcham_distress before choosing a form, then newcham_distress; both must be replaced by complete canonical mon.c owners and their production callers.",
+      "makemon.c initial natural-shapechanger creation and explicit newcham callers share form-selection/application behavior; B15 must preserve those callers while moving mon.c source ownership to js/mon.js."
     ],
     "dependencies": [
-      "nethack-c/upstream/dat/Wiz-filb.lua:6-58 is the complete source program: six ordinary-room descriptors, an up stair in the first room, a down stair in the fourth, object/trap/monster calls, and des.random_corridors().",
-      "nethack-c/upstream/dat/nhlib.lua:17-25 implements shuffle(); loading a special level consumes rn2(3) then rn2(2) for the three-entry alignment table before Wiz-filb.lua executes.",
-      "nethack-c/upstream/src/mklev.c:1275-1285 is the Quest filler selection precondition; at dnum 3, dlevel 4, with Wiz-loca at dlevel 3, the selected prototype is Wiz-filb.",
-      "nethack-c/upstream/src/mkmaze.c:1184-1195 and sp_lev.c load_special() define the C loader path that the JavaScript registry and special-level API must reproduce.",
-      "js/quest_levels.js:1788-1852 has the existing Wiz-fila implementation and registry convention, but no Wiz-filb program or registry entry; this is why the current makelevel() fallback reaches ordinary generation.",
-      "js/mklev.js:709-727 consumes the regular-generation medusa rn2(5) before initialize_themeroom_branch(); the B12 exact scan identifies this as JavaScript rn2(5)=0 against C nhlib shuffle rn2(3)=2 at RNG index 116709.",
-      "js/mklev.js:717-819 and js/mkroom.js:834-860 are downstream ordinary/special-room generation. B12 now dispatches ZOO, and its later distress shapechanger 270 boundary is a candidate consequence after the step-787 source mismatch, not the owner of the first cause."
+      "mon.c select_newcham_form5157–5225, accept_newcham_form5229–5253 and mgender_from_permonst5254–5273 define source form selection, rejection and gender/RNG order.",
+      "mon.c newcham5278–5534 defines the whole state transition; all return-valued callees must be implemented, while unported discarded-result calls may be named gaps only at their actual source sites.",
+      "A12 owns do.c flooreffects and its asynchronous result contract, used by the former-giant boulder-drop branch; B15 must await the canonical implementation from its immutable dependency.",
+      "A12 also owns mon.c unstuck and its asynchronous swallowed cleanup/cooldown contract; B15 must use that shared owner rather than duplicate or suppress a partial refusal."
     ]
   },
-  "goalKind": "lua-port",
+  "goalKind": "file-port",
   "evidence": [
     "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
     "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
@@ -60,16 +60,19 @@
     "Combined checkpoint at fe2f53f3b4368178646a97febaef392f9cadb797 passes every required check and all278 recordings. The exact 44-session cached scan in .cache/B12-retry-checkpoint-scan-cache.json confirms step787 remains the first divergence and the queue count stays46. Two independent ZOO recordings add12 matching recording screens and14738 RNG. Frozen challenge v1 is unchanged at2/9 cases,534/918 screens.",
     "B14 immutable d9b34423bf3c1b01be5ca2f458cc0ef9657f80ee ports all dat/Wiz-filb.lua6-58 to quest_levels.js wizFilb and registers Wiz-filb. Coordinator compared every descriptor and callback order with Lua and traced mklev.c1275-1285 through makemaz/load_special and QUEST_LEVEL_LOADERS. The independent male/female recordings total94screens,14494RNG and94cursors; the state matrix establishes a nonspecial Wizard quest filler at/below locate, six ordinary rooms, seven source monster descriptors and both stairs. The worker reports registry focused checks and lint passing; combined acceptance is pending.",
     "After merging accepted main into the queued B14 worker branch, the assigned seed0360 replay emits805/833 screens without a prior screen divergence, then refuses distress shapechanger270 on movewest. That source boundary is now being traced as the preferred next seed continuation. The reported sounds.c SoundAchievement and shk.c discard_damage_owned_by gaps are accumulated state and are not established as the first cause. This worker observation does not replace accepted main count46 or step787 until B14 passes combined validation.",
-    "Worker B claimed B15 at525803423e66a28d0a266f6d0d7ce6000ec4fb12: mon.c decide_to_shapeshift, select_newcham_form, accept_newcham_form, mgender_from_permonst and newcham, plus canonical monster-shapechange-state and production admission/caller wiring. Exact source reservations do not overlap A12 mon.c meatbox/monstone/mondead ownership. This is worker continuation at805, not a newly accepted main boundary."
+    "Worker B claimed B15 at525803423e66a28d0a266f6d0d7ce6000ec4fb12: mon.c decide_to_shapeshift, select_newcham_form, accept_newcham_form, mgender_from_permonst and newcham, plus canonical monster-shapechange-state and production admission/caller wiring. Exact source reservations do not overlap A12 mon.c meatbox/monstone/mondead ownership. This is worker continuation at805, not a newly accepted main boundary.",
+    "B14 candidate81a0190a passed five source-loader focused checks, lint and quality before full combined checkpoint. B15 immutable53fe9d4d has two matching independent distress recordings (36screens5570RNG), but its evidence explicitly limits newcham to empty-inventory natural shapechangers. Coordinator returned it with CHANGES_REQUIRED: complete selected functions and used-return callees, canonical mon.c ownership and caller wiring, replacing incomplete refusal/adapters; retain immutable53fe9d4d and add correction commits. B15 is resumed and owned by worker B. No worker-candidate gain is counted as accepted main.",
+    "Combined checkpoint81a0190a/run-H7h3MP passes all required checks and287/287 recordings:10765screens1454779RNG. Development is32/44,10526/11405screens,759963/792838RNG,10548/11405cursors. Exact saved scan .cache/B14-checkpoint-scan-cache.json has805screens emitted and no earlier divergence, then distress shapechanger270. Comparing every session metric against817420d5 finds only Wizard increases and no regression: screens790→805,RNG116719→120248,cursors798→805. The two new independent Wiz-filb recordings add94screens14494RNG. Frozen challenge v1 remains2/9,534/918screens."
   ],
   "acceptedScoreContext": {
-    "acceptedQueueCount": 46,
-    "acceptedMismatch": "At validated fe2f53f3 the first divergence remains step787; C nhlib shuffle rn2(3)=2 differs from ordinary-generator rn2(5)=0. Original mismatch provenance is retained above.",
-    "checkpoint": "fe2f53f3b4368178646a97febaef392f9cadb797/run-b8ldRi: 31/44 sessions, 10349/11405 screens, 756145/792838 RNG, 10379/11405 cursors; all278 recordings pass."
+    "acceptedQueueCount": 28,
+    "acceptedMismatch": "At validated81a0190a the first stop is805, unsupported distress shapechanger270, with no earlier scan divergence.",
+    "checkpoint": "81a0190a9566fc609190ba5d930bb72cb938120f/run-H7h3MP:32/44sessions,10526/11405screens,759963/792838RNG,10548/11405cursors;287/287recordings."
   },
   "candidateObservations": [
     "Saved .cache/B12-checkpoint-scan-cache.json row for seed0360-wizard-world-tour on candidate 90527aab97ad80578ba1ae090eb3c7c40118bf34 reports screensEmitted 805, first screen/RNG/cursor divergence at step 787, C rn2(3)=2 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19), JavaScript rn2(5)=0, and later boundary unsupported initial-level monster creation: distress shapechanger 270.",
     "The B12 row records the step-787 C cursor [33,9,1] versus JavaScript [44,5,1] and differing map cells, confirming that the regular-level fallback changes generated topology; this diagnostic remains candidate evidence rather than an accepted aggregate score.",
-    "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary."
+    "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary.",
+    "B14 combined candidate81a0190a9566fc609190ba5d930bb72cb938120f development score is32/44 sessions,10526/11405 screens,759963/792838 RNG,10548/11405 cursors. Exact scan shows805screens emitted with no divergence before unsupported distress shapechanger270; recordings/checkpoint acceptance still pending at observation time."
   ]
 }
