@@ -2999,7 +2999,7 @@ function count_webbing_walls(x, y, state = game) {
 // with solving Sokoban. Off Sokoban or on a solved Sokoban level, always TRUE.
 // The unsolved Sokoban arm follows the source m_cansee check against the
 // upstairs returned by stairway_find_dir().
-function soko_allow_web(mon, state = game) {
+export function soko_allow_web(mon, state = game) {
     if (!state.level.flags?.sokoban_rules) return true;
     // C ref: monmove.c:1260-1263. Unsolved Sokoban permits a web only when
     // the spinner has a clear path to the upstairs; m_cansee is exactly the
@@ -3349,9 +3349,10 @@ export async function postmov(
                 dissolve_bars(monster.mx, monster.my, state);
                 return MMOVE_DONE;
             } else if (state.flags?.verbose && canseemon(monster, state)) {
-                // C: Norep("%s %s %s the iron bars.", ...). The Norep and
-                // locomotion/makeplural formatters are not ported; skip the
-                // message for now.
+                // C: Norep("%s %s %s the iron bars.", ...). Norep is not
+                // ported; skip the message for now. The locomotion and
+                // makeplural owners are implemented in mondata.js and
+                // fruit.js respectively.
                 note_unported('pline.c Norep');
             }
         }

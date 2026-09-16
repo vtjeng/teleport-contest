@@ -127,6 +127,7 @@ import {
     m_move,
     onscary,
     postmov,
+    soko_allow_web,
     set_apparxy,
     should_displace,
     undesirable_disp,
@@ -144,6 +145,7 @@ import {
 } from '../js/mon.js';
 import { bad_rock, may_dig, may_passwall } from '../js/hack.js';
 import { in_your_sanctuary } from '../js/priest.js';
+import { vision_reset } from '../js/vision.js';
 import {
     M1_CLING,
     M1_NEEDPICK,
@@ -1820,6 +1822,34 @@ test('postmov calls maybe_spin_web for a webmaker after a move', async () => {
         MMOVE_NOTHING,
     );
     assert.deepEqual(redraws, []);
+});
+
+// C ref: monmove.c soko_allow_web() (1252-1265). This is pure: the only
+// state read is the Sokoban flag, stairs list, and clear_path transparency
+// index; it makes no random draw, message, or state write.
+test('soko_allow_web follows off-level, solved, and unsolved path rules', () => {
+    const { locations, state } = makeState();
+    const monster = ordinaryMonster(state, { mx: 4, my: 4 });
+
+    // Non-Sokoban levels have no restriction.
+    assert.equal(soko_allow_web(monster, state), true);
+
+    state.level.flags.sokoban_rules = true;
+    state.stairs = { sx: 7, sy: 4, up: true };
+    vision_reset(state);
+    // The unsolved arm permits a spinner with a clear path to the upstairs.
+    assert.equal(soko_allow_web(monster, state), true);
+
+    // An opaque intervening square makes m_cansee()/clear_path() fail.
+    locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+    vision_reset(state);
+    assert.equal(soko_allow_web(monster, state), false);
+
+    // C clears Sokoban rules after completion; its stored solved marker is
+    // historical evidence and does not re-enable the unsolved restriction.
+    state.level.flags.sokoban_rules = false;
+    state.level.flags.sokosolved = 1;
+    assert.equal(soko_allow_web(monster, state), true);
 });
 
 // C ref: monmove.c:1279, maybe_spin_web(). When all five conjuncts hold
