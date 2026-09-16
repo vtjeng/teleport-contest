@@ -32,13 +32,20 @@ import { acurr, adjattrib, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
-import { paranoid_query, y_n, yn_function } from './cmd.js';
+import {
+    cmdq_add_ec,
+    extcmdRow,
+    paranoid_query,
+    y_n,
+    yn_function,
+} from './cmd.js';
 import {
     A_CON,
     ASCENDED,
     BASICENLIGHTENMENT,
     BURNING,
     CHOKING,
+    CQ_CANNED,
     DIED,
     ECMD_OK,
     DISCLOSE_NO_WITHOUT_PROMPT,
@@ -394,10 +401,12 @@ async function fuzzer_savelife(how, state = game, source = {}) {
 
     if (state.done_seq++ > (state.hero_seq ?? 0) + 100) {
         if (!state.wizard) return false;
-        // cmdq_add_ec() would schedule an unported wiz_makemap callback; C
-        // discards its queue operation result, so preserve only the source
-        // boundary and leave the existing command queue untouched.
-        note_unported('wizcmds.c wiz_makemap');
+        // end.c:1008-1010. C queues the wizard map rebuild on the canned
+        // command queue, then returns from fuzzer_savelife. The callback's
+        // implementation remains at cmd.c's existing unported dispatch
+        // boundary, but the queue mutation itself is observable state and
+        // must happen before done() returns.
+        cmdq_add_ec(CQ_CANNED, extcmdRow('wizmakemap'), state);
     }
     return true;
 }

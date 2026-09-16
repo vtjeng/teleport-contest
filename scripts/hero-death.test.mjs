@@ -9,6 +9,7 @@ import {
     COLNO,
     CRUSHING,
     BUFSZ,
+    CQ_CANNED,
     DIED,
     DISSOLVED,
     DROWNING,
@@ -35,7 +36,11 @@ import {
 } from '../js/const.js';
 import { moveloop_core, UnsupportedTurnBoundaryError } from '../js/allmain.js';
 import { can_make_bones } from '../js/bones.js';
-import { failClosedCommandRefusals, paranoid_query } from '../js/cmd.js';
+import {
+    extcmdRow,
+    failClosedCommandRefusals,
+    paranoid_query,
+} from '../js/cmd.js';
 import { UnsupportedEndOfGameError, deaths, done, done_in_by }
     from '../js/end.js';
 import { game } from '../js/gstate.js';
@@ -373,6 +378,27 @@ test('debug-fuzzer recovery keeps temporary remedy effects source-ordered',
     assert.equal(game.u.umortality, 0);
     assert.equal(game.u.uhp, 10);
     assert.ok(game.unported.has('potion.c peffects'));
+});
+
+test('debug-fuzzer queues the wizard map rebuild before returning', async () => {
+    await dyingGame({ playmode: 'debug' });
+    game.iflags.debug_fuzzer = 1;
+    game.done_seq = 101;
+    game.hero_seq = 0;
+    game.u.uhp = 0;
+
+    await done(DIED, game);
+
+    // end.c:1008-1010 appends wiz_makemap to CQ_CANNED before the successful
+    // fuzzer return. The command implementation remains an explicit gap at
+    // cmd.c's dispatch boundary, but dropping this queue node lets the next
+    // raw input run before C's canned command.
+    assert.equal(game.done_seq, 102);
+    assert.equal(game.command_queue[CQ_CANNED].length, 1);
+    assert.equal(
+        game.command_queue[CQ_CANNED][0].ec_entry,
+        extcmdRow('wizmakemap'),
+    );
 });
 
 test('unmul follows a life-saving message with the current polymorph form',
