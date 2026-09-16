@@ -47,6 +47,13 @@ connections, turns, tasks, scope changes, and submissions. You record receipt,
 integration, validation, acceptance, and publication. Keep accepted
 source-completion evidence in `GOALS.json`.
 
+Use `next` for routine coordination and `status` when the full ownership
+state is needed. Event and submission commands currently print the full
+state: capture stdout in one reusable worktree-local `.cache/` file, keep
+stderr visible, and inspect the exit status and affected task or delivery.
+Keep recording required transitions and process handles; avoid copying the
+returned state into tracked records or progress messages.
+
 You own `main`, `GOALS.json`, `SCORE.tsv`, quality and review records, aggregate
 checks, and publication. Workers own their code, focused tests, recipes, and
 recordings. Apply their proposed `QUALITY.json` changes yourself. Do not merge
@@ -198,10 +205,14 @@ Validate each returned file with `readInvestigation(root, queueEntry)` from
 malformed files from existing findings. Require the remaining-screen count
 and cache path in the completion message. When the count changes, stop or
 finish the old investigation before replacing it so an old result cannot
-overwrite a newer one. Collect worker findings into main's investigation
-files and publish them at a safe commit boundary.
-Keep the deployed dashboard current with completed and partial investigations and the latest validated score; publish newly available records at the next safe commit boundary without waiting for an implementation delivery.
-After each push, verify the dashboard deployment and its displayed mismatch queue against the published records.
+overwrite a newer one. Collect changed source findings into main's
+investigation files under `.agents/selection.md`, "Investigation cache".
+Keep the deployed dashboard current with completed and partial findings and
+the latest validated score. Publish changed findings at the next safe commit
+boundary without waiting for an implementation delivery. Worker activity
+alone does not require an investigation edit or publication commit.
+After each push, verify the dashboard deployment and its displayed mismatch
+queue against the published records.
 
 ## Reports
 
