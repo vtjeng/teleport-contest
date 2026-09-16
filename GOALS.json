@@ -55457,7 +55457,73 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "thitmonst",
+            "implementation": "js/dothrow.js",
+            "symbol": "thitmonst",
+            "sourceReview": "Read nethack-c/upstream/src/dothrow.c:2011-2308 in full. The implementation preserves the hmode selection, to-hit arithmetic and evaluation order, unicorn-gem and quest-leader early branches, weapon/ball/boulder/venom/potion/pet/engulfed/final-tmiss class ladder, and the return values that control throwit() object disposition. Used-return dependencies are wired to canonical owners: gem_accept, hmon/hmon_hitmon, tamedog/dog_eat, delobj, and flooreffects through the caller. C-discarded or still-unported void calls are recorded at their source call sites, including direct note_unported('uhitm.c passive_obj') for the discarded partial passive_obj call and the dothrow.c check_shop_obj, potion.c potionhit, trap.c minstapetrify, worm.c cutworm, quest.c finish_quest, sho_obj_return_to_u, and shk.c hot_pursuit gaps. The impossible glove diagnostic is recorded under pline.c. No new Unsupported refusal replaces an admitted return value.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit_mon_hit",
+                "source": "dothrow.c:1492 calls thitmonst() after bhit() has selected a monster; js/dothrow.js throwit_mon_hit() passes the live state and source operation environment through the same production gate."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-final-miss-fresh.session.json"
+            ],
+            "checkedAt": "e24db28224190ae9ece1385815dfdceabe3393b1"
+          }
+        ],
+        "entryPointReview": "The independent recipe recipes/dothrow.c/thitmonst-final-miss-fresh.session.json changes the seed, date/time, role/name, options, and input sequence from the fixed corpus. Its recording matches C completely (3032 PRNG calls, 19 screens, 19 cursors, no animation frames) and executes the production throw_obj→throwit→bhit→throwit_mon_hit→thitmonst final nonweapon tmiss arm, followed by the surviving landing lifecycle. scripts/dothrow-thitmonst.test.mjs and scripts/dothrow.test.mjs pin the source class ladder, random draw order, object predicates and break lifecycle; the migration ordering tests pin swallowed cleanup before m_into_limbo continuation. The selected source functions are wired, but the source goal remains open for entry families that the independent recording cannot reach: real/tame unicorn gem acceptance, quest-leader catch/return, hard-impact breakobj, kicked-object HMON_KICKED, and applied polearm/grapnel HMON_APPLIED. Additional throwit branches whose source callers are still unported are named in the function review and are not claimed as recorded completion. Additional helper functions and incomplete throwit arms are supporting context rather than new verified source units in this thitmonst-only goal. Unrecorded active entries remain open; none is claimed reference-build inactive.",
+        "entryPoints": [
+          {
+            "name": "independent thrown nonweapon final miss",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-final-miss-fresh.session.json"
+            ]
+          },
+          {
+            "name": "unicorn gem acceptance and relocation tail",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "quest leader catch and return",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "kicked-object monster hit",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "applied polearm or grapnel monster hit",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
