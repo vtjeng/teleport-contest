@@ -533,7 +533,7 @@ test('postmov leaves an inert doorway alone', async () => {
         const { env, redraws } = postmovEnv(state);
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env),
             MMOVE_MOVED,
             `mask ${mask}`,
         );
@@ -567,7 +567,7 @@ test('postmov triggers a trapped locked door and preserves source order', async 
     });
 
     assert.equal(
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, true, false, env),
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, true, false, env),
         MMOVE_MOVED,
     );
     assert.equal(state.level.at(5, 4).flags, D_NODOOR);
@@ -600,7 +600,7 @@ test('postmov silently disarms a trapped door for the magic key', async () => {
     });
 
     assert.equal(
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, true, false, env),
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, true, false, env),
         MMOVE_MOVED,
     );
     assert.equal(state.level.at(5, 4).flags, D_ISOPEN);
@@ -623,7 +623,7 @@ test('postmov admits the amorphous arm ahead of the door it could open',
         const { env, messages } = postmovEnv(state);
 
         assert.equal(
-            await postmov(fogCloud, 4, 4, MMOVE_MOVED, false, false, true, env),
+            await postmov(fogCloud, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
             MMOVE_MOVED,
         );
         assert.equal(state.level.at(5, 4).flags, D_CLOSED);
@@ -705,7 +705,7 @@ test('postmov opens a closed door and reports what the hero heard',
         const { env, redraws, messages, visionCalls } = postmovEnv(state);
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
             MMOVE_MOVED,
         );
         // UnblockDoor writes D_ISOPEN, not the D_NODOOR its `!btrapped`
@@ -735,7 +735,7 @@ test('postmov names a spotted monster that opens a door in sight',
         seeSquare(state, 5, 4);
         const { env, messages } = postmovEnv(state);
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
         assert.deepEqual(messages, ['The giant rat opens a door.']);
     });
 
@@ -753,7 +753,7 @@ test('postmov describes a door opened in sight by a monster it cannot spot',
         seeSquare(state, 5, 4);
         const { env, messages } = postmovEnv(state);
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
         assert.deepEqual(messages, ['You see a door open.']);
     });
 
@@ -788,7 +788,7 @@ test('postmov opens the door silently for verbose, Deaf and acoustics',
             locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
             const { env, messages } = postmovEnv(state);
 
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
             assert.deepEqual(messages, [], label);
             assert.equal(state.level.at(5, 4).flags, D_ISOPEN, label);
         }
@@ -815,7 +815,7 @@ test('postmov refuses a move that ends on an unported trap type', async () => {
     });
 
     await assert.rejects(
-        postmov(monster, 5, 4, MMOVE_MOVED, false, false, true, env),
+        postmov(monster, 5, 4, MMOVE_MOVED, 0, false, false, true, env),
         (error) => error.message === 'trap activation',
     );
 });
@@ -846,7 +846,7 @@ test('postmov proves a trap\'s random set before the first write or draw',
         });
 
         await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
             (error) => error instanceof TypeError,
         );
         // The whole point: nothing was written before the refusal.
@@ -866,7 +866,7 @@ test('postmov admits a move that ends on a trapless square', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
     // trap.c:3740, the `!trap` arm: "perhaps teleported?"
     assert.equal(monster.mtrapped, false);
 });
@@ -891,7 +891,7 @@ test('postmov squeaks a board under a monster the hero cannot see',
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
         assert.deepEqual(
             messages,
             ['You hear an A note squeak in the distance.'],
@@ -948,7 +948,7 @@ test('postmov chooses the squeak distance from couldsee and mdistu',
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
 
-            await postmov(monster, mx, my, MMOVE_MOVED, false, false, true, env);
+            await postmov(monster, mx, my, MMOVE_MOVED, 0, false, false, true, env);
             assert.deepEqual(
                 messages,
                 [`You hear an A note squeak ${word}.`],
@@ -999,7 +999,7 @@ test('postmov wakes the sleepers a squeaky board reaches and no others',
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
         assert.equal(near.msleeping, false);
         // mon.c:4387 clears the waiting bits for a monster that is not unique.
@@ -1039,7 +1039,7 @@ test('postmov lets a monster that knows the board escape on rn2(4)',
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
 
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
             assert.deepEqual(bounds, [4], `roll ${roll}`);
             assert.equal(messages.length, squeaks ? 1 : 0, `roll ${roll}`);
         }
@@ -1100,7 +1100,7 @@ test('postmov shoots a dart at a monster the hero watches and misses',
         });
         const discoBefore = JSON.stringify(state.svd.disco);
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
         assert.deepEqual(
             messages,
@@ -1168,7 +1168,7 @@ test('postmov separates the dart line gate from the seetrap gate', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     // The two gates the case exists to separate, asserted directly rather than
     // inferred from the output: the monster cannot be seen, so seetrap() is
@@ -1194,7 +1194,7 @@ test('postmov drops the dart silently for a monster out of sight', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(messages, []);
     assert.equal(state.level.traps[0].once, true);
@@ -1226,7 +1226,7 @@ test('postmov clears a dart poisoned by its own generation', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(
         messages,
@@ -1255,7 +1255,7 @@ test('postmov names a poisoned dart when the trap arm rolls zero', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(
         messages,
@@ -1280,7 +1280,7 @@ test('postmov lands a dart on its target and spends the missile', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(messages, ['The giant rat is hit by a dart!']);
     // objects.h gives a dart oc_wsdam 3, so dmgval() is rnd(3) plus the
@@ -1330,7 +1330,7 @@ test('postmov puts the dart miss and strike either side of fourteen',
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
             const run = postmov(
-                monster, 4, 4, MMOVE_MOVED, false, false, true, env,
+                monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env,
             );
 
             await run;
@@ -1368,7 +1368,7 @@ test('postmov wears out a dart trap the hero has already seen', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     // The bound-15 roll is the only draw: the arm returns before
     // t_missile() reaches mksobj().
@@ -1394,7 +1394,7 @@ test('postmov fires an already-seen dart trap that survives its roll',
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
         // The bound-15 misfire roll comes first, then mksobj_init()'s
         // enchantment, curse, poison and erosion rolls, then the dart arm's
@@ -1418,7 +1418,7 @@ test('postmov does not throw for an ordinary monster on iron bars', async () => 
     // An ordinary giant rat has no bar-dissolving attack; it falls through
     // without throwing an unsupported error.
     const result = await postmov(
-        monster, 4, 4, MMOVE_MOVED, false, false, true, env,
+        monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env,
     );
     assert.ok(result !== undefined);
 });
@@ -1442,7 +1442,7 @@ test('postmov updates an engulfer and admits one that did not move',
         });
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
             MMOVE_MOVED,
         );
         assert.deepEqual(events, [['swallowed', false, 5, 4]]);
@@ -1450,7 +1450,7 @@ test('postmov updates an engulfer and admits one that did not move',
 
         const { env: stayEnv, redraws } = postmovEnv(state);
         assert.equal(
-            await postmov(monster, 5, 4, MMOVE_MOVED, false, false, true,
+            await postmov(monster, 5, 4, MMOVE_MOVED, 0, false, false, true,
                 stayEnv),
             MMOVE_MOVED,
         );
@@ -1477,7 +1477,7 @@ test('postmov delegates the tunnel arm and skips it for a wall-walker',
         });
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, true, false, false, env),
             MMOVE_MOVED,
         );
         assert.deepEqual(rndCalls, [12]);
@@ -1492,7 +1492,7 @@ test('postmov delegates the tunnel arm and skips it for a wall-walker',
         });
         const { env: walkerEnv, redraws } = postmovEnv(state);
         assert.equal(
-            await postmov(wallWalker, 4, 4, MMOVE_MOVED, false, false, false, walkerEnv),
+            await postmov(wallWalker, 4, 4, MMOVE_MOVED, 0, false, false, false, walkerEnv),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[4, 4], [5, 4]]);
@@ -1519,7 +1519,7 @@ test('postmov delegates the dig arm only where may_dig admits the square',
 
         assert.equal(may_dig(5, 4, state), false);
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, true, false, false, env),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[4, 4], [5, 4]]);
@@ -1533,7 +1533,7 @@ test('postmov delegates the dig arm only where may_dig admits the square',
         });
         assert.equal(may_dig(5, 4, state), true);
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, true, false, false,
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, true, false, false,
                 digging.env),
             MMOVE_MOVED,
         );
@@ -1794,7 +1794,7 @@ test('postmov calls maybe_spin_web for a webmaker after a move', async () => {
         const { env, redraws } = postmovEnv(state);
 
         const result = await postmov(
-            monster, 4, 4, mmoved, false, false, false, env,
+            monster, 4, 4, mmoved, 0, false, false, false, env,
         );
         // maybe_spin_web returns without acting, outcome is unchanged.
         assert.equal(result, mmoved, `mmoved ${mmoved}`);
@@ -1811,7 +1811,7 @@ test('postmov calls maybe_spin_web for a webmaker after a move', async () => {
     });
     const { env, redraws } = postmovEnv(state);
     assert.equal(
-        await postmov(monster, 4, 4, MMOVE_NOTHING, false, false, false, env),
+        await postmov(monster, 4, 4, MMOVE_NOTHING, 0, false, false, false, env),
         MMOVE_NOTHING,
     );
     assert.deepEqual(redraws, []);
@@ -1848,7 +1848,7 @@ test('maybe_spin_web draws rn2(1000) and skips web when the roll fails',
         };
 
         const result = await postmov(
-            monster, 4, 4, MMOVE_MOVED, false, false, false, env,
+            monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env,
         );
         assert.equal(result, MMOVE_MOVED);
         // The rn2(1000) draw was made: the five conjuncts all held.
@@ -1886,7 +1886,7 @@ test('maybe_spin_web creates a WEB trap and sets mspec_used on success',
             d(n, s) { dCalls.push([n, s]); return 10; },
         };
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env);
         assert.ok(rn2Calls.includes(1000), 'rn2(1000) was drawn');
         // d(4,4) sets the cooldown on mspec_used.
         assert.deepEqual(dCalls[0], [4, 4], 'd(4,4) drawn for cooldown');
@@ -1914,7 +1914,7 @@ test('maybe_spin_web skips the rn2 draw when mspec_used is nonzero',
             d(n, s) { return n * s; },
         };
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env);
         // No rn2(1000) draw because the conjuncts failed early.
         assert.ok(!rn2Calls.includes(1000),
             `did not expect rn2(1000), got: ${JSON.stringify(rn2Calls)}`);
@@ -1937,7 +1937,7 @@ test('maybe_spin_web skips the rn2 draw for a non-webmaker species',
             d(n, s) { return n * s; },
         };
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env);
         // No rn2(1000) draw: the species is not a webmaker.
         assert.ok(!rn2Calls.includes(1000),
             `did not expect rn2(1000), got: ${JSON.stringify(rn2Calls)}`);

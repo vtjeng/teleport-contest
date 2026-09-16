@@ -3065,24 +3065,14 @@ export async function postmov(
     omx,
     omy,
     mmoved,
-    ...argumentsAfterStatus
+    seenFlags,
+    canTunnel,
+    canUnlock,
+    canOpen,
+    rawEnv = {},
 ) {
-    // C receives seenflgs before the three movement capabilities.  Keep the
-    // old direct-test signature (capabilities first) working while production
-    // m_move() uses the source order.  A caller may also provide seenFlags in
-    // its environment when it cannot use the positional form.
-    let seenFlags;
-    let canTunnel;
-    let canUnlock;
-    let canOpen;
-    let rawEnv;
-    if (typeof argumentsAfterStatus[0] === 'boolean') {
-        [canTunnel, canUnlock, canOpen, rawEnv = {}] = argumentsAfterStatus;
-        seenFlags = rawEnv.seenFlags ?? 0;
-    } else {
-        [seenFlags, canTunnel, canUnlock, canOpen, rawEnv = {}]
-            = argumentsAfterStatus;
-    }
+    // C receives seenflgs before the three movement capabilities.  The
+    // explicit positional signature keeps this source order at every caller.
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
     const random = rawEnv.random ?? { rn2 };
@@ -3379,6 +3369,8 @@ export async function postmov(
             // therefore made directly on live turns and through that seam on
             // planned turns, with the unported display-only arm recorded when
             // no clone operation exists.
+            state.u.ux0 = state.u.ux;
+            state.u.uy0 = state.u.uy;
             u_on_newpos(monster.mx, monster.my, state);
             if (typeof rawEnv.swallowed === 'function') {
                 await rawEnv.swallowed(false, state, env);
@@ -3387,18 +3379,15 @@ export async function postmov(
             } else {
                 note_unported('display.c swallowed clone redraw');
             }
+        } else {
+            redraw(monster.mx, monster.my);
         }
-        redraw(monster.mx, monster.my);
     }
 
     if (mmoved === MMOVE_MOVED || mmoved === MMOVE_DONE) {
         if (state.level?.objects?.[monster.mx]?.[monster.my]
             && monster.mcanmove) {
-            const consumptionEnv = {
-                ...env,
-                touchArtifact: () =>
-                    unsupported('monster artifact item interaction'),
-            };
+            const consumptionEnv = { ...env };
             if (metallivorous(species)) {
                 const eaten = await meatmetal(monster, consumptionEnv);
                 if (eaten >= 2) return MMOVE_DIED;
@@ -3418,8 +3407,6 @@ export async function postmov(
                 {
                     ...env,
                     skipConsumption: true,
-                    touchArtifact: () =>
-                        unsupported('monster artifact item interaction'),
                 },
             );
             if (selected) {
@@ -3435,8 +3422,15 @@ export async function postmov(
                 // gate, where MMOVE_DONE then suppresses the attack.
                 if (picked) outcome = MMOVE_DONE;
             }
-            // monmove.c:1683-1687 repeats newsym() when mtmp->minvis is set.
-            // No ported case sets minvis, so this arm is unreachable.
+            // C ref: monmove.c:1683-1687.  Object consumption or pickup can
+            // leave an invisible monster needing a second repaint.  Worm
+            // tails have their own display owner; keep its discarded-result
+            // dependency explicit until worm.c see_wsegs() is ported.
+            if (monster.minvis) {
+                redraw(monster.mx, monster.my);
+                if (monster.wormno)
+                    note_unported('worm.c see_wsegs');
+            }
         }
         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
         // (webmaker, !helpless, !mspec_used, no trap, soko_allow_web) gate
