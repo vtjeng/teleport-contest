@@ -1971,11 +1971,10 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         return 1;
     } else if (obj.oclass === POTION_CLASS
                && (guaranteedHit || dex > random.rnd(25))) {
-        // C discards potionhit()'s return. Existing potionhit() has only its
-        // hero-target arm, so invoke it with a gap callback to retain its
-        // source bottlename draw without turning this source branch into a
-        // refusal.
-        await potionhit(mon, obj, POTHIT_HERO_THROW, operationEnv);
+        // C discards potionhit()'s return.  Its monster-target body remains
+        // unported, so do not run a partial owner merely to retain a draw;
+        // record the discarded source call and preserve this arm's return.
+        note_unported('potion.c potionhit');
         return 1;
     } else if (befriendWithObject(mon.data, obj, state)
                || (mon.mtame && dogfood(mon, obj, operationEnv) <= ACCFOOD)) {
