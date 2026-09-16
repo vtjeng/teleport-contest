@@ -163,7 +163,6 @@ test('newcham reveals a hidden monster when its new form cannot hide', async () 
         },
         canSpotMonster: () => false,
         message: () => assert.fail('concealment loss has no message'),
-        redraw,
         redrawSquare: redraw,
     }), true);
 

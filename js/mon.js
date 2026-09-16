@@ -2752,6 +2752,8 @@ function* apply_newcham_steps(
         yield (normalized.hideunder ?? hideunder)(monster, {
             ...normalized,
             state,
+            redraw: normalized.redraw
+                ?? ((x, y) => shapeRedraw(x, y, normalized)),
         });
     }
 
