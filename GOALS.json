@@ -56088,7 +56088,7 @@
           "line": 261,
           "endLine": 335,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -56167,7 +56167,126 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_blinded",
+            "implementation": "js/potion.js",
+            "symbol": "make_blinded",
+            "sourceReview": "Read nethack-c/upstream/src/potion.c:261-331 in full. The port preserves BlindedTimeout extraction, the one-turn visibility probe and restoration of non-timeout flags, Unaware talk suppression, C's Hallucination (including resistance) test, PermaBlind and Blindfolded branches, exact regain/clear/loss/temporary blindness messages, final timeout commit, and the XOR call to the canonical toggle_blindness owner. The C eye-count macro is represented for cyclops/floating-eye forms, including the Your prefix required by potion.c:293 and :319. The discarded potion.c strange_feeling and ball.c set_bc calls are recorded with note_unported only for the live game; planning clones stay silent. The old state-specific refusal and injected substitutes are removed.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "wipeoff",
+                "source": "do.c wipeoff"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "pleased",
+                "source": "pray.c pleased"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polyman",
+                "source": "polyself.c polyman"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c wiz_intrinsic"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_cream_pie",
+                "source": "apply.c use_cream_pie"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_blnd",
+                "source": "uhitm.c mhitm_ad_blnd"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c decrement_property_timeouts"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_healing",
+                "source": "artifact.c invoke_healing"
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "scrolltele",
+                "source": "teleport.c scrolltele"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "rottenfood",
+                "source": "eat.c rottenfood"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c fpostfx"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_see_invisible",
+                "source": "potion.c peffect_see_invisible"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "healup",
+                "source": "potion.c healup"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c m_throw"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "flashburn",
+                "source": "zap.c flashburn"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/cast-healing.test.mjs",
+              "scripts/apply-cream-pie.test.mjs",
+              "scripts/wipe-occupation.test.mjs",
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/extra-healing-blessed-independent.session.json",
+              "recordings/potion.c/extra-healing-uncursed-independent.session.json",
+              "recordings/potion.c/extra-healing-cursed-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-variation.session.json"
+            ],
+            "checkedAt": "cd348d992e9f8c27e3ea417d22c28a9db4d6cd29"
+          }
+        ],
+        "entryPointReview": "make_blinded is a shared impure helper rather than a standalone command. The production peffect_extra_healing -> healup -> make_blinded path is exercised by three independently chosen BUC recipes and two independently chosen timed-blind recipes with strict recordings. The timed-blind recordings begin with #wizintrinsic 50i, show C's A cloud of darkness falls upon you. setup, and reach You feel much better.  You can see again. through the production cure transition. The other callers above are source-traced and covered by their existing command or status tests; the seed4500 continuation replay remains diagnostic only. No entry point is claimed beyond these five matching production recordings.",
+        "entryPoints": [
+          {
+            "name": "peffect_extra_healing -> healup(cureblind) -> make_blinded",
+            "functions": [
+              "make_blinded"
+            ],
+            "recordings": [
+              "recordings/potion.c/extra-healing-blessed-independent.session.json",
+              "recordings/potion.c/extra-healing-uncursed-independent.session.json",
+              "recordings/potion.c/extra-healing-cursed-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-independent.session.json",
+              "recordings/potion.c/extra-healing-timed-blind-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

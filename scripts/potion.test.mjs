@@ -163,8 +163,7 @@ test('make_blinded reports temporary dimming when blocked blindness stays unseen
 test('make_blinded preserves Your prefix for blindfold itch and twitch',
     async () => {
     // potion.c:293 and :319 use Your() around the source-selected eye/body
-    // part.  Keep both timeout directions source-pinned, including the
-    // singular eye form used by cyclopes.
+    // part. Keep both timeout directions source-pinned for a two-eyed form.
     const state = {
         u: { uprops: [], uwep: null },
         youmonst: { data: { mflags1: 0, mlet: 8, pmidx: 0 } },
