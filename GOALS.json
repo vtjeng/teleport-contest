@@ -52707,7 +52707,7 @@
     {
       "id": "div-hack-domove-fight-empty-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Select force-fight objects from the displayed glyph before naming the target",
       "cFile": "hack.c",
       "sessions": [],
@@ -52716,8 +52716,8 @@
       "spans": [
         {
           "name": "glyph-selected-force-fight",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "df20c4723600647befa2a614ded8f7eb0f0814cd",
           "functions": [
             "domove_fight_empty"
           ]
@@ -52729,8 +52729,11 @@
         "screens": 10273,
         "rng": 754203
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "df20c4723600647befa2a614ded8f7eb0f0814cd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "domove_fight_empty",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1048,
@@ -52816,7 +52819,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "df20c4723600647befa2a614ded8f7eb0f0814cd",
+        "screens": 10273,
+        "rng": 754203
+      }
     }
   ]
 }
