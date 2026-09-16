@@ -54395,7 +54395,7 @@
     {
       "id": "port-insight-genocided-seed0106-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the whole genocided species disclosure family and production callers",
       "cFile": "insight.c",
       "sessions": [
@@ -54406,8 +54406,8 @@
       "spans": [
         {
           "name": "num_extinct..dogenocided",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c9fb352bd6b7fa21ed2551ee1c3851c7d2459b97",
           "functions": [
             "num_extinct",
             "num_gone",
@@ -54699,7 +54699,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 41,
+        "rng": 51
+      },
+      "parkedStanding": {
+        "sha": "c9fb352bd6b7fa21ed2551ee1c3851c7d2459b97",
+        "screens": 10403,
+        "rng": 756196
+      },
+      "parkedReason": "Completed source span passes combined validation; positive genocided/extinct lists with shared sorting and final-disclosure entries still need matching production recordings."
     }
   ]
 }
