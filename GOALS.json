@@ -51897,8 +51897,8 @@
           "name": "dosacrifice",
           "line": 1854,
           "endLine": 1898,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -51983,7 +51983,61 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dosacrifice",
+            "implementation": "js/pray.js",
+            "symbol": "dosacrifice",
+            "sourceReview": "Read nethack-c/upstream/src/pray.c dosacrifice() at lines 1854-1896 in full. Verified altar alignment is evaluated before the on_altar/uswallow and Confusion/Stunned guards, the high altar test precedes floorfood(\"sacrifice\", 1), and the real, fake, corpse, and final nothing_happens arms preserve C ordering and ECMD results. The selected offering path is wired through js/eat.js floorfood(), including offer_ok(), tin_ok(), and tinnable() source dependencies; pure tinnable behavior is pinned by scripts/eat.test.mjs. C helper calls whose return values are discarded remain explicit note_unported gaps: pray.c offer_too_soon, offer_real_amulet, offer_fake_amulet, offer_corpse, and the eat.c impossible() diagnostic. Obsolete refusal and invented selector effects were removed.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist registers the offer row with dosacrifice and doextcmd dispatches the selected handler; js/cmd.js doextcmd() maps the dosacrifice handler to dosacrifice(state)."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c itemactions_pushkeys() queues dosacrifice through the offer extended-command row for IA_SACRIFICE; js/iactions.js itemactions_pushkeys() queues extcmdRow('offer') and the object's inventory key."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs",
+              "scripts/eat.test.mjs",
+              "scripts/eat-prompt.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/dosacrifice-ordinary-seed8106001.session.json",
+              "recordings/pray.c/dosacrifice-altar-selector-seed100.session.json"
+            ],
+            "checkedAt": "b26474db97f7b4d30249be1eb1886c980d4c7ab4"
+          }
+        ],
+        "entryPointReview": "The selected range has two production entry routes: the dosacrifice guard path and the altar selector path that reaches floorfood and offer_ok. Both have independent matching fresh recordings. The selected corpse arm and the floorfood tin and metallivore branches are source-pinned and caller-wired; their unported offering or impossible diagnostic helpers are recorded in sourceReview and no production recording claims those helper effects. The two preserved blocked altar probes document setup blockers and are intentionally excluded from matching recordings.",
+        "entryPoints": [
+          {
+            "name": "dosacrifice guard",
+            "functions": [
+              "dosacrifice"
+            ],
+            "recordings": [
+              "recordings/pray.c/dosacrifice-ordinary-seed8106001.session.json"
+            ]
+          },
+          {
+            "name": "dosacrifice altar selector / offer_ok",
+            "functions": [
+              "dosacrifice"
+            ],
+            "recordings": [
+              "recordings/pray.c/dosacrifice-altar-selector-seed100.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
