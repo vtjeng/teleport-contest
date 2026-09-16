@@ -8,12 +8,15 @@ import {
     artifact_hit,
     artifact_light,
     permapoisoned,
+    shade_glare,
 } from './artifacts.js';
 import { adjalign, exercise } from './attrib.js';
 import {
     A_DEX,
     A_LAWFUL,
     A_STR,
+    A_WIS,
+    ACID_RES,
     ARTICLE_THE,
     BLINDED,
     CONFUSION,
@@ -24,6 +27,8 @@ import {
     HALLUC_RES,
     HMON_APPLIED,
     HMON_MELEE,
+    HMON_KICKED,
+    HMON_THROWN,
     LL_CONDUCT,
     IS_DOOR,
     M_ATTK_AGR_DIED,
@@ -36,14 +41,18 @@ import {
     M_SEEN_COLD,
     M_SEEN_ELEC,
     NATTK,
+    NEED_WEAPON,
     P_BARE_HANDED_COMBAT,
     P_BASIC,
     P_KNIFE,
     P_LANCE,
     P_NONE,
+    POTHIT_HERO_BASH,
+    POTHIT_HERO_THROW,
     P_SKILLED,
     P_WHIP,
     POISON_RES,
+    STONE_RES,
     SHOCK_RES,
     DETECT_MONSTERS,
     EXACT_NAME,
@@ -65,11 +74,17 @@ import {
     engulfing_u,
     helpless,
     isok,
+    ismnum,
     M_AP_TYPE,
     HAND,
     NO_TRAP_FLAGS,
+    MAX_EGG_HATCH_TIME,
+    NEUTRAL,
+    CXN_ARTICLE,
+    CXN_PFX_THE,
     XKILL_NOMSG,
     something,
+    Upolyd,
 } from './const.js';
 import {
     Adjmonnam,
@@ -85,6 +100,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { livelog_printf } from './pline.js';
+import { ttyPline } from './tty_message.js';
 import { makeplural } from './fruit.js';
 import {
     glyph_at,
@@ -102,6 +118,7 @@ import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { doorless_door, test_move } from './hack.js';
 import { ing_suffix, s_suffix, sgn } from './hacklib.js';
+import { change_luck } from './moveloop_preamble.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
 // so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
 // into each other. Both bindings are hoisted function declarations, which an
@@ -121,7 +138,6 @@ import {
 import {
     amorphous,
     attacktype,
-    bigmonst,
     can_blnd,
     dmgtype,
     gender,
@@ -131,8 +147,10 @@ import {
     is_demon,
     is_orc,
     is_undead,
+    is_vampshifter,
     is_watch,
     is_whirly,
+    mon_hates_blessings,
     mon_hates_light,
     mon_hates_silver,
     hates_silver,
@@ -140,6 +158,8 @@ import {
     monstseesu,
     monstunseesu,
     noncorporeal,
+    monster_resists_element,
+    passes_rocks,
     sticks,
     thick_skinned,
     touch_petrifies,
@@ -198,6 +218,7 @@ import {
     AT_BUTT,
     AT_CLAW,
     AT_ENGL,
+    AT_SPIT,
     AT_GAZE,
     AT_HUGS,
     AT_KICK,
@@ -215,6 +236,8 @@ import {
     PM_ARCHON,
     PM_BALROG,
     PM_FLOATING_EYE,
+    PM_IRON_GOLEM,
+    PM_PYROLISK,
     PM_PURPLE_WORM,
     PM_ROGUE,
     PM_SAMURAI,
@@ -233,18 +256,28 @@ import {
 import {
     carried,
     is_ammo,
+    ammo_and_launcher,
+    greatest_erosion,
     is_launcher,
     is_missile,
     is_weptool,
     mksobj,
+    is_flimsy,
+    is_shield,
+    is_wet_towel,
+    place_object,
+    splitobj,
     objectType,
+    stone_missile,
+    weight,
 } from './obj.js';
-import { add_to_minv, obfree, useup } from './invent.js';
+import { add_to_minv, freeinv, obfree, useup, useupall } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
     an,
     bare_artifactname,
     cxname,
+    corpse_xname,
     donameFresh,
     is_plural,
     obj_is_pname,
@@ -253,22 +286,44 @@ import {
     The,
     vtense,
     yname,
+    Yobjnam2,
+    ysimple_name as ysimpleName,
+    mshot_xname,
+    isPoisonable,
 } from './objnam.js';
 import {
+    ACID_VENOM,
+    BLINDING_VENOM,
+    BOOMERANG,
+    BOULDER,
+    CLOVE_OF_GARLIC,
     CORPSE,
     CREAM_PIE,
+    EGG,
+    ELVEN_ARROW,
+    EXPENSIVE_CAMERA,
     GAUNTLETS_OF_POWER,
     GEM_CLASS,
+    HEAVY_IRON_BALL,
     IRON,
+    IRON_CHAIN,
     KATANA,
     METAL,
+    MIRROR,
     NO_MATERIAL,
+    PAPER,
+    POTION_CLASS,
+    ROCK,
     SILVER,
+    SPBOOK_CLASS,
+    VEGGY,
     WEAPON_CLASS,
+    YA,
+    YUMI,
 } from './objects.js';
 import { encumber_msg } from './pickup.js';
-import { make_blinded } from './potion.js';
-import { d, rn1, rn2, rnd } from './rng.js';
+import { make_blinded, potionhit } from './potion.js';
+import { d, rn1, rn2, rnl, rnd } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -298,6 +353,7 @@ import {
     extract_from_minvent,
     find_mac,
     is_pole,
+    setuwep,
     which_armor,
 } from './worn.js';
 import { steal } from './steal.js';
@@ -307,10 +363,12 @@ import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { Cold_resistance, exclam } from './zap.js';
+import { Cold_resistance, exclam, hit } from './zap.js';
 import { note_unported } from './unported.js';
-import { canseemon } from './vision.js';
+import { cansee, canseemon } from './vision.js';
 import { body_part, mbodypart } from './polyself.js';
+import { observe_object } from './o_init.js';
+import { obj_resists } from './bury.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -1132,18 +1190,17 @@ export async function hitum(mon, uattk, state = game, env = {}) {
 // body is two consequences of striking a monster the town protects.
 //
 // `anger_guards` is computed at 826-828, before hmon_hitmon() runs, and is
-// called after the hit just as C does. The priest's rn2(2) and ghod_hitsu()
-// remain an unported consequence; ordinary ranged hits still reach the full
-// damage routine before that boundary.
+// called after the hit just as C does. ghod_hitsu() is a discarded void
+// consequence, but its priest-only rn2(2) still belongs to this source
+// wrapper and must be consumed before returning the hit result.
 export async function hmon(mon, obj, thrown, dieroll, state = game, env = {}) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
+    const random = env.random ?? { rn2 };
     const angerGuards = mon.mpeaceful
         && (mon.ispriest || mon.isshk || is_watch(mon.data));
 
-    // 830-831 ghod_hitsu() remains unported.
-    if (mon.ispriest) unsupported('striking a temple priest');
-
     const result = await hmon_hitmon(mon, obj, thrown, dieroll, state, env);
+    if (mon.ispriest && !random.rn2(2))
+        note_unported('priest.c ghod_hitsu');
     if (angerGuards) {
         const deaf = state.u?.uprops?.[DEAF];
         await angry_guards(
@@ -1222,6 +1279,19 @@ function backstabbable(mon, state) {
         && Boolean(mon.mflee || helpless(mon));
 }
 
+// C ref: uhitm.c shade_aware() (1992-2014).  These objects either affect a
+// shade directly or have a dedicated misc-object arm that handles shades.
+// Keep this predicate beside hmon_hitmon_do_hit(), the only caller.
+function shade_aware(obj, state) {
+    if (!obj) return false;
+    return obj.otyp === BOULDER
+        || obj.otyp === HEAVY_IRON_BALL
+        || obj.otyp === IRON_CHAIN
+        || obj.otyp === MIRROR
+        || obj.otyp === CLOVE_OF_GARLIC
+        || objectType(obj, state).oc_material === SILVER;
+}
+
 // C ref: uhitm.c hmon_hitmon_weapon_melee() (933-1067). Damage for a wielded
 // weapon, weapon-tool or gem swung in melee, and the flags the messages below
 // read off it.
@@ -1235,11 +1305,9 @@ function backstabbable(mon, state) {
 //   1043-1049 joust(), for a lance used from a saddle.
 //   1050-1063 the HMON_THROWN ammunition bonuses. hmon() admits only
 //             HMON_MELEE, so `thrown` is 0 here and both tests fail.
-//   1065-1066 permapoisoned(), which only Grimtooth satisfies; its
-//             hmon_hitmon_poison() owner is unported.
+//   1065-1066 permapoisoned(), which only Grimtooth satisfies; the poison
+//             owner below consumes its source result flags.
 async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
-
     /* "normal" weapon usage */
     hmd.use_weapon_skill = true;
     hmd.dmg = dmgval(obj, mon, state, { ...env, random });
@@ -1278,8 +1346,32 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
                        && obj.otyp === KATANA && !state.uarms))
                && uwep_skill_type(state) !== P_NONE
                && P_SKILL(uwep_skill_type(state), state) >= P_SKILLED
-               && mon.mw /* MON_WEP() */) {
-        unsupported('shattering a monster weapon');
+               && mon.mw /* MON_WEP() */
+               && !is_flimsy(mon.mw, state)
+               && !obj_resists(
+                   mon.mw,
+                   50 + 15 * (greatest_erosion(obj)
+                       - greatest_erosion(mon.mw)),
+                   100,
+                   { ...env, state, random },
+               )) {
+        const monwep = mon.mw;
+        mon.weapon_check = NEED_WEAPON;
+        await (await import('./weapon.js')).setmnotwielded(
+            mon, monwep, { ...env, state },
+        );
+        await (await import('./mthrowu.js')).m_useupall(
+            mon, monwep, { ...env, state },
+        );
+        if (canSeeMonster(mon, state)) {
+            await requireAttackOperation(env, 'message')(
+                `${Yobjnam2(monwep, 'shatter', state)} from the force of your blow!`,
+                state,
+            );
+        }
+        if (random.rn2(4))
+            await monflee(mon, random.d(2, 3), true, true,
+                         { ...env, state, random });
     }
 
     if (obj.oartifact) {
@@ -1313,10 +1405,29 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
         hmd.lightobj = true;
     if (state.u.usteed && !hmd.thrown && hmd.dmg > 0
         && weapon_type(obj, state) === P_LANCE && mon !== state.u.ustuck) {
-        unsupported('jousting from a saddle');
+        // joust()'s knockback and lance break are a discarded side effect in
+        // this source slice. Keep the hit's damage and mark the source call
+        // without replacing it with a refusal.
+        note_unported('steed.c joust');
+        hmd.jousting = 1;
+    }
+    if (hmd.thrown === HMON_THROWN
+        && (is_ammo(obj, state) || is_missile(obj, state))) {
+        if (ammo_and_launcher(obj, state.uwep, state)) {
+            if (state.urole?.mnum === PM_SAMURAI
+                && obj.otyp === YA && state.uwep?.otyp === YUMI)
+                hmd.dmg++;
+            else if (state.urace?.mnum === PM_ELF
+                     && obj.otyp === ELVEN_ARROW
+                     && state.uwep?.otyp === ELVEN_BOW)
+                hmd.dmg++;
+            hmd.train_weapon_skill = hmd.dmg > 0;
+        }
+        if (obj.opoisoned && isPoisonable(obj, state))
+            hmd.ispoisoned = true;
     }
     if (permapoisoned(obj) && hmd.dieroll <= 5)
-        unsupported('a permanently poisoned weapon');
+        hmd.ispoisoned = true;
 }
 
 // C ref: uhitm.c hmon_hitmon_weapon() (1069-1092). Chooses between the melee
@@ -1327,21 +1438,50 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
 // and needs the BOOMERANG return arm at 901-917 that gives the weapon back to
 // the hero.
 //
-// C's four tests are written against `hmd->thrown`; the ranged path now keeps
-// that field, so its projectile-specific tests remain source-visible even
-// while the separate ranged weapon helper is still unsupported.
+// C's four tests are written against `hmd->thrown`; the ranged path keeps
+// that field so its projectile-specific tests remain source-visible.
+async function hmon_hitmon_weapon_ranged(hmd, mon, obj, state, env, random) {
+    if (hmd.mdat === state.mons[PM_SHADE] && !shade_glare(obj, state))
+        hmd.dmg = 0;
+    else
+        hmd.dmg = random.rnd(2);
+    if (hmd.material === SILVER && mon_hates_silver(mon)) {
+        hmd.silvermsg = hmd.silverobj = true;
+        hmd.dmg += random.rnd(hmd.dmg ? 20 : 10);
+    }
+    if (!hmd.thrown && obj === state.uwep && obj.otyp === BOOMERANG
+        && (random.rnl ?? rnl)(4) === 3) {
+        const moreThanOne = obj.quan > 1;
+        const message = requireAttackOperation(env, 'message');
+        await message(
+            `As you hit ${mon_nam(mon, state)}, ${moreThanOne ? 'one of ' : ''}`
+            + `${yname(obj, state)} breaks into splinters.`,
+            state,
+        );
+        if (!moreThanOne) {
+            state.gn ??= {};
+            state.gn.unweapon = true;
+        }
+        useup(obj, { ...env, state });
+        hmd.hittxt = true;
+        if (hmd.mdat !== state.mons[PM_SHADE]) hmd.dmg++;
+    }
+}
+
 async function hmon_hitmon_weapon(hmd, mon, obj, state, env, random) {
     /* is it not a melee weapon? */
     if (/* if you strike with a bow... */
         is_launcher(obj, state)
         /* or strike with a missile in your hand... */
-        || is_missile(obj, state) || is_ammo(obj, state)
+        || (!hmd.thrown && (is_missile(obj, state) || is_ammo(obj, state)))
         /* or use a pole at short range and not mounted... */
-        || (!state.u.usteed && is_pole(obj, state)
-            && obj.oartifact !== ART_SNICKERSNEE)) {
-        requireAttackOperation(env, 'unsupported')(
-            'hitting with a launcher or ammunition',
-        );
+        || (!hmd.thrown && !state.u.usteed && is_pole(obj, state)
+            && obj.oartifact !== ART_SNICKERSNEE)
+        /* throw an ammo object without its matching launcher */
+        || (is_ammo(obj, state)
+            && (hmd.thrown !== HMON_THROWN
+                || !ammo_and_launcher(obj, state.uwep, state)))) {
+        await hmon_hitmon_weapon_ranged(hmd, mon, obj, state, env, random);
     } else {
         await hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random);
     }
@@ -1352,77 +1492,342 @@ async function hmon_hitmon_weapon(hmd, mon, obj, state, env, random) {
 // defender, consumes the object, and leaves zero damage while marking the hit
 // text so the generic damage and message tails do not add a second result.
 async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
-    if (obj?.otyp !== CREAM_PIE) {
-        requireAttackOperation(env, 'unsupported')(
-            'hitting with an unsupported non-weapon',
-        );
+    const message = requireAttackOperation(env, 'message');
+    const lifeEnv = { ...env, state, random };
+
+    /* Keep the complete non-weapon switch in the uhitm.c owner.  These arms
+       are reached by do_hit() for ordinary objects and by dothrow for thrown
+       objects, so an early cream-pie-only refusal changes both damage and
+       object lifetime. */
+    if (obj.otyp === BOULDER || obj.otyp === HEAVY_IRON_BALL
+        || obj.otyp === IRON_CHAIN) {
+        hmd.dmg = dmgval(obj, mon, state, lifeEnv);
         return;
     }
 
-    const message = requireAttackOperation(env, 'message');
-    mon.msleeping = 0;
-    if (can_blnd(state.youmonst, mon, AT_WEAP, obj, state)) {
-        if (heroIsBlind(state)) {
-            await message('Splat!', state);
-        } else {
-            let whom = monsterPossessive(mon, state);
-            const what = The(cxname(obj, state), state);
-            if (haseyes(hmd.mdat) && hmd.mdat.pmidx !== PM_FLOATING_EYE)
-                whom += ` ${mbodypart(mon, FACE)}`;
+    if (obj.otyp === MIRROR) {
+        // breaktest() owns the source resistance draw and decision.  Dynamic
+        // import avoids making dothrow's existing uhitm cycle eager.
+        const { breaktest } = await import('./dothrow.js');
+        if (breaktest(obj, lifeEnv)) {
             await message(
-                `${what} ${vtense(what, 'splash')} over ${whom}!`,
+                `You break ${ysimpleName(obj, state)}.  That's bad luck!`,
                 state,
             );
+            change_luck(-2, state);
+            useup(obj, lifeEnv);
+            hmd.unarmed = false;
+            hmd.get_dmg_bonus = false;
+            hmd.hittxt = true;
         }
-        await setmangry(mon, true, { ...env, state, random });
-        mon.mcansee = 0;
-        hmd.dmg = random.rn1(25, 21);
-        mon.mblinded = Math.min(127, (mon.mblinded ?? 0) + hmd.dmg);
-    } else {
-        await message('Splat!', state);
-        await setmangry(mon, true, { ...env, state, random });
+        hmd.dmg = 1;
+        return;
     }
 
-    if (hmd.thrown)
-        obfree(obj, null, { ...env, state });
+    if (obj.otyp === EXPENSIVE_CAMERA) {
+        await message(
+            `You succeed in destroying ${ysimpleName(obj, state)}.  Congratulations!`,
+            state,
+        );
+        // release_camera_demon() is a discarded side effect in C.  Preserve
+        // that explicit source boundary without inventing a monster or draw.
+        note_unported('dothrow.c release_camera_demon');
+        useup(obj, lifeEnv);
+        hmd.doreturn = true;
+        hmd.retval = true;
+        return;
+    }
+
+    if (obj.otyp === CORPSE) {
+        const corpseSpecies = ismnum(obj.corpsenm)
+            ? state.mons?.[obj.corpsenm] : null;
+        if (corpseSpecies && touch_petrifies(corpseSpecies)) {
+            hmd.dmg = 1;
+            hmd.hittxt = true;
+            await message(
+                `You hit ${monsterCommonName(mon, state)} with `
+                    + `${corpse_xname(
+                        obj,
+                        null,
+                        obj.dknown ? CXN_PFX_THE : CXN_ARTICLE,
+                        state,
+                    )}.`,
+                state,
+            );
+            observe_object(obj, state);
+            const { munstone } = await import('./muse.js');
+            if (!await munstone(mon, true, state, lifeEnv))
+                note_unported('mon.c minstapetrify');
+            if (!monster_resists_element(mon, STONE_RES, state)) {
+                hmd.doreturn = true;
+                hmd.retval = mon.mhp >= 1;
+                return;
+            }
+            /* C's `break` leaves hmon_hitmon_misc_obj() with its nominal
+               one-point damage; hmon_hitmon() then applies that damage. */
+            return;
+        }
+        hmd.dmg = (corpseSpecies?.msize ?? 0) + 1;
+        return;
+    }
+
+    if (obj.otyp === EGG) {
+        const count = obj.quan ?? 1;
+        hmd.dmg = 1;
+        hmd.get_dmg_bonus = false;
+        hmd.hittxt = true;
+        if (obj === state.uwep) {
+            state.gn ??= {};
+            state.gn.unweapon = true;
+        }
+        if (obj.spe && ismnum(obj.corpsenm))
+            change_luck(-Math.min(count, 5), state);
+        const eggSpecies = ismnum(obj.corpsenm)
+            ? state.mons?.[obj.corpsenm] : null;
+        if (eggSpecies && touch_petrifies(eggSpecies)) {
+            await message(
+                `Splat!  You hit ${monsterCommonName(mon, state)} with `
+                    + `${obj.known ? 'the' : count > 1 ? 'some' : 'a'} `
+                    + `${obj.known ? `the ${pmname(eggSpecies, NEUTRAL)}` : 'petrifying'} egg`
+                    + `${count === 1 ? '' : 's'}!`,
+                state,
+            );
+            obj.known = true;
+            if (hmd.thrown) obfree(obj, null, lifeEnv);
+            else useupall(obj, lifeEnv);
+            const { munstone } = await import('./muse.js');
+            if (!await munstone(mon, true, state, lifeEnv))
+                note_unported('mon.c minstapetrify');
+            if (!monster_resists_element(mon, STONE_RES, state)) {
+                hmd.doreturn = true;
+                hmd.retval = mon.mhp >= 1;
+                return;
+            }
+            /* C's switch `break` continues through the common hit tail when
+               the defender resists petrification. */
+            return;
+        }
+
+        const eggName = eggSpecies && obj.known
+            ? `the ${pmname(eggSpecies, NEUTRAL)}`
+            : count > 1 ? 'some' : 'an';
+        await message(
+            `You hit ${monsterCommonName(mon, state)} with ${eggName} egg`
+                + `${count === 1 ? '' : 's'}.`,
+            state,
+        );
+        const staleEgg = Number.isFinite(state.moves)
+            && state.moves - (obj.age ?? 0) > 2 * MAX_EGG_HATCH_TIME;
+        if (hmd.mdat && touch_petrifies(hmd.mdat) && !staleEgg) {
+            await message(
+                `The egg${count === 1 ? '' : 's'} isn't alive any more...`,
+                state,
+            );
+            if (obj.timed) {
+                const { obj_stop_timers } = await import('./timeout.js');
+                obj_stop_timers(obj, state, lifeEnv);
+            }
+            obj.otyp = ROCK;
+            obj.oclass = GEM_CLASS;
+            obj.oartifact = 0;
+            obj.spe = 0;
+            obj.known = obj.dknown = obj.bknown = 0;
+            obj.owt = weight(obj, lifeEnv);
+            if (hmd.thrown) place_object(obj, mon.mx, mon.my, lifeEnv);
+        } else if (obj.corpsenm === PM_PYROLISK) {
+            if (hmd.thrown) obfree(obj, null, lifeEnv);
+            else useupall(obj, lifeEnv);
+            const { explode } = await import('./explode.js');
+            await explode(mon.mx, mon.my, -11, random.d(3, 6), 0, 5,
+                state, lifeEnv);
+            hmd.doreturn = true;
+            hmd.retval = mon.mhp >= 1;
+            return;
+        } else {
+            await message('Splat!', state);
+            if (hmd.thrown) obfree(obj, null, lifeEnv);
+            else useupall(obj, lifeEnv);
+            await exercise(A_WIS, false, state);
+        }
+        return;
+    }
+
+    if (obj.otyp === CLOVE_OF_GARLIC) {
+        if (is_undead(hmd.mdat) || is_vampshifter(mon))
+            await monflee(mon, random.d(2, 4), false, true, lifeEnv);
+        hmd.dmg = 1;
+        return;
+    }
+
+    if (obj.otyp === CREAM_PIE || obj.otyp === BLINDING_VENOM) {
+        mon.msleeping = 0;
+        if (can_blnd(
+            state.youmonst, mon,
+            obj.otyp === BLINDING_VENOM ? AT_SPIT : AT_WEAP,
+            obj,
+            state,
+        )) {
+            if (heroIsBlind(state)) {
+                await message(obj.otyp === CREAM_PIE ? 'Splat!' : 'Splash!', state);
+            } else if (obj.otyp === BLINDING_VENOM) {
+                await message(
+                    `The venom blinds ${monsterCommonName(mon, state)}`
+                        + `${mon.mcansee ? '' : ' further'}!`,
+                    state,
+                );
+            } else {
+                let whom = monsterPossessive(mon, state);
+                const what = The(cxname(obj, state), state);
+                if (haseyes(hmd.mdat) && hmd.mdat.pmidx !== PM_FLOATING_EYE)
+                    whom += ` ${mbodypart(mon, FACE)}`;
+                await message(
+                    `${what} ${vtense(what, 'splash')} over ${whom}!`,
+                    state,
+                );
+            }
+            await setmangry(mon, true, lifeEnv);
+            mon.mcansee = 0;
+            hmd.dmg = random.rn1(25, 21);
+            mon.mblinded = Math.min(127, (mon.mblinded ?? 0) + hmd.dmg);
+        } else {
+            await message(obj.otyp === CREAM_PIE ? 'Splat!' : 'Splash!', state);
+            await setmangry(mon, true, lifeEnv);
+        }
+        if (hmd.thrown) obfree(obj, null, lifeEnv);
+        else useup(obj, lifeEnv);
+        hmd.hittxt = true;
+        hmd.get_dmg_bonus = false;
+        hmd.dmg = 0;
+        return;
+    }
+
+    if (obj.otyp === ACID_VENOM) {
+        if (monster_resists_element(mon, ACID_RES, state)) {
+            await message(
+                `Your venom hits ${monsterCommonName(mon, state)} harmlessly.`,
+                state,
+            );
+            hmd.dmg = 0;
+        } else {
+            await message(
+                `Your venom burns ${monsterCommonName(mon, state)}!`,
+                state,
+            );
+            hmd.dmg = dmgval(obj, mon, state, lifeEnv);
+        }
+        if (hmd.thrown) obfree(obj, null, lifeEnv);
+        else useup(obj, lifeEnv);
+        hmd.hittxt = true;
+        hmd.get_dmg_bonus = false;
+        return;
+    }
+
+    const type = objectType(obj, state);
+    if ((type.oc_material === VEGGY || type.oc_material === PAPER)
+        && obj.oclass !== SPBOOK_CLASS) {
+        hmd.dmg = 0;
+        hmd.get_dmg_bonus = false;
+        return;
+    }
+    hmd.dmg = Math.trunc((obj.owt + 99) / 100);
+    hmd.dmg = hmd.dmg <= 1 ? 1 : random.rnd(hmd.dmg);
+    if (hmd.dmg > 6) hmd.dmg = 6;
+    if (is_wet_towel(obj)) {
+        const doubled = mon.data === state.mons[PM_IRON_GOLEM];
+        hmd.dmg += obj.spe * (doubled ? 2 : 1);
+        hmd.dmg = random.rnd(hmd.dmg);
+        hmd.dryit = random.rn2(obj.spe + 1) > 0;
+    }
+    if (hmd.material === SILVER && mon_hates_silver(mon)) {
+        hmd.dmg += random.rnd(20);
+        hmd.silvermsg = hmd.silverobj = true;
+    }
+    if (obj.blessed && mon_hates_blessings(mon)) hmd.dmg += random.rnd(4);
+}
+
+
+// C ref: uhitm.c hmon_hitmon_potion() (1095-1117). A potion thrown or
+// applied at a monster is split out of a stack, removed from hero inventory,
+// and handed to potionhit(). The potion owner may kill the target, in which
+// case hmon_hitmon() must return immediately with FALSE.
+async function hmon_hitmon_potion(hmd, mon, obj, state, env) {
+    if (obj.quan > 1)
+        obj = splitobj(obj, 1, { ...env, state });
     else
-        useup(obj, { ...env, state });
+        setuwep(null, { ...env, state });
+    // freeinv() is the source extraction before potionhit(), including the
+    // stack and worn-slot bookkeeping owned by invent.c/worn.c.
+    freeinv(obj, { ...env, state });
+    await potionhit(
+        mon,
+        obj,
+        hmd.hand_to_hand ? POTHIT_HERO_BASH : POTHIT_HERO_THROW,
+        { ...env, state },
+    );
+    if (mon.mhp < 1) {
+        hmd.doreturn = true;
+        hmd.retval = false;
+        return;
+    }
     hmd.hittxt = true;
-    hmd.get_dmg_bonus = false;
-    hmd.dmg = 0;
+    hmd.mdat = mon.data;
+    hmd.dmg = hmd.mdat === state.mons[PM_SHADE] ? 0 : 1;
 }
 
 // C ref: uhitm.c hmon_hitmon_do_hit() (1386-1433). Rolls the blow's base
 // damage, dispatching on what the hero swung.
 //
-// Three arms stop:
+// The stone missile and potion arms stop early; the non-weapon switch carries
+// the remaining object families through their source damage and lifetime
+// paths.
 //
 //   1398-1406 a thrown or kicked stone missile against a rock-passing target.
 //   1412-1413 bare_artifactname(), for a lit Sunsword whose name the messages
 //             need after the object may have been destroyed.
-//   1420-1431 hmon_hitmon_potion(), which remains outside this span; the
-//             cream-pie arm of hmon_hitmon_misc_obj() is implemented below.
+//   1420-1431 hmon_hitmon_potion(), which returns when potionhit() kills;
+//             shade_aware() protects the dedicated misc-object arms below.
 async function hmon_hitmon_do_hit(hmd, mon, obj, state, env, random) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
-
     if (!obj) { /* attack with bare hands */
         await hmon_hitmon_barehands(hmd, mon, state, env, random);
     } else {
+        /* A rock missile passes through a wall-walking target and is consumed
+           by this hit path without dealing damage. */
+        if ((hmd.thrown === HMON_THROWN || hmd.thrown === HMON_KICKED)
+            && stone_missile(obj) && passes_rocks(hmd.mdat)) {
+            await hit(
+                mshot_xname(obj, state),
+                mon,
+                ' but does no harm.',
+                state,
+                env,
+            );
+            await wakeup(mon, true, { ...env, state });
+            hmd.doreturn = true;
+            hmd.retval = true;
+            return;
+        }
         /* remember obj's name since it might end up being destroyed and
            we'll want to use it after that */
         if (!(artifact_light(obj) && obj.lamplit))
             hmd.saved_oname = cxname(obj, state);
         else
-            unsupported('naming a lit artifact light source');
+            hmd.saved_oname = bare_artifactname(obj, state);
 
         if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
             || obj.oclass === GEM_CLASS) {
             await hmon_hitmon_weapon(hmd, mon, obj, state, env, random);
+            if (hmd.doreturn) return;
+        } else if (obj.oclass === POTION_CLASS) {
+            await hmon_hitmon_potion(hmd, mon, obj, state, env);
+            if (hmd.doreturn) return;
         /* attacking with non-weapons */
+        } else if (hmd.mdat === state.mons[PM_SHADE]
+                   && !shade_aware(obj, state)) {
+            hmd.dmg = 0;
         } else if (obj.otyp === CREAM_PIE) {
             await hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random);
         } else {
-            unsupported('hitting with a non-weapon');
+            await hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random);
         }
     }
 }
@@ -1457,14 +1862,19 @@ function hmon_hitmon_dmg_recalc(hmd, obj, state, env) {
            for two-handed strength does not apply to polearms unless
            hero is simply bashing with one of those and does not apply
            to jousting because lances are one-handed */
-        let strbonus = dbon(state);
-        const absbonus = Math.abs(strbonus);
-        if (hmd.twohits)
-            strbonus = Math.trunc((3 * absbonus + 2) / 4) * sgn(strbonus);
-        else if (hmd.thrown === HMON_MELEE && state.uwep
-                 && bimanual(state.uwep, state))
-            strbonus = Math.trunc((3 * absbonus + 1) / 2) * sgn(strbonus);
-        dmgbonus += strbonus;
+        const propelled = hmd.thrown === HMON_THROWN
+            && obj && state.uwep
+            && ammo_and_launcher(obj, state.uwep, state);
+        if (!propelled) {
+            let strbonus = dbon(state);
+            const absbonus = Math.abs(strbonus);
+            if (hmd.twohits)
+                strbonus = Math.trunc((3 * absbonus + 2) / 4) * sgn(strbonus);
+            else if (hmd.thrown === HMON_MELEE && state.uwep
+                     && bimanual(state.uwep, state))
+                strbonus = Math.trunc((3 * absbonus + 1) / 2) * sgn(strbonus);
+            dmgbonus += strbonus;
+        }
     }
 
     /*
@@ -1479,7 +1889,12 @@ function hmon_hitmon_dmg_recalc(hmd, obj, state, env) {
      * when not wielding corresponding launcher.
      */
     if (hmd.use_weapon_skill) {
-        const skillwep = obj;
+        /* PROJECTILE(obj) trains with the launcher, while the damage die
+           still belongs to the projectile.  C's `skillwep` substitution is
+           also what keeps thrown ammo's skill bonus source-ordered. */
+        const skillwep = obj && is_ammo(obj, state)
+            && ammo_and_launcher(obj, state.uwep, state)
+            ? state.uwep : obj;
 
         dmgbonus += weapon_dam_bonus(skillwep, state);
 
@@ -1489,10 +1904,16 @@ function hmon_hitmon_dmg_recalc(hmd, obj, state, env) {
         if (hmd.train_weapon_skill) {
             /* [this assumes that `!thrown' implies wielded...] */
             try {
-                use_skill(uwep_skill_type(state), 1, state);
+                const skill = hmd.thrown
+                    ? weapon_type(skillwep, state)
+                    : uwep_skill_type(state);
+                use_skill(skill, 1, state);
             } catch (error) {
                 if (!(error instanceof UnsupportedWeaponSkillError)) throw error;
-                requireAttackOperation(env, 'unsupported')(error.branch);
+                // C discards the optional "may advance" notification's
+                // return; keep the practice update and record only that
+                // notification as an unported void consequence.
+                note_unported(`weapon.c ${error.branch}`);
             }
         }
     }
@@ -1503,20 +1924,41 @@ function hmon_hitmon_dmg_recalc(hmd, obj, state, env) {
     if (hmd.dmg < 1) hmd.dmg = 1;
 }
 
-// C ref: uhitm.c hmon_hitmon_stagger() (1569-1585). A martial-arts punch can
-// knock a small target off its feet. The rnd(100) is drawn for every
-// bare-handed hit above minimal damage, and at Basic skill it clears the bar
-// one time in a hundred; what follows it needs mhurtle_to_doom(), so the arm
-// the draw guards stops. C's `mon` parameter is read only inside that arm, by
-// canspotmon() and mhurtle_to_doom(), so it is not carried.
-function hmon_hitmon_stagger(hmd, state, env, random) {
-    /* VERY small chance of stunning opponent if unarmed. */
-    if (random.rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT, state)
-        && !bigmonst(hmd.mdat) && !thick_skinned(hmd.mdat)) {
-        requireAttackOperation(env, 'unsupported')('a staggering punch');
+// C ref: uhitm.c hmon_hitmon_poison() (1509-1567). Poison is evaluated after
+// the base damage, and its two result flags are consumed by hmon_hitmon's
+// post-hit return path. The alignment messages and object-clearing draw stay
+// in this owner; no caller may replace the poison result with a note gap.
+async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
+    let nopoison = 10 - Math.trunc((obj.owt ?? 0) / 10);
+    if (nopoison < 2) nopoison = 2;
+    const message = requireAttackOperation(env, 'message');
+    if (state.urole?.mnum === PM_SAMURAI) {
+        await message('You dishonorably use a poisoned weapon!', state);
+        adjalign(-sgn(state.u.ualign?.type ?? 0), state);
+    } else if (state.u.ualign?.type === A_LAWFUL
+               && (state.u.ualign.record ?? 0) > -10) {
+        await message(
+            'You feel like an evil coward for using a poisoned weapon.',
+            state,
+        );
+        adjalign(-1, state);
+    }
+    if (!permapoisoned(obj) && !random.rn2(nopoison)) {
+        obj.opoisoned = false;
+        hmd.unpoisonmsg = true;
+    }
+    if (monster_resists_element(mon, POISON_RES, state)) {
+        hmd.needpoismsg = true;
+    } else if (random.rn2(10)) {
+        hmd.dmg += random.rnd(6);
+    } else {
+        hmd.poiskilled = true;
     }
 }
 
+// C ref: uhitm.c hmon_hitmon_stagger() (1569-1585). The helper's result is
+// discarded by hmon_hitmon(); its mhurtle_to_doom() return dependency remains
+// outside this source slice, so the caller records the named void gap.
 // C ref: uhitm.c hmon_hitmon_pet() (1587-1601). Hitting a pet costs tameness
 // and sends it fleeing.
 //
@@ -1525,7 +1967,7 @@ function hmon_hitmon_stagger(hmd, state, env, random) {
 // the monflee() that follows is gated on the pet surviving and still being
 // tame. rnd() there is on the core stream, so the flee timer costs a draw
 // whenever that gate opens.
-async function hmon_hitmon_pet(hmd, mon, state, random) {
+async function hmon_hitmon_pet(hmd, mon, state, random, env) {
     if (mon.mtame && hmd.dmg > 0) {
         /* do this even if the pet is being killed or migrating
            (affects revival) */
@@ -1534,7 +1976,7 @@ async function hmon_hitmon_pet(hmd, mon, state, random) {
            untimed fleeing, no effect, otherwise increases timed fleeing */
         if (mon.mtame && !hmd.destroyed)
             await monflee(mon, 10 * random.rnd(hmd.dmg), false, false,
-                          { state });
+                          { ...env, state, random });
     }
 }
 
@@ -1580,22 +2022,26 @@ async function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
 // their misc-object helper, while other ranged objects retain this message
 // path for when their damage helpers land.
 //
-// Two of C's four verbs are left out because hmon_hitmon_do_hit() cannot
-// deliver an object that would select them. "bash" needs is_shield(), which is
-// ARMOR_CLASS, or a HEAVY_IRON_BALL, which is BALL_CLASS; the wet-towel half of
-// "lash" needs a TOWEL, whose oc_skill is P_NONE so is_weptool() rejects it.
-// All three reach do_hit()'s closing arm at 1425-1431 and stop there.
+// The bash and wet-towel lash terms are selected here even though their
+// object-specific effects remain ordinary non-weapon arms in do_hit().
 async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
+    const shotContinues = hmd.thrown && obj
+        && (state.m_shot?.n ?? 0) > 1
+        && state.m_shot.o === obj.otyp;
     if (!hmd.hittxt /*( thrown => obj exists )*/
-        && !hmd.destroyed) {
+        && (!hmd.destroyed || shotContinues)) {
         const message = requireAttackOperation(env, 'message');
-        if (!state.flags?.verbose) {
+        if (hmd.thrown) {
+            await hit(mshot_xname(obj, state), mon, exclam(hmd.dmg), state, env);
+        } else if (!state.flags?.verbose) {
             await message('You hit it.', state);
         } else { /* hand_to_hand */
-            const verb = (obj && objectType(obj, state).oc_subtyp === P_WHIP)
-                ? 'lash'
-                : state.urole?.mnum === PM_BARBARIAN ? 'smite'
-                    : 'hit';
+            const verb = obj && (is_shield(obj, state)
+                || obj.otyp === HEAVY_IRON_BALL) ? 'bash'
+                : obj && (objectType(obj, state).oc_subtyp === P_WHIP
+                    || is_wet_towel(obj)) ? 'lash'
+                    : state.urole?.mnum === PM_BARBARIAN ? 'smite'
+                        : 'hit';
             await message(
                 `You ${verb} ${monsterCommonName(mon, state)}`
                     + `${canSeeMonster(mon, state) ? exclam(hmd.dmg) : '.'}`,
@@ -1614,52 +2060,38 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 // declaration records that the struct exists to fix the order of
 // first_weapon_hit() against the hit-point decrement.
 //
-// Seven arms stop:
+// These source calls stop or annotate the common path:
 //
 //   1821-1822 shade_miss() feedback, for a shade that took no damage.
-//   1826      hmon_hitmon_jousting(), which only a mounted lance reaches.
+//   1826      hmon_hitmon_jousting(), a discarded helper whose movement
+//             dependency remains unported.
 //   1874-1877 hmon_hitmon_msg_silver() and hmon_hitmon_msg_lightobj(), the
 //             two "sears" messages a silver or Sunsword hit adds.
 //   1898-1907 the poison messages and xkilled(); hmon_hitmon_poison() sets
-//             those flags and stops first.
+//             those flags before this tail.
 //   1911      killed(), the kill itself, which mon.c owns.
 //   1914-1919 the confused-touch arm behind u.umconf.
 //
-// Three of hmd's flags guard C call sites that this port leaves out. No ported
-// path can write any of the three, so a refusal in their place would announce
-// a stop that cannot happen:
-//
-//   ispoisoned   1808-1809 hmon_hitmon_poison(). C writes it at 1061-1062,
-//                inside `thrown == HMON_THROWN`, and at 1065-1066, where
-//                hmon_hitmon_weapon_melee() refuses
-//                permapoisoned() in place of the assignment.
-//   dryit        1872-1873 dry_a_towel(). Only the wet-towel branch of
-//                hmon_hitmon_misc_obj() writes it, and hmon_hitmon_do_hit()
-//                refuses that whole arm.
-//   unpoisonmsg  1887-1889's cxname() reformat and 1919-1923's message.
-//                hmon_hitmon_poison() writes it, and the ispoisoned entry
-//                above shows that function is never called; needpoismsg and
-//                poiskilled at 1898-1907 have the same writer.
+// ispoisoned, dryit and unpoisonmsg are all live flags: their writers are the
+// weapon/misc/poison owners above, and their common-tail consumers preserve
+// C's message and cleanup order. dry_a_towel() itself remains a named void
+// dependency after the wetness draw.
 //
 // doreturn and retval carry C's abort of a blow that finished early. Of C's
 // three `if (hmd->doreturn)` guards only 1806-1807's is executable: the two at
 // 1090-1091 and 1418-1419 end their own function, so the `return` they guard
 // reaches the same next statement the fall-through does. The one below is
-// therefore the whole of that control flow. Every C writer -- artifact_hit()
-// at 1021-1029, hmon_hitmon_potion() at 1108-1166, hmon_hitmon_misc_obj() at
-// 1218-1248 and the stone missile at 1404-1405 -- sits inside an arm that
-// stops above it, so nothing sets the flag yet.
+// therefore the whole of that control flow. Artifact, potion, misc-object and
+// stone-missile arms set the flags before their respective early exits.
 //
 // maybe_knockback is computed at 1829-1831 but read at 1927, inside a block
 // C skips whenever the target died, so mhitm_knockback()'s two draws must not
 // be made eagerly.
 //
-// The `!Upolyd` term C carries in both arms of that if-chain is left out rather
-// than restated: polyself is unported, so Upolyd() is constantly false, which
-// js/regen.js:52 records for the same reason.
+// The `!Upolyd` term is retained in both arms; polymorphed heroes use a
+// different attack path and must not enter these human-hero reactions.
 async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     const random = env.random ?? { d, rn1, rn2, rnd };
-    const unsupported = requireAttackOperation(env, 'unsupported');
     const hmd = {
         dmg: 0,
         thrown,
@@ -1709,6 +2141,9 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
 
     if (hmd.dmg > 0) hmon_hitmon_dmg_recalc(hmd, obj, state, env);
 
+    if (hmd.ispoisoned)
+        await hmon_hitmon_poison(hmd, mon, obj, state, env, random);
+
     if (hmd.dmg < 1) {
         const mon_is_shade = (mon.data === state.mons[PM_SHADE]);
 
@@ -1716,14 +2151,26 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
            in inadvertently boosting the victim's hit points */
         hmd.dmg = (hmd.get_dmg_bonus && !mon_is_shade) ? 1 : 0;
         if (mon_is_shade && !hmd.hittxt)
-            unsupported('a blow that passes through a shade');
+            hmd.hittxt = shade_miss(
+                state.youmonst,
+                mon,
+                obj,
+                false,
+                true,
+                state,
+                env,
+            );
     }
 
     if (hmd.jousting) {
-        unsupported('a jousting hit');
-    } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj) {
-        hmon_hitmon_stagger(hmd, state, env, random);
+        // hmon_hitmon_jousting() is a discarded void helper whose
+        // mhurtle_to_doom() return dependency remains outside this slice.
+        note_unported('uhitm.c hmon_hitmon_jousting');
+    } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj
+               && !Upolyd(state.u)) {
+        note_unported('uhitm.c hmon_hitmon_stagger');
     } else if (!hmd.unarmed && hmd.dmg > 1 && !thrown
+               && !Upolyd(state.u)
                && !state.u.twoweap && state.uwep) {
         maybe_knockback = true;
     }
@@ -1759,17 +2206,37 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     }
     if (mon.mhp < 1) hmd.destroyed = true; /* DEADMONSTER() */
 
-    await hmon_hitmon_pet(hmd, mon, state, random);
+    await hmon_hitmon_pet(hmd, mon, state, random, env);
 
     await hmon_hitmon_splitmon(hmd, mon, obj, state, env);
 
     await hmon_hitmon_msg_hit(hmd, mon, obj, state, env);
 
-    if (hmd.silvermsg) unsupported('a silver hit message');
+    if (hmd.dryit) {
+        /* apply.c dry_a_towel() changes wetness after the hit message.  The
+           consumed result is void and that owner remains outside this span;
+           retain the source call boundary without inventing a state update. */
+        note_unported('apply.c dry_a_towel');
+    }
 
-    if (hmd.lightobj) unsupported('a light-source hit message');
+    if (hmd.silvermsg)
+        note_unported('uhitm.c hmon_hitmon_msg_silver');
 
-    if (hmd.destroyed) {
+    if (hmd.lightobj)
+        note_unported('uhitm.c hmon_hitmon_msg_lightobj');
+
+    const postMessage = requireAttackOperation(env, 'message');
+    if (hmd.needpoismsg)
+        await postMessage(
+            `The poison doesn't seem to affect ${mon_nam(mon, state)}.`,
+            state,
+        );
+    if (hmd.poiskilled) {
+        await postMessage('The poison was deadly...', state);
+        if (!hmd.already_killed)
+            await xkilled(mon, XKILL_NOMSG, state, env);
+        hmd.destroyed = true;
+    } else if (hmd.destroyed) {
         if (!hmd.already_killed) {
             /* monst.h troll_baned() (246-247). Only Trollsbane sets
                gm.mkcorpstat_norevive, and js/corpstat.js mkcorpstat() reads
@@ -1784,7 +2251,19 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
             state.gm.mkcorpstat_norevive = false;
         }
     } else if (state.u.umconf && hmd.hand_to_hand) {
-        unsupported('a confusing touch');
+        // nohandglow()/confused touching is a discarded source effect here;
+        // the hit return and damage have already been committed.
+        note_unported('uhitm.c nohandglow/confusing touch');
+    }
+
+    if (hmd.unpoisonmsg) {
+        /* hmon_hitmon_poison() clears opoisoned before this tail; C reformats
+           the name after the hit message so the final line omits "poisoned". */
+        hmd.saved_oname = cxname(obj, state);
+        await postMessage(
+            `${hmd.saved_oname} is no longer poisoned.`,
+            state,
+        );
     }
 
     if (!hmd.destroyed && !hmd.offmap) {
@@ -1794,7 +2273,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
            needs a TRUE return, which only the arm that knocks the target
            back gives. */
         if (maybe_knockback) {
-            await mhitm_knockback(
+            const knocked = await mhitm_knockback(
                 state.youmonst,
                 mon,
                 state.youmonst.data.mattk[0],
@@ -1803,6 +2282,10 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
                 env,
                 random,
             );
+            /* A completed knockback owner reports a trap death through its
+               boolean result; preserve that return in this caller even
+               though the current owner stops before the movement tail. */
+            if (knocked) hmd.destroyed = true;
         }
     }
     return !hmd.destroyed;
@@ -2386,14 +2869,44 @@ export function shade_miss(
     state = game,
     env = {},
 ) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
-
     /* we're using dmgval() for zero/not-zero, not for actual damage amount */
     if (mdef.data !== state.mons[PM_SHADE]
         || (obj && dmgval(obj, mdef, state, env)))
         return false;
 
-    unsupported('an attack passing through a shade');
+    const youagr = magr === state.youmonst;
+    const youdef = mdef === state.youmonst;
+    const message = env.message
+        ?? (env.planning ? () => {} : ttyPline);
+    const visible = youdef
+        || cansee(mdef.mx, mdef.my, state)
+        || sensesMonster(mdef, state)
+        || (youagr && m_next2u(mdef, state));
+    if (verbose && visible) {
+        const what = !obj || shade_glare(obj, state)
+            ? 'attack' : cxname(obj, state);
+        const target = youdef ? 'you' : mon_nam(mdef, state);
+        if (!thrown) {
+            const whose = youagr
+                ? 'Your' : s_suffix(Monnam(magr, state, env));
+            void message(
+                `${whose} ${what} ${vtense(what, 'pass')}`
+                + ` harmlessly through ${target}.`,
+                state,
+                env,
+            );
+        } else {
+            void message(
+                `${The(what, state)} ${vtense(what, 'pass')}`
+                + ` harmlessly through ${target}.`,
+                state,
+                env,
+            );
+        }
+        if (!youdef && !canSpotMonster(mdef, state))
+            map_invisible(mdef.mx, mdef.my, state);
+    }
+    if (!youdef) mdef.msleeping = 0;
     return true;
 }
 

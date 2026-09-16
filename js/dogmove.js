@@ -558,6 +558,14 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     if (obj.quan > 1 && obj.oclass === FOOD_CLASS)
         obj = splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
 
+    // dogmove.c:275 raises this before any distant_name()/doname() work, so
+    // an unpaid object's price never leaks into the ordinary eating text.
+    let unpaidName = null;
+    if (obj.unpaid) {
+        state.iflags ??= {};
+        state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
+    }
+
     const inPool = is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater;
     const seeobj = !inPool && cansee(mtmp.mx, mtmp.my, state);
     const sawpet = !inPool && cansee(x, y, state)
@@ -582,12 +590,9 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         await message(`It ${devour ? 'devours' : 'eats'} ${objName}.`, state);
     }
 
-    // dogmove.c:306-315. Capture an unpaid object's name with suppress_price
-    // while the ordinary eating message has finished, as C does.
-    let unpaidName = null;
+    // dogmove.c:306-315. Capture the unpaid name while suppression remains
+    // raised, then lower it before rustproofing and billing consequences.
     if (obj.unpaid) {
-        state.iflags ??= {};
-        state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
         unpaidName = xnameFresh(obj, state);
         state.iflags.suppress_price--;
     }
@@ -597,7 +602,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
             costly_alteration(obj, COST_DEGRD, { ...rawEnv, state });
         obj.oerodeproof = 0;
         mtmp.mstun = 1;
-        if (canSpotMonster(mtmp, state)) {
+        if (canseemon(mtmp, state)) {
             const name = distant_name(obj, donameFresh, state);
             if (state.flags?.verbose)
                 await message(
