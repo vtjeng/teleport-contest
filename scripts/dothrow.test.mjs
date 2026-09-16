@@ -74,6 +74,7 @@ import {
     walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
+import { isThrowingWeapon } from '../js/invent.js';
 import {
     PM_CAVE_DWELLER,
     PM_CLERIC,
@@ -131,6 +132,7 @@ import {
     ORCISH_BOW,
     POT_WATER,
     QUARTERSTAFF,
+    SCALPEL,
     SHORT_SWORD,
     SHURIKEN,
     SLING,
@@ -179,6 +181,21 @@ function resistDraw(value) {
 }
 
 const state = makeState();
+
+test('throwing_weapon follows the source missile and blade predicates', () => {
+    // dothrow.c:1430-1441 accepts missiles, spears, non-sword piercing
+    // blades, WAR_HAMMER and AKLYS.  In particular, a scalpel and ordinary
+    // sword must stay outside the blade arm.
+    // The source comment explicitly excludes ammunition from is_missile().
+    assert.equal(isThrowingWeapon(object(state, ARROW), state), false);
+    assert.equal(isThrowingWeapon(object(state, SPEAR), state), true);
+    assert.equal(isThrowingWeapon(object(state, DAGGER), state), true);
+    assert.equal(isThrowingWeapon(object(state, SCALPEL), state), false);
+    assert.equal(isThrowingWeapon(object(state, SHORT_SWORD), state), false);
+    assert.equal(isThrowingWeapon(object(state, WAR_HAMMER), state), true);
+    assert.equal(isThrowingWeapon(object(state, AKLYS), state), true);
+    assert.equal(isThrowingWeapon(object(state, QUARTERSTAFF), state), false);
+});
 
 test('the objects.c rows the multishot arms select on', () => {
     // objects.c gives ammunition a negative oc_skill naming its launcher and
