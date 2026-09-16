@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840031,
+      "datetime": "20331107082300",
+      "nethackrc": "OPTIONS=name:BlindFeel,role:Healer,race:human,gender:female,align:neutral,blind,!safe_wait,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics\n",
+      "moves": "s"
+    },
+    {
+      "seed": 840032,
+      "datetime": "20331107082400",
+      "nethackrc": "OPTIONS=name:BlindFeelValkyrie,role:Valkyrie,race:human,gender:female,align:lawful,blind,!safe_wait,pettype:none,!legacy,!tutorial,!splash_screen,!acoustics\n",
+      "moves": "s"
+    }
+  ],
+  "comment": "Independent blind explicit-search witnesses for display.c feel_location; the second segment varies role, alignment, seed, and time while preserving the source branch."
+}
