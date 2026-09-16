@@ -297,10 +297,11 @@ export async function deferred_decor(setup, state = game) {
     }
 }
 
-// C ref: pickup.c describe_decor() (353-425). This plan performs the same
-// source reads without changing prev_decor or writing a message. Movement
-// admission uses it before committing the hero's destination; the actual
-// describe_decor() call repeats the reads after domove() has committed it.
+// C ref: pickup.c describe_decor() (353-425). This plan performs only the
+// side-effect-free reads needed by movement admission. In particular, C's
+// dfeature_at() call remains in describe_decor() below: its ICE description
+// updates ice_rating and may consume display RNG, and must happen once on the
+// committed square rather than during an admission probe.
 function describeDecorPlan(x, y, state = game) {
     const location = state.level?.at(x, y);
     const ltyp = surface_typ(location);
@@ -312,20 +313,11 @@ function describeDecorPlan(x, y, state = game) {
         return { result: false, deferred: true };
     }
 
-    let dfeature = dfeature_at(x, y, state);
-    const doorhere = dfeature === 'open door' || dfeature === 'doorway';
-    const waterhere = dfeature === 'pool of water';
     const underwater = Boolean(state.u?.uinwater);
-    if (doorhere || underwater
-        || (ltyp === ICE && IS_POOL(previous))) {
-        dfeature = null;
-    }
     return {
         result: ltyp !== previous || IS_FURNITURE(ltyp),
         ltyp,
         previous,
-        dfeature,
-        waterhere,
         underwater,
         groundTransition: !underwater
             && (IS_POOL(previous) || IS_LAVA(previous) || previous === ICE),
@@ -366,14 +358,25 @@ export async function describe_decor(state = game, env = {}) {
 
     const message = env.message ?? ttyPline;
     const norepMessage = env.norepMessage ?? ttyNorep;
+    // C calls dfeature_at() before its unchanged non-furniture arm, even when
+    // that arm suppresses output. Keep that live side effect (ICE's rating
+    // and display-RNG description) out of describeDecorPlan(), which is also
+    // used by movement admission.
+    let dfeature = dfeature_at(u.ux, u.uy, state);
+    const doorhere = dfeature === 'open door' || dfeature === 'doorway';
+    const waterhere = dfeature === 'pool of water';
+    if (doorhere || plan.underwater
+        || (plan.ltyp === ICE && IS_POOL(plan.previous))) {
+        dfeature = null;
+    }
     // C's unchanged non-furniture arm (pickup.c:392-394) precedes both the
-    // dfeature and ground-transition arms.  dfeature_at() can still describe
+    // dfeature and ground-transition arms. dfeature_at() can still describe
     // a feature on that square (for example a broken door), but C suppresses
     // it when ltyp == prev_decor; the final terrain-memory store still runs.
     if (plan.result) {
-        if (plan.dfeature) {
-            let feature = plan.dfeature;
-            if (plan.waterhere)
+        if (dfeature) {
+            let feature = dfeature;
+            if (waterhere)
                 feature = waterbody_name(u.ux, u.uy, state, env);
             if (feature !== 'swamp' && plan.ltyp !== ICE)
                 feature = an(feature);
