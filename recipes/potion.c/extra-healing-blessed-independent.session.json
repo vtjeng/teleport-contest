@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c peffect_extra_healing recipe for a blessed dose. Seed 8614211, clock 20330912144531, character ExtraBlessed, and the wizard wish/quaff input were chosen before replay inspection; no existing recipe inputs were copied. The dose reaches peffects through the production quaff dispatch and exercises the blessed healup and hallucination-clear branches.",
+  "segments": [
+    {
+      "seed": 8614211,
+      "datetime": "20330912144531",
+      "nethackrc": "OPTIONS=name:ExtraBlessed,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017blessed potion of extra healing\nqe"
+    }
+  ]
+}

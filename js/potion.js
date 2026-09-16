@@ -16,9 +16,10 @@
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_HEALING, POT_OIL, the
-// POT_FRUIT_JUICE arm of peffect_see_invisible(), and the ordinary
-// POT_PARALYSIS arm are ported. The other arms throw
+// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_HEALING,
+// POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
+// peffect_see_invisible(), and the ordinary POT_PARALYSIS arm are ported. The
+// other arms throw
 // UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -28,6 +29,7 @@ import {
     ACID_RES,
     A_CON,
     A_DEX,
+    A_STR,
     A_MAX,
     A_WIS,
     BLINDED,
@@ -904,6 +906,30 @@ async function peffect_healing(otmp, state = game) {
     });
 }
 
+// C ref: potion.c peffect_extra_healing() (1128-1141). The dice are rolled
+// before healup, then the source clears hallucination and exercises
+// Constitution followed by Strength. A blessed dose heals the hero's
+// wounded legs only when no steed owns the wound.
+async function peffect_extra_healing(otmp, state = game) {
+    await ttyPline('You feel much better.', state);
+    await healup(16 + d(4 + 2 * bcsign(otmp), 8),
+        otmp.blessed ? 5 : !otmp.cursed ? 2 : 0,
+        !otmp.cursed, true, state);
+    await make_hallucinated(0, true, 0, state);
+    await exercise(A_CON, true, state, { rn2 }, {
+        encumberMessage: encumber_msg,
+    });
+    await exercise(A_STR, true, state, { rn2 }, {
+        encumberMessage: encumber_msg,
+    });
+
+    const wounded = state.u.uprops[WOUNDED_LEGS];
+    if (wounded && otmp.blessed && !state.u.usteed
+        && (wounded.intrinsic || wounded.extrinsic)) {
+        await heal_legs(state);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // peffects / dopotion / dodrink
 // C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
@@ -966,7 +992,8 @@ export async function peffects(otmp, state = game) {
         await peffect_healing(otmp, state);
         break;
     case POT_EXTRA_HEALING:
-        throw new UnsupportedQuaffError('peffect_extra_healing()');
+        await peffect_extra_healing(otmp, state);
+        break;
     case POT_FULL_HEALING:
         throw new UnsupportedQuaffError('peffect_full_healing()');
     case POT_LEVITATION:

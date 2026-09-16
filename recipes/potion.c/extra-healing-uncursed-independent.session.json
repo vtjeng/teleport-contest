@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c peffect_extra_healing recipe for an uncursed dose. Seed 8614212, clock 20330913144632, character ExtraUncursed, and the wizard wish/quaff input were chosen before replay inspection; no existing recipe inputs were copied. The dose reaches peffects through the production quaff dispatch and covers the ordinary healing bonus and cure flags.",
+  "segments": [
+    {
+      "seed": 8614212,
+      "datetime": "20330913144632",
+      "nethackrc": "OPTIONS=name:ExtraUncursed,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017uncursed potion of extra healing\nqe"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c peffect_extra_healing recipe for a cursed dose. Seed 8614201, clock 20330914144733, character ExtraCursed, and the wizard wish/quaff input were chosen before replay inspection; no existing recipe inputs were copied. The dose reaches peffects through the production quaff dispatch and covers the cursed healup amount while still clearing hallucination.",
+  "segments": [
+    {
+      "seed": 8614201,
+      "datetime": "20330914144733",
+      "nethackrc": "OPTIONS=name:ExtraCursed,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017cursed potion of extra healing\nqf"
+    }
+  ]
+}

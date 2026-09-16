@@ -16,7 +16,7 @@ import {
     A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    TELEPAT, TIMEOUT,
+    TELEPAT, TIMEOUT, WOUNDED_LEGS,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
@@ -339,6 +339,72 @@ test('uncursed healing clears cream and timed deafness through healup',
     assert.equal(game.u.ucreamed, 0);
     assert.equal(game.u.uprops[DEAF].intrinsic & TIMEOUT, 0);
     assert.equal(toplines(), 'You feel better.  You can hear again.');
+});
+
+// potion.c:1128-1136. The eight-sided beatitude roll precedes healup, and the
+// two positive exercise calls follow hallucination clearing in Constitution,
+// Strength order. Keep all three BUC signs here so the nxtra and cure gates
+// are checked alongside the random-call order.
+test('extra healing preserves source BUC dice and exercise order', async () => {
+    for (const sign of [-1, 0, 1]) {
+        await startedGame(8460024, 'ExtraHealingDice');
+        const potion = vaporPotion(POT_EXTRA_HEALING);
+        potion.cursed = sign < 0;
+        potion.blessed = sign > 0;
+        // Force the healup nxtra branch for every beatitude: 16 + d(2, 8)
+        // already exceeds this maximum, while the initial HP leaves room for
+        // the exact source result to be asserted.
+        game.u.uhp = 1;
+        game.u.uhpmax = 15;
+        game.u.uhppeak = 15;
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(potion, game), -1);
+
+        const draws = getRngLog();
+        assert.equal(draws.length, 3);
+        const rolled = new RegExp(`^d\\(${4 + 2 * sign},8\\)=(\\d+)$`, 'u')
+            .exec(draws[0]);
+        assert.ok(rolled, draws[0]);
+        assert.match(draws[1], /^rn2\(19\)=\d+$/u);
+        assert.match(draws[2], /^rn2\(19\)=\d+$/u);
+        assert.equal(game.u.uhp, game.u.uhpmax);
+        assert.equal(game.u.uhp, sign > 0 ? 20 : sign === 0 ? 17 : 15);
+        assert.equal(game.u.uhppeak, game.u.uhpmax);
+        assert.equal(toplines(), 'You feel much better.');
+    }
+});
+
+// potion.c:1131-1141. Clearing hallucination precedes the two exercise calls;
+// only a blessed, non-mounted potion clears a live wounded-legs property.
+test('blessed extra healing clears hallucination and hero leg wounds', async () => {
+    await startedGame(8460025, 'ExtraHealingLegs');
+    const potion = vaporPotion(POT_EXTRA_HEALING);
+    potion.blessed = true;
+    potion.cursed = false;
+    const wounded = game.u.uprops[WOUNDED_LEGS];
+    wounded.intrinsic = TIMEOUT | 4;
+    wounded.extrinsic = 1;
+    game.u.atemp[A_DEX] = -1;
+    game.u.uprops[HALLUC].intrinsic = 3;
+    clearTopline();
+    enableRngLog();
+    // heal_legs() writes a second source message; provide its --More-- key
+    // through the display-owned queue just as a recorded quaff would.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    assert.equal(await peffects(potion, game), -1);
+
+    assert.equal(wounded.intrinsic, 0);
+    assert.equal(wounded.extrinsic, 0);
+    assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
+    assert.equal(game.u.atemp[A_DEX], 0);
+    // The second source message crosses the TTY More boundary, so the final
+    // topline is the leg-healing line after the supplied dismissal key.
+    assert.equal(toplines(), 'Your leg feels better.');
+    assert.deepEqual(getRngLog().slice(0, 3).map(draw => draw.replace(/=.*/u, '')),
+        ['d(6,8)', 'rn2(19)', 'rn2(19)']);
 });
 
 test('independent healing recipes complete quaff and overheal bookkeeping',
