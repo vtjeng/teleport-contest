@@ -67,7 +67,7 @@ import { set_levltyp } from './terrain.js';
 import { cansee, do_clear_area } from './vision.js';
 import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
-import { t_at, deltrap, reset_utrap } from './trap.js';
+import { t_at, delfloortrap } from './trap.js';
 import { water_damage } from './trap_water_damage.js';
 import { ttyPline } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
@@ -336,51 +336,6 @@ function nexttodoor(sx, sy, state) {
         }
     }
     return false;
-}
-
-// C ref: trap.c delfloortrap() (6667-6690). Delete certain floor traps.
-function delfloortrap(ttmp, state) {
-    const {
-        SQKY_BOARD, BEAR_TRAP, LANDMINE, FIRE_TRAP, TELEP_TRAP,
-        LEVEL_TELEP, WEB, MAGIC_TRAP, ANTI_MAGIC, is_pit, is_hole,
-    } = require_trap_constants();
-    if (ttmp && (ttmp.ttyp === SQKY_BOARD || ttmp.ttyp === BEAR_TRAP
-        || ttmp.ttyp === LANDMINE || ttmp.ttyp === FIRE_TRAP
-        || is_pit(ttmp.ttyp) || is_hole(ttmp.ttyp)
-        || ttmp.ttyp === TELEP_TRAP || ttmp.ttyp === LEVEL_TELEP
-        || ttmp.ttyp === WEB || ttmp.ttyp === MAGIC_TRAP
-        || ttmp.ttyp === ANTI_MAGIC)) {
-        if (state.u.ux === ttmp.tx && state.u.uy === ttmp.ty) {
-            // C ref: trap.c:6681 u_at check.
-            if ((state.u.utraptype ?? 0) !== 6 /* TT_BURIEDBALL */) {
-                reset_utrap(true, state);
-            }
-        } else {
-            const mtmp = m_at(ttmp.tx, ttmp.ty, state);
-            if (mtmp) mtmp.mtrapped = 0;
-        }
-        deltrap(ttmp, state);
-        return true;
-    }
-    return false;
-}
-
-// Lazy import of trap constants to avoid circular dependency.
-let _trapConstants = null;
-function require_trap_constants() {
-    if (!_trapConstants) {
-        // All of these are already imported from const.js at the top
-        // of this file via the barrel import pattern. Import them
-        // dynamically to keep the static import list manageable.
-        _trapConstants = {
-            SQKY_BOARD: 4, BEAR_TRAP: 5, LANDMINE: 6,
-            FIRE_TRAP: 10, TELEP_TRAP: 15, LEVEL_TELEP: 16,
-            WEB: 18, MAGIC_TRAP: 20, ANTI_MAGIC: 21,
-            is_pit: (ttyp) => ttyp === 8 /* PIT */ || ttyp === 9 /* SPIKED_PIT */,
-            is_hole: (ttyp) => ttyp === 11 /* HOLE */ || ttyp === 12 /* TRAPDOOR */,
-        };
-    }
-    return _trapConstants;
 }
 
 // ── dofindgem ──

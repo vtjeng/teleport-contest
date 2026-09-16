@@ -11,7 +11,9 @@ import {
     KILLED_BY_AN,
     LEVITATION,
     NOBJ_STATES,
+    SHOCK_RES,
     Upolyd,
+    W_RING,
     ismnum,
 } from './const.js';
 import { exercise } from './attrib.js';
@@ -25,6 +27,7 @@ import {
     obfree,
     obj_extract_self,
     useup,
+    useupf,
 } from './invent.js';
 import {
     AD_COLD,
@@ -37,7 +40,7 @@ import {
     monster_resists_element,
 } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { objectType } from './obj.js';
+import { isMetallic, objectType, weight } from './obj.js';
 import {
     The,
     Yname2,
@@ -64,12 +67,12 @@ import {
     WAN_LIGHTNING,
     WAND_CLASS,
 } from './objects.js';
-import {
-    weight,
-} from './obj.js';
 import { canSeeMonster, heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import { Fire_resistance, inventory_resistance_check } from './zap.js';
+import { Ring_gone } from './do_wear.js';
+import { setnotworn } from './worn.js';
 
 // Thrown where the destruction path reaches an arm this port has not ported.
 export class UnsupportedItemDestructionError extends Error {
@@ -213,9 +216,9 @@ function destroyedItemName(u_carry, carrier, obj, cnt, quan, state) {
 // this function, and the return value is unused, whereas monsters return the
 // damage to their caller to be taken off later."
 //
-// Only the AD_FIRE case is ported. AD_COLD and AD_ELEC stop by name: each ends
-// in a losehp() and a message this port has no fresh case for, and AD_ELEC's
-// ring arm needs recharge() and Ring_gone() as well.
+// The three source damage cases are ported. The one discarded recharge() call
+// in the hero's charged-ring arm remains an explicit gap because read.c owns
+// that operation; monster carriers never call recharge() in C.
 async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     const { state, random } = env;
     const u_carry = carrier === state.youmonst;
@@ -289,9 +292,37 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         dmg = random.rnd(4);
         break;
     case AD_ELEC:
-        throw new UnsupportedItemDestructionError(
-            'the AD_ELEC case, over recharge(), Ring_gone() and rnd(10)',
-        );
+        // C's electric arm admits rings and wands.  A shock-resistant ring,
+        // or a non-metal ring worn under non-metal gloves, is skipped; other
+        // charged rings are recharged for a hero (read.c owns recharge()); the
+        // monster branch skips the same source call because C never makes it.
+        xresist = obj.oclass !== RING_CLASS
+            && (u_carry
+                ? Boolean(state.u?.uprops?.[SHOCK_RES]?.intrinsic
+                    || state.u?.uprops?.[SHOCK_RES]?.extrinsic)
+                : monster_resists_element(carrier, SHOCK_RES, state));
+        quan = Math.trunc(obj.quan);
+        if (obj.oclass === RING_CLASS) {
+            if (((obj.owornmask & W_RING) && state.uarmg
+                    && !isMetallic(state.uarmg, state))
+                || obj.otyp === RIN_SHOCK_RESISTANCE) {
+                skip = 1;
+            } else if (objectType(obj, state).oc_charged
+                       && random.rn2(3)) {
+                if (u_carry)
+                    note_unported('read.c recharge');
+                skip = 1;
+            } else {
+                dindx = 5;
+                dmg = 0;
+            }
+        } else if (obj.oclass === WAND_CLASS) {
+            dindx = 6;
+            dmg = random.rnd(10);
+        } else {
+            skip = 1;
+        }
+        break;
     default:
         /* C's `default:` sets skip and calls impossible(); no caller can
            reach it, because destroy_items() is the only one and its three
@@ -311,20 +342,6 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
             if (!random.rn2(3)) cnt++;
 
         if (!cnt) return 0;
-
-        if (u_carry) {
-            // zap.c:5921-5926 hands a worn or wielded object to Ring_gone() or
-            // setnotworn(). Neither is wired here, and both would run after the
-            // message below, so the stop is lifted to the earliest point at
-            // which it is certain: the only fire-destroyable object that can
-            // carry a mask is a wielded potion, scroll or spellbook, because
-            // destroyable() admits no ring under AD_FIRE at all.
-            if (obj.owornmask) {
-                throw new UnsupportedItemDestructionError(
-                    'setnotworn() for a wielded object the fire destroyed',
-                );
-            }
-        }
 
         if (u_carry || vis) {
             const mult = (cnt === 1)
@@ -346,14 +363,29 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                     || haseyes(state.youmonst.data))) {
                 await potionbreathe(obj, state, env);
             }
-            // zap.c:5931-5933 clears gc.current_wand when the destroyed
-            // object is the wand being zapped. js/zap.js dozap() models that
-            // value, setting and clearing it around weffects() as zap.c
-            // 2672-2675 does, so the clear has an owner to reach; it is
-            // omitted here only because destroyable() admits WAND_CLASS under
-            // AD_ELEC alone, whose case stops above, so obj can never be the
-            // wand being zapped on the one damage type this function ports.
-            // The AD_ELEC port adds the clear, against js/zap.js's value.
+            if (obj.owornmask & W_RING) {
+                // C uses Ring_gone() for a ring leaving the hero's possession;
+                // it performs the same setnotworn transition plus ring effects.
+                Ring_gone(obj, state);
+            } else if (obj.owornmask) {
+                // Other worn items use setnotworn(). Preserve that source
+                // transition even in focused fixtures without optional hooks.
+                const hooks = env.hooks ?? {};
+                setnotworn(obj, {
+                    ...env,
+                    hooks: {
+                        cancelDoff: hooks.cancelDoff ?? (() => {}),
+                        monsterUnseesProperty:
+                            hooks.monsterUnseesProperty ?? (() => {}),
+                        setArtifactIntrinsic:
+                            hooks.setArtifactIntrinsic ?? (() => {}),
+                        ...hooks,
+                    },
+                });
+            }
+            // C clears gc.current_wand before useup() can free the object.
+            if (obj === state.current_wand)
+                state.current_wand = null;
         }
         // C loops invent.c useup() for the hero and mon.c m_useup() for a
         // monster, one call per destroyed item. m_useup() is unported;
@@ -494,12 +526,6 @@ export async function burn_floor_objects(
     uCaused,
     env,
 ) {
-    if (uCaused) {
-        const unsupported = env.unsupported ?? ((reason) => {
-            throw new RangeError(`unsupported floor fire: ${reason}`);
-        });
-        return unsupported('hero-caused object destruction');
-    }
     if (typeof env.igniteItems !== 'function') {
         throw new TypeError(
             'floor fire requires an igniteItems operation',
@@ -524,7 +550,10 @@ export async function burn_floor_objects(
                 const names = giveFeedback
                     ? floorBurnMessageNames(obj, env.state)
                     : null;
-                await removeObjectQuantity(obj, destroyed, env);
+                if (uCaused)
+                    await useupf(obj, destroyed, objectGenerationEnv(env));
+                else
+                    await removeObjectQuantity(obj, destroyed, env);
                 count += destroyed;
                 if (names) {
                     await ttyPline(

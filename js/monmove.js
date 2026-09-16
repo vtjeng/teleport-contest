@@ -3847,7 +3847,7 @@ export function can_hide_under_obj(headObject, state = game) {
 
 // C ref: monmove.c dissolve_bars() (2170-2180). Remove iron bars at (x,y),
 // replacing with the appropriate terrain type and redrawing.
-function dissolve_bars(x, y, state = game) {
+export function dissolve_bars(x, y, state = game) {
     const loc = state.level.at(x, y);
     const edge = loc.edge;
     loc.typ = edge === 1 ? DOOR
