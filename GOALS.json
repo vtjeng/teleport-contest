@@ -51392,6 +51392,119 @@
         "rng": 747316
       },
       "parkedReason": "The selected source span and monster-to-hero entry recording pass, but hero-to-monster production entry remains blocked in hmonas and monster-to-monster has no matching entry recording. Current fixed mismatch has advanced to dobuzz at step 997; preserve these entry gaps while integrating the next independent ready priest delivery."
+    },
+    {
+      "id": "div-priest-pri-move-seed0014-20260916",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Preserve conceptual room indices in nested temple priest initialization and membership.",
+      "cFile": "priest.c",
+      "sessions": [],
+      "selectionReason": "Worker B seed continuation has an immutable ready delivery for count45 seed0014, backed by investigations/seed0014-dequa-fountain-explore.json; worker A owns the higher-ranked count817 dobuzz source port. Integrate this independent completed delivery under the ready-delivery ordering rule.",
+      "detail": "At step669 C pri_move consumes rn2(3)=0 while JS falls through to m_move rn2(10)=2. C priestini stores the conceptual room pointer difference plus ROOMOFFSET; JS level.rooms.indexOf(nestedRoom) gives shrine room2 instead of48, and roomType/temple_occupied fail to resolve nested room index45. Correct the source-owned initialization and shared membership lookups with mapseen_room while preserving pri_move RNG order. Immutable c8d7f37c has154 focused passes and an independent ten-screen4283-RNG generated priest recording. No whole-function completion is claimed for the unrelated hostile pri_move branch.",
+      "spans": [
+        {
+          "name": "nested-temple-room-indices",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "temple_occupied",
+            "histemple_at",
+            "pri_move",
+            "priestini"
+          ]
+        }
+      ],
+      "openedAt": "1d998f5c4bf36a53feee830fd0dc2df922dcc934",
+      "openStanding": {
+        "sha": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+        "screens": 10104,
+        "rng": 747316
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "pri_move",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 669,
+      "activeStanding": {
+        "sha": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+        "screens": 10104,
+        "rng": 747316
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 669,
+          "kind": "rng",
+          "function": "pri_move",
+          "functionDeclared": true,
+          "sourceFile": "priest.c",
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 194,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 45,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 45,
+              "status": "complete",
+              "commit": "aface44fb504a9d8296da4400543983d4677d5fd",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 669,
+                "kind": "rng",
+                "function": "pri_move",
+                "functionDeclared": true,
+                "sourceFile": "priest.c",
+                "cFile": "priest.c",
+                "luaFile": null,
+                "line": 194,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 45
+              },
+              "summary": "The current main mismatch is the nested temple priest at step669. Worker B submitted the conceptual room lookup and shrine initialization fix as c8d7f37c, with 154 focused tests and an independent ten-screen recording passing. It is queued for combined validation after the blindness span; the worker has synced published main and is implementing the next fountain warning dependency.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "priestini",
+                  "temple_occupied",
+                  "histemple_at",
+                  "pri_move"
+                ],
+                "branch": "C pri_move() returns -1 only when histemple_at() fails, then otherwise consumes two rn1(3,-1) calls to mill around the altar. C priestini() initializes EPRI.shroom from the conceptual flat room array, and histemple_at() compares it with in_rooms(TEMPLE). JavaScript priestini() uses level.rooms.indexOf(sroom), which returns -1 for a nested subroom; rooms.js roomType() and priest.js temple_occupied() also search only the top-level array. These source-inconsistent room values cause ordinary movement to run instead of temple movement.",
+                "callers": [
+                  "nethack-c/upstream/src/priest.c:142-157 defines temple_occupied()/histemple_at(); pri_move() at 176-225 tests the priest room before its first two rn1(3,-1) calls at 194-195.",
+                  "nethack-c/upstream/src/priest.c:priestini(), around 247, sets shroom to (sroom - svr.rooms) + ROOMOFFSET. JS priestini() initializes the persistent mextra.epri record when special-level temple generation creates its priest.",
+                  "js/monmove.js:m_move() calls js/priest.js:pri_move() for priest movement and falls back to ordinary movement when it returns -1. The later peaceful movement gate consumes rn2(10).",
+                  "js/priest.js:histemple_at() calls js/rooms.js:in_rooms(); its roomType() helper must resolve conceptual indices for both top-level rooms and subrooms."
+                ],
+                "dependencies": [
+                  "Reuse js/dungeon.js:mapseen_room(), now available from the accepted mimic fix, for type lookup through the persisted parent/subroom graph. Do not add a second room-index representation.",
+                  "Use sroom.roomnoidx for the priest shrine-room number when available, retaining the ordinary room-array index for top-level rooms. Cover temple_occupied() and in_rooms() pure return values with source-pinned tests.",
+                  "Preserve the existing pri_move() random-call order. Its unrelated hostile/Conflict branches remain outside this initialization and membership divergence fix. Worker B owns B-20260916-3 and the shared conceptual-room membership contract."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Checkpoint aface44fb504a9d8296da4400543983d4677d5fd, run-Bexd1h, passed: 30/44 sessions, 10101/11405 screens, 745424/792838 RNG and 10134/11405 cursors. All 260 recordings match; the newly matching Minetown case contributes 7 screens and 4524 RNG values. Screen totals are unchanged from the landmine baseline, with 5 additional matching RNG values.",
+                "Fresh fixed-workload queue run-vKtWha identifies step 669, kind rng, function pri_move, with 45 remaining screens as an upper bound. This supersedes the mimic investigation at step 667/count 47; every other investigation count remains current.",
+                "Focused worker replay reports C rn2(3)=0 at pri_move(priest.c:194) while JS consumes rn2(10)=2 before priest movement. Read-only helper and coordinator source checks identify the nested temple initialization and membership defects. Worker B is collecting the exact runtime state and independent fresh evidence before submission.",
+                "The preceding accepted mimic fix resolves conceptual roomno 55/index 52 to shop rtype 19 and removes the C rn2(10) versus JS rn2(17) branch mismatch. Its independent recipe uses seed 8124 and a different clock and character; no session value is special-cased.",
+                "Worker B captured the pre-fix priest id 456 at (36,6), epri.shroom=2 and in_rooms(TEMPLE)=[], which makes pri_move return -1 before its two source rn1 calls. In the fixed full replay, the priest has shroom 48, shrine (37,7), level (dnum 2,dlevel 3), map roomno 48/index 45, in_rooms(TEMPLE)=[48], and resolved rtype TEMPLE (10). The source roomnoidx is 45.",
+                "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main.",
+                "Immutable priest delivery c8d7f37c80662779ea6348f45f011c4d18a41bfe is queued: focused run-Oaz13U 154/154, lint run-75CRuc, independent fresh run-75RoQK 10 screens/cursors and4283 RNG pass. Source owner and current main count45 are unchanged. Post-sync worker HEAD8399ab55459a4c3a3e269025c0d53b0938577ecc passes the affected154-test suite; its continuation reaches dryup town warning, which task B-20260916-4 now owns."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
