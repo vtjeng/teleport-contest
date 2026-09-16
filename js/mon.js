@@ -6065,10 +6065,9 @@ export function restrap(monster, env = {}) {
     return false;
 }
 
-// C ref: mon.c hideunder() (4726-4801). The monster eel and object-concealing
-// arms are covered here; hero concealment remains fail-closed. js/makemon_create.js
-// carries a separate level-creation subset that also owns the object-concealing
-// arm for mklev() and newcham().
+// C ref: mon.c hideunder() (4726-4801). All monster concealment paths use this
+// helper, including newcham() clearing concealment after a change of form.
+// Hero concealment remains fail-closed.
 //
 // The boundary is `seeit` alone rather than `seeit && undetected`, because C
 // evaluates `seenmon = y_monnam(mtmp)` for every visible monster, whether or
@@ -6087,9 +6086,6 @@ export async function hideunder(monster, env = {}) {
         throw new UnsupportedHideError('hero concealment');
     }
     const isEel = monster.data?.mlet === S_EEL;
-    if (!isEel && !hides_under(monster.data)) {
-        throw new UnsupportedHideError('a monster that hides under objects');
-    }
 
     const seeit = state.in_mklev ? false : canseemon(monster, state);
 
@@ -6121,7 +6117,7 @@ export async function hideunder(monster, env = {}) {
             seenobj = 'the water';
             locomo = 'dive';
         }
-    } else {
+    } else if (hides_under(monster.data)) {
         let object = state.level?.objects?.[x]?.[y] ?? null;
         if (can_hide_under_obj(object, state)
             && (!monster.mtame || !cursed_object_at(x, y, state))
