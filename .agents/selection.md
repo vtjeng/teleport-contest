@@ -67,6 +67,13 @@ first eligible session under these scheduling rules, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
 Resume it with `open-goal --id <id>` when its priority permits.
 
+When source review shows that another goal replaces a queued or parked plan,
+retire the old plan with `supersede-goal --goal <old-id> --by <replacement-id>
+--reason "<source-based reason>"`. This preserves its evidence, spans, and
+measurements without claiming completion or adding a score event. Superseded
+plans leave the current queue and cannot be reopened; their replacement owns
+any remaining work. Keep a goal parked when it still has independent work.
+
 Use `node scripts/goal-log.mjs roadmap` for fallback work only when the
 mismatch queue is empty. Complete unverified C function groups and Lua
 programs with reachable callers and useful validation before reference-build
