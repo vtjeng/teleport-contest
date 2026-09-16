@@ -172,18 +172,14 @@ import {
     is_ndemon,
     is_neuter,
     is_unicorn,
-    is_mplayer,
     mindless,
     mon_learns_traps,
-    polyok,
 } from './mondata.js';
 import { dochugw, set_apparxy } from './monmove.js';
 import {
     dealloc_monst,
-    mon_animal_list,
-    pickvampshape,
-    validspecmon,
-    wiz_force_cham_form,
+    newcham,
+    newcham_initial,
 } from './mon.js';
 import { shkgone } from './shk.js';
 import {
@@ -192,6 +188,17 @@ import {
     place_monster,
     remove_monster,
 } from './monst.js';
+
+// Compatibility exports for callers that historically imported these mon.c
+// helpers through the level-creation module.  Their canonical implementation
+// is in js/mon.js alongside the rest of mon.c.
+export {
+    accept_newcham_form,
+    newcham,
+    newcham_distress,
+    preflight_newcham_distress,
+} from './mon.js';
+export { set_mon_data } from './mondata.js';
 import {
     AT_WEAP,
     G_FREQ,
@@ -220,13 +227,11 @@ import {
     MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
-    LOW_PM,
     PM_ABBOT,
     PM_ACOLYTE,
     PM_ALIGNED_CLERIC,
     PM_APPRENTICE,
     PM_ARCH_LICH,
-    PM_ARCHON,
     PM_ARCHEOLOGIST,
     PM_ATTENDANT,
     PM_BALROG,
@@ -273,7 +278,6 @@ import {
     PM_ASMODEUS,
     PM_HOBGOBLIN,
     PM_ICE_DEVIL,
-    PM_JABBERWOCK,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_MUMMY,
@@ -318,7 +322,6 @@ import {
     PM_SOLDIER,
     PM_SKELETON,
     PM_SALAMANDER,
-    PM_SANDESTIN,
     PM_SNAKE,
     PM_STALKER,
     PM_STUDENT,
@@ -368,7 +371,6 @@ import {
     S_LIGHT,
     S_MIMIC,
     S_MIMIC_DEF,
-    monsterClassSymbol,
     S_MUMMY,
     S_NYMPH,
     S_OGRE,
@@ -602,7 +604,6 @@ import {
 } from './symbols.js';
 import { begin_burn, stop_timer } from './timeout.js';
 import { is_pool, t_at } from './trap.js';
-import { pick_nasty } from './wizard.js';
 import { mon_adjust_speed, which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
@@ -731,7 +732,7 @@ export function neweshk(monster) {
     return monster.mextra.eshk;
 }
 
-function creationEnv(env = {}) {
+export function creationEnv(env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
     const required = ['d', 'rn1', 'rn2', 'rnd', 'rne'];
@@ -743,7 +744,7 @@ function creationEnv(env = {}) {
     return { ...env, state, random };
 }
 
-function isRogueLevel(state) {
+export function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }
 
@@ -778,7 +779,7 @@ export function ogreWeaponDivisor(species) {
             : 12;
 }
 
-function permanentlyInvisible(species) {
+export function permanentlyInvisible(species) {
     return species?.pmidx === PM_STALKER
         || species?.pmidx === PM_BLACK_LIGHT;
 }
@@ -791,7 +792,7 @@ export function startsPermanentlyInvisible(species) {
             || species?.pmidx === PM_BLACK_LIGHT);
 }
 
-function redrawSquare(x, y, normalized) {
+export function redrawSquare(x, y, normalized) {
     if (typeof normalized.hooks?.newsym === 'function') {
         normalized.hooks.newsym(x, y, normalized);
     } else if (normalized.state === game) {
@@ -870,7 +871,7 @@ export function count_wsegs(monster, state = game) {
 }
 
 // C ref: worm.c get_wormno(). Slot zero remains reserved.
-function get_wormno(state) {
+export function get_wormno(state) {
     const slots = wormSlots(state);
     for (let wormno = 1; wormno < MAX_NUM_WORMS; ++wormno) {
         if (!slots[wormno]) return wormno;
@@ -880,7 +881,7 @@ function get_wormno(state) {
 
 // C ref: worm.c initworm(). The array order is the source linked-list order,
 // from the visible tail to the hidden segment co-located with the head.
-function initworm(monster, segmentCount, state) {
+export function initworm(monster, segmentCount, state) {
     const slots = wormSlots(state);
     if (!monster.wormno || slots[monster.wormno])
         throw new Error('initworm requires a newly allocated worm slot');
@@ -914,7 +915,7 @@ function rnd_nextto_goodpos(x, y, monster, normalized) {
 
 // C ref: worm.c place_worm_tail_randomly(). Reversing the segment chain as
 // coordinates are chosen leaves the list in tail-to-head order.
-function place_worm_tail_randomly(monster, x, y, normalized) {
+export function place_worm_tail_randomly(monster, x, y, normalized) {
     const record = wormSlots(normalized.state)[monster.wormno];
     if (!record?.segments?.length)
         throw new Error('place_worm_tail_randomly requires an initialized tail');
@@ -992,7 +993,7 @@ function canHideUnderObject(obj) {
 // this file, which owe neither newsym() nor the "you see it hide" message.
 // js/mon.js hideunder() is the monster-turn port of the same C function and
 // owes both; the S_EEL predicate has to stay identical in the two.
-function hideunder(monster, state) {
+export function hideunder(monster, state) {
     const { mx: x, my: y } = monster;
     let hidden = false;
     const trap = t_at(x, y, state);
@@ -1315,6 +1316,10 @@ function assertSupportedSpecies(species) {
             // creates it for the spitmu recipe that covers mthrowu.c's
             // spit-venom entry point.
             && species.pmidx !== PM_COBRA
+            // A doppelganger is a natural shapechanger. Its mon.c selector
+            // and bounded distress caller below are admitted for the
+            // inventoryless runtime branch.
+            && species.pmidx !== PM_DOPPELGANGER
             // read.c create_particular_creation() passes an explicitly named
             // red dragon to makemon() unchanged. Its ordinary S_DRAGON path
             // has no creation-only helper or inventory branch, so the C
@@ -3044,433 +3049,10 @@ function isPlaceholderForm(mndx) {
         || mndx === PM_ELF || mndx === PM_HUMAN;
 }
 
-function pick_animal(normalized) {
-    const { state } = normalized;
-    if (!state.ga?.animal_list) mon_animal_list(true, state);
-    if (!state.ga?.animal_list_count)
-        throw new Error('pick_animal requires at least one animal form');
-    return state.ga.animal_list[
-        normalized.random.rn2(state.ga.animal_list_count)
-    ];
-}
-
-// C ref: topten.c tt_doppel(). Picks a random role monster for a
-// doppelganger's initial form. C calls get_rnd_toptenentry(), which reads
-// the scorefile. The recorder's scorefile is always empty, so
-// get_rnd_toptenentry() always returns NULL and the fallback path fires.
-// The rn2(13) and rnd(10) calls must still happen to keep the RNG aligned.
-function tt_doppel(random) {
-    const hasEntry = random.rn2(13);
-    if (hasEntry) {
-        // C: get_rnd_toptenentry() calls rnd(sysopt.tt_oname_maxrank)
-        // before discovering the scorefile is empty and returning NULL.
-        random.rnd(10);
-    }
-    return random.rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
-}
-
-// C ref: mon.c select_newcham_form().
-function select_newcham_form(monster, normalized) {
-    const { random, state } = normalized;
-    let mndx = NON_PM;
-    let tryct;
-    if (monster.cham === PM_SANDESTIN) {
-        // C ref: mon.c:5162-5165, select_newcham_form() PM_SANDESTIN case.
-        if (random.rn2(7)) {
-            mndx = pick_nasty(
-                state.mons[PM_ARCHON].difficulty - 1,
-                normalized,
-            );
-        }
-    } else if (monster.cham === PM_DOPPELGANGER) {
-        // C ref: mon.c:5166-5186, select_newcham_form() PM_DOPPELGANGER case.
-        if (!random.rn2(7)) {
-            mndx = pick_nasty(
-                state.mons[PM_JABBERWOCK].difficulty - 1,
-                normalized,
-            );
-        } else if (random.rn2(3)) {
-            // Role monsters via tt_doppel.
-            mndx = tt_doppel(random);
-        } else if (!random.rn2(3)) {
-            // Quest guardians; avoid own role's guardian.
-            mndx = random.rn1(
-                PM_APPRENTICE - PM_STUDENT + 1,
-                PM_STUDENT,
-            );
-            if (mndx === state.urole.guardnum) mndx = NON_PM;
-        } else {
-            // General humanoids: try up to 5 times for a humanoid polyok form.
-            tryct = 5;
-            do {
-                mndx = random.rn1(SPECIAL_PM - LOW_PM, LOW_PM);
-                if (humanoid(state.mons[mndx])
-                    && polyok(state.mons[mndx])) {
-                    break;
-                }
-            } while (--tryct > 0);
-            if (!tryct) mndx = NON_PM;
-        }
-    } else if (monster.cham === PM_CHAMELEON) {
-        if (!random.rn2(3)) mndx = pick_animal(normalized);
-    } else if (monster.cham === PM_VLAD_THE_IMPALER
-               || monster.cham === PM_VAMPIRE
-               || monster.cham === PM_VAMPIRE_LEADER) {
-        return pickvampshape(monster, normalized);
-    } else {
-        throw new UnsupportedMonsterCreationError(
-            `initial shapechanger ${monster.cham}`,
-        );
-    }
-    if (mndx === NON_PM) {
-        tryct = 50;
-        do {
-            mndx = random.rn1(SPECIAL_PM - LOW_PM, LOW_PM);
-        } while (--tryct > 0
-                 && !validspecmon(monster, mndx, state)
-                 && (tryct > 40 && isRogueLevel(state)
-                     && !isUpperMonster(state.mons[mndx])));
-    }
-    return mndx;
-}
-
-function isUpperMonster(species) {
-    const symbol = monsterClassSymbol(species?.mlet);
-    return symbol >= 'A' && symbol <= 'Z';
-}
-
-async function select_newcham_form_for_distress(monster, normalized) {
-    if (normalized.state.wizard
-        && normalized.state.iflags?.mon_polycontrol) {
-        const forced = await wiz_force_cham_form(monster, normalized);
-        if (forced !== NON_PM) return forced;
-    }
-    return select_newcham_form(monster, normalized);
-}
-
-// C ref: mon.c accept_newcham_form(). The doppelganger and quest-guardian
-// branches of select_newcham_form() deliberately pick species at or above
-// SPECIAL_PM, so the range extends to the full catalog.
-export function accept_newcham_form(monster, mndx, state) {
-    if (!Number.isInteger(mndx) || mndx < LOW_PM
-        || mndx >= state.mons.length)
-        return null;
-    const species = state.mons[mndx];
-    if (state.mvitals[mndx].mvflags & G_GENOD) return null;
-    if (isPlaceholderForm(mndx)) return null;
-    // C ref: mon.c:5243-5244. select_newcham_form() deliberately picks
-    // player-character types that polyok() rejects (M2_NOPOLY).
-    if (is_mplayer(species)) return species;
-    if ((species.mflags2 & M2_SHAPESHIFTER)
-        && mndx === monster.cham) {
-        return species;
-    }
-    return species.mflags2 & M2_NOPOLY ? null : species;
-}
-
-// C ref: mon.c mgender_from_permonst(). A natural chameleon is not a vampire
-// shifter, but vampire target forms still suppress the ordinary 10% flip.
-function mgender_from_permonst(monster, species, random) {
-    if (is_male(species)) {
-        monster.female = false;
-    } else if (is_female(species)) {
-        monster.female = true;
-    } else if (!is_neuter(species)
-               && !random.rn2(10)
-               && species.mlet !== S_VAMPIRE
-               && monster.cham !== PM_VAMPIRE
-               && monster.cham !== PM_VAMPIRE_LEADER) {
-        monster.female = !monster.female;
-    }
-}
-
-// C ref: mondata.c set_mon_data(). Only unused movement in a slower form is
-// prorated; faster forms retain the already accumulated movement. The hero's
-// movement lives in u.umovement rather than youmonst.movement (you.h), so a
-// polymorphed hero prorates that field.
-export function set_mon_data(monster, species, state = game) {
-    const oldSpeed = monster.data?.mmove ?? 0;
-    const hero = monster === state.youmonst;
-    monster.data = species;
-    monster.mnum = species.pmidx;
-    let movement = hero ? state.u.umovement : monster.movement;
-    if (movement && species.mmove < oldSpeed) {
-        movement *= species.mmove;
-        if (oldSpeed > 0) movement = Math.trunc(movement / oldSpeed);
-        if (hero) state.u.umovement = movement;
-        else monster.movement = movement;
-    }
-}
-
-// C ref: mon.c newcham(), for the just-created supported natural
-// shapechangers. These paths have no inventory, leash, disguise, tail, or
-// hero attachment. The same state transition handles makemon()'s random
-// initial form and sp_lev.c:create_monster()'s explicit waiting-vampire
-// reversion.
-function apply_newcham_form(monster, target, normalized) {
-    const { random, state } = normalized;
-    const olddata = monster.data;
-    if (target === olddata) return false;
-
-    // mon.c newcham():5356-5362 discards an old long-worm tail before
-    // changing the head's species. A newly-created doppelganger can select
-    // long worm as its initial shape before revive() gives it the corpse's
-    // unique species, so this is part of the revival path too.
-    if (monster.wormno) {
-        const mx = monster.mx;
-        const my = monster.my;
-        remove_worm(monster, normalized);
-        wormgone(monster, state);
-        place_monster(monster, mx, my, state);
-    }
-
-    mgender_from_permonst(monster, target, random);
-    const oldHp = monster.mhp;
-    const oldMax = monster.mhpmax;
-    newmonhp(monster, target.pmidx, normalized);
-    monster.mhp = Math.trunc(oldHp * monster.mhp / oldMax);
-    if (monster.mhp < 0 || monster.mhp > monster.mhpmax)
-        monster.mhp = monster.mhpmax;
-    if (!monster.mhp) monster.mhp = 1;
-
-    set_mon_data(monster, target, state);
-
-    const oldLight = emits_light(olddata);
-    const newLight = emits_light(target);
-    if (oldLight !== newLight) {
-        if (oldLight)
-            del_light_source(LS_MONSTER, monster, state);
-        if (newLight) {
-            new_light_source(
-                monster.mx,
-                monster.my,
-                newLight,
-                LS_MONSTER,
-                monster,
-                state,
-            );
-        }
-    }
-    if (!monster.perminvis || permanentlyInvisible(olddata))
-        monster.perminvis = permanentlyInvisible(target);
-    monster.minvis = monster.invis_blkd ? false : monster.perminvis;
-    if (monster.mundetected) hideunder(monster, state);
-
-    if (target.pmidx === PM_LONG_WORM) {
-        monster.wormno = get_wormno(state);
-        if (monster.wormno) {
-            initworm(monster, random.rn2(5), state);
-            place_worm_tail_randomly(
-                monster,
-                monster.mx,
-                monster.my,
-                normalized,
-            );
-        }
-    }
-
-    monster.meverseen = false;
-    redrawSquare(monster.mx, monster.my, normalized);
-    // possibly_unwield(), mon_break_armor(), and mselftouch() are drawless for
-    // this empty inventory; check_gear_next_turn() still schedules a recheck.
-    monster.misc_worn_check |= I_SPECIAL;
-    return true;
-}
-
-// C ref: mon.c newcham(), explicit-target vampire reversion arm. The common
-// form transition is shared with the bounded creation callers; callers that
-// need inventory, equipment, disguise, or hero-attachment handling remain
-// outside this adapter.
-export function newcham(monster, target, rawEnv = {}) {
-    const normalized = creationEnv(rawEnv);
-    const { state } = normalized;
-    if (!target || state.mons?.[target.pmidx] !== target
-        || (state.mvitals[target.pmidx].mvflags & G_GENOD)) return false;
-    return apply_newcham_form(monster, target, normalized);
-}
-
-// C ref: mon.c newcham(..., NULL, NO_NC_FLAGS). Chameleon targets span the
-// polymorphable pre-SPECIAL_PM catalog; vampires use their controlled bat,
-// fog-cloud, and wolf target set.
-function newcham_initial(monster, normalized) {
-    const { state } = normalized;
-    let target = null;
-    for (let attempt = 0; attempt < 20 && !target; ++attempt) {
-        target = accept_newcham_form(
-            monster,
-            select_newcham_form(monster, normalized),
-            state,
-        );
-    }
-    return target ? apply_newcham_form(monster, target, normalized) : false;
-}
-
-function distressShapechangeName(monster) {
-    const assigned = monster.mextra?.mgivenname;
-    if (assigned) return String(assigned);
-    const names = monster.data?.pmnames ?? [];
-    return names[monster.female ? 1 : 0] ?? names[2] ?? 'monster';
-}
-
-function distressShapechangeArticle(name) {
-    const text = String(name);
-    const lower = text.toLowerCase();
-    if (lower === 'molten lava' || lower === 'iron bars' || lower === 'ice'
-        || lower.startsWith('the ')) {
-        return '';
-    }
-    const first = lower[0] ?? '';
-    const vowel = 'aeiou'.includes(first);
-    const oneException = lower.startsWith('one')
-        && (!lower[3] || '-_ '.includes(lower[3]));
-    const longU = lower.startsWith('eu')
-        || lower.startsWith('uke')
-        || lower.startsWith('ukulele')
-        || lower.startsWith('unicorn')
-        || lower.startsWith('uranium')
-        || lower.startsWith('useful');
-    const pronouncedX = first === 'x'
-        && !'aeiou'.includes(lower[1] ?? '');
-    return (vowel && !oneException && !longU) || pronouncedX ? 'an' : 'a';
-}
-
-function distressShapechangeOldName(monster) {
-    const assigned = monster.mextra?.mgivenname;
-    if (assigned) {
-        const text = String(assigned);
-        return text ? text[0].toUpperCase() + text.slice(1) : text;
-    }
-    const name = distressShapechangeName(monster);
-    const article = monster.mtame ? 'Your' : 'The';
-    return `${article} ${name}`;
-}
-
-function distressShapechangeNewName(monster) {
-    const name = distressShapechangeName(monster);
-    return `${distressShapechangeArticle(name)} ${name}`.trim();
-}
-
-function requiredDistressShapechangeOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(
-            `newcham_distress requires a ${name} operation`,
-        );
-    }
-    return operation;
-}
-
-function preflightDistressShapechange(monster, normalized) {
-    const { state } = normalized;
-    const supportedShifter = monster?.cham === PM_SANDESTIN
-        || monster?.cham === PM_CHAMELEON
-        || monster?.cham === PM_VAMPIRE
-        || monster?.cham === PM_VAMPIRE_LEADER;
-    if (!supportedShifter) {
-        throw new UnsupportedMonsterCreationError(
-            `distress shapechanger ${monster?.cham}`,
-        );
-    }
-    // The initial-D:1 forms admitted here are empty-inventory chameleons,
-    // Sandestins, and Mausoleum vampires. General newcham() has additional
-    // owners for worm teardown, disguise, leash/steed/engulfment, armor,
-    // wielding, and self-touch. Refuse those states before selection can
-    // consume RNG.
-    if (monster.minvent || monster.wormno || monster.m_ap_type
-        || monster.mleashed || state.u?.ustuck === monster
-        || state.u?.usteed === monster) {
-        throw new UnsupportedMonsterCreationError(
-            'distress shapechanger attachment state',
-        );
-    }
-    if (!Number.isInteger(monster.mhpmax) || monster.mhpmax <= 0
-        || !Number.isInteger(monster.mhp) || monster.mhp <= 0) {
-        throw new TypeError(
-            'newcham_distress requires positive integer hit points',
-        );
-    }
-}
-
-export function preflight_newcham_distress(monster, rawEnv = {}) {
-    const normalized = creationEnv(rawEnv);
-    preflightDistressShapechange(monster, normalized);
-    requiredDistressShapechangeOperation(normalized, 'canSpotMonster');
-    requiredDistressShapechangeOperation(normalized, 'message');
-    return true;
-}
-
-// C ref: mon.c newcham(..., NC_SHOW_MSG), bounded to the empty-inventory
-// natural shapechangers which can originate while D:1 is being built.
-// Selection, HP reroll/scaling, form state, redraw, and visibility-dependent
-// feedback retain source order. The broader attachment and equipment cases
-// remain explicit seams in preflightDistressShapechange().
-export async function newcham_distress(
-    monster,
-    target = null,
-    rawEnv = {},
-) {
-    const normalized = creationEnv(rawEnv);
-    const { state } = normalized;
-    preflightDistressShapechange(monster, normalized);
-    const canSpotMonster = requiredDistressShapechangeOperation(
-        normalized,
-        'canSpotMonster',
-    );
-    const message = requiredDistressShapechangeOperation(
-        normalized,
-        'message',
-    );
-
-    const seenOrSensed = Boolean(canSpotMonster(monster, normalized));
-    const oldName = distressShapechangeOldName(monster);
-    let selected = target;
-    if (selected == null) {
-        for (let attempt = 0; attempt < 20 && !selected; ++attempt) {
-            selected = accept_newcham_form(
-                monster,
-                await select_newcham_form_for_distress(monster, normalized),
-                state,
-            );
-        }
-        if (!selected) return false;
-    } else {
-        const mndx = selected.pmidx;
-        if (!Number.isInteger(mndx)
-            || state.mons?.[mndx] !== selected) {
-            throw new TypeError(
-                'newcham_distress target must be a catalog monster',
-            );
-        }
-        if (state.mvitals[mndx].mvflags & G_GENOD) return false;
-    }
-    if (!apply_newcham_form(monster, selected, normalized)) return false;
-
-    const canSpotNow = Boolean(canSpotMonster(monster, normalized));
-    if (!canSpotNow) {
-        if (seenOrSensed)
-            await message(`${oldName} disappears!`, state, normalized);
-        const { usmellmon } = await import('./mon.js');
-        await usmellmon(selected, normalized);
-    } else if (!seenOrSensed) {
-        const newName = distressShapechangeNewName(monster);
-        const appeared = newName
-            ? newName[0].toUpperCase() + newName.slice(1)
-            : newName;
-        await message(`${appeared} appears!`, state, normalized);
-    } else {
-        await message(
-            `${oldName} turns into ${distressShapechangeNewName(monster)}!`,
-            state,
-            normalized,
-        );
-    }
-    return true;
-}
-
 // Bounded explicit-target form of mon.c:newcham() for
 // sp_lev.c:create_monster(). The caller has just created an implicitly shifted
-// waiting vampire, so none of general newcham()'s inventory, tail, disguise,
-// leash, steed, or hero-attachment branches may be live.
+// waiting vampire, so it normally has no attached inventory.  The common
+// mon.c implementation remains the canonical owner of the transition.
 export function restore_waiting_vampire(monster, rawEnv = {}) {
     const normalized = creationEnv(rawEnv);
     const { state } = normalized;
@@ -3479,17 +3061,8 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
     const isSupportedShift = monster?.mnum === PM_VAMPIRE_BAT
         || monster?.mnum === PM_FOG_CLOUD
         || monster?.mnum === PM_WOLF;
-    const hasUnsupportedAttachment = Boolean(
-        monster?.minvent
-        || monster?.wormno
-        || monster?.m_ap_type
-        || monster?.mleashed
-        || state.u?.ustuck === monster
-        || state.u?.usteed === monster,
-    );
     if (!isVampireShifter || !isSupportedShift
-        || monster.data?.mlet === S_VAMPIRE
-        || hasUnsupportedAttachment) {
+        || monster.data?.mlet === S_VAMPIRE) {
         throw new UnsupportedMonsterCreationError(
             'waiting-vampire reversion state',
         );
@@ -3499,29 +3072,30 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
     if (!target || target.pmidx !== mndx)
         throw new UnsupportedMonsterCreationError('waiting-vampire target');
     if (state.mvitals[mndx].mvflags & G_GENOD) return false;
-    return apply_newcham_form(monster, target, normalized);
+    if (monster.data === target) return false;
+    // Explicit-target newcham is hybrid: synchronous for an ordinary
+    // no-message transition and Promise-returning when a caller supplied an
+    // asynchronous floor/attachment owner is reached.
+    return newcham(monster, target, normalized);
 }
 
 // C ref: zap.c revive():991-994, the explicit-target newcham() used after a
 // unique corpse without saved traits is substituted with a doppelganger.
-// Inventory, leash, hero attachment, and arbitrary shapechanger calls remain
-// outside this adapter; revive() removes a mimic disguise after this returns.
-export function newcham_revival(monster, target, rawEnv = {}) {
+// The common mon.c owner handles inventory and attachments.  This caller
+// discards the newcham return, as zap.c does.
+export async function newcham_revival(monster, target, rawEnv = {}) {
     const normalized = creationEnv(rawEnv);
     const { state } = normalized;
     if (monster?.cham !== PM_DOPPELGANGER
         || !target
-        || state.mons?.[target.pmidx] !== target
-        || monster.minvent
-        || monster.mleashed
-        || monster === state.u?.ustuck
-        || monster === state.u?.usteed) {
+        || state.mons?.[target.pmidx] !== target) {
         throw new UnsupportedMonsterCreationError(
             'revival doppelganger shape change',
         );
     }
     if (state.mvitals[target.pmidx].mvflags & G_GENOD) return false;
-    return apply_newcham_form(monster, target, normalized);
+    if (monster.data === target) return false;
+    return await newcham(monster, target, normalized);
 }
 
 function finishMonsterInventoryAndStrategy(
@@ -3775,101 +3349,112 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (mndx === PM_VLAD_THE_IMPALER) mitem = CANDELABRUM_OF_INVOCATION;
     monster.cham = NON_PM;
     const naturalShape = pm_to_cham(mndx, state);
+    let initialShape = false;
     if (!heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)
         && naturalShape !== NON_PM) {
         monster.cham = naturalShape;
         // C ref: makemon.c:1361. Vlad stays in his normal form so he
         // can carry the Candelabrum of Invocation.
-        if (mndx !== PM_VLAD_THE_IMPALER
-            && newcham_initial(monster, normalized))
-            allowMinvent = false;
-    } else if (mndx === PM_WIZARD_OF_YENDOR) {
-        monster.iswiz = true;
-        state.context.no_of_wizards = (state.context.no_of_wizards || 0) + 1;
-        if (state.context.no_of_wizards === 1
-            && on_level(state.u?.uz, state.earth_level))
-            mitem = SPE_DIG;
-    } else if (mndx === PM_GHOST) {
-        // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
-        // savebones() passes MM_NONAME and then christen_monst separately.
-        if (!(mmflags & MM_NONAME)) {
-            christen_monst(monster, rndghostname(normalized), {
-                updateInventory: () => update_inventory(normalized),
-            });
-        }
-    } else if (mndx === PM_CROESUS) {
-        mitem = TWO_HANDED_SWORD;
-    } else if (ptr.msound === MS_NEMESIS) {
-        mitem = BELL_OF_OPENING;
-    } else if (mndx === PM_PESTILENCE) {
-        mitem = POT_SICKNESS;
-    }
-    if (mitem !== STRANGE_OBJECT && allowMinvent)
-        mongets(monster, mitem, normalized);
-    if (state.in_mklev
-        && mklevSleeperSpecies(ptr)
-        && !state.u.uhave.amulet
-        && random.rn2(5)) {
-        monster.msleeping = true;
-    }
-    if (byHero && !state.in_mklev) {
-        // C makemon.c calls newsym() and then set_apparxy() here, using the
-        // original byyou flag even after enexto() moved the monster away from
-        // the hero's square. Preserve both source calls so displaced and
-        // unseen heroes consume the same placement draw as C.
-        redrawSquare(monster.mx, monster.my, normalized);
-        set_apparxy(monster, normalized);
-    }
-    // C ref: makemon.c:1405-1408.
-    if (mndx === PM_LONG_WORM) {
-        monster.wormno = get_wormno(state);
-        if (monster.wormno) {
-            initworm(monster, allowtail ? random.rn2(5) : 0, state);
-            const record = wormSlots(state)[monster.wormno];
-            if (record && record.segments.length > 1)
-                place_worm_tail_randomly(monster, x, y, normalized);
+        if (mndx !== PM_VLAD_THE_IMPALER) {
+            initialShape = newcham_initial(monster, normalized);
         }
     }
-    set_malign(monster, state);
+    const finishAfterInitial = (initialChanged) => {
+        if (initialChanged) allowMinvent = false;
+        if (naturalShape === NON_PM) {
+            if (mndx === PM_WIZARD_OF_YENDOR) {
+                monster.iswiz = true;
+                state.context.no_of_wizards
+                    = (state.context.no_of_wizards || 0) + 1;
+                if (state.context.no_of_wizards === 1
+                    && on_level(state.u?.uz, state.earth_level))
+                    mitem = SPE_DIG;
+            } else if (mndx === PM_GHOST) {
+                // C ref: makemon.c -- MM_NONAME suppresses the random ghost name.
+                // savebones() passes MM_NONAME and then christen_monst separately.
+                if (!(mmflags & MM_NONAME)) {
+                    christen_monst(monster, rndghostname(normalized), {
+                        updateInventory: () => update_inventory(normalized),
+                    });
+                }
+            } else if (mndx === PM_CROESUS) {
+                mitem = TWO_HANDED_SWORD;
+            } else if (ptr.msound === MS_NEMESIS) {
+                mitem = BELL_OF_OPENING;
+            } else if (mndx === PM_PESTILENCE) {
+                mitem = POT_SICKNESS;
+            }
+        }
+        if (mitem !== STRANGE_OBJECT && allowMinvent)
+            mongets(monster, mitem, normalized);
+        if (state.in_mklev
+            && mklevSleeperSpecies(ptr)
+            && !state.u.uhave.amulet
+            && random.rn2(5)) {
+            monster.msleeping = true;
+        }
+        if (byHero && !state.in_mklev) {
+            // C makemon.c calls newsym() and then set_apparxy() here, using the
+            // original byyou flag even after enexto() moved the monster away from
+            // the hero's square. Preserve both source calls so displaced and
+            // unseen heroes consume the same placement draw as C.
+            redrawSquare(monster.mx, monster.my, normalized);
+            set_apparxy(monster, normalized);
+        }
+        // C ref: makemon.c:1405-1408.
+        if (mndx === PM_LONG_WORM) {
+            monster.wormno = get_wormno(state);
+            if (monster.wormno) {
+                initworm(monster, allowtail ? random.rn2(5) : 0, state);
+                const record = wormSlots(state)[monster.wormno];
+                if (record && record.segments.length > 1)
+                    place_worm_tail_randomly(monster, x, y, normalized);
+            }
+        }
+        set_malign(monster, state);
 
-    if (!state.in_mklev) {
-        const continuation = normalized.runtimeContinuation;
-        if (!continuation || continuation.claimed) {
-            throw new UnsupportedMonsterCreationError(
-                'runtime creation without an unused async continuation',
-            );
+        if (!state.in_mklev) {
+            const continuation = normalized.runtimeContinuation;
+            if (!continuation || continuation.claimed) {
+                throw new UnsupportedMonsterCreationError(
+                    'runtime creation without an unused async continuation',
+                );
+            }
+            Object.assign(continuation, {
+                claimed: true,
+                monster,
+                ptr,
+                anymon,
+                allowMinvent,
+            });
+            return monster;
         }
-        Object.assign(continuation, {
-            claimed: true,
+
+        if (anymon && !(mmflags & MM_NOGRP)) {
+            if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
+                m_initgrp(monster, 3, mmflags, normalized);
+            } else if (ptr.geno & G_LGROUP) {
+                m_initgrp(
+                    monster,
+                    random.rn2(3) ? 10 : 3,
+                    mmflags,
+                    normalized,
+                );
+            }
+        }
+        finishMonsterInventoryAndStrategy(
             monster,
             ptr,
-            anymon,
             allowMinvent,
-        });
+            mmflags,
+            normalized,
+        );
+
         return monster;
-    }
-
-    if (anymon && !(mmflags & MM_NOGRP)) {
-        if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
-            m_initgrp(monster, 3, mmflags, normalized);
-        } else if (ptr.geno & G_LGROUP) {
-            m_initgrp(
-                monster,
-                random.rn2(3) ? 10 : 3,
-                mmflags,
-                normalized,
-            );
-        }
-    }
-    finishMonsterInventoryAndStrategy(
-        monster,
-        ptr,
-        allowMinvent,
-        mmflags,
-        normalized,
-    );
-
-    return monster;
+    };
+    if (initialShape && typeof initialShape.then === 'function')
+        return initialShape.then(finishAfterInitial);
+    return finishAfterInitial(initialShape);
 }
 
 // Async adapter for makemon.c's runtime suffix.  The synchronous constructor
@@ -3890,7 +3475,9 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         norepMessage,
         runtimeContinuation,
     });
-    const monster = makemon(ptr, x, y, mmflags, normalized);
+    const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    const monster = maybeMonster && typeof maybeMonster.then === 'function'
+        ? await maybeMonster : maybeMonster;
     if (!monster) return null;
     if (!runtimeContinuation.claimed
         || runtimeContinuation.monster !== monster) {
@@ -3943,21 +3530,25 @@ export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
         revival: true,
         runtimeContinuation,
     });
-    const monster = makemon(ptr, x, y, mmflags, normalized);
-    if (!monster) return null;
-    if (!runtimeContinuation.claimed
-        || runtimeContinuation.monster !== monster) {
-        throw new Error('revival continuation was not claimed');
-    }
-    finishMonsterInventoryAndStrategy(
-        monster,
-        runtimeContinuation.ptr,
-        runtimeContinuation.allowMinvent,
-        mmflags,
-        normalized,
-    );
-    redrawSquare(monster.mx, monster.my, normalized);
-    return monster;
+    const finish = (monster) => {
+        if (!monster) return null;
+        if (!runtimeContinuation.claimed
+            || runtimeContinuation.monster !== monster) {
+            throw new Error('revival continuation was not claimed');
+        }
+        finishMonsterInventoryAndStrategy(
+            monster,
+            runtimeContinuation.ptr,
+            runtimeContinuation.allowMinvent,
+            mmflags,
+            normalized,
+        );
+        redrawSquare(monster.mx, monster.my, normalized);
+        return monster;
+    };
+    const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    return maybeMonster && typeof maybeMonster.then === 'function'
+        ? maybeMonster.then(finish) : finish(maybeMonster);
 }
 
 // C ref: makemon.c makemon() (1385-1392), species half of the mklev-only

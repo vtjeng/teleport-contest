@@ -109,6 +109,7 @@ import {
     WEAPON_CLASS,
     getObjects,
 } from './objects.js';
+
 import {
     PM_ABBOT,
     PM_ACOLYTE,
@@ -189,6 +190,22 @@ import {
     start_timer,
     stop_timer,
 } from './timeout.js';
+
+// Keep source-order loops synchronous for the ordinary construction path, but
+// continue them after a Promise when a shape-changing monster or object
+// callback crosses an asynchronous game owner. This preserves the historical
+// API's plain return values while making every descriptor result observable.
+function sequenceThemeroomSteps(count, step, finish = () => undefined) {
+    let index = 0;
+    const next = () => {
+        if (index >= count) return finish();
+        const result = step(index++);
+        if (result && typeof result.then === 'function')
+            return result.then(next);
+        return next();
+    };
+    return next();
+}
 
 const DEFAULT_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 const WHOLE_LEVEL_FRAME = Object.freeze({
@@ -577,14 +594,16 @@ function createMonsterBody(m, croom, env) {
     // for script-placed monsters during mklev, the same way rndmonst-selected
     // species bypass it.
     if (state?.in_mklev) monsterEnv._rndmonMklev = true;
-    const mtmp = makemon(
+    const maybeMtmp = makemon(
         pm,
         coordinate.x,
         coordinate.y,
         m.mm_flags,
         monsterEnv,
     );
-    if (!mtmp) return null;
+    const finish = (mtmp) => {
+        if (!mtmp) return null;
+        let pending = null;
 
     let x = mtmp.mx;
     let y = mtmp.my; /* sanity precaution */
@@ -725,18 +744,26 @@ function createMonsterBody(m, croom, env) {
         if (isVampireShifter
             && mtmp.data.mlet !== S_VAMPIRE
             && m.appear !== M_AP_MONSTER) {
-            restore_waiting_vampire(mtmp, monsterEnv);
+            pending = restore_waiting_vampire(mtmp, monsterEnv);
         }
     }
-    if (m.m_lev_adj) {
-        if (mtmp.m_lev + m.m_lev_adj > 49)
-            mtmp.m_lev = 49;
-        else if (mtmp.m_lev + m.m_lev_adj < 0)
-            mtmp.m_lev = 0;
-        else
-            mtmp.m_lev += m.m_lev_adj;
-    }
-    return mtmp;
+        const finishLevel = () => {
+            if (m.m_lev_adj) {
+                if (mtmp.m_lev + m.m_lev_adj > 49)
+                    mtmp.m_lev = 49;
+                else if (mtmp.m_lev + m.m_lev_adj < 0)
+                    mtmp.m_lev = 0;
+                else
+                    mtmp.m_lev += m.m_lev_adj;
+            }
+            return mtmp;
+        };
+        return pending && typeof pending.then === 'function'
+            ? pending.then(finishLevel) : finishLevel();
+    };
+    if (maybeMtmp && typeof maybeMtmp.then === 'function')
+        return maybeMtmp.then(finish);
+    return finish(maybeMtmp);
 }
 
 // The monster appearance arm of create_monster() remains unported. Refuse
@@ -816,27 +843,30 @@ export function spo_end_moninvent(context, env) {
 export function create_monster(m, croom, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     assertSupportedMonsterAppearance(m);
+    const maybeMtmp = createMonsterBody(m, croom, env);
 
-    const mtmp = createMonsterBody(m, croom, env);
-
-    if (mtmp) {
-        if (!(m.has_invent & DEFAULT_INVENT)) {
-            /* guard against someone accidentally specifying e.g. quest nemesis
-             * with custom inventory that lacks Bell or quest artifact but
-             * forgetting to flag them as receiving their default inventory */
-            // C ref: steal.c mdrop_special_objs() calls obj_resists(obj, 0, 0)
-            // for each inventory item before discard_minvent() discards them.
-            // The rn2(100) calls always return false for ordinary items but
-            // still consume the RNG.
-            for (let obj = mtmp.minvent; obj; obj = obj.nobj)
-                obj_resists(obj, 0, 0, env);
-            discard_minvent(mtmp, true, env);
+    const finish = (mtmp) => {
+        if (mtmp) {
+            if (!(m.has_invent & DEFAULT_INVENT)) {
+                /* guard against someone accidentally specifying e.g. quest nemesis
+                 * with custom inventory that lacks Bell or quest artifact but
+                 * forgetting to flag them as receiving their default inventory */
+                // C ref: steal.c mdrop_special_objs() calls obj_resists(obj, 0, 0)
+                // for each inventory item before discard_minvent() discards them.
+                // The rn2(100) calls always return false for ordinary items but
+                // still consume the RNG.
+                for (let obj = mtmp.minvent; obj; obj = obj.nobj)
+                    obj_resists(obj, 0, 0, env);
+                discard_minvent(mtmp, true, env);
+            }
+            if (m.has_invent & CUSTOM_INVENT) {
+                env.spObjectContext.inventCarryingMonster = mtmp;
+            }
         }
-        if (m.has_invent & CUSTOM_INVENT) {
-            env.spObjectContext.inventCarryingMonster = mtmp;
-        }
-    }
-    return mtmp;
+        return mtmp;
+    };
+    return maybeMtmp && typeof maybeMtmp.then === 'function'
+        ? maybeMtmp.then(finish) : finish(maybeMtmp);
 }
 
 function replaceSelectedTerrain(selection, predicate, toTerrain, env) {
@@ -945,22 +975,31 @@ function fillIceRoom(room, difficulty, env) {
 function fillCloudRoom(room, _difficulty, env) {
     const fog = roomSelection(room, env);
     const monsterCount = Math.trunc(fog.numpoints() / 4);
-    for (let index = 0; index < monsterCount; ++index)
-        lspo_monster([{ id: PM_FOG_CLOUD, asleep: true }], room, env);
-    const replacement = env.hooks.createGasCloudSelection;
-    if (replacement)
-        return replacement(fog, 0, env);
-    return lspo_gas_cloud([{ selection: fog }], env);
+    return sequenceThemeroomSteps(
+        monsterCount,
+        () => lspo_monster(
+            [{ id: PM_FOG_CLOUD, asleep: true }], room, env,
+        ),
+        () => {
+            const replacement = env.hooks.createGasCloudSelection;
+            if (replacement)
+                return replacement(fog, 0, env);
+            return lspo_gas_cloud([{ selection: fog }], env);
+        },
+    );
 }
 
 // dat/themerms.lua "Boulder room". selection:percentage() samples x-major,
 // then selection:iterate() invokes the retained points y-major.
 function fillBoulderRoom(room, _difficulty, env) {
     const locations = roomSelection(room, env).percentage(30, env.random.rn2);
-    locations.iterate((x, y) => {
+    const points = [];
+    locations.iterate((x, y) => points.push([x, y]));
+    return sequenceThemeroomSteps(points.length, (index) => {
+        const [x, y] = points[index];
         const coordinate = { x: x - room.lx, y: y - room.ly };
         if (env.random.rn2(100) < 50) {
-            createObject({ id: BOULDER, coordinate }, room, env);
+            return createObject({ id: BOULDER, coordinate }, room, env);
         } else {
             createRoomTrap(
                 ROLLING_BOULDER_TRAP,
@@ -985,30 +1024,34 @@ function fillBuriedZombies(room, difficulty, env) {
     const width = 1 + room.hx - room.lx;
     const height = 1 + room.hy - room.ly;
     const corpseCount = Math.trunc(width * height / 2);
-    for (let index = 0; index < corpseCount; ++index) {
+    return sequenceThemeroomSteps(corpseCount, () => {
         shuffle_themeroom_values(zombifiable, env.random.rn2);
         const corpse = createObject({
             id: CORPSE,
             corpsenm: zombifiable[0],
             buried: true,
         }, room, env);
-        if (corpse)
-            stop_timer(ROT_CORPSE, corpse, env.state, env);
+        const finishCorpse = (created) => {
+            if (created)
+                stop_timer(ROT_CORPSE, created, env.state, env);
 
-        // Lua evaluates math.random() before l_obj_timer_start(), whose body
-        // replaces a duplicate timer only after the delay has been selected.
-        const delay = 990 + env.random.rn2(21);
-        if (!corpse) continue;
-        if (obj_has_timer(corpse, ZOMBIFY_MON, env.state))
-            stop_timer(ZOMBIFY_MON, corpse, env.state, env);
-        start_timer(
-            delay,
-            TIMER_OBJECT,
-            ZOMBIFY_MON,
-            corpse,
-            env.state,
-        );
-    }
+            // Lua evaluates math.random() before l_obj_timer_start(), whose
+            // body replaces a duplicate timer only after the delay is selected.
+            const delay = 990 + env.random.rn2(21);
+            if (!created) return;
+            if (obj_has_timer(created, ZOMBIFY_MON, env.state))
+                stop_timer(ZOMBIFY_MON, created, env.state, env);
+            start_timer(
+                delay,
+                TIMER_OBJECT,
+                ZOMBIFY_MON,
+                created,
+                env.state,
+            );
+        };
+        return corpse && typeof corpse.then === 'function'
+            ? corpse.then(finishCorpse) : finishCorpse(corpse);
+    });
 }
 
 // dat/themerms.lua "Spider nest". Its `spooders` gate is level_difficulty()
@@ -1048,23 +1091,34 @@ function fillTrapRoom(room, _difficulty, env) {
 function fillGarden(room, _difficulty, env) {
     const selected = roomSelection(room, env);
     const monsterCount = Math.trunc(selected.numpoints() / 6);
-    for (let index = 0; index < monsterCount; ++index) {
-        lspo_monster([{ id: PM_WOOD_NYMPH, asleep: true }], room, env);
+    const finishMonster = () => {
         if (env.random.rn2(100) < 30)
             createFeature(FOUNTAIN, room, env);
-    }
-    enqueuePostprocess(
+    };
+    const maybeMonsters = sequenceThemeroomSteps(
+        monsterCount,
+        () => {
+            const maybeMonster = lspo_monster(
+                [{ id: PM_WOOD_NYMPH, asleep: true }], room, env,
+            );
+            return maybeMonster && typeof maybeMonster.then === 'function'
+                ? maybeMonster.then(finishMonster) : finishMonster();
+        },
+    );
+    const finish = () => enqueuePostprocess(
         makeGardenWalls,
         { selection: roomSelection(room, env) },
         env,
     );
+    return maybeMonsters && typeof maybeMonsters.then === 'function'
+        ? maybeMonsters.then(finish) : finish();
 }
 
 // dat/themerms.lua "Buried treasure". create_object() buries the chest while
 // its descriptor container frame is active, then lspo_object() invokes this
 // callback and only pops the frame after all random contents have been made.
 function fillBuriedTreasure(room, _difficulty, env) {
-    createObject({
+    return createObject({
         id: CHEST,
         buried: true,
         contents(chest, callbackEnv) {
@@ -1077,8 +1131,10 @@ function fillBuriedTreasure(room, _difficulty, env) {
                 );
             }
             const objectCount = rollLuaDice(3, 4, activeEnv.random);
-            for (let index = 0; index < objectCount; ++index)
-                createObject({}, room, activeEnv);
+            return sequenceThemeroomSteps(
+                objectCount,
+                () => createObject({}, room, activeEnv),
+            );
         },
     }, room, env);
 }
@@ -1121,33 +1177,36 @@ function fillMassacre(room, _difficulty, env) {
         env.random.rn2(MASSACRE_SPECIES.length)
     ];
     const corpseCount = rollLuaDice(5, 5, env.random);
-    for (let index = 0; index < corpseCount; ++index) {
+    return sequenceThemeroomSteps(corpseCount, () => {
         if (env.random.rn2(100) < 10) {
             species = MASSACRE_SPECIES[
                 env.random.rn2(MASSACRE_SPECIES.length)
             ];
         }
-        createObject({ id: CORPSE, corpsenm: species }, room, env);
-    }
+        return createObject({ id: CORPSE, corpsenm: species }, room, env);
+    });
 }
 
 // dat/themerms.lua "Statuary". nhlib.lua d(5,5) and d(3) consume one
 // math.random() call per die; every ordinary statue precedes every trap.
 function fillStatuary(room, _difficulty, env) {
     const statueCount = rollLuaDice(5, 5, env.random);
-    for (let index = 0; index < statueCount; ++index)
-        createObject({ id: STATUE }, room, env);
-
-    const trapCount = rollLuaDice(1, 3, env.random);
-    for (let index = 0; index < trapCount; ++index) {
-        createRoomTrap(
-            STATUE_TRAP,
-            MKTRAP_MAZEFLAG,
-            SP_COORD_IS_RANDOM,
-            room,
-            env,
-        );
-    }
+    return sequenceThemeroomSteps(
+        statueCount,
+        () => createObject({ id: STATUE }, room, env),
+        () => {
+            const trapCount = rollLuaDice(1, 3, env.random);
+            for (let index = 0; index < trapCount; ++index) {
+                createRoomTrap(
+                    STATUE_TRAP,
+                    MKTRAP_MAZEFLAG,
+                    SP_COORD_IS_RANDOM,
+                    room,
+                    env,
+                );
+            }
+        },
+    );
 }
 
 // dat/themerms.lua "Storeroom". percentage() samples x-major, then the Lua
@@ -1158,11 +1217,13 @@ function fillStoreroom(room, _difficulty, env) {
         30,
         env.random.rn2,
     );
-    locations.iterate(() => {
+    const points = [];
+    locations.iterate((x, y) => points.push([x, y]));
+    return sequenceThemeroomSteps(points.length, () => {
         if (env.random.rn2(100) < 25) {
-            createObject({ id: CHEST }, room, env);
+            return createObject({ id: CHEST }, room, env);
         } else {
-            lspo_monster([{
+            return lspo_monster([{
                 class: S_MIMIC,
                 appear_as: 'obj:chest',
             }], room, env);
@@ -1172,7 +1233,7 @@ function fillStoreroom(room, _difficulty, env) {
 
 // dat/themerms.lua "Light source".
 function fillLightSource(room, _difficulty, env) {
-    createObject({ id: OIL_LAMP, lit: true }, room, env);
+    return createObject({ id: OIL_LAMP, lit: true }, room, env);
 }
 
 // dat/themerms.lua "Temple of the gods".  nhlib.lua shuffles this alignment
@@ -1196,7 +1257,7 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
         env.random.rn2,
         { x: room.lx, y: room.ly },
     );
-    lspo_monster([{
+    const maybeMonster = lspo_monster([{
         id: PM_GHOST,
         asleep: true,
         waiting: true,
@@ -1205,22 +1266,38 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
 
     const equipment = (specification, chance) => {
         if (env.random.rn2(100) < chance) {
-            createObject({
+            return createObject({
                 ...specification,
                 coordinate,
                 buc: 'not-blessed',
             }, room, env);
         }
+        return null;
     };
-    equipment({ id: DAGGER }, 65);
-    equipment({ class: WEAPON_CLASS }, 55);
-    if (env.random.rn2(100) < 45) {
-        createObject({ id: BOW, coordinate, buc: 'not-blessed' }, room, env);
-        createObject({ id: ARROW, coordinate, buc: 'not-blessed' }, room, env);
-    }
-    equipment({ class: ARMOR_CLASS }, 65);
-    equipment({ class: RING_CLASS }, 20);
-    equipment({ class: SCROLL_CLASS }, 20);
+    const equipSteps = [
+        () => equipment({ id: DAGGER }, 65),
+        () => equipment({ class: WEAPON_CLASS }, 55),
+        () => {
+            if (env.random.rn2(100) >= 45) return null;
+            const maybeBow = createObject(
+                { id: BOW, coordinate, buc: 'not-blessed' }, room, env,
+            );
+            const finishBow = () => createObject(
+                { id: ARROW, coordinate, buc: 'not-blessed' }, room, env,
+            );
+            return maybeBow && typeof maybeBow.then === 'function'
+                ? maybeBow.then(finishBow) : finishBow();
+        },
+        () => equipment({ class: ARMOR_CLASS }, 65),
+        () => equipment({ class: RING_CLASS }, 20),
+        () => equipment({ class: SCROLL_CLASS }, 20),
+    ];
+    const finishMonster = () => sequenceThemeroomSteps(
+        equipSteps.length,
+        (index) => equipSteps[index](),
+    );
+    return maybeMonster && typeof maybeMonster.then === 'function'
+        ? maybeMonster.then(finishMonster) : finishMonster();
 }
 
 // dat/themerms.lua "Teleportation hub". rndcoord() removes a point before the
@@ -1272,12 +1349,15 @@ export function run_themeroom_fill(fill, room, difficulty, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     const handler = FILL_HANDLERS[fill?.id];
     if (!handler) throw new UnsupportedThemeroomFillError(fill);
-    handler(room, difficulty, env);
+    const result = handler(room, difficulty, env);
+    if (result && typeof result.then === 'function')
+        return result.then(() => fill);
     return fill;
 }
 
-// dat/themerms.lua themeroom_fill(): selection is synchronous with the room
-// callback, before lspo_room() scans doors and before the next room is built.
+// dat/themerms.lua themeroom_fill(): selection remains synchronous with the
+// room callback, while descriptor effects may complete asynchronously before
+// lspo_room() scans doors and before the next room is built.
 export function themeroom_fill(room, difficulty, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     const fill = select_themeroom_fill(

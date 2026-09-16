@@ -578,16 +578,8 @@ function populateMedusaStatue(obj, specification, env) {
         return obj;
     }
 
-    let monster = null;
     let speciesIndex = obj.corpsenm;
-    for (let attempts = 0; attempts < 1000; ++attempts) {
-        monster = makemon(
-            state.mons[speciesIndex],
-            0,
-            0,
-            MM_NOCOUNTBIRTH | MM_NOMSG,
-            { ...env, _statueInventoryCreation: true },
-        );
+    const finishMonster = (monster, attempts) => {
         if (monster) {
             const survivesPetrification = monster_resists_element(
                 monster,
@@ -596,25 +588,42 @@ function populateMedusaStatue(obj, specification, env) {
             ) || poly_when_stoned(state.mons[speciesIndex], state);
             if (!survivesPetrification) {
                 propagate(speciesIndex, true, false, env);
-                break;
+                return finishAccepted(monster);
             }
             mongone(monster, env);
-            monster = null;
         }
         speciesIndex = rndmonnum(env);
-    }
-
-    if (!monster) return obj;
-    set_corpsenm(obj, speciesIndex, env);
-    while (monster.minvent) {
-        const carried = monster.minvent;
-        carried.owornmask = 0;
-        obj_extract_self(carried, env);
-        add_to_container(obj, carried, env);
-    }
-    obj.owt = weight(obj, env);
-    mongone(monster, env);
-    return obj;
+        return tryMonster(attempts + 1);
+    };
+    const tryMonster = (attempts = 0) => {
+        if (attempts >= 1000) return finishAccepted(null);
+        const maybeMonster = makemon(
+            state.mons[speciesIndex],
+            0,
+            0,
+            MM_NOCOUNTBIRTH | MM_NOMSG,
+            { ...env, _statueInventoryCreation: true },
+        );
+        const next = (resolvedMonster) => {
+            return finishMonster(resolvedMonster, attempts);
+        };
+        return maybeMonster && typeof maybeMonster.then === 'function'
+            ? maybeMonster.then(next) : next(maybeMonster);
+    };
+    const finishAccepted = (monster) => {
+        if (!monster) return obj;
+        set_corpsenm(obj, speciesIndex, env);
+        while (monster.minvent) {
+            const carried = monster.minvent;
+            carried.owornmask = 0;
+            obj_extract_self(carried, env);
+            add_to_container(obj, carried, env);
+        }
+        obj.owt = weight(obj, env);
+        mongone(monster, env);
+        return obj;
+    };
+    return tryMonster();
 }
 
 function finalizeTopLevelObject(obj, specification, context, env) {
@@ -653,15 +662,19 @@ function createOneObject(specification, croom, env) {
     if (specification.container && obj)
         pushContainer(obj, context, env);
 
-    obj = populateMedusaStatue(obj, specification, env);
+    const finish = (populated) => {
+        obj = populated;
+        if (specification.achievement) {
+            initializeAchievementObject(obj, env);
+        }
 
-    if (specification.achievement) {
-        initializeAchievementObject(obj, env);
-    }
-
-    if (!specification.content && obj)
-        obj = finalizeTopLevelObject(obj, specification, context, env);
-    return obj;
+        if (!specification.content && obj)
+            obj = finalizeTopLevelObject(obj, specification, context, env);
+        return obj;
+    };
+    const maybeObj = populateMedusaStatue(obj, specification, env);
+    return maybeObj && typeof maybeObj.then === 'function'
+        ? maybeObj.then(finish) : finish(maybeObj);
 }
 
 // Source-shaped single-object primitive. A caller using this directly owns
@@ -699,20 +712,43 @@ export function lspo_object(specification, croom, rawEnv = {}) {
     let remaining = normalized.id == null ? 0 : normalized.quantity;
     let obj;
     let completed = false;
-    try {
-        do {
-            obj = createOneObject(normalized, croom, env);
-            --remaining;
-        } while (remaining > 0 && exactType && !exactType.oc_merge);
-
-        if (typeof normalized.contents === 'function')
-            normalized.contents(obj, env);
-        completed = true;
-    } finally {
+    const cleanup = () => {
         if (normalized.container
             && (completed || context.containers.length > entryDepth)) {
             spo_pop_container(context);
         }
+    };
+    const finish = (created) => {
+        obj = created;
+        --remaining;
+        if (remaining > 0 && exactType && !exactType.oc_merge) {
+            const next = createOneObject(normalized, croom, env);
+            return next && typeof next.then === 'function'
+                ? next.then(finish) : finish(next);
+        }
+
+        if (typeof normalized.contents === 'function') {
+            const maybeContents = normalized.contents(obj, env);
+            const finishContents = () => {
+                completed = true;
+                return obj;
+            };
+            if (maybeContents && typeof maybeContents.then === 'function')
+                return maybeContents.then(finishContents);
+        }
+        completed = true;
+        return obj;
+    };
+    try {
+        const first = createOneObject(normalized, croom, env);
+        const result = first && typeof first.then === 'function'
+            ? first.then(finish) : finish(first);
+        if (result && typeof result.then === 'function')
+            return result.finally(cleanup);
+        cleanup();
+        return result;
+    } catch (error) {
+        cleanup();
+        throw error;
     }
-    return obj;
 }

@@ -841,7 +841,7 @@ async function makelevel(specialLevelLoader = null) {
     for (let index = 0; index < g.level.nroom; ++index) {
         const room = g.level.rooms[index];
         const fillable = roomIsFillable(room);
-        fill_ordinary_room(
+        await fill_ordinary_room(
             room,
             fillable && bonusItemRoomCountdown === 0,
         );
@@ -2208,22 +2208,40 @@ export function lspo_monster(args, croom, rawEnv = {}) {
         tmpmons.class = state.mons[tmpmons.id].mlet;
 
     const mtmp = create_monster(tmpmons, croom, env);
-
-    if ((tmpmons.has_invent & CUSTOM_INVENT)
-        && typeof inventory === 'function') {
-        const context = env.spObjectContext;
-        try {
-            inventory(mtmp, env);
-        } catch (e) {
-            // C has no exception path; keep the shared carrier from leaking
-            // into a later descriptor when the callback fails.
-            context.inventCarryingMonster = null;
-            throw e;
+    const finishInventory = (resolvedMtmp) => {
+        if ((tmpmons.has_invent & CUSTOM_INVENT)
+            && typeof inventory === 'function') {
+            const context = env.spObjectContext;
+            const finishCallback = () => {
+                spo_end_moninvent(context, env);
+                return resolvedMtmp;
+            };
+            let maybeCallback;
+            try {
+                // C lspo_monster runs the custom inventory closure after
+                // create_monster() has returned.  Shape-changing monster
+                // creation can now cross an async floor-effects or wizard
+                // control owner, so preserve that source order when the
+                // constructor returns a Promise as well.
+                maybeCallback = inventory(resolvedMtmp, env);
+            } catch (e) {
+                // C has no exception path; keep the shared carrier from
+                // leaking into a later descriptor when the callback fails.
+                context.inventCarryingMonster = null;
+                throw e;
+            }
+            if (maybeCallback && typeof maybeCallback.then === 'function') {
+                return maybeCallback.then(finishCallback, (error) => {
+                    context.inventCarryingMonster = null;
+                    throw error;
+                });
+            }
+            return finishCallback();
         }
-        spo_end_moninvent(context, env);
-    }
-
-    return mtmp;
+        return resolvedMtmp;
+    };
+    return mtmp && typeof mtmp.then === 'function'
+        ? mtmp.then(finishInventory) : finishInventory(mtmp);
 }
 
 // C ref: sp_lev.c get_table_int_or_random(). The field's integer, or
@@ -2677,11 +2695,19 @@ export function lspo_room(args, env) {
                     coder.tmproomlist[n - 1].irregular = true;
                 coder.n_subroom++;
                 update_croom(coder);
-                if (typeof table.contents === 'function')
-                    table.contents(l_push_mkroom_table(tmpcr));
-                spo_endroom(coder, frame, state);
-                add_doors_to_room(tmpcr);
-                return;
+                const finishRoom = () => {
+                    spo_endroom(coder, frame, state);
+                    add_doors_to_room(tmpcr);
+                    return;
+                };
+                if (typeof table.contents === 'function') {
+                    const maybeContents = table.contents(
+                        l_push_mkroom_table(tmpcr),
+                    );
+                    if (maybeContents && typeof maybeContents.then === 'function')
+                        return maybeContents.then(finishRoom);
+                }
+                return finishRoom();
             }
             if (state.in_mk_themerooms)
                 state.themeroom_failed = true;
@@ -3957,11 +3983,19 @@ export function lspo_region(args, env) {
             coder.failed_room[coder.n_subroom] = false;
             coder.n_subroom++;
             update_croom(coder);
+            const finishRegion = () => {
+                spo_endroom(coder, frame, state);
+                add_doors_to_room(troom);
+                return;
+            };
             if (typeof table.contents === 'function') {
-                table.contents(l_push_mkroom_table(troom));
+                const maybeContents = table.contents(
+                    l_push_mkroom_table(troom),
+                );
+                if (maybeContents && typeof maybeContents.then === 'function')
+                    return maybeContents.then(finishRegion);
             }
-            spo_endroom(coder, frame, state);
-            add_doors_to_room(troom);
+            return finishRegion();
         }
     }
 }
@@ -4441,8 +4475,16 @@ function createSpecialLevelApi(state) {
                 xsize: frame.xsize, ysize: frame.ysize,
             };
             if (has_contents) {
-                spec.contents(l_push_wid_hei_table(frame.xsize, frame.ysize));
-                reset_xystart_size(frame, state);
+                const maybeContents = spec.contents(
+                    l_push_wid_hei_table(frame.xsize, frame.ysize),
+                );
+                const finishContents = () => {
+                    reset_xystart_size(frame, state);
+                    return placed;
+                };
+                if (maybeContents && typeof maybeContents.then === 'function')
+                    return maybeContents.then(finishContents);
+                return finishContents();
             }
             return placed;
         },
@@ -5735,9 +5777,11 @@ function preflight_themeroom_fill(definition, context) {
 function invoke_themeroom_fill(room, definition, context) {
     // Callers validate before creating the room or loading its map.
     // Lua invokes contents before leaving the current room context. Keep this
-    // call synchronous. This is the exact themeroom_fill(room, difficulty,
-    // rawEnv) contract, including the indexed room that selection.room() needs.
-    context.themeroomFill(room, context.difficulty, {
+    // callback. This is the exact themeroom_fill(room, difficulty, rawEnv)
+    // contract, including the indexed room that selection.room() needs. A
+    // shape-changing monster can make the callback asynchronous; return that
+    // result so lspo_room() can keep its source-order door scan.
+    return context.themeroomFill(room, context.difficulty, {
         state: game,
         random: context.randomFacade,
     });
@@ -5792,7 +5836,11 @@ function filler_region(filler, origin, definition, context) {
         context,
     );
     if (!room) return false;
-    if (themed) invoke_themeroom_fill(room, definition, context);
+    if (themed) {
+        const maybeFill = invoke_themeroom_fill(room, definition, context);
+        if (maybeFill && typeof maybeFill.then === 'function')
+            return maybeFill.then(() => true);
+    }
     return true;
 }
 
@@ -5849,9 +5897,16 @@ export function run_room_descriptor(spec, parent, context, contents = null) {
         return null;
     }
     if (parent) parent.irregular = true;
-    if (contents) contents(room);
-    add_doors_to_room(room);
-    return room;
+    const finish = () => {
+        add_doors_to_room(room);
+        return room;
+    };
+    if (contents) {
+        const maybeContents = contents(room);
+        if (maybeContents && typeof maybeContents.then === 'function')
+            return maybeContents.then(finish);
+    }
+    return finish();
 }
 
 // C refs: sp_lev.c build_room(), lspo_room(). Preserve the room construction
@@ -5875,8 +5930,10 @@ function dispatch_room_action(definition, context) {
             ? (created) => invoke_themeroom_fill(created, definition, context)
             : null,
     );
-    if (!room) return false;
-    return !game.themeroom_failed;
+    const finish = (created) => created
+        ? !game.themeroom_failed : false;
+    return room && typeof room.then === 'function'
+        ? room.then(finish) : finish(room);
 }
 
 // C ref: themerms.lua "Fake Delphi" callback.
@@ -6101,7 +6158,7 @@ function mausoleum(context) {
         null,
         context,
         (parent) => {
-            run_room_descriptor(
+            return run_room_descriptor(
                 {
                     type: 'themed',
                     x: Math.trunc((width - 1) / 2),
@@ -6113,12 +6170,13 @@ function mausoleum(context) {
                 parent,
                 context,
                 (child) => {
+                    let maybeCreation;
                     if (context.random(100) < 50) {
                         const classes = [
                             S_MUMMY, S_VAMPIRE, S_LICH, S_ZOMBIE,
                         ];
                         shuffle_core_values(classes, context.random);
-                        lspo_monster(
+                        maybeCreation = lspo_monster(
                             [{
                                 class: classes[0],
                                 coord: [0, 0],
@@ -6138,7 +6196,7 @@ function mausoleum(context) {
                                 'Mausoleum could not resolve a human corpse species',
                             );
                         }
-                        lspo_object(
+                        maybeCreation = lspo_object(
                             {
                                 id: CORPSE,
                                 corpsenm: species.pmidx,
@@ -6148,18 +6206,26 @@ function mausoleum(context) {
                             creationEnvironment,
                         );
                     }
-                    if (context.random(100) < 20) {
-                        create_room_door(
-                            { state: 'secret', wall: 'all' },
-                            child,
-                            context.random,
-                        );
-                    }
+                    const finishCreation = () => {
+                        if (context.random(100) < 20) {
+                            create_room_door(
+                                { state: 'secret', wall: 'all' },
+                                child,
+                                context.random,
+                            );
+                        }
+                    };
+                    if (maybeCreation
+                        && typeof maybeCreation.then === 'function')
+                        return maybeCreation.then(finishCreation);
+                    return finishCreation();
                 },
             );
         },
     );
-    return Boolean(room && !game.themeroom_failed);
+    const finish = (created) => Boolean(created && !game.themeroom_failed);
+    return room && typeof room.then === 'function'
+        ? room.then(finish) : finish(room);
 }
 
 // C ref: themerms.lua "Random dungeon feature in the middle of an odd-sized
@@ -8049,34 +8115,20 @@ export function fill_ordinary_room(croom, bonusItems) {
 
     const subrooms = croom.sbrooms ?? [];
     const subroomCount = croom.nsubrooms ?? subrooms.length;
-    for (let index = 0; index < subroomCount; ++index) {
-        const subroom = subrooms[index];
-        if (!subroom) return;
-        fill_ordinary_room(subroom, false);
-    }
+    const fillRoom = () => {
+        if (croom.needfill !== FILL_NORMAL) return;
 
-    if (croom.needfill !== FILL_NORMAL) return;
+        const env = levelObjectEnv({
+            hooks: { bydoor, makeMonster: makemon, somexyspace },
+        });
+        const position = { x: 0, y: 0 };
+        let tryCount = 0;
 
-    const env = levelObjectEnv({
-        hooks: { bydoor, makeMonster: makemon, somexyspace },
-    });
-    const position = { x: 0, y: 0 };
-    let tryCount = 0;
-
-    if ((state.u.uhave.amulet || !rn2(3))
-        && somexyspace(croom, position)) {
-        const monster = makemon(
-            null,
-            position.x,
-            position.y,
-            MM_NOGRP,
-            env,
-        );
-        if (monster?.data === state.mons[PM_GIANT_SPIDER]
-            && !occupied(position.x, position.y, state)) {
-            maketrap(position.x, position.y, WEB, env);
-        }
-    }
+        const finishMonster = (monster) => {
+            if (monster?.data === state.mons[PM_GIANT_SPIDER]
+                && !occupied(position.x, position.y, state)) {
+                maketrap(position.x, position.y, WEB, env);
+            }
 
     let chance = 8 - Math.trunc(level_difficulty(state) / 6);
     if (chance <= 1) chance = 2;
@@ -8188,6 +8240,29 @@ export function fill_ordinary_room(croom, bonusItems) {
             }
         }
     }
+            return true;
+        };
+
+        const maybeMonster = (state.u.uhave.amulet || !rn2(3))
+            && somexyspace(croom, position)
+            ? makemon(null, position.x, position.y, MM_NOGRP, env)
+            : null;
+        return maybeMonster && typeof maybeMonster.then === 'function'
+            ? maybeMonster.then(finishMonster) : finishMonster(maybeMonster);
+    };
+
+    const finishSubrooms = (index) => {
+        for (let current = index; current < subroomCount; ++current) {
+            const subroom = subrooms[current];
+            if (!subroom) return;
+            const maybeChild = fill_ordinary_room(subroom, false);
+            if (maybeChild && typeof maybeChild.then === 'function') {
+                return maybeChild.then(() => finishSubrooms(current + 1));
+            }
+        }
+        return fillRoom();
+    };
+    return finishSubrooms(0);
 }
 
 // ============================================================

@@ -5,6 +5,7 @@ import {
     COLNO,
     CONFLICT,
     DETECT_MONSTERS,
+    G_GENOD,
     IN_SIGHT,
     I_SPECIAL,
     M_AP_FURNITURE,
@@ -25,6 +26,7 @@ import {
 import { GameMap } from '../js/game.js';
 import {
     adaptMonsterActionToDochugwSignature,
+    accept_newcham_form,
     counter_were,
     curr_mon_load,
     decide_to_shapeshift,
@@ -52,10 +54,13 @@ import {
     M2_ROCKTHROW,
     M2_STRONG,
     MZ_HUGE,
+    PM_ARCHEOLOGIST,
     PM_FLESH_GOLEM,
     PM_DWARF,
+    PM_DOPPELGANGER,
     PM_GNOME,
     PM_HUMAN_WEREWOLF,
+    PM_WIZARD,
     PM_HUMAN_WERERAT,
     PM_SMALL_MIMIC,
     PM_PURPLE_WORM,
@@ -746,6 +751,39 @@ test('waiting vampires skip distress shapechange without a random draw', async (
     }), false);
 });
 
+// C ref: mon.c accept_newcham_form() (5229-5252). This selector is pure: it
+// reads only catalog/genocide predicates and returns the catalog row.
+test('accept_newcham_form pins catalog and genocide decisions', () => {
+    const state = {
+        level: new GameMap(),
+        u: { ux: 5, uy: 5, uz: { dnum: 0, dlevel: 1 }, uprops: [] },
+        dungeons: [{ depth_start: 1, ledger_start: 0, num_dunlevs: 29,
+            entry_lev: 1, flags: { hellish: false } }],
+    };
+    monst_globals_init(state);
+    reset_mvitals(state);
+    const doppelganger = newMonster({
+        data: state.mons[PM_DOPPELGANGER],
+        mnum: PM_DOPPELGANGER,
+        cham: PM_DOPPELGANGER,
+    });
+    assert.equal(
+        accept_newcham_form(doppelganger, PM_WIZARD, state),
+        state.mons[PM_WIZARD],
+    );
+    assert.equal(
+        accept_newcham_form(doppelganger, PM_HUMAN_WEREWOLF, state),
+        null,
+        'polyok rejects a were-form in the catalog',
+    );
+    state.mvitals[PM_WIZARD].mvflags |= G_GENOD;
+    assert.equal(
+        accept_newcham_form(doppelganger, PM_WIZARD, state),
+        null,
+        'genocide rejects an otherwise valid form',
+    );
+});
+
 // C refs: mon.c decide_to_shapeshift() (4872-4937),
 // select_newcham_form() (5157-5225), and newcham() (5278-5534). A natural
 // Sandestin uses the ordinary shapeshifter gate, then its PM_SANDESTIN
@@ -836,24 +874,118 @@ test('Sandestin distress admits empty inventory and preserves source draws', asy
         mhpmax: 40,
         minvent: { otyp: 1 },
     });
-    const noDraw = {
-        rn2: () => assert.fail('attached Sandestin consumed rn2'),
-        d: () => assert.fail('attached Sandestin consumed d'),
-        rn1: () => assert.fail('attached Sandestin consumed rn1'),
-        rnd: () => assert.fail('attached Sandestin consumed rnd'),
-        rne: () => assert.fail('attached Sandestin consumed rne'),
+    const attachedDraws = [
+        [6, 0], [10, 5], [7, 3], [44, 5], [10, 9],
+    ];
+    const attachedRandom = {
+        rn2(bound) {
+            const expected = attachedDraws.shift();
+            assert.ok(expected, `unexpected attached rn2(${bound})`);
+            assert.equal(bound, expected[0]);
+            return expected[1];
+        },
+        d(number, sides) {
+            assert.deepEqual([number, sides], [14, 8]);
+            return 88;
+        },
+        rn1() { assert.fail('attached Sandestin called unexpected rn1'); },
+        rnd() { assert.fail('attached Sandestin called unexpected rnd'); },
+        rne() { assert.fail('attached Sandestin called unexpected rne'); },
     };
-    await assert.rejects(
-        () => decide_to_shapeshift(attached, {
-            state,
-            random: noDraw,
-            canSeeMonster: () => false,
-            canSpotMonster: () => false,
-            message: () => {},
-            redrawSquare: () => {},
-        }),
-        /attachment state/u,
-    );
+    assert.equal(await decide_to_shapeshift(attached, {
+        state,
+        random: attachedRandom,
+        canSeeMonster: () => false,
+        canSpotMonster: () => false,
+        message: () => {},
+        redrawSquare: () => {},
+    }), true);
+    assert.equal(attached.mnum, PM_PURPLE_WORM);
+});
+
+// C refs: mon.c decide_to_shapeshift() (4872-4937),
+// select_newcham_form() (5157-5225), and newcham() (5278-5534). A regular
+// doppelganger uses the same non-vampire change gate as other natural
+// shapechangers, then its role-monster selector and common form application.
+test('doppelganger distress selects and applies a role-monster form', async () => {
+    const state = {
+        level: new GameMap(),
+        u: {
+            ux: 5,
+            uy: 5,
+            uz: { dnum: 0, dlevel: 1 },
+            uprops: [],
+        },
+        dungeons: [{
+            depth_start: 1,
+            ledger_start: 0,
+            num_dunlevs: 29,
+            entry_lev: 1,
+            flags: { hellish: false },
+        }],
+        urole: { guardnum: -1 },
+    };
+    monst_globals_init(state);
+    reset_mvitals(state);
+    state.youmonst = { data: state.mons[PM_DOPPELGANGER] };
+
+    const subject = newMonster({
+        data: state.mons[PM_DOPPELGANGER],
+        mnum: PM_DOPPELGANGER,
+        cham: PM_DOPPELGANGER,
+        mhp: 40,
+        mhpmax: 40,
+        mx: 4,
+        my: 4,
+    });
+    const calls = [];
+    const expectedRn2 = [
+        [6, 0], // decide_to_shapeshift() chooses the ordinary change.
+        [10, 5], // decide_to_shapeshift() sets mspec_used to 3 + this draw.
+        [7, 1], // select_newcham_form() skips pick_nasty.
+        [3, 1], // select_newcham_form() enters tt_doppel().
+        [13, 0], // tt_doppel() skips the empty scorefile's rnd(10).
+        [10, 5], // mgender_from_permonst() leaves the existing gender.
+    ];
+    const random = {
+        rn2(bound) {
+            const expected = expectedRn2[calls.length];
+            assert.ok(expected, `unexpected rn2(${bound}) at draw ${calls.length}`);
+            assert.equal(bound, expected[0],
+                `unexpected rn2(${bound}) at draw ${calls.length}`);
+            calls.push([bound, expected[1]]);
+            return expected[1];
+        },
+        rn1(bound, base) {
+            assert.deepEqual([bound, base], [13, PM_ARCHEOLOGIST]);
+            return PM_WIZARD;
+        },
+        d(number, sides) {
+            assert.deepEqual([number, sides], [9, 8]);
+            return 36;
+        },
+        rnd() { assert.fail('doppelganger distress called unexpected rnd'); },
+        rne() { assert.fail('doppelganger distress called unexpected rne'); },
+    };
+    const messages = [];
+
+    assert.equal(await decide_to_shapeshift(subject, {
+        state,
+        random,
+        canSeeMonster: () => false,
+        canSpotMonster: (current) => current.data === state.mons[PM_WIZARD],
+        message: (text) => { messages.push(text); },
+        redrawSquare: () => {},
+    }), true);
+    assert.deepEqual(calls, expectedRn2);
+    assert.equal(subject.mspec_used, 8);
+    assert.equal(subject.cham, PM_DOPPELGANGER,
+        'cham remains the natural doppelganger species');
+    assert.equal(subject.mnum, PM_WIZARD,
+        'distress applied the selected role-monster form');
+    assert.equal(subject.mhpmax, 36);
+    assert.equal(subject.mhp, 36);
+    assert.deepEqual(messages, ['A thaumaturge appears!']);
 });
 
 test('counter_were preserves the source human and beast pairing', () => {

@@ -201,7 +201,7 @@ import { dist2, distmin } from './hacklib.js';
 import { delobj, money_cnt } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up } from './makemon.js';
-import { newcham_distress } from './makemon_create.js';
+import { newcham_distress } from './mon.js';
 import { mattackm } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
 import {

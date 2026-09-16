@@ -32,7 +32,7 @@ import {
     tty_wait_synch,
 } from './tty_rawprint.js';
 import { GameDisplay } from './game_display.js';
-import { setStorageForTesting } from './storage.js';
+import { setStorageForTesting, vfsReadFile, vfsWriteFile } from './storage.js';
 import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
@@ -305,6 +305,11 @@ export class NethackGame {
         light_globals_init(g);
         shk_globals_init();
         setStorageForTesting(this._storage);
+        // record-session.mjs creates the recorder's scorefile before C
+        // starts. Mirror that startup contract for the browser and judge
+        // VFS, while preserving an existing scorefile across segments.
+        if (vfsReadFile('record') === null)
+            vfsWriteFile('record', '');
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
         // YYYYMMDDHHMMSS value and leaks its current tm_isdst bit.
         g.fixedDatetime = this._datetime;

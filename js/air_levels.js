@@ -74,35 +74,35 @@ const AIR_MONSTERS = Object.freeze([
 // C ref: dat/air.lua. Keep each descriptor in source order: create_monster
 // consumes coordinate, alignment, gender, and construction RNG per call.
 export async function air(des) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags(
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags(
         'mazelevel', 'noteleport', 'hardfloor', 'shortsighted', 'stormy',
     );
-    des.message('What a strange feeling!');
-    des.message('You notice that there is no gravity here.');
-    des.map(AIR_LEVEL_MAP);
-    des.teleport_region({
+    await des.message('What a strange feeling!');
+    await des.message('You notice that there is no gravity here.');
+    await des.map(AIR_LEVEL_MAP);
+    await des.teleport_region({
         region: [1, 0, 24, 20],
         region_islev: 1,
         exclude: [25, 0, 79, 20],
         exclude_islev: 1,
         dir: 'up',
     });
-    des.teleport_region({
+    await des.teleport_region({
         region: [56, 0, 79, 20],
         region_islev: 1,
         exclude: [1, 0, 55, 20],
         exclude_islev: 1,
         dir: 'down',
     });
-    des.levregion({
+    await des.levregion({
         region: [57, 1, 78, 19],
         region_islev: 1,
         type: 'portal',
         name: 'fire',
     });
-    des.region(selection_area(0, 0, 75, 19), 'lit');
-    for (const monster of AIR_MONSTERS) des.monster(monster);
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    for (const monster of AIR_MONSTERS) await des.monster(monster);
 }
 
 export const AIR_LEVEL_LOADERS = Object.freeze({ air });

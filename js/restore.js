@@ -464,7 +464,7 @@ function rebuildEquipmentPointers(state) {
 // each monster (mon_catchup_elapsed_time) and gives hiders a chance to hide
 // (hide_monst, conditioned on elapsed > rnd(10)).
 
-export function getlev(ledger, state = game) {
+export async function getlev(ledger, state = game) {
     const snapshot = state._savedLevels?.[ledger];
     if (!snapshot) {
         throw new Error(`getlev: no saved level for ledger ${ledger}`);
@@ -560,7 +560,7 @@ export function getlev(ledger, state = game) {
         }
 
         // C ref: restore.c:1217. Update shape-changers.
-        restore_cham(mtmp, state);
+        await restore_cham(mtmp, state);
 
         // C ref: restore.c:1219-1220. Give hiders a chance to hide.
         if (elapsed > 0 && elapsed > rnd(10)) {

@@ -91,24 +91,24 @@ const FIRE_MONSTERS = Object.freeze([
 // C ref: dat/fire.lua. This is intentionally a descriptor sequence: every
 // call consumes the same coordinate and creation RNG before the next one.
 export async function fire(des) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags(
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags(
         'mazelevel', 'noteleport', 'hardfloor',
         'shortsighted', 'hot', 'fumaroles',
     );
-    des.map(FIRE_LEVEL_MAP);
-    des.teleport_region({ region: [71, 16, 71, 16] });
-    des.levregion({
+    await des.map(FIRE_LEVEL_MAP);
+    await des.teleport_region({ region: [71, 16, 71, 16] });
+    await des.levregion({
         region: [0, 0, 78, 19],
         exclude: [67, 13, 78, 19],
         type: 'portal',
         name: 'water',
     });
 
-    for (let index = 0; index < 40; ++index) des.trap('fire');
-    for (const monster of FIRE_MONSTERS) des.monster(monster);
+    for (let index = 0; index < 40; ++index) await des.trap('fire');
+    for (const monster of FIRE_MONSTERS) await des.monster(monster);
     for (let index = 0; index < 5; ++index)
-        des.object({ id: BOULDER });
+        await des.object({ id: BOULDER });
 }
 
 export const FIRE_LEVEL_LOADERS = Object.freeze({ fire });

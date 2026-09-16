@@ -22,11 +22,11 @@ function percent(threshold, random = rn2) {
 
 // C ref: hellfill.lua hells[7]. The level_init calls explicitly pass lit=0,
 // so no hidden lit-state RNG is consumed by this arm.
-export function hell_open_cavern(des, state, random = rn2) {
+export async function hell_open_cavern(des, state, random = rn2) {
     const wallTerrain = percent(50, random) ? ' ' : 'L';
-    des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
-    des.level_flags('mazelevel', 'noflip');
-    des.level_init({
+    await des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({
         style: 'mines',
         fg: '.',
         bg: wallTerrain,
@@ -36,28 +36,28 @@ export function hell_open_cavern(des, state, random = rn2) {
     });
 
     const room = selection_match('.', state).grow();
-    des.terrain({ selection: room, typ: '.', lit: 0 });
+    await des.terrain({ selection: room, typ: '.', lit: 0 });
     const border = selection_rect(0, 0, 78, 20);
-    des.terrain({ selection: border, typ: wallTerrain, lit: 0 });
-    des.wallify();
+    await des.terrain({ selection: border, typ: wallTerrain, lit: 0 });
+    await des.wallify();
 }
 
 // C ref: hellfill.lua hells[5]. Thick-wall maze with optional lava
 // replacement. The level_init({style:'maze'}) call drives create_maze()
 // from mkmaze.c; replace_terrain({mapfragment:'w'}) converts inner walls
 // to lava when percent(50) passes.
-function hell_thick_wall_maze(des, state, random = rn2) {
+async function hell_thick_wall_maze(des, state, random = rn2) {
     const wwid = 1 + mathRandom(2, random);
-    des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
-    des.level_flags('mazelevel', 'noflip');
-    des.level_init({ style: 'maze', wallthick: wwid, corrwid: mathRandom(2, random) });
+    await des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'maze', wallthick: wwid, corrwid: mathRandom(2, random) });
     if (percent(50, random)) {
         const outsideWalls = selection_match(' ', state);
-        des.replace_terrain({ mapfragment: 'w', toterrain: 'L' });
-        des.terrain(outsideWalls, ' ');
+        await des.replace_terrain({ mapfragment: 'w', toterrain: 'L' });
+        await des.terrain(outsideWalls, ' ');
         if (wwid === 3 && percent(40, random)) {
             const sel = selection_match('LLL\nLLL\nLLL', state);
-            des.terrain(sel.percentage(30 * mathRandom(4, random), random), 'Z');
+            await des.terrain(sel.percentage(30 * mathRandom(4, random), random), 'Z');
         }
     }
 }
@@ -66,10 +66,10 @@ function hell_thick_wall_maze(des, state, random = rn2) {
 // lspo_level_init() supplies -1 and create_maze() consumes rnd(4) before
 // generating the maze. Keep wallthick fixed at one and retain the source
 // call order.
-export function hell_random_corridor_maze(des) {
-    des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
-    des.level_flags('mazelevel', 'noflip');
-    des.level_init({ style: 'maze', wallthick: 1 });
+export async function hell_random_corridor_maze(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.level_init({ style: 'maze', wallthick: 1 });
 }
 
 function unsupportedHellGenerator(number) {
@@ -93,27 +93,27 @@ export const HELL_GENERATORS = Object.freeze([
 // C ref: dat/hellfill.lua populatemaze(). Each Lua math.random(n) is one
 // rn2(n) draw plus one, and each object/monster/trap/gold call retains the
 // special-level API's source ordering and random placement.
-export function populatemaze(des, random = rn2) {
+export async function populatemaze(des, random = rn2) {
     const objectCount = mathRandom(8, random) + 11;
     for (let i = 1; i <= objectCount; ++i) {
-        if (percent(50, random)) des.object('*');
-        else des.object();
+        if (percent(50, random)) await des.object('*');
+        else await des.object();
     }
     const gemCount = mathRandom(10, random) + 2;
     for (let i = 1; i <= gemCount; ++i)
-        des.object('`');
+        await des.object('`');
     const minotaurCount = mathRandom(3, random);
     for (let i = 1; i <= minotaurCount; ++i)
-        des.monster({ id: PM_MINOTAUR, peaceful: 0 });
+        await des.monster({ id: PM_MINOTAUR, peaceful: 0 });
     const monsterCount = mathRandom(5, random) + 7;
     for (let i = 1; i <= monsterCount; ++i)
-        des.monster({ peaceful: 0 });
+        await des.monster({ peaceful: 0 });
     const goldCount = mathRandom(6, random) + 7;
     for (let i = 1; i <= goldCount; ++i)
-        des.gold();
+        await des.gold();
     const trapCount = mathRandom(6, random) + 7;
     for (let i = 1; i <= trapCount; ++i)
-        des.trap();
+        await des.trap();
 }
 
 // C ref: hellfill.lua top-level chunk. The selected generator is followed by
@@ -124,10 +124,10 @@ export async function hellfill(des, state, random = rn2) {
     const generatorNumber = mathRandom(HELL_GENERATORS.length, random);
     const generator = HELL_GENERATORS[generatorNumber - 1];
     await generator(des, state, random);
-    des.stair('up');
-    if (Invocation_lev(state.u.uz, state)) des.trap('vibrating square');
-    else des.stair('down');
-    populatemaze(des, random);
+    await des.stair('up');
+    if (Invocation_lev(state.u.uz, state)) await des.trap('vibrating square');
+    else await des.stair('down');
+    await populatemaze(des, random);
 }
 
 export const HELL_LEVEL_LOADERS = Object.freeze({ hellfill });

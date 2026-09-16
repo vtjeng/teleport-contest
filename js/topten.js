@@ -19,9 +19,21 @@ import { depth, deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { highc, onlyspace, ordin, strsubst } from './hacklib.js';
 import { an } from './objnam.js';
-import { genders, aligns } from './roles.js';
+import { genders, aligns, roles } from './roles.js';
+import {
+    NON_PM,
+    PM_ARCHEOLOGIST,
+    PM_HUMAN,
+    PM_HUMAN_MUMMY,
+    PM_RANGER,
+    PM_WIZARD,
+} from './monsters.js';
+import { christen_monst } from './do_name.js';
 import { vfsReadFile, vfsWriteFile } from './storage.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
+import { rn1, rn2, rnd } from './rng.js';
+import { canseemon } from './vision.js';
+import { note_unported } from './unported.js';
 
 // C ref: topten.c:96-105 killed_by_prefix[].  Indexed by game_end_types
 // (hack.h:483-498): DIED, CHOKING, POISONING, STARVING, DROWNING, BURNING,
@@ -168,6 +180,85 @@ function readentry(line) {
         if (tt.deathdate < 19000000) tt.deathdate += 19000000;
     }
     return tt;
+}
+
+// C ref: topten.c classmon() (1355-1375).  Score entries store the first
+// three characters of a role's filecode; an old Elf entry is the only legacy
+// one-character alias accepted by the source.
+export function classmon(plrole) {
+    const code = String(plrole ?? '');
+    const role = roles.find((candidate) =>
+        code.slice(0, ROLESZ) === candidate.filecode.slice(0, ROLESZ));
+    if (role) return role.mnum !== NON_PM ? role.mnum : PM_HUMAN;
+    if (code === 'E') return PM_RANGER;
+    // C's impossible() diagnostic is emitted by pline.c; keep the gap owner
+    // aligned with that source call rather than naming the caller file.
+    note_unported(`pline.c impossible: classmon(${code})`);
+    return PM_HUMAN_MUMMY;
+}
+
+// C ref: topten.c get_rnd_toptenentry() (1381-1419).  Keep the record lines
+// in place while selecting a rank: C stops at the first malformed/EOF entry,
+// then retries rank one, rather than filtering bad lines and changing rank.
+export function get_rnd_toptenentry(rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn1, rn2, rnd };
+    // NethackGame installs the same storage object on game.mockStorage that
+    // vfsReadFile() reads.  A hand-built source test can supply that owner on
+    // its state directly; this keeps the scorefile contract state-local
+    // without inventing a second parser or a test-only empty-file fallback.
+    const recordData = state.mockStorage
+        ? state.mockStorage.getItem?.('vfs:record') ?? null
+        : vfsReadFile('record');
+    // A missing record file follows fopen's early return and consumes no RNG.
+    // The recorder startup owner creates an empty file before gameplay, so an
+    // existing empty file still takes C's rank draw below.
+    if (recordData == null) {
+        note_unported('pline.c impossible: get_rnd_toptenentry fopen record');
+        return null;
+    }
+    const lines = String(recordData).split('\n');
+    const maxrank = state.sysopt?.tt_oname_maxrank ?? 10;
+    const roll = typeof random.rnd === 'function' ? random.rnd : rnd;
+    let rank = roll(maxrank);
+    let entry = newttentry();
+    // C's readentry() loop consumes at most `rank` sequential lines and
+    // stops on the first zero/malformed record.  It then rewinds and retries
+    // rank one, so a bad record before the requested row cannot be skipped.
+    for (let index = rank; index > 0; --index) {
+        entry = readentry(lines[rank - index] ?? '');
+        if (!entry.points) break;
+    }
+    if (!entry.points && rank > 1) {
+        rank = 1;
+        entry = readentry(lines[0] ?? '');
+    }
+    return entry.points ? entry : null;
+}
+
+// C ref: topten.c tt_doppel() (1445-1463).  Its return value selects the
+// doppelganger's class; a nonempty score entry also supplies gender and a
+// visible name.  This helper owns the scorefile draw so mon.c cannot bypass
+// the source's rank/empty-file behavior.
+export function tt_doppel(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn1, rn2, rnd };
+    const entry = random.rn2(13)
+        ? get_rnd_toptenentry({ ...rawEnv, state, random }) : null;
+    if (!entry) {
+        return random.rn1(
+            PM_WIZARD - PM_ARCHEOLOGIST + 1,
+            PM_ARCHEOLOGIST,
+        );
+    }
+    if (entry.plgend[0] === 'F') monster.female = true;
+    else if (entry.plgend[0] === 'M') monster.female = false;
+    const mndx = classmon(entry.plrole);
+    const visible = typeof rawEnv.canSeeMonster === 'function'
+        ? rawEnv.canSeeMonster(monster, rawEnv)
+        : canseemon(monster, state);
+    if (visible) christen_monst(monster, entry.name, { state });
+    return mndx;
 }
 
 // C ref: topten.c:300-332 writeentry(). Produces the text line for one record.
