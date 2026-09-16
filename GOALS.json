@@ -54991,6 +54991,151 @@
         "rng": 756196
       },
       "parkedReason": "Whole tactile source span and blind-search entry pass combined validation. Punished tactile, underwater/levitation, blind boulder, lock and kick feature entries still need matching production recordings; sighted punishment setup is supplemental only."
+    },
+    {
+      "id": "port-Wiz-filb-lua-seed0360-20260916",
+      "kind": "lua-port",
+      "status": "open",
+      "summary": "Port the whole Wizard quest filler below the locate level and register its loader",
+      "luaFile": "Wiz-filb.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "Integrate the oldest already-submitted independent B14 delivery, selected from the source-traced seed0360 continuation before the A11 retry exposed extra healing. Accepted main still diverges at787 because Wiz-filb is missing; A12 owns the higher thrown-object scope and seed2200 remains recorded Q1. Whole Lua descriptors, production loader wiring and two fresh entry recordings are ready.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "Wiz-filb.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "Wiz-filb.lua"
+          ]
+        }
+      ],
+      "openedAt": "182adc9150f82e8c45c810947c9dfa3045546779",
+      "openStanding": {
+        "sha": "817420d55ec8fc5a594550ca1e6b64a11365e322",
+        "screens": 10511,
+        "rng": 756434
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Wiz-filb.lua",
+          "line": 1,
+          "endLine": 58,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "activeStanding": {
+        "sha": "817420d55ec8fc5a594550ca1e6b64a11365e322",
+        "screens": 10511,
+        "rng": 756434
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 787,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 46,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 46,
+              "status": "complete",
+              "commit": "90527aab97ad80578ba1ae090eb3c7c40118bf34",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "step": 787,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported special room: do_mkroom(8)",
+                "unlocatedKinds": [],
+                "recordedSteps": 833,
+                "remainingScreensUpperBound": 46
+              },
+              "summary": "Whole Wiz-filb.lua delivery B14 d9b34423 is queued with matching independent entry recordings. Accepted main still first diverges at787 with46 remaining screens. On the completed worker branch it advances to805, then distress refuses PM_DOPPELGANGER270; B15 owns the general monster-shapechange source family for that continuation.",
+              "source": {
+                "file": "Wiz-filb.lua",
+                "functions": [
+                  "Wiz-filb.lua"
+                ],
+                "branch": "Whole top-level dat/Wiz-filb.lua program (lines 6-58): six ordinary rooms with source-ordered up/down stairs, objects, traps, hostile class-X/class-i monsters, vampire bats, and a final random-corridors directive. On Quest Home 4, C mklev.c makelevel() selects the \"filb\" suffix because u.uz.dlevel is at or below the Wizard locate level, then unconditionally calls makemaz(\"Wiz-filb\"); load_special() executes this complete Lua chunk after nhlib.lua shuffles its private alignment table. The JavaScript branch only calls makemaz when SPECIAL_LEVEL_LOADERS[\"Wiz-filb\"] exists, so the missing loader sends this level into ordinary generation and changes RNG order before any room generation.",
+                "callers": [
+                  "nethack-c/upstream/src/mklev.c:1275-1285 makelevel() handles In_quest levels, forms <role-filecode>-filb for this dlevel, and unconditionally calls makemaz(fillname).",
+                  "nethack-c/upstream/src/mkmaze.c:1184-1195 makemaz() appends the level extension and calls sp_lev.c load_special() for the selected prototype; nethack-c/upstream/src/sp_lev.c owns the Lua descriptor execution and post-processing.",
+                  "js/mklev.js:692-707 makelevel() computes Wiz-filb and only calls makemaz() if the registry contains a loader; with no Wiz-filb entry it falls through to the medusa check and regular generation at lines 709-727.",
+                  "js/mklev.js:1762-1783 load_special() and lines 1786-1815 makemaz() are the production JavaScript special-level dispatcher, while js/quest_levels.js:1829-1852 supplies QUEST_LEVEL_LOADERS and currently registers Wiz-fila without Wiz-filb."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/dat/Wiz-filb.lua:6-58 is the complete source program: six ordinary-room descriptors, an up stair in the first room, a down stair in the fourth, object/trap/monster calls, and des.random_corridors().",
+                  "nethack-c/upstream/dat/nhlib.lua:17-25 implements shuffle(); loading a special level consumes rn2(3) then rn2(2) for the three-entry alignment table before Wiz-filb.lua executes.",
+                  "nethack-c/upstream/src/mklev.c:1275-1285 is the Quest filler selection precondition; at dnum 3, dlevel 4, with Wiz-loca at dlevel 3, the selected prototype is Wiz-filb.",
+                  "nethack-c/upstream/src/mkmaze.c:1184-1195 and sp_lev.c load_special() define the C loader path that the JavaScript registry and special-level API must reproduce.",
+                  "js/quest_levels.js:1788-1852 has the existing Wiz-fila implementation and registry convention, but no Wiz-filb program or registry entry; this is why the current makelevel() fallback reaches ordinary generation.",
+                  "js/mklev.js:709-727 consumes the regular-generation medusa rn2(5) before initialize_themeroom_branch(); the B12 exact scan identifies this as JavaScript rn2(5)=0 against C nhlib shuffle rn2(3)=2 at RNG index 116709.",
+                  "js/mklev.js:717-819 and js/mkroom.js:834-860 are downstream ordinary/special-room generation. B12 now dispatches ZOO, and its later distress shapechanger 270 boundary is a candidate consequence after the step-787 source mismatch, not the owner of the first cause."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
+                "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
+                "Bounded boundary inspection run-ml4SbS and .cache/seed0360-investigation-18a56313/inspect-boundary.json captured the production state at the stop as Quest dnum 3, dlevel 4, absolute depth 18, with seven ordinary rooms and one vault room. The existing Wiz-fila level at the preceding Home 2 selection is reached before this boundary.",
+                "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
+                "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
+                "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
+                "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
+                "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
+                "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted.",
+                "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains.",
+                "Current candidate source trace: nethack-c/upstream/src/mklev.c:1275-1285 unconditionally calls makemaz(\"Wiz-filb\") for this Quest dlevel, while js/mklev.js:692-707 only dispatches when a registry loader exists and js/quest_levels.js:1829-1852 has no Wiz-filb entry.",
+                "Saved .cache/B12-checkpoint-scan-cache.json is the exact candidate observation for commit 90527aab97ad80578ba1ae090eb3c7c40118bf34: step 787 first diverges with C nhlib shuffle rn2(3)=2 versus JavaScript rn2(5)=0, with differing map cell and cursor; its later distress shapechanger boundary is downstream.",
+                "nethack-c/upstream/dat/Wiz-filb.lua:6-58 defines the whole Lua scope, and nethack-c/upstream/dat/nhlib.lua:17-25 explains the expected two shuffle draws. This establishes a lua-port owner rather than a do_mkroom divergence fix.",
+                "No game source, central queue, SCORE.tsv, recordings, commits, or aggregate score were changed; only this assigned investigation file was updated, with candidate diagnostics retained in the existing session-scoped .cache artifacts.",
+                "Combined checkpoint at fe2f53f3b4368178646a97febaef392f9cadb797 passes every required check and all278 recordings. The exact 44-session cached scan in .cache/B12-retry-checkpoint-scan-cache.json confirms step787 remains the first divergence and the queue count stays46. Two independent ZOO recordings add12 matching recording screens and14738 RNG. Frozen challenge v1 is unchanged at2/9 cases,534/918 screens.",
+                "B14 immutable d9b34423bf3c1b01be5ca2f458cc0ef9657f80ee ports all dat/Wiz-filb.lua6-58 to quest_levels.js wizFilb and registers Wiz-filb. Coordinator compared every descriptor and callback order with Lua and traced mklev.c1275-1285 through makemaz/load_special and QUEST_LEVEL_LOADERS. The independent male/female recordings total94screens,14494RNG and94cursors; the state matrix establishes a nonspecial Wizard quest filler at/below locate, six ordinary rooms, seven source monster descriptors and both stairs. The worker reports registry focused checks and lint passing; combined acceptance is pending.",
+                "After merging accepted main into the queued B14 worker branch, the assigned seed0360 replay emits805/833 screens without a prior screen divergence, then refuses distress shapechanger270 on movewest. That source boundary is now being traced as the preferred next seed continuation. The reported sounds.c SoundAchievement and shk.c discard_damage_owned_by gaps are accumulated state and are not established as the first cause. This worker observation does not replace accepted main count46 or step787 until B14 passes combined validation.",
+                "Worker B claimed B15 at525803423e66a28d0a266f6d0d7ce6000ec4fb12: mon.c decide_to_shapeshift, select_newcham_form, accept_newcham_form, mgender_from_permonst and newcham, plus canonical monster-shapechange-state and production admission/caller wiring. Exact source reservations do not overlap A12 mon.c meatbox/monstone/mondead ownership. This is worker continuation at805, not a newly accepted main boundary."
+              ],
+              "acceptedScoreContext": {
+                "acceptedQueueCount": 46,
+                "acceptedMismatch": "At validated fe2f53f3 the first divergence remains step787; C nhlib shuffle rn2(3)=2 differs from ordinary-generator rn2(5)=0. Original mismatch provenance is retained above.",
+                "checkpoint": "fe2f53f3b4368178646a97febaef392f9cadb797/run-b8ldRi: 31/44 sessions, 10349/11405 screens, 756145/792838 RNG, 10379/11405 cursors; all278 recordings pass."
+              },
+              "candidateObservations": [
+                "Saved .cache/B12-checkpoint-scan-cache.json row for seed0360-wizard-world-tour on candidate 90527aab97ad80578ba1ae090eb3c7c40118bf34 reports screensEmitted 805, first screen/RNG/cursor divergence at step 787, C rn2(3)=2 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19), JavaScript rn2(5)=0, and later boundary unsupported initial-level monster creation: distress shapechanger 270.",
+                "The B12 row records the step-787 C cursor [33,9,1] versus JavaScript [44,5,1] and differing map cells, confirming that the regular-level fallback changes generated topology; this diagnostic remains candidate evidence rather than an accepted aggregate score.",
+                "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
