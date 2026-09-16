@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7204,
+      "datetime": "20310417113000",
+      "nethackrc": "OPTIONS=name:FountainTown4,role:Wizard,race:dwarf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u0016?\n wlllllllqy ",
+      "comment": "Independent debug Minetown fountain route retained as a blocked follow-up recipe. It reaches fountain.c dryup() after the watchman warning, but the fresh recording diverges earlier at step 12 in an unrelated m_move(monmove.c:1971) rn2(16) versus JS rn2(24) branch; record it after that blocker lands."
+    }
+  ]
+}

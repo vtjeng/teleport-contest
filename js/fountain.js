@@ -10,6 +10,7 @@ import {
     ARM,
     A_CON,
     A_WIS,
+    DEAF,
     ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
@@ -20,6 +21,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HAND,
+    HEAD,
     IS_DOOR,
     IS_FOUNTAIN,
     KILLED_BY,
@@ -42,7 +44,7 @@ import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
 } from './display.js';
-import { hcolor, hliquid, a_monnam } from './do_name.js';
+import { Amonnam, hcolor, hliquid, a_monnam } from './do_name.js';
 import { level_difficulty, dunlevs_in_dungeon, dunlev } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -51,7 +53,10 @@ import { in_town, losehp } from './hack.js';
 import { distmin } from './hacklib.js';
 import { update_inventory, delobj, money_cnt, obfree } from './invent.js';
 import { makemon_runtime } from './makemon_create.js';
-import { mhis, mhe, monstseesu, monstunseesu } from './mondata.js';
+import {
+    is_watch, mhis, mhe, monstseesu, monstunseesu, nolimbs,
+} from './mondata.js';
+import { get_iter_mons } from './mon.js';
 import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
@@ -61,16 +66,17 @@ import {
 } from './monsters.js';
 import { mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, sobj_at } from './obj.js';
 import { observe_object } from './o_init.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
-import { cansee, do_clear_area } from './vision.js';
+import { cansee, couldsee, do_clear_area } from './vision.js';
 import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
 import { t_at, deltrap, reset_utrap } from './trap.js';
 import { water_damage } from './trap_water_damage.js';
 import { ttyPline } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
+import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 import { Fire_resistance } from './zap.js';
 import {
@@ -410,31 +416,115 @@ async function dofindgem(state = game, env = {}) {
     });
 }
 
+// C ref: youprop.h:125 Deaf.  The role-play flag is part of the C macro in
+// addition to the intrinsic and extrinsic property values.
+function heroIsDeaf(state) {
+    const deafness = state.u?.uprops?.[DEAF];
+    return Boolean(
+        deafness?.intrinsic || deafness?.extrinsic
+            || state.u?.uroleplay?.deaf,
+    );
+}
+
+// C ref: fountain.c watchman_warn_fountain() (178-198).  get_iter_mons()
+// expects a synchronous predicate, while tty messages are asynchronous in
+// this port.  The predicate therefore queues the source-ordered message
+// operations and returns the same boolean to its caller.
+export function watchman_warn_fountain(mtmp, state = game, env = {}) {
+    const couldSeeSquare = env.couldSeeSquare ?? env.couldSee
+        ?? ((tx, ty) => couldsee(tx, ty, state));
+    if (!is_watch(mtmp?.data)
+        || !couldSeeSquare(mtmp.mx, mtmp.my)
+        || !mtmp.mpeaceful) {
+        return false;
+    }
+
+    const pendingMessages = env.pendingMessages;
+    if (!pendingMessages) {
+        throw new TypeError(
+            'watchman_warn_fountain requires a pending message queue',
+        );
+    }
+    const message = env.message ?? ttyPline;
+    const name = Amonnam(mtmp, {
+        state,
+        displayRandom: env.displayRandom,
+    });
+    if (!heroIsDeaf(state)) {
+        pendingMessages.push(async () => {
+            await message(`${name} yells:`, state);
+            await verbalize(
+                'Hey, stop using that fountain!', state, { message },
+            );
+        });
+    } else {
+        const gesture = nolimbs(mtmp.data) ? 'shakes' : 'waves';
+        const part = mbodypart(
+            mtmp, nolimbs(mtmp.data) ? HEAD : ARM,
+        );
+        const bodyPart = nolimbs(mtmp.data)
+            ? part : makeplural(part);
+        pendingMessages.push(() => message(
+            `${name} earnestly ${gesture} ${mhis(mtmp, {
+                state,
+                canSpotMonster,
+            })} ${bodyPart}!`,
+            state,
+        ));
+    }
+    return true;
+}
+
 // ── dryup ──
 // C ref: fountain.c dryup() (201-239). With probability 1/3 (or if
 // warned), dry up the fountain and replace it with ordinary floor.
-async function dryup(x, y, isyou, state = game, env = {}) {
+export async function dryup(x, y, isyou, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { rn2 };
+    const canSeeSquare = env.canSeeSquare ?? env.canSee
+        ?? ((tx, ty) => cansee(tx, ty, state));
+    const glyphAt = env.glyphAt ?? env.glyph_at
+        ?? ((tx, ty) => glyph_at(tx, ty, state));
+    const redraw = env.planning ? () => {}
+        : (env.redraw ?? env.newsym
+            ?? ((tx, ty) => newsym(tx, ty, state)));
 
     if (IS_FOUNTAIN(state.level.at(x, y).typ)
         && (!random.rn2(3)
             || (state.level.at(x, y).flags & F_WARNED))) {
-        // C ref: fountain.c:205-214. Town fountain warning; the watch
-        // interaction remains unported and fails closed before mutation.
+        // C ref: fountain.c:205-214. Mark the town fountain warned, then
+        // stop at the first visible, peaceful watchman.
         if (isyou && in_town(x, y, state)
             && !(state.level.at(x, y).flags & F_WARNED)) {
-            throw new UnsupportedFountainError(
-                'the in-town fountain warning in dryup()');
+            state.level.at(x, y).flags |= F_WARNED;
+            const pendingMessages = [];
+            const findWatchman = env.getIterMons ?? get_iter_mons;
+            const watchman = findWatchman(
+                (mtmp) => watchman_warn_fountain(mtmp, state, {
+                    ...env,
+                    message,
+                    pendingMessages,
+                }),
+                state,
+            );
+            for (const pending of pendingMessages) await pending();
+            // C ref: fountain.c:214. You can see or hear this effect.
+            if (!watchman)
+                await message('The flow reduces to a trickle.', state);
+            return;
         }
 
         // C ref: fountain.c:216-219. Wizard-mode confirmation.
-        // Not needed; the port does not run in wizard mode.
+        if (isyou && state.wizard) {
+            const { y_n } = await import('./cmd.js');
+            if (await y_n('Dry up fountain?', state)
+                === 'n'.charCodeAt(0)) return;
+        }
 
         // C ref: fountain.c:223-228. "The fountain dries up!" if visible
         // and not obscured by a cloud glyph.
-        if (cansee(x, y, state)) {
-            const glyph = glyph_at(x, y, state);
+        if (canSeeSquare(x, y)) {
+            const glyph = glyphAt(x, y);
             if (!glyph_is_cmap(glyph)
                 || glyph_to_cmap(glyph) !== S_cloud) {
                 await message('The fountain dries up!', state);
@@ -447,7 +537,7 @@ async function dryup(x, y, isyou, state = game, env = {}) {
         state.level.at(x, y).horizontal = 0; // blessedftn
 
         // C ref: fountain.c:235. newsym() so the tile updates.
-        newsym(x, y);
+        redraw(x, y, state);
 
         // C ref: fountain.c:236-237. Town guards get angry.
         if (isyou && in_town(x, y, state)) {
