@@ -56739,13 +56739,13 @@
               "recordings/pickup.c/deferred-decor-fumble-independent.session.json",
               "recordings/pickup.c/deferred-decor-fumble-variation.session.json"
             ],
-            "checkedAt": "0bf0bf94a8a39892b5146ef4f07a3dba36bb897b"
+            "checkedAt": "90443da953b03cda2affc1d17e15c89141f70ce9"
           },
           {
             "name": "describe_decor",
             "implementation": "js/pickup.js",
             "symbol": "describe_decor",
-            "sourceReview": "Read nethack-c/upstream/src/pickup.c:353-425 in full. The port preserves SURFACE_AT and dfeature_at ordering, the open-door/doorway and underwater suppression, the ice/pool suppression, waterbody_name and article selection, verbose versus terse feature text, ICE Norep behavior, back_on_ground guard, and final prev_decor versus STONE storage. The preflight plan reads the same state without mutation so movement admission and the committed describe call retain one source owner. Source callers pickup.c check_here and pickup, plus deferred_decor timeout catch-up, now reach this owner. The unchanged non-furniture branch suppresses both feature and ground-transition output before the unconditional final terrain-memory update; the final correction is pinned by a broken-door case with a nonempty dfeature description. All four changed game files at the delivery have the same reviewed source tree as 12f5806d.",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c:353-425 in full. The committed describe_decor path preserves SURFACE_AT and calls dfeature_at() exactly once after the Fumbling admission branch, before the unchanged non-furniture comparison, so live ICE rating and display-RNG effects retain C ordering. Its movement admission plan now reads only side-effect-free terrain/result state and never calls dfeature_at(), emits output, or changes decor/display state. The live path preserves open-door/doorway and underwater suppression, ice/pool suppression, waterbody_name and article selection, verbose versus terse feature text, ICE Norep behavior, back_on_ground guard, and final prev_decor versus STONE storage. Source callers pickup.c check_here and pickup, plus deferred_decor timeout catch-up, reach this owner. Admission now evaluates only the Fumbling/terrain predicates; dfeature_at runs once in the live function before unchanged-terrain output suppression, preserving its ice_rating update and Hallucination display RNG call. The focused ICE/Hallucination check verifies admission preserves both ice_rating and the display RNG state.",
             "callers": [
               {
                 "path": "js/pickup.js",
@@ -56776,10 +56776,10 @@
               "recordings/pickup.c/deferred-decor-fumble-independent.session.json",
               "recordings/pickup.c/deferred-decor-fumble-variation.session.json"
             ],
-            "checkedAt": "0bf0bf94a8a39892b5146ef4f07a3dba36bb897b"
+            "checkedAt": "90443da953b03cda2affc1d17e15c89141f70ce9"
           }
         ],
-        "entryPointReview": "The A15r2 source entry points are covered by four independently chosen production recordings. Two doorway segments (Rogue and Valkyrie, distinct seeds, dates, roles, names and routes) reach ordinary movement through pickup.c describe_decor; strict replay matches 7,273 PRNG calls, 10 screens and 10 cursors and verifies the final DOOR terrain memory without a message boundary. Two Wizard Fumbling segments use distinct seeds, dates, names and output mode; each arms one-turn Fumbling, leaves and returns to the generated staircase, then reaches timeout.c nh_timeout -> deferred_decor(FALSE) and describe_decor catch-up. The combined bounded matrix matches 14,008 PRNG calls, 104 screens and 104 cursors; the terse variation independently matches 3,458 PRNG calls, 47 screens and 47 cursors. pickup.c check_here, pickup and timeout.c nh_timeout callers are source-traced and covered by focused tests. pickup.c force_decor() and any unsupported feature helpers outside the two selected functions remain outside this span and are explicitly unverified.",
+        "entryPointReview": "The A15r2 source entry points are covered by four independently chosen production recordings. Two doorway segments (Rogue and Valkyrie, distinct seeds, dates, roles, names and routes) reach ordinary movement through pickup.c describe_decor; strict replay matches 7,273 PRNG calls, 10 screens and 10 cursors and verifies the final DOOR terrain memory without a message boundary. Two Wizard Fumbling segments use distinct seeds, dates, names and output mode; each arms one-turn Fumbling, leaves and returns to the generated staircase, then reaches timeout.c nh_timeout -> deferred_decor(FALSE) and describe_decor catch-up. The combined bounded matrix matches 14,008 PRNG calls, 104 screens and 104 cursors; the terse variation independently matches 3,458 PRNG calls, 47 screens and 47 cursors. pickup.c check_here, pickup and timeout.c nh_timeout callers are source-traced and covered by focused tests. pickup.c force_decor() and any unsupported feature helpers outside the two selected functions remain outside this span and are explicitly unverified. The correction adds a source-pinned ICE/Hallucination admission test that asserts ice_rating and the complete display RNG context remain unchanged, while the bounded doorway and deferred-Fumbling recordings still match.",
         "entryPoints": [
           {
             "name": "ordinary doorway movement -> pickup.c describe_decor",
