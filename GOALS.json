@@ -54746,7 +54746,7 @@
           "line": 746,
           "endLine": 916,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -54862,7 +54862,117 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "feel_location",
+            "implementation": "js/display.js",
+            "symbol": "feel_location",
+            "sourceReview": "Read nethack-c/upstream/src/display.c:735-909 in full. Ported and checked source order for _suppress_map_output(), isok(), the accurate invisible-monster memory return, the Underwater exception for water/lava/ice, and set_seenv() with sign-clamped coordinate indexes. The levitation arm preserves obstructed/closed-door, boulder-before-door, room/water remembered-glyph and corridor/dark-room rewrites. The reachable arm preserves engr_can_be_felt()/erevealed, _map_location(), Punished ball and chain independent BC_FELT tests requiring OBJ_FLOOR coordinates and the pile-head identity, and the final dark room/corridor memory writes. The sensed-monster call remains an explicit note_unported('display.c display_monster') because C discards its return but that unported callee owns mimic memory, intermediate drawing, and worm-tail glyphs; no side effect or random draw was invented. The implementation uses the canonical rm flags union and env-free active display state, and callers pass the same state owner through planning and boulder destination paths.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "feel_newsym",
+                "source": "display.c:721-732; feel_newsym() delegates to feel_location() when the hero is blind."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "dosearch0",
+                "source": "detect.c:2038-2041 and 2049-2059; dosearch0() feels each blind or visible-region square before secret-door/corridor conversion and feels the converted feature again."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "defaultFeelSearchLocation",
+                "source": "JavaScript adapter for detect.c dosearch0 at2041 and2049: canonical feel_location runs for explicit blind or visible-region search before terrain dispatch, and after secret-door conversion. detect.c browse_map104-115 is unrelated and does not call this function."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "dopush",
+                "source": "hack.c:205-215; dopush() moves the boulder, then calls feel_location() for both the destination and origin when Blind, including a destination beyond the adjacent eight squares."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "cannot_push_msg",
+                "source": "hack.c:247-256; the failed unmounted boulder-push message is followed by feel_location() on the origin when Blind."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "test_move",
+                "source": "hack.c:1011-1177; test_move() feels obstructed, closed-door, and diagonal doorway squares before the source movement admission checks."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c pick_lock583 calls feel_location when a blind hero probes a non-door square; JavaScript pick_lock774 uses the canonical owner."
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "dokick",
+                "source": "dokick.c:870, 891, and 961; dokick() calls feel_location() for blind kick destination/origin updates and feel_newsym() for ordinary redraws."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doclose",
+                "source": "lock.c doclose1001 feels the target door while blind, then compares its glyph and last-seen terrain; JavaScript doclose1376 calls the canonical owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/display-symbols.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/automatic-search.test.mjs",
+              "scripts/moverock-monster-behind-boulder.test.mjs"
+            ],
+            "recordings": [
+              "recordings/display.c/feel-location-blind-variation.session.json"
+            ],
+            "checkedAt": "9d007249b98421c4e4e23bce0af3cb690759814b"
+          }
+        ],
+        "entryPointReview": "The source delivery has a recorded blind tactile-search entry using two independent role/seed variations. Blind boulder movement, lock, kick, and other caller paths are source-reviewed and source-pinned but remain without dedicated production recordings in this span. The renamed sighted punishment setup is retained as supplemental evidence: it dismisses startup More, wishes for and reads a scroll of punishment, dismisses the reading and teleport prompts, and selects the current square; its chained-ball status verifies punishment setup, but getpos/teleport does not call feel_location, so it is not counted as tactile coverage. The prior setup-invalid recipe was removed from the current corpus while its immutable history preserves the failed diagnostic. The final display_monster callee remains an explicit discarded boundary. Coordinator source comparison explicitly keeps punished tactile memory and underwater/levitation feature entries unrecorded. The sighted setup recording is supplementary and is not function reachability evidence. The source port cannot close yet. The selected work is the dependency exposed by A11 Knight continuation, not a seed0360/B12 continuation. Coordinator corrected the worker caller reference: detect.c104-115 is browse_map/getpos, not a tactile-search caller. The actual search sites are dosearch0 at2041 and2049; lock.c1001 belongs to doclose rather than pick_lock.",
+        "entryPoints": [
+          {
+            "name": "blind tactile search",
+            "functions": [
+              "feel_location"
+            ],
+            "recordings": [
+              "recordings/display.c/feel-location-blind-variation.session.json"
+            ]
+          },
+          {
+            "name": "blind boulder movement tactile update",
+            "functions": [
+              "feel_location"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "blind lock and kick tactile update",
+            "functions": [
+              "feel_location"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "punished tactile ball and chain memory",
+            "functions": [
+              "feel_location"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "underwater and levitating tactile terrain",
+            "functions": [
+              "feel_location"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
