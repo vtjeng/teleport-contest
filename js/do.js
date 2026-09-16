@@ -13,14 +13,19 @@ import {
     A_DEX,
     BOTH_SIDES,
     BLINDED,
+    DEAF,
     CORR,
     DIR_DOWN,
     DIR_UP,
     DISMOUNT_FELL,
     DOOR,
+    DRAWBRIDGE_UP,
+    DB_FLOOR,
+    DB_UNDER,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    ER_DESTROYED,
     FACE,
     FLYING,
     FUMBLING,
@@ -30,6 +35,7 @@ import {
     HAND,
     HALF_PHDAM,
     IS_ALTAR,
+    IS_WATERWALL,
     IS_SINK,
     In_endgame,
     In_quest,
@@ -55,6 +61,7 @@ import {
     TIMEOUT,
     TT_BURIEDBALL,
     TT_PIT,
+    TRAPDOOR,
     UNENCUMBERED,
     UTOTYPE_NONE,
     UTOTYPE_ATSTAIRS,
@@ -72,6 +79,9 @@ import {
     W_SADDLE,
     HALLUC,
     HALLUC_RES,
+    HOLE,
+    is_pit,
+    u_at,
     LL_ACHIEVE,
     LL_DEBUG,
     is_hole,
@@ -81,6 +91,7 @@ import {
 } from './const.js';
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
+import { obj_resists } from './bury.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
@@ -89,10 +100,11 @@ import {
     describe_level,
     docrt,
     flush_screen,
+    map_background,
     newsym,
     reglyph_darkroom,
 } from './display.js';
-import { Adjmonnam, Monnam, docall } from './do_name.js';
+import { Adjmonnam, Monnam, docall, hliquid, y_monnam } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
@@ -125,7 +137,7 @@ import { more_experienced, newexplevel } from './exper.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import { livelog_printf } from './pline.js';
-import { dist2 } from './hacklib.js';
+import { dist2, upstart } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
     losehp,
@@ -143,18 +155,22 @@ import {
     freeinv,
     getobj,
     mergable,
+    obfree,
     preflight_update_inventory,
     stackobj,
+    useupf,
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
 import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
-import { m_into_limbo, set_ustuck } from './mon.js';
+import { m_into_limbo, mondied, set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
-import { olfaction } from './mondata.js';
-import { youHear } from './monmove.js';
+import {
+    is_whirly, olfaction, passes_walls, throws_rocks,
+} from './mondata.js';
+import { m_in_air, youHear } from './monmove.js';
 import {
     PM_DEATH,
     PM_FAMINE,
@@ -163,16 +179,20 @@ import {
     PM_TOURIST,
 } from './monsters.js';
 import {
-    is_pick, objectType, place_object, remove_object, set_bknown,
+    is_pick, obj_meld, obj_nexto_xy, objectType, place_object,
+    pudding_merge_message, remove_object, set_bknown, weight,
 } from './obj.js';
 import { oinit } from './o_init.js';
-import { The, corpse_xname, donameFresh, vtense } from './objnam.js';
+import {
+    The, Tobjnam, corpse_xname, donameFresh, is_plural, the, vtense, xnameFresh,
+} from './objnam.js';
 import {
     BOULDER,
     CORPSE,
     LEASH,
     LOADSTONE,
     MEAT_RING,
+    POT_OIL,
     POTION_CLASS,
     RING_CLASS,
 } from './objects.js';
@@ -208,6 +228,8 @@ import {
     fill_pit,
     is_lava,
     is_pool,
+    is_pool_or_lava,
+    Flying,
     Levitation,
     reset_utrap,
     t_at,
@@ -216,8 +238,15 @@ import {
 } from './trap.js';
 import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
-import { cansee, canseemon, vision_recalc, vision_reset } from './vision.js';
+import {
+    cansee,
+    canseemon,
+    recalc_block_point,
+    vision_recalc,
+    vision_reset,
+} from './vision.js';
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
@@ -526,68 +555,349 @@ function next2u(x, y, state) {
     return dist2(x, y, state.u.ux, state.u.uy) <= 2;
 }
 
-// C ref: do.c flooreffects() (161-357). Answers whether an object landing on
-// <x,y> is consumed there, and runs whatever the landing does to the square.
-//
-// Only the answer for an ordinary square is ported: FALSE, with nothing
-// written and nothing drawn. Every arm that would destroy, damage, move, merge
-// or announce the object stops through the caller's `unsupported` operation
-// instead, named for the square or object that reached it.
-//
-// The arms are tested in C's order, but they are independent `if` statements
-// rather than C's if/else-if ladder, so nothing structural stops a later arm
-// once an earlier one has fired. What holds C's hiding here is `unsupported`:
-// it must not return. A caller that supplies a recording or logging operation
-// instead gets every later arm as well, and a FALSE answer that lets the
-// caller place an object C would have destroyed. Porting an arm for real ends
-// that arrangement -- C's hot-ground potion arm, for one, ends with
-// `res = TRUE` -- and the chain has to become `else if` at that point.
-//
-// C's gb.bhitpos save, set and restore is not modelled. Only erode_obj(),
-// reached from the water and lava arms, reads it, and both of those arms stop;
-// C restores the saved value on every return, so the pair is invisible to a
-// caller that reaches the end.
-//
-// `verb` is unread while every arm that prints stops. It is kept so a call
-// site reads like its C counterpart, and so the message arms can use it
-// unchanged when they are ported.
-export function flooreffects(obj, x, y, verb, env = {}) {
-    const state = env.state ?? game;
-    const unsupported = env.unsupported;
-    if (typeof unsupported !== 'function')
-        throw new TypeError('flooreffects requires an unsupported operation');
-    if (obj.where !== OBJ_FREE)
-        throw new Error('flooreffects: obj not free');
+// C's Deaf macro has the role conduct and the active property as separate
+// sources. Keeping this local avoids making a display-only dependency part of
+// the floor mutation owner.
+function heroIsDeaf(state) {
+    const deaf = state.u?.uprops?.[DEAF];
+    return Boolean(deaf?.intrinsic || deaf?.extrinsic
+        || state.u?.uroleplay?.deaf);
+}
 
-    // C's own first statement after the panic: water_damage() and its kin walk
-    // whatever these point at, so they are cleared before any arm runs.
+// hack.h Maybe_Half_Phys() rounds up, preserving the source damage contract
+// for a boulder-created lava splash.
+function maybeHalfPhysical(damage, state) {
+    const property = state.u?.uprops?.[HALF_PHDAM];
+    return property?.intrinsic || property?.extrinsic
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: do.c boulder_hits_pool() (50-145). A boulder consumes itself when it
+// reaches a pool, moat, water wall, or lava, with one source rn2(10) deciding
+// whether the square fills. The helper is async because a dead monster on a
+// filled square runs the existing mondead owner; its boolean remains the
+// direct source return used by flooreffects().
+export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (!otmp || otmp.otyp !== BOULDER)
+        return false;
+    if (!is_pool_or_lava(rx, ry, state)) return false;
+    const random = rawEnv.random ?? { rn2 };
+    const location = state.level?.at(rx, ry);
+    const lava = is_lava(rx, ry, state);
+    const what = (await import('./pager.js')).waterbody_name(
+        rx,
+        ry,
+        state,
+        { displayRandom: rawEnv.displayRandom },
+    );
+    const chance = random.rn2(10);
+    const onWaterLevel = Boolean(state.u?.uz && state.water_level
+        && state.u.uz.dnum === state.water_level.dnum
+        && state.u.uz.dlevel === state.water_level.dlevel);
+    const fillsUp = onWaterLevel ? false
+        : IS_WATERWALL(location?.typ) ? chance < 5
+            : lava ? chance === 0 : chance !== 0;
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.newsym ?? newsym;
+
+    if (fillsUp) {
+        const trap = t_at(rx, ry, state);
+        if (location?.typ === DRAWBRIDGE_UP) {
+            const mask = ((location.flags ?? location.drawbridgemask ?? 0)
+                & ~DB_UNDER) | DB_FLOOR;
+            location.flags = mask;
+            location.drawbridgemask = mask;
+        } else {
+            location.typ = ROOM;
+            location.flags = 0;
+            recalc_block_point(rx, ry, state);
+        }
+        const monster = m_at(rx, ry, state);
+        if (monster && monster.mhp >= 1 && !m_in_air(monster, state)) {
+            // mondead() is an existing owner; C discards its return here.
+            await mondied(monster, state, rawEnv);
+        }
+        const currentTrap = t_at(rx, ry, state);
+        if (currentTrap) {
+            const { delfloortrap } = await import('./trap.js');
+            delfloortrap(currentTrap, state);
+        }
+        // C discards bury_objs()'s result; no JS owner exists yet.
+        note_unported('dig.c bury_objs');
+        redraw(rx, ry, state);
+        if (pushing) {
+            const who = state.u?.usteed
+                ? y_monnam(state.u.usteed, state)
+                : 'you';
+            const subject = upstart(who);
+            await message(
+                `${subject} ${vtense(who, 'push')} `
+                    + `${the(xnameFresh(otmp, state), state)} into the ${what}.`,
+                state,
+            );
+            if (state.flags?.verbose !== false && !heroIsBlind(state)) {
+                await message('Now you can cross it!', state);
+            }
+        }
+    }
+    if (!fillsUp || !pushing) {
+        if (!state.u?.uinwater) {
+            const visible = pushing ? !heroIsBlind(state) : cansee(rx, ry, state);
+            if (visible) {
+                await message(
+                    `There is a large splash as ${the(xnameFresh(otmp, state), state)} `
+                        + `${fillsUp ? 'fills' : 'falls into'} the ${what}.`,
+                    state,
+                );
+            } else if (!heroIsDeaf(state)) {
+                await message(`You hear a${lava ? ' sizzling' : ''} splash.`, state);
+            }
+            await (rawEnv.wakeNear ?? wake_nearto)(rx, ry, 40, {
+                ...rawEnv,
+                state,
+            });
+        }
+        if (fillsUp && state.u?.uinwater
+            && dist2(rx, ry, state.u.ux, state.u.uy) === 0) {
+            set_uinwater(0, state);
+            if (typeof rawEnv.docrt === 'function') await rawEnv.docrt(state);
+            else await docrt();
+            state.vision_full_recalc = 1;
+            await message('You find yourself on dry land again!', state);
+        } else if (lava && next2u(rx, ry, state)) {
+            const fireResistant = Boolean(state.u?.uprops?.[FIRE_RES]?.intrinsic
+                || state.u?.uprops?.[FIRE_RES]?.extrinsic);
+            await message(
+                `You are hit by molten ${hliquid('lava', {
+                    state,
+                    displayRandom: rawEnv.displayRandom,
+                })}${fireResistant ? '.' : '!'}`,
+                state,
+            );
+            note_unported('trap.c burn_away_slime');
+            const damage = random.d
+                ? random.d(fireResistant ? 1 : 3, 6)
+                : Array.from({ length: fireResistant ? 1 : 3 },
+                    () => random.rnd(6)).reduce((sum, n) => sum + n, 0);
+            await losehp(
+                maybeHalfPhysical(damage, state),
+                'molten lava',
+                KILLED_BY,
+                state,
+            );
+        } else if (!fillsUp && state.flags?.verbose !== false
+            && cansee(rx, ry, state)) {
+            await message('It sinks without a trace!', state);
+        }
+    }
+    if (pushing) {
+        await useupf(otmp, otmp.quan, { ...rawEnv, state, random });
+    } else {
+        obfree(otmp, null, { ...rawEnv, state });
+    }
+    return true;
+}
+
+// C ref: do.c flooreffects() (161-357). The object arrives detached, then
+// each source landing arm runs in order. The saved bhitpos is restored even
+// when an asynchronous water/fire or break operation fails, matching C's
+// caller-visible state boundary.
+export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (!obj || obj.where !== OBJ_FREE)
+        throw new Error('flooreffects: obj not free');
+    const previous = state.gb?.bhitpos
+        ? { ...state.gb.bhitpos } : null;
+    state.gb ??= {};
+    state.gb.bhitpos = { x, y };
     obj.nobj = null;
     obj.nexthere = null;
-
-    const location = state.level?.at(x, y);
-    const trap = t_at(x, y, state);
-    // boulder_hits_pool() decides the first arm and is not ported, so a
-    // boulder cannot be told apart from one that lands on ordinary ground.
-    if (obj.otyp === BOULDER)
-        unsupported(`a boulder landing at <${x},${y}>`);
-    if (is_lava(x, y, state)) unsupported('an object landing on lava');
-    if (is_pool(x, y, state)) unsupported('an object landing in water');
-    if (state.u?.ux === x && state.u?.uy === y && trap
-        && (uteetering_at_seen_pit(trap, state)
-            || uescaped_shaft(trap, state))) {
-        unsupported('an object landing in the pit or shaft the hero is in');
+    let result = false;
+    try {
+        if (obj.otyp === BOULDER
+            && await boulder_hits_pool(obj, x, y, false, rawEnv)) {
+            return true;
+        }
+        const trap = t_at(x, y, state);
+        if (obj.otyp === BOULDER && trap
+            && (is_pit(trap.ttyp) || is_hole(trap.ttyp))) {
+            const trappedMonster = m_at(x, y, state);
+            const trappedHero = u_at(x, y, state)
+                && (state.u?.utrap ?? 0);
+            if ((trappedMonster?.mtrapped || trappedHero)
+                && verb
+                && (cansee(x, y, state) || dist2(x, y, state.u.ux, state.u.uy) === 0)) {
+                const subject = cansee(x, y, state) ? 'The' : 'A';
+                await (rawEnv.message ?? ttyPline)(
+                    `${subject} boulder ${verb} into the pit`
+                        + `${trappedMonster ? '' : ' with you'}.`,
+                    state,
+                );
+            }
+            if (trappedMonster && trappedMonster.mtrapped) {
+                if (!passes_walls(trappedMonster.data)
+                    && !throws_rocks(trappedMonster.data)) {
+                    if (state.context?.mon_moving) {
+                        const { dmgval } = await import('./weapon.js');
+                        trappedMonster.mhp -= dmgval(obj, trappedMonster, state, rawEnv);
+                        if (trappedMonster.mhp < 1)
+                            await mondied(trappedMonster, state, rawEnv);
+                    } else {
+                        const { hmon } = await import('./uhitm.js');
+                        await hmon(trappedMonster, obj, 1, 1, state, rawEnv);
+                    }
+                }
+                if (trappedMonster.mhp >= 1 && !is_whirly(trappedMonster.data))
+                    result = false;
+                trappedMonster.mtrapped = 0;
+            } else if (trappedHero) {
+                if (!passes_walls(state.youmonst?.data)
+                    && !throws_rocks(state.youmonst?.data)) {
+                    const random = rawEnv.random ?? { rnd };
+                    await losehp(
+                        maybeHalfPhysical(random.rnd(15), state),
+                        'squished under a boulder',
+                        NO_KILLER_PREFIX,
+                        state,
+                    );
+                } else {
+                    reset_utrap(true, state);
+                }
+            }
+            if (verb) {
+                const message = rawEnv.message ?? ttyPline;
+                const blind = heroIsBlind(state);
+                if (blind && u_at(x, y, state)) {
+                    if (!heroIsDeaf(state))
+                        await message(
+                            `You hear ${the(xnameFresh(obj, state), state)} `
+                                + 'tumble downwards.',
+                            state,
+                        );
+                } else if (!blind && cansee(x, y, state)) {
+                    const trigger = trap.ttyp === TRAPDOOR && !trap.tseen
+                        ? 'The boulder triggers and ' : 'The boulder ';
+                    const action = trap.ttyp === TRAPDOOR
+                        ? 'plugs a trap door'
+                        : trap.ttyp === HOLE ? 'plugs a hole' : 'fills a pit';
+                    await message(`${trigger}${action}.`, state);
+                } else if (!heroIsDeaf(state)) {
+                    await message(`You hear a boulder ${verb}.`, state);
+                }
+            }
+            const currentTrap = t_at(x, y, state);
+            if (currentTrap) {
+                const { delfloortrap } = await import('./trap.js');
+                delfloortrap(currentTrap, state);
+            }
+            await useupf(obj, 1, { ...rawEnv, state });
+            note_unported('dig.c bury_objs');
+            (rawEnv.newsym ?? newsym)(x, y, state);
+            return true;
+        }
+        if (is_lava(x, y, state)) {
+            const { lava_damage } = await import('./trap_water_damage.js');
+            result = await lava_damage(obj, x, y, {
+                ...rawEnv,
+                state,
+                random: rawEnv.random ?? { rn2, rnd },
+            });
+            return result;
+        }
+        if (is_pool(x, y, state)) {
+            const blind = heroIsBlind(state);
+            const floating = Levitation(state) || Flying(state);
+            if ((blind || floating) && !heroIsDeaf(state)
+                && u_at(x, y, state)) {
+                if (!state.u?.uinwater) {
+                    if (weight(obj, { state }) > WT_SPLASH_THRESHOLD) {
+                        await (rawEnv.message ?? ttyPline)('Splash!', state);
+                    } else if (floating) {
+                        await (rawEnv.message ?? ttyPline)('Plop!', state);
+                    }
+                }
+                map_background(x, y, 0, state);
+                (rawEnv.newsym ?? newsym)(x, y, state);
+            }
+            const { water_damage } = await import('./trap_water_damage.js');
+            result = (await water_damage(obj, null, false, {
+                ...rawEnv,
+                state,
+                random: rawEnv.random ?? { rn2, rnd },
+            })) === ER_DESTROYED;
+            return result;
+        }
+        if (u_at(x, y, state) && trap
+            && (uteetering_at_seen_pit(trap, state)
+                || uescaped_shaft(trap, state))) {
+            if (is_pit(trap.ttyp) && verb) {
+                await (rawEnv.message ?? ttyPline)(
+                    `${Tobjnam(obj, 'tumble', state)} into a pit.`, state,
+                );
+            } else if (await ship_object(obj, x, y, false, {
+                ...rawEnv,
+                state,
+            })) {
+                return true;
+            }
+        } else if (obj.globby) {
+            let survivor = obj;
+            while (survivor) {
+                const other = obj_nexto_xy(survivor, x, y, true, state);
+                if (!other) break;
+                await pudding_merge_message(survivor, other, state, rawEnv);
+                survivor = obj_meld(survivor, other, state, rawEnv);
+            }
+            return !survivor;
+        } else if (state.context?.mon_moving && IS_ALTAR(state.level?.at(x, y)?.typ)
+            && cansee(x, y, state)) {
+            // doaltarobj() is a void pray.c dependency, so preserve its gap.
+            note_unported('pray.c doaltarobj');
+        } else if (obj.oclass === POTION_CLASS
+            && Math.trunc(state.level?.flags?.temperature ?? 0) > 0
+            && (state.level?.at(x, y)?.typ === ROOM
+                || state.level?.at(x, y)?.typ === CORR)) {
+            if (cansee(x, y, state)) {
+                await (rawEnv.message ?? ttyPline)(
+                    `${Tobjnam(obj, 'heat', state)} up as `
+                        + `${is_plural(obj) ? 'they hit' : 'it hits'} the hot ground.`,
+                    state,
+                );
+            }
+            let survivalChance = obj.blessed ? 70 : 50;
+            if (obj.invlet) survivalChance += Math.trunc(state.u?.luck ?? 0) * 2;
+            if (obj.otyp === POT_OIL) survivalChance = 100;
+            const random = rawEnv.random ?? { rn2, rnd };
+            if (!obj_resists(obj, survivalChance, 100, {
+                ...rawEnv,
+                state,
+                random,
+            })) {
+                if (cansee(x, y, state)) {
+                    await (rawEnv.message ?? ttyPline)(
+                        `${is_plural(obj) ? 'They shatter' : 'It shatters'} from the heat!`,
+                        state,
+                    );
+                } else if (!heroIsDeaf(state)) {
+                    await (rawEnv.message ?? ttyPline)(
+                        'You hear a shattering noise.', state,
+                    );
+                }
+                const { breakobj } = await import('./dothrow.js');
+                await breakobj(obj, x, y, false, false, {
+                    ...rawEnv,
+                    state,
+                    random,
+                });
+                return true;
+            }
+        }
+        return result;
+    } finally {
+        if (previous) state.gb.bhitpos = previous;
+        else delete state.gb.bhitpos;
     }
-    if (obj.globby) unsupported('a glob landing on the floor');
-    if (state.context?.mon_moving && IS_ALTAR(location?.typ)
-        && cansee(x, y, state)) {
-        unsupported('an object landing on an altar while a monster moves');
-    }
-    if (obj.oclass === POTION_CLASS
-        && Math.trunc(state.level?.flags?.temperature ?? 0) > 0
-        && (location?.typ === ROOM || location?.typ === CORR)) {
-        unsupported('a potion landing on the hot ground of a hot level');
-    }
-    return false;
 }
 
 // C ref: do.c trycall() (393-400), translated whole. "If obj is neither
@@ -1008,7 +1318,7 @@ export async function dropy(obj, env = {}) {
 async function dropzAdmitted(obj, normalized) {
     if (obj.where !== OBJ_FREE)
         throw new Error('dropz requires a free object');
-    if (flooreffects(obj, normalized.state.u.ux, normalized.state.u.uy,
+    if (await flooreffects(obj, normalized.state.u.ux, normalized.state.u.uy,
                      'drop', {
                          state: normalized.state,
                          unsupported: (reason) => {
@@ -1615,7 +1925,7 @@ export async function goto_level(
 
     // do.c:1812 placebc() puts a punished hero's ball and chain down after
     // arrival and before migrating objects are delivered.
-    if (Punished(state)) placebc(state);
+    if (Punished(state)) await placebc(state);
     obj_delivery(false, state);
     await losedogs({ state });
     kill_genocided_monsters(state);
@@ -1630,7 +1940,7 @@ export async function goto_level(
     });
 
     const arrivalOccupant = m_at(u.ux, u.uy, state);
-    if (arrivalOccupant) u_collide_m(arrivalOccupant, state);
+    if (arrivalOccupant) await u_collide_m(arrivalOccupant, state);
 
     // do.c:1829-1832. The Elemental Planes move their bubbles/clouds
     // immediately after arrival, before vision_reset() and the first map
@@ -1817,7 +2127,7 @@ function kill_genocided_monsters(state = game) {
 // C ref: do.c u_collide_m() (1410-1445). The hero has arrived on a square a
 // monster already holds -- one that came down with her, or one mklev() put on
 // the up staircase -- and one of the two has to move.
-function u_collide_m(mtmp, state = game) {
+async function u_collide_m(mtmp, state = game) {
     if (!mtmp || mtmp === state.u.usteed
         || mtmp !== m_at(state.u.ux, state.u.uy, state)) {
         // C's impossible() returns without moving anybody.
@@ -1836,7 +2146,7 @@ function u_collide_m(mtmp, state = game) {
     if (m_at(state.u.ux, state.u.uy, state)) {
         // C tries rloc() and then m_into_limbo(), which sends the monster off
         // the level to return later. The wizard-mode message is not ported.
-        m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
+        await m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
     }
 }
 

@@ -68,6 +68,10 @@ closes after its spans close and entry-point coverage is verified. A
 **parked** goal preserves unfinished work while a higher-priority blocker is
 addressed.
 
+A **superseded** goal is a retired plan whose work belongs to another named
+goal. It retains its history and evidence but is neither pending nor completed
+work. `.agents/selection.md` gives the retirement command.
+
 A **check** is routine diff inspection, testing, source comparison, or
 `npm run quality`. `.agents/review.md` defines the review vocabulary: a
 formal review pass, an audit, and an evidence snapshot.

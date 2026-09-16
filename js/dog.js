@@ -26,10 +26,16 @@ import {
     MM_EDOG,
     NO_MINVENT,
     NEED_HTH_WEAPON,
+    ACCFOOD,
+    DOGFOOD,
+    FULL_MOON,
+    MANFOOD,
+    OBJ_FREE,
     RLOC_NOMSG,
     STRAT_ARRIVE,
     STRAT_WAITFORU,
     TELEPAT,
+    Upolyd,
     W_SADDLE,
     helpless,
     isok,
@@ -42,7 +48,7 @@ import {
 } from './dungeon.js';
 import { newsym } from './display.js';
 import {
-    capitalizedMonsterName, christen_monst, mon_pmname,
+    capitalizedMonsterName, christen_monst, mon_pmname, Monnam,
 } from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
@@ -50,9 +56,16 @@ import { add_to_minv, update_inventory } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { attacktype, levl_follower } from './mondata.js';
+import {
+    attacktype,
+    is_covetous,
+    is_demon,
+    is_human,
+    levl_follower,
+    sticks,
+} from './mondata.js';
 import { monnear } from './monmove.js';
-import { restore_cham } from './mon.js';
+import { restore_cham, wake_nearto } from './mon.js';
 import { m_at, mon_track_clear, remove_monster } from './monst.js';
 import { livelog_printf } from './pline.js';
 import {
@@ -61,13 +74,13 @@ import {
     M1_HUMANOID,
     M1_UNSOLID,
     M2_DOMESTIC,
+    M3_WANTSARTI,
     MZ_MEDIUM,
     NON_PM,
     PM_AIR_ELEMENTAL,
     PM_BABY_GOLD_DRAGON,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
-    PM_DJINNI,
     PM_FIRE_ELEMENTAL,
     PM_FIRE_VORTEX,
     PM_FLAMING_SPHERE,
@@ -76,6 +89,7 @@ import {
     PM_LITTLE_DOG,
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
+    PM_MEDUSA,
     PM_PONY,
     PM_RANGER,
     PM_SAMURAI,
@@ -87,23 +101,29 @@ import {
     S_GHOST,
     S_JABBERWOCK,
     S_QUADRUPED,
+    S_DOG,
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
-import { an, donameFresh } from './objnam.js';
+import { an, donameFresh, the, Tobjnam, xnameFresh } from './objnam.js';
 import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
-import { mksobj, unknow_object } from './obj.js';
+import { mksobj, place_object, unknow_object } from './obj.js';
 import {
     BOULDER,
     EXPENSIVE_CAMERA,
     SADDLE,
+    SCROLL_CLASS,
+    SPBOOK_CLASS,
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     canSeeMonster,
+    canSpotMonster,
+    messageAt,
     sensesMonster,
 } from './startup_a11y.js';
+import { night } from './calendar.js';
 import { acurr } from './attrib.js';
 import { mnexto, rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
@@ -111,6 +131,8 @@ import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
 import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
+import { cansee, canseemon } from './vision.js';
+import { note_unported } from './unported.js';
 
 export { christen_monst } from './do_name.js';
 
@@ -129,6 +151,14 @@ function propertyActive(hero, index) {
 
 function propertyBlocked(hero, index) {
     return Boolean(hero?.uprops?.[index]?.blocked);
+}
+
+// C's Hallucination macro is the intrinsic hallucination property without
+// its resistance property. Keep this query beside the other dog.c property
+// predicates so every tamedog message uses the same state owner.
+function heroHallucinating(state) {
+    return propertyActive(state.u, HALLUC)
+        && !propertyActive(state.u, HALLUC_RES);
 }
 
 function carryingType(state, otyp) {
@@ -208,11 +238,10 @@ export function initedog(monster, everything = true, env = {}) {
     return monster;
 }
 
-// C ref: dog.c tamedog() (1143-1282), for the objectless, message-free
-// djinni that potion.c djinni_from_bottle() has just created. The new monster
-// cannot be asleep, frozen, tame, engulfing the hero, or carry another mextra
-// role, so the source path reaches newedog(), initedog(), newsym(), and its
-// optional hand-to-hand weapon selection without taking an earlier branch.
+// C ref: dog.c tamedog() (1143-1282). This is the complete taming decision
+// chain used by thrown food and by potion/read callers. Calls whose results
+// are discarded by C remain explicit notes; dog_eat() is called for both
+// source food paths because its return controls tamedog()'s result.
 export async function tamedog(
     monster,
     obj = null,
@@ -221,25 +250,164 @@ export async function tamedog(
 ) {
     const normalized = dogEnv(env);
     const { state } = normalized;
-    if (!monster?.data || monster.data.pmidx !== PM_DJINNI
-        || obj !== null || giveMessage || monster.mfrozen
-        || monster.msleeping || monster.mtame || monster.mextra?.edog
-        || monster.iswiz || monster.isshk || monster.isgd
-        || monster.ispriest || monster.isminion
-        || state.u?.ustuck === monster) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'dog.c tamedog() outside a newly released djinni',
+    let blessedScroll = false;
+    const random = normalized.random;
+    const message = normalized.message ?? ttyPline;
+
+    // C accepts blessed scrolls and spellbooks as taming magic, then treats
+    // either object as null for all food checks below.
+    if (obj && (obj.oclass === SCROLL_CLASS || obj.oclass === SPBOOK_CLASS)) {
+        blessedScroll = Boolean(obj.blessed);
+        obj = null;
+    }
+
+    if (!monster?.data) throw new TypeError('tamedog requires monster data');
+
+    // dog.c:1148-1154. The wake_nearto result is discarded; the existing
+    // source owner still performs its sleep/strategy and pet whistle updates.
+    if (monster.mfrozen)
+        monster.mfrozen = Math.trunc((monster.mfrozen + 1) / 2);
+    if (monster.msleeping)
+        await wake_nearto(monster.mx, monster.my, 1, normalized);
+
+    // The Wiz, Medusa and quest nemeses are never made peaceful.
+    if (monster.iswiz || monster.data.pmidx === PM_MEDUSA
+        || (monster.data.mflags3 & M3_WANTSARTI)) return false;
+
+    if (giveMessage && !monster.mpeaceful && canSpotMonster(monster, state)) {
+        await message(
+            messageAt(
+                `${Monnam(monster, state)} seems `
+                    + `${heroHallucinating(state) ? 'really chill' : 'more amiable'}.`,
+                monster.mx,
+                monster.my,
+                state,
+            ),
+            state,
         );
+        giveMessage = false;
     }
 
     monster.mpeaceful = true;
     set_malign(monster, state);
+    if (state.flags?.moonphase === FULL_MOON && night(state)
+        && random.rn2(6) && obj && monster.data.mlet === S_DOG) {
+        // C leaves the object untouched on this failed taming attempt.
+        return false;
+    }
     monster.mflee = false;
     monster.mfleetim = 0;
-    newedog(monster);
-    initedog(monster, true, normalized);
-    newsym(monster.mx, monster.my, state);
 
+    // Grabbers let go whether or not the remaining taming checks succeed.
+    if (state.u?.ustuck === monster) {
+        if (state.u.uswallow) {
+            // expels() owns the swallowed redraw and is a void call in C;
+            // invoke it when supplied, otherwise preserve that source gap.
+            if (typeof normalized.expels === 'function')
+                await normalized.expels(monster, normalized);
+            else note_unported('mhitu.c expels');
+        } else if (!(Upolyd(state.u) && sticks(state.youmonst?.data))) {
+            const { unstuck } = await import('./mon.js');
+            await unstuck(monster, state, normalized);
+        }
+    }
+
+    // Feeding an existing pet is the first object-bearing branch. C places
+    // the free thrown object on the pet's square before dog_eat().
+    if (monster.mtame && obj) {
+        const edog = monster.mextra?.edog;
+        if (monster.mcanmove && !monster.mconf && !monster.meating) {
+            const { dogfood } = await import('./dogfood.js');
+            const tasty = dogfood(monster, obj, normalized);
+            if (tasty === DOGFOOD
+                || (tasty <= ACCFOOD
+                    && (edog?.hungrytime ?? 0) <= (state.moves ?? 0))) {
+                if (canseemon(monster, state)) {
+                    const { CORPSE } = await import('./objects.js');
+                    const bigCorpse = obj.otyp === CORPSE
+                        && Number.isInteger(obj.corpsenm)
+                        && (state.mons?.[obj.corpsenm]?.msize ?? 0)
+                            > (monster.data?.msize ?? 0);
+                    await message(
+                        messageAt(
+                            `${Monnam(monster, state)} catches `
+                                + `${the(xnameFresh(obj, state), state)}`
+                                + `${bigCorpse ? ', or vice versa!' : '.'}`,
+                            monster.mx,
+                            monster.my,
+                            state,
+                        ),
+                        state,
+                    );
+                } else if (cansee(monster.mx, monster.my, state)) {
+                    await message(`${Tobjnam(obj, 'stop', state)}.`, state);
+                }
+                if (obj.where === OBJ_FREE)
+                    place_object(obj, monster.mx, monster.my, normalized);
+                const { dog_eat } = await import('./dogmove.js');
+                await dog_eat(monster, obj, monster.mx, monster.my, false, {
+                    ...normalized,
+                    state,
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Low tameness can rise from scroll/spell taming, but this does not count
+    // as a newly tamed monster and therefore returns FALSE.
+    if (monster.mtame && monster.mtame < 10) {
+        if (monster.mtame < random.rnd(10)) monster.mtame++;
+        if (blessedScroll)
+            monster.mtame = Math.min(10, monster.mtame + 2);
+        return false;
+    }
+
+    if (monster.isshk) {
+        note_unported('shk.c make_happy_shk');
+        return false;
+    }
+
+    // C's admission checks occur after the peaceful/fleeing updates.
+    if (!monster.mcanmove || monster.isshk || monster.isgd
+        || monster.ispriest || monster.isminion
+        || is_covetous(monster.data) || is_human(monster.data)
+        || (is_demon(monster.data)
+            && !is_demon(state.youmonst?.data ?? state.u?.data))
+        || (obj && (await import('./dogfood.js')).dogfood(
+            monster, obj, normalized) >= MANFOOD)) return false;
+
+    if (monster.m_id && monster.m_id === state.svq?.quest_status?.leader_m_id)
+        return false;
+
+    const hadEdog = Boolean(monster.mextra?.edog);
+    if (!hadEdog) newedog(monster);
+    initedog(monster, !hadEdog, normalized);
+
+    if (obj) {
+        if (obj.where === OBJ_FREE)
+            place_object(obj, monster.mx, monster.my, normalized);
+        const { dog_eat } = await import('./dogmove.js');
+        const eaten = await dog_eat(monster, obj, monster.mx, monster.my,
+            true, { ...normalized, state });
+        if (eaten === 2) return true;
+    }
+
+    if (giveMessage && canSpotMonster(monster, state)) {
+        await message(
+            messageAt(
+                `${Monnam(monster, state)} seems `
+                    + `${heroHallucinating(state) ? 'quite approachable' : 'quite friendly'}.`,
+                monster.mx,
+                monster.my,
+                state,
+            ),
+            state,
+        );
+    }
+    newsym(monster.mx, monster.my, state);
+    if (monster.wormno) note_unported('worm.c redraw_worm');
     if (attacktype(monster.data, AT_WEAP)) {
         monster.weapon_check = NEED_HTH_WEAPON;
         await mon_wield_item(monster, {

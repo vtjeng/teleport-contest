@@ -20357,7 +20357,7 @@
     {
       "id": "div-hack-test-move-seed0030",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Fix seed0030 stop at step 537 in test_move() (hack.c)",
       "cFile": "hack.c",
       "sessions": [],
@@ -20387,7 +20387,10 @@
         "screens": 0,
         "rng": 0
       },
-      "parkedReason": "Fresh source review shows test_move() is a partial implementation with explicit UnsupportedHeroMoveBoundaryError seams, including the SDOOR obstacle branch. Preserve this historical divergence record; replace it with a bounded source port for the whole function."
+      "parkedReason": "Fresh source review shows test_move() is a partial implementation with explicit UnsupportedHeroMoveBoundaryError seams, including the SDOOR obstacle branch. Preserve this historical divergence record; replace it with a bounded source port for the whole function.",
+      "supersededBy": "port-hack-test-move",
+      "supersededReason": "Source review reclassified this partial implementation as a whole-function port. port-hack-test-move closed at 637cc80bc84cc27e7c2cbd2eb45ab32457df0f63 and owns the replacement source evidence; this earlier divergence plan has no independent work.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "port-hack-test-move",
@@ -20683,7 +20686,7 @@
         "screens": 5414,
         "rng": 390072
       },
-      "parkedReason": "mon_adjust_speed span closed with source/caller/recording evidence; no additional holdout evaluation is authorized, so retain the goal for later closure."
+      "parkedReason": "The mon_adjust_speed span is closed with source, caller, and recording evidence. The local holdout was opened on 2026-09-12, so the former permission blocker no longer applies. Awaiting reconciliation of the saved evidence and formal closure under the current validation and scoring requirements; this record identifies no remaining implementation defect."
     },
     {
       "id": "port-shk-u-entered-shop",
@@ -28894,7 +28897,7 @@
     {
       "id": "port-do-goto-level-falling-stairs",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port do.c goto_level() ordinary downward-stair falling arm and preserve source-ordered damage and arrival wiring",
       "cFile": "do.c",
       "sessions": [
@@ -28955,7 +28958,10 @@
         "screens": 7007,
         "rng": 512612
       },
-      "parkedReason": "goto_level() is already a completed do.c source unit with prior whole-function evidence; the newly confirmed encumbrance falling branch is a source-local defect in implemented behavior and must be selected as a bounded divergence-fix instead."
+      "parkedReason": "goto_level() is already a completed do.c source unit with prior whole-function evidence; the newly confirmed encumbrance falling branch is a source-local defect in implemented behavior and must be selected as a bounded divergence-fix instead.",
+      "supersededBy": "div-do-goto-level-falling-stairs",
+      "supersededReason": "goto_level already had whole-function evidence, so the falling-stair defect was handled by div-do-goto-level-falling-stairs, closed at 2427be4458fc2f5506450c214c6b8fa5c3e6fa22. Retain this mistaken file-port selection as history without pending work.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "div-do-goto-level-falling-stairs",
@@ -47253,7 +47259,7 @@
     {
       "id": "port-teleport-teleds-seed4500-20260914",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port teleport.c teleds active punishment-ball transit and wire its production callers.",
       "cFile": "teleport.c",
       "sessions": [
@@ -47366,7 +47372,10 @@
         "screens": 9659,
         "rng": 699110
       },
-      "parkedReason": "The selected function teleds() already has complete source evidence in port-teleport-teleds-ball-seed4500. Reclassify the current active punishment-ball refusal as a divergence-fix, preserving this mistaken file-port selection as parked history."
+      "parkedReason": "The selected function teleds() already has complete source evidence in port-teleport-teleds-ball-seed4500. Reclassify the current active punishment-ball refusal as a divergence-fix, preserving this mistaken file-port selection as parked history.",
+      "supersededBy": "port-teleport-teleds-ball-seed4500",
+      "supersededReason": "This duplicate file-port selection found teleds already verified by port-teleport-teleds-ball-seed4500, closed at 0a4f4aa70ae38501791e7ebe8214324a81ffcd30. The separate div-teleport-teleds-ball-seed4500-20260914 investigation retains its own unresolved diagnostic record; this duplicate source plan adds no work.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "div-teleport-teleds-ball-seed4500-20260914",
@@ -50845,7 +50854,7 @@
     {
       "id": "div-steal-urgent-pline-seed4500-20260915-r2",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Preserve C steal.c steal() urgent_pline sequencing for monster theft and wire the planning-safe caller callback so the theft page matches the source-defined message boundary.",
       "cFile": "steal.c",
       "sessions": [],
@@ -50956,7 +50965,10 @@
         "screens": 10084,
         "rng": 741703
       },
-      "parkedReason": "Urgent-only correction did not move step987 in focused run-jcX2Qy. Preserve that WIP; corrected source root cause is the omitted tele_restrict message in uhitm.c mhitm_ad_sedu, covered by div-uhitm-theft-tele-restrict-seed4500-20260916."
+      "parkedReason": "Urgent-only correction did not move step987 in focused run-jcX2Qy. Preserve that WIP; corrected source root cause is the omitted tele_restrict message in uhitm.c mhitm_ad_sedu, covered by div-uhitm-theft-tele-restrict-seed4500-20260916.",
+      "supersededBy": "div-uhitm-theft-tele-restrict-seed4500-20260916",
+      "supersededReason": "The urgent-only hypothesis did not move the mismatch in run-jcX2Qy. Source tracing identified the omitted tele_restrict message in mhitm_ad_sedu; div-uhitm-theft-tele-restrict-seed4500-20260916 closed at f0ff954d2222b1db27e4fa7925448efdc980e1e5. Preserve the unsuccessful plan without scheduling its WIP again.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "div-uhitm-theft-tele-restrict-seed4500-20260916",
@@ -53430,7 +53442,7 @@
             "checkedAt": "f909ea80bbc6569ae4f679b0a8d5a2e260fb752c"
           }
         ],
-        "entryPointReview": "The selected production entry point is #chronicle in the active CHRONICLE build. The committed independent recipe has two segments with independent role, seed, date, and input variations; both reach do_gamelog/show_gamelog and the fresh C/JavaScript differential passes with 30 screens, 30 cursors, and 4,596 PRNG calls. The canonical pline.c in-memory gamelog owner records producer text at state.moves and preserves planning/save/restore ownership. Source review also wires the supported read.c generic first-literacy arm, quest.c worthy first-assignment arm, do.c new-level LL_DEBUG/LL_ACHIEVE event, and end.c ordinary LL_DUMP event. botl.c describe_level is pure and source-pinned. Inventory sight restoration carries message/update owners through potion.c and timeout.c without painting planning clones. Unsupported object/effect, quest, external dump, and final Major recording gaps remain explicit; the final Major window has source-pinned tests but no production recording in this span. Retry correction ffc0b5d5 adds files.c livelog_add mask gating and sys.c LL_NONE initialization; pline.c livelog_printf appends canonical history before replacing tabs in its external-sink buffer. The source gate fixes the prior seed2200 end-of-input regression without suppressing the validator. This record verifies only the selected insight.c functions; the enabled external sink remains an explicit unported dependency.",
+        "entryPointReview": "The selected production entry point is #chronicle in the active CHRONICLE build. The committed independent recipe has two segments with independent role, seed, date, and input variations; both reach do_gamelog/show_gamelog and the fresh C/JavaScript differential passes with 30 screens, 30 cursors, and 4,596 PRNG calls. The canonical pline.c in-memory gamelog owner records producer text at state.moves and preserves planning/save/restore ownership. Source review also wires the supported read.c generic first-literacy arm, quest.c worthy first-assignment arm, do.c new-level LL_DEBUG/LL_ACHIEVE event, and end.c ordinary LL_DUMP event. botl.c describe_level is pure and source-pinned. Inventory sight restoration carries message/update owners through potion.c and timeout.c without painting planning clones. Unsupported object/effect and quest producer coverage remains explicit. The final Major branch has source-pinned tests in scripts/insight.test.mjs. Its only production C caller is end.c dump_everything() inside #ifdef DUMPLOG; nethack-c/build-recorder.sh selects linux-minimal or macosx-minimal, neither of which defines DUMPLOG, and include/config.h leaves it disabled. Preprocessing the local recorder confirms CHRONICLE and DUMPLOG_CORE but no DUMPLOG. The final Major branch is therefore inactive in the reference recorder and is not a required runtime entry. This correction does not exempt the active Chronicle command or its remaining producer coverage. Retry correction ffc0b5d5 adds files.c livelog_add mask gating and sys.c LL_NONE initialization; pline.c livelog_printf appends canonical history before replacing tabs in its external-sink buffer. The source gate fixes the prior seed2200 end-of-input regression without suppressing the validator. This record verifies only the selected insight.c functions; the enabled external sink remains an explicit unported dependency.",
         "entryPoints": [
           {
             "name": "#chronicle in-progress logged-events window",
@@ -53441,13 +53453,6 @@
             "recordings": [
               "recordings/insight.c/chronicle-command-independent.session.json"
             ]
-          },
-          {
-            "name": "final Major chronicle window",
-            "functions": [
-              "show_gamelog"
-            ],
-            "recordings": []
           },
           {
             "name": "source-required gamelog producer wiring",
@@ -53468,7 +53473,7 @@
         "screens": 10332,
         "rng": 756143
       },
-      "parkedReason": "The completed Chronicle command span passes checkpoint341ff4fd and its independent recording. Final Major-window and broader source-producer entry recordings remain unverified; preserve them while integrating the next fixed mismatch at doconduct199."
+      "parkedReason": "The completed Chronicle command span passes checkpoint 341ff4fd and its independent recording. Broader active gamelog-producer coverage remains unverified. The final Major caller is excluded by the recorder build (DUMPLOG is disabled), so no final Major production recording is required; retain its source-pinned test and compile-time explanation."
     },
     {
       "id": "port-insight-conduct-seed0106-20260916",
@@ -54991,6 +54996,534 @@
         "rng": 756196
       },
       "parkedReason": "Whole tactile source span and blind-search entry pass combined validation. Punished tactile, underwater/levitation, blind boulder, lock and kick feature entries still need matching production recordings; sighted punishment setup is supplemental only."
+    },
+    {
+      "id": "port-Wiz-filb-lua-seed0360-20260916",
+      "kind": "lua-port",
+      "status": "closed",
+      "summary": "Port the whole Wizard quest filler below the locate level and register its loader",
+      "luaFile": "Wiz-filb.lua",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "Integrate the oldest already-submitted independent B14 delivery, selected from the source-traced seed0360 continuation before the A11 retry exposed extra healing. Accepted main still diverges at787 because Wiz-filb is missing; A12 owns the higher thrown-object scope and seed2200 remains recorded Q1. Whole Lua descriptors, production loader wiring and two fresh entry recordings are ready.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "Wiz-filb.lua",
+          "status": "closed",
+          "closedBy": "81a0190a9566fc609190ba5d930bb72cb938120f",
+          "functions": [
+            "Wiz-filb.lua"
+          ]
+        }
+      ],
+      "openedAt": "182adc9150f82e8c45c810947c9dfa3045546779",
+      "openStanding": {
+        "sha": "817420d55ec8fc5a594550ca1e6b64a11365e322",
+        "screens": 10511,
+        "rng": 756434
+      },
+      "closedAt": "81a0190a9566fc609190ba5d930bb72cb938120f",
+      "delivered": {
+        "screens": 15,
+        "rng": 3529
+      },
+      "functions": [
+        {
+          "name": "Wiz-filb.lua",
+          "line": 1,
+          "endLine": 58,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "activeStanding": {
+        "sha": "817420d55ec8fc5a594550ca1e6b64a11365e322",
+        "screens": 10511,
+        "rng": 756434
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 787,
+          "kind": "rng",
+          "function": "shuffle",
+          "functionDeclared": false,
+          "sourceFile": "nhlib.lua",
+          "cFile": null,
+          "luaFile": "nhlib.lua",
+          "line": 19,
+          "helper": {
+            "function": "random",
+            "luaFile": "nhlib.lua",
+            "line": 8
+          },
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 46,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 46,
+              "status": "complete",
+              "commit": "90527aab97ad80578ba1ae090eb3c7c40118bf34",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "step": 787,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported special room: do_mkroom(8)",
+                "unlocatedKinds": [],
+                "recordedSteps": 833,
+                "remainingScreensUpperBound": 46
+              },
+              "summary": "Whole Wiz-filb.lua delivery B14 d9b34423 is queued with matching independent entry recordings. Accepted main still first diverges at787 with46 remaining screens. On the completed worker branch it advances to805, then distress refuses PM_DOPPELGANGER270; B15 owns the general monster-shapechange source family for that continuation.",
+              "source": {
+                "file": "Wiz-filb.lua",
+                "functions": [
+                  "Wiz-filb.lua"
+                ],
+                "branch": "Whole top-level dat/Wiz-filb.lua program (lines 6-58): six ordinary rooms with source-ordered up/down stairs, objects, traps, hostile class-X/class-i monsters, vampire bats, and a final random-corridors directive. On Quest Home 4, C mklev.c makelevel() selects the \"filb\" suffix because u.uz.dlevel is at or below the Wizard locate level, then unconditionally calls makemaz(\"Wiz-filb\"); load_special() executes this complete Lua chunk after nhlib.lua shuffles its private alignment table. The JavaScript branch only calls makemaz when SPECIAL_LEVEL_LOADERS[\"Wiz-filb\"] exists, so the missing loader sends this level into ordinary generation and changes RNG order before any room generation.",
+                "callers": [
+                  "nethack-c/upstream/src/mklev.c:1275-1285 makelevel() handles In_quest levels, forms <role-filecode>-filb for this dlevel, and unconditionally calls makemaz(fillname).",
+                  "nethack-c/upstream/src/mkmaze.c:1184-1195 makemaz() appends the level extension and calls sp_lev.c load_special() for the selected prototype; nethack-c/upstream/src/sp_lev.c owns the Lua descriptor execution and post-processing.",
+                  "js/mklev.js:692-707 makelevel() computes Wiz-filb and only calls makemaz() if the registry contains a loader; with no Wiz-filb entry it falls through to the medusa check and regular generation at lines 709-727.",
+                  "js/mklev.js:1762-1783 load_special() and lines 1786-1815 makemaz() are the production JavaScript special-level dispatcher, while js/quest_levels.js:1829-1852 supplies QUEST_LEVEL_LOADERS and currently registers Wiz-fila without Wiz-filb."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/dat/Wiz-filb.lua:6-58 is the complete source program: six ordinary-room descriptors, an up stair in the first room, a down stair in the fourth, object/trap/monster calls, and des.random_corridors().",
+                  "nethack-c/upstream/dat/nhlib.lua:17-25 implements shuffle(); loading a special level consumes rn2(3) then rn2(2) for the three-entry alignment table before Wiz-filb.lua executes.",
+                  "nethack-c/upstream/src/mklev.c:1275-1285 is the Quest filler selection precondition; at dnum 3, dlevel 4, with Wiz-loca at dlevel 3, the selected prototype is Wiz-filb.",
+                  "nethack-c/upstream/src/mkmaze.c:1184-1195 and sp_lev.c load_special() define the C loader path that the JavaScript registry and special-level API must reproduce.",
+                  "js/quest_levels.js:1788-1852 has the existing Wiz-fila implementation and registry convention, but no Wiz-filb program or registry entry; this is why the current makelevel() fallback reaches ordinary generation.",
+                  "js/mklev.js:709-727 consumes the regular-generation medusa rn2(5) before initialize_themeroom_branch(); the B12 exact scan identifies this as JavaScript rn2(5)=0 against C nhlib shuffle rn2(3)=2 at RNG index 116709.",
+                  "js/mklev.js:717-819 and js/mkroom.js:834-860 are downstream ordinary/special-room generation. B12 now dispatches ZOO, and its later distress shapechanger 270 boundary is a candidate consequence after the step-787 source mismatch, not the owner of the first cause."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
+                "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
+                "Bounded boundary inspection run-ml4SbS and .cache/seed0360-investigation-18a56313/inspect-boundary.json captured the production state at the stop as Quest dnum 3, dlevel 4, absolute depth 18, with seven ordinary rooms and one vault room. The existing Wiz-fila level at the preceding Home 2 selection is reached before this boundary.",
+                "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
+                "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
+                "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
+                "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
+                "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
+                "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted.",
+                "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains.",
+                "Current candidate source trace: nethack-c/upstream/src/mklev.c:1275-1285 unconditionally calls makemaz(\"Wiz-filb\") for this Quest dlevel, while js/mklev.js:692-707 only dispatches when a registry loader exists and js/quest_levels.js:1829-1852 has no Wiz-filb entry.",
+                "Saved .cache/B12-checkpoint-scan-cache.json is the exact candidate observation for commit 90527aab97ad80578ba1ae090eb3c7c40118bf34: step 787 first diverges with C nhlib shuffle rn2(3)=2 versus JavaScript rn2(5)=0, with differing map cell and cursor; its later distress shapechanger boundary is downstream.",
+                "nethack-c/upstream/dat/Wiz-filb.lua:6-58 defines the whole Lua scope, and nethack-c/upstream/dat/nhlib.lua:17-25 explains the expected two shuffle draws. This establishes a lua-port owner rather than a do_mkroom divergence fix.",
+                "No game source, central queue, SCORE.tsv, recordings, commits, or aggregate score were changed; only this assigned investigation file was updated, with candidate diagnostics retained in the existing session-scoped .cache artifacts.",
+                "Combined checkpoint at fe2f53f3b4368178646a97febaef392f9cadb797 passes every required check and all278 recordings. The exact 44-session cached scan in .cache/B12-retry-checkpoint-scan-cache.json confirms step787 remains the first divergence and the queue count stays46. Two independent ZOO recordings add12 matching recording screens and14738 RNG. Frozen challenge v1 is unchanged at2/9 cases,534/918 screens.",
+                "B14 immutable d9b34423bf3c1b01be5ca2f458cc0ef9657f80ee ports all dat/Wiz-filb.lua6-58 to quest_levels.js wizFilb and registers Wiz-filb. Coordinator compared every descriptor and callback order with Lua and traced mklev.c1275-1285 through makemaz/load_special and QUEST_LEVEL_LOADERS. The independent male/female recordings total94screens,14494RNG and94cursors; the state matrix establishes a nonspecial Wizard quest filler at/below locate, six ordinary rooms, seven source monster descriptors and both stairs. The worker reports registry focused checks and lint passing; combined acceptance is pending.",
+                "After merging accepted main into the queued B14 worker branch, the assigned seed0360 replay emits805/833 screens without a prior screen divergence, then refuses distress shapechanger270 on movewest. That source boundary is now being traced as the preferred next seed continuation. The reported sounds.c SoundAchievement and shk.c discard_damage_owned_by gaps are accumulated state and are not established as the first cause. This worker observation does not replace accepted main count46 or step787 until B14 passes combined validation.",
+                "Worker B claimed B15 at525803423e66a28d0a266f6d0d7ce6000ec4fb12: mon.c decide_to_shapeshift, select_newcham_form, accept_newcham_form, mgender_from_permonst and newcham, plus canonical monster-shapechange-state and production admission/caller wiring. Exact source reservations do not overlap A12 mon.c meatbox/monstone/mondead ownership. This is worker continuation at805, not a newly accepted main boundary."
+              ],
+              "acceptedScoreContext": {
+                "acceptedQueueCount": 46,
+                "acceptedMismatch": "At validated fe2f53f3 the first divergence remains step787; C nhlib shuffle rn2(3)=2 differs from ordinary-generator rn2(5)=0. Original mismatch provenance is retained above.",
+                "checkpoint": "fe2f53f3b4368178646a97febaef392f9cadb797/run-b8ldRi: 31/44 sessions, 10349/11405 screens, 756145/792838 RNG, 10379/11405 cursors; all278 recordings pass."
+              },
+              "candidateObservations": [
+                "Saved .cache/B12-checkpoint-scan-cache.json row for seed0360-wizard-world-tour on candidate 90527aab97ad80578ba1ae090eb3c7c40118bf34 reports screensEmitted 805, first screen/RNG/cursor divergence at step 787, C rn2(3)=2 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19), JavaScript rn2(5)=0, and later boundary unsupported initial-level monster creation: distress shapechanger 270.",
+                "The B12 row records the step-787 C cursor [33,9,1] versus JavaScript [44,5,1] and differing map cells, confirming that the regular-level fallback changes generated topology; this diagnostic remains candidate evidence rather than an accepted aggregate score.",
+                "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Wiz-filb.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "wizFilb",
+            "sourceReview": "Read the complete nethack-c/upstream/dat/Wiz-filb.lua lines 6-58 and compared every top-level descriptor in order. The JavaScript program creates six ordinary rooms; room 1 calls stair(up), object, and a hostile class-X monster; room 2 calls two objects and a hostile class-i monster; room 3 calls object, trap, object, and hostile class-X monster; room 4 calls stair(down), object, trap, hostile class-i monster, and vampire bat; room 5 calls two objects, trap, and hostile class-i monster; room 6 calls object, trap, and vampire bat; then it calls random_corridors. The existing special-level API preserves callback execution order and the existing load_special() performs nhlib.lua's alignment shuffle before invoking this loader and post-processing afterward. No unported callee, injected substitute, swallowed refusal, or extra random draw is introduced.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() selects the Wizard quest filler suffix and calls makemaz(\"Wiz-filb\") on Quest Home 4."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the selected prototype and calls load_special() for the registered level program."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() finds the special-level loader, performs the existing nhlib.lua alignment shuffle, invokes the loader API, and applies special-level post-processing."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wiz-filb-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Wiz-filb.lua/wizard-filler-below.session.json",
+              "recordings/Wiz-filb.lua/wizard-filler-below-variation.session.json"
+            ],
+            "checkedAt": "cf293c096e40f3cfda0fbd62f13c4b40268bff91"
+          }
+        ],
+        "entryPointReview": "The source program has one production entry point: the Quest Home 4 makelevel() route selecting Wiz-filb and executing the complete Lua descriptor. The two independent recipes exercise the same loader with new seeds, date-times, and male/female character metadata. The source-pinned test checks the complete top-level callback order; the fresh matrix checks the resulting six-room level state, seven source monster descriptors or more after generation, and the two source stairs. The generic load_special() shuffle and post-processing are existing owners and are cited as caller dependencies rather than duplicated here.",
+        "entryPoints": [
+          {
+            "name": "Wizard Quest Home 4 Wiz-filb special-level load",
+            "functions": [
+              "Wiz-filb.lua"
+            ],
+            "recordings": [
+              "recordings/Wiz-filb.lua/wizard-filler-below.session.json",
+              "recordings/Wiz-filb.lua/wizard-filler-below-variation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 805,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: distress shapechanger 270",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 28,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 28,
+              "status": "complete",
+              "commit": "81a0190a9566fc609190ba5d930bb72cb938120f",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "step": 805,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported initial-level monster creation: distress shapechanger 270",
+                "unlocatedKinds": [],
+                "recordedSteps": 833,
+                "remainingScreensUpperBound": 28
+              },
+              "summary": "Wiz-filb.lua is validated at81a0190a: the first stop advances from787 to805, with28 remaining screens. The next source owner is mon.c decide_to_shapeshift/newcham: the JavaScript preflight refuses a regular doppelganger before the source selection path. Worker B owns B15 whole-function completion; its first candidate reached the recorded end but was returned for incomplete attachment/equipment branches. B15 depends on A12 canonical flooreffects and unstuck owners.",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "decide_to_shapeshift",
+                  "select_newcham_form",
+                  "accept_newcham_form",
+                  "mgender_from_permonst",
+                  "newcham"
+                ],
+                "branch": "mon.c decide_to_shapeshift4872–4938 handles regular natural shapeshifters with !mspec_used && !rn2(6), assigns3+rn2(10), then calls newcham with NC_SHOW_MSG. A doppelganger is a regular shapeshifter, but the current JavaScript preflight admits only Sandestin/chameleon/vampire families and throws before this branch. Complete the selected newcham5278–5534 source and selector/gender helpers, including attachment, inventory and message behavior; admission alone does not complete the functions.",
+                "callers": [
+                  "mon.c mcalcdistress invokes decide_to_shapeshift for natural shapeshifters; js/mon.js mcalcdistress uses the corresponding operation.",
+                  "js/mon.js decide_to_shapeshift currently invokes makemon_create.js preflight_newcham_distress before choosing a form, then newcham_distress; both must be replaced by complete canonical mon.c owners and their production callers.",
+                  "makemon.c initial natural-shapechanger creation and explicit newcham callers share form-selection/application behavior; B15 must preserve those callers while moving mon.c source ownership to js/mon.js."
+                ],
+                "dependencies": [
+                  "mon.c select_newcham_form5157–5225, accept_newcham_form5229–5253 and mgender_from_permonst5254–5273 define source form selection, rejection and gender/RNG order.",
+                  "mon.c newcham5278–5534 defines the whole state transition; all return-valued callees must be implemented, while unported discarded-result calls may be named gaps only at their actual source sites.",
+                  "A12 owns do.c flooreffects and its asynchronous result contract, used by the former-giant boulder-drop branch; B15 must await the canonical implementation from its immutable dependency.",
+                  "A12 also owns mon.c unstuck and its asynchronous swallowed cleanup/cooldown contract; B15 must use that shared owner rather than duplicate or suppress a partial refusal."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
+                "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
+                "Bounded boundary inspection run-ml4SbS and .cache/seed0360-investigation-18a56313/inspect-boundary.json captured the production state at the stop as Quest dnum 3, dlevel 4, absolute depth 18, with seven ordinary rooms and one vault room. The existing Wiz-fila level at the preceding Home 2 selection is reached before this boundary.",
+                "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
+                "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
+                "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
+                "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
+                "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
+                "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted.",
+                "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains.",
+                "Current candidate source trace: nethack-c/upstream/src/mklev.c:1275-1285 unconditionally calls makemaz(\"Wiz-filb\") for this Quest dlevel, while js/mklev.js:692-707 only dispatches when a registry loader exists and js/quest_levels.js:1829-1852 has no Wiz-filb entry.",
+                "Saved .cache/B12-checkpoint-scan-cache.json is the exact candidate observation for commit 90527aab97ad80578ba1ae090eb3c7c40118bf34: step 787 first diverges with C nhlib shuffle rn2(3)=2 versus JavaScript rn2(5)=0, with differing map cell and cursor; its later distress shapechanger boundary is downstream.",
+                "nethack-c/upstream/dat/Wiz-filb.lua:6-58 defines the whole Lua scope, and nethack-c/upstream/dat/nhlib.lua:17-25 explains the expected two shuffle draws. This establishes a lua-port owner rather than a do_mkroom divergence fix.",
+                "No game source, central queue, SCORE.tsv, recordings, commits, or aggregate score were changed; only this assigned investigation file was updated, with candidate diagnostics retained in the existing session-scoped .cache artifacts.",
+                "Combined checkpoint at fe2f53f3b4368178646a97febaef392f9cadb797 passes every required check and all278 recordings. The exact 44-session cached scan in .cache/B12-retry-checkpoint-scan-cache.json confirms step787 remains the first divergence and the queue count stays46. Two independent ZOO recordings add12 matching recording screens and14738 RNG. Frozen challenge v1 is unchanged at2/9 cases,534/918 screens.",
+                "B14 immutable d9b34423bf3c1b01be5ca2f458cc0ef9657f80ee ports all dat/Wiz-filb.lua6-58 to quest_levels.js wizFilb and registers Wiz-filb. Coordinator compared every descriptor and callback order with Lua and traced mklev.c1275-1285 through makemaz/load_special and QUEST_LEVEL_LOADERS. The independent male/female recordings total94screens,14494RNG and94cursors; the state matrix establishes a nonspecial Wizard quest filler at/below locate, six ordinary rooms, seven source monster descriptors and both stairs. The worker reports registry focused checks and lint passing; combined acceptance is pending.",
+                "After merging accepted main into the queued B14 worker branch, the assigned seed0360 replay emits805/833 screens without a prior screen divergence, then refuses distress shapechanger270 on movewest. That source boundary is now being traced as the preferred next seed continuation. The reported sounds.c SoundAchievement and shk.c discard_damage_owned_by gaps are accumulated state and are not established as the first cause. This worker observation does not replace accepted main count46 or step787 until B14 passes combined validation.",
+                "Worker B claimed B15 at525803423e66a28d0a266f6d0d7ce6000ec4fb12: mon.c decide_to_shapeshift, select_newcham_form, accept_newcham_form, mgender_from_permonst and newcham, plus canonical monster-shapechange-state and production admission/caller wiring. Exact source reservations do not overlap A12 mon.c meatbox/monstone/mondead ownership. This is worker continuation at805, not a newly accepted main boundary.",
+                "B14 candidate81a0190a passed five source-loader focused checks, lint and quality before full combined checkpoint. B15 immutable53fe9d4d has two matching independent distress recordings (36screens5570RNG), but its evidence explicitly limits newcham to empty-inventory natural shapechangers. Coordinator returned it with CHANGES_REQUIRED: complete selected functions and used-return callees, canonical mon.c ownership and caller wiring, replacing incomplete refusal/adapters; retain immutable53fe9d4d and add correction commits. B15 is resumed and owned by worker B. No worker-candidate gain is counted as accepted main.",
+                "Combined checkpoint81a0190a/run-H7h3MP passes all required checks and287/287 recordings:10765screens1454779RNG. Development is32/44,10526/11405screens,759963/792838RNG,10548/11405cursors. Exact saved scan .cache/B14-checkpoint-scan-cache.json has805screens emitted and no earlier divergence, then distress shapechanger270. Comparing every session metric against817420d5 finds only Wizard increases and no regression: screens790→805,RNG116719→120248,cursors798→805. The two new independent Wiz-filb recordings add94screens14494RNG. Frozen challenge v1 remains2/9,534/918screens."
+              ],
+              "acceptedScoreContext": {
+                "acceptedQueueCount": 28,
+                "acceptedMismatch": "At validated81a0190a the first stop is805, unsupported distress shapechanger270, with no earlier scan divergence.",
+                "checkpoint": "81a0190a9566fc609190ba5d930bb72cb938120f/run-H7h3MP:32/44sessions,10526/11405screens,759963/792838RNG,10548/11405cursors;287/287recordings."
+              },
+              "candidateObservations": [
+                "Saved .cache/B12-checkpoint-scan-cache.json row for seed0360-wizard-world-tour on candidate 90527aab97ad80578ba1ae090eb3c7c40118bf34 reports screensEmitted 805, first screen/RNG/cursor divergence at step 787, C rn2(3)=2 from random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19), JavaScript rn2(5)=0, and later boundary unsupported initial-level monster creation: distress shapechanger 270.",
+                "The B12 row records the step-787 C cursor [33,9,1] versus JavaScript [44,5,1] and differing map cells, confirming that the regular-level fallback changes generated topology; this diagnostic remains candidate evidence rather than an accepted aggregate score.",
+                "B12 ports do_mkroom and the prior Wiz-fila investigation evidence remains retained below as historical context. The new source trace supersedes mkroom.c as the earliest owner for this candidate boundary.",
+                "B14 combined candidate81a0190a9566fc609190ba5d930bb72cb938120f development score is32/44 sessions,10526/11405 screens,759963/792838 RNG,10548/11405 cursors. Exact scan shows805screens emitted with no divergence before unsupported distress shapechanger270; recordings/checkpoint acceptance still pending at observation time."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "81a0190a9566fc609190ba5d930bb72cb938120f",
+        "screens": 10526,
+        "rng": 759963
+      }
+    },
+    {
+      "id": "port-dothrow-thitmonst-seed0399-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the whole thrown-object monster-hit gate and required return-valued dependencies",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "A12 retained its pre-existing independent claim through normal handoff. The complete investigation for holdout/seed0399-wizard-hallu-actions has remainingScreensUpperBound 97 at investigations/holdout/seed0399-wizard-hallu-actions.json and identifies dothrow.c thitmonst as the first owner. Higher-ranked Knight peffect_extra_healing is now worker A13; machine-path seed2200 is Q1. B15 owns shapechanging. Integrate the ready A12 dependency before dependent B15.",
+      "detail": "Complete dothrow.c thitmonst2011-2304 and source-required hmon, taming, erosion, floor-effect and holder-release return contracts. Source review and independent final-miss recording establish the ordinary thrown entry; unicorn, quest-leader, kicked and applied entries remain active but unrecorded, so this goal will be parked after span closure rather than falsely closed. Planning reconciliation: the historical closed cream-pie goal explicitly retained unsupported weapon, ball, potion, taming and swallowed branches, so its inherited completion flag cannot establish whole-function completion. Preserve that historical evidence and plan thitmonst again under the current whole-source rule; the default next-span command skipped it because that older evidence is still present.",
+      "spans": [
+        {
+          "name": "thitmonst",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "thitmonst"
+          ]
+        }
+      ],
+      "openedAt": "9ac68b8a0368821464fc9ecab67cf7e687d24740",
+      "openStanding": {
+        "sha": "9ac68b8a0368821464fc9ecab67cf7e687d24740",
+        "screens": 10526,
+        "rng": 759963
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "thitmonst",
+          "line": 2011,
+          "endLine": 2308,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2011,
+        "to": 2308
+      },
+      "activeStanding": {
+        "sha": "9ac68b8a0368821464fc9ecab67cf7e687d24740",
+        "screens": 10526,
+        "rng": 759963
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 435,
+          "kind": "stop",
+          "function": "thitmonst",
+          "functionDeclared": true,
+          "sourceFile": "dothrow.c",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 97,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 97,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 435,
+                "kind": "stop",
+                "function": "thitmonst",
+                "functionDeclared": true,
+                "sourceFile": "dothrow.c",
+                "cFile": "dothrow.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 97
+              },
+              "summary": "A12 immutable delivery 41d5c84c is received and queued for combined integration. Source review confirms the corrected erosion, floor-effect and swallowed-migration ordering, and its independent final-miss recording matches. Remaining active entry families are explicitly unrecorded; no A12 score gain is accepted yet.",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "thitmonst"
+                ],
+                "branch": "At recorded step 435, dothrow.c dothrow() -> throw_obj() -> throwit() -> bhit() -> throwit_mon_hit() calls thitmonst() for the gray dragon scale mail and soldier ant. C thitmonst() (2011-2304) establishes hmode, the base hit calculation, distance and equipment modifiers, unicorn and quest-leader arms, and dieroll = rnd(20) at 2152. The object is neither a weapon/tool/gem, heavy iron ball, boulder, egg/cream pie/venom, potion, tame-food gift, nor swallowed object, so the final else at 2299-2300 calls tmiss(obj, mon, TRUE), which prints the miss and wakes the target when rn2(3) is zero, then returns 0. Current JS thitmonst() (1483-1597) has the shared calculation, cream-pie path, and explicit unsupported branches for weapons, balls/boulders, and potionhit(); its final unsupported call at 1595 replaces this source final else.",
+                "callers": [
+                  "C dothrow.c dothrow():352-376 selects the object and calls throw_obj(); throw_obj():87-348 calls throwit(); throwit():1510-1849 calls bhit(); bhit() dispatches its monster hit callback to throwit_mon_hit():1482-1505, which calls thitmonst():2011-2304.",
+                  "Current JS dothrow.js dothrow():815-842 calls throw_obj(); throw_obj() -> throwit():1310-1481 -> bhit():1390-1391 -> throwit_mon_hit():1207-1223 -> thitmonst():1488-1597. The observed stop is this production boundary, not a direct test or an input exhaustion artifact.",
+                  "The same C thitmonst() is shared by dothrow.c kick_monster():736-750 for non-gold kicked objects and apply.c use_pole():3508-3521 and use_grappling_hook():3842-3849 for ranged wielded weapons. Those callers must be reviewed when the complete function is implemented; this session exercises the ordinary thrown-object caller."
+                ],
+                "dependencies": [
+                  "The source tmiss() helper is dothrow.c:1951-1967 and the existing JS tmiss() at dothrow.js:1184-1202 already perform visibility-aware miss output, rn2(3), and wakeup(). The implementation must call that helper with the active message/random environment and preserve its result and side effects.",
+                  "The complete function must preserve C evaluation and RNG order across all arms: shared hit modifiers before the pre-roll unicorn/leader checks, rnd(20) at the same point, then object-class branches and any second rnd(25) or helper draws. Existing consumed-result helpers include find_mac(), omon_adj(), engulfing_u(), hmon(), gem_accept(), object predicates, and should_mulch_missile(); resolve any helper needed by an admitted branch from its source contract rather than inventing draws.",
+                  "throwit_mon_hit() currently forwards the object and state to thitmonst(), then clears state.thrownobj when the returned object is gone and performs its shopkeeper follow-up. Preserve this lifecycle and return contract while replacing only the source-unfaithful thitmonst() refusals in the complete port; no Lua dependency or separate trap owner is present."
+                ]
+              },
+              "goalKind": "file-port",
+              "currentReplay": {
+                "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+                "runner": "node scripts/run-bounded.mjs focused -- node --input-type=module -e <single-session scanRecordedSession>",
+                "run": "run-1sMKsF",
+                "screensEmitted": 435,
+                "recordedSteps": 532,
+                "divergence": null,
+                "boundary": "unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit",
+                "key": "h",
+                "command": "movewest",
+                "keyCursor": "answer",
+                "message": "The gray dragon scale mail misses the soldier ant.--More--",
+                "rngAtBoundary": [
+                  "rnd(20)=13 @ thitmonst(dothrow.c:2152)",
+                  "rn2(3)=0 @ tmiss(dothrow.c:1964)",
+                  "rn2(100)=13 @ obj_resists(zap.c:1469)"
+                ]
+              },
+              "evidence": [
+                "The assigned .cache/resume-queue-20260916.json entry at commit 18a56313c56723cde906c27449d0fc2c6c085bf0 identifies holdout/seed0399-wizard-hallu-actions at stop step 435, kind stop, function thitmonst, sourceFile dothrow.c, and remainingScreensUpperBound 97.",
+                "A bounded single-session scanRecordedSession replay at the assigned commit emitted 435 screens from 532 recorded steps, reported divergence null, and stopped at the production boundary `unsupported hero command: an unported branch of this command: dothrow.c reached thitmonst(): non-weapon thrown-object hit`. The result is saved at .cache/seed0399-wizard-hallu-actions/replay-result.json. No other session, aggregate scan, scorer, checkpoint, or C recorder was run.",
+                "The assigned recording has one segment (seed 399, datetime 20000110090000). Its step 435 is key h after the throw command and direction prompt; its C RNG annotations are rnd(20)=13 @ thitmonst(dothrow.c:2152), rn2(3)=0 @ tmiss(dothrow.c:1964), and rn2(100)=13 @ obj_resists(zap.c:1469). The C top line is `The gray dragon scale mail misses the soldier ant.--More--`, establishing the final non-weapon miss arm and its wakeup draw.",
+                "Pinned upstream source at nethack-c/upstream commit 16ff59115315917b93185d026aeefea06db9b0f4 was read for dothrow.c thitmonst():2011-2304, tmiss():1951-1967, throwit_mon_hit():1482-1505, throwit():1510-1849, throw_obj():87-348, and dothrow():352-376. The source confirms the final else calls tmiss(obj, mon, TRUE) at 2299-2300 and returns 0 at 2303-2304.",
+                "At the assigned JavaScript commit, dothrow.js thitmonst():1483-1597 computes the shared modifiers and dieroll, admits only the cream-pie hit arm in this object-family tail, and raises UnsupportedThrowError at 1595 for the observed object. The current JS caller chain is dothrow.js:815-842, 1207-1223, and 1310-1481, so the refusal is reachable production behavior.",
+                "Actionable whole-source scope is a dothrow.c file-port span for thitmonst(), including all source branches and its existing callers’ return/object lifecycle contracts. The ordinary thrown-object miss needs only existing tmiss()/wakeup() behavior; weapon, heavy-ball/boulder, potion, tame-food, swallowed, unicorn, leader, and applied/kicked arms require source review and named dependencies as they become reachable. This investigation does not claim source completion.",
+                "A12 claimed from synchronized worker HEAD db985629231fb7870ef4806471fd69f867de1014, reserving dothrow.c thitmonst and its object-lifecycle contract. Source review covers C2011-2304 and return-used dependencies before implementation. No new main score or accepted code is claimed.",
+                "Worker A12 found C throwit continues through breaktest and floor placement when thitmonst leaves the thrown object alive. The JavaScript caller returned early, omitting obj_resists and landing. Its current continuation reports448 emitted screens against532 recorded steps with divergence null; the remaining boundary and complete coverage still require verification. Source-pinned lifecycle checks and independent recorded entry evidence are in progress.",
+                "Read-only source check of A12 WIP found four required corrections: use canonical state.gt.thrownobj across throwit/thitmonst owners; preserve C throwit1808-1816 shopkeeper pick snatch; implement tame unicorn gem catch-and-drop at2087-2098; and use C1497-1503 outside-shop predicate for hot_pursuit. Findings were sent to worker A for verification before submission. No new main result is claimed.",
+                "Worker A corrected canonical state.gt.thrownobj ownership, tame-unicorn catch-and-drop, shopkeeper pick snatch and pursuit condition, and uses canonical delobj after the swallowed-corpse branch. Its fresh final-miss recording initially matched19 screens and3032 RNG. Whole-source completion still requires return-used tamedog, breakobj and flooreffects behavior; the coordinator expanded A12 reservations and allowed paths for these dependencies and dog_eat after the worker scope command hit a coordinator-only restriction. No immutable delivery or main gain is claimed.",
+                "A12 progress reports source-shaped tamedog admission and pet-food calls, dog_eat devour adjustments, and asynchronous breakobj lifecycle with throwit awaiting it. Focused dothrow tests pass 51/51 and lint syntax passes; remaining floor, pool and unpaid-food contracts are still being traced. No immutable A12 delivery or accepted score is claimed.",
+                "Source assistance traced every flooreffects consumer and identified Promise truthiness, free-object erosion visibility, obj_meld survivor assignment and bhitpos restoration risks. A12 scope now includes the direct callers, placebc propagation, do.c boulder_hits_pool and trap.c lava_damage in the existing split trap module. Dog focused tests pass28/28; the complete dependency implementation remains in progress.",
+                "Coordinator source review of A12 tamedog and dog_eat found food classification hoisted ahead of mcanmove/confusion/eating guards, which adds an obj_resists RNG draw; canspotmon visibility and sticky-holder release guards also differed. Catch messages, large-corpse wording and unseen-food naming require source corrections, and dog_eat still needs nonfood/royal-jelly, price suppression and rustproof-rust-monster contracts. Findings were sent to worker A for verification before submission; focused passing cases are not whole-function completion.",
+                "Latest A12 worker update reports dog/throw/floor/water/erosion focused checks, monmove142/142 and lint passing, including a source-pinned floor-object erosion case. The source audit corrected throwit_mon_hit hot_pursuit eligibility and records snuff_candle as a discarded-call gap. Full dependency review and immutable submission remain pending; no aggregate gain is claimed.",
+                "At worker af13d6a4019929b9f044bb01239a4c884f119f27, C dothrow.c gem_accept2309–2380 always reaches the shared tele_restrict/rloc tail, including accepted gifts, while JS returns1 early. thitmonst C2104 excludes HMON_APPLIED for special-object leader catches; C2139 emits hands/tosses back-to-you before sho_obj_return/addinv. Its maybe_polyd/your_race hit modifiers and s_suffix swallowed-message helper also need the full source conditions. These concrete findings were sent to the implementation owner.",
+                "Coordinator also required source review of hmon/hmon_hitmon used-return owners: a blanket unsupported callback returning note_unported cannot establish those bodies as complete. Individual C-discarded void callees may remain explicitly named gaps, without fabricated replacement RNG or state. This is active source work, not an accepted score change.",
+                "Dog-family follow-up confirms remaining source differences: C dogmove.c increments suppress_price before ordinary distant_name/doname output and decrements after saving xname, while worker af13d6a4 still brackets xname only; rustproof spit output requires canseemon rather than sensed-monster visibility. tamedog must read canonical state.svq.quest_status.leader_m_id, matching quest.js, rather than a separate root quest_status field. Corrections are assigned to worker A.",
+                "A12 used-return trace confirmed missing source behavior in uhitm.c hmon/hmon_hitmon and direct damage dispatch. The shared ledger now reserves those owners, including ranged, potion, miscellaneous-object and poison helpers, under A12-root-expand-hmon-return-owners. Worker A is implementing the required source conditions; no partial callback-based return is treated as completed behavior.",
+                "Coordinator helper rechecked current A12 WIP on2026-09-16: dogmove.js561-598 increments suppress_price after FOOD split and before distant_name/doname output, saves xname while raised, then decrements before rustproof/billing; rustproof spit uses canseemon at600-606; tamedog reads state.svq.quest_status.leader_m_id atdog.js370. These three earlier findings are fixed against dogmove.c261-307 and dog.c1250.",
+                "Worker A reports29/29 hmon checks and passing dothrow/floor/dog/monmove focused groups after corrections to launcher/poison/shatter conditions, potion and egg handling, source message grammar/order, polymorph reactions and pet RNG forwarding. Partial stagger/joust substitutes were removed: hmon_hitmon may name those discarded void helpers as gaps, but mhurtle_to_doom itself has a used boolean return and is not treated as void. Final fresh evidence and immutable submission remain pending.",
+                "Coordinator verified source findings at worker98c2d9b5: Cuhitm1818-1822 suppresses shade_miss for thrown/kicked hits;1911-1917 consumes resist for confused touch;1886-1889 saves the post-poison object name before possible killed/free handling and1919-1921 emits Your plus vtense;1927-1931 uses mhitm_knockback boolean separately from M_ATTK_DEF_DIED. A12-root-expand-knockback-return-owner reserves whole mhitm_knockback, m_is_steadfast, dothrow will_hurtle and mhitm/mhitu callers. Actual hurtle/mhurtle void gaps may be recorded at their source sites; return-valued helpers and hitflags must be implemented.",
+                "Worker A reports committed source corrections64c9c2fc and a clean accepted-main31f46698 merge, with affected display184/detect41/cmd99 checks passing. Fresh differential run-R5Dp9m passes19screens,3032RNG and19cursors. Root expanded scripts/dogmove-quickmimic.test.mjs after confirming it contains actual A12 nutrition/devour/billing/pool corrections beyond main. A read-only helper is checking the frozen knockback owner and all three hitflag callers; no new accepted A12 gain is claimed.",
+                "Coordinator reviewed frozen64c9c2fc with a read-only helper and verified remaining defects at0862d589: mhitm_knockback must condition DEADMONSTER(mdef) on !u_def, and direct set_ustuck(null) does not reproduce mon.c unstuck cleanup/cooldown. Source message naming also requires You/y_monnam/some_mon_nam. Worker A received these precise corrections; named discarded-result gaps for unported hurtle, mhurtle, dismount_steed and make_stunned remain allowed. Hitflags wiring now distinguishes knockback occurrence from defender death across hmon_hitmon, mdamagem and hitmu. New production final-miss witness reports19screens3032RNG; all worker results remain separate from accepted main.",
+                "Further root review of frozen0862d589 identified two source-policy corrections: thitmonst disables potionhit monster-target refusal through a note callback while retaining its partial bottlename draw, and hmon_hitmon_damage catches UnsupportedWeaponSkillError after partial use_skill state. Worker A must replace unported discarded calls with named gaps at their actual source call sites, or complete canonical owners; swallowed refusals and selected substitute effects cannot establish whole-source completion. Fire/lava/erosion used-return dependency review is also underway.",
+                "Fire/lava/erosion used-return source review at0862d589 confirmed missing moreluck composition, obfree in place of delobj (skipping resistance RNG/extraction), omitted carried lava deletion, lava/book naming and visibility differences, incorrect underwater erosion visibility, unwanted floor grease message, and the retained worn-destruction refusal. Root verified source sites and assigned all corrections to A12. Canonical mon.c unstuck and weapon.c use_skill reservations now belong to A12; B15 coordinates these dependencies without copying a moving worker tip.",
+                "Worker A merged accepted a20ae2dd at d919ec17, preserving correction commit b1c65b2f. The use_skill catch removal and hero death guard are present; root identified a new naming mistake in the non-hero steadfast message (C requires Monnam there) and missing pline_mon accessibility coordinates in tamedog messages. These were returned to A along with the existing canonical unstuck and erosion corrections; focused checks and immutable submission remain pending.",
+                "Worker A committed correction 3c25d3896e62a274435b98eaba9035bc9b22b403, then merged published main 345101d5 at d3c2c038e2f8db6d7d2916db06839ebf65934ca8. Reported focused tests/lint pass and fresh run YsWBh1 matches 19 screens, 3032 RNG and 19 cursors. Root is reviewing this frozen correction before an immutable delivery or combined checkpoint; these are worker results only.",
+                "Root review of 3c25d389 found remaining erode_obj defects: EF_DESTROY uses visible-monster status rather than monster ownership for extraction, omits EF_PAY billing, substitutes setnotworn for remove_worn_item, includes floor objects in feedback C excludes, and misses cxname/leading-article handling. Non-carried victim derivation must follow C without a free/floor-only refusal. The lava carried path also substitutes equipment removal, and water_damage still omits moreluck. All were returned with exact C source references; a separate helper is checking canonical unstuck and combat/skill corrections.",
+                "Read-only review of frozen 3c25d389, verified by the coordinator, confirms knockback death flags, steadfast naming, awaited holder release and the use_skill void-gap site. It also finds that unstuck omits vision_recalc(2) before docrt and see_monsters after vision_recalc(0), although these operations were removed from the old expels owner. mon.c migrate_mon still invokes asynchronous unstuck without awaiting before migrate_to_level. C mon.c3437-3467 and3857-3860, plus display.c1739-1761, establish the required order. Worker A received these corrections and reports the separate erosion fixes passing focused checks; equipment removal must use a complete owner or an explicit discarded-call gap.",
+                "The complete thitmonst source pass confirms its main branch order. A remaining passive_obj call still invokes a partial AD_PHYS-only owner under a suppressed-refusal callback; the coordinator requested the explicit uhitm.c passive_obj discarded-call gap unless that owner is completed. The migration survey identified invoke_banish, m_into_limbo, elemental_clog, deal_with_overcrowding, level-entry and vault helper callers. Worker A is updating cleanup and propagation; no new immutable delivery has been submitted.",
+                "Worker A reports five migration checks passing after changing unstuck/migrate_mon to return a Promise only for swallowed cleanup. Root inspected the corrected vision2, docrt, vision0 and monster-overlay order and the direct uhitm.c passive_obj gap. Ordinary migration remains synchronous, but clear_fcorr can displace an engulfer when the guard is dead; wallify_vault and gd_mv_monaway also lack a holder exclusion. The bounded caller map reaches existing async gd_move and gd_move_cleanup through clear_fcorr/restfakecorr and gd_mv_monaway/gd_move_proceed/gd_move_nextpos. Worker A received the remaining propagation requirement before packaging its final delivery.",
+                "A12 submitted immutable41d5c84c071958cb7a083e37e5d08defc46b08b5 with eleven required source commits preserved in its packet. The coordinator received it and confirmed the final vault async propagation; a bounded read-only verification found no remaining defect in the changed erode_obj, lava_damage and water_damage branches. Worker validation reports20 file-level suites passing, lint passing, and fresh run-lRdSiG matching19 screens,3032 RNG calls and19 cursors. Source completion records will cover only the selected whole thitmonst; partial throwit branches and unrecorded unicorn, leader, kicked and applied entries are not claimed complete. The coordinator is preparing combined validation after publishing the approved tooling cleanup."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "thitmonst",
+            "implementation": "js/dothrow.js",
+            "symbol": "thitmonst",
+            "sourceReview": "Read nethack-c/upstream/src/dothrow.c:2011-2308 in full. The implementation preserves the hmode selection, to-hit arithmetic and evaluation order, unicorn-gem and quest-leader early branches, weapon/ball/boulder/venom/potion/pet/engulfed/final-tmiss class ladder, and the return values that control throwit() object disposition. Used-return dependencies are wired to canonical owners: gem_accept, hmon/hmon_hitmon, tamedog/dog_eat, delobj, and flooreffects through the caller. C-discarded or still-unported void calls are recorded at their source call sites, including direct note_unported('uhitm.c passive_obj') for the discarded partial passive_obj call and the dothrow.c check_shop_obj, potion.c potionhit, trap.c minstapetrify, worm.c cutworm, quest.c finish_quest, sho_obj_return_to_u, and shk.c hot_pursuit gaps. The impossible glove diagnostic is recorded under pline.c. No new Unsupported refusal replaces an admitted return value.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit_mon_hit",
+                "source": "dothrow.c:1492 calls thitmonst() after bhit() has selected a monster; js/dothrow.js throwit_mon_hit() passes the live state and source operation environment through the same production gate."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-final-miss-fresh.session.json"
+            ],
+            "checkedAt": "e24db28224190ae9ece1385815dfdceabe3393b1"
+          }
+        ],
+        "entryPointReview": "The independent recipe recipes/dothrow.c/thitmonst-final-miss-fresh.session.json changes the seed, date/time, role/name, options, and input sequence from the fixed corpus. Its recording matches C completely (3032 PRNG calls, 19 screens, 19 cursors, no animation frames) and executes the production throw_obj→throwit→bhit→throwit_mon_hit→thitmonst final nonweapon tmiss arm, followed by the surviving landing lifecycle. scripts/dothrow-thitmonst.test.mjs and scripts/dothrow.test.mjs pin the source class ladder, random draw order, object predicates and break lifecycle; the migration ordering tests pin swallowed cleanup before m_into_limbo continuation. The selected source functions are wired, but the source goal remains open for entry families that the independent recording cannot reach: real/tame unicorn gem acceptance, quest-leader catch/return, hard-impact breakobj, kicked-object HMON_KICKED, and applied polearm/grapnel HMON_APPLIED. Additional throwit branches whose source callers are still unported are named in the function review and are not claimed as recorded completion. Additional helper functions and incomplete throwit arms are supporting context rather than new verified source units in this thitmonst-only goal. Unrecorded active entries remain open; none is claimed reference-build inactive.",
+        "entryPoints": [
+          {
+            "name": "independent thrown nonweapon final miss",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/thitmonst-final-miss-fresh.session.json"
+            ]
+          },
+          {
+            "name": "unicorn gem acceptance and relocation tail",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "quest leader catch and return",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "kicked-object monster hit",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "applied polearm or grapnel monster hit",
+            "functions": [
+              "thitmonst"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

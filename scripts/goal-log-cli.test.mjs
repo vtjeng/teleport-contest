@@ -96,6 +96,7 @@ const HELP_COMMANDS = {
     'close-span': ['--goal', '--name', 'checkpoint'],
     'park-goal': ['--goal', '--reason', 'open'],
     'discard-goal': ['--id', '--reason', 'queued'],
+    'supersede-goal': ['--goal', '--by', '--reason', 'queued', 'parked'],
     'close-goal': ['--goal', '--development-scan', 'SCORE.tsv', 'checkpoint'],
 };
 
@@ -317,6 +318,55 @@ function openC(f) {
     f.cli('open-goal', '--id', 'widget');
     return JSON.parse(f.cli('next-span', '--goal', 'widget'));
 }
+
+test('superseding a parked plan preserves its work without replay, closure, or score changes', (t) => {
+    const f = fixture(t);
+    openC(f);
+    f.record('widget');
+    f.cli('park-goal', '--goal', 'widget', '--reason', 'Reclassified after source review.');
+    queueC(f, 'replacement');
+    const before = f.goals()[0];
+    const scores = readFileSync(join(f.root, 'SCORE.tsv'), 'utf8');
+    const replays = f.replays();
+    f.cli('supersede-goal', '--goal', 'widget', '--by', 'replacement',
+        '--reason', 'The replacement owns the source-traced work.');
+    const retired = f.goals()[0];
+    assert.deepEqual(retired, { ...before, status: 'superseded',
+        supersededBy: 'replacement', supersededAt: f.head(),
+        supersededReason: 'The replacement owns the source-traced work.' });
+    assert.equal(readFileSync(join(f.root, 'SCORE.tsv'), 'utf8'), scores);
+    assert.equal(f.replays(), replays);
+    assert.doesNotMatch(f.cli('--current'), /SUPERSEDED widget/u);
+    assert.match(f.cli('--current'), /QUEUED replacement/u);
+    f.refuses(/not queued or parked/u, 'open-goal', '--id', 'widget');
+    f.refuses(/only queued or parked/u, 'supersede-goal', '--goal', 'widget',
+        '--by', 'replacement', '--reason', 'Cannot retire twice.');
+});
+
+test('supersession refuses missing replacements, cycles, and active or completed goals', (t) => {
+    const f = fixture(t);
+    queueC(f);
+    queueC(f, 'replacement');
+    for (const [by, pattern] of [['missing', /existing replacement/u], ['widget', /cycle/u]]) {
+        const before = f.goals();
+        f.refuses(pattern, 'supersede-goal', '--goal', 'widget', '--by', by,
+            '--reason', 'Invalid replacement.');
+        assert.deepEqual(f.goals(), before);
+    }
+    f.cli('supersede-goal', '--goal', 'widget', '--by', 'replacement', '--reason', 'Reclassified.');
+    const before = f.goals();
+    f.refuses(/cycle/u, 'supersede-goal', '--goal', 'replacement', '--by', 'widget',
+        '--reason', 'Would point back to this goal.');
+    assert.deepEqual(f.goals(), before);
+    for (const status of ['open', 'closed']) {
+        const goals = structuredClone(before);
+        goals[1].status = status;
+        f.json('GOALS.json', { goals });
+        f.refuses(/only queued or parked/u, 'supersede-goal', '--goal', 'replacement',
+            '--by', 'widget', '--reason', 'Cannot bypass parking or completion.');
+        assert.deepEqual(f.goals(), goals);
+    }
+});
 
 test('C CLI plans a same-name partial function and closes only with evidence and a current checkpoint', (t) => {
     const f = fixture(t);

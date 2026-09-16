@@ -119,6 +119,7 @@ import {
     NOGARLIC,
     NORMAL_SPEED,
     NOTONL,
+    OBJ_FLOOR,
     OBJ_MINVENT,
     ONAME_NO_FLAGS,
     OPENDOOR,
@@ -170,10 +171,12 @@ import { get_mleash } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
+    docrt,
     glyph_is_invisible,
     map_monster_glyph_info,
     newsym,
     swallowed,
+    see_monsters,
     unmap_object,
 } from './display.js';
 import {
@@ -1353,7 +1356,7 @@ export async function meatbox(mon, obj, rawEnv = {}) {
             note_unported('mkobj.c removed_from_icebox');
         if (engulfContents) {
             mpickobj(mon, child, rawEnv);
-        } else if (!flooreffects(
+        } else if (!await flooreffects(
             child,
             x,
             y,
@@ -4237,47 +4240,74 @@ export function zombie_maker(mon) {
 // C ref: mon.c unstuck() (3437-3467). Releases a monster that is holding the
 // hero, and re-arms its holding attack so it cannot grab again immediately.
 //
-// 3448-3456's swallowed arm is admitted only for mhitu.c expels(), which
-// supplies allowSwallowedExpulsion after its own source checks. The ball and
-// chain path remains refused because do.c placebc() is not ported; expels()
-// owns the display.c docrt() call after this synchronous state update.
-// Return protocol: undefined means the monster was not the current holder;
-// null means it was released without a deferred cooldown; and `{ mtmp,
-// random }` is the deferred cooldown work item used by mhitu.c expels().
+// set_ustuck() clears both u.ustuck and the swallowed timer before any redraw,
+// exactly as C requires so docrt() sees the released state. The ordinary
+// holder path completes synchronously; a swallowed release returns a Promise
+// because punished-ball placement and the full redraw are asynchronous JS
+// operations. Callers that receive that Promise must await it before moving
+// the monster on to another level.
 export function unstuck(mtmp, state = game, env = {}) {
     if (state.u.ustuck !== mtmp) return;
     const random = env.random ?? { rnd };
     const ptr = mtmp.data;
+    const swallowed = Boolean(state.u.uswallow);
 
-    if (state.u.uswallow) {
-        if (!env.allowSwallowedExpulsion) {
-            requiredKillOperation(env, 'unsupported')(
-                'releasing an engulfer',
-            );
-        }
-        if (state.uball || state.uchain) {
-            requiredKillOperation(env, 'unsupported')(
-                'releasing a punished swallowed hero',
-            );
-        }
-        const swallowed = state.u.uswallow;
+    /* do this first so that docrt()'s botl update is accurate; clears
+       u.uswallow as well as setting u.ustuck to Null */
+    set_ustuck(null, state);
 
-        /* set_ustuck(NULL) clears u.uswallow and u.uswldtim. */
-        set_ustuck(null, state);
+    if (swallowed) {
         state.gm ??= {};
         state.gm.mswallower = null;
         state.u.ux = mtmp.mx;
         state.u.uy = mtmp.my;
-        if (swallowed) {
-            // C sets vision_full_recalc before docrt() restores the visible
-            // map around the newly freed hero. The caller performs docrt()
-            // because it is asynchronous in this port.
+        return (async () => {
+            if (state.uball && state.uchain
+                && state.uchain.where !== OBJ_FLOOR) {
+                const place = env.placebc
+                    ?? (await import('./ball.js')).placebc;
+                await place(state, {
+                    ...env,
+                    state,
+                    redraw: env.planning ? env.redraw ?? (() => {}) : env.redraw,
+                });
+            }
             state.vision_full_recalc = 1;
-        }
-    } else {
-        /* "do this first so that docrt()'s botl update is accurate;
-           clears u.uswallow as well as setting u.ustuck to Null" */
-        set_ustuck(null, state);
+            // display.c docrt_flags() first shuts down the old vision buffer.
+            // Keep that phase ahead of the map redraw; planning clones receive
+            // a local no-op redraw so the live terminal and vision buffers stay
+            // untouched.
+            const redraw = state === game
+                ? env.redraw
+                : env.redraw ?? (() => {});
+            const visionRecalc = env.visionRecalc ?? vision_recalc;
+            const visionEnv = redraw
+                ? { ...env, state, redraw } : { ...env, state };
+            await visionRecalc(2, visionEnv);
+            if (typeof env.docrt === 'function') {
+                await env.docrt({ ...env, state, overlayMonsters: false });
+            } else if (!env.planning) {
+                await docrt({ overlayMonsters: false });
+            } else if (typeof env.redraw === 'function') {
+                await env.redraw(state);
+            }
+            // display.c restores vision and only then overlays monsters. The
+            // explicit redraw option is required for a planning clone because
+            // see_monsters() otherwise paints the live game map.
+            await visionRecalc(0, visionEnv);
+            const monsterOverlay = redraw ? { redraw } : {};
+            see_monsters(state, monsterOverlay);
+
+            /* "prevent holder/engulfer from immediately re-holding/re-engulfing
+               [note: this call to unstuck() might be because u.ustuck has just
+               changed shape and doesn't have a holding attack any more, hence
+               don't set mspec_used unconditionally]" */
+            const needsCooldown = !mtmp.mspec_used
+                && (dmgtype(ptr, AD_STCK) || attacktype(ptr, AT_ENGL)
+                    || attacktype(ptr, AT_HUGS));
+            if (needsCooldown)
+                mtmp.mspec_used = random.rnd(2);
+        })();
     }
 
     /* "prevent holder/engulfer from immediately re-holding/re-engulfing
@@ -4287,12 +4317,9 @@ export function unstuck(mtmp, state = game, env = {}) {
     const needsCooldown = !mtmp.mspec_used
         && (dmgtype(ptr, AD_STCK) || attacktype(ptr, AT_ENGL)
             || attacktype(ptr, AT_HUGS));
-    // mhitu.c expels() reaches docrt() from unstuck() before this draw. The
-    // synchronous callers keep the ordinary source order; expels() defers
-    // only this final assignment while it awaits the redraw.
-    if (needsCooldown && !env.deferCooldown)
+    if (needsCooldown)
         mtmp.mspec_used = random.rnd(2);
-    return needsCooldown ? { mtmp, random } : null;
+    return undefined;
 }
 
 // C ref: mon.c relmon() (2558-2594), the replacement path used by replmon().
@@ -5266,7 +5293,7 @@ export async function monstone(mdef, state = game, env = {}) {
             extract_from_minvent(mdef, obj, true, true, { ...env, state });
             if (obj.otyp === BOULDER
                 || obj_resists(obj, 0, 0, { ...env, state, random })) {
-                if (flooreffects(obj, x, y, 'fall', { ...env, state }))
+                if (await flooreffects(obj, x, y, 'fall', { ...env, state }))
                     continue;
                 place_object(obj, x, y,
                              objectGenerationEnv({ ...env, state, random }));
@@ -5601,7 +5628,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                                         ONAME_NO_FLAGS, state);
                     }
                     delobj(otmp, dropEnv);
-                } else if (!flooreffects(otmp, x, y, nomsg ? '' : 'fall',
+                } else if (!await flooreffects(otmp, x, y, nomsg ? '' : 'fall',
                                          dropEnv)) {
                     place_object(otmp, x, y, dropEnv);
                     stackobj(otmp, objectGenerationEnv(dropEnv));
@@ -5816,7 +5843,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
 export function m_into_limbo(mtmp, state = game, env = {}) {
     const targetLev = ledger_no(state.u.uz, state);
     mtmp.mstate = (mtmp.mstate ?? 0) | MON_LIMBO;
-    migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
+    return migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
 }
 
 // C ref: mon.c migrate_mon() (3839-3863). Special-object dropping remains an
@@ -5830,7 +5857,19 @@ export function migrate_mon(
     env = {},
 ) {
     if (mtmp.mx) {
-        unstuck(mtmp, state, env);
+        const release = unstuck(mtmp, state, env);
+        if (release && typeof release.then === 'function') {
+            return release.then(() => {
+                note_unported('steal.c mdrop_special_objs');
+                return migrate_to_level(
+                    mtmp,
+                    target_lev,
+                    xyloc,
+                    null,
+                    { ...env, state },
+                );
+            });
+        }
         note_unported('steal.c mdrop_special_objs');
     }
     return migrate_to_level(
@@ -5929,7 +5968,7 @@ export function elemental_clog(mon, state = game, env = {}) {
         };
         const targetLev = ledger_no(destination, state);
         mon.mstate = (mon.mstate ?? 0) | MON_ENDGAME_MIGR;
-        migrate_mon(mon, targetLev, MIGR_RANDOM, state, env);
+        return migrate_mon(mon, targetLev, MIGR_RANDOM, state, env);
     }
 }
 
@@ -5938,9 +5977,9 @@ export function elemental_clog(mon, state = game, env = {}) {
 // branches are the complete function body here.
 export function deal_with_overcrowding(mtmp, state = game, env = {}) {
     if (In_endgame(state.u?.uz))
-        elemental_clog(mtmp, state, env);
+        return elemental_clog(mtmp, state, env);
     else
-        m_into_limbo(mtmp, state, env);
+        return m_into_limbo(mtmp, state, env);
 }
 
 // C ref: mon.c maybe_mnexto() (3997-4016). Unlike mnexto(), this helper

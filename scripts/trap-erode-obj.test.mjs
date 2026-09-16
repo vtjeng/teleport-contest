@@ -2,9 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    EF_DESTROY,
     EF_GREASE,
     EF_NONE,
+    EF_PAY,
     EF_VERBOSE,
+    COST_RUST,
     ERODE_BURN,
     ERODE_CORRODE,
     ERODE_CRACK,
@@ -13,7 +16,14 @@ import {
     ER_DAMAGED,
     ER_GREASED,
     ER_NOTHING,
+    ER_DESTROYED,
+    MAX_ERODE,
+    OBJ_DELETED,
+    OBJ_FLOOR,
+    OBJ_FREE,
+    OBJ_INVENT,
     OBJ_MINVENT,
+    W_ARMH,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -24,6 +34,7 @@ import {
     LEATHER_GLOVES,
 } from '../js/objects.js';
 import { erode_obj } from '../js/trap_erode_obj.js';
+import { water_damage } from '../js/trap_water_damage.js';
 
 async function initializedMonster(seed, name) {
     await runSegment({
@@ -251,4 +262,224 @@ test('verbose proof recognition records monster-visible knowledge', async () => 
     assert.deepEqual(messages, [
         "Somehow, the kobold's shoes are not affected by the oxidation.",
     ]);
+});
+
+test('floor erosion uses the source bhitpos visibility contract', async () => {
+    await runSegment({
+        seed: 982467,
+        datetime: '20260724120000',
+        nethackrc: `OPTIONS=name:FloorErosion,role:Healer,race:human,`
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const floorShoes = {
+        blessed: false,
+        greased: false,
+        nobj: null,
+        nexthere: null,
+        ocarry: null,
+        oclass: ARMOR_CLASS,
+        oeroded: 0,
+        oeroded2: 0,
+        oerodeproof: false,
+        otyp: IRON_SHOES,
+        quan: 1,
+        rknown: false,
+        where: OBJ_FLOOR,
+        ox: game.u.ux,
+        oy: game.u.uy,
+    };
+    game.gb.bhitpos = { x: floorShoes.ox, y: floorShoes.oy };
+    const messages = [];
+    const result = await erode_obj(
+        floorShoes,
+        'shoes',
+        ERODE_RUST,
+        EF_NONE,
+        {
+            state: game,
+            canSeeObject: (obj, x, y) => {
+                assert.equal(obj, floorShoes);
+                assert.deepEqual([x, y], [floorShoes.ox, floorShoes.oy]);
+                return true;
+            },
+            message: (text) => messages.push(text),
+            random: {
+                rnl: () => assert.fail('unblessed floor gear needs no luck draw'),
+                rn2: () => assert.fail('ungreased floor gear needs no draw'),
+            },
+        },
+    );
+
+    assert.equal(result, ER_DAMAGED);
+    assert.equal(floorShoes.oeroded, 1);
+    assert.deepEqual(messages, ['The shoes rust!']);
+});
+
+test('floor erosion returns destruction after the maximum source wear', async () => {
+    await runSegment({
+        seed: 982468,
+        datetime: '20260724120000',
+        nethackrc: `OPTIONS=name:MaxFloorErosion,role:Healer,race:human,`
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const floorShoes = {
+        blessed: false,
+        greased: false,
+        nobj: null,
+        nexthere: null,
+        ocarry: null,
+        oclass: ARMOR_CLASS,
+        oeroded: MAX_ERODE,
+        oeroded2: 0,
+        oerodeproof: false,
+        otyp: IRON_SHOES,
+        quan: 1,
+        rknown: false,
+        where: OBJ_FREE,
+    };
+    game.gb.bhitpos = { x: game.u.ux, y: game.u.uy };
+    const messages = [];
+    const result = await erode_obj(
+        floorShoes,
+        'shoes',
+        ERODE_RUST,
+        EF_DESTROY,
+        {
+            state: game,
+            canSeeObject: () => true,
+            message: (text) => messages.push(text),
+            random: {
+                rn2: (bound) => {
+                    assert.equal(bound, 100);
+                    return 99;
+                },
+                rnl: () => assert.fail('maximum wear does not need luck'),
+            },
+        },
+    );
+
+    assert.equal(result, ER_DESTROYED);
+    assert.equal(floorShoes.where, OBJ_DELETED);
+    assert.deepEqual(messages, ['The shoes rust away!']);
+});
+
+test('destroying unseen monster equipment still extracts the item', async () => {
+    const monster = await initializedMonster(982469, 'HiddenGear');
+    const shoes = carried(monster, IRON_SHOES, {
+        oeroded: MAX_ERODE,
+        owornmask: W_ARMH,
+    });
+    const messages = [];
+    const result = await erode_obj(
+        shoes,
+        'shoes',
+        ERODE_RUST,
+        EF_DESTROY,
+        {
+            canSeeMonster: () => false,
+            message: (text) => messages.push(text),
+            hooks: { updateMonExtrinsics: () => {} },
+            random: { rn2: () => 99, rnl: () => 1 },
+            state: game,
+        },
+    );
+
+    assert.equal(result, ER_DESTROYED);
+    assert.equal(shoes.where, OBJ_DELETED);
+    assert.equal(shoes.owornmask, 0);
+    assert.equal(monster.minvent, null);
+    assert.deepEqual(messages, []);
+});
+
+test('EF_PAY destruction keeps the costly alteration source call', async () => {
+    await runSegment({
+        seed: 982470,
+        datetime: '20260724120000',
+        nethackrc: `OPTIONS=name:PaidErosion,role:Healer,race:human,`
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const floorShoes = {
+        blessed: false,
+        greased: false,
+        nobj: null,
+        nexthere: null,
+        ocarry: null,
+        oclass: ARMOR_CLASS,
+        oeroded: MAX_ERODE,
+        oeroded2: 0,
+        oerodeproof: false,
+        otyp: IRON_SHOES,
+        quan: 1,
+        rknown: false,
+        // Keep the source EF_PAY arm. The isolated shop hook below lets
+        // deletion finish without entering the unrelated bill lookup.
+        unpaid: true,
+        where: OBJ_FREE,
+    };
+    const alterations = [];
+    const result = await erode_obj(
+        floorShoes,
+        'shoes',
+        ERODE_RUST,
+        EF_PAY | EF_DESTROY,
+        {
+            canSeeObject: () => false,
+            hooks: {
+                costlyAlteration: (obj, type) => alterations.push([obj, type]),
+                obfreeShopBill: () => 'unbilled',
+            },
+            message: () => {},
+            random: { rn2: () => 99, rnl: () => 1 },
+            state: game,
+        },
+    );
+
+    assert.equal(result, ER_DESTROYED);
+    assert.equal(alterations.length, 1);
+    assert.strictEqual(alterations[0][0], floorShoes);
+    assert.equal(alterations[0][1], COST_RUST);
+});
+
+test('water protection uses both uluck and moreluck', async () => {
+    await runSegment({
+        seed: 982471,
+        datetime: '20260724120000',
+        nethackrc: `OPTIONS=name:LuckErosion,role:Healer,race:human,`
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const shoes = {
+        blessed: false,
+        greased: false,
+        nobj: null,
+        ocarry: null,
+        oclass: ARMOR_CLASS,
+        oeroded: 0,
+        oeroded2: 0,
+        oerodeproof: false,
+        otyp: IRON_SHOES,
+        quan: 1,
+        rknown: false,
+        where: OBJ_INVENT,
+    };
+    game.u.uluck = 0;
+    game.u.moreluck = 100;
+    const draws = [];
+    const result = await water_damage(shoes, 'shoes', false, {
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                return 0;
+            },
+            rnl: () => assert.fail('luck protects before erosion'),
+        },
+        state: game,
+    });
+
+    assert.equal(result, ER_NOTHING);
+    assert.deepEqual(draws, [20]);
+    assert.equal(shoes.oeroded, 0);
 });

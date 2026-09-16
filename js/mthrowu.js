@@ -541,7 +541,7 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
             broken = await ship_object(obj, x, y, false, env);
         if (!broken) {
             let monster = monsterAt(x, y, state);
-            broken = Boolean(floorEffects(obj, x, y, 'fall', env));
+            broken = Boolean(await floorEffects(obj, x, y, 'fall', env));
             if (!broken) {
                 placeObject(obj, x, y, env);
                 if (!monster && u_at(x, y, state)) monster = state.youmonst;
@@ -966,7 +966,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
 
         { /* C ref: m_throw lines 679-693 -- monster hit or hero hit */
             let mtmp = monsterAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-            if (mtmp && shade_miss(monster, mtmp, singleobj, true, true, state, env)) {
+            if (mtmp && await shade_miss(monster, mtmp, singleobj, true, true, state, env)) {
                 /* shade: missile passes harmlessly through */
                 mtmp = null;
             } else if (mtmp) {
@@ -1350,7 +1350,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
         if (notcaught) {
             note_unported('apply.c snuff_candle'); /* (void) snuff_candle() */
             if (!await ship_object(otmp, x, y, false, env)) {
-                if (flooreffects(otmp, x, y, 'drop', env)) {
+                if (await flooreffects(otmp, x, y, 'drop', env)) {
                     if (cansee(x, y, state)) {
                         if (typeof env.newsym === 'function')
                             env.newsym(x, y, state);

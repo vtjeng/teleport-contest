@@ -390,20 +390,13 @@ test('a worn helmet adds a second line to the ceiling message', async () => {
     assert.deepEqual(coinsAt(game.u.ux, game.u.uy), [PURSE.debug]);
 });
 
-test('each caller names the C function it would reach for a monster in the path',
+test('gold retains its ghitm gap while thrown weapons reach thitmonst',
     async () => {
     // zap.c bhit() returns the monster and leaves the caller to decide what
     // hits it: dothrow.c throwit_mon_hit():1492 reaches thitmonst(), and
-    // throw_gold():2712 reaches dokick.c ghitm(). The port has neither, so the
-    // two callers stop -- and each name identifies the source function that
-    // still owns the missing behavior. Nothing else in the passing suite
-    // asserts either string:
-    // every throw, fire and gold matrix sets pettype:none precisely so no
-    // segment reaches a monster.
-    //
-    // These two recipes are the ones QUALITY.json records as expected
-    // failures. Dropping pettype:none leaves the Healer's little dog directly
-    // north of her, so both the purse and the thrown weapon go into it.
+    // throw_gold():2712 reaches dokick.c ghitm(). The gold call is still a
+    // gap; the completed thitmonst now handles the thrown weapon. Keeping the
+    // Healer's little dog directly north makes both commands hit a monster.
     const rc = 'OPTIONS=name:Volley,role:Healer,race:human,gender:female,'
         + 'align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n'
         + 'OPTIONS=!acoustics\n';
@@ -421,7 +414,5 @@ test('each caller names the C function it would reach for a monster in the path'
     await runSegment({ ...base, moves: '.tck' }, {
         onBoundary: (error) => weaponBoundaries.push(error),
     });
-    assert.equal(weaponBoundaries.length, 1);
-    assert.match(weaponBoundaries[0].message, /thitmonst\(\)/u);
-    assert.doesNotMatch(weaponBoundaries[0].message, /ghitm\(\)/u);
+    assert.deepEqual(weaponBoundaries, []);
 });

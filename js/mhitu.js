@@ -46,11 +46,9 @@ import { acurr, minuhpmax, setuhpmax } from './attrib.js';
 import { midnight } from './calendar.js';
 import {
     bot,
-    docrt,
     flush_screen,
     map_invisible,
     newsym,
-    see_monsters,
     swallowed,
 } from './display.js';
 import { reset_occupations } from './cmd.js';
@@ -1072,33 +1070,9 @@ export async function expels(mtmp, rawEnv = {}) {
 
     state.disp ??= {};
     state.disp.botl = true;
-    const unstuckEnv = {
-        ...rawEnv,
-        allowSwallowedExpulsion: true,
-    };
-    const cooldown = unstuck(mtmp, state, {
-        ...unstuckEnv,
-        deferCooldown: true,
-    });
-    // mon.c unstuck() calls docrt() after clearing the swallow state. The
-    // planning clone must not paint the live terminal; the live call uses the
-    // same full swallowed redraw that C performs.
-    // display.c docrt_flags() shuts vision down, repaints remembered map
-    // glyphs, then recalculates vision before overlaying monsters. Keep that
-    // bracket here because unstuck() has just moved the hero out of the
-    // engulfer and raised vision_full_recalc; merely sweeping newsym() with
-    // the old bitmap leaves hallucinated monster glyphs in the redraw.
-    vision_recalc(2, {
-        state,
-        redraw: rawEnv.planning ? () => {} : undefined,
-    });
-    if (!rawEnv.planning) await docrt({ overlayMonsters: false });
-    vision_recalc(0, {
-        state,
-        redraw: rawEnv.planning ? () => {} : undefined,
-    });
-    if (!rawEnv.planning) see_monsters(state);
-    if (cooldown) cooldown.mtmp.mspec_used = cooldown.random.rnd(2);
+    // mon.c unstuck() owns the swallowed redraw and final re-hold cooldown;
+    // expels() awaits that owner before relocation.
+    await unstuck(mtmp, state, { ...rawEnv, state });
 
     const relocated = mnexto(mtmp, RLOC_NOMSG, {
         ...rawEnv,
@@ -1401,8 +1375,10 @@ async function hitmu(mtmp, mattk, env) {
 
     await mhitm_adtyping(mtmp, mattk, state.youmonst, mhm, state, env);
 
+    const knockFlags = { value: mhm.hitflags };
     await mhitm_knockback(mtmp, state.youmonst,
-        mattk, Boolean(mtmp.mw) /* MON_WEP */, state, env, random);
+        mattk, knockFlags, Boolean(mtmp.mw) /* MON_WEP */, state, env, random);
+    mhm.hitflags = knockFlags.value;
 
     if (mhm.done)
         return mhm.hitflags;

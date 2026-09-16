@@ -10,6 +10,7 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     MMOVE_MOVED,
+    OBJ_DELETED,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
@@ -53,6 +54,7 @@ import { parseNethackrc } from '../js/options.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     CARROT,
+    COIN_CLASS,
     CORPSE,
     FOOD_CLASS,
     objects_globals_init,
@@ -90,7 +92,11 @@ function quickState(visible = true) {
         moves: 10,
         program_state: { gameover: false },
         u: {
-            uprops: [],
+            uprops: Array.from({ length: 64 }, () => ({
+                intrinsic: 0,
+                extrinsic: 0,
+                blocked: 0,
+            })),
             uroleplay: {},
             usteed: null,
             ux: 4,
@@ -248,18 +254,16 @@ test('dog_nutrition scales a whole mimic corpse for every pet size', () => {
     }
 });
 
-test('dog_nutrition requires FOOD_CLASS', () => {
+test('dog_nutrition handles coin and unusual object nutrition', () => {
     const { monster, state } = quickState(false);
-    const corpse = {
-        corpsenm: PM_SMALL_MIMIC,
-        oclass: FOOD_CLASS,
-        oeaten: 0,
-        otyp: CORPSE,
-    };
-    assert.throws(
-        () => dog_nutrition(monster, { ...corpse, oclass: WEAPON_CLASS }, state),
-        /requires FOOD_CLASS/u,
-    );
+    assert.equal(dog_nutrition(monster, {
+        oclass: COIN_CLASS, otyp: TRIPE_RATION, quan: 4000,
+    }, state), 1200);
+    assert.equal(monster.meating, 3);
+    assert.equal(dog_nutrition(monster, {
+        oclass: WEAPON_CLASS, otyp: TRIPE_RATION, owt: 25,
+    }, state), state.objects[TRIPE_RATION].oc_nutrition * 5 * 6);
+    assert.equal(monster.meating, 2);
 });
 
 test('dog_eat consumes each admitted mimic corpse and updates its little dog',
@@ -396,7 +400,7 @@ test('dog_eat consumes a visible carrot without a cure message for sighted pets'
         assert.match(messages[0], /eats a carrot\./u);
     });
 
-test('dog_eat validates every excluded corpse-meal state before mutation',
+test('dog_eat validates missing pet and non-food state before mutation',
     async () => {
         const cases = [
             // edog absent: the C function requires EDOG(mtmp), so a pet
@@ -404,25 +408,6 @@ test('dog_eat validates every excluded corpse-meal state before mutation',
             ['missing pet state', ({ monster }) => {
                 delete monster.mextra.edog;
             }, /tame pet with edog/u],
-            // Wrong oclass: exercises the food-class guard.
-            ['wrong object class', ({ corpse }) => {
-                corpse.oclass = WEAPON_CLASS;
-            }, /a food item/u],
-            ['unpaid food', ({ corpse }) => {
-                corpse.unpaid = true;
-            }, /ordinary floor food/u],
-            ['artifact food', ({ corpse }) => {
-                corpse.oartifact = 1;
-            }, /ordinary floor food/u],
-            ['food with contents', ({ corpse }) => {
-                corpse.cobj = {};
-            }, /ordinary floor food/u],
-            ['devoured meal', ({ call }) => {
-                call.devour = true;
-            }, /ordinary eat path/u],
-            ['pet over a pool', ({ state }) => {
-                state.level.at(5, 5).typ = POOL;
-            }, /dry eating square/u],
         ];
         for (const [name, mutate, reason] of cases) {
             const { monster, state } = quickState(false);
@@ -448,6 +433,64 @@ test('dog_eat validates every excluded corpse-meal state before mutation',
                 where: corpse.where,
             }, before, name);
         }
+    });
+
+test('dog_eat keeps the source devour return and nutrition adjustments',
+    async () => {
+        const { monster, state } = quickState(false);
+        const corpse = floorMimicCorpse(state);
+        const initialMeating = monster.meating;
+        const result = await dog_eat(
+            monster,
+            corpse,
+            5,
+            5,
+            true,
+            eatingEnv(state),
+        );
+        assert.equal(result, MMOVE_MOVED);
+        assert.equal(corpse.where, OBJ_DELETED);
+        assert.ok(monster.mextra.edog.hungrytime > state.moves);
+        assert.ok(monster.meating <= Math.trunc(initialMeating / 2));
+    });
+
+test('dog_eat consumes an unpaid floor meal and suppresses pool output',
+    async () => {
+        const { monster, state } = quickState(false);
+        const messages = [];
+        const corpse = floorMimicCorpse(state, PM_SMALL_MIMIC, {
+            unpaid: true,
+        });
+        const result = await dog_eat(
+            monster,
+            corpse,
+            5,
+            5,
+            false,
+            {
+                ...eatingEnv(state, messages),
+                hooks: { obfreeShopBill: () => 'unbilled' },
+            },
+        );
+        assert.equal(result, MMOVE_MOVED);
+        assert.equal(corpse.where, OBJ_DELETED);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /will cost you 0 zorkmids\./u);
+
+        const poolState = quickState(false);
+        poolState.state.level.at(5, 5).typ = POOL;
+        const poolMessages = [];
+        const poolFood = floorMimicCorpse(poolState.state);
+        await dog_eat(
+            poolState.monster,
+            poolFood,
+            5,
+            5,
+            false,
+            eatingEnv(poolState.state, poolMessages),
+        );
+        assert.equal(poolFood.where, OBJ_DELETED);
+        assert.deepEqual(poolMessages, []);
     });
 
 test('dog_eat preserves source boundary values for fleeing and tameness',

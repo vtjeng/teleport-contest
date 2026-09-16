@@ -14,10 +14,11 @@ the skill names and the `Audit-fix-for:` commit trailer.
 
 An **evidence snapshot** is one `SCORE.tsv` row at a full commit SHA.
 
-`QUALITY.json` records completed correctness and simplification passes and
-their ranges. It carries no review cadence: `npm run quality` prints the
-unreviewed debt for information, and `npm run quality -- --check` blocks only
-on a `js/` file that no quality area owns.
+The quality commands record pass ranges in `QUALITY.json` and detailed
+evidence in `QUALITY-evidence.json`. This ledger carries no review cadence:
+`npm run quality` prints the unreviewed debt for information, and
+`npm run quality -- --check` blocks only on a `js/` file that no quality area
+owns.
 
 ## When a correctness review is warranted
 
@@ -98,7 +99,7 @@ Return to implementation when a finding:
 - requires a new recipe because an entry point the file implements has none.
 
 A finding outside the scope, or one that needs a span of its own, goes in the
-pass's `QUALITY.json` entry and becomes the goal's next span.
+quality ledger's pass evidence and becomes the goal's next span.
 
 After applying in-scope audit fixes, run the validation that
 `.agents/validation.md` specifies for the affected behavior.
@@ -129,8 +130,8 @@ commit>`, so the fixes are inside the recorded range.
 - Freeze the assigned scope. Later commits remain outside the pass and need
   review only as a later delta.
 - Record the pass's counts, findings, rejections, unverified items, warnings,
-  and validation in its `QUALITY.json` entry. That entry is the pass's
-  durable record; no separate report file is retained.
+  and validation through the quality commands below. The quality ledger is
+  the durable record; no separate report file is retained.
 
 Preserve code whose structure mirrors the C source. Simplification must
 preserve PRNG and evaluation order.
@@ -158,6 +159,10 @@ step alone usually repairs it.
   `summary` and `counterEvidence`. Write any condition for reopening into that
   text, and keep the wording when copying it forward. The next pass reads
   these rejections to avoid re-deriving a settled claim.
+- Keep `--evidence` to conclusions and context missing from the structured
+  findings. The command adds the counts sentence; do not restate counts,
+  findings, or validation totals in a second narrative. Preserve existing
+  review history and useful rejection counter-evidence.
 - Cite symbols by file and function name, not line numbers.
 - A clarity or copyedit pass leaves no ledger record. State its elapsed wall
   time and finding counts in the progress report that announces it.

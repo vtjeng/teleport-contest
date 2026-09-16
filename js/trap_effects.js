@@ -1364,7 +1364,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
             if (Punished(state) && !carried(state.uball)) {
                 unplacebc(state);
                 note_unported('ball.c ballfall after pit');
-                placebc(state);
+                await placebc(state);
             }
             if (!conjPit) note_unported('trap.c selftouch');
             state.vision_full_recalc = 1;
@@ -2337,22 +2337,31 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
                 case SPIKED_PIT:
                 case HOLE:
                 case TRAPDOOR:
-                    // These interactions are not yet ported; they are not
-                    // reached in the session.
-                    throw new Error(
-                        'launch_obj boulder-on-trap interaction not yet ported');
+                    // C stops at a pit or hole after giving the canonical
+                    // floor-effects owner the boulder. Its boolean decides
+                    // whether the rolling object was consumed.
+                    x2 = x;
+                    y2 = y;
+                    if (await flooreffects(singleobj, x2, y2, 'fall', env)) {
+                        used_up = true;
+                        launch_drop_spot(null, 0, 0, state);
+                    }
+                    dist = -1;
+                    break;
                 default:
                     break;
                 }
             }
-            // C calls flooreffects() here, which for a boulder checks
-            // boulder_hits_pool() (water/lava) and pit/hole traps. The JS port
-            // of flooreffects() throws unconditionally for boulders because
-            // boulder_hits_pool() is not ported. On ordinary floor, C returns
-            // FALSE (no-op), so skipping the call is correct there. If the
-            // boulder IS on water, lava, or a pit, the t_at() check above
-            // already throws for the trap case, and the remaining pool/lava
-            // cases are unreached in the session.
+            if (used_up || dist === -1)
+                break;
+            // C calls flooreffects() on every rolling square. The owner
+            // handles water, lava, pit/hole, and ordinary-floor returns in
+            // source order; its boolean controls whether the boulder stops.
+            if (await flooreffects(singleobj, x, y, 'fall', env)) {
+                used_up = true;
+                launch_drop_spot(null, 0, 0, state);
+                break;
+            }
             if (otyp === BOULDER && sobj_at(BOULDER, x, y, state)) {
                 // Boulder-chain collision: not reached in the session.
                 throw new Error(

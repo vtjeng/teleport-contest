@@ -1257,22 +1257,23 @@ test('burnarmor answers false for a slot that is not the torso', async () => {
     assert.equal(await burnarmor(null, env), false);
 });
 
-test('erode_obj refuses an object no victim is carrying', async () => {
+test('erode_obj treats non-carried objects as floor objects despite stale ocarry', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
-    // trap.c:196-201 answers a floor object through `visobj`, which reads
-    // gb.bhitpos. No ported caller passes one, so an object that is neither
-    // carried nor mcarried stops here -- including one that still carries a
-    // stale ocarry.
+    // trap.c erode_obj() selects a monster victim only for OBJ_MINVENT.
+    // A stale carrier pointer on a floor object must not change ownership.
     const floorItem = { ...wornArmor(LOW_BOOTS), where: OBJ_FLOOR };
     floorItem.ocarry = game.level.monlist;
-    await assert.rejects(
-        () => erode_obj(floorItem, 'boots', ERODE_BURN, EF_GREASE, {
+    assert.equal(
+        await erode_obj(floorItem, 'boots', ERODE_BURN, EF_GREASE, {
             state: game, random: { rn2: () => 1, rnl: () => 1 },
+            message: async () => {},
         }),
-        /item erosion requires a carried object/u,
+        ER_DAMAGED,
     );
+    assert.equal(floorItem.oeroded, 1);
+    assert.equal(floorItem.where, OBJ_FLOOR);
     // A hero's own item never asks whether a monster is visible, so the
     // operation that would answer is not reached at all.
     const heroItem = wornArmor(LOW_BOOTS);

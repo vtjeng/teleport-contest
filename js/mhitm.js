@@ -162,7 +162,7 @@ export async function slept_monst(mtmp, env = {}) {
         ?? (env.planning ? async () => {} : ttyPline);
     const name = Monnam(mtmp, state);
     await message(`${s_suffix(name)} grip relaxes.`, state, env);
-    unstuck(mtmp, state, env);
+    await unstuck(mtmp, state, env);
 }
 
 // The operations mhitm.c reaches that this file cannot import: the caller owns
@@ -788,8 +788,8 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     pre_mm_attack(magr, mdef, env);
 
     const compat = !magr.mcan ? could_seduce(magr, mdef, mattk, env) : 0;
-    if (!compat && shade_miss(magr, mdef, mwep, false, state.gv.vis,
-                              state, env))
+    if (!compat && await shade_miss(magr, mdef, mwep, false, state.gv.vis,
+                                    state, env))
         return M_ATTK_MISS; /* bypass mdamagem() */
 
     if (state.gv.vis) {
@@ -887,9 +887,12 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
 
     await mhitm_adtyping(magr, mattk, mdef, mhm, state, env);
 
-    if (await mhitm_knockback(
-        magr, mdef, mattk, Boolean(magr.mw), state, env, random,
-    )
+    const knockFlags = { value: mhm.hitflags };
+    const knocked = await mhitm_knockback(
+        magr, mdef, mattk, knockFlags, Boolean(magr.mw), state, env, random,
+    );
+    mhm.hitflags = knockFlags.value;
+    if (knocked
         && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_HIT)) !== 0
             || mon_offmap(mdef)))
         return mhm.hitflags;

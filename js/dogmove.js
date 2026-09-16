@@ -15,6 +15,8 @@ import {
     CADAVER,
     COLNO,
     CONFLICT,
+    COST_CONTENTS,
+    COST_DEGRD,
     D_CLOSED,
     D_LOCKED,
     DEAF,
@@ -61,7 +63,7 @@ import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { eaten_stat } from './eat.js';
 import { game } from './gstate.js';
-import { obj_extract_self } from './invent.js';
+import { currency, obj_extract_self } from './invent.js';
 import { On_stairs } from './stairs.js';
 import {
     dist2,
@@ -113,6 +115,7 @@ import {
     PM_PONY,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
+    PM_RUST_MONSTER,
     S_MIMIC,
     S_DOG,
     S_VAMPIRE,
@@ -137,14 +140,18 @@ import {
     should_displace,
     undesirable_disp,
 } from './monmove.js';
+import { bee_eat_jelly } from './monmove.js';
 import { may_dig } from './hack.js';
-import { sobj_at, splitobj } from './obj.js';
+import { costly_alteration, sobj_at, splitobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { an, distant_name, donameFresh, vtense } from './objnam.js';
+import {
+    an, distant_name, donameFresh, vtense, xnameFresh,
+} from './objnam.js';
 import {
     BALL_CLASS,
     BOULDER,
     CHAIN_CLASS,
+    COIN_CLASS,
     CREDIT_CARD,
     CORPSE,
     DWARVISH_MATTOCK,
@@ -182,6 +189,7 @@ import {
     do_clear_area,
 } from './vision.js';
 import { which_armor } from './worn.js';
+import { unpaid_cost } from './shk.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -458,14 +466,11 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
     return false;
 }
 
-// C ref: dogmove.c dog_nutrition() (156-215), the FOOD_CLASS arm.  The
-// coin and odd-object branches have no caller in this slice and remain
-// outside this function's admitted boundary.
+// C ref: dogmove.c dog_nutrition() (156-215). The food, coin, and unusual
+// object arms all feed dog_eat's used nutrition result.
 export function dog_nutrition(mtmp, obj, state = game) {
-    if (obj?.oclass !== FOOD_CLASS)
-        throw new TypeError('dog_nutrition requires FOOD_CLASS');
     let nutrit;
-    if (obj.otyp === CORPSE) {
+    if (obj?.oclass === FOOD_CLASS && obj.otyp === CORPSE) {
         const corpse = state.mons?.[obj.corpsenm];
         if (!corpse)
             throw new RangeError(
@@ -473,10 +478,18 @@ export function dog_nutrition(mtmp, obj, state = game) {
             );
         mtmp.meating = 3 + (corpse.cwt >> 6);
         nutrit = corpse.cnutrit;
-    } else {
+    } else if (obj?.oclass === FOOD_CLASS) {
         const odata = state.objects[obj.otyp];
         mtmp.meating = odata.oc_delay;
         nutrit = odata.oc_nutrition;
+    } else if (obj?.oclass === COIN_CLASS) {
+        mtmp.meating = Math.max(1, Math.trunc((obj.quan ?? 0) / 2000) + 1);
+        nutrit = Math.max(0, Math.trunc((obj.quan ?? 0) / 20));
+    } else {
+        // Gelatinous cubes and other unusual eaters use the same object
+        // weight/nutrition fallback as C, including gold objects.
+        mtmp.meating = Math.trunc((obj?.owt ?? 0) / 20) + 1;
+        nutrit = 5 * (state.objects?.[obj?.otyp]?.oc_nutrition ?? 0);
     }
     switch (mtmp.data.msize) {
     case MZ_TINY: nutrit *= 8; break;
@@ -495,33 +508,23 @@ export function dog_nutrition(mtmp, obj, state = game) {
 }
 
 // C ref: dogmove.c dog_eat() (218-345), for a tame pet eating food from the
-// floor.  Shops, pools, special eaters, and non-food objects remain atomic
-// fail-closed paths.
+// floor. The devour flag is used by tamedog() after it has installed a new
+// EDOG record; it changes meating and nutrition before the common consume
+// path and therefore must retain its return value.
 export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const edog = mtmp?.mextra?.edog;
-    const unsupported = rawEnv.unsupported;
-    const stop = (reason) => {
-        if (typeof unsupported === 'function') unsupported(reason);
-        throw new TypeError(`dog_eat requires ${reason}`);
-    };
-    if (!edog) stop('a tame pet with edog');
-    if (obj?.oclass !== FOOD_CLASS)
-        stop('a food item');
-    if (obj.unpaid || obj.oartifact || obj.cobj)
-        stop('one ordinary floor food');
-    if (devour) stop('the ordinary eat path');
-    if (is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater)
-        stop('a dry eating square');
-    if (mtmp.data?.pmidx === PM_KILLER_BEE
-        && obj.otyp === LUMP_OF_ROYAL_JELLY)
-        stop('bee_eat_jelly');
-    if (obj.quan > 1)
-        obj = splitobj(obj, 1, objectGenerationEnv(rawEnv));
-
+    if (!edog) throw new TypeError('dog_eat requires a tame pet with edog');
+    if (!obj) throw new TypeError('dog_eat requires an object');
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
     if (edog.hungrytime < state.moves) edog.hungrytime = state.moves;
     const nutrit = dog_nutrition(mtmp, obj, state);
-    edog.hungrytime += nutrit;
+    if (devour && mtmp.meating > 1)
+        mtmp.meating = Math.trunc(mtmp.meating / 2);
+    const adjustedNutrition = devour
+        ? (nutrit > 1 ? Math.trunc(nutrit * 3 / 4) : nutrit)
+        : nutrit;
+    edog.hungrytime += adjustedNutrition;
     mtmp.mconf = 0;
     if (edog.mhpmax_penalty) {
         mtmp.mhpmax += edog.mhpmax_penalty;
@@ -537,13 +540,41 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         redraw(mtmp.mx, mtmp.my);
     }
 
-    const seeobj = cansee(mtmp.mx, mtmp.my, state);
-    const sawpet = cansee(x, y, state) && monsterVisible(mtmp, state);
+    // dogmove.c:252-256. Killer-bee jelly has its own complete owner and
+    // bypasses the ordinary meal bookkeeping when it accepts the food.
+    if (mtmp.data?.pmidx === PM_KILLER_BEE
+        && obj.otyp === LUMP_OF_ROYAL_JELLY) {
+        const result = await bee_eat_jelly(mtmp, obj, {
+            ...rawEnv,
+            state,
+            random,
+            message: rawEnv.message ?? ttyPline,
+        });
+        if (result >= 0) return result + 1;
+    }
+
+    // Food stacks split one item at a time; unusual object eaters consume the
+    // complete object, exactly as dogmove.c's `oclass == FOOD_CLASS` gate.
+    if (obj.quan > 1 && obj.oclass === FOOD_CLASS)
+        obj = splitobj(obj, 1, objectGenerationEnv({ ...rawEnv, state }));
+
+    // dogmove.c:275 raises this before any distant_name()/doname() work, so
+    // an unpaid object's price never leaks into the ordinary eating text.
+    let unpaidName = null;
+    if (obj.unpaid) {
+        state.iflags ??= {};
+        state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
+    }
+
+    const inPool = is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater;
+    const seeobj = !inPool && cansee(mtmp.mx, mtmp.my, state);
+    const sawpet = !inPool && cansee(x, y, state)
+        && monsterVisible(mtmp, state);
     const message = rawEnv.message ?? ttyPline;
     if (sawpet || (seeobj && canSpotMonster(mtmp, state))) {
         const objName = distant_name(obj, donameFresh, state);
         const action = tunnels(mtmp.data) ? 'digs in'
-            : `eats ${objName}`;
+            : `${devour ? 'devours' : 'eats'} ${objName}`;
         await message(
             messageAt(
                 `${capitalizedAlwaysVisibleMonsterName(mtmp, state, rawEnv)}`
@@ -556,20 +587,50 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
         );
     } else if (seeobj) {
         const objName = distant_name(obj, donameFresh, state);
-        await message(`It eats ${objName}.`, state);
+        await message(`It ${devour ? 'devours' : 'eats'} ${objName}.`, state);
     }
 
-    if (classifyDogFood(mtmp, obj, { ...rawEnv, state }) === DOGFOOD
-        && obj.invlet) {
-        const denominator = edog.dropdist + state.moves - edog.droptime;
-        edog.apport += Math.trunc(200 / denominator);
-        if (edog.apport <= 0) edog.apport = 1;
+    // dogmove.c:306-315. Capture the unpaid name while suppression remains
+    // raised, then lower it before rustproofing and billing consequences.
+    if (obj.unpaid) {
+        unpaidName = xnameFresh(obj, state);
+        state.iflags.suppress_price--;
     }
-    await m_consume_obj(mtmp, obj, {
-        ...rawEnv,
-        state,
-        quickMimic: quickmimic,
-    });
+
+    if (mtmp.data?.pmidx === PM_RUST_MONSTER && obj.oerodeproof) {
+        if (obj.unpaid)
+            costly_alteration(obj, COST_DEGRD, { ...rawEnv, state });
+        obj.oerodeproof = 0;
+        mtmp.mstun = 1;
+        if (canseemon(mtmp, state)) {
+            const name = distant_name(obj, donameFresh, state);
+            if (state.flags?.verbose)
+                await message(
+                    `${capitalizedMonsterName(mtmp, state)} spits `
+                        + `${name} out in disgust!`, state,
+                );
+        }
+    } else {
+        if (classifyDogFood(mtmp, obj, { ...rawEnv, state }) === DOGFOOD
+            && obj.invlet) {
+            const denominator = edog.dropdist + state.moves - edog.droptime;
+            edog.apport += Math.trunc(200 / denominator);
+            if (edog.apport <= 0) edog.apport = 1;
+        }
+        if (obj.unpaid) {
+            const price = unpaid_cost(obj, COST_CONTENTS, state);
+            await message(
+                `That ${unpaidName} will cost you ${price} `
+                    + `${currency(price, state)}.`,
+                state,
+            );
+        }
+        await m_consume_obj(mtmp, obj, {
+            ...rawEnv,
+            state,
+            quickMimic: quickmimic,
+        });
+    }
     return mtmp.mhp < 1 ? MMOVE_DIED : MMOVE_MOVED;
 }
 

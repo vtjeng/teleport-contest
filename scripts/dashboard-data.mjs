@@ -482,7 +482,7 @@ for (let gi = 0; gi < scoreGoals.length; gi++) {
   const sg = scoreGoals[gi];
 
   const name = goalNameFromNote(sg.note);
-  if (goalRecords.get(name)?.status === 'parked') continue;
+  if (['parked', 'superseded'].includes(goalRecords.get(name)?.status)) continue;
 
   // Find close commit by SHA
   const closeCommit = commitBySha.get(fullShaFor({ sha: sg.sha }));
@@ -640,7 +640,7 @@ for (const open of inProgressOpens) {
   const goalMatch = name.match(/^Open\s+(?:the\s+)?(.+?)(?:\s+goal)?$/i);
   if (goalMatch) name = goalMatch[1];
   name = name.replace(/\s*\(.*$/, '').replace(/,.*$/, '').trim();
-  if (goalRecords.get(name)?.status === 'parked') continue;
+  if (['parked', 'superseded'].includes(goalRecords.get(name)?.status)) continue;
 
   const now = new Date();
   const openTime = open.time;
@@ -756,6 +756,8 @@ const workGoals = [...goalRecords.values()]
     sourceFile: record.luaFile ?? record.cFile ?? null,
     summary: record.summary,
     parkedReason: record.parkedReason ?? null,
+    supersededBy: record.supersededBy ?? null,
+    supersededReason: record.supersededReason ?? null,
     units: completionCounts(record).units,
   }));
 

@@ -2428,7 +2428,7 @@ async function invoke_banish(obj, state) {
                     dlevel: 0,
                 };
                 dest.dlevel = rn2(dunlevs_in_dungeon(dest, state));
-                migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
+                await migrate_mon(mtmp, ledger_no(dest, state), MIGR_RANDOM, state);
             } else {
                 note_unported('teleport.c u_teleport_mon');
             }

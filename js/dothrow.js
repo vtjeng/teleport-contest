@@ -31,6 +31,8 @@
 
 import {
     ARTICLE_A,
+    A_ORIGINAL,
+    ACCFOOD,
     A_CON,
     A_DEX,
     A_STR,
@@ -46,6 +48,10 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    EF_DESTROY,
+    EF_VERBOSE,
+    ERODE_CRACK,
+    ER_DESTROYED,
     FIRE_TRAP,
     FUMBLING,
     GETOBJ_ALLOWCNT,
@@ -98,7 +104,9 @@ import {
     P_SLING,
     P_SPEAR,
     SLT_ENCUMBER,
+    SHOPBASE,
     STONE_RES,
+    STRAT_WAITMASK,
     STR19,
     STUNNED,
     THROWN_WEAPON,
@@ -110,12 +118,15 @@ import {
     HMON_THROWN,
     M_AP_MONSTER,
     M_AP_TYPE,
+    MM_IGNORELAVA,
+    MM_IGNOREWATER,
     OBJ_MINVENT,
     RLOC_MSG,
     engulfing_u,
     helpless,
+    Upolyd,
 } from './const.js';
-import { ART_MJOLLNIR } from './artifacts.js';
+import { ART_MJOLLNIR, spec_abon } from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
@@ -145,21 +156,38 @@ import {
     switch_terrain,
     weight_cap,
 } from './hack.js';
-import { distmin, sgn } from './hacklib.js';
-import { freeinv, getobj, stackobj, update_inventory } from './invent.js';
+import { distmin, sgn, s_suffix } from './hacklib.js';
+import {
+    addinv,
+    delobj,
+    freeinv,
+    fully_identify_obj,
+    getobj,
+    isThrowingWeapon,
+    obfree,
+    stackobj,
+    update_inventory,
+} from './invent.js';
 import { obj_sheds_light } from './light.js';
-import { MZ_MEDIUM } from './monsters.js';
+import { MZ_HUGE, MZ_MEDIUM } from './monsters.js';
 import {
     bigmonst,
+    is_animal,
+    is_domestic,
+    is_elf,
     is_orc,
     is_unicorn,
+    is_whirly,
     pronoun_gender,
     nohands,
     notake,
     throws_rocks,
     touch_petrifies,
+    your_race,
 } from './mondata.js';
-import { closed_door } from './monmove.js';
+import { closed_door, monnear } from './monmove.js';
+import { dogfood } from './dogfood.js';
+import { tamedog } from './dog.js';
 import {
     PM_CAVE_DWELLER,
     PM_CLERIC,
@@ -169,6 +197,7 @@ import {
     PM_HEALER,
     PM_HUMAN,
     PM_MONK,
+    PM_MONKEY,
     PM_NINJA,
     PM_ORC,
     PM_RANGER,
@@ -177,6 +206,12 @@ import {
     PM_TOURIST,
     PM_VALKYRIE,
     PM_WIZARD,
+    PM_PYROLISK,
+    PM_APE,
+    AT_ENGL,
+    AD_DGST,
+    PM_LICHEN,
+    S_UNICORN,
 } from './monsters.js';
 import {
     ammo_and_launcher,
@@ -188,8 +223,11 @@ import {
     is_wet_towel,
     is_weptool,
     matching_launcher,
+    is_axe,
+    is_pick,
     obj_no_longer_held,
     objectType,
+    isCrackable,
     place_object,
     remove_object,
     sobj_at,
@@ -200,6 +238,7 @@ import {
 import {
     ACID_VENOM,
     AKLYS,
+    BANANA,
     ARMOR_CLASS,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
@@ -221,26 +260,33 @@ import {
     GAUNTLETS_OF_DEXTERITY,
     GAUNTLETS_OF_FUMBLING,
     GAUNTLETS_OF_POWER,
+    FOOD_CLASS,
     GEM_CLASS,
     GEMSTONE,
+    AMULET_OF_YENDOR,
+    FAKE_AMULET_OF_YENDOR,
+    VEGGY,
     MINERAL,
     GLASS,
     HEAVY_IRON_BALL,
     KELP_FROND,
     LEATHER_GLOVES,
     MELON,
+    MIRROR,
     OILSKIN_SACK,
     ORCISH_ARROW,
     ORCISH_BOW,
     PANCAKE,
     POTION_CLASS,
     POT_WATER,
+    POT_OIL,
     RUBBER_HOSE,
     SACK,
     SCROLL_CLASS,
     SLING,
     SPRIG_OF_WOLFSBANE,
     STRANGE_OBJECT,
+    STATUE,
     VENOM_CLASS,
     WEAPON_CLASS,
     YA,
@@ -254,14 +300,22 @@ import {
     singular,
     the,
     The,
+    Tobjnam,
     xnameFresh,
 } from './objnam.js';
-import { Monnam, pmname, x_monnam } from './do_name.js';
+import {
+    Monnam,
+    mon_nam,
+    pmname,
+    Some_Monnam,
+    x_monnam,
+} from './do_name.js';
 import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
+import { verbalize } from './pline.js';
 import { body_part } from './polyself.js';
-import { rn1, rn2, rnl, rnd } from './rng.js';
-import { hitval } from './weapon.js';
+import { d, rn1, rn2, rnl, rnd } from './rng.js';
+import { hitval, weapon_hit_bonus } from './weapon.js';
 import { ship_object } from './dokick.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
@@ -282,10 +336,13 @@ import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
 import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';
-import { rloc, tele_restrict } from './teleport.js';
+import { goodpos, rloc, tele_restrict } from './teleport.js';
+import { is_quest_artifact } from './questpgr.js';
+import { align_gname } from './pray.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { in_out_region } from './region.js';
-import { check_special_room } from './rooms.js';
+import { check_special_room, in_rooms } from './rooms.js';
+import { inside_shop } from './shk.js';
 import { dotrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
@@ -426,6 +483,25 @@ export async function hurtle_jump(arg, x, y) {
     } finally {
         walking.extrinsic = saved;
     }
+}
+
+// C ref: dothrow.c will_hurtle() (977-990). This pure predicate is shared by
+// uhitm.c mhitm_knockback() to choose its message before the void mhurtle()
+// call. Keep it beside the other dothrow recoil helpers so callers do not
+// approximate the terrain test locally.
+export function will_hurtle(mon, x, y, state = game, env = {}) {
+    if (!isok(x, y, state)) return false;
+    if (mon?.data?.msize >= MZ_HUGE || mon === state.u?.ustuck
+        || mon?.mtrapped) {
+        return false;
+    }
+    return goodpos(
+        x,
+        y,
+        mon,
+        MM_IGNOREWATER | MM_IGNORELAVA,
+        { ...env, state },
+    );
 }
 
 // C ref: dothrow.c hurtle_step() (773-972). This is the movement callback for
@@ -738,6 +814,109 @@ export function breaktest(obj, env = {}) {
     default:
         return false;
     }
+}
+
+// C ref: dothrow.c breakobj() (2480-2578). The resistance check belongs to
+// breaktest(); this function performs the source's object disposition and
+// returns TRUE whenever the caller must stop its landing tail.  The C calls
+// to shop accounting, camera-demon creation, and fire-oil explosion discard
+// their results, so those owners remain explicit notes while delobj() owns the
+// object lifetime here.
+export async function breakobj(
+    obj,
+    x,
+    y,
+    heroCaused = false,
+    fromInventory = false,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const random = rawEnv.random ?? { rn2, rnd, d };
+
+    if (!obj) return 0;
+
+    // Crackable armor delegates its erosion result to trap.c. Floor missiles
+    // are not carried, so the visible-object arm is an explicit dependency;
+    // callers still receive the C boolean when a caller supplies that owner.
+    if (isCrackable(obj, state)) {
+        const erode = rawEnv.erodeObject;
+        if (typeof erode !== 'function') {
+            note_unported('trap.c erode_obj floor object');
+            delobj(obj, { ...rawEnv, state, force: true });
+            return 1;
+        }
+        const result = await erode(
+            obj,
+            null,
+            ERODE_CRACK,
+            EF_DESTROY | EF_VERBOSE,
+            { ...rawEnv, state, random },
+        );
+        return result === ER_DESTROYED ? 1 : 0;
+    }
+
+    let fracture = false;
+    let explosion = false;
+    const effectiveType = obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp;
+    switch (effectiveType) {
+    case MIRROR:
+        if (heroCaused) change_luck(-2, state);
+        break;
+    case POT_WATER:
+        obj.in_use = true;
+        if (obj.otyp === POT_OIL && obj.lamplit) {
+            note_unported('potion.c explode_oil');
+        } else if (next2u(x, y, state)) {
+            // potionbreathe() is a void call in C. Use the implemented owner
+            // when available and preserve its own unsupported vapour arms.
+            const breathe = rawEnv.potionbreathe;
+            if (typeof breathe === 'function') {
+                await breathe(obj, state, { ...rawEnv, random, message });
+            } else {
+                note_unported('potion.c potionbreathe');
+            }
+        }
+        obj.in_use = false;
+        break;
+    case EXPENSIVE_CAMERA:
+        note_unported('dothrow.c release_camera_demon');
+        break;
+    case EGG:
+        if (heroCaused && obj.spe && Number.isInteger(obj.corpsenm))
+            change_luck(-Math.min(obj.quan ?? 1, 5), state);
+        if (obj.corpsenm === PM_PYROLISK) explosion = true;
+        break;
+    case BOULDER:
+    case STATUE:
+        // C leaves the boulder/statue for its caller to dispose of.
+        fracture = true;
+        break;
+    default:
+        break;
+    }
+
+    if (heroCaused && (fromInventory || obj.unpaid)) {
+        if (state.u?.ushops?.[0] || obj.unpaid)
+            note_unported('dothrow.c check_shop_obj');
+    } else if (heroCaused && !obj.no_charge) {
+        note_unported('shk.c costly_spot/stolen_value');
+    }
+    if (!fracture) delobj(obj, { ...rawEnv, state });
+    if (explosion) {
+        const explode = rawEnv.explode;
+        if (typeof explode === 'function') {
+            await explode(x, y, -11, (random.d ?? d)(3, 6), 0, 5, state,
+                { ...rawEnv, random, message });
+        } else {
+            note_unported('explode.c explode');
+        }
+    }
+    return 1;
+}
+
+function next2u(x, y, state) {
+    return distmin(x, y, state.u?.ux, state.u?.uy) <= 2;
 }
 
 // C ref: dothrow.c ok_to_throw() (295-317), "common to dothrow() and
@@ -1180,6 +1359,45 @@ function finishThrowObj(res, obj, save_osplit, state) {
     return res;
 }
 
+// C ref: mondata.h befriend_with_obj(). This macro is pure: domestic food
+// objects pacify ordinary pets, bananas pacify monkeys and apes, and horses
+// accept only vegetarian food or lichen corpses.
+export function befriendWithObject(species, obj, state = game) {
+    const type = objectType(obj, state);
+    if (species?.pmidx === PM_MONKEY || species?.pmidx === PM_APE)
+        return obj.otyp === BANANA;
+    return is_domestic(species)
+        && obj.oclass === FOOD_CLASS
+        && (species.mlet !== S_UNICORN
+            || type.oc_material === VEGGY
+            || (obj.otyp === CORPSE && obj.corpsenm === PM_LICHEN));
+}
+
+// C ref: mondata.h digests(). The macro recognizes an engulfing attack whose
+// damage type is AD_DGST; keep it local because the C macro has no callable
+// source function or separate state value.
+export function digests(species) {
+    return Boolean(species?.mattk?.some((attack) =>
+        attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST));
+}
+
+// C's gt.thrownobj is the single transit slot for a thrown object.  Keep this
+// grouped field canonical: legacy root-level aliases make mpickobj() and
+// object deletion disagree about whether the missile is still in flight.
+function thrownObject(state) {
+    return state.gt?.thrownobj ?? null;
+}
+
+function setThrownObject(state, obj) {
+    state.gt ??= {};
+    state.gt.thrownobj = obj;
+}
+
+function clearThrownObject(state) {
+    state.gt ??= {};
+    state.gt.thrownobj = null;
+}
+
 // C ref: dothrow.c tmiss() (1951-1973). A thrown object uses the missile
 // name in the miss message, wakes a target one third of the time, and hides
 // the target's real name when it is not a valid visible monster appearance.
@@ -1208,18 +1426,23 @@ async function throwit_mon_hit(mon, obj, state = game) {
     if (mon?.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
         return true;
     if (obj?.lamplit)
-        throw new UnsupportedThrowError('snuff_candle()');
+        note_unported('dothrow.c snuff_candle');
     state.gn ??= {};
     state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
         || state.gb.bhitpos.y !== mon.my;
     const objGone = await thitmonst(mon, obj, state);
     const after = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     if (after?.isshk
-        && after !== mon
-        && (state.u.ushops?.[0] || obj.unpaid)) {
-        throw new UnsupportedThrowError('hot_pursuit()');
+        && (!inside_shop(state.u.ux, state.u.uy, state)
+            || !in_rooms(after.mx, after.my, SHOPBASE, state).includes(
+                state.u.ushops?.[0],
+            ))) {
+        // C discards hot_pursuit()'s return. Its shopkeeper movement arm is
+        // still unported, so preserve the source boundary without changing
+        // the missile's landing state or adding a replacement RNG draw.
+        note_unported('shk.c hot_pursuit');
     }
-    if (objGone) state.thrownobj = null;
+    if (objGone) clearThrownObject(state);
     return false;
 }
 
@@ -1279,20 +1502,20 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
         text += ' graciously';
     }
 
+    let ret = 0;
     if (accepted) {
         text += ' accepts your gift.';
         if (state.u.ushops?.[0] || obj.unpaid)
-            throw new UnsupportedThrowError('check_shop_obj()');
+            note_unported('dothrow.c check_shop_obj');
         mpickobj(mon, obj, {
             ...env,
             canSeeMonster: (target) => canseemon(target, state),
         });
-        if (!heroIsBlind(state)) await message(text, state, env);
-        return 1;
+        ret = 1;
     }
 
     if (!heroIsBlind(state)) await message(text, state, env);
-    if (!(await tele_restrict(mon, state))) {
+    if (!(await tele_restrict(mon, state, { ...env, message }))) {
         rloc(mon, RLOC_MSG, {
             ...env,
             state,
@@ -1301,7 +1524,7 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
             canSeeMonster: (target) => canseemon(target, state),
         });
     }
-    return 0;
+    return ret;
 }
 
 // C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
@@ -1335,8 +1558,8 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         u.dz = 1;
     }
 
-    state.thrownobj = obj;
-    state.thrownobj.how_lost = LOST_THROWN;
+    setThrownObject(state, obj);
+    obj.how_lost = LOST_THROWN;
     if (autoReturns(obj, wep_mask, state)) {
         throw new UnsupportedThrowError('iflags.returning_missile');
     }
@@ -1390,7 +1613,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,
         pobj, state);
     obj = pobj.obj;
-    state.thrownobj = obj; /* obj may be null now */
+    setThrownObject(state, obj); /* obj may be null now */
 
     if (!obj) {
         /* throwit_return(FALSE) leaves gt.thrownobj alone, and the line
@@ -1399,8 +1622,12 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
 
     if (mon) {
-        await throwit_mon_hit(mon, obj, state);
-        return;
+        /* C continues into the ordinary landing lifecycle after
+           throwit_mon_hit(): a surviving missile is still tested for breakage
+           and placed at bhitpos.  Only hmon()/a consuming hit clears the
+           transit object and returns before this tail. */
+        const caught = await throwit_mon_hit(mon, obj, state);
+        if (caught || !thrownObject(state)) return;
     }
 
     const bx = state.gb.bhitpos.x;
@@ -1408,7 +1635,10 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     if ((!IS_SOFT(state.level.at(bx, by).typ)
         && breaktest(obj, { state }))
         || obj.oclass === VENOM_CLASS) {
-        throw new UnsupportedThrowError('breakobj()');
+        // C's breakmsg() is a discarded display helper; retain its source
+        // boundary while breakobj() owns object disposition and its result.
+        note_unported('dothrow.c breakmsg');
+        if (await breakobj(obj, bx, by, true, true, { state })) return;
     }
     if (!Deaf(state) && !u.uinwater) {
         /* Some sound effects when item lands in water or lava */
@@ -1435,24 +1665,43 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
     /* flooreffects() owns everything the liquid then does to the object:
        trap.c lava_damage() for a lava square and trap.c water_damage() for a
-       pool. Neither is ported for a free object, so js/do.js flooreffects()
-       raises the refusal for both and this site no longer has to. */
-    if (flooreffects(obj, bx, by, 'fall', {
+       pool. Their return values decide whether throwit() stops its landing
+       tail, while the floor owner keeps the object's lifetime coherent. */
+    if (await flooreffects(obj, bx, by, 'fall', {
         state,
         unsupported: (what) => {
             throw new UnsupportedThrowError(what);
         },
     })) {
-        state.thrownobj = null;
+        clearThrownObject(state);
         return;
     }
     obj_no_longer_held(obj);
-    /* snuff_candle(): bhit() stops for a lit object before it can get here */
-    if (!mon && await ship_object(obj, bx, by, false, { state })) {
-        state.thrownobj = null;
+    if (mon?.isshk && is_pick(obj, state)) {
+        // dothrow.c:1809-1816.  A shopkeeper catches a pick after the
+        // landing effects and owns it through mpickobj(), which also clears
+        // gt.thrownobj.  check_shop_obj() only bills the object; its result
+        // is discarded and that source helper is not ported yet.
+        if (cansee(bx, by, state)) {
+            await ttyPline(
+                `${Monnam(mon, state)} snatches up ${the(xnameFresh(obj, state), state)}.`,
+                state,
+            );
+        }
+        if (state.u.ushops?.[0] || obj.unpaid)
+            note_unported('dothrow.c check_shop_obj');
+        mpickobj(mon, obj, {
+            state,
+            canSeeMonster: (target) => canseemon(target, state),
+        });
         return;
     }
-    state.thrownobj = null;
+    /* snuff_candle(): bhit() stops for a lit object before it can get here */
+    if (!mon && await ship_object(obj, bx, by, false, { state })) {
+        clearThrownObject(state);
+        return;
+    }
+    clearThrownObject(state);
     place_object(obj, bx, by, { state });
     /* container contents might break */
     if (!IS_SOFT(state.level.at(bx, by).typ)) {
@@ -1480,30 +1729,40 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         state.vision_full_recalc = 1;
 }
 
-// C ref: dothrow.c thitmonst() (2011-2308).  This is the shared hit gate for
-// thrown objects, kicked objects, and polearms applied at range.  The weapon,
-// potion, pet-food, swallowed-object, and unicorn/leader side paths retain
-// their source boundaries below; the cream-pie path runs through hmon(), as
-// in C, so its random rolls and object lifecycle are shared with melee hits.
+// C ref: dothrow.c thitmonst() (2011-2304). This is the shared hit gate for
+// thrown objects, kicked objects, and polearms applied at range. Its source
+// object-class branches stay in this one function so hmode, random order,
+// hmon() return handling, and the caller's object lifecycle remain coupled.
 export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
     const random = env.random ?? { rn1, rn2, rnd };
-    const message = env.message ?? ttyPline;
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
+    // Existing partial owners may still report an unported discarded or
+    // impossible branch. Keep this source function running so such a gap
+    // cannot replace a source arm with a new throw or consume extra RNG.
     const unsupported = env.unsupported
-        ?? ((what) => {
-            throw new UnsupportedThrowError(`thitmonst(): ${what}`);
-        });
+        ?? ((what) => note_unported(`dothrow.c ${what}`));
+    const operationEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        unsupported,
+    };
     const u = state.u;
     const otyp = obj.otyp;
     const guaranteedHit = engulfing_u(mon, state);
     const hmode = obj === state.uwep ? HMON_APPLIED
         : obj === state.gk?.kickedobj ? HMON_KICKED : HMON_THROWN;
 
-    /* C's maybe_polyd() is ulevel for the unpolymorphed hero, which is the
-       only form represented by this port. */
+    /* C's maybe_polyd() selects the current form while polymorphed and the
+       hero's level or race while unpolymorphed. */
+    const polyd = Upolyd(u);
     let tmp = -1 + (u.uluck ?? 0) + (u.moreluck ?? 0)
         + find_mac(mon, state) + (u.uhitinc ?? 0)
-        + (u.ulevel ?? 0);
+        + (polyd
+            ? (state.youmonst?.data?.mlevel ?? 0)
+            : (u.ulevel ?? 0));
     const dex = acurr(state, A_DEX);
     if (dex < 4) tmp -= 3;
     else if (dex < 6) tmp -= 2;
@@ -1527,13 +1786,17 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         case GAUNTLETS_OF_DEXTERITY:
             break;
         default:
-            unsupported(`unknown type of gloves (${state.uarmg.otyp})`);
+            // C's impossible() diagnostic has no gameplay effect.
+            note_unported('pline.c impossible unknown glove type');
             break;
         }
     }
 
     tmp += omon_adj(mon, obj, true, { state, random });
-    if (is_orc(mon.data) && state.urace?.mnum === PM_ELF)
+    if (is_orc(mon.data)
+        && (polyd
+            ? is_elf(state.youmonst?.data)
+            : state.urace?.mnum === PM_ELF))
         tmp++;
     if (guaranteedHit) tmp += 1000;
 
@@ -1542,57 +1805,217 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         && objectType(obj, state).oc_material !== MINERAL
         && !uslinging(state)) {
         if (helpless(mon)) {
-            await tmiss(obj, mon, false, state, { ...env, random });
+            await tmiss(obj, mon, false, state, operationEnv);
+            return 0;
+        }
+        if (mon.mtame) {
+            // C's tame-unicorn arm catches and drops the gift; it does not
+            // enter gem_accept() or change Luck.
+            await message(
+                `${Monnam(mon, state)} catches and drops ${the(xnameFresh(obj, state), state)}.`,
+                state,
+            );
             return 0;
         }
         await message(
             `${Monnam(mon, state)} catches ${the(xnameFresh(obj, state), state)}.`,
             state,
         );
-        return gem_accept(mon, obj, state, { ...env, random, message });
+        return gem_accept(mon, obj, state, operationEnv);
     }
 
     /* C's special_obj_hits_leader() branch depends on quest and invocation
-       state which this span does not own. Leave the source boundary explicit
-       when a caller presents such a target. */
-    if (mon.m_id && state.svq?.quest_status?.leader_m_id === mon.m_id
-        && (obj.oartifact || objectType(obj, state).oc_unique
-            || (otyp === 0 && !obj.known))) {
-        unsupported('special artifact hit on quest leader');
+       state. The predicate is pure; its side effects remain below. */
+    if (hmode !== HMON_APPLIED
+        && mon.m_id && state.svq?.quest_status?.leader_m_id === mon.m_id
+        && (is_quest_artifact(obj, state)
+            || objectType(obj, state).oc_unique
+            || (otyp === FAKE_AMULET_OF_YENDOR && !obj.known))) {
+        mon.msleeping = 0;
+        mon.mstrategy = (mon.mstrategy ?? 0) & ~STRAT_WAITMASK;
+        if (mon.mcanmove) {
+            await message(
+                `${Some_Monnam(mon, state, operationEnv)} catches ${the(xnameFresh(obj, state), state)}.`,
+                state,
+            );
+            if ((state.u.uevent?.invoked
+                 && objectType(obj, state).oc_unique
+                 && otyp !== AMULET_OF_YENDOR)
+                || !mon.mpeaceful) {
+                if (mon.mpeaceful && !Deaf(state)) {
+                    fully_identify_obj(obj, state);
+                    await verbalize(
+                        `${s_suffix(The(xnameFresh(obj, state), state))} part in this is finished.`,
+                        state,
+                        { message },
+                    );
+                    await verbalize(
+                        `We will guard it in case it is ever needed again, ${align_gname(state.u.ualignbase?.[A_ORIGINAL], state)} forbid.`,
+                        state,
+                        { message },
+                    );
+                }
+                if (state.u.ushops?.[0] || obj.unpaid)
+                    note_unported('dothrow.c check_shop_obj');
+                mpickobj(mon, obj, operationEnv);
+            } else {
+                note_unported('quest.c finish_quest');
+                const next2u = monnear(mon, u.ux, u.uy, state);
+                await message(
+                    `${Some_Monnam(mon, state, operationEnv)} `
+                    + `${next2u ? 'hands' : 'tosses'} `
+                    + `${the(xnameFresh(obj, state), state)} back to you.`,
+                    state,
+                );
+                if (!next2u)
+                    note_unported('dothrow.c sho_obj_return_to_u');
+                obj = addinv(obj, operationEnv);
+                await encumber_msg(state, { message });
+            }
+            return 1;
+        }
+        return 0;
     }
 
     const dieroll = random.rnd(20);
 
     if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
         || obj.oclass === GEM_CLASS) {
-        unsupported('thrown weapon hit');
-        return 0;
-    }
-    if (otyp === HEAVY_IRON_BALL || otyp === BOULDER) {
-        unsupported('thrown ball or boulder hit');
-        return 0;
-    }
+        if (hmode === HMON_KICKED) {
+            tmp -= (is_ammo(obj, state) ? 5 : 3);
+        } else if (is_ammo(obj, state)) {
+            if (!ammo_and_launcher(obj, state.uwep, state)) {
+                tmp -= 4;
+            } else {
+                tmp += (state.uwep.spe ?? 0)
+                    - greatest_erosion(state.uwep);
+                tmp += weapon_hit_bonus(state.uwep, state);
+                if (state.uwep.oartifact)
+                    tmp += spec_abon(state.uwep, mon, state, operationEnv);
+                if ((state.urace?.mnum === PM_ELF
+                     || state.urole?.mnum === PM_SAMURAI)
+                    && (!polyd
+                        || your_race(state.youmonst?.data, state))
+                    && objectType(state.uwep, state).oc_skill === P_BOW) {
+                    ++tmp;
+                    if ((state.urace?.mnum === PM_ELF
+                         && state.uwep.otyp === ELVEN_BOW)
+                        || (state.urole?.mnum === PM_SAMURAI
+                            && state.uwep.otyp === YUMI))
+                        ++tmp;
+                }
+            }
+        } else {
+            if (otyp === BOOMERANG) tmp += 4;
+            else if (isThrowingWeapon(obj, state)) tmp += 2;
+            else if (obj === thrownObject(state)) tmp -= 2;
+            tmp += weapon_hit_bonus(obj, state);
+        }
 
-    if ((otyp === EGG || otyp === CREAM_PIE || otyp === BLINDING_VENOM
-        || otyp === ACID_VENOM)
-        && (guaranteedHit || dex > random.rnd(25))) {
-        const hitEnv = {
-            ...env,
+        if (tmp >= dieroll) {
+            const wasThrown = Boolean(thrownObject(state));
+            const chopper = is_axe(obj, state);
+            if (hmode === HMON_APPLIED) {
+                state.u.uconduct ??= {};
+                state.u.uconduct.weaphit = Math.trunc(
+                    state.u.uconduct.weaphit ?? 0,
+                ) + 1;
+            }
+            const alive = await hmon(
+                mon, obj, hmode, dieroll, state, operationEnv,
+            );
+            if (alive && mon.wormno)
+                note_unported('worm.c cutworm');
+            await exercise(A_DEX, true, state, operationEnv);
+            if (wasThrown && !thrownObject(state)) return 1;
+            if (should_mulch_missile(obj, state, operationEnv)) {
+                if (state.u.ushops?.[0] || obj.unpaid)
+                    note_unported('dothrow.c check_shop_obj');
+                obfree(obj, null, operationEnv);
+                return 1;
+            }
+            // C discards passive_obj()'s result. Its monster-target body is
+            // still partial, so keep the source call boundary explicit
+            // instead of swallowing a refusal through operationEnv.
+            note_unported('uhitm.c passive_obj');
+        } else {
+            await tmiss(obj, mon, true, state, operationEnv);
+            if (hmode === HMON_APPLIED)
+                await wakeup(mon, true, operationEnv);
+        }
+    } else if (otyp === HEAVY_IRON_BALL) {
+        await exercise(A_STR, true, state, operationEnv);
+        if (tmp >= dieroll) {
+            const wasSwallowed = guaranteedHit;
+            await exercise(A_DEX, true, state, operationEnv);
+            const alive = await hmon(
+                mon, obj, hmode, dieroll, state, operationEnv,
+            );
+            if (!alive && wasSwallowed && !u.uswallow
+                && obj === state.uball)
+                return 1;
+        } else {
+            await tmiss(obj, mon, true, state, operationEnv);
+        }
+    } else if (otyp === BOULDER) {
+        await exercise(A_STR, true, state, operationEnv);
+        if (tmp >= dieroll) {
+            await exercise(A_DEX, true, state, operationEnv);
+            await hmon(mon, obj, hmode, dieroll, state, operationEnv);
+        } else {
+            await tmiss(obj, mon, true, state, operationEnv);
+        }
+    } else if ((otyp === EGG || otyp === CREAM_PIE || otyp === BLINDING_VENOM
+               || otyp === ACID_VENOM)
+              && (guaranteedHit || dex > random.rnd(25))) {
+        await hmon(mon, obj, hmode, dieroll, state, operationEnv);
+        return 1;
+    } else if (obj.oclass === POTION_CLASS
+               && (guaranteedHit || dex > random.rnd(25))) {
+        // C discards potionhit()'s return.  Its monster-target body remains
+        // unported, so do not run a partial owner merely to retain a draw;
+        // record the discarded source call and preserve this arm's return.
+        note_unported('potion.c potionhit');
+        return 1;
+    } else if (befriendWithObject(mon.data, obj, state)
+               || (mon.mtame && dogfood(mon, obj, operationEnv) <= ACCFOOD)) {
+        // tamedog() returns whether it consumed the object. Preserve that
+        // return-valued boundary rather than converting a failed taming into
+        // a source-level miss.
+        const tamed = await tamedog(mon, obj, true, operationEnv);
+        if (tamed) {
+            return 1;
+        }
+        await tmiss(obj, mon, false, state, operationEnv);
+        mon.msleeping = 0;
+        mon.mstrategy = (mon.mstrategy ?? 0) & ~STRAT_WAITMASK;
+    } else if (guaranteedHit) {
+        await wakeup(mon, true, operationEnv);
+        const md = u.ustuck?.data ?? mon.data;
+        if (otyp === CORPSE && touch_petrifies(state.mons?.[obj.corpsenm])) {
+            if (is_animal(md)) {
+                note_unported('trap.c minstapetrify');
+                if (!u.uswallow) {
+                    // C consumes the cockatrice corpse after the swallowed
+                    // target is petrified. delobj() is implemented here and
+                    // must own the object lifecycle (including obj_resists).
+                    delobj(obj, { state });
+                    return 1;
+                }
+            }
+        }
+        const trail = digests(md) ? ' entrails'
+            : is_whirly(md) ? ' currents' : '';
+        let monname = mon_nam(mon, state);
+        if (trail) monname = s_suffix(monname);
+        await message(
+            `${Tobjnam(obj, 'vanish', state)} into ${monname}${trail}.`,
             state,
-            random,
-            message,
-            unsupported,
-        };
-        await hmon(mon, obj, hmode, dieroll, state, hitEnv);
-        return 1;
-    }
-    if (obj.oclass === POTION_CLASS
-        && (guaranteedHit || dex > random.rnd(25))) {
-        unsupported('potionhit()');
-        return 1;
+        );
+    } else {
+        await tmiss(obj, mon, true, state, operationEnv);
     }
 
-    unsupported('non-weapon thrown-object hit');
     return 0;
 }
 
@@ -1783,7 +2206,7 @@ async function throw_gold(obj, state = game) {
         }
     }
 
-    if (flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
+    if (await flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
         state,
         unsupported: (what) => {
             throw new UnsupportedThrowError(what);

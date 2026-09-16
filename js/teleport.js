@@ -1577,7 +1577,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     u_on_newpos(nux, nuy, state);
     fill_pit(u.ux0, u.uy0, state);
     if (ball_active && state.uchain?.where === OBJ_FREE)
-        placebc(state);
+        await placebc(state);
     update_player_regions(state);
     /*
      *  Make sure the hero disappears from the old location, and force a full

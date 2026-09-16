@@ -112,7 +112,7 @@ function rememberedGlyph(glyph) {
 // C ref: ball.c placebc_core() (120-145), reached by placebc() after a level
 // transition. The floor-effect checks are ordinary on the destination square;
 // other landing effects remain owned by do.c flooreffects().
-function placebc_core(state) {
+async function placebc_core(state, rawEnv = {}) {
     const ball = state.uball;
     const chain = state.uchain;
     if (!ball || !chain) {
@@ -120,18 +120,19 @@ function placebc_core(state) {
         return;
     }
 
-    flooreffects(chain, state.u.ux, state.u.uy, '', {
+    const redraw = rawEnv.redraw ?? newsym;
+    const effectEnv = {
+        ...rawEnv,
         state,
         unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
-    });
+    };
+
+    await flooreffects(chain, state.u.ux, state.u.uy, '', effectEnv);
 
     if (carried(ball)) {
         state.u.bc_order = BCPOS_DIFFER;
     } else {
-        flooreffects(ball, state.u.ux, state.u.uy, '', {
-            state,
-            unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
-        });
+        await flooreffects(ball, state.u.ux, state.u.uy, '', effectEnv);
         place_object(ball, state.u.ux, state.u.uy, { state });
         state.u.bc_order = BCPOS_CHAIN;
     }
@@ -139,18 +140,20 @@ function placebc_core(state) {
     const glyph = state.level.at(state.u.ux, state.u.uy).glyph;
     state.u.bglyph = glyph;
     state.u.cglyph = glyph;
-    newsym(state.u.ux, state.u.uy, state);
+    redraw(state.u.ux, state.u.uy, state);
 }
 
 // C ref: ball.c placebc() (193-209). The restriction mechanism is only used
 // by covet/lift callers outside this span, so a free chain is the live check.
-export function placebc(state = game) {
+export async function placebc(state = game, rawEnv = {}) {
     const chain = state.uchain;
     if (chain && chain.where !== OBJ_FREE) {
         note_unported('pline.c impossible');
         return;
     }
-    placebc_core(state);
+    const redraw = rawEnv.redraw
+        ?? (rawEnv.planning ? () => {} : newsym);
+    await placebc_core(state, { ...rawEnv, redraw });
 }
 
 // C ref: ball.c unplacebc_core() (147-190), used around level transit. Object

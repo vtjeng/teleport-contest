@@ -610,7 +610,7 @@ test('unstuck re-arms a holder and leaves everything else alone',
         // Not the holder: the whole function is skipped.
         const bystander = monster(PM_LICHEN);
         const quiet = killEnv();
-        unstuck(bystander, game, quiet);
+        await unstuck(bystander, game, quiet);
         assert.deepEqual(quiet.bounds, []);
         assert.equal(bystander.mspec_used, 0);
 
@@ -619,7 +619,7 @@ test('unstuck re-arms a holder and leaves everything else alone',
         const holder = monster(PM_LICHEN);
         game.u.ustuck = holder;
         const env = killEnv([2]);
-        unstuck(holder, game, env);
+        await unstuck(holder, game, env);
         assert.equal(game.u.ustuck, null);
         assert.deepEqual(env.bounds, ['rnd(2)']);
         assert.equal(holder.mspec_used, 2);
@@ -630,7 +630,7 @@ test('unstuck re-arms a holder and leaves everything else alone',
         const hugger = monster(PM_OWLBEAR);
         game.u.ustuck = hugger;
         const hugs = killEnv([1]);
-        unstuck(hugger, game, hugs);
+        await unstuck(hugger, game, hugs);
         assert.deepEqual(hugs.bounds, ['rnd(2)']);
         assert.equal(hugger.mspec_used, 1);
 
@@ -641,7 +641,7 @@ test('unstuck re-arms a holder and leaves everything else alone',
         const cooling = monster(PM_LICHEN, { mspec_used: 3 });
         game.u.ustuck = cooling;
         const cool = killEnv([2]);
-        unstuck(cooling, game, cool);
+        await unstuck(cooling, game, cool);
         assert.equal(game.u.ustuck, null);
         assert.deepEqual(cool.bounds, [], 'no second rnd(2)');
         assert.equal(cooling.mspec_used, 3, 'the running cooldown survives');
@@ -650,24 +650,67 @@ test('unstuck re-arms a holder and leaves everything else alone',
         const plain = monster(PM_NEWT);
         game.u.ustuck = plain;
         const none = killEnv();
-        unstuck(plain, game, none);
+        await unstuck(plain, game, none);
         assert.equal(game.u.ustuck, null);
         assert.deepEqual(none.bounds, []);
 
-        // An engulfer stops above set_ustuck(), so u.ustuck survives.
+        // An engulfer clears both holding and swallowing state, then redraws
+        // through its injected docrt operation before re-arming its attack.
         const engulfer = monster(PM_LICHEN);
         game.u.ustuck = engulfer;
         game.u.uswallow = 1;
+        game.u.uswldtim = 4;
+        const redraw = [];
         try {
-            refuses(
-                () => unstuck(engulfer, game, killEnv()),
-                'releasing an engulfer',
-            );
-            assert.equal(game.u.ustuck, engulfer);
+            const released = killEnv([2]);
+            released.docrt = async () => redraw.push({
+                swallowed: game.u.uswallow,
+                holder: game.u.ustuck,
+                x: game.u.ux,
+                y: game.u.uy,
+            });
+            await unstuck(engulfer, game, released);
+            assert.equal(game.u.ustuck, null);
+            assert.equal(game.u.uswallow, 0);
+            assert.equal(game.u.uswldtim, 0);
+            assert.deepEqual(redraw, [{
+                swallowed: 0,
+                holder: null,
+                x: engulfer.mx,
+                y: engulfer.my,
+            }]);
+            assert.deepEqual(released.bounds, ['rnd(2)']);
+            assert.equal(engulfer.mspec_used, 2);
         } finally {
             game.u.uswallow = 0;
             game.u.ustuck = null;
         }
+    });
+
+test('unstuck brackets the swallowed redraw with source vision phases',
+    async () => {
+        await hero();
+        const engulfer = monster(PM_LICHEN);
+        game.u.ustuck = engulfer;
+        game.u.uswallow = 1;
+        const order = [];
+        const redraw = () => order.push('redraw');
+        const released = killEnv([2]);
+        released.redraw = redraw;
+        released.docrt = async () => order.push('docrt');
+        released.visionRecalc = (control) => {
+            order.push(`vision${control}`);
+            if (control === 0) game.vision_full_recalc = 0;
+        };
+
+        await unstuck(engulfer, game, released);
+
+        assert.deepEqual(order.slice(0, 3), [
+            'vision2', 'docrt', 'vision0',
+        ]);
+        assert.ok(order.includes('redraw'),
+            'see_monsters runs after vision_recalc(0)');
+        assert.equal(game.vision_full_recalc, 0);
     });
 
 // mon.c mon_leaving_level() (2695-2730) and m_detach() (2733-2803).
@@ -1252,9 +1295,9 @@ test('the pit and thrown-missile arms read their own conditions',
                       { state: game, hooks: { recalcBlockPoint() {} } });
 
         // 3517's boulder in the monster's pack, which sets burycorpse. Its
-        // square is clear, so fill_pit() passes and the stop instead comes
-        // from m_detach()'s relobj(), which drops that boulder onto the pit
-        // before make_corpse() can read the flag. Also above both draws.
+        // square is clear, so fill_pit() passes. m_detach()'s relobj() drops
+        // that boulder onto the pit, where the canonical floor owner settles
+        // it before make_corpse() reads the buried flag.
         const carrier = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
         maketrap(carrier.mx, carrier.my, PIT, { state: game });
         const carriedRock = mksobj(BOULDER, false, false, { state: game });
@@ -1262,11 +1305,14 @@ test('the pit and thrown-missile arms read their own conditions',
         carriedRock.ocarry = carrier;
         carrier.minvent = carriedRock;
         const packed = killEnv();
-        await refusesAsync(
-            () => killed(carrier, game, packed),
-            `a boulder landing at <${carrier.mx},${carrier.my}>`,
-        );
-        assert.deepEqual(packed.bounds, [], 'stopped above the drop draw');
+        await killed(carrier, game, packed);
+        assert.deepEqual(packed.bounds,
+            ['rn2(100)', 'rn2(6)', 'rn2(3)'],
+            'treasure and corpse draws follow the settled boulder');
+        assert.deepEqual(packed.lines, [
+            'You kill the newt!', 'The boulder fills a pit.',
+        ]);
+        assert.equal(game.level.objects[carrier.mx][carrier.my], null);
 
         // gt.thrownobj alone is not enough: 3528's first conjunct is
         // wasinside, and the hero is not inside anything here.

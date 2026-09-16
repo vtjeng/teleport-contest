@@ -47,6 +47,13 @@ connections, turns, tasks, scope changes, and submissions. You record receipt,
 integration, validation, acceptance, and publication. Keep accepted
 source-completion evidence in `GOALS.json`.
 
+Use `next` for routine coordination and `status` when the full ownership
+state is needed. Event and submission commands currently print the full
+state: capture stdout in one reusable worktree-local `.cache/` file, keep
+stderr visible, and inspect the exit status and affected task or delivery.
+Keep recording required transitions and process handles; avoid copying the
+returned state into tracked records or progress messages.
+
 You own `main`, `GOALS.json`, `SCORE.tsv`, quality and review records, aggregate
 checks, and publication. Workers own their code, focused tests, recipes, and
 recordings. Apply their proposed `QUALITY.json` changes yourself. Do not merge
@@ -99,13 +106,15 @@ separately from other goals.
    or `.agents/divergence.md`, then commit those records. Reconcile work
    already completed; do not close unrelated source units.
 3. Integrate the submitted commits. Check whole-source coverage, production
-   callers, and entry-point recordings under `.agents/validation.md`. Run
-   affected focused checks, `npm run lint`, and `npm run quality`. Follow
-   `.agents/review.md` to decide whether review is needed. Record verified
-   source evidence and commit the combined candidate.
-4. Run `worker-state.mjs preflight --task <id>`. Resolve its omissions and run
-   its listed checks. For a retry, pass the failed summary with
-   `--previous-checkpoint` and address every failure. Run `npm run checkpoint`
+   callers, and entry-point recordings under `.agents/validation.md`. Record
+   verified source evidence and commit the combined candidate.
+4. Run `worker-state.mjs preflight --task <id>` before broad focused testing.
+   Resolve its omissions, then run its listed checks, affected focused tests,
+   `npm run lint`, and `npm run quality`. Follow `.agents/review.md` to decide
+   whether review is needed. For a retry, pass the failed summary with
+   `--previous-checkpoint` and address every failure. If corrections change
+   the candidate, commit them and rerun preflight before testing it.
+   Run `npm run checkpoint`
    under `.agents/validation.md`. Keep one full-validation owner and retain
    its process handle until completion. Do not change main's HEAD during the
    run. If it fails, preserve the results and reap the run before integrating
@@ -196,10 +205,14 @@ Validate each returned file with `readInvestigation(root, queueEntry)` from
 malformed files from existing findings. Require the remaining-screen count
 and cache path in the completion message. When the count changes, stop or
 finish the old investigation before replacing it so an old result cannot
-overwrite a newer one. Collect worker findings into main's investigation
-files and publish them at a safe commit boundary.
-Keep the deployed dashboard current with completed and partial investigations and the latest validated score; publish newly available records at the next safe commit boundary without waiting for an implementation delivery.
-After each push, verify the dashboard deployment and its displayed mismatch queue against the published records.
+overwrite a newer one. Collect changed source findings into main's
+investigation files under `.agents/selection.md`, "Investigation cache".
+Keep the deployed dashboard current with completed and partial findings and
+the latest validated score. Publish changed findings at the next safe commit
+boundary without waiting for an implementation delivery. Worker activity
+alone does not require an investigation edit or publication commit.
+After each push, verify the dashboard deployment and its displayed mismatch
+queue against the published records.
 
 ## Reports
 

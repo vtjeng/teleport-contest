@@ -140,7 +140,12 @@ or one whole Lua program:
 | `inactiveReason` | For source excluded by the reference build, identify the build condition and source evidence. A source-pinned test documents an impure helper whose compile-time caller cannot run in the recorder; no production caller or recording is required for that helper. Do not invent a JavaScript function for a C macro invocation. |
 
 The object also records `entryPointReview`, the source-based enumeration of
-all entry points in the selected range, and an `entryPoints` array. Each
+all entry points in the selected range, and an `entryPoints` array. Check
+callers against the recorder's actual build configuration before planning
+recordings. List active entry points in `entryPoints`; document excluded
+caller branches, their build conditions and source call sites, and their
+source-pinned tests in the existing `entryPointReview`. Missing JavaScript
+behavior or a difficult recipe does not make a caller inactive. Each
 entry is `{ "name", "functions", "recordings" }`. A helper-only range uses
 an empty array and explains its production callers in `entryPointReview`.
 A planned entry point may have an empty recording array while blocked; the

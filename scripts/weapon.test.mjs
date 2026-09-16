@@ -130,7 +130,6 @@ import {
     uwep_skill_type,
     weapon_dam_bonus,
     can_advance,
-    UnsupportedWeaponSkillError,
     P_NAME,
     skill_level_name,
     weapon_descr,
@@ -1896,11 +1895,7 @@ test('use_skill practices a skill and stops where C announces advancement',
         sword.advance = 79;
         state.u.weapon_slots = 2;
         assert.equal(can_advance(P_LONG_SWORD, false, state), false);
-        assert.throws(
-            () => use_skill(P_LONG_SWORD, 1, state),
-            (error) => error instanceof UnsupportedWeaponSkillError
-                && error.branch === 'give_may_advance_msg(skill)',
-        );
+        use_skill(P_LONG_SWORD, 1, state);
         // C adds the practice before it tests again, so the write survives.
         assert.equal(sword.advance, 80);
 

@@ -4223,7 +4223,7 @@ export function carry_obj_effects(obj, env = {}, prepared = null) {
 // C ref: dothrow.c throwing_weapon().  obj.h is_blade() and is_sword() are
 // not ported, so their two terms stay inlined here; is_missile() and
 // is_spear() come from js/obj.js, which owns obj.h.
-function isThrowingWeapon(obj, state) {
+export function isThrowingWeapon(obj, state) {
     const type = objectType(obj, state);
     const skill = type.oc_subtyp;
     const missile = is_missile(obj, state);

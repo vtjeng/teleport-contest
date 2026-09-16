@@ -130,6 +130,25 @@ test('formatGoal states the kind, declarations and verified count, and the spans
     assert.ok(legacy.includes('[closed] relobj drop (aaaaaaaa)'));
 });
 
+test('superseded records require provenance and keep the roadmap on the replacement', () => {
+    const data = structuredClone(store);
+    const retired = { ...structuredClone(data.goals[1]), id: 'old-options-plan',
+        status: 'superseded', supersededBy: 'options-c',
+        supersededReason: 'The replacement covers this source range.',
+        supersededAt: 'a'.repeat(40) };
+    data.goals.push(retired);
+    assert.doesNotThrow(() => validateGoals(data));
+    assert.match(formatGoal(retired), /replaced by: options-c/u);
+    const rows = roadmapRows([{ name: 'options.c', text: 'int\noptfn_align(void)\n{\nreturn 0;\n}\n' }],
+        new Set(['optfn_align']), data.goals);
+    assert.equal(rows[0].goal, 'options-c (queued)');
+    for (const field of ['supersededReason', 'supersededAt']) {
+        const invalid = structuredClone(data);
+        delete invalid.goals.at(-1)[field];
+        assert.throws(() => validateGoals(invalid), /needs a reason and commit/u);
+    }
+});
+
 test('parseCFunctions reads column-0 definitions and their extents', () => {
     // NetHack style: return type on its own line, name at column 0. The
     // prototype and the indented call must not count as definitions.

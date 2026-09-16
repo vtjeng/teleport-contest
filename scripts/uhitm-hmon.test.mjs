@@ -24,16 +24,23 @@ import test from 'node:test';
 import {
     HMON_MELEE,
     HMON_THROWN,
+    HMON_KICKED,
+    OBJ_MINVENT,
     OBJ_DELETED,
+    LEVITATION,
     D_CLOSED,
     D_NODOOR,
     DOOR,
     P_BASIC,
     P_KNIFE,
+    P_BARE_HANDED_COMBAT,
     P_SKILLED,
     ROWNO,
 } from '../js/const.js';
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import {
+    ART_EXCALIBUR,
+    ART_GIANTSLAYER,
+} from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
@@ -84,12 +91,14 @@ import {
     SILVER_SABER,
     SMALL_SHIELD,
     WORTHLESS_WHITE_GLASS,
+    LOADSTONE,
 } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
 import { monsndx } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
 import { uwep_skill_type } from '../js/weapon.js';
-import { hmon, known_hitum } from '../js/uhitm.js';
+import { hmon, known_hitum, m_is_steadfast } from '../js/uhitm.js';
+import { will_hurtle } from '../js/dothrow.js';
 
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
@@ -216,50 +225,41 @@ test('hmon admits a thrown cream pie', async () => {
 // behind an rn2(2) that only a priest target draws. That consequence remains
 // unported, while the peaceful shopkeeper/watchman path now calls
 // angry_guards() after hmon_hitmon().
-test('hmon stops on the unported priest consequence before it rolls damage',
-    async () => {
-        await hero();
-        // Each row carries the species and the flags that reach one refusal.
-        // uhitm.c:827's two guard disjuncts are asked differently: isshk is a
-        // flag any species can carry, while mondata.h is_watch() reads the
-        // species itself, so the watch rows set no flag but mpeaceful.
-        const cases = [
-            ['striking a temple priest', PM_LICHEN, { ispriest: 1 }],
-            ['striking a temple priest', PM_LICHEN,
-                { ispriest: 1, mpeaceful: 1 }],
-        ];
-        for (const [reason, pmidx, overrides] of cases) {
-            const label = `${reason} ${pmidx}`;
-            const env = hitEnv();
-            await refusesAsync(
-                () => hmon(target(pmidx, overrides), game.uwep,
-                           HMON_MELEE, 10, game, env),
-                reason,
-                label,
-            );
-            assert.deepEqual(env.bounds, [], label);
-        }
-        // A hostile shopkeeper is not protected: anger_guards at uhitm.c:826
-        // requires mpeaceful, so this one runs the whole function.
-        const env = hitEnv({ rolls: [2] });
-        const shk = target(PM_LICHEN, { isshk: 1 });
-        assert.equal(await hmon(shk, game.uwep, HMON_MELEE, 10, game, env),
+test('hmon applies the priest consequence after the hit', async () => {
+    await hero();
+    // uhitm.c:827 draws rn2(2) only after hmon_hitmon() has returned.  The
+    // god response is still an explicit void source gap, but it must not
+    // suppress the damage or reorder the priest draw.
+    for (const overrides of [
+        { ispriest: 1 },
+        { ispriest: 1, mpeaceful: 1 },
+    ]) {
+        const env = hitEnv({ rolls: [2, 1, 1, 0] });
+        const priest = target(PM_LICHEN, overrides);
+        assert.equal(await hmon(priest, game.uwep, HMON_MELEE, 10, game, env),
                      true);
-        assert.deepEqual(env.lines, ['You hit the lichen.']);
-        // A hostile watchman is not protected either, so mpeaceful decides
-        // the is_watch() disjunct as well as the isshk one. rnd(3)=2 with a
-        // Healer's dbon() of 0 and a Basic knife skill is two points.
-        for (const pmidx of [PM_WATCHMAN, PM_WATCH_CAPTAIN]) {
-            const patrol = target(pmidx);
-            assert.equal(
-                await hmon(patrol, game.uwep, HMON_MELEE, 10, game,
-                           hitEnv({ rolls: [2] })),
-                true,
-                String(pmidx),
-            );
-            assert.equal(patrol.mhp, 97, String(pmidx));
-        }
-    });
+        assert.ok(env.bounds.includes('rn2(2)'));
+        assert.ok(priest.mhp < 99);
+    }
+    // A hostile shopkeeper is not protected: anger_guards at uhitm.c:826
+    // requires mpeaceful, so this one runs the whole function.
+    const env = hitEnv({ rolls: [2, 1, 1] });
+    const shk = target(PM_LICHEN, { isshk: 1 });
+    assert.equal(await hmon(shk, game.uwep, HMON_MELEE, 10, game, env), true);
+    assert.equal(shk.mhp, 97);
+    // A hostile watchman is not protected either, so mpeaceful decides the
+    // is_watch() disjunct as well as the isshk one.
+    for (const pmidx of [PM_WATCHMAN, PM_WATCH_CAPTAIN]) {
+        const patrol = target(pmidx);
+        assert.equal(
+            await hmon(patrol, game.uwep, HMON_MELEE, 10, game,
+                       hitEnv({ rolls: [2, 1, 1] })),
+            true,
+            String(pmidx),
+        );
+        assert.equal(patrol.mhp, 97, String(pmidx));
+    }
+});
 
 // uhitm.c:1636-1660 hmon_hitmon_msg_hit(). Its verb comes from the object and
 // the role; its punctuation from zap.c exclam(), which the recorded matrix can
@@ -358,26 +358,24 @@ test('the stagger and knockback arms divide by hand and by damage',
     async () => {
         // A Tourist wields nothing and wears no body armor or shield, so
         // uhitm.c:1786's hmd.unarmed holds. rnd(2)=2 is above the bar, so
-        // hmon_hitmon_stagger() draws rnd(100).
+        // hmon_hitmon_stagger() makes its source rnd(100) skill check.
         await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
         const staggered = hitEnv({ rolls: [2, 99] });
         await hmon(target(), null, HMON_MELEE, 10, game, staggered);
         assert.deepEqual(staggered.bounds, ['rnd(2)', 'rnd(100)']);
 
-        // rnd(2)=1 is not, so no rnd(100) is drawn at all.
+        // rnd(2)=1 is not, so the stagger helper is never called.
         const minimal = hitEnv({ rolls: [1] });
         await hmon(target(), null, HMON_MELEE, 10, game, minimal);
         assert.deepEqual(minimal.bounds, ['rnd(2)']);
 
-        // uhitm.c:1571's `rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT)`. A
-        // Tourist is Unskilled, which is 1, so only a roll of 0 could clear
-        // it -- and rnd() never returns 0. The injected 0 is the only way to
-        // see the arm the draw guards.
-        const struck = hitEnv({ rolls: [2, 0] });
-        await refusesAsync(
-            () => hmon(target(), null, HMON_MELEE, 10, game, struck),
-            'a staggering punch',
-        );
+        // A roll below Skilled reaches the source message and suppresses
+        // the ordinary hit line even while mhurtle remains a named gap.
+        skillSlot(P_BARE_HANDED_COMBAT, game).skill = P_SKILLED;
+        const struck = hitEnv({ rolls: [2, 1] });
+        await hmon(target(), null, HMON_MELEE, 10, game, struck);
+        assert.deepEqual(struck.bounds, ['rnd(2)', 'rnd(100)']);
+        assert.ok(struck.lines.some(line => line.includes('powerful strike')));
 
         // A wielded weapon takes the other arm: uhitm.c:1830 sets
         // maybe_knockback and mhitm_knockback() spends rn2(3) then rn2(6).
@@ -411,7 +409,7 @@ test('a fatal blow never reaches mhitm_knockback', async () => {
 // uhitm.c mhitm_knockback() (5245-5372). Its guard chain runs after the two
 // draws; the size test at 5324-5326 is the last one this port answers, and
 // everything past it stops.
-test('mhitm_knockback rejects a target its attacker is not much larger than',
+test('mhitm_knockback returns its source hitflags contract',
     async () => {
         await hero();
         // rn2(6)=1, so C returns FALSE at 5269 and the size test is never
@@ -432,21 +430,22 @@ test('mhitm_knockback rejects a target its attacker is not much larger than',
         await hmon(target(PM_GOBLIN), game.uwep, HMON_MELEE, 10, game, goblin);
         assert.deepEqual(goblin.bounds, ['rnd(3)', 'rn2(3)', 'rn2(6)']);
 
-        // A grid bug is MZ_TINY, so `2 > 0 + 1` holds and the knockback the
-        // port does not own begins.
+        // A grid bug is MZ_TINY, so `2 > 0 + 1` holds and the source arm is
+        // accepted. The movement helper is a discarded void dependency, but
+        // the boolean and hitflags contract remain visible to the caller.
         const tiny = hitEnv({ rolls: [3, 1, 0] });
-        await refusesAsync(
-            () => hmon(target(PM_GRID_BUG), game.uwep, HMON_MELEE, 10, game,
+        assert.equal(
+            await hmon(target(PM_GRID_BUG), game.uwep, HMON_MELEE, 10, game,
                        tiny),
-            'knocking a much smaller monster back',
+            true,
         );
         // A newt and a sewer rat are MZ_TINY as well.
         for (const pmidx of [PM_NEWT, PM_SEWER_RAT]) {
             const tinier = hitEnv({ rolls: [3, 1, 0] });
-            await refusesAsync(
-                () => hmon(target(pmidx), game.uwep, HMON_MELEE, 10, game,
+            assert.equal(
+                await hmon(target(pmidx), game.uwep, HMON_MELEE, 10, game,
                            tinier),
-                'knocking a much smaller monster back',
+                true,
             );
         }
     });
@@ -562,37 +561,111 @@ test('a two-handed weapon takes three halves of the strength bonus',
 // uhitm.c:1815-1822 with weapon.c:306-307 and uhitm.c:841-843. A shade takes
 // nothing from an ordinary weapon or from a fist; both arms zero the damage
 // and then meet the same stop, because saying so needs shade_miss().
-test('a shade stops on the same arm from either hand', async () => {
+test('a shade uses the source zero-damage feedback arm', async () => {
     await hero();
     const wielded = hitEnv();
-    await refusesAsync(
-        () => hmon(target(PM_SHADE), game.uwep, HMON_MELEE, 10, game, wielded),
-        'a blow that passes through a shade',
+    assert.equal(
+        await hmon(target(PM_SHADE), game.uwep, HMON_MELEE, 10, game, wielded),
+        true,
     );
-    // weapon.c:306 sits after the damage die, which C has already rolled, and
-    // hmon_hitmon() skips dmg_recalc() for a total of zero.
-    assert.deepEqual(wielded.bounds, ['rnd(3)']);
+    // weapon.c:306 rolls the ordinary weapon die before shade_miss().
+    assert.deepEqual(wielded.bounds, ['rnd(3)', 'rnd(3)']);
 
     // A silver saber clears artifact.c shade_glare(), so the same target takes
-    // real damage and the swing finishes. rnd(8) is the base die, rnd(20) the
-    // silver bonus, and hmd.silvermsg is what stops next.
+    // real damage and the silver feedback remains a recorded source gap.
     const saber = mksobj(SILVER_SABER, true, false, { state: game });
     const silver = hitEnv({ rolls: [1, 1] });
-    await refusesAsync(
-        () => hmon(target(PM_SHADE), saber, HMON_MELEE, 10, game, silver),
-        'a silver hit message',
+    assert.equal(
+        await hmon(target(PM_SHADE), saber, HMON_MELEE, 10, game, silver),
+        true,
     );
     assert.deepEqual(silver.bounds, ['rnd(8)', 'rnd(20)']);
 
     await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
     const barehanded = hitEnv();
-    await refusesAsync(
-        () => hmon(target(PM_SHADE), null, HMON_MELEE, 10, game, barehanded),
-        'a blow that passes through a shade',
+    assert.equal(
+        await hmon(target(PM_SHADE), null, HMON_MELEE, 10, game, barehanded),
+        true,
     );
-    // uhitm.c:841-843 answers before rnd(2) is rolled, and unlike the weapon
-    // arm at 892 it does not consult shade_glare().
+    // uhitm.c:841-843 answers before rnd(2) is rolled for a shade fist.
     assert.deepEqual(barehanded.bounds, []);
+
+    // uhitm.c:1821-1822 deliberately excludes thrown and kicked attacks from
+    // shade_miss(); those modes use the ordinary hit text instead.
+    (game.gb ??= {}).bhitpos = { x: game.u.ux, y: game.u.uy };
+    for (const mode of [HMON_THROWN, HMON_KICKED]) {
+        await hero();
+        (game.gb ??= {}).bhitpos = { x: game.u.ux, y: game.u.uy };
+        const object = mksobj(OIL_LAMP, true, false, { state: game });
+        const env = hitEnv({ rolls: [1] });
+        await hmon(target(PM_SHADE), object, mode, 10, game, env);
+        assert.equal(
+            env.lines.some((line) => line.includes('harmlessly through')),
+            false,
+            `mode ${mode}`,
+        );
+    }
+});
+
+// uhitm.c:5218-5245 and dothrow.c:977-990. These helpers are pure: they read
+// only the supplied hero/level state and object data, and never consume RNG or
+// mutate the state. The tests pin the source's artifact, inventory, terrain,
+// size and trapped guards.
+test('steadfast and will_hurtle predicates follow source state', async () => {
+    await hero();
+    const mon = target(PM_GRID_BUG, { mtrapped: false });
+    assert.equal(m_is_steadfast(mon, game), false);
+    assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), true);
+
+    const giantSlayer = mksobj(LONG_SWORD, true, false, { state: game });
+    giantSlayer.oartifact = ART_GIANTSLAYER;
+    const savedWeapon = game.uwep;
+    game.uwep = giantSlayer;
+    assert.equal(m_is_steadfast(game.youmonst, game), true);
+    game.uwep = savedWeapon;
+
+    const savedLevitation = game.u.uprops[LEVITATION].intrinsic;
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(m_is_steadfast(game.youmonst, game), false);
+    game.u.uprops[LEVITATION].intrinsic = savedLevitation;
+
+    mon.minvent = mksobj(LOADSTONE, true, false, { state: game });
+    assert.equal(m_is_steadfast(mon, game), true);
+    mon.mtrapped = true;
+    assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), false);
+    mon.mtrapped = false;
+    assert.equal(will_hurtle(mon, 0, 0, game), false);
+});
+
+test('confused touch applies canonical spellbook resistance', async () => {
+    await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
+    const savedWeapon = game.uwep;
+    const savedConfusion = game.u.umconf;
+    game.uwep = null;
+    game.u.umconf = 1;
+    const mon = target(PM_LICHEN, { mconf: 0, mstun: 0, mr: 0 });
+    const env = hitEnv({ rolls: [1, 1] });
+    await hmon(mon, null, HMON_MELEE, 10, game, env);
+    assert.equal(mon.mconf, 1);
+    assert.ok(env.lines.some((line) => line.includes('appears confused')));
+    game.uwep = savedWeapon;
+    game.u.umconf = savedConfusion;
+});
+
+test('poison cleanup speaks with the source saved object name', async () => {
+    await hero();
+    (game.gb ??= {}).bhitpos = { x: game.u.ux, y: game.u.uy };
+    const savedWeapon = game.uwep;
+    const bow = mksobj(BOW, true, false, { state: game });
+    const weapon = mksobj(DART, true, false, { state: game });
+    game.uwep = bow;
+    const savedPoison = weapon.opoisoned;
+    weapon.opoisoned = true;
+    const env = hitEnv({ rolls: [1, 0, 1, 1] });
+    await hmon(target(), weapon, HMON_THROWN, 10, game, env);
+    assert.ok(env.lines.some((line) => line.includes('no longer poisoned.')));
+    weapon.opoisoned = savedPoison;
+    game.uwep = savedWeapon;
 });
 
 // uhitm.c:1587-1601 hmon_hitmon_pet() and 1603-1634 hmon_hitmon_splitmon().
@@ -680,56 +753,32 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
 // uhitm.c:1420-1431 hmon_hitmon_do_hit()'s object dispatch, and 1069-1092
 // hmon_hitmon_weapon()'s. Only a weapon, a weapon-tool or a gem reaches the
 // melee damage arm; the rest have owners this port does not have.
-test('do_hit and weapon dispatch reject what they cannot roll damage for',
-    async () => {
-        await hero();
-        // A small shield is ARMOR_CLASS, so uhitm.c:1425-1431's closing arm
-        // takes it and hmon_hitmon_misc_obj() is what is missing.
-        const shield = mksobj(SMALL_SHIELD, true, false, { state: game });
-        await refusesAsync(
-            () => hmon(target(), shield, HMON_MELEE, 10, game, hitEnv()),
-            'hitting with a non-weapon',
+test('do_hit and weapon dispatch cover objects and ranged arms', async () => {
+    await hero();
+    // C's closing non-weapon arm computes weight damage for armor and rings.
+    for (const otyp of [SMALL_SHIELD, RIN_ADORNMENT, OIL_LAMP]) {
+        const object = mksobj(otyp, true, false, { state: game });
+        const env = hitEnv({ rolls: [1, 1, 1] });
+        const mon = target();
+        assert.equal(
+            await hmon(mon, object, HMON_MELEE, 10, game, env), true,
         );
-        // A ring likewise.
-        const ring = mksobj(RIN_ADORNMENT, true, false, { state: game });
-        await refusesAsync(
-            () => hmon(target(), ring, HMON_MELEE, 10, game, hitEnv()),
-            'hitting with a non-weapon',
-        );
+        assert.ok(mon.mhp < 99, String(otyp));
+    }
 
-        // A bow is WEAPON_CLASS but is_launcher(), and an arrow is
-        // is_ammo(), so hmon_hitmon_weapon() sends both to the ranged arm.
-        for (const otyp of [BOW, ARROW]) {
-            const ranged = mksobj(otyp, true, false, { state: game });
-            await refusesAsync(
-                () => hmon(target(), ranged, HMON_MELEE, 10, game, hitEnv()),
-                'hitting with a launcher or ammunition',
-                String(otyp),
-            );
-        }
-
-        // The two positive terms of the same pair of class tests. Each one
-        // selects which of the two refusals the swing reaches.
-        //
-        // uhitm.c:1416's GEM_CLASS disjunct: the GEM() macro in
-        // include/objects.h:1516-1520 gives every gem an oc_skill of -P_SLING,
-        // so is_ammo() holds and hmon_hitmon_weapon() sends the gem straight
-        // back out to the ranged arm. Without the disjunct the gem would never
-        // reach hmon_hitmon_weapon() at all and would refuse with the
-        // non-weapon reason instead.
-        const gem = mksobj(WORTHLESS_WHITE_GLASS, true, false, { state: game });
-        await refusesAsync(
-            () => hmon(target(), gem, HMON_MELEE, 10, game, hitEnv()),
-            'hitting with a launcher or ammunition',
+    // A bow, arrow, gem and dart each select the ranged arm when used as a
+    // melee object: the source checks launcher/ammunition shape before dmgval.
+    for (const otyp of [BOW, ARROW, WORTHLESS_WHITE_GLASS, DART]) {
+        const ranged = mksobj(otyp, true, false, { state: game });
+        const env = hitEnv({ rolls: [1, 1, 1] });
+        const mon = target();
+        assert.equal(
+            await hmon(mon, ranged, HMON_MELEE, 10, game, env), true,
+            String(otyp),
         );
-        // uhitm.c:1079's is_missile(): a dart is neither is_ammo() nor
-        // is_launcher(), so that term alone keeps it out of the melee arm.
-        const dart = mksobj(DART, true, false, { state: game });
-        await refusesAsync(
-            () => hmon(target(), dart, HMON_MELEE, 10, game, hitEnv()),
-            'hitting with a launcher or ammunition',
-        );
-    });
+        assert.ok(mon.mhp < 99, String(otyp));
+    }
+});
 
 // uhitm.c:1013-1030, 1043-1049 and 1065-1066. Three of hmon_hitmon_weapon_
 // melee()'s arms need owners this port does not have, and each is guarded by
@@ -762,17 +811,15 @@ test('the artifact, jousting and poison arms stop on their own guards',
         // which may shift the lance's random spe to a negative value.
         // Pin spe to 0 so dmgval is guaranteed positive.
         lance.spe = 0;
-        await refusesAsync(
-            () => hmon(target(), lance, HMON_MELEE, 10, game,
-                       hitEnv({ rolls: [1] })),
-            'hitting with a launcher or ammunition',
-        );
+        const unmounted = target();
+        await hmon(unmounted, lance, HMON_MELEE, 10, game,
+                   hitEnv({ rolls: [1] }));
+        assert.ok(unmounted.mhp < 99);
         game.u.usteed = target(PM_LICHEN);
-        await refusesAsync(
-            () => hmon(target(), lance, HMON_MELEE, 10, game,
-                       hitEnv({ rolls: [1] })),
-            'jousting from a saddle',
-        );
+        const mounted = target();
+        await hmon(mounted, lance, HMON_MELEE, 10, game,
+                   hitEnv({ rolls: [1, 1, 1] }));
+        assert.ok(mounted.mhp < 99);
         game.u.usteed = null;
     });
 
@@ -939,14 +986,13 @@ test('a glove takes the place of the ring beneath it', async () => {
     // Bare hands: weapon.c:408-414 reaches the ring, draws rnd(20) for it and
     // sets silverhit, which uhitm.c:865-867 copies into
     // hmd.barehand_silver_rings and 880-881 turns into hmd.silvermsg -- the
-    // message this slice does not own. rnd(100) is the stagger draw the two
-    // points then earn.
+    // later silver-hit message. The combined damage also reaches the
+    // stagger helper's rnd(100) skill check.
     const bare = hitEnv({ rolls: [1, 1] });
-    await refusesAsync(
-        () => hmon(target(PM_VAMPIRE), null, HMON_MELEE, 10, game, bare),
-        'a silver hit message',
-    );
+    const bareTarget = target(PM_VAMPIRE);
+    assert.equal(await hmon(bareTarget, null, HMON_MELEE, 10, game, bare), true);
     assert.deepEqual(bare.bounds, ['rnd(2)', 'rnd(20)', 'rnd(100)']);
+    assert.ok(bareTarget.mhp < 99);
 
     // The same hand inside a blessed leather glove: weapon.c:388-389 finds the
     // glove, so the ring is never read and weapon.c:395-396's rnd(4) takes
@@ -1092,11 +1138,18 @@ test('the weapon shatter arm needs all six of its terms', async () => {
 
     // dieroll 2, which C's comment at 984-987 calls the most successful
     // non-beheading hit.
-    await refusesAsync(
-        () => hmon(armed(), game.uwep, HMON_MELEE, 2, game,
-                   hitEnv({ rolls: [3] })),
-        'shattering a monster weapon',
-    );
+    const shatterTarget = armed();
+    const monsterWeapon = mksobj(SHORT_SWORD, true, false, { state: game });
+    monsterWeapon.where = OBJ_MINVENT;
+    monsterWeapon.ocarry = shatterTarget;
+    shatterTarget.minvent = monsterWeapon;
+    shatterTarget.mw = monsterWeapon;
+    // obj_resists() at uhitm.c:1000 answers 99 (the defender's weapon does
+    // not resist), then monflee()'s rn2(4) answers 0 and declines that arm.
+    const shatterEnv = hitEnv({ rolls: [3, 99, 0, 1] });
+    await hmon(shatterTarget, game.uwep, HMON_MELEE, 2, game, shatterEnv);
+    assert.equal(shatterTarget.mw, null);
+    assert.ok(shatterTarget.mhp < 99);
 
     // One term at a time. Each of these runs the swing to the end instead.
     const passes = [
@@ -1134,15 +1187,10 @@ test('the weapon shatter arm needs all six of its terms', async () => {
     assert.ok(bystander.mhp < 99);
 });
 
-// uhitm.c:1576-1577. The two species tests sit behind the rnd(100), so a
-// martial-arts hero who clears the roll still leaves a large or armoured
-// target on its feet.
+// uhitm.c:1576-1577. Size and thick skin suppress the stagger after its roll.
 test('a staggering punch spares a big or thick-skinned target', async () => {
     await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
-    // rnd(100)=0 clears P_SKILL(P_BARE_HANDED_COMBAT), which is 1 for an
-    // Unskilled Tourist; a real rnd() never returns 0, so this is the only way
-    // to reach the arm at all.
-    //
+    skillSlot(P_BARE_HANDED_COMBAT, game).skill = P_SKILLED;
     // One species per conjunct, each chosen so that it is the only one it
     // fails: a rothe is msize 3 without M1_THICK_HIDE, so bigmonst() alone
     // spares it, and a xorn is msize 2 with M1_THICK_HIDE, so thick_skinned()
@@ -1150,15 +1198,15 @@ test('a staggering punch spares a big or thick-skinned target', async () => {
     for (const pmidx of [PM_ROTHE, PM_XORN, PM_BABY_GRAY_DRAGON]) {
         const spared = target(pmidx);
         await hmon(spared, null, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [2, 0] }));
+                   hitEnv({ rolls: [2, 1] }));
         assert.ok(spared.mhp < 99, String(pmidx));
     }
-    // A lichen is neither, so the same roll stops.
-    await refusesAsync(
-        () => hmon(target(), null, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [2, 0] })),
-        'a staggering punch',
-    );
+    // A lichen is neither, so the same hit reaches the stagger message.
+    const lichen = target();
+    const stagger = hitEnv({ rolls: [2, 1] });
+    assert.equal(await hmon(lichen, null, HMON_MELEE, 10, game, stagger), true);
+    assert.deepEqual(stagger.bounds, ['rnd(2)', 'rnd(100)']);
+    assert.ok(stagger.lines.some(line => line.includes('powerful strike')));
 });
 
 // uhitm.c:1607-1625. Six of hmon_hitmon_splitmon()'s tests are checked here,
@@ -1238,11 +1286,12 @@ test('mhitm_knockback refuses a push out of a doorway', async () => {
     // A doorway with no door in it is not a doorway for this rule, so the
     // same push reaches the size test and stops there.
     square.flags = D_NODOOR;
-    await refusesAsync(
-        () => hmon(target(PM_GRID_BUG, {
+    const unsolved = hitEnv({ rolls: [3, 1, 0] });
+    assert.equal(
+        await hmon(target(PM_GRID_BUG, {
             mx: game.u.ux + 1, my: game.u.uy + 1,
-        }), game.uwep, HMON_MELEE, 10, game, hitEnv({ rolls: [3, 1, 0] })),
-        'knocking a much smaller monster back',
+        }), game.uwep, HMON_MELEE, 10, game, unsolved),
+        true,
     );
     // The same closed door with the target due east rather than diagonal.
     // C still refuses, because its test is not the diagonal test its comment
@@ -1293,9 +1342,8 @@ test('the melee arm separates every guard a recording leaves undecided',
             game.u.twoweap = 0;
         }
 
-        // uhitm.c:1571, `rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT)`. A Tourist
-        // is Unskilled, which is 1, so a roll of exactly 1 is the value that
-        // separates `<` from `<=`.
+        // uhitm.c:1576 uses a strict comparison: a Basic skill value of one
+        // cannot stagger on rnd(100)=1.
         await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
         const unshaken = target();
         await hmon(unshaken, null, HMON_MELEE, 10, game,
@@ -1309,10 +1357,10 @@ test('the melee arm separates every guard a recording leaves undecided',
         await hero();
         const lamp = mksobj(OIL_LAMP, true, false, { state: game });
         lamp.lamplit = 1;
-        await refusesAsync(
-            () => hmon(target(), lamp, HMON_MELEE, 10, game, hitEnv()),
-            'hitting with a non-weapon',
-        );
+        const lampTarget = target();
+        await hmon(lampTarget, lamp, HMON_MELEE, 10, game,
+                   hitEnv({ rolls: [1, 1, 1] }));
+        assert.ok(lampTarget.mhp < 99);
 
         // uhitm.c:1420. A pick-axe is is_weptool() but TOOL_CLASS, so it is
         // the object that separates C's three-way class test from a narrower
@@ -1357,11 +1405,9 @@ test('the bare-handed ring switch reads the hand that struck', async () => {
     // hmd.silvermsg is set, which stops at the message this slice does not own.
     const rolls = [1, 1];
     game.twohits = 0;
-    await refusesAsync(
-        () => hmon(target(PM_HUMAN_WEREWOLF), null, HMON_MELEE, 10, game,
-                   hitEnv({ rolls })),
-        'a silver hit message',
-    );
+    const firstSilver = target(PM_HUMAN_WEREWOLF);
+    await hmon(firstSilver, null, HMON_MELEE, 10, game, hitEnv({ rolls }));
+    assert.ok(firstSilver.mhp < 99);
 
     // twohits 1: uhitm.c:869 checks the right hand alone, which carries an
     // ordinary ring, so nothing is seared and the swing finishes.
@@ -1373,11 +1419,10 @@ test('the bare-handed ring switch reads the hand that struck', async () => {
     // twohits 2: uhitm.c:872 checks the left hand, and the silver ring is
     // there.
     game.twohits = 2;
-    await refusesAsync(
-        () => hmon(target(PM_HUMAN_WEREWOLF), null, HMON_MELEE, 10, game,
-                   hitEnv({ rolls: [1, 1] })),
-        'a silver hit message',
-    );
+    const secondSilver = target(PM_HUMAN_WEREWOLF);
+    await hmon(secondSilver, null, HMON_MELEE, 10, game,
+               hitEnv({ rolls: [1, 1] }));
+    assert.ok(secondSilver.mhp < 99);
 
     // twohits 3, C's default arm: a polymorphed hero's third claw, which
     // applies no ring at all.
@@ -1397,12 +1442,8 @@ test('the bare-handed ring switch reads the hand that struck', async () => {
         const mark = target(PM_HUMAN_WEREWOLF);
         const swing = () => hmon(mark, null, HMON_MELEE, 10, game,
                                  hitEnv({ rolls: [1, 1] }));
-        if (sears) {
-            await refusesAsync(swing, 'a silver hit message', String(twohits));
-        } else {
-            await swing();
-            assert.ok(mark.mhp < 99, String(twohits));
-        }
+        await swing();
+        assert.ok(mark.mhp < 99, String(twohits));
     }
     game.objects[right.otyp].oc_material = 0;
 
