@@ -2636,7 +2636,9 @@ export async function look_here(
             throw new TypeError('look_here needs an object-pile display owner');
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
-        lines.push(`${pickedSome ? 'Other things' : 'Things'} ${blind ? 'you feel' : 'that are'} here:`);
+        // C invent.c look_here() (4289-4296) uses "%s that %s here:";
+        // both the blind and sighted predicates retain the common "that".
+        lines.push(`${pickedSome ? 'Other things' : 'Things'} ${blind ? 'that you feel' : 'that are'} here:`);
         let feltCockatrice = null;
         for (let object = otmp; object; object = object.nexthere) {
             const canFeelCockatrice = object.otyp === CORPSE

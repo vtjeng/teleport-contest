@@ -1,11 +1,11 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 751,
+  "remainingScreensUpperBound": 720,
   "status": "complete",
-  "commit": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
+  "commit": "1cb6d227b4f61a249660388e3dd24f3fbf4d67d5",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1063,
+    "step": 1094,
     "kind": "screen",
     "function": null,
     "functionDeclared": false,
@@ -16,21 +16,23 @@
     "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 751
+    "remainingScreensUpperBound": 720
   },
-  "summary": "Monster-death planning cleanup advances the first mismatch from step1048 to screen1063. C invent.c look_here includes that in the blind multi-object heading, while JavaScript omits it. A9 is ready for combined validation; A10 addresses the later wizard-blindness prompt at1094. The new queue suffix is751 screens.",
+  "summary": "The blind object-pile heading now matches the C source. The next mismatch is the wizard-intrinsic blindness prompt at step1094: C extends existing blindness silently, while JavaScript uses the generic timeout message and More prompt. A10 has submitted the source-backed caller correction; A11 is tracing the later wounded-monster flee branch.",
   "source": {
-    "file": "invent.c",
+    "file": "wizcmds.c",
     "functions": [
-      "look_here"
+      "wiz_intrinsic"
     ],
-    "branch": "For a blind hero on a multi-object pile with object display enabled, C invent.c look_here4289-4298 formats %s that %s here: using Things/Other things and you feel/are. JavaScript omits that only in the blind predicate, shifting the displayed text at screen1063 without an RNG change.",
+    "branch": "With timed blindness already positive, selecting BLINDED in #wizintrinsic increases its timeout. C wizcmds.c1020-1022 calls make_blinded(newtimeout,TRUE), whose potion.c261-331 positive-to-positive timer path neither toggles sight nor prints a message. JavaScript routes BLINDED through the generic timeout/message arm, producing an extra More boundary at screen/cursor1094.",
     "callers": [
-      "C pickup.c check_here calls invent.c look_here after movement or pickup, while invent.c dolook is the explicit look command. JavaScript js/pickup.js check_here and js/invent.js dolook use the same canonical look_here implementation and existing object-pile display callback."
+      "C cmd.c extcmdlist dispatches #wizintrinsic to wizcmds.c wiz_intrinsic; JavaScript js/cmd.js doextcmd routes the same menu command to js/wizcmds.js wiz_intrinsic.",
+      "wiz_intrinsic must call canonical js/potion.js make_blinded for BLINDED, preserving the existing menu selection and timeout computation."
     ],
     "dependencies": [
-      "Preserve existing dfeature output, object naming, cockatrice handling, menu dismissal and engraving order. The correction changes only the source heading string.",
-      "The cursor/More mismatch at1094 belongs to wizcmds.c wiz_intrinsic blindness handling and is queued separately as A10; the later wounded-monster refusal is downstream of both."
+      "potion.c make_blinded temporarily probes blindness with set_itimeout, restores the prior timeout, then writes the new timeout and calls toggle_blindness only when sight changes. Permit the existing silent positive-to-positive path with talk=true.",
+      "Keep unrelated blindness transitions and other wizard intrinsic gaps separate; this correction does not claim a complete potion.c or wizcmds.c source port.",
+      "Later wounded-monster handling belongs to uhitm.c known_hitum and is owned by A11; the wizard-blindness prompt is the earlier mismatch."
     ]
   },
   "goalKind": "divergence-fix",
@@ -64,6 +66,10 @@
     "Coordinator compared immutable A9 4b070b70417d076bcd014287cd0ba31f2a5bdd84 with C invent.c look_here multi-object branch: C Sprintf supplies that outside the conditional predicate, and the corrected JavaScript heading has identical blind and sighted output. Its source-pinned object-pile/cockatrice test preserves output order.",
     "A10 immutable481b11ae4ec50b0e7dfae01d042364b33ec3571d routes BLINDED from wizcmds.c wiz_intrinsic1020-1022 to canonical potion.c make_blinded and admits silent positive-to-positive timed blindness. Two source-pinned/menu-runtime tests, lint and bounded replay pass on its worker branch:1096 emitted screens with no screen/cursor/RNG divergence before the existing wounded-monster stop. This delivery is unaccepted and has no main score claim.",
     "Worker A traced the first remaining boundary after A10 to C uhitm.c known_hitum623-633: on the wounded-monster branch, rn2(25) precedes !rn2(3)?rnd(100):0, monmove.c monflee(mon,fleeTime,FALSE,TRUE), and possible u.ustuck release. JavaScript consumes rn2(25) then refuses. A11 will wire the existing canonical monflee and set_ustuck owners; this remains separate queued worker progress beyond accepted main.",
-    "Full checkpoint2c0f1a3b8256da162502ea5246acd9f98ddc05ec/run-7lxyS6 passes all checks:31/44 sessions,10318/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A8 gains45 development screens,1940 RNG values and46 cursors; no new recording is added and all10473 recording screens remain matched. Saved .cache/A8-development-scan.json and .cache/A8-queue.json move the first mismatch from1048 to1063 and the queue suffix from766 to751. Frozen syntheticv1 remains2/9 sessions and534/918 screens."
+    "Full checkpoint2c0f1a3b8256da162502ea5246acd9f98ddc05ec/run-7lxyS6 passes all checks:31/44 sessions,10318/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A8 gains45 development screens,1940 RNG values and46 cursors; no new recording is added and all10473 recording screens remain matched. Saved .cache/A8-development-scan.json and .cache/A8-queue.json move the first mismatch from1048 to1063 and the queue suffix from766 to751. Frozen syntheticv1 remains2/9 sessions and534/918 screens.",
+    "Coordinator integrated A9 4b070b70 as e9d1b8fb and clarified its source comment in1cb6d227b4f61a249660388e3dd24f3fbf4d67d5. Bounded affected run-Qu2X9U passed1022/1022 tests; lint run-WzpAcs and quality run-TJUGSp passed. Final preflight passes32 test-file coverage checks; full checkpoint is running at1cb6d227.",
+    "Exact candidate1cb6d227 checkpoint cache contains44 sessions. Its seed4500 row emits1101 screens, with first screen AND cursor mismatch now1094: C blank at row0,column0 while JS begins Timeout, and cursors C[38,13,1] versus JS[44,0,1]. RNG divergence remains null. This confirms the blind-pile first mismatch1063 is past its source function.",
+    "Worker A11 reports bounded replay run-s4Z7OM reaches all1814 recorded screens without screen/cursor/RNG divergence after wiring known_hitum to canonical monflee. It is still unaccepted worker evidence; the Vrock createGasCloud dependency and focused checks are being completed before submission.",
+    "Full checkpoint1cb6d227b4f61a249660388e3dd24f3fbf4d67d5/run-eHkVlg passes all checks:31/44 sessions,10319/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A9 gains one development screen and preserves all10473 recording screens. The refreshed queue moves the first mismatch from1063 to1094 and the suffix from751 to720. Syntheticv1 remains2/9 sessions and534/918 screens."
   ]
 }
