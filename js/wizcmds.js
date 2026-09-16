@@ -94,7 +94,7 @@ import { makewish } from './zap.js';
 import { docrt, map_engraving, map_trap } from './display.js';
 import { do_mapping } from './detect.js';
 import {
-    incr_itimeout, make_deaf, make_glib, make_hallucinated,
+    incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
 } from './potion.js';
 
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
@@ -329,8 +329,8 @@ function wizardIntrinsicMenuSpec(state) {
 }
 
 // C ref: wizcmds.c wiz_intrinsic() (949-1098), covering the menu, ordinary
-// timeout increments, and the hallucination transition used by the current
-// wizard session boundary.
+// timeout increments, and the blindness/hallucination transitions used by the
+// current wizard session boundary.
 export async function wiz_intrinsic(state = game) {
     if (!state.wizard) {
         await ttyPline("Unavailable command 'wizintrinsic'.", state);
@@ -351,7 +351,12 @@ export async function wiz_intrinsic(state = game) {
         if (amount <= 0) continue;
         const newTimeout = oldTimeout + amount;
 
-        if (property === HALLUC) {
+        if (property === BLINDED) {
+            // wizcmds.c:1020-1022 delegates this property to make_blinded()
+            // rather than the generic timeout/message arm.  In particular,
+            // extending an existing blindness timer is silent.
+            await make_blinded(newTimeout, true, state);
+        } else if (property === HALLUC) {
             await make_hallucinated(newTimeout, true, 0, state);
         } else if (property === DEAF) {
             // wizcmds.c:1030 uses make_deaf() so its transition feedback is
