@@ -63,8 +63,8 @@ function mapSelection(placed) {
 // Each descriptor remains in source order so level generation and its random
 // stream follow the Lua program.
 export async function orcus(des, state) {
-    des.level_init({ style: 'mazegrid', bg: '-' });
-    des.level_flags('mazelevel', 'shortsighted');
+    await des.level_init({ style: 'mazegrid', bg: '-' });
+    await des.level_flags('mazelevel', 'shortsighted');
 
     const tmpbounds = selection_match('-', state);
     const bnds = tmpbounds.bounds();
@@ -72,98 +72,98 @@ export async function orcus(des, state) {
         bnds.lx, bnds.ly + 1, bnds.hx - 2, bnds.hy - 1, des.frame,
     );
 
-    const orcus1 = des.map({
+    const orcus1 = await des.map({
         halign: 'right',
         valign: 'center',
         map: ORCUS_MAP,
-        contents() {
-            des.mazewalk(0, 6, 'west');
+        async contents() {
+            await des.mazewalk(0, 6, 'west');
 
-            des.region(selection_area(1, 0, 44, 16), 'unlit');
-            des.stair('down', 33, 15);
+            await des.region(selection_area(1, 0, 44, 16), 'unlit');
+            await des.stair('down', 33, 15);
 
-            des.object('boulder', 19, 2);
-            des.object('boulder', 20, 2);
-            des.object('boulder', 21, 2);
-            des.object('boulder', 36, 2);
-            des.object('boulder', 36, 3);
-            des.object('boulder', 6, 4);
-            des.object('boulder', 5, 5);
-            des.object('boulder', 6, 5);
-            des.object('boulder', 7, 5);
-            des.object('boulder', 39, 5);
-            des.object('boulder', 8, 8);
-            des.object('boulder', 9, 8);
-            des.object('boulder', 10, 8);
-            des.object('boulder', 11, 8);
-            des.object('boulder', 6, 10);
-            des.object('boulder', 5, 11);
-            des.object('boulder', 6, 11);
-            des.object('boulder', 7, 11);
-            des.object('boulder', 21, 11);
-            des.object('boulder', 21, 12);
-            des.object('boulder', 13, 13);
-            des.object('boulder', 14, 13);
-            des.object('boulder', 15, 13);
-            des.object('boulder', 14, 14);
+            await des.object('boulder', 19, 2);
+            await des.object('boulder', 20, 2);
+            await des.object('boulder', 21, 2);
+            await des.object('boulder', 36, 2);
+            await des.object('boulder', 36, 3);
+            await des.object('boulder', 6, 4);
+            await des.object('boulder', 5, 5);
+            await des.object('boulder', 6, 5);
+            await des.object('boulder', 7, 5);
+            await des.object('boulder', 39, 5);
+            await des.object('boulder', 8, 8);
+            await des.object('boulder', 9, 8);
+            await des.object('boulder', 10, 8);
+            await des.object('boulder', 11, 8);
+            await des.object('boulder', 6, 10);
+            await des.object('boulder', 5, 11);
+            await des.object('boulder', 6, 11);
+            await des.object('boulder', 7, 11);
+            await des.object('boulder', 21, 11);
+            await des.object('boulder', 21, 12);
+            await des.object('boulder', 13, 13);
+            await des.object('boulder', 14, 13);
+            await des.object('boulder', 15, 13);
+            await des.object('boulder', 14, 14);
 
-            des.door('closed', 23, 2);
-            des.door('open', 31, 3);
-            des.door('nodoor', 3, 5);
-            des.door('closed', 9, 5);
-            des.door('closed', 14, 5);
-            des.door('closed', 41, 5);
-            des.door('open', 3, 8);
-            des.door('nodoor', 13, 8);
-            des.door('open', 41, 8);
-            des.door('closed', 24, 9);
-            des.door('closed', 31, 11);
-            des.door('open', 11, 13);
-            des.door('closed', 18, 13);
-            des.door('closed', 41, 13);
-            des.door('open', 26, 14);
-            des.door('closed', 6, 15);
+            await des.door('closed', 23, 2);
+            await des.door('open', 31, 3);
+            await des.door('nodoor', 3, 5);
+            await des.door('closed', 9, 5);
+            await des.door('closed', 14, 5);
+            await des.door('closed', 41, 5);
+            await des.door('open', 3, 8);
+            await des.door('nodoor', 13, 8);
+            await des.door('open', 41, 8);
+            await des.door('closed', 24, 9);
+            await des.door('closed', 31, 11);
+            await des.door('open', 11, 13);
+            await des.door('closed', 18, 13);
+            await des.door('closed', 41, 13);
+            await des.door('open', 26, 14);
+            await des.door('closed', 6, 15);
 
-            des.altar({ x: 24, y: 7, align: 'noalign', type: 'sanctum' });
-            des.region({ region: [22, 12, 25, 16], lit: 0,
+            await des.altar({ x: 24, y: 7, align: 'noalign', type: 'sanctum' });
+            await des.region({ region: [22, 12, 25, 16], lit: 0,
                 type: 'morgue', filled: 1 });
-            des.region({ region: [32, 9, 37, 12], lit: 1,
+            await des.region({ region: [32, 9, 37, 12], lit: 1,
                 type: 'shop', filled: 1 });
-            des.region({ region: [12, 0, 15, 4], lit: 1,
+            await des.region({ region: [12, 0, 15, 4], lit: 1,
                 type: 'shop', filled: 1 });
 
-            des.trap('spiked pit');
-            des.trap('sleep gas');
-            des.trap('anti magic');
-            des.trap('fire');
-            des.trap('fire');
-            des.trap('fire');
-            des.trap('magic');
-            des.trap('magic');
+            await des.trap('spiked pit');
+            await des.trap('sleep gas');
+            await des.trap('anti magic');
+            await des.trap('fire');
+            await des.trap('fire');
+            await des.trap('fire');
+            await des.trap('magic');
+            await des.trap('magic');
 
-            des.object();
-            des.object();
-            des.object();
-            des.object();
-            des.object();
-            des.object();
-            des.object();
-            des.object();
-            des.object();
-            des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
+            await des.object();
             // The source's compensation item uses one math.random(0, 1)
             // draw, represented by rn2(2) in the special-level API.
-            if (des.random.rn2(2) === 1) des.object('magic marker');
-            else des.object('magic lamp');
+            if (des.random.rn2(2) === 1) await des.object('magic marker');
+            else await des.object('magic lamp');
 
-            des.monster('Orcus', 33, 15);
-            des.monster('human zombie', 32, 15);
-            des.monster('shade', 32, 14);
-            des.monster('shade', 32, 16);
-            des.monster('vampire', 35, 16);
-            des.monster('vampire', 35, 14);
-            des.monster('vampire lord', 36, 14);
-            des.monster('vampire lord', 36, 15);
+            await des.monster('Orcus', 33, 15);
+            await des.monster('human zombie', 32, 15);
+            await des.monster('shade', 32, 14);
+            await des.monster('shade', 32, 16);
+            await des.monster('vampire', 35, 16);
+            await des.monster('vampire', 35, 14);
+            await des.monster('vampire lord', 36, 14);
+            await des.monster('vampire lord', 36, 15);
 
             for (const id of [
                 'skeleton', 'skeleton', 'skeleton', 'skeleton', 'skeleton',
@@ -174,30 +174,30 @@ export async function orcus(des, state) {
                 'vampire', 'vampire', 'vampire',
                 'vampire lord', 'vampire lord',
             ]) {
-                des.monster(id);
+                await des.monster(id);
             }
 
-            for (let i = 0; i < 5; ++i) des.monster();
+            for (let i = 0; i < 5; ++i) await des.monster();
         },
     });
 
-    des.levregion({
+    await des.levregion({
         region: [1, 0, 12, 20], region_islev: 1,
         exclude: [20, 1, 70, 20], exclude_islev: 1,
         type: 'stair-up',
     });
-    des.levregion({
+    await des.levregion({
         region: [1, 0, 12, 20], region_islev: 1,
         exclude: [20, 1, 70, 20], exclude_islev: 1,
         type: 'branch',
     });
-    des.teleport_region({
+    await des.teleport_region({
         region: [1, 0, 12, 20], region_islev: 1,
         exclude: [20, 1, 70, 20], exclude_islev: 1,
     });
 
     const protectedArea = selectionUnion(bounds2.negate(), mapSelection(orcus1));
-    hellTweaks(des, protectedArea, state);
+    await hellTweaks(des, protectedArea, state);
 }
 
 export const ORCUS_LEVEL_LOADERS = Object.freeze({ orcus });

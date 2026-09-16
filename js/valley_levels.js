@@ -45,10 +45,10 @@ function percent(threshold) {
 // the shrine of Moloch, three morgues, corpses of former adventurers, and
 // conditional boulder walls that randomize the path.
 async function valley(des) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'nommap', 'temperate');
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'nommap', 'temperate');
 
-    des.map([
+    await des.map([
         '----------------------------------------------------------------------------',
         '|...S.|..|.....|  |.....-|      |................|   |...............| |...|',
         '|---|.|.--.---.|  |......--- ----..........-----.-----....---........---.-.|',
@@ -72,120 +72,120 @@ async function valley(des) {
     ]);
 
     if (percent(50)) {
-        des.terrain(selection_line(50, 8, 53, 8), '-');
-        des.terrain(selection_line(40, 8, 43, 8), 'B');
+        await des.terrain(selection_line(50, 8, 53, 8), '-');
+        await des.terrain(selection_line(40, 8, 43, 8), 'B');
     }
     if (percent(50)) {
-        des.terrain({ x: 27, y: 12, typ: '|' });
-        des.terrain(selection_line(27, 3, 29, 3), 'B');
-        des.terrain({ x: 28, y: 2, typ: '-' });
+        await des.terrain({ x: 27, y: 12, typ: '|' });
+        await des.terrain(selection_line(27, 3, 29, 3), 'B');
+        await des.terrain({ x: 28, y: 2, typ: '-' });
     }
     if (percent(50)) {
-        des.terrain(selection_line(16, 10, 16, 11), '|');
-        des.terrain(selection_line(9, 13, 14, 13), 'B');
+        await des.terrain(selection_line(16, 10, 16, 11), '|');
+        await des.terrain(selection_line(9, 13, 14, 13), 'B');
     }
 
-    des.region({ region: [1, 6, 5, 14], lit: 1, type: 'temple', filled: 2 });
-    des.region({ region: [19, 1, 24, 8], lit: 0, type: 'morgue', filled: 1, irregular: 1 });
-    des.region({ region: [9, 14, 16, 18], lit: 0, type: 'morgue', filled: 1, irregular: 1 });
-    des.region({ region: [37, 9, 43, 14], lit: 0, type: 'morgue', filled: 1, irregular: 1 });
+    await des.region({ region: [1, 6, 5, 14], lit: 1, type: 'temple', filled: 2 });
+    await des.region({ region: [19, 1, 24, 8], lit: 0, type: 'morgue', filled: 1, irregular: 1 });
+    await des.region({ region: [9, 14, 16, 18], lit: 0, type: 'morgue', filled: 1, irregular: 1 });
+    await des.region({ region: [37, 9, 43, 14], lit: 0, type: 'morgue', filled: 1, irregular: 1 });
 
-    des.stair({ dir: 'down', coord: [1, 1] });
-    des.levregion({ type: 'branch', region: [66, 17, 66, 17] });
-    des.teleport_region({ region: [58, 9, 72, 18], dir: 'down' });
+    await des.stair({ dir: 'down', coord: [1, 1] });
+    await des.levregion({ type: 'branch', region: [66, 17, 66, 17] });
+    await des.teleport_region({ region: [58, 9, 72, 18], dir: 'down' });
 
-    des.door('locked', 4, 1);
-    des.door('locked', 8, 4);
-    des.door('locked', 6, 6);
+    await des.door('locked', 4, 1);
+    await des.door('locked', 8, 4);
+    await des.door('locked', 6, 6);
 
-    des.altar({ x: 3, y: 10, align: 'noalign', type: 'shrine' });
+    await des.altar({ x: 3, y: 10, align: 'noalign', type: 'shrine' });
 
-    des.non_diggable(selection_area(0, 0, 75, 19));
+    await des.non_diggable(selection_area(0, 0, 75, 19));
 
-    des.object({ id: CORPSE, montype: PM_ARCHEOLOGIST });
-    des.object({ id: CORPSE, montype: PM_ARCHEOLOGIST });
-    des.object({ id: CORPSE, montype: PM_BARBARIAN });
-    des.object({ id: CORPSE, montype: PM_BARBARIAN });
-    des.object({ id: CORPSE, montype: PM_CAVE_DWELLER });
-    des.object({ id: CORPSE, montype: PM_CAVE_DWELLER });
-    des.object({ id: CORPSE, montype: PM_HEALER });
-    des.object({ id: CORPSE, montype: PM_HEALER });
-    des.object({ id: CORPSE, montype: PM_KNIGHT });
-    des.object({ id: CORPSE, montype: PM_KNIGHT });
-    des.object({ id: CORPSE, montype: PM_RANGER });
-    des.object({ id: CORPSE, montype: PM_RANGER });
-    des.object({ id: CORPSE, montype: PM_ROGUE });
-    des.object({ id: CORPSE, montype: PM_ROGUE });
-    des.object({ id: CORPSE, montype: PM_SAMURAI });
-    des.object({ id: CORPSE, montype: PM_SAMURAI });
-    des.object({ id: CORPSE, montype: PM_TOURIST });
-    des.object({ id: CORPSE, montype: PM_TOURIST });
-    des.object({ id: CORPSE, montype: PM_VALKYRIE });
-    des.object({ id: CORPSE, montype: PM_VALKYRIE });
-    des.object({ id: CORPSE, montype: PM_WIZARD });
-    des.object({ id: CORPSE, montype: PM_WIZARD });
+    await des.object({ id: CORPSE, montype: PM_ARCHEOLOGIST });
+    await des.object({ id: CORPSE, montype: PM_ARCHEOLOGIST });
+    await des.object({ id: CORPSE, montype: PM_BARBARIAN });
+    await des.object({ id: CORPSE, montype: PM_BARBARIAN });
+    await des.object({ id: CORPSE, montype: PM_CAVE_DWELLER });
+    await des.object({ id: CORPSE, montype: PM_CAVE_DWELLER });
+    await des.object({ id: CORPSE, montype: PM_HEALER });
+    await des.object({ id: CORPSE, montype: PM_HEALER });
+    await des.object({ id: CORPSE, montype: PM_KNIGHT });
+    await des.object({ id: CORPSE, montype: PM_KNIGHT });
+    await des.object({ id: CORPSE, montype: PM_RANGER });
+    await des.object({ id: CORPSE, montype: PM_RANGER });
+    await des.object({ id: CORPSE, montype: PM_ROGUE });
+    await des.object({ id: CORPSE, montype: PM_ROGUE });
+    await des.object({ id: CORPSE, montype: PM_SAMURAI });
+    await des.object({ id: CORPSE, montype: PM_SAMURAI });
+    await des.object({ id: CORPSE, montype: PM_TOURIST });
+    await des.object({ id: CORPSE, montype: PM_TOURIST });
+    await des.object({ id: CORPSE, montype: PM_VALKYRIE });
+    await des.object({ id: CORPSE, montype: PM_VALKYRIE });
+    await des.object({ id: CORPSE, montype: PM_WIZARD });
+    await des.object({ id: CORPSE, montype: PM_WIZARD });
 
-    des.object({ class: ARMOR_CLASS });
-    des.object({ class: ARMOR_CLASS });
-    des.object({ class: ARMOR_CLASS });
-    des.object({ class: ARMOR_CLASS });
-    des.object({ class: WEAPON_CLASS });
-    des.object({ class: WEAPON_CLASS });
-    des.object({ class: WEAPON_CLASS });
-    des.object({ class: WEAPON_CLASS });
+    await des.object({ class: ARMOR_CLASS });
+    await des.object({ class: ARMOR_CLASS });
+    await des.object({ class: ARMOR_CLASS });
+    await des.object({ class: ARMOR_CLASS });
+    await des.object({ class: WEAPON_CLASS });
+    await des.object({ class: WEAPON_CLASS });
+    await des.object({ class: WEAPON_CLASS });
+    await des.object({ class: WEAPON_CLASS });
 
-    des.object({ id: RUBY });
-    des.object({ class: GEM_CLASS });
-    des.object({ class: GEM_CLASS });
-    des.object({ class: POTION_CLASS });
-    des.object({ class: POTION_CLASS });
-    des.object({ class: POTION_CLASS });
-    des.object({ class: SCROLL_CLASS });
-    des.object({ class: SCROLL_CLASS });
-    des.object({ class: SCROLL_CLASS });
-    des.object({ class: WAND_CLASS });
-    des.object({ class: WAND_CLASS });
-    des.object({ class: RING_CLASS });
-    des.object({ class: RING_CLASS });
-    des.object({ class: SPBOOK_CLASS });
-    des.object({ class: SPBOOK_CLASS });
-    des.object({ class: TOOL_CLASS });
-    des.object({ class: TOOL_CLASS });
-    des.object({ class: TOOL_CLASS });
+    await des.object({ id: RUBY });
+    await des.object({ class: GEM_CLASS });
+    await des.object({ class: GEM_CLASS });
+    await des.object({ class: POTION_CLASS });
+    await des.object({ class: POTION_CLASS });
+    await des.object({ class: POTION_CLASS });
+    await des.object({ class: SCROLL_CLASS });
+    await des.object({ class: SCROLL_CLASS });
+    await des.object({ class: SCROLL_CLASS });
+    await des.object({ class: WAND_CLASS });
+    await des.object({ class: WAND_CLASS });
+    await des.object({ class: RING_CLASS });
+    await des.object({ class: RING_CLASS });
+    await des.object({ class: SPBOOK_CLASS });
+    await des.object({ class: SPBOOK_CLASS });
+    await des.object({ class: TOOL_CLASS });
+    await des.object({ class: TOOL_CLASS });
+    await des.object({ class: TOOL_CLASS });
 
-    des.trap({ type: 'spiked pit', coord: [5, 2] });
-    des.trap({ type: 'spiked pit', coord: [14, 5] });
-    des.trap({ type: 'sleep gas', coord: [3, 1] });
-    des.trap({ type: 'board', coord: [21, 12] });
-    des.trap('board');
-    des.trap({ type: 'dart', coord: [60, 1] });
-    des.trap({ type: 'dart', coord: [26, 17] });
-    des.trap('anti magic');
-    des.trap('anti magic');
-    des.trap('magic');
-    des.trap('magic');
+    await des.trap({ type: 'spiked pit', coord: [5, 2] });
+    await des.trap({ type: 'spiked pit', coord: [14, 5] });
+    await des.trap({ type: 'sleep gas', coord: [3, 1] });
+    await des.trap({ type: 'board', coord: [21, 12] });
+    await des.trap('board');
+    await des.trap({ type: 'dart', coord: [60, 1] });
+    await des.trap({ type: 'dart', coord: [26, 17] });
+    await des.trap('anti magic');
+    await des.trap('anti magic');
+    await des.trap('magic');
+    await des.trap('magic');
 
-    des.monster({ id: PM_GHOST });
-    des.monster({ id: PM_GHOST });
-    des.monster({ id: PM_GHOST });
-    des.monster({ id: PM_GHOST });
-    des.monster({ id: PM_GHOST });
-    des.monster({ id: PM_GHOST });
-    des.monster({ id: PM_VAMPIRE_BAT });
-    des.monster({ id: PM_VAMPIRE_BAT });
-    des.monster({ id: PM_VAMPIRE_BAT });
-    des.monster({ class: S_LICH });
-    des.monster({ class: S_VAMPIRE });
-    des.monster({ class: S_VAMPIRE });
-    des.monster({ class: S_VAMPIRE });
-    des.monster({ class: S_ZOMBIE });
-    des.monster({ class: S_ZOMBIE });
-    des.monster({ class: S_ZOMBIE });
-    des.monster({ class: S_ZOMBIE });
-    des.monster({ class: S_MUMMY });
-    des.monster({ class: S_MUMMY });
-    des.monster({ class: S_MUMMY });
-    des.monster({ class: S_MUMMY });
+    await des.monster({ id: PM_GHOST });
+    await des.monster({ id: PM_GHOST });
+    await des.monster({ id: PM_GHOST });
+    await des.monster({ id: PM_GHOST });
+    await des.monster({ id: PM_GHOST });
+    await des.monster({ id: PM_GHOST });
+    await des.monster({ id: PM_VAMPIRE_BAT });
+    await des.monster({ id: PM_VAMPIRE_BAT });
+    await des.monster({ id: PM_VAMPIRE_BAT });
+    await des.monster({ class: S_LICH });
+    await des.monster({ class: S_VAMPIRE });
+    await des.monster({ class: S_VAMPIRE });
+    await des.monster({ class: S_VAMPIRE });
+    await des.monster({ class: S_ZOMBIE });
+    await des.monster({ class: S_ZOMBIE });
+    await des.monster({ class: S_ZOMBIE });
+    await des.monster({ class: S_ZOMBIE });
+    await des.monster({ class: S_MUMMY });
+    await des.monster({ class: S_MUMMY });
+    await des.monster({ class: S_MUMMY });
+    await des.monster({ class: S_MUMMY });
 }
 
 export const VALLEY_LEVEL_LOADERS = {

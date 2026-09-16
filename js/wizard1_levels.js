@@ -60,8 +60,8 @@ function mapSelection(placed) {
 // hell_tweaks(protected) call. Descriptor order is significant because the
 // callback's random door and hell_tweaks consume the level RNG stream.
 export async function wizard1(des, state) {
-    des.level_init({ style: 'mazegrid', bg: '-' });
-    des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.level_init({ style: 'mazegrid', bg: '-' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
 
     const tmpbounds = selection_match('-', state);
     const bnds = tmpbounds.bounds();
@@ -69,101 +69,101 @@ export async function wizard1(des, state) {
         bnds.lx, bnds.ly + 1, bnds.hx - 2, bnds.hy - 1, des.frame,
     );
 
-    const wiz1 = des.map({
+    const wiz1 = await des.map({
         halign: 'center',
         valign: 'center',
         map: WIZARD1_MAP,
-        contents() {
-            des.levregion({
+        async contents() {
+            await des.levregion({
                 type: 'stair-up', region: [1, 0, 79, 20],
                 region_islev: 1, exclude: [0, 0, 28, 12],
             });
-            des.levregion({
+            await des.levregion({
                 type: 'stair-down', region: [1, 0, 79, 20],
                 region_islev: 1, exclude: [0, 0, 28, 12],
             });
-            des.levregion({
+            await des.levregion({
                 type: 'branch', region: [1, 0, 79, 20],
                 region_islev: 1, exclude: [0, 0, 28, 12],
             });
-            des.teleport_region({
+            await des.teleport_region({
                 region: [1, 0, 79, 20], region_islev: 1,
                 exclude: [0, 0, 27, 12],
             });
-            des.region({
+            await des.region({
                 region: [12, 1, 20, 9], lit: 0, type: 'morgue', filled: 2,
-                contents() {
+                async contents() {
                     const sdwall = ['south', 'west', 'east'];
-                    des.door({
+                    await des.door({
                         wall: sdwall[des.random.rn2(sdwall.length)],
                         state: 'secret',
                     });
                 },
             });
             // Another region to constrain monster arrival.
-            des.region({
+            await des.region({
                 region: [1, 1, 10, 11], lit: 0, type: 'ordinary',
                 arrival_room: true,
             });
-            des.mazewalk(28, 5, 'east');
-            des.ladder('down', 6, 5);
+            await des.mazewalk(28, 5, 'east');
+            await des.ladder('down', 6, 5);
 
             // Non-diggable and non-passwall walls. Walls inside the moat stay
             // diggable, so the four source areas intentionally have gaps.
-            des.non_diggable(selection_area(0, 0, 11, 12));
-            des.non_diggable(selection_area(11, 0, 21, 0));
-            des.non_diggable(selection_area(11, 10, 27, 12));
-            des.non_diggable(selection_area(21, 0, 27, 10));
-            des.non_passwall(selection_area(0, 0, 11, 12));
-            des.non_passwall(selection_area(11, 0, 21, 0));
-            des.non_passwall(selection_area(11, 10, 27, 12));
-            des.non_passwall(selection_area(21, 0, 27, 10));
+            await des.non_diggable(selection_area(0, 0, 11, 12));
+            await des.non_diggable(selection_area(11, 0, 21, 0));
+            await des.non_diggable(selection_area(11, 10, 27, 12));
+            await des.non_diggable(selection_area(21, 0, 27, 10));
+            await des.non_passwall(selection_area(0, 0, 11, 12));
+            await des.non_passwall(selection_area(11, 0, 21, 0));
+            await des.non_passwall(selection_area(11, 10, 27, 12));
+            await des.non_passwall(selection_area(21, 0, 27, 10));
 
-            des.monster({ id: 'Wizard of Yendor', x: 16, y: 5, asleep: 1 });
-            des.monster('hell hound', 15, 5);
-            des.monster('vampire lord', 17, 5);
-            des.object('Book of the Dead', 16, 5);
+            await des.monster({ id: 'Wizard of Yendor', x: 16, y: 5, asleep: 1 });
+            await des.monster('hell hound', 15, 5);
+            await des.monster('vampire lord', 17, 5);
+            await des.object('Book of the Dead', 16, 5);
 
-            des.monster('kraken', 14, 2);
-            des.monster('giant eel', 17, 2);
-            des.monster('kraken', 13, 4);
-            des.monster('giant eel', 13, 6);
-            des.monster('kraken', 19, 4);
-            des.monster('giant eel', 19, 6);
-            des.monster('kraken', 15, 8);
-            des.monster('giant eel', 17, 8);
-            des.monster('piranha', 15, 2);
-            des.monster('piranha', 19, 8);
+            await des.monster('kraken', 14, 2);
+            await des.monster('giant eel', 17, 2);
+            await des.monster('kraken', 13, 4);
+            await des.monster('giant eel', 13, 6);
+            await des.monster('kraken', 19, 4);
+            await des.monster('giant eel', 19, 6);
+            await des.monster('kraken', 15, 8);
+            await des.monster('giant eel', 17, 8);
+            await des.monster('piranha', 15, 2);
+            await des.monster('piranha', 19, 8);
 
-            des.monster('D');
-            des.monster('H');
-            des.monster('&');
-            des.monster('&');
-            des.monster('&');
-            des.monster('&');
+            await des.monster('D');
+            await des.monster('H');
+            await des.monster('&');
+            await des.monster('&');
+            await des.monster('&');
+            await des.monster('&');
 
-            des.trap('board', 16, 4);
-            des.trap('board', 16, 6);
-            des.trap('board', 15, 5);
-            des.trap('board', 17, 5);
-            des.trap('spiked pit');
-            des.trap('sleep gas');
-            des.trap('anti magic');
-            des.trap('magic');
+            await des.trap('board', 16, 4);
+            await des.trap('board', 16, 6);
+            await des.trap('board', 15, 5);
+            await des.trap('board', 17, 5);
+            await des.trap('spiked pit');
+            await des.trap('sleep gas');
+            await des.trap('anti magic');
+            await des.trap('magic');
 
-            des.object('ruby');
-            des.object('!');
-            des.object('!');
-            des.object('?');
-            des.object('?');
-            des.object('+');
-            des.object('+');
-            des.object('+');
+            await des.object('ruby');
+            await des.object('!');
+            await des.object('!');
+            await des.object('?');
+            await des.object('?');
+            await des.object('+');
+            await des.object('+');
+            await des.object('+');
         },
     });
 
     const protectedArea = selectionUnion(bounds2.negate(), mapSelection(wiz1));
-    hellTweaks(des, protectedArea, state);
+    await hellTweaks(des, protectedArea, state);
 }
 
 export const WIZARD1_LEVEL_LOADERS = Object.freeze({ wizard1 });

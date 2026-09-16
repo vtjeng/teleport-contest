@@ -139,9 +139,9 @@ function selUnion(a, b) {
 // C ref: dat/bigrm-1.lua. Plain rectangle, 80% chance of a terrain
 // pattern (line, plus, brackets, snake).
 async function bigrm1(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '---------------------------------------------------------------------------',
         '|.........................................................................|',
         '|.........................................................................|',
@@ -167,52 +167,52 @@ async function bigrm1(des, state) {
         const tidx = mathRandom(1, terrains.length) - 1;
         const choice = mathRandom(0, 5);
         if (choice === 0) {
-            des.terrain(selection_line(10, 8, 65, 8), terrains[tidx]);
+            await des.terrain(selection_line(10, 8, 65, 8), terrains[tidx]);
         } else if (choice === 1) {
             const sel = selUnion(
                 selection_line(15, 4, 15, 13),
                 selection_line(59, 4, 59, 13),
             );
-            des.terrain(sel, terrains[tidx]);
+            await des.terrain(sel, terrains[tidx]);
         } else if (choice === 2) {
             const sel = selUnion(
                 selection_line(10, 8, 64, 8),
                 selection_line(37, 3, 37, 14),
             );
-            des.terrain(sel, terrains[tidx]);
+            await des.terrain(sel, terrains[tidx]);
         } else if (choice === 3) {
-            des.terrain(selection_rect(4, 4, 70, 13), terrains[tidx]);
+            await des.terrain(selection_rect(4, 4, 70, 13), terrains[tidx]);
             const sel = selUnion(
                 selection_line(25, 4, 50, 4),
                 selection_line(25, 13, 50, 13),
             );
-            des.terrain(sel, '.');
+            await des.terrain(sel, '.');
         } else if (choice === 4) {
-            des.terrain(selection_fillrect(5, 5, 69, 12), terrains[tidx]);
+            await des.terrain(selection_fillrect(5, 5, 69, 12), terrains[tidx]);
             for (let i = 0; i < 8; ++i) {
                 const x = 6 + i * 8;
                 const y = 5 + (i % 2);
-                des.terrain(selection_fillrect(x, y, x + 6, y + 6), '.');
+                await des.terrain(selection_fillrect(x, y, x + 6, y + 6), '.');
             }
         }
         // else choice === 5: nothing
     }
 
-    des.region(selection_area(1, 1, 73, 16), 'lit');
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-2.lua. Plain rectangle with random dark regions and
 // optional ice/invisible-stalker replacement.
 async function bigrm2(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '---------------------------------------------------------------------------',
         '|.........................................................................|',
         '|.........................................................................|',
@@ -232,7 +232,7 @@ async function bigrm2(des, state) {
         '|.........................................................................|',
         '---------------------------------------------------------------------------',
     ]);
-    des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
 
     let darkness = null;
     const choice = mathRandom(0, 3);
@@ -258,9 +258,9 @@ async function bigrm2(des, state) {
     // choice === 3: darkness stays null
 
     if (darkness != null) {
-        des.region(darkness, 'unlit');
+        await des.region(darkness, 'unlit');
         if (percent(25)) {
-            des.replace_terrain({
+            await des.replace_terrain({
                 selection: darkness.grow(),
                 fromterrain: '.',
                 toterrain: 'I',
@@ -268,20 +268,20 @@ async function bigrm2(des, state) {
         }
     }
 
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-3.lua. Pillared grid room with optional wall
 // replacement and explicit monster grid.
 async function bigrm3(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '---------------------------------------------------------------------------',
         '|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|',
         '|.........................................................................|',
@@ -301,20 +301,20 @@ async function bigrm3(des, state) {
         '|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|.|',
         '---------------------------------------------------------------------------',
     ]);
-    des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
 
     if (percent(66)) {
         const sel = selection_match('[.w.]', state);
         const terrains = ['F', 'T', 'W', 'Z'];
         const choice = terrains[mathRandom(1, terrains.length) - 1];
-        des.terrain(sel, choice);
+        await des.terrain(sel, choice);
     }
 
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
 
     // 28 monsters at fixed positions.
     const positions = [
@@ -324,16 +324,16 @@ async function bigrm3(des, state) {
         [1, 16], [13, 16], [25, 16], [37, 16], [49, 16], [61, 16], [73, 16],
     ];
     for (const [mx, my] of positions) {
-        des.monster({ coord: [mx, my] });
+        await des.monster({ coord: [mx, my] });
     }
 }
 
 // C ref: dat/bigrm-4.lua. Diamond-ish room with a central lake and four
 // corner fountains.
 async function bigrm4(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '-----------                                                     -----------',
         '|.........|                                                     |.........|',
         '|.........-------------                             -------------.........|',
@@ -358,29 +358,29 @@ async function bigrm4(des, state) {
     const tidx = mathRandom(1, terrains.length) - 1;
     const toterr = terrains[tidx];
     if (toterr !== 'L') {
-        des.replace_terrain({ fromterrain: 'L', toterrain: toterr });
+        await des.replace_terrain({ fromterrain: 'L', toterrain: toterr });
     }
 
-    des.feature('fountain', 5, 2);
-    des.feature('fountain', 5, 15);
-    des.feature('fountain', 69, 2);
-    des.feature('fountain', 69, 15);
+    await des.feature('fountain', 5, 2);
+    await des.feature('fountain', 5, 15);
+    await des.feature('fountain', 69, 2);
+    await des.feature('fountain', 69, 15);
 
-    des.region(selection_area(1, 1, 73, 16), 'lit');
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-5.lua. Elliptical room with optional random cloud or
 // ice patches.
 async function bigrm5(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '                            ------------------                            ',
         '                    ---------................---------                    ',
         '              -------................................-------              ',
@@ -406,28 +406,28 @@ async function bigrm5(des, state) {
         const allRoom = selection_match('.', state);
         const sel = allRoom.percentage(2).grow();
         const toterr = percent(50) ? 'I' : 'C';
-        des.replace_terrain({
+        await des.replace_terrain({
             selection: sel,
             fromterrain: '.',
             toterrain: toterr,
         });
     }
 
-    des.region(selection_area(0, 0, 72, 18), 'lit');
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(0, 0, 72, 18), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-6.lua. Four-lobed clover room with trees and a
 // fountain pair.
 async function bigrm6(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '     ---------         ---------         ---------         ---------     ',
         '   ---.......---     ---.......---     ---.......---     ---.......---   ',
         '  --...........--   --...........--   --...........--   --...........--  ',
@@ -448,21 +448,21 @@ async function bigrm6(des, state) {
         '   ---.......---     ---.......---     ---.......---     ---.......---   ',
         '     ---------         ---------         ---------         ---------     ',
     ]);
-    des.region(selection_area(1, 1, 72, 17), 'lit');
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(1, 1, 72, 17), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-7.lua. Diagonal diamond room with lava/tree/fountain
 // markers.
 async function bigrm7(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map([
         '                                                        -----              ',
         '                                                ---------...---            ',
         '                                        ---------.........L...---          ',
@@ -486,26 +486,26 @@ async function bigrm7(des, state) {
 
     const terrain = ['L', 'T', '{', '.'];
     const tidx = mathRandom(1, terrain.length) - 1;
-    des.replace_terrain({
+    await des.replace_terrain({
         region: [0, 0, 74, 18],
         fromterrain: 'L',
         toterrain: terrain[tidx],
     });
 
-    des.region(selection_area(1, 1, 73, 17), 'lit');
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(1, 1, 73, 17), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-8.lua. Diagonal room with an iron-bars stripe.
 async function bigrm8(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map([
         '----------------------------------------------                             ',
         '|............................................---                           ',
         '--.............................................---                         ',
@@ -529,28 +529,28 @@ async function bigrm8(des, state) {
     if (percent(40)) {
         const terrain = ['L', '}', 'T', '.', '-', 'C'];
         const tidx = mathRandom(1, terrain.length) - 1;
-        des.replace_terrain({
+        await des.replace_terrain({
             region: [0, 0, 74, 17],
             fromterrain: 'F',
             toterrain: terrain[tidx],
         });
     }
 
-    des.region(selection_area(1, 1, 73, 16), 'lit');
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-9.lua. "Eye" room with a lava lake pupil, unlit
 // outer ring, lit inner rings.
 async function bigrm9(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}',
         '}}}}}}}}}}}}}}}}}}}}}}}}}}}}}................}}}}}}}}}}}}}}}}}}}}}}}}}}}}}',
         '}}}}}}}}}}}}}}}}}}}}}................................}}}}}}}}}}}}}}}}}}}}}',
@@ -572,25 +572,25 @@ async function bigrm9(des, state) {
         '}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}',
     ]);
 
-    des.region(selection_area(0, 0, 73, 18), 'unlit');
-    des.region(selection_area(26, 4, 47, 14), 'lit');
-    des.region(selection_area(21, 5, 51, 13), 'lit');
-    des.region(selection_area(19, 6, 54, 12), 'lit');
+    await des.region(selection_area(0, 0, 73, 18), 'unlit');
+    await des.region(selection_area(26, 4, 47, 14), 'lit');
+    await des.region(selection_area(21, 5, 51, 13), 'lit');
+    await des.region(selection_area(19, 6, 54, 12), 'lit');
 
-    des.stair('up');
-    des.stair('down');
-    des.non_diggable();
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.stair('up');
+    await des.stair('down');
+    await des.non_diggable();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-10.lua. Cloud "fog maze" with mazewalk, levregion,
 // and teleport region exclusions.
 async function bigrm10(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '.......................................................................',
         '.......................................................................',
         '.......................................................................',
@@ -615,38 +615,38 @@ async function bigrm10(des, state) {
     if (percent(40)) {
         const terrain = ['L', '}', 'T', '-', 'F'];
         const tidx = mathRandom(1, terrain.length) - 1;
-        des.replace_terrain({
+        await des.replace_terrain({
             region: [0, 0, 70, 18],
             fromterrain: 'C',
             toterrain: '.',
             chance: 5,
         });
-        des.replace_terrain({
+        await des.replace_terrain({
             region: [0, 0, 70, 18],
             fromterrain: 'C',
             toterrain: terrain[tidx],
         });
     }
 
-    des.region(selection_area(0, 0, 70, 18), 'lit');
-    des.teleport_region({
+    await des.region(selection_area(0, 0, 70, 18), 'lit');
+    await des.teleport_region({
         region: [0, 0, 70, 18],
         exclude: [2, 3, 68, 15],
         dir: 'down',
     });
 
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 
-    des.mazewalk({ x: 4, y: 2, dir: 'south', stocked: 0 });
+    await des.mazewalk({ x: 4, y: 2, dir: 'south', stocked: 0 });
 
-    des.levregion({
+    await des.levregion({
         region: [0, 0, 70, 18],
         exclude: [2, 3, 68, 15],
         type: 'stair-up',
     });
-    des.stair('down');
+    await des.stair('down');
 }
 
 // C ref: dat/bigrm-11.lua. Boulder "maze" with wide corridors, generated
@@ -664,9 +664,9 @@ async function bigrm11(des, state) {
 // C ref: dat/bigrm-12.lua. Two hexagons with lava/water pools. Heavy
 // replace_terrain randomization and des.wallify().
 async function bigrm12(des, state) {
-    des.level_flags('mazelevel', 'noflipy');
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.map([
+    await des.level_flags('mazelevel', 'noflipy');
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.map([
         '                                                                           ',
         '         .......................           .......................         ',
         '        .........................         .........................        ',
@@ -691,54 +691,54 @@ async function bigrm12(des, state) {
     // Maybe replace lava walls / water walls with stone walls.
     if (percent(20)) {
         if (percent(50)) {
-            des.replace_terrain({ fromterrain: 'W', toterrain: '-' });
+            await des.replace_terrain({ fromterrain: 'W', toterrain: '-' });
         }
         if (percent(50)) {
-            des.replace_terrain({ fromterrain: 'Z', toterrain: '-' });
+            await des.replace_terrain({ fromterrain: 'Z', toterrain: '-' });
         }
     }
 
     // Maybe replace pools with floor and then walls with pools.
     if (percent(25)) {
-        des.replace_terrain({ fromterrain: 'P', toterrain: '.' });
+        await des.replace_terrain({ fromterrain: 'P', toterrain: '.' });
         if (percent(75)) {
-            des.replace_terrain({ fromterrain: 'W', toterrain: 'P' });
+            await des.replace_terrain({ fromterrain: 'W', toterrain: 'P' });
         }
     }
     if (percent(25)) {
-        des.replace_terrain({ fromterrain: 'L', toterrain: '.' });
+        await des.replace_terrain({ fromterrain: 'L', toterrain: '.' });
         if (percent(75)) {
-            des.replace_terrain({ fromterrain: 'Z', toterrain: 'L' });
+            await des.replace_terrain({ fromterrain: 'Z', toterrain: 'L' });
         }
     }
 
     // Maybe make both sides have the same terrain.
     if (percent(20)) {
         if (percent(50)) {
-            des.replace_terrain({ fromterrain: 'P', toterrain: 'L' });
-            des.replace_terrain({ fromterrain: 'W', toterrain: 'Z' });
+            await des.replace_terrain({ fromterrain: 'P', toterrain: 'L' });
+            await des.replace_terrain({ fromterrain: 'W', toterrain: 'Z' });
         } else {
-            des.replace_terrain({ fromterrain: 'L', toterrain: 'P' });
-            des.replace_terrain({ fromterrain: 'Z', toterrain: 'W' });
+            await des.replace_terrain({ fromterrain: 'L', toterrain: 'P' });
+            await des.replace_terrain({ fromterrain: 'Z', toterrain: 'W' });
         }
     }
 
-    des.region(selection_area(0, 0, 75, 19), 'lit');
-    des.non_diggable();
-    des.wallify();
-    des.stair('up');
-    des.stair('down');
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(0, 0, 75, 19), 'lit');
+    await des.non_diggable();
+    await des.wallify();
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // C ref: dat/bigrm-13.lua. "Pillars" room with a small pillar sub-map
 // stamped in a grid, filtered by one of eight pattern functions.
 async function bigrm13(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags('mazelevel', 'noflip');
-    des.map([
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel', 'noflip');
+    await des.map([
         '---------------------------------------------------------------------------',
         '|.........................................................................|',
         '|.........................................................................|',
@@ -786,7 +786,7 @@ async function bigrm13(des, state) {
     for (let y = 0; y < 3; ++y) {
         for (let x = 0; x < 7; ++x) {
             if (filters[idx](x, y)) {
-                des.map({
+                await des.map({
                     coord: [12 + x * 9, 4 + y * 5],
                     map: pillar,
                     contents() {},
@@ -795,14 +795,14 @@ async function bigrm13(des, state) {
         }
     }
 
-    des.region(selection_area(0, 0, 75, 18), 'lit');
-    des.wallify();
-    des.non_diggable();
-    des.stair('up');
-    des.stair('down');
-    for (let i = 0; i < 15; ++i) des.object();
-    for (let i = 0; i < 6; ++i) des.trap();
-    for (let i = 0; i < 28; ++i) des.monster();
+    await des.region(selection_area(0, 0, 75, 18), 'lit');
+    await des.wallify();
+    await des.non_diggable();
+    await des.stair('up');
+    await des.stair('down');
+    for (let i = 0; i < 15; ++i) await des.object();
+    for (let i = 0; i < 6; ++i) await des.trap();
+    for (let i = 0; i < 28; ++i) await des.monster();
 }
 
 // ============================================================
