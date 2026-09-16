@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "_comment": "Independent uhitm.c mhitm_ad_blnd hero-to-monster witness: debug #polyself creates a yellow light (whose first AT_EXPL AD_BLND attack is dispatched through damageum), then #wizgenesis creates a raven for the polymorphed hero to attack. BLOCKED: the JavaScript polyself.c break_armor() path refuses the required unreachable-floor quarterstaff drop before the hero can reach the AD_BLND attack. Seed, datetime, role, and inputs are independent of the fixed holdout.",
+  "_comment": "Independent uhitm.c mhitm_ad_blnd hero-to-monster witness: Wizard T removes the cloak, d then a drops the starting quarterstaff, #polyself changes the hero to a raven (whose AT_CLAW attack has AD_BLND), and #wizgenesis creates a newt defender. BLOCKED: the source-valid attack reaches uhitm.c hmonas() and then damageum(), but the JavaScript hmonas() caller is still unported; the fresh C/JavaScript probe diverges at damageum()'s source d(1,6) after JavaScript consumes rnd(2) in the missing hmonas() arm. Seed, datetime, role, and inputs are independent of the fixed holdout.",
   "segments": [
     {
-      "seed": 9654324,
-      "datetime": "20330715112233",
+      "seed": 9654332,
+      "datetime": "20330722112233",
       "nethackrc": "OPTIONS=name:BlindHero,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,rest_on_space,!safe_wait\n",
-      "moves": "T#polyself\nyellow light\n  #wizgenesis\nraven\n"
+      "moves": "Tdadbdcdddedfdgdhdidjdkdldmdn#polyself\nraven\n #wizgenesis\nnewt\nll"
     }
   ]
 }
