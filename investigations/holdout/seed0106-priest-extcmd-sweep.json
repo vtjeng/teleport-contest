@@ -1,24 +1,24 @@
 {
   "session": "holdout/seed0106-priest-extcmd-sweep",
-  "remainingScreensUpperBound": 41,
+  "remainingScreensUpperBound": 0,
   "status": "complete",
-  "commit": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f",
+  "commit": "c9fb352bd6b7fa21ed2551ee1c3851c7d2459b97",
   "mismatch": {
     "session": "holdout/seed0106-priest-extcmd-sweep",
-    "step": 226,
-    "kind": "stop",
-    "function": "dogenocided",
+    "step": null,
+    "kind": "resolved",
+    "function": null,
     "functionDeclared": false,
     "sourceFile": "insight.c",
     "cFile": "insight.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: dogenocided() for the extended command 'genocided' is not ported",
+    "message": "All 267 recorded screens, RNG values and cursors match at the completed session.",
     "unlocatedKinds": [],
     "recordedSteps": 267,
-    "remainingScreensUpperBound": 41
+    "remainingScreensUpperBound": 0
   },
-  "summary": "The vanquished listing family passes combined validation and advances the first mismatch from213 to226. The new stop is the unported #genocided command, leaving41 screens. C insight.c dogenocided calls list_genocided, which needs num_extinct/num_gone and the now-landed shared sort family. B11 contains this whole family plus the class-heading correction and is next for integration; its positive/final-disclosure entries remain unrecorded.",
+  "summary": "The complete num_extinct through dogenocided family passes combined validation and resolves the Priest session:267/267 screens, no remaining stop or divergence. Shared sorting and final-disclosure callers are wired. The accepted span adds41 development screens and two independent no-entry recordings; positive genocide and final-disclosure entry recordings remain outstanding, so the source goal is parked.",
   "source": {
     "file": "insight.c",
     "functions": [
@@ -86,6 +86,7 @@
     "Coordinator verified B10 correction680f3ced insight.js2160 calls undeclared yn_function when ask=true, while only tty_yn_function is imported at315 and end.js disclose797 passes no queryFunction. C insight.c2831–2843 uses canonical yn_function with addcmdq=TRUE. Feedback B10-feedback-final-disclosure-query-owner requires source-aligned prompt wiring and a default-path check without injected queryFunction before acceptance; existing submitted commits remain immutable.",
     "B10 b32aae5bccb22f9f71b0641144754d0158359884 resolves cmd.js yn_function lazily for the default ask=true disclosure path, preserving addcmdq=TRUE. A production-shaped test omits queryFunction; supplemental bounded named diagnostic reports67 tests passing. Root integrated original14df042b and corrections79c168c5,91e6530e,680f3ced,b32aae5b, excluding unrelated B13 WIP. Main combined validation remains pending.",
     "Combined checkpoint8e39b4e8269a5e58a7b91eeb88746ff59d38177f/run-FJTOef passes with31/44 sessions,10362/11405 screens,756145/792838 RNG,10392/11405 cursors and281/281 recordings. Exact saved scan .cache/B10-checkpoint-scan-cache.json emits226 Priest screens with no earlier divergence, then refuses dogenocided; the current mismatch queue records41 remaining screens.",
-    "Coordinator re-read C insight.c2969–3141 and cmd.c1728–1730 against the validated command boundary and submitted B11 fb12e71c plus8d6c6e8e. The former complete vanquished diagnosis is resolved; the new actionable source range is num_extinct through dogenocided, with complete production dispatch/disclosure wiring required. Existing B11 source evidence and two independent no-entry recordings support immediate integration without another diagnostic replay."
+    "Coordinator re-read C insight.c2969–3141 and cmd.c1728–1730 against the validated command boundary and submitted B11 fb12e71c plus8d6c6e8e. The former complete vanquished diagnosis is resolved; the new actionable source range is num_extinct through dogenocided, with complete production dispatch/disclosure wiring required. Existing B11 source evidence and two independent no-entry recordings support immediate integration without another diagnostic replay.",
+    "Combined checkpointc9fb352bd6b7fa21ed2551ee1c3851c7d2459b97/run-YPgP6o passes all checks:32/44 sessions,10403/11405 screens,756196/792838 RNG,10433/11405 cursors and283/283 recordings (10638screens,1432816RNG). B11 gains41screens,51RNG and41cursors. Exact44-row cache .cache/B11-checkpoint-scan-cache.json emits all267 Priest screens with divergence/boundary null, inputExhausted true, recordingMatched true and no unported entries."
   ]
 }

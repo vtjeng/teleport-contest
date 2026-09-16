@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 721031,
+      "datetime": "20410912131415",
+      "nethackrc": "OPTIONS=name:GenoProbe,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " #genocided\n ",
+      "comment": "Independent Priest startup reaches insight.c dogenocided/list_genocided with no genocided species."
+    }
+  ]
+}
