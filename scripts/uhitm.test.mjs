@@ -581,10 +581,20 @@ test('shade_miss answers only for a shade and stops there', async () => {
         seed: 7710051, datetime: DATETIME, nethackrc: RC, moves: '',
     });
     const ordinary = { data: game.mons[PM_SEWER_RAT], msleeping: 1 };
-    const shade = { data: game.mons[PM_SHADE], msleeping: 1, mx: 1, my: 1 };
-    const attacker = { data: game.mons[PM_KITTEN], mx: 1, my: 2 };
+    const shade = {
+        data: game.mons[PM_SHADE],
+        msleeping: 1,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    // Use the canonical hero object so m_next2u() supplies the C
+    // monster-adjacent visibility term without depending on a particular
+    // post-initialization vision map.
+    const attacker = game.youmonst;
+    const lines = [];
     const env = {
         unsupported: (reason) => { throw new Error(reason); },
+        message: (line) => { lines.push(line); },
     };
 
     assert.equal(
@@ -611,14 +621,17 @@ test('shade_miss answers only for a shade and stops there', async () => {
         false,
     );
 
-    // A shade the attack passes through is where the port stops.
-    assert.throws(
-        () => shade_miss(attacker, shade, null, false, true, game, env),
-        /an attack passing through a shade/u,
+    // A shade the attack passes through returns TRUE after the source
+    // harmless-feedback message and clears its sleep state.
+    assert.equal(
+        shade_miss(attacker, shade, null, false, true, game, env),
+        true,
     );
-    assert.throws(
-        () => shade_miss(attacker, shade, dagger, false, true, game, env),
-        /an attack passing through a shade/u,
+    assert.equal(shade.msleeping, 0);
+    assert.ok(lines.some((line) => line.includes('harmlessly through')));
+    assert.equal(
+        shade_miss(attacker, shade, dagger, false, true, game, env),
+        true,
     );
 });
 

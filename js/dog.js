@@ -367,7 +367,7 @@ export async function tamedog(
         || (obj && (await import('./dogfood.js')).dogfood(
             monster, obj, normalized) >= MANFOOD)) return false;
 
-    if (monster.m_id && monster.m_id === state.quest_status?.leader_m_id)
+    if (monster.m_id && monster.m_id === state.svq?.quest_status?.leader_m_id)
         return false;
 
     const hadEdog = Boolean(monster.mextra?.edog);

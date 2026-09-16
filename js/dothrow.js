@@ -123,6 +123,7 @@ import {
     RLOC_MSG,
     engulfing_u,
     helpless,
+    Upolyd,
 } from './const.js';
 import { ART_MJOLLNIR, spec_abon } from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
@@ -172,6 +173,7 @@ import {
     bigmonst,
     is_animal,
     is_domestic,
+    is_elf,
     is_orc,
     is_unicorn,
     is_whirly,
@@ -180,6 +182,7 @@ import {
     notake,
     throws_rocks,
     touch_petrifies,
+    your_race,
 } from './mondata.js';
 import { closed_door, monnear } from './monmove.js';
 import { dogfood } from './dogfood.js';
@@ -299,7 +302,13 @@ import {
     Tobjnam,
     xnameFresh,
 } from './objnam.js';
-import { Monnam, mon_nam, pmname, x_monnam } from './do_name.js';
+import {
+    Monnam,
+    mon_nam,
+    pmname,
+    Some_Monnam,
+    x_monnam,
+} from './do_name.js';
 import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
@@ -1474,6 +1483,7 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
         text += ' graciously';
     }
 
+    let ret = 0;
     if (accepted) {
         text += ' accepts your gift.';
         if (state.u.ushops?.[0] || obj.unpaid)
@@ -1482,12 +1492,11 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
             ...env,
             canSeeMonster: (target) => canseemon(target, state),
         });
-        if (!heroIsBlind(state)) await message(text, state, env);
-        return 1;
+        ret = 1;
     }
 
     if (!heroIsBlind(state)) await message(text, state, env);
-    if (!(await tele_restrict(mon, state))) {
+    if (!(await tele_restrict(mon, state, { ...env, message }))) {
         rloc(mon, RLOC_MSG, {
             ...env,
             state,
@@ -1496,7 +1505,7 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
             canSeeMonster: (target) => canseemon(target, state),
         });
     }
-    return 0;
+    return ret;
 }
 
 // C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
@@ -1727,11 +1736,14 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     const hmode = obj === state.uwep ? HMON_APPLIED
         : obj === state.gk?.kickedobj ? HMON_KICKED : HMON_THROWN;
 
-    /* C's maybe_polyd() is ulevel for the unpolymorphed hero, which is the
-       only form represented by this port. */
+    /* C's maybe_polyd() selects the current form while polymorphed and the
+       hero's level or race while unpolymorphed. */
+    const polyd = Upolyd(u);
     let tmp = -1 + (u.uluck ?? 0) + (u.moreluck ?? 0)
         + find_mac(mon, state) + (u.uhitinc ?? 0)
-        + (u.ulevel ?? 0);
+        + (polyd
+            ? (state.youmonst?.data?.mlevel ?? 0)
+            : (u.ulevel ?? 0));
     const dex = acurr(state, A_DEX);
     if (dex < 4) tmp -= 3;
     else if (dex < 6) tmp -= 2;
@@ -1762,7 +1774,10 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
     }
 
     tmp += omon_adj(mon, obj, true, { state, random });
-    if (is_orc(mon.data) && state.urace?.mnum === PM_ELF)
+    if (is_orc(mon.data)
+        && (polyd
+            ? is_elf(state.youmonst?.data)
+            : state.urace?.mnum === PM_ELF))
         tmp++;
     if (guaranteedHit) tmp += 1000;
 
@@ -1792,7 +1807,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
 
     /* C's special_obj_hits_leader() branch depends on quest and invocation
        state. The predicate is pure; its side effects remain below. */
-    if (mon.m_id && state.svq?.quest_status?.leader_m_id === mon.m_id
+    if (hmode !== HMON_APPLIED
+        && mon.m_id && state.svq?.quest_status?.leader_m_id === mon.m_id
         && (is_quest_artifact(obj, state)
             || objectType(obj, state).oc_unique
             || (otyp === FAKE_AMULET_OF_YENDOR && !obj.known))) {
@@ -1800,7 +1816,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         mon.mstrategy = (mon.mstrategy ?? 0) & ~STRAT_WAITMASK;
         if (mon.mcanmove) {
             await message(
-                `${Monnam(mon, state)} catches ${the(xnameFresh(obj, state), state)}.`,
+                `${Some_Monnam(mon, state, operationEnv)} catches ${the(xnameFresh(obj, state), state)}.`,
                 state,
             );
             if ((state.u.uevent?.invoked
@@ -1825,10 +1841,16 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                 mpickobj(mon, obj, operationEnv);
             } else {
                 note_unported('quest.c finish_quest');
-                if (!monnear(mon, u.ux, u.uy, state))
+                const next2u = monnear(mon, u.ux, u.uy, state);
+                await message(
+                    `${Some_Monnam(mon, state, operationEnv)} `
+                    + `${next2u ? 'hands' : 'tosses'} `
+                    + `${the(xnameFresh(obj, state), state)} back to you.`,
+                    state,
+                );
+                if (!next2u)
                     note_unported('dothrow.c sho_obj_return_to_u');
                 obj = addinv(obj, operationEnv);
-                note_unported('invent.c nhUse');
                 await encumber_msg(state, { message });
             }
             return 1;
@@ -1853,6 +1875,8 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     tmp += spec_abon(state.uwep, mon, state, operationEnv);
                 if ((state.urace?.mnum === PM_ELF
                      || state.urole?.mnum === PM_SAMURAI)
+                    && (!polyd
+                        || your_race(state.youmonst?.data, state))
                     && objectType(state.uwep, state).oc_skill === P_BOW) {
                     ++tmp;
                     if ((state.urace?.mnum === PM_ELF
@@ -1962,7 +1986,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         const trail = digests(md) ? ' entrails'
             : is_whirly(md) ? ' currents' : '';
         let monname = mon_nam(mon, state);
-        if (trail) monname = `${monname}'s`;
+        if (trail) monname = s_suffix(monname);
         await message(
             `${Tobjnam(obj, 'vanish', state)} into ${monname}${trail}.`,
             state,
