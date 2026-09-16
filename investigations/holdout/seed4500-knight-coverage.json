@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 817
   },
-  "summary": "Main first diverges at step 997 because breamm skips dobuzz. Worker A has expanded the beam damage and creature-hit branches and is completing terrain effects. Source review found remaining mount-path parity and electrical inventory state defects; those corrections and fresh recordings are required before submission. Worker B has a passing fountain-warning witness for the shared dryup dependency.",
+  "summary": "Main first diverges at step 997 because breamm skips dobuzz. Worker A has expanded beam damage, creature hits and terrain effects; focused ray and electrical-destruction tests pass on its branch. Source review continues before fresh recordings and submission. The fountain dependency is under combined validation.",
   "source": {
     "file": "zap.c",
     "functions": [
@@ -47,6 +47,9 @@
     "Read-only source surveys identify existing trap, gas-cloud, equipment-destruction, reflection, and terrain owners. The floor fire branch must snapshot visibility before steam, use PIT rather than TT_PIT, preserve one Norep message, reveal swimmers, and call existing dotrap/mintrap. These details are source obligations, not session exceptions.",
     "The accepted mhitm_ad_blnd span retains two unverified production entries: the hero raven recipe is blocked in hmonas, and the monster-to-monster recipe has no matching production recording. Its source goal is parked, not closed.",
     "A later read-only electrical destruction survey traced zap.c maybe_destroy_item/destroy_items: hero gloves live at state.uarmg, worn rings must call existing do_wear.js Ring_gone, destruction clears state.current_wand when applicable, and monster wand damage honors shock resistance. Charged-ring recharge is a discarded read.c call on hero inventory only. These are source obligations for worker A’s unfinished electrical return-value dependency; no additional main score is claimed.",
-    "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery."
+    "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery.",
+    "Worker A reports focused ray tests 48/48 and electrical destruction tests 29/29 with lint passing. Source corrections move mstrategy clearing before the ordinary monster hit label and exclude reflecting steeds before the shared hit arm, matching C's goto path. These checks cover unfinished worker code and do not change the published score.",
+    "The shared sleep_monst source review requires direct use of the existing zap.c resist owner with real RNG and preserves the trap callers that consume its boolean result. The source-owned terrain helper movement and dryup caller still require integration checks and independent recordings.",
+    "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings."
   ]
 }

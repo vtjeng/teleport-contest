@@ -18,14 +18,14 @@
     "recordedSteps": 714,
     "remainingScreensUpperBound": 2
   },
-  "summary": "The priest fix is published and CI-complete with 42 additional matching screens. Main stops at step 712 in dryup. Worker B’s complete warning/drying change has a passing independent town-fountain warning witness: 12 screens/cursors and 5975 RNG values. It is preparing an immutable delivery; an earlier recipe is preserved for an unrelated monster-movement blocker.",
+  "summary": "Resolved by the complete watchman warning and fountain drying port. Main checkpoint 17c7e13e matches all 714 screens/cursors and 59178 RNG values in this session, bringing the fixed workload to 31/44 complete sessions and 10148/11405 screens. The prior step-712 mismatch is retained below as provenance; no new investigation is needed while the session stays outside the mismatch queue.",
   "source": {
     "file": "fountain.c",
     "functions": [
       "watchman_warn_fountain",
       "dryup"
     ],
-    "branch": "When an unmarked town fountain is used by the hero and dryup passes its source rn2(3) gate, C sets F_WARNED, finds the first peaceful watchman in line of sight, prints a spoken or deaf-aware warning, or reports the flow reducing to a trickle, then returns. JavaScript currently throws before this warning path. Later drying preserves wizard confirmation, cloud-aware visibility, terrain/fountain counts, redraw and town guard anger.",
+    "branch": "The completed source port sets F_WARNED before selecting the first peaceful visible watchman, emits the spoken or deaf-aware warning or trickle fallback, then returns. Later drying preserves the rn2 gate, wizard confirmation, cloud-aware visibility, fountain counts, redraw and town guard anger.",
     "callers": [
       "fountain.c drinkfountain() and dipfountain() call dryup after their selected effects. Current main reaches this owner at fixed-workload step 712.",
       "fountain.c dryup(), lines 201-239, calls mon.c get_iter_mons(watchman_warn_fountain) for the first warning and mon.c angry_guards(FALSE) after subsequent hero-caused town drying.",
@@ -45,6 +45,9 @@
     "Coordinator read the complete fountain.c watchman_warn_fountain body at179-198 and dryup at201-239. The source sets F_WARNED before searching for a watchman and returns after this first warning; later calls still consume rn2(3) before the warned flag bypasses drying probability.",
     "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet.",
     "Worker B reports fresh differential run-NBfUW0 passing the independent seed 7001 route: level teleport, two south moves, then quaff and warning dismissal. Its recording has 12 matching screens/cursors and 5975 RNG calls, with rnd(30)=18 in drinkfountain followed by rn2(3)=0 in dryup and warning text at steps 10/11. Focused run-PPn92T passes 16 tests. These are worker results pending combined validation; they do not change the published score.",
-    "The earlier independently chosen seed 7204 recipe diverges at step 12 in monmove.c m_move before the fountain. The original input recipe is retained with that blocker and its failing recording stays outside the passing corpus. The smaller passing seed 7001 witness reaches the targeted source warning."
+    "The earlier independently chosen seed 7204 recipe diverges at step 12 in monmove.c m_move before the fountain. The original input recipe is retained with that blocker and its failing recording stays outside the passing corpus. The smaller passing seed 7001 witness reaches the targeted source warning.",
+    "Validated main 17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92 checkpoint run-KDoCEY passes all tests and 263/263 recordings (9760 screens, 1354404 RNG). The fixed workload is 31/44 sessions, 10148/11405 screens, 752563/792838 RNG and 10175/11405 cursors: two screens and 102 RNG values gained over the priest checkpoint. seed0014 now matches all 714 screens/cursors and 59178 RNG calls.",
+    "Immutable worker delivery 094b02ab3fcdf1b64592a9f5ef8a880d114be13b implements watchman_warn_fountain and dryup, with the passing 12-screen,5975-RNG town witness and existing 47-screen,3282-RNG ordinary drying witness. The input-only seed7204 recipe retains its unrelated m_move blocker.",
+    "The first combined checkpoint at 02e828ed matched this complete segment but its diagnostic falsely rejected normal input exhaustion after recorded gaps. Tooling correction 17c7e13e (worker correction b3adc2b4) records exact per-segment RNG, screen, cursor and animation agreement before accepting that prompt end; unmatched segments still fail and both gap names remain visible. All 67 focused tooling tests, lint and the repeated full checkpoint pass. No game behavior, recording or scored output was changed by this correction."
   ]
 }
