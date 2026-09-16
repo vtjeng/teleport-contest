@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent steal.c urgent_pline witness: a debug-created hostile water nymph reaches a Valkyrie's wielded dagger after the second wait, separating the ordinary disarm preface from the urgent theft line.",
+  "segments": [
+    {
+      "seed": 7710012,
+      "datetime": "20260401120000",
+      "nethackrc": "OPTIONS=name:UrgentTheftProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nwater nymph\n..."
+    }
+  ]
+}

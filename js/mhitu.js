@@ -693,6 +693,12 @@ export async function mattacku(monster, rawEnv = {}) {
     const message = rawEnv.planning
         ? async () => {}
         : (rawEnv.message ?? ttyPline);
+    // mhitu.c's steal() chain calls ordinary pline() for the worn-item
+    // preface and urgent_pline() for the final theft line. Planning must keep
+    // both operations silent; a live attack gets the urgent terminal boundary.
+    const urgentMessage = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.urgentMessage ?? ttyUrgentPline);
     const redraw = rawEnv.planning ? () => {} : (rawEnv.redraw ?? newsym);
     const statusRefresh = rawEnv.planning
         ? async () => {}
@@ -705,7 +711,8 @@ export async function mattacku(monster, rawEnv = {}) {
         ? () => {}
         : (rawEnv.markInvisible ?? map_invisible);
     const env = {
-        ...rawEnv, state, message, redraw, statusRefresh, markInvisible,
+        ...rawEnv, state, message, urgentMessage, redraw, statusRefresh,
+        markInvisible,
         planningDeath: (subject) => new MonsterDeathPlanningError(subject),
     };
     const mdat = monster.data;

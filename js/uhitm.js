@@ -288,7 +288,7 @@ import {
     which_armor,
 } from './worn.js';
 import { steal } from './steal.js';
-import { noteleport_level, rloc } from './teleport.js';
+import { rloc, tele_restrict } from './teleport.js';
 import { is_pool } from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
@@ -1838,7 +1838,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             await message(
                 `${capitalizedMonsterName(magr, state)} ${bragMsg}.`, state,
             );
-            if (!noteleport_level(magr, state))
+            if (!(await tele_restrict(magr, state, { ...env, message })))
                 await rloc(magr, RLOC_MSG, rlocEnv);
             mhm.hitflags = M_ATTK_AGR_DONE;
             mhm.done = true;
@@ -1858,7 +1858,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                 );
             }
             if (random.rn2(3)) {
-                if (!noteleport_level(magr, state))
+                if (!(await tele_restrict(magr, state, { ...env, message })))
                     await rloc(magr, RLOC_MSG, rlocEnv);
                 mhm.hitflags = M_ATTK_AGR_DONE;
                 mhm.done = true;
@@ -1876,7 +1876,8 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         case 0:
             return;
         default:
-            if (!is_anml && !noteleport_level(magr, state))
+            if (!is_anml
+                && !(await tele_restrict(magr, state, { ...env, message })))
                 await rloc(magr, RLOC_MSG, rlocEnv);
             if (is_anml) {
                 // Animal tried to run off with item; message handled
@@ -1969,7 +1970,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             return;
         }
         if (magr.data.mlet === S_NYMPH
-            && !noteleport_level(magr, state)) {
+            && !(await tele_restrict(magr, state, { ...env, message }))) {
             const couldspot = canSpotMonster(magr, state);
             mhm.hitflags = M_ATTK_AGR_DONE;
             const rlocEnv = {

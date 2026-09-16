@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7720041,
+      "datetime": "20440410112233",
+      "nethackrc": "OPTIONS=name:RestrictedTheftProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " \u0016?\nq. #wizgenesis\nwater nymph\n..  "
+    }
+  ],
+  "comment": "Independent uhitm.c mhitm_ad_sedu witness: wizard mode reaches Wizard1, whose source level flags forbid teleportation, then creates a hostile water nymph that steals the Valkyrie's weapon. The seed, clock, character, and command sequence were chosen independently to exercise tele_restrict's visible blocked-teleport message after theft."
+}
