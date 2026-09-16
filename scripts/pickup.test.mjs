@@ -1132,7 +1132,11 @@ test('pickup stops on each state it has no answer for', async () => {
     state.level.traps.push({
         tx: state.u.ux, ty: state.u.uy, ttyp: PIT, tseen: 1,
     });
+    state.iflags.prev_decor = ROOM;
     await assert.rejects(() => pickup(1, state), /cannot reach the floor/u);
+    // pickup.c:713's unconditional describe_decor() resets the terrain
+    // sentinel even though mention_decor is disabled on this arm.
+    assert.equal(state.iflags.prev_decor, STONE);
     state.level.traps.pop();
 
     state.youmonst.data = { ...state.youmonst.data };

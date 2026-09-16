@@ -1204,8 +1204,10 @@ export async function pickup(what, state = game) {
 
     const trap = t_at(u.ux, u.uy, state);
     if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
-        // The unconditional describe_decor() on this arm is owned above;
-        // reaching the remaining pickup work still needs levitation, a steed
+        // pickup.c:713 calls describe_decor() even when mention_decor is off;
+        // it stores STONE in that mode before the floor-access return.
+        await describe_decor(state);
+        // Reaching the remaining pickup work still needs levitation, a steed
         // or a pit.
         throw new UnsupportedPickupError(
             'pickup() by a hero who cannot reach the floor',
