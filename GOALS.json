@@ -51549,15 +51549,15 @@
           "name": "watchman_warn_fountain",
           "line": 179,
           "endLine": 200,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dryup",
           "line": 201,
           "endLine": 242,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -51639,7 +51639,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "watchman_warn_fountain",
+            "implementation": "js/fountain.js",
+            "symbol": "watchman_warn_fountain",
+            "sourceReview": "Read nethack-c/upstream/src/fountain.c:178-198 in full. The predicate preserves is_watch, couldsee, and mpeaceful short-circuit order and returns the first matching monster through get_iter_mons. The non-deaf arm formats Amonnam, then emits the source yells line and verbalize text in order; the Deaf arm preserves nolimbs, mhis, mbodypart(HEAD or ARM), and makeplural(ARM) evaluation. JavaScript queues those two asynchronous message operations inside the synchronous get_iter_mons predicate, then drains the queue after iteration without changing the source return or first-match behavior. All consumed helpers are implemented and state/displayRandom is forwarded to Amonnam and canSpotMonster is forwarded to mhis; no unported callee, refusal, injected draw, or substitute side effect remains.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "dryup",
+                "source": "fountain.c:209-213 calls get_iter_mons(watchman_warn_fountain) from dryup() after SET_FOUNTAIN_WARNED when the hero uses an un-warned in-town fountain."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/fountain-town-7001.session.json"
+            ],
+            "checkedAt": "1716a5531d62baf6d15351d25d79788be1802480"
+          },
+          {
+            "name": "dryup",
+            "implementation": "js/fountain.js",
+            "symbol": "dryup",
+            "sourceReview": "Read nethack-c/upstream/src/fountain.c:200-239 in full and compared the complete branch and evaluation order. JavaScript preserves IS_FOUNTAIN plus rn2(3) and FOUNTAIN_IS_WARNED admission, the in_town warning flag and first-watchman iteration, no-watchman trickle fallback and early return, wizard y_n confirmation, cansee/glyph_is_cmap/glyph_to_cmap visibility filtering, set_levltyp ROOM mutation, flags and blessedftn clearing, newsym, and in-town angry_guards. Random and callback owners are state-safe through env.random, env.canSeeSquare/canSee, env.glyphAt/glyph_at, env.redraw/newsym, env.getIterMons, and env.couldSeeSquare/couldSee; planning suppresses presentation redraw while retaining source state mutation. Consumed callee returns are used where source uses them and no unported return-used helper is skipped; no obsolete UnsupportedFountainError refusal or invented effect remains.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:389 calls dryup(u.ux, u.uy, TRUE) after the drinkfountain fate switch and common exercise work."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:553 calls dryup(u.ux, u.uy, TRUE) after dipfountain's fountain interaction."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/fountain-town-7001.session.json",
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ],
+            "checkedAt": "1716a5531d62baf6d15351d25d79788be1802480"
+          }
+        ],
+        "entryPointReview": "The selected source range contains shared helpers rather than a standalone command. Production reachability is through drinkfountain() and dipfountain(): seed 7001 independently reaches drinkfountain's tepid fate and dryup's in-town watchman warning, while the existing independent tepid-water recording reaches drinkfountain's ordinary drying mutation. Both recordings match C PRNG, screens, cursors, and animation streams. The wizard confirmation branch is source-complete and remains behind C's wizard-mode condition; these recipes deliberately cover the warning early return and ordinary removal paths.",
+        "entryPoints": [
+          {
+            "name": "drinkfountain in-town warning",
+            "functions": [
+              "watchman_warn_fountain",
+              "dryup"
+            ],
+            "recordings": [
+              "recordings/fountain.c/fountain-town-7001.session.json"
+            ]
+          },
+          {
+            "name": "drinkfountain ordinary drying tail",
+            "functions": [
+              "dryup"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
