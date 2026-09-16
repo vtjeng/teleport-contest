@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import {
+    ART_MASTER_KEY_OF_THIEVERY,
+    ART_SUNSWORD,
+} from '../js/artifacts.js';
 import {
     AGGRAVATE_MONSTER,
     ALLOW_BARS,
@@ -37,6 +40,7 @@ import {
     D_CLOSED,
     D_ISOPEN,
     D_LOCKED,
+    D_NODOOR,
     DART_TRAP,
     D_TRAPPED,
     DUST,
@@ -123,6 +127,7 @@ import {
     m_move,
     onscary,
     postmov,
+    soko_allow_web,
     set_apparxy,
     should_displace,
     undesirable_disp,
@@ -140,6 +145,7 @@ import {
 } from '../js/mon.js';
 import { bad_rock, may_dig, may_passwall } from '../js/hack.js';
 import { in_your_sanctuary } from '../js/priest.js';
+import { vision_reset } from '../js/vision.js';
 import {
     M1_CLING,
     M1_NEEDPICK,
@@ -490,6 +496,7 @@ function deferred() {
 function trapRandom(overrides = {}) {
     const refuse = (name) => () => assert.fail(`no ${name} draw is due`);
     return {
+        d: refuse('d'),
         rn1: refuse('rn1'),
         rn2: refuse('rn2'),
         rnd: refuse('rnd'),
@@ -518,8 +525,7 @@ function postmovEnv(state, overrides = {}) {
 // C ref: monmove.c postmov()'s door block (1520-1622). Three of its four
 // acting arms test D_LOCKED or D_CLOSED and the fourth tests whole-mask
 // equality with D_CLOSED; the magic-key disarm above them at monmove.c:1539
-// tests D_TRAPPED alone, and these masks carry no D_TRAPPED bit. So a monster
-// standing on a doorless, broken or open doorway falls through the block: the
+// tests D_TRAPPED alone. These inert masks fall through the block: the
 // doormask keeps its value and the block prints nothing.
 test('postmov leaves an inert doorway alone', async () => {
     for (const mask of [0 /* D_NODOOR */, D_BROKEN, D_ISOPEN]) {
@@ -529,7 +535,7 @@ test('postmov leaves an inert doorway alone', async () => {
         const { env, redraws } = postmovEnv(state);
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env),
             MMOVE_MOVED,
             `mask ${mask}`,
         );
@@ -541,62 +547,74 @@ test('postmov leaves an inert doorway alone', async () => {
     }
 });
 
-// Each arm of the block that the port does not own, named by the refusal it
-// raises. The fourth case is the doorbuster arm reached from the other side:
-// mfndpos() offers a closed door to a monster without can_open only when it
-// smashes doors down, so C falls past the D_CLOSED arm into it.
-test('postmov refuses every door arm it does not own', async () => {
-    const cases = [
-        {
-            mask: D_ISOPEN | D_TRAPPED,
-            canUnlock: false,
-            canOpen: true,
-            reason: 'a door trap under a monster',
+// C ref: monmove.c:1538-1574. A trapped locked door is disarmed only when a
+// monster has the Master Key of Thievery; otherwise the locked arm rewrites it
+// to D_NODOOR and mb_trapped() applies the explosion and damage in source
+// order. The focused random object pins the one rnd(15) damage draw.
+test('postmov triggers a trapped locked door and preserves source order', async () => {
+    const { locations, state } = makeState();
+    state.flags = { verbose: true, acoustics: true };
+    state.artilist = [];
+    state.artilist[ART_MASTER_KEY_OF_THIEVERY] = { otyp: SKELETON_KEY };
+    const monster = ordinaryMonster(state, { mx: 5, my: 4, mhp: 20 });
+    locations.set('5,4', { typ: DOOR, flags: D_LOCKED | D_TRAPPED });
+    const { env, redraws, messages, visionCalls } = postmovEnv(state, {
+        random: {
+            rn2: () => assert.fail('trapped door does not draw rn2'),
+            rnd(bound) {
+                assert.equal(bound, 15);
+                return 1;
+            },
         },
-        {
-            mask: D_LOCKED,
-            canUnlock: true,
-            canOpen: true,
-            reason: 'a monster unlocking a door',
-        },
-        {
-            mask: D_LOCKED,
-            canUnlock: false,
-            canOpen: true,
-            reason: 'a monster smashing down a door',
-        },
-        {
-            mask: D_CLOSED,
-            canUnlock: false,
-            canOpen: false,
-            reason: 'a monster smashing down a door',
-        },
-    ];
-    for (const { mask, canUnlock, canOpen, reason } of cases) {
-        const { locations, state } = makeState();
-        const monster = ordinaryMonster(state, { mx: 5, my: 4 });
-        locations.set('5,4', { typ: DOOR, flags: mask });
-        const { env } = postmovEnv(state, {
-            unsupported: (refusal) => { throw new Error(refusal); },
-        });
+    });
 
-        await assert.rejects(
-            postmov(
-                monster, 4, 4, MMOVE_MOVED, false, canUnlock, canOpen, env,
-            ),
-            (error) => error.message === reason,
-            `mask ${mask}`,
-        );
-        // The refusal comes before the arm that would rewrite the mask.
-        assert.equal(state.level.at(5, 4).flags, mask, `mask ${mask}`);
-    }
+    assert.equal(
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, true, false, env),
+        MMOVE_MOVED,
+    );
+    assert.equal(state.level.at(5, 4).flags, D_NODOOR);
+    assert.equal(monster.mstun, 1);
+    assert.equal(monster.mhp, 19);
+    assert.deepEqual(redraws, [[4, 4], [5, 4], [5, 4]]);
+    assert.deepEqual(visionCalls, [
+        ['recalc', 5, 4],
+        ['view', 0],
+    ]);
+    assert.deepEqual(messages, ['You hear a distant explosion.']);
+});
+
+// C ref: monmove.c:1538-1553. The key branch clears only D_TRAPPED, then the
+// locked arm opens the now-safe door. It emits no disarm message of its own.
+test('postmov silently disarms a trapped door for the magic key', async () => {
+    const { locations, state } = makeState();
+    state.flags = { verbose: true, acoustics: true };
+    state.artilist = [];
+    state.artilist[ART_MASTER_KEY_OF_THIEVERY] = { otyp: SKELETON_KEY };
+    const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+    const key = objectFor(state, SKELETON_KEY, {
+        oartifact: ART_MASTER_KEY_OF_THIEVERY,
+        blessed: 1,
+    });
+    monster.minvent = key;
+    locations.set('5,4', { typ: DOOR, flags: D_LOCKED | D_TRAPPED });
+    const { env, messages } = postmovEnv(state, {
+        random: trapRandom(),
+    });
+
+    assert.equal(
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, true, false, env),
+        MMOVE_MOVED,
+    );
+    assert.equal(state.level.at(5, 4).flags, D_ISOPEN);
+    assert.deepEqual(messages, ['You hear a door unlock and open.']);
 });
 
 // C ref: monmove.c:1548-1553. An amorphous monster flows under a locked or
 // closed door instead of opening it, and leaves the doormask alone.
-test('postmov refuses the amorphous arm ahead of the door it could open',
+test('postmov admits the amorphous arm ahead of the door it could open',
     async () => {
         const { locations, state } = makeState();
+        state.flags = { verbose: true, acoustics: true };
         const fogCloud = ordinaryMonster(state, {
             data: state.mons[PM_FOG_CLOUD],
             mnum: PM_FOG_CLOUD,
@@ -604,16 +622,69 @@ test('postmov refuses the amorphous arm ahead of the door it could open',
             my: 4,
         });
         locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
-        const { env } = postmovEnv(state, {
-            unsupported: (refusal) => { throw new Error(refusal); },
-        });
+        const { env, messages } = postmovEnv(state);
 
-        await assert.rejects(
-            postmov(fogCloud, 4, 4, MMOVE_MOVED, false, false, true, env),
-            (error) => error.message === 'a monster oozing under a door',
+        assert.equal(
+            await postmov(fogCloud, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
+            MMOVE_MOVED,
         );
         assert.equal(state.level.at(5, 4).flags, D_CLOSED);
+        assert.deepEqual(messages, []);
     });
+
+// C ref: monmove.c:1474-1507. m_move() captures seenflgs before moving, and
+// postmov() temporarily restores a visible or sensed vampire to its old square
+// around vamp_shift(). This direct source-order call pins the four redraws and
+// the final old/new-square updates while using the sensed-only bit, so no
+// shape-change message is expected.
+test('postmov brackets a vampire fog shift with the source positions', async () => {
+    const { locations, state } = makeState();
+    const vampire = ordinaryMonster(state, {
+        data: state.mons[PM_VAMPIRE_LEADER],
+        mnum: PM_VAMPIRE_LEADER,
+        cham: PM_VAMPIRE_LEADER,
+        mx: 5,
+        my: 4,
+        mhp: 10,
+        mhpmax: 10,
+    });
+    state.dungeons[0] = {
+        depth_start: 1,
+        num_dunlevs: 1,
+        entry_lev: 1,
+        ledger_start: 0,
+        flags: { hellish: false },
+    };
+    state.branches = [{
+        end1: { dnum: 0, dlevel: 1 },
+        end2: { dnum: 0, dlevel: 1 },
+        end1_up: false,
+    }];
+    state.youmonst.data = state.mons[PM_HUMAN];
+    state.youmonst.mnum = PM_HUMAN;
+    state.level.monsters[5][4] = vampire;
+    locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+    const { env, redraws, messages } = postmovEnv(state, {
+        random: {
+            ...trapRandom(),
+            d(bound, sides) {
+                assert.equal(bound, 2);
+                assert.equal(sides, 8);
+                return 1;
+            },
+        },
+    });
+
+    assert.equal(
+        await postmov(vampire, 4, 4, MMOVE_MOVED, 2, false, false, true, env),
+        MMOVE_MOVED,
+    );
+    assert.equal(vampire.data, state.mons[PM_FOG_CLOUD]);
+    assert.deepEqual(redraws, [
+        [5, 4], [4, 4], [4, 4], [5, 4], [4, 4], [5, 4],
+    ]);
+    assert.deepEqual(messages, []);
+});
 
 // A hero-visible square for cansee(); the fixture leaves viz_array unset,
 // which is what makes every other case here an unseen one.
@@ -636,7 +707,7 @@ test('postmov opens a closed door and reports what the hero heard',
         const { env, redraws, messages, visionCalls } = postmovEnv(state);
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
             MMOVE_MOVED,
         );
         // UnblockDoor writes D_ISOPEN, not the D_NODOOR its `!btrapped`
@@ -666,7 +737,7 @@ test('postmov names a spotted monster that opens a door in sight',
         seeSquare(state, 5, 4);
         const { env, messages } = postmovEnv(state);
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
         assert.deepEqual(messages, ['The giant rat opens a door.']);
     });
 
@@ -684,7 +755,7 @@ test('postmov describes a door opened in sight by a monster it cannot spot',
         seeSquare(state, 5, 4);
         const { env, messages } = postmovEnv(state);
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
         assert.deepEqual(messages, ['You see a door open.']);
     });
 
@@ -719,15 +790,12 @@ test('postmov opens the door silently for verbose, Deaf and acoustics',
             locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
             const { env, messages } = postmovEnv(state);
 
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
             assert.deepEqual(messages, [], label);
             assert.equal(state.level.at(5, 4).flags, D_ISOPEN, label);
         }
     });
 
-// C ref: monmove.c:1624-1647. Iron bars are the door block's sibling: a rust
-// monster or a metallivore eats through them and anything else squeezes past
-// with a Norep() message. Neither is ported.
 // C ref: monmove.c:1509. mintrap() runs for every MMOVE_MOVED, including a
 // monster whose square did not change — dog_move() returns MMOVE_MOVED even
 // when the pet stays put, so the call reads the monster's live square rather
@@ -746,7 +814,7 @@ test('postmov refuses a move that ends on an unported trap type', async () => {
     });
 
     await assert.rejects(
-        postmov(monster, 5, 4, MMOVE_MOVED, false, false, true, env),
+        postmov(monster, 5, 4, MMOVE_MOVED, 0, false, false, true, env),
         (error) => error.message === 'trap activation',
     );
 });
@@ -777,7 +845,7 @@ test('postmov proves a trap\'s random set before the first write or draw',
         });
 
         await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
             (error) => error instanceof TypeError,
         );
         // The whole point: nothing was written before the refusal.
@@ -797,7 +865,7 @@ test('postmov admits a move that ends on a trapless square', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
     // trap.c:3740, the `!trap` arm: "perhaps teleported?"
     assert.equal(monster.mtrapped, false);
 });
@@ -822,7 +890,7 @@ test('postmov squeaks a board under a monster the hero cannot see',
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
         assert.deepEqual(
             messages,
             ['You hear an A note squeak in the distance.'],
@@ -879,7 +947,7 @@ test('postmov chooses the squeak distance from couldsee and mdistu',
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
 
-            await postmov(monster, mx, my, MMOVE_MOVED, false, false, true, env);
+            await postmov(monster, mx, my, MMOVE_MOVED, 0, false, false, true, env);
             assert.deepEqual(
                 messages,
                 [`You hear an A note squeak ${word}.`],
@@ -930,7 +998,7 @@ test('postmov wakes the sleepers a squeaky board reaches and no others',
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
         assert.equal(near.msleeping, false);
         // mon.c:4387 clears the waiting bits for a monster that is not unique.
@@ -970,7 +1038,7 @@ test('postmov lets a monster that knows the board escape on rn2(4)',
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
 
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
             assert.deepEqual(bounds, [4], `roll ${roll}`);
             assert.equal(messages.length, squeaks ? 1 : 0, `roll ${roll}`);
         }
@@ -1031,7 +1099,7 @@ test('postmov shoots a dart at a monster the hero watches and misses',
         });
         const discoBefore = JSON.stringify(state.svd.disco);
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
         assert.deepEqual(
             messages,
@@ -1099,7 +1167,7 @@ test('postmov separates the dart line gate from the seetrap gate', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     // The two gates the case exists to separate, asserted directly rather than
     // inferred from the output: the monster cannot be seen, so seetrap() is
@@ -1125,7 +1193,7 @@ test('postmov drops the dart silently for a monster out of sight', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(messages, []);
     assert.equal(state.level.traps[0].once, true);
@@ -1157,7 +1225,7 @@ test('postmov clears a dart poisoned by its own generation', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(
         messages,
@@ -1186,7 +1254,7 @@ test('postmov names a poisoned dart when the trap arm rolls zero', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(
         messages,
@@ -1211,7 +1279,7 @@ test('postmov lands a dart on its target and spends the missile', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     assert.deepEqual(messages, ['The giant rat is hit by a dart!']);
     // objects.h gives a dart oc_wsdam 3, so dmgval() is rnd(3) plus the
@@ -1261,7 +1329,7 @@ test('postmov puts the dart miss and strike either side of fourteen',
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
             const run = postmov(
-                monster, 4, 4, MMOVE_MOVED, false, false, true, env,
+                monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env,
             );
 
             await run;
@@ -1299,7 +1367,7 @@ test('postmov wears out a dart trap the hero has already seen', async () => {
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
     // The bound-15 roll is the only draw: the arm returns before
     // t_missile() reaches mksobj().
@@ -1325,7 +1393,7 @@ test('postmov fires an already-seen dart trap that survives its roll',
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
 
         // The bound-15 misfire roll comes first, then mksobj_init()'s
         // enchantment, curse, poison and erosion rolls, then the dart arm's
@@ -1335,68 +1403,97 @@ test('postmov fires an already-seen dart trap that survives its roll',
         assert.equal(state.level.objects[5][4].otyp, DART);
     });
 
-// A monster that cannot eat through iron bars (no AD_RUST, AD_CORR, or
-// metallivorous) passes through without throwing.  The verbose Norep message
-// arm records a note_unported gap.
-test('postmov does not throw for an ordinary monster on iron bars', async () => {
+// C ref: monmove.c:1636-1640 sends the ordinary iron-bars message through
+// Norep(), using makeplural(locomotion(ptr, "pass")) for its verb.
+test('postmov reports passage between iron bars through the Norep owner', async () => {
     const { locations, state } = makeState();
     const monster = ordinaryMonster(state, { mx: 5, my: 4 });
     locations.set('5,4', { typ: IRONBARS, flags: 0, wall_info: 0 });
+    state.flags = { verbose: true };
+    seeSquare(state, 5, 4);
+    const repeatedMessages = [];
     const { env } = postmovEnv(state, {
+        norepMessage: (text) => { repeatedMessages.push(text); },
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
     // An ordinary giant rat has no bar-dissolving attack; it falls through
     // without throwing an unsupported error.
     const result = await postmov(
-        monster, 4, 4, MMOVE_MOVED, false, false, true, env,
+        monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env,
     );
     assert.ok(result !== undefined);
+    assert.deepEqual(repeatedMessages, ['The giant rat passes between the iron bars.']);
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true,
+        { ...env, planning: true });
+    assert.equal(repeatedMessages.length, 1, 'planning does not call live Norep');
 });
 
 // C ref: monmove.c:1650-1656. An engulfer drags the hero along, but only when
 // its move changed its square; a stationary engulfer takes the newsym() arm
-// beside it, which the port already owns.
-test('postmov refuses an engulfer that moved and admits one that did not',
+// beside it. u_on_newpos() is the state owner and the stomach redraw is
+// supplied as a clone-safe caller operation for this focused fixture.
+test('postmov updates an engulfer and admits one that did not move',
     async () => {
         const { state } = makeState();
         const monster = ordinaryMonster(state, { mx: 5, my: 4 });
         state.u.uswallow = 1;
         state.u.ustuck = monster;
+        state.u.ux0 = -1;
+        state.u.uy0 = -1;
+        const events = [];
         const { env } = postmovEnv(state, {
-            unsupported: (refusal) => { throw new Error(refusal); },
+            swallowed: async (first, swallowedState) => {
+                events.push(['swallowed', first, swallowedState.u.ux,
+                    swallowedState.u.uy]);
+            },
         });
 
-        await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
-            (error) => error.message === 'an engulfing monster moving',
+        assert.equal(
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env),
+            MMOVE_MOVED,
         );
+        assert.deepEqual(events, [['swallowed', false, 5, 4]]);
+        // monmove.c assigns ux0/uy0 from the hero's old location before
+        // u_on_newpos(); this source value feeds subsequent redraw logic.
+        assert.deepEqual([state.u.ux0, state.u.uy0], [5, 4]);
+        assert.deepEqual([state.u.ux, state.u.uy], [5, 4]);
 
         const { env: stayEnv, redraws } = postmovEnv(state);
         assert.equal(
-            await postmov(monster, 5, 4, MMOVE_MOVED, false, false, true,
+            await postmov(monster, 5, 4, MMOVE_MOVED, 0, false, false, true,
                 stayEnv),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[5, 4], [5, 4]]);
     });
 
-// C ref: monmove.c:1520-1522. The block is entered only for a monster that
-// neither passes walls nor tunnels; a tunneler is "taken care of below" by the
-// mdig_tunnel() call, and a wall-walker needs no door opened at all.
-test('postmov skips the door block for a tunneler and a wall-walker',
+// C ref: monmove.c:1520-1522 and :1643-1645. The block is entered only for a
+// monster that neither passes walls nor tunnels; a tunneler is handled below
+// by the source mdig_tunnel() owner, and a wall-walker needs no door opened.
+test('postmov delegates the tunnel arm and skips it for a wall-walker',
     async () => {
         const { locations, state } = makeState();
         const monster = ordinaryMonster(state, { mx: 5, my: 4 });
         locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
-        const { env } = postmovEnv(state, {
-            unsupported: (reason) => { throw new Error(reason); },
+        const rndCalls = [];
+        const { env, redraws: tunnelRedraws } = postmovEnv(state, {
+            random: {
+                rnd(bound) {
+                    rndCalls.push(bound);
+                    return 1;
+                },
+                rn2: () => assert.fail('closed door tunnel does not rn2'),
+            },
         });
 
-        await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, env),
-            (error) => error.message === 'monster tunneling',
+        assert.equal(
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, true, false, false, env),
+            MMOVE_MOVED,
         );
+        assert.deepEqual(rndCalls, [12]);
+        assert.equal(state.level.at(5, 4).flags, D_BROKEN);
+        assert.deepEqual(tunnelRedraws, [[4, 4], [5, 4], [5, 4]]);
 
         const wallWalker = ordinaryMonster(state, {
             data: state.mons[PM_XORN],
@@ -1406,16 +1503,16 @@ test('postmov skips the door block for a tunneler and a wall-walker',
         });
         const { env: walkerEnv, redraws } = postmovEnv(state);
         assert.equal(
-            await postmov(wallWalker, 4, 4, MMOVE_MOVED, false, false, false, walkerEnv),
+            await postmov(wallWalker, 4, 4, MMOVE_MOVED, 0, false, false, false, walkerEnv),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[4, 4], [5, 4]]);
     });
 
-// dig.c mdig_tunnel() draws rnd(12) before every one of its early returns, so
-// a tunneler that ends its move anywhere may_dig() admits spends a call the
-// port cannot yet make. may_dig() rejects only an undiggable wall or tree.
-test('postmov refuses the dig arm only where may_dig admits the square',
+// dig.c mdig_tunnel() draws rnd(12) before every one of its early returns.
+// may_dig() rejects only an undiggable wall or tree; an ordinary floor still
+// reaches the owner and consumes the source draw before returning.
+test('postmov delegates the dig arm only where may_dig admits the square',
     async () => {
         const { locations, state } = makeState();
         const monster = ordinaryMonster(state, { mx: 5, my: 4 });
@@ -1424,23 +1521,32 @@ test('postmov refuses the dig arm only where may_dig admits the square',
             flags: 0,
             wall_info: W_NONDIGGABLE,
         });
-        const { env, redraws } = postmovEnv(state);
+        const { env, redraws } = postmovEnv(state, {
+            random: { rnd: (bound) => {
+                assert.equal(bound, 12);
+                return 1;
+            } },
+        });
 
         assert.equal(may_dig(5, 4, state), false);
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, true, false, false, env),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[4, 4], [5, 4]]);
 
         locations.set('5,4', { typ: ROOM, flags: 0 });
         const digging = postmovEnv(state, {
-            unsupported: (reason) => { throw new Error(reason); },
+            random: { rnd: (bound) => {
+                assert.equal(bound, 12);
+                return 1;
+            } },
         });
         assert.equal(may_dig(5, 4, state), true);
-        await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, digging.env),
-            (error) => error.message === 'monster tunneling',
+        assert.equal(
+            await postmov(monster, 4, 4, MMOVE_MOVED, 0, true, false, false,
+                digging.env),
+            MMOVE_MOVED,
         );
     });
 
@@ -1699,7 +1805,7 @@ test('postmov calls maybe_spin_web for a webmaker after a move', async () => {
         const { env, redraws } = postmovEnv(state);
 
         const result = await postmov(
-            monster, 4, 4, mmoved, false, false, false, env,
+            monster, 4, 4, mmoved, 0, false, false, false, env,
         );
         // maybe_spin_web returns without acting, outcome is unchanged.
         assert.equal(result, mmoved, `mmoved ${mmoved}`);
@@ -1716,10 +1822,38 @@ test('postmov calls maybe_spin_web for a webmaker after a move', async () => {
     });
     const { env, redraws } = postmovEnv(state);
     assert.equal(
-        await postmov(monster, 4, 4, MMOVE_NOTHING, false, false, false, env),
+        await postmov(monster, 4, 4, MMOVE_NOTHING, 0, false, false, false, env),
         MMOVE_NOTHING,
     );
     assert.deepEqual(redraws, []);
+});
+
+// C ref: monmove.c soko_allow_web() (1252-1265). This is pure: the only
+// state read is the Sokoban flag, stairs list, and clear_path transparency
+// index; it makes no random draw, message, or state write.
+test('soko_allow_web follows off-level, solved, and unsolved path rules', () => {
+    const { locations, state } = makeState();
+    const monster = ordinaryMonster(state, { mx: 4, my: 4 });
+
+    // Non-Sokoban levels have no restriction.
+    assert.equal(soko_allow_web(monster, state), true);
+
+    state.level.flags.sokoban_rules = true;
+    state.stairs = { sx: 7, sy: 4, up: true };
+    vision_reset(state);
+    // The unsolved arm permits a spinner with a clear path to the upstairs.
+    assert.equal(soko_allow_web(monster, state), true);
+
+    // An opaque intervening square makes m_cansee()/clear_path() fail.
+    locations.set('5,4', { typ: STONE, flags: 0, wall_info: 0 });
+    vision_reset(state);
+    assert.equal(soko_allow_web(monster, state), false);
+
+    // C clears Sokoban rules after completion; its stored solved marker is
+    // historical evidence and does not re-enable the unsolved restriction.
+    state.level.flags.sokoban_rules = false;
+    state.level.flags.sokosolved = 1;
+    assert.equal(soko_allow_web(monster, state), true);
 });
 
 // C ref: monmove.c:1279, maybe_spin_web(). When all five conjuncts hold
@@ -1753,7 +1887,7 @@ test('maybe_spin_web draws rn2(1000) and skips web when the roll fails',
         };
 
         const result = await postmov(
-            monster, 4, 4, MMOVE_MOVED, false, false, false, env,
+            monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env,
         );
         assert.equal(result, MMOVE_MOVED);
         // The rn2(1000) draw was made: the five conjuncts all held.
@@ -1791,7 +1925,7 @@ test('maybe_spin_web creates a WEB trap and sets mspec_used on success',
             d(n, s) { dCalls.push([n, s]); return 10; },
         };
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env);
         assert.ok(rn2Calls.includes(1000), 'rn2(1000) was drawn');
         // d(4,4) sets the cooldown on mspec_used.
         assert.deepEqual(dCalls[0], [4, 4], 'd(4,4) drawn for cooldown');
@@ -1800,6 +1934,54 @@ test('maybe_spin_web creates a WEB trap and sets mspec_used on success',
         const webTrap = state.level.traps.find(
             t => t.tx === 5 && t.ty === 4 && t.ttyp === WEB);
         assert.ok(webTrap, 'WEB trap created at spider coordinates');
+    });
+
+test('maybe_spin_web marks a visible web and emits its source message',
+    async () => {
+        const { locations, state } = makeState();
+        const monster = ordinaryMonster(state, {
+            data: state.mons[PM_CAVE_SPIDER],
+            mnum: PM_CAVE_SPIDER,
+            mx: 5,
+            my: 4,
+            mspec_used: 0,
+            mcanmove: true,
+        });
+        sealNeighborhood(locations, monster.mx, monster.my);
+        seeSquare(state, monster.mx, monster.my);
+        const { env, messages } = postmovEnv(state, {
+            random: {
+                rn2: (bound) => {
+                    if (bound === 1000) return 0;
+                    // The cave spider's concealment arm follows the web arm
+                    // and spends its own source rn2(5) on this move.
+                    assert.equal(bound, 5);
+                    return 0;
+                },
+                d: (n, s) => {
+                    assert.deepEqual([n, s], [4, 4]);
+                    return 10;
+                },
+            },
+        });
+
+        await postmov(
+            monster,
+            4,
+            4,
+            MMOVE_MOVED,
+            0,
+            false,
+            false,
+            false,
+            env,
+        );
+
+        assert.deepEqual(messages, ['The cave spider spins a web.']);
+        const webTrap = state.level.traps.find(
+            t => t.tx === monster.mx && t.ty === monster.my && t.ttyp === WEB,
+        );
+        assert.equal(webTrap?.tseen, 1);
     });
 
 test('maybe_spin_web skips the rn2 draw when mspec_used is nonzero',
@@ -1819,7 +2001,7 @@ test('maybe_spin_web skips the rn2 draw when mspec_used is nonzero',
             d(n, s) { return n * s; },
         };
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env);
         // No rn2(1000) draw because the conjuncts failed early.
         assert.ok(!rn2Calls.includes(1000),
             `did not expect rn2(1000), got: ${JSON.stringify(rn2Calls)}`);
@@ -1842,7 +2024,7 @@ test('maybe_spin_web skips the rn2 draw for a non-webmaker species',
             d(n, s) { return n * s; },
         };
 
-        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env);
+        await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, false, env);
         // No rn2(1000) draw: the species is not a webmaker.
         assert.ok(!rn2Calls.includes(1000),
             `did not expect rn2(1000), got: ${JSON.stringify(rn2Calls)}`);
@@ -1873,8 +2055,14 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
 
         const result = await m_move(monster, {
             state,
-            random: { rn2: () => 0 },
-                finishEating: () => {},
+            random: {
+                rn2: () => 0,
+                rnd: (bound) => {
+                    assert.equal(bound, 12);
+                    return 1;
+                },
+            },
+            finishEating: () => {},
             movePet: () => assert.fail('hostile monster is not a pet'),
             resistsTrapEffect: () => false,
             itemSearchInLine: () => false,
@@ -1886,11 +2074,11 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
 
     // Without M1_NEEDPICK the condition stops at needspick(), its second
     // conjunct, and never measures a distance at all. can_tunnel survives, so
-    // the rat reaches the dig arm on the floor square it stepped onto.
-    await assert.rejects(
-        runTunneler(M1_TUNNEL, 10, 10),
-        (error) => error.message === 'monster tunneling',
-    );
+    // the rat reaches mdig_tunnel() on the floor square it stepped onto and
+    // spends its source rnd(12) before the owner returns.
+    const tunnel = await runTunneler(M1_TUNNEL, 10, 10);
+    assert.equal(tunnel.result, MMOVE_MOVED);
+    assert.deepEqual(tunnel.redraws, [[4, 4], [5, 4]]);
 
     // The same move with a pick-axe user's M1_NEEDPICK and a hostile monster
     // two squares from the hero (dist2 == 2) clears can_tunnel: no dig arm.
@@ -1913,10 +2101,8 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
     // dig arm runs. Replacing either `&&` after needspick() with `||` lets the
     // surviving `(!mpeaceful || Conflict) && dist2 <= 8` clear it instead, and
     // the move then ends without the dig arm.
-    await assert.rejects(
-        runTunneler(M1_TUNNEL, 3, 5),
-        (error) => error.message === 'monster tunneling',
-    );
+    const nearNoPick = await runTunneler(M1_TUNNEL, 3, 5);
+    assert.equal(nearNoPick.result, MMOVE_MOVED);
 
     // dist2 == 8 is the largest distance C still calls close enough, since
     // monmove.c:1913 is `<= 8`. A hero two rows and two columns away gives
@@ -1929,10 +2115,8 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
     // away and none down. Not clearing here is what separates `<= 8` from
     // `<= 9`, and it is the only case that measures a distance and still
     // reaches the dig arm.
-    await assert.rejects(
-        runTunneler(M1_TUNNEL | M1_NEEDPICK, 7, 4),
-        (error) => error.message === 'monster tunneling',
-    );
+    const outsideLimit = await runTunneler(M1_TUNNEL | M1_NEEDPICK, 7, 4);
+    assert.equal(outsideLimit.result, MMOVE_MOVED);
 });
 
 test('m_move owns trapped, eating, and tame prologue order', async () => {

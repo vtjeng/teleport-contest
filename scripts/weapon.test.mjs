@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ART_SUNSWORD, init_artifacts } from '../js/artifacts.js';
+import {
+    ART_STING,
+    ART_SUNSWORD,
+    init_artifacts,
+} from '../js/artifacts.js';
 import {
     P_ATTACK_SPELL,
     P_BARE_HANDED_COMBAT,
@@ -83,6 +87,7 @@ import {
     CROSSBOW_BOLT,
     DAGGER,
     DART,
+    ELVEN_DAGGER,
     DWARVISH_MATTOCK,
     EGG,
     FLAIL,
@@ -184,6 +189,10 @@ function visibleOperations(events = []) {
 
 test('can_touch_safely applies corpse, Rider, silver, and artifact gates', () => {
     const state = makeState();
+    state.flags = { initalign: 0 };
+    state.urole = { mnum: PM_VALKYRIE, questarti: 0 };
+    state.urace = { mnum: 0 };
+    init_artifacts(state);
     const subject = monster(state);
     const cockatrice = object(state, CORPSE, { corpsenm: PM_COCKATRICE });
 
@@ -206,10 +215,19 @@ test('can_touch_safely applies corpse, Rider, silver, and artifact gates', () =>
         state,
     }), true);
 
-    const artifact = object(state, LONG_SWORD, { oartifact: 1 });
-    assert.throws(
-        () => can_touch_safely(subject, artifact, { state }),
-        /touchArtifact/,
+    const artifact = object(state, LONG_SWORD, { oartifact: ART_SUNSWORD });
+    assert.equal(
+        can_touch_safely(subject, artifact, { state }),
+        false,
+        'the initialized canonical monster owner rejects a lawful artifact',
+    );
+    const unrestricted = object(state, ELVEN_DAGGER, {
+        oartifact: ART_STING,
+    });
+    assert.equal(
+        can_touch_safely(subject, unrestricted, { state }),
+        true,
+        'the initialized canonical monster owner accepts an unrestricted artifact',
     );
     assert.equal(can_touch_safely(subject, artifact, {
         state,

@@ -52370,6 +52370,219 @@
         "screens": 10212,
         "rng": 752565
       }
+    },
+    {
+      "id": "port-monmove-postmov-seed0383-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete monster post-move handling and trapped-door activation",
+      "cFile": "monmove.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate"
+      ],
+      "selectionReason": "Integrate immutable A5 delivery 6269cce2 after retaining its pre-existing lower-priority independent postmov claim to normal handoff. Seed0383 has a completed investigation at investigations/seed0383-wizard-hallucinate.json, step203 and remaining-screen bound16; this is not seed continuation from seed4500. Higher-ready seed4500 minotaur admission and seed0399 thitmonst are next eligible independent work, seed0106 chronicle is owned by B8, and seed2200 is machine-local Q1. Finish this submitted span before reselecting.",
+      "detail": "Port complete monmove.c postmov lines1454-1705, preserve pre-move seen flags, vampire rollback, trap/door state and RNG order, tunnel and engulfed movement, object consumption and pickup, web/concealment and shop follow-up. Required dependencies share canonical artifact touch restrictions and remove the live item-selection placeholder; ordinary consumption heals before object deletion. Two independent D5 recordings cover the trapped-door entry; remaining entry families stay open.",
+      "spans": [
+        {
+          "name": "postmov",
+          "status": "closed",
+          "closedBy": "fe323c00a944128df256d6561f76d05282718db5",
+          "functions": [
+            "postmov"
+          ]
+        }
+      ],
+      "openedAt": "ca3e4d1e3042959dc171e6888f119b20d93e55a6",
+      "openStanding": {
+        "sha": "a0342880e606384b48903ac656ccc92a770b232c",
+        "screens": 10249,
+        "rng": 753558
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "postmov",
+          "line": 1455,
+          "endLine": 1714,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1455,
+        "to": 1714
+      },
+      "activeStanding": {
+        "sha": "5e7f02a1f29b3131adcbd150f9e5c659f60c7218",
+        "screens": 10259,
+        "rng": 753589
+      },
+      "openMismatches": [
+        {
+          "session": "seed0383-wizard-hallucinate",
+          "step": 203,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a door trap under a monster",
+          "unlocatedKinds": [],
+          "recordedSteps": 219,
+          "remainingScreensUpperBound": 16,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0383-wizard-hallucinate.json",
+            "result": {
+              "session": "seed0383-wizard-hallucinate",
+              "remainingScreensUpperBound": 16,
+              "status": "complete",
+              "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+              "mismatch": {
+                "session": "seed0383-wizard-hallucinate",
+                "remainingScreensUpperBound": 16,
+                "step": 203,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires a door trap under a monster",
+                "unlocatedKinds": [],
+                "recordedSteps": 219
+              },
+              "summary": "Worker A has implemented source-ordered postmov movement, trapped-door handling and the monster artifact-touch dependency. Focused checks and lint pass on its branch, but the coordinator rejected its proposed fresh recording because its shortened recipe reused the fixed workload inputs. A new independent production case is required before submission; main still stops at step 203 with a 16-screen queue suffix.",
+              "source": {
+                "file": "monmove.c",
+                "functions": [
+                  "postmov"
+                ],
+                "branch": "postmov() after MMOVE_MOVED when the destination is a door, the monster does not pass walls, and can_tunnel is false: inspect D_TRAPPED, disarm it when has_magic_key() succeeds, preserve the amorphous monster branch, and for can_unlock, can_open, or a doorbuster change the door mask before calling mb_trapped(). Preserve C's message, damage, death, map-update, and random-call order; an untrapped door continues through the existing open or crash behavior.",
+                "callers": [
+                  "nethack-c/upstream/src/monmove.c m_move() (1715-2074) returns through postmov() for tame, special, and ordinary monster movement",
+                  "js/monmove.js m_move() (3375-3386, 3670-3748) supplies the postMonsterMove adapter after dog, special, item-search, or ordinary movement",
+                  "nethack-c/upstream/src/monmove.c dochug() (880-915) and js/allmain.js moveElapsedTurnMonster() (1023-1087) reach monster movement during an elapsed turn"
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/monmove.c mb_trapped() (50-74) emits the nearby or distant explosion, wakes nearby monsters, stuns and damages the monster with rnd(15), and handles death or trap learning; js/monmove.js already ports it at 501-538",
+                  "nethack-c/upstream/src/monmove.c monhaskey() (94-103) computes the can_unlock capability passed by m_move(); js/monmove.js already ports it at 945-950",
+                  "nethack-c/upstream/src/artifact.c has_magic_key() (2788-2803) scans monster inventory for the Master Key of Thievery before the door arms; js/artifacts.js already ports it at 3095-3111",
+                  "nethack-c/upstream/src/monmove.c postmov() UnblockDoor macro (1526-1536) updates the door mask, redraws, recalculates vision, and refreshes canseeit before mb_trapped()"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/scan-cache.json rows[file=seed0383-wizard-hallucinate.session.json] records screensEmitted 203, recordedSteps 219, step 203, key n, command movesoutheast, and the exact door-trap refusal; remainingScreensUpperBound is 219-203 = 16.",
+                "sessions/seed0383-wizard-hallucinate.session.json segments[0].steps[203] records key n, cursor [71,8,1], first-line message 'The Grey-elf picks up 6 poisoned darts.  You hear a distant explosion.', and rnd(15)=9 @ mb_trapped(monmove.c:65), proving the C trapped-door action is reached after movement.",
+                "nethack-c/upstream/src/monmove.c:1454-1622 defines postmov()'s complete door sequence: D_TRAPPED is checked at 1523-1524, magic-key disarm at 1538-1547, and the can_unlock, can_open, and doorbuster arms call mb_trapped() after UnblockDoor at 1554-1562, 1576-1580, and 1593-1604.",
+                "js/monmove.js:3121-3139 enters the same door block but unconditionally calls unsupported('a door trap under a monster') at 3129 before any source branch; js/monmove.js:501-538 already implements mb_trapped(), so the refusal is a missing postmov branch rather than a new trap primitive.",
+                "nethack-c/upstream/src/monmove.c:1715-1774 computes can_tunnel, can_open, and can_unlock and returns through postmov(); js/monmove.js:3368-3391 computes and passes the same capabilities, so the minimal scope is postmov()'s trapped-door arm and its existing dependencies, with no session-specific condition.",
+                "Worker A claimed A-20260916-5 from c8e2ce4724396f264f781f066d733c0b6e824afd with source:monmove.c:postmov reserved. The source function spans lines 1454-1705, beyond the door block ending at 1622. Coordinator review requires the original seenflgs and old-square vampire move-back sequence plus verification of the tail return-valued dependencies before completion. The higher seed4500 beam delivery remains queued; future task selection returns to immutable seed continuation and the current saved queue.",
+                "Worker A preserved postmov WIP asfe043cf3 with140 focused tests and lint passing, paused at a clean boundary for the A4 naming-test correction, and resumed A5. Coordinator whole-function review also requires one explicit seenFlags signature, old hero coordinates before engulfed movement, source-ordered swallowed versus ordinary redraw, and the invisible-monster object tail. Independent production recording and source-return dependency verification remain in progress; no door score gain is accepted.",
+                "Latest A5 WIP uses one explicit C-ordered seenFlags signature, saves old hero coordinates before engulfed movement, uses the swallowed/ordinary redraw branches, and restores invisible-monster redraw with an explicit see_wsegs gap. The source-only dependency survey found an existing async touch_artifact owner whose monster acceptance predicates can be shared synchronously; coercing its Promise would be incorrect. No immutable A5 delivery or matching new production witness exists yet.",
+                "Coordinator inspected the unsubmitted A5 recipe postmov-trapped-door-fresh.session.json and found seed 383, the same character/date setup, and the distinctive level-20 wishes and hallucination movement from the fixed workload with a shortened tail. The worker-reported 205-screen and 16857-RNG match therefore does not establish independent fresh coverage. The copied recipe/recording must be kept out of the committed regression corpus; A5 remains in progress while the worker constructs independent inputs.",
+                "Current A5 source shares artifact-touch restriction predicates between hero and monster callers, resets touch_blasted for monster calls, and preserves the exact meatmetal result comparison of 2. Worker reports focused results of 141 monmove, 26 dogmove, 40 artifact and 14 hiding tests plus lint passing; no immutable delivery or main score gain has been accepted."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 10,
+        "rng": 31
+      },
+      "parkedStanding": {
+        "sha": "fe323c00a944128df256d6561f76d05282718db5",
+        "screens": 10259,
+        "rng": 753589
+      },
+      "parkedReason": "The postmov span passes the combined checkpoint and its two independent trapped-door recordings. Object pickup, pet/specialist, bars/tunnel/engulfed and web/concealment/shop entry recordings remain unverified; the new blocker is insight.c status_enlightenment.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "postmov",
+            "implementation": "js/monmove.js",
+            "symbol": "postmov",
+            "sourceReview": "Read nethack-c/upstream/src/monmove.c:1454-1705 in full and compared every branch, state write, message/redraw order, and return-value test with js/monmove.js. The JavaScript implementation keeps the source-order seenFlags, canTunnel, canUnlock, canOpen signature at every production m_move() call; brackets mintrap() and its killed/moved/off-map returns with the source redraw; refreshes species after mintrap; preserves the magic-key D_TRAPPED disarm; uses source whole-mask door conditions and mb_trapped() results; calls existing detect.c, vision.c, trap.c, dig.c, mon.c, and artifact.c owners; sets hero ux0/uy0 before u_on_newpos(); keeps C ELSE redraw semantics for swallowing; calls meatmetal/meatobj/meatcorpse and checks their exact source statuses; propagates mpickstuff; repaints minvis and records the discarded worm.c see_wsegs gap; runs maybe_spin_web and concealment in order; and calls after_shk_move(). The web helper uses the existing naming/display owners and source soko_allow_web clear_path test. The monster artifact gate is synchronous and shares touch_artifact() restrictions, while m_consume_obj() calls healmon() before delobj() as C does. Gaps are limited to discarded-result or planning-display callees explicitly named in the entryPointReview: worm.c see_wsegs, display.c swallowed clone redraw without a callback, and shk.c add_damage. No new Unsupported refusal stands in for a selected postmov branch. Integration also wires the already-ported ttyNorep owner for ordinary iron-bars passage, with source locomotion/makeplural wording and planning suppression; the adjacent bars-eating message uses the C pline_mon location wrapper.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_move",
+                "source": "monmove.c:1773-2073 routes pet, specialist, teleport, item-search, stationary, and ordinary movement results through postmov(); js/monmove.js m_move() normalizes those paths through its source-ordered postMonsterMove closure."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c dochug() dispatches each active monster turn to m_move(); js/monmove.js dochug() reaches the same production m_move() path."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimpleOrdinary",
+                "source": "unported_monster_actions.js moveSimpleOrdinary() is the live ordinary-monster adapter into m_move(); its artifact selection now leaves touchArtifact unset so m_search_items()/postmov() use artifactTouchable() and the synchronous monster touch_artifact() owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/monmove.test.mjs",
+              "scripts/monster-hiding.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/dogmove-quickmimic.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/monmove.c/postmov-trapped-door-independent-d5.session.json",
+              "recordings/monmove.c/postmov-trapped-door-independent-quiet.session.json"
+            ],
+            "checkedAt": "5e7f02a1f29b3131adcbd150f9e5c659f60c7218"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete monmove.c postmov() function (1454-1705), reached by the production m_move() dispatcher for pet, specialist, item-search, stationary, and ordinary movement statuses. Source review follows C evaluation order: pre-move seen flags and vampire rollback, mintrap and post-polymorph species refresh, magic-key trapped-door disarm, amorphous/locked/open/crash door masks and mb_trapped returns, iron-bars dissolution, mdig_tunnel return handling, engulfed-hero ux0/uy0 and u_on_newpos sequencing, object eater and mpickstuff return handling, minvis redraw and worm tail, maybe_spin_web gating/message, hides_under or eel concealment, and after_shk_move. The independent D:5 recording reaches the production m_move() -> postmov() trapped-door path at recording steps[49] (the 50th input step), including C mb_trapped() at monmove.c:65, and matches the JavaScript replay completely. A cheap independent variation with acoustics disabled reaches the same C arm at recording step 45 and also matches completely. Neither fresh recording reaches post-move object pickup, so this delivery claims only the trapped-door entry; focused source-pinned tests cover the remaining source branches and helper contracts. The synchronous monster_touch_artifact() owner shares the canonical touch_artifact() restriction predicate and resets touch_blasted on every call. moveSimpleOrdinary() no longer injects the former artifact Unsupported refusal, so live m_search_items()/postmov() selection reaches that owner; m_consume_obj() calls the source healmon() owner before object deletion. Genuinely discarded unported callees remain explicit: worm.c see_wsegs for worm-tail redraw, display.c swallowed clone redraw when no clone callback exists, and shk.c add_damage for shop accounting in the door/web arms. maybe_spin_web() now uses existing YMonnam/messageAt owners and source soko_allow_web path; its discarded shop accounting remains noted. Return-valued meatmetal (exact ==2), meatobj/meatcorpse (>=2), mpickstuff, mdig_tunnel, and artifact/object gates are preserved. Pet/specialist, object-pickup, web/concealment-only, iron-bars/tunnel, and engulfed-only fresh entry recordings remain open where no independent production recipe reaches them; they are not claimed complete by this delivery. The integrated candidate replaces the obsolete Norep gap with ttyNorep and verifies the source message callback and planning suppression in scripts/monmove.test.mjs.",
+        "entryPoints": [
+          {
+            "name": "monster movement into a trapped doorway",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": [
+              "recordings/monmove.c/postmov-trapped-door-independent-d5.session.json",
+              "recordings/monmove.c/postmov-trapped-door-independent-quiet.session.json"
+            ]
+          },
+          {
+            "name": "post-move object pickup",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "pet and specialist movement status through postmov",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "iron-bars, tunnel, or engulfed-hero transition",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "web, concealment, and shop follow-up after movement",
+            "functions": [
+              "postmov"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

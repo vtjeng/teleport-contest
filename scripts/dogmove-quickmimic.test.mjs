@@ -533,6 +533,26 @@ test('m_consume_obj deletes an inert non-mimic corpse without quickmimic',
             'quickmimic not called for non-mimic');
     });
 
+test('m_consume_obj heals a non-pet by the consumed object weight',
+    async () => {
+        const { monster, state } = quickState(false);
+        monster.mtame = 0;
+        monster.mhp = 1;
+        monster.mhpmax = 8;
+        const corpse = floorMimicCorpse(state, PM_NEWT);
+        const weight = state.objects[CORPSE].oc_weight;
+
+        await m_consume_obj(monster, corpse, {
+            ...eatingEnv(state),
+            quickMimic: async () => assert.fail('newt corpse'),
+        });
+
+        // mon.c:1396-1399 calls healmon() before delobj(); the ordinary
+        // corpse has no later effect that changes this amount.
+        assert.equal(monster.mhp, 1 + weight);
+        assert.equal(state.level.objects[5][5], null);
+    });
+
 // m_consume_obj still rejects corpse effects that are not ported.  PM_WRAITH
 // triggers the mlevelgain branch and PM_NURSE triggers mhealup; the stalker
 // branch is covered below because mon_givit now handles it.

@@ -166,17 +166,23 @@ import {
     helpless,
     isok,
     is_pit,
-    something,
 } from './const.js';
-import { artifactTouchable, artifact_light } from './artifacts.js';
+import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
 import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
-import { newsym, vobj_at } from './display.js';
-import { Adjmonnam, Amonnam, Monnam, capitalizedMonsterName, monsterCommonName } from './do_name.js';
+import { newsym, swallowed, vobj_at } from './display.js';
+import {
+    Adjmonnam,
+    Amonnam,
+    Monnam,
+    YMonnam,
+    capitalizedMonsterName,
+    monsterCommonName,
+} from './do_name.js';
 import { dogfood } from './dogfood.js';
-import { is_digging, watch_dig } from './dig.js';
+import { is_digging, mdig_tunnel, watch_dig } from './dig.js';
 import { could_reach_item } from './dogmove.js';
-import { has_ceiling, Is_special, on_level } from './dungeon.js';
+import { has_ceiling, Is_special, on_level, u_on_newpos } from './dungeon.js';
 import {
     bad_rock,
     cant_squeeze_thru,
@@ -267,6 +273,7 @@ import {
     passes_walls,
     perceives,
     sticks,
+    locomotion,
     telepathic,
     throws_rocks,
     touch_petrifies,
@@ -398,7 +405,7 @@ import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj } from './steal.js';
-import { stairway_at } from './stairs.js';
+import { stairway_at, stairway_find_dir } from './stairs.js';
 import {
     canSpotMonster,
     collectMonsterMovementMessage,
@@ -421,7 +428,7 @@ import {
     rloc,
     tele_restrict,
 } from './teleport.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
 import {
@@ -2991,13 +2998,16 @@ function count_webbing_walls(x, y, state = game) {
 
 // C ref: monmove.c soko_allow_web() (1252-1265). Reject webs that interfere
 // with solving Sokoban. Off Sokoban or on a solved Sokoban level, always TRUE.
-// The Sokoban arm (m_cansee check against stairway_find_dir) is deferred
-// because Sokoban web spinning is never reached in current sessions.
-function soko_allow_web(mon, state = game) {
+// The unsolved Sokoban arm follows the source m_cansee check against the
+// upstairs returned by stairway_find_dir().
+export function soko_allow_web(mon, state = game) {
     if (!state.level.flags?.sokoban_rules) return true;
-    // Unsolved Sokoban: deferred. The C code allows the web only when the
-    // spinner can see the upstairs.
-    return false;
+    // C ref: monmove.c:1260-1263. Unsolved Sokoban permits a web only when
+    // the spinner has a clear path to the upstairs; m_cansee is exactly the
+    // source clear_path() macro and does not consult hero visibility.
+    const upstairs = stairway_find_dir(true, state);
+    return Boolean(upstairs
+        && clear_path(mon.mx, mon.my, upstairs.sx, upstairs.sy));
 }
 
 // C ref: monmove.c maybe_spin_web() (1269-1293). A webmaker monster may
@@ -3021,18 +3031,31 @@ async function maybe_spin_web(mtmp, env) {
             if (trap) {
                 mtmp.mspec_used = random.d(4, 4); /* 4..16 */
                 if (cansee(mtmp.mx, mtmp.my, state)) {
-                    const mbuf = canSpotMonster(mtmp, state)
-                        ? env.unsupported('y_monnam in web-spinning message')
-                        : something;
                     // C: pline_mon(mtmp, "%s spins a web.", upstart(mbuf));
-                    // pline_mon() is not yet ported; refuse for now when the
-                    // hero can see the spinner, since the message would be
-                    // visible.
-                    env.unsupported('pline_mon for web-spinning message');
+                    // YMonnam() and messageAt() preserve the source naming
+                    // and location; postmov supplies a no-op message during
+                    // planning so this branch cannot paint the live terminal.
+                    const mbuf = canSpotMonster(mtmp, state)
+                        ? YMonnam(mtmp, state, env)
+                        : 'Something';
+                    const message = env.message ?? ttyPline;
+                    await message(
+                        messageAt(
+                            `${mbuf} spins a web.`,
+                            mtmp.mx,
+                            mtmp.my,
+                            state,
+                        ),
+                        state,
+                        env,
+                    );
                     trap.tseen = 1;
                 }
                 if ((in_rooms(mtmp.mx, mtmp.my, SHOPBASE, state)[0] ?? 0)) {
-                    env.unsupported('add_damage for web in shop');
+                    // C: add_damage() is a discarded shop-accounting result;
+                    // its owner remains unported, so preserve the explicit
+                    // dependency without refusing the movement turn.
+                    note_unported('shk.c add_damage');
                 }
             }
         }
@@ -3047,30 +3070,25 @@ async function maybe_spin_web(mtmp, env) {
 // other mask is the magic-key disarm at monmove.c:1539, which needs D_TRAPPED.
 export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 
-// C ref: monmove.c postmov() (1454-1705).  Covers notice_mon(), the redraw of
-// the square the monster left, the door block's fall-through for an inert
-// doormask and its `doormask == D_CLOSED && can_open` arm, the redraw of the
-// square it reached, mintrap(), and the object arm's mpickstuff() branch.  The
-// Also covers: the vamp_shift() fog-cloud sequencing hack before the door
-// block, and the IRONBARS dissolve_bars() arm for rust/corr/metallivorous
-// monsters.  The injected `unsupported` refuses the rest:
-// every door arm that needs a door trap, amorphous(), can_unlock or a
-// doorbuster, mdig_tunnel(), the engulfed-hero relocation, and
-// maybe_spin_web().  The meatmetal(), meatobj(), meatcorpse() and mpickstuff()
-// object arms are wired below. The hideunder() concealment arms are admitted
-// below; hero concealment remains a separate guard. after_shk_move() (C:1700-1702) is guarded by
-// its own unsupported() inside the MMOVE_MOVED / MMOVE_DONE block; the
-// stationary shopkeeper passes MMOVE_NOTHING and does not reach it.
+// C ref: monmove.c postmov() (1454-1705). Covers notice_mon(), the old and
+// new-square redraws, the complete door and iron-bars blocks, mintrap(), the
+// tunnel and engulfed-hero transitions, object handling, web/concealment
+// effects, and the shopkeeper follow-up. Existing unported callees retain
+// their own note_unported()/operation boundaries; this function does not
+// replace a source branch with a blanket door refusal.
 export async function postmov(
     monster,
     omx,
     omy,
     mmoved,
+    seenFlags,
     canTunnel,
     canUnlock,
     canOpen,
     rawEnv = {},
 ) {
+    // C receives seenflgs before the three movement capabilities.  The
+    // explicit positional signature keeps this source order at every caller.
     const state = rawEnv.state ?? game;
     const env = { ...rawEnv, state };
     const random = rawEnv.random ?? { rn2 };
@@ -3080,6 +3098,9 @@ export async function postmov(
     const message = env.planning
         ? async () => {}
         : (rawEnv.message ?? ttyPline);
+    const norepMessage = env.planning
+        ? async () => {}
+        : (rawEnv.norepMessage ?? ttyNorep);
     const redraw = env.planning ? () => {} : (rawEnv.redraw ?? newsym);
     // vision.c recalc_block_point() and vision_recalc(), which UnblockDoor
     // calls in that order.  recalc_block_point() already takes the state it
@@ -3118,20 +3139,36 @@ export async function postmov(
         // When a vampshifter moves onto a closed/locked door that it can pass
         // through as fog, shift to fog cloud form before proceeding. The C
         // code moves the monster back to the old square for the message, then
-        // forward again; the JS omits the move-back for message ordering since
-        // messages are already at the right position.
+        // forward again.  `seenFlags` is captured before movement by m_move(),
+        // so this redraw/placement sequence remains independent of the
+        // post-move visibility result.
         if (is_vampshifter(monster) && !amorphous(species)
             && IS_DOOR(state.level.at(nix, niy)?.typ)
             && ((doorMask(state.level.at(nix, niy)) & (D_LOCKED | D_CLOSED)) !== 0)
             && can_fog(monster, state)) {
-            const seenBefore = canseemon(monster, state);
-            const domsg = seenBefore;
+            if (seenFlags) {
+                remove_monster(nix, niy, state);
+                place_monster(monster, omx, omy, state);
+                redraw(nix, niy);
+                redraw(omx, omy);
+            }
+            const domsg = Boolean(seenFlags & 1);
             if (await vamp_shift(monster, state.mons?.[PM_FOG_CLOUD], domsg, {
                 ...env,
                 message,
-                canSpotMonster,
+                // newcham_distress passes its normalized operation bundle as
+                // the second argument to this seam; adapt it to the display
+                // owner's (monster, state) contract without exposing the
+                // bundle as a state object.
+                canSpotMonster: (subject) => canSpotMonster(subject, state),
             })) {
                 species = monster.data; /* update cached value */
+            }
+            if (seenFlags) {
+                remove_monster(omx, omy, state);
+                place_monster(monster, nix, niy, state);
+                redraw(omx, omy);
+                redraw(nix, niy);
             }
         }
         redraw(omx, omy);
@@ -3156,24 +3193,81 @@ export async function postmov(
         const here = state.level?.at(monster.mx, monster.my);
         // C ref: monmove.c:1519-1622, the door block.
         if (IS_DOOR(here?.typ) && !passes_walls(species) && !canTunnel) {
-            const btrapped = (doorMask(here) & D_TRAPPED) !== 0;
-            // C ref: monmove.c:1538-1547.  A door trap reaches three owners
-            // none of which is ported: the silent disarm a monster carrying
-            // the Master Key of Thievery performs here, which writes the
-            // doormask; mb_trapped(), which every acting arm below calls; and
-            // the fall-through that leaves a D_TRAPPED-only mask alone.  Every
-            // level the port reaches generates zero trapped doors.
-            if (btrapped) unsupported('a door trap under a monster');
-            if ((doorMask(here) & (D_LOCKED | D_CLOSED)) !== 0
+            let btrapped = (doorMask(here) & D_TRAPPED) !== 0;
+            // C ref: monmove.c:1538-1547.  A monster carrying the Master Key
+            // of Thievery disarms a trapped door silently before selecting its
+            // movement arm.  The key helper returns the object in JavaScript,
+            // while C only tests whether it found one.
+            if (btrapped && has_magic_key(monster, state)) {
+                const untrapped = doorMask(here) & ~D_TRAPPED;
+                here.flags = untrapped;
+                here.doormask = untrapped;
+                btrapped = false;
+            }
+            const currentMask = () => doorMask(here);
+            if ((currentMask() & (D_LOCKED | D_CLOSED)) !== 0
                 && amorphous(species)) {
-                unsupported('a monster oozing under a door');
-            } else if ((doorMask(here) & D_LOCKED) !== 0 && canUnlock) {
-                unsupported('a monster unlocking a door');
+                if (state.flags?.verbose && canseemon(monster, state)) {
+                    const verb = species === state.mons?.[PM_FOG_CLOUD]
+                        || species?.mlet === S_LIGHT ? 'flows' : 'oozes';
+                    await message(
+                        messageAt(
+                            `${YMonnam(monster, state, rawEnv)} ${verb}`
+                            + ' under the door.',
+                            monster.mx,
+                            monster.my,
+                            state,
+                        ),
+                        state,
+                        env,
+                    );
+                }
+            } else if ((currentMask() & D_LOCKED) !== 0 && canUnlock) {
+                // C ref: monmove.c:1554-1574.  A trapped locked door is
+                // first changed to D_NODOOR, then mb_trapped() applies the
+                // explosion and damage.  An ordinary unlock becomes open.
+                canseeit = unblockDoor(
+                    here,
+                    monster,
+                    btrapped ? D_NODOOR : D_ISOPEN,
+                );
+                if (btrapped) {
+                    if (await mb_trapped(monster, canseeit, {
+                        ...env,
+                        message,
+                        random,
+                        redraw,
+                    })) return MMOVE_DIED;
+                } else {
+                    if (state.flags?.verbose) {
+                        if (canseeit && canSpotMonster(monster, state)) {
+                            await message(
+                                messageAt(
+                                    `${Monnam(monster, state, rawEnv)}`
+                                    + ' unlocks and opens a door.',
+                                    monster.mx,
+                                    monster.my,
+                                    state,
+                                ),
+                                state,
+                                env,
+                            );
+                        } else if (canseeit) {
+                            await message(
+                                youSee('a door unlock and open.', state),
+                                state,
+                                env,
+                            );
+                        } else if (!heroDeaf(state)) {
+                            const heard = youHear('a door unlock and open.', state);
+                            if (heard) await message(heard, state, env);
+                        }
+                    }
+                }
             } else if (doorMask(here) === D_CLOSED && canOpen) {
                 // C ref: monmove.c:1576-1592.  Whole-mask equality with
-                // D_CLOSED is what makes btrapped false here, so C's
-                // `!btrapped ? D_ISOPEN : D_NODOOR` can only choose D_ISOPEN
-                // and its mb_trapped() branch below is unreachable.
+                // D_CLOSED makes btrapped false here; a trapped closed door
+                // therefore cannot enter this arm.
                 canseeit = unblockDoor(here, monster, D_ISOPEN);
                 // Soundeffect(se_door_open, 100) is a tty-sound hook that
                 // writes nothing to the terminal the recorder captures.
@@ -3181,7 +3275,7 @@ export async function postmov(
                     if (canseeit && canSpotMonster(monster, state)) {
                         await message(
                             messageAt(
-                                `${capitalizedMonsterName(monster, state)}`
+                                `${capitalizedMonsterName(monster, state, rawEnv)}`
                                 + ' opens a door.',
                                 monster.mx,
                                 monster.my,
@@ -3199,9 +3293,49 @@ export async function postmov(
                 }
             } else if ((doorMask(here) & (D_LOCKED | D_CLOSED)) !== 0) {
                 // C ref: monmove.c:1593-1620.  mfndpos() offers this square
-                // only to a doorbuster, whose rn2(2) and add_damage() are
-                // both unported.
-                unsupported('a monster smashing down a door');
+                // only to a doorbuster.  A locked door has one source draw
+                // deciding between D_NODOOR and D_BROKEN; a trapped door
+                // always becomes D_NODOOR before mb_trapped().
+                const mask = btrapped
+                    || ((currentMask() & D_LOCKED) !== 0 && !random.rn2(2))
+                    ? D_NODOOR
+                    : D_BROKEN;
+                canseeit = unblockDoor(here, monster, mask);
+                if (btrapped) {
+                    if (await mb_trapped(monster, canseeit, {
+                        ...env,
+                        message,
+                        random,
+                        redraw,
+                    })) return MMOVE_DIED;
+                } else {
+                    if (state.flags?.verbose) {
+                        if (canseeit && canSpotMonster(monster, state)) {
+                            await message(
+                                messageAt(
+                                    `${Monnam(monster, state, rawEnv)}`
+                                    + ' smashes down a door.',
+                                    monster.mx,
+                                    monster.my,
+                                    state,
+                                ),
+                                state,
+                                env,
+                            );
+                        } else if (canseeit) {
+                            await message(
+                                youSee('a door crash open.', state),
+                                state,
+                                env,
+                            );
+                        } else if (!heroDeaf(state)) {
+                            const heard = youHear('a door crash open.', state);
+                            if (heard) await message(heard, state, env);
+                        }
+                    }
+                }
+                if (in_rooms(monster.mx, monster.my, SHOPBASE, state)[0])
+                    note_unported('shk.c add_damage');
             }
         } else if (here?.typ === IRONBARS) {
             // C ref: monmove.c:1624-1641, iron bars handling.
@@ -3210,8 +3344,13 @@ export async function postmov(
                     || metallivorous(species))) {
                 if (canseemon(monster, state)) {
                     await message(
-                        `${capitalizedMonsterName(monster, state)}`
-                        + ' eats through the iron bars.',
+                        messageAt(
+                            `${Monnam(monster, state, env)}`
+                            + ' eats through the iron bars.',
+                            monster.mx,
+                            monster.my,
+                            state,
+                        ),
                         state,
                         env,
                     );
@@ -3219,22 +3358,32 @@ export async function postmov(
                 dissolve_bars(monster.mx, monster.my, state);
                 return MMOVE_DONE;
             } else if (state.flags?.verbose && canseemon(monster, state)) {
-                // C: Norep("%s %s %s the iron bars.", ...). The Norep and
-                // locomotion/makeplural formatters are not ported; skip the
-                // message for now.
-                note_unported('pline.c Norep');
+                // C uses makeplural() to conjugate the movement verb and
+                // Norep() to suppress a repeated message on the top line.
+                await norepMessage(
+                    `${Monnam(monster, state, env)} `
+                    + `${makeplural(locomotion(species, 'pass'))} `
+                    + `${passes_walls(species) ? 'through' : 'between'} the iron bars.`,
+                    state,
+                    env,
+                );
             }
         }
         if (canTunnel && may_dig(monster.mx, monster.my, state)) {
-            const mdigTunnel = rawEnv.mdigTunnel;
-            if (typeof mdigTunnel !== 'function')
-                unsupported('monster tunneling');
+            const mdigTunnel = rawEnv.mdigTunnel ?? mdig_tunnel;
             const died = await mdigTunnel(monster, {
                 ...env,
                 message,
                 redraw,
                 recalcBlockPoint,
                 unblockPoint: rawEnv.unblockPoint,
+                mbTrapped: rawEnv.mbTrapped ?? (async (subject, visible,
+                    trapEnv) => mb_trapped(subject, visible, {
+                    ...trapEnv,
+                    message,
+                    random,
+                    redraw,
+                })),
             });
             if (died) return MMOVE_DIED;
         }
@@ -3243,21 +3392,40 @@ export async function postmov(
         // only when the move changed its square.
         if (state.u?.uswallow && state.u?.ustuck === monster
             && (monster.mx !== omx || monster.my !== omy)) {
-            unsupported('an engulfing monster moving');
+            // C updates the hero and stomach display through these two owners.
+            // `swallowed()` currently paints only the live game; a planning
+            // caller can provide a clone-safe operation.  The source call is
+            // therefore made directly on live turns and through that seam on
+            // planned turns, with the unported display-only arm recorded when
+            // no clone operation exists.
+            state.u.ux0 = state.u.ux;
+            state.u.uy0 = state.u.uy;
+            u_on_newpos(monster.mx, monster.my, state);
+            if (typeof rawEnv.swallowed === 'function') {
+                await rawEnv.swallowed(false, state, env);
+            } else if (!env.planning) {
+                await swallowed(false, state);
+            } else {
+                note_unported('display.c swallowed clone redraw');
+            }
+        } else {
+            redraw(monster.mx, monster.my);
         }
-        redraw(monster.mx, monster.my);
     }
 
     if (mmoved === MMOVE_MOVED || mmoved === MMOVE_DONE) {
-        if (state.level?.objects?.[monster.mx]?.[monster.my]) {
-            const consumptionEnv = {
-                ...env,
-                touchArtifact: () =>
-                    unsupported('monster artifact item interaction'),
-            };
+        if (state.level?.objects?.[monster.mx]?.[monster.my]
+            && monster.mcanmove) {
+            // Object interaction helpers are called after the movement
+            // redraw, but still use the same output seams as postmov.  In a
+            // planning clone this keeps their discarded-callee branches and
+            // source messages from reaching the live terminal.
+            const consumptionEnv = { ...env, message, redraw };
             if (metallivorous(species)) {
                 const eaten = await meatmetal(monster, consumptionEnv);
-                if (eaten >= 2) return MMOVE_DIED;
+                // C:1669 tests the exact MMOVE_DIED result; meatmetal() can
+                // use other positive statuses for a non-death outcome.
+                if (eaten === 2) return MMOVE_DIED;
             }
             if (species === state.mons?.[PM_GELATINOUS_CUBE]) {
                 const eaten = await meatobj(monster, consumptionEnv);
@@ -3273,9 +3441,9 @@ export async function postmov(
                 monster.my,
                 {
                     ...env,
+                    message,
+                    redraw,
                     skipConsumption: true,
-                    touchArtifact: () =>
-                        unsupported('monster artifact item interaction'),
                 },
             );
             if (selected) {
@@ -3291,15 +3459,27 @@ export async function postmov(
                 // gate, where MMOVE_DONE then suppresses the attack.
                 if (picked) outcome = MMOVE_DONE;
             }
-            // monmove.c:1683-1687 repeats newsym() when mtmp->minvis is set.
-            // No ported case sets minvis, so this arm is unreachable.
+            // C ref: monmove.c:1683-1687.  Object consumption or pickup can
+            // leave an invisible monster needing a second repaint.  Worm
+            // tails have their own display owner; keep its discarded-result
+            // dependency explicit until worm.c see_wsegs() is ported.
+            if (monster.minvis) {
+                redraw(monster.mx, monster.my);
+                if (monster.wormno)
+                    note_unported('worm.c see_wsegs');
+            }
         }
         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
         // (webmaker, !helpless, !mspec_used, no trap, soko_allow_web) gate
-        // the rn2(1000) draw at :1279. The success arm's message and shop
-        // bookkeeping remain behind unsupported guards until y_monnam,
-        // pline_mon, and add_damage are ported.
-        await maybe_spin_web(monster, { ...env, random, unsupported });
+        // the rn2(1000) draw at :1279. The visible success message now uses
+        // the existing naming/display owners; only discarded shop accounting
+        // remains an explicit unported dependency inside that helper.
+        await maybe_spin_web(monster, {
+            ...env,
+            message,
+            random,
+            unsupported,
+        });
         // C ref: monmove.c:1692-1699.  A hides_under() species or an eel
         // re-hides after moving, drawing rn2(5) unless it is already hidden;
         // helpless() cannot hold here because dochug() returns before
@@ -3398,6 +3578,12 @@ export async function m_move(monster, rawEnv = {}) {
         )
         && random.rn2(10))
         return MMOVE_NOTHING; /* do not leave hiding place */
+    // C ref: monmove.c:1757-1759. Capture both visibility answers before
+    // set_apparxy() and before the move. postmov() uses these bits only for
+    // the vampire fog-shift rollback; its later door messages recompute the
+    // post-move canseeit value as C does.
+    const seenFlags = (canseemon(monster, state) ? 1 : 0)
+        | (canSpotMonster(monster, state) ? 2 : 0);
     set_apparxy(monster, env);
     // C ref: monmove.c:1763-1766.  mon_allowflags() computes the same three
     // capabilities for mfndpos(); m_move() keeps its own can_tunnel because it
@@ -3416,6 +3602,7 @@ export async function m_move(monster, rawEnv = {}) {
                 subjectOldX,
                 subjectOldY,
                 status,
+                seenFlags,
                 canTunnel,
                 canUnlock,
                 canOpen,

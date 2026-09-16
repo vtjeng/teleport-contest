@@ -1128,16 +1128,10 @@ async function moveSimpleOrdinary(monster, env) {
             m_avoid_kicked_loc(subject, x, y, env.state),
         resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
-        // every item a monster considers, and that function can blast the
-        // toucher for d(4,10) and print. Three consumers read this one
-        // injection: m_search_items()'s can_carry() and can_touch_safely()
-        // below, dog_invent()'s and dog_goal()'s can_carry() through
-        // movePet(), which m_move() hands its own env, and postmov(), which
-        // replaces it with a narrower reason of its own. Without it the first
-        // two raised a bare TypeError for the missing operation, which
-        // escapes runSegment() and discards the segment's matching prefix
-        // rather than ending the segment on it.
-        touchArtifact: () => unsupported('monster artifact item selection'),
+        // every item a monster considers. m_search_items(), postmov(), and
+        // their object consumers now use artifactTouchable()'s canonical
+        // synchronous monster owner; its monster arm is only a pickup gate
+        // and never applies the hero's blast or damage.
         unsupported,
     });
 }

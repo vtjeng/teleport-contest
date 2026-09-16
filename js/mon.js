@@ -1350,7 +1350,8 @@ export async function meatbox(mon, obj, rawEnv = {}) {
 // corpse.  dogmove.c dog_eat() is its live caller.  The uball/uchain and
 // Has_contents arms are gated before entry.  After delobj, corpses that
 // trigger polyfood, mlevelgain, mhealup, mstoning, sliming, or pyrolisk
-// explosion remain explicit fail-closed gaps; mon_givit is ported below.
+// explosion remain explicit fail-closed gaps; mon_givit is ported below. The
+// source's pre-consumption healing is shared by every non-pet object eater.
 export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = rawEnv.unsupported;
@@ -1358,6 +1359,14 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         if (typeof unsupported === 'function') unsupported(reason);
         throw new TypeError(`m_consume_obj requires ${reason}`);
     };
+
+    // mon.c:1396-1399. A non-pet heals by the consumed object's weight before
+    // any special corpse or container effect. healmon()'s return is discarded
+    // by C, so the source owner is called directly and no result is inferred.
+    if (!mtmp.mtame && mtmp.mhp < mtmp.mhpmax) {
+        const weight = state.objects?.[otmp.otyp]?.oc_weight ?? 0;
+        healmon(mtmp, weight, 0);
+    }
 
     if (otmp === state.uball || otmp === state.uchain)
         stop('an unpunished object');

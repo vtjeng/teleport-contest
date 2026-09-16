@@ -202,7 +202,7 @@ test('postmov resets an empty-square concealment with its rn2(5)', async () => {
         x,
         y,
         MMOVE_DONE,
-        false,
+        0, false,
         false,
         false,
         {
@@ -258,8 +258,8 @@ test('the eel concealment recipe carries replay inputs only', () => {
 
 // C ref: monmove.c postmov():1692-1699 for the S_EEL half of its guard. The
 // eel arm calls mon.c hideunder(), so these cases pin the draw's position, the
-// short circuit that skips it, and the two newsym() calls a state change
-// spends: hideunder()'s own, then postmov()'s unconditional one.
+// short circuit that skips it, and the source redraw ordering: hideunder()'s
+// own redraw when it changes concealment, then postmov()'s redraw.
 async function eelPostmov(monster, roll) {
     const bounds = [];
     const redrawn = [];
@@ -268,7 +268,7 @@ async function eelPostmov(monster, roll) {
         monster.mx,
         monster.my,
         MMOVE_DONE,
-        false,
+        0, false,
         false,
         false,
         {

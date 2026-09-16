@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6201035,
+      "datetime": "20350715112234",
+      "nethackrc": "OPTIONS=name:DoorTrapQuiet,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!safe_wait,!acoustics\n",
+      "moves": " \u00165\n                              s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s ",
+      "comment": "Independent cheap variation: neutral Valkyrie, acoustics disabled, and a different date and time use the D:5 numeric teleport and wait-only movement; C reaches mb_trapped() at recording step 45."
+    }
+  ],
+  "comment": "Independent D:5 natural trapped-door variation selected separately from the original witness: seed 6201035, 2035-07-15 11:22:34 clock, DoorTrapQuiet Valkyrie, neutral alignment, acoustics disabled, numeric level teleport, and wait inputs. C reaches mb_trapped() at recording step 45."
+}
