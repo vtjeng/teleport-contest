@@ -65,8 +65,8 @@ function mapSelection(placed) {
 // hell_tweaks(protected) call. Descriptor order is significant because the
 // callback's level placements and hell_tweaks consume the level RNG stream.
 export async function wizard2(des, state) {
-    des.level_init({ style: 'mazegrid', bg: '-' });
-    des.level_flags('mazelevel', 'noteleport', 'hardfloor');
+    await des.level_init({ style: 'mazegrid', bg: '-' });
+    await des.level_flags('mazelevel', 'noteleport', 'hardfloor');
 
     const tmpbounds = selection_match('-', state);
     const bnds = tmpbounds.bounds();
@@ -74,62 +74,62 @@ export async function wizard2(des, state) {
         bnds.lx, bnds.ly + 1, bnds.hx - 2, bnds.hy - 1, des.frame,
     );
 
-    const wiz2 = des.map({
+    const wiz2 = await des.map({
         halign: 'center',
         valign: 'center',
         map: WIZARD2_MAP,
-        contents() {
-            des.levregion({
+        async contents() {
+            await des.levregion({
                 type: 'stair-up', region: [1, 0, 79, 20],
                 region_islev: 1, exclude: [0, 0, 28, 12],
             });
-            des.levregion({
+            await des.levregion({
                 type: 'stair-down', region: [1, 0, 79, 20],
                 region_islev: 1, exclude: [0, 0, 28, 12],
             });
-            des.levregion({
+            await des.levregion({
                 type: 'branch', region: [1, 0, 79, 20],
                 region_islev: 1, exclude: [0, 0, 28, 12],
             });
-            des.teleport_region({
+            await des.teleport_region({
                 region: [1, 0, 79, 20], region_islev: 1,
                 exclude: [0, 0, 27, 12],
             });
             // Entire tower in a region, constraining monster migration.
-            des.region({
+            await des.region({
                 region: [1, 1, 26, 11], lit: 0, type: 'ordinary',
                 arrival_room: true,
             });
-            des.region({
+            await des.region({
                 region: [9, 3, 17, 9], lit: 0, type: 'zoo', filled: 1,
             });
-            des.door('closed', 15, 2);
-            des.door('closed', 11, 10);
-            des.mazewalk(28, 5, 'east');
-            des.ladder('up', 12, 1);
-            des.ladder('down', 14, 11);
+            await des.door('closed', 15, 2);
+            await des.door('closed', 11, 10);
+            await des.mazewalk(28, 5, 'east');
+            await des.ladder('up', 12, 1);
+            await des.ladder('down', 14, 11);
 
             // Non-diggable and non-passwall walls everywhere in the map.
-            des.non_diggable(selection_area(0, 0, 27, 12));
-            des.non_passwall(selection_area(0, 0, 27, 12));
+            await des.non_diggable(selection_area(0, 0, 27, 12));
+            await des.non_passwall(selection_area(0, 0, 27, 12));
 
-            des.trap('spiked pit');
-            des.trap('sleep gas');
-            des.trap('anti magic');
-            des.trap('magic');
+            await des.trap('spiked pit');
+            await des.trap('sleep gas');
+            await des.trap('anti magic');
+            await des.trap('magic');
 
-            des.object('!');
-            des.object('!');
-            des.object('?');
-            des.object('?');
-            des.object('+');
+            await des.object('!');
+            await des.object('!');
+            await des.object('?');
+            await des.object('?');
+            await des.object('+');
             // Treasures.
-            des.object('"', 4, 6);
+            await des.object('"', 4, 6);
         },
     });
 
     const protectedArea = selectionUnion(bounds2.negate(), mapSelection(wiz2));
-    hellTweaks(des, protectedArea, state);
+    await hellTweaks(des, protectedArea, state);
 }
 
 export const WIZARD2_LEVEL_LOADERS = Object.freeze({ wizard2 });

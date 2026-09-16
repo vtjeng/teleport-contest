@@ -2695,11 +2695,19 @@ export function lspo_room(args, env) {
                     coder.tmproomlist[n - 1].irregular = true;
                 coder.n_subroom++;
                 update_croom(coder);
-                if (typeof table.contents === 'function')
-                    table.contents(l_push_mkroom_table(tmpcr));
-                spo_endroom(coder, frame, state);
-                add_doors_to_room(tmpcr);
-                return;
+                const finishRoom = () => {
+                    spo_endroom(coder, frame, state);
+                    add_doors_to_room(tmpcr);
+                    return;
+                };
+                if (typeof table.contents === 'function') {
+                    const maybeContents = table.contents(
+                        l_push_mkroom_table(tmpcr),
+                    );
+                    if (maybeContents && typeof maybeContents.then === 'function')
+                        return maybeContents.then(finishRoom);
+                }
+                return finishRoom();
             }
             if (state.in_mk_themerooms)
                 state.themeroom_failed = true;
@@ -3975,11 +3983,19 @@ export function lspo_region(args, env) {
             coder.failed_room[coder.n_subroom] = false;
             coder.n_subroom++;
             update_croom(coder);
+            const finishRegion = () => {
+                spo_endroom(coder, frame, state);
+                add_doors_to_room(troom);
+                return;
+            };
             if (typeof table.contents === 'function') {
-                table.contents(l_push_mkroom_table(troom));
+                const maybeContents = table.contents(
+                    l_push_mkroom_table(troom),
+                );
+                if (maybeContents && typeof maybeContents.then === 'function')
+                    return maybeContents.then(finishRegion);
             }
-            spo_endroom(coder, frame, state);
-            add_doors_to_room(troom);
+            return finishRegion();
         }
     }
 }
@@ -4459,8 +4475,16 @@ function createSpecialLevelApi(state) {
                 xsize: frame.xsize, ysize: frame.ysize,
             };
             if (has_contents) {
-                spec.contents(l_push_wid_hei_table(frame.xsize, frame.ysize));
-                reset_xystart_size(frame, state);
+                const maybeContents = spec.contents(
+                    l_push_wid_hei_table(frame.xsize, frame.ysize),
+                );
+                const finishContents = () => {
+                    reset_xystart_size(frame, state);
+                    return placed;
+                };
+                if (maybeContents && typeof maybeContents.then === 'function')
+                    return maybeContents.then(finishContents);
+                return finishContents();
             }
             return placed;
         },
