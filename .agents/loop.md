@@ -99,13 +99,15 @@ separately from other goals.
    or `.agents/divergence.md`, then commit those records. Reconcile work
    already completed; do not close unrelated source units.
 3. Integrate the submitted commits. Check whole-source coverage, production
-   callers, and entry-point recordings under `.agents/validation.md`. Run
-   affected focused checks, `npm run lint`, and `npm run quality`. Follow
-   `.agents/review.md` to decide whether review is needed. Record verified
-   source evidence and commit the combined candidate.
-4. Run `worker-state.mjs preflight --task <id>`. Resolve its omissions and run
-   its listed checks. For a retry, pass the failed summary with
-   `--previous-checkpoint` and address every failure. Run `npm run checkpoint`
+   callers, and entry-point recordings under `.agents/validation.md`. Record
+   verified source evidence and commit the combined candidate.
+4. Run `worker-state.mjs preflight --task <id>` before broad focused testing.
+   Resolve its omissions, then run its listed checks, affected focused tests,
+   `npm run lint`, and `npm run quality`. Follow `.agents/review.md` to decide
+   whether review is needed. For a retry, pass the failed summary with
+   `--previous-checkpoint` and address every failure. If corrections change
+   the candidate, commit them and rerun preflight before testing it.
+   Run `npm run checkpoint`
    under `.agents/validation.md`. Keep one full-validation owner and retain
    its process handle until completion. Do not change main's HEAD during the
    run. If it fails, preserve the results and reap the run before integrating

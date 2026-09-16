@@ -65,7 +65,11 @@ The orchestrator applies the completed-investigation priority described here.
 Reconsider priority between spans. When an open goal no longer addresses the
 first eligible session under these scheduling rules, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
-Resume it with `open-goal --id <id>` when its priority permits.
+State the remaining source or coverage work and the condition for resuming
+in the existing reason. Name a blocking function or goal when one is known;
+if only closure records remain, say so. Reconsider these reasons at loop
+startup and when a named dependency lands. Resume with `open-goal --id <id>`
+when the condition is met and its priority permits.
 
 When source review shows that another goal replaces a queued or parked plan,
 retire the old plan with `supersede-goal --goal <old-id> --by <replacement-id>
