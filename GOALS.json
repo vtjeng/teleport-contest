@@ -51513,6 +51513,133 @@
         "screens": 10146,
         "rng": 752461
       }
+    },
+    {
+      "id": "port-fountain-dryup-seed0014-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port fountain warnings and drying, including wizard confirmation and town guard reactions.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "Worker B seed continuation addresses count 2 at step 712, with complete investigations/seed0014-dequa-fountain-explore.json and immutable ready delivery 094b02ab. Worker A owns the higher-ranked count 817 beam source port and needs this shared dryup dependency. Integrate the ready independent delivery under loop scheduling.",
+      "detail": "C fountain.c watchman_warn_fountain lines 178-198 and dryup lines 200-239 form the selected complete source family. Current main stops at the first in-town warning. Port watchman eligibility and spoken/deaf messages, warning flag and fallback, source rn2 gate, wizard y_n, cloud-aware display, fountain removal/counts and angry_guards. The new seed7001 town-warning witness matches 12 screens/cursors and 5975 RNG; existing tepid-water drying witness matches 47 screens/cursors and 3282 RNG. Preserve seed7204 as a blocked input-only recipe for an unrelated monmove mismatch. This is a source port despite the worker packet context kind being labelled divergence-fix.",
+      "spans": [
+        {
+          "name": "watchman_warn_fountain..dryup",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "watchman_warn_fountain",
+            "dryup"
+          ]
+        }
+      ],
+      "openedAt": "e2eed838ed7ba4ba62958ee7d156d32c226f841a",
+      "openStanding": {
+        "sha": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+        "screens": 10146,
+        "rng": 752461
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "watchman_warn_fountain",
+          "line": 179,
+          "endLine": 200,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dryup",
+          "line": 201,
+          "endLine": 242,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 179,
+        "to": 242
+      },
+      "activeStanding": {
+        "sha": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+        "screens": 10146,
+        "rng": 752461
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 712,
+          "kind": "stop",
+          "function": "dryup",
+          "functionDeclared": true,
+          "sourceFile": "fountain.c",
+          "cFile": "fountain.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: fountain requires the in-town fountain warning in dryup()",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 2,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 2,
+              "status": "complete",
+              "commit": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 712,
+                "kind": "stop",
+                "function": "dryup",
+                "functionDeclared": true,
+                "sourceFile": "fountain.c",
+                "cFile": "fountain.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: fountain requires the in-town fountain warning in dryup()",
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 2
+              },
+              "summary": "The priest fix is published and CI-complete with 42 additional matching screens. Main stops at step 712 in dryup. Worker B’s complete warning/drying change has a passing independent town-fountain warning witness: 12 screens/cursors and 5975 RNG values. It is preparing an immutable delivery; an earlier recipe is preserved for an unrelated monster-movement blocker.",
+              "source": {
+                "file": "fountain.c",
+                "functions": [
+                  "watchman_warn_fountain",
+                  "dryup"
+                ],
+                "branch": "When an unmarked town fountain is used by the hero and dryup passes its source rn2(3) gate, C sets F_WARNED, finds the first peaceful watchman in line of sight, prints a spoken or deaf-aware warning, or reports the flow reducing to a trickle, then returns. JavaScript currently throws before this warning path. Later drying preserves wizard confirmation, cloud-aware visibility, terrain/fountain counts, redraw and town guard anger.",
+                "callers": [
+                  "fountain.c drinkfountain() and dipfountain() call dryup after their selected effects. Current main reaches this owner at fixed-workload step 712.",
+                  "fountain.c dryup(), lines 201-239, calls mon.c get_iter_mons(watchman_warn_fountain) for the first warning and mon.c angry_guards(FALSE) after subsequent hero-caused town drying.",
+                  "zap.c zap_over_floor() calls dryup after fire creates steam at a fountain; worker A needs the shared source owner with state, RNG and display callbacks."
+                ],
+                "dependencies": [
+                  "Reuse mon.js get_iter_mons and angry_guards; preserve monster iteration and first accepted watchman behavior.",
+                  "Reuse is_watch, couldsee, Deaf, Amonnam, verbalize, mhis, nolimbs, mbodypart and makeplural for both watchman message branches. Display callbacks must preserve planning-clone isolation and display RNG ownership.",
+                  "Call the existing y_n for wizard confirmation, set_levltyp for the fountain-count transition, and state-aware glyph/redraw operations. Worker B exclusively owns dryup/watchman_warn_fountain; worker A owns the beam caller."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Checkpoint 0c6e141f98e976a84d9ae89ba27d0a762e8c721c run-LJtbkj passes: 30/44 sessions,10146/11405 screens,752461/792838 RNG,10173/11405 cursors;262/262 recordings,9748 screens and1348429 RNG values. This is a gain of42 screens over the accepted blindness checkpoint.",
+                "Fresh fixed-workload queue run-fZ2zgm moves the selected first mismatch from step669 pri_move to step712 dryup, count2. Its JavaScript stop identifies the in-town fountain warning. The priest divergence is resolved; no machine-local or session-specific exception was added.",
+                "The priest correction preserves C conceptual room indices: former shrine room2 and empty temple membership become room48/index45 and in_rooms(TEMPLE)=[48]. Combined focused run-5gHWf9 passes254 tests; lint run-vEfuwO and quality run-72ScTc pass. The independent generated-temple recording adds10 screens/cursors and4283 RNG values.",
+                "Coordinator read the complete fountain.c watchman_warn_fountain body at179-198 and dryup at201-239. The source sets F_WARNED before searching for a watchman and returns after this first warning; later calls still consume rn2(3) before the warned flag bypasses drying probability.",
+                "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet.",
+                "Worker B reports fresh differential run-NBfUW0 passing the independent seed 7001 route: level teleport, two south moves, then quaff and warning dismissal. Its recording has 12 matching screens/cursors and 5975 RNG calls, with rnd(30)=18 in drinkfountain followed by rn2(3)=0 in dryup and warning text at steps 10/11. Focused run-PPn92T passes 16 tests. These are worker results pending combined validation; they do not change the published score.",
+                "The earlier independently chosen seed 7204 recipe diverges at step 12 in monmove.c m_move before the fountain. The original input recipe is retained with that blocker and its failing recording stays outside the passing corpus. The smaller passing seed 7001 witness reaches the targeted source warning."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
