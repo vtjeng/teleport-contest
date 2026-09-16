@@ -104,6 +104,11 @@ const UHITM_SOURCE = readFileSync(
     'utf8',
 );
 
+const UHITM_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
+    'utf8',
+);
+
 const DATETIME = '20260214031500';
 // u_init.c ini_inv() wields a TIN_OPENER, and a Tourist's undefined tool slot
 // rolls one on some seeds -- 4400255 among them -- which would put an object in

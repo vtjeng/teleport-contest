@@ -53714,17 +53714,17 @@
     {
       "id": "div-uhitm-known-hitum-monflee-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "closed",
       "summary": "Wire wounded surviving hits to canonical monster flight",
       "cFile": "uhitm.c",
       "sessions": [],
-      "selectionReason": "Integrate oldest ready A11 for highest remaining holdout/seed4500-knight-coverage,718 remaining screens at1096; investigations/holdout/seed4500-knight-coverage.json traces missing canonical monflee wiring in implemented known_hitum. B9 is closed; B10/B11 await source attribute corrections, and both workers continue independent source ports.",
-      "detail": "C uhitm.c623-633 consumes rn2(25), checks wounded survivor and engulfing, chooses !rn2(3)?rnd(100):0, calls monflee with FALSE/TRUE and clears u.ustuck under the source guard. Replace the existing refusal with canonical monflee/set_ustuck and planning-safe callbacks. Preserve the discarded Vrock create_gas_cloud gap. Worker focused checks pass and saved replay reaches all1814 recorded screens without divergence; validate combined main independently.",
+      "selectionReason": "Resume the oldest saved Knight divergence delivery after accepted B13 removes its source-traced feel_location dependency. Original A11 implementation remains unchanged; the previous score regression was rejected and is not credited as progress.",
+      "detail": "C uhitm.c623-633 consumes rn2(25), checks the wounded survivor and engulfing, chooses !rn2(3)?rnd(100):0, calls canonical monflee with FALSE/TRUE and clears u.ustuck under the source guard. The discarded Vrock create_gas_cloud gap remains explicit. The original worker report confused the1814 recorded length with replay completion; its candidate actually reached1106 before the tactile refusal. After accepted B13, combined checkpoint817420d5 verifies1204 matching Knight screens and moves the first stop to missing peffect_extra_healing. All44 sessions have no screen/RNG/cursor regression against B13; the source-traced known_hitum divergence is resolved.",
       "spans": [
         {
           "name": "wounded-survivor-monflee",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "817420d55ec8fc5a594550ca1e6b64a11365e322",
           "functions": [
             "known_hitum"
           ]
@@ -53736,15 +53736,18 @@
         "screens": 10346,
         "rng": 756143
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "817420d55ec8fc5a594550ca1e6b64a11365e322",
+      "delivered": {
+        "screens": 108,
+        "rng": 238
+      },
       "function": "known_hitum",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1096,
       "activeStanding": {
-        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
-        "screens": 10346,
-        "rng": 756143
+        "sha": "21f19e7250c11460c7152ee5abb5d297d212db02",
+        "screens": 10403,
+        "rng": 756196
       },
       "openMismatches": [
         {
@@ -53851,7 +53854,12 @@
         "screens": 10346,
         "rng": 756143
       },
-      "parkedReason": "A11 source fix exposes the whole feel_location Punished display gap at1106. The candidate passes the old checkpoint ratchet but drops accepted screens10346 to9250 because the exception discards its segment; preserved on codex/a11-integration-wait-20260916 at49ad63ae. Worker B will port whole feel_location before A11 is retried."
+      "parkedReason": "A11 source fix exposes the whole feel_location Punished display gap at1106. The candidate passes the old checkpoint ratchet but drops accepted screens10346 to9250 because the exception discards its segment; preserved on codex/a11-integration-wait-20260916 at49ad63ae. Worker B will port whole feel_location before A11 is retried.",
+      "closeStanding": {
+        "sha": "817420d55ec8fc5a594550ca1e6b64a11365e322",
+        "screens": 10511,
+        "rng": 756434
+      }
     },
     {
       "id": "port-mkroom-do-mkroom-seed0360-20260916",
