@@ -35,6 +35,7 @@ import { from_what } from '../js/attrib.js';
 import { describe_level } from '../js/display.js';
 import { item_what } from '../js/zap.js';
 import { gamelog_add, livelog_printf } from '../js/pline.js';
+import { initUnported } from '../js/unported.js';
 import {
     ART_GRAYSWANDIR,
 } from '../js/artifacts.js';
@@ -1605,6 +1606,43 @@ test('gamelog_add and livelog_printf retain C event fields', () => {
         { turn: 4, flags: LL_CONDUCT, text: 'first' },
         { turn: 23, flags: LL_ACHIEVE, text: 'second' },
     ]);
+});
+
+test('livelog_add honors sys.c LL_NONE while preserving the chronicle', () => {
+    const previous = {
+        sysopt: game.sysopt,
+        gamelog: game.gamelog,
+        moves: game.moves,
+        unported: game.unported,
+    };
+    try {
+        initUnported();
+        game.sysopt = { livelog: 0 };
+        game.moves = 31;
+        game.gamelog = [];
+        livelog_printf(LL_ACHIEVE, 'tab\tvalue', game);
+        assert.deepEqual(game.gamelog, [{
+            turn: 31,
+            flags: LL_ACHIEVE,
+            text: 'tab\tvalue',
+        }]);
+        assert.equal(game.unported.has('files.c livelog_add'), false);
+
+        game.sysopt = { livelog: LL_ACHIEVE };
+        game.gamelog = [];
+        livelog_printf(LL_ACHIEVE, 'enabled\tvalue', game);
+        assert.deepEqual(game.gamelog, [{
+            turn: 31,
+            flags: LL_ACHIEVE,
+            text: 'enabled\tvalue',
+        }]);
+        assert.equal(game.unported.has('files.c livelog_add'), true);
+    } finally {
+        game.sysopt = previous.sysopt;
+        game.gamelog = previous.gamelog;
+        game.moves = previous.moves;
+        game.unported = previous.unported;
+    }
 });
 
 // insight.c record_achievement() supplies dynamic rank text and the two

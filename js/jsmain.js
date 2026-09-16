@@ -57,7 +57,7 @@ import {
     tty_init_nhwindows,
     tty_player_selection,
 } from './wintty.js';
-import { NHW_MESSAGE, Upolyd } from './const.js';
+import { LL_NONE, NHW_MESSAGE, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import { welcomeBackMessage } from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
@@ -132,6 +132,10 @@ export function set_playmode(state = game, { loginName } = {}) {
     const flags = state.flags ??= {};
     const iflags = state.iflags ??= {};
     const sysopt = state.sysopt ??= {};
+    // C sys.c:sys_early_init() starts each process with no live-log sink;
+    // the recorder's sysconf leaves LIVELOG disabled.  Keep this canonical
+    // system option explicit before the play-mode fields are layered on.
+    sysopt.livelog ??= LL_NONE;
     sysopt.wizards ??= RECORDER_SYSTEM_OPTIONS.wizards;
     // The recorder's linux-minimal hints file does not define SYSCF, so the C
     // binary never calls cnf_line_WIZARDS() and fmtd_wizard_list stays NULL.
