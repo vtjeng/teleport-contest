@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 718,
   "status": "complete",
-  "commit": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+  "commit": "21f19e7250c11460c7152ee5abb5d297d212db02",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1096,
@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 718
   },
-  "summary": "The accepted first mismatch remains wounded-monster fleeing at1096. A11 is parked on B13 tactile ball/chain memory. Corrected B13 delivery a91a0aa8 is queued for integration; its blind-search variation establishes the recorded tactile entry, while the renamed sighted punishment witness is setup-only. Punished tactile, blind boulder, lock and kick entries remain without dedicated recordings.",
+  "summary": "Whole feel_location and its canonical callers now pass combined validation without regressions. The accepted first Knight mismatch remains known_hitum at1096 with718 remaining screens because A11 has not been reintegrated. Its formerly blocking tactile floor refusal is removed; A11 can now retry. B13 records blind search, while punished tactile, underwater/levitation, boulder, lock and kick entries remain unrecorded and the source goal remains parked.",
   "source": {
     "file": "uhitm.c",
     "functions": [
@@ -79,6 +79,7 @@
     "B13 WIP0d4b13a75fcec8f0117629def04e5d3cdda93b19 includes whole feel_location, detect/hack callers, source-pinned checks and an independent blind-search recipe with Healer/Valkyrie segments. The blocked punishment recipe first differs on screen18 before missing obj_resists RNG at23, so coordinator requested actual first-cause diagnosis and proof of entry reachability rather than accepting obj_resists as the established blocker. B13 is resumed after the clean B10 correction boundary.",
     "Coordinator inspected /tmp/b13-punished-c.session.json: initial screen shows the welcome --More-- prompt; step1 receives Ctrl-W but remains at that prompt, and step17 is the potion-of-invisibility action menu. The prior screen mismatch and later obj_resists call belong to misrouted setup inputs, not established punishment/feel_location blockers. Worker B will dismiss startup, verify actual scroll reading and Punished state from a fresh trace, and use a blind tactile caller. C read.c3019–3062 and teleport.c448–573 themselves use placebc/newsym for sighted punishment/teleport and do not establish feel_location reachability.",
     "B13 immutable ed8320c0 includes source0d4b13a7, the blind witness (4screens,5075RNG across two independent roles), and corrected sighted punishment setup (29screens,2394RNG). Coordinator rejected its tactile reachability claim: this recipe has no blindness, and getpos has no direct feel_location caller. Worker B must classify it as setup-only or supply an actual blind tactile witness; punished tactile entry coverage remains unrecorded. The obsolete setup-invalid recipe will be removed from current recipes while its artifacts and immutable history are preserved.",
-    "B13 correctiona91a0aa8 removes the known-invalid setup recipe and renames the sighted witness to feel-location-punishment-setup. The evidence now counts only the independent blind-search variation for feel_location. Coordinator re-read complete display.c736-909 and canonical detect/hack call-site changes against source0d4b13a7: suppression, underwater, sign-reduced seenv, levitation, floor mapping, bc_felt and final discarded display_monster gap retain source order. B13 awaits combined validation before A11 can retry."
+    "B13 correctiona91a0aa8 removes the known-invalid setup recipe and renames the sighted witness to feel-location-punishment-setup. The evidence now counts only the independent blind-search variation for feel_location. Coordinator re-read complete display.c736-909 and canonical detect/hack call-site changes against source0d4b13a7: suppression, underwater, sign-reduced seenv, levitation, floor mapping, bc_felt and final discarded display_monster gap retain source order. B13 awaits combined validation before A11 can retry.",
+    "Combined B13 checkpoint21f19e7250c11460c7152ee5abb5d297d212db02/run-HOuHAl passes all checks:32/44 sessions,10403/11405 screens,756196/792838 RNG,10433/11405 cursors and285/285 recordings (10671screens,1440285RNG). The development counts are unchanged. Two recordings add33screens and7469RNG: the two-segment blind-search variation reaches feel_location; the sighted punishment recording verifies setup alone. Canonical source evidence lists the unrecorded feature entries explicitly."
   ]
 }
