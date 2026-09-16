@@ -32,14 +32,14 @@
     "dependencies": [
       "Use canonical Blind/Hallucination/Unaware/property predicates, set_itimeout, body_part/eyecount, makeplural/vtense and toggle_blindness in C order. Hallucination resistance and non-timeout intrinsic flags must survive the probe.",
       "C uses Your for both blindfold messages and identifies strange_feeling as potion.c1461. The ball.c set_bc and potion.c strange_feeling calls discard results and may remain explicitly named gaps; do not manufacture their effects.",
-      "Record a genuinely blinded-to-sighted production transition and a cheap independent variation. The existing extra-healing recordings begin sighted and exercise the unchanged-zero call, so they do not establish this new cure transition."
+      "The two independently chosen timed-blind extra-healing recordings reach the blinded-to-sighted production transition and its cheap variation. The three older extra-healing recordings begin sighted and establish the unchanged-zero call only."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
     "Exact committed scan .cache/A13-development-scan.json at3b1823e02943b8176b7f4832b7f90f59ceeb1820 emits1204 of1814 screens with divergence=null and stops in make_blinded. The recorded C message is You feel much better. You can see again.; the quaff path has passed the previously missing extra-healing dispatcher.",
     "Source comparison read C potion.c261-331 and current js/potion.js make_blinded402-467. The refusal gate precedes the C visibility transition; completing peffect_extra_healing alone cannot remove it.",
-    "Candidate525904a90cd268eccc559224773cec1574553222 supplies the broader transition branches but omits Your in the two blindfold messages and misattributes strange_feeling to pline.c. These source defects and the missing blinded cure recording must be corrected before acceptance.",
+    "Corrected candidate7130834669fc73f380e3dcc9a6a9130a3282373b restores Your in both blindfold messages and attributes strange_feeling to potion.c. Two independent timed-blind recipes now record A cloud of darkness falls upon you. followed by the production extra-healing cure You feel much better. You can see again.; all five extra-healing fresh cases match 13,655 RNG values and228 screens/cursors. Combined acceptance remains pending.",
     "Historical counter-evidence: a later refusal does not establish the first mismatch. Earlier comparisons emitted1101 screens but first diverged at1063 in the blind pile heading, then1094 in blindness state. Compare screens, cursors and RNG before treating an emitted-screen count as parity.",
     "Historical tactile recipe counter-evidence: the initial welcome More prompt consumed Ctrl-W in the invalid punishment setup, so the subsequent inventory screen and obj_resists mismatch did not establish a feel_location defect. The corrected sighted punishment recording verifies setup only; it does not reach feel_location. Unrecorded active tactile and beam entry points remain tracked in their parked goals.",
     "Historical return-contract counter-evidence: feel_location must complete before the wounded-monster continuation is accepted; the earlier source candidate threw inside the incomplete segment and the scorer discarded it. The recovered failure is preserved in checkpoint history and is not a new score gain."
