@@ -5589,7 +5589,7 @@ function fill_empty_maze(frame, state, env) {
                 mm.x,
                 mm.y,
                 NO_MM_FLAGS,
-                { ...env, _fillEmptyMazeMinotaur: true },
+                env,
             );
         }
         // Random monsters

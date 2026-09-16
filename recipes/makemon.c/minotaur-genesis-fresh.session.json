@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent makemon.c makemon() coverage: wizard.c wiz_genesis() and read.c create_particular_creation() name PM_MINOTAUR=177 through the C('g') route. The seed, timestamp, role, character name, and input are independent of fixed workload sessions and exercise generic explicit species admission plus the minotaur m_initinv() inventory gate; focused tests pin its WAN_DIGGING branch.",
+  "segments": [
+    {
+      "seed": 9631047,
+      "datetime": "20340825172133",
+      "nethackrc": "OPTIONS=name:MinotaurProbe,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007minotaur\n"
+    }
+  ]
+}

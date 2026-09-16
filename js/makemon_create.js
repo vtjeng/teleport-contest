@@ -177,7 +177,7 @@ import {
     mon_learns_traps,
     polyok,
 } from './mondata.js';
-import { dochugw } from './monmove.js';
+import { dochugw, set_apparxy } from './monmove.js';
 import {
     dealloc_monst,
     mon_animal_list,
@@ -1256,7 +1256,7 @@ function isMausoleumSpecies(species) {
         || (mndx >= PM_KOBOLD_ZOMBIE && mndx <= PM_GIANT_ZOMBIE);
 }
 
-function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
+function assertSupportedSpecies(species) {
     // The four throne-room rulers are the whole range of mkroom.c
     // mk_zoo_thronemon() (mkroom.c:256-273): rnd(level_difficulty()) picks
     // PM_OGRE_TYRANT above 9, PM_ELVEN_MONARCH above 5, PM_DWARF_RULER above
@@ -1320,7 +1320,11 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             // has no creation-only helper or inventory branch, so the C
             // makemon() body reaches the already-portable generic lifecycle.
             && species.pmidx !== PM_RED_DRAGON
-            && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
+            // makemon.c:1147-1509 has no species admission gate. The
+            // minotaur's explicit m_initinv() arm is complete, so read.c's
+            // create_particular_creation() and sp_lev.c's fill_empty_maze()
+            // callers share this admission path.
+            && species.pmidx !== PM_MINOTAUR)) {
         throw new UnsupportedMonsterCreationError(
             `makemon() monster ${species?.pmidx ?? 'null'}`,
         );
@@ -1523,14 +1527,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && (!state.in_mklev
                 || (isMainDungeonLevel(state)
                     && !normalized._rndmonMklev))) {
-            assertSupportedSpecies(ptr, {
-                // sp_lev.c:fill_empty_maze() explicitly places a minotaur
-                // while generating a stocked main-dungeon maze. The caller
-                // marker keeps this admission limited to that source branch.
-                allowMinotaur: state.in_mklev
-                    && isMainDungeonLevel(state)
-                    && normalized._fillEmptyMazeMinotaur === true,
-            });
+            assertSupportedSpecies(ptr);
         }
         if (state.mons[ptr.pmidx] !== ptr) {
             throw new UnsupportedMonsterCreationError(
@@ -3816,10 +3813,12 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         monster.msleeping = true;
     }
     if (byHero && !state.in_mklev) {
-        // makemon.c calls set_apparxy() here. At initial startup the hero is
-        // visible and undisplaced, so the source result is exact and drawless.
-        monster.mux = state.u.ux;
-        monster.muy = state.u.uy;
+        // C makemon.c calls newsym() and then set_apparxy() here, using the
+        // original byyou flag even after enexto() moved the monster away from
+        // the hero's square. Preserve both source calls so displaced and
+        // unseen heroes consume the same placement draw as C.
+        redrawSquare(monster.mx, monster.my, normalized);
+        set_apparxy(monster, normalized);
     }
     // C ref: makemon.c:1405-1408.
     if (mndx === PM_LONG_WORM) {

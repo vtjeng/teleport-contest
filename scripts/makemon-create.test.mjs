@@ -4370,7 +4370,6 @@ test('stone giant NO_MINVENT and later giant families stop before inventory RNG'
             PM_FIRE_GIANT,
             PM_FROST_GIANT,
             PM_ETTIN,
-            PM_MINOTAUR,
         ]) {
             const state = initialLevelState();
             const random = recordingRandom();
@@ -4415,7 +4414,6 @@ test('minotaurs use their source inventory arm before generic giant items',
             {
                 state,
                 random: random.random,
-                _fillEmptyMazeMinotaur: true,
             },
         );
         random.assertExhausted();
@@ -4450,7 +4448,6 @@ test('minotaurs receive a wand of digging from either source gate', () => {
                 {
                     state,
                     random: random.random,
-                    _fillEmptyMazeMinotaur: true,
                 },
             );
 
