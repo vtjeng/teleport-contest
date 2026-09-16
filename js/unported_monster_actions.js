@@ -521,7 +521,17 @@ function cloneObjects(state, monsterMap) {
     return objectMap;
 }
 
-function planningState(state) {
+// Copy C's level map-memory cells for a planned turn. display.c's
+// unmap_object() and map_background() update `levl[x][y].glyph` in place, so
+// sharing these cells with the live level would make a dry run forget an
+// invisible-monster marker before the live pass replays the same action.
+function cloneLocationGrid(locations) {
+    return locations?.map(
+        (column) => column.map((cell) => ({ ...cell })),
+    );
+}
+
+export function planningState(state) {
     const monsterMap = new Map();
     for (const head of [state.level?.monlist, state.gm?.migrating_mons]) {
         for (let monster = head; monster && !monsterMap.has(monster);
@@ -574,6 +584,11 @@ function planningState(state) {
             objects: state.level.objects.map(
                 (column) => column.map(clonedObject),
             ),
+            // mon.c mondead() calls display.c unmap_object() before m_detach()
+            // when a remembered invisible marker is on the dead monster's
+            // square. This map-memory grid belongs to the plan from the
+            // outset, rather than waiting for a vision-changing operation.
+            locations: cloneLocationGrid(state.level.locations),
             objlist: clonedObject(state.level.objlist),
             buriedobjlist: clonedObject(state.level.buriedobjlist),
             flags: { ...state.level.flags },
@@ -662,6 +677,11 @@ function planningState(state) {
         ...state,
         ...topLevelObjectPointers,
         context,
+        // isolatePlannedVision() normally takes a lazy copy on the first
+        // transparency rebuild. The map-memory owner above is eager because
+        // mondead() can write it without changing vision; remember that copy
+        // so a later vision rebuild does not clone it a second time.
+        _plannedMapMemory: true,
         // track.c settrack() advances the ring during every planned elapsed
         // turn. The clone must own both counters and coordinates; sharing the
         // ring makes the live pass see the planning footprint a second time.
@@ -855,9 +875,10 @@ function opensClosedDoor(monster, location, doorMask) {
 // so the live game gets back exactly the index it had.
 function isolatePlannedVision(state) {
     if (state._visionBuffers) return;
-    state.level.locations = state.level.locations.map(
-        (column) => column.map((cell) => ({ ...cell })),
-    );
+    if (!state._plannedMapMemory) {
+        state.level.locations = cloneLocationGrid(state.level.locations);
+        state._plannedMapMemory = true;
+    }
     // Only the spare buffer of the pair is written: vision_recalc() fills it,
     // then points state.viz_array at it. Until then the clone keeps reading
     // the live game's current view, which is the value it should see, so this

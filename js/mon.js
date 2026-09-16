@@ -4091,7 +4091,7 @@ export async function anger_quest_guardians(mtmp, state = game, env = {}) {
 // species-gated, the rn2(10) at 3104 to a steam vortex and the rnd(5) at 3149
 // to a Keystone Kop.
 //
-// Six arms stop:
+// Five arms stop:
 //
 //   3096-3097  vamprises(), when a shape-shifted vampire reverts rather than
 //              dying. The guard is is_vampshifter() alone, which is the outer
@@ -4103,8 +4103,10 @@ export async function anger_quest_guardians(mtmp, state = game, env = {}) {
 //   3108-3109  grddead(), which parks a dead vault guard at <0,0>.
 //   3147-3166  the Kop resurrection, whose rnd(5) needs makemon() at a
 //              staircase and again at a random spot.
-//   3170-3171  unmap_object(), for a monster on a remembered invisible glyph;
-//              js/display.js records that function as unported.
+//   3170-3171  unmap_object(), for a monster on a remembered invisible glyph.
+//              The JavaScript planning clone owns its level map-memory cells,
+//              so this source write runs in both planning and live passes;
+//              display.c's engraving refusal remains its own boundary.
 //
 // gd.disintegested and gv.vamp_rise_msg, which xkilled() sets around this
 // call, are read by vamprises() and by the life-saved return at 3558.
@@ -4176,27 +4178,22 @@ export async function mondead(mtmp, state = game, env = {}) {
     if (glyph_is_invisible(
         state.level.at(mtmp.mx, mtmp.my).remembered_glyph?.glyph,
     )) {
-        /* unmap_object() rewrites this square's map memory, and the
-           once-per-turn planning clone shares the live game's cells, so a dry
-           run reaching this line would forget the marker in the running game.
-           killRedraw() above answers the same question by skipping, which
-           works for a repaint because a repaint cannot refuse; this one
-           refuses instead, because unmap_object() refuses an engraved square
-           and skipping would hide that refusal from the pass that exists to
-           find it.
-
-           The plan cannot reach this line for a marker it wrote itself:
-           js/mhitm.js pre_mm_attack() marks through a seam the plan binds to a
-           no-op. What is left is a marker an earlier live turn left behind,
-           which no recorded case produces. */
-        if (env.planning)
-            unsupported('forgetting a remembered invisible monster on a plan');
+        /* The JavaScript dry-run state owns a map-memory copy; C has one
+           `levl` state and performs this write directly. planningState()
+           eagerly clones level.locations because this write does not pass
+           through a vision rebuild, so the source operation is safe during
+           preflight and the live marker remains available for replay. */
         unmap_object(mtmp.mx, mtmp.my, state);
     }
 
     /* "remove 'mtmp' from play; it will stay on the fmon list until end of
-       current move, then dmonsfree() will get rid of it" */
-    await m_detach(mtmp, mptr, true, state, env);
+       current move, then dmonsfree() will get rid of it". relobj() redraws
+       after dropping a carried object; a planning clone must keep that
+       display operation on its own side just as unmap_object() above does. */
+    const detachEnv = env.planning
+        ? { ...env, redraw: () => {} }
+        : env;
+    await m_detach(mtmp, mptr, true, state, detachEnv);
 }
 
 // C ref: mon.c LEVEL_SPECIFIC_NOCORPSE() (44-47), the macro xkilled() tests at
