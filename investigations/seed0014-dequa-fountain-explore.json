@@ -1,65 +1,52 @@
 {
   "session": "seed0014-dequa-fountain-explore",
-  "remainingScreensUpperBound": 59,
+  "remainingScreensUpperBound": 45,
   "status": "complete",
-  "commit": "4339e106073ce57fc149d2fa6a1745c9e5c870bc",
+  "commit": "aface44fb504a9d8296da4400543983d4677d5fd",
   "mismatch": {
     "session": "seed0014-dequa-fountain-explore",
-    "step": 655,
-    "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "step": 669,
+    "kind": "rng",
+    "function": "pri_move",
+    "functionDeclared": true,
+    "sourceFile": "priest.c",
+    "cFile": "priest.c",
     "luaFile": null,
-    "line": null,
-    "message": "simple monster action requires trap activation",
+    "line": 194,
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 714,
-    "remainingScreensUpperBound": 59
+    "remainingScreensUpperBound": 45
   },
-  "summary": "At step 655, published JavaScript still refuses LANDMINE. Worker B has matching fresh hero/monster recordings and has corrected pit gates, worm handling and steedintrap wiring after review. A focused worker replay now passes the landmine and first diverges in RNG at step 667; clone scatter rendering, mounted-dart object hooks and an unported dismount call are being addressed before a corrected delivery and combined validation.",
+  "summary": "The mimic mismatch is resolved. At step 669, a nested temple priest has shrine-room number 2 and no recognized temple membership, so JavaScript skips priest movement. Worker B corrected the conceptual room lookup and shrine-room initialization; an independent recording now matches. Focused checks and combined validation remain pending.",
   "source": {
-    "file": "trap.c",
+    "file": "priest.c",
     "functions": [
-      "trapeffect_landmine",
-      "blow_up_landmine",
-      "trapeffect_pit",
-      "trapeffect_selector",
-      "dotrap",
-      "mintrap",
-      "steedintrap"
+      "priestini",
+      "temple_occupied",
+      "histemple_at",
+      "pri_move"
     ],
-    "branch": "The observed ordinary grounded gnome movement enters an unseen LANDMINE at (45,17) from (45,16), after monmove.c m_move() has selected the destination and monmove.c postmov() has moved the monster. mintrap() passes the no-trap, held-monster, floor-trigger, check_in_air(), and already-seen gates, records trap knowledge, and dispatches the LANDMINE case. The complete trapeffect_landmine() scope must preserve its first rnd(16), iron-shoes reduction, grounded-monster trigger-weight rn2(), in-air branch, visibility/messages, blow_up_landmine(), thitm() damage/death result, recursive FORCETRAP mintrap(), fill_pit(), unconsciousness, and Trap_Killed_Mon/Trap_Caught_Mon return order; its hero arm and all other source branches remain part of the whole function port.",
+    "branch": "C pri_move() returns -1 only when histemple_at() fails, then otherwise consumes two rn1(3,-1) calls to mill around the altar. C priestini() initializes EPRI.shroom from the conceptual flat room array, and histemple_at() compares it with in_rooms(TEMPLE). JavaScript priestini() uses level.rooms.indexOf(sroom), which returns -1 for a nested subroom; rooms.js roomType() and priest.js temple_occupied() also search only the top-level array. These source-inconsistent room values cause ordinary movement to run instead of temple movement.",
     "callers": [
-      "nethack-c/upstream/src/trap.c:2937-2993 trapeffect_selector() dispatches LANDMINE at 2979-2980; mintrap() calls that selector at 3825.",
-      "nethack-c/upstream/src/trap.c:3170-3219 blow_up_landmine() is called by both trapeffect_landmine() arms at 2590 and 2634 and performs scatter, trap conversion/deletion, pit filling, vision/map updates, and drawbridge handling.",
-      "nethack-c/upstream/src/monmove.c:1454-1517 postmov() calls mintrap() after a moved monster reaches its destination, before door and object handling; m_move() returns through postmov() for the ordinary branch at 2073.",
-      "nethack-c/upstream/src/monmove.c:690-911 dochug() reaches m_move() during the normal monster phase; dochugw() at 204-237 wraps that action and the occupation interruption check.",
-      "js/allmain.js:1121-1137 planElapsedTurn() enters preflightSimpleMonsterActions(); js/unported_monster_actions.js:1842-1966 clones the monster scan and reaches planSimpleMonsterScan() -> movemon_singlemon() -> dochugw().",
-      "js/unported_monster_actions.js:1529-1545 runSimpleMonsterAction() supplies the dochugw action; js/monmove.js:3067-3152 postmov() calls mintrap() after movement, and js/monmove.js:3412-3460 m_move() owns the corresponding held-monster entry.",
-      "js/trap_effects.js:2556-2700 mintrap() reaches js/trap_effects.js:2372-2407 trapeffect_selector(); LANDMINE remains in UNPORTED_TRAP_EFFECTS at 2349-2356 and raises trap activation at 2406 before the effect body.",
-      "js/monmove.js:3141-3152 is the current production trap call site; the saved focused replay reaches it in planning mode, so the refusal is atomic and occurs before live state or RNG changes."
+      "nethack-c/upstream/src/priest.c:142-157 defines temple_occupied()/histemple_at(); pri_move() at 176-225 tests the priest room before its first two rn1(3,-1) calls at 194-195.",
+      "nethack-c/upstream/src/priest.c:priestini(), around 247, sets shroom to (sroom - svr.rooms) + ROOMOFFSET. JS priestini() initializes the persistent mextra.epri record when special-level temple generation creates its priest.",
+      "js/monmove.js:m_move() calls js/priest.js:pri_move() for priest movement and falls back to ordinary movement when it returns -1. The later peaceful movement gate consumes rn2(10).",
+      "js/priest.js:histemple_at() calls js/rooms.js:in_rooms(); its roomType() helper must resolve conceptual indices for both top-level rooms and subrooms."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/explode.c:721-947 scatter() is called by blow_up_landmine() with blastforce 4 and MAY_DESTROY|MAY_HIT|MAY_FRACTURE|VIS_EFFECTS. Published main now provides js/explode.js:scatter(); the landmine caller must use that implementation and preserve its source order and object/monster effects. The older investigation statement that scatter had no owner is superseded.",
-      "nethack-c/upstream/src/trap.c:6709-6773 thitm() is already implemented as js/trap_effects.js:537-620 and supplies the landmine's monster damage result; preserve the caller's precomputed rnd(16) evaluation order.",
-      "trap.c fill_pit(), deltrap(), seetrap(), and map/vision updates have existing JavaScript owners in js/trap.js and js/trap_effects.js, but blow_up_landmine() must preserve their C ordering and its water/air-level and drawbridge branches.",
-      "The current selector's refusal is also reachable from js/muse.js:613, js/muse.js:852, and js/dokick.js:316 through mintrap(); those production callers must retain their existing FORCETRAP/NO_TRAP_FLAGS semantics when the landmine dispatch is widened.",
-      "trap.c trapeffect_landmine() calls dotrap(PIT, RECURSIVETRAP) for a surviving hero trap and mintrap(FORCETRAP) for a surviving monster. Complete trapeffect_pit() at trap.c:1824-2010 remains a required dependency: RECURSIVETRAP does not bypass C checks for levitation, flying, clinging, conjoined/adjacent pits, deliberate entry, quest/form messages, steed handling, or damage and self-touch order. A mine-only unconditional fall/rnd(6) substitute is insufficient.",
-      "Worker B owns B-20260916-1 in the shared runtime ledger. Initial immutable delivery 05b9ec75ae311db84fdfb2aac88b8ff9c8d88ab1 has matching independent hero and monster recordings, but source review requires corrections before combined validation and acceptance."
+      "Reuse js/dungeon.js:mapseen_room(), now available from the accepted mimic fix, for type lookup through the persisted parent/subroom graph. Do not add a second room-index representation.",
+      "Use sroom.roomnoidx for the priest shrine-room number when available, retaining the ordinary room-array index for top-level rooms. Cover temple_occupied() and in_rooms() pure return values with source-pinned tests.",
+      "Preserve the existing pri_move() random-call order. Its unrelated hostile/Conflict branches remain outside this initialization and membership divergence fix. Worker B owns B-20260916-3 and the shared conceptual-room membership contract."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "Published-main provenance: ac921109 resolves to ac921109cc816bd0d5889c28e826f1e30c501559. The requested current queue entry is seed0014-dequa-fountain-explore at step 655 with 59 remaining screens and message simple monster action requires trap activation; the saved session contains 714 recorded steps.",
-    "sessions/seed0014-dequa-fountain-explore.session.json segments[0].steps[655] has cursor [42,15,1] and 722 recorded RNG calls; the immediately preceding saved movement sequence is ._._._.llllu. The recording supplies the fixed input and C trace without adding any seed-specific condition.",
-    "Bounded focused diagnostic run-hebyQG, logged at /tmp/teleport-validation-1000/run-hebyQG/stdout.log, replayed only this saved session against the current worker source and stopped at the requested boundary. Its input-boundary snapshot 654 records gnome m_id 381, PM_GNOME (pmidx 165), at (45,16), while the level trap list records an unseen LANDMINE (ttyp 6) at (45,17); the final state is not used as boundary evidence because the refusal occurs in the planning clone.",
-    "nethack-c/upstream/src/monmove.c:1455-1517 establishes that postmov() invokes mintrap() immediately after movement and before the remaining destination effects. nethack-c/upstream/src/trap.c:3733-3840 establishes mintrap()'s gate, trap-learning writes, selector dispatch, and result return; nethack-c/upstream/src/trap.c:2528-2658 is the complete trapeffect_landmine() body and nethack-c/upstream/src/trap.c:3170-3219 is the complete blow_up_landmine() helper.",
-    "js/trap_effects.js:2340-2407 shows LANDMINE in the blanket UNPORTED_TRAP_EFFECTS set and the generic refusal; js/trap_effects.js:2553-2718 shows the already-wired mintrap() gates and selector call. js/monmove.js:3141-3158 confirms postmov() calls this mintrap() after movement, while js/unported_monster_actions.js:1842-1966 confirms the planning clone is the boundary-producing production path.",
-    "2026-09-16 source recheck at published main 4339e106073ce57fc149d2fa6a1745c9e5c870bc: js/explode.js exports scatter(), while js/trap_effects.js still refuses LANDMINE in its selector and ordinary hero PIT in preflight_dotrap()/trapeffect_pit(). Read complete C trapeffect_landmine(), blow_up_landmine(), and trapeffect_pit(); recursive pit calls require the complete existing source branch conditions. This updates dependency and ownership information without changing the saved first mismatch or claiming implementation completion.",
-    "2026-09-16 integration review of B delivery 05b9ec75: fresh hero and monster recipes match C (9 screens/3427 RNG and 22 screens/3690 RNG respectively). C trapeffect_pit() joins count_wsegs()>5 with the airborne avoidance/drag branch; the delivery retained an obsolete refusal there. Its newly reachable recursive pit also needs complete dotrap() Sokoban, conjoined/adjacent-pit and clinger escape gates, and the new steedintrap() helper must replace old caller placeholders. Worker B is correcting these source gaps and stale refusal tests before a new immutable submission.",
-    "Further source/caller review found scatter() reads env.newsym while trap planning supplies env.redraw, so the landmine caller must map that callback to avoid drawing global state during planning. The new mounted dart call must carry its objectEnv into steedintrap()/thitm(). dismount_steed(DISMOUNT_POLY) is still unported; its discarded return permits an explicit source gap until that branch is implemented. Worker B is correcting these before resubmission.",
-    "Worker-only focused run-gEI2gh replays seed0014 after the initial source corrections: the landmine boundary is gone, the earliest RNG mismatch is step 667 in the mimic path, the first screen mismatch is 670, and a later potion_dip stop leaves 703/714 emitted screens. These diagnostics are attached to unaccepted worker work and do not change the main mismatch count or score."
+    "Checkpoint aface44fb504a9d8296da4400543983d4677d5fd, run-Bexd1h, passed: 30/44 sessions, 10101/11405 screens, 745424/792838 RNG and 10134/11405 cursors. All 260 recordings match; the newly matching Minetown case contributes 7 screens and 4524 RNG values. Screen totals are unchanged from the landmine baseline, with 5 additional matching RNG values.",
+    "Fresh fixed-workload queue run-vKtWha identifies step 669, kind rng, function pri_move, with 45 remaining screens as an upper bound. This supersedes the mimic investigation at step 667/count 47; every other investigation count remains current.",
+    "Focused worker replay reports C rn2(3)=0 at pri_move(priest.c:194) while JS consumes rn2(10)=2 before priest movement. Read-only helper and coordinator source checks identify the nested temple initialization and membership defects. Worker B is collecting the exact runtime state and independent fresh evidence before submission.",
+    "The preceding accepted mimic fix resolves conceptual roomno 55/index 52 to shop rtype 19 and removes the C rn2(10) versus JS rn2(17) branch mismatch. Its independent recipe uses seed 8124 and a different clock and character; no session value is special-cased.",
+    "Worker B captured the pre-fix priest id 456 at (36,6), epri.shroom=2 and in_rooms(TEMPLE)=[], which makes pri_move return -1 before its two source rn1 calls. In the fixed full replay, the priest has shroom 48, shrine (37,7), level (dnum 2,dlevel 3), map roomno 48/index 45, in_rooms(TEMPLE)=[48], and resolved rtype TEMPLE (10). The source roomnoidx is 45.",
+    "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main."
   ]
 }
