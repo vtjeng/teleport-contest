@@ -1,52 +1,54 @@
 {
   "session": "seed0360-wizard-world-tour",
-  "remainingScreensUpperBound": 49,
+  "remainingScreensUpperBound": 46,
   "status": "complete",
-  "commit": "f2e58817f5a5ff0ae91b282766c7df149c204d05",
+  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
   "mismatch": {
     "session": "seed0360-wizard-world-tour",
-    "remainingScreensUpperBound": 49,
-    "step": 784,
+    "step": 787,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
-    "sourceFile": "Wiz-fila.lua",
+    "sourceFile": null,
     "cFile": null,
-    "luaFile": "Wiz-fila.lua",
+    "luaFile": null,
     "line": null,
-    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Wiz-fila\"",
+    "message": "unsupported special room: do_mkroom(8)",
     "unlocatedKinds": [],
-    "recordedSteps": 833
+    "recordedSteps": 833,
+    "remainingScreensUpperBound": 46
   },
-  "summary": "At recorded step 784, key Enter completes the Wizard level-teleport selection for Home 2, whose prototype is Wiz-fila. The preceding Wiz-loca loader now matches; mklev.c makelevel() dispatches this special level through makemaz() and sp_lev.c load_special(), which evaluates the whole Wiz-fila.lua chunk. The JavaScript path reaches the same dispatcher but, at the pinned queue commit, has no Wiz-fila registry entry and stops before the filler map's terrain, rooms, stairs, objects, traps, and monsters are applied. The source owner is the complete Wiz-fila.lua program and its existing special-level descriptor API.",
+  "summary": "The assigned replay reaches Quest Home 4 at recorded step 787 after the already implemented Wiz-fila level at step 784. The C level generator is at absolute depth 18 and its mklev.c depth-gated ordinary-level branch selects ZOO=8, so mkroom.c do_mkroom() dispatches to mkzoo(ZOO) and later fill_special_room() stocks it. JavaScript makelevel() reaches the same branch, but js/mkroom.js do_mkroom() omits ZOO and throws before the existing mkzoo/fill_zoo path can run. The owner is the C mkroom.c dispatcher and its whole function scope; this is not a Lua-level loader mismatch. Completing the whole function also requires the remaining C dispatch cases and their source-backed fillers: mkswamp() has no JavaScript owner, and ANTHOLE, COCKNEST, and LEPREHALL still stop in fill_special_room().",
   "source": {
-    "file": "Wiz-fila.lua",
+    "file": "mkroom.c",
     "functions": [
-      "Wiz-fila.lua top-level program"
+      "do_mkroom"
     ],
-    "branch": "Whole top-level chunk: six ordinary rooms; an up stair in the first room; a down stair in the fourth; eight random objects; four random traps; hostile imps and named vampire bats; and random corridors. The loader must preserve descriptor callback order, active-room coordinates, Lua math.random() one-based draws, and special-level post-processing.",
+    "branch": "Whole C mkroom.c do_mkroom() dispatcher (lines 50-92): roomtype >= SHOPBASE calls mkshop(); COURT, ZOO, BEEHIVE, MORGUE, and BARRACKS call mkzoo(); SWAMP calls mkswamp(); TEMPLE calls mktemple(); and LEPREHALL, COCKNEST, and ANTHOLE call mkzoo() with their type. The observed stop is the ZOO case at mkroom.c:61-63, selected by mklev.c makelevel() at lines 1357-1358 on Quest Home 4. The current JS dispatcher handles shops, TEMPLE, COURT, BEEHIVE, MORGUE, and BARRACKS but throws for ZOO and the other omitted cases.",
     "callers": [
-      "js/dungeon.js fixup_level_locations() resolves the Wizard role's x-fila record to the Wiz-fila prototype",
-      "js/mklev.js makelevel() detects the special level and dispatches to makemaz()",
-      "js/mklev.js makemaz() resolves the prototype and calls load_special()",
-      "js/mklev.js ensureSpecialLevelLoaders() merges quest-level loaders into the registry",
-      "js/mklev.js load_special() looks up and runs the registered level loader"
+      "nethack-c/upstream/src/mklev.c:1344-1375 makelevel() selects at most one depth-gated special room and calls do_mkroom(); the ZOO branch is lines 1357-1358, and special rooms are filled afterward by fill_special_room() at lines 1414-1418.",
+      "js/mklev.js:772-819 makelevel() mirrors the depth-gated selection and calls do_mkroom(ZOO) at lines 798-799; it then iterates rooms through fill_special_room() at lines 850-852.",
+      "js/mkroom.js:801-817 is the production do_mkroom() implementation; its current dispatch stops at an UnsupportedSpecialRoomError for omitted room types.",
+      "js/mklev.js:542-605 fill_special_room() routes ZOO to fill_zoo() and still throws for ANTHOLE, COCKNEST, and LEPREHALL after dispatch is widened."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/mklev.c makelevel() and mkmaze.c makemaz()",
-      "nethack-c/upstream/src/sp_lev.c load_special() and lspo_* handlers",
-      "js/mklev.js createSpecialLevelApi() descriptor adapters",
-      "js/quest_levels.js existing quest-level loader conventions and QUEST_LEVEL_LOADERS registry",
-      "nethack-c/upstream/dat/nhlib.lua math.random() facade"
+      "nethack-c/upstream/include/mkroom.h:50-66 defines ZOO=8, SWAMP=9, TEMPLE=10, LEPREHALL=11, COCKNEST=12, ANTHOLE=13, and SHOPBASE=14; this maps the observed do_mkroom(8) message to ZOO.",
+      "nethack-c/upstream/src/mkroom.c:243-254 mkzoo() picks a room and sets rtype and needfill; js/mkroom.js:488-495 already implements this dependency.",
+      "nethack-c/upstream/src/mkroom.c:275-452 fill_zoo() stocks ZOO rooms and sets has_zoo; js/mkroom.js:624-765 already contains the ZOO fill arm, so the current stop is before this code.",
+      "nethack-c/upstream/src/mkroom.c:529-574 mkswamp() is required by the whole dispatcher but has no JavaScript owner; js/mkroom.js:388-393 only records note_unported() for the SHOPTYPE swamp path.",
+      "nethack-c/upstream/src/mkroom.c:501-527 antholemon() supplies C's ANTHOLE selection guard at mklev.c:1366-1367; js/mklev.js:807-810 omits that guard, and js/mklev.js:567-572 still refuses the ANTHOLE, COCKNEST, and LEPREHALL fill families.",
+      ".cache/seed0360-investigation-18a56313/inspect-boundary.json records the replay state at the stop: dnum 3, dlevel 4, absolute depth 18, eight rooms with a vault and no selected special room yet, proving the failure occurs during ordinary-level room selection before ZOO filling.",
+      "js/quest_levels.js:1788-1852 registers Wiz-fila and the assigned replay's step 784 now passes that loader; the step-787 boundary is therefore owned by mkroom.c rather than Wiz-fila.lua."
     ]
   },
-  "goalKind": "lua-port",
+  "goalKind": "file-port",
   "evidence": [
-    "Pinned queue refresh f2e58817 reports seed0360-wizard-world-tour at remainingScreensUpperBound 49 and step 784; the prior count-53 Wiz-loca investigation is stale.",
-    ".cache/B2-seed0360-replay.json records the post-Wiz-loca step-784 mismatch: C has 833 screens and JavaScript has 803, with the first RNG divergence inside special-level generation at the same boundary.",
-    "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[784] records key Enter, the C arrival screen, and the first Wiz-fila generation RNG calls beginning with getbones(), nhlib shuffle, and splev_initlev().",
-    "nethack-c/upstream/dat/Wiz-fila.lua lines 1-59 is the complete filler program; its top-level room, object, trap, monster, stair, and random-corridor calls define the implementation scope.",
-    "nethack-c/upstream/src/mklev.c makelevel() and nethack-c/upstream/src/sp_lev.c load_special() provide the source dispatcher and descriptor execution path.",
-    "js/mklev.js ensureSpecialLevelLoaders(), makemaz(), load_special(), and js/quest_levels.js QUEST_LEVEL_LOADERS are the production registry and caller path."
+    "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
+    "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
+    "Bounded boundary inspection run-ml4SbS and .cache/seed0360-investigation-18a56313/inspect-boundary.json captured the production state at the stop as Quest dnum 3, dlevel 4, absolute depth 18, with seven ordinary rooms and one vault room. The existing Wiz-fila level at the preceding Home 2 selection is reached before this boundary.",
+    "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
+    "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
+    "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
+    "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written."
   ]
 }

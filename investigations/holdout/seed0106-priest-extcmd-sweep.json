@@ -1,50 +1,47 @@
 {
   "session": "holdout/seed0106-priest-extcmd-sweep",
-  "remainingScreensUpperBound": 227,
+  "remainingScreensUpperBound": 143,
   "status": "complete",
-  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
+  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
   "mismatch": {
     "session": "holdout/seed0106-priest-extcmd-sweep",
-    "step": 40,
-    "kind": "rng",
-    "function": "monmulti",
-    "functionDeclared": true,
-    "sourceFile": "mthrowu.c",
-    "cFile": "mthrowu.c",
+    "step": 124,
+    "kind": "stop",
+    "function": "dosacrifice",
+    "functionDeclared": false,
+    "sourceFile": "pray.c",
+    "cFile": "pray.c",
     "luaFile": null,
-    "line": 238,
-    "message": null,
+    "line": null,
+    "message": "unsupported hero command: dosacrifice() for the extended command 'offer' is not ported",
     "unlocatedKinds": [],
     "recordedSteps": 267,
-    "remainingScreensUpperBound": 227
+    "remainingScreensUpperBound": 143
   },
-  "summary": "The first divergence is a missed kobold dart attack. In weapon.c select_rwep(), negative weapon skills outside bow, sling and crossbow retain hands_obj as their propellor, so darts and shuriken need no launcher. JavaScript launcherFor() returns null for those skills and select_rwep() skips the weapon; repair that branch of the complete selection function and preserve its caller contracts.",
+  "summary": "The step-124 #offer prompt resolves to cmd.c's dosacrifice() entry. C pray.c:1854-1867 checks the altar, swallowed, Confusion, and Stunned guards before floorfood(); this Priest is standing on an ordinary room tile at (45,17), so C emits 'You are not on an altar.' and returns ECMD_OK without RNG. Current JavaScript has no dosacrifice import or doextcmd() case, so js/cmd.js:5164 raises its generic unsupported-command boundary. The actionable whole-source scope is a file-port of pray.c dosacrifice(), with its cmd.c dispatch wiring; the on-altar path depends on eat.c floorfood('sacrifice', 1), which is currently an eat-only partial implementation.",
   "source": {
-    "file": "weapon.c",
+    "file": "pray.c",
+    "branch": "The recorded extended command is the offer row with a normal command boundary. At pray.c:1860-1867, !on_altar() or u.uswallow takes the first refusal and Confusion or Stunned takes the second; this replay reaches the first arm with the hero at (45,17), tile typ 28 (ROOM), altarmask zero, swallowed false, and both status properties clear. The complete dosacrifice() scope then computes highaltar, calls floorfood('sacrifice', 1), returns ECMD_OK for no selected object, dispatches real and fake amulets and corpses, and emits nothing_happens for any other selected object.",
     "functions": [
-      "select_rwep"
+      "dosacrifice"
     ],
-    "branch": "The ranged-weapon preference loop reaches a dart or shuriken with negative oc_skill, an eligible inventory object, and no welded weapon prohibiting the throw. C weapon.c:627-650 initializes gp.propellor to &hands_obj, then replaces it only for P_BOW, P_SLING or P_CROSSBOW; the unmatched negative skill retains the sentinel. At the examined first divergence, an unconfused hostile kobold carries nine darts, has no wielded weapon, and is aligned with the approaching hero. JavaScript launcherFor() defaults to null, and select_rwep() continues before selecting the dart.",
     "callers": [
-      "C mthrowu.c thrwmu():1184-1194 invokes mon_wield_item() and select_rwep(); its selected missile reaches monshoot():1259 and monmulti(). JavaScript js/unported_monster_actions.js throwRangedWeapon():1394-1428 dispatches to js/mthrowu.js thrwmu():1531-1600, which uses select_rwep for both its launcher side result and its missile result.",
-      "Production attack path: monmove.c dochug() permits a non-nearby AT_WEAP monster to shoot after moving, then mhitu.c mattacku() dispatches its range2 AT_WEAP arm to thrwmu(). Corresponding JavaScript gates are js/monmove.js:2579-2620 and js/mhitu.js:945-952, through attackHeroWithMattacku().",
-      "Other consumed selection callers are C mthrowu.c thrwmm():984, weapon.c mon_wield_item():814 and monmove.c dochug():855; JavaScript js/mthrowu.js:1255-1266 and js/monmove.js wield_pre_move_weapon() use the same selection and propellor contract. Preserve them while repairing the shared function."
+      "nethack-c/upstream/src/cmd.c:1775-1776 extcmdlist[] binds M('o') and the offer name to dosacrifice().",
+      "js/extcmdlist_data.js:89 reproduces the offer row; js/cmd.js:4887-5168 resolves and dispatches extended commands, but its default at 5164-5167 currently refuses dosacrifice().",
+      "nethack-c/upstream/src/iactions.c:472-482 queues dosacrifice() for the item-action sacrifice choice; js/iactions.js:568-578 queues the same handler, so the implementation must serve both the typed #offer route and item-action route."
     ],
     "dependencies": [
-      "include/objects.h:160-165 defines DART with -P_DART and SHURIKEN with -P_SHURIKEN. js/weapon.js RANGED_WEAPONS includes both; no species or session exception is needed.",
-      "js/weapon.js launcherFor():615-629 is an extracted part of C select_rwep(), not a separate source unit. Its default result must preserve the C hands_obj choice while missing bow, sling and crossbow launchers still yield null.",
-      "C oselect(), can_touch_safely(), mwelded(), m_carrying(), object skill data and the ranged preference order govern which candidate is returned. Verify the entire select_rwep() function at weapon.c:533-676 and its consumed return values; preserve artifact, welded, loadstone, gem, polearm and return-weapon branches.",
-      "hands_obj flows through propellorResult to mon_wield_item(), whose no-launcher-needed path consumes no wield turn. thrwmu() then selects the missile again, checks lined_up() and retreat conditions, and enters existing monshoot()/monmulti()/m_throw() behavior. The observed annotation names the first missing RNG call rather than the defective owner."
+      "nethack-c/upstream/src/eat.c:3579-3730 floorfood() supplies dosacrifice()'s used return value. js/eat.js:2371-2446 implements only verb='eat', and explicitly raises UnsupportedEatError for corpsecheck/sacrifice, so the on-altar offering path remains blocked until the sacrifice selector is ported or handed off as a dependency.",
+      "nethack-c/upstream/src/pray.c:1446-1728 contains consume_offering(), offer_too_soon(), offer_real_amulet(), offer_negative_valued(), offer_fake_amulet(), offer_different_alignment_altar(), sacrifice_your_race(), and bestow_artifact(); pray.c:1959-2098 contains offer_corpse(). dosacrifice() uses the amulet and corpse helpers, whose JavaScript owners are not present as a complete offering path.",
+      "The guard arm uses existing source-shaped helpers: pray.c:105 on_altar() and :107 a_align(), plus youprop.h Levitation/Flying/Confusion/Stunned macros. js/pray.js already has on_altar()/a_align(), and js/trap.js:811-822 has Levitation()/Flying(); these are sufficient for the observed non-altar branch and do not consume RNG."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "All game source reads and the diagnostic replay use a0986b8404a83d232bee4bd2b5a9433337cf2739. Its nethack-c/upstream gitlink is 16ff59115315917b93185d026aeefea06db9b0f4; C reads use that submodule revision. The previous chat investigation at count 238 is obsolete because the queue count is now 227.",
-    ".cache/scan-cache.json at the examined commit records first RNG mismatch index 2912, step 40/key h: C rnd(1)=1 from monmulti(mthrowu.c:238), JavaScript rn2(12)=8. The same screen first differs on the top line: C begins You are hit by a dart.; JavaScript is blank. Matching calls immediately before the divergence include dog_move, m_move and distfleeck.",
-    "Assigned-session-only replay in .cache/investigate0106-a0986b uses an immutable git archive with frozen isaac64.js, terminal.js and storage.js overlaid exactly as the scoring workspace does. replay.json reproduces 109 emitted screens and the missing attack draws. states.json records the step-40 kobold at JavaScript map (58,6), remembered hero (62,6), quantity 9 of DART (otyp 24), no wielded weapon, mconf false, mpeaceful false, couldsee true and cansee false. Its darts remain unspent at the next boundary.",
-    "The source trace is weapon.c:627-656: initialize gp.propellor to &hands_obj for each rwep candidate, switch only the three launcher skills, apply the welded-current-weapon exclusion, then select the missile whenever gp.propellor is non-null. JavaScript js/weapon.js:615-629 returns null in launcherFor default; :730-741 assigns that null for every negative unrecognized skill and skips the candidate. C therefore attempts the dart throw while JavaScript returns no missile.",
-    ".cache/investigate0106-a0986b/selection-probe.json exercises the unmodified examined select_rwep() using the captured kobold coordinates and inventory shape: DART skill -23 and SHURIKEN skill -24 both return null; a positive-skill DAGGER is selected, and an ARROW without a launcher is rejected. This isolates the selection error without modifying game behavior or running a fresh C recording.",
-    "The actionable whole-unit scope is a divergence fix in weapon.c select_rwep() and its JavaScript launcherFor extraction, with existing caller wiring retained and verified. Extend the existing source-pinned selection tests in scripts/weapon.test.mjs:290-370 to cover launcher-free negative skills, their preference order, and the welded exclusion; existing dagger and arrow fixtures do not cover that switch default. Independent recorded play must reach actual dart and shuriken throwing before implementation is considered validated.",
-    "The 227-screen upper bound is scheduling provenance, not a predicted gain. This investigation establishes the first missing attack; later potion_dip and extended-command stops remain outside this scope, and no post-fix parity or aggregate score is claimed."
+    "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
+    "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
+    "nethack-c/upstream/src/pray.c:1852-1896 is the complete dosacrifice() body. Its first guard is source-deterministic: altar/swallow status selects the message, then Confusion/Stunned is checked, and only the later floorfood() call can ask for input or reach offering behavior.",
+    "Current JavaScript source confirms js/cmd.js:289 imports only dopray/doturn from pray.js and js/cmd.js:5162-5167 sends the offer row to the generic unsupported-command boundary. js/pray.js has no dosacrifice export. js/eat.js:2363-2370 documents that #offer/#tin are unported and js/eat.js:2376-2377 throws for the sacrifice call.",
+    "Parked prior delivery 124d7ddb (not an ancestor of current main) added the source-shaped dosacrifice() guard implementation and doextcmd() case, plus scripts/pray.test.mjs and an independent recipes/pray.c/dosacrifice-fresh-ember.session.json with recordings/pray.c/dosacrifice-fresh-ember.session.json. That delivery confirms the guard-only witness but explicitly left floorfood('sacrifice', 1) and altar offering helpers as source gaps; it is useful prior work, not current parity evidence."
   ]
 }

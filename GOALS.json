@@ -50710,20 +50710,235 @@
     {
       "id": "div-steal-urgent-pline-seed4500-20260915-r2",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "parked",
       "summary": "Preserve C steal.c steal() urgent_pline sequencing for monster theft and wire the planning-safe caller callback so the theft page matches the source-defined message boundary.",
       "cFile": "steal.c",
       "sessions": [],
-      "selectionReason": "Selected holdout/seed4500-knight-coverage under the current saved fixed-workload queue run-GP6UMD: remainingScreensUpperBound 827 is the highest currently investigated eligible session; its refreshed complete investigation identifies steal.c:steal() at screen step 987. The queued trap landmine work owns trap.c only, and parked B18/B19 reservations are released, so steal.c:steal is independent. The investigation is tied to published execution commit f38c5066, whose execution tree is unchanged by the current root bookkeeping commit.",
+      "selectionReason": "holdout/seed4500-knight-coverage remains first in per-session order: 827 remaining screens, complete investigations/holdout/seed4500-knight-coverage.json traces steal.c steal urgent message and the mhitu adapter; independent trap.c work is owned by worker B.",
       "detail": "Current C/JS trace: nethack-c/upstream/src/steal.c:steal() calls worn_item_removal() through ordinary pline(), then urgent_pline() for the final theft line before mpickobj(); js/steal.js currently routes both through env.message. The production path is mhitu.c:mattacku() -> hitmu() -> uhitm.c:mhitm_adtyping()/mhitm_ad_sedu() -> steal(). Add only the source-backed urgent-message distinction and caller wiring, preserving no-RNG order, planning silence, weapon-slot side effects, and existing theft branches. Independent evidence must cover the complete divergence path; do not special-case seed4500.",
-      "spans": [],
-      "openedAt": null,
-      "openStanding": null,
+      "spans": [
+        {
+          "name": "steal-urgent-message",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "steal"
+          ]
+        }
+      ],
+      "openedAt": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+      "openStanding": {
+        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
+        "screens": 10084,
+        "rng": 741703
+      },
       "closedAt": null,
       "delivered": null,
       "function": "steal",
       "session": "holdout/seed4500-knight-coverage",
-      "step": 987
+      "step": 987,
+      "activeStanding": {
+        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
+        "screens": 10084,
+        "rng": 741703
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 987,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 827,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 827,
+              "status": "complete",
+              "commit": "f38c5066f33188e9bab910ccebef245441ae870e",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 987,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 827
+              },
+              "summary": "At current step 987, the Knight's wood-nymph theft reaches an already-implemented JS steal path but the screen diverges at the pending theft page. C's steal.c:steal() calls worn_item_removal() with ordinary pline() for `The wood nymph disarms your +1 lance.`, then calls urgent_pline() for `She stole a +1 lance.`. JavaScript js/steal.js passes one ordinary env.message callback to both calls, so the second message does not preserve C's urgent-message display boundary. The smallest source-owned correction is steal.c:steal()'s urgent-message path, with mhitu.c:mattacku() providing a planning-safe urgent-message callback to its existing uhitm.c:mhitm_ad_sedu() -> steal() chain.",
+              "source": {
+                "file": "steal.c",
+                "functions": [
+                  "steal"
+                ],
+                "branch": "During the current adjacent wood-nymph attack, mhitu.c:hitmu() computes the zero base damage before uhitm.c:mhitm_adtyping() dispatches AD_SITM to mhitm_ad_sedu(), whose mhitu arm calls steal(). The theft selector consumes the recorded rn2(23)=0, chooses the wielded +1 lance, and enters the W_WEAPONS branch. C emits the worn-item preface through worn_item_removal()'s ordinary pline(), removes the weapon, then emits the final theft line through urgent_pline() before mpickobj(). The JS production path currently supplies only the ordinary turn message callback to both operations; the correction must preserve planning silence and use a separate urgent callback for the final line.",
+                "callers": [
+                  "nethack-c/upstream/src/uhitm.c:mhitm_ad_sedu():4623-4748 calls steal(magr, buf) in the mhitu arm after animal, seductive-hero, and canceled-attacker gates; js/uhitm.js:mhitm_ad_sedu():1789-1900 calls js/steal.js:steal() with the attack environment.",
+                  "nethack-c/upstream/src/uhitm.c:mhitm_adtyping():4782-4799 dispatches AD_SITM and AD_SEDU to mhitm_ad_sedu(); js/uhitm.js:mhitm_adtyping():2354-2385 has the corresponding dispatch.",
+                  "nethack-c/upstream/src/mhitu.c:mattacku():491-951 reaches hitmu() for a landed melee attack, and hitmu():1143-1267 calls mhitm_adtyping(); js/mhitu.js:mattacku():679-1030 reaches hitmu():1360-1448 through the same production monster-action adapter."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/steal.c:worn_item_removal():292-334 uses ordinary pline() for the disarm preface; js/steal.js:worn_item_removal():297-323 already has the correct ordinary message and W_WEAPONS removal order.",
+                  "nethack-c/upstream/src/pline.c:313-323 defines urgent_pline() as URGENT_MESSAGE; js/tty_message.js:569-620 implements ttyUrgentPline(), while js/steal.js:339-547 currently routes the final theft message through env.message instead.",
+                  "nethack-c/upstream/src/steal.c:213-290 remove_worn_item() and weapon.c:873-894 uwepgone()/uswapwepgone() establish the weapon-slot side effects already wired by js/steal.js and js/wield.js; no new RNG or state owner is needed.",
+                  "Planning uses mhitu.c's silent message path; js/mhitu.js:mattacku():695-710 currently constructs env.message but no urgent-message sibling. The minimal production wiring is confined to that existing adapter plus js/steal.js, without changing B-owned uhitm.c:mhitm_ad_blnd or parked work."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved bounded queue run-GP6UMD (receipt /tmp/teleport-validation-1000/run-GP6UMD/receipt.json) against published main f38c5066f33188e9bab910ccebef245441ae870e reports holdout/seed4500-knight-coverage at screen step 987, recordedSteps 1814, and remainingScreensUpperBound 827; its investigation status is stale because the prior cache count was 905.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 985-988 records the source boundary: step 985 is the Knight's `You caitiff!` hit, step 986 consumes rn2(23)=0 at steal.c:421 while the visible page is `The wood nymph screams!  The water nymph wakes up.--More--`, step 987 consumes no RNG and records `The wood nymph disarms your +1 lance.  She stole a +1 lance.--More--`, and step 988 begins the next monster action. The no-RNG step confirms the stale queue's screen mismatch is message/display state, not a missing draw.",
+                "Read nethack-c/upstream/src/steal.c:292-334 and 343-614 completely. worn_item_removal() calls pline() before remove_worn_item(); after freeinv(), steal() calls urgent_pline() for the final `stole` line. The W_WEAPONS branch reaches uwepgone()/uswapwepgone(), then mpickobj(), with no additional draw between the two message operations.",
+                "Read nethack-c/upstream/src/uhitm.c:4623-4748 and 4782-4799, plus mhitu.c:mattacku():491-951 and hitmu():1143-1267 completely. The production call chain is mattacku -> hitmu -> mhitm_adtyping -> mhitm_ad_sedu -> steal; the current JS declarations are present, so the smallest missing behavior is the urgent-message distinction in the existing steal path rather than a new combat function.",
+                "Current published JS source reads show js/steal.js:worn_item_removal():297-323 receives env.message for its ordinary preface and js/steal.js:339-547 sends the final theft line through the same callback. js/mhitu.js:mattacku():695-710 creates a planning-safe ordinary message callback but no urgent sibling, while js/tty_message.js:569-620 already provides ttyUrgentPline(). This isolates the proposed correction to steal.c:steal() and its mhitu.c caller adapter; it does not overlap B's uhitm.c:mhitm_ad_blnd reservation.",
+                "No game-code, root bookkeeping, central evidence, checkpoint, aggregate scan, or recorder inputs were changed. The canonical investigation cache is updated only for this session/count; the pre-existing seed0014 investigation WIP and A13/A14 immutable history remain untouched."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
+        "screens": 10084,
+        "rng": 741703
+      },
+      "parkedReason": "Urgent-only correction did not move step987 in focused run-jcX2Qy. Preserve that WIP; corrected source root cause is the omitted tele_restrict message in uhitm.c mhitm_ad_sedu, covered by div-uhitm-theft-tele-restrict-seed4500-20260916."
+    },
+    {
+      "id": "div-uhitm-theft-tele-restrict-seed4500-20260916",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore source-ordered teleport restriction messages after theft and preserve planning silence.",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "Highest-priority eligible session holdout/seed4500-knight-coverage, remainingScreensUpperBound827, investigations/holdout/seed4500-knight-coverage.json. Urgent-only worker replay retains step987; source tracing identifies mhitm_ad_sedu replacing the output-bearing tele_restrict call with silent noteleport_level. Worker A continues this same seed; worker B owns independent trap functions.",
+      "detail": "C mhitm_ad_sedu calls teleport.c tele_restrict at each hero and monster teleport attempt. The successful nymph theft at segment0 step987 relies on the subsequent blocked-teleport message to display the theft More boundary; JS uses noteleport_level and omits that output. Restore the complete source-call family, provide a planning-safe tele_restrict message callback, and retain the source-correct ordinary/urgent steal message distinction as supporting work. Worker run-jcX2Qy proves urgency alone leaves screen/cursor987 unchanged with no RNG divergence.",
+      "spans": [
+        {
+          "name": "theft-teleport-message",
+          "status": "closed",
+          "closedBy": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+          "functions": [
+            "mhitm_ad_sedu"
+          ]
+        }
+      ],
+      "openedAt": "7560b8efdb8e1fc31398e682d07ca2acbdc771e6",
+      "openStanding": {
+        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
+        "screens": 10084,
+        "rng": 741703
+      },
+      "closedAt": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
+      "function": "mhitm_ad_sedu",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 987,
+      "activeStanding": {
+        "sha": "68a6e54518d7eed5c767f1ccb76d2b1822bc4224",
+        "screens": 10084,
+        "rng": 741703
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 987,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 827,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 827,
+              "status": "complete",
+              "commit": "7560b8efdb8e1fc31398e682d07ca2acbdc771e6",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 987,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 827
+              },
+              "summary": "The urgent-message-only correction did not move the first mismatch at step 987: a focused worker replay still lacks C's theft --More-- page and cursor. A subsequent source trace identifies a missing tele_restrict() call after successful theft in uhitm.c:mhitm_ad_sedu(): JS uses the silent noteleport_level() predicate, suppressing the following blocked-teleport message that forces C's prior theft page. Worker A is correcting that production call and preserving planning silence; combined validation is pending.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_sedu"
+                ],
+                "branch": "After successful steal(), C uhitm.c:mhitm_ad_sedu() calls tele_restrict(magr) before rloc(). teleport.c:1950-1960 returns the no-teleport predicate and, for a visible monster on a restricted level, emits the blocked-teleport message. The recorded input at step 987 dismisses the preceding page and waits at the theft line's --More--; step 988 dismisses that page and shows the blocked-teleport line. js/uhitm.js currently checks noteleport_level directly at all four corresponding hero/monster theft sites, omitting the output side effect. Restoring this source call must suppress output on planning clones and preserve no-teleport RNG behavior.",
+                "callers": [
+                  "nethack-c/upstream/src/uhitm.c:mhitm_ad_sedu():4623-4748 calls steal(magr, buf) in the mhitu arm after animal, seductive-hero, and canceled-attacker gates; js/uhitm.js:mhitm_ad_sedu():1789-1900 calls js/steal.js:steal() with the attack environment.",
+                  "nethack-c/upstream/src/uhitm.c:mhitm_adtyping():4782-4799 dispatches AD_SITM and AD_SEDU to mhitm_ad_sedu(); js/uhitm.js:mhitm_adtyping():2354-2385 has the corresponding dispatch.",
+                  "nethack-c/upstream/src/mhitu.c:mattacku():491-951 reaches hitmu() for a landed melee attack, and hitmu():1143-1267 calls mhitm_adtyping(); js/mhitu.js:mattacku():679-1030 reaches hitmu():1360-1448 through the same production monster-action adapter."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/steal.c:worn_item_removal():292-334 uses ordinary pline() for the disarm preface; js/steal.js:worn_item_removal():297-323 already has the correct ordinary message and W_WEAPONS removal order.",
+                  "nethack-c/upstream/src/pline.c:313-323 defines urgent_pline() as URGENT_MESSAGE; js/tty_message.js:569-620 implements ttyUrgentPline(), while js/steal.js:339-547 currently routes the final theft message through env.message instead.",
+                  "nethack-c/upstream/src/steal.c:213-290 remove_worn_item() and weapon.c:873-894 uwepgone()/uswapwepgone() establish the weapon-slot side effects already wired by js/steal.js and js/wield.js; no new RNG or state owner is needed.",
+                  "Planning uses mhitu.c's silent message path; js/mhitu.js:mattacku():695-710 currently constructs env.message but no urgent-message sibling. The minimal production wiring is confined to that existing adapter plus js/steal.js, without changing B-owned uhitm.c:mhitm_ad_blnd or parked work.",
+                  "teleport.c tele_restrict() (1950-1960) is already implemented in js/teleport.js:667-684 with a direct ttyPline call. The mhitm_ad_sedu production adapter must provide its planning-safe message callback when restoring this call; keep default behavior for existing live callers. Correct all corresponding source sites in the selected mhitm_ad_sedu function, not only the observed successful hero theft branch."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved bounded queue run-GP6UMD (receipt /tmp/teleport-validation-1000/run-GP6UMD/receipt.json) against published main f38c5066f33188e9bab910ccebef245441ae870e reports holdout/seed4500-knight-coverage at screen step 987, recordedSteps 1814, and remainingScreensUpperBound 827; its investigation status is stale because the prior cache count was 905.",
+                "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 985-988 records the source boundary: step 985 is the Knight's `You caitiff!` hit, step 986 consumes rn2(23)=0 at steal.c:421 while the visible page is `The wood nymph screams!  The water nymph wakes up.--More--`, step 987 consumes no RNG and records `The wood nymph disarms your +1 lance.  She stole a +1 lance.--More--`, and step 988 begins the next monster action. The no-RNG step confirms the stale queue's screen mismatch is message/display state, not a missing draw.",
+                "Read nethack-c/upstream/src/steal.c:292-334 and 343-614 completely. worn_item_removal() calls pline() before remove_worn_item(); after freeinv(), steal() calls urgent_pline() for the final `stole` line. The W_WEAPONS branch reaches uwepgone()/uswapwepgone(), then mpickobj(), with no additional draw between the two message operations.",
+                "Read nethack-c/upstream/src/uhitm.c:4623-4748 and 4782-4799, plus mhitu.c:mattacku():491-951 and hitmu():1143-1267 completely. The production call chain is mattacku -> hitmu -> mhitm_adtyping -> mhitm_ad_sedu -> steal; the current JS declarations are present, so the smallest missing behavior is the urgent-message distinction in the existing steal path rather than a new combat function.",
+                "Current published JS source reads show js/steal.js:worn_item_removal():297-323 receives env.message for its ordinary preface and js/steal.js:339-547 sends the final theft line through the same callback. js/mhitu.js:mattacku():695-710 creates a planning-safe ordinary message callback but no urgent sibling, while js/tty_message.js:569-620 already provides ttyUrgentPline(). This isolates the proposed correction to steal.c:steal() and its mhitu.c caller adapter; it does not overlap B's uhitm.c:mhitm_ad_blnd reservation.",
+                "No game-code, root bookkeeping, central evidence, checkpoint, aggregate scan, or recorder inputs were changed. The canonical investigation cache is updated only for this session/count; the pre-existing seed0014 investigation WIP and A13/A14 immutable history remain untouched.",
+                "Worker focused run-jcX2Qy at /tmp/teleport-validation-1000/run-jcX2Qy/receipt.json replayed only holdout/seed4500-knight-coverage after the urgent callback change. It emitted 994 screens, retained screen/cursor mismatch 987 (C --More-- at row0 column60 and cursor68,0; JS lacks it and cursor41,7), and found no RNG divergence. Urgency alone therefore does not explain the target mismatch.",
+                "Read C teleport.c:1950-1960 and the uhitm.c:mhitm_ad_sedu hero successful-theft branch and sibling sites. C calls tele_restrict; published js/uhitm.js uses noteleport_level at lines1841,1861,1879,1972. Fixed recording steps987-988 respectively show the theft --More-- page and the blocked-teleport line. This identifies the missing source-owned message without changing recorded inputs."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+        "screens": 10086,
+        "rng": 741703
+      }
     }
   ]
 }
