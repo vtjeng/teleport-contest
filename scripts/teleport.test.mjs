@@ -39,6 +39,7 @@ import {
 } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
+import { InMemoryStorage } from '../js/storage.js';
 import {
     add_rect_to_reg,
     add_region,
@@ -1061,8 +1062,11 @@ test('teleds drags the punished ball through the holdout teleport', async () => 
         .map(({ key }) => key ?? '')
         .join('');
     let boundary = null;
+    // Recorder startup creates an empty scorefile. Supply the same storage
+    // contract as the scorer so topten.c can open it and draw a rank.
+    const storage = new InMemoryStorage();
     const replay = await runSegment(
-        { ...segment, moves },
+        { ...segment, moves, storage },
         { onBoundary: (error) => { boundary ??= error; } },
     );
 
