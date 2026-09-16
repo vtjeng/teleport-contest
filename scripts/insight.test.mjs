@@ -24,19 +24,24 @@ import {
     cause_known,
     do_gamelog,
     doconduct,
+    dovanquished,
     enlightenment,
     fmt_elapsed_time,
+    list_vanquished,
     N_times,
     num_genocides,
+    set_vanq_order,
     size_str,
     show_gamelog,
     show_conduct,
     sokoban_in_play,
+    vanqsort_cmp,
     record_achievement,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
 import { describe_level } from '../js/display.js';
+import { GameDisplay } from '../js/game_display.js';
 import { item_what } from '../js/zap.js';
 import { gamelog_add, livelog_printf } from '../js/pline.js';
 import { initUnported } from '../js/unported.js';
@@ -75,6 +80,13 @@ import {
     W_AMUL,
     W_ARMOR,
     W_WEP,
+    VANQ_ALPHA_SEP,
+    VANQ_COUNT_H_L,
+    VANQ_COUNT_L_H,
+    VANQ_MCLS_HTOL,
+    VANQ_MCLS_LTOH,
+    VANQ_MLVL_MNDX,
+    VANQ_MSTR_MNDX,
 } from '../js/const.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -84,6 +96,7 @@ import {
     M1_BREATHLESS,
     M1_OVIPAROUS,
     M2_DEMON,
+    G_UNIQ,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
     PM_HIGH_CLERIC,
@@ -123,6 +136,7 @@ import {
 import { skillSlot } from '../js/startup_skills.js';
 import { ROOMOFFSET, SHOPBASE, W_ARM, W_ARMC } from '../js/const.js';
 import { costly_spot } from '../js/shk.js';
+import { ATR_BOLD, ATR_NONE } from '../js/terminal.js';
 import {
     monst_globals_init,
     MZ_GIGANTIC,
@@ -1600,6 +1614,198 @@ test('do_gamelog dispatches the in-progress chronicle window', async () => {
     });
     assert.equal(result, 0);
     assert.deepEqual(windows, [['Logged events:', ' Turn', '    7: entry']]);
+});
+
+// insight.c:vanqsort_cmp() compares only the source-owned monster index,
+// monster data, flags.vanq_sortmode, and mvitals.died.  Pin every synthetic
+// mode here, including the special punctuation-class remapping branch.  The
+// real catalog rider and PM_HIGH_CLERIC exception are covered separately.
+test('vanqsort_cmp follows source ordering for synthetic modes', () => {
+    const mons = [
+        { pmidx: 0, mlevel: 3, difficulty: 7, mlet: 5, geno: 0,
+            pmnames: [null, null, 'zebra'] },
+        { pmidx: 1, mlevel: 9, difficulty: 2, mlet: 5, geno: 0,
+            pmnames: [null, null, 'alpha'] },
+        { pmidx: 2, mlevel: 9, difficulty: 8, mlet: 5, geno: 0,
+            pmnames: [null, null, 'beta'] },
+        { pmidx: 3, mlevel: 4, difficulty: 4, mlet: 5, geno: G_UNIQ,
+            pmnames: [null, null, 'Unique'] },
+        { pmidx: 4, mlevel: 4, difficulty: 4, mlet: 5, geno: G_UNIQ,
+            pmnames: [null, null, 'High priest'] },
+    ];
+    const state = {
+        mons,
+        svm: { mvitals: [
+            { died: 1 }, { died: 5 }, { died: 2 }, { died: 3 }, { died: 4 },
+        ] },
+        flags: { vanq_sortmode: VANQ_MLVL_MNDX },
+    };
+    const order = (mode) => {
+        state.flags.vanq_sortmode = mode;
+        return [0, 1, 2, 3, 4].sort((a, b) => vanqsort_cmp(a, b, state));
+    };
+    assert.deepEqual(order(VANQ_MLVL_MNDX), [1, 2, 3, 4, 0]);
+    assert.deepEqual(order(VANQ_MSTR_MNDX), [2, 0, 3, 4, 1]);
+    assert.deepEqual(order(VANQ_ALPHA_SEP), [4, 3, 1, 2, 0]);
+    assert.deepEqual(order(VANQ_COUNT_H_L), [1, 4, 3, 2, 0]);
+    assert.deepEqual(order(VANQ_COUNT_L_H), [0, 2, 3, 4, 1]);
+    state.mons[0].mlet = 58; // S_LIZARD: punctuation remapping branch.
+    state.mons[1].mlet = 57; // S_EEL.
+    state.mons[2].mlet = 57;
+    state.flags.vanq_sortmode = VANQ_MCLS_LTOH;
+    assert.deepEqual([0, 1, 2].sort((a, b) => vanqsort_cmp(a, b, state)),
+        [0, 1, 2]);
+    state.flags.vanq_sortmode = VANQ_MCLS_HTOL;
+    assert.deepEqual([0, 1, 2].sort((a, b) => vanqsort_cmp(a, b, state)),
+        [0, 1, 2]);
+});
+
+test('set_vanq_order exposes source menu rows and stores the choice', async () => {
+    const state = { flags: { vanq_sortmode: VANQ_MLVL_MNDX } };
+    let menuSpec;
+    const choice = await set_vanq_order(false, state, {
+        menu: async (_state, spec) => {
+            menuSpec = spec;
+            return VANQ_ALPHA_SEP;
+        },
+    });
+    assert.equal(choice, VANQ_ALPHA_SEP);
+    assert.equal(state.flags.vanq_sortmode, VANQ_ALPHA_SEP);
+    assert.deepEqual(menuSpec.items.map((item) => item.selector),
+        ['t', 'd', 'a', 'c']);
+    assert.equal(menuSpec.items[2].label, 'alphabetically');
+
+    await set_vanq_order(true, state, {
+        menu: async (_state, spec) => {
+            menuSpec = spec;
+            return VANQ_COUNT_L_H;
+        },
+    });
+    assert.deepEqual(menuSpec.items.map((item) => item.selector),
+        ['t', 'd', 'a', 'c', 'n', 'z']);
+});
+
+test('set_vanq_order preserves the current mode on Return and Space', async () => {
+    const cases = [
+        ['\n', VANQ_ALPHA_SEP, true],
+        // Count modes are hidden for #genocided, but C still returns the
+        // preselected current mode when Space commits without a new choice.
+        [' ', VANQ_COUNT_H_L, true],
+        ['\x1b', VANQ_COUNT_H_L, false],
+    ];
+    for (const [key, mode, keepsMode] of cases) {
+        const state = {
+            flags: { vanq_sortmode: mode },
+            nhDisplay: new GameDisplay(null),
+        };
+        state.nhDisplay.pushKey(key.charCodeAt(0));
+        const result = await set_vanq_order(false, state);
+        assert.equal(result, keepsMode ? mode : -1);
+        assert.equal(state.flags.vanq_sortmode, mode);
+    }
+});
+
+test('list_vanquished handles both an empty list and source formatting', async () => {
+    const empty = { svm: { mvitals: [] }, mons: [], program_state: {} };
+    await list_vanquished('y', false, empty, {
+        displayTextWindow: () => {},
+    });
+    assert.equal(empty._ttyToplines, 'No creatures have been vanquished.');
+
+    const state = {
+        flags: { vanq_sortmode: VANQ_MLVL_MNDX },
+        mons: [
+            { pmidx: 0, mlevel: 1, difficulty: 1, mlet: 5, geno: 0,
+                pmnames: [null, null, 'newt'] },
+            { pmidx: 1, mlevel: 4, difficulty: 4, mlet: 5, geno: 0,
+                pmnames: [null, null, 'dog'] },
+        ],
+        svm: { mvitals: [{ died: 2 }, { died: 1 }] },
+        program_state: {},
+    };
+    let lines;
+    await list_vanquished('y', false, state, {
+        displayTextWindow: (_state, values) => {
+            lines = values.map((value) => value.text);
+        },
+    });
+    assert.deepEqual(lines, [
+        'Vanquished creatures:', '', '  a dog', '  2 newts', '',
+        '3 creatures vanquished.',
+    ]);
+});
+
+test('list_vanquished preserves C class-heading attributes', async () => {
+    const state = monsterCatalog();
+    state.svm = {
+        mvitals: Array.from({ length: state.mons.length }, () => ({
+            died: 0,
+        })),
+    };
+    state.svm.mvitals[PM_WOLF].died = 1;
+    state.svm.mvitals[PM_VAMPIRE].died = 1;
+    state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
+    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.program_state = {};
+
+    let commandLines;
+    await list_vanquished('y', false, state, {
+        displayTextWindow: (_state, values) => {
+            commandLines = values;
+        },
+    });
+    assert.deepEqual(commandLines.filter((line) => line.attr !== undefined), [
+        { text: 'Dog or other canine', attr: ATR_BOLD },
+        { text: 'Vampire', attr: ATR_BOLD },
+    ]);
+
+    let finalLines;
+    await list_vanquished('y', true, state, {
+        queryFunction: () => 'y'.charCodeAt(0),
+        displayTextWindow: (_state, values) => {
+            finalLines = values;
+        },
+    });
+    assert.deepEqual(finalLines.filter((line) => line.text === 'Dog or other canine'
+        || line.text === 'Vampire'), [
+        { text: 'Dog or other canine', attr: ATR_NONE },
+        { text: 'Vampire', attr: ATR_NONE },
+    ]);
+});
+
+test('list_vanquished uses the canonical default query owner', async () => {
+    // end.c disclose() calls list_vanquished() without queryFunction. Keep
+    // that production call shape here so the prompt comes from cmd.c's
+    // yn_function() rather than an injected test adapter.
+    const state = await readyGame();
+    state.svm.mvitals[PM_WOLF].died = 1;
+    // readyGame() leaves its startup message at the normal --More--
+    // boundary; dismiss it before the disclosure question.
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey('y'.charCodeAt(0));
+    let lines;
+    await list_vanquished('y', true, state, {
+        displayTextWindow: (_state, values) => {
+            lines = values;
+        },
+    });
+    assert.ok(lines.some((line) => /wolf/u.test(line.text)));
+    assert.equal(state.program_state.input_state, 'other');
+});
+
+test('dovanquished consumes the menu-requested flag', async () => {
+    const state = {
+        iflags: { menu_requested: true },
+        flags: { vanq_sortmode: 0 },
+        svm: { mvitals: [] },
+        mons: [],
+        program_state: {},
+    };
+    assert.equal(await dovanquished(state, {
+        displayTextWindow: () => {},
+        menu: async () => null,
+    }), 0);
+    assert.equal(state.iflags.menu_requested, false);
 });
 
 // insight.c show_conduct() keeps the challenge rows in source order and uses

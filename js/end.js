@@ -80,6 +80,9 @@ import {
     UNCHANGING,
     UTOTYPE_ATSTAIRS,
     Upolyd,
+    VANQ_ALPHA_MIX,
+    VANQ_COUNT_H_L,
+    VANQ_COUNT_L_H,
     has_ebones,
     has_mgivenname,
     ismnum,
@@ -128,7 +131,17 @@ import {
     an, doname_with_price, the, thesimpleoname, the_unique_pm,
     xnameFresh,
 } from './objnam.js';
-import { enlightenment, num_genocides, show_conduct } from './insight.js';
+import {
+    enlightenment,
+    isUniqueMonster,
+    list_vanquished,
+    num_genocides,
+    ordinaryMonsterEntries,
+    show_conduct,
+    set_vanq_order,
+    vanquishedName,
+    vanqsort_cmp,
+} from './insight.js';
 import { livelog_printf } from './pline.js';
 import { select_menu } from './windows.js';
 import {
@@ -745,97 +758,10 @@ function menuLines(texts) {
     return texts.map((text) => ({ text }));
 }
 
-function monsterVitals(state) {
-    return state.svm?.mvitals ?? state.mvitals ?? [];
-}
-
-function ordinaryMonsterEntries(state, flags = 0) {
-    return monsterVitals(state).flatMap((vital, index) => {
-        const monster = state.mons?.[index];
-        if (!monster || (flags && (vital.mvflags & flags) === 0)) return [];
-        return [{ index, monster, vital }];
-    });
-}
-
-function isUniqueMonster(index, monster) {
-    return (monster.geno & G_UNIQ) !== 0 && index !== PM_HIGH_CLERIC;
-}
-
-function vanquishedName(entry) {
-    return entry.monster.pmnames?.[2]
-        ?? entry.monster.pmnames?.find(Boolean) ?? 'monster';
-}
-
-function vanquishedPrefix(text) {
-    const lower = text.toLowerCase();
-    if (lower.startsWith('the ')) return 0;
-    if (lower.startsWith('an ')) return 1;
-    if (lower.startsWith('a ')) return 2;
-    return /\d/u.test(text[2] ?? '') ? 0 : 4;
-}
-
-// C ref: insight.c list_vanquished(). The ordinary final disclosure uses the
-// default traditional order: monster level descending, then internal index.
-async function list_vanquished(defquery, ask, state) {
-    const entries = ordinaryMonsterEntries(state).filter((entry) => (
-        Number(entry.vital.died) > 0
-    ));
-    if (!entries.length) return;
-
-    const answer = ask ? await yn_function(
-            'Do you want an account of creatures vanquished?',
-            entries.length > 1 ? 'ynaq' : 'ynq',
-            defquery,
-            true,
-            state,
-        ) : defquery.charCodeAt(0);
-    if (answer === KEY_Q) {
-        discloseStop(state);
-        return;
-    }
-    if (answer === KEY_A) {
-        throw new UnsupportedEndOfGameError(
-            'list_vanquished() sort-order selection',
-        );
-    }
-    if (answer !== KEY_Y) return;
-
-    entries.sort((left, right) => (
-        (right.monster.mlevel ?? 0) - (left.monster.mlevel ?? 0)
-        || left.index - right.index
-    ));
-    const lines = ['Vanquished creatures:', ''];
-    let total = 0;
-    for (const entry of entries) {
-        const count = Math.trunc(entry.vital.died);
-        total += count;
-        const name = vanquishedName(entry);
-        let text;
-        if (isUniqueMonster(entry.index, entry.monster)) {
-            text = `${type_is_pname(entry.monster) ? '' : 'the '}${name}`;
-            if (count > 1) text += ` (${count} times)`;
-        } else if (count === 1) {
-            text = an(name);
-        } else {
-            // insight.c list_vanquished() uses Sprintf("%3d %s", ...).
-            // Keep the three-column count before applying the article prefix
-            // used to align singular and unique names.
-            text = `${String(count).padStart(3, ' ')} ${makeplural(name)}`;
-        }
-        lines.push(`${' '.repeat(vanquishedPrefix(text))}${text}`);
-    }
-    if (entries.length > 1) {
-        lines.push('');
-        lines.push(`${total} creatures vanquished.`);
-    }
-    await displayTtyMenuTextWindow(state, menuLines(lines));
-}
-
 // C ref: insight.c list_genocided(). No menu or prompt is produced when the
 // ordinary final state has no genocided or extinct species; that is the only
-// common branch in this slice. The positive list is kept source-shaped for a
-// fresh case that happens to cross it, while its alternate sort choice stays
-// outside the bounded default-order path.
+// common branch in this slice. The shared vanquished sort family handles the
+// alternate order requested by the source's #genocided path as well.
 async function list_genocided(defquery, ask, state) {
     const entries = ordinaryMonsterEntries(state, G_GENOD | G_EXTINCT)
         .filter((entry) => !isUniqueMonster(entry.index, entry.monster));
@@ -843,7 +769,7 @@ async function list_genocided(defquery, ask, state) {
 
     const answer = ask ? await yn_function(
             'Do you want a list of genocided species?',
-            entries.length > 1 ? 'ynaq' : 'ynq',
+            entries.length > 1 ? 'ynaq' : 'ynq\u001ba',
             defquery,
             true,
             state,
@@ -852,18 +778,18 @@ async function list_genocided(defquery, ask, state) {
         discloseStop(state);
         return;
     }
-    if (answer === KEY_A) {
-        throw new UnsupportedEndOfGameError(
-            'list_genocided() sort-order selection',
-        );
-    }
-    if (answer !== KEY_Y) return;
+    if (answer !== KEY_Y && answer !== KEY_A) return;
 
-    entries.sort((left, right) => (
-        vanquishedName(left).localeCompare(vanquishedName(right), 'en', {
-            sensitivity: 'base',
-        }) || left.index - right.index
-    ));
+    if (answer === KEY_A && entries.length > 1
+        && await set_vanq_order(false, state) < 0) return;
+    const savedSortmode = state.flags?.vanq_sortmode;
+    if (state.flags
+        && (savedSortmode === VANQ_COUNT_H_L
+            || savedSortmode === VANQ_COUNT_L_H))
+        state.flags.vanq_sortmode = VANQ_ALPHA_MIX;
+    entries.sort((left, right) => vanqsort_cmp(left, right, state));
+    if (state.flags && savedSortmode !== undefined)
+        state.flags.vanq_sortmode = savedSortmode;
     // insight.c list_genocided() obtains this count from num_genocides(),
     // whose unique-species diagnostic and full mvital walk are shared with
     // show_conduct().
