@@ -41,6 +41,7 @@ import {
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
 import { describe_level } from '../js/display.js';
+import { GameDisplay } from '../js/game_display.js';
 import { item_what } from '../js/zap.js';
 import { gamelog_add, livelog_printf } from '../js/pline.js';
 import { initUnported } from '../js/unported.js';
@@ -1680,6 +1681,26 @@ test('set_vanq_order exposes source menu rows and stores the choice', async () =
     });
     assert.deepEqual(menuSpec.items.map((item) => item.selector),
         ['t', 'd', 'a', 'c', 'n', 'z']);
+});
+
+test('set_vanq_order preserves the current mode on Return and Space', async () => {
+    const cases = [
+        ['\n', VANQ_ALPHA_SEP, true],
+        // Count modes are hidden for #genocided, but C still returns the
+        // preselected current mode when Space commits without a new choice.
+        [' ', VANQ_COUNT_H_L, true],
+        ['\x1b', VANQ_COUNT_H_L, false],
+    ];
+    for (const [key, mode, keepsMode] of cases) {
+        const state = {
+            flags: { vanq_sortmode: mode },
+            nhDisplay: new GameDisplay(null),
+        };
+        state.nhDisplay.pushKey(key.charCodeAt(0));
+        const result = await set_vanq_order(false, state);
+        assert.equal(result, keepsMode ? mode : -1);
+        assert.equal(state.flags.vanq_sortmode, mode);
+    }
 });
 
 test('list_vanquished handles both an empty list and source formatting', async () => {
