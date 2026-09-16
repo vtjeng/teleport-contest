@@ -53888,7 +53888,7 @@
           "line": 52,
           "endLine": 94,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -53977,7 +53977,64 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_mkroom",
+            "implementation": "js/mkroom.js",
+            "symbol": "do_mkroom",
+            "sourceReview": "Read nethack-c/upstream/src/mkroom.c:50-92 in full and checked every branch and evaluation order. The port tests roomtype >= SHOPBASE first, then dispatches COURT, ZOO, BEEHIVE, MORGUE, BARRACKS, LEPREHALL, COCKNEST, and ANTHOLE to the existing mkzoo() owner, TEMPLE to mktemple(), and SWAMP to the named discarded mkswamp() gap. The default impossible() call is also a discarded diagnostic and is recorded as a named gap. Existing mkshop(), mkzoo(), and mktemple() callers receive the same state and random objects; no refusal, invented draw, or substitute side effect remains. The unported mkswamp() body remains outside this span because C discards its result. makelevel's source antholemon() predicate is wired in the same source order.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:1347-1375; makelevel() selects at most one special room and calls do_mkroom() for shops, zoo families, temples, ANTHOLE, and SWAMP in source order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-shop.test.mjs",
+              "scripts/level-arrival.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/shop-entry-seed9701133.session.json",
+              "recordings/mkroom.c/zoo-entry-seed8800054.session.json",
+              "recordings/mkroom.c/zoo-entry-seed8800076-variation.session.json"
+            ],
+            "checkedAt": "0b4e152e4b03ff099fa199022b0b017151dd313d"
+          }
+        ],
+        "entryPointReview": "The production makelevel() special-room dispatcher is reached by both independent D:10 ZOO recipes: seed 8800054 with datetime 20300914112234 and seed 8800076 with datetime 20300914112235. Their C traces reject the shop, court, and leprechaun branches, consume rn2(7)=0 for the ZOO branch, and their six-screen recordings match the JavaScript through generated-level arrival. The existing independent shop recipe also exercises the SHOPBASE dispatch. The pure antholemon() availability predicate is source-pinned across all ant choices, genocided fallback order, and the all-gone result; its makelevel caller is wired even though these short ZOO recordings do not select ANTHOLE. The SWAMP population body remains a named discarded mkroom.c mkswamp gap, and fill_special_room population for LEPREHALL, COCKNEST, and ANTHOLE remains outside this dispatcher span. Supporting dependency review (not a separate verified source unit in this selected range): Read nethack-c/upstream/src/mkroom.c:501-527 in full. The port preserves the time_t birthday remainder, level_difficulty addition, the source soldier/fire/giant ant switch, the three-attempt genocided-class loop, and the final NON_PM result when the last candidate is gone. The function reads only ubirthday, level difficulty, mvitals, and the monster catalog; it makes no random draw, output, or mutation. makelevel evaluates it after the source rn2(8) ANTHOLE gate and uses its truth value before do_mkroom(). Pure-source cases are pinned in scripts/mkroom-shop.test.mjs. Remaining special-room entry recordings are not claimed.",
+        "entryPoints": [
+          {
+            "name": "makelevel generated ZOO dispatch",
+            "functions": [
+              "do_mkroom"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/zoo-entry-seed8800054.session.json",
+              "recordings/mkroom.c/zoo-entry-seed8800076-variation.session.json"
+            ]
+          },
+          {
+            "name": "wizard SHOPTYPE dispatch",
+            "functions": [
+              "do_mkroom"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/shop-entry-seed9701133.session.json"
+            ]
+          },
+          {
+            "name": "Remaining source special-room dispatch entries, including ant availability and SWAMP",
+            "functions": [
+              "do_mkroom"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
