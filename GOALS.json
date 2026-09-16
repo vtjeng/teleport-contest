@@ -51074,6 +51074,655 @@
         "screens": 10086,
         "rng": 741703
       }
+    },
+    {
+      "id": "div-makemon-set-mimic-sym-seed0014-20260916",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Resolve nested shop room indices before mimic appearance selection.",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "Continue worker B seed0014 after the accepted landmine port. The next source-traced mismatch is set_mimic_sym at step 667; this ready independent delivery does not overlap worker A blindness and beam work.",
+      "detail": "At seed0014 step 667, C set_mimic_sym reads a conceptual subroom index through svr.rooms and selects its SHOPBASE rn2(10) branch. JavaScript indexes level.rooms directly, sees no nested entry, and selects ordinary rn2(17). Runtime tracing found roomno 55, index 52, rtype 19. Reuse dungeon.js mapseen_room to resolve the persisted parent/subroom graph. Independent recipe seed8124 reaches Minetown shop mimic generation and matches after this fix.",
+      "spans": [
+        {
+          "name": "nested-shop-room-lookup",
+          "status": "closed",
+          "closedBy": "aface44fb504a9d8296da4400543983d4677d5fd",
+          "functions": [
+            "set_mimic_sym"
+          ]
+        }
+      ],
+      "openedAt": "184edff5a9c890eefef70a5e7ba114407e04f66b",
+      "openStanding": {
+        "sha": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+        "screens": 10101,
+        "rng": 745419
+      },
+      "closedAt": "aface44fb504a9d8296da4400543983d4677d5fd",
+      "delivered": {
+        "screens": 0,
+        "rng": 5
+      },
+      "function": "set_mimic_sym",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 667,
+      "activeStanding": {
+        "sha": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+        "screens": 10101,
+        "rng": 745419
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 667,
+          "kind": "rng",
+          "function": "set_mimic_sym",
+          "functionDeclared": true,
+          "sourceFile": "makemon.c",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": 2468,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 47,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 47,
+              "status": "complete",
+              "commit": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 667,
+                "kind": "rng",
+                "function": "set_mimic_sym",
+                "functionDeclared": true,
+                "sourceFile": "makemon.c",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": 2468,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 47
+              },
+              "summary": "The landmine stop at step 655 is resolved. The first remaining mismatch is step 667 in set_mimic_sym(): a nested shop room index is missing from the direct JavaScript room array, so the mimic takes the ordinary appearance branch. Worker B has submitted the shared room lookup fix with a matching independent recording; its next worker-only mismatch is priest movement at step 669, now under investigation.",
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "set_mimic_sym"
+                ],
+                "branch": "C reads levl[mx][my].roomno - ROOMOFFSET through the flat svr.rooms allocation, which includes subrooms. At a shop rtype >= SHOPBASE, it consumes rn2(10) before choosing stock. JavaScript reads only level.rooms[roomIndex]; nested shops are stored under parent sbrooms with conceptual roomnoidx values, so the missing direct entry supplies rtype 0 and selects the ordinary MIMIC_SYMBOLS rn2(17) branch.",
+                "callers": [
+                  "nethack-c/upstream/src/makemon.c:2393-2577 defines set_mimic_sym(), with the room lookup at 2405-2415 and shop selection at 2467-2486. makemon() calls it for a newly placed mimic at 1305, including shop-stock mimics.",
+                  "js/makemon_create.js:makemon() calls set_mimic_sym(); its room lookup currently indexes state.level.rooms directly before choosing the shop or ordinary branch.",
+                  "js/mklev.js:add_subroom() persists subrooms under their parent and assigns MAXNROFROOMS + 1 + nsubroom as roomnoidx. js/mines_levels.js generates nested Minetown shops using this representation."
+                ],
+                "dependencies": [
+                  "js/dungeon.js:mapseen_room() already resolves conceptual room indices through top-level rooms and recursive sbrooms; the submitted fix exports and reuses this owner without another room graph or RNG draw.",
+                  "Preserve get_shop_item(), temporary mkobj()/obfree(), monster-based object overlays, fruit state, altar selection and does_block()/block_point() order. Only the source-defined room lookup changes.",
+                  "Worker B delivery 93b6ff5aa25e64c391a92b5f0b09b1496bb8d4b1 is ready with 125 focused tests, lint and a strict fresh differential. It remains separate from the validated landmine candidate."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Checkpoint 25bec4a9fe647b574a4418fef4e1d3e90ac01e93, run-IpwzMi, passed: 30/44 sessions, 10101/11405 screens, 745419/792838 RNG, 10134/11405 cursors; all 259 recordings match. Compared with f0ff954d, seed0014 improves from 655 to 670 matching screens, giving the 15-screen overall gain. New landmine hero/monster recordings contribute 31 matching screens.",
+                "Fresh fixed-workload queue run-Ny5bQI identifies step 667, kind rng, function set_mimic_sym, 47 remaining screens as an upper bound. Every other session retains its investigation count.",
+                "Read complete C set_mimic_sym() and JavaScript room creation/lookup paths. C selects rn2(10)=0 at makemon.c:2468; the old JavaScript fallback selects rn2(17)=10. This is a state/branch mismatch, not a random-bound substitution.",
+                "Worker instrumentation captured the affected mimic at moves 910, depth 3, tile [54,13], roomno 55, conceptual roomIndex 52. level.rooms[52] is undefined; the persisted subroom resolver finds rtype 19, a shop. These are diagnostic facts only; no input or position is special-cased.",
+                "Independent existing blocked recipe recipes/hack.c/minetown-mimic-boundary.session.json uses seed 8124 and a different clock/character. After the room lookup fix, fresh run-E65Kbo matches and recording recordings/hack.c/minetown-mimic-boundary.session.json is included in the immutable delivery.",
+                "A focused worker-only replay after 93b6ff5a moves the first mismatch to step 669 in pri_move(): C consumes rn2(3), while JavaScript consumes rn2(10) before the priest path. Worker B and a read-only helper are tracing its preconditions; this is not yet an accepted main result."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "aface44fb504a9d8296da4400543983d4677d5fd",
+        "screens": 10101,
+        "rng": 745424
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-blnd-seed4500-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port all mhitm_ad_blnd attack directions and their shared blindness transitions.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The highest remaining-screen session stops at step 994 in missing mhitm_ad_blnd. Worker A has an immutable source delivery and corrected blocked entry recipe; this integration is independent of worker B priest room work.",
+      "detail": "C uhitm.c mhitm_ad_blnd lines2958-3008 handles hero-to-monster, monster-to-hero and monster-to-monster attacks. Wire AD_BLND dispatch, can_blnd predicates, shared make_blinded/toggle_blindness and planning callbacks. A fresh monster-to-hero recording matches. Hero entry is blocked in unported hmonas and monster entry lacks a matching production recording, so the source goal must remain open after span acceptance until entry evidence is complete.",
+      "spans": [
+        {
+          "name": "mhitm_ad_blnd",
+          "status": "closed",
+          "closedBy": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+          "functions": [
+            "mhitm_ad_blnd"
+          ]
+        }
+      ],
+      "openedAt": "77656e762d37df44b2c9f5c3be57e67123e8bfb9",
+      "openStanding": {
+        "sha": "aface44fb504a9d8296da4400543983d4677d5fd",
+        "screens": 10101,
+        "rng": 745424
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_blnd",
+          "line": 2958,
+          "endLine": 3014,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2958,
+        "to": 3014
+      },
+      "activeStanding": {
+        "sha": "aface44fb504a9d8296da4400543983d4677d5fd",
+        "screens": 10101,
+        "rng": 745424
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 994,
+          "kind": "stop",
+          "function": "mhitm_ad_blnd",
+          "functionDeclared": false,
+          "sourceFile": "uhitm.c",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires uhitm.c mhitm_ad_blnd()",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 820,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 820,
+              "status": "complete",
+              "commit": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 994,
+                "kind": "stop",
+                "function": "mhitm_ad_blnd",
+                "functionDeclared": false,
+                "sourceFile": "uhitm.c",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires uhitm.c mhitm_ad_blnd()",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 820
+              },
+              "summary": "Main still stops at step 994 at mhitm_ad_blnd(). Worker A has submitted the attack and shared blindness fixes with 210 focused checks and a matching monster-to-hero recording. Its corrected raven recipe identifies an unported hmonas() caller; monster-to-monster entry coverage remains incomplete. The delivery is queued for combined validation while worker A implements the next missing monster-breath dobuzz call.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_ad_blnd"
+                ],
+                "branch": "A landed AD_BLND attack dispatches through mhitm_adtyping(). C mhitm_ad_blnd() handles hero-to-monster, monster-to-hero, and monster-to-monster separately: it checks can_blnd(), emits visibility-gated messages, clamps monster blindness to 127, clears damage and monster waiting strategy, and sends hero timeout changes through make_blinded(). JavaScript currently refuses AD_BLND before this body.",
+                "callers": [
+                  "C uhitm.c mhitm_adtyping() dispatches AD_BLND to mhitm_ad_blnd(); js/uhitm.js mhitm_adtyping() still contains the corresponding unsupported boundary at the examined commit.",
+                  "C mhitu.c hitmu() calls mhitm_adtyping() after the hit/damage rolls; js/mhitu.js hitmu() is reached by mattacku() in the production monster turn. The planning pass executes the same path against a clone before live execution.",
+                  "Hero polymorph attacks and monster-to-monster attacks also use mhitm_adtyping(); implement all three direction arms in the whole selected C function."
+                ],
+                "dependencies": [
+                  "C uhitm.c mhitm_ad_blnd():2958-3008 consumes can_blnd() and uses mon_nam()/Monnam() for source visibility-dependent text; preserve display RNG ownership in planning environments.",
+                  "C potion.c make_blinded():261-331 probes the future Blind property, restores the old timeout, applies messages and Punished set_bc(0), writes the new timeout and calls toggle_blindness() only when sight changes. Existing js/potion.js has a limited cream-pie transition guard; extending it is necessary for already-blind or punished attack victims. Keep one timeout owner.",
+                  "C potion.c toggle_blindness():335-363 updates status and vision, recalculates visibility, refreshes sensed monsters, resets Sting feedback and learns unseen inventory on sight restoration. Clone execution must update clone state without writing to the live terminal.",
+                  "Worker A owns A-20260916-3, including mhitm_ad_blnd, dispatch, make_blinded and toggle_blindness. Required fresh entry-point evidence and combined validation remain pending.",
+                  "Source review of mondata.c:248-398 distinguishes Blindfolded (EBlinded) from ublindf (any eyewear, including lenses) and defines Unaware through multi < 0 plus unconscious()/is_fainted(). Existing JavaScript conflates eyewear cases and reads obsolete state fields. Worker A owns these return-valued dependencies and their source-pinned tests.",
+                  "display.c see_monsters() changes monster recognition/warning state as well as drawing. The planning environment must execute those state changes on the clone and use its rendering/randomness owners; merely skipping the call in toggle_blindness() is incomplete.",
+                  "The existing artifact.c Sting_effects() owner now has a worker-branch message callback and reads canonical state.uwep; toggle_blindness() calls it through the planning environment. These changes remain pending combined integration."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Checkpoint f0ff954d2222b1db27e4fa7925448efdc980e1e5, run-Y8ACFR, passed all checks: development 10086/11405 screens, 741703/792838 RNG, 10108/11405 cursors, 30/44 complete sessions; all 257 recordings pass. This is a two-screen gain over the previous accepted 10084 baseline.",
+                "Fresh fixed-workload queue run-aplFna at this commit identifies step 994, kind stop, message simple monster action requires uhitm.c mhitm_ad_blnd(), with 1814 recorded steps and an upper bound of 820 remaining screens. No other session investigation count changed.",
+                "Read complete C uhitm.c mhitm_ad_blnd():2958-3008 and potion.c make_blinded()/toggle_blindness():261-363. The source contains the three actor directions and a shared hero blindness transition; a separate attack-local timeout implementation would duplicate state ownership and skip ball/vision effects.",
+                "The preceding theft fix restores all four tele_restrict() sites in mhitm_ad_sedu(), retains ordinary disarm and urgent final-theft output, and passes the attack environment to monster naming. Independent fresh theft recordings match 36 screens/15001 RNG and 29 screens/2977 RNG; the previous urgency-only hypothesis was falsified before this source correction.",
+                "Read-only dependency review confirmed C decl.c:49 vision_clears is \"vision quickly clears.\", mondata.c can_blnd() uses distinct eyewear predicates by attack type, and youprop.h:399 Unaware reads gm.multi with unconscious()/is_fainted(). Root verified the corresponding JS stale fields and missing clone see_monsters() callback; these are pending worker corrections, not accepted gains.",
+                "Immutable worker delivery d1eb2d27558d480c1e9ee33a6629262c26c761b9 passes 210 focused checks and fresh run-r2dAI5 (11 screens, 3352 RNG) through the monster-to-hero entry. Root is requesting a new recipe correction before integration: C hmonas() sends yellow-light AT_EXPL directly to explum(), whereas raven AT_CLAW reaches damageum()->mhitm_adtyping()->mhitm_ad_blnd. Clearing Wizard cloak/staff before raven polymorph avoids the previous automatic-drop setup.",
+                "The source-defined monster-to-monster setup can create a sleeping hostile giant beetle followed by a tame raven; C read.c create_particular_parse()/create_particular() supports these dispositions, but current js/read.js refuses them. Keep that entry unverified; a failed setup does not establish source entry coverage.",
+                "A worker-only replay after the blinding delivery reaches step 997: C dobuzz(zap.c:4823) consumes rn2(7)=3 after breamm rn2(3)=1, while JS breamm skips dobuzz via note_unported and consumes its subsequent cooldown rn2(3). This identifies missing beam invocation, not a random-bound error; accepted main still stops at 994.",
+                "Correction 5bf58b67777294bf99518332fa56e7a62426a4a2 replaces the yellow-light setup with a raven and clears equipment first. The source-valid C attack reaches hmonas()->damageum(), while JS lacks the hmonas caller. Neither that entry nor the monster-to-monster entry is claimed complete. Worker A merged published main 184edff5 at c1eb0ae9 and reran A3, landmine/movement checks and lint successfully.",
+                "Worker A now owns the complete zap.c dobuzz source scope and mthrowu.c breamm caller under A-20260916-4. Source review is checking all beam types, return-valued dependencies, planning callbacks and water-floor effects; no new beam behavior is accepted yet."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_blnd",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_blnd",
+            "sourceReview": "Read the complete uhitm.c mhitm_ad_blnd() body at lines 2958-3008 and ported its hero-to-monster, monster-to-hero, and monster-to-monster arms in source order. The implementation preserves each can_blnd gate, visibility feedback, hero timeout calculation, quick-clear vision_clears message, monster mblinded accumulation and 127 cap, mcansee and STRAT_WAITFORU writes, the monster-versus-monster damage roll, and the discarded mhm damage reset. mhitm_adtyping() now dispatches AD_BLND. make_blinded() and toggle_blindness() carry the attack environment through the planning-safe state and message seams; Sting_effects() is the existing artifact owner and now accepts that seam. Remaining source gaps are explicit: ball.c set_bc is recorded with note_unported on the punished live transition, and the existing Archon gazemm caller is unported; neither is claimed complete. Coordinator review limits supporting claims to the new silent attack transitions and clone callbacks: make_blinded retains unsupported talking paths; display.c see_monsters still has its existing unported warning-count change and worm-tail display paths. No complete source evidence is claimed for those helper functions. Hero entry remains blocked in the upstream hmonas caller and monster entry lacks a matching production recording; retain both entries as unverified.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping():4782-4832 dispatches AD_BLND to mhitm_ad_blnd()."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1191 calls mhitm_adtyping() for a monster attack against the hero."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 calls mhitm_adtyping() for a monster attack against a monster."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4854 calls mhitm_adtyping() for a hero attack against a monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/mondata.test.mjs",
+              "scripts/artifacts.test.mjs",
+              "scripts/light-vision.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-blnd-fresh.session.json"
+            ],
+            "checkedAt": "5593942c88caecba82ce14ea836e0e74d3e85822"
+          }
+        ],
+        "entryPointReview": "The selected source range has hero-to-monster, monster-to-hero, and monster-to-monster direction arms. The fresh independent recording reaches the production monster-to-hero path through mhitu.c hitmu -> uhitm.c mhitm_adtyping -> mhitm_ad_blnd and matches completely. The hero-to-monster recipe now uses a source-valid raven AT_CLAW attack after clearing the Wizard's equipment and records an explicit BLOCKED result because the production JavaScript hmonas() caller is unported: C reaches damageum()'s d(1,6), while the current JS path consumes rnd(2) before that source call. The monster-to-monster recipe is retained with an explicit BLOCKED comment because the generated hostile raven targets the hero and dies before mhitm.c mdamagem() selects a monster defender. Source-pinned tests cover both blocked direction arms' arithmetic, visibility, strategy, and state behavior. The existing Archon-specific gazemm caller remains unported and is not claimed complete.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_BLND",
+            "functions": [
+              "mhitm_ad_blnd"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-blnd-fresh.session.json"
+            ]
+          },
+          {
+            "name": "hero-to-monster AD_BLND",
+            "functions": [
+              "mhitm_ad_blnd"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-monster AD_BLND",
+            "functions": [
+              "mhitm_ad_blnd"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 1892
+      },
+      "parkedStanding": {
+        "sha": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+        "screens": 10104,
+        "rng": 747316
+      },
+      "parkedReason": "The selected source span and monster-to-hero entry recording pass, but hero-to-monster production entry remains blocked in hmonas and monster-to-monster has no matching entry recording. Current fixed mismatch has advanced to dobuzz at step 997; preserve these entry gaps while integrating the next independent ready priest delivery."
+    },
+    {
+      "id": "div-priest-pri-move-seed0014-20260916",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Preserve conceptual room indices in nested temple priest initialization and membership.",
+      "cFile": "priest.c",
+      "sessions": [],
+      "selectionReason": "Worker B seed continuation has an immutable ready delivery for count45 seed0014, backed by investigations/seed0014-dequa-fountain-explore.json; worker A owns the higher-ranked count817 dobuzz source port. Integrate this independent completed delivery under the ready-delivery ordering rule.",
+      "detail": "At step669 C pri_move consumes rn2(3)=0 while JS falls through to m_move rn2(10)=2. C priestini stores the conceptual room pointer difference plus ROOMOFFSET; JS level.rooms.indexOf(nestedRoom) gives shrine room2 instead of48, and roomType/temple_occupied fail to resolve nested room index45. Correct the source-owned initialization and shared membership lookups with mapseen_room while preserving pri_move RNG order. Immutable c8d7f37c has154 focused passes and an independent ten-screen4283-RNG generated priest recording. No whole-function completion is claimed for the unrelated hostile pri_move branch.",
+      "spans": [
+        {
+          "name": "nested-temple-room-indices",
+          "status": "closed",
+          "closedBy": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+          "functions": [
+            "temple_occupied",
+            "histemple_at",
+            "pri_move",
+            "priestini"
+          ]
+        }
+      ],
+      "openedAt": "1d998f5c4bf36a53feee830fd0dc2df922dcc934",
+      "openStanding": {
+        "sha": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+        "screens": 10104,
+        "rng": 747316
+      },
+      "closedAt": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+      "delivered": {
+        "screens": 42,
+        "rng": 5145
+      },
+      "function": "pri_move",
+      "session": "seed0014-dequa-fountain-explore",
+      "step": 669,
+      "activeStanding": {
+        "sha": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+        "screens": 10104,
+        "rng": 747316
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 669,
+          "kind": "rng",
+          "function": "pri_move",
+          "functionDeclared": true,
+          "sourceFile": "priest.c",
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 194,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 45,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 45,
+              "status": "complete",
+              "commit": "aface44fb504a9d8296da4400543983d4677d5fd",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 669,
+                "kind": "rng",
+                "function": "pri_move",
+                "functionDeclared": true,
+                "sourceFile": "priest.c",
+                "cFile": "priest.c",
+                "luaFile": null,
+                "line": 194,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 45
+              },
+              "summary": "The current main mismatch is the nested temple priest at step669. Worker B submitted the conceptual room lookup and shrine initialization fix as c8d7f37c, with 154 focused tests and an independent ten-screen recording passing. It is queued for combined validation after the blindness span; the worker has synced published main and is implementing the next fountain warning dependency.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "priestini",
+                  "temple_occupied",
+                  "histemple_at",
+                  "pri_move"
+                ],
+                "branch": "C pri_move() returns -1 only when histemple_at() fails, then otherwise consumes two rn1(3,-1) calls to mill around the altar. C priestini() initializes EPRI.shroom from the conceptual flat room array, and histemple_at() compares it with in_rooms(TEMPLE). JavaScript priestini() uses level.rooms.indexOf(sroom), which returns -1 for a nested subroom; rooms.js roomType() and priest.js temple_occupied() also search only the top-level array. These source-inconsistent room values cause ordinary movement to run instead of temple movement.",
+                "callers": [
+                  "nethack-c/upstream/src/priest.c:142-157 defines temple_occupied()/histemple_at(); pri_move() at 176-225 tests the priest room before its first two rn1(3,-1) calls at 194-195.",
+                  "nethack-c/upstream/src/priest.c:priestini(), around 247, sets shroom to (sroom - svr.rooms) + ROOMOFFSET. JS priestini() initializes the persistent mextra.epri record when special-level temple generation creates its priest.",
+                  "js/monmove.js:m_move() calls js/priest.js:pri_move() for priest movement and falls back to ordinary movement when it returns -1. The later peaceful movement gate consumes rn2(10).",
+                  "js/priest.js:histemple_at() calls js/rooms.js:in_rooms(); its roomType() helper must resolve conceptual indices for both top-level rooms and subrooms."
+                ],
+                "dependencies": [
+                  "Reuse js/dungeon.js:mapseen_room(), now available from the accepted mimic fix, for type lookup through the persisted parent/subroom graph. Do not add a second room-index representation.",
+                  "Use sroom.roomnoidx for the priest shrine-room number when available, retaining the ordinary room-array index for top-level rooms. Cover temple_occupied() and in_rooms() pure return values with source-pinned tests.",
+                  "Preserve the existing pri_move() random-call order. Its unrelated hostile/Conflict branches remain outside this initialization and membership divergence fix. Worker B owns B-20260916-3 and the shared conceptual-room membership contract."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Checkpoint aface44fb504a9d8296da4400543983d4677d5fd, run-Bexd1h, passed: 30/44 sessions, 10101/11405 screens, 745424/792838 RNG and 10134/11405 cursors. All 260 recordings match; the newly matching Minetown case contributes 7 screens and 4524 RNG values. Screen totals are unchanged from the landmine baseline, with 5 additional matching RNG values.",
+                "Fresh fixed-workload queue run-vKtWha identifies step 669, kind rng, function pri_move, with 45 remaining screens as an upper bound. This supersedes the mimic investigation at step 667/count 47; every other investigation count remains current.",
+                "Focused worker replay reports C rn2(3)=0 at pri_move(priest.c:194) while JS consumes rn2(10)=2 before priest movement. Read-only helper and coordinator source checks identify the nested temple initialization and membership defects. Worker B is collecting the exact runtime state and independent fresh evidence before submission.",
+                "The preceding accepted mimic fix resolves conceptual roomno 55/index 52 to shop rtype 19 and removes the C rn2(10) versus JS rn2(17) branch mismatch. Its independent recipe uses seed 8124 and a different clock and character; no session value is special-cased.",
+                "Worker B captured the pre-fix priest id 456 at (36,6), epri.shroom=2 and in_rooms(TEMPLE)=[], which makes pri_move return -1 before its two source rn1 calls. In the fixed full replay, the priest has shroom 48, shrine (37,7), level (dnum 2,dlevel 3), map roomno 48/index 45, in_rooms(TEMPLE)=[48], and resolved rtype TEMPLE (10). The source roomnoidx is 45.",
+                "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main.",
+                "Immutable priest delivery c8d7f37c80662779ea6348f45f011c4d18a41bfe is queued: focused run-Oaz13U 154/154, lint run-75CRuc, independent fresh run-75RoQK 10 screens/cursors and4283 RNG pass. Source owner and current main count45 are unchanged. Post-sync worker HEAD8399ab55459a4c3a3e269025c0d53b0938577ecc passes the affected154-test suite; its continuation reaches dryup town warning, which task B-20260916-4 now owns."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+        "screens": 10146,
+        "rng": 752461
+      }
+    },
+    {
+      "id": "port-fountain-dryup-seed0014-20260916",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port fountain warnings and drying, including wizard confirmation and town guard reactions.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "seed0014-dequa-fountain-explore"
+      ],
+      "selectionReason": "Worker B seed continuation addresses count 2 at step 712, with complete investigations/seed0014-dequa-fountain-explore.json and immutable ready delivery 094b02ab. Worker A owns the higher-ranked count 817 beam source port and needs this shared dryup dependency. Integrate the ready independent delivery under loop scheduling.",
+      "detail": "C fountain.c watchman_warn_fountain lines 178-198 and dryup lines 200-239 form the selected complete source family. Current main stops at the first in-town warning. Port watchman eligibility and spoken/deaf messages, warning flag and fallback, source rn2 gate, wizard y_n, cloud-aware display, fountain removal/counts and angry_guards. The new seed7001 town-warning witness matches 12 screens/cursors and 5975 RNG; existing tepid-water drying witness matches 47 screens/cursors and 3282 RNG. Preserve seed7204 as a blocked input-only recipe for an unrelated monmove mismatch. This is a source port despite the worker packet context kind being labelled divergence-fix.",
+      "spans": [
+        {
+          "name": "watchman_warn_fountain..dryup",
+          "status": "closed",
+          "closedBy": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+          "functions": [
+            "watchman_warn_fountain",
+            "dryup"
+          ]
+        }
+      ],
+      "openedAt": "e2eed838ed7ba4ba62958ee7d156d32c226f841a",
+      "openStanding": {
+        "sha": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+        "screens": 10146,
+        "rng": 752461
+      },
+      "closedAt": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+      "delivered": {
+        "screens": 2,
+        "rng": 102
+      },
+      "functions": [
+        {
+          "name": "watchman_warn_fountain",
+          "line": 179,
+          "endLine": 200,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dryup",
+          "line": 201,
+          "endLine": 242,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 179,
+        "to": 242
+      },
+      "activeStanding": {
+        "sha": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+        "screens": 10146,
+        "rng": 752461
+      },
+      "openMismatches": [
+        {
+          "session": "seed0014-dequa-fountain-explore",
+          "step": 712,
+          "kind": "stop",
+          "function": "dryup",
+          "functionDeclared": true,
+          "sourceFile": "fountain.c",
+          "cFile": "fountain.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: fountain requires the in-town fountain warning in dryup()",
+          "unlocatedKinds": [],
+          "recordedSteps": 714,
+          "remainingScreensUpperBound": 2,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0014-dequa-fountain-explore.json",
+            "result": {
+              "session": "seed0014-dequa-fountain-explore",
+              "remainingScreensUpperBound": 2,
+              "status": "complete",
+              "commit": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
+              "mismatch": {
+                "session": "seed0014-dequa-fountain-explore",
+                "step": 712,
+                "kind": "stop",
+                "function": "dryup",
+                "functionDeclared": true,
+                "sourceFile": "fountain.c",
+                "cFile": "fountain.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: fountain requires the in-town fountain warning in dryup()",
+                "unlocatedKinds": [],
+                "recordedSteps": 714,
+                "remainingScreensUpperBound": 2
+              },
+              "summary": "The priest fix is published and CI-complete with 42 additional matching screens. Main stops at step 712 in dryup. Worker B’s complete warning/drying change has a passing independent town-fountain warning witness: 12 screens/cursors and 5975 RNG values. It is preparing an immutable delivery; an earlier recipe is preserved for an unrelated monster-movement blocker.",
+              "source": {
+                "file": "fountain.c",
+                "functions": [
+                  "watchman_warn_fountain",
+                  "dryup"
+                ],
+                "branch": "When an unmarked town fountain is used by the hero and dryup passes its source rn2(3) gate, C sets F_WARNED, finds the first peaceful watchman in line of sight, prints a spoken or deaf-aware warning, or reports the flow reducing to a trickle, then returns. JavaScript currently throws before this warning path. Later drying preserves wizard confirmation, cloud-aware visibility, terrain/fountain counts, redraw and town guard anger.",
+                "callers": [
+                  "fountain.c drinkfountain() and dipfountain() call dryup after their selected effects. Current main reaches this owner at fixed-workload step 712.",
+                  "fountain.c dryup(), lines 201-239, calls mon.c get_iter_mons(watchman_warn_fountain) for the first warning and mon.c angry_guards(FALSE) after subsequent hero-caused town drying.",
+                  "zap.c zap_over_floor() calls dryup after fire creates steam at a fountain; worker A needs the shared source owner with state, RNG and display callbacks."
+                ],
+                "dependencies": [
+                  "Reuse mon.js get_iter_mons and angry_guards; preserve monster iteration and first accepted watchman behavior.",
+                  "Reuse is_watch, couldsee, Deaf, Amonnam, verbalize, mhis, nolimbs, mbodypart and makeplural for both watchman message branches. Display callbacks must preserve planning-clone isolation and display RNG ownership.",
+                  "Call the existing y_n for wizard confirmation, set_levltyp for the fountain-count transition, and state-aware glyph/redraw operations. Worker B exclusively owns dryup/watchman_warn_fountain; worker A owns the beam caller."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Checkpoint 0c6e141f98e976a84d9ae89ba27d0a762e8c721c run-LJtbkj passes: 30/44 sessions,10146/11405 screens,752461/792838 RNG,10173/11405 cursors;262/262 recordings,9748 screens and1348429 RNG values. This is a gain of42 screens over the accepted blindness checkpoint.",
+                "Fresh fixed-workload queue run-fZ2zgm moves the selected first mismatch from step669 pri_move to step712 dryup, count2. Its JavaScript stop identifies the in-town fountain warning. The priest divergence is resolved; no machine-local or session-specific exception was added.",
+                "The priest correction preserves C conceptual room indices: former shrine room2 and empty temple membership become room48/index45 and in_rooms(TEMPLE)=[48]. Combined focused run-5gHWf9 passes254 tests; lint run-vEfuwO and quality run-72ScTc pass. The independent generated-temple recording adds10 screens/cursors and4283 RNG values.",
+                "Coordinator read the complete fountain.c watchman_warn_fountain body at179-198 and dryup at201-239. The source sets F_WARNED before searching for a watchman and returns after this first warning; later calls still consume rn2(3) before the warned flag bypasses drying probability.",
+                "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet.",
+                "Worker B reports fresh differential run-NBfUW0 passing the independent seed 7001 route: level teleport, two south moves, then quaff and warning dismissal. Its recording has 12 matching screens/cursors and 5975 RNG calls, with rnd(30)=18 in drinkfountain followed by rn2(3)=0 in dryup and warning text at steps 10/11. Focused run-PPn92T passes 16 tests. These are worker results pending combined validation; they do not change the published score.",
+                "The earlier independently chosen seed 7204 recipe diverges at step 12 in monmove.c m_move before the fountain. The original input recipe is retained with that blocker and its failing recording stays outside the passing corpus. The smaller passing seed 7001 witness reaches the targeted source warning."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "watchman_warn_fountain",
+            "implementation": "js/fountain.js",
+            "symbol": "watchman_warn_fountain",
+            "sourceReview": "Read nethack-c/upstream/src/fountain.c:178-198 in full. The predicate preserves is_watch, couldsee, and mpeaceful short-circuit order and returns the first matching monster through get_iter_mons. The non-deaf arm formats Amonnam, then emits the source yells line and verbalize text in order; the Deaf arm preserves nolimbs, mhis, mbodypart(HEAD or ARM), and makeplural(ARM) evaluation. JavaScript queues those two asynchronous message operations inside the synchronous get_iter_mons predicate, then drains the queue after iteration without changing the source return or first-match behavior. All consumed helpers are implemented and state/displayRandom is forwarded to Amonnam and canSpotMonster is forwarded to mhis; no unported callee, refusal, injected draw, or substitute side effect remains.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "dryup",
+                "source": "fountain.c:209-213 calls get_iter_mons(watchman_warn_fountain) from dryup() after SET_FOUNTAIN_WARNED when the hero uses an un-warned in-town fountain."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/fountain-town-7001.session.json"
+            ],
+            "checkedAt": "1716a5531d62baf6d15351d25d79788be1802480"
+          },
+          {
+            "name": "dryup",
+            "implementation": "js/fountain.js",
+            "symbol": "dryup",
+            "sourceReview": "Read nethack-c/upstream/src/fountain.c:200-239 in full and compared the complete branch and evaluation order. JavaScript preserves IS_FOUNTAIN plus rn2(3) and FOUNTAIN_IS_WARNED admission, the in_town warning flag and first-watchman iteration, no-watchman trickle fallback and early return, wizard y_n confirmation, cansee/glyph_is_cmap/glyph_to_cmap visibility filtering, set_levltyp ROOM mutation, flags and blessedftn clearing, newsym, and in-town angry_guards. Random and callback owners are state-safe through env.random, env.canSeeSquare/canSee, env.glyphAt/glyph_at, env.redraw/newsym, env.getIterMons, and env.couldSeeSquare/couldSee; planning suppresses presentation redraw while retaining source state mutation. Consumed callee returns are used where source uses them and no unported return-used helper is skipped; no obsolete UnsupportedFountainError refusal or invented effect remains.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c:389 calls dryup(u.ux, u.uy, TRUE) after the drinkfountain fate switch and common exercise work."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c:553 calls dryup(u.ux, u.uy, TRUE) after dipfountain's fountain interaction."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/fountain-town-7001.session.json",
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ],
+            "checkedAt": "1716a5531d62baf6d15351d25d79788be1802480"
+          }
+        ],
+        "entryPointReview": "The selected source range contains shared helpers rather than a standalone command. Production reachability is through drinkfountain() and dipfountain(): seed 7001 independently reaches drinkfountain's tepid fate and dryup's in-town watchman warning, while the existing independent tepid-water recording reaches drinkfountain's ordinary drying mutation. Both recordings match C PRNG, screens, cursors, and animation streams. The wizard confirmation branch is source-complete and remains behind C's wizard-mode condition; these recipes deliberately cover the warning early return and ordinary removal paths.",
+        "entryPoints": [
+          {
+            "name": "drinkfountain in-town warning",
+            "functions": [
+              "watchman_warn_fountain",
+              "dryup"
+            ],
+            "recordings": [
+              "recordings/fountain.c/fountain-town-7001.session.json"
+            ]
+          },
+          {
+            "name": "drinkfountain ordinary drying tail",
+            "functions": [
+              "dryup"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-tepid-water.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      }
     }
   ]
 }

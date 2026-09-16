@@ -1,48 +1,53 @@
 {
   "session": "seed0014-dequa-fountain-explore",
-  "remainingScreensUpperBound": 47,
+  "remainingScreensUpperBound": 2,
   "status": "complete",
-  "commit": "25bec4a9fe647b574a4418fef4e1d3e90ac01e93",
+  "commit": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
   "mismatch": {
     "session": "seed0014-dequa-fountain-explore",
-    "step": 667,
-    "kind": "rng",
-    "function": "set_mimic_sym",
+    "step": 712,
+    "kind": "stop",
+    "function": "dryup",
     "functionDeclared": true,
-    "sourceFile": "makemon.c",
-    "cFile": "makemon.c",
+    "sourceFile": "fountain.c",
+    "cFile": "fountain.c",
     "luaFile": null,
-    "line": 2468,
-    "message": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: fountain requires the in-town fountain warning in dryup()",
     "unlocatedKinds": [],
     "recordedSteps": 714,
-    "remainingScreensUpperBound": 47
+    "remainingScreensUpperBound": 2
   },
-  "summary": "The landmine stop at step 655 is resolved. The first remaining mismatch is step 667 in set_mimic_sym(): a nested shop room index is missing from the direct JavaScript room array, so the mimic takes the ordinary appearance branch. Worker B has submitted the shared room lookup fix with a matching independent recording; its next worker-only mismatch is priest movement at step 669, now under investigation.",
+  "summary": "Resolved by the complete watchman warning and fountain drying port. Main checkpoint 17c7e13e matches all 714 screens/cursors and 59178 RNG values in this session, bringing the fixed workload to 31/44 complete sessions and 10148/11405 screens. The prior step-712 mismatch is retained below as provenance; no new investigation is needed while the session stays outside the mismatch queue.",
   "source": {
-    "file": "makemon.c",
+    "file": "fountain.c",
     "functions": [
-      "set_mimic_sym"
+      "watchman_warn_fountain",
+      "dryup"
     ],
-    "branch": "C reads levl[mx][my].roomno - ROOMOFFSET through the flat svr.rooms allocation, which includes subrooms. At a shop rtype >= SHOPBASE, it consumes rn2(10) before choosing stock. JavaScript reads only level.rooms[roomIndex]; nested shops are stored under parent sbrooms with conceptual roomnoidx values, so the missing direct entry supplies rtype 0 and selects the ordinary MIMIC_SYMBOLS rn2(17) branch.",
+    "branch": "The completed source port sets F_WARNED before selecting the first peaceful visible watchman, emits the spoken or deaf-aware warning or trickle fallback, then returns. Later drying preserves the rn2 gate, wizard confirmation, cloud-aware visibility, fountain counts, redraw and town guard anger.",
     "callers": [
-      "nethack-c/upstream/src/makemon.c:2393-2577 defines set_mimic_sym(), with the room lookup at 2405-2415 and shop selection at 2467-2486. makemon() calls it for a newly placed mimic at 1305, including shop-stock mimics.",
-      "js/makemon_create.js:makemon() calls set_mimic_sym(); its room lookup currently indexes state.level.rooms directly before choosing the shop or ordinary branch.",
-      "js/mklev.js:add_subroom() persists subrooms under their parent and assigns MAXNROFROOMS + 1 + nsubroom as roomnoidx. js/mines_levels.js generates nested Minetown shops using this representation."
+      "fountain.c drinkfountain() and dipfountain() call dryup after their selected effects. Current main reaches this owner at fixed-workload step 712.",
+      "fountain.c dryup(), lines 201-239, calls mon.c get_iter_mons(watchman_warn_fountain) for the first warning and mon.c angry_guards(FALSE) after subsequent hero-caused town drying.",
+      "zap.c zap_over_floor() calls dryup after fire creates steam at a fountain; worker A needs the shared source owner with state, RNG and display callbacks."
     ],
     "dependencies": [
-      "js/dungeon.js:mapseen_room() already resolves conceptual room indices through top-level rooms and recursive sbrooms; the submitted fix exports and reuses this owner without another room graph or RNG draw.",
-      "Preserve get_shop_item(), temporary mkobj()/obfree(), monster-based object overlays, fruit state, altar selection and does_block()/block_point() order. Only the source-defined room lookup changes.",
-      "Worker B delivery 93b6ff5aa25e64c391a92b5f0b09b1496bb8d4b1 is ready with 125 focused tests, lint and a strict fresh differential. It remains separate from the validated landmine candidate."
+      "Reuse mon.js get_iter_mons and angry_guards; preserve monster iteration and first accepted watchman behavior.",
+      "Reuse is_watch, couldsee, Deaf, Amonnam, verbalize, mhis, nolimbs, mbodypart and makeplural for both watchman message branches. Display callbacks must preserve planning-clone isolation and display RNG ownership.",
+      "Call the existing y_n for wizard confirmation, set_levltyp for the fountain-count transition, and state-aware glyph/redraw operations. Worker B exclusively owns dryup/watchman_warn_fountain; worker A owns the beam caller."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Checkpoint 25bec4a9fe647b574a4418fef4e1d3e90ac01e93, run-IpwzMi, passed: 30/44 sessions, 10101/11405 screens, 745419/792838 RNG, 10134/11405 cursors; all 259 recordings match. Compared with f0ff954d, seed0014 improves from 655 to 670 matching screens, giving the 15-screen overall gain. New landmine hero/monster recordings contribute 31 matching screens.",
-    "Fresh fixed-workload queue run-Ny5bQI identifies step 667, kind rng, function set_mimic_sym, 47 remaining screens as an upper bound. Every other session retains its investigation count.",
-    "Read complete C set_mimic_sym() and JavaScript room creation/lookup paths. C selects rn2(10)=0 at makemon.c:2468; the old JavaScript fallback selects rn2(17)=10. This is a state/branch mismatch, not a random-bound substitution.",
-    "Worker instrumentation captured the affected mimic at moves 910, depth 3, tile [54,13], roomno 55, conceptual roomIndex 52. level.rooms[52] is undefined; the persisted subroom resolver finds rtype 19, a shop. These are diagnostic facts only; no input or position is special-cased.",
-    "Independent existing blocked recipe recipes/hack.c/minetown-mimic-boundary.session.json uses seed 8124 and a different clock/character. After the room lookup fix, fresh run-E65Kbo matches and recording recordings/hack.c/minetown-mimic-boundary.session.json is included in the immutable delivery.",
-    "A focused worker-only replay after 93b6ff5a moves the first mismatch to step 669 in pri_move(): C consumes rn2(3), while JavaScript consumes rn2(10) before the priest path. Worker B and a read-only helper are tracing its preconditions; this is not yet an accepted main result."
+    "Checkpoint 0c6e141f98e976a84d9ae89ba27d0a762e8c721c run-LJtbkj passes: 30/44 sessions,10146/11405 screens,752461/792838 RNG,10173/11405 cursors;262/262 recordings,9748 screens and1348429 RNG values. This is a gain of42 screens over the accepted blindness checkpoint.",
+    "Fresh fixed-workload queue run-fZ2zgm moves the selected first mismatch from step669 pri_move to step712 dryup, count2. Its JavaScript stop identifies the in-town fountain warning. The priest divergence is resolved; no machine-local or session-specific exception was added.",
+    "The priest correction preserves C conceptual room indices: former shrine room2 and empty temple membership become room48/index45 and in_rooms(TEMPLE)=[48]. Combined focused run-5gHWf9 passes254 tests; lint run-vEfuwO and quality run-72ScTc pass. The independent generated-temple recording adds10 screens/cursors and4283 RNG values.",
+    "Coordinator read the complete fountain.c watchman_warn_fountain body at179-198 and dryup at201-239. The source sets F_WARNED before searching for a watchman and returns after this first warning; later calls still consume rn2(3) before the warned flag bypasses drying probability.",
+    "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet.",
+    "Worker B reports fresh differential run-NBfUW0 passing the independent seed 7001 route: level teleport, two south moves, then quaff and warning dismissal. Its recording has 12 matching screens/cursors and 5975 RNG calls, with rnd(30)=18 in drinkfountain followed by rn2(3)=0 in dryup and warning text at steps 10/11. Focused run-PPn92T passes 16 tests. These are worker results pending combined validation; they do not change the published score.",
+    "The earlier independently chosen seed 7204 recipe diverges at step 12 in monmove.c m_move before the fountain. The original input recipe is retained with that blocker and its failing recording stays outside the passing corpus. The smaller passing seed 7001 witness reaches the targeted source warning.",
+    "Validated main 17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92 checkpoint run-KDoCEY passes all tests and 263/263 recordings (9760 screens, 1354404 RNG). The fixed workload is 31/44 sessions, 10148/11405 screens, 752563/792838 RNG and 10175/11405 cursors: two screens and 102 RNG values gained over the priest checkpoint. seed0014 now matches all 714 screens/cursors and 59178 RNG calls.",
+    "Immutable worker delivery 094b02ab3fcdf1b64592a9f5ef8a880d114be13b implements watchman_warn_fountain and dryup, with the passing 12-screen,5975-RNG town witness and existing 47-screen,3282-RNG ordinary drying witness. The input-only seed7204 recipe retains its unrelated m_move blocker.",
+    "The first combined checkpoint at 02e828ed matched this complete segment but its diagnostic falsely rejected normal input exhaustion after recorded gaps. Tooling correction 17c7e13e (worker correction b3adc2b4) records exact per-segment RNG, screen, cursor and animation agreement before accepting that prompt end; unmatched segments still fail and both gap names remain visible. All 67 focused tooling tests, lint and the repeated full checkpoint pass. No game behavior, recording or scored output was changed by this correction."
   ]
 }

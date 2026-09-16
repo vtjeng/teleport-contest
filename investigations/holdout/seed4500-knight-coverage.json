@@ -1,54 +1,55 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 820,
+  "remainingScreensUpperBound": 817,
   "status": "complete",
-  "commit": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+  "commit": "54c48995b41e8b554d743779884ff13a7e01cd0b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 994,
-    "kind": "stop",
-    "function": "mhitm_ad_blnd",
-    "functionDeclared": false,
-    "sourceFile": "uhitm.c",
-    "cFile": "uhitm.c",
+    "step": 997,
+    "kind": "rng",
+    "function": "dobuzz",
+    "functionDeclared": true,
+    "sourceFile": "zap.c",
+    "cFile": "zap.c",
     "luaFile": null,
-    "line": null,
-    "message": "simple monster action requires uhitm.c mhitm_ad_blnd()",
+    "line": 4823,
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 820
+    "remainingScreensUpperBound": 817
   },
-  "summary": "The first main stop remains step 994 at mhitm_ad_blnd(). Worker A submitted the complete attack function and shared blindness fixes with 210 focused checks and a matching monster-to-hero recording. Review is correcting the hero recipe to use a raven because yellow-light explosions bypass this function; monster-to-monster coverage remains blocked by unported disposition parsing. The next worker-only mismatch is missing monster-breath dobuzz wiring at step 997.",
+  "summary": "Main first diverges at step 997 because breamm skips dobuzz. Worker A has expanded beam damage, creature hits and terrain effects; focused ray and electrical-destruction tests pass on its branch. Source review continues before fresh recordings and submission. The fountain dependency is under combined validation.",
   "source": {
-    "file": "uhitm.c",
+    "file": "zap.c",
     "functions": [
-      "mhitm_ad_blnd"
+      "dobuzz",
+      "zhitm",
+      "zap_over_floor"
     ],
-    "branch": "A landed AD_BLND attack dispatches through mhitm_adtyping(). C mhitm_ad_blnd() handles hero-to-monster, monster-to-hero, and monster-to-monster separately: it checks can_blnd(), emits visibility-gated messages, clamps monster blindness to 127, clears damage and monster waiting strategy, and sends hero timeout changes through make_blinded(). JavaScript currently refuses AD_BLND before this body.",
+    "branch": "After a successful breamm breath-admission draw, C calls dobuzz and draws rn1(7,7) for beam range. JavaScript breamm currently skips dobuzz, so the next cooldown draw occurs in its place. Existing dobuzz implements only some ray types and must be completed, with all return-used zhitm and zap_over_floor paths, before wiring the monster-breath caller.",
     "callers": [
-      "C uhitm.c mhitm_adtyping() dispatches AD_BLND to mhitm_ad_blnd(); js/uhitm.js mhitm_adtyping() still contains the corresponding unsupported boundary at the examined commit.",
-      "C mhitu.c hitmu() calls mhitm_adtyping() after the hit/damage rolls; js/mhitu.js hitmu() is reached by mattacku() in the production monster turn. The planning pass executes the same path against a clone before live execution.",
-      "Hero polymorph attacks and monster-to-monster attacks also use mhitm_adtyping(); implement all three direction arms in the whole selected C function."
+      "nethack-c/upstream/src/mthrowu.c:breamm() dispatches a selected monster breath into zap.c dobuzz(), preserving the monster buzzer and target direction, then performs cooldown draws.",
+      "nethack-c/upstream/src/zap.c:dobuzz(), lines 4780-5037, owns beam range, map traversal, reflection, creature hits, terrain effects, bouncing and final explosion/shop handling.",
+      "js/mthrowu.js:breamm() currently records note_unported(zap.c dobuzz); js/zap.js has a partial dobuzz owner used by other ray callers."
     ],
     "dependencies": [
-      "C uhitm.c mhitm_ad_blnd():2958-3008 consumes can_blnd() and uses mon_nam()/Monnam() for source visibility-dependent text; preserve display RNG ownership in planning environments.",
-      "C potion.c make_blinded():261-331 probes the future Blind property, restores the old timeout, applies messages and Punished set_bc(0), writes the new timeout and calls toggle_blindness() only when sight changes. Existing js/potion.js has a limited cream-pie transition guard; extending it is necessary for already-blind or punished attack victims. Keep one timeout owner.",
-      "C potion.c toggle_blindness():335-363 updates status and vision, recalculates visibility, refreshes sensed monsters, resets Sting feedback and learns unseen inventory on sight restoration. Clone execution must update clone state without writing to the live terminal.",
-      "Worker A owns A-20260916-3, including mhitm_ad_blnd, dispatch, make_blinded and toggle_blindness. Required fresh entry-point evidence and combined validation remain pending.",
-      "Source review of mondata.c:248-398 distinguishes Blindfolded (EBlinded) from ublindf (any eyewear, including lenses) and defines Unaware through multi < 0 plus unconscious()/is_fainted(). Existing JavaScript conflates eyewear cases and reads obsolete state fields. Worker A owns these return-valued dependencies and their source-pinned tests.",
-      "display.c see_monsters() changes monster recognition/warning state as well as drawing. The planning environment must execute those state changes on the clone and use its rendering/randomness owners; merely skipping the call in toggle_blindness() is incomplete.",
-      "The existing artifact.c Sting_effects() owner now has a worker-branch message callback and reads canonical state.uwep; toggle_blindness() calls it through the planning environment. These changes remain pending combined integration."
+      "zhitm() returns damage and an optional destroyed armor object; implement every damage-type branch and required return-valued callees, including electrical item destruction and hero spell bonuses.",
+      "zap_over_floor() returns range adjustments and shop damage; preserve terrain changes, trap activation, visibility snapshots, Norep messages, existing gas/object/timeout owners and source RNG order.",
+      "Worker B owns fountain.c dryup/watchman_warn_fountain as the shared dependency. Worker A must reuse its exported state/message interface. Other missing discarded-result callees remain explicit note_unported gaps.",
+      "Planning and live execution must use the same state and RNG owners; forward message/redraw callbacks through the beam helpers without drawing to the live terminal from a clone."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Checkpoint f0ff954d2222b1db27e4fa7925448efdc980e1e5, run-Y8ACFR, passed all checks: development 10086/11405 screens, 741703/792838 RNG, 10108/11405 cursors, 30/44 complete sessions; all 257 recordings pass. This is a two-screen gain over the previous accepted 10084 baseline.",
-    "Fresh fixed-workload queue run-aplFna at this commit identifies step 994, kind stop, message simple monster action requires uhitm.c mhitm_ad_blnd(), with 1814 recorded steps and an upper bound of 820 remaining screens. No other session investigation count changed.",
-    "Read complete C uhitm.c mhitm_ad_blnd():2958-3008 and potion.c make_blinded()/toggle_blindness():261-363. The source contains the three actor directions and a shared hero blindness transition; a separate attack-local timeout implementation would duplicate state ownership and skip ball/vision effects.",
-    "The preceding theft fix restores all four tele_restrict() sites in mhitm_ad_sedu(), retains ordinary disarm and urgent final-theft output, and passes the attack environment to monster naming. Independent fresh theft recordings match 36 screens/15001 RNG and 29 screens/2977 RNG; the previous urgency-only hypothesis was falsified before this source correction.",
-    "Read-only dependency review confirmed C decl.c:49 vision_clears is \"vision quickly clears.\", mondata.c can_blnd() uses distinct eyewear predicates by attack type, and youprop.h:399 Unaware reads gm.multi with unconscious()/is_fainted(). Root verified the corresponding JS stale fields and missing clone see_monsters() callback; these are pending worker corrections, not accepted gains.",
-    "Immutable worker delivery d1eb2d27558d480c1e9ee33a6629262c26c761b9 passes 210 focused checks and fresh run-r2dAI5 (11 screens, 3352 RNG) through the monster-to-hero entry. Root is requesting a new recipe correction before integration: C hmonas() sends yellow-light AT_EXPL directly to explum(), whereas raven AT_CLAW reaches damageum()->mhitm_adtyping()->mhitm_ad_blnd. Clearing Wizard cloak/staff before raven polymorph avoids the previous automatic-drop setup.",
-    "The source-defined monster-to-monster setup can create a sleeping hostile giant beetle followed by a tame raven; C read.c create_particular_parse()/create_particular() supports these dispositions, but current js/read.js refuses them. Keep that entry unverified; a failed setup does not establish source entry coverage.",
-    "A worker-only replay after the blinding delivery reaches step 997: C dobuzz(zap.c:4823) consumes rn2(7)=3 after breamm rn2(3)=1, while JS breamm skips dobuzz via note_unported and consumes its subsequent cooldown rn2(3). This identifies missing beam invocation, not a random-bound error; accepted main still stops at 994."
+    "Main checkpoint 54c48995b41e8b554d743779884ff13a7e01cd0b run-NweKAH passes: 30/44 sessions, 10104/11405 screens,747316/792838 RNG,10142/11405 cursors,261/261 recordings. The blindness span adds three fixed-workload screens and an independent 11-screen,3352-RNG recording.",
+    "Current mismatch-queue run-aOoyQt locates step997 at dobuzz(zap.c:4823), count817. C rn2(7)=3 at RNG index86673 contrasts with JS rn2(3)=1 after breamm omits the beam call; the source range draw explains the first RNG and screen mismatch.",
+    "Worker A task A-20260916-4 owns complete dobuzz and breamm integration. Its uncommitted breath/pool implementation progresses through screen1000 in a focused replay, but legal type families and required damage/terrain branches remain unfinished; this is not a delivered score gain.",
+    "Read-only source surveys identify existing trap, gas-cloud, equipment-destruction, reflection, and terrain owners. The floor fire branch must snapshot visibility before steam, use PIT rather than TT_PIT, preserve one Norep message, reveal swimmers, and call existing dotrap/mintrap. These details are source obligations, not session exceptions.",
+    "The accepted mhitm_ad_blnd span retains two unverified production entries: the hero raven recipe is blocked in hmonas, and the monster-to-monster recipe has no matching production recording. Its source goal is parked, not closed.",
+    "A later read-only electrical destruction survey traced zap.c maybe_destroy_item/destroy_items: hero gloves live at state.uarmg, worn rings must call existing do_wear.js Ring_gone, destruction clears state.current_wand when applicable, and monster wand damage honors shock resistance. Charged-ring recharge is a discarded read.c call on hero inventory only. These are source obligations for worker A’s unfinished electrical return-value dependency; no additional main score is claimed.",
+    "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery.",
+    "Worker A reports focused ray tests 48/48 and electrical destruction tests 29/29 with lint passing. Source corrections move mstrategy clearing before the ordinary monster hit label and exclude reflecting steeds before the shared hit arm, matching C's goto path. These checks cover unfinished worker code and do not change the published score.",
+    "The shared sleep_monst source review requires direct use of the existing zap.c resist owner with real RNG and preserves the trap callers that consume its boolean result. The source-owned terrain helper movement and dryup caller still require integration checks and independent recordings.",
+    "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings."
   ]
 }

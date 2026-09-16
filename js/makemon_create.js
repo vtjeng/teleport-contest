@@ -131,7 +131,13 @@ import {
     rndghostname,
 } from './do_name.js';
 import { newsym } from './display.js';
-import { depth, In_hell, level_difficulty, on_level } from './dungeon.js';
+import {
+    depth,
+    In_hell,
+    level_difficulty,
+    mapseen_room,
+    on_level,
+} from './dungeon.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
 import {
@@ -1062,7 +1068,7 @@ export function set_mimic_sym(monster, normalized) {
     } else {
         const roomIndex = (state.level.at(x, y)?.roomno ?? 0) - ROOMOFFSET;
         const roomType = roomIndex >= 0
-            ? state.level.rooms?.[roomIndex]?.rtype ?? 0
+            ? mapseen_room(roomIndex, state)?.rtype ?? 0
             : 0;
         // C's s_sym. The two shop arms that set ap_type and appear straight
         // from the shop's stock leave it undefined, which is how this port
