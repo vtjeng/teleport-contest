@@ -160,6 +160,31 @@ test('make_blinded reports temporary dimming when blocked blindness stays unseen
     assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
 });
 
+test('make_blinded preserves Your prefix for blindfold itch and twitch',
+    async () => {
+    // potion.c:293 and :319 use Your() around the source-selected eye/body
+    // part.  Keep both timeout directions source-pinned, including the
+    // singular eye form used by cyclopes.
+    const state = {
+        u: { uprops: [], uwep: null },
+        youmonst: { data: { mflags1: 0, mlet: 8, pmidx: 0 } },
+        disp: { botl: false },
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 5, extrinsic: 1, blocked: 0 };
+    const lines = [];
+    await make_blinded(0, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, ['Your eyes momentarily itch.']);
+
+    lines.length = 0;
+    state.u.uprops[BLINDED].intrinsic = 0;
+    await make_blinded(4, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, ['Your eyes momentarily twitch.']);
+});
+
 test('toggle_blindness refreshes sensed monsters through a clone redraw seam',
     async () => {
     const planned = {
