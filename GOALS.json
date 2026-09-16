@@ -53852,6 +53852,132 @@
         "rng": 756143
       },
       "parkedReason": "A11 source fix exposes the whole feel_location Punished display gap at1106. The candidate passes the old checkpoint ratchet but drops accepted screens10346 to9250 because the exception discards its segment; preserved on codex/a11-integration-wait-20260916 at49ad63ae. Worker B will port whole feel_location before A11 is retried."
+    },
+    {
+      "id": "port-mkroom-do-mkroom-seed0360-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete special-room dispatch and its ant availability predicate",
+      "cFile": "mkroom.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "Integrate oldest dependency-ready delivery B12 for seed0360-wizard-world-tour,46 remaining screens at787, investigated in investigations/seed0360-wizard-world-tour.json. Source owner is whole mkroom.c do_mkroom plus used antholemon caller predicate. Higher Knight A11 is parked on feel_location dependency owned by B13; seed0399 is active A12, seed2200 is machine-path Q1, and Priest B10/B11 corrections arrived after this independent delivery.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "do_mkroom",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "do_mkroom"
+          ]
+        }
+      ],
+      "openedAt": "1fb8cd57c030cd9eac23395e46a8a06d7cbec8eb",
+      "openStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_mkroom",
+          "line": 52,
+          "endLine": 94,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 52,
+        "to": 94
+      },
+      "activeStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 787,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported special room: do_mkroom(8)",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 46,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 46,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "step": 787,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported special room: do_mkroom(8)",
+                "unlocatedKinds": [],
+                "recordedSteps": 833,
+                "remainingScreensUpperBound": 46
+              },
+              "summary": "Worker B submitted the special-room dispatcher and ant-availability guard as B12 f76a0caa. Two independent ZOO entry recordings match on the worker branch; combined main validation is queued behind the flee correction. The accepted mismatch remains step 787 with 46 remaining screens.",
+              "source": {
+                "file": "mkroom.c",
+                "functions": [
+                  "do_mkroom"
+                ],
+                "branch": "Whole C mkroom.c do_mkroom() dispatcher (lines 50-92): roomtype >= SHOPBASE calls mkshop(); COURT, ZOO, BEEHIVE, MORGUE, and BARRACKS call mkzoo(); SWAMP calls mkswamp(); TEMPLE calls mktemple(); and LEPREHALL, COCKNEST, and ANTHOLE call mkzoo() with their type. The observed stop is the ZOO case at mkroom.c:61-63, selected by mklev.c makelevel() at lines 1357-1358 on Quest Home 4. The current JS dispatcher handles shops, TEMPLE, COURT, BEEHIVE, MORGUE, and BARRACKS but throws for ZOO and the other omitted cases.",
+                "callers": [
+                  "nethack-c/upstream/src/mklev.c:1344-1375 makelevel() selects at most one depth-gated special room and calls do_mkroom(); the ZOO branch is lines 1357-1358, and special rooms are filled afterward by fill_special_room() at lines 1414-1418.",
+                  "js/mklev.js:772-819 makelevel() mirrors the depth-gated selection and calls do_mkroom(ZOO) at lines 798-799; it then iterates rooms through fill_special_room() at lines 850-852.",
+                  "js/mkroom.js:801-817 is the production do_mkroom() implementation; its current dispatch stops at an UnsupportedSpecialRoomError for omitted room types.",
+                  "js/mklev.js:542-605 fill_special_room() routes ZOO to fill_zoo() and still throws for ANTHOLE, COCKNEST, and LEPREHALL after dispatch is widened."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/include/mkroom.h:50-66 defines ZOO=8, SWAMP=9, TEMPLE=10, LEPREHALL=11, COCKNEST=12, ANTHOLE=13, and SHOPBASE=14; this maps the observed do_mkroom(8) message to ZOO.",
+                  "nethack-c/upstream/src/mkroom.c:243-254 mkzoo() picks a room and sets rtype and needfill; js/mkroom.js:488-495 already implements this dependency.",
+                  "nethack-c/upstream/src/mkroom.c:275-452 fill_zoo() stocks ZOO rooms and sets has_zoo; js/mkroom.js:624-765 already contains the ZOO fill arm, so the current stop is before this code.",
+                  "nethack-c/upstream/src/mkroom.c:529-574 mkswamp() is required by the whole dispatcher but has no JavaScript owner; js/mkroom.js:388-393 only records note_unported() for the SHOPTYPE swamp path.",
+                  "nethack-c/upstream/src/mkroom.c:501-527 antholemon() supplies C's ANTHOLE selection guard at mklev.c:1366-1367; js/mklev.js:807-810 omits that guard, and js/mklev.js:567-572 still refuses the ANTHOLE, COCKNEST, and LEPREHALL fill families.",
+                  ".cache/seed0360-investigation-18a56313/inspect-boundary.json records the replay state at the stop: dnum 3, dlevel 4, absolute depth 18, eight rooms with a vault and no selected special room yet, proving the failure occurs during ordinary-level room selection before ZOO filling.",
+                  "js/quest_levels.js:1788-1852 registers Wiz-fila and the assigned replay's step 784 now passes that loader; the step-787 boundary is therefore owned by mkroom.c rather than Wiz-fila.lua."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
+                "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
+                "Bounded boundary inspection run-ml4SbS and .cache/seed0360-investigation-18a56313/inspect-boundary.json captured the production state at the stop as Quest dnum 3, dlevel 4, absolute depth 18, with seven ordinary rooms and one vault room. The existing Wiz-fila level at the preceding Home 2 selection is reached before this boundary.",
+                "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
+                "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
+                "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
+                "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
+                "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
+                "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted.",
+                "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
