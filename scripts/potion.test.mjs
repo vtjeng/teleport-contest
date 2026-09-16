@@ -118,6 +118,72 @@ test('make_blinded uses injected vision state for planned blindness', async () =
     assert.equal(typeof visionCalls[0][2], 'function');
 });
 
+test('make_blinded preserves C regain message and transition order', async () => {
+    const state = {
+        u: { uprops: [], uwep: null },
+        disp: { botl: false },
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 5, extrinsic: 0, blocked: 0 };
+    const lines = [];
+    let recalc = 0;
+
+    await make_blinded(0, true, state, {
+        message: async (line) => lines.push(line),
+        visionRecalc: () => { ++recalc; },
+    });
+
+    // potion.c:274-288 emits the regain line before toggle_blindness(), and
+    // the latter is the only owner of the vision rebuild.
+    assert.deepEqual(lines, ['You can see again.']);
+    assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
+    assert.equal(recalc, 1);
+});
+
+test('make_blinded reports temporary dimming when blocked blindness stays unseen',
+    async () => {
+    const state = {
+        u: { uprops: [], uwep: null },
+        youmonst: { data: { mflags1: 0, pmidx: 0 } },
+        disp: { botl: false },
+    };
+    // BBlinded (the blocked bit) models Eyes of the Overworld: HBlinded can
+    // change while Blind remains false, entering potion.c:312-321.
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 1 };
+    const lines = [];
+    await make_blinded(4, true, state, {
+        message: async (line) => lines.push(line),
+    });
+
+    assert.deepEqual(lines, [
+        'Your vision seems to dim for a moment but is normal now.',
+    ]);
+    assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
+});
+
+test('make_blinded preserves Your prefix for blindfold itch and twitch',
+    async () => {
+    // potion.c:293 and :319 use Your() around the source-selected eye/body
+    // part. Keep both timeout directions source-pinned for a two-eyed form.
+    const state = {
+        u: { uprops: [], uwep: null },
+        youmonst: { data: { mflags1: 0, mlet: 8, pmidx: 0 } },
+        disp: { botl: false },
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 5, extrinsic: 1, blocked: 0 };
+    const lines = [];
+    await make_blinded(0, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, ['Your eyes momentarily itch.']);
+
+    lines.length = 0;
+    state.u.uprops[BLINDED].intrinsic = 0;
+    await make_blinded(4, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, ['Your eyes momentarily twitch.']);
+});
+
 test('toggle_blindness refreshes sensed monsters through a clone redraw seam',
     async () => {
     const planned = {

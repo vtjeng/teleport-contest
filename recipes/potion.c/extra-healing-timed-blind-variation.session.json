@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent variation of the potion.c make_blinded cure recipe. Seed 9238199, clock 20360819093427, character TimedCureVar, Wizard role, elf race, chaotic alignment, blessed dose, and three initial waits were chosen independently. #wizintrinsic selects timed blindness (50i) before the extra-healing quaff, exercising the same production cure and message with a distinct race, dose, and prelude.",
+  "segments": [
+    {
+      "seed": 9238199,
+      "datetime": "20360819093427",
+      "nethackrc": "OPTIONS=name:TimedCureVar,role:Wizard,race:elf,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "...\u0017blessed potion of extra healing\n#wizintrinsic\n50i\n qp "
+    }
+  ]
+}

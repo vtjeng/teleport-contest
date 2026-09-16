@@ -41,6 +41,7 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    EYE,
     FACE,
     FAST,
     FAINTED,
@@ -104,10 +105,12 @@ import {
 import { set_malign } from './makemon.js';
 import { makemon_runtime, mongone } from './makemon_create.js';
 import { breathless, haseyes, likes_fire } from './mondata.js';
-import { PM_DJINNI, PM_HEALER } from './monsters.js';
+import {
+    PM_CYCLOPS, PM_DJINNI, PM_FLOATING_EYE, PM_HEALER,
+} from './monsters.js';
 import { bcsign, objectType } from './obj.js';
 import {
-    Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname,
+    Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname, vtense,
 } from './objnam.js';
 import { inaccessible_equipment } from './do_wear.js';
 import { is_boots, is_gloves } from './obj.js';
@@ -394,72 +397,107 @@ export async function make_deaf(xtime, talk, state = game, env = {}) {
     }
 }
 
-// C ref: potion.c make_blinded() (261-331). Covers the silent transitions
-// (talk=false) used by cream-pie, rotten-food blindness, and monster attacks,
-// wipeoff()'s one-turn restoration, and the sighted no-op from carrot eating.
-// Talking paths besides wipeoff (Hallucination wordings,
-// Blindfolded/Eyes messages) remain fail-closed.
+// C ref: potion.c make_blinded() (261-331). The temporary timeout is probed
+// before committing it because Eyes of the Overworld can keep Blind false even
+// while HBlinded changes. Message calls use the caller's seam so planning
+// clones do not write to the live terminal; toggle_blindness() remains the
+// canonical owner of the full vision rebuild.
 export async function make_blinded(xtime, talk, state = game, env = {}) {
     const prop = state.u?.uprops?.[BLINDED];
     if (!prop)
         throw new Error('make_blinded requires initialized BLINDED state');
     const old = prop.intrinsic & TIMEOUT;
-    const punished = Boolean(state.uball ?? state.go?.uball);
-    const stinging = Boolean(
-        state.uwep
-        && ((state.u.uprops?.[WARN_OF_MON]?.extrinsic ?? 0) & W_WEP),
-    );
-    // Silent callers include monster attacks that extend an existing timer or
-    // clear it.  C accepts those transitions regardless of the current
-    // blindness source and clamps the timeout in set_itimeout().
-    const silentBlindnessChange = talk === false
-        && Number.isInteger(xtime)
-        && xtime >= 0;
-    const restoresWipedSight = talk === true
-        && xtime === 0
-        && old === 1
-        && prop.intrinsic === 1
-        && !prop.extrinsic
-        && !prop.blocked
-        && heroIsBlind(state)
-        && state.u.ucreamed === 0
-        && !punished
-        && !stinging
-        && !Unaware(state)
-        && !Upolyd(state.u)
-        && state.urace?.noun === 'human'
-        && !(state.u.uprops?.[HALLUC]?.intrinsic
-            || state.u.uprops?.[HALLUC]?.extrinsic);
-    // C makes no transition when both old and xtime are zero, including
-    // permanent and blindfold blindness: those sources remain in place.
-    const unchangedTimeout = xtime === 0 && old === 0;
-    // wizcmds.c calls make_blinded(newtimeout, TRUE) for #wizintrinsic.
-    // When a timed blindness is already active, this is the source's silent
-    // extension path: there is no visual transition and no pline().
-    const extendsTimedBlindness = talk === true && old > 0 && xtime > 0;
-    if (!silentBlindnessChange && !restoresWipedSight
-        && !unchangedTimeout && !extendsTimedBlindness) {
-        throw new UnsupportedPotionError(
-            'make_blinded() outside the ordinary cream-pie transitions',
-        );
-    }
 
-    // Probe the status with one timed turn, then restore the old timeout,
-    // exactly as C does in case blocked blindness overrides the property.
+    // C probes one timed turn and restores the complete old HBlinded value.
+    // This is deliberately done before changing talk for Unaware: the source
+    // still needs the visibility transition even when its message is silent.
     const uCouldSee = !heroIsBlind(state);
     set_itimeout(prop, xtime ? 1 : 0);
     const canSeeNow = !heroIsBlind(state);
     set_itimeout(prop, old);
+    if (Unaware(state)) talk = false;
 
-    // C ref: potion.c:302-307.  set_bc() belongs to ball.c and has not yet
-    // been ported.  Its return is discarded; record the gap and continue the
-    // blindness transition instead of refusing the monster attack.  Planning
-    // clones must not mutate the live game's unported set.
-    if (uCouldSee && !canSeeNow && punished && state === game)
-        note_unported('ball.c set_bc');
+    const message = env.message ?? ttyPline;
+    const hallucinating = Hallucination(state);
+    const permaBlind = Boolean(prop.intrinsic & FROMOUTSIDE);
+    const blindfolded = Boolean(prop.extrinsic);
+    const eyes = () => {
+        const species = state.youmonst?.data;
+        let result = species && haseyes(species)
+            ? body_part(EYE, state.youmonst) : 'eyes';
+        // mondata.h eyecount(): only cyclops and floating eyes have one eye;
+        // all other sighted forms have two, so pluralize their body part.
+        const count = !species || !haseyes(species) ? 0
+            : (species.pmidx === PM_CYCLOPS || species.pmidx === PM_FLOATING_EYE)
+                ? 1 : 2;
+        if (result == null) result = 'eyes';
+        if (count !== 1) result = makeplural(result);
+        return result;
+    };
+    const strangeFeeling = () => {
+        // C's strange_feeling(NULL, NULL) has a discarded return and belongs
+        // to potion.c. Keep the source call visible without using a refusal
+        // as a substitute operation; its message owner is outside this span.
+        if (state === game) note_unported('potion.c strange_feeling');
+    };
 
-    if (restoresWipedSight)
-        await (env.message ?? ttyPline)('You can see again.', state);
+    if (canSeeNow && !uCouldSee) {
+        if (talk) {
+            await message(
+                hallucinating
+                    ? 'Far out!  Everything is all cosmic again!'
+                    : 'You can see again.',
+                state,
+            );
+        }
+    } else if (old && !xtime) {
+        // Clearing temporary blindness without changing overall Blind leaves
+        // a blindfold, permanent blindness, or eyeless form in charge.
+        if (talk) {
+            if (!haseyes(state.youmonst?.data) || permaBlind) {
+                strangeFeeling();
+            } else if (blindfolded) {
+                const name = eyes();
+                await message(`Your ${name} momentarily ${vtense(name, 'itch')}.`, state);
+            } else {
+                await message(
+                    'Your vision seems to brighten for a moment but is '
+                        + (hallucinating ? 'sadder' : 'normal') + ' now.',
+                    state,
+                );
+            }
+        }
+    }
+
+    if (uCouldSee && !canSeeNow) {
+        if (talk) {
+            await message(
+                hallucinating
+                    ? 'Oh, bummer!  Everything is dark!  Help!'
+                    : 'A cloud of darkness falls upon you.',
+                state,
+            );
+        }
+        // C's set_bc() result is discarded. It remains outside this span;
+        // planning clones must not add the gap to the live game's set.
+        const punished = Boolean(state.uball);
+        if (punished && state === game) note_unported('ball.c set_bc');
+    } else if (!old && xtime) {
+        if (talk) {
+            if (!haseyes(state.youmonst?.data) || permaBlind) {
+                strangeFeeling();
+            } else if (blindfolded) {
+                const name = eyes();
+                await message(`Your ${name} momentarily ${vtense(name, 'twitch')}.`, state);
+            } else {
+                await message(
+                    'Your vision seems to dim for a moment but is '
+                        + (hallucinating ? 'happier' : 'normal') + ' now.',
+                    state,
+                );
+            }
+        }
+    }
 
     set_itimeout(prop, xtime);
     if (uCouldSee !== canSeeNow)
