@@ -51759,7 +51759,7 @@
           "line": 4780,
           "endLine": 5039,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -51861,7 +51861,131 @@
         "screens": 10148,
         "rng": 752563
       },
-      "parkedReason": "Preserve exact A4 integration on codex/a4-integration-wait-20260916 while worker completes picking_at purity, whole waterbody_name return dependency and obsolete refusal test correction; independent ready B5 can be validated now."
+      "parkedReason": "Preserve exact A4 integration on codex/a4-integration-wait-20260916 while worker completes picking_at purity, whole waterbody_name return dependency and obsolete refusal test correction; independent ready B5 can be validated now.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "dobuzz",
+            "implementation": "js/zap.js",
+            "symbol": "dobuzz",
+            "sourceReview": "Read nethack-c/upstream/src/zap.c:4779-5037 in full and compared each branch and expression order with js/zap.js. The port preserves the source hdmgtype/spell_type setup, swallowed-monster early return, range rn1 and zero-direction rule, beam frame and visibility ordering, gb.bhitpos updates, non-fireball/non-gas pre-floor processing, monster cache refresh after floor effects, ordinary STRAT_WAITMASK clearing before the shared buzzmonst label, reflection reversal and gas deferral, zhitm return use, rider and Death special cases, disintegration/monster-kill branches, armor-destruction versus normal-hit messaging, sleep and wake transitions, steed interception and reflection admission, hero reflection and zhitu, deferred gas clouds, obstacle bounce and air-level behavior, fireball explosion, shop-damage classification, and saved bhitpos restoration. The same source-owned zap.js file contains zhitm and zap_over_floor supporting branches used by dobuzz. Existing implemented callers are invoked directly; discarded unported callees are named explicitly in this review and no new UnsupportedZapError refusal was added. zhitu receives the attack env and transfers a lethal non-polymorphed planning clone through the existing planningDeath handoff before losehp can emit live urgent/death output. The later helper correction95a818cc restores pure lock.c picking_at pointer identity and the complete pager.c waterbody_name, forwards display RNG separately from core RNG, and removes duplicate waterbody name branches in invent/startup_a11y. Their focused source assertions supplement the unchanged dragon recordings; no new entry family is credited.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "ubuzz",
+                "source": "zap.c:4758-4762 ubuzz() invokes dobuzz() for a hero wand ray after selecting its direction and type."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "buzz",
+                "source": "zap.c:4765-4768 buzz() invokes dobuzz(); C mcastu.c buzzmu(), priest.c ghod_hitsu() and timeout.c do_storms() use it for their beam actions. Only the wrapper declaration is claimed here; these entry families remain unverified."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "breamm",
+                "source": "mthrowu.c:1093-1150 breamm() selects a monster breath, computes its line, and invokes dobuzz() with the monster damage type and attack context."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "buzz_force_miss",
+                "source": "muse.c:1815-1823 buzz_force_miss() invokes dobuzz() for the monster wand forced-miss caller; this caller is source-reviewed but remains an unverified production entry family for this delivery."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-destroy-items.test.mjs",
+              "scripts/mthrowu.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/whatis-command.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/startup-a11y.test.mjs",
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/red-dragon-breath-fresh.session.json",
+              "recordings/mthrowu.c/red-dragon-breath-unknown-space.session.json"
+            ],
+            "checkedAt": "92767eac3676b8e0bef183c9d85ef737d719c19d"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete zap.c dobuzz() function (4779-5037), with its production mthrowu.c breamm() caller wired in the same delivery. Source review follows C evaluation order: hdmgtype and hero spell typing, swallowed-monster handling, beam range and boundary advancement, visibility/reveal updates before beam frames, pre-hit zap_over_floor effects and refreshed monster lookup, ordinary monster strategy clearing, the shared buzzmonst arm including reflection, rider/Death special cases, zhitm return handling, disintegration and monster death handling, sleep/wakeup transitions, steed interception with the source reflection exclusion, hero hit/reflection/zhitu handling, deferred gas-floor effects, obstacle bounce and air-level exits, fireball explosion, and shop damage accounting. breamm forwards the production attack damage and source type into dobuzz while preserving its injected random/display context. The fresh red-dragon recordings reach breamm -> dobuzz -> zap_hit -> zhitu -> burnarmor and match C completely. The source goal remains open for unverified hero spell and muse forced-miss caller families; their production prerequisites and independent entry recordings are listed below rather than claimed complete. The implementation records only genuinely discarded unported callee gaps: display.c shieldeff, zap.c melt_ice, zap.c start_melt_ice_timeout, dig.c bury_objs, display.c docrt, shk.c add_damage, dig.c draft_message, dig.c dighole, dig.c pit_flow, shk.c pay_for_damage, trap.c acid_damage, and uhitm.c erode_armor. Return-valued owners such as burn_floor_objects, obj_ice_effects, dissolve_bars, fix_wall_spines, delfloortrap, dryup, in_rooms, picking_at, and waterbody_name are called directly. Planned lethal monster damage uses the existing planningDeath handoff after recording clone damage and end_running state, so losehp urgent/death output stays on the live replay boundary. Coordinator correction: the immutable packet mistypes the full SHA of source predecessor1ba06cf8; Git and the worker confirm1ba06cf8698a028fe9a1ff3e785ffa0355d10bcf. The initial three exact worker commits were preserved before integrating the later helper correction 95a818cc18c680819f894278266ad1a8d62b9727. Coordinator source survey distinguishes breamu monster-to-hero breath from mattackm monster-to-monster breath, and corrects the wrapper mapping: C hero spells use weffects/ubuzz, while monster spells, angry priest beams and storms use buzz. Hero polymorph breath and instrument horns also call ubuzz. Only the two fresh monster-to-hero fire cases are credited now. Existing recordings/muse.c/ureflects-amulet-wand-bounce may establish hero-wand coverage after exact-candidate checkpoint. Other listed entry families stay unverified and the goal must remain parked; this span does not claim their production coverage. Supporting breamm evidence update: this span removes its prior note_unported zap.c dobuzz call and invokes dobuzz with the source type/damage/direction and planning context. Both red-dragon recordings execute breamu -> breamm -> dobuzz; the earlier mthrowu record at4e81d907 cited an Uruk spear recording, which does not establish breath reachability. The new breath recordings supersede that reachability claim for the monster-to-hero entry only. The sound effect remains an explicit discarded-call gap; monster-to-monster breath is still unverified. Coordinator verified correction against lock.c picking_at lines30-34, pager.c waterbody_name lines561-612 and rm.h SURFACE_AT: the lock query neither initializes xlock nor accepts coordinate aliases; waterbody_name preserves invalid-coordinate, raised-drawbridge, hallucination/gameover, special-level and liquid-name branches. invent and startup_a11y delegate their terrain name to pager. zap_over_floor passes only displayRandom to hliquid so core draws cannot substitute for display draws. Source-pinned lock/whatis/zap tests cover these corrections. No additional entry-point recording is claimed by the correction.",
+        "entryPoints": [
+          {
+            "name": "monster fire breath against the hero through breamu and breamm",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/red-dragon-breath-fresh.session.json",
+              "recordings/mthrowu.c/red-dragon-breath-unknown-space.session.json"
+            ]
+          },
+          {
+            "name": "monster breath against another monster through mattackm and breamm",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "hero wand ray through ubuzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "hero spell ray through weffects and ubuzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "hero polymorph breath through dobreathe and ubuzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "horn beam through do_play_instrument and ubuzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster spell ray through buzzmu and buzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "angry priest beam through buzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "storm beam through timeout and buzz",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster wand or horn forced-miss ray through buzz_force_miss",
+            "functions": [
+              "dobuzz"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     },
     {
       "id": "port-pray-dosacrifice-seed0106-20260916",
