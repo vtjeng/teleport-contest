@@ -198,6 +198,8 @@ and cache path in the completion message. When the count changes, stop or
 finish the old investigation before replacing it so an old result cannot
 overwrite a newer one. Collect worker findings into main's investigation
 files and publish them at a safe commit boundary.
+Keep the deployed dashboard current with completed and partial investigations and the latest validated score; publish newly available records at the next safe commit boundary without waiting for an implementation delivery.
+After each push, verify the dashboard deployment and its displayed mismatch queue against the published records.
 
 ## Reports
 
