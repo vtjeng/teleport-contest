@@ -81,6 +81,7 @@ import {
     W_WEP,
 } from './const.js';
 import { adjattrib, exercise, poisontell } from './attrib.js';
+import { Sting_effects } from './artifacts.js';
 import {
     bot, newsym, see_monsters, see_objects, see_traps, swallowed, tmp_at,
 } from './display.js';
@@ -392,11 +393,11 @@ export async function make_deaf(xtime, talk, state = game, env = {}) {
 }
 
 // C ref: potion.c make_blinded() (261-331). Covers the silent transitions
-// (talk=false) used by cream-pie and rotten-food blindness, wipeoff()'s
-// one-turn restoration, and the sighted no-op from carrot eating.  Talking
-// paths besides wipeoff (Hallucination wordings, Blindfolded/Eyes messages,
-// Punished set_bc) remain fail-closed.
-export async function make_blinded(xtime, talk, state = game) {
+// (talk=false) used by cream-pie, rotten-food blindness, and monster attacks,
+// wipeoff()'s one-turn restoration, and the sighted no-op from carrot eating.
+// Talking paths besides wipeoff (Hallucination wordings,
+// Blindfolded/Eyes messages) remain fail-closed.
+export async function make_blinded(xtime, talk, state = game, env = {}) {
     const prop = state.u?.uprops?.[BLINDED];
     if (!prop)
         throw new Error('make_blinded requires initialized BLINDED state');
@@ -406,15 +407,12 @@ export async function make_blinded(xtime, talk, state = game) {
         state.uwep
         && ((state.u.uprops?.[WARN_OF_MON]?.extrinsic ?? 0) & W_WEP),
     );
-    // Silent sighted-to-blind: cream-pie, rotten food, etc.  When talk is
-    // false C skips every message.  The Punished guard around set_bc(0) is
-    // outside the talk condition in C, so we still reject punished heroes.
-    const silentBlindnessIncrease = talk === false
-        && !heroIsBlind(state)
-        && !punished
+    // Silent callers include monster attacks that extend an existing timer or
+    // clear it.  C accepts those transitions regardless of the current
+    // blindness source and clamps the timeout in set_itimeout().
+    const silentBlindnessChange = talk === false
         && Number.isInteger(xtime)
-        && xtime >= 1
-        && xtime <= TIMEOUT;
+        && xtime >= 0;
     const restoresWipedSight = talk === true
         && xtime === 0
         && old === 1
@@ -433,7 +431,7 @@ export async function make_blinded(xtime, talk, state = game) {
     // C makes no transition when both old and xtime are zero, including
     // permanent and blindfold blindness: those sources remain in place.
     const unchangedTimeout = xtime === 0 && old === 0;
-    if (!silentBlindnessIncrease && !restoresWipedSight && !unchangedTimeout) {
+    if (!silentBlindnessChange && !restoresWipedSight && !unchangedTimeout) {
         throw new UnsupportedPotionError(
             'make_blinded() outside the ordinary cream-pie transitions',
         );
@@ -446,12 +444,19 @@ export async function make_blinded(xtime, talk, state = game) {
     const canSeeNow = !heroIsBlind(state);
     set_itimeout(prop, old);
 
+    // C ref: potion.c:302-307.  set_bc() belongs to ball.c and has not yet
+    // been ported.  Its return is discarded; record the gap and continue the
+    // blindness transition instead of refusing the monster attack.  Planning
+    // clones must not mutate the live game's unported set.
+    if (uCouldSee && !canSeeNow && punished && state === game)
+        note_unported('ball.c set_bc');
+
     if (restoresWipedSight)
-        await ttyPline('You can see again.', state);
+        await (env.message ?? ttyPline)('You can see again.', state);
 
     set_itimeout(prop, xtime);
     if (uCouldSee !== canSeeNow)
-        await toggle_blindness(state);
+        await toggle_blindness(state, env);
 }
 
 // C ref: youprop.h:399 Unaware. trap.c unconscious() owns the pending-message
@@ -1115,12 +1120,9 @@ export async function dodrink(state = game) {
 // vision rebuild and updates the monster display for heroes whose senses
 // (telepathy, infravision, or Sting-glow) depend on the blind/sighted split.
 //
-// Fail-closed items:
-// - Sting_effects(-1): fires only when the hero wields the artifact Sting.
-//   The Stinging local is checked for the see_monsters() gate (the condition
-//   is cheap and wrong to skip) but the Sting_effects() call itself is
-//   refused, since no ported session wields that artifact.
-export async function toggle_blindness(state = game) {
+// The Sting_effects(-1) result is discarded by C.  The implemented artifact
+// owner accepts the message seam below so planning clones stay silent.
+export async function toggle_blindness(state = game, env = {}) {
     const hero = state.u;
 
     // C ref: potion.c:338. Stinging = (uwep && (EWarn_of_mon & W_WEP) != 0L).
@@ -1130,7 +1132,13 @@ export async function toggle_blindness(state = game) {
 
     state.disp.botl = true;               // status conditions need update
     state.vision_full_recalc = 1;          // vision has changed
-    vision_recalc(0, { state });
+    // vision_recalc() and see_monsters() can operate on a planning clone when
+    // their caller gives them the clone's redraw seam. The fallback is silent
+    // for a non-live state because newsym() is the live display owner.
+    const redraw = env.redraw ?? (state === game ? undefined : () => {});
+    const visionRecalc = env.visionRecalc
+        ?? ((control) => vision_recalc(control, { state, redraw }));
+    visionRecalc(0, { state, redraw });
 
     // C ref: potion.c:349. Blind_telepat = (HTelepat || ETelepat);
     // Infravision = (HInfravision || EInfravision).
@@ -1143,12 +1151,15 @@ export async function toggle_blindness(state = game) {
         || hero.uprops?.[INFRAVISION]?.extrinsic,
     );
     if (Blind_telepat || Infravision || Stinging)
-        see_monsters(state);
+        see_monsters(state, { redraw });
 
     // C ref: potion.c:359-360. Sting_effects(-1) resets the Sting glow/quiver
-    // message to match the new blindness state. Fires only for artifact Sting.
+    // message to match the new blindness state. Its result is discarded; the
+    // async owner accepts a silent clone message seam.
     if (Stinging) {
-        throw new UnsupportedPotionError('Sting_effects(-1)');
+        await Sting_effects(-1, state, {
+            message: env.message ?? (state === game ? undefined : async () => {}),
+        });
     }
 
     // C ref: potion.c:362-363. learn_unseen_invent() marks dknown on objects

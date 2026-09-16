@@ -1,52 +1,48 @@
 {
   "session": "seed0014-dequa-fountain-explore",
-  "remainingScreensUpperBound": 45,
+  "remainingScreensUpperBound": 2,
   "status": "complete",
-  "commit": "aface44fb504a9d8296da4400543983d4677d5fd",
+  "commit": "0c6e141f98e976a84d9ae89ba27d0a762e8c721c",
   "mismatch": {
     "session": "seed0014-dequa-fountain-explore",
-    "step": 669,
-    "kind": "rng",
-    "function": "pri_move",
+    "step": 712,
+    "kind": "stop",
+    "function": "dryup",
     "functionDeclared": true,
-    "sourceFile": "priest.c",
-    "cFile": "priest.c",
+    "sourceFile": "fountain.c",
+    "cFile": "fountain.c",
     "luaFile": null,
-    "line": 194,
-    "message": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: fountain requires the in-town fountain warning in dryup()",
     "unlocatedKinds": [],
     "recordedSteps": 714,
-    "remainingScreensUpperBound": 45
+    "remainingScreensUpperBound": 2
   },
-  "summary": "The mimic mismatch is resolved. At step 669, a nested temple priest has shrine-room number 2 and no recognized temple membership, so JavaScript skips priest movement. Worker B corrected the conceptual room lookup and shrine-room initialization; an independent recording now matches. Focused checks and combined validation remain pending.",
+  "summary": "The nested temple priest fix passes combined validation and adds 42 matching development screens. The session now reaches step 712 and stops at the unported in-town fountain warning in dryup. Worker B is porting complete watchman_warn_fountain and dryup, which also supply worker A’s beam terrain dependency.",
   "source": {
-    "file": "priest.c",
+    "file": "fountain.c",
     "functions": [
-      "priestini",
-      "temple_occupied",
-      "histemple_at",
-      "pri_move"
+      "watchman_warn_fountain",
+      "dryup"
     ],
-    "branch": "C pri_move() returns -1 only when histemple_at() fails, then otherwise consumes two rn1(3,-1) calls to mill around the altar. C priestini() initializes EPRI.shroom from the conceptual flat room array, and histemple_at() compares it with in_rooms(TEMPLE). JavaScript priestini() uses level.rooms.indexOf(sroom), which returns -1 for a nested subroom; rooms.js roomType() and priest.js temple_occupied() also search only the top-level array. These source-inconsistent room values cause ordinary movement to run instead of temple movement.",
+    "branch": "When an unmarked town fountain is used by the hero and dryup passes its source rn2(3) gate, C sets F_WARNED, finds the first peaceful watchman in line of sight, prints a spoken or deaf-aware warning, or reports the flow reducing to a trickle, then returns. JavaScript currently throws before this warning path. Later drying preserves wizard confirmation, cloud-aware visibility, terrain/fountain counts, redraw and town guard anger.",
     "callers": [
-      "nethack-c/upstream/src/priest.c:142-157 defines temple_occupied()/histemple_at(); pri_move() at 176-225 tests the priest room before its first two rn1(3,-1) calls at 194-195.",
-      "nethack-c/upstream/src/priest.c:priestini(), around 247, sets shroom to (sroom - svr.rooms) + ROOMOFFSET. JS priestini() initializes the persistent mextra.epri record when special-level temple generation creates its priest.",
-      "js/monmove.js:m_move() calls js/priest.js:pri_move() for priest movement and falls back to ordinary movement when it returns -1. The later peaceful movement gate consumes rn2(10).",
-      "js/priest.js:histemple_at() calls js/rooms.js:in_rooms(); its roomType() helper must resolve conceptual indices for both top-level rooms and subrooms."
+      "fountain.c drinkfountain() and dipfountain() call dryup after their selected effects. Current main reaches this owner at fixed-workload step 712.",
+      "fountain.c dryup(), lines 201-239, calls mon.c get_iter_mons(watchman_warn_fountain) for the first warning and mon.c angry_guards(FALSE) after subsequent hero-caused town drying.",
+      "zap.c zap_over_floor() calls dryup after fire creates steam at a fountain; worker A needs the shared source owner with state, RNG and display callbacks."
     ],
     "dependencies": [
-      "Reuse js/dungeon.js:mapseen_room(), now available from the accepted mimic fix, for type lookup through the persisted parent/subroom graph. Do not add a second room-index representation.",
-      "Use sroom.roomnoidx for the priest shrine-room number when available, retaining the ordinary room-array index for top-level rooms. Cover temple_occupied() and in_rooms() pure return values with source-pinned tests.",
-      "Preserve the existing pri_move() random-call order. Its unrelated hostile/Conflict branches remain outside this initialization and membership divergence fix. Worker B owns B-20260916-3 and the shared conceptual-room membership contract."
+      "Reuse mon.js get_iter_mons and angry_guards; preserve monster iteration and first accepted watchman behavior.",
+      "Reuse is_watch, couldsee, Deaf, Amonnam, verbalize, mhis, nolimbs, mbodypart and makeplural for both watchman message branches. Display callbacks must preserve planning-clone isolation and display RNG ownership.",
+      "Call the existing y_n for wizard confirmation, set_levltyp for the fountain-count transition, and state-aware glyph/redraw operations. Worker B exclusively owns dryup/watchman_warn_fountain; worker A owns the beam caller."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Checkpoint aface44fb504a9d8296da4400543983d4677d5fd, run-Bexd1h, passed: 30/44 sessions, 10101/11405 screens, 745424/792838 RNG and 10134/11405 cursors. All 260 recordings match; the newly matching Minetown case contributes 7 screens and 4524 RNG values. Screen totals are unchanged from the landmine baseline, with 5 additional matching RNG values.",
-    "Fresh fixed-workload queue run-vKtWha identifies step 669, kind rng, function pri_move, with 45 remaining screens as an upper bound. This supersedes the mimic investigation at step 667/count 47; every other investigation count remains current.",
-    "Focused worker replay reports C rn2(3)=0 at pri_move(priest.c:194) while JS consumes rn2(10)=2 before priest movement. Read-only helper and coordinator source checks identify the nested temple initialization and membership defects. Worker B is collecting the exact runtime state and independent fresh evidence before submission.",
-    "The preceding accepted mimic fix resolves conceptual roomno 55/index 52 to shop rtype 19 and removes the C rn2(10) versus JS rn2(17) branch mismatch. Its independent recipe uses seed 8124 and a different clock and character; no session value is special-cased.",
-    "Worker B captured the pre-fix priest id 456 at (36,6), epri.shroom=2 and in_rooms(TEMPLE)=[], which makes pri_move return -1 before its two source rn1 calls. In the fixed full replay, the priest has shroom 48, shrine (37,7), level (dnum 2,dlevel 3), map roomno 48/index 45, in_rooms(TEMPLE)=[48], and resolved rtype TEMPLE (10). The source roomnoidx is 45.",
-    "Independent recipe seed 133 uses direct debug level teleport to level 10 and five rests. Its C recording reaches priestini and four pri_move calls; record-session run-NsYZ6A and strict differential run-5cjL6q match 10 screens/cursors and 4283 RNG values. This is worker evidence; the fix is not yet integrated into main."
+    "Checkpoint 0c6e141f98e976a84d9ae89ba27d0a762e8c721c run-LJtbkj passes: 30/44 sessions,10146/11405 screens,752461/792838 RNG,10173/11405 cursors;262/262 recordings,9748 screens and1348429 RNG values. This is a gain of42 screens over the accepted blindness checkpoint.",
+    "Fresh fixed-workload queue run-fZ2zgm moves the selected first mismatch from step669 pri_move to step712 dryup, count2. Its JavaScript stop identifies the in-town fountain warning. The priest divergence is resolved; no machine-local or session-specific exception was added.",
+    "The priest correction preserves C conceptual room indices: former shrine room2 and empty temple membership become room48/index45 and in_rooms(TEMPLE)=[48]. Combined focused run-5gHWf9 passes254 tests; lint run-vEfuwO and quality run-72ScTc pass. The independent generated-temple recording adds10 screens/cursors and4283 RNG values.",
+    "Coordinator read the complete fountain.c watchman_warn_fountain body at179-198 and dryup at201-239. The source sets F_WARNED before searching for a watchman and returns after this first warning; later calls still consume rn2(3) before the warned flag bypasses drying probability.",
+    "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet."
   ]
 }

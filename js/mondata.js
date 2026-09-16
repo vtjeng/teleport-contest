@@ -13,6 +13,7 @@ import {
     COLD_RES,
     DISINT_RES,
     FEMALE,
+    FAINTED,
     FIRE_RES,
     G_GENOD,
     HALLUC,
@@ -91,6 +92,7 @@ import { is_fshk } from './shk.js';
 import { objdescr_is } from './o_init.js';
 import { MONSTER_CLASS_EXPLANATIONS } from './symbol_data.js';
 import { MAXMCLASSES } from './symbols.js';
+import { unconscious } from './trap.js';
 // monstunseesu() below reads m_canseeu(), which reads perceives() from this
 // file; the two modules reach each other the way this file and js/dungeon.js
 // already do, and neither side uses the other's exports at module scope.
@@ -265,8 +267,7 @@ export function resists_blnd(mon, state = game) {
     const blinded = state.u?.uprops?.[BLINDED];
     const heroBlind = Boolean((blinded?.intrinsic || blinded?.extrinsic)
         && !blinded?.blocked);
-    const heroUnaware = Boolean(state.gm?.multi < 0
-        && (state.u?.unconscious || state.u?.fainted));
+    const heroUnaware = heroUnawareForBlindness(state);
     if (isYou
         ? (heroBlind || heroUnaware)
         : (mon?.mblinded || !mon?.mcansee || !haseyes(mon?.data)
@@ -291,8 +292,9 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
     if (!haseyes(mdef?.data)) return false;
 
     const isYou = mdef === state.youmonst;
-    const blindfolded = Boolean(state.ublindf
-        || state.u?.uprops?.[BLINDED]?.extrinsic);
+    // youprop.h:88-96. Blindfolded is EBlinded, which lenses do not set;
+    // attacks that specifically check all eyewear use ublindf below.
+    const blindfolded = Boolean(state.u?.uprops?.[BLINDED]?.extrinsic);
     if (!isYou && !mdef?.mcansee && !mdef?.mblinded) return false;
     if (magr?.data?.pmidx === M.PM_RAVEN
         && mdef?.data?.pmidx === M.PM_RAVEN) return false;
@@ -312,7 +314,7 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
         if (obj?.otyp === CREAM_PIE) {
             if (isYou && blindfolded) return false;
         } else if (obj?.otyp === BLINDING_VENOM) {
-            if (isYou && (blindfolded || state.u?.ucreamed)) return false;
+            if (isYou && (state.ublindf || state.u?.ucreamed)) return false;
             checkVisor = true;
         } else if (obj?.otyp === POT_BLINDNESS) {
             return true;
@@ -322,12 +324,12 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
         if (magr === state.youmonst && state.u?.uswallow) return false;
         break;
     case M.AT_ENGL:
-        if (isYou && (blindfolded || heroUnaware(state)
+        if (isYou && (blindfolded || heroUnawareForBlindness(state)
             || state.u?.ucreamed)) return false;
         if (!isYou && mdef?.msleeping) return false;
         break;
     case M.AT_CLAW:
-        if (isYou && blindfolded) return false;
+        if (isYou && state.ublindf) return false;
         if (magr === state.youmonst && state.u?.uswallow) return false;
         checkVisor = true;
         break;
@@ -351,9 +353,14 @@ export function can_blnd(magr, mdef, aatyp, obj, state = game) {
     return true;
 }
 
-function heroUnaware(state) {
-    return Boolean(state.gm?.multi < 0
-        && (state.u?.unconscious || state.u?.fainted));
+// youprop.h:125 Unaware; trap.c unconscious() (6775-6786) and
+// eat.c is_fainted(). The turn multiplier belongs to game state, while the
+// pending wake message distinguishes an unconscious hero from another
+// immobilizing effect. Reuse trap.js's source owner for the pending-message
+// test so the two macros cannot drift.
+function heroUnawareForBlindness(state) {
+    if (Math.trunc(state.multi ?? 0) >= 0) return false;
+    return unconscious(state) || state.u?.uhs === FAINTED;
 }
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }
 export function nolimbs(species) {

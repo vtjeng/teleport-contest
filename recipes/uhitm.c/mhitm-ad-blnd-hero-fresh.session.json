@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent uhitm.c mhitm_ad_blnd hero-to-monster witness: Wizard T removes the cloak, d then a drops the starting quarterstaff, #polyself changes the hero to a raven (whose AT_CLAW attack has AD_BLND), and #wizgenesis creates a newt defender. BLOCKED: the source-valid attack reaches uhitm.c hmonas() and then damageum(), but the JavaScript hmonas() caller is still unported; the fresh C/JavaScript probe diverges at damageum()'s source d(1,6) after JavaScript consumes rnd(2) in the missing hmonas() arm. Seed, datetime, role, and inputs are independent of the fixed holdout.",
+  "segments": [
+    {
+      "seed": 9654332,
+      "datetime": "20330722112233",
+      "nethackrc": "OPTIONS=name:BlindHero,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdidjdkdldmdn#polyself\nraven\n #wizgenesis\nnewt\nll"
+    }
+  ]
+}

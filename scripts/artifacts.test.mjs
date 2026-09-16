@@ -44,6 +44,7 @@ import {
     is_art,
     protects,
     set_artifact_intrinsic,
+    Sting_effects,
     shade_glare,
     spec_m2,
     undiscovered_artifact,
@@ -117,6 +118,36 @@ test('artifact defense distinguishes wielded and carried records', () => {
     assert.equal(artifact_defends(magicbane, AD_FIRE, state), false);
     assert.equal(artifact_defends(mitre, AD_FIRE, state, true), true);
     assert.equal(artifact_defends(mitre, AD_FIRE, state), false);
+});
+
+test('Sting_effects reads the canonical weapon pointer and message seam',
+    async () => {
+    // decl.h stores uwep at game scope. Keep a stale nested pointer in the
+    // fixture to ensure the source owner does not silently read that shape.
+    const state = stateFor('Val', 'lawful');
+    state.u = {
+        uprops: [],
+        uwep: { oartifact: ART_STING },
+    };
+    state.uwep = { oartifact: ART_STING };
+    state.warn_obj_cnt = 1;
+    init_artifacts(state);
+
+    const lines = [];
+    await Sting_effects(-1, state, {
+        message: async (line, subject) => lines.push([line, subject]),
+    });
+    assert.equal(lines.length, 1);
+    assert.equal(lines[0][0], 'Sting is flickering.');
+    assert.equal(lines[0][1], state);
+
+    state.uwep = null;
+    lines.length = 0;
+    await Sting_effects(-1, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, [],
+        'the stale nested u.uwep does not make Sting_effects fire');
 });
 
 test('artilist matches the complete pinned NetHack 5.0 source table', () => {

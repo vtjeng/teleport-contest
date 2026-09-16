@@ -24,6 +24,8 @@ import {
     PROTECTION,
     SHOCK_RES,
     SPIKED_PIT,
+    STRAT_WAITFORU,
+    TIMEOUT,
     TT_PIT,
     W_AMUL,
     W_ARM,
@@ -86,6 +88,7 @@ import {
     PM_COBRA,
     PM_COCKATRICE,
     PM_GIANT_EEL,
+    PM_GIANT_ANT,
     PM_BABY_GRAY_DRAGON,
     PM_GOBLIN,
     PM_PURPLE_WORM,
@@ -129,7 +132,11 @@ import {
     SILVER_DAGGER,
     objects_globals_init,
 } from '../js/objects.js';
-import { mhitm_ad_cold, mhitm_ad_phys } from '../js/uhitm.js';
+import {
+    mhitm_ad_blnd,
+    mhitm_ad_cold,
+    mhitm_ad_phys,
+} from '../js/uhitm.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 
@@ -360,6 +367,111 @@ function meleeEnv(state, rolls, extra = {}) {
         },
     };
 }
+
+test('mhitm_ad_blnd follows the hero and monster-to-hero source arms',
+    async () => {
+    // uhitm.c:2964-2977. A hero's AD_BLND attack accumulates the defender's
+    // existing mblinded value, caps it at 127, clears mcansee, and consumes
+    // the hit damage in mhm without a new random roll.
+    const state = await meleeHero();
+    const target = meleeAttacker(state, PM_RAVEN, 1, 0, {
+        mcansee: true,
+        mblinded: 4,
+    });
+    const heroBlow = { aatyp: AT_CLAW, damn: 1, damd: 4 };
+    const heroMhm = { damage: 125 };
+    const heroResult = meleeEnv(state, []);
+    await mhitm_ad_blnd(
+        state.youmonst, heroBlow, target, heroMhm, state, heroResult.env,
+    );
+    assert.deepEqual(heroResult.lines, ['The raven is blinded.']);
+    assert.deepEqual(heroResult.bounds, []);
+    assert.equal(target.mcansee, 0);
+    assert.equal(target.mblinded, 127);
+    assert.equal(heroMhm.damage, 0);
+
+    // uhitm.c:2979-2989. A monster's claw adds the hit damage to the
+    // current BlindedTimeout, and make_blinded() owns the property transition
+    // including the blindness vision toggle.
+    const attacker = meleeAttacker(state, PM_RAVEN, -1, 0);
+    state.u.uprops[BLINDED].intrinsic = 0;
+    const monsterMhm = { damage: 4 };
+    const monsterResult = meleeEnv(state, []);
+    await mhitm_ad_blnd(
+        attacker, heroBlow, state.youmonst, monsterMhm, state,
+        monsterResult.env,
+    );
+    assert.deepEqual(monsterResult.lines, ['The raven blinds you!']);
+    assert.deepEqual(monsterResult.bounds, []);
+    assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
+    assert.equal(monsterMhm.damage, 0);
+});
+
+test('mhitm_ad_blnd blinds a monster and clears its wait strategy',
+    async () => {
+    // uhitm.c:2991-3006. The monster-versus-monster arm gates feedback on
+    // gv.vis and canspotmon(), rolls its own damage after that message, adds
+    // existing mblinded, caps at 127, and clears only STRAT_WAITFORU.
+    const state = await meleeHero();
+    const attacker = meleeAttacker(state, PM_RAVEN, -1, 0);
+    const target = meleeAttacker(state, PM_GIANT_ANT, 1, 0, {
+        mcansee: true,
+        mblinded: 3,
+        mstrategy: STRAT_WAITFORU | 4,
+    });
+    state.gv.vis = true;
+    const env = meleeEnv(state, [], {
+        d: (n, x) => {
+            assert.equal(n, 1);
+            assert.equal(x, 6);
+            return 5;
+        },
+    });
+    const mhm = { damage: 99 };
+    await mhitm_ad_blnd(
+        attacker,
+        { aatyp: AT_CLAW, damn: 1, damd: 6 },
+        target,
+        mhm,
+        state,
+        env.env,
+    );
+    assert.deepEqual(env.lines, ['The giant ant is blinded.']);
+    assert.deepEqual(env.bounds, ['d(1,6)']);
+    assert.equal(target.mblinded, 8);
+    assert.equal(target.mcansee, 0);
+    assert.equal(target.mstrategy & STRAT_WAITFORU, 0);
+    assert.equal(target.mstrategy & 4, 4);
+    assert.equal(mhm.damage, 0);
+});
+
+test('mhitm_ad_blnd uses the source quick-clear message when blindness is blocked',
+    async () => {
+    // uhitm.c:2984-2986. BBlinded lets make_blinded() install the timeout
+    // while Blind remains false, so the source immediately announces
+    // vision_clears (decl.c:49) after the attack line.
+    const state = await meleeHero();
+    state.u.uprops[BLINDED] = {
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 1,
+    };
+    const attacker = meleeAttacker(state, PM_RAVEN, -1, 0);
+    const result = meleeEnv(state, []);
+    await mhitm_ad_blnd(
+        attacker,
+        { aatyp: AT_CLAW, damn: 1, damd: 4 },
+        state.youmonst,
+        { damage: 4 },
+        state,
+        result.env,
+    );
+    assert.deepEqual(result.lines, [
+        'The raven blinds you!',
+        'Your vision quickly clears.',
+    ]);
+    assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
+});
 
 // What an AD_PHYS blow says and what it costs, for the fixtures below. Every
 // one of them is unarmed, so uhitm.c mhitm_ad_phys():4122-4126 prints
