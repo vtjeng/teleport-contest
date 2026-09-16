@@ -32,6 +32,7 @@ import {
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import { from_what } from '../js/attrib.js';
+import { describe_level } from '../js/display.js';
 import { item_what } from '../js/zap.js';
 import { gamelog_add, livelog_printf } from '../js/pline.js';
 import {
@@ -131,6 +132,38 @@ function monsterCatalog() {
     monst_globals_init(state);
     return state;
 }
+
+test('describe_level preserves C branch and dflgs formatting', () => {
+    // botl.c:441-477. This helper is pure: it only reads the level topology
+    // and returns the text that do.c puts into a Chronicle event.
+    const state = {
+        u: { uz: { dnum: 0, dlevel: 3 } },
+        dungeons: [
+            { dname: 'The Dungeons', depth_start: 1 },
+            { dname: 'The Quest', depth_start: 1 },
+            { dname: 'The Endgame', depth_start: -5 },
+        ],
+        quest_dnum: 1,
+        astral_level: { dnum: 2, dlevel: 1 },
+        knox_level: { dnum: 0, dlevel: 99 },
+    };
+    assert.equal(describe_level(0, state), 'Dlvl:3 ');
+    assert.equal(describe_level(1, state), 'Dlvl:3  ');
+    assert.equal(describe_level(2, state), 'level 3, the Dungeons');
+
+    state.tutorial_dnum = 0;
+    assert.equal(describe_level(0, state), 'Tutorial:3 ');
+
+    state.u.uz = { dnum: 1, dlevel: 2 };
+    assert.equal(describe_level(2, state), 'Home 2, the Quest');
+
+    state.u.uz = { dnum: 2, dlevel: 2 };
+    assert.equal(describe_level(0, state), 'Water');
+    assert.equal(describe_level(2, state), 'Plane of Water');
+
+    state.u.uz = { dnum: 0, dlevel: 99 };
+    assert.equal(describe_level(2, state), 'The Dungeons');
+});
 
 test('align_str names the four alignments insight.c switches on', () => {
     // insight.c align_str(); the default arm covers every other value.

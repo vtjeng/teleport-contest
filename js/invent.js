@@ -2908,7 +2908,7 @@ export async function identify_pack(idLimit, learningId, state = game) {
 // (which sets dknown via observe_object()) and triggering any reactions
 // that seeing the object for the first time produces (addinv_core2).
 //
-export async function learn_unseen_invent(state = game) {
+export async function learn_unseen_invent(state = game, env = {}) {
     if (heroIsBlind(state))
         return; /* sanity check */
 
@@ -2936,9 +2936,12 @@ export async function learn_unseen_invent(state = game) {
         const effects = addinv_core2(
             otmp,
             {
+                ...env,
                 state,
                 hooks: {
-                    message: (text) => ttyPline(text, state),
+                    ...(env.hooks ?? {}),
+                    message: env.hooks?.message ?? env.message
+                        ?? (state === game ? ttyPline : async () => {}),
                 },
             },
             { confersLuck: false },
@@ -2946,7 +2949,7 @@ export async function learn_unseen_invent(state = game) {
         if (isThenable(effects)) await effects;
     }
     if (invupdated)
-        update_inventory({ state });
+        update_inventory({ ...env, state });
 }
 
 // C ref: invent.c update_inventory(). Calls before the move loop and while
@@ -4547,7 +4550,7 @@ async function addinvCore0Runtime(
         ...env,
         hooks: {
             ...(env.hooks ?? {}),
-            message: env.hooks?.message ?? ttyPline,
+            message: env.hooks?.message ?? env.message ?? ttyPline,
         },
     };
     const context = beginAddinv(obj, liveEnv, prepared);

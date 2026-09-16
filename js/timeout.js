@@ -705,7 +705,7 @@ async function decrement_property_timeouts(state, env) {
         case BLINDED: {
             const wasBlind = heroPropertyActive(state, BLINDED);
             set_itimeout(property, 1);
-            await make_blinded(0, true, state);
+            await make_blinded(0, true, state, env);
             if (wasBlind && !heroPropertyActive(state, BLINDED))
                 await stop_occupation(state, env);
             break;

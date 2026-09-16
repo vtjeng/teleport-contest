@@ -227,6 +227,7 @@ test('makewish() hands readobjnam() the line mungspaces() collapsed',
     // applies, so the refusal comes from "cry" matching no object name; either
     // way the error carries the collapsed line, which is what this pins.
     const { state } = wishState('  blessed   +2  cry\n');
+    state.u = { uconduct: {} };
     state.context = { resume_wish: 7 }; /* a value zap.c:6323 has to clear */
     await assert.rejects(
         () => makewish(state),
@@ -245,6 +246,7 @@ test('makewish() announces the wish when flags.verbose is set', async () => {
     // --More-- of its own, so the announcement costs a keystroke that the
     // silent path spends on the wish itself.
     const loud = wishState(' a\n', { verbose: true });
+    loud.state.u = { uconduct: {} };
     await assert.rejects(() => makewish(loud.state), UnsupportedWishError);
     assert.deepEqual(loud.reads, [
         'You may wish for an object.--More--',
@@ -255,6 +257,7 @@ test('makewish() announces the wish when flags.verbose is set', async () => {
     // With the flag clear the same three keys would overrun the prompt, so the
     // quiet run gets only the two the wish needs.
     const quiet = wishState('a\n');
+    quiet.state.u = { uconduct: {} };
     await assert.rejects(() => makewish(quiet.state), UnsupportedWishError);
     assert.deepEqual(quiet.reads, [
         'For what do you wish?',
@@ -273,6 +276,7 @@ test('a terminal that goes away at the prompt suspends the wish', async () => {
     // bytes 0xC3 0xBF, so the reference program never sees the byte that reads
     // back as EOF.
     const { state } = wishState(`lam${EOF_BYTE}`);
+    state.u = { uconduct: {} };
     state.context = { resume_wish: 7 }; /* a value zap.c:6323 has to clear */
 
     await makewish(state);
