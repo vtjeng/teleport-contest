@@ -35,6 +35,7 @@ import {
     OBJ_FLOOR,
     LAVAPOOL,
     LAVAWALL,
+    MOAT,
     OBJ_INVENT,
     POOL,
     REFLECTING,
@@ -54,7 +55,7 @@ import { runSegment } from '../js/jsmain.js';
 import { relocate_monster } from '../js/monst.js';
 import {
     AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
-    AD_SLEE, AD_STON,
+    AD_SLEE, AD_STON, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT, PM_KNIGHT,
 } from '../js/monsters.js';
 import {
     ARMOR_CLASS,
@@ -99,6 +100,7 @@ import {
     zap_dig,
     u_adtyp_resistance_obj,
     weffects,
+    zap_over_floor,
     zap_hit,
     zaptype,
     zhitm,
@@ -772,6 +774,49 @@ test('a downward ray kills the hero and stops on the death More', async () => {
     assert.equal(game.killer.format, KILLED_BY_AN);
 });
 
+test('a planned monster fire death crosses the existing live handoff', async () => {
+    // zap.c dobuzz():4852-4961 and zhitu():4588. The clone pass must consume
+    // the same range, hit, damage, and burnarmor draws, then raise the
+    // caller's planningDeath signal before losehp() can enter urgent_pline()
+    // or done() against the planning state. Calling dobuzz() with a one-HP
+    // hero isolates this source boundary from the outer monster scheduler.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    game.u.uhp = 1;
+    const calls = [];
+    const random = {
+        d: (...args) => { calls.push(['d', ...args]); return args[0]; },
+        rn1: (...args) => { calls.push(['rn1', ...args]); return args[1]; },
+        rn2: (bound) => { calls.push(['rn2', bound]); return 1; },
+        rnd: (bound) => { calls.push(['rnd', bound]); return bound; },
+        rnl: (bound) => { calls.push(['rnl', bound]); return 1; },
+        rnz: (value) => { calls.push(['rnz', value]); return value; },
+    };
+    let subject;
+    await assert.rejects(
+        () => dobuzz(
+            -21, 6, game.u.ux, game.u.uy, 0, 0,
+            true, false, false, game, random,
+            {
+                planning: true,
+                planningDeath: (monster) => {
+                    subject = monster;
+                    return new Error('planned monster death');
+                },
+            },
+        ),
+        /planned monster death/u,
+    );
+    assert.equal(subject, undefined);
+    assert.equal(game.u.uhp, -5,
+        'the clone records the same lethal damage before handing off');
+    assert.deepEqual(calls, [
+        ['rn1', 7, 7], ['rn2', 20], ['d', 6, 6],
+        ['rn2', 5], ['rn2', 3], ['rn2', 3],
+    ]);
+});
+
 test('burnarmor rolls again for a slot the hero has nothing in', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
@@ -947,7 +992,7 @@ test('a ray that runs out of range erases itself and spends the turn',
     assert.ok(game.moves >= 1);
 });
 
-test('dobuzz admits a hero wand zap and nothing else', async () => {
+test('dobuzz admits a hero wand or monster breath and rejects other bands', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
@@ -965,15 +1010,10 @@ test('dobuzz admits a hero wand zap and nothing else', async () => {
             game, straightThrough(),
         );
     };
-    const bandRefusal = 'for a spell, breath or monster zap of type';
-    // A monster's zap is negative and a spell or breath is 10 or above; all
-    // three reach dobuzz() in C, and none is ported.
-    for (const type of [-1, -30, 10, 20]) {
-        await assert.rejects(() => call(type), (error) => error.message
-            .endsWith(
-                `dobuzz() for a spell, breath or monster zap of type ${type}`,
-            ));
-    }
+    // C's two legal bands are all hero wand/spell/breath types and all
+    // monster wand/spell/breath types. Only values outside those bands are
+    // rejected before the range draw.
+    await assert.rejects(() => call(-1), /invalid zap type -1/u);
     // The hero's own wand band is 0..9. Types 0 and 5 are magic missile and
     // lightning, the first and last wands objects.h gives the band; each
     // walks the bolt and stops further in, at zhitu()'s damage-type arm.
@@ -985,10 +1025,36 @@ test('dobuzz admits a hero wand zap and nothing else', async () => {
     // the guard has to admit it even though the message it would print has no
     // name to put in. What it must not do is report it as out of band.
     await assert.rejects(() => call(9), (error) =>
-        !error.message.includes(bandRefusal));
+        !error.message.includes('for a spell, breath or monster zap'));
 });
 
-test('a monster in the path stops the bolt before the floor effect wakes it',
+test('monster breath dobuzz consumes only its source range draw on a forced miss',
+    async () => {
+    // zap.c dobuzz():4823. A vertical forced miss still runs the source's
+    // rn1(7, 7) range selection and one ray iteration, while forcemiss skips
+    // zap_hit() and all damage draws. This pins both the admitted -20 band and
+    // the exact random bounds/count without relying on a screen recipe.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const calls = [];
+    const random = {
+        d: (...args) => { calls.push(['d', ...args]); return 1; },
+        rn1: (...args) => { calls.push(['rn1', ...args]); return 1; },
+        rn2: (...args) => { calls.push(['rn2', ...args]); return 1; },
+        rnd: (...args) => { calls.push(['rnd', ...args]); return 1; },
+        rne: (...args) => { calls.push(['rne', ...args]); return 1; },
+        rnl: (...args) => { calls.push(['rnl', ...args]); return 1; },
+        rnz: (...args) => { calls.push(['rnz', ...args]); return 1; },
+    };
+    await dobuzz(
+        -20, 6, game.u.ux, game.u.uy, 0, 0, true, false, true,
+        game, random,
+    );
+    assert.deepEqual(calls, [['rn1', 7, 7]]);
+});
+
+test('a monster in the path reaches the source sleep arm before waking',
     async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
@@ -997,27 +1063,20 @@ test('a monster in the path stops the bolt before the floor effect wakes it',
     // leaves the monster alone and the `if (mon)` arm above it is the one
     // that answers. Moving the level's own monster onto the bolt's first
     // square is what separates the two refusals.
-    // Use WAN_SLEEP whose zhitm() ZT_SLEEP branch is still unported.
+    // Use WAN_SLEEP whose zhitm() ZT_SLEEP branch changes mcanmove and emits
+    // the ordinary hit line through the supplied message seam.
     const monster = game.level.monlist;
     assert.ok(monster, 'the level carries a monster to move');
     relocate_monster(monster, game.u.ux - 1, game.u.uy, game);
     game.u.dx = -1;
     game.u.dy = 0;
     game.u.dz = 0;
-    await assert.rejects(
-        () => weffects(
-            {
-                otyp: WAN_SLEEP,
-                oclass: game.objects[WAN_SLEEP].oc_class,
-                quan: 1,
-            },
-            game,
-            straightThrough(),
-        ),
-        // The monster arm reaches zhitm() and throws because the ZT_SLEEP
-        // branch is not yet ported.
-        /zhitm\(\) monster arm for damage type 3/u,
+    const messages = [];
+    await zhitm(
+        monster, 3, 6, game, straightThrough(),
+        { message: async (line) => messages.push(line) },
     );
+    assert.equal(monster.mcanmove, false);
 });
 
 test('a cold bolt over water or lava stops at what it would freeze',
@@ -1030,12 +1089,40 @@ test('a cold bolt over water or lava stops at what it would freeze',
     for (const typ of [POOL, LAVAPOOL, LAVAWALL]) {
         const wand = await aimedWand(-1, 0, 0, WAN_COLD);
         game.level.at(game.u.ux - 1, game.u.uy).typ = typ;
-        await assert.rejects(
-            () => weffects(wand, game, straightThrough()),
-            /start_melt_ice_timeout\(\) for the water or lava a cold bolt/u,
-            `${typ}`,
+        const result = await zap_over_floor(
+            game.u.ux - 1, game.u.uy, 2, { value: false }, true, 0,
+            game, straightThrough(), { message: async () => {} },
         );
+        assert.ok(result <= 0, `${typ}`);
     }
+});
+
+test('hallucinated cold water names use display RNG, not core RNG', async () => {
+    await aimedWand(-1, 0, 0, WAN_COLD);
+    const square = game.level.at(game.u.ux - 1, game.u.uy);
+    square.typ = MOAT;
+    game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const displayCalls = [];
+    const messages = [];
+    const random = {
+        ...straightThrough(),
+        rn2: () => assert.fail('core RNG must not name hallucinated water'),
+    };
+    await zap_over_floor(
+        game.u.ux - 1, game.u.uy, 2, { value: false }, true, 0,
+        game, random,
+        {
+            displayRandom: (bound) => {
+                displayCalls.push(bound);
+                return 0;
+            },
+            message: async (line) => messages.push(line),
+            norepMessage: async (line) => messages.push(line),
+        },
+    );
+    assert.deepEqual(displayCalls, [41]);
+    assert.deepEqual(messages, ['The deep yoghurt is bridged with ice!']);
 });
 
 test('a hero the bolt cannot burn stops it before the damage roll',
@@ -1068,17 +1155,23 @@ test('a reflecting hero bounces the bolt without taking damage', async () => {
     }
 });
 
-test('a hallucinating hero stops before the beam takes a colour', async () => {
+test('a hallucinating hero draws the beam colour and hallucinatory text', async () => {
     // youprop.h:120 Hallucination is `HHallucination && !Halluc_resistance`,
     // and :119 Halluc_resistance is either source. dobuzz():4797 draws rn2(6)
     // for the beam's colour when it holds, which is why the stop is there
     // rather than at the first message.
     let wand = await aimedWand(0, 0, 1);
     game.u.uprops[HALLUC].intrinsic = 5;
-    await assert.rejects(
-        () => weffects(wand, game, straightThrough()),
-        /rnd_hallublast\(\) and the rn2\(6\) beam colour/u,
+    const calls = [];
+    await dobuzz(
+        1, 1, game.u.ux, game.u.uy, 0, 0, true, false, false, game,
+        {
+            ...straightThrough(),
+            rn2: (bound) => { calls.push(bound); return 1; },
+        },
+        { message: async () => {} },
     );
+    assert.ok(calls.includes(6));
     // Either source of resistance suppresses it, and the bolt runs on to the
     // damage the resistance-free hero takes.
     for (const source of ['intrinsic', 'extrinsic']) {
@@ -1325,10 +1418,11 @@ test('weffects offers a downward zap to the steed before the ray', async () => {
     );
     wand = await aimedWand(0, 0, 0);
     game.u.usteed = game.level.monlist;
-    await assert.rejects(
-        () => weffects(wand, game, straightThrough()),
-        /dobuzz\(\)'s steed taking the bolt/u,
-    );
+    await assert.doesNotReject(() => weffects(
+        wand, game, {
+            ...straightThrough(), message: async () => {},
+        },
+    ));
 });
 
 test('a bounce off stone rolls against a different chance than a wall',
@@ -1661,6 +1755,58 @@ test('zhitm() ZT_COLD adds d(nd,3) when the monster has fire resistance',
     assert.ok(rolls.includes('d(6,3)'),
         'the bonus d(nd,3) roll appears in the sequence');
     assert.equal(mon.mhp, 76, '100 - 24 = 76 HP remaining');
+});
+
+test('zhitm() resistance keeps shieldeff visual-only in the monster arm',
+    async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const mon = {
+        data: game.mons[PM_BABY_GRAY_DRAGON],
+        m_lev: 1,
+        mhp: 30,
+        mhpmax: 30,
+        minvent: null,
+    };
+    const messages = [];
+    const state = { ...game, unported: new Set() };
+    const result = await zhitm(mon, 0, 1, state, {
+        d: () => 6,
+        rn2: (bound) => bound - 1,
+        rnd: () => 1,
+    }, { message: (text) => messages.push(text) });
+    assert.equal(result.damage, 0, 'magic-resistant monster takes no damage');
+    assert.equal(mon.mhp, 30, 'resistance leaves monster HP unchanged');
+    assert.deepEqual(messages, [], 'display shieldeff has no text message');
+    assert.ok(game.unported.has('display.c shieldeff'),
+        'the visual-only display gap remains explicit');
+});
+
+test('zhitm() death ray rechecks spell band after its source type changes',
+    async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const state = game;
+    state.urole = { ...state.urole, mnum: PM_KNIGHT };
+    state.u.uhave = { ...state.u.uhave, questart: true };
+    const mon = {
+        data: state.mons[PM_GIANT_RAT],
+        m_lev: 1,
+        mhp: 50,
+        mhpmax: 50,
+        minvent: null,
+    };
+    const result = await zhitm(mon, 14, 1, state, {
+        d: () => { throw new Error('death ray has no damage dice'); },
+        rn2: () => { throw new Error('death ray has no resistance draw'); },
+        rnd: () => { throw new Error('death ray has no random duration'); },
+    });
+    // zap.c sets type=-1 for an ordinary death ray before its final Knight
+    // check; the source damage is mhp+1 once, not doubled.
+    assert.equal(result.damage, 51);
+    assert.equal(mon.mhp, -1);
 });
 
 test('zhitm() ZT_FIRE deals d(nd,6) damage to a non-fire-resistant monster', async () => {

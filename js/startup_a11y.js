@@ -82,6 +82,7 @@ import {
     isok,
 } from './const.js';
 import { cansee } from './vision.js';
+import { waterbody_name } from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
@@ -159,7 +160,6 @@ import {
 import {
     M1_MINDLESS,
     PM_COYOTE,
-    PM_SAMURAI,
     S_EEL,
     S_MIMIC,
 } from './monsters.js';
@@ -1135,31 +1135,7 @@ function altarDescription(location, x, y, state) {
 }
 
 function waterbodyDescription(x, y, state) {
-    const location = state.level?.at(x, y);
-    const typ = surfaceType(location);
-    const liquid = (preferred) => hliquid(preferred, { state });
-    if (typ === LAVAPOOL) return `molten ${liquid('lava')}`;
-    if (typ === ICE) {
-        return heroHallucinating(state)
-            && !state.program_state?.gameover
-            ? `frozen ${liquid('water')}` : 'ice';
-    }
-    if (typ === POOL) return `pool of ${liquid('water')}`;
-    if (typ === MOAT) {
-        if (heroHallucinating(state) && !state.program_state?.gameover)
-            return `deep ${liquid('water')}`;
-        if (sameLevel(state.u?.uz, state.medusa_level)) return 'shallow sea';
-        if (sameLevel(state.u?.uz, state.juiblex_level)) return 'swamp';
-        if (state.urole?.mnum === PM_SAMURAI
-            && sameLevel(state.u?.uz, state.qstart_level)) return 'pond';
-        return 'moat';
-    }
-    if (typ === WATER) {
-        return sameLevel(state.u?.uz, state.water_level)
-            ? 'limitless water' : `wall of ${liquid('water')}`;
-    }
-    if (typ === LAVAWALL) return `wall of ${liquid('lava')}`;
-    return 'water';
+    return waterbody_name(x, y, state);
 }
 
 function terrainDescription(location, x, y, state) {

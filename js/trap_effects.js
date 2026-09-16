@@ -181,7 +181,6 @@ import {
     attacktype,
     breathless,
     completelyrusts,
-    defended,
     extra_nasty,
     flaming,
     grounded,
@@ -215,7 +214,6 @@ import {
     AD_PHYS,
     AD_RBRE,
     AD_RUST,
-    AD_SLEE,
     AT_BREA,
     AT_MAGC,
     MZ_HUGE,
@@ -246,10 +244,10 @@ import {
     S_DRAGON,
     S_GIANT,
 } from './monsters.js';
-import { finish_meating } from './dogmove.js';
 import { m_at } from './monst.js';
 import { mpickobj } from './steal.js';
 import { ohitmon, thitu } from './mthrowu.js';
+import { sleep_monst } from './mhitm.js';
 import { splash_monster_light } from './apply_splash_lit.js';
 import {
     dealloc_obj,
@@ -1055,33 +1053,6 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     return Trap_Effect_Finished;
 }
 
-// C ref: mhitm.c sleep_monst() (1221-1245), the how=-1 path used by the
-// sleep-gas monster arm below. The caller performs the resistance, breathing,
-// and helplessness checks; this helper keeps the return-valued state change
-// and the meal interruption in the same source order as C.
-function sleep_monst(mtmp, amount, _how, env) {
-    const { state } = env;
-
-    if (monster_resists_element(mtmp, SLEEP_RES, state)
-        || defended(mtmp, AD_SLEE, state)) {
-        // C calls shieldeff() here. It only animates the display and has no
-        // state or RNG effect, so record the discarded call and continue.
-        note_unported('mhitm.c shieldeff');
-        return false;
-    }
-    if (!mtmp.mcanmove) return false;
-
-    finish_meating(mtmp, { state, redraw: env.redraw });
-    amount += mtmp.mfrozen ?? 0;
-    if (amount > 0) {
-        mtmp.mcanmove = false;
-        mtmp.mfrozen = Math.min(amount, 127);
-    } else {
-        mtmp.msleeping = true;
-    }
-    return true;
-}
-
 // C ref: trap.c trapeffect_slp_gas_trap() (1563-1592), both hero and monster
 // arms. `trflags` is intentionally unused by the C function.
 async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
@@ -1109,7 +1080,7 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
             || mtmp === state.u?.usteed;
         if (!monster_resists_element(mtmp, SLEEP_RES, state)
             && !breathless(mtmp.data) && !helpless(mtmp)
-            && sleep_monst(mtmp, random.rnd(25), -1, env)
+            && await sleep_monst(mtmp, random.rnd(25), -1, env)
             && in_sight) {
             await message(
                 messageAt(
@@ -1184,7 +1155,7 @@ async function steedintrap(trap, otmp, env) {
     case SLP_GAS_TRAP:
         if (!monster_resists_element(steed, SLEEP_RES, state)
             && !breathless(steed.data) && !helpless(steed)
-            && sleep_monst(steed, random.rnd(25), -1, env)) {
+            && await sleep_monst(steed, random.rnd(25), -1, env)) {
             await message(
                 `${capitalizedMonsterName(steed, state, env)} suddenly falls asleep!`,
                 state,

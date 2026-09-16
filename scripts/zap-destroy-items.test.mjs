@@ -23,6 +23,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
+    W_WEP,
 } from '../js/const.js';
 import { UnsupportedEndOfGameError } from '../js/end.js';
 import { game } from '../js/gstate.js';
@@ -595,37 +596,39 @@ test('a cold attack freezes and shatters a carried potion', async () => {
     assert.equal(script.length, 0, 'all scripted draws consumed');
 });
 
-test('the AD_ELEC case stops by name', async () => {
+test('the AD_ELEC case destroys an eligible wand', async () => {
     await initializedGame(982440, 'HeroElec');
     emptyPack();
     carriedByHero(WAN_NOTHING, 1);
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_ELEC, 5, {
-            random: scriptedRandom([[5, 4]], []),
-            state: game,
-        }),
-        /the AD_ELEC case/u,
-    );
+    game.u.uhp = 20;
+    game.u.uhpmax = 20;
+    const drawn = [];
+    const damage = await destroy_items(game.youmonst, AD_ELEC, 5, {
+        random: scriptedRandom([[5, 4], [10, 1], [3, 0], [2, 1]], drawn),
+        state: game,
+    });
+    assert.equal(damage, 1);
+    assert.equal(game.invent, null, 'the wand was removed from inventory');
+    assert.deepEqual(drawn, [
+        ['rn2', 5, 4], ['rnd', 10, 1], ['rn2', 3, 0], ['rn2', 2, 1],
+    ]);
 });
 
-test('a wielded potion stops before the message rather than after it',
+test('a wielded scroll is unworn after destruction',
     async () => {
     await initializedGame(982441, 'HeroWielded');
     emptyPack();
-    discover_object(POT_WATER, true, true, false, game);
-    const potion = carriedByHero(POT_WATER, 1);
-    potion.owornmask = 0x00000001; // W_WEP
-    // zap.c:5921-5926 hands a worn or wielded object to setnotworn(); nothing
-    // wires that here. The stop is lifted above the pline() so the segment
-    // does not end one message past where the port can follow C.
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_FIRE, 5, {
-            random: scriptedRandom([[5, 4], [6, 1], [3, 0]], []),
-            state: game,
-        }),
-        /setnotworn\(\) for a wielded object/u,
-    );
-    assert.equal(toplines(), '');
+    discover_object(SCR_BLANK_PAPER, true, true, false, game);
+    const scroll = carriedByHero(SCR_BLANK_PAPER, 1);
+    scroll.owornmask = W_WEP;
+    game.uwep = scroll;
+    clearTopline();
+    await destroy_items(game.youmonst, AD_FIRE, 5, {
+        random: scriptedRandom([[5, 4], [3, 0], [2, 1]], []),
+        state: game,
+    });
+    assert.equal(game.uwep, null, 'setnotworn clears the wielded slot');
+    assert.equal(scroll.owornmask, 0);
 });
 
 test('monster-caused floor fire destroys quantities before ignition',
@@ -684,23 +687,21 @@ test('monster-caused floor fire destroys quantities before ignition',
         assert.equal(script.length, 0);
     });
 
-test('hero-caused floor fire fails before traversal', async () => {
+test('hero-caused floor fire traverses and then ignites', async () => {
     const state = {
         level: {
             objects: [[null]],
         },
     };
 
-    await assert.rejects(
-        burn_floor_objects(0, 0, false, true, {
-            igniteItems: () => assert.fail('unsupported fire cannot ignite'),
+    const burned = await burn_floor_objects(0, 0, false, true, {
+            igniteItems: () => {},
             random: {
-                rn2: () => assert.fail('unsupported fire cannot draw'),
+                rn2: () => assert.fail('empty floor has no eligible objects'),
             },
             state,
-        }),
-        /hero-caused object destruction/u,
-    );
+        });
+    assert.equal(burned, 0);
 });
 
 test('a visible monster has its own losses announced', async () => {
@@ -940,7 +941,8 @@ test('a worn potion of levitation waits for the rest of the pack', async () => {
     discover_object(POT_LEVITATION, true, true, false, game);
     carriedByHero(SCR_BLANK_PAPER, 1);
     const potion = carriedByHero(POT_LEVITATION, 1);
-    potion.owornmask = 0x00000001; // W_WEP
+    potion.owornmask = W_WEP;
+    game.uwep = potion;
     game.u.uhp = 12;
     game.u.uhpmax = 12;
     const drawn = [];
@@ -954,18 +956,18 @@ test('a worn potion of levitation waits for the rest of the pack', async () => {
         [2, 1], // exercise(A_STR, FALSE) for the scroll's damage
         [6, 1], // pass 1 reaches the potion and rolls its damage
         [3, 0],
+        [2, 1], // exercise(A_STR, FALSE) for the potion's damage
     ];
     clearTopline();
-
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_FIRE, 10, {
-            random: scriptedRandom(script, drawn),
-            state: game,
-        }),
-        /setnotworn\(\) for a wielded object/u,
-    );
+    // Two destruction messages are consecutive. Answer the first --More--
+    // so the source's second item and its setnotworn transition can run.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await destroy_items(game.youmonst, AD_FIRE, 10, {
+        random: scriptedRandom(script, drawn),
+        state: game,
+    });
     assert.equal(
-        toplines(), 'Your scroll of blank paper catches fire and burns!',
+        toplines(), 'Your potion of levitation boils and explodes!',
     );
     assert.equal(script.length, 0);
 });

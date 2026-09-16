@@ -21,7 +21,7 @@ const OWNERSHIP_EDGES = Object.freeze([
     ['js/hack.js', 'domove_fight_empty', 'the', 1],
     ['js/zap.js', 'dozap', 'The', 1],
     ['js/zap.js', 'makewish', 'The', 1],
-    ['js/zap.js', 'dobuzz', 'The', 2],
+    ['js/zap.js', 'dobuzz', 'The', 3],
     ['js/zap_destroy_items.js', 'maybe_destroy_item', 'The', 1],
 ]);
 

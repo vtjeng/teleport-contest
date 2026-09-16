@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Hell hound pup (AT_BREA) breathes fire at hero, exercising breamu and breamm. Diverges at mcalcmove (mon.c:1164); record once mon.c mcalcmove is ported.",
+  "_comment": "Hell hound pup (AT_BREA) breathes fire at hero, exercising breamu and breamm. The current fresh differential reaches the breath path, then diverges at teleport.c collect_coords() (C step 36) while JavaScript stops on its held hero move; retain this blocked recipe until that source dependency is ported.",
   "segments": [
     {
       "seed": 7780001,
