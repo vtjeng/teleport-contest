@@ -18,7 +18,7 @@
     "recordedSteps": 267,
     "remainingScreensUpperBound": 79
   },
-  "summary": "Main stops at #chronicle at step 188. Worker B has implemented its history owner, display, save/restore, planning copies and central achievement logger; an independent 15-screen recording matches C. It is finishing the remaining already-ported event producers and focused validation before submission. The queue suffix remains 79 screens.",
+  "summary": "Main still stops at #chronicle at step 188. The worker delivered the history owner, window, existing event producers, save/restore and planning state, with two independent command recordings matching 30 screens and 4596 RNG calls. Combined checks found seven stale fixtures and omitted new-level/death events plus inventory callback ownership; corrections are in progress. The queue suffix remains 79 screens.",
   "source": {
     "file": "insight.c",
     "functions": [
@@ -56,6 +56,7 @@
     "Saved scan .cache/B6-development-scan.json and queue run-F9fQzR locate step 188 at do_gamelog with a 79-screen upper bound. Coordinator source read of insight.c2532-2595 and pline.c495-528 confirms the command, display filters, chronological state and turn capture. Worker B claimed B-20260916-8 for this same-session continuation; its earlier unedited thitmonst claim B7 is parked and owns no source.",
     "Worker B8 reports an independent chronicle recipe using seed812345 and date20360110090000 matching 15 screens/cursors and2443 RNG calls, plus four focused suites and lint. These are worker results, not accepted main figures. Canonical state.gamelog entries capture state.moves, text and flags; save/restore rebuilds history and planning clones copy its entries independently.",
     "Read-only source survey identified insight.c record_achievement lines2415-2471 and achieve_msg57-100 as the central missing producer for existing do/music/rooms/priest/shk/invent/exper callers. Other already-ported producers include polymorph, chewing and pet deaths, artifact naming/discovery, shop robbery, alignment, literacy and wishes. Wire each exact source call and branch text; startup pet initialization must remain silent before program_state.in_moveloop. Unported gameplay paths retain their explicit gaps.",
-    "Latest worker B8 work includes source-backed polymorph, shop robbery and supported eating events, plus central record_achievement town/shop and dynamic rank/prize text. Remaining implemented invent/engrave/dog/mon/pray event callers are being checked; expanded focused validation is still pending. These unfinished worker changes do not alter accepted main figures."
+    "Latest worker B8 work includes source-backed polymorph, shop robbery and supported eating events, plus central record_achievement town/shop and dynamic rank/prize text. Remaining implemented invent/engrave/dog/mon/pray event callers are being checked; expanded focused validation is still pending. These unfinished worker changes do not alter accepted main figures.",
+    "Chronicle delivery1f7b5dd8 was reviewed and preserved while combined focused checks passed4541/4548 and lint/quality passed. Corrections cover seven fixtures, source do.c goto_level and end.c really_done producers, full botl.c describe_level formatting and message/RNG ownership through inventory learning after blindness. Worker source checks identify the earlier seed0106 screen difference at step176 as host-specific #version output, separate from the later distfleeck RNG divergence. No B8 game change or gain is accepted on main yet."
   ]
 }
