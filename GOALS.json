@@ -52374,7 +52374,7 @@
     {
       "id": "port-monmove-postmov-seed0383-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster post-move handling and trapped-door activation",
       "cFile": "monmove.c",
       "sessions": [
@@ -52491,7 +52491,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 10,
+        "rng": 31
+      },
+      "parkedStanding": {
+        "sha": "b4f192fbf6def570b40a137e5b81225ed3a1f9fe",
+        "screens": 10259,
+        "rng": 753589
+      },
+      "parkedReason": "Preserve reviewed postmov work and its ready weapon-test correction while integrating the older ready independent B8 chronicle delivery first."
     }
   ]
 }
