@@ -1,51 +1,51 @@
 {
   "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
-  "remainingScreensUpperBound": 22,
+  "remainingScreensUpperBound": 18,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
   "mismatch": {
     "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
-    "remainingScreensUpperBound": 22,
-    "step": 5,
+    "step": 9,
     "kind": "stop",
-    "function": "doquiver_core",
-    "functionDeclared": true,
-    "sourceFile": "wield.c",
-    "cFile": "wield.c",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: wield.c reached doquiver_core() with an ordinary inventory item",
+    "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing ammo without a launcher",
     "unlocatedKinds": [],
-    "recordedSteps": 27
+    "recordedSteps": 27,
+    "remainingScreensUpperBound": 18
   },
-  "summary": "The opening Q command reaches doquiver_core() after getobj() accepts inventory letter b. In this Ranger start, b is the alternate weapon (a bow), so C takes doquiver_core()'s uswapwep branch: with a singleton non-dual-wielded item it asks \"That is your alternate weapon. Ready it instead?\", then the recorded y answer clears uswapwep, sets the bow in uquiver, prints \"b - a +1 bow (at the ready).\", and returns ECMD_OK without random calls or time. JS implements only the inventory-empty, cancelled-prompt, and hands_obj arms, then throws at js/wield.js:680-682 for every ordinary item, so the fail-closed boundary stops at step 5. The later C steps confirm the state transition: t prompts, d supplies direction, and l throws an arrow by hand because the bow is now quivered. The source-faithful fix belongs to wield.c doquiver_core(); it must preserve the alternate-weapon confirmation, slot changes, inventory print, result bits, and the separate fire caller. Generalizing beyond this witness also needs a shared ynq path and pair_of() semantics; neither should be inferred from the witness's singleton bow.",
+  "summary": "At step 9 the Ranger has just readied her alternate +1 bow in the quiver, then selects the d arrow from the ordinary throw prompt and aims east. C dothrow.c throwit() permits ammunition without a matching launcher: it halves the computed range, prints the hand-throw message, and continues through zap.c bhit() to land the arrow. JS stops at js/dothrow.js:1372-1375 before that adjustment and flight. The actionable owner is dothrow.c throwit(), with the ordinary no-launcher branch and its existing bhit/landing tail in scope; later travel, inventory, spell, discovery, attribute, search, and look inputs are downstream of this stop.",
   "source": {
-    "file": "wield.c",
-    "functions": ["doquiver_core", "dowieldquiver"],
-    "branch": "doquiver_core() ordinary-item path when newquiver == uswapwep: confirm alternate weapon, clear W_SWAPWEP, place the item in W_QUIVER, print inventory feedback, and return ECMD_OK unless unwielding a weapon or ending two-weapon combat costs a turn",
+    "file": "dothrow.c",
+    "functions": ["throwit"],
+    "branch": "dothrow.c:1612-1648 runs for a non-swallowed, non-vertical, non-boomerang object with a horizontal direction. When the selected object is ammo, ammo_and_launcher(obj, uwep) is false, and obj is not a gem, C halves the positive range and prints `You aren't wielding %s, so you throw your %s by %s.` before calling bhit(). In the witness, Q moved the bow from uswapwep to uquiver; t then selected the separate arrow stack while uwep remained the primary weapon, so the no-launcher preconditions hold. The eastward first ray cell is a blocking room boundary, so bhit() leaves bhitpos at the hero square and throwit() proceeds through breaktest(), flooreffects(), placement, stacking, and throwit_return().",
     "callers": [
-      "cmd.c extcmds[] entry 'Q' -> dowieldquiver() (nethack-c/upstream/src/cmd.c:1814-1815)",
-      "dothrow.c dofire() -> doquiver_core(\"fire\") when fire must manually fill an empty quiver (nethack-c/upstream/src/dothrow.c:543-555)",
-      "js/cmd.js command dispatch 'quiver' -> dowieldquiver() (js/cmd.js:5786-5799)",
-      "js/dothrow.js dofire() -> doquiver_core('fire') after its empty-quiver arms (js/dothrow.js:897-900)"
+      "nethack-c/upstream/src/dothrow.c:254-270, dothrow() -> throw_obj() -> throwit() for each selected throw; js/dothrow.js:1131-1158 implements the same production chain.",
+      "nethack-c/upstream/src/dothrow.c:469-582, dofire() -> throw_obj() -> throwit() for a quivered or manually selected projectile; js/dothrow.js:866-943 is its caller chain.",
+      "nethack-c/upstream/src/cmd.c:1901-1902 maps `t` to dothrow(); js/cmd.js:5784-5804 dispatches the recorded t command and applies the ECMD result/time wrapper.",
+      "nethack-c/upstream/src/artifact.c:2021-2029 invoke_fling_poison() calls throwit() directly; js/artifacts.js:2417-2429 preserves that caller.",
+      "nethack-c/upstream/src/polyself.c:1450-1477 dospit() calls throwit() directly; js/polyself.js:1777-1813 preserves that caller."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/invent.c getobj() and prinv(); js/invent.js getobj() and prinv()",
-      "nethack-c/upstream/src/cmd.c ynq()/yn_function() and ECMD result handling; js/cmd.js yn_function() and failClosedCommand()",
-      "nethack-c/upstream/src/objnam.c simpleonames(), is_plural(), otense(), and obj.h pair_of(); js/objnam.js simpleonames(), is_plural(), and otense() (pair_of() is currently private in js/potion.js)",
-      "nethack-c/upstream/src/worn.c setworn(); js/worn.js setuswapwep(), setuqwep(), and setworn()",
-      "wield.c ready_ok(), untwoweapon(), and the alternate-slot state uswapwep/uquiver",
-      "nethack-c/upstream/src/dothrow.c dofire() and js/dothrow.js dofire() for the \"fire\" verb caller"
+      "nethack-c/upstream/src/zap.c:3827-4138 bhit() owns the THROWN_WEAPON ray, updates gb.bhitpos, stops at the blocking boundary, and returns a monster or null; js/zap.js:1246-1437 already implements this admitted call type.",
+      "nethack-c/upstream/src/dothrow.c:1460-1506 throwit_return() and throwit_mon_hit() clear return state and handle the post-bhit monster result; js/dothrow.js:1204-1305 contains their existing counterparts.",
+      "nethack-c/upstream/src/dothrow.c:1780-1807 breaktest()/breakmsg()/breakobj() and flooreffects() own breakage and landing consumption; js/dothrow.js:714-741 and js/do.js:550-586 preserve ordinary non-breaking ground while naming unported special surfaces.",
+      "nethack-c/upstream/src/do.c:893-919 obj_no_longer_held(), mkobj.c:2305-2365 place_object(), and invent.c:4366-4375 stackobj() own release, floor placement, and pile merging; js/obj.js:2784-2845 and js/invent.js:3950-3974 are the wired implementations.",
+      "nethack-c/upstream/src/dothrow.c:1635-1647 reads is_ammo(), ammo_and_launcher(), weapon_type(), skill_name(), weapon_descr(), body_part(), and the directional u state; js/obj.js, js/weapon.js, js/objnam.js, js/polyself.js, and js/worn.js supply those shared predicates and names.",
+      "nethack-c/upstream/src/dothrow.c:250-270 splitobj()/freeinv() supplies the recorded rnd(2) next_ident draw before throwit(); js/dothrow.js:1137-1157 invokes the same split/free path. The recorded rn2(100) obj_resists draw at step 9 belongs to breaktest() after the flight."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    ".cache/scan-cache.json rows[file=holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json] at cc1b4453d14fd4a0e995170e3842ad622790c8a5 records screensEmitted 5 of recordedSteps 27, step 5 key b, and the doquiver_core ordinary-inventory boundary.",
-    "sessions/holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json segments[0].steps[4:7] records Q's ready prompt, b's alternate-weapon confirmation, and y's \"b - a +1 bow (at the ready).\" result; all three steps have zero RNG entries.",
-    "nethack-c/upstream/src/wield.c:611-679 has the uswapwep confirmation, setuswapwep(NULL), common quivering label, setuqwep(), prinv(), and ECMD_TIME/ECMD_OK tail; the witness uses its singleton path at lines 631-650 and 652-678.",
-    "js/wield.js:647-683 wires dowieldquiver() but doquiver_core() stops after the hands_obj arm at lines 668-677 and throws UnsupportedWieldError at lines 680-682 for the branch the C recording reaches.",
-    "nethack-c/upstream/src/cmd.c:1814-1815 and js/cmd.js:5034-5037, 5786-5799 show Q's command registration and the JavaScript result/reset/time wrapper; nethack-c/upstream/src/dothrow.c:543-555 and js/dothrow.js:897-900 show dofire()'s second doquiver_core() caller.",
-    "nethack-c/upstream/src/invent.c:1778-1825 and js/invent.js:691-717 show queued inventory-letter selection, while js/objnam.js:855-859, 1412-1429 and js/worn.js:598-604 provide the existing naming and slot operations needed by the singleton alternate branch."
-  ],
-  "nextProbe": "After implementing the uswapwep singleton branch, replay this witness through step 9 and compare the bow quiver message, zero-RNG slot transition, and the subsequent hand-thrown-arrow branch. Then probe y/n/q responses and a stacked alternate weapon: those branches exercise ynq, splitobj/finish_splitting, pair_of, untwoweapon(), and the ECMD_TIME result tail that this session does not reach."
+    "The assigned-only bounded replay is captured in .cache/investigate-seed0101-18a563/replay.json. It uses commit 18a56313c56723cde906c27449d0fc2c6c085bf0 and upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4, emits 9 screens of the 27 recorded steps, and stops on key l with the C top line `You aren't wielding a bow, so you throw your arrow by hand.`.",
+    "sessions/holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json segments[0].steps[4:9] records Q, b, y, t, d, and l: the alternate weapon prompt and confirmation, the throw-object prompt listing bcd, the selected d arrow, and the eastward direction. steps[9] records the C hand-throw message and nine RNG calls, including rnd(2) from stack splitting and rn2(100) from breaktest().",
+    "nethack-c/upstream/src/dothrow.c:1508-1849 is the complete throwit() source unit. Its live no-launcher branch is :1635-1647: range is divided by two and the hand-throw message is emitted before bhit(); JS js/dothrow.js:1310-1481 has the corresponding function but raises UnsupportedThrowError at :1372-1375 instead.",
+    "The post-flight source path is ordinary in this witness: zap.c:3827-4138 bhit() sees the east boundary and leaves gb.bhitpos at the hero square, then dothrow.c:1780-1847 evaluates breaktest(), flooreffects(), obj_no_longer_held(), place_object(), stackobj(), and throwit_return(). The existing JS counterparts are present and their special-surface refusal guards are not selected by the recorded square.",
+    "The captured prefix state in .cache/investigate-seed0101-18a563/replay.json has uwep otyp 34, uquiver bow otyp 83, no uswapwep, and selected arrow otyp 18 with quantity 31 before split. This establishes why the arrow is ammo but has no matching launcher, rather than attributing the stop to the earlier quiver transition.",
+    "The whole-source goal is a divergence-fix for dothrow.c throwit(), preserving all existing callers and the shared bhit/landing contracts. Validation should replay this witness through step 9 and then exercise a launcher-free arrow or bolt on open ground, a matched launcher, and a gem exception so the range-halving, message, RNG order, and ordinary landing behavior are checked generally."
+  ]
 }
