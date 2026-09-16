@@ -1398,14 +1398,13 @@ async function throwit_mon_hit(mon, obj, state = game) {
     if (mon?.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
         return true;
     if (obj?.lamplit)
-        throw new UnsupportedThrowError('snuff_candle()');
+        note_unported('dothrow.c snuff_candle');
     state.gn ??= {};
     state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
         || state.gb.bhitpos.y !== mon.my;
     const objGone = await thitmonst(mon, obj, state);
     const after = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     if (after?.isshk
-        && after !== mon
         && (!inside_shop(state.u.ux, state.u.uy, state)
             || !in_rooms(after.mx, after.my, SHOPBASE, state).includes(
                 state.u.ushops?.[0],
@@ -1638,9 +1637,9 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
     /* flooreffects() owns everything the liquid then does to the object:
        trap.c lava_damage() for a lava square and trap.c water_damage() for a
-       pool. Neither is ported for a free object, so js/do.js flooreffects()
-       raises the refusal for both and this site no longer has to. */
-    if (flooreffects(obj, bx, by, 'fall', {
+       pool. Their return values decide whether throwit() stops its landing
+       tail, while the floor owner keeps the object's lifetime coherent. */
+    if (await flooreffects(obj, bx, by, 'fall', {
         state,
         unsupported: (what) => {
             throw new UnsupportedThrowError(what);
@@ -1935,9 +1934,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         return 1;
     } else if (befriendWithObject(mon.data, obj, state)
                || (mon.mtame && dogfood(mon, obj, operationEnv) <= ACCFOOD)) {
-        // tamedog() returns whether it consumed the object. Its object-gift
-        // arm is not ported yet, so preserve its return-valued boundary
-        // rather than converting a refusal into a source-level miss.
+        // tamedog() returns whether it consumed the object. Preserve that
+        // return-valued boundary rather than converting a failed taming into
+        // a source-level miss.
         const tamed = await tamedog(mon, obj, true, operationEnv);
         if (tamed) {
             return 1;
@@ -2162,7 +2161,7 @@ async function throw_gold(obj, state = game) {
         }
     }
 
-    if (flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
+    if (await flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
         state,
         unsupported: (what) => {
             throw new UnsupportedThrowError(what);

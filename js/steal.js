@@ -661,7 +661,7 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
             state,
         );
     }
-    if (!flooreffects(obj, omx, omy, 'fall', env)) {
+    if (!await flooreffects(obj, omx, omy, 'fall', env)) {
         place_object(obj, omx, omy, env);
         // A drop is the inverse of dog_invent()'s pickup and needs the same
         // object-lifecycle owners that arm composes: merged() unlinks the

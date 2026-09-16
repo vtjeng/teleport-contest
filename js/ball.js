@@ -112,7 +112,7 @@ function rememberedGlyph(glyph) {
 // C ref: ball.c placebc_core() (120-145), reached by placebc() after a level
 // transition. The floor-effect checks are ordinary on the destination square;
 // other landing effects remain owned by do.c flooreffects().
-function placebc_core(state) {
+async function placebc_core(state) {
     const ball = state.uball;
     const chain = state.uchain;
     if (!ball || !chain) {
@@ -120,7 +120,7 @@ function placebc_core(state) {
         return;
     }
 
-    flooreffects(chain, state.u.ux, state.u.uy, '', {
+    await flooreffects(chain, state.u.ux, state.u.uy, '', {
         state,
         unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
     });
@@ -128,7 +128,7 @@ function placebc_core(state) {
     if (carried(ball)) {
         state.u.bc_order = BCPOS_DIFFER;
     } else {
-        flooreffects(ball, state.u.ux, state.u.uy, '', {
+        await flooreffects(ball, state.u.ux, state.u.uy, '', {
             state,
             unsupported: (reason) => note_unported(`do.c flooreffects: ${reason}`),
         });
@@ -144,13 +144,13 @@ function placebc_core(state) {
 
 // C ref: ball.c placebc() (193-209). The restriction mechanism is only used
 // by covet/lift callers outside this span, so a free chain is the live check.
-export function placebc(state = game) {
+export async function placebc(state = game) {
     const chain = state.uchain;
     if (chain && chain.where !== OBJ_FREE) {
         note_unported('pline.c impossible');
         return;
     }
-    placebc_core(state);
+    await placebc_core(state);
 }
 
 // C ref: ball.c unplacebc_core() (147-190), used around level transit. Object

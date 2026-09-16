@@ -41,6 +41,7 @@ import {
     LAVAPOOL,
     LEVITATION,
     OBJ_DELETED,
+    OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
     POOL,
@@ -773,11 +774,10 @@ test('throwit() breaks what lands hard and drowns what lands wet',
         // the port. Neither the sound nor the handover costs a draw.
         const wet = arena();
         wet.level.at(9, 4).typ = POOL;
-        await assert.rejects(
-            () => throwit(item(wet, DAGGER), 0, false, null, wet),
-            /landing in water/u,
-        );
-        assert.deepEqual(draws(), []);
+        const wetDagger = item(wet, DAGGER);
+        await throwit(wetDagger, 0, false, null, wet);
+        assert.deepEqual(draws(), ['rn2(20)']);
+        assert.equal(wetDagger.where, OBJ_FLOOR);
     });
 
 test('throwit() sounds a landing in liquid exactly where C sounds it',
@@ -807,29 +807,24 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         const splash = arena();
         splash.level.at(9, 4).typ = POOL;
         splash._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(splash, DAGGER), 0, false, null, splash),
-            /landing in water/u,
-        );
-        assert.equal(splash._ttyToplines, 'Splash!');
+        await throwit(item(splash, DAGGER), 0, false, null, splash);
+        assert.equal(splash._ttyToplines, 'Splash!  The dagger rusts!');
         // rm.h:129 puts POOL at 16 and DRAWBRIDGE_UP at 19, so IS_POOL and
         // with it IS_SOFT (rm.h:140) hold here, and dothrow.c:1780's
         // `!IS_SOFT(...) && breaktest(obj)` short-circuits before breaktest().
-        // The sound itself has no roll, so a pool landing draws nothing.
-        assert.deepEqual(draws(), []);
+        // The sound itself has no roll; water_damage's rust protection draw
+        // follows the landing message.
+        assert.deepEqual(draws(), ['rn2(20)']);
 
         // The same pool, at exactly WT_SPLASH_THRESHOLD: C wants strictly
         // more than the threshold, so nine darts only plop.
         const plop = arena();
         plop.level.at(9, 4).typ = POOL;
         plop._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(plop, DART, { quan: 9, owt: 9 }),
-                0, false, null, plop),
-            /landing in water/u,
-        );
-        assert.equal(plop._ttyToplines, 'Plop!');
-        assert.deepEqual(draws(), []);
+        await throwit(item(plop, DART, { quan: 9, owt: 9 }),
+            0, false, null, plop);
+        assert.equal(plop._ttyToplines, 'Plop!  The darts rust!');
+        assert.deepEqual(draws(), ['rn2(20)']);
 
         // One dart more clears it. The fixture carries a deliberately stale
         // owt of 1: mkobj.c weight() recomputes `oc_weight * quan` as 10,
@@ -838,13 +833,10 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         const heavier = arena();
         heavier.level.at(9, 4).typ = POOL;
         heavier._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(heavier, DART, { quan: 10, owt: 1 }),
-                0, false, null, heavier),
-            /landing in water/u,
-        );
-        assert.equal(heavier._ttyToplines, 'Splash!');
-        assert.deepEqual(draws(), []);
+        await throwit(item(heavier, DART, { quan: 10, owt: 1 }),
+            0, false, null, heavier);
+        assert.equal(heavier._ttyToplines, 'Splash!  The darts rust!');
+        assert.deepEqual(draws(), ['rn2(20)']);
 
         // The same weight() call refuses for a food the hero has bitten:
         // js/obj.js needs an eatenStat hook to read oeaten and js/eat.js is
@@ -867,31 +859,25 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         const lava = arena();
         lava.level.at(9, 4).typ = LAVAPOOL;
         lava._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(lava, DAGGER), 0, false, null, lava),
-            /landing on lava/u,
-        );
+        await throwit(item(lava, DAGGER), 0, false, null, lava);
         assert.equal(lava._ttyToplines, 'Splash!');
         // rm.h:76 puts LAVAPOOL at 20, outside IS_POOL, so IS_SOFT is false
         // and dothrow.c:1780 does call breaktest(), which asks
         // obj_resists(obj, 1, 99) (dothrow.c:2592) and spends its rn2(100).
         // A lava landing therefore draws where a pool landing does not, and
         // it draws before the sound.
-        assert.deepEqual(draws(), ['rn2(100)']);
+        assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
 
         // A wooden club over the same lava is flammable, so C says nothing
         // and leaves the burning to flooreffects() -> lava_damage().
         const burns = arena();
         burns.level.at(9, 4).typ = LAVAPOOL;
         burns._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(burns, CLUB), 0, false, null, burns),
-            /landing on lava/u,
-        );
+        await throwit(item(burns, CLUB), 0, false, null, burns);
         assert.equal(burns._ttyToplines, '');
         // Silent, but not draw-free: breaktest() runs for lava whatever the
         // object is made of, and is_flammable() only decides the sound.
-        assert.deepEqual(draws(), ['rn2(100)']);
+        assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
 
         // youprop.h Deaf (125) has three sources and the roleplay conduct is
         // the one a game can start with. A deaf hero hears no splash.
@@ -899,24 +885,19 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         conduct.level.at(9, 4).typ = POOL;
         conduct.u.uroleplay = { deaf: true };
         conduct._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(conduct, DAGGER), 0, false, null, conduct),
-            /landing in water/u,
-        );
-        assert.equal(conduct._ttyToplines, '');
-        assert.deepEqual(draws(), []);
+        await throwit(item(conduct, DAGGER), 0, false, null, conduct);
+        assert.equal(conduct._ttyToplines, 'The dagger rusts!');
+        assert.deepEqual(draws(), ['rn2(20)']);
 
-        // ...and neither does one deafened by the property itself.
+        // The DEAF property also suppresses the splash but does not suppress
+        // water_damage's rust message.
         const deafened = arena();
         deafened.level.at(9, 4).typ = POOL;
         deafened.u.uprops[DEAF].intrinsic = 1;
         deafened._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(deafened, DAGGER), 0, false, null, deafened),
-            /landing in water/u,
-        );
-        assert.equal(deafened._ttyToplines, '');
-        assert.deepEqual(draws(), []);
+        await throwit(item(deafened, DAGGER), 0, false, null, deafened);
+        assert.equal(deafened._ttyToplines, 'The dagger rusts!');
+        assert.deepEqual(draws(), ['rn2(20)']);
 
         // youprop.h Underwater (279) is u.uinwater, which dothrow.c:1637 has
         // already read to cut the range to 1: the missile lands at column 2,
@@ -925,16 +906,13 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         submerged.level.at(2, 4).typ = POOL;
         submerged.u.uinwater = 1;
         submerged._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(submerged, DAGGER), 0, false, null, submerged),
-            /landing in water/u,
-        );
+        await throwit(item(submerged, DAGGER), 0, false, null, submerged);
         assert.equal(submerged.gb.bhitpos.x, 2);
-        assert.equal(submerged._ttyToplines, '');
+        assert.equal(submerged._ttyToplines, 'The dagger rusts!');
         // Draw-free because this pool skips breaktest(), not because the
         // Underwater gate suppressed anything: that gate owns the sound
         // alone.
-        assert.deepEqual(draws(), []);
+        assert.deepEqual(draws(), ['rn2(20)']);
     });
 
 test('throwit() ships an object down a ladder but not down a hole it '

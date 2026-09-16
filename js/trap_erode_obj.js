@@ -5,10 +5,8 @@
 // by file name; js/trap_effects.js records why that file's display, naming and
 // monster edges are split out of js/trap.js instead.
 //
-// erode_obj() covers its hero-victim and monster-victim arms. Its third
-// victim, a floor object, is refused: C decides that one through `visobj`,
-// which reads gb.bhitpos, and no ported caller passes an object that is
-// neither carried nor mcarried.
+// erode_obj() covers its hero-victim, monster-victim, and floor-object arms.
+// The floor visibility branch uses gb.bhitpos, matching C's visobj contract.
 //
 // burnarmor() covers both hero and monster victims. which_armor() picks the
 // same five slots for a monster; trap.c trapeffect_fire_trap() is its live
@@ -30,9 +28,12 @@ import {
     ERODE_ROT,
     ERODE_RUST,
     ER_DAMAGED,
+    ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
     MAX_ERODE,
+    OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_MINVENT,
     W_ARMC,
     W_ARM,
@@ -44,7 +45,7 @@ import {
     materialnm,
 } from './const.js';
 import { monsterPossessive } from './do_name.js';
-import { update_inventory } from './invent.js';
+import { delobj, update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
 import {
     carried,
@@ -67,6 +68,7 @@ import { canSeeMonster, heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
+import { cansee } from './vision.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -170,11 +172,11 @@ export class UnsupportedErosionError extends Error {
 // name; "type" is an ERODE_* value; "flags" is an or-ed list of EF_* flags.
 // Returns an ER_* value.
 //
-// Two of C's three victims are here. `visobj`, the third, decides whether a
-// floor object's erosion is visible from gb.bhitpos; both ported callers hand
-// over an object a victim is carrying, so the entry below refuses the rest
-// rather than guessing at that coordinate. With visobj false, C's four
-// message subjects collapse to two, which is what `possessive` holds.
+// C's three victims are here. For a free/floor object, `visobj` is the
+// visibility of gb.bhitpos; flooreffects sets that coordinate before invoking
+// water or fire damage and restores it afterwards. Keeping that test here
+// preserves the source owner instead of making floor callers invent erosion
+// messages or bypass the return value.
 //
 // EF_PAY (costly_alteration()) is live for do_wear.c destroy_arm(). Its
 // EF_DESTROY arm remains fail-closed at maximum erosion until the inventory
@@ -183,9 +185,12 @@ export async function erode_obj(obj, description, type, flags, env) {
     if (!obj) return ER_NOTHING;
     // C's `uvictim`; `vismon` follows once the message operations resolve.
     const uvictim = carried(obj);
-    if (!uvictim && (obj.where !== OBJ_MINVENT || !obj.ocarry)) {
+    const floorVictim = !uvictim
+        && (obj.where === OBJ_FREE || obj.where === OBJ_FLOOR);
+    if (!uvictim && !floorVictim
+        && (obj.where !== OBJ_MINVENT || !obj.ocarry)) {
         throw new RangeError(
-            'item erosion requires a carried object; visobj is unported',
+            'item erosion requires a carried object or a floor object',
         );
     }
 
@@ -194,12 +199,18 @@ export async function erode_obj(obj, description, type, flags, env) {
     const { state } = env;
     const random = env.random;
     const message = erosionOperation(env, 'message', ttyPline);
-    const vismon = !uvictim && erosionOperation(
+    const vismon = !uvictim && !floorVictim && erosionOperation(
         env,
         'canSeeMonster',
         canSeeMonster,
     )(obj.ocarry, state);
-    const visible = uvictim || vismon;
+    const hit = state.gb?.bhitpos;
+    const visobj = floorVictim
+        && (typeof env.canSeeObject === 'function'
+            ? env.canSeeObject(obj, hit?.x, hit?.y, state)
+            : hit && cansee(hit.x, hit.y, state)
+                && (!env.poolAt || !env.poolAt(hit.x, hit.y, state)));
+    const visible = uvictim || vismon || visobj;
 
     // trap.c:202-206 and 218-222, inside the switch that also selects the
     // table row above. The roll comes before every other test, so an equipped
@@ -215,9 +226,11 @@ export async function erode_obj(obj, description, type, flags, env) {
     // C's two remaining message subjects. The capitalized form opens a
     // sentence; the lower-case one sits after "Somehow,".
     const possessive = uvictim
-        ? 'Your' : monsterPossessive(obj.ocarry, state, true);
+        ? 'Your' : vismon
+            ? monsterPossessive(obj.ocarry, state, true) : 'The';
     const lowerPossessive = uvictim
-        ? 'your' : monsterPossessive(obj.ocarry, state);
+        ? 'your' : vismon
+            ? monsterPossessive(obj.ocarry, state) : 'the';
     const verbose = state.flags?.verbose !== false;
     const print = Boolean(flags & EF_VERBOSE);
 
@@ -299,6 +312,25 @@ export async function erode_obj(obj, description, type, flags, env) {
     }
 
     if (flags & EF_DESTROY) {
+        // trap.c marks the object in use while its destruction message can
+        // pause.  Floor/free objects have no worn-state transition, so their
+        // complete source return and deletion are safe here; the remaining
+        // worn-item removal hook stays an explicit boundary for callers that
+        // have not supplied that owner yet.
+        obj.in_use = true;
+        if (visible) {
+            const action = type === ERODE_CRACK
+                ? 'shatters'
+                : `${verbFor(name, details.action)} away`;
+            await message(
+                `${possessive} ${name} ${action}!`,
+                state,
+            );
+        }
+        if (floorVictim && !obj.owornmask) {
+            delobj(obj, { ...env, state });
+            return ER_DESTROYED;
+        }
         throw new UnsupportedErosionError(
             'removing a maximally eroded worn item',
         );
@@ -312,7 +344,7 @@ export async function erode_obj(obj, description, type, flags, env) {
                 + `completely ${details.result}.`,
                 state,
             );
-        } else if (vismon) {
+        } else if (vismon || visobj) {
             await message(
                 `${possessive} ${name} ${verbFor(name, 'look')} completely `
                 + `${details.result}.`,

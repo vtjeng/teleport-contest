@@ -54,6 +54,7 @@ import { parseNethackrc } from '../js/options.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     CARROT,
+    COIN_CLASS,
     CORPSE,
     FOOD_CLASS,
     objects_globals_init,
@@ -253,18 +254,16 @@ test('dog_nutrition scales a whole mimic corpse for every pet size', () => {
     }
 });
 
-test('dog_nutrition requires FOOD_CLASS', () => {
+test('dog_nutrition handles coin and unusual object nutrition', () => {
     const { monster, state } = quickState(false);
-    const corpse = {
-        corpsenm: PM_SMALL_MIMIC,
-        oclass: FOOD_CLASS,
-        oeaten: 0,
-        otyp: CORPSE,
-    };
-    assert.throws(
-        () => dog_nutrition(monster, { ...corpse, oclass: WEAPON_CLASS }, state),
-        /requires FOOD_CLASS/u,
-    );
+    assert.equal(dog_nutrition(monster, {
+        oclass: COIN_CLASS, otyp: TRIPE_RATION, quan: 4000,
+    }, state), 1200);
+    assert.equal(monster.meating, 3);
+    assert.equal(dog_nutrition(monster, {
+        oclass: WEAPON_CLASS, otyp: TRIPE_RATION, owt: 25,
+    }, state), state.objects[TRIPE_RATION].oc_nutrition * 5 * 6);
+    assert.equal(monster.meating, 2);
 });
 
 test('dog_eat consumes each admitted mimic corpse and updates its little dog',
@@ -409,10 +408,6 @@ test('dog_eat validates missing pet and non-food state before mutation',
             ['missing pet state', ({ monster }) => {
                 delete monster.mextra.edog;
             }, /tame pet with edog/u],
-            // Wrong oclass: exercises the food-class guard.
-            ['wrong object class', ({ corpse }) => {
-                corpse.oclass = WEAPON_CLASS;
-            }, /a food item/u],
         ];
         for (const [name, mutate, reason] of cases) {
             const { monster, state } = quickState(false);

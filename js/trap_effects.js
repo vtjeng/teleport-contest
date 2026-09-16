@@ -1364,7 +1364,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
             if (Punished(state) && !carried(state.uball)) {
                 unplacebc(state);
                 note_unported('ball.c ballfall after pit');
-                placebc(state);
+                await placebc(state);
             }
             if (!conjPit) note_unported('trap.c selftouch');
             state.vision_full_recalc = 1;
