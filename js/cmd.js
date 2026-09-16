@@ -83,6 +83,7 @@ import {
     PICK_ONE,
     PARANOID_QUIT,
     PLNMSG_UNKNOWN,
+    BUFSZ,
     QBUFSZ,
     ROWNO,
     LEVEL_TELEP,
@@ -246,11 +247,13 @@ import {
     u_on_rndspot,
 } from './dungeon.js';
 import {
+    encodeUtf8Text,
     dist2,
     mungspaces,
     sgn,
     strstri,
     strsubst,
+    truncateByteString,
     upstart,
     visctrl,
 } from './hacklib.js';
@@ -911,11 +914,25 @@ async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
         const responseType = paranoidConfirm
             ? (accept_q ? '[yes|no|quit]' : '[yes|no]')
             : (accept_q ? '[yes|n|q] (n)' : '[yes|n] (n)');
+        // cmd.c:5609 copies the prompt into a BUFSZ buffer before the first
+        // query.  Its later QBUFSZ guard shortens that same buffer in place,
+        // after adding the retry prefix and response suffix lengths.
+        // hacklib.c:copynchars() stops at the first newline as well as at the
+        // fixed byte limit. Query prompts normally have neither, but preserve
+        // that source boundary for callers supplying a constructed prompt.
+        const firstLine = String(prompt).split('\n', 1)[0];
+        let pbuf = truncateByteString(firstLine, BUFSZ - 1);
         let promptPrefix = '';
         let tryLimit = 6;
         do {
+            const k = encodeUtf8Text(promptPrefix).length + 1
+                + encodeUtf8Text(responseType).length;
+            if (encodeUtf8Text(pbuf).length + k > QBUFSZ - 1) {
+                const retained = QBUFSZ - 1 - k - 4;
+                pbuf = `${truncateByteString(pbuf, retained)}...?`;
+            }
             const answer = mungspaces(await getlin(
-                `${promptPrefix}${prompt} ${responseType}`, state,
+                `${promptPrefix}${pbuf} ${responseType}`, state,
             )).toLowerCase();
             if (answer === 'yes') return KEY_Y;
             if (answer === 'quit' || answer.startsWith('\x1b'))

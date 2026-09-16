@@ -13,7 +13,9 @@
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
 // death is declined in wizard or explore mode or after the amulet fires. Its
-// two unported calls are explicit discarded-result gaps.
+// two unported calls are explicit discarded-result gaps. The debug-fuzzer
+// helper fuzzer_savelife() (end.c:945-1016) is also source-ordered here; its
+// discarded potion effects and wizard map rebuild remain named gaps.
 // endmultishot(FALSE) is now ported.
 //
 // done_in_by() (end.c:185-344) sets up the killer string from a monster
@@ -117,16 +119,19 @@ import {
 import { endmultishot } from './dothrow.js';
 import { upstart } from './hacklib.js';
 import {
-    display_inventory, money_cnt, sortloot, stackobj, update_inventory,
+    display_inventory, money_cnt, obfree, sortloot, stackobj, update_inventory,
     useup,
 } from './invent.js';
-import { isContainer, place_object, remove_object } from './obj.js';
+import { bless, isContainer, mksobj, place_object, remove_object }
+    from './obj.js';
 import { discover_object } from './o_init.js';
 import {
     AMULET_OF_LIFE_SAVING,
     BAG_OF_TRICKS,
     CORPSE,
     LARGE_BOX,
+    POT_RESTORE_ABILITY,
+    POT_WATER,
     STATUE,
     TIN,
 } from './objects.js';
@@ -167,6 +172,8 @@ import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
 import { setwornEnv } from './do_wear.js';
 import { setnotworn } from './worn.js';
+import { set_itimeout } from './potion.js';
+import { rn2 } from './rng.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -315,6 +322,84 @@ async function savelife(how, state = game) {
         }
         await unstuck(holder, state, { state });
     }
+}
+
+// C ref: end.c fuzzer_savelife() (945-1016).  The debug fuzzer calls this
+// before done() initializes the killer or mortality fields.  It is a
+// return-valued source helper: TRUE returns from done(), while FALSE lets the
+// ordinary death path continue.  peffects() and wiz_makemap() have discarded
+// results/callback effects here but their source owners are not ported, so
+// retain named gaps and do not invent potion effects or a queued level rebuild.
+async function fuzzer_savelife(how, state = game, source = {}) {
+    const programState = state.program_state ?? {};
+    if (programState.panicking || how === PANICKED || how === TRICKED)
+        return false;
+
+    const random = source.random ?? { rn2 };
+    await savelife(how, state);
+
+    // C compares gd.done_seq with gh.hero_seq before drawing this roll.
+    if (!random.rn2(
+        state.done_seq > (state.hero_seq ?? 0) + 2 ? 2 : 10,
+    )) {
+        const u = state.u;
+        let remedies = 0;
+        let potion;
+
+        // Both peffects() return values are discarded by C.  Its effect
+        // implementation remains an explicit gap, but mksobj/bless/obfree
+        // still execute in source order around that call boundary.
+        if (ismnum(u.ulycn) && !random.rn2(3)) {
+            const objectEnv = source.random
+                ? { state, random: source.random }
+                : { state };
+            potion = mksobj(POT_WATER, true, false, objectEnv);
+            bless(potion);
+            note_unported('potion.c peffects');
+            obfree(potion, null, { state });
+            ++remedies;
+        }
+        if (!remedies || random.rn2(3)) {
+            const objectEnv = source.random
+                ? { state, random: source.random }
+                : { state };
+            potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);
+            bless(potion);
+            note_unported('potion.c peffects');
+            obfree(potion, null, { state });
+            ++remedies;
+        }
+        if (!random.rn2(3 + 3 * remedies)) {
+            for (let propidx = 1; propidx <= 8; ++propidx) {
+                const property = u.uprops[propidx];
+                if (!property.intrinsic && !property.extrinsic) {
+                    const proptim = random.rn2(3);
+                    if (proptim > 0)
+                        set_itimeout(property, 2 * proptim + 1);
+                }
+            }
+            ++remedies;
+        }
+        if (!random.rn2(5 + 5 * remedies)) {
+            // C's empty arm may confer Antimagic or Invulnerable through a
+            // later fuzzer-only implementation; it deliberately has no body.
+        }
+    }
+
+    // C clears the stale killer after the recovery work, before its loop
+    // guard.  done() has initialized this record on every supported caller.
+    state.killer ??= {};
+    state.killer.name = '';
+    state.killer.format = KILLED_BY_AN;
+
+    if (state.done_seq++ > (state.hero_seq ?? 0) + 100) {
+        if (!state.wizard) return false;
+        // cmdq_add_ec() would schedule an unported wiz_makemap callback; C
+        // discards its queue operation result, so preserve only the source
+        // boundary and leave the existing command queue untouched.
+        note_unported('wizcmds.c wiz_makemap');
+    }
+    return true;
 }
 
 // C ref: end.c done_in_by() (185-344). Sets up the killer string from the
@@ -637,11 +722,11 @@ export async function done(how, state = game, source = {}) {
     if (state.done_seq < (state.hero_seq ?? 0))
         state.done_seq = state.hero_seq ?? 0;
 
-    // end.c:1056-1059. The recorder has no earlyarg command-line owner for
-    // this debug-only mode, but preserve the source branch as an explicit
-    // boundary rather than refusing done() before its death-state work.
-    if (state.iflags.debug_fuzzer)
-        note_unported('end.c fuzzer_savelife');
+    // end.c:1056-1059. fuzzer_savelife() owns the return used by this branch;
+    // a successful recovery returns from done before killer/mortality work.
+    if (state.iflags.debug_fuzzer
+        && await fuzzer_savelife(how, state, source))
+        return;
 
     if (how === ASCENDED || (!killer.name && how === GENOCIDED))
         killer.format = NO_KILLER_PREFIX;

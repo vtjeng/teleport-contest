@@ -8,6 +8,7 @@ import {
     CHOKING,
     COLNO,
     CRUSHING,
+    BUFSZ,
     DIED,
     DISSOLVED,
     DROWNING,
@@ -19,9 +20,11 @@ import {
     MAGIC_PORTAL,
     NO_KILLER_PREFIX,
     PANICKED,
+    PARANOID_CONFIRM,
     PARANOID_DIE,
     POISONING,
     QUIT,
+    QBUFSZ,
     ROOM,
     ROOMOFFSET,
     ROWNO,
@@ -37,6 +40,7 @@ import { UnsupportedEndOfGameError, deaths, done, done_in_by }
     from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { losehp, unmul } from '../js/hack.js';
+import { encodeUtf8Text } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
@@ -179,6 +183,27 @@ test('ParanoidDie uses the source spelled-out line query', async () => {
     assert.equal(await paranoid_query(true, 'Die?', game), false);
 });
 
+test('paranoid line queries retain the source BUFSZ and QBUFSZ limits',
+     async () => {
+    await dyingGame({ playmode: 'debug' });
+    game.flags.paranoia_bits |= PARANOID_DIE | PARANOID_CONFIRM;
+    // Dismiss the welcome line, then make the first answer retry. The second
+    // query adds cmd.c's `"Yes" or "No": ` prefix and shortens the already
+    // BUFSZ-limited pbuf again before formatting qbuf.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    for (const key of ['m', 'a', 'y', 'b', 'e', '\r',
+                       'n', 'o', '\r'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    const prompt = 'p'.repeat(BUFSZ + 44);
+    assert.equal(await paranoid_query(true, prompt, game), false);
+
+    const responseType = '[yes|no]';
+    const prefix = '"Yes" or "No": ';
+    const expectedPrompt = `${prefix}${'p'.repeat(99)}...? ${responseType}`;
+    assert.equal(game._ttyToplines, `${expectedPrompt} no`);
+    assert.equal(encodeUtf8Text(expectedPrompt).length, QBUFSZ - 1);
+});
+
 test('deaths[] matches C order and supplies unnamed killers', async () => {
     // end.c:44-50, "the array of death". Read the C initializer back rather
     // than a copy of it, so a renamed or reordered row fails here.
@@ -306,7 +331,7 @@ test('done(TRICKED) clears the killer before the wizard return', async () => {
     assert.equal(game.u.umortality, trickedMortality);
 });
 
-test('debug-fuzzer death keeps the source branch boundary after status',
+test('debug-fuzzer death uses its source life-saving return before mortality',
      async () => {
     await dyingGame();
     // moveloop_preamble() copies iflags.fuzzerpending here; only earlyarg.c's
@@ -315,12 +340,39 @@ test('debug-fuzzer death keeps the source branch boundary after status',
     game.killer = { name: '', format: KILLED_BY_AN };
     game.u.uhp = 0;
     game.u.umortality = 0;
-    const message = await refusal(DIED);
-    assert.doesNotMatch(message, /fuzzer_savelife\(\)/u);
-    // The recorder has no fuzzer level-rebuild owner, so the explicit gap is
-    // recorded and done() continues through the ordinary source prefix.
-    assert.match(statusRow(), /HP:0\(10\)/u);
-    assert.equal(game.u.umortality, 1);
+    await done(DIED, game);
+    // end.c:1056-1059 returns as soon as fuzzer_savelife() succeeds, before
+    // killer initialization, mortality, or the ordinary HP-zeroing prefix.
+    assert.match(statusRow(), /HP:10\(10\)/u);
+    assert.equal(game.u.umortality, 0);
+    assert.equal(game.u.uhp, 10);
+    assert.equal(game.killer.name, '');
+});
+
+test('debug-fuzzer recovery keeps temporary remedy effects source-ordered',
+     async () => {
+    await dyingGame();
+    game.iflags.debug_fuzzer = 1;
+    game.u.uhp = 0;
+    const bounds = [];
+    const random = {
+        rn2(bound) {
+            bounds.push(bound);
+            // Enter the periodic remedy arm, skip the lycanthropy-specific
+            // water branch, then take restore ability. Remaining source draws
+            // use a stable nonzero result while mksobj initializes the potion.
+            if (bounds.length === 1) return 0;
+            return 1;
+        },
+        rnd: (bound) => bound > 0 ? 1 : 0,
+        rn1: (bound, start) => start,
+        rne: () => 1,
+    };
+    await done(DIED, game, { random });
+    assert.deepEqual(bounds, [10, 4, 6, 10]);
+    assert.equal(game.u.umortality, 0);
+    assert.equal(game.u.uhp, 10);
+    assert.ok(game.unported.has('potion.c peffects'));
 });
 
 test('unmul follows a life-saving message with the current polymorph form',
@@ -808,8 +860,10 @@ test('the query stops for a hung-up game and reads ParanoidDie',
 test('the query preserves every earlier death-state arm', async () => {
     await dyingGame();
     game.iflags.debug_fuzzer = 1;
-    assert.equal(await refusal(DIED),
-                 'really_done() first-move death message');
+    game.u.uhp = 0;
+    await done(DIED, game);
+    assert.equal(game.u.umortality, 0);
+    assert.equal(game.killer.name, '');
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
@@ -839,7 +893,8 @@ test('the query preserves every earlier death-state arm', async () => {
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
     });
-    // GENOCIDED is end.c:1105's inclusive upper boundary.
+    // GENOCIDED still reaches end.c:1105 because this debug death is not the
+    // separate earlyarg.c fuzzer mode; its normal paranoid query is queued.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     game.nhDisplay.pushKey('n'.charCodeAt(0));
     game.nhDisplay.pushKey('\r'.charCodeAt(0));
