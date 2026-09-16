@@ -53714,7 +53714,7 @@
     {
       "id": "div-uhitm-known-hitum-monflee-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Wire wounded surviving hits to canonical monster flight",
       "cFile": "uhitm.c",
       "sessions": [],
@@ -53841,7 +53841,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "parkedReason": "A11 source fix exposes the whole feel_location Punished display gap at1106. The candidate passes the old checkpoint ratchet but drops accepted screens10346 to9250 because the exception discards its segment; preserved on codex/a11-integration-wait-20260916 at49ad63ae. Worker B will port whole feel_location before A11 is retried."
     }
   ]
 }
