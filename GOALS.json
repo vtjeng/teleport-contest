@@ -20357,7 +20357,7 @@
     {
       "id": "div-hack-test-move-seed0030",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Fix seed0030 stop at step 537 in test_move() (hack.c)",
       "cFile": "hack.c",
       "sessions": [],
@@ -20387,7 +20387,10 @@
         "screens": 0,
         "rng": 0
       },
-      "parkedReason": "Fresh source review shows test_move() is a partial implementation with explicit UnsupportedHeroMoveBoundaryError seams, including the SDOOR obstacle branch. Preserve this historical divergence record; replace it with a bounded source port for the whole function."
+      "parkedReason": "Fresh source review shows test_move() is a partial implementation with explicit UnsupportedHeroMoveBoundaryError seams, including the SDOOR obstacle branch. Preserve this historical divergence record; replace it with a bounded source port for the whole function.",
+      "supersededBy": "port-hack-test-move",
+      "supersededReason": "Source review reclassified this partial implementation as a whole-function port. port-hack-test-move closed at 637cc80bc84cc27e7c2cbd2eb45ab32457df0f63 and owns the replacement source evidence; this earlier divergence plan has no independent work.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "port-hack-test-move",
@@ -20683,7 +20686,7 @@
         "screens": 5414,
         "rng": 390072
       },
-      "parkedReason": "mon_adjust_speed span closed with source/caller/recording evidence; no additional holdout evaluation is authorized, so retain the goal for later closure."
+      "parkedReason": "The mon_adjust_speed span is closed with source, caller, and recording evidence. The local holdout was opened on 2026-09-12, so the former permission blocker no longer applies. Awaiting reconciliation of the saved evidence and formal closure under the current validation and scoring requirements; this record identifies no remaining implementation defect."
     },
     {
       "id": "port-shk-u-entered-shop",
@@ -28894,7 +28897,7 @@
     {
       "id": "port-do-goto-level-falling-stairs",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port do.c goto_level() ordinary downward-stair falling arm and preserve source-ordered damage and arrival wiring",
       "cFile": "do.c",
       "sessions": [
@@ -28955,7 +28958,10 @@
         "screens": 7007,
         "rng": 512612
       },
-      "parkedReason": "goto_level() is already a completed do.c source unit with prior whole-function evidence; the newly confirmed encumbrance falling branch is a source-local defect in implemented behavior and must be selected as a bounded divergence-fix instead."
+      "parkedReason": "goto_level() is already a completed do.c source unit with prior whole-function evidence; the newly confirmed encumbrance falling branch is a source-local defect in implemented behavior and must be selected as a bounded divergence-fix instead.",
+      "supersededBy": "div-do-goto-level-falling-stairs",
+      "supersededReason": "goto_level already had whole-function evidence, so the falling-stair defect was handled by div-do-goto-level-falling-stairs, closed at 2427be4458fc2f5506450c214c6b8fa5c3e6fa22. Retain this mistaken file-port selection as history without pending work.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "div-do-goto-level-falling-stairs",
@@ -47253,7 +47259,7 @@
     {
       "id": "port-teleport-teleds-seed4500-20260914",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port teleport.c teleds active punishment-ball transit and wire its production callers.",
       "cFile": "teleport.c",
       "sessions": [
@@ -47366,7 +47372,10 @@
         "screens": 9659,
         "rng": 699110
       },
-      "parkedReason": "The selected function teleds() already has complete source evidence in port-teleport-teleds-ball-seed4500. Reclassify the current active punishment-ball refusal as a divergence-fix, preserving this mistaken file-port selection as parked history."
+      "parkedReason": "The selected function teleds() already has complete source evidence in port-teleport-teleds-ball-seed4500. Reclassify the current active punishment-ball refusal as a divergence-fix, preserving this mistaken file-port selection as parked history.",
+      "supersededBy": "port-teleport-teleds-ball-seed4500",
+      "supersededReason": "This duplicate file-port selection found teleds already verified by port-teleport-teleds-ball-seed4500, closed at 0a4f4aa70ae38501791e7ebe8214324a81ffcd30. The separate div-teleport-teleds-ball-seed4500-20260914 investigation retains its own unresolved diagnostic record; this duplicate source plan adds no work.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "div-teleport-teleds-ball-seed4500-20260914",
@@ -50845,7 +50854,7 @@
     {
       "id": "div-steal-urgent-pline-seed4500-20260915-r2",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Preserve C steal.c steal() urgent_pline sequencing for monster theft and wire the planning-safe caller callback so the theft page matches the source-defined message boundary.",
       "cFile": "steal.c",
       "sessions": [],
@@ -50956,7 +50965,10 @@
         "screens": 10084,
         "rng": 741703
       },
-      "parkedReason": "Urgent-only correction did not move step987 in focused run-jcX2Qy. Preserve that WIP; corrected source root cause is the omitted tele_restrict message in uhitm.c mhitm_ad_sedu, covered by div-uhitm-theft-tele-restrict-seed4500-20260916."
+      "parkedReason": "Urgent-only correction did not move step987 in focused run-jcX2Qy. Preserve that WIP; corrected source root cause is the omitted tele_restrict message in uhitm.c mhitm_ad_sedu, covered by div-uhitm-theft-tele-restrict-seed4500-20260916.",
+      "supersededBy": "div-uhitm-theft-tele-restrict-seed4500-20260916",
+      "supersededReason": "The urgent-only hypothesis did not move the mismatch in run-jcX2Qy. Source tracing identified the omitted tele_restrict message in mhitm_ad_sedu; div-uhitm-theft-tele-restrict-seed4500-20260916 closed at f0ff954d2222b1db27e4fa7925448efdc980e1e5. Preserve the unsuccessful plan without scheduling its WIP again.",
+      "supersededAt": "8e39b4e8269a5e58a7b91eeb88746ff59d38177f"
     },
     {
       "id": "div-uhitm-theft-tele-restrict-seed4500-20260916",
@@ -53430,7 +53442,7 @@
             "checkedAt": "f909ea80bbc6569ae4f679b0a8d5a2e260fb752c"
           }
         ],
-        "entryPointReview": "The selected production entry point is #chronicle in the active CHRONICLE build. The committed independent recipe has two segments with independent role, seed, date, and input variations; both reach do_gamelog/show_gamelog and the fresh C/JavaScript differential passes with 30 screens, 30 cursors, and 4,596 PRNG calls. The canonical pline.c in-memory gamelog owner records producer text at state.moves and preserves planning/save/restore ownership. Source review also wires the supported read.c generic first-literacy arm, quest.c worthy first-assignment arm, do.c new-level LL_DEBUG/LL_ACHIEVE event, and end.c ordinary LL_DUMP event. botl.c describe_level is pure and source-pinned. Inventory sight restoration carries message/update owners through potion.c and timeout.c without painting planning clones. Unsupported object/effect, quest, external dump, and final Major recording gaps remain explicit; the final Major window has source-pinned tests but no production recording in this span. Retry correction ffc0b5d5 adds files.c livelog_add mask gating and sys.c LL_NONE initialization; pline.c livelog_printf appends canonical history before replacing tabs in its external-sink buffer. The source gate fixes the prior seed2200 end-of-input regression without suppressing the validator. This record verifies only the selected insight.c functions; the enabled external sink remains an explicit unported dependency.",
+        "entryPointReview": "The selected production entry point is #chronicle in the active CHRONICLE build. The committed independent recipe has two segments with independent role, seed, date, and input variations; both reach do_gamelog/show_gamelog and the fresh C/JavaScript differential passes with 30 screens, 30 cursors, and 4,596 PRNG calls. The canonical pline.c in-memory gamelog owner records producer text at state.moves and preserves planning/save/restore ownership. Source review also wires the supported read.c generic first-literacy arm, quest.c worthy first-assignment arm, do.c new-level LL_DEBUG/LL_ACHIEVE event, and end.c ordinary LL_DUMP event. botl.c describe_level is pure and source-pinned. Inventory sight restoration carries message/update owners through potion.c and timeout.c without painting planning clones. Unsupported object/effect and quest producer coverage remains explicit. The final Major branch has source-pinned tests in scripts/insight.test.mjs. Its only production C caller is end.c dump_everything() inside #ifdef DUMPLOG; nethack-c/build-recorder.sh selects linux-minimal or macosx-minimal, neither of which defines DUMPLOG, and include/config.h leaves it disabled. Preprocessing the local recorder confirms CHRONICLE and DUMPLOG_CORE but no DUMPLOG. The final Major branch is therefore inactive in the reference recorder and is not a required runtime entry. This correction does not exempt the active Chronicle command or its remaining producer coverage. Retry correction ffc0b5d5 adds files.c livelog_add mask gating and sys.c LL_NONE initialization; pline.c livelog_printf appends canonical history before replacing tabs in its external-sink buffer. The source gate fixes the prior seed2200 end-of-input regression without suppressing the validator. This record verifies only the selected insight.c functions; the enabled external sink remains an explicit unported dependency.",
         "entryPoints": [
           {
             "name": "#chronicle in-progress logged-events window",
@@ -53441,13 +53453,6 @@
             "recordings": [
               "recordings/insight.c/chronicle-command-independent.session.json"
             ]
-          },
-          {
-            "name": "final Major chronicle window",
-            "functions": [
-              "show_gamelog"
-            ],
-            "recordings": []
           },
           {
             "name": "source-required gamelog producer wiring",
@@ -53468,7 +53473,7 @@
         "screens": 10332,
         "rng": 756143
       },
-      "parkedReason": "The completed Chronicle command span passes checkpoint341ff4fd and its independent recording. Final Major-window and broader source-producer entry recordings remain unverified; preserve them while integrating the next fixed mismatch at doconduct199."
+      "parkedReason": "The completed Chronicle command span passes checkpoint 341ff4fd and its independent recording. Broader active gamelog-producer coverage remains unverified. The final Major caller is excluded by the recorder build (DUMPLOG is disabled), so no final Major production recording is required; retain its source-pinned test and compile-time explanation."
     },
     {
       "id": "port-insight-conduct-seed0106-20260916",
