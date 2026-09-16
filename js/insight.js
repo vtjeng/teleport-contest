@@ -2149,21 +2149,28 @@ export async function list_vanquished(
     if (ask) {
         let responses = entries.length > 1 ? 'ynaq' : 'ynq\u001ba';
         if (entries.length === 1 && defquery === 'a') defquery = 'y';
-        answer = queryFunction
-            ? await queryFunction(
-                'Do you want an account of creatures vanquished?',
-                responses,
-                defquery,
-                true,
-                state,
-            )
-            : await yn_function(
+        if (queryFunction) {
+            answer = await queryFunction(
                 'Do you want an account of creatures vanquished?',
                 responses,
                 defquery,
                 true,
                 state,
             );
+        } else {
+            // cmd.js imports this module for dovanquished's command adapter.
+            // Resolve its canonical prompt owner lazily here so the
+            // production disclosure path does not create a second
+            // yn_function implementation or a static import cycle.
+            const { yn_function } = await import('./cmd.js');
+            answer = await yn_function(
+                'Do you want an account of creatures vanquished?',
+                responses,
+                defquery,
+                true,
+                state,
+            );
+        }
     } else {
         answer = defquery.charCodeAt(0);
     }
