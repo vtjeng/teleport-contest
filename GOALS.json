@@ -53714,11 +53714,11 @@
     {
       "id": "div-uhitm-known-hitum-monflee-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "open",
       "summary": "Wire wounded surviving hits to canonical monster flight",
       "cFile": "uhitm.c",
       "sessions": [],
-      "selectionReason": "Integrate oldest ready A11 for highest remaining holdout/seed4500-knight-coverage,718 remaining screens at1096; investigations/holdout/seed4500-knight-coverage.json traces missing canonical monflee wiring in implemented known_hitum. B9 is closed; B10/B11 await source attribute corrections, and both workers continue independent source ports.",
+      "selectionReason": "Resume the oldest saved Knight divergence delivery after accepted B13 removes its source-traced feel_location dependency. Original A11 implementation remains unchanged; the previous score regression was rejected and is not credited as progress.",
       "detail": "C uhitm.c623-633 consumes rn2(25), checks wounded survivor and engulfing, chooses !rn2(3)?rnd(100):0, calls monflee with FALSE/TRUE and clears u.ustuck under the source guard. Replace the existing refusal with canonical monflee/set_ustuck and planning-safe callbacks. Preserve the discarded Vrock create_gas_cloud gap. Worker focused checks pass and saved replay reaches all1814 recorded screens without divergence; validate combined main independently.",
       "spans": [
         {
@@ -53742,9 +53742,9 @@
       "session": "holdout/seed4500-knight-coverage",
       "step": 1096,
       "activeStanding": {
-        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
-        "screens": 10346,
-        "rng": 756143
+        "sha": "21f19e7250c11460c7152ee5abb5d297d212db02",
+        "screens": 10403,
+        "rng": 756196
       },
       "openMismatches": [
         {
