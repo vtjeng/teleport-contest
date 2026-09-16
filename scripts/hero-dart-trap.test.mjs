@@ -44,17 +44,14 @@ test('preflight_dotrap refuses a seen DART_TRAP', async () => {
     );
 });
 
-test('preflight_dotrap refuses a DART_TRAP when the hero rides a steed',
+test('preflight_dotrap admits a DART_TRAP when the hero rides a steed',
     async () => {
         await runSegment(
             { seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' },
         );
         game.u.usteed = { mx: game.u.ux, my: game.u.uy };
         const trap = { ttyp: DART_TRAP, once: false, tseen: false };
-        assert.throws(
-            () => preflight_dotrap(trap, game),
-            (error) => error.reason === 'a steed in a trap',
-        );
+        assert.doesNotThrow(() => preflight_dotrap(trap, game));
         game.u.usteed = null;
     });
 
