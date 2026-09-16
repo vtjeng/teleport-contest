@@ -51723,6 +51723,135 @@
         "screens": 10148,
         "rng": 752563
       }
+    },
+    {
+      "id": "port-zap-dobuzz-seed4500-20260916",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the complete beam traversal and monster breath caller",
+      "cFile": "zap.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage,817 remaining-screen upper bound,investigations/holdout/seed4500-knight-coverage.json. The source-traced first mismatch is zap.c dobuzz at step997: breamm skips the beam call. Worker A owns this highest-ranked independent source scope; B owns dosacrifice.",
+      "detail": "Complete zap.c dobuzz lines4779-5037 and required zhitm/zap_over_floor return-value dependencies, with production breamm wiring and clone-safe lethal monster damage. Independent monster-fire-breath recordings match. Hero wand/spell and forced-miss entry evidence must be reconciled separately; do not close unverified source entries.",
+      "spans": [
+        {
+          "name": "dobuzz",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dobuzz"
+          ]
+        }
+      ],
+      "openedAt": "f27915ce7aed003db7de55737d70deb556580f5c",
+      "openStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dobuzz",
+          "line": 4780,
+          "endLine": 5039,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4780,
+        "to": 5039
+      },
+      "activeStanding": {
+        "sha": "17c7e13ea4d59bc0e0c3e1e54264c79b16e13f92",
+        "screens": 10148,
+        "rng": 752563
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 997,
+          "kind": "rng",
+          "function": "dobuzz",
+          "functionDeclared": true,
+          "sourceFile": "zap.c",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 4823,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 817,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 817,
+              "status": "complete",
+              "commit": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 997,
+                "kind": "rng",
+                "function": "dobuzz",
+                "functionDeclared": true,
+                "sourceFile": "zap.c",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 4823,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 817
+              },
+              "summary": "Worker A corrected the beam planning boundary. The original independent dragon recording now matches all25 screens,3134 RNG calls and4 animation frames; a second variation matches20 screens,3109 RNG calls and5 frames. Focused ray, destruction and ranged-attack checks pass. The worker is preparing its immutable delivery; the published first mismatch remains step997 at dobuzz and no main score gain is claimed.",
+              "source": {
+                "file": "zap.c",
+                "functions": [
+                  "dobuzz",
+                  "zhitm",
+                  "zap_over_floor"
+                ],
+                "branch": "After a successful breamm breath-admission draw, C calls dobuzz and draws rn1(7,7) for beam range. JavaScript breamm currently skips dobuzz, so the next cooldown draw occurs in its place. Existing dobuzz implements only some ray types and must be completed, with all return-used zhitm and zap_over_floor paths, before wiring the monster-breath caller.",
+                "callers": [
+                  "nethack-c/upstream/src/mthrowu.c:breamm() dispatches a selected monster breath into zap.c dobuzz(), preserving the monster buzzer and target direction, then performs cooldown draws.",
+                  "nethack-c/upstream/src/zap.c:dobuzz(), lines 4780-5037, owns beam range, map traversal, reflection, creature hits, terrain effects, bouncing and final explosion/shop handling.",
+                  "js/mthrowu.js:breamm() currently records note_unported(zap.c dobuzz); js/zap.js has a partial dobuzz owner used by other ray callers."
+                ],
+                "dependencies": [
+                  "zhitm() returns damage and an optional destroyed armor object; implement every damage-type branch and required return-valued callees, including electrical item destruction and hero spell bonuses.",
+                  "zap_over_floor() returns range adjustments and shop damage; preserve terrain changes, trap activation, visibility snapshots, Norep messages, existing gas/object/timeout owners and source RNG order.",
+                  "The fountain.c dryup/watchman_warn_fountain dependency is accepted in tested main 17c7e13e. Worker A merged published main and now calls that canonical owner with the live/planning state and message context.",
+                  "Planning and live execution must use the same state and RNG owners; forward message/redraw callbacks through the beam helpers without drawing to the live terminal from a clone."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Main checkpoint 54c48995b41e8b554d743779884ff13a7e01cd0b run-NweKAH passes: 30/44 sessions, 10104/11405 screens,747316/792838 RNG,10142/11405 cursors,261/261 recordings. The blindness span adds three fixed-workload screens and an independent 11-screen,3352-RNG recording.",
+                "Current mismatch-queue run-aOoyQt locates step997 at dobuzz(zap.c:4823), count817. C rn2(7)=3 at RNG index86673 contrasts with JS rn2(3)=1 after breamm omits the beam call; the source range draw explains the first RNG and screen mismatch.",
+                "Worker A task A-20260916-4 owns complete dobuzz and breamm integration. Its uncommitted breath/pool implementation progresses through screen1000 in a focused replay, but legal type families and required damage/terrain branches remain unfinished; this is not a delivered score gain.",
+                "Read-only source surveys identify existing trap, gas-cloud, equipment-destruction, reflection, and terrain owners. The floor fire branch must snapshot visibility before steam, use PIT rather than TT_PIT, preserve one Norep message, reveal swimmers, and call existing dotrap/mintrap. These details are source obligations, not session exceptions.",
+                "The accepted mhitm_ad_blnd span retains two unverified production entries: the hero raven recipe is blocked in hmonas, and the monster-to-monster recipe has no matching production recording. Its source goal is parked, not closed.",
+                "A later read-only electrical destruction survey traced zap.c maybe_destroy_item/destroy_items: hero gloves live at state.uarmg, worn rings must call existing do_wear.js Ring_gone, destruction clears state.current_wand when applicable, and monster wand damage honors shock resistance. Charged-ring recharge is a discarded read.c call on hero inventory only. These are source obligations for worker A’s unfinished electrical return-value dependency; no additional main score is claimed.",
+                "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery.",
+                "Worker A reports focused ray tests 48/48 and electrical destruction tests 29/29 with lint passing. Source corrections move mstrategy clearing before the ordinary monster hit label and exclude reflecting steeds before the shared hit arm, matching C's goto path. These checks cover unfinished worker code and do not change the published score.",
+                "The shared sleep_monst source review requires direct use of the existing zap.c resist owner with real RNG and preserves the trap callers that consume its boolean result. The source-owned terrain helper movement and dryup caller still require integration checks and independent recordings.",
+                "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings.",
+                "Fountain dependency dryup is accepted in tested main 17c7e13e and published in d9ee2ab9. Worker A must merge validated main at a clean WIP boundary and replace the temporary injected dryup path with the accepted source owner before its final fresh differentials and immutable delivery.",
+                "Worker A reports the ordinary death-ray assignment tmp=mon.mhp+1 and final mutable-type Knight multiplier corrected from C zap.c, with visual-only resistance handling and 50/50 ray tests passing. Electrical destruction tests remain 29/29 passing. These are focused worker results; whole-source entry recordings and combined validation remain outstanding.",
+                "Worker A preserved WIP commit1ba06cf8 and merged published main d9ee2ab9 at a clean boundary, producing HEAD511824bfc298fb5751ce3a9775a6d9ea6bd3a94a. Its focused checks report 50 ray,29 electrical-destruction and16 fountain tests passing, with lint passing; no immutable beam delivery exists yet.",
+                "Coordinator bounded replay run-ZKryD2 used the frozen serializer on worker A code and the independently recorded red-dragon recipe. C step24 waits after the breath and hero-hit messages with3134 RNG calls. JavaScript instead shows You die...--More-- with only3125 RNG calls and unchanged live HP6/12; no unsupported boundary or unported gap is reported. Both recordings print Unknown command for earlier space keys, so their first-breath disagreement is not caused by different space-command options. The existing MonsterDeathPlanningError handoff is being checked to keep clone effects off the live terminal.",
+                "Worker A reused the existing planned-death handoff for non-polymorphed lethal monster damage and forwarded message/state context through zhitu to burnarmor, destroy_items and ignite_items. Its original no-rest_on_space recipe passes bounded differential run-mi4BxU:25 screens/cursors,3134 RNG calls,4 animation frames. Independent contiguous-move variation run-BHxZoO also passes:20 screens/cursors,3109 RNG calls,5 frames. C source traces reach breamm, dobuzz, zhitu and burnarmor in both witnesses. Focused ray tests pass51/51(run-3D6UCL), destruction29/29(run-hskW1F), ranged36/36(run-ZN7s2r), and lint passes. These results establish worker evidence only; combined main validation remains pending."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
