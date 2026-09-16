@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c make_blinded cure recipe. Seed 9238171, clock 20360228145719, character TimedCure, and the Wizard role were chosen independently. Its startup More dismissal precedes the wizard potion wish; #wizintrinsic then gives timed blindness (50i), and quaffing extra healing reaches healup(cureblind) and the sight-restoration transition.",
+  "segments": [
+    {
+      "seed": 9238171,
+      "datetime": "20360228145719",
+      "nethackrc": "OPTIONS=name:TimedCure,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of extra healing\n#wizintrinsic\n50i\n qn "
+    }
+  ]
+}
