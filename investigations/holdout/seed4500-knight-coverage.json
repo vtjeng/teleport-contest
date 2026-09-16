@@ -1,52 +1,47 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 827,
+  "remainingScreensUpperBound": 820,
   "status": "complete",
-  "commit": "7560b8efdb8e1fc31398e682d07ca2acbdc771e6",
+  "commit": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 987,
-    "kind": "screen",
-    "function": null,
+    "step": 994,
+    "kind": "stop",
+    "function": "mhitm_ad_blnd",
     "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "sourceFile": "uhitm.c",
+    "cFile": "uhitm.c",
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "simple monster action requires uhitm.c mhitm_ad_blnd()",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 827
+    "remainingScreensUpperBound": 820
   },
-  "summary": "The urgent-message-only correction did not move the first mismatch at step 987: a focused worker replay still lacks C's theft --More-- page and cursor. A subsequent source trace identifies a missing tele_restrict() call after successful theft in uhitm.c:mhitm_ad_sedu(): JS uses the silent noteleport_level() predicate, suppressing the following blocked-teleport message that forces C's prior theft page. Worker A is correcting that production call and preserving planning silence; combined validation is pending.",
+  "summary": "The theft-page mismatch is resolved by the restored tele_restrict() calls. The next stop is step 994 at uhitm.c mhitm_ad_blnd(), which is absent from JavaScript dispatch. Worker A is porting its complete hero/monster attack branches and extending the shared potion.c blindness owner for planning clones; this work is not yet integrated.",
   "source": {
     "file": "uhitm.c",
     "functions": [
-      "mhitm_ad_sedu"
+      "mhitm_ad_blnd"
     ],
-    "branch": "After successful steal(), C uhitm.c:mhitm_ad_sedu() calls tele_restrict(magr) before rloc(). teleport.c:1950-1960 returns the no-teleport predicate and, for a visible monster on a restricted level, emits the blocked-teleport message. The recorded input at step 987 dismisses the preceding page and waits at the theft line's --More--; step 988 dismisses that page and shows the blocked-teleport line. js/uhitm.js currently checks noteleport_level directly at all four corresponding hero/monster theft sites, omitting the output side effect. Restoring this source call must suppress output on planning clones and preserve no-teleport RNG behavior.",
+    "branch": "A landed AD_BLND attack dispatches through mhitm_adtyping(). C mhitm_ad_blnd() handles hero-to-monster, monster-to-hero, and monster-to-monster separately: it checks can_blnd(), emits visibility-gated messages, clamps monster blindness to 127, clears damage and monster waiting strategy, and sends hero timeout changes through make_blinded(). JavaScript currently refuses AD_BLND before this body.",
     "callers": [
-      "nethack-c/upstream/src/uhitm.c:mhitm_ad_sedu():4623-4748 calls steal(magr, buf) in the mhitu arm after animal, seductive-hero, and canceled-attacker gates; js/uhitm.js:mhitm_ad_sedu():1789-1900 calls js/steal.js:steal() with the attack environment.",
-      "nethack-c/upstream/src/uhitm.c:mhitm_adtyping():4782-4799 dispatches AD_SITM and AD_SEDU to mhitm_ad_sedu(); js/uhitm.js:mhitm_adtyping():2354-2385 has the corresponding dispatch.",
-      "nethack-c/upstream/src/mhitu.c:mattacku():491-951 reaches hitmu() for a landed melee attack, and hitmu():1143-1267 calls mhitm_adtyping(); js/mhitu.js:mattacku():679-1030 reaches hitmu():1360-1448 through the same production monster-action adapter."
+      "C uhitm.c mhitm_adtyping() dispatches AD_BLND to mhitm_ad_blnd(); js/uhitm.js mhitm_adtyping() still contains the corresponding unsupported boundary at the examined commit.",
+      "C mhitu.c hitmu() calls mhitm_adtyping() after the hit/damage rolls; js/mhitu.js hitmu() is reached by mattacku() in the production monster turn. The planning pass executes the same path against a clone before live execution.",
+      "Hero polymorph attacks and monster-to-monster attacks also use mhitm_adtyping(); implement all three direction arms in the whole selected C function."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/steal.c:worn_item_removal():292-334 uses ordinary pline() for the disarm preface; js/steal.js:worn_item_removal():297-323 already has the correct ordinary message and W_WEAPONS removal order.",
-      "nethack-c/upstream/src/pline.c:313-323 defines urgent_pline() as URGENT_MESSAGE; js/tty_message.js:569-620 implements ttyUrgentPline(), while js/steal.js:339-547 currently routes the final theft message through env.message instead.",
-      "nethack-c/upstream/src/steal.c:213-290 remove_worn_item() and weapon.c:873-894 uwepgone()/uswapwepgone() establish the weapon-slot side effects already wired by js/steal.js and js/wield.js; no new RNG or state owner is needed.",
-      "teleport.c tele_restrict() (1950-1960) is already implemented in js/teleport.js:667-684 with a direct ttyPline call. The mhitm_ad_sedu production adapter must provide its planning-safe message callback when restoring this call; keep default behavior for existing live callers. Correct all corresponding source sites in the selected mhitm_ad_sedu function, not only the observed successful hero theft branch.",
-      "Planning uses silent message callbacks from mhitu.c:mattacku(). Carry this callback through uhitm.c:mhitm_ad_sedu() into teleport.c:tele_restrict(), while retaining the source-correct separate urgent callback for steal(). The active worker assignment is A-20260916-2; the earlier urgency-only goal is parked after its focused replay failed to move the target mismatch."
+      "C uhitm.c mhitm_ad_blnd():2958-3008 consumes can_blnd() and uses mon_nam()/Monnam() for source visibility-dependent text; preserve display RNG ownership in planning environments.",
+      "C potion.c make_blinded():261-331 probes the future Blind property, restores the old timeout, applies messages and Punished set_bc(0), writes the new timeout and calls toggle_blindness() only when sight changes. Existing js/potion.js has a limited cream-pie transition guard; extending it is necessary for already-blind or punished attack victims. Keep one timeout owner.",
+      "C potion.c toggle_blindness():335-363 updates status and vision, recalculates visibility, refreshes sensed monsters, resets Sting feedback and learns unseen inventory on sight restoration. Clone execution must update clone state without writing to the live terminal.",
+      "Worker A owns A-20260916-3, including mhitm_ad_blnd, dispatch, make_blinded and toggle_blindness. Required fresh entry-point evidence and combined validation remain pending."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Saved bounded queue run-GP6UMD (receipt /tmp/teleport-validation-1000/run-GP6UMD/receipt.json) against published main f38c5066f33188e9bab910ccebef245441ae870e reports holdout/seed4500-knight-coverage at screen step 987, recordedSteps 1814, and remainingScreensUpperBound 827; its investigation status is stale because the prior cache count was 905.",
-    "sessions/holdout/seed4500-knight-coverage.session.json segment 0 steps 985-988 records the source boundary: step 985 is the Knight's `You caitiff!` hit, step 986 consumes rn2(23)=0 at steal.c:421 while the visible page is `The wood nymph screams!  The water nymph wakes up.--More--`, step 987 consumes no RNG and records `The wood nymph disarms your +1 lance.  She stole a +1 lance.--More--`, and step 988 begins the next monster action. The no-RNG step confirms the stale queue's screen mismatch is message/display state, not a missing draw.",
-    "Read nethack-c/upstream/src/steal.c:292-334 and 343-614 completely. worn_item_removal() calls pline() before remove_worn_item(); after freeinv(), steal() calls urgent_pline() for the final `stole` line. The W_WEAPONS branch reaches uwepgone()/uswapwepgone(), then mpickobj(), with no additional draw between the two message operations.",
-    "Read nethack-c/upstream/src/uhitm.c:4623-4748 and 4782-4799, plus mhitu.c:mattacku():491-951 and hitmu():1143-1267 completely. The production call chain is mattacku -> hitmu -> mhitm_adtyping -> mhitm_ad_sedu -> steal; the current JS declarations are present, so the smallest missing behavior is the urgent-message distinction in the existing steal path rather than a new combat function.",
-    "Historical urgency-only hypothesis, superseded by run-jcX2Qy and the tele_restrict caller trace below: Current published JS source reads show js/steal.js:worn_item_removal():297-323 receives env.message for its ordinary preface and js/steal.js:339-547 sends the final theft line through the same callback. js/mhitu.js:mattacku():695-710 creates a planning-safe ordinary message callback but no urgent sibling, while js/tty_message.js:569-620 already provides ttyUrgentPline(). This isolates the proposed correction to steal.c:steal() and its mhitu.c caller adapter; it does not overlap B's uhitm.c:mhitm_ad_blnd reservation.",
-    "No game-code, root bookkeeping, central evidence, checkpoint, aggregate scan, or recorder inputs were changed. The canonical investigation cache is updated only for this session/count; the pre-existing seed0014 investigation WIP and A13/A14 immutable history remain untouched.",
-    "Worker focused run-jcX2Qy at /tmp/teleport-validation-1000/run-jcX2Qy/receipt.json replayed only holdout/seed4500-knight-coverage after the urgent callback change. It emitted 994 screens, retained screen/cursor mismatch 987 (C --More-- at row0 column60 and cursor68,0; JS lacks it and cursor41,7), and found no RNG divergence. Urgency alone therefore does not explain the target mismatch.",
-    "Read C teleport.c:1950-1960 and the uhitm.c:mhitm_ad_sedu hero successful-theft branch and sibling sites. C calls tele_restrict; published js/uhitm.js uses noteleport_level at lines1841,1861,1879,1972. Fixed recording steps987-988 respectively show the theft --More-- page and the blocked-teleport line. This identifies the missing source-owned message without changing recorded inputs."
+    "Checkpoint f0ff954d2222b1db27e4fa7925448efdc980e1e5, run-Y8ACFR, passed all checks: development 10086/11405 screens, 741703/792838 RNG, 10108/11405 cursors, 30/44 complete sessions; all 257 recordings pass. This is a two-screen gain over the previous accepted 10084 baseline.",
+    "Fresh fixed-workload queue run-aplFna at this commit identifies step 994, kind stop, message simple monster action requires uhitm.c mhitm_ad_blnd(), with 1814 recorded steps and an upper bound of 820 remaining screens. No other session investigation count changed.",
+    "Read complete C uhitm.c mhitm_ad_blnd():2958-3008 and potion.c make_blinded()/toggle_blindness():261-363. The source contains the three actor directions and a shared hero blindness transition; a separate attack-local timeout implementation would duplicate state ownership and skip ball/vision effects.",
+    "The preceding theft fix restores all four tele_restrict() sites in mhitm_ad_sedu(), retains ordinary disarm and urgent final-theft output, and passes the attack environment to monster naming. Independent fresh theft recordings match 36 screens/15001 RNG and 29 screens/2977 RNG; the previous urgency-only hypothesis was falsified before this source correction."
   ]
 }

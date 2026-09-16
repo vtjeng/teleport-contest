@@ -50826,7 +50826,7 @@
     {
       "id": "div-uhitm-theft-tele-restrict-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source-ordered teleport restriction messages after theft and preserve planning silence.",
       "cFile": "uhitm.c",
       "sessions": [],
@@ -50835,8 +50835,8 @@
       "spans": [
         {
           "name": "theft-teleport-message",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
           "functions": [
             "mhitm_ad_sedu"
           ]
@@ -50848,8 +50848,11 @@
         "screens": 10084,
         "rng": 741703
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "function": "mhitm_ad_sedu",
       "session": "holdout/seed4500-knight-coverage",
       "step": 987,
@@ -50930,7 +50933,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "f0ff954d2222b1db27e4fa7925448efdc980e1e5",
+        "screens": 10086,
+        "rng": 741703
+      }
     }
   ]
 }
