@@ -124,7 +124,7 @@ export async function verifyStartupStaircaseDecorSegment(segment) {
     if (game.disp.botl || game.disp.botlx) {
         throw new Error('startup left the initial status display dirty');
     }
-    // C's startup creates one empty vfs:record scorefile and no other entry.
+    // Replay startup creates an empty scorefile under the vfs:record key.
     if (storage.length !== 1 || storage.getItem('vfs:record') !== '') {
         throw new Error('startup changed persisted storage');
     }

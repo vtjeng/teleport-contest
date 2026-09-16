@@ -205,7 +205,7 @@ export async function verifyObjectPileCountSegment(segment) {
         throw new Error(`seed ${segment.seed} parsed pile_limit incorrectly`);
     if (game.context.run !== 0 || game.multi !== 0)
         throw new Error(`seed ${segment.seed} did not stop its walk`);
-    // C's startup creates one empty vfs:record scorefile and no other entry.
+    // Replay startup creates an empty scorefile under the vfs:record key.
     if (storage.length !== 1 || storage.getItem('vfs:record') !== '')
         throw new Error(`seed ${segment.seed} changed persisted storage`);
 }
