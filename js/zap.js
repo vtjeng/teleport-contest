@@ -1594,11 +1594,7 @@ export async function bhit(
         // skipped.
         if (mtmp) {
             const passedShade = await shade_miss(
-                state.youmonst, mtmp, obj, true, true, state, {
-                    unsupported: (what) => {
-                        throw new UnsupportedBhitError(what);
-                    },
-                },
+                state.youmonst, mtmp, obj, true, true, state,
             );
             if (passedShade) mtmp = null;
             if (mtmp && M_AP_TYPE(mtmp) === M_AP_OBJECT) {
