@@ -146,6 +146,7 @@ import {
 } from './mon.js';
 import {
     amorphous,
+    bigmonst,
     attacktype,
     can_blnd,
     dmgtype,
@@ -171,6 +172,7 @@ import {
     noncorporeal,
     monster_resists_element,
     passes_rocks,
+    stagger,
     sticks,
     thick_skinned,
     touch_petrifies,
@@ -1958,9 +1960,34 @@ async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
     }
 }
 
-// C ref: uhitm.c hmon_hitmon_stagger() (1569-1585). The helper's result is
-// discarded by hmon_hitmon(); its mhurtle_to_doom() return dependency remains
-// outside this source slice, so the caller records the named void gap.
+// C ref: uhitm.c mhurtle_to_doom() (1942-1957). Preserve the pending-damage
+// guard, cached species update and death result around the discarded hurtle.
+function mhurtle_to_doom(mon, damage, hmd) {
+    if (damage < mon.mhp) {
+        note_unported('dothrow.c mhurtle');
+        hmd.mdat = mon.data;
+        if (mon.mhp < 1) return true;
+    }
+    return false;
+}
+
+// C ref: uhitm.c hmon_hitmon_stagger() (1570-1585).
+async function hmon_hitmon_stagger(hmd, mon, state, env, random) {
+    if (random.rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT, state)
+        && !bigmonst(hmd.mdat) && !thick_skinned(hmd.mdat)) {
+        if (canSpotMonster(mon, state)) {
+            await (env.message ?? ttyPline)(
+                `${Monnam(mon, state)} ${makeplural(stagger(mon.data, 'stagger'))}`
+                + ' from your powerful strike!',
+                state,
+            );
+        }
+        if (mhurtle_to_doom(mon, hmd.dmg, hmd))
+            hmd.already_killed = true;
+        hmd.hittxt = true;
+    }
+}
+
 // C ref: uhitm.c hmon_hitmon_pet() (1587-1601). Hitting a pet costs tameness
 // and sends it fleeing.
 //
@@ -2171,7 +2198,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         note_unported('uhitm.c hmon_hitmon_jousting');
     } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj
                && !Upolyd(state.u)) {
-        note_unported('uhitm.c hmon_hitmon_stagger');
+        await hmon_hitmon_stagger(hmd, mon, state, env, random);
     } else if (!hmd.unarmed && hmd.dmg > 1 && !thrown
                && !Upolyd(state.u)
                && !state.u.twoweap && state.uwep) {
