@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4820711,
+      "datetime": "20300415091723",
+      "nethackrc": "OPTIONS=name:ScatterProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " ",
+      "comment": "Independent fresh production-state setup for the exported explode.c scatter() source-owner contract. scripts/run-explode-scatter.mjs invokes scatter() after this segment with explicit lifecycle seams; a C gameplay recording is deferred until one of scatter()'s direct caller spans lands."
+    }
+  ]
+}
