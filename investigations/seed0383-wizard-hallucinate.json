@@ -1,12 +1,36 @@
 {
   "session": "seed0383-wizard-hallucinate",
-  "remainingScreensUpperBound": 16,
+  "remainingScreensUpperBound": 6,
   "status": "complete",
-  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "commit": "fe323c00a944128df256d6561f76d05282718db5",
+  "summary": "Post-move handling advances this session from step 203 to step 213. The next stop is the attributes window: status_enlightenment rejects hallucination instead of emitting the C status line. The next source span must cover the complete status function and its other unported conditions; six screens remain after this stop.",
+  "source": {
+    "file": "insight.c",
+    "functions": [
+      "status_enlightenment"
+    ],
+    "branch": "The attributes command reaches status_enlightenment with active hallucination. C emits the hallucinating status when HALLUC has an intrinsic timeout and HALLUC_RES is absent, then continues through its other status branches; the current JavaScript explicitly refuses this property.",
+    "callers": [
+      "C cmd.c attributes dispatch -> insight.c doattributes (2007-2018) -> enlightenment (414-422) -> status_enlightenment (940-1266).",
+      "JavaScript cmd.js runAttributesCommand -> insight.js doattributes -> enlightenment -> status_enlightenment."
+    ],
+    "dependencies": [
+      "Whole-source scope includes movement, internal troubles, external states, hunger and encumbrance, weapon status, tuxedo penalty, and nudity in insight.c:940-1266.",
+      "Source callees include from_what, x_monnam, walking_on_water/surface/is_pool/is_lava, trap_predicament, a_monnam/digests/dmgtype, body_part/mbodypart, which_armor, fingers_or_gloves and weapon_insight; verify existing owners and required return values."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The exact candidate fixed scan in .cache/A5-checkpoint-scan-cache.json emits 213 of 219 screens, with divergence:null, then refuses Ctrl-X attributes: the attributes window requires the hallucination status.",
+    "js/insight.js UNPORTED_STATUS_PROPERTIES lists HALLUC; status_enlightenment iterates those properties and throws UnsupportedEnlightenmentError. C insight.c:1055-1058 emits You are hallucinating instead.",
+    "The current generic hasProperty guard accepts intrinsic or extrinsic HALLUC, broader than the C Hallucination predicate in youprop.h:115-120. The completed port must apply the C intrinsic-timeout and resistance condition.",
+    "Existing JavaScript status_enlightenment covers transformed form, sleepiness, hunger, encumbrance, weapon and nudity. Riding, water and flight, internal troubles, punishment, traps, held/swallowed states, wounded legs and tuxedo effects are still explicitly refused, so selection is the whole function, not a session-specific hallucination fix.",
+    "Independent postmov trapped-door recordings use seed6201035 with different setup and acoustics; the original copied witness was rejected and is absent from the regression corpus. Four other postmov entry families remain unverified in GOALS.json.",
+    "Checkpoint fe323c00a944128df256d6561f76d05282718db5 run-38WoMj passes all checks:31/44 sessions,10259/11405 screens,753589/792838 RNG,10281/11405 cursors and269/269 recordings. This postmov span adds10 development screens,31 RNG values and10 cursors; its two independent recordings add550 screens and13882 RNG calls."
+  ],
   "mismatch": {
     "session": "seed0383-wizard-hallucinate",
-    "remainingScreensUpperBound": 16,
-    "step": 203,
+    "step": 213,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -14,40 +38,9 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "simple monster action requires a door trap under a monster",
+    "message": "unsupported hero command: an unported branch of this command: the attributes window requires the hallucination status",
     "unlocatedKinds": [],
-    "recordedSteps": 219
-  },
-  "summary": "Worker A has implemented source-ordered postmov movement, trapped-door handling and the monster artifact-touch dependency. Focused checks and lint pass on its branch, but the coordinator rejected its proposed fresh recording because its shortened recipe reused the fixed workload inputs. A new independent production case is required before submission; main still stops at step 203 with a 16-screen queue suffix.",
-  "source": {
-    "file": "monmove.c",
-    "functions": [
-      "postmov"
-    ],
-    "branch": "postmov() after MMOVE_MOVED when the destination is a door, the monster does not pass walls, and can_tunnel is false: inspect D_TRAPPED, disarm it when has_magic_key() succeeds, preserve the amorphous monster branch, and for can_unlock, can_open, or a doorbuster change the door mask before calling mb_trapped(). Preserve C's message, damage, death, map-update, and random-call order; an untrapped door continues through the existing open or crash behavior.",
-    "callers": [
-      "nethack-c/upstream/src/monmove.c m_move() (1715-2074) returns through postmov() for tame, special, and ordinary monster movement",
-      "js/monmove.js m_move() (3375-3386, 3670-3748) supplies the postMonsterMove adapter after dog, special, item-search, or ordinary movement",
-      "nethack-c/upstream/src/monmove.c dochug() (880-915) and js/allmain.js moveElapsedTurnMonster() (1023-1087) reach monster movement during an elapsed turn"
-    ],
-    "dependencies": [
-      "nethack-c/upstream/src/monmove.c mb_trapped() (50-74) emits the nearby or distant explosion, wakes nearby monsters, stuns and damages the monster with rnd(15), and handles death or trap learning; js/monmove.js already ports it at 501-538",
-      "nethack-c/upstream/src/monmove.c monhaskey() (94-103) computes the can_unlock capability passed by m_move(); js/monmove.js already ports it at 945-950",
-      "nethack-c/upstream/src/artifact.c has_magic_key() (2788-2803) scans monster inventory for the Master Key of Thievery before the door arms; js/artifacts.js already ports it at 3095-3111",
-      "nethack-c/upstream/src/monmove.c postmov() UnblockDoor macro (1526-1536) updates the door mask, redraws, recalculates vision, and refreshes canseeit before mb_trapped()"
-    ]
-  },
-  "goalKind": "file-port",
-  "evidence": [
-    ".cache/scan-cache.json rows[file=seed0383-wizard-hallucinate.session.json] records screensEmitted 203, recordedSteps 219, step 203, key n, command movesoutheast, and the exact door-trap refusal; remainingScreensUpperBound is 219-203 = 16.",
-    "sessions/seed0383-wizard-hallucinate.session.json segments[0].steps[203] records key n, cursor [71,8,1], first-line message 'The Grey-elf picks up 6 poisoned darts.  You hear a distant explosion.', and rnd(15)=9 @ mb_trapped(monmove.c:65), proving the C trapped-door action is reached after movement.",
-    "nethack-c/upstream/src/monmove.c:1454-1622 defines postmov()'s complete door sequence: D_TRAPPED is checked at 1523-1524, magic-key disarm at 1538-1547, and the can_unlock, can_open, and doorbuster arms call mb_trapped() after UnblockDoor at 1554-1562, 1576-1580, and 1593-1604.",
-    "js/monmove.js:3121-3139 enters the same door block but unconditionally calls unsupported('a door trap under a monster') at 3129 before any source branch; js/monmove.js:501-538 already implements mb_trapped(), so the refusal is a missing postmov branch rather than a new trap primitive.",
-    "nethack-c/upstream/src/monmove.c:1715-1774 computes can_tunnel, can_open, and can_unlock and returns through postmov(); js/monmove.js:3368-3391 computes and passes the same capabilities, so the minimal scope is postmov()'s trapped-door arm and its existing dependencies, with no session-specific condition.",
-    "Worker A claimed A-20260916-5 from c8e2ce4724396f264f781f066d733c0b6e824afd with source:monmove.c:postmov reserved. The source function spans lines 1454-1705, beyond the door block ending at 1622. Coordinator review requires the original seenflgs and old-square vampire move-back sequence plus verification of the tail return-valued dependencies before completion. The higher seed4500 beam delivery remains queued; future task selection returns to immutable seed continuation and the current saved queue.",
-    "Worker A preserved postmov WIP asfe043cf3 with140 focused tests and lint passing, paused at a clean boundary for the A4 naming-test correction, and resumed A5. Coordinator whole-function review also requires one explicit seenFlags signature, old hero coordinates before engulfed movement, source-ordered swallowed versus ordinary redraw, and the invisible-monster object tail. Independent production recording and source-return dependency verification remain in progress; no door score gain is accepted.",
-    "Latest A5 WIP uses one explicit C-ordered seenFlags signature, saves old hero coordinates before engulfed movement, uses the swallowed/ordinary redraw branches, and restores invisible-monster redraw with an explicit see_wsegs gap. The source-only dependency survey found an existing async touch_artifact owner whose monster acceptance predicates can be shared synchronously; coercing its Promise would be incorrect. No immutable A5 delivery or matching new production witness exists yet.",
-    "Coordinator inspected the unsubmitted A5 recipe postmov-trapped-door-fresh.session.json and found seed 383, the same character/date setup, and the distinctive level-20 wishes and hallucination movement from the fixed workload with a shortened tail. The worker-reported 205-screen and 16857-RNG match therefore does not establish independent fresh coverage. The copied recipe/recording must be kept out of the committed regression corpus; A5 remains in progress while the worker constructs independent inputs.",
-    "Current A5 source shares artifact-touch restriction predicates between hero and monster callers, resets touch_blasted for monster calls, and preserves the exact meatmetal result comparison of 2. Worker reports focused results of 141 monmove, 26 dogmove, 40 artifact and 14 hiding tests plus lint passing; no immutable delivery or main score gain has been accepted."
-  ]
+    "recordedSteps": 219,
+    "remainingScreensUpperBound": 6
+  }
 }
