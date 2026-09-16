@@ -436,9 +436,9 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
     };
     const strangeFeeling = () => {
         // C's strange_feeling(NULL, NULL) has a discarded return and belongs
-        // to pline.c. Keep the source call visible without using a refusal as
-        // a substitute operation; its message owner is outside this span.
-        if (state === game) note_unported('pline.c strange_feeling');
+        // to potion.c. Keep the source call visible without using a refusal
+        // as a substitute operation; its message owner is outside this span.
+        if (state === game) note_unported('potion.c strange_feeling');
     };
 
     if (canSeeNow && !uCouldSee) {
@@ -458,7 +458,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
                 strangeFeeling();
             } else if (blindfolded) {
                 const name = eyes();
-                await message(name + ' momentarily ' + vtense(name, 'itch') + '.', state);
+                await message(`Your ${name} momentarily ${vtense(name, 'itch')}.`, state);
             } else {
                 await message(
                     'Your vision seems to brighten for a moment but is '
@@ -488,7 +488,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
                 strangeFeeling();
             } else if (blindfolded) {
                 const name = eyes();
-                await message(name + ' momentarily ' + vtense(name, 'twitch') + '.', state);
+                await message(`Your ${name} momentarily ${vtense(name, 'twitch')}.`, state);
             } else {
                 await message(
                     'Your vision seems to dim for a moment but is '

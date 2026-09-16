@@ -18,11 +18,16 @@ const RECIPE_NAMES = Object.freeze([
     'extra-healing-blessed-independent.session.json',
     'extra-healing-uncursed-independent.session.json',
     'extra-healing-cursed-independent.session.json',
+    'extra-healing-timed-blind-independent.session.json',
+    'extra-healing-timed-blind-variation.session.json',
 ]);
 
 export function loadExtraHealingRecipes() {
     return RECIPE_NAMES.map((name) => ({
-        label: `extra healing ${name.split('-')[2]}`,
+        label: `extra healing ${name
+            .replace(/\.session\.json$/u, '')
+            .replace(/^extra-healing-/u, '')
+            .replaceAll('-', ' ')}`,
         recipe: validateCleanRecipe(JSON.parse(readFileSync(new URL(
             `../recipes/potion.c/${name}`,
             import.meta.url,
