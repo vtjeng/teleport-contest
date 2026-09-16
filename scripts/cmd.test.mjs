@@ -1217,13 +1217,16 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             },
         },
         {
-            name: 'hidden pit',
+            // STATUE_TRAP still reaches detect.c activate_statue_trap(), which
+            // is unported. PIT is admitted now that trap.c handles its hero
+            // fall path, so it cannot stand in for this refusal anymore.
+            name: 'hidden statue trap',
             reason: 'trap activation',
             setup: ({ x, y }) => {
                 installFloorPile(x, y);
                 // tseen=false models a legally enterable hidden trap.
                 game.level.traps.push({
-                    tx: x, ty: y, ttyp: PIT, tseen: false,
+                    tx: x, ty: y, ttyp: STATUE_TRAP, tseen: false,
                 });
             },
         },
@@ -1421,11 +1424,13 @@ test('live !safe_pet collision is a zero-PRNG retryable boundary',
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
         {
-            name: 'hidden trap',
+            // The PIT hero effect is implemented; retain this retry assertion
+            // on the genuinely unported statue-trap activation path.
+            name: 'hidden statue trap',
             reason: 'trap activation',
             install: ({ x, y }) => {
                 game.level.traps = [{
-                    tx: x, ty: y, ttyp: PIT, tseen: false,
+                    tx: x, ty: y, ttyp: STATUE_TRAP, tseen: false,
                 }];
             },
             remove: () => {
