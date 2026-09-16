@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840033,
+      "datetime": "20331107082500",
+      "nethackrc": "OPTIONS=name:PunishedFeel,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017scroll of punishment\nrp \u0014@"
+    }
+  ],
+  "comment": "Independent wizard-mode punishment setup for display.c feel_location. Fresh differential reaches the next source boundary but is currently blocked by zap.c obj_resists at zap.c:1469; retain this recipe until that dependency lands and do not treat it as a passing recording."
+}
