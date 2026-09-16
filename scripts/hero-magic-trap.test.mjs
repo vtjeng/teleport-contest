@@ -127,15 +127,11 @@ test('preflight_dotrap refuses a seen MAGIC_TRAP', async () => {
     );
 });
 
-test('preflight_dotrap refuses MAGIC_TRAP with a steed', async () => {
-    // steedintrap() at trap.c:2313 is not ported.
+test('preflight_dotrap admits MAGIC_TRAP with a steed', async () => {
     const state = await preflightState();
     state.u.usteed = { mx: state.u.ux, my: state.u.uy };
     const trap = { ttyp: MAGIC_TRAP, tseen: false };
-    assert.throws(
-        () => preflight_dotrap(trap, state),
-        (error) => error.reason === 'a steed in a trap',
-    );
+    assert.doesNotThrow(() => preflight_dotrap(trap, state));
     state.u.usteed = null;
 });
 

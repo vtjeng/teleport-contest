@@ -755,7 +755,7 @@ test('the wounded-legs timeout counts down and then reaches heal_legs',
         assert.equal(game._ttyToplines, 'Your leg feels better.');
     });
 
-test('preflight_dotrap refuses a mounted hero before the trap is entered',
+test('preflight_dotrap keeps bear refusal and admits a pit after dismount',
     async () => {
         await heroOnLevelOne();
         const trap = { tx: game.u.ux, ty: game.u.uy, ttyp: BEAR_TRAP,
@@ -773,11 +773,10 @@ test('preflight_dotrap refuses a mounted hero before the trap is entered',
         );
         game.u.usteed = null;
 
-        // Every other trap type keeps the blanket stop it had before the bear
-        // trap was ported.
-        assert.throws(
+        // trap.c trapeffect_pit() handles an unmounted hero directly; the
+        // blanket activation refusal was removed when that source arm landed.
+        assert.doesNotThrow(
             () => preflight_dotrap({ ...trap, ttyp: PIT }, game),
-            (error) => error.reason === 'trap activation',
         );
     });
 

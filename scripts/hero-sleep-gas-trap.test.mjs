@@ -108,7 +108,7 @@ test('sleep gas trap envelops a sleep-resistant hero without rolling', async () 
     assert.deepEqual(env.bounds, []);
     assert.deepEqual(env.messages, ['You are enveloped in a cloud of gas!']);
     assert.equal(trap.tseen, true);
-    assert.equal(game.unported.has('trap.c steedintrap'), true);
+    assert.equal(game.unported.has('trap.c steedintrap'), false);
 });
 
 test('sleep gas trap puts a susceptible hero to sleep for rnd(25) turns', async () => {
@@ -126,7 +126,7 @@ test('sleep gas trap puts a susceptible hero to sleep for rnd(25) turns', async 
     assert.equal(state.u.usleep, state.moves);
     assert.equal(state.multi_reason, 'sleeping');
     assert.equal(trap.tseen, true);
-    assert.equal(game.unported.has('trap.c steedintrap'), true);
+    assert.equal(game.unported.has('trap.c steedintrap'), false);
 });
 
 test('sleep gas trap freezes a visible monster after ending its meal', async () => {
