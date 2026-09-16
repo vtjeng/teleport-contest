@@ -1291,6 +1291,30 @@ test('buried container is finalized before its contents callback', () => {
     assert.deepEqual(context.containers, []);
 });
 
+test('special object waits for an asynchronous contents callback', async () => {
+    const { room, state } = roomState();
+    const context = new_sp_lev_object_context();
+    const events = [];
+    const maybeChest = lspo_object({
+        id: CHEST,
+        coordinate: { x: 0, y: 0 },
+        contents() {
+            events.push('contents:start');
+            return Promise.resolve().then(() => events.push('contents:done'));
+        },
+    }, room, {
+        state,
+        random: quietGenerationRandom(),
+        spObjectContext: context,
+    });
+
+    assert.equal(typeof maybeChest?.then, 'function');
+    const chest = await maybeChest;
+    assert.equal(chest.otyp, CHEST);
+    assert.deepEqual(events, ['contents:start', 'contents:done']);
+    assert.deepEqual(context.containers, []);
+});
+
 test('generated chest contents are destroyed before the descriptor callback', () => {
     const { room, state } = roomState();
     const random = quietGenerationRandom();
