@@ -269,6 +269,13 @@ test('Git objects and exact checkpoint candidates are verified rather than trust
     assert.throws(() => f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary }), /different integration/);
     writeFileSync(summary, JSON.stringify({ commit: head, allPassed: false }));
     assert.throws(() => f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary }), /disagrees/);
+    f.git(f.root, 'commit', '--allow-empty', '-qm', 'coordinator correction fixture');
+    const corrected = f.git(f.root, 'rev-parse', 'HEAD');
+    f.event({ type: 'integrating', task: 'A-1', integration: corrected });
+    writeFileSync(summary, JSON.stringify({ commit: head, allPassed: true }));
+    assert.throws(() => f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary }), /different integration/);
+    writeFileSync(summary, JSON.stringify({ commit: corrected, allPassed: true }));
+    f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
 });
 
 test('publication requires accepted work on both local and remote main', (t) => {
