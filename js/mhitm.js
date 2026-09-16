@@ -887,9 +887,12 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
 
     await mhitm_adtyping(magr, mattk, mdef, mhm, state, env);
 
-    if (await mhitm_knockback(
-        magr, mdef, mattk, Boolean(magr.mw), state, env, random,
-    )
+    const knockFlags = { value: mhm.hitflags };
+    const knocked = await mhitm_knockback(
+        magr, mdef, mattk, knockFlags, Boolean(magr.mw), state, env, random,
+    );
+    mhm.hitflags = knockFlags.value;
+    if (knocked
         && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_HIT)) !== 0
             || mon_offmap(mdef)))
         return mhm.hitflags;

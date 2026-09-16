@@ -2,6 +2,7 @@
 
 import {
     ART_CLEAVER,
+    ART_GIANTSLAYER,
     ART_OGRESMASHER,
     ART_SNICKERSNEE,
     ART_TROLLSBANE,
@@ -31,6 +32,8 @@ import {
     HMON_THROWN,
     LL_CONDUCT,
     IS_DOOR,
+    Is_airlevel,
+    Is_waterlevel,
     M_ATTK_AGR_DIED,
     M_ATTK_AGR_DONE,
     M_ATTK_DEF_DIED,
@@ -41,6 +44,7 @@ import {
     M_SEEN_COLD,
     M_SEEN_ELEC,
     NATTK,
+    NOTELL,
     NEED_WEAPON,
     P_BARE_HANDED_COMBAT,
     P_BASIC,
@@ -119,6 +123,7 @@ import { game } from './gstate.js';
 import { doorless_door, test_move } from './hack.js';
 import { ing_suffix, s_suffix, sgn } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
+import { will_hurtle } from './dothrow.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
 // so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
 // into each other. Both bindings are hoisted function declarations, which an
@@ -129,6 +134,7 @@ import { abuse_dog } from './dog.js';
 import {
     angry_guards,
     killed,
+    m_carrying,
     seemimic,
     setmangry,
     set_ustuck,
@@ -145,6 +151,8 @@ import {
     hides_under,
     is_animal,
     is_demon,
+    is_floater,
+    is_flyer,
     is_orc,
     is_undead,
     is_vampshifter,
@@ -244,6 +252,7 @@ import {
     PM_SHADE,
     PM_SHRIEKER,
     PM_STEAM_VORTEX,
+    MZ_HUGE,
     S_BLOB,
     S_EEL,
     S_EYE,
@@ -271,7 +280,7 @@ import {
     stone_missile,
     weight,
 } from './obj.js';
-import { add_to_minv, freeinv, obfree, useup, useupall } from './invent.js';
+import { add_to_minv, carrying, freeinv, obfree, useup, useupall } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
     an,
@@ -308,6 +317,7 @@ import {
     IRON,
     IRON_CHAIN,
     KATANA,
+    LOADSTONE,
     METAL,
     MIRROR,
     NO_MATERIAL,
@@ -318,6 +328,7 @@ import {
     SPBOOK_CLASS,
     VEGGY,
     WEAPON_CLASS,
+    WHACK,
     YA,
     YUMI,
 } from './objects.js';
@@ -358,12 +369,12 @@ import {
 } from './worn.js';
 import { steal } from './steal.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { is_pool } from './trap.js';
+import { Flying, Levitation, is_pool } from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { Cold_resistance, exclam, hit } from './zap.js';
+import { Cold_resistance, exclam, hit, resist } from './zap.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon } from './vision.js';
 import { body_part, mbodypart } from './polyself.js';
@@ -2150,7 +2161,8 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         /* make sure that negative damage adjustment can't result
            in inadvertently boosting the victim's hit points */
         hmd.dmg = (hmd.get_dmg_bonus && !mon_is_shade) ? 1 : 0;
-        if (mon_is_shade && !hmd.hittxt)
+        if (mon_is_shade && !hmd.hittxt
+            && thrown !== HMON_THROWN && thrown !== HMON_KICKED)
             hmd.hittxt = shade_miss(
                 state.youmonst,
                 mon,
@@ -2251,41 +2263,50 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
             state.gm.mkcorpstat_norevive = false;
         }
     } else if (state.u.umconf && hmd.hand_to_hand) {
-        // nohandglow()/confused touching is a discarded source effect here;
-        // the hit return and damage have already been committed.
-        note_unported('uhitm.c nohandglow/confusing touch');
+        /* nohandglow() is a discarded visual effect, but the source still
+           applies the canonical spellbook resistance before setting mconf. */
+        note_unported('uhitm.c nohandglow');
+        if (!mon.mconf
+            && !await resist(mon, SPBOOK_CLASS, 0, NOTELL, state, random)) {
+            mon.mconf = 1;
+            if (!mon.mstun && !helpless(mon) && canseemon(mon, state)) {
+                await postMessage(
+                    `${Monnam(mon, state)} appears confused.`,
+                    state,
+                );
+            }
+        }
     }
 
     if (hmd.unpoisonmsg) {
-        /* hmon_hitmon_poison() clears opoisoned before this tail; C reformats
-           the name after the hit message so the final line omits "poisoned". */
-        hmd.saved_oname = cxname(obj, state);
+        /* hmon_hitmon_do_hit() captured cxname() before poison/killed can
+           destroy or detach obj, matching uhitm.c:1886-1889. */
         await postMessage(
-            `${hmd.saved_oname} is no longer poisoned.`,
+            `Your ${hmd.saved_oname} ${vtense(hmd.saved_oname, 'are')}`
+                + ' no longer poisoned.',
             state,
         );
     }
 
     if (!hmd.destroyed && !hmd.offmap) {
         await wakeup(mon, true, { ...env, state });
-        /* C's `hitflags` local, M_ATTK_HIT at 1925, is read only inside
-           mhitm_knockback()'s stopped tail, and the body this call guards
-           needs a TRUE return, which only the arm that knocks the target
-           back gives. */
+        /* C's `hitflags` local starts at M_ATTK_HIT.  mhitm_knockback()
+           separately updates its DEF_DIED bit; the boolean only says that
+           the knockback operation itself was accepted. */
         if (maybe_knockback) {
+            const hitflags = { value: M_ATTK_HIT };
             const knocked = await mhitm_knockback(
                 state.youmonst,
                 mon,
                 state.youmonst.data.mattk[0],
+                hitflags,
                 true,
                 state,
                 env,
                 random,
             );
-            /* A completed knockback owner reports a trap death through its
-               boolean result; preserve that return in this caller even
-               though the current owner stops before the movement tail. */
-            if (knocked) hmd.destroyed = true;
+            if (knocked && (hitflags.value & M_ATTK_DEF_DIED))
+                hmd.destroyed = true;
         }
     }
     return !hmd.destroyed;
@@ -3151,54 +3172,58 @@ export async function missum(
     if (!helpless(mdef)) await wakeup(mdef, true, { ...env, state });
 }
 
-// C ref: uhitm.c mhitm_knockback() (5247-5326 for this slice). Whether a solid
-// blow is eligible to send the target staggering backwards.
-//
-// Both of its draws happen before anything is decided: rn2(3) picks a distance
-// the caller may never use, and rn2(chance) rejects five hits in six. The two
-// are why hmon_hitmon() defers the call until it knows the target survived,
-// while mhitu.c hitmu() makes the call unconditionally.
-//
-// The hero-defender path now calls hack.c test_move(TEST_MOVE), then reaches
-// the shared alive and size guards. The size test at 5324-5326 rejects a
-// target that is not two size classes smaller; everything after a passing size
-// test stops here: is_blunt_weapon(), unsolid(), m_is_steadfast() and the
-// mhurtle() that does the knocking back have no port.
-//
-// Three ported callers reach this: uhitm.c hmon_hitmon():1928, where the hero
-// is the attacker; mhitu.c hitmu():1193, where the hero is the defender; and
-// mhitm.c mdamagem():1061, where neither is. C's fourth, hmonas():5833, is a
-// polymorphed hero's attack and is unported. The `hitflags` out-parameter
-// serves none of the three, because it is first read at 5337 and first written
-// at 5399, both past the stop below; it is left off the signature rather than
-// accepted and ignored.
-//
-// The hero as defender reaches test_move() whenever an AD_PHYS AT_CLAW,
-// AT_KICK, AT_BUTT or AT_WEAP blow lands on him and rn2(6) answers 0, so
-// roughly one such hit in six probes the destination. On ordinary floor the
-// probe succeeds, and the human hero then fails the size guard for the large
-// ape in the fresh case. An AT_BITE, AT_STNG, AT_TUCH or AT_TENT blow never
-// reaches test_move(): the gate at 5273-5277 excludes all four.
+// C ref: uhitm.c m_is_steadfast() (5218-5245). This is a pure equipment and
+// terrain predicate shared by the three mhitm_knockback callers. It must read
+// the caller's state, so planning clones cannot accidentally inspect the live
+// hero's level or inventory.
+export function m_is_steadfast(mon, state = game) {
+    const isHero = mon === state.youmonst;
+    const weapon = isHero ? state.uwep : mon?.mw;
+    const flying = isHero
+        ? Flying(state) || Levitation(state)
+        : is_flyer(mon?.data) || is_floater(mon?.data);
+    if (flying
+        || Is_airlevel(state.u?.uz)
+        || (Is_waterlevel(state.u?.uz)
+            && !is_pool(state.u?.ux, state.u?.uy, state))) {
+        return false;
+    }
+    if (weapon?.oartifact === ART_GIANTSLAYER) return true;
+    if (m_carrying(mon, LOADSTONE, state)) return true;
+    if (state.u?.usteed && mon === state.u.usteed
+        && carrying(LOADSTONE, state)) return true;
+    return false;
+}
+
+// C ref: uhitm.c mhitm_knockback() (5247-5420). The boolean answers whether
+// the knockback arm was accepted; `hitflags.value` carries the independent
+// attacker/defender death bits. The actual hurtle/mhurtle and dismount effects
+// are void calls outside this owner, so their boundaries are recorded without
+// fabricating movement or a death result.
 export async function mhitm_knockback(
     magr,
     mdef,
     mattk,
+    hitflags,
     weapon_used,
     state,
     env,
     random,
 ) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
-    random.rn2(3); /* knockdistance: 67%: 1 step, 33%: 2 steps */
+    const flags = hitflags ?? { value: 0 };
+    const rng = random ?? env?.random ?? { rn2 };
+    rng.rn2(3); /* knockdistance: 67%: 1 step, 33%: 2 steps */
     let chance = 6; /* 1/6 chance of attack knocking back a monster */
     const u_agr = (magr === state.youmonst);
-    const u_def = (mdef === state.youmonst);
+    let u_def = (mdef === state.youmonst);
+    let was_u = false;
+    let dismount = false;
     /* MON_WEP(magr) is magr->mw */
     const wep = weapon_used ? (u_agr ? state.uwep : magr.mw) : null;
 
     if (wep?.oartifact === ART_OGRESMASHER) chance = 2;
 
-    if (random.rn2(chance)) return false;
+    if (rng.rn2(chance)) return false;
 
     /* only certain attacks qualify for knockback */
     if (!((mattk.adtyp === AD_PHYS)
@@ -3229,24 +3254,28 @@ export async function mhitm_knockback(
         // the caller continues the ordinary hit path.
         if (!await test_move(defx, defy, dx, dy, TEST_MOVE, state, env))
             return false;
+    } else {
+        /* C's subset of test_move() is only for monster defenders. */
+        if (!isok(defx + dx, defy + dy)) return false;
+        const here = state.level?.at(defx, defy);
+        if (IS_DOOR(here?.typ)
+            && (defx - (magr.mx ?? 0)) && (defy - (magr.my ?? 0))
+            && !doorless_door(here, state))
+            return false;
     }
-    /* subset of test_move() */
-    if (!isok(defx + dx, defy + dy)) return false;
-    const here = state.level?.at(defx, defy);
-    /* C means this as "the push is diagonal", and it is that whenever magr is a
-       monster, which mhitm.c mdamagem() and mhitu.c hitmu() both make it. It is
-       not that for a hero attacker: magr is gy.youmonst, whose mx and my no
-       line of src/ ever assigns -- light.c:16-17 records that they always
-       remain 0 -- so the test C makes for uhitm.c hmon_hitmon() is that the
-       target is on neither column 0 nor row 0, and an orthogonal push out of a
-       doorway is refused along with a diagonal one. `?? 0` is that unset
-       coordinate. Of the two monster attackers only mdamagem() reaches this
-       line, because hitmu() makes the hero the defender and the refusal above
-       stops it first. */
-    if (IS_DOOR(here?.typ)
-        && (defx - (magr.mx ?? 0)) && (defy - (magr.my ?? 0))
-        && !doorless_door(here, state))
-        return false;
+
+    /* A non-cursed saddle lets the hero be dismounted; a cursed saddle makes
+       the steed itself the defender, while preserving the source hit flags. */
+    if (u_def && state.u?.usteed) {
+        const saddle = which_armor(state.u.usteed, W_SADDLE);
+        if (saddle?.cursed) {
+            mdef = state.u.usteed;
+            was_u = true;
+            u_def = false;
+        } else {
+            dismount = true;
+        }
+    }
 
     /* monsters must be alive */
     if ((!u_agr && magr.mhp < 1) || mdef.mhp < 1) return false;
@@ -3254,8 +3283,79 @@ export async function mhitm_knockback(
     /* attacker must be much larger than defender */
     if (!(magr.data.msize > (mdef.data.msize + 1))) return false;
 
-    unsupported('knocking a much smaller monster back');
-    return false;
+    if (wep && (is_flimsy(wep, state)
+                || !((wep.oclass === WEAPON_CLASS || is_weptool(wep, state))
+                     && (objectType(wep, state).oc_dir & WHACK)))) {
+        return false;
+    }
+    if (unsolid(magr.data)) return false;
+    if ((u_agr || u_def) && !(flags.value & M_ATTK_HIT)) return false;
+
+    if (m_is_steadfast(mdef, state)) {
+        const message = requireAttackOperation(env, 'message');
+        if (u_def || (state.u?.usteed && mdef === state.u.usteed)) {
+            const suffix = state.u?.usteed
+                ? `and ${monsterCommonName(state.u.usteed, state)} ` : '';
+            await message(`${suffix}don't budge.`, state);
+        } else if (canseemon(mdef, state)) {
+            await message(`${Monnam(mdef, state)} doesn't budge.`, state);
+        }
+        return false;
+    }
+
+    const knockedhow = dismount ? 'out of your saddle'
+        : will_hurtle(mdef, defx + dx, defy + dy, state, env)
+            ? 'backward' : 'back';
+    const message = requireAttackOperation(env, 'message');
+    if (u_def || canseemon(mdef, state)) {
+        const attacker = u_agr ? 'You' : Monnam(magr, state);
+        const defender = u_def || was_u ? 'you' : monsterCommonName(mdef, state);
+        const extra = was_u && state.u?.usteed
+            ? ` and ${monsterCommonName(state.u.usteed, state)}` : '';
+        const adjective = rng.rn2(2) ? 'forceful' : 'powerful';
+        const noun = rng.rn2(2) ? 'blow' : 'strike';
+        await message(
+            `${attacker} ${vtense(attacker, 'knock')} ${defender}${extra}`
+                + ` ${knockedhow} with a ${adjective} ${noun}!`,
+            state,
+        );
+    } else if (u_agr) {
+        await message(
+            `You feel ${monsterCommonName(mdef, state)} be knocked ${knockedhow}!`,
+            state,
+        );
+    }
+
+    if (state.u?.ustuck && (u_def || u_agr))
+        set_ustuck(null, state);
+
+    if (u_def) {
+        if (dismount) {
+            state.u.dx = dx;
+            state.u.dy = dy;
+            note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
+        } else {
+            note_unported('uhitm.c hurtle');
+            flags.value |= M_ATTK_HIT;
+        }
+        set_apparxy(magr, { ...env, state });
+        if (!state.u?.uprops?.[STUNNED]?.intrinsic
+            && !rng.rn2(4)) {
+            note_unported('timeout.c make_stunned');
+        }
+    } else {
+        note_unported('uhitm.c mhurtle');
+        if (!u_agr) flags.value |= M_ATTK_HIT;
+        if (mdef.mhp < 1) {
+            if (!was_u) flags.value |= M_ATTK_DEF_DIED;
+        } else if (!rng.rn2(4)) {
+            mdef.mstun = 1;
+            if (mdef === state.u?.usteed)
+                set_apparxy(magr, { ...env, state });
+        }
+    }
+    if (!u_agr && magr.mhp < 1) flags.value |= M_ATTK_AGR_DIED;
+    return true;
 }
 
 // C ref: uhitm.c passive() (5863-6120). The target's passive counter-attack

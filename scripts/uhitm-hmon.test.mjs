@@ -24,8 +24,11 @@ import test from 'node:test';
 import {
     HMON_MELEE,
     HMON_THROWN,
+    HMON_KICKED,
     OBJ_MINVENT,
     OBJ_DELETED,
+    FLYING,
+    LEVITATION,
     D_CLOSED,
     D_NODOOR,
     DOOR,
@@ -34,7 +37,10 @@ import {
     P_SKILLED,
     ROWNO,
 } from '../js/const.js';
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import {
+    ART_EXCALIBUR,
+    ART_GIANTSLAYER,
+} from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
@@ -85,12 +91,14 @@ import {
     SILVER_SABER,
     SMALL_SHIELD,
     WORTHLESS_WHITE_GLASS,
+    LOADSTONE,
 } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
 import { monsndx } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
 import { uwep_skill_type } from '../js/weapon.js';
-import { hmon, known_hitum } from '../js/uhitm.js';
+import { hmon, known_hitum, m_is_steadfast } from '../js/uhitm.js';
+import { will_hurtle } from '../js/dothrow.js';
 
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
@@ -400,7 +408,7 @@ test('a fatal blow never reaches mhitm_knockback', async () => {
 // uhitm.c mhitm_knockback() (5245-5372). Its guard chain runs after the two
 // draws; the size test at 5324-5326 is the last one this port answers, and
 // everything past it stops.
-test('mhitm_knockback rejects a target its attacker is not much larger than',
+test('mhitm_knockback returns its source hitflags contract',
     async () => {
         await hero();
         // rn2(6)=1, so C returns FALSE at 5269 and the size test is never
@@ -421,21 +429,22 @@ test('mhitm_knockback rejects a target its attacker is not much larger than',
         await hmon(target(PM_GOBLIN), game.uwep, HMON_MELEE, 10, game, goblin);
         assert.deepEqual(goblin.bounds, ['rnd(3)', 'rn2(3)', 'rn2(6)']);
 
-        // A grid bug is MZ_TINY, so `2 > 0 + 1` holds and the knockback the
-        // port does not own begins.
+        // A grid bug is MZ_TINY, so `2 > 0 + 1` holds and the source arm is
+        // accepted. The movement helper is a discarded void dependency, but
+        // the boolean and hitflags contract remain visible to the caller.
         const tiny = hitEnv({ rolls: [3, 1, 0] });
-        await refusesAsync(
-            () => hmon(target(PM_GRID_BUG), game.uwep, HMON_MELEE, 10, game,
+        assert.equal(
+            await hmon(target(PM_GRID_BUG), game.uwep, HMON_MELEE, 10, game,
                        tiny),
-            'knocking a much smaller monster back',
+            true,
         );
         // A newt and a sewer rat are MZ_TINY as well.
         for (const pmidx of [PM_NEWT, PM_SEWER_RAT]) {
             const tinier = hitEnv({ rolls: [3, 1, 0] });
-            await refusesAsync(
-                () => hmon(target(pmidx), game.uwep, HMON_MELEE, 10, game,
+            assert.equal(
+                await hmon(target(pmidx), game.uwep, HMON_MELEE, 10, game,
                            tinier),
-                'knocking a much smaller monster back',
+                true,
             );
         }
     });
@@ -579,6 +588,83 @@ test('a shade uses the source zero-damage feedback arm', async () => {
     );
     // uhitm.c:841-843 answers before rnd(2) is rolled for a shade fist.
     assert.deepEqual(barehanded.bounds, []);
+
+    // uhitm.c:1821-1822 deliberately excludes thrown and kicked attacks from
+    // shade_miss(); those modes use the ordinary hit text instead.
+    (game.gb ??= {}).bhitpos = { x: game.u.ux, y: game.u.uy };
+    for (const mode of [HMON_THROWN, HMON_KICKED]) {
+        await hero();
+        (game.gb ??= {}).bhitpos = { x: game.u.ux, y: game.u.uy };
+        const object = mksobj(OIL_LAMP, true, false, { state: game });
+        const env = hitEnv({ rolls: [1] });
+        await hmon(target(PM_SHADE), object, mode, 10, game, env);
+        assert.equal(
+            env.lines.some((line) => line.includes('harmlessly through')),
+            false,
+            `mode ${mode}`,
+        );
+    }
+});
+
+// uhitm.c:5218-5245 and dothrow.c:977-990. These helpers are pure: they read
+// only the supplied hero/level state and object data, and never consume RNG or
+// mutate the state. The tests pin the source's artifact, inventory, terrain,
+// size and trapped guards.
+test('steadfast and will_hurtle predicates follow source state', async () => {
+    await hero();
+    const mon = target(PM_GRID_BUG, { mtrapped: false });
+    assert.equal(m_is_steadfast(mon, game), false);
+    assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), true);
+
+    const giantSlayer = mksobj(LONG_SWORD, true, false, { state: game });
+    giantSlayer.oartifact = ART_GIANTSLAYER;
+    const savedWeapon = game.uwep;
+    game.uwep = giantSlayer;
+    assert.equal(m_is_steadfast(game.youmonst, game), true);
+    game.uwep = savedWeapon;
+
+    const savedLevitation = game.u.uprops[LEVITATION].intrinsic;
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(m_is_steadfast(game.youmonst, game), false);
+    game.u.uprops[LEVITATION].intrinsic = savedLevitation;
+
+    mon.minvent = mksobj(LOADSTONE, true, false, { state: game });
+    assert.equal(m_is_steadfast(mon, game), true);
+    mon.mtrapped = true;
+    assert.equal(will_hurtle(mon, mon.mx + 1, mon.my, game), false);
+    mon.mtrapped = false;
+    assert.equal(will_hurtle(mon, 0, 0, game), false);
+});
+
+test('confused touch applies canonical spellbook resistance', async () => {
+    await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
+    const savedWeapon = game.uwep;
+    const savedConfusion = game.u.umconf;
+    game.uwep = null;
+    game.u.umconf = 1;
+    const mon = target(PM_LICHEN, { mconf: 0, mstun: 0, mr: 0 });
+    const env = hitEnv({ rolls: [1, 1] });
+    await hmon(mon, null, HMON_MELEE, 10, game, env);
+    assert.equal(mon.mconf, 1);
+    assert.ok(env.lines.some((line) => line.includes('appears confused')));
+    game.uwep = savedWeapon;
+    game.u.umconf = savedConfusion;
+});
+
+test('poison cleanup speaks with the source saved object name', async () => {
+    await hero();
+    (game.gb ??= {}).bhitpos = { x: game.u.ux, y: game.u.uy };
+    const savedWeapon = game.uwep;
+    const bow = mksobj(BOW, true, false, { state: game });
+    const weapon = mksobj(DART, true, false, { state: game });
+    game.uwep = bow;
+    const savedPoison = weapon.opoisoned;
+    weapon.opoisoned = true;
+    const env = hitEnv({ rolls: [1, 0, 1, 1] });
+    await hmon(target(), weapon, HMON_THROWN, 10, game, env);
+    assert.ok(env.lines.some((line) => line.includes('no longer poisoned.')));
+    weapon.opoisoned = savedPoison;
+    game.uwep = savedWeapon;
 });
 
 // uhitm.c:1587-1601 hmon_hitmon_pet() and 1603-1634 hmon_hitmon_splitmon().
@@ -1201,11 +1287,12 @@ test('mhitm_knockback refuses a push out of a doorway', async () => {
     // A doorway with no door in it is not a doorway for this rule, so the
     // same push reaches the size test and stops there.
     square.flags = D_NODOOR;
-    await refusesAsync(
-        () => hmon(target(PM_GRID_BUG, {
+    const unsolved = hitEnv({ rolls: [3, 1, 0] });
+    assert.equal(
+        await hmon(target(PM_GRID_BUG, {
             mx: game.u.ux + 1, my: game.u.uy + 1,
-        }), game.uwep, HMON_MELEE, 10, game, hitEnv({ rolls: [3, 1, 0] })),
-        'knocking a much smaller monster back',
+        }), game.uwep, HMON_MELEE, 10, game, unsolved),
+        true,
     );
     // The same closed door with the target due east rather than diagonal.
     // C still refuses, because its test is not the diagonal test its comment
