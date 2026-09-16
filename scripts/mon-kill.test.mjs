@@ -687,6 +687,32 @@ test('unstuck re-arms a holder and leaves everything else alone',
         }
     });
 
+test('unstuck brackets the swallowed redraw with source vision phases',
+    async () => {
+        await hero();
+        const engulfer = monster(PM_LICHEN);
+        game.u.ustuck = engulfer;
+        game.u.uswallow = 1;
+        const order = [];
+        const redraw = () => order.push('redraw');
+        const released = killEnv([2]);
+        released.redraw = redraw;
+        released.docrt = async () => order.push('docrt');
+        released.visionRecalc = (control) => {
+            order.push(`vision${control}`);
+            if (control === 0) game.vision_full_recalc = 0;
+        };
+
+        await unstuck(engulfer, game, released);
+
+        assert.deepEqual(order.slice(0, 3), [
+            'vision2', 'docrt', 'vision0',
+        ]);
+        assert.ok(order.includes('redraw'),
+            'see_monsters runs after vision_recalc(0)');
+        assert.equal(game.vision_full_recalc, 0);
+    });
+
 // mon.c mon_leaving_level() (2695-2730) and m_detach() (2733-2803).
 test('m_detach takes the monster off the map and drops what it carried',
     async () => {

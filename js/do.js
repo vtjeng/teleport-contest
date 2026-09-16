@@ -1940,7 +1940,7 @@ export async function goto_level(
     });
 
     const arrivalOccupant = m_at(u.ux, u.uy, state);
-    if (arrivalOccupant) u_collide_m(arrivalOccupant, state);
+    if (arrivalOccupant) await u_collide_m(arrivalOccupant, state);
 
     // do.c:1829-1832. The Elemental Planes move their bubbles/clouds
     // immediately after arrival, before vision_reset() and the first map
@@ -2127,7 +2127,7 @@ function kill_genocided_monsters(state = game) {
 // C ref: do.c u_collide_m() (1410-1445). The hero has arrived on a square a
 // monster already holds -- one that came down with her, or one mklev() put on
 // the up staircase -- and one of the two has to move.
-function u_collide_m(mtmp, state = game) {
+async function u_collide_m(mtmp, state = game) {
     if (!mtmp || mtmp === state.u.usteed
         || mtmp !== m_at(state.u.ux, state.u.uy, state)) {
         // C's impossible() returns without moving anybody.
@@ -2146,7 +2146,7 @@ function u_collide_m(mtmp, state = game) {
     if (m_at(state.u.ux, state.u.uy, state)) {
         // C tries rloc() and then m_into_limbo(), which sends the monster off
         // the level to return later. The wizard-mode message is not ported.
-        m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
+        await m_into_limbo(m_at(state.u.ux, state.u.uy, state), state);
     }
 }
 

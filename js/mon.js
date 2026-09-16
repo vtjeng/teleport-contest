@@ -170,6 +170,7 @@ import {
     glyph_is_invisible,
     map_monster_glyph_info,
     newsym,
+    see_monsters,
     unmap_object,
 } from './display.js';
 import {
@@ -3567,10 +3568,12 @@ export function zombie_maker(mon) {
 // hero, and re-arms its holding attack so it cannot grab again immediately.
 //
 // set_ustuck() clears both u.ustuck and the swallowed timer before any redraw,
-// exactly as C requires so docrt() sees the released state. The owner is
-// asynchronous because punished-ball placement and the full redraw are
-// asynchronous JS operations; callers must await it on swallowed paths.
-export async function unstuck(mtmp, state = game, env = {}) {
+// exactly as C requires so docrt() sees the released state. The ordinary
+// holder path completes synchronously; a swallowed release returns a Promise
+// because punished-ball placement and the full redraw are asynchronous JS
+// operations. Callers that receive that Promise must await it before moving
+// the monster on to another level.
+export function unstuck(mtmp, state = game, env = {}) {
     if (state.u.ustuck !== mtmp) return;
     const random = env.random ?? { rnd };
     const ptr = mtmp.data;
@@ -3585,36 +3588,53 @@ export async function unstuck(mtmp, state = game, env = {}) {
         state.gm.mswallower = null;
         state.u.ux = mtmp.mx;
         state.u.uy = mtmp.my;
-        if (state.uball && state.uchain
-            && state.uchain.where !== OBJ_FLOOR) {
-            const place = env.placebc
-                ?? (await import('./ball.js')).placebc;
-            await place(state, {
-                ...env,
-                state,
-                redraw: env.planning ? env.redraw ?? (() => {}) : env.redraw,
-            });
-        }
-        state.vision_full_recalc = 1;
-        if (typeof env.docrt === 'function') {
-            await env.docrt({ ...env, state, overlayMonsters: false });
-        } else if (!env.planning) {
-            await docrt({ overlayMonsters: false });
-        } else if (typeof env.redraw === 'function') {
-            await env.redraw(state);
-        }
-        // display.c docrt_flags() brackets its map pass with vision_recalc(2)
-        // and vision_recalc(0).  The JavaScript docrt() keeps those controls
-        // with callers, so finish the same bracket here after the swallowed
-        // redraw.  A planning clone supplies its own redraw; without one it
-        // still consumes the pending flag without touching the live view.
-        if (state === game) {
-            vision_recalc(0, { state });
-        } else if (typeof env.redraw === 'function') {
-            vision_recalc(0, { ...env, state });
-        } else {
-            state.vision_full_recalc = 0;
-        }
+        return (async () => {
+            if (state.uball && state.uchain
+                && state.uchain.where !== OBJ_FLOOR) {
+                const place = env.placebc
+                    ?? (await import('./ball.js')).placebc;
+                await place(state, {
+                    ...env,
+                    state,
+                    redraw: env.planning ? env.redraw ?? (() => {}) : env.redraw,
+                });
+            }
+            state.vision_full_recalc = 1;
+            // display.c docrt_flags() first shuts down the old vision buffer.
+            // Keep that phase ahead of the map redraw; planning clones receive
+            // a local no-op redraw so the live terminal and vision buffers stay
+            // untouched.
+            const redraw = state === game
+                ? env.redraw
+                : env.redraw ?? (() => {});
+            const visionRecalc = env.visionRecalc ?? vision_recalc;
+            const visionEnv = redraw
+                ? { ...env, state, redraw } : { ...env, state };
+            await visionRecalc(2, visionEnv);
+            if (typeof env.docrt === 'function') {
+                await env.docrt({ ...env, state, overlayMonsters: false });
+            } else if (!env.planning) {
+                await docrt({ overlayMonsters: false });
+            } else if (typeof env.redraw === 'function') {
+                await env.redraw(state);
+            }
+            // display.c restores vision and only then overlays monsters. The
+            // explicit redraw option is required for a planning clone because
+            // see_monsters() otherwise paints the live game map.
+            await visionRecalc(0, visionEnv);
+            const monsterOverlay = redraw ? { redraw } : {};
+            see_monsters(state, monsterOverlay);
+
+            /* "prevent holder/engulfer from immediately re-holding/re-engulfing
+               [note: this call to unstuck() might be because u.ustuck has just
+               changed shape and doesn't have a holding attack any more, hence
+               don't set mspec_used unconditionally]" */
+            const needsCooldown = !mtmp.mspec_used
+                && (dmgtype(ptr, AD_STCK) || attacktype(ptr, AT_ENGL)
+                    || attacktype(ptr, AT_HUGS));
+            if (needsCooldown)
+                mtmp.mspec_used = random.rnd(2);
+        })();
     }
 
     /* "prevent holder/engulfer from immediately re-holding/re-engulfing
@@ -5150,7 +5170,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
 export function m_into_limbo(mtmp, state = game, env = {}) {
     const targetLev = ledger_no(state.u.uz, state);
     mtmp.mstate = (mtmp.mstate ?? 0) | MON_LIMBO;
-    migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
+    return migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
 }
 
 // C ref: mon.c migrate_mon() (3839-3863). Special-object dropping remains an
@@ -5164,7 +5184,19 @@ export function migrate_mon(
     env = {},
 ) {
     if (mtmp.mx) {
-        unstuck(mtmp, state, env);
+        const release = unstuck(mtmp, state, env);
+        if (release && typeof release.then === 'function') {
+            return release.then(() => {
+                note_unported('steal.c mdrop_special_objs');
+                return migrate_to_level(
+                    mtmp,
+                    target_lev,
+                    xyloc,
+                    null,
+                    { ...env, state },
+                );
+            });
+        }
         note_unported('steal.c mdrop_special_objs');
     }
     return migrate_to_level(
@@ -5263,7 +5295,7 @@ export function elemental_clog(mon, state = game, env = {}) {
         };
         const targetLev = ledger_no(destination, state);
         mon.mstate = (mon.mstate ?? 0) | MON_ENDGAME_MIGR;
-        migrate_mon(mon, targetLev, MIGR_RANDOM, state, env);
+        return migrate_mon(mon, targetLev, MIGR_RANDOM, state, env);
     }
 }
 
@@ -5272,9 +5304,9 @@ export function elemental_clog(mon, state = game, env = {}) {
 // branches are the complete function body here.
 export function deal_with_overcrowding(mtmp, state = game, env = {}) {
     if (In_endgame(state.u?.uz))
-        elemental_clog(mtmp, state, env);
+        return elemental_clog(mtmp, state, env);
     else
-        m_into_limbo(mtmp, state, env);
+        return m_into_limbo(mtmp, state, env);
 }
 
 // C ref: mon.c maybe_mnexto() (3997-4016). Unlike mnexto(), this helper

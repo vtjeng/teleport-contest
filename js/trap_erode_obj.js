@@ -32,8 +32,6 @@ import {
     ER_GREASED,
     ER_NOTHING,
     MAX_ERODE,
-    OBJ_FLOOR,
-    OBJ_FREE,
     OBJ_MINVENT,
     W_ARMC,
     W_ARM,
@@ -61,6 +59,7 @@ import {
 import { TOWEL } from './objects.js';
 import {
     cloak_simple_name,
+    cxname,
     helm_simple_name,
     xnameFresh,
 } from './objnam.js';
@@ -180,32 +179,30 @@ export class UnsupportedErosionError extends Error {
 // messages or bypass the return value.
 //
 // EF_PAY (costly_alteration()) is live for do_wear.c destroy_arm(). The
-// EF_DESTROY arm clears worn state and delegates final lifetime cleanup to
-// invent.c delobj(), including its resistance and extraction behavior.
+// EF_DESTROY arm delegates final lifetime cleanup to invent.c delobj(),
+// including its resistance and extraction behavior; the discarded
+// steal.c remove_worn_item() call remains an explicit gap for unsupported
+// hero equipment slots.
 export async function erode_obj(obj, description, type, flags, env) {
     if (!obj) return ER_NOTHING;
-    // C's `uvictim`; `vismon` follows once the message operations resolve.
+    // C's victim selection is strictly carried() / mcarried(); every other
+    // object location is the floor-object case, including a free object that
+    // has not yet been placed in a floor list.
     const uvictim = carried(obj);
-    const floorVictim = !uvictim
-        && (obj.where === OBJ_FREE || obj.where === OBJ_FLOOR);
-    if (!uvictim && !floorVictim
-        && !obj.owornmask
-        && (obj.where !== OBJ_MINVENT || !obj.ocarry)) {
-        throw new RangeError(
-            'item erosion requires a carried object or a floor object',
-        );
-    }
+    const monsterVictim = !uvictim && obj.where === OBJ_MINVENT
+        ? obj.ocarry : null;
+    const floorVictim = !uvictim && !monsterVictim;
 
     const details = EROSION[type];
     if (!details) throw new RangeError(`invalid erosion type ${type}`);
     const { state } = env;
     const random = env.random;
     const message = erosionOperation(env, 'message', ttyPline);
-    const vismon = !uvictim && !floorVictim && erosionOperation(
+    const vismon = monsterVictim && erosionOperation(
         env,
         'canSeeMonster',
         canSeeMonster,
-    )(obj.ocarry, state);
+    )(monsterVictim, state);
     const hit = state.gb?.bhitpos;
     let pool = false;
     if (floorVictim && hit) {
@@ -233,7 +230,11 @@ export async function erode_obj(obj, description, type, flags, env) {
     const vulnerable = details.vulnerable(obj, state);
     const erosion = currentErosion(obj, details.primary);
 
-    const name = description || xnameFresh(obj, state);
+    let name = description || cxname(obj, state);
+    // trap.c's visobj strings are already article-free: it strips the
+    // leading "the " from cxname() before using the floor-object message.
+    if (visobj && !uvictim && !vismon && /^the /iu.test(name))
+        name = name.slice(4);
     // C's two remaining message subjects. The capitalized form opens a
     // sentence; the lower-case one sits after "Somehow,".
     const possessive = uvictim
@@ -276,7 +277,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     if (!erosionMatters(obj, state)) return ER_NOTHING;
 
     if (!vulnerable || (obj.oerodeproof && obj.rknown)) {
-        if (verbose && print && visible) {
+        if (verbose && print && (uvictim || vismon)) {
             await message(
                 `${possessive} ${name} ${verbFor(name, 'are')} `
                 + `not affected by ${details.affectedBy}.`,
@@ -324,7 +325,7 @@ export async function erode_obj(obj, description, type, flags, env) {
 
     if (flags & EF_DESTROY) {
         // trap.c marks the object in use while its destruction message can
-        // pause, then removes worn state before the canonical delobj().
+        // pause, then invokes the worn removal owner before delobj().
         obj.in_use = true;
         if (visible) {
             const action = type === ERODE_CRACK
@@ -335,17 +336,20 @@ export async function erode_obj(obj, description, type, flags, env) {
                 state,
             );
         }
+        if (flags & EF_PAY)
+            costly_alteration(obj, details.costType, env);
         if (obj.owornmask) {
             if (uvictim) {
-                // setnotworn() is the local owner for all hero equipment
-                // slots; it applies the same property and wield updates that
-                // remove_worn_item() dispatches before delobj().
-                const { setnotworn } = await import('./worn.js');
-                setnotworn(obj, { ...env, state });
-            } else if (vismon) {
+                // C delegates all hero equipment transitions to
+                // steal.c remove_worn_item(), whose armor/amulet/tool and
+                // punishment arms remain unported in this span. It is a
+                // discarded void call, so record the exact gap and continue
+                // to the source delobj() boundary without a fake setter.
+                note_unported('steal.c remove_worn_item');
+            } else if (monsterVictim) {
                 const { extract_from_minvent } = await import('./worn.js');
                 extract_from_minvent(
-                    obj.ocarry,
+                    monsterVictim,
                     obj,
                     true,
                     false,

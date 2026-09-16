@@ -435,15 +435,13 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
         }
         if (obj.where === OBJ_INVENT) {
             if (obj.owornmask) {
-                const { setnotworn } = await import('./worn.js');
-                setnotworn(obj, { ...rawEnv, state });
+                // trap.c delegates this discarded void transition to
+                // steal.c remove_worn_item(); its remaining armor and
+                // punishment arms are an explicit source gap here.
+                note_unported('steal.c remove_worn_item');
             }
             useupall(obj, { ...rawEnv, state });
         } else {
-            if (obj.owornmask) {
-                const { setnotworn } = await import('./worn.js');
-                setnotworn(obj, { ...rawEnv, state });
-            }
             delobj(obj, { ...rawEnv, state });
         }
         return true;
@@ -588,7 +586,7 @@ export async function water_damage(obj, description, force, env = {}) {
 
     // C ref: trap.c:4771-4777. Luck-based protection (skipped when force).
     if (!force) {
-        const luck = state.u?.uluck ?? 0;
+        const luck = (state.u?.uluck ?? 0) + (state.u?.moreluck ?? 0);
         if ((luck + 5) > random.rn2(20)) {
             return ER_NOTHING;
         }

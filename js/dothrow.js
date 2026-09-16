@@ -332,7 +332,7 @@ import { cansee, canseemon, vision_recalc } from './vision.js';
 import { doquiver_core, welded } from './wield.js';
 import { find_mac, is_pole, setuqwep } from './worn.js';
 import { bhit, miss } from './zap.js';
-import { hmon, passive_obj } from './uhitm.js';
+import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
 import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';
@@ -1787,7 +1787,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             break;
         default:
             // C's impossible() diagnostic has no gameplay effect.
-            note_unported('dothrow.c impossible unknown glove type');
+            note_unported('pline.c impossible unknown glove type');
             break;
         }
     }
@@ -1856,7 +1856,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     );
                 }
                 if (state.u.ushops?.[0] || obj.unpaid)
-                    note_unported('shk.c check_shop_obj');
+                    note_unported('dothrow.c check_shop_obj');
                 mpickobj(mon, obj, operationEnv);
             } else {
                 note_unported('quest.c finish_quest');
@@ -1930,11 +1930,14 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             if (wasThrown && !thrownObject(state)) return 1;
             if (should_mulch_missile(obj, state, operationEnv)) {
                 if (state.u.ushops?.[0] || obj.unpaid)
-                    note_unported('shk.c check_shop_obj');
+                    note_unported('dothrow.c check_shop_obj');
                 obfree(obj, null, operationEnv);
                 return 1;
             }
-            passive_obj(mon, obj, null, state, operationEnv);
+            // C discards passive_obj()'s result. Its monster-target body is
+            // still partial, so keep the source call boundary explicit
+            // instead of swallowing a refusal through operationEnv.
+            note_unported('uhitm.c passive_obj');
         } else {
             await tmiss(obj, mon, true, state, operationEnv);
             if (hmode === HMON_APPLIED)

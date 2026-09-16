@@ -788,7 +788,12 @@ export function place_lregion(
 // `oneshot` is TRUE when there is no other square to try: either the region is
 // a single square, or the 200 random tries are spent and the deterministic
 // sweep is running. Only then does C disturb what is already on the square,
-// and both ways it does so are unported.
+// and both ways it does so are unported. C's goto_level() clears u.ustuck and
+// u.uswallow before u_on_rndspot() calls this function (do.c:1620, 1736-1804),
+// and fixup_special() runs while mklev() is constructing a level before the
+// hero is placed. Thus a monster found here cannot be the current holder, so
+// the m_into_limbo() call stays synchronous under the conditional cleanup
+// contract in mon.c.
 function put_lregion_here(
     x, y,
     nlx, nly, nhx, nhy,
