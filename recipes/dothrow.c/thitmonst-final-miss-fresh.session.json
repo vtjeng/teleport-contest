@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent debug recipe for dothrow.c thitmonst's final nonweapon tmiss arm and throwit()'s surviving-object landing tail. The seed, timestamp, character name, and input sequence differ from the fixed holdout and the existing dothrow recordings.",
+  "segments": [
+    {
+      "seed": 551234,
+      "datetime": "20350917112233",
+      "nethackrc": "OPTIONS=name:ThrowFresh,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0007soldier ant\nthh "
+    }
+  ]
+}

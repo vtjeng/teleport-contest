@@ -10,6 +10,7 @@ import {
     M_AP_NOTHING,
     M_AP_OBJECT,
     MMOVE_MOVED,
+    OBJ_DELETED,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
@@ -90,7 +91,11 @@ function quickState(visible = true) {
         moves: 10,
         program_state: { gameover: false },
         u: {
-            uprops: [],
+            uprops: Array.from({ length: 64 }, () => ({
+                intrinsic: 0,
+                extrinsic: 0,
+                blocked: 0,
+            })),
             uroleplay: {},
             usteed: null,
             ux: 4,
@@ -396,7 +401,7 @@ test('dog_eat consumes a visible carrot without a cure message for sighted pets'
         assert.match(messages[0], /eats a carrot\./u);
     });
 
-test('dog_eat validates every excluded corpse-meal state before mutation',
+test('dog_eat validates missing pet and non-food state before mutation',
     async () => {
         const cases = [
             // edog absent: the C function requires EDOG(mtmp), so a pet
@@ -408,21 +413,6 @@ test('dog_eat validates every excluded corpse-meal state before mutation',
             ['wrong object class', ({ corpse }) => {
                 corpse.oclass = WEAPON_CLASS;
             }, /a food item/u],
-            ['unpaid food', ({ corpse }) => {
-                corpse.unpaid = true;
-            }, /ordinary floor food/u],
-            ['artifact food', ({ corpse }) => {
-                corpse.oartifact = 1;
-            }, /ordinary floor food/u],
-            ['food with contents', ({ corpse }) => {
-                corpse.cobj = {};
-            }, /ordinary floor food/u],
-            ['devoured meal', ({ call }) => {
-                call.devour = true;
-            }, /ordinary eat path/u],
-            ['pet over a pool', ({ state }) => {
-                state.level.at(5, 5).typ = POOL;
-            }, /dry eating square/u],
         ];
         for (const [name, mutate, reason] of cases) {
             const { monster, state } = quickState(false);
@@ -448,6 +438,64 @@ test('dog_eat validates every excluded corpse-meal state before mutation',
                 where: corpse.where,
             }, before, name);
         }
+    });
+
+test('dog_eat keeps the source devour return and nutrition adjustments',
+    async () => {
+        const { monster, state } = quickState(false);
+        const corpse = floorMimicCorpse(state);
+        const initialMeating = monster.meating;
+        const result = await dog_eat(
+            monster,
+            corpse,
+            5,
+            5,
+            true,
+            eatingEnv(state),
+        );
+        assert.equal(result, MMOVE_MOVED);
+        assert.equal(corpse.where, OBJ_DELETED);
+        assert.ok(monster.mextra.edog.hungrytime > state.moves);
+        assert.ok(monster.meating <= Math.trunc(initialMeating / 2));
+    });
+
+test('dog_eat consumes an unpaid floor meal and suppresses pool output',
+    async () => {
+        const { monster, state } = quickState(false);
+        const messages = [];
+        const corpse = floorMimicCorpse(state, PM_SMALL_MIMIC, {
+            unpaid: true,
+        });
+        const result = await dog_eat(
+            monster,
+            corpse,
+            5,
+            5,
+            false,
+            {
+                ...eatingEnv(state, messages),
+                hooks: { obfreeShopBill: () => 'unbilled' },
+            },
+        );
+        assert.equal(result, MMOVE_MOVED);
+        assert.equal(corpse.where, OBJ_DELETED);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /will cost you 0 zorkmids\./u);
+
+        const poolState = quickState(false);
+        poolState.state.level.at(5, 5).typ = POOL;
+        const poolMessages = [];
+        const poolFood = floorMimicCorpse(poolState.state);
+        await dog_eat(
+            poolState.monster,
+            poolFood,
+            5,
+            5,
+            false,
+            eatingEnv(poolState.state, poolMessages),
+        );
+        assert.equal(poolFood.where, OBJ_DELETED);
+        assert.deepEqual(poolMessages, []);
     });
 
 test('dog_eat preserves source boundary values for fleeing and tameness',

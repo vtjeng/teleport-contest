@@ -40,6 +40,7 @@ import {
     LAST_PROP,
     LAVAPOOL,
     LEVITATION,
+    OBJ_DELETED,
     OBJ_FREE,
     OBJ_INVENT,
     POOL,
@@ -652,7 +653,7 @@ test('throwit() lands a thrown weapon at the end of its range', async () => {
     // missile and this one is neither.
     assert.deepEqual(draws(), ['rn2(100)']);
     // :1823 clears gt.thrownobj once the missile is on the floor.
-    assert.equal(state.thrownobj, null);
+    assert.equal(state.gt.thrownobj, null);
 });
 
 test('throwit() draws rn2(7) only for a cursed or greased missile',
@@ -755,11 +756,12 @@ test('throwit() breaks what lands hard and drowns what lands wet',
         // :2601 and ARENA_SEED's first rn2(100) is 45, well clear of the
         // nonbreakchance of 1, so it does not resist.
         const hard = arena();
-        await assert.rejects(
-            () => throwit(item(hard, CREAM_PIE), 0, false, null, hard),
-            /breakobj/u,
-        );
-        assert.deepEqual(draws(), ['rn2(100)']);
+        const shattered = item(hard, CREAM_PIE);
+        await throwit(shattered, 0, false, null, hard);
+        // breaktest() asks obj_resists() first; breakobj() then owns the
+        // source deletion lifecycle and performs its second protection draw.
+        assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
+        assert.equal(shattered.where, OBJ_DELETED);
         // A dagger asks the same question and answers no, so it lands.
         const survives = arena();
         const dagger = item(survives, DAGGER);
