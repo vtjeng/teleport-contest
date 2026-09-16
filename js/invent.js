@@ -2486,16 +2486,12 @@ export function preflight_look_here(
         }
     }
 
-    let dfeature = dfeature_at(ux, uy, state);
-    if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
-    let surf = null;
     let cant_reach;
     let cannotReachObjects;
     if (blind) {
         if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz))
             throw new UnsupportedFeatureDescriptionError('a drifting level');
         cant_reach = !can_reach_floor(undefined, state);
-        surf = surface(ux, uy, state);
         cannotReachObjects = !can_reach_floor(
             Boolean(trap && is_pit(trap.ttyp)),
             state,
@@ -2517,14 +2513,12 @@ export function preflight_look_here(
         blind,
         cant_reach,
         cannotReachObjects,
-        dfeature,
         hasPile,
         objectList,
         otmp,
         pickedSome,
         skip_dfeature,
         skip_objects,
-        surf,
         withShopPrice,
     };
 }
@@ -2561,18 +2555,22 @@ export async function look_here(
         blind,
         cant_reach,
         cannotReachObjects,
-        dfeature,
         hasPile,
         otmp,
         pickedSome,
         skip_objects,
-        surf,
         withShopPrice,
     } = plan;
     const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
+    // invent.c look_here() describes the feature before its blind-surface
+    // wording. Both helpers can consume display RNG, and dfeature_at() also
+    // updates ice_rating; admission must leave these effects to the live call.
+    let dfeature = dfeature_at(ux, uy, state);
+    if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
     let skip_dfeature = plan.skip_dfeature;
     if (blind) {
+        const surf = surface(ux, uy, state);
         await message(
             `You try to feel what is ${
                 cant_reach ? 'lying beneath you' : `lying here on the ${surf}`
