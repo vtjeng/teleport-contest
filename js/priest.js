@@ -44,7 +44,7 @@ import {
 } from './const.js';
 import { newsym } from './display.js';
 import { bogon_is_pname, mon_pmname, rndmonnamDetails } from './do_name.js';
-import { assign_level, find_mapseen, on_level } from './dungeon.js';
+import { assign_level, find_mapseen, mapseen_room, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, highc } from './hacklib.js';
@@ -111,7 +111,7 @@ export function temple_occupied(roomBuffer, state) {
     for (let index = 0; index < ROOM_STRING_SIZE; ++index) {
         const roomNumber = Math.trunc(roomBuffer?.[index] ?? 0);
         if (!roomNumber) break;
-        if (state.level?.rooms?.[roomNumber - ROOMOFFSET]?.rtype === TEMPLE)
+        if (mapseen_room(roomNumber - ROOMOFFSET, state)?.rtype === TEMPLE)
             return roomNumber;
     }
     return 0;
@@ -270,7 +270,11 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     if (!priest) return;
 
     const epri = priest.mextra.epri;
-    epri.shroom = (state.level.rooms.indexOf(sroom) + ROOMOFFSET);
+    // C's `sroom - svr.rooms` spans top-level rooms and subrooms in one
+    // conceptual array. JS stores subrooms under their parent, so retain the
+    // source roomnoidx assigned by add_subroom() when available.
+    epri.shroom = ((sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
+        + ROOMOFFSET);
     epri.shralign = Amask2align(state.level.at(sx, sy).altarmask);
     epri.shrpos = { x: sx, y: sy };
     assign_level(epri.shrlevel, lvl);

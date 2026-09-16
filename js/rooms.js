@@ -44,7 +44,7 @@ import {
 } from './monsters.js';
 import { record_achievement } from './insight.js';
 import { wake_msg } from './mon.js';
-import { room_discovered } from './dungeon.js';
+import { mapseen_room, room_discovered } from './dungeon.js';
 import { midnight } from './calendar.js';
 import { search_special } from './mkroom.js';
 import { rn2 } from './rng.js';
@@ -97,7 +97,7 @@ function roomHas(buffer, room) {
 }
 
 function roomType(roomno, state) {
-    return state.level?.rooms?.[roomno - ROOMOFFSET]?.rtype;
+    return mapseen_room(roomno - ROOMOFFSET, state)?.rtype;
 }
 
 function goodRoomType(roomno, typewanted, state) {
