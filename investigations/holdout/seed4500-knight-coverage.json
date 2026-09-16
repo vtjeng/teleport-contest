@@ -1,42 +1,38 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 780,
+  "remainingScreensUpperBound": 766,
   "status": "complete",
-  "commit": "153fb5a8ff37f5684a897e36cedfa18c7f2b2b56",
+  "commit": "5620e1e2db7c384c622c6a7a828129cc6642763f",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1034,
+    "step": 1048,
     "kind": "stop",
-    "function": "makemon",
-    "functionDeclared": true,
-    "sourceFile": "makemon.c",
-    "cFile": "makemon.c",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 177",
+    "message": "unsupported hero move: force-fight against a boulder or statue",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 780
+    "remainingScreensUpperBound": 766
   },
-  "summary": "Main stops at runtime minotaur creation at step 1034. Worker A delivered removal of the obsolete species admission marker and the source newsym/set_apparxy tail, with matching independent genesis cases and a role/option variation. Focused tests and lint pass; combined validation and integration are pending. The queue suffix remains 780 screens.",
+  "summary": "The minotaur correction advances main to step1048, where force-fight selects a floor statue without checking its displayed glyph. C ignores a statue hidden beneath an invisible-monster marker and attacks thin air. Worker A7 delivered the glyph correction and its selected-object terrain guard correction; combined validation is queued.",
   "source": {
-    "file": "makemon.c",
+    "file": "hack.c",
     "functions": [
-      "makemon"
+      "domove_fight_empty"
     ],
-    "branch": "For an explicit PM_MINOTAUR at the hero's coordinates outside mklev, read.c supplies MM_NOEXCLAM and wiz_genesis() temporarily clears debug_mongen. C makemon() has no species allowlist: it moves the explicit monster to a nearby valid square, checks genocide, propagates, allocates it, assigns identity/HP/gender, places it, initializes inventory, wears it, and applies the saddle roll. The current JavaScript preflight species guard runs for this runtime call and admits PM_MINOTAUR only when a fill_empty_maze marker is present, which is false for wiz_genesis().",
+    "branch": "At an in-bounds force-fight destination with a floor statue beneath a remembered invisible-monster glyph, C reads glyph_at before object selection, starts with sobj_at(BOULDER), and selects sobj_at(STATUE) only when glyph_is_statue or Hallucination && glyph_is_monster holds. JavaScript instead checks any floor statue and throws before the source thin-air message, unmap_object/newsym and nomul tail.",
     "callers": [
-      "nethack-c/upstream/src/wizcmds.c:203-214 wiz_genesis() saves iflags.debug_mongen, clears it, calls create_particular(), and restores it; js/wizcmds.js:212-222 mirrors this production command path.",
-      "nethack-c/upstream/src/read.c:3137-3249 create_particular_parse() resolves the typed minotaur name to PM_MINOTAUR, and :3252-3357 create_particular_creation() builds MM_NOEXCLAM then calls makemon(whichpm, u.ux, u.uy, mmflags) at :3315; js/read.js:1036-1130 and :1140-1190 mirror the named-species path.",
-      "js/cmd.js:5959-5970 dispatches wizgenesis through runGenesisCommand(), and js/cmd.js:3444-3448 plus :5139-5140 route it into js/wizcmds.js and then the read/makemon chain."
+      "C hack.c domove_core dispatches an empty force-fight destination to domove_fight_empty; js/hack.js domove_core reaches the same function through ordinary movement/force-fight dispatch.",
+      "C and JavaScript move_out_of_bounds use domove_fight_empty for force-fighting outside the map; that existing off-edge path remains separate."
     ],
     "dependencies": [
-      "nethack-c/upstream/src/makemon.c:1179-1185 calls enexto_core() for the hero-square request; the assigned step records its collect_coords() rn2 sequence before monster construction, so the admission fix must not bypass or reorder that coordinate search.",
-      "nethack-c/upstream/src/makemon.c:1202-1279 performs the explicit-species genocide check, propagate(), next_ident(), newmonhp(), and gender assignment. The assigned C trace then shows d(16,8)=78 and rn2(2)=1; js/makemon_create.js:3601-3673 owns the corresponding generic lifecycle.",
-      "nethack-c/upstream/src/makemon.c:1441-1451 calls m_initweap() only for is_armed() species, then m_initinv(), m_dowear(), and the generic rn2(100) saddle check. Minotaur has no AT_WEAP attack, so no weapon-init draws belong in this witness.",
-      "nethack-c/upstream/src/makemon.c:738-741 gives S_GIANT PM_MINOTAUR a one-in-eight WAN_DIGGING roll; js/makemon_create.js:2466-2474 already implements this branch. The assigned trace records rn2(8)=1 at m_initinv, followed by the existing rn2(50), rn2(100), and makemon saddle rn2(100) tail draws.",
-      "js/read.js:1140-1190 already supplies the plain named-monster caller and js/makemon_create.js:3879-3930 already supplies makemon_runtime() plus the runtime inventory continuation. The missing behavior is the preflight admission, not a new parser or constructor substitute.",
-      "js/makemon_create.js:1259-1327 and :1513-1533 contain the injected species allowlist. Its allowMinotaur option is currently true only for js/mklev.js:5584-5593 fill_empty_maze() via _fillEmptyMazeMinotaur; that level-generation caller is a distinct source branch and must remain distinct from runtime wizard genesis."
+      "Reuse display.c glyph_at/glyph_is_statue/glyph_is_monster and existing map_object/unmap_object/newsym in source order.",
+      "Reuse objnam.c ansimpleoname for a selected boulder/statue; the solid-terrain message and its refusal preflight apply only when no object was selected.",
+      "Preserve the distinction between the current statue-selection defect and existing underwater, exploding-form, digging, engraving and unseen-terrain gaps; this divergence correction does not claim a complete hack.c port."
     ]
   },
   "goalKind": "divergence-fix",
@@ -50,6 +46,11 @@
     "Accepted candidate a0342880e606384b48903ac656ccc92a770b232c checkpoint run-r1BdaY passes: 31/44 sessions,10249/11405 screens,753558/792838 RNG,10271/11405 cursors,267/267 recordings. The beam span adds37 screens,993 RNG values and two independent monster-breath recordings totaling45 screens and6243 RNG calls. The prior candidate153fb5a8 matched the same recordings and score but failed an obsolete naming-call inventory count; correction7ead0433 changes that test from2 to3 after verifying all calls forward state.",
     "The beam source goal remains parked after span acceptance because monster-to-monster breath, hero spell/polymorph/horn, monster spell, priest/storm and forced-miss ray entries lack matching production evidence. Verified entries are monster-to-hero fire breath and the existing hero fire-wand reflection recording. Runtime minotaur admission is a separate source-traced next goal, not unverified beam scope.",
     "Immutable minotaur delivery b45491d463555c3738f1674737491096bfccc28c and variation correction fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d preserve generic runtime and stocked-maze callers without the former _fillEmptyMazeMinotaur/allowMinotaur marker. A fresh Ranger genesis case matches2852 RNG and12 screens; an independent role/options variation also matches. Source identity, HP/gender, placement and inventory ordering are covered by focused makemon and wizard-genesis checks. Coordinator integration remains pending.",
-    "Worker A independently claimed A7 from fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d after a focused seed4500 continuation reached step1048. Its source trace identifies hack.c domove_fight_empty: C consults a remembered invisible glyph and does not describe a floor statue unless glyph_is_statue holds; JavaScript looked up the statue unconditionally. The worker reports a source-aligned correction progressing to a separate mon.c invisible-marker planning boundary; A7 remains unvalidated and is not main progress."
+    "Worker A independently claimed A7 from fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d after a focused seed4500 continuation reached step1048. Its source trace identifies hack.c domove_fight_empty: C consults a remembered invisible glyph and does not describe a floor statue unless glyph_is_statue holds; JavaScript looked up the statue unconditionally. The worker reports a source-aligned correction progressing to a separate mon.c invisible-marker planning boundary; A7 remains unvalidated and is not main progress.",
+    "Coordinator integrated A6 as candidate5620e1e2db7c384c622c6a7a828129cc6642763f. Bounded affected run-TBfK0X passed569/569 tests; lint run-RzEkq7 and quality run-OCBfHK passed. Full checkpoint run-YPsR5B is running; no new score is claimed.",
+    "A7 immutable2386a18bea35cd76c6df8aa7801eef898e85741f adds glyph-gated boulder/statue selection and two independent force-fight recordings totaling20 screens and5833 RNG values. Coordinator source review found that the newly admitted selected-object arm could still hit the hoisted unseen-solid-terrain refusal, although C skips its solid-message arm when an object is selected. Feedback requests a !boulder guard and a source-pinned unseen-furniture witness; the delivery is not accepted.",
+    "Coordinator read C hack.c domove_fight_empty2227-2338 in full and compared submitted2386a18b. The selected object is chosen at2254-2260, then unmap_object, optional map_object and newsym precede the object/underwater/solid/thin-air message chain. The source result for the remembered invisible marker is thin air even when a statue exists on the floor. Exact candidate scan cache5620e1e2 contains44 sessions and emits1048 screens for this session with the boulder/statue refusal, beyond prior minotaur step1034.",
+    "A7 correction1a2b0831c83e8c5a94d6a3a09585799608aae9c4 adds !boulder to the hoisted terrain refusal and pins a selected boulder above unseen fountain terrain. Worker focused force-fight checks and lint pass; coordinator source comparison confirms the correction. The worker merged accepted main b9f73e9f at HEAD4b334d9ac99cec3023d60b23281837466569061b before this correction and preserved the submitted commits.",
+    "Full checkpoint5620e1e2db7c384c622c6a7a828129cc6642763f run-uaP28g passes all checks:31/44 sessions,10273/11405 screens,754203/792838 RNG,10295/11405 cursors and271/271 recordings. The minotaur fix gains14 development screens and614 RNG values, adds two independent recordings totaling24 screens and5356 RNG calls, and advances the first boundary from makemon step1034 to domove_fight_empty step1048. Saved scan .cache/A6-development-scan.json and queue run-l0blNy establish the766-screen suffix."
   ]
 }
