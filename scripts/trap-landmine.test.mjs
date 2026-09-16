@@ -131,7 +131,9 @@ test('trapeffect_selector dispatches a heavy monster to a land mine',
             'KAABLAMM!!!  The titanothere triggers a land mine!',
             'The titanothere falls into a pit!',
         ]);
-        assert.deepEqual(env.redraws, [`${x},${y}`, `${x},${y}`]);
+        assert.deepEqual(env.redraws, [
+            `${x},${y}`, `${x},${y}`, `${x},${y}`,
+        ]);
         assert.equal(monster.mhp, 25, 'land mine and recursive pit damage');
         assert.equal(monster.mtrapped, true, 'the resulting pit holds it');
         assert.equal(trap.ttyp, PIT, 'the explosion converts the trap');
@@ -167,5 +169,5 @@ test('blow_up_landmine converts an ordinary-room trap to a visible pit',
         assert.equal(trap.ttyp, PIT);
         assert.equal(trap.madeby_u, false);
         assert.equal(trap.tseen, true);
-        assert.deepEqual(env.redraws, [`${x},${y}`]);
+        assert.deepEqual(env.redraws, [`${x},${y}`, `${x},${y}`]);
     });

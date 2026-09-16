@@ -34,7 +34,6 @@ import {
     DISP_FLASH,
     D_CLOSED,
     D_BROKEN,
-    DISMOUNT_POLY,
     D_LOCKED,
     DOOR,
     DRAWBRIDGE_DOWN,
@@ -121,6 +120,7 @@ import {
     is_hole,
     is_pit,
     isok,
+    undestroyable_trap,
     u_at,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
@@ -317,7 +317,7 @@ import {
 } from './trap.js';
 import { mlevel_tele_trap, mtele_trap, tele_trap } from './teleport.js';
 import { resist } from './zap.js';
-import { dismount_steed, Punished } from './steed.js';
+import { Punished } from './steed.js';
 import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -749,10 +749,13 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         const otmp = t_missile(DART, trap, { ...env, objectEnv });
         if (!random.rn2(6)) otmp.opoisoned = true;
         const dam = dmgval(otmp, state.youmonst, state, { random });
-        // C 1276: u.usteed arm. preflight_dotrap() refuses when u.usteed is
-        // set, so this is unreachable here. The rn2(2) that C spends for
-        // steedintrap() does not fire because its guard (u.usteed) is false.
-        const hit = await thitu(
+        // C 1276: a mounted hero gives the dart to the steed on a successful
+        // one-in-two gate; steedintrap()'s return supplies that gate's value.
+        const steedHit = state.u.usteed && !random.rn2(2)
+            && await steedintrap(trap, otmp, { ...env, objectEnv });
+        if (steedHit) {
+            // nothing
+        } else if (await thitu(
             7,
             Maybe_Half_Phys(dam, state),
             otmp,
@@ -767,8 +770,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
                     { encumberMessage: (subject) => encumber_msg(subject) },
                 ),
             },
-        );
-        if (hit) {
+        )) {
             if (otmp) {
                 if (otmp.opoisoned) {
                     await poisoned(
@@ -1099,10 +1101,9 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
             await fall_asleep(-random.rnd(25), true, state, { message });
             monstunseesu(M_SEEN_SLEEP, state);
         }
-        // The return value is discarded. The mounted case is admitted only
-        // after preflight_dotrap() rejects it because steedintrap() is not
-        // ported, while an unmounted hero reaches C's no-op guard here.
-        note_unported('trap.c steedintrap');
+        // C discards steedintrap()'s return. An unmounted hero takes its
+        // no-op guard; a mounted hero gives the gas effect to its steed.
+        await steedintrap(trap, null, env);
     } else {
         const in_sight = canSeeMonster(mtmp, state)
             || mtmp === state.u?.usteed;
@@ -1224,7 +1225,10 @@ async function steedintrap(trap, otmp, env) {
     }
 
     if (trapkilled) {
-        await dismount_steed(DISMOUNT_POLY, state);
+        // C discards dismount_steed() here. Its poly-dismount body is not
+        // ported, so preserve the source call as an explicit boundary gap
+        // rather than raising after the steed's trap result is computed.
+        note_unported('steed.c dismount_steed DISMOUNT_POLY');
         return Trap_Killed_Mon;
     }
     return steedhit ? 1 : 0;
@@ -1233,9 +1237,8 @@ async function steedintrap(trap, otmp, env) {
 // C ref: trap.c trapeffect_pit() (1824-2010), monster arm (1966-2008).
 //
 // trapeffect_selector() dispatches both PIT and SPIKED_PIT here. The selector's
-// hero preflight still admits only the recursive PIT reached by a landmine, but
-// the complete monster arm and the source spike branches remain available to
-// their respective callers.
+// hero preflight admits both trap types, and the complete monster arm and
+// source spike branches remain available to their respective callers.
 async function trapeffect_pit(mtmp, trap, trflags, env) {
     const { state } = env;
     const random = env.random;
@@ -1410,13 +1413,12 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
     const mptr = mtmp.data;
     let fallverb = 'falls';
 
-    const airborne = !grounded(mptr, state);
-    // C ref: trap.c:1975. C reads the worm term only when the monster is on
-    // the ground; count_wsegs() is source-faithful in makemon_create.js.
-    if (!airborne && mtmp.wormno
-        && count_wsegs(mtmp, state) > 5)
-        unsupported('a long worm falling into a pit');
-    if (airborne) {
+    // C ref: trap.c:1975. The airborne and long-worm terms share one
+    // avoidance/forced/Sokoban branch; count_wsegs() is source-faithful in
+    // makemon_create.js and is evaluated only when wormno is nonzero.
+    const falling = !grounded(mptr, state)
+        || (mtmp.wormno && count_wsegs(mtmp, state) > 5);
+    if (falling) {
         if (forcetrap && !sokoban) {
             /* openfallingtrap; not inescapable here */
             if (in_sight) {
@@ -1940,9 +1942,6 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 // branch, and otherwise dispatches to domagictrap(). The 1/30 explosion
 // branch calls deltrap() and is refused.
 //
-// steedintrap() at line 2313 is effectively dead: preflight_dotrap() refuses
-// mounted heroes before the trap fires, so u.usteed is always null here.
-//
 async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
@@ -1959,9 +1958,9 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
         } else {
             await domagictrap(env);
         }
-        // C line 2313: (void) steedintrap(trap, (struct obj *) 0);
-        // preflight_dotrap() refuses mounted heroes, so u.usteed is null and
-        // steedintrap() would return 0 without side effects.
+        // C line 2313 discards steedintrap()'s return. An unmounted hero
+        // takes its no-op guard; a mounted hero gives the effect to its steed.
+        await steedintrap(trap, null, env);
         return Trap_Effect_Finished;
     }
     // C:2315-2317. Monsters usually resist magic traps; a zero roll turns the
@@ -2924,7 +2923,14 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
             | SCATTER_VIS_EFFECTS,
         null,
         state,
-        { ...env, random },
+        {
+            ...env,
+            random,
+            // explode.c scatter() reads `newsym`; the planning env exposes
+            // the same redraw operation under that seam.
+            newsym: env.newsym ?? env.redraw
+                ?? ((rx, ry) => newsym(rx, ry, state)),
+        },
     );
     del_engr_at(x, y, state);
     await wake_nearto(x, y, 400, env);
@@ -3110,12 +3116,9 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         if (inSight) {
             requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my);
             await message(
-                messageAt(
-                    `The air currents set ${alreadySeen ? 'a land mine' : 'it'} off!`,
-                    mtmp.mx,
-                    mtmp.my,
-                    state,
-                ),
+                // C uses pline_The(), which leaves the message unpositioned;
+                // this differs from the preceding pline_mon() line.
+                `The air currents set ${alreadySeen ? 'a land mine' : 'it'} off!`,
                 state,
                 env,
             );
@@ -3163,7 +3166,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
 // are absent because their hero arms are ported. ROCKTRAP is absent for the
 // mirror reason: its monster arm is ported and its own body refuses the hero
 // arm. PIT and SPIKED_PIT both dispatch to the complete trapeffect_pit() body;
-// ordinary hero preflight still admits only the recursive PIT path.
+// hero preflight admits those two trap types directly.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
     POLY_TRAP,
@@ -3234,28 +3237,26 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //
 // The stops, and what each of them needs:
 //   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, RUST_TRAP,
-//     LANDMINE, TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP -- its own
-//     trapeffect_*() arm;
+//     LANDMINE, PIT, SPIKED_PIT, TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP --
+//     its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a trap other than WEB the hero has already seen -- the "You step over
-//     ..." line at trap.c:3028 and the "You escape ..." line at :3039, and
-//     with it the one-in-five rn2(5) escape roll at :3038 that decides
-//     between them, plus Fumbling, conjoined_pits() and
-//     adj_nonconjoined_pit(), which are read nowhere else in dotrap();
-//   a mounted hero -- steedintrap() at trap.c:1276 (dart trap),
-//     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
-//     and steedintrap() at trap.c:2313 (magic trap);
+//   a trap other than WEB, PIT and SPIKED_PIT the hero has already seen -- the
+//     "You step over ..." line at trap.c:3028 and the "You escape ..." line at
+//     :3039 are outside those effects;
+//   a mounted hero -- s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509
+//     (bear trap), while steedintrap() handles the dart, gas, magic, landmine
+//     and pit arms admitted below;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
-    const recursivePit = trap.ttyp === PIT && (trflags & RECURSIVETRAP) !== 0;
+    const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
-        && trap.ttyp !== LANDMINE && !recursivePit
+        && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
         && trap.ttyp !== ROLLING_BOULDER_TRAP)
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
@@ -3276,15 +3277,19 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
             );
         }
     }
-    if (trap.tseen && trap.ttyp !== WEB && !recursivePit) {
+    if (trap.tseen && trap.ttyp !== WEB && trap.ttyp !== LANDMINE
+        && !pitTrap) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
         );
     }
-    if (state.u.usteed && trap.ttyp !== WEB) {
-        // trap.c:1276 (dart trap) calls steedintrap(); trap.c:1507-1511 (bear
-        // trap) names the steed through s_suffix(mon_nam()) and mbodypart();
-        // trap.c:2313 (magic trap) calls steedintrap().
+    if (state.u.usteed && trap.ttyp !== WEB
+        && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
+        && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
+        && !pitTrap) {
+        // trap.c:1507-1511 names a bear-trap steed through
+        // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call
+        // steedintrap() and are admitted above.
         throw new UnsupportedHeroMoveBoundaryError(
             trap.ttyp === BEAR_TRAP
                 ? 'a bear trap closing on a steed'
@@ -3300,11 +3305,8 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
 }
 
 // C ref: trap.c dotrap() (2995-3060). The hero's counterpart to mintrap():
-// hack.c spoteffects() calls it for the trap under the hero's feet.
-//
-// The seen-web escape branch includes C's forcebungle, plunged and Fumbling
-// gates. Its conjoined-pit, adjacent-pit and clinger terms are false for WEB.
-// Other seen trap types remain outside preflight_dotrap()'s admitted scope.
+// hack.c spoteffects() calls it for the trap under the hero's feet. The pit
+// and spiked-pit arms are admitted here because trapeffect_pit() is complete.
 export async function dotrap(trap, trflags, state = game) {
     // First, and before nomul(0): a refusal has to precede the state change,
     // not follow it.
@@ -3313,6 +3315,14 @@ export async function dotrap(trap, trflags, state = game) {
     const u = state.u;
     const ttype = trap.ttyp;
     const already_seen = trap.tseen;
+    const plunged = (trflags & TOOKPLUNGE) !== 0;
+    const conjPit = conjoined_pits(
+        trap,
+        t_at(state.u.ux0, state.u.uy0, state),
+        true,
+        state,
+    );
+    const adjPit = adj_nonconjoined_pit(trap, state);
     const env = heroTrapEnv(state);
     let flags = trflags;
     let forcetrap = (flags & FORCETRAP) !== 0 || (flags & FAILEDUNTRAP) !== 0;
@@ -3327,32 +3337,43 @@ export async function dotrap(trap, trflags, state = game) {
     /* KMH -- You can't escape the Sokoban level traps */
     if (state.level?.flags?.sokoban_rules
         && (is_pit(ttype) || is_hole(ttype))) {
-        // trap.c:3021-3023, the "Air currents pull you down" line, needs
-        // trapname(). It fires only for a pit or a hole, and preflight_dotrap()
-        // has already refused every type but BEAR_TRAP, so this cannot run.
-        env.unsupported('a Sokoban pit or hole');
+        // trap.c:3021-3023. TRUE forces "pit" for a hallucinating hero and
+        // trapname() keeps its display-RNG call in the source position.
+        await env.message(
+            `Air currents pull you down into ${a_your[Number(Boolean(trap.madeby_u))]}`
+                + ` ${trapname(ttype, true, state)}!`,
+            state,
+        );
         /* then proceed to normal trap effect */
     } else if (!forcetrap) {
         if (floor_trigger(ttype)
             && check_in_air(state.youmonst, flags, state)) {
-            // trap.c:3027-3032. A hero who floats or flies over an unseen trap
-            // triggers nothing and is told nothing; the "You step over ..."
-            // line for a seen one needs trapname() and is refused above.
-            if (already_seen) env.unsupported('stepping over a seen trap');
+            // trap.c:3027-3032. A hero who floats or flies over a seen trap
+            // is told so; an unseen trap is silently crossed.
+            if (already_seen) {
+                await env.message(
+                    `You ${u_locomotion('step', state)} over `
+                        + `${a_your[Number(Boolean(trap.madeby_u))]} `
+                        + `${trapname(ttype, false, state)}.`,
+                    state,
+                );
+            }
             return;
         }
-        if (already_seen) {
-            // C ref: trap.c:3035-3044. WEB is destroyable, is not ANTI_MAGIC,
-            // and cannot be a conjoined or adjacent pit. Other seen trap
-            // types remain outside preflight_dotrap()'s admitted scope.
-            const fumbling = u.uprops?.[FUMBLING];
-            if (!(fumbling?.intrinsic || fumbling?.extrinsic)
-                && !(flags & (FORCEBUNGLE | TOOKPLUNGE))
-                && !env.random.rn2(5)) {
-                await env.message(`You escape ${a_your[Number(Boolean(trap.madeby_u))]}`
-                    + ` ${trapname(ttype, false, state)}.`, state);
-                return;
-            }
+        const fumbling = u.uprops?.[FUMBLING];
+        const isFumbling = fumbling?.intrinsic || fumbling?.extrinsic;
+        if (already_seen && !isFumbling && !undestroyable_trap(ttype)
+            && ttype !== ANTI_MAGIC && !(flags & FORCEBUNGLE)
+            && !plunged && !conjPit && !adjPit
+            // C evaluates rn2(5) before checking the clinger exception.
+            && (!env.random.rn2(5)
+                || (is_pit(ttype) && is_clinger(state.youmonst.data)))) {
+            await env.message(
+                `You escape ${a_your[Number(Boolean(trap.madeby_u))]}`
+                    + ` ${trapname(ttype, false, state)}.`,
+                state,
+            );
+            return;
         }
     }
 
