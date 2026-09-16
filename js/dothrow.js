@@ -121,7 +121,6 @@ import {
     MM_IGNORELAVA,
     MM_IGNOREWATER,
     OBJ_MINVENT,
-    POTHIT_HERO_THROW,
     RLOC_MSG,
     engulfing_u,
     helpless,
@@ -334,7 +333,6 @@ import { doquiver_core, welded } from './wield.js';
 import { find_mac, is_pole, setuqwep } from './worn.js';
 import { bhit, miss } from './zap.js';
 import { hmon, passive_obj } from './uhitm.js';
-import { potionhit } from './potion.js';
 import { m_at } from './monst.js';
 import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';

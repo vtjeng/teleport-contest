@@ -39,11 +39,21 @@ import {
     isContainer,
     objectType,
 } from './obj.js';
-import { cxname, is_plural, otense, vtense, Yname2, yname } from './objnam.js';
+import {
+    cxname,
+    donameFresh,
+    is_plural,
+    otense,
+    the,
+    vtense,
+    xnameFresh,
+    Yname2,
+    yname,
+} from './objnam.js';
 import { hliquid } from './do_name.js';
 import { get_obj_location } from './light.js';
 import { game } from './gstate.js';
-import { obj_extract_self, obfree } from './invent.js';
+import { delobj, obj_extract_self, useupall } from './invent.js';
 import { discover_object } from './o_init.js';
 import {
     DRAGON_HIDE,
@@ -67,8 +77,9 @@ import { objectGenerationEnv } from './object_generation.js';
 import { note_unported } from './unported.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
-import { couldsee } from './vision.js';
+import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
+import { youSee } from './monmove.js';
 
 function propertyActive(hero, property) {
     const value = hero?.uprops?.[property];
@@ -263,7 +274,8 @@ function floorFireVisible(x, y, state) {
 }
 
 function fireChance(obj, force, state, random, chance) {
-    return force || (Math.trunc(state.u?.luck ?? state.luck ?? 0) + 5
+    const luck = (state.u?.uluck ?? 0) + (state.u?.moreluck ?? 0);
+    return force || (luck + 5
         <= random.rn2(chance));
 }
 
@@ -326,7 +338,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         }
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
-        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        delobj(obj, { ...rawEnv, state });
         return true;
     }
 
@@ -337,7 +349,12 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         if (obj.otyp === SCR_FIRE || obj.otyp === SPE_FIREBALL)
             return false;
         if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
-            if (visible) await message(`Smoke rises from ${yname(obj, state)}.`, state);
+            if (visible) {
+                await message(
+                    `Smoke rises from ${the(xnameFresh(obj, state), state)}.`,
+                    state,
+                );
+            }
             return false;
         }
         if (visible) {
@@ -346,7 +363,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         }
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
-        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        delobj(obj, { ...rawEnv, state });
         return true;
     }
     if (obj.oclass === POTION_CLASS) {
@@ -357,7 +374,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         }
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) setnotworn(obj, { ...rawEnv, state });
-        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
+        delobj(obj, { ...rawEnv, state });
         return true;
     }
 
@@ -370,7 +387,6 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
             ...rawEnv,
             state,
             random,
-            canSeeObject: () => visible,
         },
     );
     return result === ER_DESTROYED;
@@ -398,7 +414,7 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
         && obj.otyp !== FIRE_HORN
         && !obj.oerodeproof
         && !Has_contents(obj)) {
-        const visible = floorFireVisible(x, y, state);
+        const visible = cansee(x, y, state);
         if (visible) {
             const message = rawEnv.message ?? ttyPline;
             if (obj === state.gt?.thrownobj || obj === state.gk?.kickedobj) {
@@ -409,16 +425,27 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
                 );
             } else {
                 await message(
-                    `${Yname2(obj, state)} hit lava and burn up!`,
+                    youSee(
+                        `${donameFresh(obj, state)} hit lava and burn up!`,
+                        state,
+                    ),
                     state,
                 );
             }
         }
-        if (obj.owornmask) {
-            const { setnotworn } = await import('./worn.js');
-            setnotworn(obj, { ...rawEnv, state });
+        if (obj.where === OBJ_INVENT) {
+            if (obj.owornmask) {
+                const { setnotworn } = await import('./worn.js');
+                setnotworn(obj, { ...rawEnv, state });
+            }
+            useupall(obj, { ...rawEnv, state });
+        } else {
+            if (obj.owornmask) {
+                const { setnotworn } = await import('./worn.js');
+                setnotworn(obj, { ...rawEnv, state });
+            }
+            delobj(obj, { ...rawEnv, state });
         }
-        obfree(obj, null, objectGenerationEnv({ ...rawEnv, state }));
         return true;
     }
     return fire_damage(obj, true, x, y, { ...rawEnv, state, random });

@@ -120,6 +120,7 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
+    messageAt,
     sensesMonster,
 } from './startup_a11y.js';
 import { night } from './calendar.js';
@@ -275,8 +276,13 @@ export async function tamedog(
 
     if (giveMessage && !monster.mpeaceful && canSpotMonster(monster, state)) {
         await message(
-            `${Monnam(monster, state)} seems `
-            + `${heroHallucinating(state) ? 'really chill' : 'more amiable'}.`,
+            messageAt(
+                `${Monnam(monster, state)} seems `
+                    + `${heroHallucinating(state) ? 'really chill' : 'more amiable'}.`,
+                monster.mx,
+                monster.my,
+                state,
+            ),
             state,
         );
         giveMessage = false;
@@ -302,7 +308,7 @@ export async function tamedog(
             else note_unported('mhitu.c expels');
         } else if (!(Upolyd(state.u) && sticks(state.youmonst?.data))) {
             const { unstuck } = await import('./mon.js');
-            unstuck(monster, state, normalized);
+            await unstuck(monster, state, normalized);
         }
     }
 
@@ -323,9 +329,14 @@ export async function tamedog(
                         && (state.mons?.[obj.corpsenm]?.msize ?? 0)
                             > (monster.data?.msize ?? 0);
                     await message(
-                        `${Monnam(monster, state)} catches `
-                            + `${the(xnameFresh(obj, state), state)}`
-                            + `${bigCorpse ? ', or vice versa!' : '.'}`,
+                        messageAt(
+                            `${Monnam(monster, state)} catches `
+                                + `${the(xnameFresh(obj, state), state)}`
+                                + `${bigCorpse ? ', or vice versa!' : '.'}`,
+                            monster.mx,
+                            monster.my,
+                            state,
+                        ),
                         state,
                     );
                 } else if (cansee(monster.mx, monster.my, state)) {
@@ -385,8 +396,13 @@ export async function tamedog(
 
     if (giveMessage && canSpotMonster(monster, state)) {
         await message(
-            `${Monnam(monster, state)} seems `
-            + `${heroHallucinating(state) ? 'quite approachable' : 'quite friendly'}.`,
+            messageAt(
+                `${Monnam(monster, state)} seems `
+                    + `${heroHallucinating(state) ? 'quite approachable' : 'quite friendly'}.`,
+                monster.mx,
+                monster.my,
+                state,
+            ),
             state,
         );
     }

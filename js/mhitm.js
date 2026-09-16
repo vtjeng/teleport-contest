@@ -162,7 +162,7 @@ export async function slept_monst(mtmp, env = {}) {
         ?? (env.planning ? async () => {} : ttyPline);
     const name = Monnam(mtmp, state);
     await message(`${s_suffix(name)} grip relaxes.`, state, env);
-    unstuck(mtmp, state, env);
+    await unstuck(mtmp, state, env);
 }
 
 // The operations mhitm.c reaches that this file cannot import: the caller owns

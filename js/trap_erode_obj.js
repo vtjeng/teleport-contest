@@ -69,6 +69,7 @@ import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
+import { dist2 } from './hacklib.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -178,9 +179,9 @@ export class UnsupportedErosionError extends Error {
 // preserves the source owner instead of making floor callers invent erosion
 // messages or bypass the return value.
 //
-// EF_PAY (costly_alteration()) is live for do_wear.c destroy_arm(). Its
-// EF_DESTROY arm remains fail-closed at maximum erosion until the inventory
-// lifetime hooks for removing a worn object are ported.
+// EF_PAY (costly_alteration()) is live for do_wear.c destroy_arm(). The
+// EF_DESTROY arm clears worn state and delegates final lifetime cleanup to
+// invent.c delobj(), including its resistance and extraction behavior.
 export async function erode_obj(obj, description, type, flags, env) {
     if (!obj) return ER_NOTHING;
     // C's `uvictim`; `vismon` follows once the message operations resolve.
@@ -188,6 +189,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     const floorVictim = !uvictim
         && (obj.where === OBJ_FREE || obj.where === OBJ_FLOOR);
     if (!uvictim && !floorVictim
+        && !obj.owornmask
         && (obj.where !== OBJ_MINVENT || !obj.ocarry)) {
         throw new RangeError(
             'item erosion requires a carried object or a floor object',
@@ -205,11 +207,20 @@ export async function erode_obj(obj, description, type, flags, env) {
         canSeeMonster,
     )(obj.ocarry, state);
     const hit = state.gb?.bhitpos;
-    const visobj = floorVictim
+    let pool = false;
+    if (floorVictim && hit) {
+        const poolAt = env.poolAt
+            ?? (await import('./trap.js')).is_pool;
+        pool = await poolAt(hit.x, hit.y, state);
+    }
+    const visibleAtObject = floorVictim
         && (typeof env.canSeeObject === 'function'
             ? env.canSeeObject(obj, hit?.x, hit?.y, state)
-            : hit && cansee(hit.x, hit.y, state)
-                && (!env.poolAt || !env.poolAt(hit.x, hit.y, state)));
+            : hit && cansee(hit.x, hit.y, state));
+    const visobj = Boolean(visibleAtObject
+        && (!pool
+            || (Boolean(state.u?.uinwater)
+                && dist2(hit.x, hit.y, state.u.ux, state.u.uy) <= 2)));
     const visible = uvictim || vismon || visobj;
 
     // trap.c:202-206 and 218-222, inside the switch that also selects the
@@ -246,7 +257,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     // decay. `details.checkGrease` carries that third switch output, beside
     // the vulnerability test and the resistance damage type.
     if (details.checkGrease && (flags & EF_GREASE) && obj.greased) {
-        if (visible) {
+        if (uvictim || vismon) {
             await message(
                 `${possessive} ${name} ${verbFor(name, 'are')} `
                 + 'protected by the layer of grease!',
@@ -313,10 +324,7 @@ export async function erode_obj(obj, description, type, flags, env) {
 
     if (flags & EF_DESTROY) {
         // trap.c marks the object in use while its destruction message can
-        // pause.  Floor/free objects have no worn-state transition, so their
-        // complete source return and deletion are safe here; the remaining
-        // worn-item removal hook stays an explicit boundary for callers that
-        // have not supplied that owner yet.
+        // pause, then removes worn state before the canonical delobj().
         obj.in_use = true;
         if (visible) {
             const action = type === ERODE_CRACK
@@ -327,13 +335,30 @@ export async function erode_obj(obj, description, type, flags, env) {
                 state,
             );
         }
-        if (floorVictim && !obj.owornmask) {
-            delobj(obj, { ...env, state });
-            return ER_DESTROYED;
+        if (obj.owornmask) {
+            if (uvictim) {
+                // setnotworn() is the local owner for all hero equipment
+                // slots; it applies the same property and wield updates that
+                // remove_worn_item() dispatches before delobj().
+                const { setnotworn } = await import('./worn.js');
+                setnotworn(obj, { ...env, state });
+            } else if (vismon) {
+                const { extract_from_minvent } = await import('./worn.js');
+                extract_from_minvent(
+                    obj.ocarry,
+                    obj,
+                    true,
+                    false,
+                    { ...env, state },
+                );
+            } else {
+                // C's impossible() branch clears the mask before deleting a
+                // strangely worn object, preventing a second diagnostic.
+                obj.owornmask = 0;
+            }
         }
-        throw new UnsupportedErosionError(
-            'removing a maximally eroded worn item',
-        );
+        delobj(obj, { ...env, state });
+        return ER_DESTROYED;
     }
 
     if (verbose && print) {
