@@ -27,6 +27,7 @@ import {
     MSLOW,
     M_AP_FURNITURE,
     M_AP_OBJECT,
+    MAXNROFROOMS,
     NO_MINVENT,
     OBJ_MINVENT,
     OROOM,
@@ -5448,6 +5449,26 @@ function shopLevelState(shopIndex, dlevel = 2) {
     return state;
 }
 
+// C's `svr.rooms[]` stores subrooms after the top-level room allocation, while
+// this port persists them under their parent room. The tile keeps the C
+// conceptual room number, so a nested shop must still select its own rtype.
+function nestedShopLevelState(shopIndex, dlevel = 2) {
+    const state = shopLevelState(shopIndex, dlevel);
+    const parent = state.level.rooms[0];
+    const subroom = {
+        roomnoidx: MAXNROFROOMS + 1,
+        rtype: SHOPBASE + shopIndex,
+        nsubrooms: 0,
+        sbrooms: [],
+    };
+    parent.rtype = OROOM;
+    parent.nsubrooms = 1;
+    parent.sbrooms = [subroom];
+    state.subrooms = [subroom];
+    state.level.at(MON_X, MON_Y).roomno = ROOMOFFSET + subroom.roomnoidx;
+    return state;
+}
+
 // A small mimic is level seven, so makemon() rolls d(6, 8) after lowering it
 // for depth two. The gender draw follows because mimics are not neuter.
 function mimicCreationSteps() {
@@ -5538,6 +5559,23 @@ test('a shop mimic compares rn2(10) against the depth, not against two', () => {
     ]);
     const mimic = makeShopMimic(state, random.random);
     random.assertExhausted();
+    assert.equal(mimic.mappearance, STRANGE_OBJECT);
+});
+
+test('a nested shop mimic resolves its conceptual subroom type', () => {
+    // mklev.c add_subroom() gives this shop the conceptual room index after
+    // the top-level MAXNROFROOMS entries. C still reads that index from
+    // svr.rooms[] in set_mimic_sym(); the JS persisted parent graph must find
+    // the same room before selecting the shop arm.
+    const state = nestedShopLevelState(0);
+    const random = scriptedRandom([
+        ...mimicCreationSteps(),
+        step('rn2', [10], 2),
+        ...mimicInventoryTail(),
+    ]);
+    const mimic = makeShopMimic(state, random.random);
+    random.assertExhausted();
+    assert.equal(mimic.m_ap_type, M_AP_OBJECT);
     assert.equal(mimic.mappearance, STRANGE_OBJECT);
 });
 
