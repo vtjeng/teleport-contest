@@ -1,52 +1,60 @@
 {
   "session": "holdout/seed0398-wizard-wandpoly-pile",
-  "remainingScreensUpperBound": 42,
+  "remainingScreensUpperBound": 39,
   "status": "complete",
-  "commit": "0c5a3f37453813743aa387f0f861a4b523321d7d",
+  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
   "mismatch": {
     "session": "holdout/seed0398-wizard-wandpoly-pile",
-    "step": 45,
+    "step": 48,
     "kind": "stop",
-    "function": null,
+    "function": "zapsetup",
     "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "sourceFile": "zap.c",
+    "cFile": "zap.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero move: trap activation",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapsetup() and the immediate-wand arm of weffects()",
     "unlocatedKinds": [],
     "recordedSteps": 87,
-    "remainingScreensUpperBound": 42
+    "remainingScreensUpperBound": 39
   },
-  "summary": "At commit 0c5a3f37453813743aa387f0f861a4b523321d7d, the previously fixed unrestricted prompt no longer leads the queue; the first boundary is step 45. The hero's l move enters an unseen rust trap. C hack.c:spoteffects() triggers dotrap() and trap.c:trapeffect_rust_trap(); the recorded rn2(5)=3 selects the default body splash, emits 'A gush of water hits you!', and applies water/splash effects before continuing. JS requireSimpleHeroDestination() calls preflight_dotrap() and rejects rust before the move, while trapeffect_selector() also routes RUST_TRAP to the generic refusal. Port the whole source function (hero and monster arms), admit RUST_TRAP, and preserve C evaluation, random-call, and side-effect order.",
+  "summary": "At step 48 the command reaches zap.c weffects()'s IMMEDIATE arm for WAN_POLYMORPH. The old boundary names zapsetup(), but JavaScript still refuses the live weffects() arm before dispatch. The smallest actionable source family is weffects() with zapsetup()/zapwrapup() and the ZAPPED_WAND traversal (bhit(), zap_map(), bhitpile()) plus its bhitm()/bhito() callbacks; this witness reaches bhito() on the polymorph pile, so an annotation helper alone cannot complete the command.",
   "source": {
-    "file": "trap.c",
-    "branch": "The trap is RUST_TRAP and C's mtmp == &gy.youmonst hero arm is reached from an ordinary committed movement. In this recording the trap is unseen, Polly is an unpolymorphed human without flight or levitation, and the floor_trigger()/check_in_air() and seen-trap escape gates therefore pass. trap.c:1610 rn2(5)=3 selects the default body arm: it prints the water-hit message, splashes lit carried objects except the primary and secondary weapon, then forced-water-damages cloak, suit, or shirt and updates inventory. The source function's complete file-port scope also includes its head, left-arm, right-arm, and monster arms, including iron-golem death and gremlin split branches.",
-    "functions": ["trapeffect_rust_trap"],
+    "file": "zap.c",
+    "branch": "objects.h:1474-1475 marks WAN_POLYMORPH as IMMEDIATE. C weffects() (3431-3475) exercises wisdom, calls zapsetup(), then selects swallowed bhitm(), vertical zap_updown(), or lateral bhit() with rn1(8, 6), ZAPPED_WAND, bhitm and bhito callbacks, and always calls zapwrapup(). The assigned lateral replay enters bhit() (3827-4139), whose ZAPPED_WAND walk calls zap_map() before bhitpile(); bhitpile() calls bhito() for the floor pile and the WAN_POLYMORPH arm of bhito() tests obj_unpolyable()/obj_shudders(), then invokes do_osshock() or poly_obj(). zapwrapup() reports the feedback set by do_osshock() and clears it. The complete responsible scope therefore includes the immediate caller and traversal/callback family, not only zapsetup().",
+    "functions": [
+      "zapsetup",
+      "zapwrapup",
+      "weffects",
+      "bhit",
+      "zap_map",
+      "bhitpile",
+      "bhitm",
+      "bhito"
+    ],
     "callers": [
-      "nethack-c/upstream/src/hack.c:domove_core() -> spoteffects() (2712-2980, 3312-3401) calls dotrap() after a hero move onto a trap.",
-      "js/hack.js:domove_core() (4188) -> spoteffects() (4936-4973) calls dotrap() after movement; requireSimpleHeroDestination() (1553-1554) preflights the destination trap before movement commits.",
-      "nethack-c/upstream/src/trap.c:dotrap() (2996-3060) and trapeffect_selector() (2937-2992) dispatch the hero arm; js/trap_effects.js:dotrap() (2266-2319) and trapeffect_selector() (2152-2185) are their production counterparts.",
-      "nethack-c/upstream/src/monmove.c:postmov() (1509, 1734) calls mintrap() for a monster on a trap; js/monmove.js postmov()/m_move() (3101-3112, 3318-3336) supplies the monster-arm caller.",
-      "js/teleport.js:teleds() (1515-1566) shares requireSimpleHeroDestination() and spoteffects() for teleported heroes that arrive on a trap."
+      "nethack-c/upstream/src/zap.c:weffects() (3431-3475) is the live caller: it calls zapsetup() at 3441, dispatches bhitm()/zap_updown()/bhit() at 3442-3449, and calls zapwrapup() at 3451. js/zap.js:2676-2700 is the production caller and still raises UnsupportedZapError in the IMMEDIATE arm at 2693-2699.",
+      "nethack-c/upstream/src/zap.c:bhit() (3827-4139) is consumed by the lateral weffects() call with ZAPPED_WAND and must admit that call type; it calls zap_map() and bhitpile(), which in turn dispatch bhito() for floor objects and bhitm() for monsters. js/zap.js:1246-1263 currently admits only THROWN_WEAPON and rejects callbacks, so wiring weffects() alone reaches a second refusal.",
+      "nethack-c/upstream/src/cmd.c command table (2004-2005) maps z to dozap(); js/cmd.js:3293-3299 and 5063-5064 dispatch the recorded z command to js/zap.js:674-738 dozap() -> weffects(). This is the assigned production entry point.",
+      "nethack-c/upstream/src/apply.c:do_break_wand() (3950-4050) is the other C caller of zapsetup(), at 4034, after the explosion and before object effects. js/apply.js:1252-1253 still refuses do_break_wand(); it must be included when claiming zapsetup() completion for all callers or remain an explicitly separate blocked caller, rather than being silently treated as wired."
     ],
     "dependencies": [
-      "trap.c:seetrap(), water_damage(), splash_lit(), update_inventory(), and split_mon() supply the hero effect's reveal, item-damage, light-extinguishing, inventory, and gremlin branches; C losehp()/Maybe_Half_Phys() and JS hack.js equivalents supply the iron-golem branch.",
-      "js/trap_effects.js:seetrap(), body_part(), worn.which_armor(), and objnam helm_simple_name()/gloves_simple_name()/cloak_simple_name()/suit_simple_name() provide existing trap, body, equipment, and message helpers.",
-      "js/trap_water_damage.js:water_damage() is the existing hero item-water owner but still fail-closes unported lit-item and several water branches; water_damage_monster_equipment() (37-75) is the existing forced monster-equipment adapter, with js/trap_erode_obj.js:erode_obj() and js/apply_splash_lit.js:splash_monster_light() beneath it.",
-      "js/mondata.js:completelyrusts() (1600-1602) and js/mon.js:monkilled() (4621-4668) cover the monster iron-golem death test; split_mon() remains an explicitly unported C dependency for gremlins and must be recorded as a discarded-result gap if not in scope.",
-      "js/trap_effects.js:UNPORTED_TRAP_EFFECTS (2128-2136) and preflight_dotrap() (2211-2216) are the admission/refusal guards that must be updated together with selector dispatch."
+      "nethack-c/upstream/include/decl.h:753 and src/decl.c:614 define and initialize go.obj_zapped. js has no current zapsetup()/zapwrapup() or obj_zapped field; keep the flag in the shared state.go object and reset it before and after every admitted immediate effect.",
+      "nethack-c/upstream/src/zap.c:160-610 bhitm() is the monster callback supplied by weffects(), and zap.c:2119-2426 bhito() is the object callback. The assigned pile path consumes bhito(), while bhitm() remains a required sibling branch of the complete immediate family; do not replace either callback with a fabricated random call or a no-op.",
+      "nethack-c/upstream/src/zap.c:2428-2537 bhitpile() owns floor-pile iteration and mutation-safe next_obj traversal; zap.c:3628-3825 zap_map() runs before each ZAPPED_WAND target. Neither helper is declared in current js/zap.js, so a bhit() call-type check cannot be the endpoint.",
+      "nethack-c/upstream/src/zap.c:1476-1499 obj_shudders(), 1637-1674 do_osshock(), 1678-1683 obj_unpolyable(), and 1702-2426 poly_obj() are consumed by bhito() WAN_POLYMORPH. They account for the assigned step's obj_resists/obj_shudders/mkobj/do_osshock draws and the go.obj_zapped feedback; source-returning or state-changing callees must be ported or explicitly recorded as dependencies before this entry point can match.",
+      "nethack-c/upstream/src/zap.c:3087-3217 zap_steed() and 3219-3410 zap_updown() are sibling weffects() IMMEDIATE branches, while zap.c:2539-3085 zapnodir() and 2419-2537 zap_dig()/their callers cover existing other oc_dir cases. The assigned replay is lateral, but a whole weffects() port must preserve these conditions and their caller contracts.",
+      "The source result of bhit() is discarded by weffects(), but its side effects are the command behavior: gb.bhitpos, zap_map terrain handling, pile callbacks, and the later zapwrapup() message. Skipping the call with note_unported() would leave this session stopped and is not an actionable completion for the assigned boundary."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/scan-cache.json is a current-commit scan for 0c5a3f37453813743aa387f0f861a4b523321d7d; its holdout/seed0398-wizard-wandpoly-pile row has screensEmitted 45, recordedSteps 87, key l, boundary unsupported hero move: trap activation, and remainingScreensUpperBound 42.",
-    "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json segments[0].steps[45] records key l, the C message A gush of water hits you!, rn2(5)=3 at trapeffect_rust_trap(trap.c:1610), and the post-trap movement RNG calls. stopContext.inputThroughStop ends with the six drop moves followed by l, so no polymorph, flight, or levitation setup precedes the trap.",
-    "nethack-c/upstream/src/trap.c:1594-1727 defines trapeffect_rust_trap(); its hero arm calls seetrap(), draws rn2(5), selects the recorded default arm at 1628-1644, updates inventory, and then handles iron-golem and gremlin post-effects. trap.c:2937-2992 dispatches RUST_TRAP through trapeffect_selector().",
-    "js/trap_effects.js:2128-2136 lists RUST_TRAP in UNPORTED_TRAP_EFFECTS, :2184 raises unsupported('trap activation') for it, and :2211-2216 rejects every hero trap type except the six currently admitted types before movement. js/hack.js:1549-1554 calls this preflight at the destination, explaining why the refusal precedes C's movement and trap message.",
-    "nethack-c/upstream/src/hack.c:3312-3401 and js/hack.js:4936-4973 establish the production spoteffects() ordering (ordinary pickup before dotrap); js/hack.js:4187-4188 and js/teleport.js:1515-1566 identify the movement and teleport callers. The matched step-45 C trace therefore attributes the boundary to the rust-trap effect, not to the later zap.c wand-of-polymorph pile path at step 48.",
-    "scripts/trap-water-damage.test.mjs covers the existing water_damage_monster_equipment() missing-target, light-splash, grease, and forced-erosion behavior, while recordings/mon.c/rust-monster-eats-mace-span.session.json covers a separate rust-monster object path. No existing recordings/trap.c rust-trap recording was found, so a later span needs an independent hero entry-point recipe and matching recording.",
-    "The stale count-59 cache's topl.c:tty_yn_function() source trace is retained only as prior provenance: commit c0249c50 carries the unrestricted-prompt retention fix, and the current scan no longer reports that step-28 issue."
+    ".cache/investigate-seed0398-18a563/replay.json records the assigned bounded replay at commit 18a56313c56723cde906c27449d0fc2c6c085bf0: screensEmitted=48, recordedSteps=87, divergence=null, boundary=unsupported hero command ... zapsetup() and the immediate-wand arm of weffects(), key h, command movewest, keyCursor answer, and expected message You feel shuddering vibrations. The replay used only the assigned session.",
+    "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json steps[48] is the first z answer (h) and records rn2(19)=12 at exercise(attrib.c:509), rn2(8)=6 at weffects(zap.c:3448), then obj_resists/obj_shudders/mkobj/poly-object draws including do_osshock(zap.c:1650). Its top line is You feel shuddering vibrations.; this proves the live command needs the immediate traversal and polymorph pile callbacks after the range draw, not only the setup assignment.",
+    "nethack-c/upstream/src/zap.c:3413-3418 defines zapsetup() as go.obj_zapped = FALSE; :3421-3427 defines zapwrapup() and its message/reset; :3431-3475 defines weffects() and its setup, ZAPPED_WAND bhit() dispatch, and wrapup order. nethack-c/upstream/src/zap.c:2119-2426 defines bhito(), :2428-2537 defines bhitpile(), and :3827-4139 defines bhit().",
+    "At the examined commit js/zap.js:2693-2699 refuses the entire IMMEDIATE arm before setup or traversal; js/zap.js:1246-1263 refuses bhit() call types other than THROWN_WEAPON and callback arguments, and no current js/zap.js declarations exist for zap_map(), bhitpile(), bhitm(), bhito(), or zapwrapup(). js/apply.js:1252-1253 independently refuses do_break_wand().",
+    "The parked old-branch commit bd877c7b only adds zapsetup() and its weffects() assignment, then retains the IMMEDIATE refusal; it is not an ancestor of the examined commit and is provenance for the helper shape, not active ownership or runtime completion. The refined scope must therefore carry the live weffects() caller and consumed traversal/callback family.",
+    "The source owner is C zap.c; no Lua program is involved. This cache establishes a file-port goal for the immediate-wand family and names the second do_break_wand() caller as a separate required dependency. It does not claim implementation, matching recordings, or completion of any downstream helper."
   ],
-  "nextProbe": "Port trap.c:trapeffect_rust_trap() as one source unit, remove RUST_TRAP from the selector refusal set, and admit it in preflight_dotrap() while retaining C's trap gates. Replay this session through step 45 to verify the rn2(5)=3 default splash, item effects, screen/cursor, and downstream RNG; then continue through step 48's wand-of-polymorph pile behavior. Add an independent hero rust-trap recipe and recording for source completion evidence."
+  "nextProbe": "Open a zap.c file-port span for weffects(), zapsetup(), zapwrapup(), and the ZAPPED_WAND bhit()/zap_map()/bhitpile()/bhitm()/bhito() family, carrying the WAN_POLYMORPH object helpers required by the assigned pile path. Wire dozap() -> weffects() in the same span and either include do_break_wand() or keep its second zapsetup() caller explicitly blocked. Replay through the first h, then source-trace any newly exposed object helper; do not close the span after adding only the setup annotation."
 }
