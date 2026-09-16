@@ -66,8 +66,8 @@ const PROMPT_TERMINATORS = new Set(['\r', '\n']);
 
 const EXTENDED_COMMAND_KEY = '#';
 
-// Version 2 keeps gap and input-exhaustion observations in their own segment.
-const SCAN_CACHE_VERSION = 2;
+// Version 3 compares each complete segment before classifying input exhaustion.
+const SCAN_CACHE_VERSION = 3;
 
 function repositoryHead(root) {
     return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root })
@@ -523,12 +523,25 @@ async function replaySession(file, data, replaySegment) {
         const segmentScreens = segmentScreenList.length;
         const segmentUnported = segmentGame.getUnported?.() ?? [];
         for (const fn of segmentUnported) unported.add(fn);
+        // Recordings can end at an input prompt. Exact agreement with that
+        // segment, including stream lengths, distinguishes its normal end
+        // from input consumed after a skipped callee changed the replay.
+        const recordingMatched = !boundary && compareSessionOutputs(
+            { version: 5, segments: [segment] },
+            {
+                rng: segmentGame.getRngLog?.() ?? [],
+                screens: segmentScreenList,
+                cursors: segmentGame.getCursors?.() ?? [],
+                animFrames: segmentGame.getAnimationFramesByStep?.() ?? [],
+            },
+        ).passed;
         // A gap in one game cannot explain input exhaustion in another.
         // Capture both before the next segment resets the game singleton.
         segmentEndStates.push({
             segment: segmentIndex,
             unported: segmentUnported,
             inputExhausted: Boolean(segmentGame.getInputExhausted?.()),
+            recordingMatched,
         });
         const steps = segment.steps || [];
         const contextFor = (inputThroughStop) => ({

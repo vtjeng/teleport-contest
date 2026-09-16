@@ -133,7 +133,7 @@ test('scan refreshes an older cache schema even at the same commit', async (t) =
     const f = scanCacheFixture(t);
     await loadScanRows(f.root, f.replay);
     const cached = JSON.parse(readFileSync(f.cache, 'utf8'));
-    // The immediately preceding schema has only session-wide end state.
+    // The preceding schema lacks complete per-segment comparison evidence.
     cached.version -= 1;
     writeFileSync(f.cache, JSON.stringify(cached));
     await loadScanRows(f.root, f.replay);
@@ -638,4 +638,51 @@ test('a replay exception retains corpus size without inventing a failure step', 
     assert.equal(row.divergence, null);
     assert.match(row.boundary, /missing source operation/);
     assert.match(row.scanError, /Error: missing source operation/);
+});
+
+test('input exhaustion is matched only by complete output in that segment', async (t) => {
+    const recorded = {
+        steps: [{ screen: 'Prompt', cursor: [6, 0, 1],
+            rng: ['rn2(2)=1 @ example.c:1'],
+            animation_frames: [{ screen: 'Animation' }] }],
+    };
+    const complete = {
+        screens: ['Prompt'], cursors: [[6, 0, 1]],
+        rng: ['0 rn2(2)=1'], animFrames: [[{ screen: 'Animation' }]],
+    };
+    const cases = [
+        ['matching prompt', {}, true],
+        ['different screen', { screens: ['Other prompt'] }, false],
+        ['extra screen', { screens: ['Prompt', 'Extra'] }, false],
+        ['missing screen', { screens: [] }, false],
+        ['different cursor', { cursors: [[7, 0, 1]] }, false],
+        ['extra cursor', { cursors: [[6, 0, 1], [6, 0, 1]] }, false],
+        ['different RNG', { rng: ['0 rn2(2)=0'] }, false],
+        ['extra RNG', { rng: ['0 rn2(2)=1', '1 rn2(2)=0'] }, false],
+        ['missing RNG', { rng: [] }, false],
+        ['different animation', { animFrames: [[{ screen: 'Other' }]] }, false],
+        ['missing animation', { animFrames: [[]] }, false],
+    ];
+    for (const [name, changed, expected] of cases) {
+        await t.test(name, async () => {
+            let segment = 0;
+            const row = await scanRecordedSession('prompt.session.json',
+                { segments: [recorded, recorded] }, async () => {
+                    const output = segment++ === 0
+                        ? { ...complete, ...changed } : complete;
+                    return {
+                        getScreens: () => output.screens,
+                        getCursors: () => output.cursors,
+                        getRngLog: () => output.rng,
+                        getAnimationFramesByStep: () => output.animFrames,
+                        getUnported: () => ['trap.c selftouch'],
+                        getInputExhausted: () => true,
+                    };
+                });
+            assert.equal(row.scanError, undefined);
+            assert.deepEqual(row.segmentEndStates.map(end => end.recordingMatched),
+                [expected, true]);
+            assert.deepEqual(row.segmentEndStates[0].unported, ['trap.c selftouch']);
+        });
+    }
 });

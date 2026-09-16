@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
 // Flags segments that both skipped an unported callee (note_unported) and
-// consumed all input before attempting an extra read. This combination needs
-// investigation; it does not prove the skipped call caused the extra read.
-// The scorer's playability runner blocks on that extra read instead of
-// throwing, so catching it here
-// avoids a 45-second timeout per affected session during scoring.
+// consumed all input before attempting an extra read without matching the
+// complete recorded segment. This combination needs investigation; it does
+// not prove the skipped call caused the extra read. A matching recording may
+// end at a prompt, where the scorer's playability runner catches QueueEmpty.
 //
 // Reads the scan cache (.cache/scan-cache.json) rather than replaying
 // sessions, so it runs in milliseconds. A stale cache (different HEAD)
@@ -32,7 +31,8 @@ export function checkOverReads(rows) {
                 + 'rerun node scripts/scan-sessions.mjs --json');
         }
         for (const end of row.segmentEndStates) {
-            if (end.unported?.length > 0 && end.inputExhausted) {
+            if (end.unported?.length > 0 && end.inputExhausted
+                && end.recordingMatched !== true) {
                 flagged.push({
                     session: row.file,
                     segment: end.segment,

@@ -45,6 +45,19 @@ describe('checkOverReads', () => {
         assert.equal(checkOverReads(rows).length, 0);
     });
 
+    test('accepts a matching segment ending at a prompt but retains mismatches', () => {
+        const rows = [{ file: 'prompt.session.json', segmentEndStates: [
+            { segment: 0, unported: ['trap.c selftouch'],
+                inputExhausted: true, recordingMatched: true },
+            { segment: 1, unported: ['sit.c dosit'],
+                inputExhausted: true, recordingMatched: false },
+        ] }];
+        assert.deepEqual(checkOverReads(rows), [{
+            session: 'prompt.session.json', segment: 1,
+            unported: ['sit.c dosit'],
+        }]);
+    });
+
     test('does not combine a gap with another segment\'s input exhaustion', () => {
         // The old session-wide union flagged this combination. Only the first
         // segment skipped a callee; only the second exhausted its input.
