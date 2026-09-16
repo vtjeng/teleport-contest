@@ -199,8 +199,11 @@ asking it to search the same unchanged queue.
    `SCORE.tsv` row following `.agents/scoring.md`. Before closing a source
    goal, verify every entry point, evaluate frozen challenge set v1, append
    the goal score, and close with the current saved development scan.
-   Commit closure and investigation updates together without an intervening
-   change to checkpoint inputs. Record a multi-span goal's active intervals
+   Finish the closure commands while HEAD still names the tested commit.
+   Then commit the closure records, investigation updates, and new challenge
+   reports together. The publication check verifies these report-only changes;
+   keep code and test-input changes in a separately validated delivery.
+   Record a multi-span goal's active intervals
    so another delivery's gains are not credited to it. If the goal needs more
    spans, keep it open only while integrating that goal; otherwise park it
    before another goal's measurement. Its worker can continue independently.
@@ -299,6 +302,11 @@ recovery watchdog and use a short interval when idle. End the loop with
 context is not a reason to stop.
 
 ## Background investigations
+
+Whenever an investigator finishes or capacity becomes available, use the
+saved queue to start the next eligible investigation. Check that queue before
+leaving a worker idle. During the ten-minute recovery check, also look for
+queued investigations that have no owner. These checks do not require a new scan.
 
 At loop entry and after each queue refresh, use the per-session order and
 cache rules in `.agents/selection.md`. For every mismatching session without

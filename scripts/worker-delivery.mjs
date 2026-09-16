@@ -7,7 +7,9 @@ import { closeSync, existsSync, fsyncSync, mkdirSync, openSync,
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { validatePortEvidence } from './port-evidence.mjs';
-import { executionTree } from './checkpoint-reuse.mjs';
+import { BOOKKEEPING_FILES, executionTree } from './checkpoint-reuse.mjs';
+import { validInvestigation } from './investigation-cache.mjs';
+import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
 
 function check(value, message) {
     if (!value) throw new Error(message);
@@ -171,6 +173,34 @@ export function resolveEventCommits(root, input) {
     return event;
 }
 
+function verifyPublicationChanges(root, tested, published) {
+    // Keep checkpoint reuse conservative. Publication alone permits checked
+    // reports written after closure; the original tested commit stays intact.
+    if (executionTree(root, tested) === executionTree(root, published)) return;
+    const paths = git(root, 'diff', '--name-only', '--no-renames', '-z', tested, published)
+        .split('\0').filter(Boolean);
+    for (const path of paths) {
+        if (BOOKKEEPING_FILES.includes(path)) continue; // executionTree already checked modes.
+        const investigation = /^investigations\/((?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*)\.json$/u.exec(path);
+        const evaluation = /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(path);
+        check(investigation || evaluation, `published commit has unvalidated changes: ${path}`);
+        const entry = git(root, 'ls-tree', '-z', published, '--', path);
+        check(entry.startsWith('100644 blob '), `publication report must be a regular non-executable file: ${path}`);
+        const report = json(root, published, path);
+        if (investigation) {
+            check(validInvestigation(report, investigation[1]), `invalid investigation report: ${path}`);
+            check(isAncestor(root, report.commit, tested), `investigation source commit is outside tested history: ${path}`);
+        } else {
+            check(!git(root, 'ls-tree', '-z', tested, '--', path), `challenge evaluations are immutable: ${path}`);
+            validateEvaluation(report);
+            check(report.sha === tested, `challenge evaluation must identify the tested integration: ${path}`);
+            const manifest = json(root, tested, 'challenges/manifest.json');
+            check(corpusDigest(manifest.cases) === report.manifestSha256,
+                `challenge evaluation membership differs from the tested manifest: ${path}`);
+        }
+    }
+}
+
 export function verifyEvent(root, state, input) {
     const event = resolveEventCommits(root, input);
     const task = state.tasks[event.task];
@@ -200,8 +230,7 @@ export function verifyEvent(root, state, input) {
     }
     if (event.type === 'published') {
         check(delivery && isAncestor(root, delivery.integration, event.commit), 'published commit must contain accepted integration');
-        check(executionTree(root, delivery.integration) === executionTree(root, event.commit),
-            'published commit has unvalidated changes beyond checkpoint bookkeeping');
+        verifyPublicationChanges(root, delivery.integration, event.commit);
         check(resolveCommit(root, 'refs/heads/main') === event.commit, 'local main differs; run sync-main first');
         const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
         check(remote === event.commit, 'remote main does not match; publish successfully before recording publication');

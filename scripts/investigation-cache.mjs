@@ -6,7 +6,7 @@ import { join } from 'node:path';
 const text = value => typeof value === 'string' && value.trim().length > 0;
 const texts = value => Array.isArray(value) && value.every(text);
 
-function validRecord(record, session) {
+export function validInvestigation(record, session) {
     if (!record || record.session !== session
         || !Number.isInteger(record.remainingScreensUpperBound)
         || record.remainingScreensUpperBound < 0
@@ -39,7 +39,7 @@ export function readInvestigation(root, entry) {
     } catch (error) {
         return { status: error.code === 'ENOENT' ? 'missing' : 'invalid', path };
     }
-    if (!validRecord(record, entry.session)) return { status: 'invalid', path };
+    if (!validInvestigation(record, entry.session)) return { status: 'invalid', path };
     if (record.remainingScreensUpperBound !== entry.remainingScreensUpperBound) {
         return { status: 'stale', path,
             previousRemainingScreensUpperBound: record.remainingScreensUpperBound };

@@ -76,6 +76,12 @@ competition holdout is outside this workspace.
   off that result. `scripts/checkpoint-reuse.mjs` excludes only its named
   bookkeeping files; any other intervening commit requires another exact-HEAD
   checkpoint even when it changes no game behavior.
+- Finish closure commands at the tested HEAD before committing report-only
+  updates. The worker tracker's publication check permits regular JSON
+  investigation files and newly added challenge evaluations after acceptance.
+  It checks their format and source commits; challenge evaluations must match
+  the tested commit and its manifest. This does not change checkpoint caching
+  or authorize changes to code, tests, recipes, recordings, or challenge inputs.
 - Use the tested commit's shared summary and its `artifacts` directory. Its
   development figures replace a separate score-development run for that
   commit. The summary records which commit the results apply to (`commit`)

@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { copiedRecipe } from './worker-delivery.mjs';
+import { corpusDigest } from './challenge-results.mjs';
+import { executionTree } from './checkpoint-reuse.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
 
@@ -292,6 +294,135 @@ test('recipe comparison ignores renamed metadata but not independently chosen mo
     const fixed = { seed: 360, moves: 'hhjjkkll' }; // Reproduce the observed same-seed/same-route defect.
     assert.equal(copiedRecipe({ ...fixed, datetime: '20000101120000', name: 'new' }, fixed), true);
     assert.equal(copiedRecipe({ ...fixed, moves: 'jj' }, fixed), false);
+});
+
+function reportPublication(t, withSavedReports = false) {
+    const f = fixture(t); f.assign(); f.artifacts(); const delivered = f.commit();
+    f.success(f.submitArgs, f.workers.A);
+    f.event({ type: 'received', task: 'A-1', delivery: delivered });
+    f.git(f.root, 'merge', '--ff-only', delivered);
+    // One immutable synthetic case makes membership checks independent of totals.
+    const cases = [{ id: 'sample', recordingSha256: 'a'.repeat(64) }];
+    mkdirSync(join(f.root, 'challenges'));
+    writeFileSync(join(f.root, 'challenges/manifest.json'), JSON.stringify({ version: 1, cases }));
+    f.git(f.root, 'add', 'challenges/manifest.json'); f.git(f.root, 'commit', '-qm', 'tested challenge fixture');
+    let tested = f.git(f.root, 'rev-parse', 'HEAD');
+    const investigation = {
+        session: 'fixed', remainingScreensUpperBound: 1, status: 'partial', commit: tested,
+        mismatch: { session: 'fixed', remainingScreensUpperBound: 1 },
+        summary: 'One remaining synthetic step needs source investigation.', evidence: ['sample.c:sample'],
+    };
+    // One fully matching screen/RNG/cursor gives explicit, independently readable totals.
+    const count = { matched: 1, total: 1 };
+    const evaluation = {
+        version: 1, sha: tested, utc: '2026-01-01T00:00:00Z', status: 'complete',
+        manifestSha256: corpusDigest(cases), scorerSha256: 'b'.repeat(64),
+        cases: [{ ...cases[0], passed: true, metrics: { screens: count, rng: count, cursors: count } }],
+        totals: { sessions: count, screens: count, rng: count, cursors: count },
+    };
+    const save = (path, value) => {
+        mkdirSync(join(f.root, path, '..'), { recursive: true });
+        writeFileSync(join(f.root, path), typeof value === 'string' ? value : JSON.stringify(value));
+        f.git(f.root, 'add', path);
+    };
+    if (withSavedReports) {
+        save('investigations/fixed.json', investigation);
+        save('challenges/evaluations/earlier.json', evaluation);
+        f.git(f.root, 'commit', '-qm', 'previous reports fixture');
+        tested = f.git(f.root, 'rev-parse', 'HEAD');
+        investigation.commit = tested;
+        evaluation.sha = tested;
+    }
+    f.event({ type: 'integrating', task: 'A-1', integration: tested });
+    const summary = join(f.parent, 'report-pass.json');
+    const receipt = JSON.stringify({ commit: tested, allPassed: true });
+    writeFileSync(summary, receipt);
+    f.event({ type: 'validated', task: 'A-1', passed: true, checkpoint: summary });
+    f.event({ type: 'accepted', task: 'A-1' });
+    const remote = join(f.parent, 'remote.git');
+    f.git(f.parent, 'init', '--bare', '-q', remote); f.git(f.root, 'remote', 'add', 'origin', remote);
+    const publish = () => {
+        f.git(f.root, 'commit', '-qm', 'post-checkpoint fixture');
+        const commit = f.git(f.root, 'rev-parse', 'HEAD');
+        f.git(f.root, 'push', '-q', 'origin', 'main'); // Local disposable remote only.
+        return f.event({ type: 'published', task: 'A-1', commit });
+    };
+    return { ...f, tested, delivered, summary, receipt, investigation, evaluation, save, publish };
+}
+
+test('publication accepts checked reports without changing the tested receipt or checkpoint inputs', (t) => {
+    const f = reportPublication(t);
+    f.save('investigations/fixed.json', f.investigation);
+    f.save('investigations/holdout/fixed.json', { ...f.investigation, commit: f.base, session: 'holdout/fixed',
+        mismatch: { ...f.investigation.mismatch, session: 'holdout/fixed' } });
+    f.save('challenges/evaluations/after-checkpoint.json', f.evaluation);
+    f.save('SCORE.tsv', 'fixture closure bookkeeping\n');
+    const state = f.publish();
+    assert.ok(state.deliveries[f.delivered].publishedAt);
+    assert.equal(state.deliveries[f.delivered].integration, f.tested);
+    assert.equal(readFileSync(f.summary, 'utf8'), f.receipt);
+    // Publication's report allowance must not broaden checkpoint-cache reuse.
+    assert.notEqual(executionTree(f.root, f.tested), executionTree(f.root, 'HEAD'));
+});
+
+test('publication permits refreshing an existing investigation while preserving old evaluations', (t) => {
+    const f = reportPublication(t, true);
+    f.save('investigations/fixed.json', { ...f.investigation, summary: 'Source probe now identifies the next branch.' });
+    assert.ok(f.publish().deliveries[f.delivered].publishedAt);
+});
+
+test('publication cannot overwrite or delete a saved challenge evaluation', async (t) => {
+    for (const action of ['overwrite', 'delete']) await t.test(action, t => {
+        const f = reportPublication(t, true); const before = readFileSync(f.file, 'utf8');
+        if (action === 'overwrite') f.save('challenges/evaluations/earlier.json', f.evaluation);
+        else f.git(f.root, 'rm', 'challenges/evaluations/earlier.json'); // Disposable fixture artifact only.
+        assert.throws(f.publish, /immutable|regular/i);
+        assert.equal(readFileSync(f.file, 'utf8'), before);
+    });
+});
+
+test('publication rejects unsafe report changes and every other post-checkpoint input', async (t) => {
+    // Each mutation must fail before a published event is appended. Fixtures
+    // deliberately isolate format, provenance, mode, and non-report path guards.
+    const cases = [
+        ['malformed JSON', f => f.save('investigations/fixed.json', '{'), /JSON|investigation/i],
+        ['wrong investigation ID', f => f.save('investigations/fixed.json', { ...f.investigation, session: 'other' }), /investigation/i],
+        ['unknown source commit', f => f.save('investigations/fixed.json', { ...f.investigation, commit: 'f'.repeat(40) }), /commit|ancestor|revision/i],
+        ['unaccepted source commit', f => {
+            // A real but unmerged child must not qualify as tested history.
+            const child = f.git(f.root, 'commit-tree', `${f.tested}^{tree}`, '-p', f.tested, '-m', 'unaccepted source');
+            f.save('investigations/fixed.json', { ...f.investigation, commit: child });
+        }, /tested history/i],
+        ['wrong measured commit', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, sha: f.base }), /tested|integration/i],
+        ['invalid totals', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, totals: {} }), /totals/i],
+        ['different challenge membership', f => f.save('challenges/evaluations/new.json', {
+            ...f.evaluation, cases: [], manifestSha256: corpusDigest([]), totals: {
+                sessions: { matched: 0, total: 0 }, screens: { matched: 0, total: 0 },
+                rng: { matched: 0, total: 0 }, cursors: { matched: 0, total: 0 },
+            },
+        }), /manifest|membership/i],
+        ['executable report', f => {
+            f.save('investigations/fixed.json', f.investigation);
+            chmodSync(join(f.root, 'investigations/fixed.json'), 0o755); // Executable files are never reports.
+            f.git(f.root, 'add', 'investigations/fixed.json');
+        }, /regular|executable|mode/i],
+        ['symlink report', f => {
+            mkdirSync(join(f.root, 'investigations'));
+            symlinkSync('../QUALITY.json', join(f.root, 'investigations/fixed.json'));
+            f.git(f.root, 'add', 'investigations/fixed.json');
+        }, /regular|symlink|mode/i],
+        ...['js/sample.js', 'scripts/sample.test.mjs', 'recipes/new.json', 'recordings/new.json',
+            'challenges/manifest.json', 'challenges/cases/new.json', 'investigations/code.js',
+            'investigations/nested/report.json', 'challenges/evaluations/code.js'].map(path =>
+            [path, f => f.save(path, 'changed input\n'), /unvalidated changes/i]),
+    ];
+    for (const [name, change, error] of cases) await t.test(name, t => {
+        const f = reportPublication(t); const before = readFileSync(f.file, 'utf8');
+        change(f);
+        assert.throws(f.publish, error);
+        assert.equal(readFileSync(f.file, 'utf8'), before);
+        assert.equal(readFileSync(f.summary, 'utf8'), f.receipt);
+    });
 });
 
 test('repairing an earlier submission excludes the next task and unblocks its dependent delivery', (t) => {

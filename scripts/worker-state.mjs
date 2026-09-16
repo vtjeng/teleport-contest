@@ -55,6 +55,11 @@ Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
 match the accepted commit. sync-main performs a safe local fast-forward only;
 it does not push. No command starts, interrupts or resumes an agent process.
+Publication may include checked investigation JSON and newly added challenge
+evaluations after the tested commit. Source commits must be in tested history;
+evaluations must name that tested commit and match its challenge manifest.
+Reports must be regular non-executable files. Other input changes need validation.
+This publication allowance does not broaden checkpoint reuse or rewrite receipts.
 
 submit derives the ready event, commit list, parents and changed paths from Git.
 It copies source evidence, span context and check output into a hash-verified
