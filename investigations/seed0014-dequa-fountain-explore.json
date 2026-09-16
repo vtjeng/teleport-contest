@@ -18,7 +18,7 @@
     "recordedSteps": 714,
     "remainingScreensUpperBound": 2
   },
-  "summary": "The nested temple priest fix passes combined validation and adds 42 matching development screens. The session now reaches step 712 and stops at the unported in-town fountain warning in dryup. Worker B is porting complete watchman_warn_fountain and dryup, which also supply worker A’s beam terrain dependency.",
+  "summary": "The priest fix is published and CI-complete with 42 additional matching screens. Main stops at step 712 in dryup. Worker B’s complete warning/drying change has a passing independent town-fountain warning witness: 12 screens/cursors and 5975 RNG values. It is preparing an immutable delivery; an earlier recipe is preserved for an unrelated monster-movement blocker.",
   "source": {
     "file": "fountain.c",
     "functions": [
@@ -43,6 +43,8 @@
     "Fresh fixed-workload queue run-fZ2zgm moves the selected first mismatch from step669 pri_move to step712 dryup, count2. Its JavaScript stop identifies the in-town fountain warning. The priest divergence is resolved; no machine-local or session-specific exception was added.",
     "The priest correction preserves C conceptual room indices: former shrine room2 and empty temple membership become room48/index45 and in_rooms(TEMPLE)=[48]. Combined focused run-5gHWf9 passes254 tests; lint run-vEfuwO and quality run-72ScTc pass. The independent generated-temple recording adds10 screens/cursors and4283 RNG values.",
     "Coordinator read the complete fountain.c watchman_warn_fountain body at179-198 and dryup at201-239. The source sets F_WARNED before searching for a watchman and returns after this first warning; later calls still consume rn2(3) before the warned flag bypasses drying probability.",
-    "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet."
+    "Worker B task B-20260916-4 implements both complete functions from source on its preserved branch. Its in-progress work includes the deaf-aware watchman gesture, wizard confirmation and existing angry_guards call. No fountain delivery or new score is claimed yet.",
+    "Worker B reports fresh differential run-NBfUW0 passing the independent seed 7001 route: level teleport, two south moves, then quaff and warning dismissal. Its recording has 12 matching screens/cursors and 5975 RNG calls, with rnd(30)=18 in drinkfountain followed by rn2(3)=0 in dryup and warning text at steps 10/11. Focused run-PPn92T passes 16 tests. These are worker results pending combined validation; they do not change the published score.",
+    "The earlier independently chosen seed 7204 recipe diverges at step 12 in monmove.c m_move before the fountain. The original input recipe is retained with that blocker and its failing recording stays outside the passing corpus. The smaller passing seed 7001 witness reaches the targeted source warning."
   ]
 }
