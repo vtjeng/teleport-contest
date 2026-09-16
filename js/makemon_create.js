@@ -1309,9 +1309,6 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             // creates it for the spitmu recipe that covers mthrowu.c's
             // spit-venom entry point.
             && species.pmidx !== PM_COBRA
-            // A doppelganger is a complete natural shapechanger: its
-            // mon.c:newcham() selector and distress caller are ported below.
-            && species.pmidx !== PM_DOPPELGANGER
             // read.c create_particular_creation() passes an explicitly named
             // red dragon to makemon() unchanged. Its ordinary S_DRAGON path
             // has no creation-only helper or inventory branch, so the C
