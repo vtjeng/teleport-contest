@@ -118,6 +118,8 @@ import {
     HMON_THROWN,
     M_AP_MONSTER,
     M_AP_TYPE,
+    MM_IGNORELAVA,
+    MM_IGNOREWATER,
     OBJ_MINVENT,
     POTHIT_HERO_THROW,
     RLOC_MSG,
@@ -168,7 +170,7 @@ import {
     update_inventory,
 } from './invent.js';
 import { obj_sheds_light } from './light.js';
-import { MZ_MEDIUM } from './monsters.js';
+import { MZ_HUGE, MZ_MEDIUM } from './monsters.js';
 import {
     bigmonst,
     is_animal,
@@ -336,7 +338,7 @@ import { potionhit } from './potion.js';
 import { m_at } from './monst.js';
 import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';
-import { rloc, tele_restrict } from './teleport.js';
+import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { align_gname } from './pray.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
@@ -483,6 +485,25 @@ export async function hurtle_jump(arg, x, y) {
     } finally {
         walking.extrinsic = saved;
     }
+}
+
+// C ref: dothrow.c will_hurtle() (977-990). This pure predicate is shared by
+// uhitm.c mhitm_knockback() to choose its message before the void mhurtle()
+// call. Keep it beside the other dothrow recoil helpers so callers do not
+// approximate the terrain test locally.
+export function will_hurtle(mon, x, y, state = game, env = {}) {
+    if (!isok(x, y, state)) return false;
+    if (mon?.data?.msize >= MZ_HUGE || mon === state.u?.ustuck
+        || mon?.mtrapped) {
+        return false;
+    }
+    return goodpos(
+        x,
+        y,
+        mon,
+        MM_IGNOREWATER | MM_IGNORELAVA,
+        { ...env, state },
+    );
 }
 
 // C ref: dothrow.c hurtle_step() (773-972). This is the movement callback for
