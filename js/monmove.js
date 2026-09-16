@@ -166,7 +166,6 @@ import {
     helpless,
     isok,
     is_pit,
-    something,
 } from './const.js';
 import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
 import { acurr } from './attrib.js';
@@ -405,7 +404,7 @@ import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj } from './steal.js';
-import { stairway_at } from './stairs.js';
+import { stairway_at, stairway_find_dir } from './stairs.js';
 import {
     canSpotMonster,
     collectMonsterMovementMessage,
@@ -2998,13 +2997,16 @@ function count_webbing_walls(x, y, state = game) {
 
 // C ref: monmove.c soko_allow_web() (1252-1265). Reject webs that interfere
 // with solving Sokoban. Off Sokoban or on a solved Sokoban level, always TRUE.
-// The Sokoban arm (m_cansee check against stairway_find_dir) is deferred
-// because Sokoban web spinning is never reached in current sessions.
+// The unsolved Sokoban arm follows the source m_cansee check against the
+// upstairs returned by stairway_find_dir().
 function soko_allow_web(mon, state = game) {
     if (!state.level.flags?.sokoban_rules) return true;
-    // Unsolved Sokoban: deferred. The C code allows the web only when the
-    // spinner can see the upstairs.
-    return false;
+    // C ref: monmove.c:1260-1263. Unsolved Sokoban permits a web only when
+    // the spinner has a clear path to the upstairs; m_cansee is exactly the
+    // source clear_path() macro and does not consult hero visibility.
+    const upstairs = stairway_find_dir(true, state);
+    return Boolean(upstairs
+        && clear_path(mon.mx, mon.my, upstairs.sx, upstairs.sy));
 }
 
 // C ref: monmove.c maybe_spin_web() (1269-1293). A webmaker monster may
@@ -3028,18 +3030,31 @@ async function maybe_spin_web(mtmp, env) {
             if (trap) {
                 mtmp.mspec_used = random.d(4, 4); /* 4..16 */
                 if (cansee(mtmp.mx, mtmp.my, state)) {
-                    const mbuf = canSpotMonster(mtmp, state)
-                        ? env.unsupported('y_monnam in web-spinning message')
-                        : something;
                     // C: pline_mon(mtmp, "%s spins a web.", upstart(mbuf));
-                    // pline_mon() is not yet ported; refuse for now when the
-                    // hero can see the spinner, since the message would be
-                    // visible.
-                    env.unsupported('pline_mon for web-spinning message');
+                    // YMonnam() and messageAt() preserve the source naming
+                    // and location; postmov supplies a no-op message during
+                    // planning so this branch cannot paint the live terminal.
+                    const mbuf = canSpotMonster(mtmp, state)
+                        ? YMonnam(mtmp, state, env)
+                        : 'Something';
+                    const message = env.message ?? ttyPline;
+                    await message(
+                        messageAt(
+                            `${mbuf} spins a web.`,
+                            mtmp.mx,
+                            mtmp.my,
+                            state,
+                        ),
+                        state,
+                        env,
+                    );
                     trap.tseen = 1;
                 }
                 if ((in_rooms(mtmp.mx, mtmp.my, SHOPBASE, state)[0] ?? 0)) {
-                    env.unsupported('add_damage for web in shop');
+                    // C: add_damage() is a discarded shop-accounting result;
+                    // its owner remains unported, so preserve the explicit
+                    // dependency without refusing the movement turn.
+                    note_unported('shk.c add_damage');
                 }
             }
         }
@@ -3387,10 +3402,16 @@ export async function postmov(
     if (mmoved === MMOVE_MOVED || mmoved === MMOVE_DONE) {
         if (state.level?.objects?.[monster.mx]?.[monster.my]
             && monster.mcanmove) {
-            const consumptionEnv = { ...env };
+            // Object interaction helpers are called after the movement
+            // redraw, but still use the same output seams as postmov.  In a
+            // planning clone this keeps their discarded-callee branches and
+            // source messages from reaching the live terminal.
+            const consumptionEnv = { ...env, message, redraw };
             if (metallivorous(species)) {
                 const eaten = await meatmetal(monster, consumptionEnv);
-                if (eaten >= 2) return MMOVE_DIED;
+                // C:1669 tests the exact MMOVE_DIED result; meatmetal() can
+                // use other positive statuses for a non-death outcome.
+                if (eaten === 2) return MMOVE_DIED;
             }
             if (species === state.mons?.[PM_GELATINOUS_CUBE]) {
                 const eaten = await meatobj(monster, consumptionEnv);
@@ -3406,6 +3427,8 @@ export async function postmov(
                 monster.my,
                 {
                     ...env,
+                    message,
+                    redraw,
                     skipConsumption: true,
                 },
             );
@@ -3434,10 +3457,15 @@ export async function postmov(
         }
         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
         // (webmaker, !helpless, !mspec_used, no trap, soko_allow_web) gate
-        // the rn2(1000) draw at :1279. The success arm's message and shop
-        // bookkeeping remain behind unsupported guards until y_monnam,
-        // pline_mon, and add_damage are ported.
-        await maybe_spin_web(monster, { ...env, random, unsupported });
+        // the rn2(1000) draw at :1279. The visible success message now uses
+        // the existing naming/display owners; only discarded shop accounting
+        // remains an explicit unported dependency inside that helper.
+        await maybe_spin_web(monster, {
+            ...env,
+            message,
+            random,
+            unsupported,
+        });
         // C ref: monmove.c:1692-1699.  A hides_under() species or an eel
         // re-hides after moving, drawing rn2(5) unless it is already hidden;
         // helpless() cannot hold here because dochug() returns before

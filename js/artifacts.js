@@ -719,6 +719,39 @@ function artifactBaneApplies(artifact, monster, yours, state) {
     return bane_applies(artifact, monster, state);
 }
 
+// C ref: artifact.c touch_artifact() (920-934). Both hero and monster arms
+// derive these restrictions from the same artifact record; keeping the
+// predicate shared prevents the synchronous monster selector from drifting
+// from the async hero owner as new artifact rules are ported.
+function artifactTouchRestrictions(artifact, monster, yours, state, index) {
+    const selfWilled = Boolean(artifact.spfx & SPFX_INTEL);
+    const monsterPlayer = Boolean((monster.data?.mflags3 ?? 0) & M3_COVETOUS)
+        || isMonsterPlayer(monster);
+    let badclass = false;
+    let badalign = false;
+    if (yours) {
+        badclass = selfWilled
+            && ((artifact.role !== NON_PM
+                 && state.urole.mnum !== artifact.role)
+                || (artifact.race !== NON_PM
+                    && state.urace.mnum !== artifact.race));
+        badalign = Boolean(artifact.spfx & SPFX_RESTR)
+            && artifact.alignment !== A_NONE
+            && (artifact.alignment !== state.u.ualign.type
+                || state.u.ualign.record < 0);
+    } else if (!monsterPlayer) {
+        badclass = selfWilled
+            && artifact.role !== NON_PM
+            && index !== ART_EXCALIBUR;
+        badalign = Boolean(artifact.spfx & SPFX_RESTR)
+            && artifact.alignment !== A_NONE
+            && artifact.alignment !== monsterAlignment(monster);
+    }
+    if (!badalign)
+        badalign = artifactBaneApplies(artifact, monster, yours, state);
+    return { selfWilled, badclass, badalign };
+}
+
 // C ref: artifact.c touch_artifact() (908-976). C's `touch_blasted` is a
 // file-scope static set here and read by retouch_object() to decide whether
 // to inflict its own additional damage.
@@ -764,33 +797,9 @@ export async function touch_artifact(obj, monster, env = game) {
     const yours = monster === state.youmonst;
     /* all quest artifacts are self-willed; if this ever changes, `badclass'
        will have to be extended to explicitly include quest artifacts */
-    const selfWilled = Boolean(artifact.spfx & SPFX_INTEL);
-    let badclass = false;
-    let badalign = false;
-    if (yours) {
-        badclass = selfWilled
-            && ((artifact.role !== NON_PM
-                 && state.urole.mnum !== artifact.role)
-                || (artifact.race !== NON_PM
-                    && state.urace.mnum !== artifact.race));
-        badalign = Boolean(artifact.spfx & SPFX_RESTR)
-            && artifact.alignment !== A_NONE
-            && (artifact.alignment !== state.u.ualign.type
-                || state.u.ualign.record < 0);
-    } else if (!(Boolean((monster.data?.mflags3 ?? 0) & M3_COVETOUS)
-                 || isMonsterPlayer(monster))) {
-        badclass = selfWilled
-            && artifact.role !== NON_PM
-            && index !== ART_EXCALIBUR;
-        badalign = Boolean(artifact.spfx & SPFX_RESTR)
-            && artifact.alignment !== A_NONE
-            && artifact.alignment !== monsterAlignment(monster);
-    }
-    /* an M3_WANTSxxx monster or a fake player leaves both false */
-    /* weapons which attack specific categories of monsters are
-       bad for them even if their alignments happen to match */
-    if (!badalign)
-        badalign = artifactBaneApplies(artifact, monster, yours, state);
+    const { selfWilled, badclass, badalign } = artifactTouchRestrictions(
+        artifact, monster, yours, state, index,
+    );
 
     if (((badclass || badalign) && selfWilled)
         || (badalign && (!yours || !randomFromEnv(env)(4)))) {
@@ -848,27 +857,18 @@ export function artifactTouchable(obj, monster, env) {
 // owner separate from the async hero-facing touch_artifact() so selectors do
 // not turn a Promise into a truthy pickup decision.
 export function monster_touch_artifact(obj, monster, state = game) {
-    const normalized = artifactTables(state);
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
+    // C's touch_artifact() resets this file-scope result on every caller,
+    // including monster-side calls whose result is only a pickup gate.
+    touch_blasted = false;
     if (index === ART_NONARTIFACT) return true;
+    const normalized = artifactTables(state);
     const artifact = normalized.artilist[index];
     if (!artifact?.otyp) return false;
 
-    const selfWilled = Boolean(artifact.spfx & SPFX_INTEL);
-    const monsterPlayer = Boolean((monster.data?.mflags3 ?? 0) & M3_COVETOUS)
-        || isMonsterPlayer(monster);
-    let badclass = false;
-    let badalign = false;
-    if (!monsterPlayer) {
-        badclass = selfWilled
-            && artifact.role !== NON_PM
-            && index !== ART_EXCALIBUR;
-        badalign = Boolean(artifact.spfx & SPFX_RESTR)
-            && artifact.alignment !== A_NONE
-            && artifact.alignment !== monsterAlignment(monster);
-    }
-    if (!badalign)
-        badalign = artifactBaneApplies(artifact, monster, false, normalized);
+    const { selfWilled, badclass, badalign } = artifactTouchRestrictions(
+        artifact, monster, false, normalized, index,
+    );
 
     // In the monster arm C rejects every bad alignment, and every bad class
     // on a self-willed artifact. The hero-only rn2(4) and damage branch never
