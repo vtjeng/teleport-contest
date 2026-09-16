@@ -54083,29 +54083,29 @@
           "name": "vanqsort_cmp",
           "line": 2621,
           "endLine": 2717,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "set_vanq_order",
           "line": 2718,
           "endLine": 2768,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dovanquished",
           "line": 2769,
           "endLine": 2783,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "list_vanquished",
           "line": 2784,
           "endLine": 2952,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -54227,7 +54227,160 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "vanqsort_cmp",
+            "implementation": "js/insight.js",
+            "symbol": "vanqsort_cmp",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:2621-2715 in full. The comparator preserves traditional monster-level and difficulty descending orders, alpha unique-separate high-priest exception, alpha mixed fall-through, punctuation class remapping, Rider-before-demon ordering, within-class level direction for both class modes, count high/low orders, and the internal mons[] index tiebreaker. JavaScript evaluates the selected state flag once per comparison and reads state-owned mons/mvitals; it adds no RNG, output, or mutation. Existing is_rider/type-name helpers are used at their source roles. No source refusal or invented fallback remains.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "list_vanquished",
+                "source": "insight.c:2867; list_vanquished qsorts its collected mvitals indices with vanqsort_cmp."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "list_genocided",
+                "source": "insight.c:3066; list_genocided shares vanqsort_cmp after its set_vanq_order choice, with count modes temporarily replaced by alpha mixed."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/vanquished-positive-independent.session.json"
+            ],
+            "checkedAt": "26e0fdfd6cebe7b159239420ba8ed86251ae146b"
+          },
+          {
+            "name": "set_vanq_order",
+            "implementation": "js/insight.js",
+            "symbol": "set_vanq_order",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:2718-2766 in full. The JavaScript preserves all eight source mode indices, suppresses alpha-mixed and class-high-to-low menu rows, suppresses count modes for #genocided, changes alpha-separate's description to alphabetically for that menu, marks the current row, uses PICK_ONE, preserves the source title, returns -1 on cancel, and stores the selected source index. Production selection is delegated to the existing windows.js select_menu owner; no synthetic draw or state change stands in for the menu. Correction verification: Read nethack-c/upstream/src/insight.c:2718-2766 in full. The JavaScript preserves the six offered source rows, skips VANQ_ALPHA_MIX and VANQ_MCLS_HTOL, suppresses count rows for #genocided, changes alpha-separate's description in that menu, marks the source current row, and retains the source title and PICK_ONE behavior. The correction passes the current flags.vanq_sortmode to the menu owner as preselected, matching C's selected anything.a_int; this value is returned when Return or Space commits with no new selection even if the current mode is hidden by the #genocided filter. cancelValue remains null so Escape returns -1 and leaves the mode unchanged. The selected value is then stored as the source mode, with no invented random draw or state mutation.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "list_vanquished",
+                "source": "insight.c:2802 and 2854; explicit #vanquished menu-requested mode and an answer of 'a' call set_vanq_order(TRUE)."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "list_genocided",
+                "source": "insight.c:3053; #genocided answer 'a' shares set_vanq_order(FALSE)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/vanquished-positive-independent.session.json"
+            ],
+            "checkedAt": "26e0fdfd6cebe7b159239420ba8ed86251ae146b"
+          },
+          {
+            "name": "dovanquished",
+            "implementation": "js/insight.js",
+            "symbol": "dovanquished",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:2769-2775 in full. The implementation selects A when iflags.menu_requested is set, otherwise y, awaits list_vanquished, clears the request flag after the call even when sorting is cancelled, and returns ECMD_OK. The obsolete UnsupportedEndOfGameError command refusal was removed from the dispatcher.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:1921 and its extcmdlist row dispatch dovanquished; js/cmd.js admits the vanquished row and routes the production # command here."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/vanquished-command-independent.session.json",
+              "recordings/insight.c/vanquished-command-variation.session.json"
+            ],
+            "checkedAt": "26e0fdfd6cebe7b159239420ba8ed86251ae146b"
+          },
+          {
+            "name": "list_vanquished",
+            "implementation": "js/insight.js",
+            "symbol": "list_vanquished",
+            "sourceReview": "Read nethack-c/upstream/src/insight.c:2784-2948 in full. The implementation preserves forced sort and dump query setup, total and species collection from state-owned mvitals, one-entry and multi-entry query choices, q stopprint behavior, answer-a sort selection and cancellation, alpha and class headers, unique and ordinary plural/count formatting, source prefix alignment, total line, and the no-vanquished present-tense pline branch. It calls the existing tty menu text owner for the output and keeps the DUMPLOG-only past-tense putstr branch outside ordinary gameplay; no invented gameplay effect replaces that adjacent output path. Correction verification: Read nethack-c/upstream/src/insight.c:2784-2948 in full. Its class_header branch calls putstr with ask ? ATR_NONE : iflags.menu_headings.attr before upstart(buf). The correction preserves that exact condition and passes the resulting attr on the heading line while leaving titles, blank lines, species rows, prefix spacing, and totals unstyled. The existing tty text-window owner already consumes line.attr, so no alternate display state or invented output path was added. Final prompt correction b32aae5b dynamically resolves the canonical cmd.js yn_function for ask=true with no injected queryFunction, preserving C insight.c2831–2843 query/responses/default/addcmdq=TRUE and state. The end.js disclose caller supplies no override and now reaches that production owner.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "dovanquished",
+                "source": "insight.c:2771; dovanquished supplies A or y and invokes list_vanquished for the active #vanquished command."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c:660; final disclosure routes the selected vanquished category to list_vanquished."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/vanquished-command-independent.session.json",
+              "recordings/insight.c/vanquished-command-variation.session.json",
+              "recordings/insight.c/vanquished-positive-independent.session.json"
+            ],
+            "checkedAt": "26e0fdfd6cebe7b159239420ba8ed86251ae146b"
+          }
+        ],
+        "entryPointReview": "The selected insight.c family has four source entry paths. The production #vanquished dispatcher is admitted in js/cmd.js and reaches dovanquished/list_vanquished in two independent fresh strict-match no-kills recordings; the blind variation changes startup options and character sex. A third independent debug recording creates and kills a newt plus a naturally moved sewer rat, uses the m prefix to reach set_vanq_order, and displays the positive list through the same dispatcher; it matches the patched C. Source-pinned tests exercise all comparator modes, menu filtering and positive list formatting. The existing final-disclosure and #genocided callers are wired but remain unrecorded in this span. js/end.js now wires set_vanq_order and vanqsort_cmp into its existing list_genocided branch, removing the old sort refusal while preserving the source's temporary alpha-mixed mode for count preferences. The seed0106 continuation after this command reaches a later distfleeck(monmove.c:538) random draw; that source boundary is outside insight.c and is not attributed to this delivery. The final source review checked C set_vanq_order2744-2764: an empty Return or Space commits the current mode, while Escape cancels. Correction79c168c5 sets the current preselection. Correction680f3ced preserves class-heading attributes exactly as C2873-2885 and tests configured command attributes and plain final-disclosure attributes. Existing positive recording covers the list and sort menu; it does not prove class-order output. Real rider/high-cleric catalog tests belong to later B11; B10 synthetic comparator tests only claim synthetic mode coverage. The default final-disclosure query path is directly exercised without an injected prompt in scripts/insight.test.mjs. A supplemental worker named-test diagnostic /tmp/b10-query-insight-named.log reports67/67 passing; the earlier packet file-level reporting does not establish that count by itself. No final-disclosure recording is claimed.",
+        "entryPoints": [
+          {
+            "name": "#vanquished command with no prior kills",
+            "functions": [
+              "dovanquished",
+              "list_vanquished"
+            ],
+            "recordings": [
+              "recordings/insight.c/vanquished-command-independent.session.json",
+              "recordings/insight.c/vanquished-command-variation.session.json"
+            ]
+          },
+          {
+            "name": "#vanquished positive list and sort-order menu",
+            "functions": [
+              "list_vanquished",
+              "set_vanq_order",
+              "vanqsort_cmp"
+            ],
+            "recordings": [
+              "recordings/insight.c/vanquished-positive-independent.session.json"
+            ]
+          },
+          {
+            "name": "#genocided shared sort-order menu",
+            "functions": [
+              "set_vanq_order",
+              "vanqsort_cmp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "final disclosure vanquished list",
+            "functions": [
+              "list_vanquished"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "#vanquished class-order output",
+            "functions": [
+              "list_vanquished"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
