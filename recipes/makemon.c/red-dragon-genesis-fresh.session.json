@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent makemon.c makemon() coverage: wizard.c wiz_genesis() and read.c create_particular_creation() name PM_RED_DRAGON=146 through #genesis. This seed, timestamp, role, name, and input are new and reach the ordinary named-species creation path.",
+  "segments": [
+    {
+      "seed": 9520007,
+      "datetime": "20320516111723",
+      "nethackrc": "OPTIONS=name:CinderProbe,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007red dragon\n"
+    }
+  ]
+}
