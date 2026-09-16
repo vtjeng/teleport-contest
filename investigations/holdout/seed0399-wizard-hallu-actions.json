@@ -18,7 +18,7 @@
     "recordedSteps": 532,
     "remainingScreensUpperBound": 97
   },
-  "summary": "Worker A has claimed the complete dothrow.c thitmonst family as A12 after submitting the Knight continuation. The current main mismatch remains the final non-weapon throw branch at step435, with97 remaining screens.",
+  "summary": "Worker A is implementing the complete thitmonst family and retained-object landing tail. Source checking identified canonical thrown-object ownership and unicorn/shopkeeper branch corrections that must land before submission. The accepted first mismatch remains step435 with97 remaining screens.",
   "source": {
     "file": "dothrow.c",
     "functions": [
@@ -62,6 +62,8 @@
     "Pinned upstream source at nethack-c/upstream commit 16ff59115315917b93185d026aeefea06db9b0f4 was read for dothrow.c thitmonst():2011-2304, tmiss():1951-1967, throwit_mon_hit():1482-1505, throwit():1510-1849, throw_obj():87-348, and dothrow():352-376. The source confirms the final else calls tmiss(obj, mon, TRUE) at 2299-2300 and returns 0 at 2303-2304.",
     "At the assigned JavaScript commit, dothrow.js thitmonst():1483-1597 computes the shared modifiers and dieroll, admits only the cream-pie hit arm in this object-family tail, and raises UnsupportedThrowError at 1595 for the observed object. The current JS caller chain is dothrow.js:815-842, 1207-1223, and 1310-1481, so the refusal is reachable production behavior.",
     "Actionable whole-source scope is a dothrow.c file-port span for thitmonst(), including all source branches and its existing callers’ return/object lifecycle contracts. The ordinary thrown-object miss needs only existing tmiss()/wakeup() behavior; weapon, heavy-ball/boulder, potion, tame-food, swallowed, unicorn, leader, and applied/kicked arms require source review and named dependencies as they become reachable. This investigation does not claim source completion.",
-    "A12 claimed from synchronized worker HEAD db985629231fb7870ef4806471fd69f867de1014, reserving dothrow.c thitmonst and its object-lifecycle contract. Source review covers C2011-2304 and return-used dependencies before implementation. No new main score or accepted code is claimed."
+    "A12 claimed from synchronized worker HEAD db985629231fb7870ef4806471fd69f867de1014, reserving dothrow.c thitmonst and its object-lifecycle contract. Source review covers C2011-2304 and return-used dependencies before implementation. No new main score or accepted code is claimed.",
+    "Worker A12 found C throwit continues through breaktest and floor placement when thitmonst leaves the thrown object alive. The JavaScript caller returned early, omitting obj_resists and landing. Its current continuation reports448 emitted screens against532 recorded steps with divergence null; the remaining boundary and complete coverage still require verification. Source-pinned lifecycle checks and independent recorded entry evidence are in progress.",
+    "Read-only source check of A12 WIP found four required corrections: use canonical state.gt.thrownobj across throwit/thitmonst owners; preserve C throwit1808-1816 shopkeeper pick snatch; implement tame unicorn gem catch-and-drop at2087-2098; and use C1497-1503 outside-shop predicate for hot_pursuit. Findings were sent to worker A for verification before submission. No new main result is claimed."
   ]
 }
