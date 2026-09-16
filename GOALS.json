@@ -50322,6 +50322,67 @@
         "screens": 10067,
         "rng": 739263
       }
+    },
+    {
+      "id": "div-print-level-annotation-seed4500-20260915",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Restore the source-ordered level annotation emitted after level arrival in holdout/seed4500-knight-coverage: dungeon.c get_annotation() finds the current mapseen custom annotation and print_level_annotation() emits it after assign_level() and monster notices, while js/do.js goto_level() currently omits the production call.",
+      "cFile": "dungeon.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The published-main bounded queue leaves holdout/seed4500-knight-coverage at screen/step 909; source tracing identifies dungeon.c get_annotation()/print_level_annotation() and the missing js/do.js goto_level() wiring as the smallest independent owner.",
+      "detail": "Current scan at 3a9fb663 reports the first screen cell difference at step 909 on the level-teleport arrival newline: C begins the message with Y while JS is blank, with C cursor [50,0,1] and JS cursor [48,3,1]. Read dungeon.c:2478-2496 and do.c:1930-1998: get_annotation() returns find_mapseen(lev)->custom or NULL, print_level_annotation() calls You(\"remember this level as %s.\", annotation) when present, and goto_level() calls it before check_special_room(), object delivery, regions, shop repair, fall damage, and pickup. js/dungeon.js already has find_mapseen()/annotation storage; js/do.js has only a comment at the corresponding arrival point. A13 independently recorded a level-teleport arrival recipe and focused/fresh passing evidence.",
+      "spans": [
+        {
+          "name": "get-annotation-print-level-annotation",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "get_annotation",
+            "print_level_annotation"
+          ]
+        }
+      ],
+      "openedAt": "3a9fb66387ff61170d1beb2ef8c67d5832796905",
+      "openStanding": {
+        "sha": "0148bafc173459f4ddcdb3c3a1c08497c77b04b2",
+        "screens": 10067,
+        "rng": 739263
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "get_annotation",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 909,
+      "activeStanding": {
+        "sha": "0148bafc173459f4ddcdb3c3a1c08497c77b04b2",
+        "screens": 10067,
+        "rng": 739263
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 909,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 905,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "previousRemainingScreensUpperBound": 921
+          }
+        }
+      ]
     }
   ]
 }
