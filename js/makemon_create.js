@@ -302,7 +302,6 @@ import {
     PM_OGRE_TYRANT,
     PM_PAGE,
     PM_PONY,
-    PM_RED_DRAGON,
     PM_QUANTUM_MECHANIC,
     PM_QUEEN_BEE,
     PM_ROSHI,
@@ -1309,11 +1308,6 @@ function assertSupportedSpecies(species, { allowMinotaur = false } = {}) {
             // creates it for the spitmu recipe that covers mthrowu.c's
             // spit-venom entry point.
             && species.pmidx !== PM_COBRA
-            // read.c create_particular_creation() passes an explicitly named
-            // red dragon to makemon() unchanged. Its ordinary S_DRAGON path
-            // has no creation-only helper or inventory branch, so the C
-            // makemon() body reaches the already-portable generic lifecycle.
-            && species.pmidx !== PM_RED_DRAGON
             && (!allowMinotaur || species.pmidx !== PM_MINOTAUR))) {
         throw new UnsupportedMonsterCreationError(
             `makemon() monster ${species?.pmidx ?? 'null'}`,

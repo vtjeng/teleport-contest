@@ -140,7 +140,6 @@ import {
     PM_PONY,
     PM_ROCK_MOLE,
     PM_ROCK_TROLL,
-    PM_RED_DRAGON,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_SMALL_MIMIC,
@@ -2214,42 +2213,6 @@ test('the create_particular call shape admits only the hero square and its '
             assert.equal(state.level.monlist, null, scenario.name);
         }
     });
-
-test('explicit runtime red-dragon creation reaches makemon without a species '
-    + 'refusal', () => {
-    // read.c create_particular_creation():3307 passes an ordinary named
-    // species to makemon() on the hero's square. makemon.c:1147-1510 has no
-    // species allowlist; PM_RED_DRAGON follows its generic S_DRAGON path,
-    // so this admission must reach the constructor before its async runtime
-    // tail rather than spending a seed-specific refusal.
-    const state = initialLevelState();
-    state.in_mklev = false;
-    const x = MON_X + 8;
-    const y = MON_Y;
-    state.level.at(x, y).typ = ROOM;
-    const random = recordingRandom();
-    const runtimeContinuation = { claimed: false };
-
-    const monster = makemon(
-        state.mons[PM_RED_DRAGON],
-        x,
-        y,
-        MM_NOGRP,
-        {
-            state,
-            random: random.random,
-            runtimeContinuation,
-        },
-    );
-
-    assert.equal(monster.data, state.mons[PM_RED_DRAGON]);
-    assert.equal(monster.mnum, PM_RED_DRAGON);
-    assert.equal(monster.mgenmklev, false);
-    assert.equal(runtimeContinuation.claimed, true);
-    assert.equal(state.level.monsters[x][y], monster);
-    assert.equal(state.mvitals[PM_RED_DRAGON].born, 1);
-    assert.ok(random.calls.length > 0);
-});
 
 test('runtime creation validates output owners before RNG or state', async () => {
     for (const owners of [
