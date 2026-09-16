@@ -2634,11 +2634,8 @@ export async function look_here(
             throw new TypeError('look_here needs an object-pile display owner');
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
-        // C invent.c:look_here() (4289-4296) formats the prefix and predicate
-        // as one sentence: blind piles say "Things that you feel here:"
-        // while sighted piles say "Things that are here:".  Keep "that"
-        // attached to the blind predicate; placing it before the predicate
-        // would silently change the source's tactile heading.
+        // C invent.c look_here() (4289-4296) uses "%s that %s here:";
+        // both the blind and sighted predicates retain the common "that".
         lines.push(`${pickedSome ? 'Other things' : 'Things'} ${blind ? 'that you feel' : 'that are'} here:`);
         let feltCockatrice = null;
         for (let object = otmp; object; object = object.nexthere) {
