@@ -147,6 +147,7 @@ import {
 import { skillSlot } from '../js/startup_skills.js';
 import { ROOMOFFSET, SHOPBASE, W_ARM, W_ARMC } from '../js/const.js';
 import { costly_spot } from '../js/shk.js';
+import { ATR_BOLD, ATR_NONE } from '../js/terminal.js';
 import {
     monst_globals_init,
     MZ_GIGANTIC,
@@ -1765,6 +1766,44 @@ test('list_vanquished handles both an empty list and source formatting', async (
     assert.deepEqual(lines, [
         'Vanquished creatures:', '', '  a dog', '  2 newts', '',
         '3 creatures vanquished.',
+    ]);
+});
+
+test('list_vanquished preserves C class-heading attributes', async () => {
+    const state = monsterCatalog();
+    state.svm = {
+        mvitals: Array.from({ length: state.mons.length }, () => ({
+            died: 0,
+        })),
+    };
+    state.svm.mvitals[PM_WOLF].died = 1;
+    state.svm.mvitals[PM_VAMPIRE].died = 1;
+    state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
+    state.iflags = { menu_headings: { attr: ATR_BOLD } };
+    state.program_state = {};
+
+    let commandLines;
+    await list_vanquished('y', false, state, {
+        displayTextWindow: (_state, values) => {
+            commandLines = values;
+        },
+    });
+    assert.deepEqual(commandLines.filter((line) => line.attr !== undefined), [
+        { text: 'Dog or other canine', attr: ATR_BOLD },
+        { text: 'Vampire', attr: ATR_BOLD },
+    ]);
+
+    let finalLines;
+    await list_vanquished('y', true, state, {
+        queryFunction: () => 'y'.charCodeAt(0),
+        displayTextWindow: (_state, values) => {
+            finalLines = values;
+        },
+    });
+    assert.deepEqual(finalLines.filter((line) => line.text === 'Dog or other canine'
+        || line.text === 'Vampire'), [
+        { text: 'Dog or other canine', attr: ATR_NONE },
+        { text: 'Vampire', attr: ATR_NONE },
     ]);
 });
 
