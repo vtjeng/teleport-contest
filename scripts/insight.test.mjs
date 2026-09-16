@@ -1627,9 +1627,10 @@ test('do_gamelog dispatches the in-progress chronicle window', async () => {
 });
 
 // insight.c:vanqsort_cmp() compares only the source-owned monster index,
-// monster data, flags.vanq_sortmode, and mvitals.died.  Pin every mode here,
-// including the special punctuation-class and rider ordering branches.
-test('vanqsort_cmp follows every source vanquished ordering', () => {
+// monster data, flags.vanq_sortmode, and mvitals.died.  Pin every synthetic
+// mode here, including the special punctuation-class remapping branch.  The
+// real catalog rider and PM_HIGH_CLERIC exception are covered separately.
+test('vanqsort_cmp follows source ordering for synthetic modes', () => {
     const mons = [
         { pmidx: 0, mlevel: 3, difficulty: 7, mlet: 5, geno: 0,
             pmnames: [null, null, 'zebra'] },
