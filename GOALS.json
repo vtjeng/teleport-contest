@@ -55569,8 +55569,8 @@
           "name": "peffect_extra_healing",
           "line": 1128,
           "endLine": 1143,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -55690,7 +55690,58 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_extra_healing",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_extra_healing",
+            "sourceReview": "Read nethack-c/upstream/src/potion.c:1128-1141 in full. The implementation preserves You_feel(\"much better.\"), the source-ordered 16 + d(4 + 2*bcsign(otmp), 8) roll, healup(16 + d(4 + 2*bcsign(otmp), 8), blessed ? 5 : !cursed ? 2 : 0, !cursed, TRUE), including unconditional blindness cure, make_hallucinated(0, TRUE, 0), exercise(A_CON, TRUE) followed by exercise(A_STR, TRUE), and the blessed non-mounted Wounded_legs -> heal_legs(0) branch. Existing canonical owners are called directly; no UnsupportedQuaffError or injected substitute remains for this effect. The peffects switch dispatches POT_EXTRA_HEALING to this owner and retains -1 for dopotion() continuation.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1399 dispatches POT_EXTRA_HEALING to peffect_extra_healing(); js/potion.js peffects() now awaits the same owner in its POT_EXTRA_HEALING case."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:636-641 calls peffects() from dopotion() and continues its identification/useup tail when peffects returns -1; js/potion.js dopotion() awaits peffects()."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:526-615 routes a selected quaffed object through dopotion(); js/potion.js dodrink() preserves that production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/extra-healing-blessed-independent.session.json",
+              "recordings/potion.c/extra-healing-uncursed-independent.session.json",
+              "recordings/potion.c/extra-healing-cursed-independent.session.json"
+            ],
+            "checkedAt": "b552b2124646fbc39db59834b72a91057f88b4b4"
+          }
+        ],
+        "entryPointReview": "The three independent input-only recipes use distinct seeds, date/time values, character names, and BUC inputs from the fixed corpus. Their committed C recordings match strict JavaScript replays and execute the production dodrink() -> dopotion() -> peffects(POT_EXTRA_HEALING) -> peffect_extra_healing() path. The blessed, uncursed, and cursed recordings cover the three source beatitude branches. The direct source-pinned tests cover the dice formula, exactly two exercise draws in source order, the cure gates, hallucination clearing, and blessed wounded-leg recovery. Other potion.c effects remain outside this span. Source inspection of spell.c spelleffects confirms SPE_EXTRA_HEALING uses zapyourself/weffects, not peffect_extra_healing; its directional spell path is outside this selected potion function.",
+        "entryPoints": [
+          {
+            "name": "quaffed extra healing potion",
+            "functions": [
+              "peffect_extra_healing"
+            ],
+            "recordings": [
+              "recordings/potion.c/extra-healing-blessed-independent.session.json",
+              "recordings/potion.c/extra-healing-uncursed-independent.session.json",
+              "recordings/potion.c/extra-healing-cursed-independent.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
