@@ -18,7 +18,7 @@
     "recordedSteps": 366,
     "remainingScreensUpperBound": 3
   },
-  "summary": "Whole attributes enlightenment now passes. The next stop is monster distress at step363: preflightDistressShapechange rejects PM_DOPPELGANGER before the source's shapeshift decision. The existing newcham_distress adapter covers only some natural shapechangers and attachment states. Complete the source-backed shapechange family; the unaccepted worker admission patch alone does not establish whole-source or independent-play evidence.",
+  "summary": "The remaining stop at step363 rejects a doppelganger before the source shapeshift decision. Complete the shared newcham family and propagate asynchronous creation through its callers; the detailed shared dependency findings are in the seed0360 investigation.",
   "source": {
     "file": "mon.c",
     "functions": [
@@ -39,6 +39,6 @@
   "evidence": [
     "Passing checkpoint1c15a0dc run-4d7xME completed2026-09-15T01:24:25.317Z: all221regression recordings pass. The post-checkpoint queue moves this session's first mismatch360→363, remaining-screen upper bound6→3.",
     "Coordinator read the full mon.c shapechange sources during candidate assessment and rechecked decide_to_shapeshift4872–4938, select_newcham_form5157–5225, newcham's selection loop5278–5350 and the JavaScript preflight/caller. PM_DOPPELGANGER is270 in js/monsters.js; the current queue names distress shapechanger270.",
-    "The three-screen bound is not a predicted gain. The pilot has stopped new implementation; resume with independent source-backed recipes that actually reach selection and form application."
+    "The shared newcham implementation and caller defects are recorded in investigations/seed0360-wizard-world-tour.json. The ordinary doppelganger admission patch alone does not cover wizard form selection, attachment/inventory transitions, or asynchronous level-creation and revival callers."
   ]
 }
