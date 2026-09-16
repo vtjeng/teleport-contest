@@ -6,6 +6,8 @@ import {
     BLINDED,
     BY_NEXTHERE,
     CORR,
+    D_BROKEN,
+    DOOR,
     EXT_ENCUMBER,
     FUMBLING,
     HVY_ENCUMBER,
@@ -369,6 +371,24 @@ test('describe_decor remembers silent ordinary terrain transitions',
                 assert.equal(state._ttyToplines ?? '', '');
             }
         }
+    });
+
+test('describe_decor suppresses features on unchanged non-furniture terrain',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.mention_decor = true;
+        state.iflags.prev_decor = DOOR;
+        const location = state.level.at(state.u.ux, state.u.uy);
+        location.typ = DOOR;
+        location.flags = D_BROKEN;
+
+        // pickup.c:392-394 chooses the unchanged non-furniture arm before
+        // its dfeature/ground-transition arms. A broken door still has a
+        // dfeature_at() description, but C emits no line here and updates
+        // prev_decor after the branch chain.
+        assert.equal(await describe_decor(state), false);
+        assert.equal(state.iflags.prev_decor, DOOR);
+        assert.equal(state._ttyToplines ?? '', '');
     });
 
 test('describe_decor handles fumble and submerged terrain source branches',

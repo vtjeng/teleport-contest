@@ -366,23 +366,29 @@ export async function describe_decor(state = game, env = {}) {
 
     const message = env.message ?? ttyPline;
     const norepMessage = env.norepMessage ?? ttyNorep;
-    if (plan.dfeature) {
-        let feature = plan.dfeature;
-        if (plan.waterhere)
-            feature = waterbody_name(u.ux, u.uy, state, env);
-        if (feature !== 'swamp' && plan.ltyp !== ICE)
-            feature = an(feature);
+    // C's unchanged non-furniture arm (pickup.c:392-394) precedes both the
+    // dfeature and ground-transition arms.  dfeature_at() can still describe
+    // a feature on that square (for example a broken door), but C suppresses
+    // it when ltyp == prev_decor; the final terrain-memory store still runs.
+    if (plan.result) {
+        if (plan.dfeature) {
+            let feature = plan.dfeature;
+            if (plan.waterhere)
+                feature = waterbody_name(u.ux, u.uy, state, env);
+            if (feature !== 'swamp' && plan.ltyp !== ICE)
+                feature = an(feature);
 
-        const text = state.flags?.verbose === true
-            ? `There is ${feature} here.`
-            : `${upstart(feature)}.`;
-        if (plan.ltyp === ICE && state.flags?.mention_decor)
-            await norepMessage(text, state);
-        else
-            await message(text, state);
-    } else if (plan.groundTransition) {
-        if (state.iflags.last_msg !== PLNMSG_BACK_ON_GROUND)
-            await back_on_ground(false, state);
+            const text = state.flags?.verbose === true
+                ? `There is ${feature} here.`
+                : `${upstart(feature)}.`;
+            if (plan.ltyp === ICE && state.flags?.mention_decor)
+                await norepMessage(text, state);
+            else
+                await message(text, state);
+        } else if (plan.groundTransition) {
+            if (state.iflags.last_msg !== PLNMSG_BACK_ON_GROUND)
+                await back_on_ground(false, state);
+        }
     }
 
     state.iflags.prev_decor = state.flags?.mention_decor
