@@ -577,14 +577,16 @@ function createMonsterBody(m, croom, env) {
     // for script-placed monsters during mklev, the same way rndmonst-selected
     // species bypass it.
     if (state?.in_mklev) monsterEnv._rndmonMklev = true;
-    const mtmp = makemon(
+    const maybeMtmp = makemon(
         pm,
         coordinate.x,
         coordinate.y,
         m.mm_flags,
         monsterEnv,
     );
-    if (!mtmp) return null;
+    const finish = (mtmp) => {
+        if (!mtmp) return null;
+        let pending = null;
 
     let x = mtmp.mx;
     let y = mtmp.my; /* sanity precaution */
@@ -725,18 +727,26 @@ function createMonsterBody(m, croom, env) {
         if (isVampireShifter
             && mtmp.data.mlet !== S_VAMPIRE
             && m.appear !== M_AP_MONSTER) {
-            restore_waiting_vampire(mtmp, monsterEnv);
+            pending = restore_waiting_vampire(mtmp, monsterEnv);
         }
     }
-    if (m.m_lev_adj) {
-        if (mtmp.m_lev + m.m_lev_adj > 49)
-            mtmp.m_lev = 49;
-        else if (mtmp.m_lev + m.m_lev_adj < 0)
-            mtmp.m_lev = 0;
-        else
-            mtmp.m_lev += m.m_lev_adj;
-    }
-    return mtmp;
+        const finishLevel = () => {
+            if (m.m_lev_adj) {
+                if (mtmp.m_lev + m.m_lev_adj > 49)
+                    mtmp.m_lev = 49;
+                else if (mtmp.m_lev + m.m_lev_adj < 0)
+                    mtmp.m_lev = 0;
+                else
+                    mtmp.m_lev += m.m_lev_adj;
+            }
+            return mtmp;
+        };
+        return pending && typeof pending.then === 'function'
+            ? pending.then(finishLevel) : finishLevel();
+    };
+    if (maybeMtmp && typeof maybeMtmp.then === 'function')
+        return maybeMtmp.then(finish);
+    return finish(maybeMtmp);
 }
 
 // The monster appearance arm of create_monster() remains unported. Refuse
@@ -817,26 +827,28 @@ export function create_monster(m, croom, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     assertSupportedMonsterAppearance(m);
 
-    const mtmp = createMonsterBody(m, croom, env);
-
-    if (mtmp) {
-        if (!(m.has_invent & DEFAULT_INVENT)) {
-            /* guard against someone accidentally specifying e.g. quest nemesis
-             * with custom inventory that lacks Bell or quest artifact but
-             * forgetting to flag them as receiving their default inventory */
-            // C ref: steal.c mdrop_special_objs() calls obj_resists(obj, 0, 0)
-            // for each inventory item before discard_minvent() discards them.
-            // The rn2(100) calls always return false for ordinary items but
-            // still consume the RNG.
-            for (let obj = mtmp.minvent; obj; obj = obj.nobj)
-                obj_resists(obj, 0, 0, env);
-            discard_minvent(mtmp, true, env);
+    const finish = (mtmp) => {
+        if (mtmp) {
+            if (!(m.has_invent & DEFAULT_INVENT)) {
+                /* guard against someone accidentally specifying e.g. quest nemesis
+                 * with custom inventory that lacks Bell or quest artifact but
+                 * forgetting to flag them as receiving their default inventory */
+                // C ref: steal.c mdrop_special_objs() calls obj_resists(obj, 0, 0)
+                // for each inventory item before discard_minvent() discards them.
+                // The rn2(100) calls always return false for ordinary items but
+                // still consume the RNG.
+                for (let obj = mtmp.minvent; obj; obj = obj.nobj)
+                    obj_resists(obj, 0, 0, env);
+                discard_minvent(mtmp, true, env);
+            }
+            if (m.has_invent & CUSTOM_INVENT) {
+                env.spObjectContext.inventCarryingMonster = mtmp;
+            }
         }
-        if (m.has_invent & CUSTOM_INVENT) {
-            env.spObjectContext.inventCarryingMonster = mtmp;
-        }
-    }
-    return mtmp;
+        return mtmp;
+    };
+    return mtmp && typeof mtmp.then === 'function'
+        ? mtmp.then(finish) : finish(mtmp);
 }
 
 function replaceSelectedTerrain(selection, predicate, toTerrain, env) {

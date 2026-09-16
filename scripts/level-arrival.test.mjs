@@ -772,7 +772,7 @@ test('check_special_room handles Court and Morgue and stops later families',
     }
     });
 
-test('restore_cham gives a shapeshifter back its shape', () => {
+test('restore_cham gives a shapeshifter back its shape', async () => {
     const state = dungeonState();
     monst_globals_init(state);
     reset_mvitals(state);
@@ -787,13 +787,13 @@ test('restore_cham gives a shapeshifter back its shape', () => {
     const dog = newMonster();
     dog.data = state.mons[PM_LITTLE_DOG];
     dog.cham = NON_PM;
-    restore_cham(dog, state);
+    await restore_cham(dog, state);
     assert.equal(dog.cham, NON_PM);
 
     const chameleon = newMonster();
     chameleon.data = state.mons[PM_CHAMELEON];
     chameleon.cham = NON_PM;
-    restore_cham(chameleon, state);
+    await restore_cham(chameleon, state);
     assert.equal(chameleon.cham, PM_CHAMELEON);
 
     // The forced-revert arm now reaches normal_shape(). A natural-form
@@ -815,7 +815,7 @@ test('restore_cham gives a shapeshifter back its shape', () => {
         mon.cham = NON_PM;
         state.u.uprops = [];
         set(mon);
-        assert.doesNotThrow(() => restore_cham(mon, state));
+        restore_cham(mon, state);
         assert.equal(mon.cham, NON_PM);
     }
 });
@@ -838,16 +838,16 @@ test('update_mlstmv ages the level the hero is leaving', () => {
     assert.equal(dead.mlstmv, 0);
 });
 
-test('losedogs stops on every list it cannot deliver', () => {
+test('losedogs stops on every list it cannot deliver', async () => {
     const state = dungeonState();
     state.gm = { mydogs: null, migrating_mons: null };
     // Nothing on either list: the walk finds nothing to place.
-    losedogs({ state });
+    await losedogs({ state });
 
     const shopkeeper = newMonster();
     shopkeeper.isshk = true;
     state.gm.migrating_mons = shopkeeper;
-    assert.throws(
+    await assert.rejects(
         () => losedogs({ state }),
         /shopkeeper returning to its shop level/u,
     );
@@ -858,7 +858,7 @@ test('losedogs stops on every list it cannot deliver', () => {
     arriving.mux = 0;
     arriving.muy = 1;
     state.gm.migrating_mons = arriving;
-    assert.throws(
+    await assert.rejects(
         () => losedogs({ state }),
         /migrating to the arrival level/u,
     );
@@ -915,7 +915,7 @@ function recordingRandom(result) {
 }
 
 test('mon_arrive weights the hero own square by the follower disposition',
-    () => {
+    async () => {
         for (const [label, disposition, bound] of [
             ['a pet', (mon) => { mon.mtame = 1; }, 10],
             ['a peaceful monster', (mon) => { mon.mpeaceful = true; }, 5],
@@ -929,7 +929,7 @@ test('mon_arrive weights the hero own square by the follower disposition',
             // case, which takes rloc_to() and draws nothing further.
             const { bounds, random } = recordingRandom(0);
 
-            losedogs({ state, random });
+            await losedogs({ state, random });
 
             assert.deepEqual(bounds, [bound], label);
             assert.deepEqual([follower.mx, follower.my],
@@ -941,7 +941,7 @@ test('mon_arrive weights the hero own square by the follower disposition',
         }
     });
 
-test('mon_arrive puts a follower beside the hero when the roll misses', () => {
+test('mon_arrive puts a follower beside the hero when the roll misses', async () => {
     // The two halves of C's `!MON_AT(u.ux, u.uy) && !rn2(...)`, run against
     // one another. Both reach mnexto(), and their draw sequences differ by
     // exactly the selector the occupied square short-circuits away.
@@ -950,7 +950,7 @@ test('mon_arrive puts a follower beside the hero when the roll misses', () => {
     missed.gm.mydogs = walkIn;
     // Any nonzero answer fails `!rn2(...)`, so mnexto() places the follower.
     const miss = recordingRandom(1);
-    losedogs({ state: missed, random: miss.random });
+    await losedogs({ state: missed, random: miss.random });
 
     const occupied = arrivalState();
     const sitter = arrivingFollower(occupied, 79);
@@ -960,7 +960,7 @@ test('mon_arrive puts a follower beside the hero when the roll misses', () => {
     // A zero answer would take the hero's square if the selector were
     // reached, so this fails if MON_AT() stops guarding it.
     const taken = recordingRandom(0);
-    losedogs({ state: occupied, random: taken.random });
+    await losedogs({ state: occupied, random: taken.random });
 
     assert.equal(miss.bounds[0], 2);
     // enexto() shuffles its candidate rings, so every later draw is
