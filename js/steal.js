@@ -294,7 +294,7 @@ export function remove_worn_item(obj, unchain_ball, state = game) {
 
 // C ref: steal.c worn_item_removal() (292-334). Message prefacing the removal
 // of a worn item during theft, followed by remove_worn_item().
-async function worn_item_removal(mon, obj, state = game, message = ttyUrgentPline) {
+async function worn_item_removal(mon, obj, state = game, message = ttyPline) {
     let objbuf = doname_with_price(obj, state);
 
     // Massage the object description: strip article and replace with "your".
@@ -337,7 +337,12 @@ export class UnsupportedStealError extends Error {
 // unworn item. The armor-delay branch (stealarm callback) and monkey_business
 // paths that need can_carry() or cursed-item checks throw UnsupportedStealError.
 export async function steal(mtmp, state = game, env = {}) {
-    const message = env.message ?? ttyUrgentPline;
+    // C's worn_item_removal() uses ordinary pline(), while the final theft
+    // line uses urgent_pline(). Keep the two display operations separate so
+    // callers can silence both during planning without changing live message
+    // attributes or the --More-- boundary.
+    const message = env.message ?? ttyPline;
+    const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const random = env.random?.rn2 ?? rn2;
 
     const monkey_business = is_animal(mtmp.data);
@@ -544,7 +549,9 @@ export async function steal(mtmp, state = game, env = {}) {
     if ((state.iflags?.last_msg ?? -1) === PLNMSG_MON_TAKES_OFF_ITEM
         && mtmp.data.mlet === S_NYMPH)
         ++named;
-    await message(`${named ? 'She' : Monnambuf} stole ${donameFresh(otmp, state)}.`, state);
+    await urgentMessage(
+        `${named ? 'She' : Monnambuf} stole ${donameFresh(otmp, state)}.`, state,
+    );
     await encumber_msg(state);
 
     // Petrification check for stolen corpses

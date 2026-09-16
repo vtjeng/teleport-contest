@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BEAR_TRAP,
     BLINDED,
+    HALLUC,
     COLD_RES,
     CONFLICT,
     CQ_CANNED,
@@ -107,6 +108,8 @@ import {
     PM_SOLDIER_ANT,
     PM_VAMPIRE,
     PM_WATER_NYMPH,
+    LOW_PM,
+    SPECIAL_PM,
     PM_WERERAT,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
@@ -374,6 +377,110 @@ function physHit(said) {
 function physHitBounds(toHitBound, damn, damd) {
     return [`rnd(${toHitBound})`, `d(${damn},${damd})`, 'rn2(3)', 'rn2(6)'];
 }
+
+test('mattacku keeps planned theft callbacks silent', async () => {
+    // mhitu.c:mattacku() hands the AD_SEDU hit to uhitm.c:mhitm_ad_sedu(),
+    // which reaches steal.c:steal(). Planning replays that complete path on
+    // a clone, so both the ordinary worn-item line and urgent theft line must
+    // be suppressed even when callers provide output callbacks.
+    const state = await meleeHero();
+    state.level.flags.noteleport = true;
+    const nymph = meleeAttacker(state, PM_WATER_NYMPH, 1, 0, {
+        female: true,
+    });
+    const planned = meleeEnv(state, [1], {
+        planning: true,
+        rn2: bound => bound === 9 ? 0 : 1,
+        message: async text => planned.lines.push(text),
+        urgentMessage: async text => planned.urgent.push(text),
+    });
+    planned.urgent = [];
+    const weapon = state.uwep;
+    assert.ok(weapon);
+    assert.equal(await mattacku(nymph, planned.env), false);
+    assert.deepEqual(planned.lines, []);
+    assert.deepEqual(planned.urgent, []);
+    assert.deepEqual(planned.bounds, [
+        'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
+    ]);
+    assert.equal(
+        planned.bounds.filter(bound => bound === 'rn2(9)').length,
+        1,
+    );
+    assert.equal(state.uwep, null);
+    assert.equal(nymph.minvent, weapon);
+});
+
+test('planned hallucinated restriction uses display RNG without leaking gameplay RNG',
+    async () => {
+    // do_name.c:rndmonnam() uses the display stream while teleport.c:
+    // tele_restrict() formats the visible blocked message. Passing the full
+    // attack env keeps planning's display clone on that stream and leaves its
+    // gameplay draws in the source order mattacku() established.
+    const state = await meleeHero();
+    state.level.flags.noteleport = true;
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const nymph = meleeAttacker(state, PM_WATER_NYMPH, 1, 0, {
+        female: true,
+    });
+    const displayBounds = [];
+    const planned = meleeEnv(state, [1], {
+        planning: true,
+        rn2: bound => bound === 9 ? 0 : 1,
+        displayRandom: bound => {
+            displayBounds.push(bound);
+            return 0;
+        },
+        message: async text => planned.lines.push(text),
+        urgentMessage: async text => planned.urgent.push(text),
+    });
+    planned.urgent = [];
+
+    assert.equal(await mattacku(nymph, planned.env), false);
+    assert.deepEqual(planned.lines, []);
+    assert.deepEqual(planned.urgent, []);
+    assert.deepEqual(displayBounds, [
+        SPECIAL_PM + 100 - LOW_PM,
+        2,
+    ]);
+    assert.deepEqual(planned.bounds, [
+        'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
+    ]);
+});
+
+test('mattacku reports a blocked nymph teleport after theft', async () => {
+    // uhitm.c:mhitm_ad_sedu() calls teleport.c:tele_restrict() after a
+    // successful steal. The restriction message is ordinary pline() output,
+    // while steal.c:steal() keeps its final line on urgent_pline().
+    const state = await meleeHero();
+    state.level.flags.noteleport = true;
+    const nymph = meleeAttacker(state, PM_WATER_NYMPH, 1, 0, {
+        female: true,
+    });
+    const actual = meleeEnv(state, [1], {
+        rn2: bound => bound === 9 ? 0 : 1,
+    });
+    const urgent = [];
+    actual.env.urgentMessage = async text => urgent.push(text);
+    const weapon = state.uwep;
+    assert.ok(weapon);
+
+    assert.equal(await mattacku(nymph, actual.env), false);
+    assert.deepEqual(actual.lines, [
+        'The water nymph disarms your +1 spear (weapon in right hand).',
+        'A mysterious force prevents the water nymph from teleporting!',
+    ]);
+    assert.deepEqual(urgent, ['She stole a +1 spear.']);
+    assert.deepEqual(actual.bounds, [
+        'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
+    ]);
+    assert.equal(
+        actual.bounds.filter(bound => bound === 'rn2(9)').length,
+        1,
+    );
+    assert.equal(state.uwep, null);
+    assert.equal(nymph.minvent, weapon);
+});
 
 test('mattacku prints the miss its to-hit test loses and the hit it wins',
     async () => {
