@@ -3471,7 +3471,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
                 ...normalized,
                 message: normalized.message ?? ttyPline,
                 norepMessage: normalized.norepMessage ?? ttyNorep,
-            });
+            }).then(() => monster);
         }
 
         return monster;

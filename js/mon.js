@@ -175,8 +175,8 @@ import {
     glyph_is_invisible,
     map_monster_glyph_info,
     newsym,
-    swallowed,
     see_monsters,
+    swallowed,
     unmap_object,
 } from './display.js';
 import {
@@ -2334,14 +2334,6 @@ export function mon_regen(monster, digestMeal = false, state = game) {
     }
 }
 
-export class UnsupportedMonsterDistressError extends Error {
-    constructor(operation) {
-        super(`unsupported monster distress state: ${operation}`);
-        this.name = 'UnsupportedMonsterDistressError';
-        this.operation = operation;
-    }
-}
-
 function distressRandom(env = {}) {
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
     for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne']) {
@@ -2760,6 +2752,8 @@ function* apply_newcham_steps(
         yield (normalized.hideunder ?? hideunder)(monster, {
             ...normalized,
             state,
+            redraw: normalized.redraw
+                ?? ((x, y) => shapeRedraw(x, y, normalized)),
         });
     }
 
@@ -3054,15 +3048,6 @@ export async function newcham_distress(monster, target = null, rawEnv = {}) {
 
 export function preflight_newcham_distress(monster, rawEnv = {}) {
     const normalized = newchamEnv(rawEnv);
-    const supported = monster?.cham === PM_SANDESTIN
-        || monster?.cham === PM_DOPPELGANGER
-        || monster?.cham === PM_CHAMELEON
-        || monster?.cham === PM_VAMPIRE
-        || monster?.cham === PM_VAMPIRE_LEADER
-        || monster?.cham === PM_VLAD_THE_IMPALER
-        || monster?.cham === NON_PM;
-    if (!supported)
-        throw new UnsupportedMonsterDistressError(`shapechanger ${monster?.cham}`);
     if (!Number.isInteger(monster.mhpmax) || monster.mhpmax <= 0
         || !Number.isInteger(monster.mhp) || monster.mhp <= 0) {
         throw new TypeError('newcham_distress requires positive integer hit points');
@@ -6082,10 +6067,9 @@ export function restrap(monster, env = {}) {
     return false;
 }
 
-// C ref: mon.c hideunder() (4726-4801). The monster eel and object-concealing
-// arms are covered here; hero concealment remains fail-closed. js/makemon_create.js
-// carries a separate level-creation subset that also owns the object-concealing
-// arm for mklev() and newcham().
+// C ref: mon.c hideunder() (4726-4801). All monster concealment paths use this
+// helper, including newcham() clearing concealment after a change of form.
+// Hero concealment remains fail-closed.
 //
 // The boundary is `seeit` alone rather than `seeit && undetected`, because C
 // evaluates `seenmon = y_monnam(mtmp)` for every visible monster, whether or
@@ -6104,9 +6088,6 @@ export async function hideunder(monster, env = {}) {
         throw new UnsupportedHideError('hero concealment');
     }
     const isEel = monster.data?.mlet === S_EEL;
-    if (!isEel && !hides_under(monster.data)) {
-        throw new UnsupportedHideError('a monster that hides under objects');
-    }
 
     const seeit = state.in_mklev ? false : canseemon(monster, state);
 
@@ -6138,7 +6119,7 @@ export async function hideunder(monster, env = {}) {
             seenobj = 'the water';
             locomo = 'dive';
         }
-    } else {
+    } else if (hides_under(monster.data)) {
         let object = state.level?.objects?.[x]?.[y] ?? null;
         if (can_hide_under_obj(object, state)
             && (!monster.mtame || !cursed_object_at(x, y, state))

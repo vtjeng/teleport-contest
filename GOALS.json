@@ -55829,13 +55829,13 @@
         "seed0360-wizard-world-tour",
         "seed0361-archeologist-tour"
       ],
-      "selectionReason": "Worker B continued seed0360 after the Wizard filler port and traced its step805 doppelganger stop to mon.c newcham and form selection. This is the oldest dependency-ready delivery; its accepted A12 dependency is now available, while the higher-ranked Knight make_blinded scope remains with worker A. Source details are in investigations/seed0360-wizard-world-tour.json.",
+      "selectionReason": "Resume the oldest corrected ready delivery B15 for seed0360-wizard-world-tour,28 remaining screens, investigations/seed0360-wizard-world-tour.json. Whole mon.c newcham and its async creation callers are already preserved on codex/B15-pending-20260916; correction48b83090 is ready. Its reserved Hell/special-level completion contract is also a prerequisite for the higher-priority Knight hellfill.lua port at536 remaining screens; life saving is parked and describe_decor is independently owned by A15.",
       "detail": "Select the complete select_newcham_form through newcham family. The complete decide_to_shapeshift caller and source-required creation, revival, restoration and special-level callers are supporting wiring. Record unverified active entry families explicitly and park the goal after its verified span until their production recordings exist.",
       "spans": [
         {
           "name": "select_newcham_form..newcham",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "00d21098fed110f4345203d69a050d4706feeeea",
           "functions": [
             "select_newcham_form",
             "accept_newcham_form",
@@ -55858,28 +55858,28 @@
           "line": 5157,
           "endLine": 5228,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "accept_newcham_form",
           "line": 5229,
           "endLine": 5255,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "mgender_from_permonst",
           "line": 5256,
           "endLine": 5277,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "newcham",
           "line": 5278,
           "endLine": 5545,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -55887,9 +55887,9 @@
         "to": 5545
       },
       "activeStanding": {
-        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
-        "screens": 10539,
-        "rng": 759996
+        "sha": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
+        "screens": 10613,
+        "rng": 760315
       },
       "openMismatches": [
         {
@@ -56043,20 +56043,235 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 31,
+        "rng": 483
       },
       "parkedStanding": {
-        "sha": "3b1823e02943b8176b7f4832b7f90f59ceeb1820",
-        "screens": 10539,
-        "rng": 759996
+        "sha": "00d21098fed110f4345203d69a050d4706feeeea",
+        "screens": 10644,
+        "rng": 760798
       },
-      "parkedReason": "Preserved combined candidate d3625bdc64e51c8d65304cc7e985720cf0c6e556 on codex/B15-pending-20260916 while worker B completes source-ordered fill_zoo and post-finalization makemon continuation. Resume when the corrected delivery is ready; active wizard-control, revival, restoration and special-level entry recordings also remain incomplete. Measure ready make_blinded independently first."
+      "parkedReason": "The verified select_newcham_form..newcham span now completes both selected fixed-workload sessions. Wizard-controlled creation, revival/explicit transitions, restoration/cancellation, special/themed creation and post-topology room creation remain active entry families without matching production recordings. Resume their coverage when per-session priority and ownership permit; the current highest independent mismatch is the whole hellfill.lua port at536 remaining screens.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "select_newcham_form",
+            "implementation": "js/mon.js",
+            "symbol": "select_newcham_form",
+            "sourceReview": "Read mon.c:5157-5225 in full. Species-specific Sandestin, doppelganger, chameleon, controlled-vampire, wizard-control, worn dragon armor, Rogue uppercase retry, and random fallback branches are source ordered. The caller performs wizard mon_polycontrol after this selector even when a species-specific selection was produced, preserving the source prompt and RNG order.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c newcham calls select_newcham_form before wizard control, acceptance and application."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c makemon() reaches newcham_initial() before allowMinvent and therefore the shared selector/acceptance path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          },
+          {
+            "name": "accept_newcham_form",
+            "implementation": "js/mon.js",
+            "symbol": "accept_newcham_form",
+            "sourceReview": "Read mon.c:5229-5253 in full. This function only evaluates catalog, genocide, placeholder, player-monster, shapeshifter and polyok predicates and returns the accepted form. It makes no RNG call, output or state mutation, so it is pure; source-pinned accepted and rejected cases cover its result.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham",
+                "source": "mon.c newcham validates each selected form before retrying or applying it."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c makemon() reaches newcham_initial() before allowMinvent and therefore the shared selector/acceptance path."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          },
+          {
+            "name": "mgender_from_permonst",
+            "implementation": "js/mon.js",
+            "symbol": "mgender_from_permonst",
+            "sourceReview": "Read mon.c:5254-5273 in full. Fixed-gender and neuter cases precede the conditional rn2(10) flip; the flip is suppressed for both vampire species and all vampire shifters including Vlad. The JS predicate and draw order match C.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "apply_newcham_steps",
+                "source": "mon.c newcham calls mgender_from_permonst before HP scaling and set_mon_data."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          },
+          {
+            "name": "newcham",
+            "implementation": "js/mon.js",
+            "symbol": "newcham",
+            "sourceReview": "Read mon.c:5278-5534 in full. The implementation captures old names before selection, evaluates species selection and wizard control in source order, accepts and applies the form, scales HP, updates canonical mondata, handles light/invisibility, yields canonical mon.hideunder and display.swallowed, preserves unstuck/flooreffects ordering, updates worm state and visibility, emits source-ordered messages, rechecks equipment, traverses inventory through saved successors, and returns the actual resolved Boolean. Production callers now await the hybrid Promise path, including Hell populatemaze descriptors, themed-room Mausoleum callbacks and fill loops, custom monster inventory, and special-object contents cleanup. Discarded-result source calls outside this span remain explicit note_unported gaps rather than substitute refusals or fire-and-forget work. Explicit discarded-call gaps are apply.c m_unleash, weapon.c possibly_unwield, worn.c mon_break_armor, trap.c mselftouch and steed.c poly_steed; the async unstuck/flooreffects calls consume canonical completed results. Canonical hideunder clears obsolete mundetected for an ordinary new form and uses the shape caller's redraw owner. The species allowlist refusal in distress was removed after the full family became available. Post-topology room filling preserves in_mklev=false and awaits the canonical runtime appearance/redraw/occupation tail before returning the created monster. Court throne completion precedes cell eligibility checks, and each cell completes before the next cell's source operations; helpers are initialized before any Promise continuation can use them.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham_distress",
+                "source": "mon.c distress handling reaches newcham with NC_SHOW_MSG; the JS wrapper awaits the result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "newcham_initial",
+                "source": "makemon.c initial creation reaches newcham before allowMinvent; makemon propagates and awaits the resolved result."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "newcham_revival",
+                "source": "zap.c revive reaches the explicit-target transition and propagates its result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "normal_shape",
+                "source": "mon.c normal_shape restores a canceled shape and awaits newcham before cancellation and were/mimic continuation."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "vamp_shift",
+                "source": "monmove.c vampire relocation reaches the canonical async shape transition."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "lspo_monster",
+                "source": "sp_lev.c lspo_monster waits for the resolved create_monster result before custom inventory."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "montraits",
+                "source": "zap.c montraits waits for the resolved makemon_revival result before saved-trait replacement."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "fill_ordinary_room",
+                "source": "mklev.c fill_ordinary_room waits for makemon before its data check and later room generation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/mon-shape.test.mjs",
+              "scripts/mondata.test.mjs",
+              "scripts/topten.test.mjs",
+              "scripts/shapechange-async-callers.test.mjs",
+              "scripts/hellfill-level-loader.test.mjs",
+              "scripts/sp-lev-object.test.mjs",
+              "scripts/themeroom-fill.test.mjs",
+              "scripts/mkroom-shop.test.mjs",
+              "scripts/special-level.test.mjs",
+              "scripts/quest-levels.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ],
+            "checkedAt": "5393990da966be4abb3edfa41ea6c82124e9510b"
+          }
+        ],
+        "entryPointReview": "The central range selects select_newcham_form through newcham in C order; decide_to_shapeshift is reviewed supporting caller wiring. Two independent matching recordings reach initial doppelganger creation and later distress changes. All other active entry families below remain unrecorded, so only the span can close and the source goal must be parked. Registered special-level descriptor callers await creation, nested inventory and contents, room/map/region cleanup and finalization. A synthetic BEEHIVE test marks a bee as a shapechanger to force delayed selection through the actual caller chain; it establishes callback ordering, not a C-valid bee entry. A separate unmodified-species Court regression reaches valid post-topology creation and verifies retained monster pointers, ruler sleep, hostile subjects, runtime redraws and completion flags. Canonical concealment is checked through a hidden eel changing to a sewer rat with exact RNG and redraw order.",
+        "entryPoints": [
+          {
+            "name": "regular doppelganger distress shapechange",
+            "functions": [
+              "select_newcham_form",
+              "accept_newcham_form",
+              "mgender_from_permonst",
+              "newcham"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ]
+          },
+          {
+            "name": "initial doppelganger form selection and application",
+            "functions": [
+              "select_newcham_form",
+              "accept_newcham_form",
+              "mgender_from_permonst",
+              "newcham"
+            ],
+            "recordings": [
+              "recordings/mon.c/doppelganger-distress-wizard-male.session.json",
+              "recordings/mon.c/doppelganger-distress-valkyrie-female.session.json"
+            ]
+          },
+          {
+            "name": "wizard-controlled form selection during creation",
+            "functions": [
+              "select_newcham_form",
+              "accept_newcham_form",
+              "mgender_from_permonst",
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "revival and explicit-target shape transition",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "restoration and cancellation shape transition",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "special-level and themed-room monster creation",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "post-topology special-room monster creation",
+            "functions": [
+              "newcham"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     },
     {
       "id": "port-potion-make-blinded-seed4500-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete blindness timeout changes and source-ordered sight restoration",
       "cFile": "potion.c",
       "sessions": [
@@ -56067,8 +56282,8 @@
       "spans": [
         {
           "name": "make_blinded",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
           "functions": [
             "make_blinded"
           ]
@@ -56080,8 +56295,11 @@
         "screens": 10539,
         "rng": 759996
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
+      "delivered": {
+        "screens": 74,
+        "rng": 319
+      },
       "functions": [
         {
           "name": "make_blinded",
@@ -56286,6 +56504,79 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1278,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported level change: hellfill generator 2 not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 536,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 536,
+              "status": "complete",
+              "commit": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1278,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported level change: hellfill generator 2 not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 536
+              },
+              "summary": "The blindness cure now matches. At step1278 the Knight enters Gehennom and selects Hell filler generator2, which JavaScript still refuses. Complete the whole hellfill.lua program, including its remaining generators, prefab helpers and top-level population order.",
+              "source": {
+                "file": "hellfill.lua",
+                "functions": [
+                  "hellfill.lua"
+                ],
+                "branch": "C dat/hellfill.lua431 selects hells[2] with rn2(7)=1. That generator initializes solidfill and mazegrid, calls des.mazewalk from coordinate(1,10) east without stocking, derives the protected selection, calls hell_tweaks, and conditionally places a prefab. js/hell_levels.js HELL_GENERATORS[1] throws before maze walking. The next C draw is walkfrom(mkmaze.c1304), but that existing helper is not the missing source owner.",
+                "callers": [
+                  "dungeon_data.js registers Gehennom lvlfill hellfill; mklev.js makelevel and load_special dispatch its registered HELL_LEVEL_LOADERS. This path does not use the empty-prototype procedural makemaz fallback.",
+                  "hellfill top-level selects one of seven generators, creates up/down stairs or the invocation vibrating square, then calls populatemaze; preserve awaited descriptor completion through B15 shared loader wiring."
+                ],
+                "dependencies": [
+                  "Port all hellfill.lua top-level statements and helpers, all seven generators and the complete hell_prefabs table/rnd_hell_prefab loop. Generators1,2,4,6 currently refuse; existing3,5,7 and populatemaze require whole-source verification rather than declaration counting.",
+                  "Reuse and verify canonical mklev.js lspo_level_init mazegrid, lspo_mazewalk and walkfrom, selection operations, and asmodeus_levels.js hell_tweaks. Match Lua numeric-for bounds, shuffle, selection traversal and random draw order.",
+                  "The saved witness does not take generator2's optional prefab arm, but that is a valid source branch and cannot be omitted from the whole Lua port. Keep inputs independent for new entry-point recipes."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Passing checkpoint493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d/run-P1AZrQ establishes10613/11405screens,760315/792838RNG,10635/11405cursors and293/293recordings. Knight screens advance1204→1278 and RNG90544→90863; all other43 fixed-session metrics are unchanged.",
+                "Saved .cache/A14-development-scan.json has no earlier screen/RNG/cursor divergence and stops at1278 with unsupported level change: hellfill generator2 not ported. The preceding source selector is rn2(7)=1 from hellfill.lua431; the missing next draw belongs to walkfrom.",
+                "The two independent timed-blind extra-healing recordings show A cloud of darkness falls upon you. before the production cure You feel much better. You can see again.; they establish the completed make_blinded transition. The older BUC recordings begin sighted and establish the unchanged-zero call only.",
+                "Historical counter-evidence: a later refusal does not establish the first mismatch. Earlier comparisons emitted1101 screens but first diverged at1063 in the blind pile heading, then1094 in blindness state. Compare screens, cursors and RNG before treating an emitted-screen count as parity.",
+                "Historical tactile recipe counter-evidence: the initial welcome More prompt consumed Ctrl-W in the invalid punishment setup, so the subsequent inventory screen and obj_resists mismatch did not establish a feel_location defect. The corrected sighted punishment recording verifies setup only; it does not reach feel_location. Unrecorded active tactile and beam entry points remain tracked in their parked goals.",
+                "Historical return-contract counter-evidence: feel_location must complete before the wounded-monster continuation is accepted; the earlier source candidate threw inside the incomplete segment and the scorer discarded it. The recovered failure is preserved in checkpoint history and is not a new score gain."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
+        "screens": 10613,
+        "rng": 760315
       }
     }
   ]

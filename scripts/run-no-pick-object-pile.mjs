@@ -150,7 +150,7 @@ export async function verifyNoPickObjectPileSegment(segment) {
     if (game.nhDisplay.inputQueueLength !== 0) {
         throw new Error(`seed ${segment.seed} left unread command input`);
     }
-    // C's startup creates one empty vfs:record scorefile and no other entry.
+    // Replay startup creates an empty scorefile under the vfs:record key.
     if (storage.length !== 1 || storage.getItem('vfs:record') !== '') {
         throw new Error(`seed ${segment.seed} changed persisted storage`);
     }

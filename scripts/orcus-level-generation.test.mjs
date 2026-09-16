@@ -34,9 +34,9 @@ function recordingDes(randomValue = 99) {
             if (property === 'map') return null;
         };
     }
-    des.map = (spec) => {
+    des.map = async (spec) => {
         calls.push({ property: 'map', args: [spec] });
-        spec.contents();
+        await spec.contents();
         return { xstart: 20, ystart: 2, xsize: 45, ysize: 17 };
     };
     return { calls, des };

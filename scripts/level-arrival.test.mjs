@@ -815,7 +815,7 @@ test('restore_cham gives a shapeshifter back its shape', async () => {
         mon.cham = NON_PM;
         state.u.uprops = [];
         set(mon);
-        restore_cham(mon, state);
+        await restore_cham(mon, state);
         assert.equal(mon.cham, NON_PM);
     }
 });

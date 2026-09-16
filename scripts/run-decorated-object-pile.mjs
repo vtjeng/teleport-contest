@@ -162,7 +162,7 @@ export async function verifyDecoratedObjectPileSegment(segment) {
         throw new Error('replay changed its object-description options');
     if (game.context.run !== 0 || game.multi !== 0)
         throw new Error('decorated pile did not stop movement');
-    // C's startup creates one empty vfs:record scorefile and no other entry.
+    // Replay startup creates an empty scorefile under the vfs:record key.
     if (storage.length !== 1 || storage.getItem('vfs:record') !== '')
         throw new Error('decorated pile changed persisted storage');
 }

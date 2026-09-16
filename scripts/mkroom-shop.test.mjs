@@ -977,6 +977,47 @@ test('Court fill forces peaceful subjects hostile and initializes coffers',
         assert.equal(state.level.flags.has_court, true);
     });
 
+test('post-topology Court fill retains its ruler and finishes all subjects',
+    async () => {
+        const state = initializedCourtState();
+        state.in_mklev = false;
+        state.u.ux = 40;
+        state.u.uy = 20;
+        state.urace.lovemask = M2_GNOME;
+        const room = shopCandidate(state, {
+            lx: 10, ly: 5, hx: 11, hy: 6,
+        });
+        room.rtype = COURT;
+        room.needfill = FILL_NORMAL;
+        room.doorct = 0;
+        const redraws = [];
+        await fill_special_room(room, objectGenerationEnv({
+            state,
+            random: courtFillRandom(2),
+            message: () => {},
+            norepMessage: () => {},
+            hooks: {
+                populateContainer: () => {},
+                newsym: (x, y) => redraws.push([x, y]),
+            },
+        }));
+
+        const monsters = [];
+        for (let mon = state.level.monlist; mon; mon = mon.nmon)
+            monsters.push(mon);
+        const ruler = monsters.find(mon => mon.mnum === PM_GNOME_RULER);
+        assert.ok(ruler, 'the asynchronous constructor preserves its monster');
+        assert.equal(ruler.msleeping, true, 'mk_zoo_thronemon finishes the ruler');
+        assert.equal(state.level.at(ruler.mx, ruler.my).typ, THRONE);
+        assert.ok(monsters.length > 1, 'room filling continues after the ruler');
+        assert.ok(monsters.every(mon => mon.mpeaceful === false),
+            'resolved monster pointers reach the Court hostility override');
+        assert.equal(redraws.length, monsters.length,
+            'each post-topology creation completes its runtime redraw');
+        assert.equal(state.level.flags.has_court, true);
+        assert.equal(state.in_mklev, false, 'source topology state stays intact');
+    });
+
 test('Court throne selection stops after exactly one hundred failed spots',
     () => {
         const state = initializedCourtState();

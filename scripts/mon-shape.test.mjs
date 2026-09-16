@@ -8,6 +8,7 @@ import {
     get_iter_mons_xy,
     iter_mons,
     mon_animal_list,
+    newcham,
     normal_shape,
     pickvampshape,
     restartcham,
@@ -132,6 +133,44 @@ test('restartcham re-enables shape changes for living monsters', () => {
     restartcham(state);
 
     assert.equal(shifted.cham, NON_PM);
+});
+
+// mon.c newcham() calls hideunder() after replacing the species. A form
+// without concealment clears mundetected even when an object covers its square.
+test('newcham reveals a hidden monster when its new form cannot hide', async () => {
+    const state = monsterState();
+    state.in_mklev = true;
+    state.youmonst = { data: state.mons[M.PM_HUMAN] };
+    const shifted = monster(state, M.PM_GIANT_EEL, {
+        cham: M.PM_CHAMELEON,
+        mx: 4,
+        my: 4,
+        mundetected: 1,
+    });
+    state.level.objects[4][4] = { otyp: AMULET_OF_YENDOR };
+    const draws = [];
+    const redraws = [];
+    const redraw = (x, y) => redraws.push([x, y, shifted.mundetected]);
+
+    assert.equal(await newcham(shifted, state.mons[M.PM_SEWER_RAT], {
+        state,
+        random: {
+            rn2(bound) { draws.push(['rn2', bound]); return 9; },
+            rnd(bound) { draws.push(['rnd', bound]); return 3; },
+            rn1() { assert.fail('unexpected rn1'); },
+            rne() { assert.fail('unexpected rne'); },
+            d() { assert.fail('a level-zero rat does not roll hit dice'); },
+        },
+        canSpotMonster: () => false,
+        message: () => assert.fail('concealment loss has no message'),
+        redrawSquare: redraw,
+    }), true);
+
+    assert.equal(shifted.data, state.mons[M.PM_SEWER_RAT]);
+    assert.equal(shifted.mundetected, 0);
+    assert.deepEqual(draws, [['rn2', 10], ['rnd', 4]]);
+    assert.deepEqual(redraws, [[4, 4, 0], [4, 4, 0]],
+        'hideunder redraws the concealment change before newcham redraws');
 });
 
 test('alloc_itermonarr accepts C release and growth requests', () => {

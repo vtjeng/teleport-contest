@@ -24,9 +24,9 @@ function recordingDes() {
 
 // The source map is 19 columns by 13 rows, including its leading and trailing
 // spaces. The whitespace matters because sp_lev.c places every map character.
-test('tower3 loader preserves the source map and call order', () => {
+test('tower3 loader preserves the source map and call order', async () => {
     const { calls, des } = recordingDes();
-    QUEST_LEVEL_LOADERS.tower3(des);
+    await QUEST_LEVEL_LOADERS.tower3(des);
 
     const mapCall = calls.find(({ property }) => property === 'map');
     assert.ok(mapCall, 'tower3 loader must call des.map');
@@ -47,9 +47,9 @@ test('tower3 loader preserves the source map and call order', () => {
     );
 });
 
-test('tower3 loader supplies its fixed descriptors', () => {
+test('tower3 loader supplies its fixed descriptors', async () => {
     const { calls, des } = recordingDes();
-    QUEST_LEVEL_LOADERS.tower3(des);
+    await QUEST_LEVEL_LOADERS.tower3(des);
 
     assert.deepEqual(calls[0].args, [{ style: 'solidfill', fg: ' ' }]);
     assert.deepEqual(calls[1].args,

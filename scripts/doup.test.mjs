@@ -197,7 +197,7 @@ test('savelev() captures level state and getlev() restores it', async () => {
     state.stairs = null;
 
     // Restore the level.
-    getlev(ledger, state);
+    await getlev(ledger, state);
 
     assert.equal(state.level, originalLevel,
         'getlev restores the same level object');
