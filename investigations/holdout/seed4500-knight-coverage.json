@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 817
   },
-  "summary": "Main first diverges at step 997 because breamm skips dobuzz. Worker A has expanded beam damage, creature hits and terrain effects; focused ray and electrical-destruction tests pass on its branch. Source review continues before fresh recordings and submission. The fountain dependency is under combined validation.",
+  "summary": "Main first diverges at step 997 because breamm skips dobuzz. Worker A's expanded beam implementation passes 50 focused ray tests and 29 electrical-destruction tests. It is merging validated main, wiring the accepted fountain owner and preparing independent entry recordings before submission; no beam score gain is claimed.",
   "source": {
     "file": "zap.c",
     "functions": [
@@ -50,6 +50,8 @@
     "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery.",
     "Worker A reports focused ray tests 48/48 and electrical destruction tests 29/29 with lint passing. Source corrections move mstrategy clearing before the ordinary monster hit label and exclude reflecting steeds before the shared hit arm, matching C's goto path. These checks cover unfinished worker code and do not change the published score.",
     "The shared sleep_monst source review requires direct use of the existing zap.c resist owner with real RNG and preserves the trap callers that consume its boolean result. The source-owned terrain helper movement and dryup caller still require integration checks and independent recordings.",
-    "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings."
+    "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings.",
+    "Fountain dependency dryup is accepted in tested main 17c7e13e and published in d9ee2ab9. Worker A must merge validated main at a clean WIP boundary and replace the temporary injected dryup path with the accepted source owner before its final fresh differentials and immutable delivery.",
+    "Worker A reports the ordinary death-ray assignment tmp=mon.mhp+1 and final mutable-type Knight multiplier corrected from C zap.c, with visual-only resistance handling and 50/50 ray tests passing. Electrical destruction tests remain 29/29 passing. These are focused worker results; whole-source entry recordings and combined validation remain outstanding."
   ]
 }
