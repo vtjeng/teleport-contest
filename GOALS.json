@@ -52829,7 +52829,7 @@
     {
       "id": "div-mondead-planning-map-memory-seed4500-20260916",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Isolate map memory for monster-death planning cleanup",
       "cFile": "mon.c",
       "sessions": [],
@@ -52838,8 +52838,8 @@
       "spans": [
         {
           "name": "planned-map-memory",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
           "functions": [
             "mondead",
             "m_detach"
@@ -52852,8 +52852,11 @@
         "screens": 10273,
         "rng": 754203
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
+      "delivered": {
+        "screens": 45,
+        "rng": 1940
+      },
       "function": "mondead",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1048,
@@ -52947,7 +52950,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
+        "screens": 10318,
+        "rng": 756143
+      }
     }
   ]
 }
