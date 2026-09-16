@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cheap variation of explicit makemon.c PM_MINOTAUR creation: a Valkyrie dwarf with a distinct seed, timestamp, name, and !autopickup option reaches wizard.c wiz_genesis() and read.c create_particular_creation() without the removed species marker.",
+  "segments": [
+    {
+      "seed": 9632081,
+      "datetime": "20350111223344",
+      "nethackrc": "OPTIONS=name:MinotaurVariant,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait,!autopickup\n",
+      "moves": " \u0007minotaur\n"
+    }
+  ]
+}
