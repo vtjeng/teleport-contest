@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "datetime": "20300914112235",
+      "nethackrc": "OPTIONS=name:ZooProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "\u001610\n.",
+      "seed": 8800076,
+      "comment": "Cheap date and seed variation of the independent D:10 ZOO dispatch witness; the C makelevel() branch again reaches mkroom.c do_mkroom(ZOO)."
+    }
+  ]
+}

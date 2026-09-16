@@ -53710,6 +53710,341 @@
         "rng": 756143
       },
       "parkedReason": "The Conduct command span and independent recordings pass checkpointf82a3ae8. Final conduct disclosure still lacks a matching entry recording; preserve that incomplete goal while integrating the next eligible delivered work."
+    },
+    {
+      "id": "div-uhitm-known-hitum-monflee-seed4500-20260916",
+      "kind": "divergence-fix",
+      "status": "parked",
+      "summary": "Wire wounded surviving hits to canonical monster flight",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "Integrate oldest ready A11 for highest remaining holdout/seed4500-knight-coverage,718 remaining screens at1096; investigations/holdout/seed4500-knight-coverage.json traces missing canonical monflee wiring in implemented known_hitum. B9 is closed; B10/B11 await source attribute corrections, and both workers continue independent source ports.",
+      "detail": "C uhitm.c623-633 consumes rn2(25), checks wounded survivor and engulfing, chooses !rn2(3)?rnd(100):0, calls monflee with FALSE/TRUE and clears u.ustuck under the source guard. Replace the existing refusal with canonical monflee/set_ustuck and planning-safe callbacks. Preserve the discarded Vrock create_gas_cloud gap. Worker focused checks pass and saved replay reaches all1814 recorded screens without divergence; validate combined main independently.",
+      "spans": [
+        {
+          "name": "wounded-survivor-monflee",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "known_hitum"
+          ]
+        }
+      ],
+      "openedAt": "483f78f68ef6c09cb8522ae67049a55488936133",
+      "openStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "known_hitum",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1096,
+      "activeStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1096,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: a wounded monster losing its nerve",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 718,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 718,
+              "status": "complete",
+              "commit": "bd5bd75d5589afb23b89f09891596e7d53578dda",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1096,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero move: a wounded monster losing its nerve",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 718
+              },
+              "summary": "The wizard-blindness correction passes combined validation and advances the first mismatch from1094 to1096. The next boundary is the wounded-survivor morale branch in uhitm.c known_hitum. A11 is submitted and its worker replay reaches the recorded end; combined validation remains pending.",
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "known_hitum"
+                ],
+                "branch": "C uhitm.c623-633 first spends rn2(25), then for a surviving monster below half health and not engulfing chooses !rn2(3)?rnd(100):0, calls monflee(mon,time,FALSE,TRUE), and releases u.ustuck if still attached without swallowing or sticky form. JavaScript currently spends rn2(25) then refuses before this behavior.",
+                "callers": [
+                  "js/cmd.js movement -> js/hack.js do_attack -> js/uhitm.js known_hitum is the production hero-hit path, matching C uhitm.c attack dispatch."
+                ],
+                "dependencies": [
+                  "Use existing monmove.c monflee and mon.c set_ustuck owners with canonical state and planning-safe message/random callbacks.",
+                  "Vrock monflee discards create_gas_cloud return; preserve the explicit region.c gap until its positive-damage cloud implementation is ported."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Bounded focused replay run-2hERtY, receipt /tmp/teleport-validation-1000/run-2hERtY/receipt.json, used only sessions/holdout/seed4500-knight-coverage.session.json at commit 153fb5a8ff37f5684a897e36cedfa18c7f2b2b56. It emitted 1034 screens and stopped at the queue boundary with no earlier behavioral divergence; replay-result is saved at .cache/investigate-seed4500-153fb5a8/replay-result.json.",
+                "The saved queue entry identifies step 1034, function makemon, sourceFile makemon.c, message “unsupported initial-level monster creation: makemon() monster 177”, and remainingScreensUpperBound 780. The witness is seed 4500, 20000601120000, Knight Coverage, one segment, and the input through the stop ends with #wizgenesis followed by minotaur and newline.",
+                "At the stop, the C session records collect_coords() draws, next_ident(mkobj.c:521), d(16,8)=78 at newmonhp(makemon.c:1042), rn2(2)=1 at makemon(makemon.c:1279), rn2(8)=1 at m_initinv(makemon.c:740), rn2(50)=28 and rn2(100)=17 at m_initinv(makemon.c:826), and rn2(100) at makemon(makemon.c:1447). This proves the C path creates the named minotaur and reaches the generic inventory tail after the current JavaScript refusal.",
+                "C read.c:3212 resolves the typed name through name_to_mon(), :3275-3315 reaches the explicit named-species loop and makemon() call, while C wizcmds.c:203-210 establishes the production #wizgenesis caller. JavaScript read.js:1115-1129 resolves the same PM_MINOTAUR and read.js:1171-1173 invokes makemon_runtime(), confirming the caller is already live up to preflight.",
+                "PM_MINOTAUR is catalog index 177 (js/monsters.js:415) with S_GIANT class (js/monsters.js:211); its existing js/makemon_create.js m_initinv arm matches C’s PM_MINOTAUR WAN_DIGGING branch. The refusal therefore comes from assertSupportedSpecies(), not from missing species data or an unimplemented minotaur inventory branch.",
+                "The replay result lists trap.c selftouch and ball.c set_bc as unrelated accumulated unported state after the boundary; neither is the step-1034 cause. No game code, tests, central records, C recorder, score, scan aggregate, or other session was modified.",
+                "Accepted candidate a0342880e606384b48903ac656ccc92a770b232c checkpoint run-r1BdaY passes: 31/44 sessions,10249/11405 screens,753558/792838 RNG,10271/11405 cursors,267/267 recordings. The beam span adds37 screens,993 RNG values and two independent monster-breath recordings totaling45 screens and6243 RNG calls. The prior candidate153fb5a8 matched the same recordings and score but failed an obsolete naming-call inventory count; correction7ead0433 changes that test from2 to3 after verifying all calls forward state.",
+                "The beam source goal remains parked after span acceptance because monster-to-monster breath, hero spell/polymorph/horn, monster spell, priest/storm and forced-miss ray entries lack matching production evidence. Verified entries are monster-to-hero fire breath and the existing hero fire-wand reflection recording. Runtime minotaur admission is a separate source-traced next goal, not unverified beam scope.",
+                "Immutable minotaur delivery b45491d463555c3738f1674737491096bfccc28c and variation correction fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d preserve generic runtime and stocked-maze callers without the former _fillEmptyMazeMinotaur/allowMinotaur marker. A fresh Ranger genesis case matches2852 RNG and12 screens; an independent role/options variation also matches. Source identity, HP/gender, placement and inventory ordering are covered by focused makemon and wizard-genesis checks. Coordinator integration remains pending.",
+                "Worker A independently claimed A7 from fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d after a focused seed4500 continuation reached step1048. Its source trace identifies hack.c domove_fight_empty: C consults a remembered invisible glyph and does not describe a floor statue unless glyph_is_statue holds; JavaScript looked up the statue unconditionally. The worker reports a source-aligned correction progressing to a separate mon.c invisible-marker planning boundary; A7 remains unvalidated and is not main progress.",
+                "Coordinator integrated A6 as candidate5620e1e2db7c384c622c6a7a828129cc6642763f. Bounded affected run-TBfK0X passed569/569 tests; lint run-RzEkq7 and quality run-OCBfHK passed. Full checkpoint run-YPsR5B is running; no new score is claimed.",
+                "A7 immutable2386a18bea35cd76c6df8aa7801eef898e85741f adds glyph-gated boulder/statue selection and two independent force-fight recordings totaling20 screens and5833 RNG values. Coordinator source review found that the newly admitted selected-object arm could still hit the hoisted unseen-solid-terrain refusal, although C skips its solid-message arm when an object is selected. Feedback requests a !boulder guard and a source-pinned unseen-furniture witness; the delivery is not accepted.",
+                "Coordinator read C hack.c domove_fight_empty2227-2338 in full and compared submitted2386a18b. The selected object is chosen at2254-2260, then unmap_object, optional map_object and newsym precede the object/underwater/solid/thin-air message chain. The source result for the remembered invisible marker is thin air even when a statue exists on the floor. Exact candidate scan cache5620e1e2 contains44 sessions and emits1048 screens for this session with the boulder/statue refusal, beyond prior minotaur step1034.",
+                "A7 correction1a2b0831c83e8c5a94d6a3a09585799608aae9c4 adds !boulder to the hoisted terrain refusal and pins a selected boulder above unseen fountain terrain. Worker focused force-fight checks and lint pass; coordinator source comparison confirms the correction. The worker merged accepted main b9f73e9f at HEAD4b334d9ac99cec3023d60b23281837466569061b before this correction and preserved the submitted commits.",
+                "Full checkpoint5620e1e2db7c384c622c6a7a828129cc6642763f run-uaP28g passes all checks:31/44 sessions,10273/11405 screens,754203/792838 RNG,10295/11405 cursors and271/271 recordings. The minotaur fix gains14 development screens and614 RNG values, adds two independent recordings totaling24 screens and5356 RNG calls, and advances the first boundary from makemon step1034 to domove_fight_empty step1048. Saved scan .cache/A6-development-scan.json and queue run-l0blNy establish the766-screen suffix.",
+                "Worker A8 claimed divergence task div-mondead-planning-map-memory-seed4500-20260916 at immutable1a2b0831c83e8c5a94d6a3a09585799608aae9c4 after the force-fight correction. Scope is mon.c mondead invisible-marker cleanup and clone-owned planning map memory; it is tracing deterministic state and clone initialization before changing source behavior. This worker continuation remains outside validated main and does not change the766-screen queue suffix.",
+                "Coordinator integrated originalA7 2386a18b and correction1a2b0831 as candidate df20c4723600647befa2a614ded8f7eb0f0814cd. Bounded affected run-dXSmUh passed1466/1466 tests, lint run-LKhGXJ and quality run-oJRG5Y passed; full checkpoint run-ubqmkt is running. Chronicle remains separate on preserved recovery branch codex/b8-validation-failed-20260916.",
+                "A8 immutable deliveryd5b93ff2fcc7a39b89963b3861554d4b8bb4cc22 changes mon.c mondead and JavaScript planningState: clone level.locations before unmap_object, preserve unmap-before-m_detach order, and keep relobj redraw silent during planning. Focused mon-kill, monster-action planning and allmain tests plus lint pass; the fixed worker continuation emits1101 screens before a wounded-monster losing-nerve boundary. These are unaccepted worker diagnostics; no A8 development gain is recorded.",
+                "Coordinator inspection of A8 saved replay run-EAKmBb found an earlier screen mismatch at step1063 (row0,column47: C t, JS y) and cursor mismatch at1094, before its later1101 wounded-monster refusal; RNG comparison reports no mismatch. Worker A has been directed to trace step1063 first when selecting A9, rather than treating the later refusal as the first failure. It merged accepted de39cccc at d7103cff and reran197 affected tests successfully.",
+                "A7 exact candidate scan cache df20c472 contains44 sessions and emits1048 screens for this session with boundary simple monster action requires forgetting a remembered invisible monster on a plan. It has no earlier screen/RNG divergence, replacing the former hack.c boulder/statue refusal at the same input step.",
+                "Read-only A8 source check confirms C mon.c3167-3175 ordering, m_detach -> mon_leaving_level -> relobj, and clone map-cell ownership. display.js map memory operations replace remembered_glyph rather than mutating nested fields, so shallow cells isolate the source writes. The planned redraw callback and existing killRedraw guard keep the live terminal unchanged. The source-pinned test reaches clone marker removal while preserving live marker/monster and RNG state. No changed-code defect was found; later screen1063 remains a separate investigation until traced.",
+                "Full checkpoint df20c4723600647befa2a614ded8f7eb0f0814cd/run-FWopIj passes all checks: 31/44 sessions, 10273/11405 screens, 754203/792838 RNG, 10295/11405 cursors and 273/273 recordings. A7 adds two independent recordings totaling 20 screens and 5833 RNG values; the first failure moves from hack.c domove_fight_empty to mon.c mondead at the same step1048. Saved scan .cache/A7-development-scan.json and queue .cache/A7-queue.json establish the unchanged 766-screen suffix.",
+                "Worker A9 traced the first A8-branch screen mismatch at1063 to C invent.c look_here4289-4298: its blind multi-object heading includes that. JavaScript omitted that word. The worker reports a source-backed correction, 71/71 focused tests and lint passing, with no RNG or cursor change at that screen. It remains unaccepted worker work.",
+                "A9 immutable4b070b70417d076bcd014287cd0ba31f2a5bdd84 corrects the blind-pile heading and passes71 focused tests and lint; it is queued after A8. Worker A merged accepted dc91c66d at b376fcbe8b5adb68e2288424320cb9353ec7d766 and reran71 tests. Its next first mismatch is screen/cursor1094 during #wizintrinsic blindness: C remains in the intrinsic menu while JavaScript produces a timeout More prompt; RNG still matches. A10 has claimed wizcmds.c wiz_intrinsic and potion.c make_blinded for that source trace, separate from B8 toggle_blindness.",
+                "Coordinator integrated A8 immutable d5b93ff2 as2c0f1a3b8256da162502ea5246acd9f98ddc05ec. Preflight passes, affected run-BI4lyt passes927/927 tests, lint run-sPXsGY and quality run-4DCwJE pass. Full combined checkpoint is now running; no new development score is claimed.",
+                "At exact candidate2c0f1a3b, the saved44-row checkpoint scan emits1101 screens but its FIRST screen divergence is1063, row0 column47 (C t, JS y); RNG divergence is null. The first cursor divergence is1094, C[38,13,1] and JS[44,0,1]. The later wounded-monster refusal must not replace1063 as the next goal.",
+                "Coordinator compared immutable A9 4b070b70417d076bcd014287cd0ba31f2a5bdd84 with C invent.c look_here multi-object branch: C Sprintf supplies that outside the conditional predicate, and the corrected JavaScript heading has identical blind and sighted output. Its source-pinned object-pile/cockatrice test preserves output order.",
+                "A10 immutable481b11ae4ec50b0e7dfae01d042364b33ec3571d routes BLINDED from wizcmds.c wiz_intrinsic1020-1022 to canonical potion.c make_blinded and admits silent positive-to-positive timed blindness. Two source-pinned/menu-runtime tests, lint and bounded replay pass on its worker branch:1096 emitted screens with no screen/cursor/RNG divergence before the existing wounded-monster stop. This delivery is unaccepted and has no main score claim.",
+                "Worker A traced the first remaining boundary after A10 to C uhitm.c known_hitum623-633: on the wounded-monster branch, rn2(25) precedes !rn2(3)?rnd(100):0, monmove.c monflee(mon,fleeTime,FALSE,TRUE), and possible u.ustuck release. JavaScript consumes rn2(25) then refuses. A11 will wire the existing canonical monflee and set_ustuck owners; this remains separate queued worker progress beyond accepted main.",
+                "Full checkpoint2c0f1a3b8256da162502ea5246acd9f98ddc05ec/run-7lxyS6 passes all checks:31/44 sessions,10318/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A8 gains45 development screens,1940 RNG values and46 cursors; no new recording is added and all10473 recording screens remain matched. Saved .cache/A8-development-scan.json and .cache/A8-queue.json move the first mismatch from1048 to1063 and the queue suffix from766 to751. Frozen syntheticv1 remains2/9 sessions and534/918 screens.",
+                "Coordinator integrated A9 4b070b70 as e9d1b8fb and clarified its source comment in1cb6d227b4f61a249660388e3dd24f3fbf4d67d5. Bounded affected run-Qu2X9U passed1022/1022 tests; lint run-WzpAcs and quality run-TJUGSp passed. Final preflight passes32 test-file coverage checks; full checkpoint is running at1cb6d227.",
+                "Exact candidate1cb6d227 checkpoint cache contains44 sessions. Its seed4500 row emits1101 screens, with first screen AND cursor mismatch now1094: C blank at row0,column0 while JS begins Timeout, and cursors C[38,13,1] versus JS[44,0,1]. RNG divergence remains null. This confirms the blind-pile first mismatch1063 is past its source function.",
+                "Worker A11 reports bounded replay run-s4Z7OM reaches all1814 recorded screens without screen/cursor/RNG divergence after wiring known_hitum to canonical monflee. It is still unaccepted worker evidence; the Vrock createGasCloud dependency and focused checks are being completed before submission.",
+                "Full checkpoint1cb6d227b4f61a249660388e3dd24f3fbf4d67d5/run-eHkVlg passes all checks:31/44 sessions,10319/11405 screens,756143/792838 RNG,10341/11405 cursors and273/273 recordings. A9 gains one development screen and preserves all10473 recording screens. The refreshed queue moves the first mismatch from1063 to1094 and the suffix from751 to720. Syntheticv1 remains2/9 sessions and534/918 screens.",
+                "A11 immutable1c361cb15bfbecfc6b1ebbbf0ba1c965fc38d053 wires known_hitum623-633 to canonical monflee, preserves rn2(25),rn2(3),conditional rnd(100) order and set_ustuck, and records the discarded Vrock gas-cloud gap. Worker focused29+13+142 tests and lint pass; saved replay run-crtrTW reaches1814 with divergence null before the later tactile-floor boundary. Coordinator source comparison confirms the changed branch and its callbacks; full acceptance is pending.",
+                "Full checkpoint bd5bd75d5589afb23b89f09891596e7d53578dda/run-IuRLQr passes all checks:31/44 sessions,10321/11405 screens,756143/792838 RNG,10343/11405 cursors and273/273 recordings. A10 gains two development screens and two cursors, preserving all10473 recording screens. Saved scan .cache/A10-development-scan.json and queue .cache/A10-queue.json place the next stop at1096 with718 remaining screens; no earlier screen/cursor/RNG divergence remains."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "parkedReason": "A11 source fix exposes the whole feel_location Punished display gap at1106. The candidate passes the old checkpoint ratchet but drops accepted screens10346 to9250 because the exception discards its segment; preserved on codex/a11-integration-wait-20260916 at49ad63ae. Worker B will port whole feel_location before A11 is retried."
+    },
+    {
+      "id": "port-mkroom-do-mkroom-seed0360-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete special-room dispatch and its ant availability predicate",
+      "cFile": "mkroom.c",
+      "sessions": [
+        "seed0360-wizard-world-tour"
+      ],
+      "selectionReason": "Integrate oldest dependency-ready delivery B12 for seed0360-wizard-world-tour,46 remaining screens at787, investigated in investigations/seed0360-wizard-world-tour.json. Source owner is whole mkroom.c do_mkroom plus used antholemon caller predicate. Higher Knight A11 is parked on feel_location dependency owned by B13; seed0399 is active A12, seed2200 is machine-path Q1, and Priest B10/B11 corrections arrived after this independent delivery.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "do_mkroom",
+          "status": "closed",
+          "closedBy": "fe2f53f3b4368178646a97febaef392f9cadb797",
+          "functions": [
+            "do_mkroom"
+          ]
+        }
+      ],
+      "openedAt": "1fb8cd57c030cd9eac23395e46a8a06d7cbec8eb",
+      "openStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_mkroom",
+          "line": 52,
+          "endLine": 94,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 52,
+        "to": 94
+      },
+      "activeStanding": {
+        "sha": "f82a3ae86141b46f8586311f559a1e03cd25a41b",
+        "screens": 10346,
+        "rng": 756143
+      },
+      "openMismatches": [
+        {
+          "session": "seed0360-wizard-world-tour",
+          "step": 787,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported special room: do_mkroom(8)",
+          "unlocatedKinds": [],
+          "recordedSteps": 833,
+          "remainingScreensUpperBound": 46,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0360-wizard-world-tour.json",
+            "result": {
+              "session": "seed0360-wizard-world-tour",
+              "remainingScreensUpperBound": 46,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "seed0360-wizard-world-tour",
+                "step": 787,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported special room: do_mkroom(8)",
+                "unlocatedKinds": [],
+                "recordedSteps": 833,
+                "remainingScreensUpperBound": 46
+              },
+              "summary": "Worker B submitted the special-room dispatcher and ant-availability guard as B12 f76a0caa. Two independent ZOO entry recordings match on the worker branch; combined main validation is queued behind the flee correction. The accepted mismatch remains step 787 with 46 remaining screens.",
+              "source": {
+                "file": "mkroom.c",
+                "functions": [
+                  "do_mkroom"
+                ],
+                "branch": "Whole C mkroom.c do_mkroom() dispatcher (lines 50-92): roomtype >= SHOPBASE calls mkshop(); COURT, ZOO, BEEHIVE, MORGUE, and BARRACKS call mkzoo(); SWAMP calls mkswamp(); TEMPLE calls mktemple(); and LEPREHALL, COCKNEST, and ANTHOLE call mkzoo() with their type. The observed stop is the ZOO case at mkroom.c:61-63, selected by mklev.c makelevel() at lines 1357-1358 on Quest Home 4. The current JS dispatcher handles shops, TEMPLE, COURT, BEEHIVE, MORGUE, and BARRACKS but throws for ZOO and the other omitted cases.",
+                "callers": [
+                  "nethack-c/upstream/src/mklev.c:1344-1375 makelevel() selects at most one depth-gated special room and calls do_mkroom(); the ZOO branch is lines 1357-1358, and special rooms are filled afterward by fill_special_room() at lines 1414-1418.",
+                  "js/mklev.js:772-819 makelevel() mirrors the depth-gated selection and calls do_mkroom(ZOO) at lines 798-799; it then iterates rooms through fill_special_room() at lines 850-852.",
+                  "js/mkroom.js:801-817 is the production do_mkroom() implementation; its current dispatch stops at an UnsupportedSpecialRoomError for omitted room types.",
+                  "js/mklev.js:542-605 fill_special_room() routes ZOO to fill_zoo() and still throws for ANTHOLE, COCKNEST, and LEPREHALL after dispatch is widened."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/include/mkroom.h:50-66 defines ZOO=8, SWAMP=9, TEMPLE=10, LEPREHALL=11, COCKNEST=12, ANTHOLE=13, and SHOPBASE=14; this maps the observed do_mkroom(8) message to ZOO.",
+                  "nethack-c/upstream/src/mkroom.c:243-254 mkzoo() picks a room and sets rtype and needfill; js/mkroom.js:488-495 already implements this dependency.",
+                  "nethack-c/upstream/src/mkroom.c:275-452 fill_zoo() stocks ZOO rooms and sets has_zoo; js/mkroom.js:624-765 already contains the ZOO fill arm, so the current stop is before this code.",
+                  "nethack-c/upstream/src/mkroom.c:529-574 mkswamp() is required by the whole dispatcher but has no JavaScript owner; js/mkroom.js:388-393 only records note_unported() for the SHOPTYPE swamp path.",
+                  "nethack-c/upstream/src/mkroom.c:501-527 antholemon() supplies C's ANTHOLE selection guard at mklev.c:1366-1367; js/mklev.js:807-810 omits that guard, and js/mklev.js:567-572 still refuses the ANTHOLE, COCKNEST, and LEPREHALL fill families.",
+                  ".cache/seed0360-investigation-18a56313/inspect-boundary.json records the replay state at the stop: dnum 3, dlevel 4, absolute depth 18, eight rooms with a vault and no selected special room yet, proving the failure occurs during ordinary-level room selection before ZOO filling.",
+                  "js/quest_levels.js:1788-1852 registers Wiz-fila and the assigned replay's step 784 now passes that loader; the step-787 boundary is therefore owned by mkroom.c rather than Wiz-fila.lua."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current queue entry in .cache/resume-queue-20260916.json pins this session to commit 18a56313c56723cde906c27449d0fc2c6c085bf0, step 787, message unsupported special room: do_mkroom(8), recordedSteps 833, and remainingScreensUpperBound 46; the previous count-49 cache is stale.",
+                "Bounded focused replay run-S1UqdX and its session-scoped result .cache/seed0360-investigation-18a56313/replay-result.json replayed only sessions/seed0360-wizard-world-tour.session.json and stopped at screensEmitted 787 with boundary unsupported special room: do_mkroom(8); it reports no screen divergence before the refusal and keyCursor answer for the wizard level-port response.",
+                "Bounded boundary inspection run-ml4SbS and .cache/seed0360-investigation-18a56313/inspect-boundary.json captured the production state at the stop as Quest dnum 3, dlevel 4, absolute depth 18, with seven ordinary rooms and one vault room. The existing Wiz-fila level at the preceding Home 2 selection is reached before this boundary.",
+                "sessions/seed0360-wizard-world-tour.session.json segments[0].steps[787] records the C arrival screen after Enter and the generated Quest Home 4 map; its input context shows the prior step-784 Home 2 Wiz-fila transition, so the new boundary is the next level's ordinary generator.",
+                "nethack-c/upstream/src/mklev.c:1344-1375 and nethack-c/upstream/src/mkroom.c:50-92 establish the source call and complete C dispatch. The ZOO branch is selected when u_depth > 6 and rn2(7) is zero, and do_mkroom(ZOO) calls mkzoo(ZOO).",
+                "js/mklev.js:772-819 and js/mkroom.js:801-817 establish the production caller and refusal: JavaScript reaches do_mkroom(ZOO), while the dispatcher lacks the ZOO case even though js/mkroom.js and js/mklev.js already contain the downstream mkzoo/fill_zoo implementation.",
+                "No game source, central queue, ledger, SCORE.tsv, recordings, or commits were changed by this investigation; only this session investigation and session-scoped diagnostic artifacts were written.",
+                "After submitted B11 replay reached all267 Priest screens, worker B selected seed0360 do_mkroom for task B12. Higher seed4500 has ready A11, seed0399 has active A12, and seed2200 remains the machine-path contract question. Worker B will claim exact mkroom/mklev reservations before edits; no main gain is claimed.",
+                "B12 claim is recorded in the shared runtime ledger with mkroom.c do_mkroom and the antholemon production guard reserved; worker turn is active. Chronicle is accepted at341ff4fd and published34bd5e88; B9 has resumed now that its required ancestry is accepted.",
+                "B12 f76a0caa585fc71393a96a17e6520c664688cf4e ports whole do_mkroom dispatch and antholemon, with makelevel caller wiring. Independent ZOO recordings match 12 screens and 14738 RNG across two cases; affected post-merge tests pass 81/81 at 3aa35bde2724e24a877070d00a9f04e1288d3076. SWAMP population and later fill families remain explicit gaps; these results are worker evidence, not accepted main gains."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_mkroom",
+            "implementation": "js/mkroom.js",
+            "symbol": "do_mkroom",
+            "sourceReview": "Read nethack-c/upstream/src/mkroom.c:50-92 in full and checked every branch and evaluation order. The port tests roomtype >= SHOPBASE first, then dispatches COURT, ZOO, BEEHIVE, MORGUE, BARRACKS, LEPREHALL, COCKNEST, and ANTHOLE to the existing mkzoo() owner, TEMPLE to mktemple(), and SWAMP to the named discarded mkswamp() gap. The default impossible() call is also a discarded diagnostic and is recorded as a named gap. Existing mkshop(), mkzoo(), and mktemple() callers receive the same state and random objects; no refusal, invented draw, or substitute side effect remains. The unported mkswamp() body remains outside this span because C discards its result. makelevel's source antholemon() predicate is wired in the same source order.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c:1347-1375; makelevel() selects at most one special room and calls do_mkroom() for shops, zoo families, temples, ANTHOLE, and SWAMP in source order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-shop.test.mjs",
+              "scripts/level-arrival.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/shop-entry-seed9701133.session.json",
+              "recordings/mkroom.c/zoo-entry-seed8800054.session.json",
+              "recordings/mkroom.c/zoo-entry-seed8800076-variation.session.json"
+            ],
+            "checkedAt": "0b4e152e4b03ff099fa199022b0b017151dd313d"
+          }
+        ],
+        "entryPointReview": "The production makelevel() special-room dispatcher is reached by both independent D:10 ZOO recipes: seed 8800054 with datetime 20300914112234 and seed 8800076 with datetime 20300914112235. Their C traces reject the shop, court, and leprechaun branches, consume rn2(7)=0 for the ZOO branch, and their six-screen recordings match the JavaScript through generated-level arrival. The existing independent shop recipe also exercises the SHOPBASE dispatch. The pure antholemon() availability predicate is source-pinned across all ant choices, genocided fallback order, and the all-gone result; its makelevel caller is wired even though these short ZOO recordings do not select ANTHOLE. The SWAMP population body remains a named discarded mkroom.c mkswamp gap, and fill_special_room population for LEPREHALL, COCKNEST, and ANTHOLE remains outside this dispatcher span. Supporting dependency review (not a separate verified source unit in this selected range): Read nethack-c/upstream/src/mkroom.c:501-527 in full. The port preserves the time_t birthday remainder, level_difficulty addition, the source soldier/fire/giant ant switch, the three-attempt genocided-class loop, and the final NON_PM result when the last candidate is gone. The function reads only ubirthday, level difficulty, mvitals, and the monster catalog; it makes no random draw, output, or mutation. makelevel evaluates it after the source rn2(8) ANTHOLE gate and uses its truth value before do_mkroom(). Pure-source cases are pinned in scripts/mkroom-shop.test.mjs. Remaining special-room entry recordings are not claimed.",
+        "entryPoints": [
+          {
+            "name": "makelevel generated ZOO dispatch",
+            "functions": [
+              "do_mkroom"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/zoo-entry-seed8800054.session.json",
+              "recordings/mkroom.c/zoo-entry-seed8800076-variation.session.json"
+            ]
+          },
+          {
+            "name": "wizard SHOPTYPE dispatch",
+            "functions": [
+              "do_mkroom"
+            ],
+            "recordings": [
+              "recordings/mkroom.c/shop-entry-seed9701133.session.json"
+            ]
+          },
+          {
+            "name": "Remaining source special-room dispatch entries, including ant availability and SWAMP",
+            "functions": [
+              "do_mkroom"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 2
+      },
+      "parkedStanding": {
+        "sha": "fe2f53f3b4368178646a97febaef392f9cadb797",
+        "screens": 10349,
+        "rng": 756145
+      },
+      "parkedReason": "The do_mkroom span passes combined checkpoint at fe2f53f3, with two independent ZOO recordings. Remaining special-room dispatch entries lack matching recordings; keep the source goal open for their evidence. The first selected-session cause is now whole Wiz-filb.lua and its loader."
     }
   ]
 }

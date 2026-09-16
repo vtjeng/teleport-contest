@@ -8,20 +8,24 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ANTHOLE,
     BARRACKS,
     BEEHIVE,
+    COCKNEST,
     FILL_NONE,
     FILL_NORMAL,
     COURT,
     FODDERSHOP,
     G_GONE,
     LOW_PM,
+    LEPREHALL,
     MORGUE,
     M_AP_OBJECT,
     OROOM,
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
+    SWAMP,
     THRONE,
     VAULT,
     ZOO,
@@ -32,7 +36,7 @@ import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
-    UnsupportedSpecialRoomError,
+    antholemon,
     courtCellIsFillable,
     courtmon,
     do_mkroom,
@@ -48,6 +52,8 @@ import {
     PM_JACKAL,
     PM_BUGBEAR,
     PM_DWARF_RULER,
+    PM_FIRE_ANT,
+    PM_GIANT_ANT,
     PM_GNOME_RULER,
     PM_HOBGOBLIN,
     PM_HUMAN,
@@ -55,6 +61,7 @@ import {
     PM_LICHEN,
     PM_QUEEN_BEE,
     PM_SOLDIER,
+    PM_SOLDIER_ANT,
     PM_SERGEANT,
     PM_LIEUTENANT,
     PM_CAPTAIN,
@@ -588,12 +595,10 @@ test('stock_room rejects a row shtypes[] does not carry', () => {
     assert.throws(() => stock_room(12, room, { state }), RangeError);
 });
 
-test('do_mkroom supports zoo families through Barracks and refuses later rooms',
+test('do_mkroom dispatches every source room family',
     () => {
-        // COURT and BEEHIVE dispatch to mkzoo(). TEMPLE dispatches to
-        // mktemple(). BARRACKS now shares mkzoo() with the earlier families;
-        // the remaining later types stay named refusals until
-        // their complete population and entry effects are ported.
+        // mkroom.c:50-92 dispatches each zoo family to mkzoo(). The source
+        // mkswamp() body is outside this span and is a discarded void call.
         const state = initializedState();
         const room = shopCandidate(state, { hx: 13, hy: 8 });
 
@@ -625,16 +630,42 @@ test('do_mkroom supports zoo families through Barracks and refuses later rooms',
         assert.equal(room.rtype, BARRACKS);
         assert.equal(room.needfill, FILL_NORMAL);
 
-        // Remaining zoo families and swamp are still refused (TEMPLE=10 is
-        // now ported and omitted from this list).
-        for (const roomtype of [3, 8, 11, 12, 13]) {
-            assert.throws(
-                () => do_mkroom(roomtype, state),
-                UnsupportedSpecialRoomError,
-                `roomtype ${roomtype}`,
-            );
+        for (const roomtype of [ZOO, LEPREHALL, COCKNEST, ANTHOLE]) {
+            room.rtype = OROOM;
+            room.needfill = FILL_NONE;
+            do_mkroom(roomtype, state, { rn2: () => 0 });
+            assert.equal(room.rtype, roomtype, `roomtype ${roomtype}`);
+            assert.equal(room.needfill, FILL_NORMAL, `roomtype ${roomtype}`);
         }
+
+        room.rtype = OROOM;
+        room.needfill = FILL_NONE;
+        do_mkroom(SWAMP, state);
+        assert.equal(room.rtype, OROOM);
+        assert.equal(room.needfill, FILL_NONE);
+        assert.ok(state.unported.has('mkroom.c mkswamp'));
+
+        do_mkroom(-1, state);
+        assert.ok(state.unported.has('mkroom.c impossible'));
     });
+
+test('antholemon chooses and skips genocided ant species', () => {
+    // mkroom.c:501-527. level_difficulty() is 5 for this D:5 setup, so
+    // birthdays 0, 1, and 2 select giant, soldier, and fire ant respectively.
+    const state = initializedCourtState();
+    state.ubirthday = 0;
+    assert.equal(antholemon(state).pmidx, PM_GIANT_ANT);
+    state.ubirthday = 1;
+    assert.equal(antholemon(state).pmidx, PM_SOLDIER_ANT);
+    state.ubirthday = 2;
+    assert.equal(antholemon(state).pmidx, PM_FIRE_ANT);
+
+    state.mvitals[PM_FIRE_ANT].mvflags |= G_GONE;
+    assert.equal(antholemon(state).pmidx, PM_GIANT_ANT);
+    for (const pm of [PM_GIANT_ANT, PM_SOLDIER_ANT])
+        state.mvitals[pm].mvflags |= G_GONE;
+    assert.equal(antholemon(state), null);
+});
 
 test('pick_room preserves strict stairs, wrap count, and source draw order',
     () => {
