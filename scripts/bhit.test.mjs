@@ -298,11 +298,11 @@ test('bhit() maps a monster it stops at but cannot spot', async () => {
     assert.equal(dark.level.at(3, 4).remembered_glyph, undefined);
 });
 
-test('bhit() consults shade_miss() before it stops at a monster', async () => {
+test('bhit() lets an arrow pass harmlessly through a shade', async () => {
     // zap.c:3985. uhitm.c shade_miss() is the first of the two tests that can
-    // clear the monster and let the missile fly on, and js/uhitm.js refuses
-    // for a shade an arrow cannot hurt rather than answering that it passed
-    // harmlessly through.
+    // clear the monster and let the missile fly on. The arrow cannot hurt a
+    // shade, so the source answers TRUE after its dmgval() check and bhit()
+    // continues to the last passable square.
     const shade = corridor(6);
     shade.level.monsters[3][4] = { mx: 3, my: 4, data: shade.mons[PM_SHADE] };
     // shade_miss() reaches weapon.c dmgval() only for a shade, and dmgval()
@@ -312,17 +312,18 @@ test('bhit() consults shade_miss() before it stops at a monster', async () => {
     initRng(1);
     enableRngLog();
     const before = getRngLog().length;
-    await assert.rejects(
-        () => fireEast(shade, 8, missile(shade)),
-        /passing through a shade/u,
-    );
+    assert.equal(await fireEast(shade, 8, missile(shade)), null);
+    assert.deepEqual(shade.gb.bhitpos, { x: 6, y: 4 });
     // The obj argument is what makes shade_miss() reach dmgval() at all:
     // uhitm.c:1575 is `|| (obj && dmgval(obj, mdef, ...))`, so handing it null
-    // would take the refusal with no draw spent. That draw is the one thing
-    // separating the two, and it is state, so it belongs in the assertion
-    // rather than only in the fixture's comment.
-    assert.ok(getRngLog().length > before,
-        'dmgval() rolls the missile damage before the refusal');
+    // would take the pass-through branch with no draw spent. That draw is the
+    // one thing separating the two, and it is state, so it belongs in the
+    // assertion rather than only in the fixture's comment.
+    const shadeRng = getRngLog().slice(before);
+    assert.equal(shadeRng.length, 1,
+        'dmgval() makes exactly one damage roll before pass-through');
+    assert.match(shadeRng[0], /^rnd\(6\)=\d+$/u,
+        'dmgval() uses the arrow damage die before pass-through');
 });
 
 test('bhit() refuses a mimic disguised as an object', async () => {
