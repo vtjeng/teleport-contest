@@ -6,7 +6,9 @@ import {
     ALTAR,
     A_CHAOTIC,
     COLNO,
+    CQ_CANNED,
     ECMD_TIME,
+    ECMD_OK,
     A_LAWFUL,
     A_MAX,
     A_NEUTRAL,
@@ -32,6 +34,8 @@ import {
     STUNNED,
     TT_BURIEDBALL,
     TT_LAVA,
+    TIMEOUT,
+    OBJ_INVENT,
     UNCHANGING,
     WEAK,
     WOUNDED_LEGS,
@@ -39,7 +43,7 @@ import {
     isok,
 } from '../js/const.js';
 import { UnsupportedTurnBoundaryError } from '../js/allmain.js';
-import { paranoid_query } from '../js/cmd.js';
+import { cmdq_add_key, paranoid_query } from '../js/cmd.js';
 import { bot } from '../js/display.js';
 import {
     UnsupportedGetlinBoundaryError,
@@ -69,6 +73,8 @@ import {
     LUCKSTONE,
     RIN_LEVITATION,
     SADDLE,
+    CORPSE,
+    FOOD_CLASS,
 } from '../js/objects.js';
 import {
     TROUBLE_BLIND,
@@ -97,6 +103,7 @@ import {
     angrygods,
     can_pray,
     critically_low_hp,
+    dosacrifice,
     dopray,
     doturn,
     fix_curse_trouble,
@@ -124,6 +131,76 @@ const SEED = 4410003;
 const PRAY_C = readFileSync(
     new URL('../nethack-c/upstream/src/pray.c', import.meta.url), 'utf8',
 );
+
+test('dosacrifice preserves source guard order and return values', async () => {
+    // pray.c:1854-1871. The altar/swallow guard precedes Confusion/Stunned;
+    // each refusal returns ECMD_OK without entering floorfood or consuming
+    // random input.
+    assert.match(PRAY_C, /int\s+dosacrifice\(void\)/u);
+    assert.match(PRAY_C, /if\s*\(!on_altar\(\)\s*\|\|\s*u\.uswallow\)/u);
+    assert.match(PRAY_C, /You\("are not %s an altar\."/u);
+    assert.match(PRAY_C, /else if\s*\(Confusion \|\| Stunned\)/u);
+    assert.match(PRAY_C, /You\("are too impaired to perform the rite\."/u);
+
+    await startedGame();
+    const here = game.level.at(game.u.ux, game.u.uy);
+    here.typ = ROOM;
+    game.u.uswallow = 0;
+    const before = getRngLog().length;
+    assert.equal(await dosacrifice(game), ECMD_OK);
+    assert.equal(game._pending_message, 'You are not on an altar.');
+    assert.equal(getRngLog().length, before);
+
+    clearTtyMessageWindow(game);
+    here.typ = ALTAR;
+    game.u.uprops[CONFUSION].intrinsic = TIMEOUT | 1;
+    assert.equal(await dosacrifice(game), ECMD_OK);
+    assert.equal(
+        game._pending_message,
+        'You are too impaired to perform the rite.',
+    );
+    assert.equal(getRngLog().length, before);
+    game.u.uprops[CONFUSION].intrinsic = 0;
+});
+
+test('dosacrifice reaches floorfood offer_ok through the canned selector',
+    async () => {
+    // pray.c:1870-1874. An independently shaped corpse in the inventory is
+    // selected by the same key path itemactions.c uses for #offer; the
+    // offering helper is a discarded return-valued gap, so this pins the
+    // production selector and its ECMD_TIME result without inventing effects.
+    await startedGame();
+    const here = game.level.at(game.u.ux, game.u.uy);
+    const previousType = here.typ;
+    const previousMask = here.altarmask;
+    const previousInventory = game.invent;
+    const previousUnported = new Set(game.unported ?? []);
+    here.typ = ALTAR;
+    here.altarmask = 0;
+    const corpse = {
+        invlet: 'a',
+        otyp: CORPSE,
+        oclass: FOOD_CLASS,
+        corpsenm: 0,
+        quan: 1,
+        where: OBJ_INVENT,
+        nobj: null,
+        nexthere: null,
+    };
+    game.invent = corpse;
+    cmdq_add_key(CQ_CANNED, 'a', game);
+    const before = getRngLog().length;
+    try {
+        assert.equal(await dosacrifice(game), ECMD_TIME);
+        assert.ok(game.unported.has('pray.c offer_corpse'));
+        assert.equal(getRngLog().length, before);
+    } finally {
+        here.typ = previousType;
+        here.altarmask = previousMask;
+        game.invent = previousInventory;
+        game.unported = previousUnported;
+    }
+});
 
 async function startedGame(moves = '') {
     await runSegment({

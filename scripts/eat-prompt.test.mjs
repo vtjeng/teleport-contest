@@ -24,6 +24,7 @@ import { near_capacity, weight_cap } from '../js/hack.js';
 import { _getobjInternals, getobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_HUMAN, PM_RUST_MONSTER, monst_globals_init } from '../js/monsters.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
@@ -498,7 +499,7 @@ test('capacity is checked after the prompt, not before', async () => {
     assert.equal(pendingTopLine(), 'You cannot eat that!');
 });
 
-test('floorfood stops before the questions it cannot ask', async () => {
+test('floorfood preserves metallivore and liquid branch ordering', async () => {
     const segment = segmentFor('ea');
 
     // An edible object on the hero's square: C asks "There is <object> here;
@@ -514,31 +515,28 @@ test('floorfood stops before the questions it cannot ask', async () => {
 
     game.nhDisplay.pushKey('q'.charCodeAt(0));
     assert.equal(await floorfood('eat', 0, game), null);
+    clearTtyMessageWindow(game);
 
-    // A metallivorous hero is asked about a bear trap, iron bars and gold
-    // first, and the iron-bars answer returns &hands_obj. The test reads the
-    // form off mons[] rather than setting a flag, as C's metallivorous() does.
+    // A metallivorous hero reaches the bear-trap, iron-bars and gold checks
+    // before the ordinary inventory selector. With no such floor feature,
+    // Escape at that selector returns null; the form is read from mons[] as
+    // C's metallivorous() does.
     game.youmonst.data = game.mons[PM_RUST_MONSTER];
-    await assert.rejects(
-        () => floorfood('eat', 0, game),
-        /floorfood\(\) for a metallivorous hero/,
-    );
+    game.level.objects[game.u.ux][game.u.uy] = null;
+    game.nhDisplay.pushKey(0x1B);
+    assert.equal(await floorfood('eat', 0, game), null);
+    clearTtyMessageWindow(game);
 
-    // Standing on liquid selects between skipping the floor and walking it on
-    // properties the port does not model; one stop covers both arms, and it
-    // sits before the metallivorous question C also asks first.
+    // C skips the floor on liquid when Wwalking, clinging, or flying without
+    // Breathless. The normal unmodified hero falls through to the inventory
+    // selector; Escape confirms the same result on both terrain types.
     game.level.at(game.u.ux, game.u.uy).typ = POOL;
-    await assert.rejects(
-        () => floorfood('eat', 0, game),
-        /floorfood\(\) over water or lava/,
-    );
-    // is_pool_or_lava() answers on either terrain, so lava alone reaches the
-    // same stop over a hero who is standing on no pool at all.
+    game.nhDisplay.pushKey(0x1B);
+    assert.equal(await floorfood('eat', 0, game), null);
+    clearTtyMessageWindow(game);
     game.level.at(game.u.ux, game.u.uy).typ = LAVAPOOL;
-    await assert.rejects(
-        () => floorfood('eat', 0, game),
-        /floorfood\(\) over water or lava/,
-    );
+    game.nhDisplay.pushKey(0x1B);
+    assert.equal(await floorfood('eat', 0, game), null);
 });
 
 test('each skipfloor reason answers the prompt instead of the floor',
@@ -593,19 +591,17 @@ test('a floor object that is neither food nor gold is left alone',
     assert.equal(topLine(), 'What do you want to eat? [d or ?*]');
 });
 
-test('a verb other than eat stops, because only doeat calls floorfood',
+test('floorfood dispatches sacrifice and tin selectors by corpsecheck',
     async () => {
     await runSegment({ ...segmentFor('ea'), moves: '.' });
-    // #offer and #tin pass "sacrifice" and a nonzero corpsecheck; neither
-    // command is ported and neither of floorfood()'s selectors is either.
-    await assert.rejects(
-        () => floorfood('sacrifice', 1, game),
-        /floorfood\(\) for 'sacrifice'/,
-    );
-    await assert.rejects(
-        () => floorfood('eat', 2, game),
-        /floorfood\(\) for 'eat'/,
-    );
+    // eat.c:3711-3718 selects offer_ok() for sacrifice and tin_ok() for a
+    // corpsecheck of 2. This starting pack contains no suitable object for
+    // either callback; Escape answers each selector's inventory prompt.
+    game.nhDisplay.pushKey(0x1B);
+    assert.equal(await floorfood('sacrifice', 1, game), null);
+    clearTtyMessageWindow(game);
+    game.nhDisplay.pushKey(0x1B);
+    assert.equal(await floorfood('eat', 2, game), null);
 });
 
 test('the eat matrix covers the branches this slice ports', () => {
