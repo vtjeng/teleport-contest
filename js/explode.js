@@ -1,7 +1,8 @@
 // explode.js -- monster and object explosions.
 // C refs: explode.c explosionmask(), engulfer_explosion_msg(), explode(),
-// adtyp_to_expltype() and mon_explodes().  This module keeps the complete
-// explosion path together because corpse_chance() reaches it for gas spores.
+// scatter(), adtyp_to_expltype() and mon_explodes().  This module keeps the
+// complete explosion path together because corpse_chance() reaches it for gas
+// spores and trap/object callers reach scatter().
 
 import {
     A_STR,
@@ -23,6 +24,8 @@ import {
     HALLUC,
     HALLUC_RES,
     INVULNERABLE,
+    IS_SINK,
+    LARGEST_INT,
     KILLED_BY,
     KILLED_BY_AN,
     MON_EXPLODE,
@@ -31,6 +34,12 @@ import {
     PHYS_EXPL_TYPE,
     POISON_RES,
     SHOCK_RES,
+    N_DIRS,
+    SHOPBASE,
+    STATUE_TRAP,
+    ZAP_POS,
+    xdir,
+    ydir,
     Upolyd,
     engulfing_u,
     isok,
@@ -39,6 +48,8 @@ import {
 import { exercise } from './attrib.js';
 import {
     curs_on_u,
+    losehp,
+    nomul,
     nh_delay_output,
 } from './hack.js';
 import { dist2, s_suffix } from './hacklib.js';
@@ -72,6 +83,7 @@ import {
 } from './monsters.js';
 import {
     completelyburns,
+    bigmonst,
     cvt_adtyp_to_mseenres,
     dmgtype_fromattack,
     is_demon,
@@ -82,8 +94,10 @@ import {
     nonliving,
     resists_magm,
     sticks,
+    hides_under,
 } from './mondata.js';
 import {
+    GLASS,
     POT_OIL,
     RAY,
     SCR_FIRE,
@@ -104,6 +118,7 @@ import { rehumanize, ugolemeffects } from './polyself.js';
 import {
     map_glyphinfo,
     map_invisible,
+    newsym,
     show_glyph_cell,
     tmp_at,
     unmap_invisible,
@@ -111,6 +126,8 @@ import {
 import { m_at } from './monst.js';
 import {
     golemeffects,
+    hideunder,
+    maybe_unhide_at,
     monkilled,
     mondead,
     seemimic,
@@ -118,6 +135,31 @@ import {
     wake_nearto,
     xkilled,
 } from './mon.js';
+import { ohitmon, thitu } from './mthrowu.js';
+import { dmgval } from './weapon.js';
+import {
+    obj_extract_self,
+    stackobj,
+} from './invent.js';
+import {
+    place_object,
+    remove_object,
+    sobj_at,
+    splitobj,
+    objectType,
+} from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { flooreffects } from './do.js';
+import { closed_door } from './monmove.js';
+import { in_rooms } from './rooms.js';
+import {
+    addtobill,
+    costly_spot,
+    credit_report,
+    shop_keeper,
+} from './shk.js';
+import { deltrap, t_at } from './trap.js';
+import { Tobjnam } from './objnam.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { cansee } from './vision.js';
 import { destroy_items } from './zap_destroy_items.js';
@@ -148,6 +190,17 @@ const EXPL_NONE = 0;
 const EXPL_MON = 1;
 const EXPL_HERO = 2;
 const EXPL_SKIP = 4;
+
+// C ref: hack.h scatter flags (1339-1344). These values are deliberately
+// local to this source port: the generated const.js names describe an older
+// internal bit layout, while explode.c's public scatter contract uses the
+// patched C values below.
+export const SCATTER_VIS_EFFECTS = 0x01;
+export const SCATTER_MAY_HITMON = 0x02;
+export const SCATTER_MAY_HITYOU = 0x04;
+export const SCATTER_MAY_HIT = SCATTER_MAY_HITMON | SCATTER_MAY_HITYOU;
+export const SCATTER_MAY_DESTROY = 0x08;
+export const SCATTER_MAY_FRACTURE = 0x10;
 
 // C ref: display.h explosion_to_glyph(). The returned presentation is what
 // tmp_at()/show_glyph_cell() consume; unlike C, JavaScript's display layer
@@ -663,4 +716,408 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     await explode(mon.mx, mon.my, type, damage, MON_EXPLODE,
         adtyp_to_expltype(mattk.adtyp), state, env);
     state.killer.name = '';
+}
+
+// C ref: explode.c scatter() (721-947). Scatter is asynchronous here only
+// because JavaScript's message, monster-hit, hero-hit and floor-effect owners
+// are asynchronous; each await is at the corresponding C call site, so the
+// random and state-write order remains the source order.
+//
+// The direct C callers are dokick.c really_kick_object(), kick_nondoor(), and
+// obj_delivery(), pickup.c do_boh_explosion(), trap.c blow_up_landmine() and
+// launch_obj(), and dbridge.c destroy_drawbridge(). Those callers are owned by
+// their source files' spans. They pass the SCATTER_* values exported above and
+// await this production entry point when their JavaScript ports land.
+export async function scatter(
+    sx,
+    sy,
+    blastforce,
+    scflags,
+    obj = null,
+    state = game,
+    rawEnv = {},
+) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const message = env.message ?? ttyPline;
+    const individualObject = Boolean(obj);
+    const chains = [];
+    let farthest = 0;
+    let total = 0;
+    let shopOrigin = false;
+    let shopkeeper = null;
+    let lostGoods = false;
+
+    state.gb ??= {};
+    state.gb.bhitpos ??= { x: sx, y: sy };
+    state.gt ??= {};
+
+    if (individualObject && (obj.ox !== sx || obj.oy !== sy)) {
+        // C calls impossible() and continues. The diagnostic is deliberately
+        // not a throw: the object may still be useful to a recovery caller.
+        note_unported(
+            `explode.c scatter object <${obj.ox},${obj.oy}> not at `
+            + `scatter site <${sx},${sy}>`,
+        );
+    }
+
+    const roomNumbers = env.inRooms
+        ?? ((x, y) => in_rooms(x, y, SHOPBASE, state));
+    const costlySpot = env.costlySpot
+        ?? ((x, y) => costly_spot(x, y, state));
+    const shopKeeper = env.shopKeeper
+        ?? ((roomno) => shop_keeper(roomno, state));
+    const creditReport = env.creditReport
+        ?? ((keeper, index, silent) => credit_report(
+            keeper,
+            index,
+            silent,
+            state,
+            { message },
+        ));
+    const addToBill = env.addToBill
+        ?? ((object, inInventory, dummy, silent) => addtobill(
+            object,
+            inInventory,
+            dummy,
+            silent,
+            state,
+            { ...env, message },
+        ));
+    const atShopWithHero = env.heroInShop
+        ?? ((roomno) => {
+            const rooms = state.u?.urooms ?? state.u?.ushops ?? '';
+            return rooms.includes(String.fromCharCode(roomno));
+        });
+    if (env.shopOrigin != null) {
+        shopOrigin = Boolean(env.shopOrigin);
+        shopkeeper = env.shopkeeper ?? null;
+    } else {
+        const roomno = roomNumbers(sx, sy)?.[0] ?? 0;
+        shopkeeper = shopKeeper(roomno);
+        shopOrigin = Boolean(shopkeeper && costlySpot(sx, sy));
+    }
+    if (shopOrigin && shopkeeper)
+        await creditReport(shopkeeper, 0, true);
+
+    const lifecycle = objectGenerationEnv({
+        ...env,
+        state,
+        random,
+        hooks: {
+            ...env.hooks,
+            extractExternalObject: env.hooks?.extractExternalObject
+                ?? ((object, operationEnv) => remove_object(object, operationEnv)),
+            // remove_object() and place_object() require the corresponding
+            // boulder vision hooks. Ordinary scatter callers never need this
+            // hook, but keeping it in the composed environment prevents a
+            // partial object mutation when a boulder path does.
+            recalcBlockPoint: env.hooks?.recalcBlockPoint
+                ?? (() => {}),
+        },
+    });
+    const extractObject = env.extractObject
+        ?? ((object) => obj_extract_self(object, lifecycle));
+    const splitObject = env.splitObject
+        ?? ((object, quantity) => splitobj(object, quantity, lifecycle));
+    const placeObject = env.placeObject
+        ?? ((object, x, y) => place_object(object, x, y, lifecycle));
+    const stackObject = env.stackObject
+        ?? ((object) => stackobj(object, lifecycle));
+    const objectAt = env.objectAt
+        ?? ((otyp, x, y) => sobj_at(otyp, x, y, state));
+    const floorEffects = env.floorEffects
+        ?? ((object, x, y, verb) => flooreffects(
+            object,
+            x,
+            y,
+            verb,
+            {
+                ...lifecycle,
+                unsupported: (reason) => {
+                    note_unported(`do.c flooreffects: ${reason}`);
+                    throw new Error(`scatter floor effect is unported: ${reason}`);
+                },
+            },
+        ));
+    const isVisible = env.canSee
+        ?? ((x, y) => cansee(x, y, state));
+    const getMonster = env.monsterAt
+        ?? ((x, y) => m_at(x, y, state));
+    const getHero = env.heroAt
+        ?? ((x, y) => u_at(x, y, state));
+    const isClosedDoor = env.closedDoor
+        ?? ((x, y) => closed_door(x, y, state));
+    const isSink = env.isSink
+        ?? ((typ) => IS_SINK(typ));
+    const terrainAt = env.terrainAt
+        ?? ((x, y) => state.level?.at?.(x, y)?.typ);
+    const hitMonster = env.hitMonster
+        ?? ((monster, object, range, verbose) => ohitmon(
+            monster,
+            object,
+            range,
+            verbose,
+            { ...env, state, random, message },
+        ));
+    const damageValue = env.damageValue
+        ?? ((object, monster) => dmgval(object, monster, state, {
+            ...env,
+            state,
+            random,
+        }));
+    const hitHero = env.hitHero
+        ?? ((hitValue, damage, object) => thitu(
+            hitValue,
+            damage,
+            object,
+            null,
+            state,
+            {
+                ...env,
+                state,
+                random,
+                message,
+                losehp: env.losehp ?? losehp,
+                exercise: env.exercise ?? exercise,
+            },
+        ));
+    const stopOccupation = env.stopOccupation;
+    const unpunish = env.unpunish;
+    const fractureRock = env.fractureRock;
+    const breakStatue = env.breakStatue;
+    const breakObject = env.breakObject;
+    const redraw = env.newsym ?? ((x, y) => newsym(x, y));
+    const reveal = env.maybeUnhideAt
+        ?? ((x, y) => maybe_unhide_at(x, y, state, env));
+
+    // C's while condition is deliberately reread after every extraction. For
+    // an individual object, splitobj() leaves the reduced parent in place, so
+    // the parent is revisited after its child has entered the chain.
+    let individual = obj;
+    while (true) {
+        const otmp = individualObject
+            ? individual
+            : state.level?.objects?.[sx]?.[sy] ?? null;
+        if (!otmp) break;
+
+        if (otmp === state.uball || otmp === state.uchain) {
+            const wasChain = otmp === state.uchain;
+            if (env.soundEffect) await env.soundEffect(
+                'se_chain_shatters',
+                25,
+                state,
+            );
+            await message('The chain shatters!', state, env);
+            if (typeof unpunish === 'function')
+                await unpunish(state.uchain, state.uball, env);
+            else
+                note_unported('read.c unpunish()');
+            if (wasChain) continue;
+        }
+
+        let scattered = otmp;
+        if (otmp.quan > 1) {
+            let quantity = otmp.quan - 1;
+            if (quantity > LARGEST_INT) quantity = LARGEST_INT;
+            quantity = random.rnd(quantity);
+            scattered = await splitObject(otmp, quantity);
+        } else if (individualObject) {
+            individual = null;
+        }
+        await extractObject(scattered);
+        let usedUp = false;
+
+        // C gives fracture precedence over random destruction. The two
+        // fracture helpers are injected because zap.c owns them; callers that
+        // do not reach a stone object never need that later source span.
+        if ((scflags & SCATTER_MAY_FRACTURE)
+            && (scattered.otyp === BOULDER || scattered.otyp === STATUE)
+            && random.rn2(10)) {
+            if (scattered.otyp === BOULDER) {
+                if (isVisible(sx, sy)) {
+                    await message(`${Tobjnam(scattered, 'break', state)} apart.`,
+                        state, env);
+                } else {
+                    if (env.soundEffect) await env.soundEffect(
+                        'se_stone_breaking',
+                        100,
+                        state,
+                    );
+                    await message('You hear stone breaking.', state, env);
+                }
+                if (typeof fractureRock === 'function')
+                    await fractureRock(scattered, env);
+                else
+                    note_unported('zap.c fracture_rock()');
+                await placeObject(scattered, sx, sy);
+                const otherBoulder = objectAt(BOULDER, sx, sy);
+                if (otherBoulder) {
+                    await extractObject(otherBoulder);
+                    await placeObject(otherBoulder, sx, sy);
+                }
+            } else {
+                const trap = t_at(sx, sy, state);
+                if (trap?.ttyp === STATUE_TRAP)
+                    deltrap(trap, state);
+                if (isVisible(sx, sy)) {
+                    await message(`${Tobjnam(scattered, 'crumble', state)}.`,
+                        state, env);
+                } else {
+                    if (env.soundEffect) await env.soundEffect(
+                        'se_stone_crumbling',
+                        100,
+                        state,
+                    );
+                    await message('You hear stone crumbling.', state, env);
+                }
+                if (typeof breakStatue === 'function')
+                    await breakStatue(scattered, env);
+                else
+                    note_unported('zap.c break_statue()');
+                await placeObject(scattered, sx, sy);
+            }
+            await redraw(sx, sy, state);
+            usedUp = true;
+        } else if ((scflags & SCATTER_MAY_DESTROY)
+            && (!random.rn2(10)
+                || scattered.otyp === EGG
+                || (scattered.oclass != null
+                    && (env.objectMaterial?.(scattered)
+                        ?? objectType(scattered, state).oc_material) === GLASS))) {
+            if (typeof breakObject !== 'function') {
+                note_unported('dothrow.c breaks()');
+                throw new Error(
+                    'scatter requires the dothrow.c breaks() dependency',
+                );
+            }
+            usedUp = Boolean(await breakObject(scattered, sx, sy, env));
+        }
+
+        if (!usedUp) {
+            const direction = random.rn2(N_DIRS);
+            const rangeBase = Math.max(1,
+                Math.trunc(blastforce - (Math.trunc(scattered.owt) / 40)));
+            const chain = {
+                obj: scattered,
+                ox: sx,
+                oy: sy,
+                dx: xdir[direction],
+                dy: ydir[direction],
+                range: random.rnd(rangeBase),
+                stopped: false,
+            };
+            chains.push(chain);
+            if (farthest < chain.range) farthest = chain.range;
+        }
+    }
+
+    for (let step = farthest; step > 0; --step) {
+        for (const chain of chains) {
+            // C's post-decrement is part of the condition: a range of one
+            // takes exactly one movement step before becoming zero.
+            if (chain.range <= 0 || chain.stopped) continue;
+            chain.range -= 1;
+            state.gt.thrownobj = chain.obj;
+            let x = chain.ox + chain.dx;
+            let y = chain.oy + chain.dy;
+            state.gb.bhitpos.x = x;
+            state.gb.bhitpos.y = y;
+            if (!isok(x, y) || !ZAP_POS(terrainAt(x, y))
+                || isClosedDoor(x, y)) {
+                x -= chain.dx;
+                y -= chain.dy;
+                chain.stopped = true;
+            } else {
+                const monster = getMonster(x, y);
+                if (monster) {
+                    if (scflags & SCATTER_MAY_HITMON) {
+                        chain.range -= 1;
+                        if (await hitMonster(monster, chain.obj, 1, false)) {
+                            chain.obj = null;
+                            chain.stopped = true;
+                        }
+                    }
+                } else if (getHero(x, y)) {
+                    if (scflags & SCATTER_MAY_HITYOU) {
+                        if ((state.multi ?? state.gm?.multi ?? 0)
+                            && !env.nomul) nomul(0, state);
+                        else if (env.nomul) await env.nomul(0, state);
+                        const damage = await damageValue(chain.obj, state.youmonst);
+                        const hitValue = 8 + chain.obj.spe
+                            + (bigmonst(state.youmonst?.data) ? 1 : 0);
+                        const hit = await hitHero(
+                            hitValue,
+                            maybeHalfPhys(damage, state),
+                            chain.obj,
+                        );
+                        if (hit && typeof hit === 'object') {
+                            if ('object' in hit) chain.obj = hit.object;
+                            if (hit.hitu != null && hit.hitu) {
+                                chain.range -= 3;
+                                if (typeof stopOccupation === 'function')
+                                    await stopOccupation(state, env);
+                                else
+                                    note_unported('allmain.c stop_occupation()');
+                            }
+                        } else if (hit) {
+                            chain.range -= 3;
+                            if (typeof stopOccupation === 'function')
+                                await stopOccupation(state, env);
+                            else
+                                note_unported('allmain.c stop_occupation()');
+                        }
+                        if (!chain.obj) chain.stopped = true;
+                    }
+                } else if (scflags & SCATTER_VIS_EFFECTS) {
+                    // explode.c's tmp_at()/nh_delay_output() calls are
+                    // commented out in this source version; this branch is
+                    // intentionally an observable no-op.
+                }
+            }
+            chain.ox = x;
+            chain.oy = y;
+            if (isSink(terrainAt(x, y))) chain.stopped = true;
+            state.gt.thrownobj = null;
+        }
+    }
+
+    for (const chain of chains) {
+        const x = chain.ox;
+        const y = chain.oy;
+        if (chain.obj) {
+            if (x !== sx || y !== sy) {
+                total += chain.obj.quan;
+                const leftShop = shopOrigin && !costlySpot(x, y);
+                if (leftShop) {
+                    const heroRoom = roomNumbers(state.u?.ux, state.u?.uy)
+                        ?.[0] ?? 0;
+                    if (chain.obj.otyp === GOLD_PIECE
+                        && atShopWithHero(heroRoom)) {
+                        await addToBill(chain.obj, false, false, true);
+                        lostGoods = true;
+                    }
+                }
+            }
+            const consumed = await floorEffects(chain.obj, x, y, 'land');
+            if (!consumed) {
+                await placeObject(chain.obj, x, y);
+                await stackObject(chain.obj);
+            }
+        }
+        await redraw(x, y, state);
+    }
+    await redraw(sx, sy, state);
+
+    const sourceMonster = getMonster(sx, sy);
+    if (getHero(sx, sy) && state.u?.uundetected
+        && hides_under(state.youmonst?.data)) {
+        if (env.hideUnder) await env.hideUnder(state.youmonst, env);
+        else hideunder(state.youmonst, { ...env, state });
+    }
+    if (sourceMonster?.mtrapped) sourceMonster.mtrapped = 0;
+    reveal(sx, sy);
+    if (lostGoods && shopkeeper)
+        await creditReport(shopkeeper, 1, false);
+    return total;
 }
