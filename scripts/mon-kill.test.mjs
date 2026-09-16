@@ -117,6 +117,7 @@ import {
 import { newedog } from '../js/dog.js';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { block_point } from '../js/vision.js';
+import { planningState } from '../js/unported_monster_actions.js';
 
 // A Valkyrie on a plain first level. Any seed that reaches the first prompt
 // will do; 7710044 is the base row of the kill matrix, so this is the hero
@@ -1517,35 +1518,43 @@ test('mondead forgets the invisible-monster marker on its square', async () => {
     );
 });
 
-// The clear rewrites map memory, and the once-per-turn planning clone shares
-// the live game's cells (js/unported_monster_actions.js planningState()), so a
-// dry run reaching it would forget the marker in the running game. It refuses
-// rather than skipping, because display.c unmap_object() refuses an engraved
-// square and a skipped call would hide that refusal from the pass whose whole
-// job is to find it. Only a marker an earlier live turn left behind can get
-// here: js/mhitm.js pre_mm_attack() marks through a seam the plan binds to a
-// no-op.
-test('a planned kill refuses to forget the marker rather than writing it',
+// The clear rewrites map memory before m_detach() repaints the square. A
+// once-per-turn planning clone must own level.locations so mondead() can run
+// the same source operation without changing the live marker.
+test('a planned kill forgets only its clone-owned invisible marker',
     async () => {
     await hero();
 
     const mon = spawn(PM_GOBLIN);
     const { mx, my } = mon;
     map_invisible(mx, my, game);
+    const liveLocation = game.level.at(mx, my);
 
-    await refusesAsync(
-        () => mondead(mon, game, { ...killEnv(), planning: true }),
-        'forgetting a remembered invisible monster on a plan',
+    const planned = planningState(game);
+    const plannedMon = planned.level.monlist;
+    const plannedLocation = planned.level.at(mx, my);
+    const beforeRandom = structuredClone(game.coreCtx);
+    assert.notStrictEqual(plannedLocation, game.level.at(mx, my));
+    assert.equal(
+        glyph_is_invisible(plannedLocation.remembered_glyph?.glyph),
+        true,
+        'the clone starts with the marker',
     );
-    // The point of the refusal: the live square still holds what it held.
+    await mondead(plannedMon, planned, { ...killEnv(), planning: true });
+
+    assert.equal(
+        glyph_is_invisible(plannedLocation.remembered_glyph?.glyph),
+        false,
+        'the plan clears its own marker',
+    );
     assert.equal(
         glyph_is_invisible(game.level.at(mx, my).remembered_glyph?.glyph),
         true,
+        'the live marker survives preflight',
     );
-
-    // A plan that finds no marker runs to the end, which is the ordinary turn.
-    const second = spawn(PM_GOBLIN);
-    await mondead(second, game, { ...killEnv(), planning: true });
+    assert.equal(game.level.monsters[mx][my], mon, 'live monster survives');
+    assert.equal(planned.level.monsters[mx][my], null, 'clone detaches');
+    assert.deepEqual(game.coreCtx, beforeRandom, 'marker cleanup draws nothing');
 });
 
 // mon.c make_corpse():622-649, the mummy and zombie group. undead_to_corpse()

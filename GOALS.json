@@ -52825,6 +52825,137 @@
         "screens": 10273,
         "rng": 754203
       }
+    },
+    {
+      "id": "div-mondead-planning-map-memory-seed4500-20260916",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Isolate map memory for monster-death planning cleanup",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "Highest remaining eligible session holdout/seed4500-knight-coverage has766 remaining screens; investigations/holdout/seed4500-knight-coverage.json traces mon.c mondead marker cleanup. A8 is ready; B9 is parked pending accepted B8 ancestry for delivery verification.",
+      "detail": "At step1048, C mon.c mondead3167-3175 calls unmap_object before m_detach. JavaScript planningState shares level.locations and refuses this existing source branch. Clone map-memory cells eagerly, permit the same cleanup during planning, and retain silent planned m_detach/relobj redraw. Source-pinned clone isolation and fixed continuation support the correction. Later first screen mismatch1063 belongs to invent.c look_here, with A9 already queued; no whole-mon.c completion is claimed.",
+      "spans": [
+        {
+          "name": "planned-map-memory",
+          "status": "closed",
+          "closedBy": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
+          "functions": [
+            "mondead",
+            "m_detach"
+          ]
+        }
+      ],
+      "openedAt": "a48672ad81d9963bf4f3a5713bcfd31a1996bdde",
+      "openStanding": {
+        "sha": "df20c4723600647befa2a614ded8f7eb0f0814cd",
+        "screens": 10273,
+        "rng": 754203
+      },
+      "closedAt": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
+      "delivered": {
+        "screens": 45,
+        "rng": 1940
+      },
+      "function": "mondead",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1048,
+      "activeStanding": {
+        "sha": "df20c4723600647befa2a614ded8f7eb0f0814cd",
+        "screens": 10273,
+        "rng": 754203
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1048,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires forgetting a remembered invisible monster on a plan",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 766,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 766,
+              "status": "complete",
+              "commit": "df20c4723600647befa2a614ded8f7eb0f0814cd",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1048,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires forgetting a remembered invisible monster on a plan",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 766
+              },
+              "summary": "Validated force-fight correction df20c472 clears the hack.c branch. The first blocker remains at input step 1048 and now belongs to mon.c mondead planning map-memory cleanup. A8 is ready for combined validation; A9 has traced its later first screen mismatch at 1063 to the blind object-pile heading in invent.c look_here. The validated suffix remains 766 screens.",
+              "source": {
+                "file": "mon.c",
+                "functions": [
+                  "mondead"
+                ],
+                "branch": "After logdeadmon, C mondead3167-3175 clears a remembered invisible-monster glyph with unmap_object before m_detach. Current JavaScript refuses that cleanup during planning because planningState shares level.locations with the live game. Clone map-memory cells before simulation so the source cleanup can run without erasing the live marker, and preserve the source cleanup/detach/drop order with planned redraws isolated.",
+                "callers": [
+                  "C monster-death paths call mon.c mondead, whose marker branch precedes m_detach; js/mon.js mondead reaches the same branch from ordinary planned monster actions after the force-fight turn.",
+                  "JavaScript unported_monster_actions.js planningState constructs the temporary turn state used by production monster-action preflight; its cloned level must own cells before mon.c marker cleanup."
+                ],
+                "dependencies": [
+                  "display.c unmap_object408-438 mutates map memory. JavaScript map_background/map_trap replace remembered_glyph records, so shallow per-cell cloning isolates the observed writes without copying mutable nested records.",
+                  "mon.c m_detach calls mon_leaving_level then steal.c relobj; preserve their source order and use the planning redraw owner so inventory release cannot paint the live terminal.",
+                  "Keep preexisting engraving refusal and unrelated life-saving, vampire, vault-guard and special-death gaps distinct. This is a planning state-ownership divergence, not a claim that the whole mon.c source is complete."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Bounded focused replay run-2hERtY, receipt /tmp/teleport-validation-1000/run-2hERtY/receipt.json, used only sessions/holdout/seed4500-knight-coverage.session.json at commit 153fb5a8ff37f5684a897e36cedfa18c7f2b2b56. It emitted 1034 screens and stopped at the queue boundary with no earlier behavioral divergence; replay-result is saved at .cache/investigate-seed4500-153fb5a8/replay-result.json.",
+                "The saved queue entry identifies step 1034, function makemon, sourceFile makemon.c, message “unsupported initial-level monster creation: makemon() monster 177”, and remainingScreensUpperBound 780. The witness is seed 4500, 20000601120000, Knight Coverage, one segment, and the input through the stop ends with #wizgenesis followed by minotaur and newline.",
+                "At the stop, the C session records collect_coords() draws, next_ident(mkobj.c:521), d(16,8)=78 at newmonhp(makemon.c:1042), rn2(2)=1 at makemon(makemon.c:1279), rn2(8)=1 at m_initinv(makemon.c:740), rn2(50)=28 and rn2(100)=17 at m_initinv(makemon.c:826), and rn2(100) at makemon(makemon.c:1447). This proves the C path creates the named minotaur and reaches the generic inventory tail after the current JavaScript refusal.",
+                "C read.c:3212 resolves the typed name through name_to_mon(), :3275-3315 reaches the explicit named-species loop and makemon() call, while C wizcmds.c:203-210 establishes the production #wizgenesis caller. JavaScript read.js:1115-1129 resolves the same PM_MINOTAUR and read.js:1171-1173 invokes makemon_runtime(), confirming the caller is already live up to preflight.",
+                "PM_MINOTAUR is catalog index 177 (js/monsters.js:415) with S_GIANT class (js/monsters.js:211); its existing js/makemon_create.js m_initinv arm matches C’s PM_MINOTAUR WAN_DIGGING branch. The refusal therefore comes from assertSupportedSpecies(), not from missing species data or an unimplemented minotaur inventory branch.",
+                "The replay result lists trap.c selftouch and ball.c set_bc as unrelated accumulated unported state after the boundary; neither is the step-1034 cause. No game code, tests, central records, C recorder, score, scan aggregate, or other session was modified.",
+                "Accepted candidate a0342880e606384b48903ac656ccc92a770b232c checkpoint run-r1BdaY passes: 31/44 sessions,10249/11405 screens,753558/792838 RNG,10271/11405 cursors,267/267 recordings. The beam span adds37 screens,993 RNG values and two independent monster-breath recordings totaling45 screens and6243 RNG calls. The prior candidate153fb5a8 matched the same recordings and score but failed an obsolete naming-call inventory count; correction7ead0433 changes that test from2 to3 after verifying all calls forward state.",
+                "The beam source goal remains parked after span acceptance because monster-to-monster breath, hero spell/polymorph/horn, monster spell, priest/storm and forced-miss ray entries lack matching production evidence. Verified entries are monster-to-hero fire breath and the existing hero fire-wand reflection recording. Runtime minotaur admission is a separate source-traced next goal, not unverified beam scope.",
+                "Immutable minotaur delivery b45491d463555c3738f1674737491096bfccc28c and variation correction fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d preserve generic runtime and stocked-maze callers without the former _fillEmptyMazeMinotaur/allowMinotaur marker. A fresh Ranger genesis case matches2852 RNG and12 screens; an independent role/options variation also matches. Source identity, HP/gender, placement and inventory ordering are covered by focused makemon and wizard-genesis checks. Coordinator integration remains pending.",
+                "Worker A independently claimed A7 from fd6f9c0038fe5ed032b006ac07bbce5b14d54f3d after a focused seed4500 continuation reached step1048. Its source trace identifies hack.c domove_fight_empty: C consults a remembered invisible glyph and does not describe a floor statue unless glyph_is_statue holds; JavaScript looked up the statue unconditionally. The worker reports a source-aligned correction progressing to a separate mon.c invisible-marker planning boundary; A7 remains unvalidated and is not main progress.",
+                "Coordinator integrated A6 as candidate5620e1e2db7c384c622c6a7a828129cc6642763f. Bounded affected run-TBfK0X passed569/569 tests; lint run-RzEkq7 and quality run-OCBfHK passed. Full checkpoint run-YPsR5B is running; no new score is claimed.",
+                "A7 immutable2386a18bea35cd76c6df8aa7801eef898e85741f adds glyph-gated boulder/statue selection and two independent force-fight recordings totaling20 screens and5833 RNG values. Coordinator source review found that the newly admitted selected-object arm could still hit the hoisted unseen-solid-terrain refusal, although C skips its solid-message arm when an object is selected. Feedback requests a !boulder guard and a source-pinned unseen-furniture witness; the delivery is not accepted.",
+                "Coordinator read C hack.c domove_fight_empty2227-2338 in full and compared submitted2386a18b. The selected object is chosen at2254-2260, then unmap_object, optional map_object and newsym precede the object/underwater/solid/thin-air message chain. The source result for the remembered invisible marker is thin air even when a statue exists on the floor. Exact candidate scan cache5620e1e2 contains44 sessions and emits1048 screens for this session with the boulder/statue refusal, beyond prior minotaur step1034.",
+                "A7 correction1a2b0831c83e8c5a94d6a3a09585799608aae9c4 adds !boulder to the hoisted terrain refusal and pins a selected boulder above unseen fountain terrain. Worker focused force-fight checks and lint pass; coordinator source comparison confirms the correction. The worker merged accepted main b9f73e9f at HEAD4b334d9ac99cec3023d60b23281837466569061b before this correction and preserved the submitted commits.",
+                "Full checkpoint5620e1e2db7c384c622c6a7a828129cc6642763f run-uaP28g passes all checks:31/44 sessions,10273/11405 screens,754203/792838 RNG,10295/11405 cursors and271/271 recordings. The minotaur fix gains14 development screens and614 RNG values, adds two independent recordings totaling24 screens and5356 RNG calls, and advances the first boundary from makemon step1034 to domove_fight_empty step1048. Saved scan .cache/A6-development-scan.json and queue run-l0blNy establish the766-screen suffix.",
+                "Worker A8 claimed divergence task div-mondead-planning-map-memory-seed4500-20260916 at immutable1a2b0831c83e8c5a94d6a3a09585799608aae9c4 after the force-fight correction. Scope is mon.c mondead invisible-marker cleanup and clone-owned planning map memory; it is tracing deterministic state and clone initialization before changing source behavior. This worker continuation remains outside validated main and does not change the766-screen queue suffix.",
+                "Coordinator integrated originalA7 2386a18b and correction1a2b0831 as candidate df20c4723600647befa2a614ded8f7eb0f0814cd. Bounded affected run-dXSmUh passed1466/1466 tests, lint run-LKhGXJ and quality run-oJRG5Y passed; full checkpoint run-ubqmkt is running. Chronicle remains separate on preserved recovery branch codex/b8-validation-failed-20260916.",
+                "A8 immutable deliveryd5b93ff2fcc7a39b89963b3861554d4b8bb4cc22 changes mon.c mondead and JavaScript planningState: clone level.locations before unmap_object, preserve unmap-before-m_detach order, and keep relobj redraw silent during planning. Focused mon-kill, monster-action planning and allmain tests plus lint pass; the fixed worker continuation emits1101 screens before a wounded-monster losing-nerve boundary. These are unaccepted worker diagnostics; no A8 development gain is recorded.",
+                "Coordinator inspection of A8 saved replay run-EAKmBb found an earlier screen mismatch at step1063 (row0,column47: C t, JS y) and cursor mismatch at1094, before its later1101 wounded-monster refusal; RNG comparison reports no mismatch. Worker A has been directed to trace step1063 first when selecting A9, rather than treating the later refusal as the first failure. It merged accepted de39cccc at d7103cff and reran197 affected tests successfully.",
+                "A7 exact candidate scan cache df20c472 contains44 sessions and emits1048 screens for this session with boundary simple monster action requires forgetting a remembered invisible monster on a plan. It has no earlier screen/RNG divergence, replacing the former hack.c boulder/statue refusal at the same input step.",
+                "Read-only A8 source check confirms C mon.c3167-3175 ordering, m_detach -> mon_leaving_level -> relobj, and clone map-cell ownership. display.js map memory operations replace remembered_glyph rather than mutating nested fields, so shallow cells isolate the source writes. The planned redraw callback and existing killRedraw guard keep the live terminal unchanged. The source-pinned test reaches clone marker removal while preserving live marker/monster and RNG state. No changed-code defect was found; later screen1063 remains a separate investigation until traced.",
+                "Full checkpoint df20c4723600647befa2a614ded8f7eb0f0814cd/run-FWopIj passes all checks: 31/44 sessions, 10273/11405 screens, 754203/792838 RNG, 10295/11405 cursors and 273/273 recordings. A7 adds two independent recordings totaling 20 screens and 5833 RNG values; the first failure moves from hack.c domove_fight_empty to mon.c mondead at the same step1048. Saved scan .cache/A7-development-scan.json and queue .cache/A7-queue.json establish the unchanged 766-screen suffix.",
+                "Worker A9 traced the first A8-branch screen mismatch at1063 to C invent.c look_here4289-4298: its blind multi-object heading includes that. JavaScript omitted that word. The worker reports a source-backed correction, 71/71 focused tests and lint passing, with no RNG or cursor change at that screen. It remains unaccepted worker work.",
+                "A9 immutable4b070b70417d076bcd014287cd0ba31f2a5bdd84 corrects the blind-pile heading and passes71 focused tests and lint; it is queued after A8. Worker A merged accepted dc91c66d at b376fcbe8b5adb68e2288424320cb9353ec7d766 and reran71 tests. Its next first mismatch is screen/cursor1094 during #wizintrinsic blindness: C remains in the intrinsic menu while JavaScript produces a timeout More prompt; RNG still matches. A10 has claimed wizcmds.c wiz_intrinsic and potion.c make_blinded for that source trace, separate from B8 toggle_blindness."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "2c0f1a3b8256da162502ea5246acd9f98ddc05ec",
+        "screens": 10318,
+        "rng": 756143
+      }
     }
   ]
 }
