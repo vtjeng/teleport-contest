@@ -3250,6 +3250,25 @@ test('the segment runner preserves output at an excluded count boundary',
     assert.equal(game._commandDispatchCount, 1);
 });
 
+test('the direct #version command dispatches the portable text window',
+    async () => {
+        const replay = await runSegment({
+            seed: 617204,
+            datetime: '20351117080910',
+            nethackrc: 'OPTIONS=name:VersionProbe,role:Priest,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,!autopickup,pettype:none,!acoustics,'
+                + 'symset:DECgraphics\n',
+            // Dismiss the startup line, enter cmd.c doextcmd() with '#',
+            // select the version row, then dismiss both text pages.
+            moves: ' #version\n  ',
+        });
+        assert.equal(replay.getRngLog().length > 0, true);
+        assert.equal(replay.getScreens().length, 13);
+        assert.equal(replay.getCursors().length, 13);
+        assert.equal(game.context.pendingCommand, undefined);
+    });
+
 test('a count ahead of an unadmitted command byte is refused after parse()',
     async () => {
     // cmd.c parse() (5096-5151) runs to completion before rhack() looks at the
