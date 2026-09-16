@@ -2069,9 +2069,9 @@ const VANQ_ORDERS = Object.freeze([
 ]);
 
 // C ref: insight.c set_vanq_order() (2718-2766).  The two uppercase modes
-// are implemented by the comparator but suppressed from this menu; C's
-// preselected row is represented by `selected` and the menu owner returns its
-// `anything.a_int - 1` value directly.
+// are implemented by the comparator but suppressed from this menu.  C's
+// preselected row is represented by `selected`; its empty Return/Space commit
+// retains the current mode, even when that mode is hidden for #genocided.
 export async function set_vanq_order(
     forVanquished, state = game, { menu = select_menu } = {},
 ) {
@@ -2092,12 +2092,17 @@ export async function set_vanq_order(
             selected: sourceIndex === state.flags.vanq_sortmode,
         });
     }
+    const currentMode = state.flags.vanq_sortmode;
     const selected = await menu(state, {
         items,
         how: PICK_ONE,
         title: `Sort order for ${forVanquished
             ? 'vanquished monster counts (also genocided types)'
             : 'genocided monster types (also vanquished counts)'}`,
+        // C's preselected anything.a_int is returned when the menu commits
+        // with Return or Space without selecting another row.  Keep this
+        // value even when #genocided filtered its row from `items`.
+        preselected: currentMode,
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     });
