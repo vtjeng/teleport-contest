@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent B15 variation: changed seed/date and male Wizard metadata for doppelganger distress.",
+  "segments": [{
+    "seed": 9131009,
+    "datetime": "20261017130000",
+    "nethackrc": "OPTIONS=name:DoppelDistressB,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": " \u0007doppelganger\nm."
+  }]
+}
