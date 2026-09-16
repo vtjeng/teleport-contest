@@ -142,7 +142,12 @@ import {
     thick_skinned,
     touch_petrifies,
 } from './mondata.js';
-import { monflee, onscary, set_apparxy } from './monmove.js';
+import {
+    monflee,
+    monfleeMessage,
+    onscary,
+    set_apparxy,
+} from './monmove.js';
 import { m_at } from './monst.js';
 import {
     AD_ACID,
@@ -862,8 +867,10 @@ export async function do_attack(monster, state = game, env = {}) {
 // rather than its head. Only hmon_hitmon()'s potion and misc-object arms read
 // it, and both stop, so it is not carried.
 //
-// The morale check at 623-631 stops. It is guarded by !rn2(25), whose draw C
-// makes for every survived hit, and reaching it needs mon.c set_ustuck().
+// The morale check at 623-633 spends a second random choice only after the
+// unconditional !rn2(25) draw succeeds. Its void monflee() call is the
+// existing monmove.c owner; set_ustuck() then clears the hero's attachment if
+// the flee operation did not already release it.
 export async function known_hitum(
     mon,
     weapon,
@@ -902,9 +909,29 @@ export async function known_hitum(
             /* monster still alive */
             if (!random.rn2(25) && mon.mhp < Math.trunc(mon.mhpmax / 2)
                 && !engulfing_u(mon, state)) {
-                requireAttackOperation(env, 'unsupported')(
-                    'a wounded monster losing its nerve',
-                );
+                const fleeTime = !random.rn2(3) ? random.rnd(100) : 0;
+                // monmove.c monflee() discards create_gas_cloud()'s return.
+                // Positive-damage gas remains an unported region callback, so
+                // preserve the source gap without replacing the flight owner.
+                const createGasCloud = env.createGasCloud ?? (() => {
+                    note_unported('region.c create_gas_cloud');
+                });
+                await monflee(mon, fleeTime, false, true, {
+                    ...env,
+                    state,
+                    random,
+                    canSeeMonster: env.canSeeMonster
+                        ?? ((subject) => canSeeMonster(subject, state)),
+                    fleeMessage: env.fleeMessage ?? monfleeMessage,
+                    message: env.message ?? (env.planning
+                        ? async () => {}
+                        : undefined),
+                    createGasCloud,
+                });
+
+                if (state.u.ustuck === mon && !state.u.uswallow
+                    && !sticks(state.youmonst.data))
+                    set_ustuck(null, state);
             }
             /* Vorpal Blade hit converted to miss */
             /* could be headless monster or worm tail */

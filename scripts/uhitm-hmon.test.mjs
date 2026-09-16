@@ -18,6 +18,7 @@
 //   equipment no role starts with.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -56,6 +57,7 @@ import {
     PM_SEWER_RAT,
     PM_SHADE,
     PM_VAMPIRE,
+    PM_VROCK,
     PM_WATCH_CAPTAIN,
     PM_WATCHMAN,
     PM_XORN,
@@ -88,6 +90,11 @@ import { monsndx } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
 import { uwep_skill_type } from '../js/weapon.js';
 import { hmon, known_hitum } from '../js/uhitm.js';
+
+const UHITM_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
+    'utf8',
+);
 
 const DATETIME = '20260214031500';
 // u_init.c ini_inv() wields a TIN_OPENER, and a Tourist's undefined tool slot
@@ -811,27 +818,51 @@ test('known_hitum counts the weapon conduct and downgrades a no-damage hit',
         assert.equal(game.u.uconduct.weaphit, 1);
     });
 
-// uhitm.c:623-631. A survivor below half its maximum hit points has one chance
-// in twenty-five of losing its nerve, and mon.c set_ustuck() owns what follows.
-test('known_hitum draws the morale check only for a survivor', async () => {
+// uhitm.c:623-633. A survivor below half its maximum hit points has one chance
+// in twenty-five of losing its nerve. The source then chooses a duration,
+// enters monmove.c monflee(), and clears the canonical u.ustuck when needed.
+test('known_hitum uses source-ordered survivor morale and flight state', async () => {
     await hero();
-    const mhit = { value: true };
-    // mhp 10 of mhpmax 99: three points leaves 7, which is under 49.
-    const nervous = target(PM_LICHEN, { mhp: 10, mhpmax: 99 });
-    await refusesAsync(
-        () => known_hitum(nervous, game.uwep, mhit, 15, 0,
-                          game.youmonst.data.mattk[0], 10, game,
-                          hitEnv({ rolls: [3, 1, 1, 0] })),
-        'a wounded monster losing its nerve',
+    assert.match(
+        UHITM_SOURCE,
+        /monflee\(mon, !rn2\(3\) \? rnd\(100\) : 0, FALSE, TRUE\);/u,
     );
+    assert.match(
+        UHITM_SOURCE,
+        /if \(u\.ustuck == mon && !u\.uswallow\s+&& !sticks\(gy\.youmonst\.data\)\)\s+set_ustuck\(/u,
+    );
+
+    const mhit = { value: true };
+    // mhp 10 of mhpmax 99: three points leaves 7, which is under 49. The
+    // first three values belong to hmon(); the final three are exactly
+    // the source morale rn2(25), duration-choice rn2(3), and rnd(100) draws.
+    const nervous = target(PM_LICHEN, { mhp: 10, mhpmax: 99 });
+    game.u.ustuck = nervous;
+    const flight = hitEnv({
+        rolls: [3, 1, 1, 0, 0, 37],
+        canSeeMonster: () => false,
+        releaseHero: () => {},
+    });
+    await known_hitum(
+        nervous, game.uwep, mhit, 15, 0,
+        game.youmonst.data.mattk[0], 10, game, flight,
+    );
+    assert.deepEqual(flight.bounds.slice(-3), [
+        'rn2(25)', 'rn2(3)', 'rnd(100)',
+    ]);
+    assert.equal(nervous.mflee, true);
+    assert.equal(nervous.mfleetim, 37);
+    assert.equal(game.u.ustuck, null);
 
     // The same rn2(25)=0 against a target still above half its maximum runs
     // straight past: C's `&&` at 624 tests the hit points too.
     const healthy = { value: true };
     const stout = target();
+    const noFlight = hitEnv({ rolls: [3, 1, 1, 0, 0] });
     await known_hitum(stout, game.uwep, healthy, 15, 0,
                       game.youmonst.data.mattk[0], 10, game,
-                      hitEnv({ rolls: [3, 1, 1, 0] }));
+                      noFlight);
+    assert.equal(noFlight.bounds.at(-1), 'rn2(25)');
     assert.equal(stout.mhp, 96);
 
     // Exactly half is the boundary C writes as `<`: twenty hit points less two
@@ -839,10 +870,44 @@ test('known_hitum draws the morale check only for a survivor', async () => {
     // keeps its nerve. Reading the test as `<=` would stop here.
     const halved = { value: true };
     const even = target(PM_LICHEN, { mhp: 12, mhpmax: 20 });
+    const boundary = hitEnv({ rolls: [2, 1, 1, 0, 0] });
     await known_hitum(even, game.uwep, halved, 15, 0,
                       game.youmonst.data.mattk[0], 10, game,
-                      hitEnv({ rolls: [2, 1, 1, 0] }));
+                      boundary);
+    assert.equal(boundary.bounds.at(-1), 'rn2(25)');
     assert.equal(even.mhp, 10);
+});
+
+// monmove.c:521-524. A Vrock's monflee() call asks region.c for a positive-
+// damage gas cloud, whose return is discarded by C. The region owner has not
+// ported that harmful-cloud callback yet, so the attack records the gap while
+// preserving the source flight state and random order.
+test('known_hitum records the discarded Vrock gas callback gap', async () => {
+    await hero();
+    const vrock = target(PM_VROCK, {
+        mhp: 10,
+        mhpmax: 99,
+        mspec_used: 0,
+    });
+    const before = new Set(game.unported ?? []);
+    const env = hitEnv({
+        rolls: [3, 1, 1, 0, 0, 37],
+        canSeeMonster: () => false,
+    });
+    await known_hitum(
+        vrock, game.uwep, { value: true }, 15, 0,
+        game.youmonst.data.mattk[0], 10, game, env,
+    );
+    assert.equal(vrock.mflee, true);
+    assert.equal(vrock.mfleetim, 37);
+    assert.deepEqual(env.bounds.slice(-4), [
+        'rn2(25)', 'rn2(3)', 'rnd(100)', 'rn2(25)',
+    ]);
+    assert.equal(
+        game.unported.has('region.c create_gas_cloud'),
+        true,
+    );
+    for (const gap of before) assert.ok(game.unported.has(gap));
 });
 
 // uhitm.c:858-860 with weapon.c special_dmgval() (360-431). C's comment at
