@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20260916,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:Probe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0007red dragon\nh h h h h ."
+    }
+  ],
+  "_comment": "Original independent red-dragon breath probe retained and now matching after the planned fatal zhitu() handoff fix. C accepts the spaces as unknown commands, then reaches breamm(mthrowu.c:1117) and dobuzz(zap.c:4823) at the final '.', where zhitu(zap.c:4422) rolls fire damage and burnarmor(trap.c:113) raises the source message boundary. The matching recording exercises the prior planning clone/live death mismatch and now has complete C/JavaScript parity."
+}
