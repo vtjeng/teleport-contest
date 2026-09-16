@@ -1,61 +1,53 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 817,
+  "remainingScreensUpperBound": 780,
   "status": "complete",
-  "commit": "54c48995b41e8b554d743779884ff13a7e01cd0b",
+  "commit": "153fb5a8ff37f5684a897e36cedfa18c7f2b2b56",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 997,
-    "kind": "rng",
-    "function": "dobuzz",
+    "step": 1034,
+    "kind": "stop",
+    "function": "makemon",
     "functionDeclared": true,
-    "sourceFile": "zap.c",
-    "cFile": "zap.c",
+    "sourceFile": "makemon.c",
+    "cFile": "makemon.c",
     "luaFile": null,
-    "line": 4823,
-    "message": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 177",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 817
+    "remainingScreensUpperBound": 780
   },
-  "summary": "Worker A submitted the beam implementation with two strictly matching independent dragon recordings. Integration found two required dependency corrections: picking_at must be pure and compare the same door object, and waterbody_name must implement all source branches with display RNG. A is correcting those helpers; its integration is preserved while the ready sacrifice delivery proceeds. The published beam mismatch remains step997; no beam score gain is claimed.",
+  "summary": "The validated beam span adds 37 matching screens and moves this session from step 997 to step 1034. The next stop is runtime minotaur creation through wiz_genesis and create_particular_creation: preflightCreation rejects a species whose generic lifecycle and minotaur inventory arm are already implemented. The source-traced fix is to remove the obsolete admission restriction after verifying its dependencies; the queue suffix is 780 screens.",
   "source": {
-    "file": "zap.c",
+    "file": "makemon.c",
     "functions": [
-      "dobuzz",
-      "zhitm",
-      "zap_over_floor"
+      "makemon"
     ],
-    "branch": "After a successful breamm breath-admission draw, C calls dobuzz and draws rn1(7,7) for beam range. JavaScript breamm currently skips dobuzz, so the next cooldown draw occurs in its place. Existing dobuzz implements only some ray types and must be completed, with all return-used zhitm and zap_over_floor paths, before wiring the monster-breath caller.",
+    "branch": "For an explicit PM_MINOTAUR at the hero's coordinates outside mklev, read.c supplies MM_NOEXCLAM and wiz_genesis() temporarily clears debug_mongen. C makemon() has no species allowlist: it moves the explicit monster to a nearby valid square, checks genocide, propagates, allocates it, assigns identity/HP/gender, places it, initializes inventory, wears it, and applies the saddle roll. The current JavaScript preflight species guard runs for this runtime call and admits PM_MINOTAUR only when a fill_empty_maze marker is present, which is false for wiz_genesis().",
     "callers": [
-      "nethack-c/upstream/src/mthrowu.c:breamm() dispatches a selected monster breath into zap.c dobuzz(), preserving the monster buzzer and target direction, then performs cooldown draws.",
-      "nethack-c/upstream/src/zap.c:dobuzz(), lines 4780-5037, owns beam range, map traversal, reflection, creature hits, terrain effects, bouncing and final explosion/shop handling.",
-      "js/mthrowu.js:breamm() currently records note_unported(zap.c dobuzz); js/zap.js has a partial dobuzz owner used by other ray callers."
+      "nethack-c/upstream/src/wizcmds.c:203-214 wiz_genesis() saves iflags.debug_mongen, clears it, calls create_particular(), and restores it; js/wizcmds.js:212-222 mirrors this production command path.",
+      "nethack-c/upstream/src/read.c:3137-3249 create_particular_parse() resolves the typed minotaur name to PM_MINOTAUR, and :3252-3357 create_particular_creation() builds MM_NOEXCLAM then calls makemon(whichpm, u.ux, u.uy, mmflags) at :3315; js/read.js:1036-1130 and :1140-1190 mirror the named-species path.",
+      "js/cmd.js:5959-5970 dispatches wizgenesis through runGenesisCommand(), and js/cmd.js:3444-3448 plus :5139-5140 route it into js/wizcmds.js and then the read/makemon chain."
     ],
     "dependencies": [
-      "zhitm() returns damage and an optional destroyed armor object; implement every damage-type branch and required return-valued callees, including electrical item destruction and hero spell bonuses.",
-      "zap_over_floor() returns range adjustments and shop damage; preserve terrain changes, trap activation, visibility snapshots, Norep messages, existing gas/object/timeout owners and source RNG order.",
-      "The fountain.c dryup/watchman_warn_fountain dependency is accepted in tested main 17c7e13e. Worker A merged published main and now calls that canonical owner with the live/planning state and message context.",
-      "Planning and live execution must use the same state and RNG owners; forward message/redraw callbacks through the beam helpers without drawing to the live terminal from a clone."
+      "nethack-c/upstream/src/makemon.c:1179-1185 calls enexto_core() for the hero-square request; the assigned step records its collect_coords() rn2 sequence before monster construction, so the admission fix must not bypass or reorder that coordinate search.",
+      "nethack-c/upstream/src/makemon.c:1202-1279 performs the explicit-species genocide check, propagate(), next_ident(), newmonhp(), and gender assignment. The assigned C trace then shows d(16,8)=78 and rn2(2)=1; js/makemon_create.js:3601-3673 owns the corresponding generic lifecycle.",
+      "nethack-c/upstream/src/makemon.c:1441-1451 calls m_initweap() only for is_armed() species, then m_initinv(), m_dowear(), and the generic rn2(100) saddle check. Minotaur has no AT_WEAP attack, so no weapon-init draws belong in this witness.",
+      "nethack-c/upstream/src/makemon.c:738-741 gives S_GIANT PM_MINOTAUR a one-in-eight WAN_DIGGING roll; js/makemon_create.js:2466-2474 already implements this branch. The assigned trace records rn2(8)=1 at m_initinv, followed by the existing rn2(50), rn2(100), and makemon saddle rn2(100) tail draws.",
+      "js/read.js:1140-1190 already supplies the plain named-monster caller and js/makemon_create.js:3879-3930 already supplies makemon_runtime() plus the runtime inventory continuation. The missing behavior is the preflight admission, not a new parser or constructor substitute.",
+      "js/makemon_create.js:1259-1327 and :1513-1533 contain the injected species allowlist. Its allowMinotaur option is currently true only for js/mklev.js:5584-5593 fill_empty_maze() via _fillEmptyMazeMinotaur; that level-generation caller is a distinct source branch and must remain distinct from runtime wizard genesis."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "Main checkpoint 54c48995b41e8b554d743779884ff13a7e01cd0b run-NweKAH passes: 30/44 sessions, 10104/11405 screens,747316/792838 RNG,10142/11405 cursors,261/261 recordings. The blindness span adds three fixed-workload screens and an independent 11-screen,3352-RNG recording.",
-    "Current mismatch-queue run-aOoyQt locates step997 at dobuzz(zap.c:4823), count817. C rn2(7)=3 at RNG index86673 contrasts with JS rn2(3)=1 after breamm omits the beam call; the source range draw explains the first RNG and screen mismatch.",
-    "Worker A task A-20260916-4 owns complete dobuzz and breamm integration. Its uncommitted breath/pool implementation progresses through screen1000 in a focused replay, but legal type families and required damage/terrain branches remain unfinished; this is not a delivered score gain.",
-    "Read-only source surveys identify existing trap, gas-cloud, equipment-destruction, reflection, and terrain owners. The floor fire branch must snapshot visibility before steam, use PIT rather than TT_PIT, preserve one Norep message, reveal swimmers, and call existing dotrap/mintrap. These details are source obligations, not session exceptions.",
-    "The accepted mhitm_ad_blnd span retains two unverified production entries: the hero raven recipe is blocked in hmonas, and the monster-to-monster recipe has no matching production recording. Its source goal is parked, not closed.",
-    "A later read-only electrical destruction survey traced zap.c maybe_destroy_item/destroy_items: hero gloves live at state.uarmg, worn rings must call existing do_wear.js Ring_gone, destruction clears state.current_wand when applicable, and monster wand damage honors shock resistance. Charged-ring recharge is a discarded read.c call on hero inventory only. These are source obligations for worker A’s unfinished electrical return-value dependency; no additional main score is claimed.",
-    "Coordinator source check requires steed interception to share the complete buzzmonst hit/reflection path, as the C goto does. The worker is correcting its duplicated partial steed arm and forwarding planning callbacks through damage owners before delivery.",
-    "Worker A reports focused ray tests 48/48 and electrical destruction tests 29/29 with lint passing. Source corrections move mstrategy clearing before the ordinary monster hit label and exclude reflecting steeds before the shared hit arm, matching C's goto path. These checks cover unfinished worker code and do not change the published score.",
-    "The shared sleep_monst source review requires direct use of the existing zap.c resist owner with real RNG and preserves the trap callers that consume its boolean result. The source-owned terrain helper movement and dryup caller still require integration checks and independent recordings.",
-    "A bounded read-only zhitm comparison found two remaining worker-code defects: C calls visual-only shieldeff after resistance, while shieldeff_mon adds an unwanted message; the final Knight damage multiplier must reread type after a death ray changes it to -1. Worker A is checking these findings and the default lightning RNG interface before its independent recordings.",
-    "Fountain dependency dryup is accepted in tested main 17c7e13e and published in d9ee2ab9. Worker A must merge validated main at a clean WIP boundary and replace the temporary injected dryup path with the accepted source owner before its final fresh differentials and immutable delivery.",
-    "Worker A reports the ordinary death-ray assignment tmp=mon.mhp+1 and final mutable-type Knight multiplier corrected from C zap.c, with visual-only resistance handling and 50/50 ray tests passing. Electrical destruction tests remain 29/29 passing. These are focused worker results; whole-source entry recordings and combined validation remain outstanding.",
-    "Worker A preserved WIP commit1ba06cf8 and merged published main d9ee2ab9 at a clean boundary, producing HEAD511824bfc298fb5751ce3a9775a6d9ea6bd3a94a. Its focused checks report 50 ray,29 electrical-destruction and16 fountain tests passing, with lint passing; no immutable beam delivery exists yet.",
-    "Coordinator bounded replay run-ZKryD2 used the frozen serializer on worker A code and the independently recorded red-dragon recipe. C step24 waits after the breath and hero-hit messages with3134 RNG calls. JavaScript instead shows You die...--More-- with only3125 RNG calls and unchanged live HP6/12; no unsupported boundary or unported gap is reported. Both recordings print Unknown command for earlier space keys, so their first-breath disagreement is not caused by different space-command options. The existing MonsterDeathPlanningError handoff is being checked to keep clone effects off the live terminal.",
-    "Worker A reused the existing planned-death handoff for non-polymorphed lethal monster damage and forwarded message/state context through zhitu to burnarmor, destroy_items and ignite_items. Its original no-rest_on_space recipe passes bounded differential run-mi4BxU:25 screens/cursors,3134 RNG calls,4 animation frames. Independent contiguous-move variation run-BHxZoO also passes:20 screens/cursors,3109 RNG calls,5 frames. C source traces reach breamm, dobuzz, zhitu and burnarmor in both witnesses. Focused ray tests pass51/51(run-3D6UCL), destruction29/29(run-hskW1F), ranged36/36(run-ZN7s2r), and lint passes. These results establish worker evidence only; combined main validation remains pending.",
-    "Coordinator preserved A4 source integration54a3b161 on codex/a4-integration-wait-20260916 and parked its central goal for helper corrections. Combined focused checks passed507/508; the sole failure is an obsolete zap refusal inventory. Source review also requires pure picking_at pointer identity and completion of the return-valued pager.c waterbody_name dependency, consolidating existing copies and preserving display RNG. Lint and quality pass. Independent B5 integration is validated first; A4 source and submitted commits remain preserved."
+    "Bounded focused replay run-2hERtY, receipt /tmp/teleport-validation-1000/run-2hERtY/receipt.json, used only sessions/holdout/seed4500-knight-coverage.session.json at commit 153fb5a8ff37f5684a897e36cedfa18c7f2b2b56. It emitted 1034 screens and stopped at the queue boundary with no earlier behavioral divergence; replay-result is saved at .cache/investigate-seed4500-153fb5a8/replay-result.json.",
+    "The saved queue entry identifies step 1034, function makemon, sourceFile makemon.c, message “unsupported initial-level monster creation: makemon() monster 177”, and remainingScreensUpperBound 780. The witness is seed 4500, 20000601120000, Knight Coverage, one segment, and the input through the stop ends with #wizgenesis followed by minotaur and newline.",
+    "At the stop, the C session records collect_coords() draws, next_ident(mkobj.c:521), d(16,8)=78 at newmonhp(makemon.c:1042), rn2(2)=1 at makemon(makemon.c:1279), rn2(8)=1 at m_initinv(makemon.c:740), rn2(50)=28 and rn2(100)=17 at m_initinv(makemon.c:826), and rn2(100) at makemon(makemon.c:1447). This proves the C path creates the named minotaur and reaches the generic inventory tail after the current JavaScript refusal.",
+    "C read.c:3212 resolves the typed name through name_to_mon(), :3275-3315 reaches the explicit named-species loop and makemon() call, while C wizcmds.c:203-210 establishes the production #wizgenesis caller. JavaScript read.js:1115-1129 resolves the same PM_MINOTAUR and read.js:1171-1173 invokes makemon_runtime(), confirming the caller is already live up to preflight.",
+    "PM_MINOTAUR is catalog index 177 (js/monsters.js:415) with S_GIANT class (js/monsters.js:211); its existing js/makemon_create.js m_initinv arm matches C’s PM_MINOTAUR WAN_DIGGING branch. The refusal therefore comes from assertSupportedSpecies(), not from missing species data or an unimplemented minotaur inventory branch.",
+    "The replay result lists trap.c selftouch and ball.c set_bc as unrelated accumulated unported state after the boundary; neither is the step-1034 cause. No game code, tests, central records, C recorder, score, scan aggregate, or other session was modified.",
+    "Accepted candidate a0342880e606384b48903ac656ccc92a770b232c checkpoint run-r1BdaY passes: 31/44 sessions,10249/11405 screens,753558/792838 RNG,10271/11405 cursors,267/267 recordings. The beam span adds37 screens,993 RNG values and two independent monster-breath recordings totaling45 screens and6243 RNG calls. The prior candidate153fb5a8 matched the same recordings and score but failed an obsolete naming-call inventory count; correction7ead0433 changes that test from2 to3 after verifying all calls forward state.",
+    "The beam source goal remains parked after span acceptance because monster-to-monster breath, hero spell/polymorph/horn, monster spell, priest/storm and forced-miss ray entries lack matching production evidence. Verified entries are monster-to-hero fire breath and the existing hero fire-wand reflection recording. Runtime minotaur admission is a separate source-traced next goal, not unverified beam scope."
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 617204,
+      "datetime": "20351117080910",
+      "nethackrc": "OPTIONS=name:VersionProbe,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,symset:DECgraphics\n",
+      "moves": " #version\n  ",
+      "comment": "Directly reaches cmd.c doextcmd() and dispatches the version row; the host build banner is normalized by scripts/run-help-version-information.mjs."
+    }
+  ]
+}
