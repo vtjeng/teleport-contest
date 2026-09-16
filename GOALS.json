@@ -52122,6 +52122,118 @@
         "screens": 10199,
         "rng": 752563
       }
+    },
+    {
+      "id": "div-cmd-doextversion-seed0106-20260916",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wire the existing version display into extended-command dispatch",
+      "cFile": "cmd.c",
+      "sessions": [],
+      "selectionReason": "Same-seed continuation after accepted B5: holdout/seed0106-priest-extcmd-sweep now stops at step175 with92 remaining-screen upper bound,investigations/holdout/seed0106-priest-extcmd-sweep.json. The version.c doextversion owner already serves help; cmd.c doextcmd is the missing caller. Higher-ranked seed4500 remains owned by A with its source dependency corrections in progress.",
+      "detail": "Fresh B5 scan at d000a93a reproduces UnsupportedHeroCommandBoundaryError at step175 while dispatching #version. C cmd.c493-519 invokes the selected extcmdlist function; the version row at1924-1925 names doextversion. js/version.js already implements that active function and js/pager.js supplies its renderer and RNG, but js/cmd.js omits the case. Reuse those source-owned interfaces and preserve ECMD_OK. The independent fresh matrix normalizes only existing documented Linux/Darwin build strings; it is qualified differential evidence, not an inactive C path or a new raw matching recording.",
+      "spans": [
+        {
+          "name": "doextversion-dispatch",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "doextcmd"
+          ]
+        }
+      ],
+      "openedAt": "e4aa1796b23c1fbb65198800ab479004a71b6f25",
+      "openStanding": {
+        "sha": "d000a93a661324725f4a20144d811b2c3b83aff6",
+        "screens": 10199,
+        "rng": 752563
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doextcmd",
+      "session": "holdout/seed0106-priest-extcmd-sweep",
+      "step": 175,
+      "activeStanding": {
+        "sha": "d000a93a661324725f4a20144d811b2c3b83aff6",
+        "screens": 10199,
+        "rng": 752563
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0106-priest-extcmd-sweep",
+          "step": 175,
+          "kind": "stop",
+          "function": "doextversion",
+          "functionDeclared": true,
+          "sourceFile": "version.c",
+          "cFile": "version.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: doextversion() for the extended command 'version' is not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 267,
+          "remainingScreensUpperBound": 92,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0106-priest-extcmd-sweep.json",
+            "result": {
+              "session": "holdout/seed0106-priest-extcmd-sweep",
+              "remainingScreensUpperBound": 92,
+              "status": "complete",
+              "commit": "d000a93a661324725f4a20144d811b2c3b83aff6",
+              "mismatch": {
+                "session": "holdout/seed0106-priest-extcmd-sweep",
+                "step": 175,
+                "kind": "stop",
+                "function": "doextversion",
+                "functionDeclared": true,
+                "sourceFile": "version.c",
+                "cFile": "version.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: doextversion() for the extended command 'version' is not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 267,
+                "remainingScreensUpperBound": 92
+              },
+              "summary": "The validated sacrifice span adds51 matching screens and moves this session from step124 to step175. The next stop is #version: cmd.js does not dispatch its doextversion handler even though version.js already implements it. Worker B is wiring that existing owner and its text-window/RNG context;92 screens remain in this queue suffix.",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "doextcmd"
+                ],
+                "branch": "C cmd.c doextcmd lines493-519 reads the selected extcmdlist function and calls it, returning its ECMD result. The version row at cmd.c1924-1925 names doextversion. JavaScript has the generated version row and version.js doextversion, but cmd.js doextcmd has no matching case and reaches UnsupportedHeroCommandBoundaryError at step175.",
+                "callers": [
+                  "C cmd.c extcmdlist registers version with doextversion and doextcmd invokes the selected function pointer.",
+                  "js/extcmdlist_data.js version row carries doextversion, while js/cmd.js doextcmd currently falls through to its unsupported default.",
+                  "js/pager.js already calls js/version.js doextversion with displayTextWindow and random; the command path must supply the same source-owned interfaces."
+                ],
+                "dependencies": [
+                  "Reuse the existing version.c doextversion implementation in js/version.js, including the text-window renderer and runtime-information RNG ordering.",
+                  "Preserve ECMD_OK and command dispatch state. Keep machine-local configuration path differences under open question Q1 rather than adding recorded environment values."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current-main bounded replay run-DZt0zD, logged at /tmp/teleport-validation-1000/run-DZt0zD, replayed only sessions/holdout/seed0106-priest-extcmd-sweep.session.json at 18a56313c56723cde906c27449d0fc2c6c085bf0. It emitted 124 screens from 267 recorded steps and stopped with UnsupportedHeroCommandBoundaryError at js/cmd.js:5164; the saved diagnostic is .cache/investigate0106-18a563/replay-result.json.",
+                "The assigned recording's segments[0].steps[120-125] are the bytes #offer\\n: steps 120-123 type the command, step 124 is the dispatching newline with C top line 'You are not on an altar.' and an empty RNG slice, and step 125 begins the next command. The step-124 cursor is [44,18,1], so the mismatch is the command result rather than a prompt answer.",
+                "nethack-c/upstream/src/pray.c:1852-1896 is the complete dosacrifice() body. Its first guard is source-deterministic: altar/swallow status selects the message, then Confusion/Stunned is checked, and only the later floorfood() call can ask for input or reach offering behavior.",
+                "Current JavaScript source confirms js/cmd.js:289 imports only dopray/doturn from pray.js and js/cmd.js:5162-5167 sends the offer row to the generic unsupported-command boundary. js/pray.js has no dosacrifice export. js/eat.js:2363-2370 documents that #offer/#tin are unported and js/eat.js:2376-2377 throws for the sacrifice call.",
+                "Parked prior delivery 124d7ddb (not an ancestor of current main) added the source-shaped dosacrifice() guard implementation and doextcmd() case, plus scripts/pray.test.mjs and an independent recipes/pray.c/dosacrifice-fresh-ember.session.json with recordings/pray.c/dosacrifice-fresh-ember.session.json. That delivery confirms the guard-only witness but explicitly left floorfood('sacrifice', 1) and altar offering helpers as source gaps; it is useful prior work, not current parity evidence.",
+                "Worker B task B-20260916-5 started from c1d1f813f667b497fca98048757de1270bcb0e2b after the seed0014 worker replay matched all 714 screens. Its source reservations cover pray.c dosacrifice, eat.c floorfood and offer_ok, with command/item-action wiring. The work remains unsubmitted.",
+                "Read-only source survey confirms dosacrifice computes altar alignment before its altar/swallow and Confusion/Stunned guards, which consume no RNG or selector input. The used floorfood return requires its offering path, ordered skip-floor predicate, getobj_else lifetime, source prompts and cockatrice handling. Pure offer_ok uses exact class/type filters and Astral XOR; DOWNPLAY remains selectable by the queued inventory key.",
+                "Worker B reports an independently chosen offering-command differential passing run-S9GiYR with 10 screens/cursors and 2487 RNG values. It preserved its WIP while submitting the unrelated fountain validation correction, then resumed task B-20260916-5. Source coverage, additional entry evidence and immutable delivery are still in progress; these are not main score figures.",
+                "Coordinator review of C eat.c floorfood lines3577-3730 found the worker selector still omitted the pool/lava skip condition and retained metal-eating and tinning refusals. The dependency must preserve bear-trap extraction, iron-bar hands_obj selection, gold and ordinary floor iteration, tin_ok, exact getobj_else cleanup, and the source three-way candidate predicate. Worker B is completing that whole function and reusing existing owners before submission.",
+                "Worker B preserved its WIP, merged validated main17c7e13e at a clean boundary, and restored the work on merged HEAD957b2ba1. Submitted B4 commits remain unchanged. Focused checks affected by the merge are being rerun.",
+                "Worker B completed the floorfood liquid short-circuit, bear-trap extraction guard, rust-monster pointer comparison, tinning classifier and iron-bar hands_obj caller path. Its bounded node --test run of scripts/eat.test.mjs, scripts/eat-prompt.test.mjs and scripts/pray.test.mjs passed all three files with no failures; /tmp/B5-focused.log records the worker result. The independent altar probes did not reach selection because unanswered More and location-tip prompts consumed their command keys; a simpler production setup is being investigated.",
+                "Checkpoint d000a93a661324725f4a20144d811b2c3b83aff6 run-pM0K7h passes:31/44 complete sessions,10199/11405 screens,752563/792838 RNG,10226/11405 cursors,265/265 recordings. The sacrifice span adds51 screens and two independent recordings totaling74 screens and7990 RNG calls.",
+                "Saved scan .cache/B5-development-scan.json and mismatch queue run-BlyNK7 locate this session at step175, doextversion stop,92 remaining-screen upper bound. Source inspection confirms the generated row and existing callee, isolating missing command dispatch.",
+                "Worker B claimed B-20260916-6 from immutable23e44e40705da27c6f57ff61485d5e22c6575d09 with cmd.c doextcmd, version.c doextversion and the version text-window contract reserved. It is implementing the independent same-session continuation."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
