@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { A_NEUTRAL } from '../js/const.js';
+import { A_NEUTRAL, LL_ACHIEVE, MIN_QUEST_ALIGN } from '../js/const.js';
 import { qt_pager } from '../js/questpgr.js';
 import { QUEST_TEXT } from '../js/quest_text_data.js';
-import { quest_stat_check, quest_talk } from '../js/quest.js';
-import { MS_LEADER, MS_NEMESIS } from '../js/monsters.js';
+import { quest_chat, quest_stat_check, quest_talk } from '../js/quest.js';
+import { monst_globals_init, MS_LEADER, MS_NEMESIS, PM_CLERIC } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
 import {
     loadQuestLeaderBadalignRecipe,
@@ -34,6 +34,57 @@ test('quest leader badalign recipe is a clean replay input', () => {
 test('Priest quest pager contains the first meeting and assignment text', () => {
     assert.match(QUEST_TEXT.Pri.leader_first.text, /great challenge/u);
     assert.match(QUEST_TEXT.Pri.assignquest.text, /Great Festivals/u);
+});
+
+test('worthy first quest meeting records the granting leader', async () => {
+    // quest.c chat_with_leader() sets got_quest before livelog_printf() uses
+    // noit_mon_nam(mtmp).  This compact source-shaped state keeps the pager
+    // output local while exercising the production quest_chat() caller.
+    const priest = roles.find((role) => role.filecode === 'Pri');
+    const state = {
+        moves: 0,
+        wizard: false,
+        urole: { ...priest, lgod: 'L', ngod: 'N', cgod: 'C' },
+        qstart_level: { dnum: 1, dlevel: 5 },
+        u: {
+            ulevel: 14,
+            uz: { dnum: 1, dlevel: 5 },
+            ualign: { type: A_NEUTRAL, record: MIN_QUEST_ALIGN },
+            ualignbase: [A_NEUTRAL, A_NEUTRAL],
+            uhave: { questart: false },
+        },
+        svq: {
+            quest_status: {
+                leader_m_id: 77,
+                got_quest: false,
+                got_thanks: false,
+                pissed_off: false,
+                met_leader: false,
+            },
+        },
+        gamelog: [],
+    };
+    monst_globals_init(state);
+    const leader = {
+        m_id: 77,
+        mpeaceful: true,
+        data: state.mons[PM_CLERIC],
+        female: false,
+        mextra: {},
+    };
+    const random = { rn2: () => 0 };
+    await quest_chat(leader, state, {
+        random,
+        output: { pline: async () => {}, window: async () => {} },
+        unsupported: (reason) => assert.fail(`unexpected: ${reason}`),
+    });
+
+    assert.equal(state.svq.quest_status.got_quest, true);
+    assert.deepEqual(state.gamelog, [{
+        turn: 0,
+        flags: LL_ACHIEVE,
+        text: 'the high priest has granted access to proceed deeper into the quest',
+    }]);
 });
 
 test('every role has the badalign text chat_with_leader() delivers', () => {

@@ -2972,7 +2972,6 @@ export async function learn_unseen_invent(state = game) {
                 state,
                 hooks: {
                     message: (text) => ttyPline(text, state),
-                    updateInventory: () => {},
                 },
             },
             { confersLuck: false },
@@ -4191,7 +4190,11 @@ function addinv_core2(obj, env, facts) {
                 true,
                 true,
                 env.state,
-                { hooks: { updateInventory: () => {} } },
+                // Preserve the caller's actual display and inventory hooks;
+                // C makeknown() lets discover_object() perform its own live
+                // update_inventory() call instead of replacing that owner
+                // with a silent no-op.
+                env,
             );
             env.state.u.uconduct ??= {};
             if (!env.state.u.uconduct.literate++)
@@ -4570,7 +4573,17 @@ async function addinvCore0Runtime(
     obj, env = {}, prepared = null, updatePermInvent,
     otherObj = null,
 ) {
-    const context = beginAddinv(obj, env, prepared);
+    // Live addinv() may be called by a wish or a container path with only a
+    // state argument. Supply ttyPline to the async addinv_core2() arm while
+    // leaving synchronous startup addinv() free of an unawaited Promise.
+    const liveEnv = {
+        ...env,
+        hooks: {
+            ...(env.hooks ?? {}),
+            message: env.hooks?.message ?? ttyPline,
+        },
+    };
+    const context = beginAddinv(obj, liveEnv, prepared);
     if (!context) return null;
     const { normalized, state } = context;
     let inserted;

@@ -1145,6 +1145,7 @@ export async function makewish(state = game) {
     const holdEnv = {
         state,
         hooks: {
+            message: ttyPline,
             encumberMessage: encumber_msg,
             // do.c dropz() -> stackobj() -> invent.c merged() reaches
             // mkobj.c obj_extract_self() for the pile member the landing
