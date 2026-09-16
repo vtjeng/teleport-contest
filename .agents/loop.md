@@ -149,8 +149,16 @@ goal does not block integration of a ready independent goal.
 Before each wait and after each completion, run `worker-state.mjs next`.
 Process unread deliveries and completed worker turns before waiting again.
 Record observed turn completion with a `turn` event, then use `followup_task`
-on the same worker when independent work remains. Record a concrete blocker
-otherwise; an accepted earlier delivery does not end the worker's next task.
+on the same worker when independent work remains. Accepting a worker's
+finished task does not end its next task.
+
+If a worker cannot find a task it can start, find out what is stopping it.
+Give it the task of removing that obstacle, unless someone is already
+doing so. The orchestrator handles merge problems and decides who may
+edit shared code.
+If the worker must wait, record what it is waiting for and who will
+resolve it. Resume the worker when the obstacle is gone. Do not keep
+asking it to search the same unchanged queue.
 
 1. Recover any central open goal and its queued span with
    `node scripts/goal-log.mjs --current --detail`. Establish which exact
@@ -175,9 +183,17 @@ otherwise; an accepted earlier delivery does not end the worker's next task.
    Then run one `npm run checkpoint` on that candidate under
    `.agents/validation.md`. The orchestrator owns it through completion;
    workers continue independently. Freeze integration HEAD until evidence,
-   score recording and closure are complete. A failure returns to a
-   source-backed correction and a new exact candidate, without blocking
-   unrelated workers. Never accept a clean Git merge as validation.
+   score recording and closure are complete.
+   When tests fail after a merge, assign a worker to find and fix the cause,
+   then test the corrected code. Other workers continue their tasks.
+   Before keeping work on hold because of an earlier failure, check
+   current main and its saved test results: is the problem already fixed?
+   If so, complete the usual acceptance checks and update the task records.
+   Keep the original failed test result unchanged.
+   Use saved test results to record tests that already finished.
+   If the task tracker rejects the update, report the command and error
+   rather than repeating those tests.
+   A merge without conflicts still needs the required tests.
 5. After a passing checkpoint, start `node scripts/mismatch-queue.mjs --json`.
    Use the saved summary for scores, close the span, and append its
    `SCORE.tsv` row following `.agents/scoring.md`. Before closing a source
