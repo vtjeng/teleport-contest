@@ -380,43 +380,59 @@ test('the confirmation reads each suppressing property the way C spells it',
         }
     });
 
-test('check_caitiff stops only for the two roles that lose alignment',
+test('check_caitiff applies only the two role alignment penalties',
     async () => {
         // uhitm.c:333. At -10 and below the function returns before either
         // role is consulted; -9 is the last value that still runs.
         await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
         assert.equal(game.urole.mnum, PM_SAMURAI);
+        game.u.ualign.abuse = 0;
         game.u.ualign.record = -9;
-        refuses(
-            () => check_caitiff(target(PM_LICHEN, { mpeaceful: 1 }), game,
-                REFUSING),
-            'samurai giri penalty',
+        const messages = [];
+        const caitiffEnv = {
+            ...REFUSING,
+            message: async (line) => messages.push(line),
+        };
+        await check_caitiff(
+            target(PM_LICHEN, { mpeaceful: 1 }), game, caitiffEnv,
         );
+        assert.equal(game.u.ualign.record, -10);
+        assert.equal(game.u.ualign.abuse, 1);
+        assert.deepEqual(messages, ['You dishonorably attack the innocent!']);
         game.u.ualign.record = -10;
-        check_caitiff(target(PM_LICHEN, { mpeaceful: 1 }), game, REFUSING);
+        await check_caitiff(
+            target(PM_LICHEN, { mpeaceful: 1 }), game, caitiffEnv,
+        );
+        assert.deepEqual(messages, ['You dishonorably attack the innocent!']);
 
         // A Samurai striking a hostile keeps his giri.
         game.u.ualign.record = 0;
-        check_caitiff(target(), game, REFUSING);
+        await check_caitiff(target(), game, caitiffEnv);
 
         await hero({ role: 'Knight', gender: 'male', align: 'lawful' });
         assert.equal(game.urole.mnum, PM_KNIGHT);
         assert.equal(game.u.ualign.type, A_LAWFUL);
+        game.u.ualign.abuse = 0;
+        game.u.ualign.record = 0;
+        messages.length = 0;
         // Helpless: uhitm.c:339's first disjunct.
-        refuses(
-            () => check_caitiff(target(PM_LICHEN, { msleeping: 1 }), game,
-                REFUSING),
-            'knightly caitiff penalty',
+        await check_caitiff(
+            target(PM_LICHEN, { msleeping: 1 }), game, caitiffEnv,
         );
+        assert.equal(game.u.ualign.record, -1);
+        assert.equal(game.u.ualign.abuse, 1);
+        assert.deepEqual(messages, ['You caitiff!']);
         // Fleeing without an unavenged grudge: the second disjunct.
-        refuses(
-            () => check_caitiff(target(PM_LICHEN, { mflee: 1 }), game,
-                REFUSING),
-            'knightly caitiff penalty',
+        game.u.ualign.record = 0;
+        await check_caitiff(
+            target(PM_LICHEN, { mflee: 1 }), game, caitiffEnv,
         );
+        assert.equal(game.u.ualign.record, -1);
+        assert.equal(game.u.ualign.abuse, 2);
+        assert.deepEqual(messages, ['You caitiff!', 'You caitiff!']);
         // An unavenged grudge is what makes flight caitiff, so mavenge
         // cancels it.
-        check_caitiff(
+        await check_caitiff(
             target(PM_LICHEN, { mflee: 1, mavenge: 1 }), game, REFUSING,
         );
         // uhitm.c:338's own term: a sleeping gnome zombie is as helpless as
@@ -424,12 +440,14 @@ test('check_caitiff stops only for the two roles that lose alignment',
         // target fails nothing else in the guard, so is_undead() is the only
         // thing keeping the penalty away.
         assert.equal(is_undead(game.mons[PM_GNOME_ZOMBIE]), true);
-        check_caitiff(
+        await check_caitiff(
             target(PM_GNOME_ZOMBIE, { msleeping: 1 }), game, REFUSING,
         );
         // A chaotic Knight is not bound by chivalry.
         game.u.ualign.type = A_CHAOTIC;
-        check_caitiff(target(PM_LICHEN, { msleeping: 1 }), game, REFUSING);
+        await check_caitiff(
+            target(PM_LICHEN, { msleeping: 1 }), game, REFUSING,
+        );
     });
 
 test('mon_maybe_unparalyze draws only for a frozen target', async () => {
@@ -462,35 +480,37 @@ test('mon_maybe_unparalyze draws only for a frozen target', async () => {
 test('find_roll_to_hit adds every adjustment its source names', async () => {
     await hero();
     const counters = () => ({ attknum: 0, role_roll_penalty: 0 });
-    const roll = (mtmp, state = game, env = REFUSING) => find_roll_to_hit(
+    const roll = async (mtmp, state = game, env = REFUSING) => find_roll_to_hit(
         mtmp, AT_WEAP, state.uwep, counters(), state, env,
     );
-    const base = roll(target());
+    const base = await roll(target());
 
     // uhitm.c:387-393, +2 each and +4 for a target that cannot move.
-    assert.equal(roll(target(PM_LICHEN, { mstun: 1 })), base + 2);
-    assert.equal(roll(target(PM_LICHEN, { mflee: 1 })), base + 2);
-    assert.equal(roll(target(PM_LICHEN, { msleeping: 1 })), base + 2);
-    assert.equal(roll(target(PM_LICHEN, { mcanmove: 0 })), base + 4);
+    assert.equal(await roll(target(PM_LICHEN, { mstun: 1 })), base + 2);
+    assert.equal(await roll(target(PM_LICHEN, { mflee: 1 })), base + 2);
+    assert.equal(await roll(target(PM_LICHEN, { msleeping: 1 })), base + 2);
+    assert.equal(await roll(target(PM_LICHEN, { mcanmove: 0 })), base + 4);
 
     // uhitm.c:407-408, u.utrap costs three.
     game.u.utrap = 2;
-    assert.equal(roll(target()), base - 3);
+    assert.equal(await roll(target()), base - 3);
     game.u.utrap = 0;
 
     // uhitm.c:405-406, `tmp -= (near_capacity() * 2) - 1`.
     assert.equal(
-        roll(target(), game, { ...REFUSING, nearCapacity: () => HVY_ENCUMBER }),
+        await roll(target(), game, {
+            ...REFUSING, nearCapacity: () => HVY_ENCUMBER,
+        }),
         base - ((HVY_ENCUMBER * 2) - 1),
     );
 
     // uhitm.c:401-402: an elf hits an orc more easily. This hero is human, so
     // the same orc is worth nothing extra.
-    const humanVsOrc = roll(target(PM_HILL_ORC)) - base;
+    const humanVsOrc = await roll(target(PM_HILL_ORC)) - base;
     await hero({ role: 'Ranger', gender: 'male', race: 'elf' });
     assert.equal(game.urace.mnum, PM_ELF);
     assert.equal(
-        roll(target(PM_HILL_ORC)) - roll(target(PM_LICHEN)),
+        await roll(target(PM_HILL_ORC)) - await roll(target(PM_LICHEN)),
         humanVsOrc + 1,
     );
 });
@@ -498,14 +518,14 @@ test('find_roll_to_hit adds every adjustment its source names', async () => {
 test('find_roll_to_hit reads the Monk arms and martial kick bonus', async () => {
     await hero({ role: 'Monk', gender: 'male' });
     const counters = () => ({ attknum: 0, role_roll_penalty: 0 });
-    const barehanded = find_roll_to_hit(
+    const barehanded = await find_roll_to_hit(
         target(), AT_CLAW, null, counters(), game, REFUSING,
     );
 
     // uhitm.c:398-399, `(u.ulevel / 3) + 2` for a Monk with neither a weapon
     // nor a shield. Giving him a shield removes it.
     game.uarms = { otyp: 0, oclass: 3 };
-    const shielded = find_roll_to_hit(
+    const shielded = await find_roll_to_hit(
         target(), AT_CLAW, null, counters(), game, REFUSING,
     );
     game.uarms = null;
@@ -518,7 +538,7 @@ test('find_roll_to_hit reads the Monk arms and martial kick bonus', async () => 
     // through the caller's armorpenalty.
     game.uarm = { otyp: 0, oclass: 3 };
     const armored = counters();
-    const penalized = find_roll_to_hit(
+    const penalized = await find_roll_to_hit(
         target(), AT_CLAW, null, armored, game, REFUSING,
     );
     game.uarm = null;
@@ -532,15 +552,15 @@ test('find_roll_to_hit reads the Monk arms and martial kick bonus', async () => 
 
     // uhitm.c:424-425, the AT_KICK arm adds weapon_hit_bonus() for a
     // martial role. A Valkyrie's AT_KICK arm has no bonus and is pinned too.
-    const kick = find_roll_to_hit(
+    const kick = await find_roll_to_hit(
         target(), AT_KICK, null, counters(), game, REFUSING,
     );
     assert.equal(kick, barehanded);
     await hero({ role: 'Valkyrie', gender: 'female' });
-    const ordinaryKick = find_roll_to_hit(
+    const ordinaryKick = await find_roll_to_hit(
         target(), AT_KICK, null, counters(), game, REFUSING,
     );
-    const ordinaryClaw = find_roll_to_hit(
+    const ordinaryClaw = await find_roll_to_hit(
         target(), AT_CLAW, null, counters(), game, REFUSING,
     );
     assert.equal(
@@ -553,16 +573,16 @@ test('find_roll_to_hit consults check_caitiff once per series', async () => {
     await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
     const counters = { attknum: 0, role_roll_penalty: 0 };
     const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
-    refuses(
-        () => find_roll_to_hit(
-            peaceful, AT_WEAP, game.uwep, counters, game, REFUSING,
-        ),
-        'samurai giri penalty',
+    const messages = [];
+    await find_roll_to_hit(
+        peaceful, AT_WEAP, game.uwep, counters, game,
+        { ...REFUSING, message: async (line) => messages.push(line) },
     );
     assert.equal(counters.attknum, 1);
+    assert.deepEqual(messages, ['You dishonorably attack the innocent!']);
     // The second call in the same series skips it, so the giri penalty that
-    // stopped the first one does not stop this one.
-    find_roll_to_hit(
+    // applied the penalty on the first one does not apply it again here.
+    await find_roll_to_hit(
         peaceful, AT_WEAP, game.uwep, counters, game, REFUSING,
     );
     assert.equal(counters.attknum, 2);
@@ -855,7 +875,7 @@ test('do_attack lets a sustainable two-weapon pair swing twice', async () => {
     // number under the first misses the second swing as well.
     const mtmp = placedTarget();
     const uattk = game.youmonst.data.mattk[0];
-    const tmp = find_roll_to_hit(
+    const tmp = await find_roll_to_hit(
         mtmp, uattk.aatyp, game.uwep,
         { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
     );
@@ -882,7 +902,7 @@ test('do_attack swings once when two-weapon combat is off', async () => {
 
     const mtmp = placedTarget();
     const uattk = game.youmonst.data.mattk[0];
-    const tmp = find_roll_to_hit(
+    const tmp = await find_roll_to_hit(
         mtmp, uattk.aatyp, game.uwep,
         { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
     );
@@ -987,11 +1007,11 @@ test('the second swing compares its roll with the off hand\'s number',
         const uattk = game.youmonst.data.mattk[0];
         // uhitm.c:801 hands find_roll_to_hit() uswapwep, and 781 has already
         // spent the first attack, so attknum arrives at 1.
-        const second = (mtmp) => find_roll_to_hit(
+        const second = async (mtmp) => find_roll_to_hit(
             mtmp, uattk.aatyp, game.uswapwep,
             { attknum: 1, role_roll_penalty: 0 }, game, REFUSING,
         );
-        const first = (mtmp) => find_roll_to_hit(
+        const first = async (mtmp) => find_roll_to_hit(
             mtmp, uattk.aatyp, game.uwep,
             { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
         );
@@ -1003,10 +1023,10 @@ test('the second swing compares its roll with the off hand\'s number',
             game.u.twoweap = true;
             game.u.uswallow = swallow;
             const mtmp = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+            const firstRoll = await first(mtmp);
+            const nextRoll = await secondRoll(mtmp);
             const env = meleeEnv({
-                dieroll: (bound, index) => (
-                    index === 0 ? first(mtmp) : secondRoll(mtmp)
-                ),
+                dieroll: (_bound, index) => index === 0 ? firstRoll : nextRoll,
             });
             await hitum(mtmp, uattk, game, env);
             game.u.uswallow = 0;
@@ -1021,7 +1041,7 @@ test('the second swing compares its roll with the off hand\'s number',
         // One under: it lands, and the short sword's rnd(6) proves which
         // weapon swung.
         assert.deepEqual(
-            await run((mtmp) => second(mtmp) - 1),
+            await run(async (mtmp) => (await second(mtmp)) - 1),
             ['rnd(20)', 'rn2(3)', 'rnd(20)', 'rnd(6)', 'rn2(25)', 'rn2(3)'],
         );
         // Equal again, with the hero swallowed: the second half of the `||`
@@ -1106,7 +1126,7 @@ test('hitum compares the roll with the number find_roll_to_hit returned',
         const uattk = game.youmonst.data.mattk[0];
         // The number the roll is compared against, computed the way hitum()
         // computes it, so the rows below can straddle it exactly.
-        const tmp = find_roll_to_hit(
+        const tmp = await find_roll_to_hit(
             target(), uattk.aatyp, game.uwep,
             { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
         );
@@ -1158,12 +1178,12 @@ test('hitum frees a paralyzed target between the to-hit number and the roll',
     async () => {
         await hero();
         const uattk = game.youmonst.data.mattk[0];
-        const roll = (mtmp) => find_roll_to_hit(
+        const roll = async (mtmp) => find_roll_to_hit(
             mtmp, uattk.aatyp, game.uwep,
             { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
         );
-        const mobile = roll(target());
-        const frozen = roll(target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 }));
+        const mobile = await roll(target());
+        const frozen = await roll(target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 }));
         // uhitm.c:393, the only difference between the two targets.
         assert.equal(frozen, mobile + 4);
 

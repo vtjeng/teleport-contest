@@ -9,7 +9,7 @@ import {
     artifact_light,
     permapoisoned,
 } from './artifacts.js';
-import { exercise } from './attrib.js';
+import { adjalign, exercise } from './attrib.js';
 import {
     A_DEX,
     A_LAWFUL,
@@ -606,11 +606,11 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
 
 // C ref: uhitm.c check_caitiff() (330-347). A Knight who strikes a helpless or
 // fleeing target, or a Samurai who strikes a peaceful one, loses an alignment
-// point. Both arms call attrib.c adjalign(-1), and adjalign()'s loss arm stops
-// because it reaches mon.c adj_erinys(); the refusals stay here so the reason
-// names the Knight and the Samurai rather than the alignment helper. Every
-// other hero runs the whole function and changes nothing.
-export function check_caitiff(mtmp, state = game, env = {}) {
+// point. Both arms print through the caller's message operation and call
+// attrib.c adjalign(-1), whose loss arm updates the alignment abuse state and
+// reaches mon.c adj_erinys(). Every other hero runs the whole function and
+// changes nothing.
+export async function check_caitiff(mtmp, state = game, env = {}) {
     const u = state.u;
     if (u.ualign.record <= -10) return;
 
@@ -618,9 +618,13 @@ export function check_caitiff(mtmp, state = game, env = {}) {
     if (role === PM_KNIGHT && u.ualign.type === A_LAWFUL
         && !is_undead(mtmp.data)
         && (helpless(mtmp) || (mtmp.mflee && !mtmp.mavenge))) {
-        requireAttackOperation(env, 'unsupported')('knightly caitiff penalty');
+        const message = requireAttackOperation(env, 'message');
+        await message('You caitiff!', state);
+        adjalign(-1, state);
     } else if (role === PM_SAMURAI && mtmp.mpeaceful) {
-        requireAttackOperation(env, 'unsupported')('samurai giri penalty');
+        const message = requireAttackOperation(env, 'message');
+        await message('You dishonorably attack the innocent!', state);
+        adjalign(-1, state);
     }
 }
 
@@ -648,7 +652,7 @@ export function mon_maybe_unparalyze(mtmp, random = { rn2 }) {
 // js/regen.js:52 records the same fact.
 //
 // The AT_KICK arm at 424-425 contributes the martial-arts weapon-hit bonus.
-export function find_roll_to_hit(
+export async function find_roll_to_hit(
     mtmp,
     aatyp,
     weapon,
@@ -668,7 +672,7 @@ export function find_roll_to_hit(
     /* some actions should occur only once during multiple attacks */
     if (!counters.attknum++) {
         /* knight's chivalry or samurai's giri */
-        check_caitiff(mtmp, state, env);
+        await check_caitiff(mtmp, state, env);
     }
 
     /* adjust vs. monster state */
@@ -992,7 +996,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
         : double_punch(state, random)) ? 1 : 0;
 
     const counters = { attknum: 0, role_roll_penalty: 0 };
-    let tmp = find_roll_to_hit(
+    let tmp = await find_roll_to_hit(
         mon,
         uattk.aatyp,
         state.uwep,
@@ -1045,7 +1049,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
         // known_hitum() the `secondwep` it captured on entry. The two differ
         // for a bare-handed double punch, which leaves uswapwep alone and
         // strikes with nothing.
-        tmp = find_roll_to_hit(
+        tmp = await find_roll_to_hit(
             mon,
             uattk.aatyp,
             state.uswapwep,
