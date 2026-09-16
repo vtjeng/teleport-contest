@@ -727,8 +727,15 @@ export function lspo_object(specification, croom, rawEnv = {}) {
                 ? next.then(finish) : finish(next);
         }
 
-        if (typeof normalized.contents === 'function')
-            normalized.contents(obj, env);
+        if (typeof normalized.contents === 'function') {
+            const maybeContents = normalized.contents(obj, env);
+            const finishContents = () => {
+                completed = true;
+                return obj;
+            };
+            if (maybeContents && typeof maybeContents.then === 'function')
+                return maybeContents.then(finishContents);
+        }
         completed = true;
         return obj;
     };

@@ -453,6 +453,44 @@ test('Cloud room creates all fog monsters before its unchanged selection region'
     assert.ok(retainedSelection.get(5, 4));
 });
 
+test('Cloud room waits for asynchronous monsters before its gas region', async () => {
+    const { level, room } = fourByTwoRoom();
+    const state = { level };
+    monst_globals_init(state);
+    const events = [];
+    const random = randomWithRn2((bound) => {
+        assert.equal(bound, 2);
+        events.push('gender');
+        return 0;
+    });
+
+    const result = run_themeroom_fill(fillById('cloud_room'), room, 1, {
+        state,
+        random,
+        hooks: {
+            createMonster(m) {
+                events.push(`monster:${m.id}:start`);
+                return Promise.resolve().then(() => {
+                    events.push(`monster:${m.id}:done`);
+                });
+            },
+            createGasCloudSelection() {
+                events.push('region');
+            },
+        },
+    });
+
+    assert.equal(typeof result?.then, 'function');
+    await result;
+    const region = events.indexOf('region');
+    assert.ok(region >= 0);
+    assert.ok(events.slice(0, region).every(
+        (event) => !event.endsWith(':start') || events.indexOf(
+            event.replace(':start', ':done'),
+        ) < region,
+    ));
+});
+
 test('Cloud room default path owns sleeping fog and a visible gas region', () => {
     const { level, room, state, random } = monsterDescriptorFixture();
     level.rooms[0] = { ...room, rtype: THEMEROOM };

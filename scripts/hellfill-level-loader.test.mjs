@@ -126,6 +126,32 @@ test('hellfill runs the open-cavern arm and common population tail', async () =>
     assert.deepEqual(calls[7], { method: 'stair', args: ['down'] });
 });
 
+test('hellfill waits for each monster descriptor before drawing gold count', async () => {
+    const events = [];
+    const des = new Proxy({}, {
+        get(_target, method) {
+            return () => {
+                events.push(`${method}:start`);
+                if (method !== 'monster') {
+                    events.push(`${method}:done`);
+                    return undefined;
+                }
+                return Promise.resolve().then(() => {
+                    events.push('monster:done');
+                });
+            };
+        },
+    });
+    await hellfill(des, roomState(), openCavernRandom());
+
+    const firstGold = events.indexOf('gold:start');
+    assert.ok(firstGold >= 0);
+    assert.equal(
+        events.slice(0, firstGold).filter((event) => event === 'monster:done').length,
+        events.slice(0, firstGold).filter((event) => event === 'monster:start').length,
+    );
+});
+
 // C ref: dat/hellfill.lua's tail reads `u.invocation_level`, which nhlua.c
 // answers with dungeon.c Invocation_lev(&u.uz). On that one level the fill
 // places the vibrating square and no down stair; every other level gets the

@@ -93,27 +93,27 @@ export const HELL_GENERATORS = Object.freeze([
 // C ref: dat/hellfill.lua populatemaze(). Each Lua math.random(n) is one
 // rn2(n) draw plus one, and each object/monster/trap/gold call retains the
 // special-level API's source ordering and random placement.
-export function populatemaze(des, random = rn2) {
+export async function populatemaze(des, random = rn2) {
     const objectCount = mathRandom(8, random) + 11;
     for (let i = 1; i <= objectCount; ++i) {
-        if (percent(50, random)) des.object('*');
-        else des.object();
+        if (percent(50, random)) await des.object('*');
+        else await des.object();
     }
     const gemCount = mathRandom(10, random) + 2;
     for (let i = 1; i <= gemCount; ++i)
-        des.object('`');
+        await des.object('`');
     const minotaurCount = mathRandom(3, random);
     for (let i = 1; i <= minotaurCount; ++i)
-        des.monster({ id: PM_MINOTAUR, peaceful: 0 });
+        await des.monster({ id: PM_MINOTAUR, peaceful: 0 });
     const monsterCount = mathRandom(5, random) + 7;
     for (let i = 1; i <= monsterCount; ++i)
-        des.monster({ peaceful: 0 });
+        await des.monster({ peaceful: 0 });
     const goldCount = mathRandom(6, random) + 7;
     for (let i = 1; i <= goldCount; ++i)
-        des.gold();
+        await des.gold();
     const trapCount = mathRandom(6, random) + 7;
     for (let i = 1; i <= trapCount; ++i)
-        des.trap();
+        await des.trap();
 }
 
 // C ref: hellfill.lua top-level chunk. The selected generator is followed by
@@ -127,7 +127,7 @@ export async function hellfill(des, state, random = rn2) {
     des.stair('up');
     if (Invocation_lev(state.u.uz, state)) des.trap('vibrating square');
     else des.stair('down');
-    populatemaze(des, random);
+    await populatemaze(des, random);
 }
 
 export const HELL_LEVEL_LOADERS = Object.freeze({ hellfill });
