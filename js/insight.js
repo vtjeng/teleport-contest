@@ -313,6 +313,7 @@ import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { livelog_printf } from './pline.js';
 import { note_unported } from './unported.js';
+import { ATR_INVERSE, ATR_NONE } from './terminal.js';
 import { hidden_gold } from './vault.js';
 import { find_mac } from './worn.js';
 import {
@@ -2116,7 +2117,11 @@ export async function set_vanq_order(
 // NHW_MENU text owner as the other insight reports.
 export async function list_vanquished(
     defquery, ask, state = game,
-    { displayTextWindow = displayTtyMenuTextWindow, menu = select_menu } = {},
+    {
+        displayTextWindow = displayTtyMenuTextWindow,
+        menu = select_menu,
+        queryFunction = null,
+    } = {},
 ) {
     const entries = ordinaryMonsterEntries(state).filter((entry) => (
         Number(entry.vital.died) !== 0
@@ -2141,13 +2146,21 @@ export async function list_vanquished(
     if (ask) {
         let responses = entries.length > 1 ? 'ynaq' : 'ynq\u001ba';
         if (entries.length === 1 && defquery === 'a') defquery = 'y';
-        answer = await yn_function(
-            'Do you want an account of creatures vanquished?',
-            responses,
-            defquery,
-            true,
-            state,
-        );
+        answer = queryFunction
+            ? await queryFunction(
+                'Do you want an account of creatures vanquished?',
+                responses,
+                defquery,
+                true,
+                state,
+            )
+            : await yn_function(
+                'Do you want an account of creatures vanquished?',
+                responses,
+                defquery,
+                true,
+                state,
+            );
     } else {
         answer = defquery.charCodeAt(0);
     }
@@ -2164,8 +2177,16 @@ export async function list_vanquished(
     const classHeader = (mode === VANQ_MCLS_LTOH || mode === VANQ_MCLS_HTOL)
         && entries.length > 1;
     entries.sort((left, right) => vanqsort_cmp(left, right, state));
-    const lines = ['Vanquished creatures:'];
-    if (!dumping) lines.push('');
+    const lines = [{ text: 'Vanquished creatures:' }];
+    if (!dumping) lines.push({ text: '' });
+    // C insight.c:2873-2885 passes ask ? ATR_NONE :
+    // iflags.menu_headings.attr to putstr() for class headings. Ordinary
+    // #vanquished uses the configured menu heading attribute; final
+    // disclosure suppresses it because `ask` is true at that call site.
+    const classHeadingAttr = ask
+        ? ATR_NONE
+        : Number.isInteger(state.iflags?.menu_headings?.attr)
+            ? state.iflags.menu_headings.attr : ATR_INVERSE;
     let previousClass = 0;
     let hadUnique = false;
     let specialHeader = false;
@@ -2178,7 +2199,7 @@ export async function list_vanquished(
             && (mlet !== previousClass || (specialHeader && !rider))) {
             const header = rider ? 'Rider'
                 : MONSTER_CLASS_EXPLANATIONS[mlet] ?? '';
-            lines.push(upstart(header));
+            lines.push({ text: upstart(header), attr: classHeadingAttr });
             specialHeader = rider;
             previousClass = mlet;
         }
@@ -2189,7 +2210,7 @@ export async function list_vanquished(
             hadUnique = true;
         } else {
             if (uniqueHeader && hadUnique) {
-                lines.push('');
+                lines.push({ text: '' });
                 hadUnique = false;
             }
             text = count === 1 ? an(vanquishedName(entry))
@@ -2197,13 +2218,15 @@ export async function list_vanquished(
                     vanquishedName(entry),
                 )}`;
         }
-        lines.push(`${' '.repeat(vanquishedPrefix(text) + (classHeader ? 1 : 0))}${text}`);
+        lines.push({
+            text: `${' '.repeat(vanquishedPrefix(text) + (classHeader ? 1 : 0))}${text}`,
+        });
     }
     if (entries.length > 1) {
-        if (!dumping) lines.push('');
-        lines.push(`${totalKilled} creatures vanquished.`);
+        if (!dumping) lines.push({ text: '' });
+        lines.push({ text: `${totalKilled} creatures vanquished.` });
     }
-    await displayTextWindow(state, lines.map((text) => ({ text })));
+    await displayTextWindow(state, lines);
 }
 
 // C ref: insight.c dovanquished() (2769-2775).  The menu-requested flag is
