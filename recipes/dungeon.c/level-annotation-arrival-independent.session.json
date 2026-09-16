@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9300137,
+      "datetime": "20370102030405",
+      "nethackrc": "OPTIONS=name:ArrivalProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u00165\n#name\naUpper landing\n\u00161\n\u00165\n "
+    }
+  ]
+}

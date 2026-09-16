@@ -59,6 +59,7 @@ import {
     br_string2,
     find_mapseen,
     find_level,
+    get_annotation,
     induced_align,
     init_mapseen,
     init_dungeons,
@@ -649,6 +650,66 @@ test('recbranch_mapseen remembers only a forward branch transition', () => {
         { dnum: 0, dlevel: 7 }, { dnum: 1, dlevel: 1 }, state,
     );
     assert.equal(sourceMapseen.br, remembered);
+});
+
+test('get_annotation returns only an existing level annotation', () => {
+    // dungeon.c:2478-2485. Pin the complete upstream helper and its null
+    // result for an unseen level rather than manufacturing a mapseen entry.
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('\nget_annotation(');
+    const cEnd = cSource.indexOf('\n/* print the annotation', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'the complete upstream get_annotation definition is present');
+    const cFunction = cSource.slice(cStart, cEnd);
+    assert.match(cFunction, /find_mapseen\(lev\)/u);
+    assert.match(cFunction, /return mptr->custom/u);
+    assert.match(cFunction, /return NULL/u);
+    const printStart = cSource.indexOf('\nprint_level_annotation(void)');
+    const printEnd = cSource.indexOf('\n/* ask user to annotate', printStart);
+    assert.ok(printStart >= 0 && printEnd > printStart,
+        'the complete upstream print_level_annotation definition is present');
+    const printFunction = cSource.slice(printStart, printEnd);
+    assert.match(printFunction, /get_annotation\(&u\.uz\)/u);
+    assert.match(printFunction, /You\("remember this level as %s\."/u);
+
+    const state = {
+        svm: {
+            mapseenchn: [{
+                lev: { dnum: 0, dlevel: 3 },
+                custom: 'annotated vault',
+            }],
+        },
+    };
+    assert.equal(
+        get_annotation({ dnum: 0, dlevel: 3 }, state),
+        'annotated vault',
+    );
+    assert.equal(get_annotation({ dnum: 0, dlevel: 4 }, state), null);
+    assert.equal(get_annotation(null, state), null);
+});
+
+test('goto_level prints the annotation at the source arrival boundary', () => {
+    // do.c:1970-1976. The message must follow monster notices and precede
+    // special-room arrival output, preserving source evaluation order.
+    const source = readFileSync(
+        new URL('../js/do.js', import.meta.url),
+        'utf8',
+    );
+    const notices = source.indexOf('await notice_all_mons(true, state);');
+    const annotation = source.indexOf(
+        'await print_level_annotation(state);', notices,
+    );
+    const specialRoom = source.indexOf(
+        'await check_special_room(false, state);', annotation,
+    );
+    assert.ok(notices >= 0, 'goto_level notices destination monsters');
+    assert.ok(annotation > notices,
+        'annotation follows destination monster notices');
+    assert.ok(specialRoom > annotation,
+        'annotation precedes special-room arrival output');
 });
 
 test('goto_level wires recbranch_mapseen before assign_level', () => {

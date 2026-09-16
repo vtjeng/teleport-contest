@@ -95,6 +95,7 @@ import { is_ice } from './terrain.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { is_lava, is_pool } from './trap.js';
+import { ttyPline } from './tty_message.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 
@@ -2207,6 +2208,22 @@ export function recbranch_mapseen(source, dest, state = game) {
     // C reports an impossible diagnostic when a different branch was already
     // remembered, then assigns the newly observed forward branch anyway.
     mapseen.br = branch;
+}
+
+// C ref: dungeon.c get_annotation() (2478-2485). Return the custom name for
+// a remembered level without creating a mapseen record when none exists.
+export function get_annotation(lev, state = game) {
+    const mptr = find_mapseen(lev, state);
+    return mptr ? mptr.custom : null;
+}
+
+// C ref: dungeon.c print_level_annotation() (2488-2495). This is called from
+// do.c goto_level() after the destination level has been assigned and its
+// monsters noticed, but before special-room arrival messages.
+export async function print_level_annotation(state = game) {
+    const annotation = get_annotation(state.u.uz, state);
+    if (annotation !== null && annotation !== undefined)
+        await ttyPline(`You remember this level as ${annotation}.`, state);
 }
 
 // C ref: dungeon.c find_mapseen_by_str() (2651-2663).

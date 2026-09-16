@@ -110,6 +110,7 @@ import {
     level_info,
     next_level,
     on_level,
+    print_level_annotation,
     recbranch_mapseen,
     prev_level,
     recalc_mapseen,
@@ -1754,8 +1755,7 @@ export async function goto_level(
     await notice_all_mons(true, state);
 
     // do.c:1974 print_level_annotation() prints the hero's own #annotate note.
-    // The canonical mapseen chain exists, but annotation input and rendering
-    // remain outside this ordinary descent slice.
+    await print_level_annotation(state);
     await check_special_room(false, state); /* give room entrance message */
     obj_delivery(true, state); /* deliver objects traveling with player */
 
