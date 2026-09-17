@@ -62466,7 +62466,7 @@
     {
       "id": "port-mon-minliquid-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster liquid effects and species-specific survival branches",
       "cFile": "mon.c",
       "sessions": [
@@ -62477,8 +62477,8 @@
       "spans": [
         {
           "name": "minliquid..minliquid_core",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
           "functions": [
             "minliquid",
             "minliquid_core"
@@ -62736,7 +62736,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 46,
+        "rng": 257
+      },
+      "parkedStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "parkedReason": "Whole minliquid and minliquid_core source span is implemented and validated without regressions; dedicated liquid, swap, fountain, zero-speed distress and other caller recordings remain open. Continue the source-traced search and arrival blockers."
     }
   ]
 }
