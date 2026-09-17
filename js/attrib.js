@@ -1724,6 +1724,11 @@ export async function poisoned(
         state.killer.format = kprefix;
         state.killer.name = pkiller;
         // "Poisoned by a poisoned ___" is redundant.
+        // Monster-turn planning runs on a clone. C's done() is a terminal
+        // boundary and never runs on that clone; carry the lethal result back
+        // to the live replay so its real done() call owns end-game effects.
+        if (env.planning && typeof env.planningDeath === 'function')
+            throw env.planningDeath();
         await done(strstri(pkiller, 'poison') >= 0 ? DIED : POISONING, state);
     }
     await encumberMessage(state);

@@ -39,6 +39,7 @@ import {
     FIRE_TRAP,
     ANTI_MAGIC,
     STRAT_WAITMASK,
+    Upolyd,
 } from './const.js';
 import { exercise, poisoned } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
@@ -65,6 +66,7 @@ import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     losehp,
+    end_running,
     may_dig,
     may_passwall,
     nh_delay_output,
@@ -1337,9 +1339,30 @@ function monsterMissileEnv(monster, env) {
                     ...actionEnv,
                     message: actionEnv.message
                         ?? (env.planning ? async () => {} : ttyPline),
-                    losehp: (n, knam, kFormat) =>
-                        losehp(n, knam, kFormat, actionEnv.state),
+                    losehp: async (n, knam, kFormat) => {
+                        const target = actionEnv.state;
+                        // attrib.c poisoned() reaches hack.c losehp() for its
+                        // ordinary HP-loss arm. Its lethal done() call is a
+                        // terminal boundary, so mirror the established
+                        // monster-turn handoff used by thitu/zhitu before
+                        // invoking losehp() on a planning clone.
+                        if (actionEnv.planning && !Upolyd(target.u)
+                            && n >= target.u.uhp
+                            && typeof actionEnv.planningDeath === 'function') {
+                            end_running(true, target);
+                            target.disp ??= {};
+                            target.disp.botl = true;
+                            target.u.uhp -= n;
+                            throw actionEnv.planningDeath(monster);
+                        }
+                        return losehp(n, knam, kFormat, target,
+                            { message: actionEnv.message });
+                    },
                     done: (how) => done(how, actionEnv.state),
+                    planningDeath: actionEnv.planning
+                        && typeof actionEnv.planningDeath === 'function'
+                        ? () => actionEnv.planningDeath(monster)
+                        : undefined,
                     encumberMessage: env.planning
                         ? async () => {} : encumber_msg,
                 },
