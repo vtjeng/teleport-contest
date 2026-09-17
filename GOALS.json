@@ -59124,6 +59124,110 @@
         "rng": 771217
       },
       "parkedReason": "Verified poison span and required Conflict caller match monster-to-hero and monster-to-monster recordings. Hero-to-monster attribute poison and mhitm_ad_phys poisoned-weapon entry coverage remain unrecorded or blocked; resume when their source callers and matching independent recordings are available. The fixed session now first differs after the poison boundary at screen521."
+    },
+    {
+      "id": "fix-doherecmdmenu-nul-20260917",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Preserve command-menu cancellation without advancing a turn.",
+      "cFile": "cmd.c",
+      "sessions": [],
+      "selectionReason": "The completed seed0108 investigation has22 remaining screens and owns the first eligible independent source scope. Knight self-zap/polyself is reserved by worker B, and seed2200 remains machine-local question Q1. Integrate A24 under the saved source trace in investigations/seed0108-wizard-extcmd-wishlist.json.",
+      "detail": "At segment0 step281, Escape dismisses #herecmdmenu. C cmd.c doherecmdmenu4332–4339 tests its returned char against NUL and ESC before choosing ECMD_TIME; JavaScript treats the NUL string as truthy and spends a turn, producing extra RNG and the first screen mismatch. Correct that predicate and its identical dotherecmdmenu4359/4374 uses, retaining menu dispatch and coordinate reset order. Existing independent here-command-menu recordings exercise the production cancellation; sibling there-command entry remains unrecorded and is not claimed as a complete source port.",
+      "spans": [
+        {
+          "name": "command-menu-cancellation",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "doherecmdmenu",
+            "dotherecmdmenu"
+          ]
+        }
+      ],
+      "openedAt": "d9128e79268c6fdebc1c737172acabca8b78cce9",
+      "openStanding": {
+        "sha": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
+        "screens": 10959,
+        "rng": 771217
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "doherecmdmenu",
+      "session": "seed0108-wizard-extcmd-wishlist",
+      "step": 281,
+      "activeStanding": {
+        "sha": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
+        "screens": 10959,
+        "rng": 771217
+      },
+      "openMismatches": [
+        {
+          "session": "seed0108-wizard-extcmd-wishlist",
+          "step": 281,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 303,
+          "remainingScreensUpperBound": 22,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0108-wizard-extcmd-wishlist.json",
+            "result": {
+              "session": "seed0108-wizard-extcmd-wishlist",
+              "remainingScreensUpperBound": 22,
+              "status": "complete",
+              "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+              "mismatch": {
+                "session": "seed0108-wizard-extcmd-wishlist",
+                "remainingScreensUpperBound": 22,
+                "step": 281,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 303
+              },
+              "summary": "The #herecmdmenu menu itself matches at screen index 280, but its Escape dismissal at index 281 advances a turn in JavaScript. C doherecmdmenu() receives the NUL returned by here_cmd_menu() and returns ECMD_OK; JavaScript treats the '\\0' string as truthy and returns ECMD_TIME, causing the first post-menu RNG, monster movement, and map mismatch.",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "doherecmdmenu"
+                ],
+                "branch": "When #herecmdmenu calls here_cmd_menu() and the menu is cancelled with Escape, here_cmd_menu() returns NUL. C's `(ch && ch != '\\033')` tests the byte value and returns ECMD_OK for NUL; js/cmd.js:4264-4267 tests a JavaScript string, so '\\0' is truthy and returns ECMD_TIME. The same NUL-versus-string condition appears in dotherecmdmenu(), but this session reaches doherecmdmenu().",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1736-1737 extcmdlist[] binds #herecmdmenu to doherecmdmenu()",
+                  "js/cmd.js:4910-4929 dispatches the herecmdmenu row through doherecmdmenu()",
+                  "nethack-c/upstream/src/cmd.c:4898-4903 and js/cmd.js:4691-4695 implement here_cmd_menu() and return NUL after there_cmd_menu()"
+                ],
+                "dependencies": [
+                  "there_cmd_menu() and select_menu() produce the cancelled menu boundary",
+                  "allmain.c moveloop() applies ECMD_TIME by running the elapsed-turn and monster-movement path",
+                  "js/allmain.js:advanceElapsedTurn() consumes the extra post-dismissal RNG and changes the displayed monster/object positions"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "sessions/seed0108-wizard-extcmd-wishlist.session.json segment 0 steps[280-281] record the newline that opens `What do you want to do?` for a broken chest and the Escape that dismisses it; the C step at index 281 has no RNG calls and retains the map's `[` at row 18 and `f` at row 19.",
+                "Focused in-memory runSegment replay at commit 4fd9503f1467079e78ebd5b262efabbb9ef90433 matches the recorded screen through index 280; after the Escape at index 281 it emits 32 RNG calls and swaps the nearby displayed `[`/`f` positions, proving that a turn was spent during dismissal.",
+                "nethack-c/upstream/src/cmd.c:4332-4339 defines doherecmdmenu(); here_cmd_menu() at :4898-4903 always returns the NUL byte, so the C conditional returns ECMD_OK after a menu cancellation.",
+                "js/cmd.js:4263-4267 returns ECMD_TIME for the NUL string because JavaScript treats `'\\0'` as truthy; correcting the NUL test in doherecmdmenu() is the smallest source-traced scope for this session. The sibling dotherecmdmenu() condition at :4285 and :4296 has the same defect and should be checked when the fix is wired."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
