@@ -1,7 +1,7 @@
 // zap.c bhit(), the flight of a thrown missile: where it stops, what it draws
-// on the way, and which of the branches along its path this port refuses.
-// dothrow.c throwit() is its only ported caller and always passes
-// THROWN_WEAPON with both callbacks null.
+// on the way, and which source branches its callers can now complete.
+// dothrow.c throwit() supplies the physical-flight callers; the direct tests
+// below also pin the source's tethered-weapon and immediate-wand boundaries.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -17,13 +17,17 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     ROOM,
+    POOL,
     SINK,
     THROWN_WEAPON,
     WATER,
     WEB,
     ZAPPED_WAND,
 } from '../js/const.js';
-import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
+import {
+    GLYPH_INVISIBLE,
+    glyph_is_invisible,
+} from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import {
     UnsupportedBhitError,
@@ -223,15 +227,13 @@ test('weffects keeps unsupported immediate wand effects at its caller boundary',
         );
     });
 
-test('bhit() refuses the four branches along the flight it cannot finish',
+test('bhit() completes the supported flight branches and keeps gaps explicit',
     async () => {
-        // Each stops at its own square, so the ones before it have already
-        // been drawn and the ones after are never reached.
+        // show_transient_light() is a discarded display call in C.  It does
+        // not stop the physical flight when the hero can see the lamp.
         const lit = corridor(6);
-        await assert.rejects(
-            () => fireEast(lit, 4, missile(lit, OIL_LAMP, { lamplit: 1 })),
-            /show_transient_light/u,
-        );
+        await fireEast(lit, 4, missile(lit, OIL_LAMP, { lamplit: 1 }));
+        assert.deepEqual(lit.gb.bhitpos, { x: 5, y: 4 });
         // A WAR_HAMMER is WEAPON_CLASS with P_HAMMER skill, which hits_bars
         // does not exclude, so it stops at the bars. An ARROW (P_BOW) would
         // pass through.
@@ -244,10 +246,8 @@ test('bhit() refuses the four branches along the flight it cannot finish',
         // bhitpos backs up one square before the bars.
         assert.deepEqual(bars.gb.bhitpos, { x: 2, y: 4 });
         const ball = corridor(6);
-        await assert.rejects(
-            () => fireEast(ball, 4, missile(ball, HEAVY_IRON_BALL)),
-            /heavy iron ball/u,
-        );
+        await fireEast(ball, 4, missile(ball, HEAVY_IRON_BALL));
+        assert.deepEqual(ball.gb.bhitpos, { x: 5, y: 4 });
         // zap.c:4121. The ball arm is guarded by `range > 0`, so a ball that
         // has just spent its last step lands instead of stopping the segment.
         const spent = corridor(6);
@@ -257,6 +257,20 @@ test('bhit() refuses the four branches along the flight it cannot finish',
         const pick = corridor(6);
         assert.equal(await fireEast(pick, 4, missile(pick, PICK_AXE)), null);
     });
+
+test('bhit() skips a rock over a pool and resumes the flight', async () => {
+    // zap.c:3945-3964.  A selected pool square enters the skip state, emits
+    // the source message, and resumes once the skip range ends.
+    const state = corridor(6);
+    state.level.at(2, 4).typ = POOL;
+    await bhit(1, 0, 4, THROWN_WEAPON, null, null,
+        { obj: missile(state, ROCK) }, state, {
+            rnd: (n) => n === 3 ? 2 : n,
+            rn2: () => 0,
+        });
+    assert.match(state._ttyToplines ?? '', /skips/u);
+    assert.deepEqual(state.gb.bhitpos, { x: 5, y: 4 });
+});
 
 test('bhit() draws for a rock and asks whether it may skip', async () => {
     // zap.c:3855-3858. skiprange() and its rn2(3) run for a thrown rock and
@@ -414,19 +428,16 @@ test('bhit() lets an arrow pass harmlessly through a shade', async () => {
         'dmgval() uses the arrow damage die before pass-through');
 });
 
-test('bhit() refuses a mimic disguised as an object', async () => {
+test('bhit() uses the drawn glyph for a mimic disguised as an object', async () => {
     // zap.c:3986-3989. C decides whether the missile flies past by reading the
-    // glyph drawn on the square through display.c glyph_at(); this port's
-    // glyph buffer holds no glyph number for a square showing a monster, so
-    // the disguise the hero has seen through cannot be told from the one they
-    // have not.
+    // glyph drawn on the square through display.c glyph_at().
     const mimic = corridor(6);
     mimic.level.monsters[3][4] = {
         mx: 3, my: 4, data: mimic.mons[0], m_ap_type: M_AP_OBJECT,
+        mappearance: ROCK,
     };
-    await assert.rejects(
-        () => fireEast(mimic, 8, missile(mimic)), /glyph_at/u,
-    );
+    assert.equal(await fireEast(mimic, 8, missile(mimic)), null);
+    assert.deepEqual(mimic.gb.bhitpos, { x: 6, y: 4 });
 
     // C names one appearance here, not any appearance: a mimic wearing
     // furniture or another monster is hit like anything else.
@@ -434,6 +445,7 @@ test('bhit() refuses a mimic disguised as an object', async () => {
         const other = corridor(6);
         const disguised = {
             mx: 3, my: 4, data: other.mons[0], m_ap_type: appearance,
+            mappearance: ROCK,
         };
         other.level.monsters[3][4] = disguised;
         assert.equal(await fireEast(other, 8, missile(other)), disguised);

@@ -31,7 +31,7 @@ export const SCORER_DEC_MAP = {
 import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { acurr } from './attrib.js';
-import { near_capacity } from './hack.js';
+import { near_capacity, nh_delay_output } from './hack.js';
 import {
     In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
 } from './dungeon.js';
@@ -114,6 +114,7 @@ import {
     dist2,
     encodeUtf8ByteString,
     mungspaces,
+    sgn,
 } from './hacklib.js';
 import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
@@ -3844,13 +3845,13 @@ function tmpAtStack(state) {
     return state.tmp_at_stack;
 }
 
-// C ref: display.c tether_glyph() (1126-1133). Only DISP_TETHER draws it, and
-// nothing ported opens that style: its three callers are dothrow.c:1578,
-// mthrowu.c:653 and zap.c bhit():3866, each behind a tethered-weapon test no
-// ported path satisfies. The one call site below therefore refuses rather
-// than computing zapdir_to_glyph(sgn(u.ux - x), sgn(u.uy - y), 2).
-function tether_glyph() {
-    throw new UnsupportedTransientDisplayError('tether_glyph()');
+// C ref: display.c tether_glyph() (1126-1133). A tethered missile leaves a
+// beam glyph pointing from its current square back toward the hero. This is a
+// pure presentation lookup; the caller's DISP_TETHER frame owns its erasure.
+export function tether_glyph(x, y, state = game) {
+    return zapdir_to_glyph(
+        sgn(state.u?.ux - x), sgn(state.u?.uy - y), 2, state,
+    );
 }
 
 // A transient-display branch this port has not translated. js/cmd.js
@@ -3904,9 +3905,20 @@ export async function tmp_at(x, y, state = game) {
             for (const spot of tglyph.saved) newsym(spot.x, spot.y);
         } else if (tglyph.style === DISP_TETHER) {
             if (y === BACKTRACK && tglyph.saved.length > 1) {
-                throw new UnsupportedTransientDisplayError(
-                    'a tethered weapon backtracking to the hero',
-                );
+                // display.c:1247-1258. Retrace the tether one square at a
+                // time, repainting the glyph behind the missile before the
+                // final cleanup erases the saved path.
+                for (let i = tglyph.saved.length - 1; i > 0; i--) {
+                    const current = tglyph.saved[i];
+                    const previous = tglyph.saved[i - 1];
+                    newsym(current.x, current.y);
+                    show_glyph_cell(
+                        previous.x, previous.y, tglyph.glyph,
+                    );
+                    await flush_screen(0);
+                    await nh_delay_output(state);
+                }
+                tglyph.saved.length = 1;
             }
             for (const spot of tglyph.saved) newsym(spot.x, spot.y);
         } else { /* DISP_FLASH or DISP_ALWAYS */
