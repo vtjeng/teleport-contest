@@ -1578,7 +1578,11 @@ export async function toggle_displacement(
             || (blindTelepat && blind)
             || detectMonsters)) {
         if (obj)
-            discover_object(obj.otyp, true, true, true, state);
+            // C's discover_object() performs the Wisdom exercise in this
+            // branch.  Carry the caller's planning random/hooks through so
+            // an armor callback cannot spend the live stream while a clone
+            // is being evaluated.
+            discover_object(obj.otyp, true, true, true, state, env);
         const unaware = state.multi < 0
             && (unconscious(state) || state.u.uhs === FAINTED);
         await env.message(

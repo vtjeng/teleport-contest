@@ -551,14 +551,28 @@ export async function make_hallucinated(
     // needs to observe these writes, and otherwise discards the repaint just
     // as the clone discards every other terminal update.
     const seeObjects = rawEnv.seeObjects
-        ?? (state === game ? see_objects : () => {});
+        ?? (!planning && state === game ? see_objects : () => {});
     const seeTraps = rawEnv.seeTraps
-        ?? (state === game ? see_traps : () => {});
+        ?? (!planning && state === game ? see_traps : () => {});
+    // A planning clone still needs see_monsters() to update its own map
+    // memory.  An explicit planning call against the live game is the one
+    // case where the display fallback must stay silent.
     const seeMonsters = rawEnv.seeMonsters
-        ?? ((subject) => see_monsters(subject, { redraw }));
+        ?? (planning && state === game
+            ? () => {}
+            : (subject) => see_monsters(subject, { redraw }));
     const swallow = rawEnv.swallowed
-        ?? (state === game ? swallowed : async () => {});
-    const env = { ...rawEnv, state, message, redraw };
+        ?? (!planning && state === game ? swallowed : async () => {});
+    const hooks = {
+        ...(rawEnv.hooks ?? {}),
+        // invent.c requires an updateInventory seam for an active
+        // permanent-inventory window.  Planning has no live window to paint,
+        // but it still must pass that source preflight without refusal; a
+        // caller-provided hook remains authoritative.
+        ...(planning && typeof rawEnv.hooks?.updateInventory !== 'function'
+            ? { updateInventory: () => {} } : {}),
+    };
+    const env = { ...rawEnv, state, message, redraw, hooks };
     const hallucination = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
     if (!hallucination || !resistance)

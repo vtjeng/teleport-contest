@@ -128,6 +128,37 @@ test('make_hallucinated forwards every planning display seam in source order',
         'planning feedback does not paint the live TTY');
 });
 
+test('make_hallucinated keeps explicit planning on the live state silent',
+    async () => {
+    await startedGame(8460003, 'HallucinationLivePlanning');
+    clearTopline();
+    const hallucination = game.u.uprops[HALLUC];
+    const resistance = game.u.uprops[HALLUC_RES];
+    hallucination.intrinsic = 0;
+    resistance.intrinsic = 0;
+    resistance.extrinsic = 0;
+    game.iflags.perm_invent = true;
+    game.program_state.in_moveloop = true;
+    const messages = [];
+
+    // An explicit planning flag must win over state === game for display
+    // fallbacks.  The permanent-inventory preflight still needs a planning
+    // hook, but no live map, trap, swallow, or inventory output may run.
+    await make_hallucinated(12, true, 0, game, {
+        planning: true,
+        message: async (line) => messages.push(line),
+    });
+    assert.equal(hallucination.intrinsic & TIMEOUT, 12);
+    assert.deepEqual(messages, ['Oh wow!  Everything looks so cosmic!']);
+    assert.equal(game._pending_message ?? '', '');
+    assert.equal(game._ttyToplines ?? '', '');
+
+    // Restore the property through the same planning boundary so this test
+    // leaves the next started game with the source's original state.
+    await make_hallucinated(0, false, 0, game, { planning: true });
+    game.iflags.perm_invent = false;
+    });
+
 test('make_blinded uses injected vision state for planned blindness', async () => {
     const live = {
         u: { uprops: [] },
