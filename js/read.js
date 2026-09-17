@@ -49,6 +49,7 @@ import {
     LS_OBJECT,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
+    thats_enough_tries,
     SPE_LIM,
     W_BALL,
     W_CHAIN,
@@ -1237,6 +1238,6 @@ export async function create_particular(state = game) {
         }
         if (tryct === 5) prompt += ' [type name or symbol]';
     } while (--tryct > 0);
-    await ttyPline("That's enough tries.", state);
+    await ttyPline(thats_enough_tries, state);
     return false;
 }

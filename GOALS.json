@@ -63467,28 +63467,28 @@
           "line": 3112,
           "endLine": 3136,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "create_particular_parse",
           "line": 3137,
           "endLine": 3251,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "create_particular_creation",
           "line": 3252,
           "endLine": 3371,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "create_particular",
           "line": 3372,
           "endLine": 3411,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -63574,7 +63574,158 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cant_revive",
+            "implementation": "js/read.js",
+            "symbol": "cant_revive",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:3112-3136 in full. Ported the guard order for guards, non-revival shopkeepers, high and aligned clerics, angels, long-worm tails, and unique corpses or statues. The returned mtype is kept alongside changed, and the unique arm preserves C's !from_obj || !has_omonst() test. The read.c creation caller consumes both the replacement and force-choice result; trap.c animate_statue() and zap.c stone_to_flesh_obj() retain their existing callers. No random draw, message, or game-state write occurs in this helper.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "create_particular_creation",
+                "source": "read.c:3259-3269; creation assigns the replacement species before the wizard force prompt and consumes the returned mtype."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "animate_statue",
+                "source": "trap.c:746-754; statue revival uses cant_revive() before selecting saved traits or a fresh replacement."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "stone_to_flesh_obj",
+                "source": "zap.c:982-994; figurine conversion consumes the possible species substitution before makemon()."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard-genesis.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-sleeping.session.json",
+              "recordings/read.c/create-particular-peaceful.session.json"
+            ],
+            "checkedAt": "e91a73aacf1bf28b58193b384fa3e993e6a82c74"
+          },
+          {
+            "name": "create_particular_parse",
+            "implementation": "js/read.js",
+            "symbol": "create_particular_parse",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:3137-3251 in full. Preserved the initial quantity from gm.multi, digit-by-digit count consumption, QUAN_LIMIT and monster_census(FALSE) fallback, the source ordered case-insensitive gear/state/gender searches with in-place blanking, mungspaces(), disposition prefixes, wizard-only * and random handling, name_to_mon() gender output, explicit gender conflict, and the name_to_monclass() concrete, invisible, worm-tail, class, and failure arms. The returned request is local data; its inputs include the hero role, command count, wizard flag, source census and initialized monster catalog. No random draw, message, or game-state mutation occurs. Supporting minion.c monster_census40–57 is pure: it traverses the live monster list, excludes dead monsters and guards with mx zero, and applies canonical canspotmon only for a spotted census. The source-pinned test covers these filters, including the default sensing predicate.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "create_particular",
+                "source": "read.c:3382-3388; each getlin() answer is munged and passed to create_particular_parse() before creation or the retry diagnostics."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard-genesis.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-sleeping.session.json",
+              "recordings/read.c/create-particular-peaceful.session.json"
+            ],
+            "checkedAt": "e91a73aacf1bf28b58193b384fa3e993e6a82c74"
+          },
+          {
+            "name": "create_particular_creation",
+            "implementation": "js/read.js",
+            "symbol": "create_particular_creation",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:3252-3371 in full. Preserved the non-random firstchoice and cant_revive replacement before the y_n force prompt, then source ordered mkclass()/rndmonst() selection, explicit gender conflict and MM_NOEXCLAM/MM_MINVIS flags, makemon() return and retry behavior, tamedog/set_malign disposition arms, saddle creation after can_saddle/which_armor, hidden tests for M1_HIDE, M1_CONCEAL plus OBJ_AT, and eel plus is_pool, sleeping state, flash_mon() and final newcham() order. The makemon caller is awaited through its runtime continuation; its marker admits both ordinary MM_NOEXCLAM requests and the C gender-conflict arm that has only one gender bit, with optional MM_MINVIS. mon_set_minvis() remains after placement and peace_minded() as in makemon.c:1299-1301. flash_mon() is the canonical mon.c owner; its discarded display.c flash_glyph_at() animation remains an explicit gap for hidden and invisible production entries, with no fabricated frames.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "create_particular",
+                "source": "read.c:3405; a successful parse reaches create_particular_creation() and returns its Boolean result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard-genesis.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-sleeping.session.json",
+              "recordings/read.c/create-particular-peaceful.session.json"
+            ],
+            "checkedAt": "e91a73aacf1bf28b58193b384fa3e993e6a82c74"
+          },
+          {
+            "name": "create_particular",
+            "implementation": "js/read.js",
+            "symbol": "create_particular",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:3372-3411 in full. Preserved the five-attempt countdown, Escape return, parse retry diagnostics and first retry prompt extension, then the final enough-tries message or awaited creation return. The source result is carried through both production callers; no fire-and-forget creation remains. The command seam no longer lists an obsolete monster-request refusal class because unknown text follows this source retry loop. Integration uses the canonical thats_enough_tries constant from decl.c common strings. A production-caller unit test verifies that four invalid answers retain the expanded prompt and a fifth ends the retry loop, with normal message acknowledgements between answers; it pins the source exclamation mark.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_genesis",
+                "source": "wizcmds.c:203-210; wizard #wizgenesis clears debug_mongen, awaits create_particular(), restores the flag, and returns ECMD_OK."
+              },
+              {
+                "path": "js/makemon.js",
+                "symbol": "create_critters",
+                "source": "makemon.c:1569-1577; the wizard create-monster scroll/wand/spell path awaits create_particular() and uses its Boolean to continue or stop prompting."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard-genesis.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-sleeping.session.json",
+              "recordings/read.c/create-particular-peaceful.session.json"
+            ],
+            "checkedAt": "e91a73aacf1bf28b58193b384fa3e993e6a82c74"
+          }
+        ],
+        "entryPointReview": "The selected read.c family has active wizard creation and create-monster scroll/spell entry families. The production wizard-genesis matrix reaches the canonical wiz_genesis() caller and the independent sleeping-newt and peaceful-newt recordings execute create_particular(), create_particular_parse(), create_particular_creation(), makemon_runtime(), and their post-creation state arms with strict C/JavaScript parity. The focused production-state test also reaches hidden and invisible assignment on a PM_TRAPPER and newt, but those calls continue to the existing mon.c flash_mon() owner whose discarded display.c flash_glyph_at() animation is not ported; the hidden recipe is therefore retained as input-only with that named blocker and the invisible branch remains unrecorded. Active class/random, saddle, tame, explicit gender-conflict, force-revival, create_critters() scroll/spell, and bones.c, trap.c and zap.c cant_revive caller families remain listed with empty recording arrays until independent production routes exercise them. The old UnsupportedMonsterRequestError boundary was removed because unknown answers now follow read.c's retry loop. Supporting name_to_monplus/name_to_monclass, makemon, tamedog, set_malign, saddle, newcham and flash_mon owners are reused; display.c flash_glyph_at and any unavailable makemon species-specific setup remain named source gaps rather than fabricated behavior.",
+        "entryPoints": [
+          {
+            "name": "wizard named and stateful monster creation",
+            "functions": [
+              "create_particular",
+              "create_particular_parse",
+              "create_particular_creation"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-sleeping.session.json",
+              "recordings/read.c/create-particular-peaceful.session.json"
+            ]
+          },
+          {
+            "name": "wizard hidden or invisible creation",
+            "functions": [
+              "create_particular_creation"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "wizard class, random, saddle, tame, gender-conflict and force-revival requests",
+            "functions": [
+              "create_particular_parse",
+              "create_particular_creation"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "create-monster scroll, wand or spell prompting",
+            "functions": [
+              "create_particular"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "statue, figurine and bones cant_revive callers",
+            "functions": [
+              "cant_revive"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

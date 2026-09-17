@@ -784,9 +784,8 @@ export function redrawSquare(x, y, normalized) {
 function runtimeAppearanceMessage(monster, mmflags, normalized) {
     const { state } = normalized;
     if (mmflags & MM_NOMSG) return null;
-    // C ref: makemon.c:1477. #wizgenesis is the one caller that passes
-    // MM_NOEXCLAM, and read.c create_particular_creation() passes it on every
-    // creation; every other admitted call shape leaves the surprise in.
+    // C ref: makemon.c:1477. read.c create_particular_creation() suppresses
+    // surprise unless an explicit gender conflicts with the typed name.
     let exclaim = !(mmflags & MM_NOEXCLAM);
     const appearance = M_AP_TYPE(monster);
     let name = null;
