@@ -441,54 +441,6 @@ export async function remarm_swapwep(state = game) {
         ? ECMD_TIME : ECMD_OK;
 }
 
-// C ref: do_wear.c cancel_doff() (1642-1659), supplied to setworn() through
-// the worn.js hook of the same name. C's donning() test at 1656 reads
-// ga.afternmv and svc.context.takeoff.what, and the mask clear below is the
-// whole of the function when it answers FALSE.
-//
-// donning() (1571-1597) and doffing() (1599-1640) compare ga.afternmv against
-// the fourteen `<X>_on`/`<X>_off` armor callbacks and nothing else, so any
-// other callback pending -- js/pray.js prayer_done() is the port's only other
-// one -- leaves both FALSE whatever the slot. doffing()'s remaining arms need
-// svc.context.takeoff.what. The unported 'A' spine writes it for delayed armor
-// removal; remarm_swapwep() also writes it synchronously, but do_takeoff()
-// keeps I_SPECIAL set across its setworn() callback and clears the transient
-// flag before another command can run.
-//
-// Of the fourteen this port installs eight: the seven `<X>_on` callbacks, and
-// Armor_off in armoroff()'s delayed branch. Only four of them open a window,
-// because only a non-zero oc_delay makes accessory_or_armor_on() count down:
-// the suit at 0 to 5 turns, spread as objects.h gives it: the leather jacket
-// at 0, which opens no window at all, both mithril-coats at 1, leather and
-// studded leather armor at 3, and the remaining thirty rows at 5; the helmet
-// at 1 for every type but the fedora and the dented pot; the gloves at 1 and
-// the boots at 2. The cloak, the shirt,
-// the shield and those two helmets are consumed by unmul('') in the same
-// statement sequence that installs them, so they are never pending when
-// anything else runs. Doffing stays the suit's alone, because armoroff()
-// refuses the other delayed slots. What decides the invariant is therefore
-// which callers reach this hook during one of those four windows, because
-// js/worn.js setworn() runs it for the item a slot already holds and skips it
-// when the slot is empty.
-//
-// Nothing does. allmain.c moveloop_core() reads no key while gm.multi is
-// negative, so no command runs inside either window, and the port's setworn()
-// callers divide cleanly: js/u_init_inventory_use.js dresses the hero before
-// the first turn; setuwep(), setuswapwep() and setuqwep() name weapon slots,
-// whose occupant cannot also be state.uarm because accessory_or_armor_on()
-// refuses W_WEAPONS above setworn(); the five `<X>_off()` above need a 'T';
-// and accessory_or_armor_on() needs a 'W' and, for W_ARM, a canwearobj() that
-// answered its mask only because state.uarm was already empty. unmul() clears
-// state.afternmv before invoking it, so the callback that ends either window
-// sees it null.
-//
-// C's own donning() test earns its keep on paths this port does not have. The
-// 'A' spine reaches it through doffing()'s svc.context.takeoff.what arms,
-// which is what C's I_SPECIAL guard at 1656 exists to hold off, and
-// steal.c remove_worn_item() (213-263) is what strips a hero a nymph robs
-// while she is helpless -- although that one calls cancel_don() itself at 219
-// before Armor_off() ever reaches this hook. Port the 'A' spine or a monster
-// that disrobes the hero and cancel_don() has to come with it.
 // C ref: do_wear.c doffing() (1599-1640).  `what` is set by the delayed
 // take-off occupation; the callback identity covers the immediate `T` path.
 // Keep this predicate in the do_wear owner because setworn() calls it through
@@ -554,6 +506,9 @@ function cancel_don(state) {
     takeoff.what = 0;
 }
 
+// C ref: do_wear.c cancel_doff() (1642-1659). Worn-slot changes interrupt
+// a pending armor callback unless do_takeoff() set I_SPECIAL for its own
+// removal sequence.
 function cancel_doff(obj, slotmask, env) {
     const state = env.state;
     const takeoff = takeoffContext(state);

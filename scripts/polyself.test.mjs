@@ -45,6 +45,7 @@ import {
     OBJ_INVENT,
     W_ARMF,
     W_ARMU,
+    W_WEP,
     WWALKING,
 } from '../js/const.js';
 import {
@@ -204,11 +205,11 @@ test('break_armor consumes a worn shirt through the inventory lifecycle',
 
 test('polymon stops after fatal lava during water-walking boot removal',
     async () => {
-    // polyself.c:1290-1302 calls break_armor before drop_weapon/find_ac.
+    // polyself.c:886-890 calls break_armor before drop_weapon/find_ac.
     // do_wear.c Boots_off can reach trap.c lava_effects, whose done(BURNING)
     // is non-returning in C.  This initialized fixture keeps a wielded weapon
-    // sentinel in place after the JS finalizer returns, proving break_armor
-    // did not run dropp() and polymon did not continue post-death cleanup.
+    // sentinel in place after the JS finalizer returns, proving polymon did
+    // not continue into post-death drop_weapon cleanup.
     const recording = JSON.parse(readFileSync(
         new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
             import.meta.url),
@@ -233,9 +234,10 @@ test('polymon stops after fatal lava during water-walking boot removal',
         otyp: DAGGER,
         where: OBJ_INVENT,
         quan: 1,
-        owornmask: 0,
+        owornmask: W_WEP,
         nobj: null,
     };
+    boots.nobj = weapon;
     game.invent = boots;
     game.uwep = weapon;
     // Keep this initialized fixture focused on the footwear callback.  A

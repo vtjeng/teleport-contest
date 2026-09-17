@@ -60181,7 +60181,7 @@
           "line": 1157,
           "endLine": 1304,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -60264,7 +60264,94 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "break_armor",
+            "implementation": "js/polyself.js",
+            "symbol": "break_armor",
+            "sourceReview": "Read polyself.c:1156-1302 in full and matched the breakarm and sliparm branches, source-order suit/cloak/shirt removal, horn/helmet handling, nohands/vsmall glove and shield handling, footwear handling, blindfold handling, and each discarded or delegated callback. JavaScript uses the canonical do_wear callbacks and the worn-object setnotworn hook for useup; it returns after Boots_off has reached the JavaScript done(BURNING) terminal boundary so dropp cannot run after fatal cleanup. The required hack.c liquid callback now imports the existing mondata.c ceiling_hider helper. No unsupported refusal is swallowed as a substitute for the selected function. Supporting do_wear.c dragon_armor_handling, Armor_gone, Cloak_off, Helmet_off, adj_abon, Gloves_off, donning/doffing/cancel_don/cancel_doff were compared against C. The pure callback predicates have source-pinned armor, accessory and weapon mask tests. Source order clears blue-dragon FAST before checking Very_fast, uses !restoring for gold hallucination feedback, discovers the invisibility cloak before redraw, and marks the configured barehanded status. The fatal fixture links its wielded dagger into the inventory with W_WEP. Remaining discarded dependencies are named gaps for do_wear.c wielding_corpse and toggle_stealth; the existing Blindf_off Eyes-of-the-Overworld sight-loss branch remains an unported downstream entry. No return-used callee was replaced with invented data.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "C polyself.c polymon886–890 calls break_armor before drop_weapon and find_ac. The JavaScript production #polyself dispatcher reaches polymon, which awaits break_armor and stops after a fatal callback marks gameover; all ordinary polymon callers share this owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/break-armor-independent-a27.session.json",
+              "recordings/polyself.c/break-armor-variation-a27.session.json",
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ],
+            "checkedAt": "c42b792783195eeef32894a2b4a756fba8dc6540"
+          }
+        ],
+        "entryPointReview": "The active production owner is polymon at polyself.c886–890. Root inspected the existing seed820117 raven recording: C prints the cloak slipping off at step16, which covers sliparm cloak removal rather than worn nohands gloves/helmet/boots. New independent debug Knight seed8302701 reaches suit, glove, shield and helmet removal, with 29 screens matching; the independently chosen Valkyrie seed8302702 wishes for and wears plain low boots before changing to a giant ant, with 48 screens matching and the forced-boot message at step43. Both compare all RNG, complete screens and cursors strictly. Initialized tests establish destroyed-shirt ownership and fatal water-walking boot cleanup, while these unrecorded production branches remain open. The fixed Knight witness supplies supplementary production state coverage, not an independent recording. No formal correctness review is required for this parked source goal.",
+        "entryPoints": [
+          {
+            "name": "polymon nohands suit, glove, shield and helmet removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [
+              "recordings/polyself.c/break-armor-independent-a27.session.json"
+            ]
+          },
+          {
+            "name": "polymon forced boot removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [
+              "recordings/polyself.c/break-armor-variation-a27.session.json"
+            ]
+          },
+          {
+            "name": "sliparm cloak removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ]
+          },
+          {
+            "name": "breakarm armor and shirt destruction",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "horned helmet piercing or removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "headless eyewear removal, including artifact sight transitions",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fatal water-walking boot removal on lava",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

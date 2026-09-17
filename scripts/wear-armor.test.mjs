@@ -53,10 +53,12 @@ import {
     W_ARMU,
     W_AMUL,
     W_ART,
+    W_QUIVER,
     W_RINGL,
     W_RINGR,
     W_SWAPWEP,
     W_TOOL,
+    W_WEP,
 } from '../js/const.js';
 import {
     UnsupportedRingOnError,
@@ -2076,6 +2078,49 @@ test('Cloak_off discovers an invisibility cloak before its redraw', async () => 
     await Cloak_off(game);
     assert.equal(type.oc_name_known, 1,
         'taking off the last invisibility cloak makes its type known');
+});
+
+test('donning and doffing follow the source callback and worn-slot masks', () => {
+    // do_wear.c:1574-1640. The seven armor slots recognize their own on/off
+    // callbacks; all fourteen slots recognize only their takeoff.what mask.
+    // Accessory and weapon slots have no delayed callback branch in C.
+    const slots = [
+        ['uarm', W_ARM, 'Armor'], ['uarmu', W_ARMU, 'Shirt'],
+        ['uarmc', W_ARMC, 'Cloak'], ['uarmf', W_ARMF, 'Boots'],
+        ['uarmh', W_ARMH, 'Helmet'], ['uarmg', W_ARMG, 'Gloves'],
+        ['uarms', W_ARMS, 'Shield'], ['uamul', W_AMUL],
+        ['uleft', W_RINGL], ['uright', W_RINGR], ['ublindf', W_TOOL],
+        ['uwep', W_WEP], ['uswapwep', W_SWAPWEP], ['uquiver', W_QUIVER],
+    ];
+    const state = { context: { takeoff: { what: 0 } }, afternmv: null };
+    for (const [slot] of slots) state[slot] = {};
+    const { donning, doffing } = _doWearInternals;
+    for (const [slot, mask, callback] of slots) {
+        const object = state[slot];
+        state.afternmv = null;
+        state.context.takeoff.what = mask;
+        assert.equal(doffing(object, state), true, `${slot} takeoff mask`);
+        assert.equal(donning(object, state), true, `${slot} delegates to doffing`);
+        state.context.takeoff.what = mask === W_ARM ? W_ARMU : W_ARM;
+        assert.equal(doffing(object, state), false, `${slot} unrelated mask`);
+        assert.equal(donning(object, state), false, `${slot} unrelated mask`);
+        state.context.takeoff.what = 0;
+        state.afternmv = () => 0;
+        assert.equal(doffing(object, state), false, `${slot} unrelated callback`);
+        assert.equal(donning(object, state), false, `${slot} unrelated callback`);
+        if (callback) {
+            state.afternmv = _doWearInternals[`${callback}_on`];
+            assert.equal(typeof state.afternmv, 'function');
+            assert.equal(donning(object, state), true, `${slot} putting on`);
+            assert.equal(doffing(object, state), false, `${slot} putting on`);
+            state.afternmv = _doWearInternals[`${callback}_off`];
+            assert.equal(typeof state.afternmv, 'function');
+            assert.equal(doffing(object, state), true, `${slot} taking off`);
+            assert.equal(donning(object, state), true, `${slot} taking off`);
+        }
+    }
+    assert.equal(doffing({}, state), false, 'an object outside all worn slots');
+    assert.equal(donning({}, state), false, 'an object outside all worn slots');
 });
 
 test('Gloves_off refreshes barehanded status after the worn slot clears',

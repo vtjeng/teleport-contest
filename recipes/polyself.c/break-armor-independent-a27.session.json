@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent polyself.c break_armor witness: an independently seeded debug Knight becomes a brown mold, forcing suit, glove, shield and helmet removal. The first space dismisses the welcome page before the new-moon message. The Knight starts without boots; the Valkyrie variation covers footwear.",
+  "segments": [
+    {
+      "seed": 8302701,
+      "datetime": "20310421091500",
+      "nethackrc": "OPTIONS=name:Armorform,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " #polyself\nbrown mold\n      "
+    }
+  ]
+}
