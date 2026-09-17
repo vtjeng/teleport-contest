@@ -57902,6 +57902,310 @@
         "rng": 771039
       },
       "parkedReason": "The lava_effects span passes combined validation and adds two strict 64-screen recordings. Keep fatal/lifesaving, Boots_off, direct float_down, drawbridge, and both cleanup continuations open: really_done is owned by A20, the footwear setup stops in Boots_on, and continuation movement stops at the steam-vortex m_postmove_effect create_gas_cloud callback wiring. No full source-goal completion is claimed."
+    },
+    {
+      "id": "port-end-really-done-seed0009-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete death finalization and stopprint output",
+      "cFile": "end.c",
+      "sessions": [
+        "holdout/seed0009-swimmer-mforce",
+        "holdout/seed0398-wizard-wandpoly-pile"
+      ],
+      "selectionReason": "Worker A seed continuation after accepted lava_effects: investigations/holdout/seed0009-swimmer-mforce.json records 11 remaining-screen upper bound at step62 owned by end.c really_done. The same whole function owns the seed0398 final stopprint mismatch (1-screen upper bound). Higher-ranked seed4500 pager work remains reserved by worker B; seed2200 has unresolved Q1. Integrate this dependency-ready delivery while other higher-ranked independent queue items await a free worker.",
+      "detail": "Whole really_done1130-1593 with required end.c fixup_death/get_valuables/sort_valuables/artifact_score and pickup.c observe_quantum_cat. Cover source grave-arise reasons, alignment scoring, tombstone and inventory ordering, final message waits and stopprint raw-print tail. Two independent wizard quit recordings cover production finalization; fatal lava, escape/ascension, quantum-cat and other exceptional entry recordings remain open. Planning reconciliation: historical port-end-really-done explicitly retained hangup, panic, achievement, special-death/grave-arise and later finalization refusals. Its inherited completion flag is partial evidence, so next-span skipped the required whole-function work. Preserve that historical record and replan really_done with the exported source planner under the current whole-source rule.",
+      "spans": [
+        {
+          "name": "really_done",
+          "status": "closed",
+          "closedBy": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+          "functions": [
+            "really_done"
+          ]
+        }
+      ],
+      "openedAt": "71dd60c4a0e2352f58f54bebfc8e8b3b34a75b2d",
+      "openStanding": {
+        "sha": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "really_done",
+          "line": 1130,
+          "endLine": 1593,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1130,
+        "to": 1593
+      },
+      "activeStanding": {
+        "sha": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 62,
+          "kind": "stop",
+          "function": "really_done",
+          "functionDeclared": true,
+          "sourceFile": "end.c",
+          "cFile": "end.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 11,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 11,
+              "status": "complete",
+              "commit": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "step": 62,
+                "kind": "stop",
+                "function": "really_done",
+                "functionDeclared": true,
+                "sourceFile": "end.c",
+                "cFile": "end.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state",
+                "unlocatedKinds": [],
+                "recordedSteps": 73,
+                "remainingScreensUpperBound": 11
+              },
+              "summary": "Walking into the pool now matches. The next stop is step 62, after the hero enters a wall of lava and reaches end.c really_done() with BURNING. JavaScript rejects special death reasons and grave-arise states; C sets BURNING/DISSOLVED to leave no corpse and continues finalization. Port the whole really_done function and its required dependencies. trap.c lava_effects has separate incomplete branches, including boots removal, but the current recorded stop is the end.c special-death guard.",
+              "source": {
+                "file": "end.c",
+                "functions": [
+                  "really_done"
+                ],
+                "branch": "Complete end.c really_done() (1130-1593), including its death-reason and grave-arise handling, rather than merely admitting BURNING at the guard. At 1206-1218 C sets PANICKED to NON_PM-3, BURNING/DISSOLVED to NON_PM-2, STONING to LEAVESTATUE, and TURNED_SLIME to PM_GREEN_SLIME when not genocided, then continues through fixup_death, disclosure, score and final display. Current js/end.js really_done rejects every how other than DIED/QUIT and every nondefault ugrave_arise before those later stages. Preserve all other source branches, caller state and terminal input boundaries.",
+                "callers": [
+                  "C trap.c lava_effects() (6794-6965) enters done(BURNING) on fatal lava damage; js/trap.js lava_effects performs the matching call after its burn message and killer setup.",
+                  "C hack.c pooleffects() invokes lava_effects after domove_core commits liquid movement; js/hack.js pooleffects reaches the same owner, now enabled by the accepted walking-admission change.",
+                  "C end.c done() (1020-1126) calls really_done after life-saving/wizard recovery declines to return; js/end.js done() passes the same how value. Life-saving and recovery have separate accepted evidence."
+                ],
+                "dependencies": [
+                  "C end.c fixup_death and the remaining really_done cleanup, disclosure and scoring helpers must preserve their return values and source order; inventory settlement and final terminal capture already have JavaScript owners to compare.",
+                  "C can_make_bones() is called only when how < GENOCIDED; retain that random-call order before grave-arise handling.",
+                  "The current really_done implementation also refuses hangup, panic, achievement and first-move cases. Whole-function source completion must account for each rather than claiming the BURNING witness proves them. Unrecorded active entry coverage remains a reason to park the goal.",
+                  "trap.c lava_effects still has a separate Boots_off refusal and named inventory/display gaps. Those source defects remain independently actionable; the current step-62 scan specifically attributes the stop to really_done."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Passing checkpoint 058e1e65 run-a4KCVm records 10,785/11,405 development screens and 312/312 matching recordings. Only this session changes: 48 to 62 matching screens, 3647 to 3713 RNG values, and 48 to 62 cursors. The other 43 sessions retain their previous metrics.",
+                "The saved .cache/A18-development-scan.json and .cache/A18-queue.json place the first stop at step62 and name end.c really_done with message unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state; recordedSteps73 yields remainingScreensUpperBound11.",
+                "The assigned recording at step62 enters wall lava and prints You fall into the wall of lava! and You burn to a crisp... before the More input boundary. C end.c1206-1218 explicitly accepts this death reason and sets the no-corpse grave-arise value.",
+                "At 058e1e65 js/end.js really_done has the explicit `(how !== DIED && how !== QUIT) || state.u.ugrave_arise !== NON_PM` refusal. This source guard explains the current scan and is independent of the earlier walking-liquid refusal.",
+                "Retained counter-evidence: the previous test_move admission, m-prefix and decoration barriers are resolved by A18. Do not restore an early liquid/decor refusal or add arrival effects to preflight. The two independent water-walking recordings exercise real entry onto a pool.",
+                "An early worker hypothesis named the separate lava_effects Boots_off gap. The fresh accepted-main scan identifies really_done instead; complete the boots branch when its own source span requires it without calling it the current step62 blocker."
+              ]
+            }
+          }
+        },
+        {
+          "session": "holdout/seed0398-wizard-wandpoly-pile",
+          "step": 86,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 87,
+          "remainingScreensUpperBound": 1,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0398-wizard-wandpoly-pile.json",
+            "result": {
+              "session": "holdout/seed0398-wizard-wandpoly-pile",
+              "remainingScreensUpperBound": 1,
+              "status": "complete",
+              "commit": "615214896810913ba49e0d97d5bdf24e5e067ba0",
+              "mismatch": {
+                "session": "holdout/seed0398-wizard-wandpoly-pile",
+                "step": 86,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 87,
+                "remainingScreensUpperBound": 1
+              },
+              "summary": "At final step 86 the recording's ESC answers the UNIX wizard Dump core? [ynq] (q) query as q. C done2() increments done_stopprint, then done(QUIT) reaches really_done(): the stopprint guard skips display_nhwindow(endwin, TRUE), topten() still emits the wizard-mode raw message, and two trailing raw blank lines leave the cursor at [0,4]. JavaScript's partial end.c really_done() unconditionally awaits displayTtyTextWindow() before topten(), consumes no further input, and leaves the old map on screen with the cursor at [8,23]. The actionable scope is a divergence-fix in really_done()'s done_stopprint final-display arm, including the raw trailing-line contract; this is separate from the completed polymorph zap scope.",
+              "source": {
+                "file": "end.c",
+                "functions": [
+                  "really_done"
+                ],
+                "branch": "The assigned path is end.c really_done()'s final window/output arm at 1375-1590. end.c done2() first runs paranoid_query() for Really quit, then on the UNIX wizard path calls ynq(\"Dump core?\") and increments done_stopprint when that answer is q (90-147). In the witness the final ESC is normalized by cmd.c paranoid_ynq() to q (5585-5650). C still destroys the game windows and creates a tombstone text window when flags.tombstone is set, but the display_nhwindow(endwin, TRUE) at 1552-1553 is guarded by !done_stopprint. It then exits the windows, calls topten(); the wizard branch prints a blank line and Since you were in wizard mode, the score list will not be checked. (topten.c:725-736), and end.c:1585-1588 emits two further raw blank lines before nh_terminate(). The current JS end.js:1304-1305 always calls displayTtyTextWindow(), so it waits for an unavailable input boundary and never reaches topten/raw capture. Fix only this source-owned stopprint finalization contract, including the two trailing raw lines; do not claim the entire really_done() is complete or reopen the already integrated zap path.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:5585-5650 paranoid_ynq() maps the recorded ESC to q for an accepted ynq prompt; js/cmd.js:879-952 preserves that response normalization for tty_yn_function().",
+                  "nethack-c/upstream/src/end.c:88-147 done2() handles #quit, calls paranoid_query() at 98-99, asks Dump core? at 119-131 in wizard mode, increments done_stopprint at 142-143 for q, then calls done(QUIT) at 146; js/end.js:576-647 is the production caller and sets program_state.stopprint at 627-640.",
+                  "nethack-c/upstream/src/end.c:1020-1126 done() falls through to really_done(how) at 1124 after the quit path; js/end.js:688-839 calls the same finalizer at 836-839.",
+                  "nethack-c/upstream/src/end.c:1375-1590 really_done() owns window cleanup, the !done_stopprint text-window display at 1552-1555, exit_nhwindows, topten, trailing raw_print calls, and nh_terminate; js/end.js:1243-1320 contains the corresponding finalization and needs the stopprint guard/writes in this arm.",
+                  "nethack-c/upstream/src/topten.c:725-736 topten() is the consumed wizard/discover output owner; js/topten.js:449-465 already prints the same two wizard-mode lines through tty_raw_print()."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/end.c:1390-1394 creates the tombstone text window when !done_stopprint || flags.tombstone, but end.c:1552-1555 displays it only when !done_stopprint. The JavaScript finalizer must preserve the display guard even when it has built tombstone/farewell lines.",
+                  "nethack-c/upstream/src/topten.c:725-736 prints the wizard message without checking done_stopprint; js/topten.js:457-465 already has this source branch and should remain the raw-output owner.",
+                  "nethack-c/upstream/src/end.c:1579-1589 calls exit_nhwindows(), topten(), then raw_print(\"\") twice when done_stopprint is set, followed by nh_terminate(). js/tty_rawprint.js:60-81 owns raw-mode screen clearing and line/cursor movement, but js/end.js currently has no equivalent trailing writes.",
+                  "The patched recorder captures the final input boundary after nh_terminate(). The expected C cell/cursor at step 86 is a blank first cell with cursor [0,4,1]; the replay artifact .cache/investigate-seed0398-B17/replay-final.json shows JS gameover=1 but in_really_done=1, nomuxRaw inactive, map cell G, and cursor [8,23,1] because the unconditional text-window wait was never completed.",
+                  "The existing scripts/quit-command.test.mjs accepted-quit fixture reaches ordinary really_done() with stopprint unset and therefore does not cover this q-to-Dump-core final arm. A correction should retain that fixture and add/extend a wizard q response that verifies raw screen clearing, the wizard topten line, the two trailing blank lines, and cursor position."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved .cache/B17-queue.json and .cache/B17-development-scan.json identify the assigned session at count 1: step 86 is a screen mismatch, recordedSteps 87, with 86/87 screens and 3026 RNG calls matched. The B17 checkpoint artifact .git/checkpoint-results/615214896810913ba49e0d97d5bdf24e5e067ba0/run-HBTAZO/session-results.json records the same result at commit 615214896810913ba49e0d97d5bdf24e5e067ba0.",
+                "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json segments[0] steps 78-86 show #quit, the Really quit prompt, y, the Dump core? prompt, i, and final ESC. C step 86 contains only the final score-list message and cursor [0,4,1]. The preceding step 85 still contains Dump core? [ynq] (q) and the unchanged map, so the final ESC is the boundary that enters quit finalization.",
+                "The bounded assigned replay is captured in .cache/investigate-seed0398-B17/replay-final.json at the examined commit. It emits all 87 input boundaries and 3026 RNG calls, but ends with gameover=1, in_really_done=1, nomuxRaw.active=false, the map cell G at [0,0], and cursor [8,23,1]. This proves the JavaScript finalizer is suspended before its first tty_raw_print() rather than a polymorph, RNG, or serializer issue.",
+                "nethack-c/upstream/src/cmd.c:5585-5650 explicitly documents that ESC yields q in paranoid_ynq(). nethack-c/upstream/src/end.c:119-147 shows the UNIX wizard Dump core? query and done_stopprint++ on q. nethack-c/upstream/src/end.c:1375-1394 and 1552-1589 then show the source ordering: cleanup, conditional text-window display, exit_nhwindows, topten, two raw blank lines when done_stopprint, and nh_terminate().",
+                "At the examined commit, git show 615214896810913ba49e0d97d5bdf24e5e067ba0:js/end.js:1304-1311 unconditionally awaits displayTtyTextWindow() and only then calls toptenDisplay(). The same commit js/topten.js:457-465 already implements the wizard raw message. Therefore the missing behavior is the end.c really_done stopprint display guard and trailing raw lines, not the topten message or the earlier zapsetup/poly_obj path.",
+                "This is a divergence-fix because end.js already implements ordinary really_done() and done2() finalization, but its stopprint arm diverges from the source. Preserve the prior count-39 polymorph evidence only as historical context; the current count-1 diagnosis replaces that stale source scope."
+              ],
+              "nextProbe": "Apply a focused end.c really_done() divergence fix: skip displayTtyTextWindow() when program_state.stopprint is set, let the existing topten wizard branch run, emit the two source trailing raw blank lines, then clear in_really_done and capture. Verify both this assigned q response and the existing ordinary quit path."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "really_done",
+            "implementation": "js/end.js",
+            "symbol": "really_done",
+            "sourceReview": "Read nethack-c/upstream/src/end.c really_done() 1130-1593 in full. The port covers the gameover and panic cleanup prefix, timed finalization, BURNING/DISSOLVED grave-arise mapping, payment and disclosure gates, inventory identification, grave creation, score and ascension calculation, farewell and valuables output, stopprint raw-print tail, and termination marker. The correction preserves C's direct mons catalog lookup, A_ORIGINAL/A_CURRENT alignment slots, post-farewell valuables order, no-pet single-line escape output, glass-valuables output without a worth suffix, done_stopprint guard before object formatting, and PANICKED gates keyed by how. Discarded filesystem and shutdown operations remain named source gaps in the implementation comments. The final corrections keep the C no-window done_stopprint assignment in the cleanup arm after payment, disclosure, score, and bones work, and use the existing awaited displayPendingTtyMessageWindow owner for WIN_MESSAGE(TRUE) when windows exist; focused fixtures use the source no-prompt disclosure setting so that no-window ordering is exercised without synthetic input. The used pickup.c observe_quantum_cat dependency is source-pinned by the end-really-done and pickup focused tests and remains listed in the caller/dependency trace. Root compared the integrated required chain including the final awaited WIN_MESSAGE cleanup. Supporting helper units outside this selected source range are described as dependencies without separate completion claims. Root also checked zap.c maybe_destroy_item/destroy_items after the completed finalizer exposed continued execution: both JavaScript callers now stop on gameover, preserving C really_done NORETURN behavior while allowing lifesaving returns. The lethal spellbook test selects a second stack and rejects post-death RNG or destruction. The combined-checkpoint tourist regression traced to bones.c savebones clearing u.ux/u.uy before end.c1373-1388 synchronizes the still-live map window. The tty_wait_synch dependency now uses live window state and the resettable wintty.c rawprint counter, independently of hero coordinates and the sticky recorder cursor flag. Both raw-print functions increment the counter; message, menu, text and map display paths clear it in the C window-display order. Root checked and completed ordinary selectTtyMenu, docrt/cls and flush_screen reset sites. Source-pinned hero-death and TTY menu checks establish zero-coordinate waits, repeated waits after raw output dismissal, and map/menu reset behavior.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "done",
+                "source": "end.c done() calls really_done() after the death-state prefix and any lifesaving return."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "losehp",
+                "source": "hack.c losehp() reaches done() for lethal damage, including trap.c lava_effects()'s done(BURNING) path."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "done2",
+                "source": "end.c done2() sets stopprint for the wizard Dump core? q answer before done(QUIT)."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c maybe_destroy_item calls hack.c losehp for lethal inventory destruction; really_done never returns in C, so the JavaScript callers stop on finalized gameover."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/end-really-done.test.mjs",
+              "scripts/hero-death.test.mjs",
+              "scripts/zap-destroy-items.test.mjs",
+              "scripts/tty-menu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json",
+              "recordings/end.c/really-done-stopprint-wizard-variation.session.json"
+            ],
+            "checkedAt": "f45c5224fe4ee6e6c3d2b14acb9dea29280f237a"
+          }
+        ],
+        "entryPointReview": "Read end.c really_done1130-1593 and its required finalization helpers against C. The two independent live-window Wizard quit recordings execute done2 and the stopprint final output; they do not cover the no-window cleanup, which has focused state/output checks. Existing ordinary death recordings execute the same production finalizer. Active exceptional, escape/ascension, quantum-cat and no-window entries remain open; tests do not replace their production recordings. The independent fatal-lava recipe seed810141 reaches C done(BURNING), but its JS replay first differs during inventory burning after More at step47; retain the input-only recipe and no recording. The separate seed812347 attempt never reaches BURNING and first differs in the distfleeck continuation at step65. The accepted lava survival recordings stop before cleanup/return, and their extended probes have a separate postmovement create_gas_cloud blockPoint gap. These are independent coverage blockers, not claimed completion. The required helper implementations fixup_death, get_valuables, sort_valuables, artifact_score and pickup.c observe_quantum_cat were checked in source order; only the primary selected really_done unit is recorded here. Escape/ascension keepdogs remains an explicit discarded-call note_unported gap; external files and process teardown are not substituted with game effects. The terminal correction preserves ordinary death finalization after bones clears coordinates, covered by the existing really-done-wait-synch recording and the fixed tourist death session. The earlier f45c5224 failed checkpoint is retained; the corrected candidate must restore all seven lost tourist screens before acceptance.",
+        "entryPoints": [
+          {
+            "name": "ordinary lethal death finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-wait-synch.session.json",
+              "recordings/end.c/death-ray-cleanup.session.json",
+              "recordings/end.c/done-in-by-shopkeeper.session.json"
+            ]
+          },
+          {
+            "name": "wizard quit with stopprint and final raw-print tail",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json",
+              "recordings/end.c/really-done-stopprint-wizard-variation.session.json"
+            ]
+          },
+          {
+            "name": "fatal lava and special death/grave-arise finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "escape and ascension with valuables and pets",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "inventory disclosure quantum-cat resolution",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "panic, hangup and no-window finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "first-move and roleplay-achievement finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 11,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+        "screens": 10834,
+        "rng": 771039
+      },
+      "parkedReason": "The really_done source span and ordinary death/stopprint recordings pass. Fatal/special-grave-arise, escape/ascension with valuables and pets, quantum-cat disclosure, panic/hangup/no-window and first-move/achievement entry families still lack matching production recordings; preserve those open requirements. The fixed swimmer session now reaches only the independently identified tutorial reached-depth mismatch."
     }
   ]
 }

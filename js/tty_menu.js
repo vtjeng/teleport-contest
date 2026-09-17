@@ -337,6 +337,12 @@ export async function displayTtyMenuTextWindow(
     if (!display)
         throw new Error('tty menu text window requires an initialized display');
 
+    // C tty_display_nhwindow() clears ttyDisplay->rawprint before entering
+    // the NHW_MENU arm.  Keep this reset separate from the recorder's sticky
+    // nomuxRaw.active cursor mode.
+    if (display.nomuxRaw)
+        display.nomuxRaw.rawprint = 0;
+
     // wintty.c tty_display_nhwindow(NHW_MENU) first flushes an
     // unacknowledged message, then calls tty_clear_nhwindow(WIN_MESSAGE) for
     // a corner menu. The latter clears an already acknowledged top line too;
@@ -755,6 +761,12 @@ export async function displayTtyTextWindow(state = game, lines) {
     const display = state.nhDisplay;
     if (!display)
         throw new Error('tty text window requires an initialized display');
+
+    // C tty_display_nhwindow() clears ttyDisplay->rawprint before entering
+    // the NHW_TEXT arm.  `nomuxRaw.active` remains sticky for recorder
+    // cursor capture and must not control this window selection.
+    if (display.nomuxRaw)
+        display.nomuxRaw.rawprint = 0;
     const maxrow = lines.length;
     const lastRow = display.rows - 1;
 
@@ -1461,6 +1473,9 @@ async function selectAnyTtyMenu(state, spec) {
 // PICK_ONE loop, which refuses every selection and so always answers
 // cancelValue.
 export async function selectTtyMenu(state = game, spec) {
+    // wintty.c tty_display_nhwindow() clears rawprint before the menu arm.
+    if (state.nhDisplay?.nomuxRaw)
+        state.nhDisplay.nomuxRaw.rawprint = 0;
     // wintty.c tty_display_nhwindow()'s NHW_MENU arm (1921-1922) flushes an
     // unacknowledged top line before the menu covers it, guarded by
     // `ttyDisplay->toplin == TOPLINE_NEED_MORE`. A message already

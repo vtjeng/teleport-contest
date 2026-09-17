@@ -41,12 +41,18 @@ import {
 } from './cmd.js';
 import {
     A_CON,
+    A_CURRENT,
+    A_ORIGINAL,
+    ACH_BLND,
+    ACH_NUDE,
+    ACH_UWIN,
     ASCENDED,
     BASICENLIGHTENMENT,
     BURNING,
     CHOKING,
     CQ_CANNED,
     DIED,
+    DISSOLVED,
     ECMD_OK,
     DISCLOSE_NO_WITHOUT_PROMPT,
     DISCLOSE_PROMPT_DEFAULT_NO,
@@ -59,8 +65,10 @@ import {
     ENL_GAMEOVERDEAD,
     G_GENOD,
     GENOCIDED,
+    IN_SIGHT,
     isok,
     IS_GRAVE,
+    LEAVESTATUE,
     KILLED_BY,
     KILLED_BY_AN,
     LIFESAVED,
@@ -86,7 +94,9 @@ import {
     TT_LAVA,
     UNCHANGING,
     UTOTYPE_ATSTAIRS,
+    Ugender,
     Upolyd,
+    TURNED_SLIME,
     has_ebones,
     has_mgivenname,
     ismnum,
@@ -100,6 +110,7 @@ import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
 import { schedule_goto } from './do.js';
 import { m_monnam, mon_nam, Monnam, pmname } from './do_name.js';
+import { adj_lev } from './makemon.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
@@ -109,7 +120,7 @@ import { paygd } from './vault.js';
 import { curs_on_u, nomul } from './hack.js';
 import { unstuck, zombie_maker } from './mon.js';
 import { gender, is_vampshifter, sticks, type_is_pname } from './mondata.js';
-import { G_NOCORPSE } from './monsters.js';
+import { G_NOCORPSE, PM_GREEN_SLIME } from './monsters.js';
 import {
     G_UNIQ,
     PM_GHOST,
@@ -126,7 +137,7 @@ import {
 import { endmultishot } from './dothrow.js';
 import { upstart } from './hacklib.js';
 import {
-    display_inventory, money_cnt, obfree, sortloot, stackobj, update_inventory,
+    carrying, currency, display_inventory, money_cnt, obfree, sortloot, stackobj, update_inventory,
     useup,
 } from './invent.js';
 import { bless, isContainer, mksobj, place_object, remove_object }
@@ -141,15 +152,29 @@ import {
     POT_WATER,
     STATUE,
     TIN,
+    AMULET_CLASS,
+    BELL_OF_OPENING,
+    CANDELABRUM_OF_INVOCATION,
+    FAKE_AMULET_OF_YENDOR,
+    FIRST_AMULET,
+    FIRST_REAL_GEM,
+    GEM_CLASS,
+    LAST_GLASS_GEM,
+    LAST_AMULET,
+    LAST_REAL_GEM,
+    SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
+import { arti_cost, artiname } from './artifacts.js';
 import {
-    an, doname_with_price, the, thesimpleoname, the_unique_pm,
+    an, doname_with_price, the, thesimpleoname, the_unique_obj, the_unique_pm,
     xnameFresh,
 } from './objnam.js';
+import { OBJ_NAME } from './objects.js';
 import {
     enlightenment,
     list_genocided,
     list_vanquished,
+    record_achievement,
     show_conduct,
 } from './insight.js';
 import { livelog_printf } from './pline.js';
@@ -166,12 +191,14 @@ import {
 } from './dungeon.js';
 import { Goodbye } from './role_init.js';
 import { reset_utrap } from './trap.js';
+import { force_launch_placement, launch_in_progress } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
+    showPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
-import { tty_wait_synch } from './tty_rawprint.js';
+import { tty_raw_print, tty_wait_synch } from './tty_rawprint.js';
 import { init_uhunger } from './u_init.js';
 import { hidden_gold } from './u_init_inventory_attrs.js';
 import { shkname, shkname_is_pname } from './shknam.js';
@@ -181,6 +208,8 @@ import { setwornEnv } from './do_wear.js';
 import { setnotworn } from './worn.js';
 import { set_itimeout } from './potion.js';
 import { rn2 } from './rng.js';
+import { d } from './rng.js';
+import { timet_delta } from './allmain.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -1038,7 +1067,7 @@ export function done_object_cleanup(state) {
         state.iflags.perm_invent = false;
 }
 
-function identifyInventoryForDisclosure(state) {
+async function identifyInventoryForDisclosure(state) {
     for (let obj = state.invent; obj; obj = obj.nobj) {
         discover_object(obj.otyp, true, true, false, state);
         obj.known = obj.bknown = obj.dknown = obj.rknown = 1;
@@ -1047,10 +1076,130 @@ function identifyInventoryForDisclosure(state) {
         else if (obj.otyp === TIN)
             obj.cknown = 1;
         if (obj.otyp === LARGE_BOX && obj.spe === 1) {
-            throw new UnsupportedEndOfGameError(
-                "really_done() with Schroedinger's box",
-            );
+            // C resolves the coin flip once here so disclosure and dumplog
+            // see the same cat.  Keep pickup.c as the sole owner; the
+            // dynamic import avoids turning pickup.js's existing
+            // container_contents cycle into a module initializer cycle.
+            if (state.schroedingers_cat) {
+                // A prior live-cat observation already fixed this global
+                // coin flip; later boxes become ordinary boxes containing
+                // their stored cat corpse.
+                obj.spe = 0;
+            } else {
+                const { observe_quantum_cat } = await import('./pickup.js');
+                await observe_quantum_cat(obj, false, false, { state });
+                if (obj.spe === 1)
+                    state.schroedingers_cat = true;
+            }
         }
+    }
+}
+
+// C ref: end.c fixup_death() (366-381).  The multi-reason string is kept in
+// the game state rather than a C buffer pointer.  These two source fixups
+// remove the misleading helplessness suffix when the death itself caused it.
+export function fixup_death(how, state) {
+    const reason = state.multi_reason;
+    if (!reason) return;
+
+    if (how === STONING && reason === 'getting stoned') {
+        state.multi_reason = null;
+        state.multi = 0;
+    } else if (how === STARVING
+               && reason === 'fainted from lack of food') {
+        state.multi_reason = 'fainted';
+    } else {
+        return;
+    }
+    if (state.multireasonbuf !== undefined)
+        state.multireasonbuf = '';
+}
+
+// C ref: end.c get_valuables() (763-791).  C keeps the inventory linked list
+// intact and accumulates ordinary amulets and gems into two fixed tables.  The
+// JavaScript tables live on the game because a scorer can run more than one
+// end-of-game disclosure against one cloned state.
+export function get_valuables(list, state = game) {
+    state.end_valuables ??= {
+        amulets: Array.from(
+            { length: LAST_AMULET - FIRST_AMULET + 1 },
+            () => ({ count: 0, typ: 0 }),
+        ),
+        // The extra gem slot combines all glass after LAST_REAL_GEM.
+        gems: Array.from(
+            { length: LAST_REAL_GEM + 1 - FIRST_REAL_GEM + 1 },
+            () => ({ count: 0, typ: 0 }),
+        ),
+    };
+    const values = state.end_valuables;
+    for (let obj = list; obj; obj = obj.nobj) {
+        if (obj.cobj) {
+            get_valuables(obj.cobj, state);
+        } else if (obj.oartifact) {
+            continue;
+        } else {
+            const type = state.objects?.[obj.otyp];
+            if (type?.oc_class === AMULET_CLASS
+                && obj.otyp >= FIRST_AMULET
+                && obj.otyp <= FIRST_AMULET + values.amulets.length - 1) {
+                const entry = values.amulets[obj.otyp - FIRST_AMULET];
+                entry.typ = entry.typ || obj.otyp;
+                entry.count += obj.quan;
+            } else if (type?.oc_class === GEM_CLASS
+                       && obj.otyp <= LAST_GLASS_GEM
+                       && obj.otyp >= FIRST_REAL_GEM) {
+                const index = Math.min(obj.otyp, LAST_REAL_GEM + 1)
+                    - FIRST_REAL_GEM;
+                const entry = values.gems[index];
+                entry.typ = entry.typ || obj.otyp;
+                entry.count += obj.quan;
+            }
+        }
+    }
+    return values;
+}
+
+// C ref: end.c sort_valuables() (798-823).  Insertion sort preserves the
+// source's stable ordering for ties.
+export function sort_valuables(list, size = list.length) {
+    for (let i = 1; i < size; ++i) {
+        if (!list[i].count) continue;
+        const saved = list[i];
+        let j = i;
+        for (; j > 0 && list[j - 1].count < saved.count; --j)
+            list[j] = list[j - 1];
+        list[j] = saved;
+    }
+    return list;
+}
+
+// C ref: end.c artifact_score() (907-956).  The counting call contributes
+// points to u.urexp; the display call emits the same description into the
+// final text window.  Object contents recurse in source order.
+export function artifact_score(list, counting, state, textLines = null) {
+    for (let obj = list; obj; obj = obj.nobj) {
+        if (obj.oartifact || obj.otyp === BELL_OF_OPENING
+            || obj.otyp === SPE_BOOK_OF_THE_DEAD
+            || obj.otyp === CANDELABRUM_OF_INVOCATION) {
+            const value = arti_cost(obj, state);
+            const points = Math.trunc(value * 5 / 2);
+            if (counting) {
+                state.u.urexp = nowrap_add(state.u.urexp, points);
+            } else if (textLines && !disclosureStopprint(state)) {
+                discover_object(obj.otyp, true, true, false, state);
+                obj.known = obj.dknown = obj.bknown = obj.rknown = 1;
+                const name = obj.oartifact
+                    ? artiname(obj.oartifact, state)
+                    : OBJ_NAME(state.objects[obj.otyp], state);
+                textLines.push({
+                    text: `${the_unique_obj(obj, state) ? 'The ' : ''}${name}`
+                        + ` (worth ${value} ${currency(value, state)}`
+                        + ` and ${points} points)`,
+                });
+            }
+        }
+        if (obj.cobj)
+            artifact_score(obj.cobj, counting, state, textLines);
     }
 }
 
@@ -1067,31 +1216,45 @@ async function really_done(how, state) {
     // nh_terminate(), whose final recorder capture has not happened yet.
     programState.in_really_done = true;
     programState.something_worth_saving = 0;
-    if (programState.done_hup) {
-        throw new UnsupportedEndOfGameError('really_done() after hangup');
-    }
+    // HANGUPHANDLING sets done_stopprint in C and carries on through the
+    // final bookkeeping without trying to read another terminal key.
+    if (programState.done_hup)
+        discloseStop(state);
     state.iflags.vision_inited = false;
 
-    if (programState.panicking) {
-        throw new UnsupportedEndOfGameError('really_done() while panicking');
-    }
-    done_object_cleanup(state);
+    // Panic has no browser-side signal cleanup, but C still reaches the
+    // finalizer.  Its object cleanup and disclosure are deliberately skipped.
+    if (!programState.panicking)
+        done_object_cleanup(state);
+    // C clears this even when panic skipped done_object_cleanup().
+    if (state.iflags)
+        state.iflags.perm_invent = false;
 
     const endtime = getnow(state);
     state.urealtime.finish_time = endtime;
-    state.urealtime.realtime += endtime - state.urealtime.start_timing;
+    state.urealtime.realtime += timet_delta(
+        endtime, state.urealtime.start_timing,
+    );
     state.iflags.at_night = night(state);
     state.iflags.at_midnight = midnight(state);
 
-    if ((state.u.uachieved?.[0] || !state.flags.beginner)
-        && (state.u.uroleplay?.blind || state.u.uroleplay?.nudist)) {
-        throw new UnsupportedEndOfGameError(
-            'really_done() final achievement tracking',
-        );
+    if ((state.u.uachieved?.[0] || !state.flags.beginner)) {
+        if (state.u.uroleplay?.blind)
+            record_achievement(ACH_BLND, state);
+        if (state.u.uroleplay?.nudist)
+            record_achievement(ACH_NUDE, state);
     }
-    if (state.moves <= 1) {
-        throw new UnsupportedEndOfGameError(
-            'really_done() first-move death message',
+    if (how === ASCENDED)
+        record_achievement(ACH_UWIN, state);
+
+    // C's first-move consolation is an ordinary message and is suppressed by
+    // stopprint.  currency() is pure for this amount and preserves the
+    // source's double space after "Go.".
+    if (state.moves <= 1 && how < PANICKED
+        && !disclosureStopprint(state)) {
+        await ttyPline(
+            `Do not pass Go.  Do not collect 200 ${currency(200, state)}.`,
+            state,
         );
     }
 
@@ -1104,6 +1267,8 @@ async function really_done(how, state) {
     // C ref: end.c:1201. QUIT and later reasons skip can_make_bones() and its
     // random draw because only deaths before GENOCIDED can create bones.
     const bonesOk = how < GENOCIDED && can_make_bones(state);
+    if (bonesOk && launch_in_progress(state))
+        force_launch_placement(state);
 
     // C ref: end.c:1206-1230. A regular quit has no grave-arise state. If the
     // hero was already below one hit point, C changes it into an ordinary
@@ -1120,48 +1285,63 @@ async function really_done(how, state) {
     if (how === ESCAPED || how === PANICKED)
         state.killer.format = NO_KILLER_PREFIX;
 
-    // Preserve the existing DIED boundary for special death and grave-arise
-    // states. Ordinary QUIT is the additional source-supported path.
-    if ((how !== DIED && how !== QUIT)
-        || state.u.ugrave_arise !== NON_PM) {
-        throw new UnsupportedEndOfGameError(
-            'really_done() special death or grave-arise state',
-        );
-    }
+    // C keeps a bones/grave reason even when no bones can be made.  These
+    // assignments happen before fixup_death and before payment/disclosure.
+    if (how === PANICKED)
+        state.u.ugrave_arise = NON_PM - 3;
+    else if (how === BURNING || how === DISSOLVED)
+        state.u.ugrave_arise = NON_PM - 2;
+    else if (how === STONING)
+        state.u.ugrave_arise = LEAVESTATUE;
+    else if (how === TURNED_SLIME
+             && !((state.mvitals?.[PM_GREEN_SLIME]?.mvflags ?? 0) & G_GENOD))
+        state.u.ugrave_arise = PM_GREEN_SLIME;
 
-    // C ref: end.c:1232 fixup_death(). Its only changes apply to STONING and
-    // STARVING multi-turn reasons, both outside the DIED/QUIT paths admitted
-    // above, so there is no state change to reproduce here.
+    // C ref: end.c:1232 fixup_death().
+    fixup_death(how, state);
     // clearlocks() unlinks on-disk level files; the port holds levels in
     // memory and writes no files, so it has no counterpart.
     const silently = disclosureStopprint(state);
-    const taken = paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
+    const taken = how === PANICKED
+        ? false
+        : paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
     if (state._paybill_message) {
         await state._paybill_message;
         delete state._paybill_message;
     }
-    paygd(silently, state);
-    clearpriests(state);
+    if (how !== PANICKED) {
+        paygd(silently, state);
+        clearpriests(state);
+    }
 
     // C end.c really_done() displays WIN_MESSAGE at 1247 before disclosure.
-    // Its nonblocking TTY message-window arm retires an acknowledged topline
-    // without erasing its physical bytes; later disclosure menus clear only a
-    // topline created by their immediately preceding yn_function().
-    await displayPendingTtyMessageWindow(state);
-    identifyInventoryForDisclosure(state);
+    // This is the nonblocking TTY arm: leave a pending More marker in place
+    // for the next disclosure query without consuming another input key.
+    if (haveWindows)
+        showPendingTtyMessage(state);
+    if (how !== PANICKED) {
+        await identifyInventoryForDisclosure(state);
+    }
     // C: if (strcmp(flags.end_disclose, "none")) disclose(how, taken);
     // The "none" sentinel is a special all-suppress setting.  The option
     // parser above never stores it; the test therefore always passes.
-    await disclose(how, taken, state);
+    if (how !== PANICKED)
+        await disclose(how, taken, state);
 
     // C ref: end.c:1285-1290. formatkiller() builds the same death text that
     // the final dump records, and livelog_printf() keeps the LL_DUMP event in
     // the in-memory Chronicle even though the external dump file is absent.
-    const deathBuf = formatkiller(how, true, state);
-    livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
+    if (how !== PANICKED) {
+        const deathBuf = formatkiller(how, true, state);
+        livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
+    }
 
-    // C ref: end.c:1297-1298 keepdogs for ESCAPED/ASCENDED.
-    // Not applicable: how === DIED.
+    // C ref: end.c:1297-1298 keepdogs for ESCAPED/ASCENDED.  Its result is
+    // discarded here; the existing dog.c owner still has unported follower
+    // branches, so preserve this exact source boundary without invoking a
+    // partial owner through a swallowed refusal.
+    if (how === ESCAPED || how === ASCENDED)
+        note_unported('dog.c keepdogs');
 
     // C ref: end.c:1300-1302 finish_paybill() when bones_ok && taken.
     // taken is always false here: js/shk.js inherits() refuses every arm
@@ -1207,16 +1387,36 @@ async function really_done(how, state) {
 
         // Ascension bonus (only when offering to original deity).
         if (how === ASCENDED
-            && state.u.ualign?.type === state.u.ualignbase?.[0]) {
-            tmp = (state.u.ualignbase?.[1] === state.u.ualignbase?.[0])
+            && state.u.ualign?.type === state.u.ualignbase?.[A_ORIGINAL]) {
+            tmp = (state.u.ualignbase?.[A_CURRENT]
+                === state.u.ualignbase?.[A_ORIGINAL])
                 ? state.u.urexp
                 : Math.trunc(state.u.urexp / 2);
             state.u.urexp = nowrap_add(state.u.urexp, tmp);
         }
     }
 
-    // C ref: end.c:1351-1361 ugrave_arise message.
-    // ugrave_arise === NON_PM in the supported path, so ismnum() is false.
+    // C ref: end.c:1351-1361.  A polymorph death can leave a valid monster
+    // number in ugrave_arise even when bones are disabled; this feedback is
+    // shown before the bones prompt so it cannot reveal whether a corpse was
+    // saved.  display_nhwindow(WIN_MESSAGE, FALSE) is the nonblocking
+    // pending-message handoff used above.
+    if (ismnum(state.u.ugrave_arise) && !disclosureStopprint(state)) {
+        // monst_globals_init() stores permonst records directly in mons;
+        // live monsters carry their template in .data, but ugrave_arise is a
+        // monster number and indexes this canonical catalog.
+        const species = state.mons?.[state.u.ugrave_arise];
+        if (species) {
+            const feedback = state.u.ugrave_arise === PM_GREEN_SLIME
+                ? 'revenant persists'
+                : 'body rises from the dead';
+            await ttyPline(
+                `Your ${feedback} as ${an(pmname(species, Ugender(state)))}...`,
+                state,
+            );
+            showPendingTtyMessage(state);
+        }
+    }
 
     // C ref: end.c:1326 — compute done_money before savebones drains
     // the inventory. C stores done_money at end.c:1373 but reads the
@@ -1246,9 +1446,19 @@ async function really_done(how, state) {
     // a NHW_TEXT window for the tombstone and farewell text. The port's text
     // window is displayTtyTextWindow.
 
-    // C: display_nhwindow(WIN_MESSAGE, TRUE) -- show pending messages.
-    // The port clears the message window state; pending messages were already
-    // displayed during the bones prompt.
+    // C waits for the pending message and displays WIN_MESSAGE(TRUE) here,
+    // after score, disclosure, and bones work.  With no windows, C sets
+    // done_stopprint in this same cleanup arm; keeping that timing matters
+    // because earlier payment and disclosure code still sees its old value.
+    if (haveWindows)
+        await tty_wait_synch(state);
+    else
+        discloseStop(state);
+
+    // C: display_nhwindow(WIN_MESSAGE, TRUE) -- consume the pending message
+    // boundary after the synchronous wait, before the tombstone window.
+    if (haveWindows)
+        await displayPendingTtyMessageWindow(state);
 
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);
@@ -1256,6 +1466,20 @@ async function really_done(how, state) {
 
     if (how < GENOCIDED && state.flags.tombstone) {
         genl_outrip(textLines, how, endtime, state);
+    }
+
+    // C ref: end.c:1402-1415.  This suffix is added after outrip() has
+    // captured the tombstone and before the farewell text.  An Astral escape
+    // with the wrong deity and an escape carrying a fake amulet have distinct
+    // source messages.
+    if (state.u.uhave?.amulet) {
+        state.killer.name += ' (with the Amulet)';
+    } else if (how === ESCAPED) {
+        if (Is_astralevel(state.u.uz)) {
+            state.killer.name += ' (in celestial disgrace)';
+        } else if (carrying(FAKE_AMULET_OF_YENDOR, state)) {
+            state.killer.name += ' (with a fake Amulet)';
+        }
     }
 
     // C ref: end.c:1418-1424. Farewell text.
@@ -1266,6 +1490,81 @@ async function really_done(how, state) {
     const goodbye = Goodbye(state.urole);
     textLines.push({ text: `${goodbye} ${state.plname} the ${roleName}...` });
     textLines.push({ text: '' });
+
+    if (how === ESCAPED || how === ASCENDED) {
+        // C computes valuables and artifact points only after the farewell
+        // window has been prepared.  Keep this source order: these helpers
+        // can discover objects and therefore are not harmless formatting.
+        const values = get_valuables(null, state);
+        for (const entry of [...values.gems, ...values.amulets]) {
+            entry.count = 0;
+            entry.typ = 0;
+        }
+        get_valuables(state.invent, state);
+        for (const entry of [...values.gems, ...values.amulets]) {
+            if (entry.count) {
+                const type = state.objects?.[entry.typ];
+                state.u.urexp = nowrap_add(
+                    state.u.urexp,
+                    entry.count * (type?.oc_cost ?? 0),
+                );
+            }
+        }
+        artifact_score(state.invent, true, state);
+
+        // C marks the origin cell visible before mon_nam() names pets.
+        if (state.viz_array?.[0])
+            state.viz_array[0][0] |= IN_SIGHT;
+        const pets = [];
+        for (let mon = state.gm?.mydogs ?? null; mon; mon = mon.nmon) {
+            pets.push(mon_nam(mon, state));
+            if (mon.mtame)
+                state.u.urexp = nowrap_add(state.u.urexp, mon.mhp);
+        }
+        if (state.schroedingers_cat) {
+            const cat = state.mons?.[PM_HOUSECAT];
+            const catLevel = cat ? adj_lev(cat, state) : 1;
+            state.u.urexp = nowrap_add(state.u.urexp, d(catLevel, 8));
+            pets.push("Schroedinger's cat");
+        }
+        if (pets.length) {
+            textLines.push({ text: `You and ${pets.join(' and ')}` });
+        }
+        textLines.push({
+            text: `${pets.length ? '' : 'You '}`
+                + `${how === ASCENDED ? 'went to your reward' : 'escaped from the dungeon'}`
+                + ` with ${state.u.urexp} point${plur(state.u.urexp)},`,
+        });
+        artifact_score(state.invent, false, state, textLines);
+        for (const list of [values.gems, values.amulets]) {
+            sort_valuables(list);
+            for (const entry of list) {
+                if (disclosureStopprint(state)) break;
+                if (!entry.count) continue;
+                const type = state.objects?.[entry.typ];
+                if (!type) continue;
+                const value = entry.count * (type.oc_cost ?? 0);
+                let name;
+                if (type.oc_class !== GEM_CLASS || entry.typ <= LAST_REAL_GEM) {
+                    const object = mksobj(entry.typ, false, false, { state });
+                    discover_object(object.otyp, true, true, false, state);
+                    object.dknown = object.known = object.bknown = object.rknown = 1;
+                    object.quan = entry.count;
+                    name = xnameFresh(object, state);
+                    obfree(object, null, { state });
+                } else {
+                    name = `worthless piece${entry.count === 1 ? '' : 's'} of colored glass`;
+                }
+                const valueText = type.oc_class !== GEM_CLASS
+                    || entry.typ <= LAST_REAL_GEM
+                    ? ` (worth ${value} ${currency(2, state)}),`
+                    : ',';
+                textLines.push({
+                    text: `${String(entry.count).padStart(8, ' ')} ${name}${valueText}`,
+                });
+            }
+        }
+    }
 
     // C ref: end.c:1521-1542. Death summary for non-escaped, non-ascended.
     if (how !== ESCAPED && how !== ASCENDED) {
@@ -1301,14 +1600,25 @@ async function really_done(how, state) {
     });
     textLines.push({ text: '' });
 
-    // C ref: end.c:1552-1555 display_nhwindow(endwin, TRUE).
-    await displayTtyTextWindow(state, textLines);
+    // C ref: end.c:1552-1555 display_nhwindow(endwin, TRUE).  HANGUP and
+    // the wizard's "q" core-dump answer set stopprint, which suppresses this
+    // window while still allowing the later raw-print tail.
+    if (!disclosureStopprint(state))
+        await displayTtyTextWindow(state, textLines);
 
     // C ref: end.c:1579-1583 exit_nhwindows + topten.
     // exit_nhwindows clears the screen; topten prints to raw output.
     // tty_raw_print() enters raw mode on first call: it clears the shadow
     // screen and starts its cursor at the top left, matching exit_nhwindows.
     toptenDisplay(how, endtime, state);
+
+    // C ref: end.c:1589-1591.  raw_print() is deliberately after topten;
+    // use the canonical TTY owner so these two newline records are visible
+    // to the recorder and do not consume a gameplay RNG draw.
+    if (disclosureStopprint(state)) {
+        tty_raw_print(state, '');
+        tty_raw_print(state, '');
+    }
 
     // C ref: end.c:1589 nh_terminate(EXIT_SUCCESS).
     // The JS port signals end of segment via gameover. The post-moveloop

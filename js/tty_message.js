@@ -340,6 +340,11 @@ export async function tty_message_menu(
 // _pending_message: callers such as invent.c look_here() can have a stale
 // physical line with TOPLINE_NON_EMPTY and no input boundary to consume.
 export async function displayPendingTtyMessageWindow(state) {
+    // C tty_display_nhwindow() clears ttyDisplay->rawprint before selecting
+    // the WIN_MESSAGE arm.  This is separate from nomuxRaw.active, which the
+    // recorder keeps sticky for cursor capture.
+    if (state.nhDisplay?.nomuxRaw)
+        state.nhDisplay.nomuxRaw.rawprint = 0;
     const waitingForMore = state.nhDisplay?.toplin === TOPLINE_NEED_MORE;
     const waited = waitingForMore
         ? await dismissPendingTtyMessage(state) : false;

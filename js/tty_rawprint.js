@@ -62,12 +62,14 @@ function nomux_raw_write(display, bytes, attr = 0) {
 // tty_init_nhwindows(), so the first call enters raw mode: patch 006's
 // nomux_enter_raw_mode() clears the shadow screen and starts its own cursor at
 // the top left, because exit_nhwindows()/settty() leave the visible terminal
-// on a blank main screen in the endgame case this shares.
+// on a blank main screen in the endgame case this shares.  The resettable
+// `rawprint` counter is distinct from the recorder's sticky `active` mode.
 export function tty_raw_print(state, str) {
     const display = state?.nhDisplay;
     if (!display) return;
 
     const raw = display.nomuxRaw;
+    raw.rawprint = (raw.rawprint ?? 0) + 1;
     if (!raw.active) {
         raw.active = true;
         raw.row = 0;
@@ -88,6 +90,7 @@ export function tty_raw_print_bold(state, str) {
     if (!display) return;
 
     const raw = display.nomuxRaw;
+    raw.rawprint = (raw.rawprint ?? 0) + 1;
     if (!raw.active) {
         raw.active = true;
         raw.row = 0;
@@ -121,17 +124,36 @@ async function getret(state) {
 
 // C ref: win/tty/wintty.c tty_wait_synch() (3623-3647). The startup/raw-print
 // arm waits for a space. Once a map is live, the window arm repaints it and
-// leaves any pending message's --More-- marker for the next reader.
+// leaves any pending message's --More-- marker for the next reader.  The
+// recorder's sticky `active` mode does not select this arm; only the
+// resettable ttyDisplay->rawprint state does.
 export async function tty_wait_synch(state = game) {
     // The browser has no separate WinDesc for WIN_MAP, but a generated level
-    // and initialized hero are the same source boundary: normal play has a
-    // map window even though the terminal renderer owns its cells directly.
+    // and an initialized window are the same source boundary: normal play has
+    // a map window even when the hero's coordinates have temporarily been
+    // cleared by bones.c savebones(). The terminal renderer owns the map
+    // cells directly, so the level object and initialized window stand in for
+    // C's WIN_MAP and ttyDisplay pointers.
     // The preceding death pline() has already flushed the canonical map. C's
     // tty_display_nhwindow(WIN_MAP, FALSE) has no status refresh here, so do
     // not route this arm through flush_screen(), which calls bot() first.
-    if (state.level?.at && state.u?.ux && state.iflags?.window_inited !== false) {
+    const rawprint = Number(state.nhDisplay?.nomuxRaw?.rawprint ?? 0);
+    const mapWindow = Boolean(
+        state.nhDisplay
+        && state.level?.at
+        && state.iflags?.window_inited !== false
+        && rawprint === 0,
+    );
+    if (mapWindow) {
+        // tty_display_nhwindow(WIN_MAP, FALSE) clears this C counter before
+        // repainting.  Keep the assignment explicit for displays created by
+        // older focused fixtures that did not initialize the field.
+        if (state.nhDisplay.nomuxRaw)
+            state.nhDisplay.nomuxRaw.rawprint = 0;
         showPendingTtyMessage(state);
         return;
     }
     await getret(state);
+    if (state.nhDisplay?.nomuxRaw)
+        state.nhDisplay.nomuxRaw.rawprint = 0;
 }
