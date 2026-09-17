@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independently chosen fatal-lava entry attempt for end.c really_done(). This uses the source-confirmed debug level-change geometry with a new character name and deliberately omits the water-walking intrinsic commands. The bounded C trace reaches lava_effects() and done(BURNING): it prints the second inventory burn at step 47, the remaining-items message at step 48, the burn-to-a-crisp message at step 49, and the Die? query at step 50. JS first diverges at step 47 after the first More, before that second trap.c lava_effects() burn message (run-ggDJcx, C trace /tmp/A20-seed810141-fatal-c-recording-full.json). Keep this input-only recipe and leave the fatal end.c entry open until the trap.c continuation matches; no recording is claimed.",
+  "segments": [
+    {
+      "seed": 810141,
+      "datetime": "20450910123456",
+      "nethackrc": "OPTIONS=name:FatalWalker,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #levelchange\n20\n                    \u0016?\nl .mb                    "
+    }
+  ]
+}
