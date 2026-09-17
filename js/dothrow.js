@@ -60,6 +60,7 @@ import {
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HEAD,
+    HAND,
     I_SPECIAL,
     IRONBARS,
     IS_SOFT,
@@ -315,7 +316,7 @@ import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnl, rnd } from './rng.js';
-import { hitval, weapon_hit_bonus } from './weapon.js';
+import { hitval, skill_name, weapon_descr, weapon_hit_bonus } from './weapon.js';
 import { ship_object } from './dokick.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
@@ -1593,8 +1594,19 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             else
                 range++;
         } else if (obj.oclass !== GEM_CLASS) {
-            /* "You aren't wielding a bow, so you throw your arrow by hand." */
-            throw new UnsupportedThrowError('throwing ammo without a launcher');
+            // dothrow.c:1640-1647.  Ammunition without its launcher is still
+            // a valid throw: halve the positive range and explain that the
+            // hero is throwing it by hand.  The source uses the selected
+            // object's skill and weapon description, rather than assuming
+            // every unlaunched missile is an arrow.
+            range = Math.trunc(range / 2);
+            await ttyPline(
+                `You aren't wielding ${an(skill_name(
+                    weapon_type(obj, state), state,
+                ))}, so you throw your ${weapon_descr(obj, state)} by `
+                + `${body_part(HAND, state.youmonst)}.`,
+                state,
+            );
         }
     }
 

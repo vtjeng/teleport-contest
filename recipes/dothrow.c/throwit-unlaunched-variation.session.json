@@ -1,0 +1,12 @@
+{
+  "version": 5,
+    "_comment": "Cheap variation of the independent no-launcher throw: a different seed, clock, name, gender and alignment exercise the same source arm with a distinct startup state.",
+  "segments": [
+    {
+        "seed": 9010103,
+        "datetime": "20260917103000",
+        "nethackrc": "OPTIONS=name:A25Three,role:Ranger,race:human,gender:male,align:chaotic\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "  nQbytdl"
+    }
+  ]
+}

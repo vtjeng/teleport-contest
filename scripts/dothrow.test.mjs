@@ -796,6 +796,24 @@ test('throwit() takes its range from the launcher, not from the hand',
         assert.deepEqual(bolts.gb.bhitpos, { x: 9, y: 4 });
     });
 
+test('throwit() halves an unlaunched missile range and names the hand throw',
+    async () => {
+        // dothrow.c:1640-1647.  An arrow without a matching launcher keeps
+        // the throw path: urange is 8, its range is 8 before the ammo arm,
+        // and the no-launcher branch halves that to 4.  The message uses
+        // skill_name(weapon_type(obj)), weapon_descr(obj), and body_part(HAND)
+        // in that source order.
+        const state = arena({ last: 20 });
+        state._ttyToplines = '';
+        const arrow = item(state, ARROW);
+        await throwit(arrow, 0, false, null, state);
+        assert.equal(state._ttyToplines,
+            "You aren't wielding a bow, so you throw your arrow by hand.");
+        assert.deepEqual(state.gb.bhitpos, { x: 5, y: 4 });
+        assert.deepEqual(draws(), ['rn2(100)']);
+        assert.deepEqual(pileAt(state, 5, 4), [arrow]);
+    });
+
 test('throwit() breaks what lands hard and drowns what lands wet',
     async () => {
         // dothrow.c:1780. A cream pie is on breaktest()'s switch list at
@@ -1774,7 +1792,8 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
     ammo.uquiver = arrows;
     await assert.rejects(() => dofire(ammo), /use_pole/u);
     // With fireassist off the whole search is skipped, so the arrows are
-    // thrown by hand -- which this port does not carry either.
+    // thrown by hand. dothrow.c:1640-1647 halves the range and continues;
+    // it does not require a launcher for this ordinary ammo arm.
     const unassisted = arena();
     const shafts = item(unassisted, ARROW, { quan: 5 });
     const bow = item(unassisted, BOW, { owornmask: W_SWAPWEP });
@@ -1783,9 +1802,13 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
     unassisted.uquiver = shafts;
     unassisted.iflags.fireassist = false;
     aimEast(unassisted);
-    await assert.rejects(
-        () => dofire(unassisted), /ammo without a launcher/u,
-    );
+    assert.equal(await dofire(unassisted), ECMD_TIME);
+    assert.equal(shafts.quan, 4);
+    const landed = pileAt(unassisted, 5, 4);
+    assert.equal(landed.length, 1);
+    assert.equal(landed[0].otyp, ARROW);
+    assert.equal(landed[0].quan, 1);
+    assert.equal(landed[0].where, OBJ_FLOOR);
     // With it on, :566 finds the launcher in the secondary slot, swaps to it
     // and reissues the command without spending a turn.
     const assisted = arena();
