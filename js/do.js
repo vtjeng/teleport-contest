@@ -7,9 +7,12 @@
 // kill_genocided_monsters(); questpgr.c deliver_splev_message().
 
 import {
+    ACH_ASTR,
     ACH_BGRM,
     ACH_ENDG,
     ACH_HELL,
+    ACH_MINE,
+    ACH_SOKO,
     A_DEX,
     BOTH_SIDES,
     BLINDED,
@@ -38,8 +41,11 @@ import {
     IS_WATERWALL,
     IS_SINK,
     In_endgame,
+    In_mines,
     In_quest,
+    In_sokoban,
     In_tutorial,
+    Is_knox_level,
     KILLED_BY,
     LADDER,
     LEG,
@@ -175,6 +181,7 @@ import {
     PM_DEATH,
     PM_FAMINE,
     PM_PESTILENCE,
+    PM_CROESUS,
     PM_ROGUE,
     PM_TOURIST,
 } from './monsters.js';
@@ -1578,8 +1585,9 @@ export function updateDunlevReached(level, state = game) {
 // the arrival tail at 1967-1993.
 //
 // Not covered, each named at its site: the endgame, tutorial, portal, trap-door
-// falling, mounted falling, Gehennom, Knox, Mines, Sokoban and
-// Rogue-level arms. The getlev()
+// falling, mounted falling, and several migration/cleanup arms remain behind
+// their source owners. Gehennom, Knox, Mines, Sokoban and the
+// Rogue-level arms are implemented below. The getlev()
 // reload at 1704-1711 and the ascending-at-stairs placement and message at
 // 1747-1764 are now ported. Common Quest-entrance, shop-entry, object pickup,
 // and dwarf earth-sense arrival effects are included below.
@@ -2003,21 +2011,47 @@ export async function goto_level(
         await familiar_level_msg(state);
 
     // C ref: do.c:1882-1932. Arrival arms keyed on the destination dungeon.
-    // The if/else-if chain is mutually exclusive: exactly one arm fires. The
-    // other endgame branches remain outside this level-change slice.
+    // The if/else-if chain is mutually exclusive: exactly one arm fires. Keep
+    // the branch tests ahead of the ordinary main-dungeon messages because
+    // the arrival achievement is part of the level-change output order.
     if (In_endgame(u.uz)) {
         // C ref: do.c:1884-1890. A first arrival in an endgame dungeon
-        // forces the Wizard's confrontation when the hero carries the
-        // Amulet; this is the source of the intervening message and RNG
-        // sequence before temperature_change_msg().
+        // records Endgame, then Astral on a newly created Astral level. The
+        // guardian-angel setup is a discarded return from a still-unported
+        // source helper; retain its call boundary before the achievement.
         if (newdungeon) record_achievement(ACH_ENDG, state);
-        if (!(isNew && on_level(u.uz, state.astral_level))
-            && newdungeon && u.uhave?.amulet) {
+        if (isNew && on_level(u.uz, state.astral_level)) {
+            note_unported('do.c final_level');
+            record_achievement(ACH_ASTR, state);
+        } else if (newdungeon && u.uhave?.amulet) {
+            // C resurrect() returns no value and is already the canonical
+            // caller for this arm.
             await resurrect(state, { makemon, redraw: newsym });
         }
     } else if (In_quest(u.uz)) {
         // C ref: do.c:1891-1892.
         await onquest(state);
+    } else if (Is_knox_level(u.uz)) {
+        // C ref: do.c:1893-1904. Croesus stops the alarm after his death;
+        // on a fresh level the alarm always sounds. The C Soundeffect call is
+        // silent in the tty recorder, while every living monster is woken.
+        const croesusVital = (state.svm?.mvitals ?? state.mvitals)
+            ?.[PM_CROESUS];
+        if (isNew || !croesusVital?.died) {
+            await ttyPline('You have penetrated a high security area!', state);
+            await ttyPline('An alarm sounds!', state);
+            for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+                if ((mtmp.mhp ?? 0) < 1) continue;
+                mtmp.msleeping = false;
+            }
+        }
+    } else if (In_mines(u.uz)) {
+        // C ref: do.c:1905-1907. Only a cross-dungeon arrival counts; moving
+        // between Mines levels does not record the achievement again.
+        if (newdungeon) record_achievement(ACH_MINE, state);
+    } else if (In_sokoban(u.uz)) {
+        // C ref: do.c:1908-1910.
+        if (newdungeon) record_achievement(ACH_SOKO, state);
     } else {
         // do.c:1912-1914. The Rogue level has its own arrival line before
         // the big-room achievement check.
@@ -2092,6 +2126,10 @@ export async function goto_level(
     // do.c:1984-1987 fix_shop_damage() catches a shopkeeper up on repairs;
     // it runs only when `new` is false, and this arm always generated.
     // do.c:1989-1992 charges fall damage, which needs `falling`.
+    if (!isNew)
+        // fix_shop_damage() has no source owner in the current shopkeeper
+        // port; C discards its result after catching up the repair bill.
+        note_unported('shk.c fix_shop_damage');
 
     await pickup(1, state);
 }

@@ -1,6 +1,7 @@
-// Focused tests for do.c dodown() and goto_level()'s opening phase, plus the
-// helpers they reach: hack.c u_rooted(), steed.c stucksteed(), cmd.c
-// set_move_cmd(), and trap.c uteetering_at_seen_pit() / uescaped_shaft().
+// Focused tests for do.c dodown() and goto_level()'s opening and arrival
+// phases, plus the helpers they reach: hack.c u_rooted(), steed.c stucksteed(),
+// cmd.c set_move_cmd(), and trap.c uteetering_at_seen_pit() /
+// uescaped_shaft().
 //
 // The recorded evidence is two matrices, both of which compare complete
 // screens, cursors and random-number calls against fresh C recordings:
@@ -15,6 +16,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    ACH_MINE,
     DIR_DOWN,
     DIR_W,
     ECMD_OK,
@@ -63,6 +65,11 @@ const REFUSAL = "You can't go down here.";
 const FALLING_SESSION =
     'sessions/seed0014-dequa-fountain-explore.session.json';
 const FALLING_STEP = 481; // The recorded '>' step that first reaches the fall.
+
+const MINES_RECIPES = [
+    'recipes/do.c/goto-level-mines-independent.session.json',
+    'recipes/do.c/goto-level-mines-variation.session.json',
+];
 
 // gt.toplines, which pline.c writes whether or not the row has been repainted.
 function toplines(state) {
@@ -118,6 +125,42 @@ test('goto_level keeps reglyph_darkroom between generation and arrival setup',
     );
     assert.ok(jsGenerate >= 0 && jsGenerate < jsReglyph);
     assert.ok(jsReglyph < jsArrivalReset);
+});
+
+test('goto_level records the Mines achievement on a new Mines arrival',
+    async () => {
+    // do.c:1905-1907. This is a production level-teleport route: the wizard
+    // menu selects the Mines branch, so goto_level() crosses dnum and records
+    // ACH_MINE after the destination has been generated and redrawn.
+    for (const recipePath of MINES_RECIPES) {
+        const recipe = JSON.parse(readFileSync(recipePath, 'utf8'));
+        const segment = recipe.segments[0];
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        await runSegment(segment);
+        assert.equal(game.u.uz.dnum, game.mines_dnum,
+            `${recipePath} reaches the Mines dungeon`);
+        assert.ok(game.u.uachieved.includes(ACH_MINE),
+            `${recipePath} records ACH_MINE`);
+    }
+});
+
+test('goto_level keeps the C special-dungeon arrival branch order', () => {
+    // do.c:1893-1910 has Knox, Mines, then Sokoban as one mutually exclusive
+    // chain. Pin those source names and their order alongside the production
+    // recordings above so an achievement cannot move ahead of the alarm or a
+    // different dungeon branch.
+    const cStart = C_SOURCE.indexOf('\ngoto_level(\n');
+    const cBody = C_SOURCE.slice(cStart);
+    const jsStart = JS_SOURCE.indexOf('export async function goto_level');
+    const jsBody = JS_SOURCE.slice(jsStart);
+    for (const body of [cBody, jsBody]) {
+        const knox = body.indexOf('Is_knox');
+        const mines = body.indexOf('In_mines');
+        const soko = body.indexOf('In_sokoban');
+        assert.ok(knox >= 0 && mines > knox && soko > mines);
+    }
+    const jsMines = jsBody.indexOf('record_achievement(ACH_MINE');
+    assert.ok(jsMines > jsBody.indexOf('In_mines'));
 });
 
 test('the descend-refusal matrix contains only source-selected inputs', () => {

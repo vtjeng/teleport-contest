@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7294020,
+      "datetime": "20330417113000",
+      "nethackrc": "OPTIONS=name:MineB30c,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0016?\n w"
+    }
+  ]
+}
