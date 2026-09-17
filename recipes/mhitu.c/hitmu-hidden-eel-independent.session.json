@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Planned input-only setup for the mhitu.c hitmu() hidden-attacker entry. The JavaScript read.c create_particular_parse()/create_particular_creation() port currently refuses the hidden/hostile qualifiers. No recording validates this input yet. After that dependency lands, verify aquatic placement and hidden state, then add inputs that actually produce a hit before claiming entry coverage.",
+  "segments": [
+    {
+      "seed": 50301,
+      "datetime": "20010704120000",
+      "nethackrc": "OPTIONS=name:Conan,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!autopickup,blind\n",
+      "moves": " .\u0007hidden hostile giant eel\n"
+    }
+  ]
+}
