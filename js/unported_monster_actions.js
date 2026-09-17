@@ -23,12 +23,10 @@ import {
     FIRE_RES,
     HEADSTONE,
     INVIS,
-    IS_FOUNTAIN,
     IS_OBSTRUCTED,
     IS_ROOM,
     IS_STWALL,
     IS_TREE,
-    IS_WATERWALL,
     MON_FLOOR,
     MON_MIGRATING,
     NEED_WEAPON,
@@ -97,7 +95,6 @@ import {
     wake_msg,
 } from './mon.js';
 import {
-    breathless,
     defended,
     is_covetous,
     is_swimmer,
@@ -120,8 +117,6 @@ import {
     AT_MAGC,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
-    PM_GREMLIN,
-    PM_IRON_GOLEM,
     PM_KILLER_BEE,
     PM_KITTEN,
     PM_LEPRECHAUN,
@@ -181,8 +176,9 @@ import {
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
-import { noteleport_level } from './teleport.js';
+import { noteleport_level, rloc } from './teleport.js';
 import { ttyPline, ttyPlineWillWait } from './tty_message.js';
+import { note_unported } from './unported.js';
 import { passive_obj } from './uhitm.js';
 import { clear_bypasses } from './worn.js';
 import {
@@ -272,58 +268,10 @@ function assertSimpleScanState(monster, state) {
     // path -- they all describe branches mon.c only takes after the movement
     // debit -- so they are deliberately skipped rather than merely bypassed.
     if (monster.movement < NORMAL_SPEED) return true;
-    // mon.c restrap() and movemon_singlemon()'s S_EEL concealment arm are
-    // both ported, so an M1_HIDE monster and an eel are scanned like any
-    // other monster; mon.c hideunder() raises its own boundary class for the
-    // arms it does not cover.
-    const liquidReason = unportedMinliquidReason(monster, state);
-    if (liquidReason) unsupported(liquidReason);
+    // mon.c restrap(), hideunder(), and minliquid() are all ported for this
+    // scan. The source-specific liquid arms spend their own draws in the
+    // canonical minliquid_core() owner instead of being refused here.
     return true;
-}
-
-// C ref: mon.c minliquid_core() (961-1122). The ordinary pool and lava
-// branches run through js/mon.js minliquid_core(). This predicate retains the
-// three species-specific arms that port does not carry, each of which draws
-// a random number ahead of every later draw in the turn, so answering null
-// for any of them would move the whole random-number log with no stop to mark
-// it.
-//
-// The first two sit before either liquid arm, at :987 and :993, and read
-// `inpool` (:967) and `infountain` (:973). C's `inpool` exempts a flyer or
-// floater outside the Plane of Water; a gremlin (monsters.h:448, M1_SWIM) and
-// an iron golem (monsters.h:2586) are neither, so for these two species
-// is_pool() alone is C's `inpool` on every level.
-//
-// A gremlin on `(inpool || infountain)` draws rn2(3), and on a nonzero roll
-// calls split_mon(), dryup() and, in a pool, water_damage_chain(), then
-// returns 0. An iron golem in a pool draws rn2(5), and on a zero roll draws
-// d(2,6), prints "rusts", loses hit points and may die. Neither is ported, so
-// both are refused on the square the monster stands on. A fountain is
-// ordinary terrain for every other species, which reads the square through
-// `inpool` and `inlava` alone.
-//
-// The eel is the third, and it is the `else` of the pool arm at :1111-1119: an
-// eel that is neither in water nor in lava loses hit points to
-// `rn2(mtmp->mhp) > rn2(8)` and is sent fleeing by monflee(). Neither effect
-// is ported. mklev() only ever places an eel in water, but wizcmds.c
-// wiz_genesis() can put one on dry land, because goodpos() accepts a dry
-// square for an eel one time in thirteen (teleport.c:148).
-export function unportedMinliquidReason(monster, state) {
-    const location = state.level?.at?.(monster.mx, monster.my);
-    const inpool = is_pool(monster.mx, monster.my, state);
-    const infountain = Boolean(location && IS_FOUNTAIN(location.typ));
-    if (monsndx(monster.data) === PM_GREMLIN && (inpool || infountain))
-        return 'a gremlin multiplying in water';
-    if (monsndx(monster.data) === PM_IRON_GOLEM && inpool)
-        return 'an iron golem rusting in water';
-    if (monster.data?.mlet === S_EEL
-        && !is_pool(monster.mx, monster.my, state)
-        && !is_lava(monster.mx, monster.my, state)
-        && !(location && IS_WATERWALL(location.typ))
-        && !on_level(state.u?.uz, state.water_level)
-        && !breathless(monster.data))
-        return 'an eel out of water';
-    return null;
 }
 
 function assertSimpleActionState(monster, state) {
@@ -1859,17 +1807,43 @@ async function planSimpleMonsterScan(monster, env) {
             unsupported,
             message: async () => {},
             canSee: (x, y) => cansee(x, y, subjectEnv.state),
-            relocateMonster: () => unsupported(
-                'monster liquid relocation',
+            // minliquid() consumes rloc()'s boolean to choose its
+            // post-liquid continuation. Run the complete ordinary relocation
+            // owner against the planning clone and silence only its redraw
+            // and message seams.
+            relocateMonster: (subject, flags, relocationEnv) => rloc(
+                subject,
+                flags,
+                {
+                    ...relocationEnv,
+                    state: subjectEnv.state,
+                    random: relocationEnv.random,
+                    message: async () => {},
+                    newsym: () => {},
+                    onscary: (x, y, target) => onscary(
+                        x,
+                        y,
+                        target,
+                        subjectEnv.state,
+                    ),
+                    setApparxy: (target, setEnv) => set_apparxy(target, {
+                        ...setEnv,
+                        state: subjectEnv.state,
+                        random: relocationEnv.random,
+                    }),
+                },
             ),
-            fireDamageChain: () => unsupported(
-                'monster fire inventory damage',
+            fireDamageChain: () => note_unported(
+                'trap.c fire_damage_chain',
             ),
-            waterDamageChain: () => unsupported(
-                'monster water inventory damage',
+            waterDamageChain: () => note_unported(
+                'trap.c water_damage_chain',
             ),
-            dealWithOvercrowding: () => unsupported(
-                'monster liquid overcrowding',
+            // C ignores this return value. The level-transition body remains
+            // outside the selected span, so record its actual discarded call
+            // and let the source caller continue.
+            dealWithOvercrowding: () => note_unported(
+                'mon.c deal_with_overcrowding',
             ),
             hooks: {
                 ...(subjectEnv.hooks ?? {}),

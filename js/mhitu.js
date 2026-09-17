@@ -15,6 +15,7 @@ import {
     DIED,
     FIRE_RES,
     FEMALE,
+    G_EXTINCT,
     HALF_PHDAM,
     INVIS,
     M_AP_NOTHING,
@@ -25,8 +26,11 @@ import {
     M_ATTK_HIT,
     M_ATTK_MISS,
     MALE,
+    MM_EDOG,
+    MM_NOMSG,
     M_SEEN_COLD,
     NATTK,
+    NO_MINVENT,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     PROTECTION,
@@ -67,16 +71,19 @@ import { reset_occupations } from './cmd.js';
 import {
     Monnam,
     capitalizedMonsterName,
+    christen_monst,
     hliquid,
     monsterPossessive,
     pmname,
 } from './do_name.js';
+import { initedog } from './dog.js';
 import { In_hell, on_level } from './dungeon.js';
 import { done_in_by } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage, spoteffects } from './hack.js';
 import { dist2, distmin } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
+import { makemon } from './makemon_create.js';
 import {
     attk_protection,
     engulf_target,
@@ -107,6 +114,7 @@ import {
     dmgtype,
     gender,
     mhis,
+    monsndx,
     monstunseesu,
     mon_hates_blessings,
     perceives,
@@ -133,7 +141,7 @@ import {
 } from './objects.js';
 import { xnameFresh } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
-import { d, rn2, rn2_on_display_rng } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -181,6 +189,45 @@ export class MonsterDeathPlanningError extends Error {
         this.monsterId = monster.m_id;
         this.how = DIED;
     }
+}
+
+// C ref: mhitu.c cloneu() (2616-2640).  The clone is created through the
+// ordinary makemon() owner, then initialized as a dog before its hit-point
+// pool is split.  This return value is consumed by potion.c split_mon(), so a
+// failed creation returns null and never mutates the hero's pool.
+export async function cloneu(rawState = game, rawEnv = {}) {
+    const state = rawEnv.state ?? rawState ?? game;
+    const random = {
+        d,
+        rn1,
+        rn2,
+        rnd,
+        rne,
+        ...(rawEnv.random ?? {}),
+    };
+    const mndx = monsndx(state.youmonst?.data);
+    if (state.u.mh <= 1)
+        return null;
+    if ((state.mvitals?.[mndx]?.mvflags ?? 0) & G_EXTINCT)
+        return null;
+    let monster = await makemon(
+        state.youmonst.data,
+        state.u.ux,
+        state.u.uy,
+        NO_MINVENT | MM_EDOG | MM_NOMSG,
+        { ...rawEnv, state, random },
+    );
+    if (!monster)
+        return null;
+    monster.mcloned = true;
+    monster = christen_monst(monster, state.plname, { ...rawEnv, state });
+    initedog(monster, true, { ...rawEnv, state, random });
+    monster.m_lev = state.youmonst.data.mlevel;
+    monster.mhpmax = state.u.mhmax;
+    monster.mhp = Math.trunc(state.u.mh / 2);
+    state.u.mh -= monster.mhp;
+    state.disp.botl = true;
+    return monster;
 }
 
 function requireMattackuOperation(env, name) {
@@ -1611,9 +1658,8 @@ export function ranged_attk_available(mtmp, rawEnv = {}) {
 //
 // The source calls whose results are discarded but whose full owners
 // are outside this span remain named at their call sites: erode_armor,
-// acid_damage, drain_item, shieldeff, and split_mon.  Their surrounding
-// source branches still consume the conditional draws before recording the
-// discarded call.
+// acid_damage, drain_item, and shieldeff. Their surrounding source branches
+// still consume the conditional draws before recording the discarded call.
 async function assess_dmg(mtmp, tmp, state, env) {
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
@@ -1810,8 +1856,17 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             state.u.mh += Math.trunc((tmp + random.rn2(2)) / 2);
             if (state.u.mhmax < state.u.mh)
                 state.u.mhmax = state.u.mh;
-            if (state.u.mhmax > ((state.youmonst.data.mlevel + 1) * 8))
-                note_unported('mon.c split_mon');
+            if (state.u.mhmax > ((state.youmonst.data.mlevel + 1) * 8)) {
+                // C discards split_mon()'s returned clone, but the call still
+                // performs the hero HP/max-HP split before passiveum returns.
+                const { split_mon } = await import('./potion.js');
+                await split_mon(state.youmonst, mtmp, {
+                    ...env,
+                    state,
+                    random,
+                    message,
+                });
+            }
             break;
         case M.AD_STUN:
             if (!mtmp.mstun) {

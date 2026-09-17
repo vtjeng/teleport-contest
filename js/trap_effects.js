@@ -322,7 +322,7 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { is_ice } from './terrain.js';
 import { end_burn, fall_asleep } from './timeout.js';
-import { self_invis_message } from './potion.js';
+import { self_invis_message, split_mon } from './potion.js';
 import { note_unported } from './unported.js';
 import { dmgval } from './weapon.js';
 import {
@@ -2780,7 +2780,13 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
                 state,
             );
         } else if (state.u.umonnum === PM_GREMLIN && random.rn2(3)) {
-            note_unported('potion.c split_mon');
+            // C discards split_mon()'s clone pointer, but the source call
+            // still performs the hero HP/max-HP split and emits its message.
+            await split_mon(state.youmonst, null, {
+                ...env,
+                state,
+                random,
+            });
         }
         return Trap_Effect_Finished;
     }
@@ -2871,7 +2877,13 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         await monkilled(mtmp, null, AD_RUST, state, env);
         if (mtmp.mhp < 1) trapkilled = true;
     } else if (mptr?.pmidx === PM_GREMLIN && random.rn2(3)) {
-        note_unported('potion.c split_mon');
+        // The monster caller discards the returned clone, while its split
+        // state and source message remain observable before the trap result.
+        await split_mon(mtmp, null, {
+            ...env,
+            state,
+            random,
+        });
     }
 
     return trapkilled ? Trap_Killed_Mon
