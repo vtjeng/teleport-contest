@@ -62,11 +62,7 @@ import {
     D_BROKEN,
     D_ISOPEN,
     D_NODOOR,
-    DB_ICE,
-    DB_UNDER,
     DRAWBRIDGE_DOWN,
-    DRAWBRIDGE_UP,
-    ICE,
     IRONBARS,
     IS_ALTAR,
     IS_DOOR,
@@ -75,7 +71,6 @@ import {
     IS_SINK,
     IS_THRONE,
     TREE,
-    MELT_ICE_AWAY,
     P_BOW,
     P_CROSSBOW,
     P_DAGGER,
@@ -167,7 +162,7 @@ import {
 } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
-import { digit, dist2, ing_suffix, letter, s_suffix, visctrl } from './hacklib.js';
+import { digit, ing_suffix, letter, s_suffix, visctrl } from './hacklib.js';
 import {
     LOW_PM,
     PM_ARCHEOLOGIST,
@@ -209,14 +204,12 @@ import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool, t_at, Levitation } from './trap.js';
+import { is_lava, is_pool, t_at } from './trap.js';
 import { hidden_gold } from './vault.js';
-import { cansee } from './vision.js';
-import { spot_time_left } from './timeout.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
-import { waterbody_name } from './pager.js';
+import { ice_descr } from './pager.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -375,44 +368,6 @@ export class UnsupportedFeatureDescriptionError extends Error {
         this.name = 'UnsupportedFeatureDescriptionError';
         this.helper = helper;
     }
-}
-
-// C ref: pager.c waterbody_name() and ice_descr() (560-649). The terrain name
-// has one canonical pager owner; invent.c only owns the ice distance/timer
-// wording around it.
-function iceWaterbodyName(x, y, state) {
-    return waterbody_name(x, y, state);
-}
-
-export function ice_descr(x, y, state) {
-    const icetyp = ['solid', 'sturdy', 'steady', 'unsteady', 'thin', 'slushy'];
-    state.iflags ??= {};
-    state.iflags.ice_rating = -1;
-    const location = state.level?.at(x, y);
-    const surfaceIsIce = location?.typ === ICE
-        || (location?.typ === DRAWBRIDGE_UP
-            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
-    if (!surfaceIsIce) return `[ice:${location?.typ ?? 0}?]`;
-
-    const range = Math.max(Math.trunc(state.u?.xray_range ?? 0), 2);
-    const nearDistance = range * range * 2 - range;
-    const distant = dist2(x, y, state.u.ux, state.u.uy) > nearDistance;
-    const unseen = !cansee(x, y, state)
-        && (!u_at(x, y, state) || Levitation(state));
-    if ((distant || unseen) && !state.gd?.decor_levitate_override)
-        return iceWaterbodyName(x, y, state);
-
-    let timeLeft = 0;
-    if (state.gt && state.svt) {
-        timeLeft = spot_time_left(x, y, MELT_ICE_AWAY, state);
-    }
-    const rating = !timeLeft ? 0
-        : timeLeft > 1000 ? 1
-            : timeLeft > 100 ? 2
-                : timeLeft > 50 ? 3
-                    : timeLeft > 14 ? 4 : 5;
-    state.iflags.ice_rating = rating;
-    return `${icetyp[rating]} ${iceWaterbodyName(x, y, state)}`;
 }
 
 function altarDeityName(alignment, state) {
