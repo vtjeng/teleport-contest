@@ -59998,7 +59998,7 @@
     {
       "id": "port-worn-m-dowear-seed0399-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
       "cFile": "worn.c",
       "sessions": [
@@ -60009,8 +60009,8 @@
       "spans": [
         {
           "name": "update_mon_extrinsics..m_dowear_type",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "458502483861dd0a4e9992fbbf4e88db9d84c774",
           "functions": [
             "update_mon_extrinsics",
             "find_mac",
@@ -60136,15 +60136,15 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 4,
+        "rng": 192
       },
       "parkedStanding": {
-        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
-        "screens": 11002,
-        "rng": 784683
+        "sha": "458502483861dd0a4e9992fbbf4e88db9d84c774",
+        "screens": 11127,
+        "rng": 785649
       },
-      "parkedReason": "The queued worn.c update_mon_extrinsics..m_dowear_type span is still awaiting corrected production recording and canonical caller wiring from worker B. No game code has been integrated for it; resume this planned span when its corrected delivery is ready, after the independent ready break_armor span is measured.",
+      "parkedReason": "The four-function source span is verified and the independent pickup recording reaches live armor reassessment through the wearing turn. Creation/custom inventory, artifact-light output, polymorph and other caller families remain unrecorded; keep these entry gaps open. The formerly blocked seed0399 now matches all532 screens. Root restored W_ARMH for the existing rnd_offensive_item caller after its Castle fixture exposed the removed import.",
       "evidence": {
         "functions": [
           {
