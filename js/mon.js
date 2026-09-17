@@ -4505,7 +4505,7 @@ export function dealloc_monst(mon) {
 //
 // 2721-2722's seemimic() stops. A monster whose appearance is neither
 // M_AP_NOTHING nor M_AP_MONSTER is showing a false object or piece of
-// furniture, and revealing it needs display.c seemimic(), which wakeup() above
+// furniture, and revealing it needs mon.c seemimic(), which wakeup() above
 // already records as unported.
 //
 // js/dog.js relmon() and js/makemon_create.js mongone() hold the other two

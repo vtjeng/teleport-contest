@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent detect.c mfind0() production witness: debug genesis creates an invisible stalker, then explicit search reaches the unseen-monster arm. The seed, datetime, role and inputs are independent of fixed workload sessions.",
+  "segments": [
+    {
+      "seed": 9841007,
+      "datetime": "20330412111317",
+      "nethackrc": "OPTIONS=name:SenseProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " \u0007stalker\ns."
+    }
+  ]
+}

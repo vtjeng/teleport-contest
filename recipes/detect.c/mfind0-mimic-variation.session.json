@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent detect.c mfind0() variation: a distinct lawful Valkyrie setup creates a small mimic, then explicit search reaches the seemimic-backed discovery arm. The seed, datetime, role and inputs differ from the invisible-stalker witness.",
+  "segments": [
+    {
+      "seed": 9841013,
+      "datetime": "20340623150719",
+      "nethackrc": "OPTIONS=name:MimicProbe,role:Valkyrie,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " \u0007small mimic\ns."
+    }
+  ]
+}

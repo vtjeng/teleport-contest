@@ -68,6 +68,9 @@ import {
     glyph_is_warning,
     glyph_at,
     feel_location,
+    map_invisible,
+    map_invisible_planning,
+    warning_of,
     glyph_to_cmap,
     hero_glyph_info,
     map_glyphinfo,
@@ -95,6 +98,10 @@ import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
 import { NUMMONS, S_EEL } from './monsters.js';
 import { m_at } from './monst.js';
+// seemimic() is the mon.c owner; display.c supplies only the glyph/display
+// helpers it calls.
+import { seemimic as monSeemimic } from './mon.js';
+import { a_monnam, y_monnam } from './do_name.js';
 import { isBox, sobj_at } from './obj.js';
 import { CHEST, LARGE_BOX, LENSES } from './objects.js';
 import { visible_region_at } from './region.js';
@@ -110,10 +117,11 @@ import {
     S_stone,
     S_tree,
 } from './symbols.js';
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, sensesMonster } from './startup_a11y.js';
 import { t_at, trapname } from './trap.js';
 import {
     dismissPendingTtyMessage,
+    displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -553,7 +561,7 @@ function coordinateDescription(x, y, state) {
     return '';
 }
 
-async function defaultMessage(text, x, y, env) {
+export async function defaultSearchMessage(text, x, y, env) {
     const rendered = env.state.a11y?.accessiblemsg
         ? `${coordinateDescription(x, y, env.state)}: ${text}`
         : text;
@@ -592,6 +600,27 @@ function defaultSearchDisplay(x, y, env) {
     // C's newsym() is side-effect-only. find_trap() then compares levl's
     // canonical remembered glyph, not the presentation currently covering it.
     newsym(x, y);
+}
+
+// C ref: detect.c mfind0()'s map_invisible() call.  The display owner keeps
+// both the live and clone memory writes; the explicit planning seam selects
+// its no-paint half for a cloned level.
+function defaultMapInvisible(x, y, env) {
+    if (env.state === game) {
+        map_invisible(x, y, env.state);
+        return;
+    }
+    map_invisible_planning(x, y, env.state);
+}
+
+async function silentSearchMessage() {}
+
+async function defaultDisplayPendingTtyMessageWindow(env) {
+    // display_nhwindow(WIN_MESSAGE, FALSE) is a live TTY operation. A search
+    // planning clone owns its message state but must neither consume live
+    // input nor retire the live message window.
+    if (env.planning || env.state !== game) return;
+    await displayPendingTtyMessageWindow(env.state);
 }
 
 // C ref: display.c _map_location().  Every location admitted by this
@@ -730,6 +759,15 @@ function normalizeSearchEnv(rawEnv = {}) {
         // detect.c mfind0()'s bare newsym(), which is not routed through
         // feel_location() the way the two secret-terrain arms are.
         newSym: operation('newSym', defaultSearchDisplay),
+        mapInvisible: operation('mapInvisible', defaultMapInvisible),
+        seemimic: operation(
+            'seemimic',
+            (monster, mimicEnv) => monSeemimic(
+                monster,
+                state,
+                mimicEnv,
+            ),
+        ),
         displayFoundTrap: operation(
             'displayFoundTrap',
             defaultFoundTrapDisplay,
@@ -747,7 +785,18 @@ function normalizeSearchEnv(rawEnv = {}) {
         // detect.c calls nomul(0) at 2048, 2058 and 2080, which js/hack.js
         // owns along with the end_running(TRUE) inside it.
         nomulZero: operation('nomulZero', ({ state }) => nomul(0, state)),
-        message: operation('message', defaultMessage),
+        // The live fallback is the coordinate-aware pline path. A planning
+        // clone gets a silent operation without becoming an injected caller,
+        // so preflightTrap() keeps its source wait contract unchanged.
+        message: operation(
+            'message',
+            state === game && !rawEnv.planning
+                ? defaultSearchMessage : silentSearchMessage,
+        ),
+        displayPendingTtyMessageWindow: operation(
+            'displayPendingTtyMessageWindow',
+            defaultDisplayPendingTtyMessageWindow,
+        ),
         // C ref: detect.c:1956, trapname(trap->ttyp, FALSE). A hallucinating
         // hero needs the branch js/trap.js trapname() leaves unported, which
         // requireInjected() above demands an injection for, so the default
@@ -848,41 +897,18 @@ function preflightTrap(env, trap) {
 }
 
 /**
- * The three discovery arms of detect.c mfind0(), which decide whether a
- * monster on an adjacent square is found rather than merely redrawn.  Each one
- * exercises Wisdom, writes a message and needs something this port does not
- * have: seemimic(), the mundetected reveal, or -- for an unspotted monster --
- * detect.c:2003-2005's `You_feel("an unseen monster!")` with the set_msg_xy()
- * that places its cursor, and the `-1` at 1997 that declines to spend the turn
- * when the square already carries the marker.
- *
- * mfind0() calls this at the square it is looking at and
- * preflightExplicitSearch() calls it at all eight, so a refusal here always
- * happens before the loop's first rnl().
+ * Validate the operations mfind0() can use before explicit search spends its
+ * first random draw.  The discovery branches themselves are source-owned now;
+ * this check only verifies their operation seams, so a mimic, hidden hider,
+ * or unspotted monster is allowed to reach the corresponding C behavior.
  */
 function preflightSearchMonster(monster, env) {
-    const { state } = env;
     validateDisplayCapability(env, 'newSym', 'an adjacent monster');
-    if (M_AP_TYPE(monster)) {
-        throw new UnsupportedSearchError(
-            'searching out a mimicking monster needs seemimic()',
-        );
-    }
-    // display.h mon_visible() requires !mundetected, so a hidden monster fails
-    // canspotmon() as well and mfind0() reaches both arms. Test the narrower
-    // condition first so the refusal names the branch that really applies.
-    if (monster.mundetected
-        && (is_hider(monster.data) || hides_under(monster.data)
-            || monster.data?.mlet === S_EEL)) {
-        throw new UnsupportedSearchError(
-            'searching out a hidden monster is not ported',
-        );
-    }
-    if (!canSpotMonster(monster, state)) {
-        throw new UnsupportedSearchError(
-            'searching out an unspotted monster needs its own message',
-        );
-    }
+    requireOperation(env, 'exerciseWisdom', 'an adjacent monster');
+    requireOperation(env, 'message', 'an adjacent monster');
+    requireOperation(env, 'mapInvisible', 'an unseen adjacent monster');
+    if (M_AP_TYPE(monster))
+        requireOperation(env, 'seemimic', 'a mimicking adjacent monster');
 }
 
 /**
@@ -953,21 +979,86 @@ function preflightExplicitSearch(env) {
     }
 }
 
-/**
- * C ref: detect.c mfind0(), restricted to via_warning == 0 and to the
- * found_something == FALSE result.  warnreveal() is the only caller that
- * passes 1, and preflightSearchMonster() refuses every input that would set
- * found_something, so what remains is the redraw and the 0 return.
- */
+/** C ref: detect.c mfind0() (1967-2013), including both callers' flags. */
 async function mfind0(monster, via_warning, env) {
-    if (via_warning) {
-        throw new UnsupportedSearchError(
-            'mfind0 danger-sense discovery is not ported',
-        );
+    const { state } = env;
+    const x = monster.mx;
+    const y = monster.my;
+    if (via_warning && !warning_of(monster, state)) return -1;
+
+    let foundSomething = false;
+    if (M_AP_TYPE(monster)) {
+        // display.c seemimic() has a discarded return in C, but its map and
+        // monster state changes are observable, so pass the search seams into
+        // the existing complete owner rather than replacing them with a gap.
+        await env.seemimic(monster, {
+            ...env,
+            newsym: (sx, sy) => env.newSym(sx, sy, env),
+            unblockPoint: (sx, sy) => env.unblockPoint(sx, sy, env),
+        });
+        foundSomething = true;
+    } else {
+        // This is intentionally sampled before mundetected is cleared, as in
+        // C's `found_something = !canspotmon(mtmp)`.
+        foundSomething = !canSpotMonster(monster, state);
+        if (monster.mundetected
+            && (is_hider(monster.data) || hides_under(monster.data)
+                || monster.data?.mlet === S_EEL)) {
+            if (via_warning && foundSomething) {
+                await env.message(
+                    `Your danger sense causes you to take a second ${
+                        propertyActiveUnblocked(state.u, BLINDED)
+                            ? 'to check nearby' : 'look close by'}.`,
+                    x,
+                    y,
+                    env,
+                );
+                // detect.c mfind0(): display_nhwindow(WIN_MESSAGE, FALSE)
+                // flushes this warning before mundetected/newsym continue.
+                await env.displayPendingTtyMessageWindow(env);
+            }
+            monster.mundetected = 0;
+            foundSomething = true;
+        }
+        await env.newSym(x, y, env);
     }
-    preflightSearchMonster(monster, env);
-    await env.newSym(monster.mx, monster.my, env);
-    return 0;
+
+    if (!foundSomething) return 0;
+
+    const spotted = canSpotMonster(monster, state);
+    if (!spotted && glyph_is_invisible(
+        state.level.at(x, y).remembered_glyph?.glyph,
+    )) return -1;
+
+    await env.exerciseWisdom(env);
+    if (!spotted) {
+        await env.mapInvisible(x, y, env);
+        await env.message('You feel an unseen monster!', x, y, env);
+    } else if (!sensesMonster(monster, state)) {
+        const name = monster.mtame
+            ? y_monnam(monster, state, env)
+            : a_monnam(monster, { ...env, state });
+        await env.message(`You find ${name}.`, x, y, env);
+    }
+    return 1;
+}
+
+/** C ref: detect.c warnreveal() (2107-2119). */
+export async function warnreveal(rawEnv = {}) {
+    const env = normalizeSearchEnv(rawEnv);
+    const { state } = env;
+    for (let x = state.u.ux - 1; x <= state.u.ux + 1; ++x) {
+        for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y) {
+            if (!isok(x, y) || u_at(x, y, state)) continue;
+            const monster = m_at(x, y, state);
+            if (monster && warning_of(monster, state)
+                && monster.mundetected) {
+                // C discards this return; the reveal/message side effects are
+                // retained by mfind0() itself.
+                await mfind0(monster, 1, env);
+            }
+        }
+    }
 }
 
 function artifactSearchAbility(object, state) {
@@ -1190,12 +1281,10 @@ async function findTrap(trap, env) {
  * adjacent square, searches out adjacent monsters through mfind0(), and
  * reconciles a remembered invisible monster through unmap_invisible().
  *
- * The two flags resolve their unported cases at opposite ends of the loop, and
- * deliberately so.  Automatic searching cannot be retried, because the turn
- * that ran it is already spent, so it refuses inside the loop after the source
- * rnl() has already succeeded, which keeps the draw sequence intact.  The
- * explicit command can be retried, so preflightExplicitSearch() decides every
- * refusal over all eight squares before the first draw.
+ * The explicit command can be retried, so preflightExplicitSearch() decides
+ * its remaining swallowed and trap refusals over all eight squares before the
+ * first draw.  The source mfind0() arms are complete and therefore run from
+ * the loop for both mimics and unspotted or hidden monsters.
  */
 export async function dosearch0(aflag, rawEnv = {}) {
     const explicit = aflag === 0 || aflag === false;
