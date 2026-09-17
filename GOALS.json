@@ -57718,7 +57718,7 @@
           "line": 6794,
           "endLine": 6990,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -57799,7 +57799,99 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lava_effects",
+            "implementation": "js/trap.js",
+            "symbol": "lava_effects",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c lava_effects() 6794-6987 in full. The JavaScript owner preserves the source d(6,6), recursion guard, lava visibility, burn-stuff inventory marking, footwear-first Boots_off call, re-evaluation of Fire_resistance and Wwalking after footwear removal, water-walking damage, TT_LAVA trap setup, fatal inventory destruction, done(BURNING) retry/termination behavior, and final destroy/ignite effects. Existing implemented used-return owners are called directly; discarded void gaps remain named at their source call sites. The same delivery includes the required do_wear.c Boots_off() owner in js/do_wear.js and the botl.c InLava status condition in js/display.js as source-aligned dependencies; their focused tests are listed in the entry review.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "pooleffects",
+                "source": "hack.c pooleffects() calls lava_effects() for a hero standing on lava and consumes its boolean to skip remaining square effects after relocation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-lava-effects.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/lava-effects-water-walking-independent.session.json",
+              "recordings/trap.c/lava-effects-fire-resistance-variation.session.json"
+            ],
+            "checkedAt": "c5229337fed2650fef589ca5f989d92f993fc568"
+          }
+        ],
+        "entryPointReview": "The selected implementation span is trap.c lava_effects() 6794-6987 with its production hack.c pooleffects() caller contract, plus the do_wear.c Boots_off() call required by the footwear-first branch and the botl.c InLava status predicate required by the TT_LAVA branch. The independent water-walking recording reaches lava_effects through pooleffects and matches C/JavaScript strictly at 7155 RNG calls, 64 screens, and 64 cursors. The independent fire-resistance variation reaches the TT_LAVA trap/status branch and matches with the same 7155 RNG, 64-screen, 64-cursor result. Their final --More-- screens are emitted inside lava_effects before the subsequent destroy_items/ignite_items cleanup and return; the input-only continuation probes append the required dismissal and next-command keys, and C reaches the cleanup boundary, but the JavaScript replay stops at the source region.c upkeep blockPoint boundary before that next command. Those blocked probes remain under recipes/trap.c without recordings. Focused runtime checks exercise water-walking damage, lava trapping/status, footwear slot/property cleanup, levitation blocking and ordinary footwear removal. Whole-source inspection verifies inventory and recursion ordering, fresh property reads after Boots_off, hallucinated Book of Dead naming, the final-death return boundary, and the fatal loop's explicit discarded-call gaps; no implementation-text assertion is treated as execution coverage. A separate independent Boots_off setup is retained under recipes/trap.c but has no recording: its production replay reaches the existing do_wear.c Boots_on water-walking refusal before Boots_off. The direct trap.c float_down() caller and dbridge.c e_died() caller remain unrecorded because their surrounding source paths are still refused. The fatal/lifesaving lava inventory and done(BURNING) path remains open at end.c really_done() and has an explicit empty-recording entry below; no entry completion is claimed for it. The source review keeps only actual discarded void gaps named at their source sites and does not claim the whole surrounding trap or wear files complete.",
+        "entryPoints": [
+          {
+            "name": "water-walking hero enters lava through pooleffects",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": [
+              "recordings/trap.c/lava-effects-water-walking-independent.session.json"
+            ]
+          },
+          {
+            "name": "fire-resistant hero enters lava and receives TT_LAVA status",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": [
+              "recordings/trap.c/lava-effects-fire-resistance-variation.session.json"
+            ]
+          },
+          {
+            "name": "lava burns worn footwear through Boots_off",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "direct float_down lava caller",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "drawbridge e_died lava caller",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fatal/lifesaving lava inventory and done(BURNING)",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "water-walking lava cleanup and return to the next command",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fire-resistant lava cleanup and return to the next command",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
