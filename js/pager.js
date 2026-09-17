@@ -292,14 +292,14 @@ function mon_to_glyph(monster, state) {
 }
 
 function assertOrdinaryWhatisState(state) {
+    // pager.c do_look() admits blind heroes; blindness is handled by its
+    // lookat()/description branches after the cursor has been selected.
     if (state.flags?.lootabc)
         throw new UnsupportedWhatisError('the lootabc menu');
     if (state.u?.uswallow)
         throw new UnsupportedWhatisError('a swallowed hero');
     if (heroHallucinating(state))
         throw new UnsupportedWhatisError('a hallucinating hero');
-    if (heroBlind(state))
-        throw new UnsupportedWhatisError('a blind hero');
 }
 
 export function whatisMenuItems(state = game) {
