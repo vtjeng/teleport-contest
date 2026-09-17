@@ -60578,7 +60578,7 @@
     {
       "id": "port-exper-losexp-seed0399-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete experience loss, intrinsic removal and wizard level lowering",
       "cFile": "exper.c",
       "sessions": [
@@ -60589,8 +60589,8 @@
       "spans": [
         {
           "name": "losexp",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8585e97451c7d33d02da51a42627ced6dbae0195",
           "functions": [
             "losexp"
           ]
@@ -60732,10 +60732,10 @@
               "recordings/exper.c/levelchange-loss-independent.session.json",
               "recordings/exper.c/levelchange-loss-variation-b25.session.json"
             ],
-            "checkedAt": "67f9006c3c2472791c712316a8001ea05ed54fe8"
+            "checkedAt": "8585e97451c7d33d02da51a42627ced6dbae0195"
           }
         ],
-        "entryPointReview": "The primary losexp entry #levelchange lowering is reached through command dispatch into wizcmds.wiz_level_change. The independent Archeologist 5-to-2 recording contains the stealth-loss message and all three Goodbye levels (53 screens/3031 RNG); the Wizard 2-to-1 showexp variation contains Xp:1/19 (39 screens/2946 RNG). Supporting adjabil has production callers exper.pluslvl/losexp, u_init.u_init_misc and polyself.newman; the separate independent newman recording (54 screens/2615 RNG) crosses Archeologist level five downward and prints You feel less stealthy before You feel like a new woman, proving the default terminal caller. The weapon skill rollback arm is source-pinned but these recordings spend unused slots. No unrecorded life-drain, divine anger, lethal or polymorphed entry is counted complete; park the source goal after span acceptance. The attrib.c losestr caller under #if 0 is excluded by source, not by missing JavaScript. Active C losexp sites are sit.c261, zap.c2820, uhitm.c2484, trap.c4294 (fire damage), mhitu.c2206, artifact.c1713, pray.c742 and wizcmds.c474; attrib.c261 is inside #if 0. The implemented zapyourself caller is now wired, but its spell-cast recording remains open.",
+        "entryPointReview": "The primary losexp entry #levelchange lowering is reached through command dispatch into wizcmds.wiz_level_change. The independent Archeologist 5-to-2 recording contains the stealth-loss message and all three Goodbye levels (53 screens/3031 RNG); the Wizard 2-to-1 showexp variation contains Xp:1/19 (39 screens/2946 RNG). Supporting adjabil has production callers exper.pluslvl/losexp, u_init.u_init_misc and polyself.newman; the separate independent newman recording (54 screens/2615 RNG) crosses Archeologist level five downward and prints You feel less stealthy before You feel like a new woman, proving the default terminal caller. The weapon skill rollback arm is source-pinned but these recordings spend unused slots. No unrecorded life-drain, divine anger, lethal or polymorphed entry is counted complete; park the source goal after span acceptance. The attrib.c losestr caller under #if 0 is excluded by source, not by missing JavaScript. Active C losexp sites are sit.c261, zap.c2820, uhitm.c2484, trap.c4294 (fire damage), mhitu.c2206, artifact.c1713, pray.c742 and wizcmds.c474; attrib.c261 is inside #if 0. The implemented zapyourself caller is now wired, but its spell-cast recording remains open. Independent caller verification confirms the other active sites remain blocked in their source owners: uhitm.mhitm_ad_drli, mhitu.doseduce, trap.dofiretrap and sit.special_throne_effect. Supporting upward level change still has pre-existing polymorphed pluslvl/setuhpmax and add_weapon_skill confidence-message gaps; this loss span does not claim those gain paths complete.",
         "entryPoints": [
           {
             "name": "#levelchange lowering",
@@ -60776,7 +60776,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8585e97451c7d33d02da51a42627ced6dbae0195",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "parkedReason": "The complete losexp span and level-lowering entry passed the combined checkpoint, including independent 2-to-1 and supporting newman recordings. Self-directed spell, divine anger, combat drain, fire-trap/throne/overexertion and fatal or polymorphed loss entry recordings remain open; existing upward-level dependencies are not claimed complete."
     }
   ]
 }
