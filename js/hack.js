@@ -1356,10 +1356,13 @@ function refusedDiagonalDoorway(x, y, state) {
 
 // This repeated-command boundary owns entry into a ROOM, CORR, IS_AIR, or
 // IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR,
-// D_BROKEN, or D_ISOPEN. With autopickup disabled, it also admits the sighted
-// object descriptions and, now that js/dungeon.js surface() names every
-// terrain look_here() can feel underfoot, the blind paths with no object or
-// one object. Blind paths that would describe an object pile remain refused.
+// D_BROKEN, or D_ISOPEN. A walking DO_MOVE also admits a pool or lava square;
+// hack.c test_move() owns that terrain's legality and swim_move_danger() owns
+// the warning or m-prefix continuation before the hero moves. With autopickup
+// disabled, it also admits the sighted object descriptions and, now that
+// js/dungeon.js surface() names every terrain look_here() can feel underfoot,
+// the blind paths with no object or one object. Blind paths that would describe
+// an object pile remain refused.
 // These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
@@ -1384,6 +1387,8 @@ export function requireSimpleHeroDestination(
     pushesBoulder = false,
 ) {
     const location = state.level?.at(x, y);
+    const walkingLiquid = pushesBoulder
+        && is_pool_or_lava(x, y, state);
     // hack.c domove_core():2843-2856 admits liquid through test_move(), then
     // asks swim_move_danger() before moving the hero or applying any arrival
     // effect.  A warning which is certain to stop the step therefore needs no
@@ -1417,8 +1422,8 @@ export function requireSimpleHeroDestination(
     const mask = doorMask(location);
     const doorway = location?.typ === DOOR
         && (mask === D_NODOOR || mask === D_BROKEN || mask === D_ISOPEN);
-    const ordinaryDestination = location
-        && (location.typ === ROOM
+    const ordinaryDestination = location && (walkingLiquid
+            || location.typ === ROOM
             || location.typ === CORR
             || IS_AIR(location.typ)
             || IS_FURNITURE(location.typ)
@@ -1443,11 +1448,6 @@ export function requireSimpleHeroDestination(
     // pickup() do after the move, so a pushed boulder has already cleared its
     // square by the time this post-move seam reads objects.
     const floorObject = state.level?.objects?.[x]?.[y] ?? null;
-    if (state.flags?.mention_decor && noPickMove) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'reqmenu with decor description',
-        );
-    }
     if (state.flags?.mention_decor) {
         try {
             preflight_describe_decor_at(x, y, state);
