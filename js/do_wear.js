@@ -70,6 +70,7 @@ import {
     FUMBLING,
     FINGER,
     FLYING,
+    FROMOUTSIDE,
     FOOT,
     FREE_ACTION,
     GETOBJ_DOWNPLAY,
@@ -134,7 +135,7 @@ import {
 import { see_monsters } from './display.js';
 import { obj_pmname } from './do_name.js';
 import { HCOLORS } from './random_text_data.js';
-import { surface } from './dungeon.js';
+import { has_ceiling, surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
 import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
@@ -157,6 +158,7 @@ import {
     has_horns,
     humanoid,
     is_flyer,
+    is_clinger,
     monstunseesu,
     nohands,
     nolimbs,
@@ -1340,6 +1342,114 @@ async function Boots_on(state) {
         state.uarmf.known = true;
         update_inventory({ state });
     }
+    return 0;
+}
+
+// C ref: do_wear.c Boots_off() (262-336).  This is an asynchronous owner in
+// the port because the WATER_WALKING_BOOTS arm can enter spoteffects() and the
+// LEVITATION_BOOTS arm can enter float_down(); callers preserve that ordering
+// with await.  In particular, lava_effects() sets in_lava_effects before this
+// call, so burning water-walking boots clear their slot without recursively
+// applying the landing effect.
+export async function Boots_off(state = game) {
+    const otmp = state.uarmf;
+    if (!otmp) return 0;
+    const otyp = otmp.otyp;
+    const type = objectType(otmp, state);
+    const oldprop = (state.u?.uprops?.[type.oc_oprop]?.extrinsic ?? 0)
+        & ~WORN_BOOTS;
+    const takeoff = takeoffContext(state);
+
+    takeoff.mask &= ~W_ARMF;
+    // C must clear the slot before levitation is recalculated. setworn() also
+    // clears the footwear extrinsic and the object's W_ARMF bit in one owner.
+    setworn(null, W_ARMF, setwornEnv(state));
+
+    switch (otyp) {
+    case SPEED_BOOTS: {
+        const fast = state.u?.uprops?.[FAST] ?? {};
+        if (!(fast.intrinsic || fast.extrinsic) && !takeoff.cancelled_don) {
+            discover_object(otyp, true, true, true, state);
+            await ttyPline(
+                `You feel yourself slow down${fast.intrinsic ? ' a bit' : ''}.`,
+                state,
+            );
+        }
+        break;
+    }
+    case WATER_WALKING_BOOTS: {
+        const levitation = state.u?.uprops?.[LEVITATION] ?? {};
+        const flying = state.u?.uprops?.[FLYING] ?? {};
+        const hasLevitation = Boolean(
+            (levitation.intrinsic || levitation.extrinsic)
+            && !levitation.blocked,
+        );
+        const hasFlying = Boolean(
+            (flying.intrinsic || flying.extrinsic) && !flying.blocked,
+        );
+        const { is_pool, is_lava } = await import('./trap.js');
+        if ((is_pool(state.u.ux, state.u.uy, state)
+             || is_lava(state.u.ux, state.u.uy, state))
+            && !hasLevitation && !hasFlying
+            && !(is_clinger(state.youmonst?.data)
+                && has_ceiling(state.u.uz, state))
+            && !takeoff.cancelled_don
+            && !state.iflags?.in_lava_effects) {
+            // C learns fireproofed/water-walking boots before spoteffects can
+            // drown the hero, which may itself return after a relocation.
+            discover_object(otyp, true, true, true, state);
+            const { spoteffects } = await import('./hack.js');
+            await spoteffects(true, state);
+        }
+        break;
+    }
+    case ELVEN_BOOTS:
+        // toggle_stealth() is a void source call and has no owner yet. Keep
+        // the exact gap at its call site after removing the boots.
+        note_unported('do_wear.c toggle_stealth');
+        break;
+    case FUMBLE_BOOTS: {
+        const fumbling = state.u?.uprops?.[FUMBLING] ?? {};
+        if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT)) {
+            fumbling.intrinsic = 0;
+            fumbling.extrinsic = 0;
+        }
+        break;
+    }
+    case LEVITATION_BOOTS: {
+        const levitation = state.u?.uprops?.[LEVITATION] ?? {};
+        const flying = state.u?.uprops?.[FLYING] ?? {};
+        const hasLevitation = Boolean(
+            (levitation.intrinsic || levitation.extrinsic)
+            && !levitation.blocked,
+        );
+        const fromOutside = Boolean(levitation.blocked & FROMOUTSIDE);
+        const cancelled = takeoff.cancelled_don;
+        if (!oldprop && !hasLevitation && !fromOutside && !cancelled) {
+            if (!state.iflags?.in_lava_effects) {
+                const { float_down } = await import('./trap.js');
+                await float_down(0, 0, state);
+            }
+            discover_object(otyp, true, true, true, state);
+        } else {
+            // polyself.c owns the I_SPECIAL flying/levitation update.
+            float_vs_flight(state);
+        }
+        // Keep the read above source-shaped; the local is also useful when a
+        // caller supplies a sparse test state without an initialized prop.
+        void flying;
+        break;
+    }
+    case LOW_BOOTS:
+    case IRON_SHOES:
+    case HIGH_BOOTS:
+    case JUMPING_BOOTS:
+    case KICKING_BOOTS:
+        break;
+    default:
+        throw new Error(`Boots_off: unknown boots type ${otyp}`);
+    }
+    takeoff.cancelled_don = false;
     return 0;
 }
 
@@ -3098,6 +3208,7 @@ export const _doWearInternals = Object.freeze({
     Armor_off,
     Armor_on,
     Boots_on,
+    Boots_off,
     Cloak_off,
     Cloak_on,
     toggle_displacement,
