@@ -2012,11 +2012,11 @@ test('dragon_armor_handling BLUE arm suppresses message when Very_fast',
     game.uarm = null;
 });
 
-test('dragon_armor_handling GOLD arm still throws UnsupportedWearError',
+test('dragon_armor_handling GOLD arm reaches the artifact-light boundary',
     async () => {
-    // do_wear.c:846-851. Gold dragon armor calls make_hallucinated() which
-    // is not yet ported. The guard in accessory_or_armor_on() and the arm
-    // in dragon_armor_handling() both refuse it.
+    // do_wear.c:846-851. The GOLD arm now completes its hallucination
+    // handling; the later artifact-light operation remains the explicit
+    // boundary in Armor_on().
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
 
@@ -2027,7 +2027,7 @@ test('dragon_armor_handling GOLD arm still throws UnsupportedWearError',
     await assert.rejects(() => Armor_on(game), (err) => {
         assert.equal(err.name, 'UnsupportedWearError');
         assert.match(err.message,
-            /dragon_armor_handling\(\) for otyp 102/);
+            /Armor_on\(\) artifact_light/);
         return true;
     });
     game.uarm = null;

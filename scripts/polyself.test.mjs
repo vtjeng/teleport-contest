@@ -32,6 +32,7 @@ import { your_race } from '../js/mondata.js';
 import { strstri } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { InMemoryStorage } from '../js/storage.js';
 import {
     GRAY_DRAGON_SCALE_MAIL,
     GREEN_DRAGON_SCALES,
@@ -101,6 +102,38 @@ test('polyself uses the role monster and original form in production', async () 
     });
     assert.equal(game.u.umonnum, game.u.umonster);
     assert.match(game.nhDisplay.topMessage, /^You return to human form!/u);
+});
+
+test('the seed4500 polymorph reaches break_armor and removes nohands gear',
+    async () => {
+    // The independent Knight holdout reaches polyself.c:1248-1271 after a
+    // polymorph into a brown mold.  Replay only through the next stable
+    // command boundary: the source branch must clear gloves, shield, helmet,
+    // and boots before polymon() continues its post-transformation work.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    const segment = recording.segments[0];
+    const end = 1460;
+    let boundary = null;
+    const replay = await runSegment({
+        ...segment,
+        moves: segment.steps.slice(1, end)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    }, { onBoundary: (error) => { boundary ??= error; } });
+
+    assert.equal(boundary, null,
+        'break_armor continues through the saved production prefix');
+    assert.equal(replay.getScreens().length, end,
+        'the source-matching prefix emits one screen per step');
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
+        'uarmg', 'uarmf', 'uarmu']) {
+        assert.equal(replay[slot] ?? null, null,
+            `${slot} is no longer worn`);
+    }
 });
 test('polyself keeps the C early guards, selector, and final gate in order', () => {
     assert.ok(C_START >= 0 && C_END > C_START);
