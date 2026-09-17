@@ -83,7 +83,7 @@ import { game } from './gstate.js';
 import { nomul, showdamage, spoteffects } from './hack.js';
 import { dist2, distmin } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
-import { makemon } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import {
     attk_protection,
     engulf_target,
@@ -210,12 +210,23 @@ export async function cloneu(rawState = game, rawEnv = {}) {
         return null;
     if ((state.mvitals?.[mndx]?.mvflags ?? 0) & G_EXTINCT)
         return null;
-    let monster = await makemon(
+    const creationEnv = {
+        ...rawEnv,
+        state,
+        random,
+        ...(rawEnv.planning
+            ? {
+                message: rawEnv.message ?? (async () => {}),
+                norepMessage: rawEnv.norepMessage ?? (async () => {}),
+            }
+            : {}),
+    };
+    let monster = await makemon_runtime(
         state.youmonst.data,
         state.u.ux,
         state.u.uy,
         NO_MINVENT | MM_EDOG | MM_NOMSG,
-        { ...rawEnv, state, random },
+        creationEnv,
     );
     if (!monster)
         return null;
