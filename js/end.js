@@ -334,7 +334,7 @@ async function savelife(how, state = game) {
     if (!state.context.mon_moving) {
         // endmultishot(FALSE) stops a multi-shot volley in progress. With
         // verbose=false it suppresses the message and only clamps m_shot.n.
-        endmultishot(false, state);
+        await endmultishot(false, state);
     }
     if (u.uswallow) {
         // C discards expels()'s result. The TRUE message arm depends on the

@@ -620,7 +620,7 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { create_gas_cloud } from './region.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    hits_bars, m_useup, m_useupall, rnd_hallublast,
+    hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
@@ -670,11 +670,13 @@ const S_BOOMLEFT = 80;
 const S_BOOMRIGHT = 81;
 
 // C ref: zap.c boomhit() (4148-4236).  This source owner lives in zap.js;
-// dothrow.js supplies throwit_mon_hit() as the production callback because
-// C's boomerang caller owns that dothrow-side object transition.  A direct
-// caller gets the same owner through the lazy import, which avoids a static
-// zap.js -> dothrow.js cycle.
-export async function boomhit(obj, dx, dy, state = game, hitMonster = null) {
+// dothrow.js supplies throwit_mon_hit() and endmultishot() as the production
+// callbacks because C's boomerang caller owns those dothrow-side transitions.
+// Direct callers get those owners through lazy imports, which avoids adding a
+// second static zap.js -> dothrow.js cycle.
+export async function boomhit(
+    obj, dx, dy, state = game, hitMonster = null, endMultishotOwner = null,
+) {
     const counterclockwise = state.u?.uhandedness !== LEFT_HANDED;
     let direction = xytodir(dx, dy);
     let nhits = Math.max(1, (obj.spe ?? 0) + 1);
@@ -725,11 +727,17 @@ export async function boomhit(obj, dx, dy, state = game, hitMonster = null) {
             const fumbling = state.u?.uprops?.[FUMBLING];
             if (Boolean(fumbling?.intrinsic || fumbling?.extrinsic)
                 || rn2(20) >= acurr(state, A_DEX)) {
-                // thitu() and endmultishot() are discarded by C.  Preserve
-                // the argument's dmgval() draw, then mark each actual gap.
-                dmgval(obj, state.youmonst, state);
-                note_unported('mthrowu.c thitu');
-                note_unported('dothrow.c endmultishot');
+                // C discards both return values, but their source-owned
+                // effects still occur in this self-hit arm.
+                const damage = dmgval(obj, state.youmonst, state);
+                await thitu(
+                    10 + (obj.spe ?? 0), maybeHalfPhysical(damage, state),
+                    obj, 'boomerang', state,
+                    { message: ttyPline, losehp, exercise, random: { rnd } },
+                );
+                const finish = endMultishotOwner
+                    ?? (await import('./dothrow.js')).endmultishot;
+                await finish(true, state);
                 break;
             }
             await tmp_at(DISP_END, 0, state);
