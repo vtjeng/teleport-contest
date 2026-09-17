@@ -4769,9 +4769,10 @@ export async function domove_swap_with_pet(
                 },
             )
         ),
-        // hack.c:2198-2199 discards minliquid()'s return, but its survivor
-        // arm continues into deal_with_overcrowding() when rloc() fails. Keep
-        // that discarded owner explicit instead of swallowing an exception.
+        // hack.c:2198-2199 consumes minliquid()'s return to choose
+        // Trap_Killed_Mon. Only the later deal_with_overcrowding() result is
+        // discarded when rloc() fails; keep that owner explicit instead of
+        // swallowing an exception.
         dealWithOvercrowding: env.dealWithOvercrowding
             ?? (() => note_unported('mon.c deal_with_overcrowding')),
         unsupported: env.unsupported ?? ((reason) => {

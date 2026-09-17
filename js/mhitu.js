@@ -214,6 +214,11 @@ export async function cloneu(rawState = game, rawEnv = {}) {
         ...rawEnv,
         state,
         random,
+        // mhitu.c:cloneu() invokes makemon() at the hero square with this
+        // exact inventoryless dog-creation shape during ordinary play.  The
+        // marker lets makemon_create.js admit that source caller outside
+        // level generation without widening the generic runtime allowlist.
+        _cloneu: true,
         ...(rawEnv.planning
             ? {
                 message: rawEnv.message ?? (async () => {}),
