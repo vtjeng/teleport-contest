@@ -56839,13 +56839,13 @@
     {
       "id": "port-end.c-lifesaved-seed0399-20260916",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete death recovery and one-shot amulet life saving",
       "cFile": "end.c",
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
-      "selectionReason": "Integrate the next ready worker delivery for seed0399 after A15 closure. The higher-ranked Knight Hellfill scope belongs to worker A; this complete done source family is independently ready.",
+      "selectionReason": "The complete life-saving source delivery now includes live monster-turn continuation and independent recovery recordings, correcting its preserved failed checkpoint. The higher-ranked Knight screen mismatch remains under source investigation.",
       "detail": "Select whole end.c done1020-1126 with complete savelife and fuzzer_savelife supporting dependencies, canonical amulet consumption, paranoid query and live lethal callers. Three independent recordings cover direct and monster amulet recovery. Active exceptional entry families remain unrecorded; close the verified span then park this goal rather than claim their completion.",
       "spans": [
         {
@@ -56879,9 +56879,9 @@
         "to": 1129
       },
       "activeStanding": {
-        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
-        "screens": 10662,
-        "rng": 760877
+        "sha": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+        "screens": 10710,
+        "rng": 770398
       },
       "openMismatches": [
         {
