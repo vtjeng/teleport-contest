@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Cheap independent hack.c variation: seed 9240335, PoolWalkPriest, Priest human female lawful choices and timed water walking were chosen independently; m+n enters the same source-generated adjacent POOL through the DO_MOVE m-prefix path.",
+  "segments": [{
+    "seed": 9240335,
+    "datetime": "20370102101112",
+    "nethackrc": "OPTIONS=name:PoolWalkPriest,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizintrinsic\n>h\n mn"
+  }]
+}
