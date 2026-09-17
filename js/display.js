@@ -1231,6 +1231,18 @@ function monsterWarnsHero(monster, state) {
     ) < 100 && warningLevel >= threshold;
 }
 
+// C ref: display.c warning_of() (654-662).  Keep the predicate in
+// monsterWarnsHero(), which is also what the warning glyph uses, and expose
+// the source helper for detect.c mfind0()/warnreveal callers.  This helper is
+// pure: C only reads the warning property, distance, and monster level.
+export function warning_of(monster, state = game) {
+    if (!monsterWarnsHero(monster, state)) return 0;
+    return Math.min(
+        Math.trunc((monster.m_lev ?? 0) / 4),
+        WARNCOUNT - 1,
+    );
+}
+
 function warningGlyphInfo(monster, state) {
     const warningLevel = _propertyActiveUnblocked(state.u, HALLUC)
         ? rn2_on_display_rng(WARNCOUNT - 1) + 1

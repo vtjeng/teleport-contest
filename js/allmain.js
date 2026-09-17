@@ -183,7 +183,7 @@ import {
     preflight_nh_timeout_elapsed_turn,
 } from './timeout.js';
 import { regen_hp, regen_pw } from './regen.js';
-import { automatic_search } from './detect.js';
+import { automatic_search, warnreveal } from './detect.js';
 import { age_spells } from './spell.js';
 import { settrack } from './track.js';
 import { clear_splitobjs } from './obj.js';
@@ -936,19 +936,13 @@ async function finishElapsedTurnAfterTimeout(
     }
     await regen_pw(wtcap, state, regenEnv);
 
-    // C ref: allmain.c moveloop_core():342-344. A Ranger or an Archeologist
+    // C ref: allmain.c moveloop_core():342-346. A Ranger or an Archeologist
     // holds SEARCHING from experience level 1 (js/attrib.js ran_abil and
-    // arc_abil), so this runs on every turn that hero takes.
-    //
-    // No converting try wraps the call, and none is owed. detect.c dosearch0()
-    // keeps every branch this port cannot finish behind one of its `!aflag`
-    // tests -- feel_location() at 2040 and mfind0() at 2064 -- or behind the
-    // Norep() at 2023, so UnsupportedSearchError belongs to the explicit `s`
-    // command alone and js/cmd.js failClosedCommandRefusals() is its only
-    // owner. The third `!aflag` test, unmap_invisible() at 2076, refuses
-    // nothing now that both of its arms are ported. scripts/detect.test.mjs
-    // 'every explicit search refusal leaves the automatic arm intact' pins
-    // that split on ten shared states.
+    // arc_abil), so automatic searching runs on every turn that hero takes;
+    // the following Warning arm then reveals nearby hidden threats through
+    // detect.c warnreveal(). UnsupportedSearchError remains limited to the
+    // explicit `s` command's unported terrain/trap branches and is converted
+    // by js/cmd.js at that command boundary.
     //
     // detect.c:2079-2088, the trap block, is the one C does not gate on aflag,
     // and js/detect.js preflightTrap() refuses its two unported branches --
@@ -960,12 +954,26 @@ async function finishElapsedTurnAfterTimeout(
     // arrival square, while hallucination has no D:1 source this port reaches.
     // Give them the boundary class, and this seam its catch, when a recorded
     // case reaches one.
+    const searchEnv = {
+        state,
+        random,
+        // A planning clone must not repaint the live terminal.  The
+        // discovery state changes still run on the clone through
+        // detect.c's mfind0() and warning reveal path.
+        newSym: planning ? () => {} : (x, y) => newsym(x, y),
+    };
     if (propertyActive(state, SEARCHING)
         && !state.level.flags?.noautosearch
         && (state.multi ?? 0) >= 0) {
         if (planning)
             elapsedTurnBoundary('burdened multi-cycle automatic search');
-        await automatic_search({ state, random });
+        await automatic_search(searchEnv);
+    }
+    if (propertyActive(state, WARNING)) {
+        await warnreveal({
+            ...searchEnv,
+            message: (text) => turnMessage(text, state),
+        });
     }
     // C ref: allmain.c:351 mkot_trap_warn(). Sense traps near the hero when
     // wielding the Master Key of Thievery without gloves.
