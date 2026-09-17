@@ -57338,7 +57338,7 @@
     {
       "id": "div-hack-test-move-liquid-seed0009-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit walking liquid destinations to the source movement and swim-warning gates",
       "cFile": "hack.c",
       "sessions": [],
@@ -57347,8 +57347,8 @@
       "spans": [
         {
           "name": "walking-liquid-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
           "functions": [
             "test_move",
             "domove_core",
@@ -57362,8 +57362,11 @@
         "screens": 10771,
         "rng": 770799
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+      "delivered": {
+        "screens": 14,
+        "rng": 66
+      },
       "function": "test_move",
       "session": "holdout/seed0009-swimmer-mforce",
       "step": 48,
@@ -57450,7 +57453,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+        "screens": 10785,
+        "rng": 770865
+      }
     }
   ]
 }
