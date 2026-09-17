@@ -62751,13 +62751,13 @@
     {
       "id": "port-detect-mfind0-seed4500-20260917",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete monster discovery through explicit search and Warning reveal.",
       "cFile": "detect.c",
       "sessions": [
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "Seed continuation of holdout/seed4500-knight-coverage, 241 remaining-screen upper bound; investigations/holdout/seed4500-knight-coverage.json traces the later step1622 refusal to detect.c mfind0. Worker B owns the first goto_level achievement mismatch and its dependencies; A33 independently completes mfind0 and its search/Warning callers. The only other queued session is the environment pathname question Q1.",
+      "selectionReason": "Resume the queued complete monster discovery implementation with its canonical planning cleanup correction after accepting the independent goto_level span.",
       "detail": "Port complete detect.c mfind0, including mimic and hidden reveals, warning gating and message flush, invisible marker suppression, Wisdom exercise, coordinate-aware output, and -1/0/1 returns. Two independent explicit-search recordings establish stalker and mimic discovery; hidden-hider, Warning-only and repeated-marker entry recordings remain open.",
       "spans": [
         {
@@ -62791,8 +62791,8 @@
         "to": 2015
       },
       "activeStanding": {
-        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
-        "screens": 11203,
+        "sha": "262186a4032d1a1551e127e5803dcfa912aaf270",
+        "screens": 11204,
         "rng": 786211
       },
       "openMismatches": [
