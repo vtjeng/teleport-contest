@@ -124,12 +124,21 @@ async function getret(state) {
 // leaves any pending message's --More-- marker for the next reader.
 export async function tty_wait_synch(state = game) {
     // The browser has no separate WinDesc for WIN_MAP, but a generated level
-    // and initialized hero are the same source boundary: normal play has a
-    // map window even though the terminal renderer owns its cells directly.
+    // and an initialized window are the same source boundary: normal play has
+    // a map window even when the hero's coordinates have temporarily been
+    // cleared by bones.c savebones(). The terminal renderer owns the map
+    // cells directly, so the level object and initialized window stand in for
+    // C's WIN_MAP and ttyDisplay pointers.
     // The preceding death pline() has already flushed the canonical map. C's
     // tty_display_nhwindow(WIN_MAP, FALSE) has no status refresh here, so do
     // not route this arm through flush_screen(), which calls bot() first.
-    if (state.level?.at && state.u?.ux && state.iflags?.window_inited !== false) {
+    const mapWindow = Boolean(
+        state.nhDisplay
+        && state.level?.at
+        && state.iflags?.window_inited !== false
+        && !state.nhDisplay.nomuxRaw?.active,
+    );
+    if (mapWindow) {
         showPendingTtyMessage(state);
         return;
     }

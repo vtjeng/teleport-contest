@@ -88,6 +88,10 @@ const FLAG_H = readFileSync(
 const HACK_H = readFileSync(
     new URL('../nethack-c/upstream/include/hack.h', import.meta.url), 'utf8',
 );
+const WINTTY_C = readFileSync(
+    new URL('../nethack-c/upstream/win/tty/wintty.c', import.meta.url),
+    'utf8',
+);
 
 function integerDefine(source, name) {
     const match = new RegExp(`^#define ${name} +(0x[0-9A-Fa-f]+|[0-9]+)$`, 'mu')
@@ -857,16 +861,27 @@ test('really_done waits before the can_make_bones draw', () => {
     );
 });
 
-test('the map wait leaves the dirty status line unchanged', async () => {
+test('the map wait leaves the dirty status line unchanged after bones clears coordinates', async () => {
     await dyingGame();
     // end.c:1189 reaches tty_wait_synch() after done() has changed u.uhp but
-    // before the next status refresh. A direct map-window wait must preserve
-    // the previous HP:10(10) row while exposing the pending More marker.
+    // before the next status refresh. bones.c:560-562 then clears u.ux/u.uy
+    // while the map window remains live. A direct map-window wait must use
+    // that window rather than falling into getret(), preserve the previous
+    // HP:10(10) row, and expose the pending More marker without consuming a
+    // key. This follows wintty.c:3633's WIN_MAP/rawprint gate.
+    assert.match(
+        WINTTY_C,
+        /if \(WIN_MAP == WIN_ERR \|\| !ttyDisplay \|\| ttyDisplay->rawprint\)/u,
+    );
     game.u.uhp = 0;
+    game.u.ux = 0;
+    game.u.uy = 0;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     assert.match(statusRow(), STARTING_HP_STATUS);
     await tty_wait_synch(game);
     assert.match(statusRow(), STARTING_HP_STATUS);
     assert.equal(game.nhDisplay.toplin, TOPLINE_NEED_MORE);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
     assert.match(
         game.nhDisplay.grid.slice(0, 2)
             .map((row) => row.map(({ ch }) => ch).join('')).join('\n'),
