@@ -15,6 +15,7 @@ import {
     PM_GIANT_ANT,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WEREWOLF,
+    PM_IRON_GOLEM,
     PM_JACKAL,
     PM_RABID_RAT,
     PM_SEWER_RAT,
@@ -31,6 +32,7 @@ import {
     NON_PM,
 } from '../js/monsters.js';
 import { armor_to_dragon, polymon } from '../js/polyself.js';
+import { do_stone_u } from '../js/uhitm.js';
 import { were_beastie } from '../js/were.js';
 import { your_race } from '../js/mondata.js';
 import { strstri } from '../js/hacklib.js';
@@ -225,6 +227,78 @@ test('polymon uses makemon golemhp without a random HP roll', async () => {
     await polymon(PM_STONE_GOLEM, game);
     assert.equal(game.u.mhmax, 100);
     assert.equal(game.u.mh, 100);
+    assert.equal(game.youmonst.data.pmidx, PM_STONE_GOLEM);
+});
+
+test('polymon forwards planning random, message, and redraw operations',
+    async () => {
+    // do_stone_u() reaches polymon() on the planning clone when a golem form
+    // is available.  Every impure operation in that transition must use the
+    // caller's seams, so a planning attack cannot draw or paint the live TTY.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
+        'uarmg', 'uarmf', 'uarmu'])
+        game[slot] = null;
+    game.invent = null;
+    game.uwep = null;
+    game.uswapwep = null;
+    game.flags.verbose = false;
+    game.gs.sex_change_ok = false;
+    const draws = [];
+    const lines = [];
+    const redraws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(`rn2(${bound})`);
+            return 1;
+        },
+        rn1(range, base) {
+            draws.push(`rn1(${range},${base})`);
+            return base;
+        },
+        rnd(bound) {
+            draws.push(`rnd(${bound})`);
+            return 1;
+        },
+        d(number, sides) {
+            draws.push(`d(${number},${sides})`);
+            return number;
+        },
+    };
+    const env = {
+        planning: true,
+        random,
+        message: async (line) => { lines.push(line); },
+        redraw: (x, y) => { redraws.push([x, y]); },
+    };
+    // Establish a valid polymorphed hero first, then take the same
+    // do_stone_u() route that a planning monster attack uses.
+    await polymon(PM_IRON_GOLEM, game, env);
+    draws.length = 0;
+    lines.length = 0;
+    redraws.length = 0;
+    const changed = await do_stone_u(
+        { data: game.mons[PM_IRON_GOLEM], female: false },
+        game,
+        env,
+    );
+    assert.equal(changed, false,
+        'successful stone-golem conversion handles petrification itself');
+    assert.deepEqual(draws, [
+        'rn2(19)',
+        'rn1(500,500)',
+    ]);
+    assert.deepEqual(lines, ['You turn into a stone golem!']);
+    assert.ok(redraws.length >= 1, 'polymon repaints through the injected seam');
     assert.equal(game.youmonst.data.pmidx, PM_STONE_GOLEM);
 });
 
