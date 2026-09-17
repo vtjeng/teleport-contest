@@ -60610,7 +60610,7 @@
           "line": 207,
           "endLine": 299,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -60690,7 +60690,93 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "losexp",
+            "implementation": "js/exper.js",
+            "symbol": "losexp",
+            "sourceReview": "Read whole exper.c losexp207–291 and supporting attrib.c adjabil1006–1075, weapon.c lose_weapon_skill1453–1470, and wizcmds.c wiz_level_change446–490. Preserve #levelchange resistance override, Goodbye message, real loss versus an initially level-one call, canonical done/life-saving return, source HP/energy floors and clamps, XP threshold, polymorph monhp_per_lvl and rehumanize, and final botl. Root corrected the misplaced level-one reset: a real 2-to-1 loss retains newuexp(1)-1=19 XP. adjabil traverses role then race properties and loses weapon slots after intrinsic messages; it now uses canonical ttyPline by default for newman and pline.c You_feel Unaware dreaming text. The old message-owner refusal was removed. lose_weapon_skill spends unused slots before rolling back the latest skill and computes its refund after decrementing the rank. wiz_level_change awaits each loss and sets ulevelmax at the source tail. SoundAchievement is a discarded unported notification recorded by note_unported; no RNG, return value or game mutation stands in for it. Existing return-used helpers retain their canonical owners. The implemented zapyourself SPE_DRAIN_LIFE caller now awaits losexp instead of retaining its obsolete named gap; its initialized regression checks level, XP, message and unchanged RNG. Remaining exception classes still have independent polymorphed pluslvl/setuhpmax throw sites; their stale level-loss comments were corrected.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_change",
+                "source": "wizcmds.c lowers one level at a time with losexp(\"#levelchange\")"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c angrygods() calls losexp(NULL) after its level-one divine-anger messages"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "artifact_hit",
+                "source": "artifact.c drain branch calls losexp(\"life drainage\")"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:2817–2823 SPE_DRAIN_LIFE calls losexp(\"life drainage\") after the drain-resistance gate; JavaScript now awaits the canonical owner in place of the obsolete note_unported placeholder."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-change.test.mjs",
+              "scripts/weapon.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/zapyourself.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/exper.c/levelchange-loss-independent.session.json",
+              "recordings/exper.c/levelchange-loss-variation-b25.session.json"
+            ],
+            "checkedAt": "67f9006c3c2472791c712316a8001ea05ed54fe8"
+          }
+        ],
+        "entryPointReview": "The primary losexp entry #levelchange lowering is reached through command dispatch into wizcmds.wiz_level_change. The independent Archeologist 5-to-2 recording contains the stealth-loss message and all three Goodbye levels (53 screens/3031 RNG); the Wizard 2-to-1 showexp variation contains Xp:1/19 (39 screens/2946 RNG). Supporting adjabil has production callers exper.pluslvl/losexp, u_init.u_init_misc and polyself.newman; the separate independent newman recording (54 screens/2615 RNG) crosses Archeologist level five downward and prints You feel less stealthy before You feel like a new woman, proving the default terminal caller. The weapon skill rollback arm is source-pinned but these recordings spend unused slots. No unrecorded life-drain, divine anger, lethal or polymorphed entry is counted complete; park the source goal after span acceptance. The attrib.c losestr caller under #if 0 is excluded by source, not by missing JavaScript. Active C losexp sites are sit.c261, zap.c2820, uhitm.c2484, trap.c4294 (fire damage), mhitu.c2206, artifact.c1713, pray.c742 and wizcmds.c474; attrib.c261 is inside #if 0. The implemented zapyourself caller is now wired, but its spell-cast recording remains open.",
+        "entryPoints": [
+          {
+            "name": "#levelchange lowering",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": [
+              "recordings/exper.c/levelchange-loss-independent.session.json",
+              "recordings/exper.c/levelchange-loss-variation-b25.session.json"
+            ]
+          },
+          {
+            "name": "divine anger experience reset and level loss",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster, artifact and hero life-draining attacks",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "throne, self-directed life-drain magic, fire trap and overexertion",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fatal life drain, life-saving continuation and polymorphed HP loss",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

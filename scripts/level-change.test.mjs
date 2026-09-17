@@ -25,6 +25,7 @@ import {
     ACH_RNK1,
     ACH_RNK8,
     COLD_RES,
+    FAINTED,
     FAST,
     FIRE_RES,
     FROMEXPER,
@@ -534,7 +535,7 @@ test('adjabil calls postadjabil only for warning and see invisible',
     assert.deepEqual([...intrinsicsOf(wizard)], [[WARNING, FROMEXPER]]);
 });
 
-test('adjabil needs a message owner only for an entry that prints',
+test('adjabil uses canonical messages when its caller supplies no owner',
     async () => {
     // No owner and nothing to print: rog_abil[] holds nothing between 1 and 9.
     const quiet = heroState({
@@ -546,11 +547,20 @@ test('adjabil needs a message owner only for an entry that prints',
     // counts the span: attrib.c:1068-1070, 9 - 1 is 8.
     assert.equal(quiet.u.weapon_slots, 8);
 
-    // rog_abil[] { 10, &HSearching, "perceptive", "" } does print.
-    const rogue = heroState({
-        role: { ...ARCHEOLOGIST, mnum: PM_ROGUE, filecode: 'Rog' },
+    // polyself.c newman() invokes adjabil without an environment. An
+    // initialized terminal must still receive the source intrinsic-loss text.
+    await runSegment({
+        seed: 8820253,
+        datetime: '20310203040506',
+        nethackrc: 'OPTIONS=role:Archeologist,race:human,gender:female,align:neutral\n'
+            + 'OPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '.',
     });
-    await assert.rejects(() => adjabil(9, 10, rogue), TypeError);
+    game.u.ulevel = 4;
+    game.u.uprops[STEALTH].intrinsic = FROMEXPER;
+    await adjabil(5, 4, game);
+    assert.equal(game.u.uprops[STEALTH].intrinsic & FROMEXPER, 0);
+    assert.match(game.nhDisplay.topMessage, /You feel less stealthy!/u);
 });
 
 test('adjabil removes innate abilities and loses weapon slots',
@@ -598,8 +608,8 @@ test('lose_weapon_skill refunds slots after lowering the last skill', () => {
     state.u.skill_record[0] = P_QUARTERSTAFF;
     skillSlot(P_QUARTERSTAFF, state).skill = 3;
     lose_weapon_skill(1, state);
-    // weapon.c slots_required() returns the old skill rank, so lowering from
-    // Expert (3 in this state) to Skilled (2) refunds one remaining slot.
+    // weapon.c slots_required() reads the reduced skill rank, so lowering from
+    // Skilled (3) to Basic (2) refunds one remaining slot.
     assert.equal(skillSlot(P_QUARTERSTAFF, state).skill, 2);
     assert.equal(state.u.skills_advanced, 0);
     assert.equal(state.u.weapon_slots, 1);
@@ -642,6 +652,40 @@ test('losexp follows the source level-loss order and clamps resources',
     assert.equal(state.u.uen, 8);
     assert.equal(state.u.uexp, newuexp(2) - 1);
     assert.equal(state.disp.botl, true);
+});
+
+test('losing level two retains the experience just below level two', async () => {
+    // exper.c:228-250 resets experience only when the call starts at level
+    // one. A real 2-to-1 loss reaches newuexp(1)-1 at lines279-280.
+    const state = heroState();
+    state.youmonst = { data: { pmidx: PM_HUMAN } };
+    state.u.ulevel = 2;
+    state.u.uexp = 25;
+    const messages = [];
+    await losexp('#levelchange', state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.equal(state.u.ulevel, 1);
+    assert.equal(state.u.uexp, 19);
+    assert.deepEqual(messages, ['Goodbye level 2.']);
+});
+
+test('adjabil uses the dreaming prefix for a fainted hero losing an ability',
+    async () => {
+    // attrib.c:1054-1062 calls pline.c You_feel; youprop.h Unaware includes
+    // a negative multi with eat.c is_fainted, not every immobilized hero.
+    const state = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
+    });
+    state.u.ulevel = 2;
+    state.multi = -1;
+    state.u.uhs = FAINTED;
+    state.u.uprops[STEALTH].intrinsic = FROMEXPER;
+    const messages = [];
+    await adjabil(3, 2, state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.deepEqual(messages, ['You dream that you feel less stealthy!']);
 });
 
 test('losexp leaves a drain-resistant form unchanged', async () => {

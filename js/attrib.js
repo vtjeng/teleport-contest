@@ -139,6 +139,7 @@ import { make_confused } from './potion.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
 import { ttyPline } from './tty_message.js';
+import { unconscious } from './trap.js';
 import { summon_furies } from './makemon.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
@@ -541,17 +542,17 @@ function postadjabil(propertyIndex, state) {
 // C's You_feel("%s!") can block on --More--, so this is async and takes the
 // message owner exper.c pluslvl() was handed. Only a gain above experience
 // level 1 prints, because every level-1 entry's gainstr is empty
-// (innateTablesHaveSilentLevelOneEntries() below re-derives that); the
-// initializing adjabil(0, 1) therefore needs no owner and passes none.
-// C reaches this message through You_feel(), whose "You dream that you feel "
-// prefix needs Unaware -- gm.multi < 0 with the hero unconscious or fainted --
-// which no path that raises a level can produce.
+// (innateTablesHaveSilentLevelOneEntries() below re-derives that).
+// C's You_feel() uses its dreaming prefix while Unaware: a negative multi
+// with the hero unconscious or fainted. Experience loss can reach that case.
 //
-// Losses use the same message owner as gains. An unchanged level is not a
-// loss: C calls lose_weapon_skill(0), whose `while (--n >= 0)` body never
-// runs. polyself.c newman() lands there one time in five, so that call remains
-// quiet.
+// Gains and losses default to the canonical terminal message owner, including
+// polyself.c newman()'s caller without an explicit environment. An unchanged
+// level is not a loss: C calls lose_weapon_skill(0), whose `while (--n >= 0)`
+// body never runs. polyself.c newman() lands there one time in five, so that
+// call remains quiet.
 export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
     const u = state.u;
     let table = role_abil(state.urole?.mnum);
     let raceTable = race_abil(state.urace?.mnum);
@@ -571,6 +572,10 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
         const entry = table[index];
         const property = u.uprops[entry.ability];
         const prevabil = property.intrinsic;
+        // youprop.h Unaware and pline.c You_feel().
+        const feelPrefix = Math.trunc(state.multi ?? 0) < 0
+            && (unconscious(state) || u.uhs === FAINTED)
+            ? 'You dream that you feel' : 'You feel';
         if (oldlevel < entry.ulevel && newlevel >= entry.ulevel) {
             /* Abilities gained at level 1 can never be lost via level loss,
              * only via means that remove _any_ sort of ability.  A "gain" of
@@ -588,30 +593,20 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
              * carries the deferral for the branch that leaves. */
             if (!(property.intrinsic & INTRINSIC & ~mask)) {
                 if (entry.gainstr) {
-                    if (typeof env.message !== 'function') {
-                        throw new TypeError(
-                            'adjabil() needs a message owner to print a gain',
-                        );
-                    }
                     /* C ref: pline.c You_feel("%s!", abil->gainstr) */
-                    await env.message(`You feel ${entry.gainstr}!`, state);
+                    await message(`${feelPrefix} ${entry.gainstr}!`, state);
                 }
             }
         } else if (oldlevel >= entry.ulevel && newlevel < entry.ulevel) {
             property.intrinsic &= ~mask;
             if (!(property.intrinsic & INTRINSIC)) {
                 const text = entry.losestr
-                    ? `You feel ${entry.losestr}!`
+                    ? `${feelPrefix} ${entry.losestr}!`
                     : entry.gainstr
-                        ? `You feel less ${entry.gainstr}!`
+                        ? `${feelPrefix} less ${entry.gainstr}!`
                         : null;
                 if (text) {
-                    if (typeof env.message !== 'function') {
-                        throw new TypeError(
-                            'adjabil() needs a message owner to print a loss',
-                        );
-                    }
-                    await env.message(text, state);
+                    await message(text, state);
                 }
             }
         }

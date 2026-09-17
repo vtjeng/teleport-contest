@@ -2910,11 +2910,8 @@ export function failClosedCommandRefusals() {
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,
         UnsupportedLevelChangeError,
-        // wizcmds.c wiz_level_change() reaches the first when asked to lower
-        // a level, which exper.c losexp() owns. attrib.c adjabil() throws the
-        // second only while losing an ability or a weapon-skill slot, which
-        // no ported command reaches; it is listed so that a future lowering
-        // path ends the segment instead of failing the run.
+        // Remaining experience/attribute refusals include polymorphed
+        // pluslvl() and setuhpmax(); ordinary level loss is implemented.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
         // do.c goto_level()'s tail reaches all four from inside the `>`

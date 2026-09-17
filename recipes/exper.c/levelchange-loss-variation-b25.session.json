@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent level-loss variation: the showexp status must retain 19 experience when #levelchange lowers a Wizard from level 2 to level 1 (exper.c losexp final newuexp reset). Seed and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 8820252,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:LossVariation,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,showexp\n",
+      "moves": ".#levelchange\n2\n   #levelchange\n1\n   ."
+    }
+  ]
+}
