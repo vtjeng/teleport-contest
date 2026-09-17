@@ -13,6 +13,7 @@ import {
     GLIB,
     LEFT_HANDED,
     INVIS,
+    DISPLACED,
     M_SEEN_ELEC,
     M_SEEN_MAGR,
     M_SEEN_NOTHING,
@@ -1272,11 +1273,11 @@ test("the delayed branch's other categories stop above nomul()", async () => {
     assert.deepEqual(refusalWitness(replay), before);
 });
 
-test('the unported slots and armor types stop at their own frame',
+test('the ported cloak arm removes a displacement cloak before later gaps',
     async () => {
     const segment = segmentFor(TAKEOFF_KEY);
     // A Ranger's cloak of displacement: every cloak carries oc_delay 0, so
-    // this one reaches Cloak_off() and stops on toggle_displacement().
+    // this one reaches the complete Cloak_off() arm directly.
     const ranger = {
         ...segment,
         nethackrc: segment.nethackrc.replace(
@@ -1284,17 +1285,19 @@ test('the unported slots and armor types stop at their own frame',
             'role:Ranger,race:human,gender:male,align:neutral',
         ),
     };
-    let boundary = await boundaryFor(ranger, `${WAIT}${TAKEOFF_KEY}`);
-    assert.match(
-        boundary?.message ?? '',
-        new RegExp(`Cloak_off\\(\\) for otyp ${CLOAK_OF_DISPLACEMENT}`),
-    );
+    await runSegment({ ...ranger, moves: WAIT });
+    assert.equal(game.uarmc?.otyp, CLOAK_OF_DISPLACEMENT,
+        'the independent Ranger setup starts with displacement');
+    await Cloak_off(game);
+    assert.equal(game.uarmc, null, 'Cloak_off clears the worn slot');
+    assert.equal(game.u.uprops[DISPLACED].extrinsic & W_ARMC, 0,
+        'Cloak_off clears the cloak displacement property');
 
     // A Monk's leather gloves: select_off()'s glove sub-checks (welded, Glib,
     // cockatrice-corpse prompt) all pass, and the uncursed gloves reach
     // armoroff()'s delayed branch, which stops on ARM_GLOVES (oc_delay 1).
     const monk = segmentFor(`${TAKEOFF_KEY}b`);
-    boundary = await boundaryFor(monk, `${WAIT}${TAKEOFF_KEY}a`);
+    const boundary = await boundaryFor(monk, `${WAIT}${TAKEOFF_KEY}a`);
     assert.match(boundary?.message ?? '', /armoroff\(\) delayed branch/);
 
     // Nothing in the port puts boots on a hero, so the boot frame is only
@@ -1312,12 +1315,9 @@ test('the unported slots and armor types stop at their own frame',
 
 test('the type guards inside the ported <X>_off arms hold', async () => {
     const segment = segmentFor(TAKEOFF_KEY);
-    const replay = await runSegment({ ...segment, moves: WAIT });
+    await runSegment({ ...segment, moves: WAIT });
     const cloak = game.uarmc;
-    // Read out before the mutation below, because `before` now holds a copy
-    // of the field rather than the object that carries it.
     const originalOtyp = cloak.otyp;
-    const before = refusalWitness(replay);
 
     // Armor_off(): every suit is removed except dragon scales and dragon
     // scale mail, whose removal runs dragon_armor_handling(). js/obj.js
@@ -1340,14 +1340,15 @@ test('the type guards inside the ported <X>_off arms hold', async () => {
     assert.equal(Armor_off(game), 0);
     assert.equal(game.uarm, null, 'the plate mail comes off');
 
-    // Cloak_off(): the guard runs before setworn(), so the cloak is still on
-    // after the stop.
+    // Cloak_off(): the displacement arm is fully ported and clears both the
+    // slot and its extrinsic property through toggle_displacement().
     cloak.otyp = CLOAK_OF_DISPLACEMENT;
-    assert.throws(() => Cloak_off(game), /Cloak_off\(\) for otyp/);
-    assert.equal(game.uarmc, cloak, 'the cloak stays on');
+    await Cloak_off(game);
+    assert.equal(game.uarmc, null, 'the cloak is removed');
+    assert.equal(game.u.uprops[DISPLACED].extrinsic & W_ARMC, 0,
+        'the displacement bit is removed with the cloak');
     cloak.otyp = originalOtyp;
     assert.equal(cloak.otyp, CLOAK_OF_MAGIC_RESISTANCE, 'and unedited');
-    assert.deepEqual(refusalWitness(replay), before);
 });
 
 test('Is_dragon_armor() spans the two obj.h ranges and nothing else', () => {
