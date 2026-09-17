@@ -92,6 +92,7 @@ import {
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
     PHYS_EXPL_TYPE,
+    POLY_NOFLAGS,
     PLNMSG_ENVELOPED_IN_GAS,
     POOL,
     PIT,
@@ -509,7 +510,7 @@ import { cant_revive } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
 import { ustatusline } from './insight.js';
 import {
-    body_part, mbodypart, polymon, rehumanize, ugolemeffects,
+    body_part, mbodypart, polyself, polymon, rehumanize, ugolemeffects,
 } from './polyself.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
@@ -1247,10 +1248,9 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_POLYMORPH:
         if (!heroHasProperty(state, UNCHANGING)) {
             learn_it = true;
-            // zap.c discards polyself()'s result. Its random form-selection
-            // owner is still incomplete, so preserve this source boundary
-            // without letting an UnsupportedPolyselfError escape here.
-            note_unported('polyself.c polyself');
+            // zap.c discards polyself()'s return, but its state transition
+            // must complete before the switch returns to the command loop.
+            await polyself(POLY_NOFLAGS, state);
         }
         break;
 
