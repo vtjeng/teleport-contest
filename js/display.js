@@ -290,6 +290,7 @@ import { critically_low_hp } from './pray.js';
 import { visible_region_at } from './region.js';
 import {
     M1_HUMANOID,
+    M1_MINDLESS,
     NON_PM,
     NUMMONS,
     PM_TENGU,
@@ -297,12 +298,34 @@ import {
 import { rn2_on_display_rng } from './rng.js';
 import {
     canSeeMonster,
+    heroIsBlind,
     monsterVisible,
     noteGlyphBufferMutation,
     queueGlyphUpdateNotice,
     sensesMonster,
     sensesMonsterWithoutDetection,
 } from './startup_a11y.js';
+
+// C ref: display.c tp_sensemon() (166-168), through display.h's
+// _tp_sensemon() macro.  This is intentionally only the telepathy predicate;
+// Warning, underwater, swallowed, and Detect_monsters gates belong to the
+// wider sensemon() wrapper and must not suppress callers that ask whether
+// telepathy sensed a monster.
+export function tp_sensemon(mon, state = game) {
+    const hero = state.u ?? {};
+    const data = mon?.data;
+    if (!data || (data.mflags1 & M1_MINDLESS)) return false;
+    const telepathy = hero.uprops?.[TELEPAT] ?? {};
+    const blind = heroIsBlind(state);
+    const intrinsic = Boolean(telepathy.intrinsic);
+    const extrinsic = Boolean(telepathy.extrinsic);
+    if (blind && (intrinsic || extrinsic)) return true;
+    if (!extrinsic) return false;
+    const dx = (mon.mx ?? 0) - (hero.ux ?? 0);
+    const dy = (mon.my ?? 0) - (hero.uy ?? 0);
+    return dx * dx + dy * dy
+        <= Math.trunc(hero.unblind_telepat_range ?? 0);
+}
 
 const WALL_TYPES = new Set([
     SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
