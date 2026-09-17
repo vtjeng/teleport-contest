@@ -7,7 +7,11 @@
 
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
-import { NUM_TIME_FUNCS } from './const.js';
+import {
+    NHCORE_ENTER_TUTORIAL,
+    NHCORE_LEAVE_TUTORIAL,
+    NUM_TIME_FUNCS,
+} from './const.js';
 
 // C ref: nhlua.c nhcore_call_names[]. The JS port has no Lua VM; a supplied
 // `state.gl.luacore` is therefore only the text-backed boundary object used
@@ -79,6 +83,20 @@ export function l_nhcore_call(callidx, state = game) {
     } else {
         // C disables only this callback when the field is not a function.
         available[callidx] = false;
+    }
+}
+
+// C ref: nhlua.c tutorial() (1835-1846), called by do.c goto_level(). The
+// callback result is discarded by C; l_nhcore_call() records the unavailable
+// Lua pcall while preserving the callback availability transition on exit.
+export function tutorial(entering, state = game) {
+    l_nhcore_call(
+        entering ? NHCORE_ENTER_TUTORIAL : NHCORE_LEAVE_TUTORIAL,
+        state,
+    );
+    if (!entering && state.gl?.nhcore_call_available) {
+        state.gl.nhcore_call_available[NHCORE_ENTER_TUTORIAL] = false;
+        state.gl.nhcore_call_available[NHCORE_LEAVE_TUTORIAL] = false;
     }
 }
 

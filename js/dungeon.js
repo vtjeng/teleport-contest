@@ -3,7 +3,7 @@
 // Data ref: dat/dungeon.lua, translated in dungeon_data.js.
 
 import { game } from './gstate.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
 import {
     AGGRAVATE_MONSTER,
@@ -903,6 +903,21 @@ export function ledger_to_dlev(ledgerNumber, state = game) {
 export function assign_level(dest, src) {
     dest.dnum = src.dnum;
     dest.dlevel = src.dlevel;
+    return dest;
+}
+
+// C ref: dungeon.c assign_rnd_level() (1984-1995). The caller supplies the
+// signed number of levels to move; rnd() is one-based, and the destination is
+// clamped to the branch's actual bounds after the draw.
+export function assign_rnd_level(dest, src, range, state = game) {
+    assign_level(dest, src);
+    const amount = range > 0
+        ? rnd(range)
+        : range < 0 ? -rnd(-range) : 0;
+    dest.dlevel += amount;
+    const maximum = dunlevs_in_dungeon(dest, state);
+    if (dest.dlevel > maximum) dest.dlevel = maximum;
+    else if (dest.dlevel < 1) dest.dlevel = 1;
     return dest;
 }
 
