@@ -59,7 +59,6 @@ import {
     PM_WIZARD,
 } from '../js/monsters.js';
 import { bot } from '../js/display.js';
-import { UnsupportedEndOfGameError } from '../js/end.js';
 import { UnsupportedUrgentMessageError } from '../js/tty_message.js';
 import { is_mplayer } from '../js/mondata.js';
 import { game } from '../js/gstate.js';
@@ -872,8 +871,7 @@ test('is_mplayer covers exactly the player-monster range', () => {
     }
 });
 
-test('losehp takes the hit points, redraws the status line and stops at '
-    + 'death', async () => {
+test('losehp takes the hit points and reaches death disclosure', async () => {
     await runSegment({
         ...knightSlipSegment(), moves: `.${RIDE_COMMAND}`,
     });
@@ -896,14 +894,19 @@ test('losehp takes the hit points, redraws the status line and stops at '
     // fatal, and a hero who kept one point would live.
     clearTtyMessageWindow(game);
     game._ttyToplines = '';
+    // Dismiss the death message; leave the possessions query unanswered.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     await assert.rejects(
         losehp(game.u.uhp, 'a test', NO_KILLER_PREFIX, game),
-        UnsupportedEndOfGameError,
+        /Input queue empty/u,
     );
     assert.equal(game.u.uhp, 0);
     assert.equal(game.killer.name, 'a test');
     assert.equal(game.killer.format, NO_KILLER_PREFIX);
-    assert.equal(toplines(), 'You die...');
+    assert.equal(game.u.umortality, 1);
+    assert.equal(game.program_state.gameover, 1);
+    assert.equal(topLine(),
+        'Do you want your possessions identified? [ynq] (n)');
     // botl.c do_statusline2():141-142 shows a dead hero at zero rather than
     // at whatever the killing blow left behind. -9 of 16 is what
     // seed0103-knight-ride-pony records: rn1(5, 10) took 13 from a Knight

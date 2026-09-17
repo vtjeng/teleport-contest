@@ -46,6 +46,7 @@ import {
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { carrying_stoning_corpse } from '../js/invent.js';
 import {
     Dragon_mail_to_pm, Dragon_scales_to_pm,
@@ -839,12 +840,12 @@ test('select_off glove checks: welded, Glib, and uncursed pass-through',
     game.uarmg = null;
 });
 
-test('select_off preserves the corpse-safety confirmation boundary',
+test('select_off requires confirmation before exposing hands to a corpse',
     async () => {
     // do_wear.c better_not_take_that_off() asks for a spelled-out paranoid
     // confirmation before exposing bare hands to a carried cockatrice corpse.
-    // That reader remains fail-closed, but this pins the call before the mask
-    // mutation so the safety check cannot silently disappear.
+    // A declined query leaves the takeoff mask unchanged; only yes admits
+    // removal, as do_wear.c:2742 and 2990-3010 require.
     const segment = segmentFor(TAKEOFF_KEY);
     await runSegment({ ...segment, moves: WAIT });
 
@@ -860,12 +861,14 @@ test('select_off preserves the corpse-safety confirmation boundary',
     game.invent = cockaCorpse;
     reset_remarm(game);
 
-    await assert.rejects(
-        () => select_off(gloves, game),
-        /paranoid_ynq\(\) reading "yes" or "no"/,
-    );
-    assert.equal(takeoffContext(game).mask, 0,
-        'confirmation boundary must precede the takeoff-mask mutation');
+    for (const [answer, mask] of [['no', 0], ['yes', W_ARMG]]) {
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        for (const key of `${answer}\r`)
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await select_off(gloves, game), 0);
+        assert.equal(takeoffContext(game).mask, mask, answer);
+    }
 
     game.invent = cockaCorpse.nobj;
     game.uarmg = null;

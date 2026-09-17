@@ -1,11 +1,11 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
-  "remainingScreensUpperBound": 84,
-  "status": "complete",
-  "commit": "828660e9679142e24baf7f00c26130aa1c6a3207",
+  "remainingScreensUpperBound": 23,
+  "status": "partial",
+  "commit": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "step": 448,
+    "step": 509,
     "kind": "stop",
     "function": null,
     "functionDeclared": false,
@@ -13,48 +13,16 @@
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "the amulet of life saving",
+    "message": "simple monster action requires a non-resistant hero poisoned by a monster",
     "unlocatedKinds": [],
     "recordedSteps": 532,
-    "remainingScreensUpperBound": 84
+    "remainingScreensUpperBound": 23
   },
-  "summary": "The accepted game still refuses life saving at step 448. The candidate implements amulet recovery, but combined validation exposes an incomplete death-planning handoff: the clone stops at a lethal monster hit while the live hero can survive, and allmain then compares the unfinished plan with the continuing turn. Correct the live continuation before accepting this delivery.",
-  "source": {
-    "file": "end.c",
-    "functions": [
-      "done",
-      "savelife"
-    ],
-    "branch": "C end.c done()1081-1103 enters when u.uprops[LIFESAVED].extrinsic is true and how <= GENOCIDED, after the status/death bookkeeping has set mortality and HP to zero. In source order it prints \"But wait...\", makeknown(AMULET_OF_LIFE_SAVING), the sight-dependent medallion line, the CHOKING vomit line when applicable, \"You feel much better!\", and the dust line; consumes uamul with useup() when present; calls adjattrib(A_CON, -1, TRUE), then savelife(how). GENOCIDED prints its still-genocided line; every other how formats the killer for LL_LIFESAVE, sets survive, and returns through the killer-clear path instead of really_done(). C savelife()704-756 then restores level/HP, hunger and fatal sickness state, multi/context, lava trap, status/cursor and monster-attachment state in source order. The assigned DIED witness takes this branch before the wizard Die? query. The current JS branch at end.js:638-642 refuses before all side effects.",
-    "callers": [
-      "C mhitu.c mattacku()491-947 reaches hitmu()1144-1267, mdamageu()1902-1927, and done_in_by()1925; monmove.c dochug()965-972 is the monster-turn caller. JS allmain.js advanceElapsedTurn()1238-1255 runs the same movemon/movemon_singlemon path, js/mhitu.js hitmu()1415 calls mdamageu(), and js/mhitu.js mdamageu()1461-1496 calls done_in_by() on the live pass.",
-      "C hack.c losehp()4279-4288 is the other direct DIED funnel: after HP drops below one it sets the killer, emits urgent \"You die...\", and calls done(DIED). JS hack.js losehp()1211-1255 preserves that call, so the end.c life-saving arm must be usable from both monster damage and hero-side lethal damage.",
-      "C end.c done_in_by()185-344 emits the regular \"You die...\", builds svk.killer and calls done() at342; js/end.js done_in_by()327-461 is its production counterpart. The life-saving return must leave this caller alive with the killer reset and without entering really_done().",
-      "C cmd.c puton dispatches do_wear.c doputon()2454-2469 -> accessory_or_armor_on()2209-2428 -> Amulet_on()963-1087 -> setworn(), which sets the LIFESAVED extrinsic. JS cmd.js admits puton at1812 and dispatches doputon()5098-5099; js/do_wear.js accessory_or_armor_on()2576-2887 reaches Amulet_on(), so the prior end.js comment that no command can equip the amulet is stale. The assigned input includes takeoff/puton before the lethal turn."
-    ],
-    "dependencies": [
-      "C invent.c useup()1321-1333 -> useupall()1310-1317 -> setnotworn() removes the worn amulet and its LIFESAVED extrinsic before object deallocation. JS invent.js useup()5006-5016 requires a setNotWorn hook for a worn object; wire the do_wear.js setwornEnv()/worn.js setnotworn() contract, including cancelDoff and monsterUnseesProperty hooks, and pass any live inventory-refresh hook required by perm_invent.",
-      "C hack.h makeknown(x)1530 expands to o_init.c discover_object(x, TRUE, TRUE, TRUE); JS end.js already imports discover_object(). Preserve the source discovery ledger, inventory update and Wisdom exercise draw (rn2(19) when the amulet type is not already known) rather than annotating or inventing a draw.",
-      "C attrib.c adjattrib()117-199 changes ABASE/AMAX and can draw rn2() below the racial minimum, resets exercise and marks botl; msgflg TRUE suppresses the feeling text. JS attrib.js adjattrib()1137-1234 is asynchronous and requires an encumberMessage operation for an in-moveloop Constitution change, so done() must supply the existing pickup.js encumber_msg() boundary and preserve await order.",
-      "C end.c savelife() consumes minuhpmax(), setuhpmax(), ACURR(), init_uhunger(), reset_utrap(), curs_on_u(), endmultishot(), expels() and unstuck(). JS end.js savelife()221-300 has the ordinary restoration but still explicitly refuses make_sick() for one-turn sickness, expels() while swallowed, and the stuck-monster release/unstuck arm. Keep those source gaps explicit or carry their callees in the same span; do not silently turn them into completed life-saving behavior.",
-      "C end.c formatkiller() and livelog_printf(LL_LIFESAVE, \"averted death (%s)\", killbuf) at1098-1101 are consumed after savelife(); JS topten.js formatkiller() and pline.js livelog_printf() already own the equivalent state, so preserve the LL_LIFESAVE chronicle entry and clear killer.name/format only after the survival path is complete.",
-      "The JS planning caller js/mhitu.js mdamageu()1466-1491 currently simulates every wizard/discover lethal hit as the Die? refusal and raises MonsterDeathPlanningError for other modes. A complete lifesaver path must make the clone/live contract account for uprops[LIFESAVED].extrinsic, consume/clear that one-shot property in the clone, apply the source-defined savelife recovery through clone-compatible canonical owners without terminal operations, and avoid allowing a second planned death to reuse the spent amulet."
-    ]
-  },
-  "goalKind": "file-port",
+  "summary": "Life-saving recovery and the remaining monster turn now match. The next stop is a monster poisoning attack against a non-resistant hero at step 509; its complete source scope is under investigation.",
   "evidence": [
-    "Bounded focused replay run-GOxTFS, receipt /tmp/teleport-validation-1000/run-GOxTFS/receipt.json, used only sessions/holdout/seed0399-wizard-hallu-actions.session.json at examined commit 828660e9679142e24baf7f00c26130aa1c6a3207. It emitted 448 screens with divergence=null and stopped at the assigned boundary; replay-result is saved at .cache/investigate-seed0399-828660e9/replay-result.json.",
-    "The current A12 queue entry is step448, message \"the amulet of life saving\", recordedSteps532 and remainingScreensUpperBound84. The C boundary screen begins \"You die...  But wait...  Your medallion begins to glow!--More--\"; the next recorded screen begins \"You feel much better!\", proving that C proceeds through the life-saving display rather than refusing at the command.",
-    "The replay result records the assigned seed399, datetime20000110090000, Wizard Trippy configuration and the input through the boundary. Its issued commands include takeoff and puton before the fatal monster turn, and the C step RNG includes rn2(19)=15 at exercise(attrib.c:509); the branch must preserve discovery/exercise and subsequent source order.",
-    "C end.c done()1081-1103 is the exact source path: Lifesaved is checked after mortality/HP-zero bookkeeping, the medallion is identified and consumed, Constitution is adjusted, savelife() runs, and survive suppresses really_done(). C end.c savelife()704-756 supplies the restoration contract and its swallowed/sick/stuck guarded callees.",
-    "At the examined commit, js/end.js Lifesaved()203-209 correctly reads the property but its done() branch638-642 throws before C output, useup(), adjattrib(), savelife(), formatkiller() or livelog_printf(). The existing js/end.js savelife()221-300 therefore cannot make the current branch reachable by itself.",
-    "The assigned caller chain is source-backed in C mhitu.c mdamageu()1902-1927 and end.c done_in_by()185-344, with the second direct funnel in hack.c losehp()4279-4288. JS mhitu.js/hack.js/end.js carry those callers, so implementing only the annotation or only the existing savelife helper would leave the live lethal path stopped.",
-    "Prior count-97 evidence is retained only as counter-evidence: focused comparisons attributed the old missing-dagger/wipe RNG to an un-awaited flooreffects() Promise and found no demonstrated concurrency defect. That old thitmonst/floor-effects diagnosis is not the current count-84 source owner.",
-    "Candidate e48cbd7ae23eab3ada0a575ffaf58ca8b57a8f0a supplies three independent direct-damage and monster-damage recordings (9637 RNG calls and 146 screens/cursors). This is worker evidence, not accepted combined validation; the fixed mismatch remains at 84 remaining screens until a candidate passes the orchestrator checkpoint.",
-    "Source corrections through candidate 4c7f81ec complete done() TRICKED, paranoid confirmation, fuzzer survival, hung-up death and killer-string branches. GENOCIDED still queries the actual ParanoidDie option after life saving; cmd.c paranoid_ynq preserves C prompt bounds, newline truncation and retries. Monster planning stops at the existing lethal boundary instead of approximating amulet consumption, Constitution reduction and recovery RNG. hack.c unmul now prints the current polymorphed form after survival. Source-ordered savelife retains discarded potion.c make_sick and the unported TRUE-message expels arm as explicit gaps. These corrections passed focused checks, but the combined candidate later failed the live-turn continuation check below.",
-    "Source review at candidate 4c7f81ec found that fuzzer_savelife omitted end.c1007–1013 cmdq_add_ec(CQ_CANNED,wiz_makemap) after repeated wizard deaths. Correction 82aada22, included in submitted 09d74ddc, restores the canonical queue node before returning, so rhack consumes it before new input. The callback remains unported at the existing command-dispatch boundary. The source-pinned queue test and all 47 hero-death cases pass; the combined candidate later failed the separate live-turn continuation check below.",
-    "Combined candidate 9b147c15279ad3469d798e1aa7630a4272d6cb12 passed all 301 recordings but failed development scoring: seed0399 fell from 448 to 0 matching screens, Knight4500 from 1278 to 0, and seed5002 from 410 to 124, each with elapsed-turn preflight disagreed with the live movement gate. Saved summary: .git/checkpoint-results/9b147c15279ad3469d798e1aa7630a4272d6cb12/run-UodIMG/summary.json. This candidate is rejected; accepted results remain 10662 screens.",
-    "mdamageu now raises MonsterDeathPlanningError on the clone instead of inventing wizard recovery. preflightSimpleMonsterActions catches it and returns heroDeath, but its awaited planSimpleMonsterTurn never returns the upkeep count, leaving false/0 even if it simulated earlier rounds. allmain.c moveloop_core can continue after actual life saving or declined wizard death. The JavaScript advanceElapsedTurn live gate still treats that partial prediction as complete. Revalidate the continuation from live state without replaying consumed movement or input, and retain the canonical recovery owner; simply suppressing the assertion or restoring fake recovery would not establish source order."
-  ],
-  "nextProbe": "Complete the whole done()/savelife source family and required caller corrections, including the paranoid query, monster planning boundary and polymorphed unmul follow-up. Preserve the three independent matching recordings and add evidence for newly completed entry paths before retrying combined validation."
+    "The accepted a3ce8ade checkpoint run-jTL8o0 moves this session from 448 to 509 matching screens and from 10729 to 11130 matching RNG calls. No other fixed-workload session loses a match. The saved .cache/B16-r3-development-scan.json and queue identify a non-resistant hero poisoned by a monster at step 509, leaving an upper bound of 23 screens.",
+    "All five independent life-saving recordings match, including the minotaur continuation. Its C screens show amulet recovery, two declined wizard death prompts, completion of that monster turn, and another m. command before the next attack.",
+    "Preserved failed-candidate counter-evidence: 9b147c15 threw elapsed-turn preflight disagreed with the live movement gate in three development sessions. A planning clone must stop at lethal damage; the live pass performs canonical recovery and replans the remaining turn without spending another hero movement ration. Restoring the earlier fabricated wizard recovery in the planner is not a valid fix.",
+    "The next probe is the lethal or nonlethal poison attack dispatch and its poisoned() return/caller contracts in upstream C. Identify the actual attack type and source-owned branches before selecting the next whole function or correction. This later poison refusal is separate from the accepted end.c life-saving span."
+  ]
 }
