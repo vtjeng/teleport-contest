@@ -120,7 +120,7 @@ import {
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from '../js/unported_monster_actions.js';
-import { MonsterDeathPlanningError } from '../js/mhitu.js';
+import { cloneu, MonsterDeathPlanningError } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { ART_STING } from '../js/artifacts.js';
@@ -1934,6 +1934,66 @@ test('minliquid uses mondied for a lethal iron golem outside monster movement',
     } finally {
         game.context.mon_moving = false;
     }
+});
+
+// C mhitu.c:2616-2640 calls the ordinary makemon() runtime shape even when
+// this helper is reached outside level generation.  The planning clone must
+// therefore use makemon_runtime's asynchronous continuation while keeping
+// its hero HP, random stream, and output separate from the live state.
+test('cloneu uses runtime creation on an initialized planning state',
+    async () => {
+    await prepareSelectedAction();
+    assert.equal(game.in_mklev, false);
+    game.u.mh = 9;
+    game.u.mhmax = 12;
+    const beforeHp = game.u.mh;
+    const beforeRandom = rngSnapshot();
+    const beforeTopline = game._ttyToplines;
+    const beforeMonsters = monsterSnapshot();
+    const planned = planningState(game);
+    const calls = [];
+    const messages = [];
+    const random = {
+        d(number, sides) {
+            calls.push(['d', number, sides]);
+            return 1;
+        },
+        rn1(number, base) {
+            calls.push(['rn1', number, base]);
+            return base;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 0;
+        },
+        rnd(bound) {
+            calls.push(['rnd', bound]);
+            return 1;
+        },
+        rne(value) {
+            calls.push(['rne', value]);
+            return value;
+        },
+    };
+
+    const clone = await cloneu(planned, {
+        state: planned,
+        planning: true,
+        random,
+        message: async (line) => messages.push(line),
+        norepMessage: async (line) => messages.push(line),
+    });
+    assert.ok(clone);
+    assert.equal(clone.mcloned, true);
+    assert.equal(clone.mhpmax, 12);
+    assert.equal(clone.mhp, 4);
+    assert.equal(planned.u.mh, 5);
+    assert.ok(calls.length > 0, 'runtime creation consumed its injected RNG');
+    assert.deepEqual(messages, []);
+    assert.equal(game.u.mh, beforeHp);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+    assert.equal(game._ttyToplines, beforeTopline);
+    assert.deepEqual(monsterSnapshot(), beforeMonsters);
 });
 
 // C ref: mon.c minliquid_core():1111-1119. A stranded eel spends
