@@ -47,10 +47,11 @@ import { game } from '../js/gstate.js';
 import { losehp, unmul } from '../js/hack.js';
 import { encodeUtf8Text } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
+import { GameDisplay } from '../js/game_display.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { set_mon_data } from '../js/mondata.js';
-import { tty_wait_synch } from '../js/tty_rawprint.js';
+import { tty_raw_print, tty_wait_synch } from '../js/tty_rawprint.js';
 import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 import {
     NON_PM,
@@ -888,6 +889,42 @@ test('the map wait leaves the dirty status line unchanged after bones clears coo
         /--More--/u,
     );
 });
+
+test('raw output dismissal restores map waits while recorder mode stays active',
+    async () => {
+        // tty_raw_print() increments C ttyDisplay->rawprint, whereas the
+        // recorder's nomux_raw_active remains set after that output. The
+        // first wait therefore consumes its dismissing space; the second
+        // wait must repaint the live map even with hero coordinates at zero.
+        const state = {
+            nhDisplay: new GameDisplay(null),
+            iflags: { cbreak: true, window_inited: true },
+            level: { at: () => ({ typ: ROOM }) },
+            u: { ux: 0, uy: 0 },
+        };
+        tty_raw_print(state, 'raw diagnostic');
+        assert.equal(state.nhDisplay.nomuxRaw.active, true);
+        assert.equal(state.nhDisplay.nomuxRaw.rawprint, 1);
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        await tty_wait_synch(state);
+        assert.equal(state.nhDisplay.nomuxRaw.rawprint, 0);
+        assert.equal(state.nhDisplay.nomuxRaw.active, true);
+        assert.equal(state.nhDisplay.inputQueueLength, 0);
+
+        const pending = 'Map synchronization';
+        state._pending_message = pending;
+        state.nhDisplay.topMessage = pending;
+        state.nhDisplay.toplines = pending;
+        state.nhDisplay.toplin = TOPLINE_NEED_MORE;
+        state.nhDisplay.pushKey('x'.charCodeAt(0));
+        await tty_wait_synch(state);
+        assert.equal(state.nhDisplay.inputQueueLength, 1);
+        assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+        assert.match(
+            state.nhDisplay.grid[0].map(({ ch }) => ch).join(''),
+            /--More--/u,
+        );
+    });
 
 test('the query stops for a hung-up game and reads ParanoidDie',
      async () => {
