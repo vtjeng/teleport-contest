@@ -61538,7 +61538,7 @@
     {
       "id": "port-mhitu-passiveum-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete polymorphed passive counterattacks through the monster-turn caller",
       "cFile": "mhitu.c",
       "sessions": [
@@ -61549,8 +61549,8 @@
       "spans": [
         {
           "name": "passiveum",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "394068a52d8ec575a6e1186a5a703e0f79cb2ed2",
           "functions": [
             "passiveum"
           ]
@@ -61755,7 +61755,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "394068a52d8ec575a6e1186a5a703e0f79cb2ed2",
+        "screens": 11142,
+        "rng": 785819
+      },
+      "parkedReason": "The passiveum span and two independent yellow-mold stun recordings pass. Other passive forms, lethal recovery and runtime milky-potion creation have no matching entry recordings; resume when their independent production coverage is available and priority permits. The current Knight blocker is uhitm.c mhitm_ad_ston, already assigned as the next span."
     }
   ]
 }
