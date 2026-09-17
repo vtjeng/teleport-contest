@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent negative is_edible case: a gelatinous cube rejects a fruit-juice potion because include/objects.h POTION uses GLASS, outside objclass.h is_organic. C and JS match all59 screens; this does not establish eatspecial potion-branch reachability.",
+  "segments": [
+    {
+      "seed": 8422801,
+      "datetime": "20381117091623",
+      "nethackrc": "OPTIONS=name:LiquidMeal,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ".\u0017potion of fruit juice\n#polyself\ngelatinous cube\n    meo."
+    }
+  ]
+}

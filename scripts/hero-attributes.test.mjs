@@ -753,6 +753,27 @@ test('poison_strdmg loses the strength before the hit points', async () => {
         ['encumber', `losehp 7 poisonous corpse ${KILLED_BY_AN}`]);
 });
 
+test('fatal strength-loss damage stops both remaining poison stages', async () => {
+    // C attrib.c:244 and :277 cannot return from a terminal losehp(). The
+    // JS death owner returns with gameover, so neither maximum HP adjustment
+    // nor the second poison damage call may follow that terminal result.
+    const state = losestrState({ base: 5, uhpmax: 20, ulevel: 5 });
+    const random = queuedRandom([0, 3], ['rn1(4,3)', 'rn1(4,3)']);
+    const damage = [];
+    await poison_strdmg(4, 7, 'poisoned weapon', KILLED_BY_AN, state, {
+        random,
+        losehp: (n) => {
+            damage.push(n);
+            state.program_state.gameover = true;
+        },
+        encumberMessage: () => assert.fail('terminal loss cannot adjust strength'),
+    });
+    assert.deepEqual(damage, [9]);
+    assert.equal(state.u.uhpmax, 20);
+    assert.equal(state.u.acurr.a[A_STR], 5);
+    random.done();
+});
+
 test('exerchk applies and reschedules the move-600 attribute check', async () => {
     const state = baseState();
     state.moves = 600;
