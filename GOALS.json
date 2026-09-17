@@ -59471,7 +59471,7 @@
           "line": 469,
           "endLine": 734,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -59553,7 +59553,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "polyself",
+            "implementation": "js/polyself.js",
+            "symbol": "polyself",
+            "sourceReview": "Read the complete polyself.c polyself() definition (469-731) and kept its early Unchanging/system-shock guards, old-light capture, form-revert and low-control normalization, controlled input loop, placeholder substitutions, role/race admission, wizard rehumanization, lycanthrope shift, dragon merge, vampire direct target, ordinary random selection, sex-change gate, and final light-source update in C order. The selector now re-enters name_to_monclass/mkclass_poly at the C by_class target without rereading input, compares the candidate against gu.urole.mnum, compares wizard reversion against u.umonster, and tests strstri's negative index result. Direct special targets retain C's goto destinations when dragon, were, vampire, and monsterpoly predicates overlap. Dragon armor captures artifact_light/arti_light_radius before changing the armor type, preserves the C Your message, and awaits the existing maybe_adjust_light owner. The discarded polymon/newman branches remain at their existing canonical boundaries. were_beastie is moved to its were.c owner, armor_to_dragon is complete with its source mapping/default, and zapyourself's discarded polyself call is awaited through the canonical production owner. No new Unsupported refusal or invented state/RNG/output was added.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_polyself",
+                "source": "wizcmds.c wiz_polyself() (566-572) calls polyself(POLY_CONTROLLED) for the #polyself command."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dopoly",
+                "source": "polyself.c dopoly() (1877-1891) calls polyself(POLY_MONSTER) for a vampire or vampshifter."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c domonability() dispatches the vampire/vampshifter special ability to dopoly(), which calls polyself(POLY_MONSTER)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c zapyourself() (2705-3013) discards polyself's return for WAN_POLYMORPH/SPE_POLYMORPH; the JS caller now awaits the state transition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs",
+              "scripts/zapyourself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ],
+            "checkedAt": "c7f8a775fe2f776aefc1df6e8c9aaac2bf6ad85b"
+          }
+        ],
+        "entryPointReview": "Active production entries are the #polyself wiz_polyself command, dopoly's POLY_MONSTER vampire/vampshifter path, self-polymorph through zapyourself, and the controlled lycanthrope/dragon/vampire direct-target paths. The independent raven recording reaches the controlled selector choosing raven and existing polymon caller. Source-pinned initialized-runtime tests additionally exercise the role-monster admission and wizard reversion against the original form, while pure tests pin were_beastie, armor_to_dragon, and the strstri result contract. The direct dopoly, self-zap, controlled lycanthrope, dragon-armor, vampire, class-retry, and rare placeholder entries remain active with empty recordings until independent recipes reach them; they are not source-inactive. The existing polymon/newman callers retain their separate source gaps where those functions still contain unported branches.",
+        "entryPoints": [
+          {
+            "name": "#polyself controlled monster selection",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": [
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ]
+          },
+          {
+            "name": "dopoly vampire/vampshifter form change",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "zapyourself WAN_POLYMORPH/SPE_POLYMORPH self-polymorph",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "controlled lycanthrope shift, dragon armor merge, and vampire direct target",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
