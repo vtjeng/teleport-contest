@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 583104,
+    "datetime": "20410827142500",
+    "nethackrc": "OPTIONS=name:AchievementVariation2,role:Wizard,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  .\u0017candelabrum of invocation\n.#conduct\n ",
+    "comment": "Independently chosen Wizard wish creates a Candelabrum of Invocation, then #conduct reaches doconduct/show_conduct and records the distinct object-achievement possession wording. The extra startup dismissal matches this seed's neutral welcome notice; character, seed, date, and object differ from the Bell witness."
+  }]
+}
