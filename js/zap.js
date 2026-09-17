@@ -66,6 +66,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HEAD,
+    HEADSTONE,
     HWALL,
     ICE,
     ICED_MOAT,
@@ -173,7 +174,10 @@ import {
     W_ARMU,
     W_RING,
     W_RINGL,
+    W_QUIVER,
+    W_SWAPWEP,
     W_TOOL,
+    W_WEAPONS,
     W_WEP,
     W_NONDIGGABLE,
     XKILL_GIVEMSG,
@@ -235,12 +239,13 @@ import {
     stackobj,
     prepareHoldDropAdmission,
     delete_contents,
+    replace_inventory_core,
     update_inventory,
     useupall,
     delobj_core,
 } from './invent.js';
 import { get_obj_location } from './light.js';
-import { monhp_per_lvl, newmcorpsenm, rndmonnum } from './makemon.js';
+import { monhp_per_lvl, newmcorpsenm } from './makemon.js';
 import {
     makemon_revival,
     makemon_runtime,
@@ -304,10 +309,13 @@ import {
     PM_KNIGHT,
     PM_GREMLIN,
     PM_LONG_WORM,
+    NUMMONS,
     S_EEL,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
+import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
+import { random_engraving } from './random_engraving.js';
 import {
     carried,
     free_omid,
@@ -361,6 +369,7 @@ import {
     SPE_EXTRA_HEALING,
     SPE_FINGER_OF_DEATH,
     SPE_HEALING,
+    SPE_KNOCK,
     SPE_MAGIC_MISSILE,
     SPE_BLANK_PAPER,
     SPE_NOVEL,
@@ -375,6 +384,7 @@ import {
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_LIGHT,
+    WAN_OPENING,
     WAN_POLYMORPH,
     WAN_WISHING,
     WAN_STRIKING,
@@ -491,7 +501,20 @@ import {
     block_point, cansee, canseemon, couldsee, does_block,
     recalc_block_point, unblock_point,
 } from './vision.js';
-import { find_mac, which_armor } from './worn.js';
+import {
+    bimanual,
+    bypass_obj,
+    find_mac,
+    set_twoweap,
+    setuqwep,
+    setuswapwep,
+    setuwep,
+    setworn,
+    wearslot,
+    wearmask_to_obj,
+    which_armor,
+} from './worn.js';
+import { remove_worn_item } from './steal.js';
 import {
     burn_away_slime, fall_asleep, spot_stop_timers, spot_time_left,
 } from './timeout.js';
@@ -1782,10 +1805,10 @@ export async function create_polymon(obj, material, state = game,
     }
 }
 
-// C ref: zap.c poly_obj() (1702-2089).  Object allocation, chain replacement,
+// C ref: zap.c poly_obj() (1702-1989).  Object allocation, chain replacement,
 // and deletion remain in their canonical obj/invent owners; this function
 // carries zap.c's polymorph-specific choice and field preservation.
-export function poly_obj(obj, id, state = game,
+export async function poly_obj(obj, id, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('poly_obj requires an object');
@@ -1847,7 +1870,7 @@ export function poly_obj(obj, id, state = game,
         let attempts = 100;
         while (attempts-- > 0) {
             const mnum = can_be_hatched(
-                rndmonnum(env),
+                random.rn2(NUMMONS),
                 env,
             );
             if (mnum !== NON_PM && !dead_species(mnum, true, env)) {
@@ -1974,17 +1997,64 @@ export function poly_obj(obj, id, state = game,
     replace_object(obj, replacement, env);
 
     if (oldLocation === OBJ_INVENT) {
-        // freeinv_core/addinv_core1/addinv_core2 are void C helpers.  Their
-        // inventory effects are owned by invent.js; this object replacement
-        // cannot call freeinv() after the in-place chain swap without
-        // extracting the new object twice.  Keep each discarded source call
-        // explicit until that owner supplies an in-place replacement API.
-        note_unported('invent.c freeinv_core');
-        note_unported('invent.c addinv_core1');
-        note_unported('invent.c addinv_core2');
+        // C keeps the in-place chain swap, then runs the inventory cores in
+        // source order. addinv_core2 can wait for an Archeologist's label, so
+        // consume its completion before changing worn slots below.
+        await replace_inventory_core(obj, replacement, env);
         if (oldWornMask) {
-            note_unported('steal.c remove_worn_item');
-            note_unported('worn.c wear handling');
+            const wasTwoHanded = bimanual(obj, state);
+            const wasTwoweap = Boolean(state.u?.twoweap);
+            const newWornMask = (oldWornMask & W_WEAPONS)
+                ? oldWornMask
+                : wearslot(replacement, state) & oldWornMask;
+            // steal.c remove_worn_item() is a void dependency. Its supported
+            // ring/weapon arms are wired here; unsupported accessory arms stay
+            // an explicit discarded-call boundary until that source owner is
+            // ported, rather than being replaced with invented effects.
+            const removable = !(oldWornMask
+                & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN | W_QUIVER));
+            if (removable) {
+                remove_worn_item(obj, true, state);
+                if (newWornMask & W_WEP) {
+                    if (wasTwoHanded || !bimanual(replacement, state)
+                        || !state.uarms)
+                        setuwep(replacement, env);
+                    if (wasTwoweap && state.uwep
+                        && !bimanual(state.uwep, state))
+                        set_twoweap(true, state);
+                } else if (newWornMask & W_SWAPWEP) {
+                    if (wasTwoHanded || !bimanual(replacement, state))
+                        setuswapwep(replacement, env);
+                    if (wasTwoweap && state.uswapwep)
+                        set_twoweap(true, state);
+                } else if (newWornMask & W_QUIVER) {
+                    setuqwep(replacement, env);
+                } else if (newWornMask) {
+                    setworn(replacement, newWornMask, env);
+                    // C's set_wear() return is discarded. The existing JS
+                    // set_wear() is the startup-wide callback and has a
+                    // different signature, so retain this call-site gap.
+                    note_unported('do_wear.c set_wear');
+                    replacement = wearmask_to_obj(newWornMask, state);
+                }
+            } else {
+                note_unported('steal.c remove_worn_item');
+            }
+            // C keeps this source tail outside remove_worn_item()'s success
+            // path. Even when an accessory or punishment removal is still a
+            // discarded void call, preserve its later worn-mask handling.
+            if (!removable && newWornMask) {
+                if (newWornMask & W_WEP) setuwep(replacement, env);
+                else if (newWornMask & W_SWAPWEP)
+                    setuswapwep(replacement, env);
+                else if (newWornMask & W_QUIVER)
+                    setuqwep(replacement, env);
+                else {
+                    setworn(replacement, newWornMask, env);
+                    note_unported('do_wear.c set_wear');
+                    replacement = wearmask_to_obj(newWornMask, state);
+                }
+            }
         }
     } else if (oldLocation === OBJ_FLOOR && location) {
         if (obj.otyp === BOULDER && replacement.otyp !== BOULDER) {
@@ -2048,9 +2118,28 @@ export function poly_obj(obj, id, state = game,
 // fail-closed boundaries when reached by this callback.
 export async function bhito(obj, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
-    if (obj === wand || obj?.bypass) return 0;
+    if (obj === wand) return 0;
+    if (obj?.bypass) {
+        if (state.context?.bypasses) return 0;
+        // C's defensive stray-bit arm prints only a debug line. The recorder
+        // has no debug channel, so retain its clearing transition without
+        // inventing user-visible output.
+        obj.bypass = false;
+    }
+    // bhitpile() adds this result to its hit count.  Keep the existing
+    // unsupported-callback boundary for every object effect whose source
+    // result is not ported; weffects() admits only the polymorph callback
+    // below, so this arm is reached directly only by source-owned callers.
     if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
         throw new UnsupportedBhitError(`bhito() for object type ${wand?.otyp}`);
+    if (obj === state.uball || obj === state.u?.uball) return 0;
+    if (obj === state.uchain || obj === state.u?.uchain) {
+        if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK) {
+            note_unported('read.c unpunish');
+            learnwand(wand, state);
+        }
+        return 0;
+    }
     if (obj_unpolyable(obj, state, random)) return 0;
 
     state.u ??= {};
@@ -2082,8 +2171,15 @@ export async function bhito(obj, wand, state = game,
         // retain that boundary rather than invoking its throwing adapter.
         if (cover) note_unported('mon.c hideunder');
     } else {
-        const replacement = poly_obj(obj, STRANGE_OBJECT, state, random, rawEnv);
-        newsym(replacement.ox, replacement.oy, state);
+        const replacement = await poly_obj(
+            obj,
+            STRANGE_OBJECT,
+            state,
+            random,
+            rawEnv,
+        );
+        if (replacement)
+            newsym(replacement.ox, replacement.oy, state);
     }
     if (learn_it) learnwand(wand, state);
     return 1;
@@ -2095,6 +2191,9 @@ export async function bhito(obj, wand, state = game,
 // source boundaries until their own effect families land.
 export async function bhitm(monster, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
+    // bhit() consumes the callback's return value while walking the ray.
+    // Unsupported wand effects therefore retain the old callback boundary;
+    // only the implemented polymorph path reaches this function here.
     if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
         throw new UnsupportedBhitError(`bhitm() for object type ${wand?.otyp}`);
     state.gn ??= {};
@@ -2124,7 +2223,7 @@ export async function bhitm(monster, wand, state = game,
         // C marks inventory objects bypassed before changing the monster. The
         // bypass context is consumed by the shared polymorph cleanup owner.
         for (let object = monster.minvent; object; object = object.nobj)
-            object.bypass = true;
+            bypass_obj(object, state);
 
         if (monster.cham === NON_PM && !random.rn2(25)) {
             if (canseemon(monster, state)) {
@@ -2236,11 +2335,29 @@ export async function bhitpile(wand, tx, ty, state = game,
     return hitanything;
 }
 
-// C ref: zap.c zap_map() (3625-3825).  WAN_POLYMORPH has no terrain action
-// in this helper; keeping the call explicit is important because it runs
-// before m_at()/bhitpile() for every square and is a no-op for this object.
-export function zap_map(x, y, wand, state = game, random = { rn2 }) {
-    void x; void y; void wand; void state; void random;
+// C ref: zap.c zap_map() (3625-3825).  A downward polymorph changes a
+// non-headstone engraving before the ray reaches the square's objects. The
+// lateral arm is intentionally empty; all other terrain effects remain at
+// their source boundaries until their own zap spans are ported.
+export function zap_map(x, y, wand, state = game, random = { rn2 },
+    rawEnv = {}) {
+    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
+        return undefined;
+    if ((state.u?.dz ?? 0) <= 0) return undefined;
+    const engraving = engr_at(x, y, state);
+    if (!engraving || engraving.engr_type === HEADSTONE)
+        return undefined;
+    del_engr_at(x, y, state);
+    const replacement = random_engraving({ ...rawEnv, state, random });
+    make_engr_at(
+        x,
+        y,
+        replacement.text,
+        replacement.pristine,
+        state.moves ?? 0,
+        0,
+        { ...rawEnv, state, random },
+    );
     return undefined;
 }
 
@@ -2330,7 +2447,7 @@ export async function bhit(
         }
 
         if (zapped) {
-            zap_map(x, y, obj, state, random);
+            zap_map(x, y, obj, state, random, rawEnv);
             typ = state.level.at(x, y).typ;
         }
 
@@ -4245,7 +4362,7 @@ export async function zap_updown(obj, state = game,
     let disclose = false;
     if (state.u.dz > 0) {
         await bhitpile(obj, x, y, state, random, rawEnv, state.u.dz);
-        zap_map(x, y, obj, state, random);
+        zap_map(x, y, obj, state, random, rawEnv);
     } else if (state.u.dz < 0 && state.u.uundetected
                && hides_under(state.youmonst?.data)) {
         const top = state.level?.objects?.[x]?.[y];
@@ -4284,6 +4401,13 @@ export async function weffects(
         && state.u.dz > 0 && await zap_steed(obj, state, random)) {
         disclose = true;
     } else if (oc_dir === IMMEDIATE) {
+        // The immediate callback walk is source-complete for polymorph only.
+        // Keep the established weffects() boundary at the caller for all
+        // other object effects instead of fabricating a callback result.
+        if (otyp !== WAN_POLYMORPH && otyp !== SPE_POLYMORPH)
+            throw new UnsupportedZapError(
+                `bhit() for immediate object type ${otyp}`,
+            );
         zapsetup(state);
         if (state.u.uswallow) {
             await bhitm(state.u.ustuck, obj, state, random);

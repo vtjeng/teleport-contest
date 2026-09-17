@@ -46,6 +46,8 @@ import {
     NOT_HUNGRY,
     OBJ_FLOOR,
     OBJ_INVENT,
+    OBJ_MIGRATING,
+    OBJ_DELETED,
     OBJ_MINVENT,
     PLNMSG_HIDE_UNDER,
     PIT,
@@ -107,6 +109,7 @@ import {
 } from '../js/monsters.js';
 import {
     preflightSimpleMonsterActions,
+    planningState,
     runSimpleMonsterAction,
     unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
@@ -133,6 +136,7 @@ import {
     minliquid,
     movemon_singlemon,
 } from '../js/mon.js';
+import { clear_bypasses } from '../js/worn.js';
 import {
     create_region,
     UnsupportedRegionCallbackError,
@@ -440,6 +444,54 @@ test('complete retry snapshot includes every audited scheduler root',
             game.viz_array.map((row) => [...row]),
         );
     });
+
+test('planned bypass cleanup clones every non-level object owner', async () => {
+    await prepareSelectedAction();
+    const migrating = floorObject(4, 4, 9301);
+    migrating.where = OBJ_MIGRATING;
+    migrating.bypass = true;
+    const deleted = floorObject(5, 4, 9302);
+    deleted.where = OBJ_DELETED;
+    deleted.bypass = true;
+    const dog = ordinaryMonster(PM_GNOME, 7, 7, { m_id: 9303 });
+    dog.minvent = monsterObject(ROCK, 9304);
+    dog.minvent.bypass = true;
+    const ball = floorObject(8, 8, 9305);
+    ball.bypass = true;
+    const chain = floorObject(8, 8, 9306);
+    chain.bypass = true;
+
+    game.gm.migrating_objs = migrating;
+    game.go.objs_deleted = deleted;
+    game.gm.mydogs = dog;
+    game.uball = ball;
+    game.uchain = chain;
+    game.u.uball = ball;
+    game.u.uchain = chain;
+    game.context.bypasses = true;
+
+    const planned = planningState(game);
+    assert.notStrictEqual(planned.gm.migrating_objs, migrating);
+    assert.notStrictEqual(planned.go.objs_deleted, deleted);
+    assert.notStrictEqual(planned.gm.mydogs, dog);
+    assert.notStrictEqual(planned.gm.mydogs.minvent, dog.minvent);
+    assert.notStrictEqual(planned.uball, ball);
+    assert.notStrictEqual(planned.uchain, chain);
+
+    clear_bypasses(planned);
+    assert.equal(planned.gm.migrating_objs.bypass, false);
+    assert.equal(planned.go.objs_deleted.bypass, false);
+    assert.equal(planned.gm.mydogs.minvent.bypass, false);
+    assert.equal(planned.uball.bypass, false);
+    assert.equal(planned.uchain.bypass, false);
+    assert.equal(planned.context.bypasses, false);
+    assert.equal(migrating.bypass, true);
+    assert.equal(deleted.bypass, true);
+    assert.equal(dog.minvent.bypass, true);
+    assert.equal(ball.bypass, true);
+    assert.equal(chain.bypass, true);
+    assert.equal(game.context.bypasses, true);
+});
 
 test('complete retry snapshot detects each deferred output owner',
     async () => {
@@ -2455,32 +2507,37 @@ test('simple preflight refuses each turn-preamble state on its own',
     async () => {
         // allmain.c moveloop_core() runs `if (svc.context.bypasses)
         // clear_bypasses();` at 193 and resolves a deferred level transition
-        // before the monster loop; neither is ported, so a scan entered with
-        // either one pending must refuse. Each is set alone, so a guard that
-        // demanded both would admit these two turns.
+        // before the monster loop. The planning clone owns every object list,
+        // so it performs that cleanup without changing the live context;
+        // only the still-unported level transition is refused.
         //
         // The guard used to carry a third term reading game.occupation, a
         // field nothing in js/ assigns. C gates nothing here on go.occupation
         // -- allmain.c names it only at 332, 485-506 and 684-689, all later in
         // the turn -- so dropping it stops nothing that C stops; monmove.c
         // dochugw() owns the per-monster occupation test instead.
-        for (const pending of [
-            () => { game.context.bypasses = true; },
-            () => { game.u.utotype = 1; },
-        ]) {
-            await prepareSelectedAction();
-            pending();
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason
-                        === 'deferred monster cleanup or level transition'
-                ),
-            );
-            game.context.bypasses = false;
-            game.u.utotype = 0;
-        }
+        const bypass = await prepareSelectedAction();
+        game.context.bypasses = true;
+        const bypassBefore = completeSecondTurnSnapshot(game, bypass.replay);
+        await preflightSimpleMonsterActions(game);
+        assert.equal(game.context.bypasses, true);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, bypass.replay),
+            bypassBefore,
+        );
+        game.context.bypasses = false;
+
+        await prepareSelectedAction();
+        game.u.utotype = 1;
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason
+                    === 'deferred monster cleanup or level transition'
+            ),
+        );
+        game.u.utotype = 0;
 
         // With neither pending the same scan runs to completion, which is what
         // makes the two refusals above attributable to the states they set.
