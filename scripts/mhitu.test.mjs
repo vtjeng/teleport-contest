@@ -1599,15 +1599,17 @@ test('mdamageu updates the ordinary hit-point pool and caps it after showing dam
     assert.equal(state.disp.botl, true);
     assert.deepEqual(result.lines, ['[HP -3, 6 left]']);
 
-    // The diagnostic branch is void in C and continues with n = 0. This also
-    // pins the cap's ordering without inventing an Unsupported refusal.
-    state.u.uhp = 12;
-    const diagnostics = [];
+    // Display the reduced pool before applying a caller's lower maximum.
+    state.u.uhp = 14;
+    const capped = meleeEnv(state, []);
+    await mdamageu({ m_id: 6101 }, 2, state, capped.env);
+    assert.equal(state.u.uhp, 10);
+    assert.deepEqual(capped.lines, ['[HP -2, 12 left]']);
+
+    // The discarded diagnostic continues with n = 0 in C.
     const noDamage = meleeEnv(state, []);
-    noDamage.env.impossible = (text) => diagnostics.push(text);
     await mdamageu({ m_id: 6101 }, -2, state, noDamage.env);
     assert.equal(state.u.uhp, 10);
-    assert.deepEqual(diagnostics, ['mdamageu for negative damage? (-2)']);
     assert.deepEqual(noDamage.lines, []);
 });
 
@@ -1630,11 +1632,13 @@ test('mdamageu uses the polymorphed hit-point pool and stops before live rehuman
     assert.equal(state.u.uhp, 23);
     assert.deepEqual(result.lines, ['[HP -3, 5 left]']);
 
-    // Caller-side reductions can leave mh above mhmax; C caps the form pool
-    // after showdamage, and the zero-damage call itself emits no line.
+    // Caller-side reductions can leave mh above mhmax; C displays that
+    // reduced value before capping the form pool.
     state.u.mh = 12;
-    await mdamageu({ m_id: 6102 }, 0, state, meleeEnv(state, []).env);
+    const capped = meleeEnv(state, []);
+    await mdamageu({ m_id: 6102 }, 1, state, capped.env);
     assert.equal(state.u.mh, 10);
+    assert.deepEqual(capped.lines, ['[HP -1, 11 left]']);
 
     state.u.mh = 1;
     const lethal = meleeEnv(state, [], { planning: true });

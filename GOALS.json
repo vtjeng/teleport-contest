@@ -60362,6 +60362,421 @@
         "rng": 784966
       },
       "parkedReason": "The complete break_armor span passes at c04193106e88a205f3c6341bddcfb193bbe8284f; independent recordings cover forced suit/glove/shield/helmet/boot removal and the saved raven recording covers sliparm cloak removal. Breakarm destruction, horned helmet and headless eyewear families, and fatal-lava production entries remain unrecorded. Preserve downstream Eyes-of-the-Overworld sight-loss and skinback artifact-light restoration gaps. Resume when these entry recipes are reachable and selection permits; the Knight first mismatch is now the independent eat.c is_edible helper."
+    },
+    {
+      "id": "port-mhitu-mdamageu-seed4500-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete ordinary and polymorphed hero damage from monster actions",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The saved Knight queue has 278 remaining screens and a complete investigation at investigations/holdout/seed4500-knight-coverage.json. Immutable worker continuation b5aefc96 traces the next monster-action boundary to mhitu.c mdamageu at screen 1560. The higher-priority is_edible delivery and B24 equipment delivery are being corrected; this source-independent two-file delivery is ready and does not require either code change. Its observed worker reachability remains tied to that worker commit.",
+      "detail": "Port whole mhitu.c mdamageu1902–1927, preserve source hit-point pool selection, showdamage-before-cap ordering and live rehumanize/done_in_by callbacks. Record all existing production callers and keep unrecorded polymorphed, gaze and exceptional entry coverage open.",
+      "spans": [
+        {
+          "name": "mdamageu",
+          "status": "closed",
+          "closedBy": "d78e57fbe8e4acfee9c35930b6e3c253ff2a110b",
+          "functions": [
+            "mdamageu"
+          ]
+        }
+      ],
+      "openedAt": "2c8050871864672d507934e10e459067b26308d5",
+      "openStanding": {
+        "sha": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mdamageu",
+          "line": 1902,
+          "endLine": 1933,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1902,
+        "to": 1933
+      },
+      "activeStanding": {
+        "sha": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1536,
+          "kind": "stop",
+          "function": "is_edible",
+          "functionDeclared": true,
+          "sourceFile": "eat.c",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 278,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 278,
+              "status": "complete",
+              "commit": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1536,
+                "kind": "stop",
+                "function": "is_edible",
+                "functionDeclared": true,
+                "sourceFile": "eat.c",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 278
+              },
+              "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure source predicate in C order and retain the existing doeat, floorfood and item-action callers. The downstream skinback artifact-light restoration remains separately unported.",
+              "source": {
+                "file": "eat.c",
+                "functions": [
+                  "is_edible"
+                ],
+                "branch": "eat.c is_edible91–121 first rejects unique object types, then accepts fire-elemental flammable objects, metallivore metallic objects with the rust-monster rust-prone restriction, ghoul non-vegan corpses or eggs, and empty organic objects for a gelatinous cube, before the ordinary FOOD_CLASS fallback. It performs no RNG call, output or game-state mutation.",
+                "callers": [
+                  "C eat.c doeat and floorfood call is_edible before accepting an item; js/eat.js doeat, floorfood and eat_ok already route through this predicate.",
+                  "C iactions.c classifies item actions with is_edible; js/iactions.js itemactions imports the same owner."
+                ],
+                "dependencies": [
+                  "Use existing source-owned object material predicates, Has_contents, metallivorous, vegan and the canonical monster table. No missing return-valued callee or fabricated RNG/state transition is required.",
+                  "Compatible non-food eating can later reach the separate doeat_nonfood owner; removing the pure predicate refusal does not establish that downstream behavior.",
+                  "Unresolved prior source finding: polyself.c skinback1953–1969 still needs artifact-light radius capture and maybe_adjust_light when merged dragon scales are restored. This is separate from the resolved break_armor mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint c04193106e88a205f3c6341bddcfb193bbe8284f advances the Knight session from 1439 to 1536 matching screens. The saved A27 scan and queue identify is_edible as the next source stop, with no earlier RNG or screen divergence.",
+                "Read complete nethack-c/upstream/src/eat.c is_edible91–121 and the accepted js/eat.js helper: its polymorphed-hero refusal precedes the form-specific C acceptance rules. Implement the whole pure predicate, not a session-specific food allowance.",
+                "The completed armor fix is independently exercised by the Knight brown-mold and equipped Valkyrie giant-ant recordings under recordings/polyself.c/break-armor-*-a27.session.json. C messages verify forced suit, glove, shield, helmet and boot removal; the older raven recording specifically verifies sliparm cloak removal.",
+                "The source goal for break_armor still retains unrecorded breakarm destruction, horned-helmet, headless-eyewear and fatal-lava entry families. The existing Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps."
+              ],
+              "nextProbe": "Port the complete pure is_edible predicate with source-pinned tests for each form and unique-object precedence; replay the existing production callers, then investigate the next mismatch without treating helper completion as full non-food eating support."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mdamageu",
+            "implementation": "js/mhitu.js",
+            "symbol": "mdamageu",
+            "sourceReview": "Read nethack-c/upstream/src/mhitu.c:1902-1927 in full. The owner reports impossible negative damage and continues with n=0, raises disp.botl, then selects the polymorphed u.mh/mhmax or ordinary u.uhp/uhpmax pool. Each arm calls showdamage before its maximum cap; a lethal polymorphed arm calls rehumanize and a lethal ordinary arm calls done_in_by. JavaScript now preserves that order, uses the canonical polyself.c rehumanize owner on the live path, and stops planning clones at the input-bearing lethal boundary without running terminal work on the clone. The discarded impossible diagnostic is recorded as note_unported(pline.c impossible), without an injected production substitute. Root cap-order tests use positive damage and an over-maximum initial pool, so their message assertions observe the pre-cap value. Supporting live rehumanize and done_in_by remain the existing canonical owners; no required return value is fabricated.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1201 and :1258 call mdamageu for a monster's landed hero blow; JavaScript awaits the completed owner for both the pre-existing-death and damage arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:1560 calls mdamageu after the engulfing damage and before the expulsion/occupation continuation; JavaScript passes the same state and planning/live environment through."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku dispatches the hitmu/gulpmu production arms; JavaScript awaits their completed result and stops the attack loop after live terminal finalization."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "C mcastu.c:896 applies remaining psychic-bolt or open-wounds damage with mdamageu; JS mcast_spell awaits env.mdamageu. js/unported_monster_actions.js attackHeroWithMattacku and trySimpleMonsterSpell supply the canonical mhitu.mdamageu callback with the planning/live state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json"
+            ],
+            "checkedAt": "2a5e74ec41ef1c7a7f046af15d7c69475571ec2e"
+          }
+        ],
+        "entryPointReview": "Whole mhitu.c mdamageu1902–1927 is a shared impure helper. C callers include hitmu1201/1258, gulpmu1560, gazemu1851; mcastu.c castmu303 and mcast_spell896; hack.c domove_core3439; and uhitm.c mhitm_ad_drin3244 and passive5788/5915/5988/6077/6100/6113. Existing implemented hitmu, gulpmu and mcast_spell callbacks retain their canonical production wiring. The independent marilith recipes use six active attack slots (include/monsters.h2970) so passiveum returns after inspecting all slots; a created newt damages u.mh through the live monster turn without reaching its unported passive tail. Both new seed/gender variants match the complete C output and explicitly contain nonzero HP damage messages. Existing expels-ice-vortex covers ordinary engulfing damage only; it does not prove gaze or lethal recovery. Remaining active spell, gaze, falling-piercer, brain-eating, passive-reaction and lethal polymorph entries remain unrecorded or blocked in their callers. Park this source goal after span acceptance; no formal correctness review is required for that parked goal.",
+        "entryPoints": [
+          {
+            "name": "nonlethal polymorphed hero damage through a monster melee attack",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json"
+            ]
+          },
+          {
+            "name": "ordinary hero engulfing damage",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json"
+            ]
+          },
+          {
+            "name": "monster spells and gaze damage",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "falling piercer, brain-eating and monster passive reactions",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "lethal ordinary damage and polymorphed rehumanization",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d78e57fbe8e4acfee9c35930b6e3c253ff2a110b",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "parkedReason": "mdamageu is source-verified and its span passed the combined checkpoint with two independent polymorphed melee recordings and the existing ordinary engulfing recording. Resume entry coverage after matching recipes reach mcast_spell and gazemu damage, domove_core falling-piercer damage, mhitm_ad_drin and passive reactions, and live rehumanize/done_in_by recovery; their unported callers or missing recordings remain open. The current first Knight mismatch is is_edible, whose source-required eating correction is in progress."
+    },
+    {
+      "id": "port-exper-losexp-seed0399-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete experience loss, intrinsic removal and wizard level lowering",
+      "cFile": "exper.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "Seed continuation from immutable worker commit a0a8fc60 identifies exper.c losexp after the source-traced equipment stop in holdout/seed0399-wizard-hallu-actions, whose saved queue has 4 remaining screens and investigation investigations/holdout/seed0399-wizard-hallu-actions.json. Higher-ranked Knight is_edible and the earlier equipment delivery are both undergoing source-required corrections. This independent ready experience-loss delivery has no required equipment implementation dependency and can be integrated while those workers continue.",
+      "detail": "Complete exper.c losexp207–291 and supporting attrib.c adjabil1006–1075, weapon.c lose_weapon_skill1453–1470 and wizcmds.c wiz_level_change446–490. Preserve the pre-loss level-one branch, resistance, HP/energy clamps and source call order. The submitted 5-to-2 recording needs an independent 2-to-1 variation to verify that reaching level one through real level loss retains newuexp(1)-1 experience. Keep other active entry families unrecorded until their recipes match.",
+      "spans": [
+        {
+          "name": "losexp",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "losexp"
+          ]
+        }
+      ],
+      "openedAt": "7039da346fb94f9927e6769db9fa78ab0b4b1428",
+      "openStanding": {
+        "sha": "d78e57fbe8e4acfee9c35930b6e3c253ff2a110b",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "losexp",
+          "line": 207,
+          "endLine": 299,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 207,
+        "to": 299
+      },
+      "activeStanding": {
+        "sha": "d78e57fbe8e4acfee9c35930b6e3c253ff2a110b",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 528,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed turn reached monster equipment changes",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 4,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 4,
+              "status": "complete",
+              "commit": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 528,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "elapsed turn reached monster equipment changes",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 4
+              },
+              "summary": "The stopped death-message replacement now matches. The first remaining boundary is monster equipment reassessment after 528 matching screens: movemon_singlemon calls m_dowear with creation=false, but JavaScript supports only a narrow new-boots case and refuses other equipment changes. Port the whole worn.c m_dowear/m_dowear_type family, including replacement messages, delays, worn masks, extrinsics, artifact light and visibility changes.",
+              "source": {
+                "file": "worn.c",
+                "functions": [
+                  "m_dowear",
+                  "m_dowear_type"
+                ],
+                "branch": "mon.c movemon_singlemon reassesses equipment when I_SPECIAL is set and the monster is peaceful, tame, or perceives the hero farther than three squares away. It clears I_SPECIAL, calls m_dowear(mon,FALSE), and spends the turn when worn state changes or equipping freezes the monster. The C m_dowear_type selector handles each compatible slot and replaces its old item with the best eligible inventory item; the runtime tail is only partially implemented in JavaScript.",
+                "callers": [
+                  "C mon.c movemon_singlemon1268-1282 calls worn.c m_dowear757-796; its slot calls reach m_dowear_type799 onward.",
+                  "JS allmain.js moveElapsedTurnMonster1063 onward supplies m_dowear from makemon_create.js with an injected monster equipment changes refusal; unported_monster_actions.js1859-1866 supplies the same boundary to its planning path.",
+                  "JS makemon_create.js m_dowear2860-2901 and m_dowear_type2718 onward cover selection and a restricted new W_ARMF runtime path. Monster creation also calls this family with creation=true, so preserve its source-ordered initialization while moving the port to worn.js."
+                ],
+                "dependencies": [
+                  "C worn.c m_dowear_type814-906: snapshot visibility/name before altering equipment, retain cursed and superior-amulet guards, body compatibility, racial_exception, ARM_BONUS and extra_pref ordering.",
+                  "C worn.c m_dowear_type910 onward: preserve old mask for artifact_light, remove old extrinsics, restore mask for end_burn then clear it, apply new mask and autocurse, begin artifact light and recalculate visibility, then apply new extrinsics and subsequent visibility feedback.",
+                  "Use the existing canonical object naming, curse, update_mon_extrinsics, artifact light/burn, and visibility owners. Await observable message and effect order in every production caller; do not retain the injected wearArmor placeholder.",
+                  "The separate urgent-message stop behavior in wintty.c tty_putstr2272-2300 remains unresolved: C clears WIN_STOP and sets WIN_NOSTOP before update_topl, while JS tty_message.js keeps an urgent-stop refusal. It is not this equipment boundary."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint at fdbd02789bba64d10f8edc639d06f7a289f4b7fb moves this session from521 to528 matching screens/cursors with11217 matched RNG values unchanged. The refreshed .cache/B23-development-scan.json has divergence=null and stops with elapsed turn reached monster equipment changes after528 of532 screens.",
+                "The saved scan does not identify the exact monster armor slot or inventory state. The source and refusal establish the whole equipment family as the actionable scope; no narrower slot is asserted.",
+                "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key."
+              ],
+              "nextProbe": "Complete the source-owned m_dowear/m_dowear_type family and both live/planning callers, then replay this session beyond the current equipment boundary. Keep the urgent-message contract separate."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "losexp",
+            "implementation": "js/exper.js",
+            "symbol": "losexp",
+            "sourceReview": "Read whole exper.c losexp207–291 and supporting attrib.c adjabil1006–1075, weapon.c lose_weapon_skill1453–1470, and wizcmds.c wiz_level_change446–490. Preserve #levelchange resistance override, Goodbye message, real loss versus an initially level-one call, canonical done/life-saving return, source HP/energy floors and clamps, XP threshold, polymorph monhp_per_lvl and rehumanize, and final botl. Root corrected the misplaced level-one reset: a real 2-to-1 loss retains newuexp(1)-1=19 XP. adjabil traverses role then race properties and loses weapon slots after intrinsic messages; it now uses canonical ttyPline by default for newman and pline.c You_feel Unaware dreaming text. The old message-owner refusal was removed. lose_weapon_skill spends unused slots before rolling back the latest skill and computes its refund after decrementing the rank. wiz_level_change awaits each loss and sets ulevelmax at the source tail. SoundAchievement is a discarded unported notification recorded by note_unported; no RNG, return value or game mutation stands in for it. Existing return-used helpers retain their canonical owners. The implemented zapyourself SPE_DRAIN_LIFE caller now awaits losexp instead of retaining its obsolete named gap; its initialized regression checks level, XP, message and unchanged RNG. Remaining exception classes still have independent polymorphed pluslvl/setuhpmax throw sites; their stale level-loss comments were corrected.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_change",
+                "source": "wizcmds.c lowers one level at a time with losexp(\"#levelchange\")"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c angrygods() calls losexp(NULL) after its level-one divine-anger messages"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "artifact_hit",
+                "source": "artifact.c drain branch calls losexp(\"life drainage\")"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:2817–2823 SPE_DRAIN_LIFE calls losexp(\"life drainage\") after the drain-resistance gate; JavaScript now awaits the canonical owner in place of the obsolete note_unported placeholder."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/level-change.test.mjs",
+              "scripts/weapon.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/zapyourself.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/exper.c/levelchange-loss-independent.session.json",
+              "recordings/exper.c/levelchange-loss-variation-b25.session.json"
+            ],
+            "checkedAt": "67f9006c3c2472791c712316a8001ea05ed54fe8"
+          }
+        ],
+        "entryPointReview": "The primary losexp entry #levelchange lowering is reached through command dispatch into wizcmds.wiz_level_change. The independent Archeologist 5-to-2 recording contains the stealth-loss message and all three Goodbye levels (53 screens/3031 RNG); the Wizard 2-to-1 showexp variation contains Xp:1/19 (39 screens/2946 RNG). Supporting adjabil has production callers exper.pluslvl/losexp, u_init.u_init_misc and polyself.newman; the separate independent newman recording (54 screens/2615 RNG) crosses Archeologist level five downward and prints You feel less stealthy before You feel like a new woman, proving the default terminal caller. The weapon skill rollback arm is source-pinned but these recordings spend unused slots. No unrecorded life-drain, divine anger, lethal or polymorphed entry is counted complete; park the source goal after span acceptance. The attrib.c losestr caller under #if 0 is excluded by source, not by missing JavaScript. Active C losexp sites are sit.c261, zap.c2820, uhitm.c2484, trap.c4294 (fire damage), mhitu.c2206, artifact.c1713, pray.c742 and wizcmds.c474; attrib.c261 is inside #if 0. The implemented zapyourself caller is now wired, but its spell-cast recording remains open.",
+        "entryPoints": [
+          {
+            "name": "#levelchange lowering",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": [
+              "recordings/exper.c/levelchange-loss-independent.session.json",
+              "recordings/exper.c/levelchange-loss-variation-b25.session.json"
+            ]
+          },
+          {
+            "name": "divine anger experience reset and level loss",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster, artifact and hero life-draining attacks",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "throne, self-directed life-drain magic, fire trap and overexertion",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fatal life drain, life-saving continuation and polymorphed HP loss",
+            "functions": [
+              "losexp"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

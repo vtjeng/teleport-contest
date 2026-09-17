@@ -1627,6 +1627,26 @@ export function add_weapon_skill(n, state = game) {
         throw new UnsupportedWeaponSkillError('give_may_advance_msg(P_NONE)');
 }
 
+// C ref: weapon.c lose_weapon_skill() (1453-1470). Experience loss first
+// spends unassigned weapon slots, then lowers the last skill advanced and
+// refunds every slot beyond its new rank. The source's panic is an impossible
+// initialized-state invariant, so valid gameplay never reaches that error.
+export function lose_weapon_skill(n, state = game) {
+    state.u.skill_record ??= [];
+    while (--n >= 0) {
+        if (state.u.weapon_slots) {
+            --state.u.weapon_slots;
+        } else if (state.u.skills_advanced) {
+            const skill = state.u.skill_record[--state.u.skills_advanced];
+            if (P_SKILL(skill, state) <= P_UNSKILLED)
+                throw new Error(`lose_weapon_skill (${skill})`);
+            skillSlot(skill, state).skill--;
+            // Lost skill might have taken more than one slot; refund the rest.
+            state.u.weapon_slots = slots_required(skill, state) - 1;
+        }
+    }
+}
+
 // C ref: weapon.c arwep[] (513-516). Throw-and-return weapon table: each
 // entry gives the object type, squared range limit, and a tethered flag.
 // Currently the only entry is the aklys.

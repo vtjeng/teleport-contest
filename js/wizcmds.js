@@ -78,7 +78,7 @@ import {
     WOUNDED_LEGS,
     WWALKING,
 } from './const.js';
-import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
+import { losexp, pluslvl } from './exper.js';
 import { polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
@@ -420,10 +420,9 @@ export function scanLevelArgument(buf) {
 
 // C ref: wizcmds.c wiz_level_change(), the #levelchange command.
 //
-// The lowering arm calls losexp() once per level, which this port does not
-// have; its `u.ulevel == 1` early return comes along because it lowers
-// nothing, and C's `if (newlevel < 1) newlevel = 1` clamp belongs to the loop
-// that refusal replaces.
+// The lowering arm calls losexp() once per level. Its level-one early return
+// still lowers nothing, and the `newlevel < 1` clamp belongs to the loop just
+// as it does in C.
 export async function wiz_level_change(state = game) {
     const buf = mungspaces(await getlin(
         'To what experience level do you want to be set?',
@@ -457,7 +456,9 @@ export async function wiz_level_change(state = game) {
             );
             return ECMD_OK;
         }
-        throw new UnsupportedExperienceChangeError('losexp("#levelchange")');
+        if (newlevel < 1) newlevel = 1;
+        while (u.ulevel > newlevel)
+            await losexp('#levelchange', state, { message: ttyPline });
     } else {
         if (u.ulevel >= MAXULEV) {
             await ttyPline(

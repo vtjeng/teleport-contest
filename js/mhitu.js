@@ -122,6 +122,7 @@ import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
 import { poly_gender, rehumanize } from './polyself.js';
+import { note_unported } from './unported.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -1349,10 +1350,9 @@ function Half_physical_damage(state) {
 
 // C ref: mhitu.c hitmu() (1143-1267). "monster hits you; returns MM_ flags".
 //
-// Every reachable surviving exit answers M_ATTK_HIT. A lethal unpolymorphed
-// planning exit raises MonsterDeathPlanningError so the cloned turn can stop
-// at the same point that the live exit calls done_in_by(); the live end-game
-// boundary then unwinds the monster pass after the real death entry.
+// Every reachable surviving exit answers M_ATTK_HIT. Lethal planning damage
+// raises MonsterDeathPlanningError before live rehumanize() or done_in_by().
+// A completed live end-game boundary unwinds the monster pass.
 //
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
@@ -1360,8 +1360,7 @@ function Half_physical_damage(state) {
 // Ported: the marker for an unspottable attacker in hitmu() and missmu().
 //
 // Refused where C acts: the block that reveals an attacker hidden under an
-// object, which needs doname(), Amonnam() and tp_sensemon();
-// and the alternate mdamageu() death branches.
+// object, which needs doname(), Amonnam() and tp_sensemon().
 //
 // One piece of C is absent rather than refused: mhm.permdmg's whole block
 // (1229-1259), which drains permanent hit points. Death's life-force drain is
@@ -1470,10 +1469,8 @@ export async function mdamageu(mtmp, n, state, env = {}) {
     const message = env.message ?? (env.planning ? async () => {} : ttyPline);
 
     if (n < 0) {
-        // C's impossible() diagnostic has no gameplay effect, and execution
-        // continues with zero damage. Keep a caller-provided diagnostic seam
-        // for source-pinned tests; the ordinary game never reaches this arm.
-        env.impossible?.(`mdamageu for negative damage? (${n})`);
+        // C discards the diagnostic's result and continues with zero damage.
+        note_unported('pline.c impossible');
         n = 0;
     }
 

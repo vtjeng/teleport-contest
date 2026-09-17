@@ -4,6 +4,8 @@
 
 import {
     A_WIS,
+    DIED,
+    KILLED_BY,
     LARGEST_INT,
     LL_MINORAC,
     MAGICAL_BREATHING,
@@ -12,12 +14,12 @@ import {
     NORMAL_SPEED,
     Upolyd,
 } from './const.js';
-import { adjabil, acurr, newhp, setuhpmax } from './attrib.js';
+import { adjabil, acurr, minuhpmax, newhp, setuhpmax } from './attrib.js';
 import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
 import { livelog_printf } from './pline.js';
 import { achieve_rank, record_achievement } from './insight.js';
-import { amphibious, extra_nasty } from './mondata.js';
+import { amphibious, extra_nasty, resists_drli } from './mondata.js';
 import {
     AD_BLND,
     AD_DRLI,
@@ -33,6 +35,10 @@ import {
     S_EEL,
 } from './monsters.js';
 import { rn1, rn2, rnd } from './rng.js';
+import { Goodbye } from './role_init.js';
+import { monhp_per_lvl } from './makemon.js';
+import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import { find_mac } from './worn.js';
 
 function advancementValue(advance, field) {
@@ -46,22 +52,81 @@ export function newuexp(level) {
     return 10_000_000 * (level - 19);
 }
 
-// C ref: exper.c losexp() (207-291). The divine-anger consumer currently
-// reaches the level-1, no-drainer arm: C suppresses the level-loss message and
-// resets u.uexp to zero without changing u.ulevel. Keep the other source arms
-// fail-closed until a live caller supplies their life-drain resistance, death,
-// level-ability, HP, and polymorph contracts.
+// C ref: exper.c losexp() (207-291). The explicit #levelchange drainer is
+// converted to the non-fatal path before resistance is checked; every other
+// drainer still respects resists_drli(). A level-one divine-anger loss keeps
+// its quiet experience reset, while a real level loss walks adjabil(), the
+// source HP/energy clamps, and the polymorph HP adjustment in order.
 export async function losexp(drainer = null, state = game, env = {}) {
     const u = state.u;
-    if (drainer !== null || u.ulevel > 1) {
-        throw new UnsupportedExperienceChangeError(
-            'losexp() outside the level-1 divine-anger arm',
+    const message = env.message ?? ttyPline;
+
+    // C explicitly overrides life-drain resistance for the debug command,
+    // but that command is never fatal at level one.
+    if (drainer === '#levelchange') drainer = null;
+    else if (resists_drli(state.youmonst, state)) return;
+
+    if (u.ulevel > 1 || drainer !== null)
+        await message(`${Goodbye(state.urole)} level ${u.ulevel}.`, state);
+
+    if (u.ulevel > 1) {
+        --u.ulevel;
+        await adjabil(u.ulevel + 1, u.ulevel, state, { message });
+        livelog_printf(
+            LL_MINORAC,
+            `lost experience level ${u.ulevel + 1}`,
+            state,
         );
+        // SoundAchievement() has no browser owner; record the source call as
+        // a discarded notification without changing the source state.
+        note_unported('sounds.c SoundAchievement');
+    } else {
+        if (drainer !== null) {
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = drainer;
+            const { done } = await import('./end.js');
+            await done(DIED, state);
+            // A completed really_done() represents C's non-returning path.
+            if (state.program_state?.gameover) return;
+        }
+        // Fuzzer life-saving can restore a level. Otherwise, only a call
+        // which started at level one resets all experience here.
+        if (u.ulevel > 1) return;
+        u.uexp = 0;
+        livelog_printf(LL_MINORAC, 'lost all experience', state);
     }
-    u.uexp = 0;
-    // C's level-one divine-anger arm records this minor achievement after
-    // resetting experience and before the remaining HP bookkeeping.
-    livelog_printf(LL_MINORAC, 'lost all experience', state);
+
+    const olduhpmax = u.uhpmax;
+    const uhpmin = minuhpmax(10, state);
+    let num = u.uhpinc[u.ulevel] ?? 0;
+    u.uhpmax -= num;
+    if (u.uhpmax < uhpmin) setuhpmax(uhpmin, true, state);
+    // C prevents this reduction from increasing a maximum previously lowered
+    // by another effect with a different minimum.
+    if (u.uhpmax > olduhpmax) setuhpmax(olduhpmax, true, state);
+    u.uhp -= num;
+    if (u.uhp < 1) u.uhp = 1;
+    else if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+
+    num = u.ueninc[u.ulevel] ?? 0;
+    u.uenmax -= num;
+    if (u.uenmax < 0) u.uenmax = 0;
+    u.uen -= num;
+    if (u.uen < 0) u.uen = 0;
+    else if (u.uen > u.uenmax) u.uen = u.uenmax;
+
+    if (u.uexp > 0) u.uexp = newuexp(u.ulevel) - 1;
+
+    if (Upolyd(u)) {
+        num = monhp_per_lvl(state.youmonst, { state, random: env.random });
+        u.mhmax -= num;
+        u.mh -= num;
+        if (u.mh <= 0) {
+            const { rehumanize } = await import('./polyself.js');
+            await rehumanize(state);
+        }
+    }
     state.disp ??= {};
     state.disp.botl = true;
 }

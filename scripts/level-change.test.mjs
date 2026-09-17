@@ -7,8 +7,8 @@
 // segments recorded against the C reference, one per branch. The assertions
 // here pin values read off the C source, so a wrong constant fails before a
 // recording is needed, and they reach the branches the recorded screens
-// cannot show -- the refusals that stay fail-closed, the intrinsic bits a
-// gain writes, and the state (u.uexp, u.uachieved[], u.weapon_slots) that
+// cannot show -- source-owned loss transitions, the intrinsic bits a gain or
+// loss writes, and the state (u.uexp, u.uachieved[], u.weapon_slots) that
 // never reaches a screen.
 
 import assert from 'node:assert/strict';
@@ -25,6 +25,7 @@ import {
     ACH_RNK1,
     ACH_RNK8,
     COLD_RES,
+    FAINTED,
     FAST,
     FIRE_RES,
     FROMEXPER,
@@ -34,6 +35,7 @@ import {
     LAST_PROP,
     MAXULEV,
     N_ACH,
+    P_QUARTERSTAFF,
     POISON_RES,
     SEARCHING,
     SEE_INVIS,
@@ -45,11 +47,12 @@ import {
     WARNING,
 } from '../js/const.js';
 import { xlev_to_rank } from '../js/display.js';
-import { newexplevel, newuexp, pluslvl } from '../js/exper.js';
+import { losexp, newexplevel, newuexp, pluslvl } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { achieve_rank, record_achievement } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    M2_UNDEAD,
     PM_ARCHEOLOGIST,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
@@ -69,7 +72,8 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
 } from '../js/monsters.js';
-import { add_weapon_skill } from '../js/weapon.js';
+import { add_weapon_skill, lose_weapon_skill } from '../js/weapon.js';
+import { skillSlot } from '../js/startup_skills.js';
 import { scanLevelArgument } from '../js/wizcmds.js';
 import { loadLevelChangeRecipe } from './run-level-change.mjs';
 
@@ -531,7 +535,7 @@ test('adjabil calls postadjabil only for warning and see invisible',
     assert.deepEqual([...intrinsicsOf(wizard)], [[WARNING, FROMEXPER]]);
 });
 
-test('adjabil needs a message owner only for an entry that prints',
+test('adjabil uses canonical messages when its caller supplies no owner',
     async () => {
     // No owner and nothing to print: rog_abil[] holds nothing between 1 and 9.
     const quiet = heroState({
@@ -543,39 +547,50 @@ test('adjabil needs a message owner only for an entry that prints',
     // counts the span: attrib.c:1068-1070, 9 - 1 is 8.
     assert.equal(quiet.u.weapon_slots, 8);
 
-    // rog_abil[] { 10, &HSearching, "perceptive", "" } does print.
-    const rogue = heroState({
-        role: { ...ARCHEOLOGIST, mnum: PM_ROGUE, filecode: 'Rog' },
+    // polyself.c newman() invokes adjabil without an environment. An
+    // initialized terminal must still receive the source intrinsic-loss text.
+    await runSegment({
+        seed: 8820253,
+        datetime: '20310203040506',
+        nethackrc: 'OPTIONS=role:Archeologist,race:human,gender:female,align:neutral\n'
+            + 'OPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n',
+        moves: '.',
     });
-    await assert.rejects(() => adjabil(9, 10, rogue), TypeError);
+    game.u.ulevel = 4;
+    game.u.uprops[STEALTH].intrinsic = FROMEXPER;
+    await adjabil(5, 4, game);
+    assert.equal(game.u.uprops[STEALTH].intrinsic & FROMEXPER, 0);
+    assert.match(game.nhDisplay.topMessage, /You feel less stealthy!/u);
 });
 
-test('adjabil refuses the transitions this slice leaves unported',
+test('adjabil removes innate abilities and loses weapon slots',
     async () => {
-    // A loss: exper.c losexp() is the only caller that produces one.
+    // val_abil[] { 3, &HStealth, "stealthy", "" }. The FROMEXPER bit is
+    // removed and C falls back to the gain string for its loss message.
     const valkyrie = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
     });
-    await assert.rejects(
-        () => adjabil(3, 2, valkyrie),
-        /removing property/,
-    );
+    valkyrie.u.uprops[STEALTH].intrinsic = FROMEXPER;
+    const messages = [];
+    await adjabil(3, 2, valkyrie, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.equal(valkyrie.u.uprops[STEALTH].intrinsic, 0);
+    assert.deepEqual(messages, ['You feel less stealthy!']);
 
-    // A lowered level with no table entry between the two: the loop finds
-    // nothing to remove, and weapon.c lose_weapon_skill() still has to run.
+    // A lowered level with no table entry between the two still calls
+    // weapon.c lose_weapon_skill() after the table traversal.
     const knight = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_KNIGHT, filecode: 'Kni' },
     });
-    await assert.rejects(
-        () => adjabil(3, 2, knight),
-        /lose_weapon_skill/,
-    );
+    knight.u.weapon_slots = 1;
+    await adjabil(3, 2, knight);
+    assert.equal(knight.u.weapon_slots, 0);
+
     // adjabil(n, n) reaches the same tail: C's `else` covers an unchanged
     // level as well as a lowered one, but lose_weapon_skill(0)'s
-    // `while (--n >= 0)` body never runs, so nothing changes and nothing is
-    // refused. polyself.c newman() lands here one time in five. val_abil[]'s
-    // stealth entry sits exactly at 3, so the loss test has to read
-    // `newlevel < abil->ulevel` strictly to leave it alone.
+    // `while (--n >= 0)` body never runs. val_abil[]'s stealth entry sits
+    // exactly at 3, so the loss condition stays strictly below the threshold.
     const unchanged = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
     });
@@ -584,6 +599,123 @@ test('adjabil refuses the transitions this slice leaves unported',
     await adjabil(3, 3, unchanged);
     assert.equal(unchanged.u.weapon_slots, slotsBefore);
     assert.deepEqual([...intrinsicsOf(unchanged)], intrinsicsBefore);
+});
+
+test('lose_weapon_skill refunds slots after lowering the last skill', () => {
+    const state = heroState();
+    state.u.skills_advanced = 1;
+    state.u.skill_record = new Array(60).fill(0);
+    state.u.skill_record[0] = P_QUARTERSTAFF;
+    skillSlot(P_QUARTERSTAFF, state).skill = 3;
+    lose_weapon_skill(1, state);
+    // weapon.c slots_required() reads the reduced skill rank, so lowering from
+    // Skilled (3) to Basic (2) refunds one remaining slot.
+    assert.equal(skillSlot(P_QUARTERSTAFF, state).skill, 2);
+    assert.equal(state.u.skills_advanced, 0);
+    assert.equal(state.u.weapon_slots, 1);
+
+    state.u.weapon_slots = 1;
+    lose_weapon_skill(1, state);
+    assert.equal(state.u.weapon_slots, 0);
+});
+
+test('losexp follows the source level-loss order and clamps resources',
+    async () => {
+    const state = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
+    });
+    state.youmonst = { data: { pmidx: PM_HUMAN } };
+    state.u.ulevel = 3;
+    state.u.ulevelmax = 3;
+    state.u.uexp = 1000;
+    state.u.uhp = 20;
+    state.u.uhpmax = 30;
+    state.u.uhppeak = 30;
+    state.u.uen = 10;
+    state.u.uenmax = 15;
+    state.u.uhpinc[2] = 4;
+    state.u.ueninc[2] = 2;
+    state.u.uprops[STEALTH].intrinsic = FROMEXPER;
+    const messages = [];
+    await losexp('#levelchange', state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.equal(state.u.ulevel, 2);
+    assert.equal(state.u.uprops[STEALTH].intrinsic, 0);
+    assert.deepEqual(messages, [
+        'Farvel level 3.',
+        'You feel less stealthy!',
+    ]);
+    assert.equal(state.u.uhpmax, 26);
+    assert.equal(state.u.uhp, 16);
+    assert.equal(state.u.uenmax, 13);
+    assert.equal(state.u.uen, 8);
+    assert.equal(state.u.uexp, newuexp(2) - 1);
+    assert.equal(state.disp.botl, true);
+});
+
+test('losing level two retains the experience just below level two', async () => {
+    // exper.c:228-250 resets experience only when the call starts at level
+    // one. A real 2-to-1 loss reaches newuexp(1)-1 at lines279-280.
+    const state = heroState();
+    state.youmonst = { data: { pmidx: PM_HUMAN } };
+    state.u.ulevel = 2;
+    state.u.uexp = 25;
+    const messages = [];
+    await losexp('#levelchange', state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.equal(state.u.ulevel, 1);
+    assert.equal(state.u.uexp, 19);
+    assert.deepEqual(messages, ['Goodbye level 2.']);
+});
+
+test('adjabil uses the dreaming prefix for a fainted hero losing an ability',
+    async () => {
+    // attrib.c:1054-1062 calls pline.c You_feel; youprop.h Unaware includes
+    // a negative multi with eat.c is_fainted, not every immobilized hero.
+    const state = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
+    });
+    state.u.ulevel = 2;
+    state.multi = -1;
+    state.u.uhs = FAINTED;
+    state.u.uprops[STEALTH].intrinsic = FROMEXPER;
+    const messages = [];
+    await adjabil(3, 2, state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.deepEqual(messages, ['You dream that you feel less stealthy!']);
+});
+
+test('losexp leaves a drain-resistant form unchanged', async () => {
+    const state = heroState();
+    state.youmonst = {
+        data: { pmidx: PM_HUMAN, mflags2: M2_UNDEAD },
+    };
+    state.u.ulevel = 3;
+    state.u.uexp = 1000;
+    const before = structuredClone(state.u);
+    const messages = [];
+    await losexp('life drainage', state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.deepEqual(state.u, before);
+    assert.deepEqual(messages, []);
+});
+
+test('losexp resets level-one experience without announcing a loss', async () => {
+    const state = heroState();
+    state.youmonst = { data: { pmidx: PM_HUMAN } };
+    state.u.uexp = 123;
+    const messages = [];
+    await losexp(null, state, {
+        message: (text) => { messages.push(text); },
+    });
+    assert.equal(state.u.ulevel, 1);
+    assert.equal(state.u.uexp, 0);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(messages, []);
 });
 
 test('setuhpmax owns u.uhpmax, u.uhppeak and the u.uhp ceiling', () => {
