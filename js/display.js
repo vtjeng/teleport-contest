@@ -310,7 +310,8 @@ import {
 // _tp_sensemon() macro.  This is intentionally only the telepathy predicate;
 // Warning, underwater, swallowed, and Detect_monsters gates belong to the
 // wider sensemon() wrapper and must not suppress callers that ask whether
-// telepathy sensed a monster.
+// telepathy sensed a monster. The C helper is pure: it only reads the hero
+// and monster fields and returns the telepathy result.
 export function tp_sensemon(mon, state = game) {
     const hero = state.u ?? {};
     const data = mon?.data;
