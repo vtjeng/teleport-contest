@@ -81,6 +81,19 @@ test('pending deliveries reserve functions without blocking independent workers'
     assert.equal(state.tasks.one.status, 'integrating');
 });
 
+test('the coordinator can update an unvalidated integration without replacing its delivery', () => {
+    const f = fixture();
+    f.assign(); f.ready();
+    f.send({ type: 'integrating', task: 'one', integration: INTEGRATION });
+    const state = f.send({ type: 'integrating', task: 'one', integration: SECOND });
+    assert.equal(state.tasks.one.status, 'integrating');
+    assert.deepEqual(state.tasks.one.deliveries, [FIRST]);
+    assert.equal(state.deliveries[FIRST].integration, SECOND);
+    assert.equal(state.deliveries[FIRST].checkpoint, undefined);
+    f.send({ type: 'validated', task: 'one', passed: true, checkpoint: `${ROOT}/passed.json` });
+    assert.throws(() => f.send({ type: 'integrating', task: 'one', integration: INTEGRATION }), /requires/);
+});
+
 test('failed validation retains ownership and a correction has its own immutable delivery', () => {
     const f = fixture();
     f.assign(); f.ready();

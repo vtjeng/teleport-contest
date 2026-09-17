@@ -19,6 +19,7 @@ import {
     LOST_EXPLODING,
     LOST_STOLEN,
     LOST_THROWN,
+    LOOKHERE_SKIP_DFEATURE,
     MOAT,
     MOD_ENCUMBER,
     OBJ_FLOOR,
@@ -62,7 +63,9 @@ import {
 } from '../js/monsters.js';
 import { mksobj_at, splitobj, unsplitobj, clear_splitobjs } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { addinv, obj_extract_self } from '../js/invent.js';
+import { addinv, look_here, obj_extract_self } from '../js/invent.js';
+import { HLIQUIDS } from '../js/random_text_data.js';
+import { rn2_on_display_rng } from '../js/rng.js';
 import { make_engr_at } from '../js/engrave.js';
 import {
     encumber_msg,
@@ -375,6 +378,55 @@ test('decor preflight leaves ICE state and display RNG untouched', async () => {
     assert.deepEqual(state.displayCtx, displayBefore);
     assert.equal(state._ttyToplines ?? '', '');
 });
+
+test('object-arrival admission leaves ICE descriptions to the live caller',
+    async () => {
+        for (const count of [1, 2]) {
+            const state = await heroOnAnEmptySquare();
+            for (let i = 0; i < count; i++)
+                typedObjectUnderHero(state, GOLD_PIECE);
+            state.level.at(state.u.ux, state.u.uy).typ = ICE;
+            state.flags.mention_decor = true;
+            state.flags.pickup = false;
+            state.iflags.prev_decor = ROOM;
+            state.iflags.ice_rating = 77;
+            state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+            const displayBefore = structuredClone(state.displayCtx);
+
+            // A remaining floor chain reaches invent.c look_here after
+            // pickup.c check_here. Neither description belongs to admission.
+            preflight_projected_random_arrival_pickup({
+                ...state, gw: { ...state.gw },
+            });
+            assert.equal(state.iflags.ice_rating, 77);
+            assert.deepEqual(state.displayCtx, displayBefore);
+            assert.equal(state._ttyToplines ?? '', '');
+        }
+    });
+
+test('live look_here evaluates its ICE description once even when hidden',
+    async () => {
+        for (const flags of [0, LOOKHERE_SKIP_DFEATURE]) {
+            const state = await heroOnAnEmptySquare();
+            state.level.at(state.u.ux, state.u.uy).typ = ICE;
+            state.iflags.ice_rating = 77;
+            state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+            const displayBefore = structuredClone(state.displayCtx);
+            // pager.c ice_descr -> waterbody_name -> do_name.c hliquid
+            // makes one display draw before look_here tests skip_dfeature.
+            rn2_on_display_rng(HLIQUIDS.length + 1, state);
+            const displayAfterOneDraw = structuredClone(state.displayCtx);
+            state.displayCtx = displayBefore;
+            const messages = [];
+            await look_here(0, flags, state, {
+                message: async (text) => messages.push(text),
+                readEngraving: async () => {},
+            });
+            assert.equal(state.iflags.ice_rating, 0);
+            assert.deepEqual(state.displayCtx, displayAfterOneDraw);
+            assert.equal(messages.length, flags ? 0 : 1);
+        }
+    });
 
 test('describe_decor remembers silent ordinary terrain transitions',
     async () => {
