@@ -10,13 +10,16 @@ import {
     A_NONE,
     A_STR,
     ACID_RES,
+    BLINDED,
     FLYING,
+    HALLUC,
     FROMOUTSIDE,
     I_SPECIAL,
     INFRAVISION,
     WARN_OF_MON,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
+import { dxdy_to_dist_descr } from '../js/getpos.js';
 import {
     align_str,
     attrval,
@@ -451,16 +454,63 @@ test('a polymorphed hero stops the attributes window', async () => {
 });
 
 // youprop.h:125 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
-// OPTIONS=deaf sets only the third term, which u.uprops never sees, so a
-// property-only guard would print a window C would have given a deafness line.
-test('OPTIONS=deaf reaches the deafness stop', async () => {
+// OPTIONS=deaf sets only the third term, which u.uprops never sees; the
+// status implementation must still report it.
+test('OPTIONS=deaf reports the deafness status', async () => {
     const state = await readyGame('deaf');
     assert.equal(state.u.uroleplay.deaf, true);
-    await assert.rejects(
-        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === 'the deafness status',
+    assert.equal(
+        statusLine(
+            await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' You are deaf'),
+        ' You are deaf.',
     );
+});
+
+// insight.c status_enlightenment(): movement lines precede internal troubles,
+// and each trouble keeps the source's independent intrinsic bit. These
+// combinations pin the branch order instead of merely checking that a
+// property no longer throws.
+test('status enlightenment reports movement and trouble branches in C order',
+    async () => {
+        const state = await readyGame();
+        state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        state.u.uprops[BLINDED] = { intrinsic: FROMOUTSIDE, extrinsic: 0, blocked: 0 };
+        const lines = await enlightenment(
+            BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+        );
+        const status = lines.indexOf('Status:');
+        const levitation = lines.indexOf(' You are levitating.', status);
+        const hallucination = lines.indexOf(' You are hallucinating.', status);
+        const blindness = lines.indexOf(' You are permanently blind.', status);
+        assert.ok(status >= 0);
+        assert.ok(levitation > status);
+        assert.ok(hallucination > levitation);
+        assert.ok(blindness > hallucination);
+    });
+
+// youprop.h:279 defines Underwater as the current u.uinwater state.  It is
+// checked before the future in-water fallback in insight.c.
+test('status enlightenment reports the underwater state', async () => {
+    const state = await readyGame();
+    state.u.uinwater = true;
+    assert.equal(
+        statusLine(
+            await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' You are underwater'),
+        ' You are underwater.',
+    );
+});
+
+// getpos.c dxdy_to_dist_descr() supplies the held-monster status distance.
+// Unit and non-unit offsets use different source arms; pin both forms so the
+// status port does not silently replace the directional wording with a guess.
+test('held-monster distance formatting follows getpos.c', () => {
+    assert.equal(dxdy_to_dist_descr(0, 0, true), 'here');
+    assert.equal(dxdy_to_dist_descr(1, 0, true), 'east');
+    assert.equal(dxdy_to_dist_descr(-3, -2, true), '2north,3west');
+    assert.equal(dxdy_to_dist_descr(-3, -2, false), '2n,3w');
 });
 
 // insight.c status_enlightenment()'s encumbrance arm. hack.c calc_capacity()
