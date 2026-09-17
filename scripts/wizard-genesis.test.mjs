@@ -576,6 +576,30 @@ test('Escape at the genesis prompt creates nothing', async () => {
     assert.equal(game.context.move, 0);
 });
 
+test('create_particular stops after five invalid answers with the source message',
+    async () => {
+        // read.c:3374-3405 uses CP_TRYLIM=5 and the shared
+        // thats_enough_tries string after the fifth unsuccessful parse.
+        const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
+        const prefix = `${WAIT_KEY}${GENESIS_KEY}`;
+        const fourAnswers = prefix + 'zzzz\n '.repeat(4);
+        await runSegment({ ...segment, moves: fourAnswers });
+        assert.equal(topLine(),
+            'Create what kind of monster? [type name or symbol]');
+
+        const boundaries = [];
+        // Spaces acknowledge pending failure messages between answers. The
+        // fifth failure and exhausted-retry message fit on the same line.
+        const { added } = await createdBy(
+            segment, fourAnswers + 'zzzz\n',
+            { onBoundary: error => boundaries.push(error) },
+        );
+        assert.deepEqual(boundaries, []);
+        assert.deepEqual(added, []);
+        assert.match(topLine(), /That's enough tries!/u);
+        assert.equal(game.context.move, 0);
+    });
+
 test('declining cant_revive keeps the replacement species', async () => {
     // read.c:3259-3269 mutates d.which through cant_revive() before asking
     // whether wizard mode should force the original species. Declining must
@@ -657,14 +681,9 @@ test('an ordinary hero pressing ^G is told the command is unavailable',
         assert.deepEqual(added, []);
     });
 
-// read.c:3285-3288 skips the gender bit for a species that is_male() or
-// is_female(), because mons[] has already fixed its gender. That skip changes
-// no mmflags this port can build, and this is why: nothing that answers a
-// non-neuter gender through name_to_monplus() is a fixed-gender species, so
-// d->fem is NEUTRAL whenever the skip applies and the ternary it guards
-// contributes nothing either way. Both halves of that claim are checked below,
-// so upstream giving a fixed-gender species a gendered name -- in mons[] or in
-// the alternate-spelling table -- fails here rather than diverging silently.
+// read.c:3285-3288 skips a gender bit for species whose gender is fixed in
+// mons[]. This catalog check covers gender supplied by the monster's name;
+// explicit male/female qualifiers are covered separately above.
 test('nothing that answers a gender is a fixed-gender species', () => {
     const state = parseState();
     const gendered = [];
