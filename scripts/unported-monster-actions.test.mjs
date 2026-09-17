@@ -60,6 +60,7 @@ import {
     STAIRS,
     STONE,
     STRAT_WAITFORU,
+    STEALTH,
     THRONE,
     TIMER_OBJECT,
     UNCHANGING,
@@ -93,6 +94,7 @@ import {
     PM_HUMAN,
     PM_HEZROU,
     PM_IRON_GOLEM,
+    PM_KILLER_BEE,
     PM_KITTEN,
     PM_LEPRECHAUN,
     PM_LONG_WORM,
@@ -4661,6 +4663,121 @@ test('sleeping out-of-sight leprechaun takes the disturb no-op', async () => {
     assert.equal(target.replay.getRngLog().length, rngBefore);
     assert.equal(target.replay.getScreens().length, screensBefore);
 });
+
+// C ref: monmove.c:341-358 and :726-731. The sleeping killer-bee guard must
+// admit the ordinary no-op whenever disturb()'s first conjunction fails: an
+// unseen bee returns before RNG, and a visible bee beyond mdistu 100 does the
+// same. A visible bee inside that range remains behind the special-action
+// boundary because it can consume the wakeup roll and continue to
+// bee_eat_jelly().
+test('sleeping killer bees admit only disturb no-op states', async () => {
+    const cases = [
+        { label: 'unseen within wake range', distant: false, visible: false },
+        { label: 'visible beyond wake range', distant: true, visible: true },
+    ];
+    for (const testCase of cases) {
+        const target = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
+        target.monster.msleeping = true;
+        if (testCase.distant) {
+            // Keep couldsee() true while making mdistu() exceed 100, as in
+            // the fixed seed's (32,15) versus (44,14) state.
+            game.level.monsters[target.monsterX][target.heroY] = null;
+            target.monster.mx = 1;
+            target.monster.my = 1;
+            game.level.monsters[1][1] = target.monster;
+            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+            game.viz_array[1][1] |= COULD_SEE;
+        } else {
+            game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+        }
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const rngBefore = target.replay.getRngLog().length;
+        const screensBefore = target.replay.getScreens().length;
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            testCase.label,
+        );
+        assert.equal(
+            target.replay.getRngLog().length,
+            rngBefore,
+            `${testCase.label}: no wakeup RNG`,
+        );
+        assert.equal(
+            target.replay.getScreens().length,
+            screensBefore,
+            `${testCase.label}: no display work`,
+        );
+    assert.equal(target.monster.msleeping, true, testCase.label);
+    }
+
+    const stealth = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
+    stealth.monster.msleeping = true;
+    game.u.uprops[STEALTH] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    game.viz_array[stealth.heroY][stealth.monsterX] |= COULD_SEE;
+    const stealthBefore = completeSecondTurnSnapshot(game, stealth.replay);
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, stealth.replay),
+        stealthBefore,
+        'Stealth prevents a killer bee wake before any RNG',
+    );
+    assert.equal(stealth.monster.msleeping, true);
+
+    const visible = await prepareSelectedAction({ pmidx: PM_KILLER_BEE });
+    visible.monster.msleeping = true;
+    game.viz_array[visible.heroY][visible.monsterX] |= COULD_SEE;
+    await assert.rejects(
+        preflightSimpleMonsterActions(game),
+        (error) => (
+            error instanceof UnsupportedSimpleMonsterActionError
+            && error.reason === 'a special monster action'
+        ),
+        'visible bee within wake range remains fail-closed',
+    );
+});
+
+// This is the production entry point for the same branch, rather than a
+// direct helper fixture.  The independently selected D:10 arrival creates a
+// beehive; its bees are mobile but asleep and remain beyond mdistu 100 from
+// the arrival square.  The closing wait must therefore complete the live and
+// planning scans without reaching the bee_eat_jelly special-action boundary.
+test('a D:10 beehive wait reaches sleeping-bee disturb through production',
+    async () => {
+        let boundary = null;
+        const moves = '.\u001610\n.';
+        const replay = await runSegment({
+            seed: 9383012,
+            datetime: '20380910111213',
+            nethackrc: 'OPTIONS=name:BeeDisturb,role:Wizard,race:human,'
+                + 'gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
+                + 'OPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n',
+            moves,
+        }, {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, null);
+        assert.equal(replay.getScreens().length, moves.length + 1);
+
+        const bees = [];
+        for (let monster = game.level.monlist; monster;
+            monster = monster.nmon) {
+            if (monster.data?.pmidx !== PM_KILLER_BEE) continue;
+            bees.push(monster);
+        }
+        assert.ok(game.level.flags.has_beehive);
+        assert.ok(bees.length > 0, 'D:10 generated sleeping killer bees');
+        assert.ok(bees.every((monster) => (
+            monster.msleeping
+            && monster.mcanmove
+            && ((monster.mx - game.u.ux) ** 2
+                + (monster.my - game.u.uy) ** 2) > 100
+        )));
+    });
 
 // C ref: monmove.c dochug() (726-731, 782). A sleeping covetous monster
 // outside couldsee() returns from disturb() before tactics(), so the planning

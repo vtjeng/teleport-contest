@@ -36,6 +36,7 @@ import {
     OBJ_MINVENT,
     SLEEP_RES,
     SLP_GAS_TRAP,
+    STEALTH,
     FIRE_TRAP,
     ANTI_MAGIC,
     STRAT_WAITMASK,
@@ -156,6 +157,7 @@ import { observe_object } from './o_init.js';
 import { donameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { potionhit } from './potion.js';
+import { dist2 } from './hacklib.js';
 import {
     create_gas_cloud,
     inside_region,
@@ -402,6 +404,23 @@ function assertSimpleActionState(monster, state) {
         && !monster.mtame
         && !monster.isminion
         && !couldsee(monster.mx, monster.my, state);
+    // C monmove.c:341-358 evaluates couldsee(), mdistu(), and Stealth before
+    // any wakeup RNG.  A sleeping killer bee therefore takes dochug()'s
+    // ordinary no-op return when it is unseen, farther than ten squares, or
+    // the hero is stealthy; the later bee_eat_jelly() branch is unreachable on
+    // those turns.  Keep a visible bee within the wake range without Stealth
+    // behind the existing special-action boundary.
+    const sleepingOutOfWakeRangeKillerBee =
+        monster.data?.pmidx === PM_KILLER_BEE
+        && monster.msleeping
+        && (activeProperty(state, STEALTH)
+            || !couldsee(monster.mx, monster.my, state)
+            || dist2(
+                monster.mx,
+                monster.my,
+                state.u?.ux,
+                state.u?.uy,
+            ) > 100);
     const digestibleGelatinousCube =
         monster.data?.pmidx === PM_GELATINOUS_CUBE
         && gelcubeHasDigestibleObject(monster, state);
@@ -412,7 +431,8 @@ function assertSimpleActionState(monster, state) {
         && !noteleport_level(monster, state))
         || (monster.data?.pmidx === PM_LEPRECHAUN
             && !sleepingOutOfSightLeprechaun)
-        || monster.data?.pmidx === PM_KILLER_BEE
+        || (monster.data?.pmidx === PM_KILLER_BEE
+            && !sleepingOutOfWakeRangeKillerBee)
         || (monster.data?.pmidx === PM_GELATINOUS_CUBE
             && digestibleGelatinousCube)) {
         unsupported('a special monster action');
