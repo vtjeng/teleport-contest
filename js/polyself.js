@@ -219,7 +219,7 @@ import {
     y_monnam,
 } from './do_name.js';
 import { set_mon_data } from './mondata.js';
-import { mkclass_poly } from './makemon.js';
+import { golemhp, mkclass_poly } from './makemon.js';
 import { racial_exception } from './makemon_create.js';
 import {
     cloak_simple_name, cxname, helm_simple_name, otense, simpleonames,
@@ -1117,7 +1117,10 @@ export async function polymon(mntmp, state = game) {
             ? (8 * mlvl)
             : (4 * mlvl + d(mlvl, 4));
     } else if (mdat.mlet === M.S_GOLEM) {
-        throw new UnsupportedPolyselfError('polymon: golem HP not ported');
+        // C polyself.c:863 calls makemon.c golemhp() for every golem form.
+        // Keep this source value in the makemon owner rather than deriving it
+        // from the monster level or consuming a random roll.
+        u.mhmax = golemhp(mntmp);
     } else {
         if (!mlvl)
             u.mhmax = rnd(4);

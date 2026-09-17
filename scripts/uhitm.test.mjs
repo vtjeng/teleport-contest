@@ -17,6 +17,7 @@ import {
     SINK,
     STAIRS,
     STRAT_WAITMASK,
+    M_ATTK_HIT,
     THRONE,
     W_ARM,
 } from '../js/const.js';
@@ -27,8 +28,10 @@ import { runSegment } from '../js/jsmain.js';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
+    AD_STON,
     AD_DRST,
     AT_WEAP,
+    PM_COCKATRICE,
     PM_DWARF_LEADER,
     PM_HUMAN,
     PM_KITTEN,
@@ -55,6 +58,7 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     do_attack,
     mhitm_ad_drst,
+    mhitm_ad_ston,
     mhitm_mgc_atk_negated,
     mhitm_really_poison,
     shade_miss,
@@ -857,6 +861,82 @@ test('mhitm_ad_drst applies the hero-to-monster poison arm', async () => {
     assert.deepEqual(bounds, ['rn2(10)', 'rn2(8)', 'rn2(10)', 'rn1(10,6)']);
     assert.deepEqual(lines, ['Your attack was poisoned!']);
     assert.equal(mhm.damage, 8);
+});
+
+test('mhitm_ad_ston preserves each source direction and gate draws',
+    async () => {
+    // uhitm.c:4203-4263. The monster-to-hero arm spends the 1/3 gate and
+    // then the 1/10 petrification gate; starting petrification marks the
+    // blow handled without changing its already-computed damage.
+    await runSegment({
+        seed: 7710057, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.invent = null;
+    game.gh = { hitmsg_mid: 0, hitmsg_prev: null };
+    const attacker = {
+        data: game.mons[PM_COCKATRICE],
+        female: false,
+        m_id: 92005,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const attack = attacker.data.mattk.find(({ adtyp }) => adtyp === AD_STON);
+    const bounds = [];
+    const lines = [];
+    const mhm = { damage: 4, hitflags: 0, done: false };
+    await mhitm_ad_ston(
+        attacker,
+        attack,
+        game.youmonst,
+        mhm,
+        game,
+        {
+            random: {
+                rn2: (bound) => {
+                    bounds.push(`rn2(${bound})`);
+                    return 0;
+                },
+            },
+            message: async (text) => { lines.push(text); },
+        },
+    );
+    assert.deepEqual(bounds, ['rn2(3)', 'rn2(10)']);
+    assert.deepEqual(lines, ['The cockatrice touches you!']);
+    assert.equal(mhm.damage, 4);
+    assert.equal(mhm.hitflags, M_ATTK_HIT);
+    assert.equal(mhm.done, true);
+    assert.ok(game.unported.has('potion.c make_stoned'));
+
+    // In the hero-to-monster direction C always clears damage after the
+    // source munstone() result, even when the discarded minstapetrify() arm
+    // remains unported. This path consumes no attack RNG.
+    await runSegment({
+        seed: 7710058, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const defender = {
+        data: game.mons[PM_RAVEN],
+        m_id: 92006,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 20,
+        mhpmax: 20,
+        minvent: null,
+        mstrategy: 0,
+    };
+    const reverse = { damage: 7, hitflags: 0, done: false };
+    await mhitm_ad_ston(
+        game.youmonst,
+        { aatyp: AT_WEAP, adtyp: AD_STON, damn: 0, damd: 0 },
+        defender,
+        reverse,
+        game,
+        { message: async () => {} },
+    );
+    assert.equal(reverse.damage, 0);
+    assert.equal(reverse.done, false);
+    assert.ok(game.unported.has('trap.c minstapetrify'));
 });
 
 test('mhitm_ad_drst uses the monster female bit for the poison killer name',

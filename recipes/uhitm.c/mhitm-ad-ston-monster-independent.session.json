@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 7710062,
+    "datetime": "20370102030406",
+    "nethackrc": "OPTIONS=name:StoneMon,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+    "moves": " #wizgenesis\ncockatrice\n...................."
+  }],
+  "_comment": "Independent uhitm.c mhitm_ad_ston monster-to-hero witness: wizard genesis creates an awake cockatrice adjacent to the hero, and twenty waits reach its touch attack gates. Seed, clock, role, and inputs were chosen independently; the recording reaches mhitm_ad_ston without relying on a fixed-workload input."
+}
