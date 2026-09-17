@@ -1200,10 +1200,10 @@ function status_enlightenment(mode, final, state, lines) {
     if (levitation) {
         // Lev_at_will is HLevitation with only I_SPECIAL/TIMEOUT or an
         // artifact W_ARTI.  The state carries the same source bits.
-        const atWill = ((H(LEVITATION) & I_SPECIAL) !== 0
+        const atWill = (((H(LEVITATION) & I_SPECIAL) !== 0)
+            || ((E(LEVITATION) & W_ARTI) !== 0))
             && (H(LEVITATION) & ~(I_SPECIAL | TIMEOUT)) === 0
-            && (E(LEVITATION) & ~W_ARTI) === 0)
-            || Boolean(E(LEVITATION) & W_ARTI);
+            && (E(LEVITATION) & ~W_ARTI) === 0;
         if (atWill && magic)
             you_are(lines, final, 'levitating, at will', '');
         else
