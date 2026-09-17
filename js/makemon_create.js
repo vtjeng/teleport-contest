@@ -42,7 +42,6 @@ import {
     isok,
     is_pit,
     LS_MONSTER,
-    MFAST,
     MM_NOTAIL,
     MM_ANGRY,
     MM_ASLEEP,
@@ -76,7 +75,6 @@ import {
     ONAME_NO_FLAGS,
     ONAME_RANDOM,
     OBJ_FLOOR,
-    OBJ_MINVENT,
     ROOMOFFSET,
     ROT_CORPSE,
     ROWNO,
@@ -97,14 +95,7 @@ import {
     TUWALL,
     TRAPDOOR,
     VAULT,
-    W_AMUL,
-    W_ARM,
-    W_ARMC,
-    W_ARMF,
-    W_ARMG,
     W_ARMH,
-    W_ARMS,
-    W_ARMU,
     W_SADDLE,
     IS_WALL,
     ZOO,
@@ -126,8 +117,6 @@ import {
 import {
     Amonnam,
     christen_monst,
-    Monnam,
-    mon_nam,
     oname,
     rndghostname,
 } from './do_name.js';
@@ -160,7 +149,6 @@ import {
 } from './makemon.js';
 import {
     can_be_hatched,
-    cantweararm,
     emits_light,
     humanoid,
     is_demon,
@@ -210,7 +198,6 @@ import {
     M1_AMORPHOUS,
     M1_ANIMAL,
     M1_MINDLESS,
-    M1_NOHANDS,
     M1_UNSOLID,
     M2_DWARF,
     M2_DOMESTIC,
@@ -225,8 +212,6 @@ import {
     MS_LEADER,
     MS_NEMESIS,
     MS_PRIEST,
-    MZ_MEDIUM,
-    MZ_SMALL,
     NON_PM,
     PM_ABBOT,
     PM_ACOLYTE,
@@ -321,7 +306,6 @@ import {
     PM_SERGEANT,
     PM_SHOPKEEPER,
     PM_SOLDIER,
-    PM_SKELETON,
     PM_SALAMANDER,
     PM_SNAKE,
     PM_STALKER,
@@ -387,7 +371,6 @@ import {
 } from './monsters.js';
 import {
     ARM_BONUS,
-    WrappingAllowed,
     curseFreeObject,
     mkobj,
     mkobj_at,
@@ -401,16 +384,8 @@ import { vtense } from './objnam.js';
 import {
     AKLYS,
     AMULET_CLASS,
-    AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
-    AMULET_OF_REFLECTION,
-    ARM_BOOTS,
-    ARM_CLOAK,
-    ARM_GLOVES,
     ARM_HELM,
-    ARM_SHIELD,
-    ARM_SHIRT,
-    ARM_SUIT,
     ARMOR_CLASS,
     ARROW,
     ATHAME,
@@ -439,7 +414,6 @@ import {
     DART,
     DENTED_POT,
     DILITHIUM_CRYSTAL,
-    DUNCE_CAP,
     DWARVISH_CLOAK,
     DWARVISH_IRON_HELM,
     DWARVISH_MATTOCK,
@@ -469,14 +443,12 @@ import {
     GLASS,
     HELMET,
     HIGH_BOOTS,
-    HELM_OF_OPPOSITE_ALIGNMENT,
     IRON_SHOES,
     IRON,
     KNIFE,
     K_RATION,
     LARGE_BOX,
     C_RATION,
-    LEATHER,
     LEATHER_ARMOR,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
@@ -546,7 +518,6 @@ import {
     SPBOOK_CLASS,
     SPE_DIG,
     SPETUM,
-    SPEED_BOOTS,
     STATUE,
     STILETTO,
     STUDDED_LEATHER_ARMOR,
@@ -605,7 +576,7 @@ import {
 } from './symbols.js';
 import { begin_burn, stop_timer } from './timeout.js';
 import { is_pool, t_at } from './trap.js';
-import { mon_adjust_speed, which_armor } from './worn.js';
+import { m_dowear, update_mon_extrinsics, which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
@@ -2249,6 +2220,12 @@ function isFloater(species) {
     return species.mlet === S_EYE || species.mlet === S_LIGHT;
 }
 
+function armorCategory(obj, state) {
+    return obj.oclass === ARMOR_CLASS
+        ? state.objects?.[obj.otyp]?.oc_armcat
+        : undefined;
+}
+
 function isHardHelmet(obj, state) {
     if (!obj || armorCategory(obj, state) !== ARM_HELM) return false;
     const material = state.objects[obj.otyp].oc_material;
@@ -2647,258 +2624,9 @@ function m_initinv(monster, normalized) {
     }
 }
 
-function uniqueWornObject(monster, mask) {
-    let worn = null;
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (!(obj.owornmask & mask)) continue;
-        if (worn) {
-            throw new Error(
-                `m_dowear found multiple worn slot 0x${mask.toString(16)}`,
-            );
-        }
-        worn = obj;
-    }
-    return worn;
-}
-
-function armorCategory(obj, state) {
-    return obj.oclass === ARMOR_CLASS
-        ? state.objects?.[obj.otyp]?.oc_armcat
-        : undefined;
-}
-
-// The supported initial-level subset contains only these horned species.
-function supportedSpeciesHasHorns(species) {
-    return species.pmidx === PM_WHITE_UNICORN
-        || species.pmidx === PM_GRAY_UNICORN
-        || species.pmidx === PM_BLACK_UNICORN;
-}
-
-function isFlimsy(obj, state) {
-    const material = state.objects?.[obj.otyp]?.oc_material;
-    return Number.isInteger(material) && material <= LEATHER;
-}
-
-function armorExtraPreference(monster, obj) {
-    return obj.otyp === SPEED_BOOTS && monster.permspeed !== MFAST ? 20 : 0;
-}
-
-// C ref: worn.c racial_exception().  raceptr(monster) is monster.data for a
-// non-hero monster; the source currently has one acceptable combination and
-// no unacceptable ones.
-export function racial_exception(monster, obj) {
-    if (monster.data.pmidx === PM_HOBBIT
-        && (obj.otyp === ELVEN_LEATHER_HELM
-            || obj.otyp === ELVEN_MITHRIL_COAT
-            || obj.otyp === ELVEN_CLOAK
-            || obj.otyp === ELVEN_SHIELD
-            || obj.otyp === ELVEN_BOOTS)) {
-        return 1;
-    }
-    return 0;
-}
-
-// C ref: worn.c update_mon_extrinsics(), for effects reachable from the
-// currently supported creation-time armor set.
-function updateMonsterArmorEffects(monster, obj, on, state) {
-    if (obj.otyp === MUMMY_WRAPPING) {
-        monster.invis_blkd = on;
-        monster.minvis = on ? false : Boolean(monster.perminvis);
-    }
-    if (obj.otyp === SPEED_BOOTS) {
-        // C update_mon_extrinsics() calls mon_adjust_speed(0, obj) for FAST
-        // on and off.  This creation/discard path is synchronous and silent;
-        // mon_adjust_speed changes state before returning its resolved
-        // promise, so void preserves C's ordering without inventing an async
-        // parent for m_dowear() and discard_minvent().
-        void mon_adjust_speed(monster, 0, obj, state, { silent: true });
-    }
-}
-
-function m_dowear_type(
-    monster,
-    mask,
-    creation,
-    env,
-    racialException = false,
-) {
-    const state = env.state;
-    // C ref: worn.c m_dowear_type():814. A monster part-way through putting
-    // something on chooses nothing more this turn.
-    if (monster.mfrozen) return;
-    // C ref: worn.c m_dowear_type():816-817. C eagerly copies the monster's
-    // name before it examines the slot, even when no armor will change. Under
-    // hallucination this advances the display RNG used by display_monster().
-    // The JavaScript-only planning pass leaves naming to the live pass.
-    if (!env.planning) {
-        if (heroHasProperty(state, SEE_INVIS)) Monnam(monster, state, env);
-        else mon_nam(monster, state, env);
-    }
-    const old = uniqueWornObject(monster, mask);
-    if (old?.cursed) return;
-    if (old && mask === W_AMUL && old.otyp !== AMULET_OF_GUARDING) return;
-    let best = old;
-
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (mask === W_AMUL) {
-            if (obj.oclass !== AMULET_CLASS
-                || (obj.otyp !== AMULET_OF_LIFE_SAVING
-                    && obj.otyp !== AMULET_OF_REFLECTION
-                    && obj.otyp !== AMULET_OF_GUARDING)) {
-                continue;
-            }
-            if (!best || obj.otyp !== AMULET_OF_GUARDING) {
-                best = obj;
-                if (best.otyp !== AMULET_OF_GUARDING) break;
-            }
-            continue;
-        }
-
-        const category = armorCategory(obj, state);
-        if ((mask === W_ARMU && category !== ARM_SHIRT)
-            || (mask === W_ARMC && category !== ARM_CLOAK)
-            || (mask === W_ARMH && category !== ARM_HELM)
-            || (mask === W_ARMS && category !== ARM_SHIELD)
-            || (mask === W_ARMG && category !== ARM_GLOVES)
-            || (mask === W_ARMF && category !== ARM_BOOTS)
-            || (mask === W_ARM && category !== ARM_SUIT)) {
-            continue;
-        }
-        if (mask === W_ARMC
-            && monster.data.msize > MZ_MEDIUM
-            && obj.otyp !== MUMMY_WRAPPING) {
-            continue;
-        }
-        if (mask === W_ARMC
-            && monster.minvis
-            && obj.otyp === MUMMY_WRAPPING
-            && !heroHasProperty(state, SEE_INVIS)
-            && !creation) {
-            continue;
-        }
-        if (mask === W_ARMH
-            && obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
-            && (monster.ispriest || monster.isminion)) {
-            continue;
-        }
-        if (mask === W_ARMH
-            && supportedSpeciesHasHorns(monster.data)
-            && !isFlimsy(obj, state)) {
-            continue;
-        }
-        if (mask === W_ARM && racialException
-            && racial_exception(monster, obj) < 1) {
-            continue;
-        }
-        if (obj.owornmask) continue;
-        if (best
-            && ARM_BONUS(best, state) + armorExtraPreference(monster, best)
-                >= ARM_BONUS(obj, state)
-                    + armorExtraPreference(monster, obj)) {
-            continue;
-        }
-        best = obj;
-    }
-
-    if (!best || best === old) return;
-    if (!creation) {
-        // C ref: worn.c m_dowear_type():951-960. The witnessed runtime arm
-        // has no old boots, so its whole observable effect is the boot's
-        // oc_delay, the frozen/cannot-move transition, and the two W_ARMF
-        // writes below. It is deliberately limited to this new W_ARMF case:
-        // runtime replacement and every other armor category still belong to
-        // the caller-owned boundary, along with their messages and effects.
-        if (mask === W_ARMF && !old) {
-            const mDelay = Math.trunc(state.objects[best.otyp].oc_delay ?? 0);
-            monster.mfrozen = mDelay;
-            if (monster.mfrozen) monster.mcanmove = false;
-            monster.misc_worn_check |= mask;
-            best.owornmask |= mask;
-            // C worn.c m_dowear_type() calls update_mon_extrinsics() after
-            // these two mask writes. Speed boots have positive oc_delay, and
-            // mon_adjust_speed() mutates mspeed before its resolved promise,
-            // so this synchronous caller preserves that ordering. The
-            // remaining equipment-effect tail is still caller-owned.
-            updateMonsterArmorEffects(monster, best, true, state);
-            return;
-        }
-        wearArmorOperation(env)(monster, best, old, env);
-        return;
-    }
-    if (old) {
-        old.owornmask = 0;
-        updateMonsterArmorEffects(monster, old, false, state);
-    }
-    monster.misc_worn_check |= mask;
-    best.owornmask |= mask;
-    if ((best.otyp === HELM_OF_OPPOSITE_ALIGNMENT
-        || best.otyp === DUNCE_CAP) && !best.cursed) {
-        best.cursed = true;
-        best.blessed = false;
-    }
-    updateMonsterArmorEffects(monster, best, true, state);
-}
-
-// The wearing effect outside monster creation. movemon_singlemon()'s
-// I_SPECIAL arm is the only caller that passes creation = false, and it comes
-// from a fail-closed boundary, so the operation is required rather than
-// defaulted: silently doing nothing there would drop a turn C spends.
-function wearArmorOperation(env) {
-    const operation = env.wearArmor;
-    if (typeof operation !== 'function') {
-        throw new TypeError(
-            'm_dowear outside creation requires a wearArmor operation',
-        );
-    }
-    return operation;
-}
-
-// C ref: worn.c m_dowear()/m_dowear_type(). The selection is complete for the
-// species and equipment reachable from initial generation. The runtime arm is
-// complete only for a new W_ARMF item; wearArmorOperation() owns every other
-// non-creation change.
-export function m_dowear(monster, creation = false, env = {}) {
-    const state = env.state ?? game;
-    const wearEnv = { ...env, state };
-    const species = monster.data;
-    const bodyFlags = species.mflags1 ?? 0;
-    if (species.msize < MZ_SMALL
-        || (bodyFlags & M1_NOHANDS)
-        || (bodyFlags & M1_ANIMAL)) {
-        return monster;
-    }
-    if ((bodyFlags & M1_MINDLESS)
-        && (!creation
-            || (species.mlet !== S_MUMMY
-                && species.pmidx !== PM_SKELETON))) {
-        return monster;
-    }
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (obj.where !== OBJ_MINVENT || obj.ocarry !== monster) {
-            throw new Error('m_dowear found invalid monster inventory ownership');
-        }
-    }
-
-    m_dowear_type(monster, W_AMUL, creation, wearEnv);
-    const canWearArmor = !cantweararm(species);
-    if (canWearArmor && !(monster.misc_worn_check & W_ARM))
-        m_dowear_type(monster, W_ARMU, creation, wearEnv);
-    if (canWearArmor || WrappingAllowed(species))
-        m_dowear_type(monster, W_ARMC, creation, wearEnv);
-    m_dowear_type(monster, W_ARMH, creation, wearEnv);
-    if (!monster.mw || !state.objects?.[monster.mw.otyp]?.oc_bimanual)
-        m_dowear_type(monster, W_ARMS, creation, wearEnv);
-    m_dowear_type(monster, W_ARMG, creation, wearEnv);
-    if (!(bodyFlags & M1_SLITHY) && species.mlet !== S_CENTAUR)
-        m_dowear_type(monster, W_ARMF, creation, wearEnv);
-    // C ref: worn.c m_dowear():792-795 splits this into two calls, passing
-    // FALSE when can_wear_armor holds and RACE_EXCEPTION (TRUE) when it does
-    // not. The suit slot itself is never skipped, so the branch carries no
-    // information beyond the negation folded in here: a form that cannot wear
-    // a suit is the one form allowed a racial exception to that refusal.
-    m_dowear_type(monster, W_ARM, creation, wearEnv, !canWearArmor);
-    return monster;
-}
+// worn.c owns the monster equipment selector. Keep this re-export for the
+// level-creation callers that historically imported it from this module.
+export { m_dowear, racial_exception, update_mon_extrinsics } from './worn.js';
 
 // C ref: mkobj.c discard_minvent().  The currently supported makemon()
 // species cannot receive invocation artifacts or other special objects which
@@ -2916,7 +2644,7 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
         obj.owornmask = 0;
         if (unwornmask) {
             if (monster.mhp >= 1) {
-                updateMonsterArmorEffects(
+                update_mon_extrinsics(
                     monster,
                     obj,
                     false,

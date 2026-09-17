@@ -233,7 +233,13 @@ import {
 import { rn2, rnd } from './rng.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, clear_path, couldsee } from './vision.js';
-import { autoreturn_weapon, dmgval, mon_wield_item, select_rwep } from './weapon.js';
+import {
+    autoreturn_weapon,
+    dmgval,
+    mon_wield_item,
+    mwepgone,
+    select_rwep,
+} from './weapon.js';
 import { spec_abon, Stone_resistance } from './artifacts.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { mwelded } from './wield.js';
@@ -1683,19 +1689,30 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
 
 // C ref: mthrowu.c m_useupall() (1153-1158). Remove an item from a monster's
 // inventory, unequipping it first, and free it.
-export function m_useupall(mon, obj, env = {}) {
-    extract_from_minvent(mon, obj, true, false, env);
+export async function m_useupall(mon, obj, env = {}) {
+    const extractionEnv = {
+        ...env,
+        hooks: {
+            ...(env.hooks ?? {}),
+            // C m_useupall() reaches weapon.c mwepgone() through
+            // extract_from_minvent() for a wielded object.  Supply that
+            // canonical owner when the caller has no test-specific hook.
+            mwepgone: env.hooks?.mwepgone
+                ?? ((target, actionEnv) => mwepgone(target, actionEnv)),
+        },
+    };
+    await extract_from_minvent(mon, obj, true, false, extractionEnv);
     obfree(obj, null, env);
 }
 
 // C ref: mthrowu.c m_useup() (1160-1170). Remove one instance of an item from
 // a monster's inventory.
-export function m_useup(mon, obj, env = {}) {
+export async function m_useup(mon, obj, env = {}) {
     if (obj.quan > 1) {
         obj.quan--;
         obj.owt = weight(obj, env);
     } else {
-        m_useupall(mon, obj, env);
+        await m_useupall(mon, obj, env);
     }
 }
 

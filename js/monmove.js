@@ -440,7 +440,12 @@ import {
     recalc_block_point,
     vision_recalc,
 } from './vision.js';
-import { autoreturn_weapon, can_touch_safely, mon_wield_item } from './weapon.js';
+import {
+    autoreturn_weapon,
+    can_touch_safely,
+    mon_wield_item,
+    mwepgone,
+} from './weapon.js';
 import { mwelded } from './wield.js';
 import { extract_from_minvent, is_pole, which_armor } from './worn.js';
 import * as M from './monsters.js';
@@ -1964,7 +1969,14 @@ async function gelcube_digests(mtmp, env = {}) {
     if (!otmp) return -1;
 
     mtmp.meating = eaten_stat(mtmp.meating, otmp, env);
-    extract_from_minvent(mtmp, otmp, true, true, state, env);
+    await extract_from_minvent(mtmp, otmp, true, true, {
+        ...env,
+        hooks: {
+            ...(env.hooks ?? {}),
+            mwepgone: env.hooks?.mwepgone
+                ?? ((target, actionEnv) => mwepgone(target, actionEnv)),
+        },
+    });
     await m_consume_obj(mtmp, otmp, env);
     return 0;
 }

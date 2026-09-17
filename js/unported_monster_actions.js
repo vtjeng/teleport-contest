@@ -1856,14 +1856,14 @@ async function planSimpleMonsterScan(monster, env) {
                 newsym: () => {},
             },
         }),
-        // C ref: mon.c movemon_singlemon():1268-1281. m_dowear() reassesses
-        // the monster's gear. Its new W_ARMF/no-old-item arm applies the
-        // source delay and worn masks on the planning clone; other runtime
-        // equipment changes remain a fail-closed boundary.
-        dowear: (subject, creation, subjectEnv) => m_dowear(subject, creation, {
-            ...subjectEnv,
-            wearArmor: () => unsupported('monster equipment changes'),
-        }),
+        // C ref: mon.c movemon_singlemon():1268-1281. The planning clone
+        // runs the same complete source selector; its silent branch mutates
+        // only the clone and returns before the live pass supplies messages.
+        dowear: (subject, creation, subjectEnv) => m_dowear(
+            subject,
+            creation,
+            subjectEnv,
+        ),
         // C ref: mon.c restrap(). js/allmain.js binds the same function for the
         // live pass. This clone binding keeps set_mimic_sym()'s disguise and
         // visibility updates on the planning state.

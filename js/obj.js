@@ -1587,6 +1587,18 @@ export function curse(obj, env = {}) {
             obj.owt = weight(obj, env);
         return obj;
     }
+    // worn.c m_dowear_type() curses a helmet after it has been installed in
+    // a monster's inventory.  This narrowly admitted arm is an unlit,
+    // monster-owned armor object, so no bag, figurine, book, or artifact-light
+    // work is due here; other owned classes retain the existing boundary until
+    // their full curse side effects are available.
+    if (obj.where === OBJ_MINVENT
+        && obj.oclass === ARMOR_CLASS
+        && !obj.lamplit) {
+        obj.blessed = false;
+        obj.cursed = true;
+        return obj;
+    }
     assertStartupBucObject(obj, 'curse outside object initialization');
     obj.blessed = false;
     obj.cursed = true;

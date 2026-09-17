@@ -1068,15 +1068,13 @@ async function moveElapsedTurnMonster(monster, env) {
         clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
         minLiquid: elapsedTurnMinLiquid,
         // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
-        // was flagged for reassessment reruns worn.c m_dowear(); the new
-        // W_ARMF case applies its delay and masks in m_dowear_type(), while
-        // every other runtime armor change remains fail-closed here.
-        dowear: (subject, creation, subjectEnv) => m_dowear(subject, creation, {
-            ...subjectEnv,
-            wearArmor: unavailableElapsedTurnOperation(
-                'monster equipment changes',
-            ),
-        }),
+        // was flagged for reassessment reruns the complete worn.c m_dowear()
+        // family before the rest of its movement turn.
+        dowear: (subject, creation, subjectEnv) => m_dowear(
+            subject,
+            creation,
+            subjectEnv,
+        ),
         // C ref: mon.c restrap(). The planning scan binds the same
         // set_mimic_sym() implementation, so the two passes take the same
         // branches and spend the same draws. This live binding also preserves

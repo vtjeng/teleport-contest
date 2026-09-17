@@ -45,6 +45,7 @@ import {
     W_RINGL,
     W_RINGR,
     W_WEP,
+    LS_OBJECT,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
 import { hands_obj } from '../js/invent.js';
@@ -69,6 +70,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
+import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject } from '../js/obj.js';
 import {
     ACID_VENOM,
@@ -140,7 +142,14 @@ import { mwelded } from '../js/wield.js';
 import { which_armor } from '../js/worn.js';
 
 function makeState() {
-    const state = { invent: null, uwep: null, youmonst: {} };
+    const state = {
+        invent: null,
+        uwep: null,
+        youmonst: {},
+        // canSpotMonster()/mon_nam() use the hero position while the
+        // canonical setmnotwielded light message names its wearer.
+        u: { ux: 0, uy: 0, uprops: [] },
+    };
     monst_globals_init(state);
     objects_globals_init(state);
     return state;
@@ -657,7 +666,7 @@ test('mon_wield_item checks visibility after extinguishing the old weapon', asyn
     assert.equal(wanted.bknown, false);
 });
 
-test('mon_wield_item preflights presentation and artifact lifecycle owners', async () => {
+test('mon_wield_item uses the canonical old-light lifecycle owner', async () => {
     const state = makeState();
     const current = object(state, LONG_SWORD, {
         oartifact: ART_SUNSWORD,
@@ -693,26 +702,32 @@ test('mon_wield_item preflights presentation and artifact lifecycle owners', asy
     assert.equal(unseenWanted.owornmask, W_WEP);
     assert.equal(unseen.weapon_check, NEED_WEAPON);
 
-    let visibilityChecks = 0;
-    await assert.rejects(mon_wield_item(subject, {
+    // With no injected old-light callback, weapon.c setmnotwielded() owns the
+    // end_burn(), naming, and visible stop message.  Register the source so
+    // the direct canonical cleanup can unlink it, and provide the hero
+    // position used by the source naming predicate.
+    state.u = { ux: 0, uy: 0, uprops: [] };
+    state.gd = { distantname: 1 };
+    light_globals_init(state);
+    new_light_source(0, 0, 1, LS_OBJECT, current, state);
+    const lifecycleMessages = [];
+    await mon_wield_item(subject, {
         state,
-        canSeeMonster() {
-            ++visibilityChecks;
-            return true;
-        },
+        canSeeMonster: () => false,
         wieldMessage: () => {},
         selectRangedWeapon: () => wanted,
         startArtifactLight: () => {},
-    }), /endArtifactLight/);
-    assert.equal(visibilityChecks, 0);
-    assert.equal(subject.mw, current);
-    assert.equal(subject.weapon_check, NEED_RANGED_WEAPON);
-    assert.equal(current.lamplit, true);
-    assert.equal(current.owornmask, W_WEP);
-    assert.equal(wanted.owornmask, 0);
+        message: async (text) => lifecycleMessages.push(text),
+    });
+    assert.equal(subject.mw, wanted);
+    assert.equal(subject.weapon_check, NEED_WEAPON);
+    assert.equal(current.lamplit, false);
+    assert.equal(current.owornmask, 0);
+    assert.equal(wanted.owornmask, W_WEP);
+    assert.deepEqual(lifecycleMessages, []);
 });
 
-test('setmnotwielded clears ordinary state and preflights lit artifacts', async () => {
+test('setmnotwielded clears ordinary state and stops lit artifacts canonically', async () => {
     const state = makeState();
     const subject = monster(state);
     const ordinary = object(state, DAGGER, { owornmask: W_WEP });
@@ -721,18 +736,30 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
     assert.equal(subject.mw, null);
     assert.equal(ordinary.owornmask, 0);
 
+    // weapon.c setmnotwielded() owns end_burn(FALSE) and its visible message;
+    // the production fallback uses the canonical light source owner when no
+    // caller hook is injected.  A distant-name context keeps this focused
+    // naming assertion from adding a discovery-table dependency.
+    state.gd = { distantname: 1 };
+    light_globals_init(state);
+    const messages = [];
     const lit = object(state, LONG_SWORD, {
         oartifact: ART_SUNSWORD,
         lamplit: true,
         owornmask: W_WEP,
     });
+    new_light_source(0, 0, 1, LS_OBJECT, lit, state);
     subject.mw = lit;
-    await assert.rejects(
-        setmnotwielded(subject, lit, { state }),
-        /endArtifactLight/,
-    );
-    assert.equal(subject.mw, lit);
-    assert.equal(lit.owornmask, W_WEP);
+    await setmnotwielded(subject, lit, {
+        state,
+        canseemon: () => true,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(subject.mw, null);
+    assert.equal(lit.owornmask, 0);
+    assert.equal(lit.lamplit, false);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /stops shining\.$/u);
 
     // weapon.c setmnotwielded() runs end_burn() for
     // `artifact_light(obj) && obj->lamplit`, so satisfying one half alone

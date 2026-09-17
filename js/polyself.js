@@ -798,7 +798,7 @@ async function break_armor(state) {
         }
     } else if (sliparm(uptr)) {
         if ((otmp = state.uarm) != null
-            && racial_exception(state.youmonst, otmp) < 1) {
+            && racial_exception(state.youmonst, otmp, state) < 1) {
             cancelDonning(otmp);
             await ttyPline('Your armor falls around you!', state);
             await Armor_gone(state);

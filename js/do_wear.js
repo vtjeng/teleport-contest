@@ -2354,7 +2354,7 @@ export async function canwearobj(otmp, noisy, state = game) {
             || (otmp.otyp !== MUMMY_WRAPPING
                 ? data.msize !== MZ_SMALL
                 : !WrappingAllowed(data)))
-        && racial_exception(youmonst, otmp) < 1) {
+        && racial_exception(youmonst, otmp, state) < 1) {
         if (noisy)
             await ttyPline(`The ${which} will not fit on your body.`, state);
         return { ok: false, mask };

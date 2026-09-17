@@ -286,7 +286,7 @@ async function precheck(mon, obj, state, env = {}) {
                     state.mons[M.PM_GHOST], { state });
                 if (!cc) return 0;
                 await mquaffmsg(mon, obj, state);
-                m_useup(mon, obj, { state });
+                await m_useup(mon, obj, { state });
                 const mtmp = makemon(
                     state.mons[M.PM_GHOST], cc.x, cc.y, MM_NOMSG,
                     { state },
@@ -321,7 +321,7 @@ async function precheck(mon, obj, state, env = {}) {
                 state.mons[M.PM_DJINNI], { state });
             if (!cc) return 0;
             await mquaffmsg(mon, obj, state);
-            m_useup(mon, obj, { state });
+            await m_useup(mon, obj, { state });
             const mtmp = makemon(
                 state.mons[M.PM_DJINNI], cc.x, cc.y, MM_NOMSG,
                 { state },
@@ -381,7 +381,7 @@ async function precheck(mon, obj, state, env = {}) {
                     ? 'nearby' : 'in the distance'}.`, state);
             if (heardZap) await ttyPline(heardZap, state);
         }
-        m_useup(mon, obj, { state });
+        await m_useup(mon, obj, { state });
         mon.mhp -= dam;
         if (mon.mhp < 1 /* DEADMONSTER() */) {
             await monkilled(mon, '', M.AD_RBRE, state, env);
@@ -782,7 +782,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         let scrollObj = otmp;
         if (scrollObj.quan > 1)
             scrollObj = splitobj(scrollObj, 1, { state });
-        extract_from_minvent(mtmp, scrollObj, false, false, { state });
+        await extract_from_minvent(mtmp, scrollObj, false, false, { state });
         await mreadmsg(mtmp, scrollObj, state);
         if (obj_is_cursed || mtmp.mconf) {
             const nlev = random_teleport_level(state);
@@ -930,7 +930,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             discover_object(O.SCR_CREATE_MONSTER, true, true, true, state);
         else
             await trycall(otmp, state);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'trapdoor': {
@@ -1090,7 +1090,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(O.POT_HEALING, true, true, true, state);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'extra healing': {
@@ -1106,7 +1106,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(O.POT_EXTRA_HEALING, true, true, true, state);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'full healing':
@@ -1124,7 +1124,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(otmp.otyp, true, true, true, state);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'lizard corpse': {
@@ -1443,7 +1443,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                             state);
                         await trycall(otmp, state);
                     }
-                    m_useup(mtmp, otmp, { state });
+                    await m_useup(mtmp, otmp, { state });
                     migrate_to_level(mtmp, ledger_no(tolevel, state),
                         MIGR_RANDOM, null, { state });
                     return 2;
@@ -1456,7 +1456,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                     state);
                 await trycall(otmp, state);
             }
-            m_useup(mtmp, otmp, { state });
+            await m_useup(mtmp, otmp, { state });
             return 2;
         }
         if (vismon)
@@ -1465,7 +1465,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
                 state);
         if (oseen)
             discover_object(O.POT_GAIN_LEVEL, true, true, true, state);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         if (!grow_up(mtmp, null, { state, ...env }))
             return 1; /* grew into genocided monster */
         return 2;
@@ -1511,7 +1511,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (otmp.otyp === O.POT_INVISIBILITY) {
             if (otmp.cursed)
                 await you_aggravate(mtmp, state);
-            m_useup(mtmp, otmp, { state });
+            await m_useup(mtmp, otmp, { state });
         }
         return 2;
     }
@@ -1527,7 +1527,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         if (!otmp) throw new Error('use_misc: no potion of speed');
         await mquaffmsg(mtmp, otmp, state);
         await mon_adjust_speed(mtmp, 1, otmp, state, env);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         return 2;
     }
     case 'polymorph wand': {
@@ -1543,7 +1543,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         // MUSE_POT_POLYMORPH
         if (!otmp) throw new Error('use_misc: no potion of polymorph');
         await mquaffmsg(mtmp, otmp, state);
-        m_useup(mtmp, otmp, { state });
+        await m_useup(mtmp, otmp, { state });
         if (vismon)
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} suddenly mutates!`,
@@ -2929,7 +2929,7 @@ async function mon_consume_unstone(
         if (heard) await ttyPline(heard, state);
     }
 
-    m_useup(mon, obj, { state });
+    await m_useup(mon, obj, { state });
     /* obj is now gone */
 
     if (acid && !tinned && !monster_resists_element(mon, ACID_RES, state)) {
@@ -3100,12 +3100,12 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
                 await pline_mon(mon, 'Oh, what a pretty fire!', state);
             if (vis)
                 await trycall(obj, state);
-            m_useup(mon, obj, { state });
+            await m_useup(mon, obj, { state });
             vis = false;    /* skip makeknown() below */
             res = false;    /* failed to cure sliming */
         } else {
             dmg = Math.trunc((2 * (random.rn1(3, 3) + 2 * bcsign(obj)) + 1) / 3);
-            m_useup(mon, obj, { state });
+            await m_useup(mon, obj, { state });
             /* -11 => monster's fireball */
             note_unported('explode.c explode');
             dmg = 0; /* damage has been applied by explode() */
@@ -3133,7 +3133,7 @@ async function muse_unslime(mon, obj, trap, by_you, state = game, env = {}) {
             discover_object(O.POT_OIL, true, true, true, state); /* makeknown */
         }
         dmg = random.d(3, 4); /* [**TEMP** (different from hero)] */
-        m_useup(mon, obj, { state });
+        await m_useup(mon, obj, { state });
     } else { /* wand/horn of fire w/ positive charge count */
         if (obj.otyp === O.FIRE_HORN)
             await mplayhorn(mon, obj, true, state);

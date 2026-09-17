@@ -114,6 +114,7 @@ import { region_danger } from './region.js';
 import { the } from './objnam.js';
 import {
     candle_light_range,
+    arti_light_radius,
     get_obj_location,
     new_light_source,
 } from './light.js';
@@ -1292,21 +1293,28 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
     const isCandelabrum = obj?.otyp === CANDELABRUM_OF_INVOCATION;
     const isMagicLamp = obj?.otyp === MAGIC_LAMP;
     const isOilPotion = obj?.otyp === POT_OIL;
+    const isArtifactLight = artifact_light(obj);
     if (!isCandle && !isLamp && !isCandelabrum
-        && !isMagicLamp && !isOilPotion) {
+        && !isMagicLamp && !isOilPotion && !isArtifactLight) {
         throw new UnsupportedBurnObjectError(obj);
     }
 
     const age = Math.trunc(obj.age ?? 0);
-    if (age === 0 && !isMagicLamp) return;
+    if (age === 0 && !isMagicLamp && !isArtifactLight) return;
     if (age < 0)
         throw new RangeError(`begin_burn: invalid candle age ${obj.age}`);
 
     let turns = 0;
     let radius = 3;
     let usesTimer = true;
-    if (isMagicLamp) {
+    if (isMagicLamp || isArtifactLight) {
         usesTimer = false;
+        if (isArtifactLight) {
+            // C marks artifact lights lit before arti_light_radius() reads
+            // lamplit; this is the source's setup order for the first light.
+            obj.lamplit = true;
+            radius = arti_light_radius(obj, state);
+        }
     } else if (isOilPotion) {
         turns = obj.odiluted
             ? Math.trunc((3 * age + 2) / 4)
