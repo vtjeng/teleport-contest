@@ -1093,8 +1093,10 @@ test('every zap refusal names a zap.c function the port has not ported',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
             // zapnodir() and weffects() retain their source defaults for
-            // directionless or unsupported caller families.
-            'zapnodir', 'ubuzz', 'weffects',
+            // directionless or unsupported caller families. The immediate
+            // wand gate is the existing weffects() caller boundary for
+            // object callbacks this span has not ported.
+            'zapnodir', 'bhit', 'ubuzz', 'weffects',
         ],
     );
 });

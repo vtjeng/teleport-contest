@@ -18,7 +18,9 @@ import {
     W_ARMH,
     W_ARMS,
     W_ARMU,
+    W_QUIVER,
     W_SADDLE,
+    W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
@@ -43,13 +45,18 @@ import {
     SMALL_SHIELD,
     POT_SPEED,
     SPEED_BOOTS,
+    TIN_OPENER,
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    bypass_obj,
+    clear_bypass,
+    clear_bypasses,
     extract_from_minvent,
     find_mac,
     mon_adjust_speed,
     setuwep,
+    wearslot,
     which_armor,
 } from '../js/worn.js';
 
@@ -587,6 +594,64 @@ test('setuwep marks a polearm as no weapon only while the hero is afoot', () => 
     mounted.u.usteed = kitten(mounted);
     setuwep(wornObject(mounted, PARTISAN, 0), { state: mounted });
     assert.equal(mounted.unweapon, false);
+});
+
+test('wearslot preserves every source equipment category mask', () => {
+    const state = catalogState();
+    // worn.c:300-303, an armor category maps to its single armor slot.
+    assert.equal(wearslot(wornObject(state, ORCISH_HELM, 0), state), W_ARMH);
+    // worn.c:305-309, mergeable weapons can occupy both hands or the quiver.
+    const arrowMask = wearslot(wornObject(state, ARROW, 0), state);
+    assert.equal(arrowMask & (W_WEP | W_SWAPWEP), W_WEP | W_SWAPWEP);
+    assert.equal(arrowMask & W_QUIVER, W_QUIVER);
+    // worn.c:325-345, a tool weapon and a special tool share the two weapon
+    // slots, while armor accessories occupy their dedicated masks.
+    assert.equal(
+        wearslot(wornObject(state, TIN_OPENER, 0), state),
+        W_WEP | W_SWAPWEP,
+    );
+    assert.equal(
+        wearslot(wornObject(state, SPEED_BOOTS, 0), state),
+        W_ARMF,
+    );
+});
+
+test('clear_bypasses walks nested and floating object owners', () => {
+    const nested = { bypass: true, nobj: null, cobj: null };
+    const container = { bypass: true, nobj: null, cobj: nested };
+    const inventory = { bypass: true, nobj: null, cobj: null };
+    const ball = { bypass: true };
+    const chain = { bypass: true };
+    const state = {
+        context: { bypasses: true },
+        level: { objlist: container, buriedobjlist: null, monlist: null },
+        invent: inventory,
+        gm: { migrating_objs: null, migrating_mons: null, mydogs: null },
+        gb: { billobjs: null },
+        go: { objs_deleted: null },
+        u: { uball: ball, uchain: chain },
+        uball: ball,
+        uchain: chain,
+    };
+
+    // worn.c:1118-1123 sets both the object bit and the context marker.
+    bypass_obj(inventory, state);
+    assert.equal(state.context.bypasses, true);
+    clear_bypasses(state);
+    assert.equal(container.bypass, false);
+    assert.equal(nested.bypass, false);
+    assert.equal(inventory.bypass, false);
+    assert.equal(ball.bypass, false);
+    assert.equal(chain.bypass, false);
+    assert.equal(state.context.bypasses, false);
+
+    // The recursive primitive is source-visible independently of the global
+    // owner and must clear a later sibling as well as container contents.
+    const sibling = { bypass: true, nobj: null, cobj: null };
+    const head = { bypass: true, nobj: sibling, cobj: null };
+    clear_bypass(head);
+    assert.equal(head.bypass, false);
+    assert.equal(sibling.bypass, false);
 });
 
 // worn.c setuwep() reaches end_burn() only for

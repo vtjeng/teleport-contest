@@ -100,6 +100,7 @@ import {
     prepareHoldDropAdmission,
     prinv,
     reassign,
+    replace_inventory_core,
     resetInventory,
     stackobj,
     count_unidentified,
@@ -380,6 +381,42 @@ test('addinv_before inserts immediately before an existing successor', () => {
     assert.equal(returned.where, OBJ_INVENT);
     assert.equal(returned.invlet, 'q');
 });
+
+test('replace_inventory_core waits for the Archeologist label before discovery',
+    async () => {
+        const state = initializedState();
+        state.urole = { filecode: 'Arc' };
+        state.u.uconduct = { literate: 0 };
+        state.objects[SCR_SCARE_MONSTER].oc_name_known = 0;
+        const oldObject = instance(APPLE, state, {
+            where: OBJ_INVENT,
+            o_id: 9301,
+        });
+        const replacement = instance(SCR_SCARE_MONSTER, state, {
+            o_id: 9302,
+        });
+        state.invent = oldObject;
+
+        let release;
+        const gate = new Promise((resolve) => { release = resolve; });
+        const messages = [];
+        const pending = replace_inventory_core(oldObject, replacement, {
+            state,
+            random: { rn2: () => 0 },
+            message: async (line) => {
+                messages.push(line);
+                await gate;
+            },
+        });
+        assert.equal(typeof pending?.then, 'function');
+        await Promise.resolve();
+        assert.equal(messages.length, 1);
+        assert.equal(state.objects[SCR_SCARE_MONSTER].oc_name_known, 0);
+        release();
+        assert.equal(await pending, replacement);
+        assert.equal(state.objects[SCR_SCARE_MONSTER].oc_name_known, 1);
+        assert.equal(state.u.uconduct.literate, 1);
+    });
 
 test('inventory lookup helpers follow source chain order', () => {
     const state = initializedState();
