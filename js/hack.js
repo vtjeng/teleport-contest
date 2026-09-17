@@ -4798,7 +4798,10 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
 // hero leaves the obstruction.  `float_up()` has no owner yet and its result
 // is discarded by C, so that call remains an explicit source gap; the masks,
 // status update, and terrain classification remain source-owned here.
-export async function switch_terrain(state = game) {
+export async function switch_terrain(state = game, rawEnv = {}) {
+    const message = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.message ?? ttyPline);
     const { u } = state;
     u.uprops ??= [];
     const lev = state.level?.at(u.ux, u.uy);
@@ -4815,7 +4818,7 @@ export async function switch_terrain(state = game) {
         // Called from spoteffects(), C skips float_down() here.  You_cant()
         // is pline.c's ordinary message formatter with the source prefix.
         if (propertyActiveUnblocked(state, LEVITATION))
-            await ttyPline("You can't levitate in here.", state);
+            await message("You can't levitate in here.", state);
         levitation.blocked = (levitation.blocked ?? 0) | FROMOUTSIDE;
     } else if (levitation.blocked) {
         levitation.blocked &= ~FROMOUTSIDE;
@@ -4826,14 +4829,14 @@ export async function switch_terrain(state = game) {
     }
     if (blocklev) {
         if (heroIsFlying(state))
-            await ttyPline("You can't fly in here.", state);
+            await message("You can't fly in here.", state);
         flying.blocked = (flying.blocked ?? 0) | FROMOUTSIDE;
     } else if (flying.blocked) {
         flying.blocked &= ~FROMOUTSIDE;
         // float_vs_flight() owns the C I_SPECIAL adjustment.  Its return is
         // discarded, so the synchronous owner can run before the message.
         float_vs_flight(state);
-        if (heroIsFlying(state)) await ttyPline('You start flying.', state);
+        if (heroIsFlying(state)) await message('You start flying.', state);
     }
     if (wasLevitating !== propertyActiveUnblocked(state, LEVITATION)
         || wasFlying !== heroIsFlying(state)) {
@@ -4848,11 +4851,11 @@ export async function switch_terrain(state = game) {
 // so do.c goto_level()'s set_uinwater(0) for a hero not in water is inert.
 // js/u_init.js stores u.uinwater as a boolean where C stores a one-bit field,
 // so compare and assign booleans here rather than C's 0 and 1.
-export async function set_uinwater(in_out, state = game) {
+export async function set_uinwater(in_out, state = game, rawEnv = {}) {
     const value = Boolean(in_out);
     if (value !== Boolean(state.u.uinwater)) {
         state.u.uinwater = value;
-        await switch_terrain(state);
+        await switch_terrain(state, rawEnv);
     }
 }
 
@@ -4860,7 +4863,10 @@ export async function set_uinwater(in_out, state = game) {
 // transition owner for spoteffects() and for a hero who spends a turn without
 // moving. It returns true only when dismounting, drowning, or burning moves
 // the hero and the caller must skip the rest of its square effects.
-export async function pooleffects(newspot, state = game) {
+export async function pooleffects(newspot, state = game, rawEnv = {}) {
+    const message = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.message ?? ttyPline);
     const { u } = state;
     const levitating = propertyActiveUnblocked(state, LEVITATION);
     const flying = heroIsFlying(state);
@@ -4877,10 +4883,10 @@ export async function pooleffects(newspot, state = game) {
         let stillInWater = false;
         if (!is_pool(u.ux, u.uy, state)) {
             if (Is_waterlevel(u.uz)) {
-                await ttyPline('You pop into an air bubble.', state);
+                await message('You pop into an air bubble.', state);
                 state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
             } else if (is_lava(u.ux, u.uy, state)) {
-                await ttyPline(
+                await message(
                     `You leave the ${hliquid('water', { state })}...`,
                     state,
                 );
@@ -4890,17 +4896,17 @@ export async function pooleffects(newspot, state = game) {
         } else if (Is_waterlevel(u.uz)) {
             stillInWater = true;
         } else if (levitating) {
-            await ttyPline(
+            await message(
                 `You pop out of the ${hliquid('water', { state })} like a cork!`,
                 state,
             );
         } else if (flying) {
-            await ttyPline(
+            await message(
                 `You fly out of the ${hliquid('water', { state })}.`,
                 state,
             );
         } else if (waterWalking) {
-            await ttyPline('You slowly rise above the surface.', state);
+            await message('You slowly rise above the surface.', state);
         } else {
             stillInWater = true;
         }
@@ -4908,7 +4914,7 @@ export async function pooleffects(newspot, state = game) {
             const wasUnderwater = Boolean(
                 u.uinwater && !Is_waterlevel(u.uz),
             );
-            await set_uinwater(false, state);
+            await set_uinwater(false, state, rawEnv);
             if (wasUnderwater) {
                 await docrt({ state });
                 state.vision_full_recalc = 1;
@@ -4980,14 +4986,15 @@ export function terrain_changed_under_hero(state = game) {
 // gi.in_steed_dismounting is C's kludge for the one caller that needs the
 // pickup deferred: steed.c dismount_steed() sets it around its teleds() call
 // and then lets float_down() run pickup(1) exactly once.
-export async function spoteffects(pick, state = game) {
+export async function spoteffects(pick, state = game, rawEnv = {}) {
     const trap = t_at(state.u.ux, state.u.uy, state);
     // C ref: hack.c:3322. untrap.c is not ported and nothing sets the flag, so
     // FAILEDUNTRAP never reaches dotrap() -- but the read belongs here, where
     // C makes it, rather than being written out as the constant 0.
     const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
-    if (await pooleffects(true, state)) return;
-    if (terrain_changed_under_hero(state)) await switch_terrain(state);
+    if (await pooleffects(true, state, rawEnv)) return;
+    if (terrain_changed_under_hero(state))
+        await switch_terrain(state, rawEnv);
     await check_special_room(false, state);
     // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
     // in this port grants levitation, so the arm is unreachable today, but
