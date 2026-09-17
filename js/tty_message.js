@@ -496,7 +496,11 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
             await displayPendingTtyMessageWindow(state);
         return;
     }
-    if (current) {
+    // topl.c update_topl() retains its entry-time `skip` snapshot for the
+    // replacement below.  In particular, a death message must replace the
+    // stopped line without calling more() a second time after the earlier
+    // Escape has already supplied its input.
+    if (current && !stoppedAtEntry) {
         await dismissPendingTtyMessage(state, {
             // wintty.c tty_putstr() keeps WIN_NOSTOP set only while its
             // urgent update_topl() call can dismiss a prior or wrapped line.
