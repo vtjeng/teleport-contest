@@ -61770,7 +61770,7 @@
     {
       "id": "port-hack-switch-terrain-seed0009-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete terrain blocking and restoration of hero flight and levitation",
       "cFile": "hack.c",
       "sessions": [
@@ -61781,8 +61781,8 @@
       "spans": [
         {
           "name": "switch_terrain",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "58e2213278b377a9ba04d78685e58c5c1e4e5692",
           "functions": [
             "switch_terrain"
           ]
@@ -62032,7 +62032,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "58e2213278b377a9ba04d78685e58c5c1e4e5692",
+        "screens": 11142,
+        "rng": 785819
+      },
+      "parkedReason": "The verified terrain span preserves all development matches and adds two flight-blocking/restoration recordings. float_up remains unported; set_uinwater, swallowed expulsion, random arrival, teleport, hurtle, bars, digging and terrain-wish entry recordings remain open. Resume when these dependencies and production recordings are available and queue priority permits."
     }
   ]
 }
