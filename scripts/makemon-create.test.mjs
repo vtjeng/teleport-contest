@@ -54,6 +54,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
+import { runSegment } from '../js/jsmain.js';
 import { light_globals_init } from '../js/light.js';
 import {
     dmonsfree,
@@ -180,6 +181,7 @@ import {
     BOULDER,
     DART,
     CLUB,
+    CLOAK_OF_PROTECTION,
     CROSSBOW,
     CROSSBOW_BOLT,
     C_RATION,
@@ -199,6 +201,7 @@ import {
     GLAIVE,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_PIECE,
+    HELM_OF_OPPOSITE_ALIGNMENT,
     ICE_BOX,
     IRON_SHOES,
     HELMET,
@@ -251,9 +254,10 @@ import {
 } from '../js/objects.js';
 import { timeout_globals_init } from '../js/timeout.js';
 import { InMemoryStorage } from '../js/storage.js';
-import { update_mon_extrinsics } from '../js/worn.js';
+import { extra_pref, update_mon_extrinsics } from '../js/worn.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
+import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
 
 const MON_X = 10;
 const MON_Y = 5;
@@ -1199,6 +1203,52 @@ test('m_dowear outside creation applies a new pair of boots', async () => {
     assert.equal(monster.mcanmove, false);
 });
 
+test('the independent pickup route reaches production monster reassessment',
+    async () => {
+        // The source-selected seed reaches mpickstuff() on search 16.  The
+        // next search runs the real monmove.c I_SPECIAL reassessment, so this
+        // checks the production caller rather than calling m_dowear directly.
+        const source = loadMonsterPickupRecipe().segments[8];
+
+        async function stateAfterSearches(searches) {
+            const replay = await runSegment({
+                ...source,
+                moves: 's'.repeat(searches),
+            });
+            const monsters = [];
+            for (let monster = game.level.monlist; monster;
+                monster = monster.nmon) {
+                for (let object = monster.minvent; object;
+                    object = object.nobj) {
+                    if (monster.mnum === PM_GOBLIN
+                        && object.otyp === CLOAK_OF_PROTECTION) {
+                        monsters.push({ monster, object });
+                    }
+                }
+            }
+            assert.equal(monsters.length, 1, `search ${searches}`);
+            return { replay, ...monsters[0] };
+        }
+
+        const before = await stateAfterSearches(16);
+        assert.equal(before.replay.getScreens().length, 17);
+        assert.equal(before.object.where, OBJ_MINVENT);
+        assert.equal(before.object.owornmask, 0);
+        assert.equal(before.monster.misc_worn_check, I_SPECIAL);
+
+        const wearing = await stateAfterSearches(17);
+        assert.equal(wearing.replay.getScreens().length, 18);
+        assert.equal(wearing.object.owornmask, W_ARMC);
+        assert.equal(wearing.monster.misc_worn_check, W_ARMC);
+
+        // The second recording segment is a longer continuation of the same
+        // route; the already worn cloak remains installed on the next turn.
+        const continued = await stateAfterSearches(18);
+        assert.equal(continued.replay.getScreens().length, 19);
+        assert.equal(continued.object.owornmask, W_ARMC);
+        assert.equal(continued.monster.misc_worn_check, W_ARMC);
+    });
+
 test('m_dowear outside creation applies non-boots changes in source order',
     async () => {
     // C ref: worn.c m_dowear_type():912-960. Outside creation the same choice
@@ -1307,6 +1357,59 @@ test('m_dowear preserves eager hallucinated naming for unchanged slots',
     await m_dowear(monster, false, { state, displayRandom });
     assert.deepEqual(calls, [], 'ordinary names do not consume display RNG');
 });
+
+test('extra_pref keeps the source speed-boot preference', () => {
+    // worn.c extra_pref():1339-1356 returns 20 only for speed boots while
+    // the monster lacks permanent FAST; every other case returns zero.
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_GNOME],
+        mnum: PM_GNOME,
+        permspeed: 0,
+    });
+    const boots = mksobj(SPEED_BOOTS, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    const helm = mksobj(ORCISH_HELM, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+
+    assert.equal(extra_pref(monster, boots), 20);
+    monster.permspeed = MFAST;
+    assert.equal(extra_pref(monster, boots), 0);
+    assert.equal(extra_pref(monster, helm), 0);
+});
+
+test('runtime helmet autocurse preserves the owned-object BUC transition',
+    async () => {
+        // worn.c m_dowear_type() curses an installed HELM_OF_OPPOSITE_ALIGNMENT
+        // after setting its worn mask.  The source curse() call is void; the
+        // monster-owned branch still has to retain the BUC mutation.
+        const state = initialLevelState();
+        const monster = newMonster({
+            data: state.mons[PM_GNOME],
+            mnum: PM_GNOME,
+            mcanmove: true,
+            mhp: 10,
+        });
+        const helm = mksobj(HELM_OF_OPPOSITE_ALIGNMENT, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        helm.blessed = true;
+        add_to_minv(monster, helm, { state });
+
+        await m_dowear(monster, false, {
+            state,
+            message: async () => {},
+        });
+
+        assert.equal(helm.owornmask, W_ARMH);
+        assert.equal(helm.cursed, true);
+        assert.equal(helm.blessed, false);
+    });
 
 test('m_dowear has a canonical runtime owner outside creation', async () => {
     const state = initialLevelState();

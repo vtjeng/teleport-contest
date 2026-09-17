@@ -499,6 +499,37 @@ test('extract_from_minvent skips update_mon_extrinsics on two conditions',
         assert.equal(dead.mon.misc_worn_check, I_SPECIAL);
     });
 
+test('extract_from_minvent uses the canonical extrinsic owner by default',
+    async () => {
+        // worn.c:1405-1406 calls update_mon_extrinsics() directly.  A caller
+        // may still supply a hook for a deliberately unported owner, but the
+        // production default must use worn.js's canonical implementation.
+        const state = catalogState();
+        state.u = { ux: 0, uy: 0, uprops: [] };
+        const boots = wornObject(state, SPEED_BOOTS, W_ARMF);
+        boots.where = OBJ_MINVENT;
+        const mon = kitten(state, {
+            mhp: ALIVE_HP,
+            mx: 0,
+            my: 0,
+            minvent: boots,
+            misc_worn_check: W_ARMF,
+            mspeed: MFAST,
+            permspeed: 0,
+        });
+        boots.ocarry = mon;
+
+        await extract_from_minvent(mon, boots, true, true, {
+            state,
+            canseemon: () => false,
+        });
+
+        assert.equal(boots.where, OBJ_FREE);
+        assert.equal(boots.owornmask, 0);
+        assert.equal(mon.mspeed, 0);
+        assert.equal(mon.misc_worn_check, I_SPECIAL);
+    });
+
 test('extract_from_minvent unwields a weapon and ends an armor artifact light',
     () => {
         const state = catalogState();

@@ -7,6 +7,7 @@ import {
     HALLUC_RES,
     IN_SIGHT,
     I_SPECIAL,
+    MFAST,
     NEED_WEAPON,
     LOST_DROPPED,
     LOST_NONE,
@@ -20,6 +21,7 @@ import {
     ROOMOFFSET,
     SHOPBASE,
     W_ARM,
+    W_ARMF,
     W_ARMH,
     W_SADDLE,
     W_WEP,
@@ -50,6 +52,7 @@ import {
     OIL_LAMP,
     ORCISH_DAGGER,
     ORCISH_HELM,
+    SPEED_BOOTS,
     POTION_CLASS,
     POT_BOOZE,
     WEAPON_CLASS,
@@ -744,28 +747,48 @@ test("a dead monster's worn armor lands on the floor", async () => {
     assert.equal(carrier.misc_worn_check, I_SPECIAL);
 });
 
-test('a surviving monster stops after the equipment reaches the floor',
+test('a surviving monster updates extrinsics after equipment reaches the floor',
     async () => {
         // steal.c:844 runs update_mon_extrinsics() only for !DEADMONSTER(),
         // and C orders it after place_object() deliberately. Both live hit
-        // point counts refuse; 1 and 2 together pin the comparison rather
-        // than only its boundary.
+        // point counts exercise that source condition; the canonical owner
+        // now completes the tail for either living value.
         for (const mhp of [1, 2]) {
             const alive = dropFixture({
                 carried: WORN_HELM,
                 carrier: { mhp, misc_worn_check: W_ARMH },
             });
-            await assert.rejects(
-                relobj(alive.carrier, 0, false, alive.env),
-                (error) => error instanceof RefusedRelease
-                    && error.reason
-                        === 'a surviving monster losing gear it had equipped',
-            );
-            // The refusal sits at the tail, so the drop already happened.
+            await relobj(alive.carrier, 0, false, alive.env);
             assert.equal(alive.held.where, OBJ_FLOOR);
             assert.equal(alive.carrier.misc_worn_check, I_SPECIAL);
         }
     });
+
+test('a surviving speed boot drop recalculates monster movement', async () => {
+    // update_mon_extrinsics(mon, obj, FALSE, TRUE) at steal.c:844 calls the
+    // FAST recalculation after place_object().  The dropped object is already
+    // free of its worn mask, so C restores the monster's permanent speed.
+    const speed = dropFixture({
+        carried: {
+            oclass: ARMOR_CLASS,
+            otyp: SPEED_BOOTS,
+            owornmask: W_ARMF,
+        },
+        carrier: {
+            mhp: 1,
+            misc_worn_check: W_ARMF,
+            mspeed: MFAST,
+            permspeed: 0,
+            data: { mattk: [], mmove: 12, pmnames: [null, null, 'gnome'] },
+        },
+    });
+
+    await relobj(speed.carrier, 0, false, speed.env);
+
+    assert.equal(speed.held.where, OBJ_FLOOR);
+    assert.equal(speed.carrier.mspeed, 0);
+    assert.equal(speed.carrier.misc_worn_check, I_SPECIAL);
+});
 
 test('a surviving monster dropping unworn gear does not reach that stop',
     async () => {

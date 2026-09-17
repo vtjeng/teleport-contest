@@ -95,7 +95,7 @@ import {
     obj_no_longer_held,
     objectType,
 } from './obj.js';
-import { cantweararm, has_horns } from './mondata.js';
+import { cantweararm, has_horns, raceptr } from './mondata.js';
 import { s_suffix, strsubst, strncmpi } from './hacklib.js';
 import {
     AMULET_OF_GUARDING,
@@ -196,7 +196,8 @@ function property(state, index) {
 //     "stop shining" message when the hero is not blind.
 //   updateMonExtrinsics(mon, obj, on, silently, env) ->
 //     update_mon_extrinsics(), which extract_from_minvent() reaches only for
-//     an object the monster still has equipped.
+//     an object the monster still has equipped.  When omitted,
+//     extract_from_minvent() calls the canonical owner below directly.
 //   mwepgone(mon, env) -> weapon.c mwepgone(), the wield reset the same
 //     equipped-object arm performs for W_WEP.
 function requiredHook(env, name, obj) {
@@ -560,28 +561,17 @@ function monsterHeroProperty(state, index) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function uniqueMonsterArmor(monster, mask) {
-    let worn = null;
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (!(obj.owornmask & mask)) continue;
-        if (worn)
-            throw new Error(
-                `m_dowear found multiple worn slot 0x${mask.toString(16)}`,
-            );
-        worn = obj;
-    }
-    return worn;
-}
-
-function armorExtraPreference(monster, obj) {
+// C ref: worn.c extra_pref() (1339-1356). Speed boots receive a preference
+// only while the monster does not already have permanent FAST.
+export function extra_pref(monster, obj) {
     return obj?.otyp === SPEED_BOOTS && monster.permspeed !== MFAST ? 20 : 0;
 }
 
-// C ref: worn.c racial_exception() (1339-1368). raceptr() is represented by
-// the monster's current catalog entry here; the only accepted combination is
-// an elven armor item on a hobbit.
-export function racial_exception(monster, obj) {
-    return monster.data?.pmidx === PM_HOBBIT
+// C ref: worn.c racial_exception() (1360-1389). Use raceptr() so the hero's
+// polymorphed race follows the same source owner as do_wear.c and polyself.c;
+// the only accepted combination is an elven armor item on a hobbit.
+export function racial_exception(monster, obj, state = game) {
+    return raceptr(monster, state)?.pmidx === PM_HOBBIT
         && (obj.otyp === ELVEN_LEATHER_HELM
             || obj.otyp === ELVEN_MITHRIL_COAT
             || obj.otyp === ELVEN_CLOAK
@@ -594,15 +584,6 @@ function monsterAltProperty(obj, state) {
     const primary = Math.trunc(objectType(obj, state).oc_oprop ?? 0);
     return obj.otyp === ALCHEMY_SMOCK
         ? POISON_RES + ACID_RES - primary : 0;
-}
-
-function monsterBlockedProperty(obj, mask, state) {
-    if (obj.otyp === MUMMY_WRAPPING && (mask & W_ARMC)) return INVIS;
-    if (obj.otyp === CORNUTHAUM && (mask & W_ARMH)
-        && state.urole?.mnum !== PM_WIZARD) return CLAIRVOYANT;
-    if (obj.oartifact === ART_EYES_OF_THE_OVERWORLD && (mask & W_TOOL))
-        return BLINDED;
-    return 0;
 }
 
 function monsterResistanceMask(which) {
@@ -695,7 +676,7 @@ function updateMonsterExtrinsicsCore(monster, obj, on, env) {
         note_unported('steed.c dismount_steed DISMOUNT_FELL');
     }
     const finish = () => {
-        const blocked = monsterBlockedProperty(obj, W_ARMOR | W_TOOL, state);
+        const blocked = blockedProperty(obj, W_ARMOR | W_TOOL, state);
         if (blocked === INVIS) {
             monster.invis_blkd = Boolean(on);
             monster.minvis = on ? false : Boolean(monster.perminvis);
@@ -717,7 +698,7 @@ export function update_mon_extrinsics(monster, obj, on, rawEnv = {}) {
 
 function selectMonsterArmor(monster, mask, env, racialException) {
     const { state } = env;
-    const old = uniqueMonsterArmor(monster, mask);
+    const old = which_armor(monster, mask, state);
     if (old?.cursed) return { old, best: old };
     if (old && mask === W_AMUL && old.otyp !== AMULET_OF_GUARDING)
         return { old, best: old };
@@ -753,10 +734,10 @@ function selectMonsterArmor(monster, mask, env, racialException) {
         if (mask === W_ARMH && has_horns(monster.data)
             && !is_flimsy(obj, state)) continue;
         if (mask === W_ARM && racialException
-            && racial_exception(monster, obj) < 1) continue;
+            && racial_exception(monster, obj, state) < 1) continue;
         if (obj.owornmask) continue;
-        if (best && ARM_BONUS(best, state) + armorExtraPreference(monster, best)
-            >= ARM_BONUS(obj, state) + armorExtraPreference(monster, obj)) continue;
+        if (best && ARM_BONUS(best, state) + extra_pref(monster, best)
+            >= ARM_BONUS(obj, state) + extra_pref(monster, obj)) continue;
         best = obj;
     }
     return { old, best };
@@ -804,11 +785,14 @@ async function applyMonsterArmorRuntime(
                 : `${subject} puts on ${newName}.`;
             await message(messageAt(text, monster.mx, monster.my, state), state);
             if (autocurse) {
-                await message(messageAt(
-                    `${s_suffix(subject)} ${simpleonames(best, state)} `
+                // C calls Monnam() again for this plain pline(), which can
+                // consume another hallucinated-name draw.
+                const curseSubject = Monnam(monster, state, env);
+                await message(
+                    `${s_suffix(curseSubject)} ${simpleonames(best, state)} `
                     + `${otense(best, 'glow')} ${hcolor('black', state, env)} for a moment.`,
-                    monster.mx, monster.my, state,
-                ), state);
+                    state,
+                );
             }
         }
     }
@@ -839,33 +823,25 @@ async function applyMonsterArmorRuntime(
             const adesc = arti_light_description(best, state);
             const message = env.message ?? ttyPline;
             if (sawMonster) {
-                await message(messageAt(
-                    `${Yname2(best, state)} begins to shine ${adesc}.`,
-                    monster.mx,
-                    monster.my,
+                await message(
+                    `${Yname2(best, state)} ${otense(best, 'begin')} to shine ${adesc}.`,
                     state,
-                ), state);
+                );
             } else if (canseemon(monster, state)) {
-                await message(messageAt(
-                    `${Yname2(best, state)} is shining ${adesc}.`,
-                    monster.mx,
-                    monster.my,
+                await message(
+                    `${Yname2(best, state)} ${otense(best, 'are')} shining ${adesc}.`,
                     state,
-                ), state);
+                );
             } else if (sawLocation) {
-                await message(messageAt(
+                await message(
                     `Something begins to shine ${adesc}.`,
-                    monster.mx,
-                    monster.my,
                     state,
-                ), state);
+                );
             } else {
-                await message(messageAt(
+                await message(
                     `Something is shining ${adesc}.`,
-                    monster.mx,
-                    monster.my,
                     state,
-                ), state);
+                );
             }
         }
     }
@@ -875,8 +851,7 @@ async function applyMonsterArmorRuntime(
     if (!silent && sawMonster !== canseemon(monster, state)) {
         if (monster.minvis && !monsterHeroProperty(state, SEE_INVIS)) {
             const message = env.message ?? ttyPline;
-            await message(messageAt(`Suddenly you cannot see ${sourceName}.`,
-                monster.mx, monster.my, state), state);
+            await message(`Suddenly you cannot see ${sourceName}.`, state);
             discover_object(best.otyp, true, true, true, state, env);
         }
     }
@@ -1014,9 +989,17 @@ export function extract_from_minvent(
 
     obj_extract_self(obj, normalized);
     obj.owornmask = 0;
+    let updateResult;
     if (unwornmask) {
         if (!(mon.mhp < 1) /* !DEADMONSTER() */ && do_extrinsics) {
-            requiredHook(normalized, 'updateMonExtrinsics', obj)(
+            const update = normalized.hooks.updateMonExtrinsics
+                ?? ((target, item, on, silent, actionEnv) =>
+                    update_mon_extrinsics(target, item, on, {
+                        ...actionEnv,
+                        state: normalized.state,
+                        silent,
+                    }));
+            updateResult = update(
                 mon,
                 obj,
                 false,
@@ -1024,13 +1007,20 @@ export function extract_from_minvent(
                 normalized,
             );
         }
-        mon.misc_worn_check &= ~unwornmask;
-        // give monster a chance to wear other equipment on its next move
-        check_gear_next_turn(mon);
     }
-    obj_no_longer_held(obj, normalized);
-    if (unwornmask & W_WEP)
-        requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
+    const finish = () => {
+        if (unwornmask) {
+            mon.misc_worn_check &= ~unwornmask;
+            // give monster a chance to wear other equipment on its next move
+            check_gear_next_turn(mon);
+        }
+        obj_no_longer_held(obj, normalized);
+        if (unwornmask & W_WEP)
+            requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
+    };
+    if (updateResult?.then)
+        return updateResult.then(finish);
+    finish();
 }
 
 export function bimanual(obj, state = game) {
