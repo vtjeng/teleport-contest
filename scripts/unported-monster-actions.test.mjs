@@ -117,7 +117,6 @@ import {
     preflightSimpleMonsterActions,
     planningState,
     runSimpleMonsterAction,
-    unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from '../js/unported_monster_actions.js';
@@ -1779,102 +1778,144 @@ test('simple preflight erodes a current-square dust engraving on the clone',
         assert.equal(game.head_engr.engr_txt[0], originalText);
     });
 
-// C ref: mon.c minliquid_core():987. The split reads `(inpool || infountain)`,
-// and only for `mons[PM_GREMLIN]`: a gremlin standing on a fountain or in a
-// pool draws rn2(3) there that no other species draws. The scan cannot answer
-// that draw, so it stops on the square with nothing changed; every other
-// species crosses the same fountain as ordinary terrain.
-test('simple preflight stops a gremlin standing on a fountain or in a pool',
-    async () => {
-    for (const terrain of [FOUNTAIN, POOL]) {
-        const gremlin = await prepareSelectedAction({ pmidx: PM_GREMLIN });
-        game.level.at(gremlin.monsterX, gremlin.heroY).typ = terrain;
-        const before = completeSecondTurnSnapshot(game, gremlin.replay);
-        const beforeRandom = rngSnapshot();
+// C ref: mon.c minliquid_core():987-1009. The source-specific liquid arms
+// now execute in the planning clone, spending their own draws while leaving
+// the live game and its RNG untouched.
+test('simple preflight admits and clones a gremlin in water', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GREMLIN });
+    game.level.at(target.monsterX, target.heroY).typ = POOL;
+    target.monster.mhp = target.monster.mhpmax = 4;
+    const before = preflightSnapshot();
+    let plannedGremlin;
 
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'a gremlin multiplying in water'
-                ),
-                `terrain ${terrain}, attempt ${attempt + 1}`,
+    await preflightSimpleMonsterActions(game, {
+        advanceRound(planned) {
+            plannedGremlin = [...monsterSnapshots(planned)].find(
+                (monster) => monster.data?.pmidx === PM_GREMLIN,
             );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, gremlin.replay),
-                before,
-                `terrain ${terrain}, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(rngSnapshot(), beforeRandom);
-        }
-    }
-
-    // PM_GIANT_RAT is prepareSelectedAction()'s default species; it reads the
-    // square through `inpool` and `inlava` alone, so the identical fountain
-    // leaves the scan running.
-    const rat = await prepareSelectedAction();
-    game.level.at(rat.monsterX, rat.heroY).typ = FOUNTAIN;
-    const ratBefore = preflightSnapshot();
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), ratBefore);
+            return true;
+        },
+    });
+    assert.deepEqual(preflightSnapshot(), before);
+    assert.ok(plannedGremlin);
 });
 
-// unportedMinliquidReason() retains the three source-specific arms this port
-// leaves at the action boundary; ordinary pool and lava effects are exercised
-// by minliquid() above.
-test('minliquid reason keeps the gremlin, iron-golem and stranded-eel arms',
-    async () => {
-    const GREMLIN_SPLIT = 'a gremlin multiplying in water';
-    const GOLEM_RUST = 'an iron golem rusting in water';
-    const STRANDED_EEL = 'an eel out of water';
-    const cases = [
-        // minliquid() owns the ordinary pool and lava branches now.
-        { terrain: POOL, pmidx: PM_GIANT_RAT, reason: null },
-        { terrain: LAVAPOOL, pmidx: PM_GIANT_RAT, reason: null },
-        // mon.c:987 fires on `(inpool || infountain)`: the gremlin arm is
-        // unported, so a pool and a fountain both refuse. Lava is neither, so
-        // a gremlin there takes the ported burn arm.
-        { terrain: POOL, pmidx: PM_GREMLIN, reason: GREMLIN_SPLIT },
-        { terrain: FOUNTAIN, pmidx: PM_GREMLIN, reason: GREMLIN_SPLIT },
-        { terrain: LAVAPOOL, pmidx: PM_GREMLIN, reason: null },
-        // mon.c:993 fires on `inpool` alone for the iron golem: a fountain
-        // is dry floor to it, and lava takes the ported burn arm.
-        { terrain: POOL, pmidx: PM_IRON_GOLEM, reason: GOLEM_RUST },
-        { terrain: FOUNTAIN, pmidx: PM_IRON_GOLEM, reason: null },
-        { terrain: LAVAPOOL, pmidx: PM_IRON_GOLEM, reason: null },
-        { terrain: ROOM, pmidx: PM_IRON_GOLEM, reason: null },
-        // `infountain` reaches no other species, and no arm reads a gremlin's
-        // dry floor, so both of these are squares C walks straight past.
-        { terrain: FOUNTAIN, pmidx: PM_GIANT_RAT, reason: null },
-        { terrain: ROOM, pmidx: PM_GREMLIN, reason: null },
-        // mon.c minliquid_core() :967-972: a flyer or floater is not
-        // "in" pool or lava, so the drown/burn effects do not apply.
-        // PM_YELLOW_LIGHT is a floater (S_LIGHT); its is_floater() is true.
-        { terrain: POOL, pmidx: PM_YELLOW_LIGHT, reason: null },
-        { terrain: LAVAPOOL, pmidx: PM_YELLOW_LIGHT, reason: null },
-        // mon.c:1111-1119, the `else` of the pool arm: an eel on dry land
-        // loses hit points and flees, and neither effect is ported. In water
-        // it takes the ordinary swimmer exemption instead, and on lava it
-        // takes the burn arm, so only a dry square answers.
-        { terrain: ROOM, pmidx: PM_GIANT_EEL, reason: STRANDED_EEL },
-        { terrain: FOUNTAIN, pmidx: PM_GIANT_EEL, reason: STRANDED_EEL },
-        { terrain: POOL, pmidx: PM_GIANT_EEL, reason: null },
-        { terrain: LAVAPOOL, pmidx: PM_GIANT_EEL, reason: null },
-    ];
+function monsterSnapshots(state) {
+    const result = [];
+    for (let monster = state.level.monlist; monster; monster = monster.nmon)
+        result.push(monster);
+    return result;
+}
 
-    const target = await prepareSelectedAction();
+// C ref: mon.c minliquid_core():987-991. Fountain splitting draws the
+// gremlin gate and dryup's source draw; the clone owns half the current and
+// maximum hit points, and the fountain is dried only after a clone exists.
+test('minliquid splits a gremlin and dries a fountain in source order',
+    async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GREMLIN });
     const square = game.level.at(target.monsterX, target.heroY);
-    for (const minliquidCase of cases) {
-        square.typ = minliquidCase.terrain;
-        target.monster.data = game.mons[minliquidCase.pmidx];
-        assert.equal(
-            unportedMinliquidReason(target.monster, game),
-            minliquidCase.reason,
-            `terrain ${minliquidCase.terrain}, species `
-                + `${minliquidCase.pmidx}`,
+    square.typ = FOUNTAIN;
+    target.monster.mhp = target.monster.mhpmax = 4;
+    game.context.mon_moving = true;
+    const calls = [];
+    const rndCalls = [];
+    try {
+        const result = await minliquid(target.monster, {
+            state: game,
+            planning: true,
+            random: {
+            rn2(bound) {
+                calls.push(bound);
+                // The first rn2(3) admits splitting; dryup's final rn2(3)
+                // returns zero so the fountain takes its source dry-up arm.
+                return calls.length === 47 ? 0 : 1;
+            },
+            rnd(bound) {
+                rndCalls.push(bound);
+                return 1;
+            },
+            },
+            canSee: () => false,
+            message: async () => {},
+            redraw: () => {},
+        });
+        assert.equal(result, 0);
+        assert.deepEqual(calls, [
+            3,
+            ...Array.from({ length: 7 }, (_, index) => 8 - index),
+            ...Array.from({ length: 15 }, (_, index) => 16 - index),
+            ...Array.from({ length: 23 }, (_, index) => 24 - index),
+            3,
+        ]);
+        assert.deepEqual(rndCalls, [2]);
+        assert.equal(square.typ, ROOM);
+        assert.equal(target.monster.mhp, 2);
+        assert.equal(target.monster.mhpmax, 2);
+        const clone = monsterSnapshots(game).find(
+            (monster) => monster !== target.monster && monster.mcloned,
         );
+        assert.ok(clone);
+        assert.equal(clone.mhp, 2);
+        assert.equal(clone.mhpmax, 2);
+    } finally {
+        game.context.mon_moving = false;
     }
+});
+
+// C ref: mon.c minliquid_core():993-1009. The iron-golem arm spends rn2(5),
+// then d(2,6) on a zero result, and lowers both hit-point pools before the
+// discarded inventory-chain call.
+test('minliquid rusts an iron golem with the source draws', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_IRON_GOLEM });
+    game.level.at(target.monsterX, target.heroY).typ = POOL;
+    target.monster.mhp = target.monster.mhpmax = 20;
+    const rn2Calls = [];
+    const dCalls = [];
+    const messages = [];
+    const result = await minliquid(target.monster, {
+        state: game,
+        random: {
+            rn2(bound) {
+                rn2Calls.push(bound);
+                return 0;
+            },
+            d(number, sides) {
+                dCalls.push([number, sides]);
+                return 5;
+            },
+        },
+        canSee: () => true,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(result, 0);
+    assert.deepEqual(rn2Calls, [5]);
+    assert.deepEqual(dCalls, [[2, 6]]);
+    assert.equal(target.monster.mhp, 15);
+    assert.equal(target.monster.mhpmax, 15);
+    assert.match(messages[0], /rusts\.$/u);
+});
+
+// C ref: mon.c minliquid_core():1111-1119. A stranded eel spends
+// rn2(mhp), rn2(8), and refreshes monflee() without a message.
+test('minliquid hurts a stranded eel and refreshes fleeing', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_GIANT_EEL });
+    game.level.at(target.monsterX, target.heroY).typ = ROOM;
+    target.monster.mhp = target.monster.mhpmax = 3;
+    const calls = [];
+    const result = await minliquid(target.monster, {
+        state: game,
+        random: {
+            rn2(bound) {
+                calls.push(bound);
+                return bound === 3 ? 2 : 0;
+            },
+        },
+    });
+    assert.equal(result, 0);
+    assert.deepEqual(calls, [3, 8]);
+    assert.equal(target.monster.mhp, 2);
+    assert.equal(target.monster.mflee, true);
+    assert.equal(target.monster.mfleetim, 2);
 });
 
 test('simple preflight admits engravings that source wipe leaves intact',
