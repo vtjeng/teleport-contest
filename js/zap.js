@@ -251,7 +251,7 @@ import { adj_pit_checks, fillholetyp, is_moat, watch_dig } from './dig.js';
 import { dropx, preflight_dropx } from './do.js';
 import { ceiling } from './dungeon.js';
 import { done } from './end.js';
-import { more_experienced } from './exper.js';
+import { losexp, more_experienced } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import {
@@ -1397,7 +1397,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_DRAIN_LIFE:
         if (!heroHasProperty(state, DRAIN_RES)) {
             learn_it = true;
-            note_unported('exper.c losexp');
+            await losexp('life drainage', state);
         }
         break;
 

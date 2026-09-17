@@ -80,22 +80,19 @@ export async function losexp(drainer = null, state = game, env = {}) {
         // SoundAchievement() has no browser owner; record the source call as
         // a discarded notification without changing the source state.
         note_unported('sounds.c SoundAchievement');
-    } else if (drainer !== null) {
-        state.killer ??= {};
-        state.killer.format = KILLED_BY;
-        state.killer.name = drainer;
-        const { done } = await import('./end.js');
-        await done(DIED, state);
-        // done() returns after a wizard/explore life-saving decision. A
-        // completed really_done() sets gameover, which is the JS equivalent
-        // of C's non-returning terminal path.
-        if (state.program_state?.gameover) return;
+    } else {
+        if (drainer !== null) {
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = drainer;
+            const { done } = await import('./end.js');
+            await done(DIED, state);
+            // A completed really_done() represents C's non-returning path.
+            if (state.program_state?.gameover) return;
+        }
+        // Fuzzer life-saving can restore a level. Otherwise, only a call
+        // which started at level one resets all experience here.
         if (u.ulevel > 1) return;
-    }
-
-    // A level-one loss, or a life-saved level-one drainer, resets experience
-    // before the common hit-point and energy bookkeeping.
-    if (u.ulevel === 1) {
         u.uexp = 0;
         livelog_printf(LL_MINORAC, 'lost all experience', state);
     }

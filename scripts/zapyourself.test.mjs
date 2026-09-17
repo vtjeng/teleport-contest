@@ -13,6 +13,7 @@ import {
     ROCK,
     MEATBALL,
     SPE_DIG,
+    SPE_DRAIN_LIFE,
     SPE_STONE_TO_FLESH,
     STATUE,
     WAN_DIGGING,
@@ -86,6 +87,23 @@ test('zapyourself no-op source arms complete without consuming RNG', async () =>
     ]) {
         assert.equal(await zapyourself({ otyp }, false, {}), 0, otyp);
     }
+});
+
+test('self-directed drain life executes the canonical level loss', async () => {
+    // zap.c:2817-2823 calls losexp and adds no direct hit-point damage.
+    // An initialized hero pins the production call, message and XP tail.
+    const recipe = JSON.parse(readFileSync(
+        'recipes/exper.c/levelchange-loss-variation-b25.session.json', 'utf8',
+    )).segments[0];
+    await runSegment({ ...recipe, moves: '.' });
+    game.u.ulevel = 2;
+    game.u.uexp = 20;
+    const before = getRngLog().length;
+    assert.equal(await zapyourself({ otyp: SPE_DRAIN_LIFE }, true, game), 0);
+    assert.equal(game.u.ulevel, 1);
+    assert.equal(game.u.uexp, 19);
+    assert.match(game.nhDisplay.topMessage, /Goodbye level 2\./u);
+    assert.equal(getRngLog().length, before);
 });
 
 test('source arm inventory stays explicit when a constant is renamed', () => {
