@@ -879,6 +879,11 @@ async function break_armor(state) {
                 state,
             );
             await Boots_off(state);
+            // C polyself.c:1290-1292. Boots_off can enter spoteffects() for
+            // water-walking boots; lava_effects() reaches done(BURNING), a
+            // non-returning C call.  The JS finalizer marks gameover and
+            // returns, so do not continue with dropp() after fatal cleanup.
+            if (state.program_state?.gameover) return;
             await dropp(otmp, state);
         }
     }
@@ -1126,6 +1131,10 @@ export async function polymon(mntmp, state = game) {
     if (state.uskin && mntmp !== armor_to_dragon(state.uskin.otyp))
         await skinback(false, state);
     await break_armor(state);
+    // C end.c done() never returns after fatal lava reached by Boots_off.
+    // The JS finalizer returns after setting gameover, so stop polymon before
+    // drop_weapon(), find_ac(), or later post-transformation effects.
+    if (state.program_state?.gameover) return 0;
     await drop_weapon(1, state);
     find_ac(state);
 

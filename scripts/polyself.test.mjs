@@ -12,6 +12,7 @@ import {
     PM_GRAY_DRAGON,
     PM_GREEN_DRAGON,
     PM_GIANT_RAT,
+    PM_GIANT_ANT,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WEREWOLF,
     PM_JACKAL,
@@ -35,13 +36,26 @@ import { strstri } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
-import { OBJ_INVENT, W_ARMU } from '../js/const.js';
+import {
+    FIRE_RES,
+    FLYING,
+    LAVAPOOL,
+    LEVITATION,
+    LIFESAVED,
+    OBJ_INVENT,
+    W_ARMF,
+    W_ARMU,
+    WWALKING,
+} from '../js/const.js';
 import {
     ARMOR_CLASS,
+    DAGGER,
     GRAY_DRAGON_SCALE_MAIL,
     GREEN_DRAGON_SCALES,
     STRANGE_OBJECT,
     T_SHIRT,
+    WATER_WALKING_BOOTS,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
@@ -186,6 +200,76 @@ test('break_armor consumes a worn shirt through the inventory lifecycle',
         'useup removes the destroyed shirt from the inventory chain');
     assert.equal(shirt.owornmask, 0,
         'useupall clears worn state before deallocation');
+});
+
+test('polymon stops after fatal lava during water-walking boot removal',
+    async () => {
+    // polyself.c:1290-1302 calls break_armor before drop_weapon/find_ac.
+    // do_wear.c Boots_off can reach trap.c lava_effects, whose done(BURNING)
+    // is non-returning in C.  This initialized fixture keeps a wielded weapon
+    // sentinel in place after the JS finalizer returns, proving break_armor
+    // did not run dropp() and polymon did not continue post-death cleanup.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    const boots = {
+        oclass: ARMOR_CLASS,
+        otyp: WATER_WALKING_BOOTS,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: W_ARMF,
+        nobj: null,
+    };
+    const weapon = {
+        oclass: WEAPON_CLASS,
+        otyp: DAGGER,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: 0,
+        nobj: null,
+    };
+    game.invent = boots;
+    game.uwep = weapon;
+    // Keep this initialized fixture focused on the footwear callback.  A
+    // Knight's ordinary starting armor would take the sliparm branch first
+    // and legitimately try to drop that armor on the lava square.
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg', 'uarmu'])
+        game[slot] = null;
+    game.uarmf = boots;
+    game.u.uundetected = 0;
+    game.level.at(game.u.ux, game.u.uy).typ = LAVAPOOL;
+    for (const index of [FIRE_RES, LEVITATION, FLYING, WWALKING]) {
+        game.u.uprops[index].intrinsic = 0;
+        game.u.uprops[index].extrinsic = 0;
+        game.u.uprops[index].blocked = 0;
+    }
+    game.iflags.in_lava_effects = 0;
+    game.wizard = false;
+    game.discover = false;
+    game.u.uprops[LIFESAVED].intrinsic = 0;
+    game.u.uprops[LIFESAVED].extrinsic = 0;
+    game.nhDisplay.readKey = async () => 32;
+
+    await polymon(PM_GIANT_ANT, game);
+
+    assert.equal(game.program_state.gameover, true,
+        'fatal lava reaches the non-returning done(BURNING) boundary');
+    assert.equal(game.uarmf, null,
+        'Boots_off clears the worn slot before entering lava effects');
+    assert.equal(game.u.umonnum, PM_GIANT_ANT,
+        'the selected form is installed before the fatal callback');
+    assert.equal(game.uwep, weapon,
+        'polymon does not run post-death drop_weapon cleanup');
+    assert.equal(boots.owornmask, 0,
+        'fatal Boots_off leaves the boot object unworn');
 });
 test('polyself keeps the C early guards, selector, and final gate in order', () => {
     assert.ok(C_START >= 0 && C_END > C_START);
