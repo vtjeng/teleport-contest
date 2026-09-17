@@ -68,8 +68,8 @@ import {
     glyph_is_warning,
     glyph_at,
     feel_location,
-    GLYPH_INVISIBLE,
     map_invisible,
+    map_invisible_planning,
     warning_of,
     glyph_to_cmap,
     hero_glyph_info,
@@ -98,7 +98,9 @@ import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
 import { NUMMONS, S_EEL } from './monsters.js';
 import { m_at } from './monst.js';
-import { seemimic as displaySeemimic } from './mon.js';
+// seemimic() is the mon.c owner; display.c supplies only the glyph/display
+// helpers it calls.
+import { seemimic as monSeemimic } from './mon.js';
 import { a_monnam, y_monnam } from './do_name.js';
 import { isBox, sobj_at } from './obj.js';
 import { CHEST, LARGE_BOX, LENSES } from './objects.js';
@@ -119,6 +121,7 @@ import { canSpotMonster, sensesMonster } from './startup_a11y.js';
 import { t_at, trapname } from './trap.js';
 import {
     dismissPendingTtyMessage,
+    displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -558,7 +561,7 @@ function coordinateDescription(x, y, state) {
     return '';
 }
 
-async function defaultMessage(text, x, y, env) {
+export async function defaultSearchMessage(text, x, y, env) {
     const rendered = env.state.a11y?.accessiblemsg
         ? `${coordinateDescription(x, y, env.state)}: ${text}`
         : text;
@@ -599,21 +602,25 @@ function defaultSearchDisplay(x, y, env) {
     newsym(x, y);
 }
 
-// C ref: detect.c mfind0()'s map_invisible() call.  The live display owner
-// paints the module-global game, while a planning search needs only the
-// remembered glyph on its private map copy.  Keep that clone write here so
-// the source state change is retained without painting the live terminal.
+// C ref: detect.c mfind0()'s map_invisible() call.  The display owner keeps
+// both the live and clone memory writes; the explicit planning seam selects
+// its no-paint half for a cloned level.
 function defaultMapInvisible(x, y, env) {
     if (env.state === game) {
         map_invisible(x, y, env.state);
         return;
     }
-    if (x === env.state.u?.ux && y === env.state.u?.uy) return;
-    const location = env.state.level?.at?.(x, y);
-    if (!location) return;
-    if (env.state.level.flags?.hero_memory) {
-        location.remembered_glyph = { glyph: GLYPH_INVISIBLE };
-    }
+    map_invisible_planning(x, y, env.state);
+}
+
+async function silentSearchMessage() {}
+
+async function defaultDisplayPendingTtyMessageWindow(env) {
+    // display_nhwindow(WIN_MESSAGE, FALSE) is a live TTY operation. A search
+    // planning clone owns its message state but must neither consume live
+    // input nor retire the live message window.
+    if (env.planning || env.state !== game) return;
+    await displayPendingTtyMessageWindow(env.state);
 }
 
 // C ref: display.c _map_location().  Every location admitted by this
@@ -755,7 +762,7 @@ function normalizeSearchEnv(rawEnv = {}) {
         mapInvisible: operation('mapInvisible', defaultMapInvisible),
         seemimic: operation(
             'seemimic',
-            (monster, mimicEnv) => displaySeemimic(
+            (monster, mimicEnv) => monSeemimic(
                 monster,
                 state,
                 mimicEnv,
@@ -778,7 +785,18 @@ function normalizeSearchEnv(rawEnv = {}) {
         // detect.c calls nomul(0) at 2048, 2058 and 2080, which js/hack.js
         // owns along with the end_running(TRUE) inside it.
         nomulZero: operation('nomulZero', ({ state }) => nomul(0, state)),
-        message: operation('message', defaultMessage),
+        // The live fallback is the coordinate-aware pline path. A planning
+        // clone gets a silent operation without becoming an injected caller,
+        // so preflightTrap() keeps its source wait contract unchanged.
+        message: operation(
+            'message',
+            state === game && !rawEnv.planning
+                ? defaultSearchMessage : silentSearchMessage,
+        ),
+        displayPendingTtyMessageWindow: operation(
+            'displayPendingTtyMessageWindow',
+            defaultDisplayPendingTtyMessageWindow,
+        ),
         // C ref: detect.c:1956, trapname(trap->ttyp, FALSE). A hallucinating
         // hero needs the branch js/trap.js trapname() leaves unported, which
         // requireInjected() above demands an injection for, so the default
@@ -995,6 +1013,9 @@ async function mfind0(monster, via_warning, env) {
                     y,
                     env,
                 );
+                // detect.c mfind0(): display_nhwindow(WIN_MESSAGE, FALSE)
+                // flushes this warning before mundetected/newsym continue.
+                await env.displayPendingTtyMessageWindow(env);
             }
             monster.mundetected = 0;
             foundSomething = true;
