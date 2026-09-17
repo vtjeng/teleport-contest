@@ -56976,7 +56976,7 @@
     {
       "id": "port-hellfill-lua-seed4500-20260916",
       "kind": "lua-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete Gehennom filler program and source-ordered terrain and prefab behavior",
       "luaFile": "hellfill.lua",
       "sessions": [
@@ -56987,8 +56987,8 @@
       "spans": [
         {
           "name": "hellfill.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
           "functions": [
             "hellfill.lua"
           ]
@@ -57200,7 +57200,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 48,
+        "rng": 9521
+      },
+      "parkedStanding": {
+        "sha": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+        "screens": 10710,
+        "rng": 770398
+      },
+      "parkedReason": "Whole-program span passed combined validation, with seven matching generator recordings. The active invocation-level vibrating-square entry has no production recording, so retain that completion requirement."
     }
   ]
 }
