@@ -56983,8 +56983,17 @@
         "holdout/seed4500-knight-coverage"
       ],
       "selectionReason": "The highest eligible saved mismatch is holdout/seed4500-knight-coverage step 1278: generator 2 of dat/hellfill.lua is missing, so select the complete Lua program and its terrain and selection dependencies.",
-      "detail": "Whole dat/hellfill.lua: all seven generators, ten prefabs, helper definitions, top-level population, and stair/invocation tail. Supporting sel_set_ter ICE/CLOUD and absolute no-operand selection negate preserve C descriptor semantics. Seven independent generation recordings match; invocation-level production evidence remains open.",
-      "spans": [],
+      "detail": "Whole dat/hellfill.lua: all seven generators, ten prefabs, helper definitions, top-level population, and stair/invocation tail. Supporting sel_set_ter ICE/CLOUD and absolute no-operand selection negate preserve C descriptor semantics. Seven independent generation recordings match; invocation-level production evidence remains open. Planning reconciliation: the historical generator-3 goal explicitly left generators 1, 2, 4 and 6 unsupported; its inherited completion flag does not establish whole-program completion. Preserve its historical evidence and plan hellfill.lua again under the whole-source rule.",
+      "spans": [
+        {
+          "name": "hellfill.lua",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "hellfill.lua"
+          ]
+        }
+      ],
       "openedAt": "87c1960275f476edaccb2ba48a48c3e41a09e41d",
       "openStanding": {
         "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
@@ -56999,7 +57008,7 @@
           "line": 1,
           "endLine": 443,
           "declared": false,
-          "complete": true
+          "complete": false
         }
       ],
       "activeStanding": {
