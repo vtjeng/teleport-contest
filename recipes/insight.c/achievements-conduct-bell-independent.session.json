@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 931742,
+      "datetime": "20370618123000",
+      "nethackrc": "OPTIONS=name:AchievementWitness,role:Wizard,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " .\u0017bell of opening\n.#conduct\n ",
+      "comment": "Independently chosen wizard wish creates a Bell of Opening, then #conduct reaches doconduct/show_conduct and its recorded achievement disclosure. Seed, date, name, and character choices differ from existing conduct recipes; the wish route supplies an actual source-owned achievement without relying on a fixed-session state."
+    }
+  ]
+}

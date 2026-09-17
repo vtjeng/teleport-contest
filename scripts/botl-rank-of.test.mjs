@@ -7,11 +7,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { rank_of } from '../js/display.js';
+import { rank_of, rank_to_xlev } from '../js/display.js';
 import { PM_CAVE_DWELLER, PM_CLERIC, PM_NEWT, PM_VALKYRIE } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
 
 const caveman = roles.find((role) => role.mnum === PM_CAVE_DWELLER);
+
+test('rank_to_xlev returns the low level for every source rank band', () => {
+    assert.deepEqual(Array.from({ length: 9 }, (_, rank) => rank_to_xlev(rank)),
+        [1, 3, 6, 10, 14, 18, 22, 26, 30]);
+    assert.equal(rank_to_xlev(-1), 1);
+    assert.equal(rank_to_xlev(9), 30);
+});
 
 test('rank_of reads the rank row for the level and gender', () => {
     // Valkyrie rank[0] is { "Stripling", 0 }: level 1 maps to index 0 and
