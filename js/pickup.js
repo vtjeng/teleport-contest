@@ -26,6 +26,8 @@ import {
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
+    FOOT,
+    HALLUC,
     IS_ALTAR,
     GETOBJ_ALLOWCNT,
     GETOBJ_EXCLUDE,
@@ -52,9 +54,13 @@ import {
     MENU_PARTIAL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
+    MM_ADJACENTOK,
+    MM_NOMSG,
+    NO_MINVENT,
     nothing_seems_to_happen,
     OBJ_FLOOR,
     OBJ_MINVENT,
+    ONAME_NO_FLAGS,
     PICK_ANY,
     PICK_ONE,
     JUSTPICKED,
@@ -104,6 +110,8 @@ import { ceiling, surface, surface_typ } from './dungeon.js';
 import { dropy } from './do.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
 import { makesingular } from './fruit.js';
+import { christen_monst, Monnam, oname, rndmonnam } from './do_name.js';
+import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
 import {
@@ -149,20 +157,24 @@ import {
 import { m_at } from './monst.js';
 import {
     carried, hasContents, hornoplenty, isBox, isContainer, obj_no_longer_held,
-    remove_object, set_bknown, splitobj, unsplitobj, weight,
+    remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
 } from './obj.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { get_obj_location } from './light.js';
-import { bagotricks } from './makemon.js';
+import { bagotricks, set_malign } from './makemon.js';
+import { makemon } from './makemon_create.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';
 import { in_rooms } from './rooms.js';
+import { rn2 } from './rng.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
     CANDELABRUM_OF_INVOCATION, COIN_CLASS, CORPSE, GOLD_PIECE,
     HORN_OF_PLENTY, ICE_BOX, LARGE_BOX, LEASH, LOADSTONE,
     SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD, STATUE, VENOM_CLASS,
 } from './objects.js';
+import { PM_HOUSECAT } from './monsters.js';
 import {
     an, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
     doname_with_price, otense, safe_qbuf, the, The, thesimpleoname, xnameFresh, yname,
@@ -1506,6 +1518,89 @@ async function u_handsy(state) {
         return false;
     }
     return true;
+}
+
+// C ref: pickup.c observe_quantum_cat() (2826-2897).  A large box made by
+// makemon() carries a corpse and spe=1 until its first observation resolves
+// the coin flip.  The final disclosure calls this with makecat=false, while
+// opening and tipping a box may request a live cat and its source messages.
+// Keep the random choice and object mutation in this canonical pickup.c owner.
+export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const sc = "Schroedinger's Cat";
+    let deadcat = box?.cobj ?? null;
+    let livecat = null;
+
+    const location = get_obj_location(box, 0, state);
+    if (location) {
+        box.ox = location.x;
+        box.oy = location.y;
+    }
+
+    const itsalive = !random.rn2(2);
+    if (itsalive) {
+        if (makecat) {
+            livecat = makemon(
+                state.mons?.[PM_HOUSECAT] ?? null,
+                box.ox,
+                box.oy,
+                NO_MINVENT | MM_ADJACENTOK | MM_NOMSG,
+                { ...rawEnv, state, random },
+            );
+        }
+        if (livecat) {
+            livecat.mpeaceful = true;
+            set_malign(livecat, state);
+            if (givemsg) {
+                if (!canSpotMonster(livecat, state)) {
+                    await ttyPline(
+                        `You think ${something} brushed your ${body_part(FOOT, state.youmonst)}.`,
+                        state,
+                    );
+                } else {
+                    await ttyPline(
+                        `${Monnam(livecat, state)} inside the box is still alive!`,
+                        state,
+                    );
+                }
+            }
+            christen_monst(livecat, sc, { state });
+            if (deadcat) {
+                obj_extract_self(deadcat, { state });
+                obfree(deadcat, null, { state });
+                deadcat = null;
+            }
+            box.owt = weight(box, { state });
+            box.spe = 0;
+            if (!state.context?.mon_moving) {
+                more_experienced(10, 20, state);
+                await newexplevel(state);
+            }
+        }
+    } else {
+        box.spe = 0;
+        if (givemsg) {
+            const catName = (state.u?.uprops?.[HALLUC]?.intrinsic
+                && !(state.u?.uprops?.[HALLUC + 1]?.intrinsic
+                    || state.u?.uprops?.[HALLUC + 1]?.extrinsic))
+                ? rndmonnam({ state, random }) : 'housecat';
+            await ttyPline(
+                `The ${catName} inside the box is dead!`,
+                state,
+            );
+        }
+        if (deadcat) {
+            deadcat.age = state.moves;
+            set_corpsenm(deadcat, PM_HOUSECAT, { state, random });
+            oname(deadcat, sc, ONAME_NO_FLAGS, { state });
+            if (!state.context?.mon_moving) {
+                more_experienced(20, 10, state);
+                await newexplevel(state);
+            }
+        }
+    }
+    return null;
 }
 
 // C ref: pickup.c use_container() (2972-3226). Handles one container: entry
