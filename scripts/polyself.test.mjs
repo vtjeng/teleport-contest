@@ -19,6 +19,7 @@ import {
     PM_RABID_RAT,
     PM_SEWER_RAT,
     PM_STONE_GIANT,
+    PM_STONE_GOLEM,
     PM_WARG,
     PM_WEREJACKAL,
     PM_WERERAT,
@@ -201,6 +202,30 @@ test('break_armor consumes a worn shirt through the inventory lifecycle',
         'useup removes the destroyed shirt from the inventory chain');
     assert.equal(shirt.owornmask, 0,
         'useupall clears worn state before deallocation');
+});
+
+test('polymon uses makemon golemhp without a random HP roll', async () => {
+    // polyself.c:863-864 delegates every golem form's HP to the pure
+    // makemon.c golemhp() table.  This initialized call reaches that branch
+    // and checks the fixed stone-golem value without adding a random draw.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
+        'uarmg', 'uarmf', 'uarmu'])
+        game[slot] = null;
+    game.nhDisplay.readKey = async () => 32;
+    await polymon(PM_STONE_GOLEM, game);
+    assert.equal(game.u.mhmax, 100);
+    assert.equal(game.u.mh, 100);
+    assert.equal(game.youmonst.data.pmidx, PM_STONE_GOLEM);
 });
 
 test('polymon stops after fatal lava during water-walking boot removal',
