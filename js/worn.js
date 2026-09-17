@@ -192,8 +192,9 @@ function property(state, index) {
 //   cancelDoff(obj, slotMask, env) -> do_wear.c cancel_doff().
 //   monsterUnseesProperty(propertyIndex, env) -> monstunseesu_prop().
 //   setArtifactIntrinsic(obj, on, mask, env) -> set_artifact_intrinsic().
-//   endArtifactLight(obj, env) -> end_burn(obj, FALSE), including the visible
-//     "stop shining" message when the hero is not blind.
+//   endArtifactLight(obj, env) -> an optional integration override for
+//     end_burn(obj, FALSE); extraction uses the canonical timeout owner when
+//     this hook is absent.
 //   updateMonExtrinsics(mon, obj, on, silently, env) ->
 //     update_mon_extrinsics(), which extract_from_minvent() reaches only for
 //     an object the monster still has equipped.  When omitted,
@@ -967,7 +968,7 @@ export function m_dowear(monster, creation = false, rawEnv = {}) {
 // `do_extrinsics` selects update_mon_extrinsics(); `silently` is only that
 // call's message flag, which is why steal.c mdrop_obj() can pass FALSE for the
 // first and TRUE for the second and defer the extrinsics to after the drop.
-export function extract_from_minvent(
+export async function extract_from_minvent(
     mon,
     obj,
     do_extrinsics,
@@ -984,8 +985,19 @@ export function extract_from_minvent(
             'extract_from_minvent called on object not in minvent',
         );
     }
-    if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj))
-        requiredHook(normalized, 'endArtifactLight', obj)(obj, normalized);
+    if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj)) {
+        const endArtifactLight = normalized.hooks.endArtifactLight;
+        if (endArtifactLight !== undefined) {
+            await requiredHook(normalized, 'endArtifactLight', obj)(
+                obj,
+                normalized,
+            );
+        } else {
+            // C runs end_burn(FALSE) while owornmask still contains W_ARM;
+            // retain that ordering for live and planning monster inventories.
+            end_burn(obj, false, objectGenerationEnv(normalized));
+        }
+    }
 
     obj_extract_self(obj, normalized);
     obj.owornmask = 0;
@@ -1008,19 +1020,29 @@ export function extract_from_minvent(
             );
         }
     }
-    const finish = () => {
+    const finish = async () => {
         if (unwornmask) {
             mon.misc_worn_check &= ~unwornmask;
             // give monster a chance to wear other equipment on its next move
             check_gear_next_turn(mon);
         }
         obj_no_longer_held(obj, normalized);
-        if (unwornmask & W_WEP)
-            requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
+        if (unwornmask & W_WEP) {
+            const mwepgoneHook = normalized.hooks.mwepgone;
+            if (mwepgoneHook !== undefined) {
+                await requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
+            } else {
+                // mwepgone() is a used-return asynchronous source owner here:
+                // its setmnotwielded light cleanup must finish before callers
+                // can free or merge this object.
+                const { mwepgone } = await import('./weapon.js');
+                await mwepgone(mon, normalized);
+            }
+        }
     };
     if (updateResult?.then)
         return updateResult.then(finish);
-    finish();
+    return finish();
 }
 
 export function bimanual(obj, state = game) {

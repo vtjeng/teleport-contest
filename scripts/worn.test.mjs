@@ -6,8 +6,10 @@ import {
     IN_SIGHT,
     I_SPECIAL,
     LAST_PROP,
+    LS_OBJECT,
     MFAST,
     MSLOW,
+    NEED_WEAPON,
     OBJ_FREE,
     OBJ_MINVENT,
     W_AMUL,
@@ -26,8 +28,10 @@ import {
 import { newMonster } from '../js/monst.js';
 import { PM_KITTEN, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
+import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject } from '../js/obj.js';
 import { game } from '../js/gstate.js';
+import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     AMULET_OF_GUARDING,
     ARROW,
@@ -40,6 +44,7 @@ import {
     KATANA,
     LEATHER_GLOVES,
     LOW_BOOTS,
+    LONG_SWORD,
     ORCISH_HELM,
     PARTISAN,
     SLING,
@@ -411,7 +416,7 @@ function carrier(state, held, overrides = {}) {
 }
 
 test('extract_from_minvent frees an unequipped object and leaves gear alone',
-    () => {
+    async () => {
         const state = catalogState();
         // owornmask 0 is the only case steal.c mdrop_obj() reaches: it refuses
         // an equipped object before calling this.
@@ -420,7 +425,7 @@ test('extract_from_minvent frees an unequipped object and leaves gear alone',
             misc_worn_check: W_AMUL,
         });
 
-        extract_from_minvent(mon, held, false, true, env);
+        await extract_from_minvent(mon, held, false, true, env);
 
         assert.equal(mon.minvent, null);
         assert.equal(held.where, OBJ_FREE);
@@ -435,7 +440,7 @@ test('extract_from_minvent frees an unequipped object and leaves gear alone',
     });
 
 test('extract_from_minvent clears an equipped slot and reschedules gear',
-    () => {
+    async () => {
         const state = catalogState();
         const held = wornObject(state, ORCISH_HELM, W_ARMH);
         const { mon, env, calls } = carrier(state, held, {
@@ -444,7 +449,7 @@ test('extract_from_minvent clears an equipped slot and reschedules gear',
 
         // worn.c:1408 clears only the bits the object itself wore; the amulet
         // slot survives. worn.c:1411 then sets I_SPECIAL.
-        extract_from_minvent(mon, held, true, true, env);
+        await extract_from_minvent(mon, held, true, true, env);
 
         assert.equal(held.owornmask, 0);
         assert.equal(mon.misc_worn_check, W_AMUL | I_SPECIAL);
@@ -464,7 +469,7 @@ test('extract_from_minvent clears an equipped slot and reschedules gear',
         const noisy = carrier(loud, spoken, {
             misc_worn_check: W_ARMH | W_AMUL,
         });
-        extract_from_minvent(noisy.mon, spoken, true, false, noisy.env);
+        await extract_from_minvent(noisy.mon, spoken, true, false, noisy.env);
         assert.deepEqual(
             noisy.calls.updateMonExtrinsics,
             [[noisy.mon, spoken, false, false]],
@@ -472,7 +477,7 @@ test('extract_from_minvent clears an equipped slot and reschedules gear',
     });
 
 test('extract_from_minvent skips update_mon_extrinsics on two conditions',
-    () => {
+    async () => {
         const state = catalogState();
         // steal.c mdrop_obj() passes do_extrinsics=FALSE precisely so that
         // removing a steed's saddle cannot throw its rider before the drop.
@@ -481,7 +486,7 @@ test('extract_from_minvent skips update_mon_extrinsics on two conditions',
         const withoutExtrinsics = carrier(deferred, saddleLike, {
             misc_worn_check: W_ARMH,
         });
-        extract_from_minvent(
+        await extract_from_minvent(
             withoutExtrinsics.mon, saddleLike, false, true, withoutExtrinsics.env,
         );
         assert.deepEqual(withoutExtrinsics.calls.updateMonExtrinsics, []);
@@ -494,7 +499,7 @@ test('extract_from_minvent skips update_mon_extrinsics on two conditions',
             mhp: DEAD_HP,
             misc_worn_check: W_ARMH,
         });
-        extract_from_minvent(dead.mon, held, true, true, dead.env);
+        await extract_from_minvent(dead.mon, held, true, true, dead.env);
         assert.deepEqual(dead.calls.updateMonExtrinsics, []);
         assert.equal(dead.mon.misc_worn_check, I_SPECIAL);
     });
@@ -531,13 +536,13 @@ test('extract_from_minvent uses the canonical extrinsic owner by default',
     });
 
 test('extract_from_minvent unwields a weapon and ends an armor artifact light',
-    () => {
+    async () => {
         const state = catalogState();
         // worn.c:1414 is a bit test on W_WEP alone, so a monster wielding and
         // wearing the same mask value still gets exactly one mwepgone().
         const wielded = wornObject(state, ORCISH_HELM, W_WEP);
         const weapon = carrier(state, wielded, { misc_worn_check: W_WEP });
-        extract_from_minvent(weapon.mon, wielded, false, true, weapon.env);
+        await extract_from_minvent(weapon.mon, wielded, false, true, weapon.env);
         assert.deepEqual(weapon.calls.mwepgone, [weapon.mon]);
 
         // worn.c:1399-1400 runs before owornmask is cleared, because
@@ -548,7 +553,7 @@ test('extract_from_minvent unwields a weapon and ends an armor artifact light',
             lamplit: true,
         });
         const burning = carrier(lit, scales, { misc_worn_check: W_ARM });
-        extract_from_minvent(burning.mon, scales, false, true, burning.env);
+        await extract_from_minvent(burning.mon, scales, false, true, burning.env);
         assert.deepEqual(burning.calls.endArtifactLight, [scales]);
         assert.deepEqual(burning.calls.mwepgone, []);
 
@@ -556,20 +561,94 @@ test('extract_from_minvent unwields a weapon and ends an armor artifact light',
         const dark = catalogState();
         const cold = wornObject(dark, GOLD_DRAGON_SCALE_MAIL, W_ARM);
         const quiet = carrier(dark, cold, { misc_worn_check: W_ARM });
-        extract_from_minvent(quiet.mon, cold, false, true, quiet.env);
+        await extract_from_minvent(quiet.mon, cold, false, true, quiet.env);
         assert.deepEqual(quiet.calls.endArtifactLight, []);
+
+        // With no override, the W_ARM arm reaches timeout.c end_burn() before
+        // detaching the object.  Register the source so the canonical light
+        // owner can prove that it was removed rather than merely clearing the
+        // object's lamplit bit.
+        const canonical = catalogState();
+        light_globals_init(canonical);
+        const source = wornObject(canonical, GOLD_DRAGON_SCALE_MAIL, W_ARM, {
+            lamplit: true,
+        });
+        const sourceMon = kitten(canonical, {
+            minvent: source,
+            misc_worn_check: W_ARM,
+        });
+        source.where = OBJ_MINVENT;
+        source.ocarry = sourceMon;
+        new_light_source(0, 0, 1, LS_OBJECT, source, canonical);
+        await extract_from_minvent(sourceMon, source, false, true, {
+            state: canonical,
+        });
+        assert.equal(source.lamplit, false);
+        assert.equal(canonical.gl.light_base, null);
     });
 
+test('extract_from_minvent waits for canonical wielded-light cleanup', async () => {
+    // C worn.c:1413-1415 calls mwepgone() after obj_no_longer_held().  The
+    // source mwepgone/setmnotwielded pair must finish its light cleanup before
+    // the caller can free, merge, or reuse the extracted object.
+    const state = catalogState();
+    const sword = wornObject(state, LONG_SWORD, W_WEP, {
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+    });
+    const mon = kitten(state, {
+        mhp: ALIVE_HP,
+        minvent: sword,
+        misc_worn_check: W_WEP,
+    });
+    sword.where = OBJ_MINVENT;
+    sword.ocarry = mon;
+    mon.mw = sword;
+
+    const events = [];
+    let release;
+    const lightFinished = new Promise((resolve) => { release = resolve; });
+    const extraction = extract_from_minvent(mon, sword, false, true, {
+        state,
+        hooks: {
+            endArtifactLight: async (obj) => {
+                events.push(`started:${obj.where}`);
+                await lightFinished;
+                events.push('finished');
+                obj.lamplit = false;
+            },
+        },
+    });
+
+    // Dynamic import of weapon.c's canonical owner is part of the production
+    // path, so yield through the event loop before observing the delayed hook.
+    // The production extraction path dynamically loads weapon.c before it can
+    // invoke mwepgone(); wait for that module turn without sleeping on a fixed
+    // timing assumption.
+    for (let turn = 0; turn < 8 && events.length === 0; turn++)
+        await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(events, [`started:${OBJ_FREE}`]);
+    assert.equal(mon.mw, sword);
+    assert.equal(mon.weapon_check, 0);
+
+    release();
+    await extraction;
+    assert.deepEqual(events, [`started:${OBJ_FREE}`, 'finished']);
+    assert.equal(mon.mw, null);
+    assert.equal(sword.owornmask, 0);
+    assert.equal(mon.weapon_check, NEED_WEAPON);
+});
+
 test('extract_from_minvent rejects an object outside a monster inventory',
-    () => {
+    async () => {
         const state = catalogState();
         const held = wornObject(state, ORCISH_HELM, 0);
         const { mon, env } = carrier(state, held);
         // C reports impossible() and returns; the port has no caller that can
         // arrive this way, so it stops.
         held.where = OBJ_FREE;
-        assert.throws(
-            () => extract_from_minvent(mon, held, false, true, env),
+        await assert.rejects(
+            extract_from_minvent(mon, held, false, true, env),
             /not in minvent/u,
         );
     });

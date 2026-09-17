@@ -782,7 +782,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         let scrollObj = otmp;
         if (scrollObj.quan > 1)
             scrollObj = splitobj(scrollObj, 1, { state });
-        extract_from_minvent(mtmp, scrollObj, false, false, { state });
+        await extract_from_minvent(mtmp, scrollObj, false, false, { state });
         await mreadmsg(mtmp, scrollObj, state);
         if (obj_is_cursed || mtmp.mconf) {
             const nlev = random_teleport_level(state);
