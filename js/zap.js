@@ -170,11 +170,11 @@ import {
     STONED,
     STUNNED,
     TELEPORT_CONTROL,
-    THROWN_TETHERED_WEAPON,
     UNCHANGING,
     DRAIN_RES,
     FAST,
     INVIS,
+    THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
     ZAPPED_WAND,
     WAND_BACKFIRE_CHANCE,
@@ -735,6 +735,8 @@ export async function boomhit(
                     obj, 'boomerang', state,
                     { message: ttyPline, losehp, exercise, random: { rnd } },
                 );
+                // C's accepted death enters done() and does not return.
+                if (state.program_state?.gameover) return null;
                 const finish = endMultishotOwner
                     ?? (await import('./dothrow.js')).endmultishot;
                 await finish(true, state);
