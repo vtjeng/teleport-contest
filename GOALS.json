@@ -62882,7 +62882,7 @@
     {
       "id": "port-do-goto-level-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete level-transition control flow, arrival achievements and terminal cleanup.",
       "cFile": "do.c",
       "sessions": [
@@ -62893,8 +62893,8 @@
       "spans": [
         {
           "name": "goto_level",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "262186a4032d1a1551e127e5803dcfa912aaf270",
           "functions": [
             "goto_level"
           ]
@@ -63140,7 +63140,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 1,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "262186a4032d1a1551e127e5803dcfa912aaf270",
+        "screens": 11204,
+        "rng": 786211
+      },
+      "parkedReason": "Whole function is implemented and the span passed combined validation; independent Minetown teleports match, but exceptional transition, portal, terminal, tutorial and endgame entry recordings remain open."
     }
   ]
 }
