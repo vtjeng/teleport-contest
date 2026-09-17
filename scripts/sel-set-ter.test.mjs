@@ -3,11 +3,18 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
-import { CLOUD, DUST, ICE, ROOM, STONE } from '../js/const.js';
-import { UnsupportedLevelChangeError } from '../js/do.js';
+import {
+    CLOUD,
+    DUST,
+    ICE,
+    ICED_POOL,
+    ROOM,
+    SET_LIT_RANDOM,
+    STONE,
+} from '../js/const.js';
 import { engr_at } from '../js/engrave.js';
 import { game, resetGame } from '../js/gstate.js';
-import { mklev, splev_chr2typ } from '../js/mklev.js';
+import { lspo_terrain, mklev, splev_chr2typ } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
@@ -78,8 +85,8 @@ test('sel_set_ter is the C function with the door, wall, ice and cloud arms', ()
 });
 
 // A plain floor paint is the control: the same loader, coordinates and frame
-// reach set_levltyp() and leave ROOM behind, so a refusal below is the arm
-// and not the fixture.
+// reach set_levltyp() and leave ROOM behind, so the terrain callback's result
+// is observed through the production special-level API.
 test('the special-level terrain writer paints an ordinary floor square', async () => {
     // Any seed serves: the loader replaces the whole level's generation.
     const painted = await paintThroughLoader(0x5e1, (des) => {
@@ -96,16 +103,12 @@ test('the special-level terrain writer paints an ordinary floor square', async (
 });
 
 // C ref: sp_lev.c sel_set_ter()'s `ICE` arm sets icedpool from the coder's
-// icedpools flag and its `CLOUD` arm calls del_engr_at(). Neither is ported,
-// so both refuse before set_levltyp_lit(): the square keeps its terrain, an
-// engraving under a would-be cloud survives, and no icedpool is written.
-test('the special-level terrain writer stops on ice and cloud before writing', async () => {
+// icedpools flag and its `CLOUD` arm calls del_engr_at() after the terrain
+// write. Both arms use the active special-level frame.
+test('the special-level terrain writer paints ice and clears cloud engravings', async () => {
     assert.equal(splev_chr2typ('I'), ICE);
     assert.equal(splev_chr2typ('C'), CLOUD);
-    for (const [character, reason] of [
-        ['C', 'sel_set_ter: cloud terrain not ported'],
-        ['I', 'sel_set_ter: ice terrain not ported'],
-    ]) {
+    for (const character of ['C', 'I']) {
         const painted = await paintThroughLoader(0x5e2, (des) => {
             const x = des.frame.xstart + 7;
             const y = des.frame.ystart + 4;
@@ -119,17 +122,44 @@ test('the special-level terrain writer stops on ice and cloud before writing', a
                 engr_time: 0,
                 nxt_engr: null,
             };
-            assert.throws(
-                () => des.terrain(7, 4, character),
-                (error) => error instanceof UnsupportedLevelChangeError
-                    && error.reason === reason,
-                character,
-            );
+            des.level_init({ style: 'solidfill', fg: ' ', lit: 0 });
+            des.level_flags('icedpools');
+            des.terrain(7, 4, character);
             return { x, y };
         });
         const location = game.level.at(painted.x, painted.y);
-        assert.equal(location.typ, STONE, character);
-        assert.equal(location.icedpool ?? 0, 0, character);
-        assert.ok(engr_at(painted.x, painted.y, game), character);
+        assert.equal(location.typ, character === 'I' ? ICE : CLOUD, character);
+        if (character === 'I') {
+            assert.equal(location.icedpool, ICED_POOL, character);
+            assert.ok(engr_at(painted.x, painted.y, game), character);
+        } else {
+            assert.equal(location.icedpool ?? 0, 0, character);
+            assert.equal(engr_at(painted.x, painted.y, game), null, character);
+        }
     }
+});
+
+test('sel_set_ter delegates random lighting once to set_levltyp_lit', async () => {
+    const draws = [];
+    const painted = await paintThroughLoader(0x5e3, (des) => {
+        const x = des.frame.xstart + 7;
+        const y = des.frame.ystart + 4;
+        lspo_terrain([
+            { x: 7, y: 4, typ: '.', lit: SET_LIT_RANDOM },
+        ], {
+            state: game,
+            coder: { croom: null },
+            frame: des.frame,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return 1;
+                },
+            },
+        });
+        return { x, y };
+    });
+    assert.deepEqual(draws, [2]);
+    assert.equal(game.level.at(painted.x, painted.y).typ, ROOM);
+    assert.equal(game.level.at(painted.x, painted.y).lit, true);
 });
