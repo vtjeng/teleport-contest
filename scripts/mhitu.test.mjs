@@ -116,6 +116,7 @@ import {
     PM_WERERAT,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
+import { init_artifacts } from '../js/artifacts.js';
 import {
     AMULET_OF_GUARDING,
     BULLWHIP,
@@ -249,15 +250,26 @@ test('an aligned cleric or a minion form lifts the hero to one', () => {
     assert.equal(magic_negation(minion.youmonst, minion), 1);
 });
 
-test('magic_negation refuses a monster', () => {
-    // uhitm.c:86 passes a monster; that half needs worn.c protects(), so the
-    // port throws rather than answering a factor it did not compute.
+test('magic_negation evaluates a monster inventory and innate protection', () => {
+    // mhitu.c:1088-1137 handles both the hero and monster callers. A worn
+    // mithril coat contributes its a_can value through the monster's minvent,
+    // while an aligned cleric receives the source's innate factor.
     const state = heroState();
-    assert.throws(
-        () => magic_negation({ data: state.mons[PM_HUMAN] }, state),
-        (error) => error instanceof TypeError
-            && /covers only the hero/u.test(error.message),
-    );
+    state.flags = { initalign: 0 };
+    state.urole = { mnum: PM_HUMAN, questarti: 0 };
+    init_artifacts(state);
+    const monster = {
+        data: state.mons[PM_HUMAN],
+        minvent: {
+            otyp: ELVEN_MITHRIL_COAT,
+            owornmask: W_ARM,
+            nobj: null,
+        },
+    };
+    assert.equal(magic_negation(monster, state), 2);
+    monster.minvent = null;
+    monster.data = state.mons[PM_ALIGNED_CLERIC];
+    assert.equal(magic_negation(monster, state), 1);
 });
 
 // ---- mhitu.c mattacku() and the helpers it reaches ----
@@ -714,17 +726,19 @@ test('mattacku widens the to-hit die for each later attack', async () => {
     // first attack could not lose to still loses on the second. The ant's
     // AT_STNG does AD_DRST, so the landed sting stops on its own damage type
     // rather than on the AD_PHYS one its bite would have used.
+    const poisonCalls = [];
     const widened = meleeEnv(state, [20, 18], {
         // mhitm_ad_drst() first spends the magic-cancellation roll, then
         // spends the 1/8 poison-effect roll. Keep the former from negating
-        // the sting and force the latter into its still-unported continuation.
+        // the sting and capture the source's discarded-result poison call.
         rn2: (bound) => bound === 8 ? 0 : 9,
+        poisoned: async (...args) => poisonCalls.push(args),
     });
-    await assert.rejects(
-        () => mattacku(ant, widened.env),
-        (error) => error.reason
-            === 'a non-resistant hero poisoned by a monster',
-    );
+    assert.equal(await mattacku(ant, widened.env), false);
+    assert.equal(poisonCalls.length, 1);
+    assert.equal(poisonCalls[0][1], 0); // A_STR
+    assert.equal(poisonCalls[0][3], 30);
+    assert.equal(poisonCalls[0][4], false);
 });
 
 test('mattacku spends a draw on a negative armor class before the roll',

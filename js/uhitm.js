@@ -13,6 +13,7 @@ import {
 } from './artifacts.js';
 import { adjalign, exercise } from './attrib.js';
 import {
+    A_CON,
     A_DEX,
     A_LAWFUL,
     A_STR,
@@ -343,6 +344,7 @@ import {
     canSeeMonster,
     canSpotMonster,
     heroIsBlind,
+    messageAt,
     sensesMonster,
     sensesMonsterWithoutDetection,
 } from './startup_a11y.js';
@@ -427,8 +429,8 @@ function requireAttackOperation(env, name) {
 // magic cancellation thwarts the attack before its damage type is applied.
 //
 // `verbosely` is C's. Every ported call site passes TRUE, and so do most of
-// C's; mhitm_ad_dren():2422, mhitm_ad_drst():3126 and mhitm_ad_stck():3310 are
-// three of the arms that pass FALSE, and none of them is ported.
+// C's; mhitm_ad_dren():2422 and mhitm_ad_stck():3310 are arms that pass FALSE
+// and remain outside this span.
 //
 // The draw is unconditional once the attacker is uncancelled, so a defender
 // with no cancellation at all still spends it: `rn2(10) >= 0` is always true,
@@ -453,11 +455,21 @@ export async function mhitm_mgc_atk_negated(
     if (negated) {
         /* attack has been thwarted by negation, aka magical cancellation */
         if (verbosely) {
-            // C's second arm, `else if (gv.vis && canseemon(mdef))`, announces
-            // a monster defender's escape. magic_negation() above covers the
-            // hero alone and throws for a monster, so that arm is unreachable
-            // and is left out rather than restated.
-            await message('You avoid harm.', state);
+            if (mdef === state.youmonst) {
+                await message('You avoid harm.', state);
+            } else if (state.gv?.vis && canSpotMonster(mdef, state)) {
+                // C uses pline_mon() for a visible monster defender, carrying
+                // its location through set_msg_xy().
+                await message(
+                    messageAt(
+                        `${Monnam(mdef, state, env)} avoids harm.`,
+                        mdef.mx,
+                        mdef.my,
+                        state,
+                    ),
+                    state,
+                );
+            }
         }
         return true;
     }
@@ -2667,21 +2679,62 @@ export async function mhitm_ad_elec(
     }
 }
 
-// C ref: uhitm.c mhitm_ad_drst() (3122-3163), the bounded monster-versus-
-// hero arm. The shared magic-cancellation roll is made first, then a landed
-// poison attack prints hitmsg() and spends the 1/8 poison-effect roll. The
-// current development boundary has a poison-resistant hero, so the
-// resistance response is complete. The non-resistant continuation calls
-// attrib.c poisoned(), whose lethal, hit-point, and attribute-loss branches
-// still need a monster-turn planning owner; it remains fail-closed after its
-// source-side poison trigger.
-function monsterPoisonSubject(monster, attack) {
-    if (attack.aatyp === AT_WEAP)
-        return monster.mw?.opoisoned ? 'weapon' : 'attack';
+// C ref: uhitm.c mhitm_really_poison() (3098-3119) and
+// mhitm_ad_drst() (3121-3165). The shared magic-cancellation roll is made
+// first, then a landed poison attack spends the 1/8 poison-effect roll. The
+// hero-defender arm delegates the complete attrib.c poisoned() operation to
+// the monster-turn adapter; its planning callback stops a clone before done().
+function monsterPoisonSubject(monster, attack, state = game) {
+    if (attack.aatyp === AT_WEAP) {
+        // mpoisons_subj() reads uwep for the hero and mwep for a monster;
+        // both are distinct C state fields even though this helper serves
+        // all three mhitm_ad_drst() directions.
+        const weapon = monster === state.youmonst ? state.uwep : monster.mw;
+        return weapon?.opoisoned ? 'weapon' : 'attack';
+    }
     if (attack.aatyp === AT_TUCH) return 'contact';
     if (attack.aatyp === AT_GAZE) return 'gaze';
     if (attack.aatyp === AT_BITE) return 'bite';
     return 'sting';
+}
+
+// C's helper is used only when a poison attack has already passed its own
+// magic-cancellation and chance gates. It deliberately does not spend either
+// gate again. `gv.vis` is the combat visibility result computed by mhitm.c;
+// canSpotMonster supplies each source canspotmon() check.
+export async function mhitm_really_poison(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = { rn1, ...(env.random ?? {}) };
+    const message = requireAttackOperation(env, 'message');
+    const visible = Boolean(state.gv?.vis);
+
+    if (visible && canSpotMonster(magr, state)) {
+        await message(
+            `${s_suffix(Monnam(magr, state, env))} `
+                + `${monsterPoisonSubject(magr, mattk, state)} was poisoned!`,
+            state,
+        );
+    }
+    if (monster_resists_element(mdef, POISON_RES, state)) {
+        if (visible && canSpotMonster(mdef, state)
+            && canSpotMonster(magr, state)) {
+            await message(
+                `The poison doesn't seem to affect ${mon_nam(mdef, state, env)}.`,
+                state,
+            );
+        }
+        return;
+    }
+
+    mhm.damage += random.rn1(10, 6);
+    if (mhm.damage >= mdef.mhp && visible && canSpotMonster(mdef, state))
+        await message('The poison was deadly...', state);
 }
 
 export async function mhitm_ad_drst(
@@ -2692,36 +2745,50 @@ export async function mhitm_ad_drst(
     state = game,
     env = {},
 ) {
-    const random = env.random ?? { rn2 };
-    const unsupported = requireAttackOperation(env, 'unsupported');
+    const random = { rn2, rn1, ...(env.random ?? {}) };
     const negated = await mhitm_mgc_atk_negated(
         magr, mdef, false, state, env,
     );
 
     if (magr === state.youmonst) {
         /* uhitm */
-        if (!negated && !random.rn2(8))
-            unsupported('the hero poisoning a monster');
+        if (!negated && !random.rn2(8)) {
+            const message = requireAttackOperation(env, 'message');
+            const subject = monsterPoisonSubject(magr, mattk, state);
+            await message(`Your ${subject} was poisoned!`, state);
+            if (monster_resists_element(mdef, POISON_RES, state)) {
+                await message(
+                    `The poison doesn't seem to affect ${mon_nam(mdef, state, env)}.`,
+                    state,
+                );
+            } else if (!random.rn2(10)) {
+                await message('Your poison was deadly...', state);
+                mhm.damage = mdef.mhp;
+            } else {
+                mhm.damage += random.rn1(10, 6);
+            }
+        }
     } else if (mdef === state.youmonst) {
         /* mhitu */
         await hitmsg(magr, mattk, state, env);
         if (!negated && !random.rn2(8)) {
-            const message = requireAttackOperation(env, 'message');
-            const reason = `${monsterPossessive(magr, state, true)} `
-                + `${monsterPoisonSubject(magr, mattk)}`;
-            const resistance = state.u?.uprops?.[POISON_RES];
-            if (!(resistance?.intrinsic || resistance?.extrinsic)) {
-                unsupported('a non-resistant hero poisoned by a monster');
-            }
-            // attrib.c poisoned() prints this before checking
-            // Poison_resistance, and then reports that the poison had no
-            // effect. No further random draw or state change occurs here.
-            await message(`${reason} was poisoned!`, state);
-            await message("The poison doesn't seem to affect you.", state);
+            const reason = `${s_suffix(Monnam(magr, state, env))} `
+                + `${monsterPoisonSubject(magr, mattk, state)}`;
+            const poison = requireAttackOperation(env, 'poisoned');
+            await poison(
+                reason,
+                mattk.adtyp === AD_DRDX ? A_DEX
+                    : mattk.adtyp === AD_DRCO ? A_CON : A_STR,
+                pmname(magr.data, gender(magr.data)),
+                30,
+                false,
+                env,
+            );
         }
     } else {
         /* mhitm */
-        unsupported('one monster poisoning another');
+        if (!negated && !random.rn2(8))
+            await mhitm_really_poison(magr, mattk, mdef, mhm, state, env);
     }
 }
 
