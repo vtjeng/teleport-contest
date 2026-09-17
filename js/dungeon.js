@@ -2273,7 +2273,7 @@ function incrementMapseenFeature(feat, key) {
 // C ref: pray.c altarmask_at() (2490-2504). The remembered ALTAR type can
 // come from a visible furniture mimic even when the underlying terrain is not
 // an altar, so alignment must follow the mimic's mcorpsenm overlay too.
-function altarmask_at(x, y, state) {
+export function altarmask_at(x, y, state = game) {
     const monster = state.level?.monsters?.[x]?.[y] ?? null;
     if (monster
         && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE

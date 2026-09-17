@@ -8,6 +8,10 @@ import {
     BLINDED,
     BOLT_LIM,
     COLNO,
+    MAXTCHARS,
+    AM_MASK,
+    AM_SANCTUM,
+    Amask2align,
     D_BROKEN,
     D_TRAPPED,
     ECMD_OK,
@@ -21,6 +25,7 @@ import {
     M_AP_TYPMASK,
     ICE,
     Is_airlevel,
+    Is_astralevel,
     Is_waterlevel,
     LAVAPOOL,
     LAVAWALL,
@@ -43,6 +48,9 @@ import {
     isok,
 } from './const.js';
 import { hliquid, pmname } from './do_name.js';
+import { altarmask_at, on_level, surface_typ } from './dungeon.js';
+import { is_drawbridge_wall } from './dbridge.js';
+import { align_str } from './insight.js';
 import { trapped_chest_at, trapped_door_at } from './detect.js';
 import {
     GLYPH_NOTHING_OFF,
@@ -77,9 +85,9 @@ import { engr_at } from './engrave.js';
 import { fruit_from_name, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
-import { mungspaces } from './hacklib.js';
+import { dist2, mungspaces } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
-import { display_inventory } from './invent.js';
+import { display_inventory, ice_descr } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
 import { PM_SAMURAI, S_invisible } from './monsters.js';
@@ -113,26 +121,19 @@ import {
     MAXOCLASSES,
     MAXPCHARS,
     SYM_OFF_X,
-    S_brupstair,
     S_cloud,
-    S_corr,
-    S_dnstair,
-    S_darkroom,
     S_engrcorr,
     S_engroom,
     S_grave,
     S_ice,
+    S_altar,
+    S_arrow_trap,
     S_lava,
     S_lavawall,
     S_hcdbridge,
-    S_litcorr,
     S_ndoor,
     S_pool,
-    S_room,
     S_stone,
-    S_trwall,
-    S_upstair,
-    S_vwall,
     S_vodbridge,
     S_water,
     S_sw_tl,
@@ -165,7 +166,6 @@ import { t_at, trapname } from './trap.js';
 import { couldsee } from './vision.js';
 import { getlin, select_menu } from './windows.js';
 import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
-import { on_level, surface_typ } from './dungeon.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -813,31 +813,35 @@ export function waterbody_name(x, y, state = game, env = {}) {
     return 'water';
 }
 
-// C ref: pager.c lookat() (657-801), ordinary cmap branches reached by the
-// whatis cursor-terrain witness. Other glyph families remain later slices.
+// C ref: pager.c lookat() (657-801), including the actual cmap refinement
+// reached by the whatis cursor-terrain path. Other glyph families are handled
+// by the source-shaped helpers above before this cmap switch is reached.
 function lookatOrdinaryTerrain(x, y, glyph, state) {
     if (glyph_is_trap(glyph)) {
         return trap_description(glyph_to_trap(glyph), x, y, state);
     }
     const index = glyph_to_cmap(glyph);
-    const supported = index === S_stone
-        || (index >= S_vwall && index <= S_trwall)
-        || index === S_ndoor
-        || index === S_room || index === S_darkroom
-        || index === S_corr || index === S_litcorr
-        || index === S_upstair || index === S_dnstair
-        || index === S_brupstair
-        || index === S_cloud
-        || index === S_pool || index === S_water
-        || index === S_lava || index === S_lavawall || index === S_ice;
-    if (!supported) {
-        throw new UnsupportedWhatisError(
-            `terrain ${CMAP_EXPLANATIONS[index] ?? index}`,
-        );
+    if (!Number.isInteger(index) || index < 0 || index >= MAXPCHARS)
+        throw new UnsupportedWhatisError(`terrain ${index}`);
+    // C ref: pager.c lookat() (738-793). Every ordinary cmap index has a
+    // source explanation; only the context-sensitive cases below need more
+    // than the generated defsym text. Keeping the generated fallback here
+    // admits sink/fountain and the remaining ordinary furniture/wall forms
+    // without inventing a caller-specific description.
+    if (index === S_altar) {
+        const mask = altarmask_at(x, y, state);
+        const alignment = Amask2align(mask & AM_MASK);
+        const high = Is_astralevel(state.u?.uz)
+            && dist2(x, y, state.u?.ux, state.u?.uy) > 2
+            && Boolean(mask & AM_SANCTUM);
+        return `${high ? 'aligned' : align_str(alignment)} `
+            + `${mask & AM_SANCTUM ? 'high ' : ''}altar`;
     }
     if (index === S_ndoor) {
+        if (is_drawbridge_wall(x, y, state) >= 0)
+            return 'open drawbridge portcullis';
         const location = state.level?.at(x, y);
-        const mask = location?.flags ?? location?.doormask ?? 0;
+        const mask = location?.flags || location?.doormask || 0;
         return (mask & ~D_TRAPPED) === D_BROKEN ? 'broken door' : 'doorway';
     }
     if (index === S_cloud)
@@ -845,6 +849,16 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
     if (index === S_pool || index === S_water
         || index === S_lava || index === S_lavawall || index === S_ice)
         return waterbody_name(x, y, state);
+    if (index === S_engroom || index === S_engrcorr)
+        return 'engraving';
+    if (index === S_stone) {
+        const location = state.level?.at(x, y);
+        if (!location?.seenv) return 'unexplored';
+        if (state.u?.uinwater && !Is_waterlevel(state.u?.uz)) {
+            return dist2(x, y, state.u?.ux, state.u?.uy) <= 2
+                ? 'land' : 'unknown';
+        }
+    }
     return CMAP_EXPLANATIONS[index];
 }
 
@@ -914,6 +928,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
     const glyphinfo = map_glyphinfo(glyph, state);
     const symbolByte = glyphinfo.ttychar;
     let found = 0;
+    let needToLook = false;
     let firstmatch = 'unknown';
     let out = `${visibleGlyphCharacter(glyphinfo)}        `;
     // C ref: pager.c is_swallow_sym(). A DEC graphics wall can share its
@@ -947,12 +962,25 @@ export function do_screen_description(cc, looked, sym, state = game) {
                 ++found;
             }
         }
+        const liquid = index === S_water || index === S_lava
+            || index === S_lavawall || index === S_ice;
+        if (index === S_pool || index === S_altar || index === S_engroom
+            || index === S_engrcorr || index === S_grave
+            || (index >= S_arrow_trap
+                && index < S_arrow_trap + MAXTCHARS)
+            || (heroHallucinating(state) && liquid)) {
+            needToLook = true;
+        }
     }
     if (found > 4)
         out = `${visibleGlyphCharacter(glyphinfo)}        can be many things`;
 
-    if (found > 1) {
+    if (found > 1 || needToLook) {
         let detail = lookatOrdinaryTerrain(cc.x, cc.y, glyph, state);
+        // C ref: pager.c do_screen_description() (1603). This call is made
+        // after lookat() only for an exact "ice" result and updates the
+        // secondary iflags.ice_rating value used by later terrain text.
+        if (detail === 'ice') detail = ice_descr(cc.x, cc.y, state);
         // C ref: pager.c do_screen_description() (1595-1606). A downstairs
         // staircase on the quest start level remains blocked until the quest
         // leader has granted access, and the rewritten detail appears in both

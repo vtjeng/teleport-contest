@@ -100,8 +100,11 @@ import {
     S_corr,
     S_darkroom,
     S_dnstair,
+    S_fountain,
     S_ndoor,
     S_room,
+    S_sink,
+    S_tree,
     initialize_symbols_from_options,
 } from '../js/symbols.js';
 import {
@@ -545,6 +548,27 @@ test('cloud ambiguity names air and non-air terrain', () => {
     } finally {
         game.air_level = priorAirLevel;
     }
+});
+
+test('lookat refines shared sink/fountain symbols and ordinary cmap defaults', () => {
+    assert.deepEqual(terrainDescription(S_sink), {
+        found: 1,
+        out: '{        a sink or a fountain (sink)',
+        firstmatch: 'sink',
+    });
+    assert.deepEqual(terrainDescription(S_fountain), {
+        found: 1,
+        out: '{        a sink or a fountain (fountain)',
+        firstmatch: 'fountain',
+    });
+
+    // S_tree is an ordinary default switch arm; lookat() returns the
+    // generated defsym explanation for the actual tree tile.
+    assert.deepEqual(terrainDescription(S_tree), {
+        found: 1,
+        out: 'g        a tree',
+        firstmatch: 'tree',
+    });
 });
 
 test('doorway refinement distinguishes broken and trapped-broken masks', () => {
