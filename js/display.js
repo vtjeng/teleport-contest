@@ -3644,6 +3644,10 @@ export async function docrt(options = {}) {
     game.program_state ??= {};
     game.program_state.in_docrt = true;
     try {
+        // cls() begins with tty_display_nhwindow(WIN_MESSAGE, FALSE),
+        // which clears rawprint before any pending message wait.
+        if (game.nhDisplay?.nomuxRaw)
+            game.nhDisplay.nomuxRaw.rawprint = 0;
         const waitingForMore = game.nhDisplay?.toplin === TOPLINE_NEED_MORE;
         if (waitingForMore && await dismissPendingTtyMessage(game)) {
             // tty_display_nhwindow() restores TOPLINE_NEED_MORE after more()
@@ -5649,6 +5653,9 @@ export async function flush_screen(mode) {
         // C ref: display.c flush_screen() (2261-2263). A zero mode leaves the
         // existing cursor in place; all other modes select the hero.
         _buildScreenOutput(mode === 0 ? false : true);
+        // display.c:2265 displays WIN_MAP; the TTY window clears rawprint.
+        if (game.nhDisplay?.nomuxRaw)
+            game.nhDisplay.nomuxRaw.rawprint = 0;
         // C ref: display.c flush_glyph_buffer(). Once the buffered map has
         // reached the window port, each gbuf entry is clean until show_glyph()
         // writes it again. This also makes show_glyph()'s explicit gnew
@@ -5666,6 +5673,8 @@ export async function flush_screen(mode) {
 // ── cls ──
 export async function cls() {
     const display = game?.nhDisplay;
+    // tty_display_nhwindow(WIN_MESSAGE, FALSE) clears rawprint first.
+    if (display?.nomuxRaw) display.nomuxRaw.rawprint = 0;
     // C display.c cls() begins with display_nhwindow(WIN_MESSAGE, FALSE).
     // On the TTY this dismisses a pending --More-- before the old level is
     // erased.  drag_down() relies on that boundary: its caller's fall

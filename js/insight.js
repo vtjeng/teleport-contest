@@ -186,6 +186,9 @@ import {
     STRANGLED,
     STRAT_WAITMASK,
     STUNNED,
+    TT_BURIEDBALL,
+    TT_INFLOOR,
+    TT_LAVA,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
     SWIMMING,
@@ -218,7 +221,7 @@ import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { enc_stat, rank_of } from './display.js';
-import { depth, dunlev, endgamelevelname } from './dungeon.js';
+import { depth, dunlev, endgamelevelname, surface } from './dungeon.js';
 import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
 import { newuexp } from './exper.js';
@@ -229,7 +232,7 @@ import {
 } from './hacklib.js';
 import { carrying, currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
-import { an } from './objnam.js';
+import { an, the } from './objnam.js';
 import { oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
@@ -290,14 +293,14 @@ import {
     S_HUMAN,
 } from './monsters.js';
 import { MONSTER_CLASS_EXPLANATIONS } from './symbol_data.js';
-import { pmname, x_monnam } from './do_name.js';
+import { hliquid, pmname, x_monnam } from './do_name.js';
 import { mon_aligntyp } from './priest.js';
 import { align_gname, can_pray, u_gname } from './pray.js';
 import { spellid } from './spell.js';
 import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
 import { body_part, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
-import { mhidden_description } from './startup_a11y.js';
+import { mhidden_description } from './pager.js';
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
@@ -329,8 +332,37 @@ import { P_SKILL, weapon_type } from './startup_skills.js';
 import { empty_handed } from './wield.js';
 import { ART_OGRESMASHER } from './artifacts.js';
 import { RIGHT_HANDED } from './u_init.js';
-import { is_pool_or_lava } from './trap.js';
+import { is_pool_or_lava, t_at, trapname } from './trap.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
+
+// C ref: insight.c trap_predicament() (233-270). The pager self-look
+// description and the status window share this source-owned wording. The
+// final argument selects C's non-hallucinated lava noun; wizard-only counter
+// text is kept available for callers that request it.
+export function trap_predicament(state = game, final = false, wizxtra = false) {
+    const u = state.u ?? {};
+    let result;
+    switch (u.utraptype) {
+    case TT_BURIEDBALL:
+        result = 'tethered to something buried';
+        break;
+    case TT_LAVA:
+        result = 'sinking into ' + (final
+            ? 'lava' : hliquid('lava', { state }));
+        break;
+    case TT_INFLOOR:
+        result = 'stuck in ' + the(surface(u.ux, u.uy, state), state);
+        break;
+    default: {
+        result = 'trapped';
+        const trap = t_at(u.ux, u.uy, state);
+        if (trap)
+            result += ' in ' + an(trapname(trap.ttyp, false, state), state);
+        break;
+    }
+    }
+    return wizxtra ? result + ' {' + u.utrap + '}' : result;
+}
 
 // Thrown where insight.c reaches a branch this port has not ported. Every
 // throw happens while the line list is still being built, so the window has
@@ -1123,7 +1155,8 @@ function status_enlightenment(mode, final, state, lines) {
     if (state.uball)
         throw new UnsupportedEnlightenmentError('the punished status');
     if (u.utrap)
-        throw new UnsupportedEnlightenmentError('trap_predicament()');
+        you_are(lines, final,
+            trap_predicament(state, final, Boolean(state.wizard)), '');
     if (u.ustuck)
         throw new UnsupportedEnlightenmentError('the held-by-monster status');
     if (state.iflags.tux_penalty)
@@ -2696,6 +2729,7 @@ export async function mstatusline(mtmp, state = game) {
         || visible_region_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
         info += mhidden_description(mtmp, state, {
             showAlternateMonster: true,
+            forceRegion: true,
         });
     }
     if (mtmp.mcan)

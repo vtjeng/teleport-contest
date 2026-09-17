@@ -2,7 +2,7 @@
   "session": "holdout/seed0399-wizard-hallu-actions",
   "remainingScreensUpperBound": 23,
   "status": "complete",
-  "commit": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
+  "commit": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
     "step": 509,
@@ -26,7 +26,8 @@
     "nethack-c/upstream/src/uhitm.c:3121-3165 contains mhitm_ad_drst(): the hero-defender arm maps AD_DRST to A_STR, emits hitmsg(), spends rn2(8), and calls poisoned() with fatal 30 and thrown_weapon FALSE. nethack-c/upstream/src/uhitm.c:4781-4811 maps all three attribute-poison types to this owner. nethack-c/upstream/src/attrib.c:317-408 supplies the consumed poison branches, including rn2(30), d(2,2), adjattrib(), done(), and encumber_msg().",
     "At the examined commit, git show a3ce8ade:js/uhitm.js shows js/uhitm.js:mhitm_ad_drst() at 2687-2726 calling hitmsg() and the rn2(8) gate, then throwing unsupported(“a non-resistant hero poisoned by a monster”) at 2713-2715 instead of invoking the existing poison operation. js/attrib.js already ports poisoned(), and js/unported_monster_actions.js:monsterMissileEnv() binds env.poisoned with state, message, losehp, done, and encumberMessage for both planning and live passes.",
     "The production chain is source-backed: mhitu.c:mattacku() -> hitmu() -> mhitm_adtyping() -> mhitm_ad_drst() -> poisoned(), followed by knockback and mdamageu(). js/unported_monster_actions.js:attackHeroWithMattacku() provides the same chain and operation environment, while preflightSimpleMonsterActions() catches MonsterDeathPlanningError before replaying the live turn. The earlier 9b147c15 elapsed-turn planner experiment disagreed with the live movement gate in three development sessions; fabricated wizard recovery in the planner is invalid. Preserve the accepted life-saving recovery evidence as a separate prior span.",
-    "Orchestrator source check: the 45-line mhitm_ad_drst function contains three attacker/defender arms, and its neighboring mhitm_really_poison helper is 17 lines. Whole-source selection must include the sibling directions rather than retain their refusals as a claimed complete port. monsterMissileEnv's current poisoned binding invokes live losehp/done on planning state, so its presence alone does not establish safe lethal planning."
+    "Orchestrator source check: the 45-line mhitm_ad_drst function contains three attacker/defender arms, and its neighboring mhitm_really_poison helper is 17 lines. Whole-source selection must include the sibling directions rather than retain their refusals as a claimed complete port. monsterMissileEnv's current poisoned binding invokes live losehp/done on planning state, so its presence alone does not establish safe lethal planning.",
+    "At 8e90f33b3721bd996b79487ffc509a71b7f3c594, root verified the existing lethal-planning contract in mthrowu.js thitu (1958-1965), muse.js mbhitm (2177-2182), and mhitu.js mdamageu (1465-1477): write source damage state on the clone and raise MonsterDeathPlanningError before live death handling. unported_monster_actions.js preflightSimpleMonsterActions catches that marker and allmain.js advanceElapsedTurn replays the action live, then replans after lifesaving. attrib.js poisoned has both losehp damage and a direct uhp=-1 instant-poison arm before its final done call; both lethal boundaries need the same adapter handoff. The existing RNG and message adapters remain authoritative, and the used-return dependencies already have owners."
   ],
   "source": {
     "file": "uhitm.c",

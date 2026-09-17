@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7001,
+      "datetime": "20310417113000",
+      "nethackrc": "OPTIONS=name:PagerTown7001F,role:Wizard,race:dwarf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,symset:DECgraphics\n",
+      "moves": " \u0016?\n wjjqy ;.",
+      "comment": "Cheap female variation of the independent Minetown route keeps the source path while changing the startup role state and hero description inputs."
+    }
+  ]
+}

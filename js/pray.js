@@ -23,6 +23,7 @@ import {
     A_NONE,
     A_STR,
     A_WIS,
+    ALTAR,
     AM_SANCTUM,
     AM_SHRINE,
     AM_MASK,
@@ -77,6 +78,10 @@ import {
     EYE,
     isok,
     ismnum,
+    has_mcorpsenm,
+    MCORPSENM,
+    M_AP_FURNITURE,
+    M_AP_TYPMASK,
 } from './const.js';
 import { confers_luck, hcolor } from './artifacts.js';
 import { adjalign, adjattrib, exercise, setuhpmax } from './attrib.js';
@@ -163,6 +168,7 @@ import { Monnam } from './do_name.js';
 import { killed, mon_offmap } from './mon.js';
 import { monflee } from './monmove.js';
 import { set_malign } from './makemon.js';
+import { cmap_to_type } from './mkroom.js';
 import { resist } from './zap.js';
 import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
@@ -237,6 +243,21 @@ function on_altar(state) {
 // C ref: pray.c:107 `#define a_align(x, y)`.
 function a_align(x, y, state) {
     return Amask2align(state.level.at(x, y).altarmask & AM_MASK);
+}
+
+// C ref: pray.c altarmask_at() (2490-2504).  The altar alignment helper is
+// owned by pray.c even when pager.c asks for a remembered furniture mimic.
+export function altarmask_at(x, y, state = game) {
+    const monster = state.level?.monsters?.[x]?.[y] ?? null;
+    if (monster
+        && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
+        && cmap_to_type(monster.mappearance) === ALTAR) {
+        return has_mcorpsenm(monster) ? MCORPSENM(monster) : 0;
+    }
+    const location = state.level?.at(x, y);
+    return IS_ALTAR(location?.typ)
+        ? location.altarmask ?? location.flags ?? 0
+        : 0;
 }
 
 // C ref: pray.c dosacrifice() (1854-1896). The floorfood() selector is shared

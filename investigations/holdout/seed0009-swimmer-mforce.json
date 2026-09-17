@@ -1,49 +1,52 @@
 {
   "session": "holdout/seed0009-swimmer-mforce",
-  "remainingScreensUpperBound": 11,
+  "remainingScreensUpperBound": 0,
   "status": "complete",
-  "commit": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
   "mismatch": {
     "session": "holdout/seed0009-swimmer-mforce",
-    "step": 62,
+    "step": 73,
     "kind": "stop",
-    "function": "really_done",
+    "function": "switch_terrain",
     "functionDeclared": true,
-    "sourceFile": "end.c",
-    "cFile": "end.c",
+    "sourceFile": "hack.c",
+    "cFile": "hack.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state",
+    "message": "unsupported hero move: switch_terrain() onto terrain that blocks levitation",
     "unlocatedKinds": [],
     "recordedSteps": 73,
-    "remainingScreensUpperBound": 11
+    "remainingScreensUpperBound": 0
   },
-  "summary": "Walking into the pool now matches. The next stop is step 62, after the hero enters a wall of lava and reaches end.c really_done() with BURNING. JavaScript rejects special death reasons and grave-arise states; C sets BURNING/DISSOLVED to leave no corpse and continues finalization. Port the whole really_done function and its required dependencies. trap.c lava_effects has separate incomplete branches, including boots removal, but the current recorded stop is the end.c special-death guard.",
+  "summary": "The current A21 replay emits all 73 recorded screens, with all 3713 RNG values and 73 cursors matching; no recorded screen is missing. The only remaining diagnostic is a post-recording behavioral boundary at step 73: js/hack.js switch_terrain() throws when the hero occupies obstructed, closed-door, waterwall or lavawall terrain. C hack.c switch_terrain() handles that same blocklev predicate by setting BLevitation/BFlying FROMOUTSIDE, issuing messages only when the corresponding property is active, updating the status line when a property changes, and classifying terrain. This boundary is therefore a future whole-source switch_terrain port with zero currently unmatched recorded screens; the prior tutorial reached-depth explanation is superseded.",
   "source": {
-    "file": "end.c",
-    "functions": [
-      "really_done"
-    ],
-    "branch": "Complete end.c really_done() (1130-1593), including its death-reason and grave-arise handling, rather than merely admitting BURNING at the guard. At 1206-1218 C sets PANICKED to NON_PM-3, BURNING/DISSOLVED to NON_PM-2, STONING to LEAVESTATUE, and TURNED_SLIME to PM_GREEN_SLIME when not genocided, then continues through fixup_death, disclosure, score and final display. Current js/end.js really_done rejects every how other than DIED/QUIT and every nondefault ugrave_arise before those later stages. Preserve all other source branches, caller state and terminal input boundaries.",
+    "file": "hack.c",
+    "branch": "hack.c switch_terrain() 3178-3217 computes blocklev from IS_OBSTRUCTED, closed_door, IS_WATERWALL and LAVAWALL. On blocklev it sets BLevitation and BFlying FROMOUTSIDE, with You_cant() output only for active Levitation/Flying; otherwise it clears those masks and invokes float_up()/float_vs_flight() as needed. It then updates disp.botl when Levitation/Flying changed and calls classify_terrain() when terrainstatus is enabled. js/hack.js 4794-4824 computes the same predicate but throws UnsupportedHeroMoveBoundaryError at 4811-4813, and similarly refuses nonzero blocked masks at 4815-4819 instead of implementing those source state transitions.",
     "callers": [
-      "C trap.c lava_effects() (6794-6965) enters done(BURNING) on fatal lava damage; js/trap.js lava_effects performs the matching call after its burn message and killer setup.",
-      "C hack.c pooleffects() invokes lava_effects after domove_core commits liquid movement; js/hack.js pooleffects reaches the same owner, now enabled by the accepted walking-admission change.",
-      "C end.c done() (1020-1126) calls really_done after life-saving/wizard recovery declines to return; js/end.js done() passes the same how value. Life-saving and recovery have separate accepted evidence."
+      "hack.c set_uinwater() 3221-3227 calls switch_terrain() only when u.uinwater changes; js/hack.js set_uinwater() 4827-4836 is the corresponding owner and js/cmd.js 2573 uses it during level transitions.",
+      "hack.c spoteffects() 3342-3349 calls switch_terrain() before pooleffects() when the current terrain differs from the previous terrain or terrain_typ is MAX_TYPE; js/hack.js spoteffects() 4938-4970 calls its terrain check after pooleffects(), so a liquid death that returns true skips this call.",
+      "dungeon.c u_on_rndspot() 1604-1638 calls switch_terrain() after random level arrival; js/dungeon.js u_on_rndspot() 1156-1214 calls the current JS owner, and js/cmd.js 2583-2589 is a production level-change caller.",
+      "teleport.c teleds() 551-552 calls switch_terrain() after a terrain-type change; js/teleport.js 1601-1606 preserves this call after map and vision updates.",
+      "dothrow.c 913-917 calls switch_terrain() after thrown movement changes terrain; js/dothrow.js 643-649 is the corresponding caller.",
+      "dig.c 733 and 757 calls switch_terrain() after a hero-created pit or hole changes solid terrain; no direct js/dig.js caller currently exists for these unported post-trap arms.",
+      "monmove.c dissolve_bars() 2169-2177 calls switch_terrain() when bars dissolve under the hero; js/monmove.js 4035-4048 preserves that caller.",
+      "objnam.c wizterrainwish() 3907-3910 calls switch_terrain() after a terrain wish; the corresponding JS terrain-wish path remains unported and has no direct caller."
     ],
     "dependencies": [
-      "C end.c fixup_death and the remaining really_done cleanup, disclosure and scoring helpers must preserve their return values and source order; inventory settlement and final terminal capture already have JavaScript owners to compare.",
-      "C can_make_bones() is called only when how < GENOCIDED; retain that random-call order before grave-arise handling.",
-      "The current really_done implementation also refuses hangup, panic, achievement and first-move cases. Whole-function source completion must account for each rather than claiming the BURNING witness proves them. Unrecorded active entry coverage remains a reason to park the goal.",
-      "trap.c lava_effects still has a separate Boots_off refusal and named inventory/display gaps. Those source defects remain independently actionable; the current step-62 scan specifically attributes the stop to really_done."
+      "Terrain classification requires the canonical IS_OBSTRUCTED, closed_door, IS_WATERWALL and LAVAWALL predicates and the current level cell at u.ux/u.uy.",
+      "The source state contract owns u.uprops[LEVITATION].blocked and u.uprops[FLYING].blocked (BLevitation/BFlying), plus float_up(), float_vs_flight(), disp.botl and classify_terrain(); a future implementation must preserve their source order and conditional messages.",
+      "The saved scan reports boundary at behavioral step 73 with key null, keyCursor answer, divergence null, and screensEmitted 73. Because recordedSteps is also 73 and the queue count is zero, the boundary occurs after the complete observed output; do not charge it as a lost screen or restore the superseded tutorial overview diagnosis."
+    ],
+    "functions": [
+      "switch_terrain"
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Passing checkpoint 058e1e65 run-a4KCVm records 10,785/11,405 development screens and 312/312 matching recordings. Only this session changes: 48 to 62 matching screens, 3647 to 3713 RNG values, and 48 to 62 cursors. The other 43 sessions retain their previous metrics.",
-    "The saved .cache/A18-development-scan.json and .cache/A18-queue.json place the first stop at step62 and name end.c really_done with message unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state; recordedSteps73 yields remainingScreensUpperBound11.",
-    "The assigned recording at step62 enters wall lava and prints You fall into the wall of lava! and You burn to a crisp... before the More input boundary. C end.c1206-1218 explicitly accepts this death reason and sets the no-corpse grave-arise value.",
-    "At 058e1e65 js/end.js really_done has the explicit `(how !== DIED && how !== QUIT) || state.u.ugrave_arise !== NON_PM` refusal. This source guard explains the current scan and is independent of the earlier walking-liquid refusal.",
-    "Retained counter-evidence: the previous test_move admission, m-prefix and decoration barriers are resolved by A18. Do not restore an early liquid/decor refusal or add arrival effects to preflight. The two independent water-walking recordings exercise real entry onto a pool.",
-    "An early worker hypothesis named the separate lava_effects Boots_off gap. The fresh accepted-main scan identifies really_done instead; complete the boots branch when its own source span requires it without calling it the current step62 blocker."
+    "The passing checkpoint at da13fffda60e1126741e2922fb3a820ffe2444ff (.cache/A21-checkpoint.log, run-2ujRP0) passes the fixed workload at 36/44 fully matched sessions and reports 10838/11405 screens, 771039/792838 RNG values and 10860/11405 cursors.",
+    "The assigned row in .cache/A21-development-scan.json reports screensEmitted 73, recordedSteps 73, divergence null, boundary \"unsupported hero move: switch_terrain() onto terrain that blocks levitation\", commandRefusal false, key null, command null, keyCursor \"answer\", and behavioral at 73. Its segment end state has inputExhausted false and recordingMatched false only because runSegment marks any boundary as unmatched; the emitted screen, RNG and cursor streams are complete through the recorded final step.",
+    "The queue entry in .cache/A21-queue.json pins step 73, function switch_terrain, sourceFile/cFile hack.c, the same boundary message, recordedSteps 73 and remainingScreensUpperBound 0. The old tracked investigation used count 4 and the resolved do.c tutorial reached-depth explanation, so it is stale and replaced here.",
+    "The exact C implementation is nethack-c/upstream/src/hack.c:3178-3217. Its blocklev arm does not refuse a hero who is neither actively levitating nor flying: it sets the blocked masks and continues through the botl and terrainstatus tails. The JavaScript refusal is js/hack.js:4794-4824, where the blocklev throw precedes those source effects.",
+    "No replay, recording, scan, aggregate score, game-code edit or central-record update was performed for this refresh; the current source and saved A21 artifacts establish the zero-screen attribution."
   ]
 }

@@ -9,6 +9,7 @@ import {
     COLNO,
     CONFUSION,
     CORR,
+    DETECT_MONSTERS,
     DOOR,
     D_CLOSED,
     D_BROKEN,
@@ -25,6 +26,7 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
+    I_SPECIAL,
     Is_airlevel,
     Is_waterlevel,
     IS_FURNITURE,
@@ -375,7 +377,18 @@ export async function monster_detect(
         map_monst(monster, state, env);
     if (!swallowed) showSelf(state);
     await message('You sense the presence of monsters.', state);
-    await browse(TER_DETECT | TER_MON, 'monster of interest', state);
+    // C detect.c:854-856 makes the mapped monsters perceptible to farlook
+    // only while browsing, using the canonical EDetect_monsters property.
+    const detection = state.u.uprops[DETECT_MONSTERS] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    detection.extrinsic |= I_SPECIAL;
+    try {
+        await browse(TER_DETECT | TER_MON, 'monster of interest', state);
+    } finally {
+        detection.extrinsic &= ~I_SPECIAL;
+    }
     await redisplay(state);
     return 0;
 }

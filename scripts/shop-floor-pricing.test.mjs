@@ -13,6 +13,7 @@ import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     assertPricedObjectNameable,
+    doname_with_price,
     xnameFresh,
 } from '../js/objnam.js';
 import {
@@ -348,7 +349,7 @@ test('plain xname does not apply doname-only shop suffix guards', async () => {
     assert.equal(upper.dknown, true);
 });
 
-test('priced preflight refuses every excluded branch before naming',
+test('shop pricing applies C ownership before object-specific guards',
     async () => {
         const cases = [
             ['coin', /coin pricing/u, ({ state, upper }) => {
@@ -356,8 +357,15 @@ test('priced preflight refuses every excluded branch before naming',
             }],
             ['punishment object', /punishment-object/u,
                 ({ state, upper }) => { state.uball = upper; }],
-            ['contained object', /non-floor/u,
-                ({ upper }) => { upper.where = OBJ_CONTAINED; }],
+            ['contained object', /unused/u,
+                ({ upper }) => {
+                    upper.where = OBJ_CONTAINED;
+                    upper.ocontainer = newObject({
+                        where: OBJ_FLOOR,
+                        ox: upper.ox,
+                        oy: upper.oy,
+                    });
+                }],
             ['other current shop', /other or shared/u,
                 ({ state }) => { state.u.ushops[0] = ROOMOFFSET + 1; }],
             ['missing current shop', /other or shared/u,
@@ -386,11 +394,29 @@ test('priced preflight refuses every excluded branch before naming',
                 ({ keeper }) => { keeper.mpeaceful = false; }],
             ['surcharged keeper', /surcharge/u,
                 ({ keeper }) => { keeper.mextra.eshk.surcharge = true; }],
-            ['container', /container pricing/u, ({ state, upper }) => {
+            ['container', null, ({ state, upper }) => {
                 changeObjectType(upper, SACK, state);
             }],
-            ['ordinary object contents', /container pricing/u,
-                ({ upper }) => { upper.cobj = newObject({ quan: 1 }); }],
+            ['ordinary object contents', null,
+                ({ state, upper }) => {
+                    upper.cobj = newObject({
+                        otyp: DART,
+                        oclass: state.objects[DART].oc_class,
+                        quan: 1,
+                        dknown: true,
+                    });
+                }],
+            ['free container contents', null,
+                ({ state, upper }) => {
+                    changeObjectType(upper, SACK, state);
+                    upper.no_charge = true;
+                    upper.cobj = newObject({
+                        otyp: DART,
+                        oclass: state.objects[DART].oc_class,
+                        quan: 1,
+                        dknown: true,
+                    });
+                }],
             ['glob', /globby/u, ({ upper }) => { upper.globby = true; }],
             ['artifact', /artifact pricing/u,
                 ({ upper }) => { upper.oartifact = 1; }],
@@ -435,28 +461,104 @@ test('priced preflight refuses every excluded branch before naming',
                 }],
         ];
 
+        const noPriceCases = new Set([
+            'coin',
+            'punishment object',
+            'other current shop',
+            'missing current shop',
+            'shared square',
+            'shop boundary',
+            'absent keeper',
+            'displaced keeper',
+        ]);
+        const noChargeCases = new Set(['keeper freespot', 'no charge']);
+        const pricedCases = new Set([
+            'contained object', 'unpaid', 'container', 'ordinary object contents',
+        ]);
+        const contentsPriceCases = new Set(['free container contents']);
         for (const [name, expected, prepare] of cases) {
             const fixture = await generatedShopPile();
             prepare(fixture);
             const namingOwner = name === 'hallucinated currency'
                 || name === 'unsupported base name';
-            assert.throws(
-                () => namingOwner
-                    ? assertPricedObjectNameable(
-                        fixture.upper,
-                        fixture.state,
-                    )
-                    : get_cost_of_shop_item(
-                        fixture.upper,
-                        fixture.state,
-                        { observed: true },
-                    ),
-                expected,
-                name,
-            );
+            if (noPriceCases.has(name)) {
+                const quote = get_cost_of_shop_item(
+                    fixture.upper,
+                    fixture.state,
+                    { observed: true },
+                );
+                assert.deepEqual(
+                    [quote.applicable, quote.cost, quote.noCharge],
+                    [false, 0, false],
+                    name,
+                );
+            } else if (noChargeCases.has(name)) {
+                const quote = get_cost_of_shop_item(
+                    fixture.upper,
+                    fixture.state,
+                    { observed: true },
+                );
+                assert.deepEqual(
+                    [quote.applicable, quote.cost, quote.noCharge],
+                    [true, 0, true],
+                    name,
+                );
+            } else if (contentsPriceCases.has(name)) {
+                const quote = get_cost_of_shop_item(
+                    fixture.upper,
+                    fixture.state,
+                    { observed: true },
+                );
+                assert.equal(quote.applicable, true, name);
+                assert.equal(quote.noCharge, true, name);
+                assert.ok(quote.contentsCost > 0, name);
+                assert.equal(quote.cost, quote.contentsCost, name);
+            } else if (pricedCases.has(name)) {
+                const quote = get_cost_of_shop_item(
+                    fixture.upper,
+                    fixture.state,
+                    { observed: true },
+                );
+                assert.equal(quote.applicable, true, name);
+                assert.equal(quote.noCharge, false, name);
+                assert.ok(quote.cost > 0, name);
+            } else {
+                assert.throws(
+                    () => namingOwner
+                        ? assertPricedObjectNameable(
+                            fixture.upper,
+                            fixture.state,
+                        )
+                        : get_cost_of_shop_item(
+                            fixture.upper,
+                            fixture.state,
+                            { observed: true },
+                        ),
+                    expected,
+                    name,
+                );
+            }
             assert.equal(fixture.upper.dknown, false, name);
         }
     });
+
+test('contained floor merchandise keeps its live shop price', async () => {
+    const { state, upper } = await generatedShopPile();
+    const contained = newObject({
+        otyp: DART,
+        oclass: state.objects[DART].oc_class,
+        quan: 1,
+        dknown: true,
+        where: OBJ_CONTAINED,
+        ocontainer: upper,
+    });
+    upper.cobj = contained;
+
+    const name = doname_with_price(contained, state, {
+        currencyName: () => 'zorkmids',
+    });
+    assert.match(name, /dart \(for sale, \d+ zorkmids\)/u);
+});
 
 test('priced preflight projects observation and accepts hallucination resistance',
     async () => {
@@ -535,6 +637,17 @@ test('movement displays the non-shop remembered-price fallback',
         assert.equal(upper.dknown, false);
     });
 
+test('doname_with_price preserves applicable pricing failures', async () => {
+    const { state, upper } = await generatedShopPile();
+    upper.oartifact = 1;
+    assert.throws(
+        () => doname_with_price(upper, state, {
+            currencyName: () => 'zorkmids',
+        }),
+        /artifact pricing/u,
+    );
+});
+
 test('movement displays and records every eligible generated-shop pile price',
     async () => {
         const { lower, start, state, target, upper } = await generatedShopPile();
@@ -578,21 +691,19 @@ test('movement displays and records every eligible generated-shop pile price',
         assert.notDeepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
     });
 
-test('an excluded second pile member refuses before any durable mutation',
+test('a no-charge second pile member follows the live price result',
     async () => {
-        const { keeper, lower, start, state, target, upper }
+        const { lower, start, state, target, upper }
             = await generatedShopPile({ excludedSecond: true });
-        const before = movementSnapshot(state, target, keeper);
+        // The C no-charge arm still names the pile and waits for its normal
+        // menu choice; it is not an object-specific pricing refusal.
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        await domove(state);
 
-        await assert.rejects(
-            () => domove(state),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && /unpaid or no-charge floor object/u.test(error.message),
-        );
-        assertMovementSnapshot(state, target, before, keeper);
-        assert.equal(upper.dknown, false);
-        assert.equal(lower.dknown, false);
-        assert.deepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
+        assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
+        assert.notDeepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
+        assert.equal(upper.dknown, true);
+        assert.equal(lower.dknown, true);
     });
 
 test('movement translates an object-name exclusion at its public boundary',

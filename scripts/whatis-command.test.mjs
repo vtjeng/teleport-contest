@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
     ARROW_TRAP,
     BEAR_TRAP,
+    BLINDED,
+    COULD_SEE,
     DART_TRAP,
     D_BROKEN,
     DB_ICE,
@@ -16,16 +18,22 @@ import {
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
+    IN_SIGHT,
+    INVIS,
     ICE,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
+    MONSEEN_TELEPAT,
     OBJ_FLOOR,
     POOL,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     TRAPNUM,
     TIP_GETPOS,
+    TELEPAT,
+    SEE_INVIS,
+    TT_BURIEDBALL,
     WATER,
 } from '../js/const.js';
 import { GETPOS_TIP_LINES, handle_tip } from '../js/hack.js';
@@ -43,6 +51,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
+import { cloneIsaacContext, initRng } from '../js/rng.js';
 import {
     NO_GLYPH,
     cmap_to_glyph,
@@ -58,6 +67,8 @@ import {
     GLYPH_DETECT_FEM_OFF,
     GLYPH_DETECT_MALE_OFF,
     GLYPH_INVIS_OFF,
+    GLYPH_NOTHING_OFF,
+    GLYPH_WARNING_OFF,
     GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
     GLYPH_PET_FEM_OFF,
@@ -82,6 +93,7 @@ import {
 } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
+import { newMonster } from '../js/monst.js';
 import {
     do_screen_description,
     add_quoted_engraving,
@@ -89,6 +101,8 @@ import {
     look_engrs,
     look_traps,
     look_region_nearby,
+    lookat,
+    mhidden_description,
     self_lookat,
     trap_description,
     waterbody_name,
@@ -100,8 +114,11 @@ import {
     S_corr,
     S_darkroom,
     S_dnstair,
+    S_fountain,
     S_ndoor,
     S_room,
+    S_sink,
+    S_tree,
     initialize_symbols_from_options,
 } from '../js/symbols.js';
 import {
@@ -131,6 +148,8 @@ import {
     loadWhatisTrapEngravingListRecipe,
 } from './run-whatis-trap-engraving-lists.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
+import { howmonseen } from '../js/vision.js';
+import { worm_known } from '../js/worm.js';
 
 test('getpos valid selection follows the C x-then-y traversal', async () => {
     // getpos.c:102-115 visits x from 1 through COLNO - 1, with y from 0
@@ -217,6 +236,119 @@ test('self_lookat appends the punished hero ball from C state', () => {
         self_lookat(state),
         'human wizard called merlin, chained to a heavy iron ball',
     );
+});
+
+test('lookat keeps See_invisible separate from Invisible and senses blind extrinsic telepathy', () => {
+    // display.h:canspotself() uses Invisible (Invis && !See_invisible),
+    // while pager.c:self_lookat() uses Invis for the hero's own adjective.
+    const state = {
+        flags: { female: false },
+        iflags: {},
+        plname: 'merlin',
+        u: {
+            umonnum: 343,
+            umonster: 343,
+            ux: 3,
+            uy: 4,
+            uprops: [],
+            uz: { dnum: 0, dlevel: 1 },
+        },
+        urace: { adj: 'human' },
+        mons: { 343: { pmnames: ['wizard', 'wizard', 'wizard'] } },
+        level: { at: () => undefined },
+    };
+    state.u.uprops[INVIS] = { intrinsic: 1 };
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1 };
+    const self = lookat(3, 4, state).buf;
+    assert.equal(self, 'invisible human wizard called merlin');
+    assert.doesNotMatch(self, /\[seen:/u);
+
+    // display.h:_tp_sensemon() accepts either intrinsic or extrinsic
+    // telepathy while Blind is active; the old JS branch only accepted the
+    // intrinsic form.
+    state.u.uprops[INVIS] = {};
+    state.u.uprops[SEE_INVIS] = {};
+    state.u.uprops[BLINDED] = { intrinsic: 1 };
+    state.u.uprops[TELEPAT] = { extrinsic: 1 };
+    const distantMind = {
+        data: { mflags1: 0 },
+        mx: 70,
+        my: 20,
+    };
+    assert.equal(
+        howmonseen(distantMind, state) & MONSEEN_TELEPAT,
+        MONSEEN_TELEPAT,
+    );
+});
+
+test('mhidden_description uses the hero state for hidden self coordinates', () => {
+    // pager.c:mhidden_description() switches from mon->mx/my and mundetected
+    // to u.ux/uy and u.uundetected for &gy.youmonst.
+    const state = {
+        u: { ux: 3, uy: 4, uundetected: true },
+        youmonst: {
+            mx: 70,
+            my: 20,
+            mundetected: false,
+            m_ap_type: 0,
+            data: { mlet: 'h' },
+        },
+        level: { at: () => undefined, regions: [] },
+    };
+    assert.equal(
+        mhidden_description(state.youmonst, state, { isYou: true }),
+        ', hiding',
+    );
+});
+
+test('lookat does not draw a swallowed glyph when looking away', () => {
+    // pager.c:lookat() evaluates mon_to_glyph(u.ustuck) only after u_at() and
+    // canspotself() pass.  The display RNG must stay untouched for a distant
+    // location even when save_uswallow is active.
+    const saved = {
+        coreCtx: game.coreCtx,
+        displayCtx: game.displayCtx,
+        currentSeed: game.currentSeed,
+    };
+    initRng(2026091701);
+    try {
+        const state = {
+            flags: {},
+            iflags: { save_uswallow: true },
+            displayCtx: cloneIsaacContext(game.displayCtx),
+            u: {
+                ux: 3,
+                uy: 4,
+                uprops: [],
+                ustuck: { data: { mlet: 'e' }, mx: 3, my: 4 },
+            },
+            level: { at: () => undefined },
+        };
+        const before = cloneIsaacContext(state.displayCtx);
+        assert.equal(lookat(2, 4, state).buf, 'unexplored area');
+        assert.deepEqual(state.displayCtx, before);
+    } finally {
+        game.coreCtx = saved.coreCtx;
+        game.displayCtx = saved.displayCtx;
+        game.currentSeed = saved.currentSeed;
+    }
+});
+
+test('worm_known remains the worm.c visibility owner', () => {
+    // worm.c:worm_known() checks visible segments, rather than the worm
+    // head's coordinates.  This also pins the moved source owner directly.
+    const state = {
+        viz_array: Array.from({ length: 21 }, () => new Uint8Array(80)),
+        level: {
+            worms: {
+                2: { segments: [{ x: 6, y: 5 }] },
+            },
+        },
+    };
+    state.viz_array[5][6] = IN_SIGHT;
+    assert.equal(worm_known({ wormno: 2 }, state), true);
+    state.viz_array[5][6] = 0;
+    assert.equal(worm_known({ wormno: 2 }, state), false);
 });
 
 test('the getpos tip is shown once and records TIP_GETPOS', async () => {
@@ -545,6 +677,27 @@ test('cloud ambiguity names air and non-air terrain', () => {
     } finally {
         game.air_level = priorAirLevel;
     }
+});
+
+test('lookat refines shared sink/fountain symbols and ordinary cmap defaults', () => {
+    assert.deepEqual(terrainDescription(S_sink), {
+        found: 1,
+        out: '{        a sink or a fountain (sink)',
+        firstmatch: 'sink',
+    });
+    assert.deepEqual(terrainDescription(S_fountain), {
+        found: 1,
+        out: '{        a sink or a fountain (fountain)',
+        firstmatch: 'fountain',
+    });
+
+    // S_tree is an ordinary default switch arm; lookat() returns the
+    // generated defsym explanation for the actual tree tile.
+    assert.deepEqual(terrainDescription(S_tree), {
+        found: 1,
+        out: 'g        a tree',
+        firstmatch: 'tree',
+    });
 });
 
 test('doorway refinement distinguishes broken and trapped-broken masks', () => {
@@ -1228,3 +1381,101 @@ test('trap and engraving list choices return through the next boundary',
             }
         }
     }));
+
+test('lookat covers non-cmap glyph arms and returns source side channels', () => {
+    const state = {
+        context: { warntype: {} },
+        flags: {},
+        iflags: {},
+        level: new GameMap(),
+        u: { ux: 10, uy: 10, uz: { dnum: 0, dlevel: 1 }, uprops: [] },
+    };
+    monst_globals_init(state);
+    const monster = newMonster({
+        data: state.mons[PM_SAMURAI],
+        mx: 3,
+        my: 4,
+        mhp: 10,
+        mhpmax: 10,
+    });
+    state.level.monsters[3][4] = monster;
+    state.viz_array = Array.from({ length: 21 }, () => new Uint8Array(80));
+    state.viz_array[4][3] = COULD_SEE | IN_SIGHT;
+    state.level.at = (x, y) => x === 3 && y === 4
+        ? { disp_glyph: { glyph: GLYPH_MON_MALE_OFF + PM_SAMURAI } }
+        : undefined;
+    const monsterResult = lookat(3, 4, state);
+    assert.equal(monsterResult.pm, state.mons[PM_SAMURAI]);
+    assert.match(monsterResult.buf, /hatamoto/u);
+    assert.equal(howmonseen(monster, state) & 1, 1);
+
+    state.level.at = (x, y) => x === 3 && y === 4
+        ? { disp_glyph: { glyph: GLYPH_INVIS_OFF } }
+        : undefined;
+    assert.equal(
+        lookat(3, 4, state).buf,
+        'remembered, unseen, creature',
+    );
+    state.level.at = (x, y) => x === 3 && y === 4
+        ? { disp_glyph: { glyph: GLYPH_NOTHING_OFF } }
+        : undefined;
+    assert.equal(lookat(3, 4, state).buf, 'dark part of a room');
+    state.level.at = () => undefined;
+    assert.equal(lookat(3, 4, state).buf, 'unexplored area');
+
+    state.level.at = (x, y) => x === 3 && y === 4
+        ? { disp_glyph: { glyph: GLYPH_WARNING_OFF + 2 } }
+        : undefined;
+    assert.equal(
+        lookat(3, 4, state).buf,
+        'unknown creature causing you anxiety',
+    );
+});
+
+test('lookat routes the exceptional self and swallowed source arms', () => {
+    const selfState = {
+        flags: { female: false },
+        iflags: {},
+        plname: 'merlin',
+        u: {
+            umonnum: 343,
+            umonster: 343,
+            ux: 3,
+            uy: 4,
+            uprops: [],
+            uz: { dnum: 0, dlevel: 1 },
+        },
+        urace: { adj: 'human', mnum: 0 },
+        mons: { 343: { pmnames: ['wizard', 'wizard', 'wizard'] } },
+        level: { at: () => undefined },
+    };
+    const selfResult = lookat(3, 4, selfState);
+    assert.equal(selfResult.buf, 'human wizard called merlin');
+
+    const swallowedState = {
+        context: {},
+        flags: {},
+        iflags: {},
+        level: new GameMap(),
+        u: {
+            ux: 3,
+            uy: 4,
+            uz: { dnum: 0, dlevel: 1 },
+            uprops: [],
+            uswallow: true,
+        },
+        mons: {},
+    };
+    const holder = newMonster({
+        data: { pmnames: ['kraken', 'kraken', 'kraken'], mflags1: 0 },
+        mx: 3,
+        my: 4,
+    });
+    swallowedState.u.ustuck = holder;
+    swallowedState.level.at = () => undefined;
+    assert.match(lookat(2, 4, swallowedState).buf, /^interior of /u);
+
+    selfState.u.utrap = 1;
+    selfState.u.utraptype = TT_BURIEDBALL;
+    assert.match(self_lookat(selfState), /tethered to something buried/u);
+});

@@ -409,6 +409,9 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                     how = 'exploding glob of slime';
                 await losehp(dmg, one ? how : makeplural(how),
                     one ? KILLED_BY_AN : KILLED_BY, state);
+                // C really_done() never returns; gameover represents that
+                // termination in the JavaScript replay harness.
+                if (state.program_state?.gameover) return dmg;
                 await exercise(A_STR, false, state, random,
                     { encumberMessage: encumber_msg });
             }
@@ -510,6 +513,7 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
                 && obj.where === where
                 && (items_to_destroy[i].deferred === (defer === 1))) {
                 dmg_out += await maybe_destroy_item(mon, obj, dmgtyp, env);
+                if (u_carry && state.program_state?.gameover) return dmg_out;
                 items_to_destroy[i].otmp = null;
             }
         }

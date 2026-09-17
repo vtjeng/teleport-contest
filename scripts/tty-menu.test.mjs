@@ -28,6 +28,7 @@ import {
     ttyMenuTextLayout,
 } from '../js/tty_menu.js';
 import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { tty_raw_print } from '../js/tty_rawprint.js';
 import {
     init_vision_globals,
     vision_recalc,
@@ -59,6 +60,18 @@ const confirmation = {
     preselected: 1,
     cancelValue: -1,
 };
+
+test('selecting a menu clears raw-print waits and preserves recorder mode',
+    async () => {
+        // wintty.c tty_display_nhwindow():1868 resets rawprint before
+        // dispatching NHW_MENU, independently of patch 006 cursor capture.
+        const state = menuState('y');
+        tty_raw_print(state, 'diagnostic');
+        assert.equal(state.nhDisplay.nomuxRaw.rawprint, 1);
+        assert.equal(await selectTtyMenu(state, confirmation), 1);
+        assert.equal(state.nhDisplay.nomuxRaw.rawprint, 0);
+        assert.equal(state.nhDisplay.nomuxRaw.active, true);
+    });
 
 test('NHW_MENU text data keeps pre-wrap width and the split space', () => {
     const source = `${'A'.repeat(70)} ${'B'.repeat(20)}`;
@@ -532,7 +545,12 @@ test('a full-screen gameplay menu redraws the map instead of its saved frame',
         init_vision_globals();
         vision_reset();
         vision_recalc(0);
+        tty_raw_print(state, 'diagnostic before map display');
+        assert.equal(state.nhDisplay.nomuxRaw.rawprint, 1);
         await flush_screen(1);
+        // display.c flush_screen() finishes with display_nhwindow(WIN_MAP).
+        assert.equal(state.nhDisplay.nomuxRaw.rawprint, 0);
+        assert.equal(state.nhDisplay.nomuxRaw.active, true);
 
         // Map coordinate (12,5) occupies tty cell (11,6). The display model
         // and map memory still contain the hero while only the cached frame

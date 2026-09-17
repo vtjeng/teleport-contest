@@ -207,7 +207,8 @@
         "js/unported_monster_actions.js",
         "js/weapon.js",
         "js/were.js",
-        "js/wizard.js"
+        "js/wizard.js",
+        "js/worm.js"
       ],
       "generatedOutputs": [
         {

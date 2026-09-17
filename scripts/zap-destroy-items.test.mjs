@@ -14,6 +14,7 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
     BLINDED,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     FIRE_RES,
     FROMOUTSIDE,
     INVIS,
@@ -25,7 +26,6 @@ import {
     OBJ_MINVENT,
     W_WEP,
 } from '../js/const.js';
-import { UnsupportedEndOfGameError } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { AD_COLD, AD_ELEC, AD_FIRE, PM_NEWT } from '../js/monsters.js';
@@ -146,9 +146,20 @@ function toplines() {
 // and the killer can be read back off the state it was written to.
 async function assertKilledBy(call, name, format, label = name) {
     game.nhDisplay.pushKey(' '.charCodeAt(0));
-    await assert.rejects(call, UnsupportedEndOfGameError, label);
+    // really_done now completes. Use C's no-window, no-disclosure path so
+    // the test can follow the lethal damage through finalization without
+    // supplying unrelated inventory, bones, or farewell prompt responses.
+    game.iflags.window_inited = false;
+    game.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
+    game.flags.bones = false;
+    game.moves = Math.max(game.moves, 2);
+    const mortality = game.u.umortality;
+    await call();
     assert.equal(game.killer.name, name, label);
     assert.equal(game.killer.format, format, label);
+    assert.equal(game.u.umortality, mortality + 1, label);
+    assert.equal(game.program_state.gameover, true, label);
+    assert.equal(game.program_state.in_really_done, false, label);
 }
 
 function clearTopline() {
@@ -805,9 +816,8 @@ test('the killer names the destroy_strings row rather than the glob override',
         await initializedGame(982445, 'HeroKiller');
         emptyPack();
         discover_object(otyp, true, true, false, game);
-        // POT_BOOZE's vapors stop this port, so the hero has to be beyond
-        // their reach for the killer to be the thing that stops it: an eyeless,
-        // breathless form skips potionbreathe() entirely.
+        // POT_BOOZE's vapors stop this port, so use an eyeless, breathless
+        // form to skip potionbreathe() and reach lethal damage/finalization.
         const eyeless = game.mons.findIndex(
             (species) => species && breathless(species) && !haseyes(species),
         );
@@ -898,17 +908,24 @@ test('a burning spellbook takes its own row and one point of damage',
     await initializedGame(982451, 'HeroBookKiller');
     emptyPack();
     discover_object(SPE_BLANK_PAPER, true, true, false, game);
+    const laterScroll = carriedByHero(SCR_TELEPORTATION, 1);
     carriedByHero(SPE_BLANK_PAPER, 1);
     game.u.uhp = 1;
     game.u.uhpmax = 12;
     clearTopline();
     await assertKilledBy(
-        () => destroy_items(game.youmonst, AD_FIRE, 5, {
+        // zap.c:5951 reaches NORETURN really_done() through losehp(). The
+        // second selected stack must survive without another destruction
+        // draw, and the dead hero must not exercise strength.
+        () => destroy_items(game.youmonst, AD_FIRE, 10, {
             random: scriptedRandom([[5, 4], [3, 0]], []),
             state: game,
         }),
         'burning book', KILLED_BY_AN,
     );
+    assert.equal(game.invent, laterScroll);
+    assert.equal(laterScroll.quan, 1);
+    assert.equal(laterScroll.where, OBJ_INVENT);
 });
 
 test('a fire-resistant carrier loses the scroll but takes no damage',

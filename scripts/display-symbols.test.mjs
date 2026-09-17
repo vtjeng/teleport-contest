@@ -4508,8 +4508,8 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
     location.remembered_glyph = { ch: ')' };
     assert.equal(
         describeMonster(monster, { state }),
-        'tengu, mimicking a strange object',
-        'legacy memory without semantic metadata retains its fallback',
+        'tengu, mimicking something',
+        'memory without a source glyph does not infer an object',
     );
     const coinMonster = { ...monster, mappearance: GOLD_PIECE };
     state.level.monsters[x][y] = coinMonster;
@@ -4591,8 +4591,8 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     };
     assert.match(
         describeMonster(monster(PM_GARTER_SNAKE), { state }),
-        /, hiding under a chest$/u,
-        'metadata-absent memory retains the live-object fallback',
+        /, hiding under something$/u,
+        'metadata-absent memory does not leak the live-object fallback',
     );
 
     const location = state.level.at(7, 4);
@@ -4702,8 +4702,12 @@ test('fruit object descriptions preserve source articles and plural order', () =
         'candidate-side the is ignored while matching canonical Excalibur',
     );
     assert.match(
-        describeMonster(hider, { state }),
-        /, hiding under the eXcALiBuR$/u,
+        describeMonster(hider, {
+            state,
+            canSpotMonster: () => true,
+        }),
+        /, hiding under an eXcALiBuR$/u,
+        'simpleonames supplies the source indefinite article',
     );
 
     state.gf.ffruit.fname = 'eXcALiBuR';
@@ -4713,7 +4717,10 @@ test('fruit object descriptions preserve source articles and plural order', () =
         'fake-artifact lookup ignores case and omits an indefinite article',
     );
     assert.match(
-        describeMonster(hider, { state }),
+        describeMonster(hider, {
+            state,
+            canSpotMonster: () => true,
+        }),
         /, hiding under an eXcALiBuR$/u,
         'hidden simple naming still applies an() to case-varied Excalibur',
     );
@@ -4739,16 +4746,22 @@ test('fruit object descriptions preserve source articles and plural order', () =
         'full fake-artifact fruit forces its canonical definite article',
     );
     assert.match(
-        describeMonster(hider, { state }),
-        /, hiding under The Orb of Detection$/u,
-        'hidden an() suppresses a second article before an existing the',
+        describeMonster(hider, {
+            state,
+            canSpotMonster: () => true,
+        }),
+        /, hiding under an Orb of Detection$/u,
+        'hidden an() applies the source simpleonames result',
     );
 
     state.gf.ffruit.fname = 'the ordinary fruit';
     assert.match(
-        describeMonster(hider, { state }),
-        /, hiding under the ordinary fruit$/u,
-        'just_an suppresses an added article for non-artifact names too',
+        describeMonster(hider, {
+            state,
+            canSpotMonster: () => true,
+        }),
+        /, hiding under an ordinary fruit$/u,
+        'mhidden_description adds the source indefinite article to simpleonames',
     );
 
     state.gf.ffruit.fname = 'pair of boots';
@@ -4774,7 +4787,10 @@ test('fruit object descriptions preserve source articles and plural order', () =
     );
     location.remembered_glyph = object_glyph_info(fruit, state);
     assert.match(
-        describeMonster(hider, { state }),
+        describeMonster(hider, {
+            state,
+            canSpotMonster: () => true,
+        }),
         /, hiding under blueberries$/u,
     );
 
@@ -4786,7 +4802,10 @@ test('fruit object descriptions preserve source articles and plural order', () =
     );
     location.remembered_glyph = object_glyph_info(fruit, state);
     assert.match(
-        describeMonster(hider, { state }),
+        describeMonster(hider, {
+            state,
+            canSpotMonster: () => true,
+        }),
         /, hiding under foo@s$/u,
     );
 });
@@ -4880,6 +4899,9 @@ test('hallucinated monster glyph notices consume rndmonnam display RNG', () => {
     state.u.uprops = [];
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
     state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    // look_at_monster() delegates to distant_monnam(), which can only name
+    // an invisible hallucinated monster once See invisible makes it visible.
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
     const monster = {
         data: state.mons[PM_TENGU],
         mhp: 10,

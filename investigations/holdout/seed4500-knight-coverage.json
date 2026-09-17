@@ -1,54 +1,48 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 492,
+  "remainingScreensUpperBound": 485,
   "status": "complete",
-  "commit": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1322,
-    "kind": "screen",
+    "step": 1329,
+    "kind": "stop",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "unsupported hero command: an unported branch of this command: fountain requires gushing-forth fountain effect (fate 30)",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 492
+    "remainingScreensUpperBound": 485
   },
-  "summary": "At step 1322, the forced Ctrl-T target selector has moved to a fountain but JavaScript leaves the prior chained-Knight description on the top line. The source cause is pager.c symbol refinement: sink and fountain both use the active { byte, so C do_screen_description() calls lookat() and gets fountain from the actual S_fountain cmap index. JavaScript pager.js lookatOrdinaryTerrain() refuses S_sink and S_fountain; getpos.js:auto_describe() catches that refusal, leaving the prior h-prefixed message. The actionable goal is a pager source port that handles these ordinary cmap descriptions through the shared do_screen_description()/lookat path. The later fountain.c fate-30 gushing refusal at step 1329 remains a separate blocker.",
+  "summary": "The pager correction resolves the fountain target description. The next blocker is drinkfountain fate 30: JavaScript refuses gushing before C dogushforth traverses nearby visible squares and gush creates pools. Complete the source-owned dogushforth/gush family and wire the drinking caller; execute each square’s random gate and effects in C traversal order, then dryup.",
   "source": {
-    "file": "pager.c",
+    "file": "fountain.c",
     "functions": [
-      "do_screen_description",
-      "lookat"
+      "dogushforth",
+      "gush"
     ],
-    "branch": "The whole ordinary cmap description branch is relevant. In C pager.c do_screen_description() (1247-1613), the active { byte matches both defsym entries S_sink (index 36) and S_fountain (index 37), so found exceeds one and the looked-at coordinate is refined by lookat(). C lookat() (657-801) handles cmap glyphs with a switch and its default returns defsyms[symidx].explanation, yielding fountain for the actual S_fountain tile. JavaScript pager.js do_screen_description() (854-969) takes the same ambiguous-symbol path, but lookatOrdinaryTerrain() (818-849) omits S_sink and S_fountain from its supported set and throws. auto_describe() catches UnsupportedWhatisError, suppressing the new fountain text and retaining the previous chained-Knight line. Add the missing ordinary cmap behavior with the C default semantics while preserving special context-sensitive branches.",
+    "branch": "fountain.c drinkfountain (case 30, lines 380-382) calls dogushforth(TRUE), followed by dryup at line 389. dogushforth (119-131) traverses radius 7 through vision.c do_clear_area; gush (133-161) gates parity, hero position, rn2 distance, room terrain, boulders and adjacent doors in expression order, removes deletable floor traps, announces the first pool, replaces terrain and flags, removes engraving, damages floor objects, then handles a monster through minliquid or updates its map symbol. If no pool is made, dogushforth chooses its drinking/dipping fallback message.",
     "callers": [
-      "js/getpos.js:auto_describe() (407-431) invokes pager.js do_screen_description() before each forced target input; the catch of UnsupportedWhatisError is the direct production manifestation.",
-      "nethack-c/upstream/src/getpos.c:auto_describe() (639-662) invokes pager.c do_screen_description() and emits firstmatch through custompline(), then getpos() (771-1144) refreshes the target loop.",
-      "nethack-c/upstream/src/teleport.c:scrolltele() (849-915) calls getpos(&cc, TRUE, \"the desired position\") at 892; js/teleport.js:scrolltele() (1381-1440) calls getpos(cc, true, ...) at 1422. tele()/tele() delegate to this production path, entered by step 1320 Ctrl-T.",
-      "The shared pager implementation is also used by js/cmd.js do_look()/what_is and the C pager callers of do_screen_description(); keep the correction in pager.js rather than adding a teleport-specific message."
+      "js/fountain.js drinkfountain currently throws in fate 30, where C calls dogushforth(TRUE).",
+      "js/fountain.js dipfountain already calls the partial dogushforth(FALSE); completing the shared owner must preserve this entry too."
     ],
     "dependencies": [
-      "nethack-c/upstream/include/defsym.h:133-137 maps S_sink and S_fountain to the same { byte; JS symbols.js cmap_symbol_byte(), symbol_data.js CMAP_EXPLANATIONS, and getpos.js featureSymbolMatches()/findTerrainFeature() supply the corresponding active symbol and target scan.",
-      "C pager.c add_cmap_descr() (1131-1241) preserves first match and appends shared-symbol alternatives before lookat(); JS pager.js generic cmap accumulation and appendDescription() must retain this order and then refine the actual tile.",
-      "C pager.c lookat() defaults ordinary cmap entries to defsyms[symidx].explanation, while JS pager.js lookatOrdinaryTerrain() currently throws for several cmap indices. At minimum S_sink and S_fountain are required for this witness; review the complete ordinary cmap set before removing the fail-closed guard.",
-      "C getpos.c auto_describe() uses custompline(SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U); JS getpos.js currently uses ttyPline(). The first mismatch is explained by the unsupported fountain refinement, but a fix should preserve this message-window contract when completing the pager branch.",
-      "The later step-1329 refusal is independent fountain.c drinkfountain() fate 30: C fountain.c:243-254 selects the fate and :119-161 dogushforth()/gush(), while js/fountain.js:647-648 still refuses the gushing-forth branch. It remains outside this pager divergence-fix scope."
+      "vision.c do_clear_area traverses y then x after any required vision recalculation. The existing JavaScript collects all pool squares before applying their effects, which can reorder RNG and monster/liquid state changes. Preserve source order across awaited effects.",
+      "trap.c delfloortrap returns a Boolean used by gush; the canonical js/trap.js implementation already matches its trap-type gate, actor trap-state cleanup and unlinking. Reuse that owner. water_damage_chain has discarded return value and may remain a note_unported call until ported, without a blanket refusal for occupied floor squares.",
+      "mon.c minliquid, display newsym, engrave del_engr_at and rm set_levltyp supply existing source-owned effects; the fountain caller must preserve their per-square order."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The assigned queue entry in .cache/A17-queue.json fixes the canonical session, first screen mismatch at step 1322 with key {, recordedSteps 1814, and remainingScreensUpperBound 492.",
-    "The saved .cache/A17-development-scan.json row reports C cell ch f versus JavaScript ch h at screen row 0 column 0, with no earlier RNG or cursor divergence; it reports 1329 emitted screens and the later fountain fate-30 boundary.",
-    "sessions/holdout/seed4500-knight-coverage.session.json records the target sequence as Ctrl-T, space, {, . at steps 1320-1323. The C screens are prompt, chained-Knight description, fountain, and fountain plus There is a fountain here., proving the { input is consumed inside forced selection and the mismatch is the automatic description after the fountain target is selected.",
-    "git show e0b9b5f47e63e215870c9175b7cb2569fa67a9ae:js/getpos.js:690-708 confirms the force block is unconditional. It already continues for quitchars, so the earlier force-quitchar diagnosis is false and is not part of this scope.",
-    "Source comparison shows defsym.h entries 36 and 37 both use {, while js/pager.js lookatOrdinaryTerrain() supports S_pool/water/lava/ice but omits S_sink and S_fountain. In the ambiguous-symbol branch, that omission throws UnsupportedWhatisError; js/getpos.js:auto_describe() explicitly catches it, leaving the existing h-prefixed line. C lookat() returns defsyms[S_fountain].explanation, fountain.",
-    "The accepted checkpoint .git/checkpoint-results/e0b9b5f47e63e215870c9175b7cb2569fa67a9ae/run-62WQSa/summary.json records 1326 matching Knight screens and the same tested commit; the target count is the saved A17 queue upper bound, not a predicted fix gain.",
-    "The later fountain gushing-forth refusal at step 1329 has RNG rnd(30)=30 @ drinkfountain(fountain.c:247) and is a separate source owner; it must remain as a later blocker after the pager fix.",
-    "The goal kind is file-port because pager.js contains explicitly partial do_screen_description/lookat behavior and an UnsupportedWhatisError in place of the missing ordinary cmap branches. Select whole source functions or a self-contained family and complete production callers; do not special-case seed, inputs, or screen text."
+    "The passing checkpoint .git/checkpoint-results/4e0cff9e1c51feb7ba0094f924613e5f896b0904/run-zXQmp5/summary.json reports the Knight session beyond its former step-1322 pager mismatch; the refreshed saved queue .cache/B18-queue.json identifies step 1329 as the next first mismatch.",
+    "The original C recording selects rnd(30)=30 in drinkfountain. C fountain.c case 30 calls dogushforth(TRUE), but current js/fountain.js case 30 throws UnsupportedFountainError for the gushing-forth effect.",
+    "Source comparison of fountain.c 119-161 and vision.c 2107-2150 establishes per-square traversal and effect order. Current js/fountain.js dogushforth accumulates poolSquares synchronously before its async effect loop, so merely removing the drinking refusal would retain an ordering defect.",
+    "The earlier force-quitchar explanation remains falsified: getpos already continues forced selection after quitchars. The resolved pager mismatch came from shared sink/fountain symbol refinement and must not be addressed with teleport-specific output.",
+    "The remaining-screen count is the mismatch queue upper bound, not a predicted gain; the actual combined development score remains recorded only from the accepted checkpoint.",
+    "A later independent cursor defect is source-confirmed in the current code: getpos.c 955-961 always sets show_goal_msg and continues for NHKF_GETPOS_SHOWVALID, even without getpos_hilitefunc. JavaScript js/getpos.js gates that entire branch on the callback, so a valid-square key without a callback falls into terrain-feature lookup. A post-fountain continuation observed it at Knight step1347; the current published queue remains blocked earlier at fountain fate30, and no downstream gain is claimed."
   ]
 }

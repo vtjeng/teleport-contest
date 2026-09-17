@@ -6,6 +6,7 @@ import {
 } from '../js/artifacts.js';
 import {
     ANTI_MAGIC,
+    ARTICLE_NONE,
     BLINDED,
     BOLT_LIM,
     COLNO,
@@ -21,6 +22,7 @@ import {
     ENGRAVE,
     HALLUC,
     IN_SIGHT,
+    I_SPECIAL,
     M_AP_F_DKNOWN,
     M_AP_OBJECT,
     M_AP_TYPE,
@@ -47,8 +49,10 @@ import {
     dosearch,
     dosearch0,
     findit,
+    monster_detect,
     UnsupportedSearchError,
 } from '../js/detect.js';
+import { distant_monnam } from '../js/do_name.js';
 import {
     back_to_glyph,
     feel_location,
@@ -80,6 +84,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { create_region } from '../js/region.js';
+import { canSpotMonster } from '../js/startup_a11y.js';
 import { ATR_INVERSE, CLR_WHITE } from '../js/terminal.js';
 import {
     enableBrowserGlyphProjection,
@@ -130,6 +135,81 @@ function searchState() {
         },
     };
 }
+
+function monsterDetectionFixture() {
+    const state = searchState();
+    const monster = newMonster({
+        mx: 40,
+        my: 15,
+        mhp: 5,
+        data: {
+            pmnames: ['newt', 'newt', 'newt'],
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    state.level.monlist = monster;
+    const env = {
+        cls: async () => {},
+        unconstrainMap: () => {},
+        mapMonster: () => {},
+        displaySelf: () => {},
+        message: async () => {},
+        mapRedisplay: async () => {},
+    };
+    return { state, monster, env };
+}
+
+test('monster_detect makes remote names perceptible only during map browsing', async () => {
+    const { state, monster, env } = monsterDetectionFixture();
+    const name = () => distant_monnam(monster, ARTICLE_NONE, undefined, state);
+    assert.equal(canSpotMonster(monster, state), false);
+    assert.equal(name(), 'it');
+    const events = [];
+    env.message = async () => {
+        events.push('message');
+        assert.equal(name(), 'it');
+    };
+    env.browseMap = async () => {
+        events.push('browse');
+        // detect.c:854-856 sets EDetect_monsters before browse_map; the
+        // display.h canspotmon predicate and do_name.c both consume it.
+        assert.equal(state.u.uprops[DETECT_MONSTERS].extrinsic, I_SPECIAL);
+        assert.equal(canSpotMonster(monster, state), true);
+        assert.equal(name(), 'newt');
+    };
+    env.mapRedisplay = async () => {
+        events.push('redisplay');
+        assert.equal(state.u.uprops[DETECT_MONSTERS].extrinsic, 0);
+        assert.equal(name(), 'it');
+    };
+    assert.equal(await monster_detect(null, 0, state, env), 0);
+    assert.deepEqual(events, ['message', 'browse', 'redisplay']);
+});
+
+test('monster_detect clears only I_SPECIAL, including when browsing suspends', async () => {
+    for (const suspended of [false, true]) {
+        const { state, env } = monsterDetectionFixture();
+        const detection = { intrinsic: 13, extrinsic: W_CHAIN };
+        state.u.uprops[DETECT_MONSTERS] = detection;
+        const suspension = new Error('input exhausted');
+        let redisplayed = false;
+        env.browseMap = async () => {
+            assert.equal(detection.extrinsic, W_CHAIN | I_SPECIAL);
+            assert.equal(detection.intrinsic, 13);
+            if (suspended) throw suspension;
+        };
+        env.mapRedisplay = async () => { redisplayed = true; };
+        if (suspended)
+            await assert.rejects(monster_detect(null, 0, state, env),
+                error => error === suspension);
+        else
+            assert.equal(await monster_detect(null, 0, state, env), 0);
+        assert.deepEqual(detection, { intrinsic: 13, extrinsic: W_CHAIN });
+        assert.equal(redisplayed, !suspended);
+    }
+});
 
 // The explicit search reads three things the automatic one never touches: the
 // monster grid behind m_at(), the region list behind visible_region_at(), and
