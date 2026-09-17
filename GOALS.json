@@ -59998,13 +59998,13 @@
     {
       "id": "port-worn-m-dowear-seed0399-20260917",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
       "cFile": "worn.c",
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
-      "selectionReason": "Continue seed0399 at step 528, remaining-screen upper bound 4, from investigations/holdout/seed0399-wizard-hallu-actions.json. Its source owner is worn.c m_dowear and m_dowear_type with update_mon_extrinsics; include the intervening pure find_mac in C order. Seed continuation permits this independent family while worker A owns the higher-ranked Knight break_armor work and seed2200 remains blocked by the recorded machine-local configuration-path question.",
+      "selectionReason": "Resume the oldest ready independent corrected delivery, B24, at the saved seed0399 equipment mismatch after528 screens. The higher-ranked Knight passiveum delivery A30 is queued behind it; status_enlightenment is being corrected for independent entry recordings, and seed2200 remains blocked by the recorded configuration-path question. Reconcile the original contiguous worn.c range including pure find_mac.",
       "detail": "Complete worn.c update_mon_extrinsics579–712, verify existing find_mac717–738, and complete m_dowear757–797/m_dowear_type799–1002 with creation, runtime and planning callers. Preserve source equipment delays, visibility/discovery, old-artifact cleanup and source-allowed unported saddle-fall handling. Live equipment reassessment requires a production recording through the wearing turn; rare artifact-light and other unrecorded entries remain open.",
       "spans": [
         {
@@ -60062,9 +60062,9 @@
         "to": 1005
       },
       "activeStanding": {
-        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
-        "screens": 11002,
-        "rng": 784683
+        "sha": "82ef7a6348a995565737d850a74b004963a77965",
+        "screens": 11123,
+        "rng": 785457
       },
       "openMismatches": [
         {
