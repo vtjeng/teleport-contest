@@ -17,14 +17,24 @@ import {
     STATUE,
     WAN_DIGGING,
     WAN_NOTHING,
+    WAN_MAKE_INVISIBLE,
+    WAN_OPENING,
+    WAN_SLOW_MONSTER,
+    SPBOOK_CLASS,
     SPE_DETECT_UNSEEN,
 } from '../js/objects.js';
-import { ANIMATE_SPELL, OBJ_DELETED, OBJ_INVENT } from '../js/const.js';
+import {
+    ANIMATE_NORMAL, ANIMATE_SHATTER, ANIMATE_SPELL, FAST, FROMFORM,
+    CORPSTAT_HISTORIC, INVIS, OBJ_DELETED, OBJ_INVENT,
+} from '../js/const.js';
+import { PM_NEWT } from '../js/monsters.js';
 import { animate_statue } from '../js/trap.js';
 import { game } from '../js/gstate.js';
 import { mksobj } from '../js/obj.js';
 import { monsterObject } from '../js/monster_object.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from '../js/rng.js';
+import {
+    d, rn1, rn2, rnd, rne, rnl, rnz, initRng, enableRngLog, getRngLog,
+} from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
@@ -114,6 +124,91 @@ test('self cancellation compares the current form before rehumanizing', async ()
     );
     assert.equal(state.u.umonnum, 4);
     assert.equal(state.u.umonster, 4);
+});
+
+test('stone-to-flesh figurines use the admitted runtime creation shape', () => {
+    // zap.c:2030-2042 calls makemon() directly for a figurine with exactly
+    // NO_MINVENT|MM_NOMSG. The marker is a source-caller fact, not a test
+    // fallback, so the async runtime owner can validate that shape.
+    assert.match(JS_SOURCE, /_stoneFleshFigurine: true/u);
+    const makemonSource = readFileSync('js/makemon_create.js', 'utf8');
+    assert.match(makemonSource, /figurineAnimationCall/u);
+    assert.match(makemonSource, /normalized\._stoneFleshFigurine/u);
+});
+
+test('self-zap source guards use blocked invisibility and pre-call trap state', () => {
+    // zap.c:2840-2848 and :2902-2928.  The BInvis field is a blocker, and
+    // C's short-circuit reads u.utrap before open/closeholdingtrap mutates it.
+    assert.match(JS_SOURCE, /!property\.blocked/u);
+    assert.match(JS_SOURCE, /property\.blocked && state\.uarmc/u);
+    assert.match(JS_SOURCE, /const wasTrapped = Boolean\(state\.u\.utrap\)/gu);
+    assert.match(JS_SOURCE, /if \(!wasTrapped \|\| !holding\.result\)/u);
+    assert.match(JS_SOURCE, /if \(wasTrapped \|\| !closing\.result\)/u);
+    assert.match(JS_SOURCE, /if \(isContainer\(item\) \|\| item\.otyp === STATUE\)/u);
+});
+
+test('self cancellation compares the current form before rehumanizing', async () => {
+    // zap.c:3150-3212.  A normal human has equal umonnum/umonster even when
+    // its catalog index is in the ordinary monster range; the C Upolyd macro
+    // therefore leaves it unchanged.  This distinguishes the source macro
+    // from a numeric LOW_PM test.
+    const youmonst = {};
+    const state = {
+        u: { umonnum: 4, umonster: 4, mh: 10, uprops: {} },
+        youmonst,
+    };
+    assert.equal(
+        await cancel_monst(youmonst, { oclass: GEM_CLASS }, true, true, true, state),
+        true,
+    );
+    assert.equal(state.u.umonnum, 4);
+    assert.equal(state.u.umonster, 4);
+});
+
+test('extrinsic invisibility suppresses self-zap discovery and feedback', async () => {
+    // youprop.h Invis includes EInvis. zapyourself still adds the timeout,
+    // but its !Invis guard prevents the message, redraw and discovery.
+    const property = { intrinsic: 0, extrinsic: 1, blocked: 0 };
+    const state = { u: { uprops: { [INVIS]: property } } };
+    initRng(901217);
+    enableRngLog();
+    assert.equal(await zapyourself({ otyp: WAN_MAKE_INVISIBLE }, true, state), 0);
+    assert.ok(property.intrinsic >= 31 && property.intrinsic <= 45);
+    assert.equal(property.extrinsic, 1);
+    assert.equal(state._pending_message, undefined);
+    assert.equal(getRngLog().length, 1);
+    assert.match(getRngLog()[0], /^rn2\(15\)=\d+$/u);
+    assert.equal(property.intrinsic, Number(getRngLog()[0].split('=')[1]) + 31);
+});
+
+test('self slowing excludes speed supplied only by the monster form', async () => {
+    // zap.c tests HFast & (TIMEOUT | INTRINSIC); FROMFORM is outside that
+    // mask. Calling u_slow_down would clear it and print an extra message.
+    const fast = { intrinsic: FROMFORM, extrinsic: 0 };
+    const state = { u: { uprops: { [FAST]: fast } } };
+    assert.equal(await zapyourself({
+        otyp: WAN_SLOW_MONSTER, oclass: SPBOOK_CLASS,
+    }, true, state), 0);
+    assert.equal(fast.intrinsic, FROMFORM);
+    assert.equal(state._pending_message, undefined);
+});
+
+test('self opening reads the canonical punishment ball', async () => {
+    await runSegment({
+        seed: 901218,
+        datetime: '20320405060708',
+        nethackrc: 'OPTIONS=name:Opening,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+        moves: '.',
+    }, {});
+    const wand = mksobj(WAN_OPENING, false, false, { state: game });
+    game.uball = {};
+    assert.equal(game.u.uball, undefined);
+    game.unported = new Set();
+    await zapyourself(wand, true, game);
+    // read.c unpunish is a declared void-call gap. Reaching it and learning
+    // the wand still depend on the same canonical Punished value as C.
+    assert.ok(game.unported.has('read.c unpunish'));
+    assert.equal(game.objects[WAN_OPENING].oc_name_known, 1);
 });
 
 test('stone-to-flesh figurines use the admitted runtime creation shape', () => {
@@ -226,3 +321,37 @@ test('Stone to Flesh animates a statue through the canonical runtime owner', asy
     assert.equal(statue.where, OBJ_DELETED);
     assert.match(messages.join(' '), /comes to life|moves|turns into flesh/u);
 });
+
+for (const cause of [ANIMATE_NORMAL, ANIMATE_SHATTER]) {
+    test(`statue animation cause ${cause} admits the ordinary creation flags`, async () => {
+        await runSegment({
+            seed: 901219 + cause,
+            datetime: '20320405060708',
+            nethackrc: 'OPTIONS=name:StatueTrap,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+            moves: '.',
+        }, {});
+        const statue = mksobj(STATUE, false, false, {
+            state: game, hooks: { monsterObject },
+        });
+        statue.corpsenm = PM_NEWT;
+        statue.spe |= CORPSTAT_HISTORIC;
+        game.context.mon_moving = cause === ANIMATE_SHATTER;
+        const alignment = game.u.ualign.record;
+        const messages = [];
+        const monster = await animate_statue(
+            statue, game.u.ux, game.u.uy, cause,
+            { state: game, message: async line => messages.push(line) },
+        );
+        assert.ok(monster);
+        assert.equal(monster.data.pmidx, PM_NEWT);
+        assert.equal(monster.mpeaceful, 0);
+        assert.equal(monster.mtame, 0);
+        assert.equal(statue.where, OBJ_DELETED);
+        const feeling = game.context.mon_moving ? 'regret' : 'guilty';
+        assert.ok(messages.includes(
+            `You feel ${feeling} that the historic statue is now gone.`,
+        ));
+        assert.equal(game.u.ualign.record,
+            alignment - (game.context.mon_moving ? 0 : 1));
+    });
+}

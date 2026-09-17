@@ -235,7 +235,7 @@ import {
     is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
     bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
-    is_vampshifter, nonliving,
+    is_vampshifter, nonliving, hides_under,
 } from './mondata.js';
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
 import {
@@ -2797,8 +2797,7 @@ export async function animate_statue(
             ? xnameFresh(statue, state) : 'statue';
         const statueName = `${shk_your(statue, state)}${noun}`;
         await message(`${upstart(statueName)} ${comesToLife}!`, state);
-    } else if (state.u?.uprops?.[HALLUC]?.intrinsic
-        || state.u?.uprops?.[HALLUC]?.extrinsic) {
+    } else if (Hallucination(state)) {
         await message(
             `The ${rndmonnam({ state, random })} suddenly seems more animated.`,
             state,
@@ -2816,7 +2815,7 @@ export async function animate_statue(
             `You find ${spotted ? a_monnam(monster, { ...objectEnv, state, random }) : something} posing as a statue.`,
             state,
         );
-        if (!spotted && state.u?.uprops?.[BLINDED]?.intrinsic)
+        if (!spotted && Blind(state))
             map_invisible(x, y, state);
         const { stop_occupation } = await import('./allmain.js');
         await stop_occupation(state, { message });
@@ -2831,9 +2830,10 @@ export async function animate_statue(
             note_unported('shk.c stolen_value');
     }
     if (state.urole?.mnum === PM_ARCHEOLOGIST
-        && (statue.spe & CORPSTAT_HISTORIC)) {
+        && (statue.spe & CORPSTAT_HISTORIC)
+        && (!movingMonster || cansee(x, y, state))) {
         await message(
-            `${movingMonster ? 'You regret' : 'You feel guilty'} that the historic statue is now gone.`,
+            `You feel ${movingMonster ? 'regret' : 'guilty'} that the historic statue is now gone.`,
             state,
         );
         if (!movingMonster) adjalign(-1, state);

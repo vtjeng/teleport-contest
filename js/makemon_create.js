@@ -1438,17 +1438,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !(mmflags & ~(NO_MINVENT | MM_NOWAIT | MM_NOMSG
             | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_ADJACENTOK
             | MM_MALE | MM_FEMALE));
-    // trap.c animate_statue() creates a monster beside a statue with
-    // MM_ADJACENTOK|NO_MINVENT|MM_NOMSG.  It is a runtime source call with
-    // the same asynchronous creation tail as revival, but it deliberately
-    // does not carry MM_NOWAIT.
+    // trap.c animate_statue() uses NO_MINVENT|MM_NOMSG, adding adjacency
+    // for the spell and substituted-species branches. Ordinary statue traps
+    // and shattered statues omit it. All use the runtime creation tail.
     const statueAnimationCall = !state.in_mklev
         && normalized._animateStatue === true
         && Boolean(ptr)
         && !randomCoordinates
         && Boolean(mmflags & NO_MINVENT)
         && Boolean(mmflags & MM_NOMSG)
-        && Boolean(mmflags & MM_ADJACENTOK)
         && !(mmflags & ~(NO_MINVENT | MM_NOMSG | MM_ADJACENTOK
             | MM_NOCOUNTBIRTH | MM_MALE | MM_FEMALE));
     // zap.c stone_to_flesh_obj() animates a figurine with the same direct

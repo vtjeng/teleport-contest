@@ -1274,7 +1274,8 @@ export async function zapyourself(obj, ordinary, state = game) {
         // C's BInvis is the blocked field (a worn artifact can cancel an
         // intrinsic or extrinsic invisibility source); it is distinct from
         // the extrinsic source itself.
-        const msg = !property.intrinsic && !heroIsBlind(state)
+        const msg = !(property.intrinsic || property.extrinsic)
+            && !heroIsBlind(state)
             && !property.blocked;
         if (property.blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
             await ttyPline(
@@ -5052,9 +5053,7 @@ export async function cancel_monst(
                         'Some writing vanishes from your head!', state,
                     );
                 } else {
-                    const hallucinating = Boolean(
-                        state.u?.uprops?.[HALLUC]?.intrinsic,
-                    );
+                    const hallucinating = Hallucination(state);
                     await ttyPline(
                         `You feel ${hallucinating ? 'dark' : 'light'} headed.`,
                         state,
