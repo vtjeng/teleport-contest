@@ -27,6 +27,7 @@ import { newMonster } from '../js/monst.js';
 import { PM_KITTEN, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
+import { game } from '../js/gstate.js';
 import {
     AMULET_OF_GUARDING,
     ARROW,
@@ -652,6 +653,26 @@ test('clear_bypasses walks nested and floating object owners', () => {
     clear_bypass(head);
     assert.equal(head.bypass, false);
     assert.equal(sibling.bypass, false);
+});
+
+test('clear_bypasses without an argument uses the canonical game state', () => {
+    const previous = {
+        invent: game.invent,
+        context: game.context,
+    };
+    const object = { bypass: true, nobj: null, cobj: null };
+    try {
+        game.invent = object;
+        game.context = { bypasses: true };
+        clear_bypasses();
+        assert.equal(object.bypass, false);
+        assert.equal(game.context.bypasses, false);
+    } finally {
+        if (previous.invent === undefined) delete game.invent;
+        else game.invent = previous.invent;
+        if (previous.context === undefined) delete game.context;
+        else game.context = previous.context;
+    }
 });
 
 // worn.c setuwep() reaches end_burn() only for

@@ -483,6 +483,7 @@ import {
     inside_shop,
     shop_keeper,
 } from './shk.js';
+import { Shknam } from './shknam.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { S_digbeam } from './symbols.js';
 import { closed_door, dissolve_bars, m_in_air, youHear } from './monmove.js';
@@ -1862,11 +1863,12 @@ export async function poly_obj(obj, id, state = game,
         // dependency and reset the same object fields here.
         if (replacement.otyp === EGG)
             note_unported('timeout.c kill_egg');
-        else
+        else {
             replacement.otyp = EGG;
+            replacement.owt = weight(replacement, env);
+        }
         replacement.corpsenm = NON_PM;
         replacement.spe = 0;
-        replacement.timed = 0;
         let attempts = 100;
         while (attempts-- > 0) {
             const mnum = can_be_hatched(
@@ -1991,8 +1993,8 @@ export async function poly_obj(obj, id, state = game,
         BURIED_TOO | CONTAINED_TOO,
         state,
     );
-    const ox = location?.x ?? obj.ox ?? state.u?.ux ?? 0;
-    const oy = location?.y ?? obj.oy ?? state.u?.uy ?? 0;
+    const ox = location?.x ?? 0;
+    const oy = location?.y ?? 0;
     const oldWornMask = (obj.owornmask ?? 0) & ~(W_ART | W_ARTI);
     replace_object(obj, replacement, env);
 
@@ -2015,45 +2017,32 @@ export async function poly_obj(obj, id, state = game,
                 & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN | W_QUIVER));
             if (removable) {
                 remove_worn_item(obj, true, state);
-                if (newWornMask & W_WEP) {
-                    if (wasTwoHanded || !bimanual(replacement, state)
-                        || !state.uarms)
-                        setuwep(replacement, env);
-                    if (wasTwoweap && state.uwep
-                        && !bimanual(state.uwep, state))
-                        set_twoweap(true, state);
-                } else if (newWornMask & W_SWAPWEP) {
-                    if (wasTwoHanded || !bimanual(replacement, state))
-                        setuswapwep(replacement, env);
-                    if (wasTwoweap && state.uswapwep)
-                        set_twoweap(true, state);
-                } else if (newWornMask & W_QUIVER) {
-                    setuqwep(replacement, env);
-                } else if (newWornMask) {
-                    setworn(replacement, newWornMask, env);
-                    // C's set_wear() return is discarded. The existing JS
-                    // set_wear() is the startup-wide callback and has a
-                    // different signature, so retain this call-site gap.
-                    note_unported('do_wear.c set_wear');
-                    replacement = wearmask_to_obj(newWornMask, state);
-                }
             } else {
                 note_unported('steal.c remove_worn_item');
             }
-            // C keeps this source tail outside remove_worn_item()'s success
-            // path. Even when an accessory or punishment removal is still a
-            // discarded void call, preserve its later worn-mask handling.
-            if (!removable && newWornMask) {
-                if (newWornMask & W_WEP) setuwep(replacement, env);
-                else if (newWornMask & W_SWAPWEP)
+            // C keeps this tail after remove_worn_item(), even when that
+            // discarded void helper is not yet ported for an accessory.
+            if (newWornMask & W_WEP) {
+                if (wasTwoHanded || !bimanual(replacement, state)
+                    || !state.uarms)
+                    setuwep(replacement, env);
+                if (wasTwoweap && state.uwep
+                    && !bimanual(state.uwep, state))
+                    set_twoweap(true, state);
+            } else if (newWornMask & W_SWAPWEP) {
+                if (wasTwoHanded || !bimanual(replacement, state))
                     setuswapwep(replacement, env);
-                else if (newWornMask & W_QUIVER)
-                    setuqwep(replacement, env);
-                else {
-                    setworn(replacement, newWornMask, env);
-                    note_unported('do_wear.c set_wear');
-                    replacement = wearmask_to_obj(newWornMask, state);
-                }
+                if (wasTwoweap && state.uswapwep)
+                    set_twoweap(true, state);
+            } else if (newWornMask & W_QUIVER) {
+                setuqwep(replacement, env);
+            } else if (newWornMask) {
+                setworn(replacement, newWornMask, env);
+                // C's set_wear() return is discarded. The existing JS
+                // set_wear() is the startup-wide callback and has a
+                // different signature, so retain this call-site gap.
+                note_unported('do_wear.c set_wear');
+                replacement = wearmask_to_obj(newWornMask, state);
             }
         }
     } else if (oldLocation === OBJ_FLOOR && location) {
@@ -2072,17 +2061,18 @@ export async function poly_obj(obj, id, state = game,
 
     // The billing expression is intentionally after replacement and before
     // delobj(), just as C uses the replacement's carried status and the old
-    // object's no_charge/unpaid fields.  The actual money/message helpers
-    // remain explicit gaps because their results are discarded here.
+    // object's no_charge/unpaid fields. The two angry-shopkeeper helpers
+    // remain discarded gaps; their source messages are ported here.
     if (((replacement && !carried(replacement)) || obj.unpaid)
         && costly_spot(ox, oy, state)) {
         const roomno = in_rooms(ox, oy, SHOPBASE, state)[0] ?? 0;
         const shopkeeper = shop_keeper(roomno, state);
-        const contentsCost = hasContents(obj) && shopkeeper
-            ? contained_cost(obj, shopkeeper, 0, false, false, state)
-            : 0;
-        if ((!obj.no_charge || contentsCost !== 0)
+        const billable = !obj.no_charge
+            || (hasContents(obj) && shopkeeper
+                && contained_cost(obj, shopkeeper, 0, false, false, state) !== 0);
+        if (billable
             && inhishop(shopkeeper, state)) {
+            const namingEnv = { ...env, state, random };
             if (shopkeeper.mpeaceful) {
                 const heroRoom = in_rooms(
                     state.u?.ux,
@@ -2101,11 +2091,19 @@ export async function poly_obj(obj, id, state = game,
                     && !costly_spot(state.u.ux, state.u.uy, state)) {
                     note_unported('shk.c make_angry_shk');
                 } else {
-                    note_unported('pline.c shopkeeper gets angry');
+                    await (env.message ?? ttyPline)(
+                        `${Shknam(shopkeeper, state, namingEnv)} gets angry!`,
+                        state,
+                        env,
+                    );
                     note_unported('shk.c hot_pursuit');
                 }
             } else {
-                note_unported('pline.c shopkeeper is furious');
+                await (env.norepMessage ?? ttyNorep)(
+                    `${Shknam(shopkeeper, state, namingEnv)} is furious!`,
+                    state,
+                    env,
+                );
             }
         }
     }
@@ -2126,12 +2124,9 @@ export async function bhito(obj, wand, state = game,
         // inventing user-visible output.
         obj.bypass = false;
     }
-    // bhitpile() adds this result to its hit count.  Keep the existing
-    // unsupported-callback boundary for every object effect whose source
-    // result is not ported; weffects() admits only the polymorph callback
-    // below, so this arm is reached directly only by source-owned callers.
-    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
-        throw new UnsupportedBhitError(`bhito() for object type ${wand?.otyp}`);
+    // bhitpile() adds this result to its hit count. Its only production
+    // caller here admits the implemented polymorph callback; unsupported
+    // immediate effects stop at weffects() before reaching this callback.
     if (obj === state.uball || obj === state.u?.uball) return 0;
     if (obj === state.uchain || obj === state.u?.uchain) {
         if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK) {
@@ -2191,11 +2186,9 @@ export async function bhito(obj, wand, state = game,
 // source boundaries until their own effect families land.
 export async function bhitm(monster, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
-    // bhit() consumes the callback's return value while walking the ray.
-    // Unsupported wand effects therefore retain the old callback boundary;
-    // only the implemented polymorph path reaches this function here.
-    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
-        throw new UnsupportedBhitError(`bhitm() for object type ${wand?.otyp}`);
+    // bhit() consumes the callback's return value while walking the ray. Its
+    // production caller admits only the implemented polymorph callback;
+    // unsupported immediate effects stop at weffects() first.
     state.gn ??= {};
     const hit = state.gb?.bhitpos ?? { x: monster.mx, y: monster.my };
     state.gn.notonhead = monster.mx !== hit.x || monster.my !== hit.y;
