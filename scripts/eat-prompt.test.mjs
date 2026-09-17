@@ -20,6 +20,7 @@ import { doeat, floorfood, is_edible } from '../js/eat.js';
 import { flush_screen } from '../js/display.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import * as gstate from '../js/gstate.js';
 import { near_capacity, weight_cap } from '../js/hack.js';
 import { _getobjInternals, getobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
@@ -55,6 +56,7 @@ import {
     loadEatPromptOptionsRecipe,
     loadEatPromptRecipe,
 } from './run-eat-prompt.mjs';
+import { loadEatNonfoodRecipe } from './run-eat-nonfood.mjs';
 
 const { compactify, getobj_hands_txt, invletter_value } = _getobjInternals;
 
@@ -235,10 +237,9 @@ test('is_edible answers on object class and excludes unique objects', () => {
     // The oc_unique test reads objects[otyp], and the class answer reads
     // obj->oclass, so only an object pairing a unique type with FOOD_CLASS
     // tells the two apart. objects.c has none -- the four unique types are the
-    // Amulet, two invocation tools and the Book of the Dead -- which is why
-    // the pairing is fabricated here and why deleting the test would change no
-    // The pairing is fabricated because the ordinary object table has no
-    // unique food; the form-dependent arms below use real object definitions.
+    // Amulet, two invocation tools and the Book of the Dead. Since the
+    // ordinary object table has no unique food, the pairing is fabricated;
+    // the form-dependent arms below use real object definitions.
     assert.deepEqual(
         state.objects
             .map((type, otyp) => ({ type, otyp }))
@@ -317,6 +318,22 @@ test('is_edible gives a gelatinous cube empty organic objects', () => {
     assert.equal(
         is_edible({ otyp: SPEAR, oclass: WEAPON_CLASS }, state), false,
     );
+});
+
+test('the production eat command consumes an admitted fire-elemental weapon',
+    async () => {
+    const [segment] = loadEatNonfoodRecipe().segments;
+    await runSegment(segment);
+    assert.equal(
+        gstate.game.youmonst.data.pmidx,
+        PM_FIRE_ELEMENTAL,
+    );
+    const bullwhip = [];
+    for (let obj = gstate.game.invent; obj; obj = obj.nobj) {
+        if (obj.otyp === BULLWHIP) bullwhip.push(obj);
+    }
+    assert.equal(bullwhip.length, 0);
+    assert.equal(gstate.game.context?.victual?.piece ?? null, null);
 });
 
 test('the eat command is admitted and shares extcmdlist row with doeat',
