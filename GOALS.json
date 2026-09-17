@@ -58241,8 +58241,8 @@
           "name": "lookat",
           "line": 657,
           "endLine": 806,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -58328,7 +58328,99 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lookat",
+            "implementation": "js/pager.js",
+            "symbol": "lookat",
+            "sourceReview": "Read pager.c lookat() in full at lines 657-806 and retained every source arm: self, swallowed, monster, object, trap, warning, invisible, dark, unexplored, and ordinary cmap. The result carries buf, monbuf, and pm together for do_screen_description and do_look. The correction selects the remembered levl glyph only for non-hero locations with hero_memory, uses glyph_at for the hero or no-memory path, and reconstructs object disguises only through object_from_map followed by simpleonames and the C article rule. object_from_map clears an unrelated monster pointer before fake-object naming. look_at_monster delegates both ordinary and hallucinated naming to distant_monnam (with coyotename only for an accurate coyote), so canonical visibility, invisible adjectives, swallower context, and display-RNG order remain in the naming owner. get_cost_of_shop_item now adds contained_cost independently of the outer price predicate, and doname_with_price applies live pricing to floor-contained merchandise. Blind extrinsic telepathy and lazy swallowed-glyph display RNG remain source-pinned. Root verified the source lookat dispatch and result channels, canonical hidden glyph selection, the C article/Mgender rules, direct distant_monnam delegation under hallucination, and get_cost_of_shop_item contents pricing independent of the outer object price. Supporting helpers are dependencies of this selected lookat span, not separate completed entry claims.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "do_screen_description",
+                "source": "pager.c do_screen_description() invokes lookat() for source need_to_look and ambiguity cases; JavaScript consumes all three result channels."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "auto_describe",
+                "source": "getpos.c auto_describe() drives farlook cursor descriptions and the shared fountain recording."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c do_look() reaches the interactive map whatis path through getpos and do_screen_description."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "mstatusline",
+                "source": "insight.c mstatusline() consumes mhidden_description for status disclosure; the implementation is imported from pager.js."
+              },
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "describeMonster",
+                "source": "Existing startup and accessibility descriptions consume pager-owned hidden and monster naming through the compatibility export; lightweight unit fixtures provide explicit visibility where a map is absent."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs",
+              "scripts/startup-a11y.test.mjs",
+              "scripts/mhidden-description.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/shop-floor-pricing.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/sink-fountain-farlook-7001.session.json",
+              "recordings/pager.c/sink-fountain-farlook-7001-female.session.json"
+            ],
+            "checkedAt": "0f855b9863993ecb795442861b88d92dd82c4f12"
+          }
+        ],
+        "entryPointReview": "The independently recorded production path is pager.c do_look() -> getpos.c auto_describe() -> pager.c do_screen_description() -> lookat(), with two strict fountain recordings and a female startup variation. Source-pinned tests cover all result-family dispatches, hero versus monster hidden state, remembered versus live glyph selection, C Mgender versus mondata gender, include_prefix/include_article combinations, canonical is_pool water detection, See_invisible versus Invisible, blind extrinsic telepathy, worm segment ownership, shop applicability and free-container contained_cost behavior, contained merchandise live pricing, and no display-RNG draw before the source self-square short circuit. Active self, swallowed, monster, object, trap, warning, invisible, unexplored, and remaining cmap entry families have no matching production recording in this correction and remain explicitly unrecorded; they are not build-inactive. The later fountain fate behavior belongs to fountain.c.",
+        "entryPoints": [
+          {
+            "name": "ordinary cmap cursor refinement for a fountain on a shared symbol",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": [
+              "recordings/pager.c/sink-fountain-farlook-7001.session.json"
+            ]
+          },
+          {
+            "name": "ordinary cmap cursor refinement with the female startup variation",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": [
+              "recordings/pager.c/sink-fountain-farlook-7001-female.session.json"
+            ]
+          },
+          {
+            "name": "self and swallowed lookat families",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster names, dispositions, status suffixes, hidden descriptions, and sensing side channel",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "object, trap, warning, invisible, unexplored, and remaining cmap lookat families",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
