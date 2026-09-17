@@ -63773,14 +63773,14 @@
           "line": 2263,
           "endLine": 2289,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "print_dungeon",
           "line": 2290,
           "endLine": 2445,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -63868,7 +63868,99 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "print_branch",
+            "implementation": "js/dungeon.js",
+            "symbol": "print_branch",
+            "sourceReview": "Read nethack-c/upstream/src/dungeon.c:2261-2286 in full. The source filters branches by parent dungeon and strict lower/upper depth bounds, formats the source branch type/depth/name in evaluation order, and selects tport_menu only for bymenu=true; bymenu=false writes the same plain line with a literal leading space. The JavaScript preserves both arms and does not add randomness or substitute a return value for unreachable_level.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "print_dungeon",
+                "source": "dungeon.c:2309-2312 and 2336-2339 call print_branch before and after each special level in both informational and menu modes."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/print-dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/wizwhere-informational-independent.session.json",
+              "recordings/dungeon.c/wizwhere-informational-variation.session.json"
+            ],
+            "checkedAt": "9fcbeec8d0f60ff11572c10f6ee846e5731e492b"
+          },
+          {
+            "name": "print_dungeon",
+            "implementation": "js/dungeon.js",
+            "symbol": "print_dungeon",
+            "sourceReview": "Read nethack-c/upstream/src/dungeon.c:2290-2438 in full. The port keeps the menu path, adds the source bymenu=false NHW_MENU path, preserves heading/special-level/branch ordering, floating-branch output, Invocation_lev coordinates, portal and expected-no-portal diagnostics, and the final display_nhwindow(win, TRUE) acknowledgement on the NHW_MENU report. It forwards the existing displayTtyMenuTextWindow owner for the NHW_MENU operation and retains state-backed dungeon/branch/trap data without introducing random calls. The reviewed integration uses the existing at_dgn_entrance helper at the C short-circuit call site; focused fixtures include the initialized Quest branch.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_where",
+                "source": "wizcmds.c:218-225 calls print_dungeon(FALSE, 0, 0); the JavaScript caller awaits the informational window and returns ECMD_OK."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "levelTeleMenu",
+                "source": "teleport.c:1228 calls print_dungeon(TRUE, &destlev, &destdnum); the existing level teleport menu caller remains on the menu arm."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extended-command row dispatches wiz_where; the JavaScript wizwhere row is admitted and routed through runWhereCommand."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/print-dungeon.test.mjs",
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/wizwhere-informational-independent.session.json",
+              "recordings/dungeon.c/wizwhere-informational-variation.session.json",
+              "recordings/sp_lev.c/castle-level-teleport.session.json"
+            ],
+            "checkedAt": "9fcbeec8d0f60ff11572c10f6ee846e5731e492b"
+          }
+        ],
+        "entryPointReview": "The selected source range has two production modes. The existing level teleport caller exercises the menu mode through teleport.c level_tele(), while the newly added independently chosen debug recipes exercise the registered #wizwhere command through wizcmds.c wiz_where() and its bymenu=false informational path. The informational path records the headings, branch lines, special levels, NHW_MENU More acknowledgement, and continued second window page. Focused tests additionally initialize floating branches, Invocation_lev coordinates, a magic portal, and the Earth-level expected-no-portal predicate. The source-defined diagnostic combinations do not all occur in the two short ordinary dungeon recordings; their behavior is covered by initialized source-pinned tests and remains listed as covered branches rather than claimed as separate production entry recordings. The remaining portal-bearing level predicates and unseen diagnostic combinations are source-reviewed but have no separate production recording; retain that entry family as unrecorded. The ordinary-fresh numeric teleport recording does not call print_dungeon; use the existing independent Castle recording, whose Ctrl-V, question mark and menu selection execute the menu arm.",
+        "entryPoints": [
+          {
+            "name": "wizard #wizwhere informational dungeon report",
+            "functions": [
+              "print_dungeon",
+              "print_branch"
+            ],
+            "recordings": [
+              "recordings/dungeon.c/wizwhere-informational-independent.session.json",
+              "recordings/dungeon.c/wizwhere-informational-variation.session.json"
+            ]
+          },
+          {
+            "name": "wizard level teleport dungeon menu",
+            "functions": [
+              "print_dungeon",
+              "print_branch"
+            ],
+            "recordings": [
+              "recordings/sp_lev.c/castle-level-teleport.session.json"
+            ]
+          },
+          {
+            "name": "floating branches, Invocation_lev, portal and expected-no-portal diagnostics",
+            "functions": [
+              "print_dungeon",
+              "print_branch"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

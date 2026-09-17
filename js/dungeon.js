@@ -1618,21 +1618,12 @@ export async function print_dungeon(state = game, { bymenu = true } = {}) {
                     level && current.dnum === level.dnum
                         && current.dlevel === level.dlevel,
                 );
-                const quest = state.dungeons?.findIndex(
-                    (dungeon) => dungeon.dname === 'The Quest',
-                ) ?? -1;
-                const questBranch = quest < 0 ? null
-                    : (state.branches ?? []).find(
-                        (branch) => branch.end2.dnum === quest,
-                    );
-                const questEntrance = questBranch
-                    && sameLevel(questBranch.end1);
                 if (sameLevel(state.earth_level)
                     || sameLevel(state.water_level)
                     || sameLevel(state.fire_level)
                     || sameLevel(state.air_level)
                     || sameLevel(state.qstart_level)
-                    || questEntrance
+                    || at_dgn_entrance('The Quest', state)
                     || sameLevel(state.knox_level)) {
                     diagnostic = 'No portal found.';
                 }

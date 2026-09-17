@@ -101,6 +101,23 @@ function printDungeonState({ heroLevel, selectIndex, nonMenu = false } = {}) {
     state.branches = [minesBranch];
     state.svb = { branches: minesBranch };
 
+    // The informational report calls at_dgn_entrance("The Quest") when
+    // checking an absent portal. A real initialized topology always has it.
+    if (nonMenu) {
+        state.dungeons.push({
+            dname: 'The Quest', depth_start: 1, num_dunlevs: 5,
+            entry_lev: 1, flags: {}, ledger_start: 38,
+        });
+        state.n_dgns = state.dungeons.length;
+        const questBranch = {
+            end1: { dnum: 0, dlevel: 7 },
+            end2: { dnum: 2, dlevel: 1 },
+            type: BR_PORTAL, next: null,
+        };
+        minesBranch.next = questBranch;
+        state.branches.push(questBranch);
+    }
+
     // Topology anchors that print_dungeon consults.
     state.knox_level = { dnum: 99, dlevel: 1 };  // not placed
     state.astral_level = { dnum: 99, dlevel: 1 };  // far away
