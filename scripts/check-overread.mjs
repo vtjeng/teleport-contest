@@ -2,9 +2,11 @@
 
 // Flags segments that both skipped an unported callee (note_unported) and
 // consumed all input before attempting an extra read without matching the
-// complete recorded segment. This combination needs investigation; it does
-// not prove the skipped call caused the extra read. A matching recording may
-// end at a prompt, where the scorer's playability runner catches QueueEmpty.
+// complete recorded RNG, screen and cursor streams. This combination needs
+// investigation; it does not prove the skipped call caused the extra read.
+// A matching recording may end at a prompt, where the scorer's playability
+// runner catches QueueEmpty.
+// Animation differences alone do not establish an extra input read.
 //
 // Reads the scan cache (.cache/scan-cache.json) rather than replaying
 // sessions, so it runs in milliseconds. A stale cache (different HEAD)
@@ -32,7 +34,7 @@ export function checkOverReads(rows) {
         }
         for (const end of row.segmentEndStates) {
             if (end.unported?.length > 0 && end.inputExhausted
-                && end.recordingMatched !== true) {
+                && end.inputBoundaryMatched !== true) {
                 flagged.push({
                     session: row.file,
                     segment: end.segment,
