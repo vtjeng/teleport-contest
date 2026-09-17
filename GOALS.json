@@ -58210,7 +58210,7 @@
     {
       "id": "port-pager-lookat-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete map inspection result dispatch and source-owned descriptions",
       "cFile": "pager.c",
       "sessions": [
@@ -58221,8 +58221,8 @@
       "spans": [
         {
           "name": "lookat",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4e0cff9e1c51feb7ba0094f924613e5f896b0904",
           "functions": [
             "lookat"
           ]
@@ -58421,7 +58421,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "488aeab2782faa6b18793bad9166a43d61f38085",
+        "screens": 10837,
+        "rng": 771039
+      },
+      "parkedReason": "The lookat span passes combined validation and moves the Knight first mismatch to fountain.c drinkfountain fate 30. Resume when priority permits recording the active self, swallowed, monster, object, trap, warning, invisible, unexplored and remaining cmap entry families; these remain unrecorded and the source goal is not complete."
     }
   ]
 }
