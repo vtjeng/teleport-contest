@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent D:10 wizard level-teleport witness for monmove.c disturb()/dochug(): seed 9383012 creates a beehive whose sleeping killer bees remain mobile; the hero arrives far beyond mdistu 100 and waits once, so dochug returns before bee_eat_jelly without a wakeup draw.",
+  "segments": [
+    {
+      "seed": 9383012,
+      "datetime": "20380910111213",
+      "nethackrc": "OPTIONS=name:BeeDisturb,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": ".\u001610\n."
+    }
+  ]
+}

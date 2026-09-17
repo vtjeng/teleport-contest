@@ -61168,7 +61168,7 @@
     {
       "id": "port-insight-status-enlightenment-seed0383-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete source-ordered status enlightenment for the attributes window",
       "cFile": "insight.c",
       "sessions": [
@@ -61180,8 +61180,8 @@
       "spans": [
         {
           "name": "status_enlightenment",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
           "functions": [
             "status_enlightenment"
           ]
@@ -61408,7 +61408,124 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 12,
+        "rng": 131
+      },
+      "parkedStanding": {
+        "sha": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
+        "screens": 11139,
+        "rng": 785780
+      },
+      "parkedReason": "The status span is verified through independent hallucination and deafness recordings. Resume for ending disclosure (including ENL_GAMEOVERALIVE), transformed-hero enlightenment admission and youhiding, or exceptional weapon_insight shield/wet-towel entry coverage when selected."
+    },
+    {
+      "id": "div-sleeping-killer-bee-seed0367-20260917",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Admit source-defined sleeping killer-bee turns before the special-action guard",
+      "cFile": "monmove.c",
+      "sessions": [],
+      "selectionReason": "seed0367-priest-quest-tour has 3 remaining screens and a completed investigation at investigations/seed0367-priest-quest-tour.json. The higher-ranked Knight continuation is reserved by A30/A31, and seed2200 requires the unresolved machine-local Q1 decision. B27 is the oldest independent ready delivery after status enlightenment acceptance.",
+      "detail": "At segment 0 input boundary 321, the generic JavaScript killer-bee guard refuses a mobile sleeping bee before dochug dispatch. C monmove.c disturb327–358 returns without a wakeup draw when line of sight is absent, squared distance exceeds100, or killer-bee Stealth prevents waking; dochug727–731 then returns before bee_eat_jelly. Correct assertSimpleActionState so planning and live dispatch can reach these existing source branches, preserving guards for active bee behavior.",
+      "spans": [
+        {
+          "name": "sleeping-killer-bee-admission",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "disturb",
+            "dochug"
+          ]
+        }
+      ],
+      "openedAt": "001de7fd65f832945994cc3f8799feabf2c07f95",
+      "openStanding": {
+        "sha": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
+        "screens": 11139,
+        "rng": 785780
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dochug",
+      "session": "seed0367-priest-quest-tour",
+      "step": 321,
+      "activeStanding": {
+        "sha": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
+        "screens": 11139,
+        "rng": 785780
+      },
+      "openMismatches": [
+        {
+          "session": "seed0367-priest-quest-tour",
+          "step": 321,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a special monster action",
+          "unlocatedKinds": [],
+          "recordedSteps": 324,
+          "remainingScreensUpperBound": 3,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0367-priest-quest-tour.json",
+            "result": {
+              "session": "seed0367-priest-quest-tour",
+              "remainingScreensUpperBound": 3,
+              "status": "complete",
+              "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
+              "mismatch": {
+                "session": "seed0367-priest-quest-tour",
+                "step": 321,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires a special monster action",
+                "unlocatedKinds": [],
+                "recordedSteps": 324,
+                "remainingScreensUpperBound": 3
+              },
+              "summary": "The special-action refusal is an overbroad killer-bee guard. The blocked bee is asleep at squared distance145 from the hero; monmove.c disturb() returns0 before any random draw, so dochug() returns before bee_eat_jelly(). JavaScript already carries this sleeping return, but assertSimpleActionState() refuses every killer bee before dispatch reaches it.",
+              "source": {
+                "file": "monmove.c",
+                "functions": [
+                  "dochug",
+                  "disturb"
+                ],
+                "branch": "dochug(): a sleeping monster whose disturb() returns0 exits before phase-three bee behavior. disturb(): couldsee(mx,my) is false OR mdistu(monster)>100 makes the wakeup conjunction false before RNG or state changes. At the observed refusal the killer bee is alive, mobile, non-tame and sleeping at(32,15), with hero(44,14), so mdistu=145>100; any wait-mask early return would also precede the bee action.",
+                "callers": [
+                  "C mon.c movemon() -> movemon_singlemon() (1230–1321), which debits NORMAL_SPEED before dochugw(mtmp,TRUE); monmove.c dochugw() (205–237) calls dochug(), which calls disturb() at727.",
+                  "JS allmain.js moveloop_core() invokes preflightSimpleMonsterActions() at1127; unported_monster_actions.js planSimpleMonsterTurn() at1928 -> planSimpleMonsterScan() at1739 -> mon.js movemon_singlemon() -> runSimpleMonsterAction() at1516.",
+                  "JS runSimpleMonsterAction() calls assertSimpleActionState() at1534 before monmove.js dochugw(); it also injects the same guard as dochug preflight at1698, ahead of monmove.js dochug() sleeping return at2431–2435. The live allmain.js monster adapter also uses runSimpleMonsterAction()."
+                ],
+                "dependencies": [
+                  "Existing monmove.js disturb() at2116–2150 and movementEnv/couldsee plus squared hero distance already implement the no-wakeup branch; no additional gameplay callee is needed to admit this branch.",
+                  "Preserve mon.c movement debit and per-turn effects, dochug quest/wait handling and its Hallucination redraw, and clone/live isolation. Do not call disturb twice to predict its outcome: its reachable wakeup branches consume RNG.",
+                  "bee_eat_jelly() is a later, separate branch at C monmove.c868–874 and JS monmove.js2534–2537. Its declaration does not prove complete reachable behavior; the observed sleeping return does not require enabling or claiming completion of awake-bee growth behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Reused the partial investigation: the former attributes stop at318 was already fixed, leaving the count3/step321 assignment. A fresh single-session scanRecordedSession replay at exact a0986b8404a83d232bee4bd2b5a9433337cf2739 emitted321 screens, boundary=\"simple monster action requires a special monster action\", divergence=null. Artifact: .cache/seed0367-priest-quest-tour/replay-result.json. No other session, aggregate scorer, checkpoint or C recorder was run.",
+                "Replay uses a git-archive snapshot of the assigned commit under .cache/seed0367-priest-quest-tour/replay with the official frozen isaac64.js, terminal.js and storage.js overlays, matching scripts/scoring-workspace.mjs. Node inspector paused at the unchanged assertSimpleActionState() throw (zero-based line420) and read its local variables without changing game code or state.",
+                "The sole paused guard instance has monster m_id2024, data.pmidx1 (killer bee), mx32/my15, hp3/3, msleeping=true, mcanmove=true, mpeaceful=false, mtame0, minvent=null, moves23; hero ux44/uy14 on dnum4/dlevel1. Its movement0 is after movemon_singlemon() debited the available12-point ration, not evidence that the scan should omit the monster. Other alternatives of the generic guard (Tengu, leprechaun, gelatinous cube) are false for this species.",
+                "Pinned C gitlink16ff59115315917b93185d026aeefea06db9b0f4: monmove.c disturb()327–358 evaluates couldsee && mdistu<=100 before Stealth and every rn2; the observed squared distance is(44-32)^2+(14-15)^2=145, so it returns0 with no wake_msg or msleeping write. dochug()690–989 tests this at727–731 and returns0, optionally redrawing during Hallucination. Its jelly check at868–874 is unreachable on this turn. monmove.c dochugw()205–237 still performs its own occupation check after dochug returns.",
+                "At assigned JavaScript commit, monmove.js disturb()2116–2150 has the matching distance>100 early return, and dochug()2431–2435 has the matching sleeping return. unported_monster_actions.js assertSimpleActionState()318–423 instead includes unconditional PM_KILLER_BEE at417 and throws at421. Both runSimpleMonsterAction()1534 and dochug preflight1698 encounter this guard before either existing source branch can run.",
+                "Actionable scope: divergence-fix for monmove.c dochug()/disturb() production admission. Review these whole C functions and the complete assertSimpleActionState()/runSimpleMonsterAction() caller path; change the killer-bee preflight to admit the source-defined deterministic sleeping return while preserving guards for behavior that can actually be reached. This is a correction to existing sleeping dispatch, not evidence that every awake-bee action is complete. A source-pinned focused check should exercise sleeping bees beyond squared distance100 and without line of sight, plus a case at the100 boundary that may wake, and verify clone/live state and random-call preservation. Choose fresh validation inputs independently. Replay beyond step321 before claiming the fix works; the upper bound3 is not a promised gain."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -171,6 +171,7 @@ import {
     PM_HUMAN,
     PM_HUMAN_ZOMBIE,
     PM_IRON_GOLEM,
+    PM_KILLER_BEE,
     PM_JABBERWOCK,
     PM_LEPRECHAUN,
     PM_LITTLE_DOG,
@@ -4833,6 +4834,49 @@ test('disturb rejects unseen, distant, and stealth-shielded monsters drawlessly'
         couldSee: () => true,
     }), 0);
     assert.equal(monster.msleeping, true);
+});
+
+// C ref: monmove.c:341-358. mdistu() is inclusive at 100: a visible bee at
+// exactly ten squares enters the wakeup conjunction and consumes rn2(7), so
+// the result depends on that roll rather than taking the distance no-op.
+test('disturb includes the exact ten-square wake boundary', async () => {
+    const { state } = makeState();
+    const bee = newMonster({
+        data: state.mons[PM_KILLER_BEE],
+        mnum: PM_KILLER_BEE,
+        mx: state.u.ux,
+        my: state.u.uy - 10,
+        msleeping: true,
+    });
+    const draws = [];
+    assert.equal(await disturb(bee, {
+        state,
+        couldSee: () => true,
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                return 1;
+            },
+        },
+        wakeMessage() {},
+    }), 0);
+    assert.deepEqual(draws, [7]);
+    assert.equal(bee.msleeping, true);
+
+    draws.length = 0;
+    assert.equal(await disturb(bee, {
+        state,
+        couldSee: () => true,
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                return 0;
+            },
+        },
+        wakeMessage() {},
+    }), 1);
+    assert.deepEqual(draws, [7]);
+    assert.equal(bee.msleeping, false);
 });
 
 test('disturb treats blocked Stealth as inactive without an Ettin draw', async () => {

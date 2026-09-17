@@ -2,31 +2,29 @@
   "session": "seed0383-wizard-hallucinate",
   "remainingScreensUpperBound": 6,
   "status": "complete",
-  "commit": "fe323c00a944128df256d6561f76d05282718db5",
-  "summary": "Post-move handling advances this session from step 203 to step 213. The next stop is the attributes window: status_enlightenment rejects hallucination instead of emitting the C status line. The next source span must cover the complete status function and its other unported conditions; six screens remain after this stop.",
+  "commit": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
+  "summary": "The former hallucination status-window stop is resolved and this session now matches completely. Whole status_enlightenment follows the source conditions and output order; independent recordings reach the actual Status page. Ending disclosure, transformed-hero admission and exceptional weapon-insight entries remain separate unfinished coverage.",
   "source": {
     "file": "insight.c",
     "functions": [
       "status_enlightenment"
     ],
-    "branch": "The attributes command reaches status_enlightenment with active hallucination. C emits the hallucinating status when HALLUC has an intrinsic timeout and HALLUC_RES is absent, then continues through its other status branches; the current JavaScript explicitly refuses this property.",
+    "branch": "C insight.c940–1266 emits movement, internal trouble, external status, hunger, encumbrance, weapon, suit and nudity information in source order. The completed JavaScript owner applies Hallucination intrinsic-timeout/resistance rules, Deaf intrinsic/extrinsic/roleplay rules, and both Lev_at_will masks to either intrinsic or artifact levitation.",
     "callers": [
-      "C cmd.c attributes dispatch -> insight.c doattributes (2007-2018) -> enlightenment (414-422) -> status_enlightenment (940-1266).",
-      "JavaScript cmd.js runAttributesCommand -> insight.js doattributes -> enlightenment -> status_enlightenment."
+      "cmd.js runAttributesCommand calls insight.js doattributes -> enlightenment -> status_enlightenment for the attributes window.",
+      "Ending disclosure also calls enlightenment, but ENL_GAMEOVERALIVE remains a blocked active mode and is not claimed covered."
     ],
     "dependencies": [
-      "Whole-source scope includes movement, internal troubles, external states, hunger and encumbrance, weapon status, tuxedo penalty, and nudity in insight.c:940-1266.",
-      "Source callees include from_what, x_monnam, walking_on_water/surface/is_pool/is_lava, trap_predicament, a_monnam/digests/dmgtype, body_part/mbodypart, which_armor, fingers_or_gloves and weapon_insight; verify existing owners and required return values."
+      "getpos.c dxdy_to_dist_descr557–590 is implemented as the pure source owner for held-monster distance text, with source-pinned direction and clamp tests. Existing canonical naming and from_what owners supply status causes.",
+      "The discarded youhiding call remains a named gap behind the existing transformed-hero enlightenment guard. weapon_insight shield/wet-towel branches and ending disclosure still have unfinished or unrecorded entries.",
+      "Separate earlier postmov entry families remain unverified in GOALS.json; the old copied-input witness was rejected and remains absent from the recording corpus."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The exact candidate fixed scan in .cache/A5-checkpoint-scan-cache.json emits 213 of 219 screens, with divergence:null, then refuses Ctrl-X attributes: the attributes window requires the hallucination status.",
-    "js/insight.js UNPORTED_STATUS_PROPERTIES lists HALLUC; status_enlightenment iterates those properties and throws UnsupportedEnlightenmentError. C insight.c:1055-1058 emits You are hallucinating instead.",
-    "The current generic hasProperty guard accepts intrinsic or extrinsic HALLUC, broader than the C Hallucination predicate in youprop.h:115-120. The completed port must apply the C intrinsic-timeout and resistance condition.",
-    "Existing JavaScript status_enlightenment covers transformed form, sleepiness, hunger, encumbrance, weapon and nudity. Riding, water and flight, internal troubles, punishment, traps, held/swallowed states, wounded legs and tuxedo effects are still explicitly refused, so selection is the whole function, not a session-specific hallucination fix.",
-    "Independent postmov trapped-door recordings use seed6201035 with different setup and acoustics; the original copied witness was rejected and is absent from the regression corpus. Four other postmov entry families remain unverified in GOALS.json.",
-    "Checkpoint fe323c00a944128df256d6561f76d05282718db5 run-38WoMj passes all checks:31/44 sessions,10259/11405 screens,753589/792838 RNG,10281/11405 cursors and269/269 recordings. This postmov span adds10 development screens,31 RNG values and10 cursors; its two independent recordings add550 screens and13882 RNG calls."
+    "The retained mismatch object is the former hallucination status stop. The current .cache/B26-development-scan.json removes this session from the mismatch queue after the full source port.",
+    "Independent recordings/insight.c/attributes-enlightenment-hallucination-independent.session.json reaches the Status page and prints the expected hallucination line. A setup message or the first attributes page would not establish this entry.",
+    "Read-only source comparison found and corrected Lev_at_will grouping: youprop.h242–245 applies both H/E exclusions to either qualifying source. Source-pinned cases cover disallowed intrinsic and extrinsic bits; other status predicate, order, naming and distance checks match C."
   ],
   "mismatch": {
     "session": "seed0383-wizard-hallucinate",
@@ -42,5 +40,6 @@
     "unlocatedKinds": [],
     "recordedSteps": 219,
     "remainingScreensUpperBound": 6
-  }
+  },
+  "nextProbe": "No further investigation is selected from this fully matching session. Retain ending, transformed-hero, exceptional weapon status and other unrecorded source entries for separately selected work."
 }
