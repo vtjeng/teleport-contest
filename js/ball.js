@@ -262,6 +262,7 @@ export async function drag_down(state = game) {
                 NO_KILLER_PREFIX,
                 state,
             );
+            if (state.program_state?.gameover) return;
             await litter(state);
         }
     } else {
@@ -273,6 +274,7 @@ export async function drag_down(state = game) {
                 KILLED_BY_AN,
                 state,
             );
+            if (state.program_state?.gameover) return;
             await exercise(A_STR, false, state, { rn2 }, {
                 encumberMessage: encumber_msg,
             });
@@ -286,6 +288,7 @@ export async function drag_down(state = game) {
                 NO_KILLER_PREFIX,
                 state,
             );
+            if (state.program_state?.gameover) return;
             await exercise(A_STR, false, state, { rn2 }, {
                 encumberMessage: encumber_msg,
             });

@@ -1,6 +1,7 @@
-// Focused tests for do.c dodown() and goto_level()'s opening phase, plus the
-// helpers they reach: hack.c u_rooted(), steed.c stucksteed(), cmd.c
-// set_move_cmd(), and trap.c uteetering_at_seen_pit() / uescaped_shaft().
+// Focused tests for do.c dodown() and goto_level()'s opening and arrival
+// phases, plus the helpers they reach: hack.c u_rooted(), steed.c stucksteed(),
+// cmd.c set_move_cmd(), and trap.c uteetering_at_seen_pit() /
+// uescaped_shaft().
 //
 // The recorded evidence is two matrices, both of which compare complete
 // screens, cursors and random-number calls against fresh C recordings:
@@ -15,6 +16,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    ACH_MINE,
     DIR_DOWN,
     DIR_W,
     ECMD_OK,
@@ -32,7 +34,7 @@ import {
     OBJ_FREE,
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
-import { UnsupportedLevelChangeError, dodown } from '../js/do.js';
+import { UnsupportedLevelChangeError, dodown, goto_level } from '../js/do.js';
 import { find_mapseen, ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -63,6 +65,11 @@ const REFUSAL = "You can't go down here.";
 const FALLING_SESSION =
     'sessions/seed0014-dequa-fountain-explore.session.json';
 const FALLING_STEP = 481; // The recorded '>' step that first reaches the fall.
+
+const MINES_RECIPES = [
+    'recipes/do.c/goto-level-mines-independent.session.json',
+    'recipes/do.c/goto-level-mines-variation.session.json',
+];
 
 // gt.toplines, which pline.c writes whether or not the row has been repainted.
 function toplines(state) {
@@ -118,6 +125,42 @@ test('goto_level keeps reglyph_darkroom between generation and arrival setup',
     );
     assert.ok(jsGenerate >= 0 && jsGenerate < jsReglyph);
     assert.ok(jsReglyph < jsArrivalReset);
+});
+
+test('goto_level records the Mines achievement on a new Mines arrival',
+    async () => {
+    // do.c:1905-1907. This is a production level-teleport route: the wizard
+    // menu selects the Mines branch, so goto_level() crosses dnum and records
+    // ACH_MINE after the destination has been generated and redrawn.
+    for (const recipePath of MINES_RECIPES) {
+        const recipe = JSON.parse(readFileSync(recipePath, 'utf8'));
+        const segment = recipe.segments[0];
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        await runSegment(segment);
+        assert.equal(game.u.uz.dnum, game.mines_dnum,
+            `${recipePath} reaches the Mines dungeon`);
+        assert.ok(game.u.uachieved.includes(ACH_MINE),
+            `${recipePath} records ACH_MINE`);
+    }
+});
+
+test('goto_level keeps the C special-dungeon arrival branch order', () => {
+    // do.c:1893-1910 has Knox, Mines, then Sokoban as one mutually exclusive
+    // chain. Pin those source names and their order alongside the production
+    // recordings above so an achievement cannot move ahead of the alarm or a
+    // different dungeon branch.
+    const cStart = C_SOURCE.indexOf('\ngoto_level(\n');
+    const cBody = C_SOURCE.slice(cStart);
+    const jsStart = JS_SOURCE.indexOf('export async function goto_level');
+    const jsBody = JS_SOURCE.slice(jsStart);
+    for (const body of [cBody, jsBody]) {
+        const knox = body.indexOf('Is_knox');
+        const mines = body.indexOf('In_mines');
+        const soko = body.indexOf('In_sokoban');
+        assert.ok(knox >= 0 && mines > knox && soko > mines);
+    }
+    const jsMines = jsBody.indexOf('record_achievement(ACH_MINE');
+    assert.ok(jsMines > jsBody.indexOf('In_mines'));
 });
 
 test('the descend-refusal matrix contains only source-selected inputs', () => {
@@ -317,7 +360,8 @@ test('the descent marks the staircase traversed before building the level',
     assert.notEqual(stway.u_traversed, true);
     const drawsBefore = getRngLog().length;
 
-    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    for (let count = 0; count < 20; ++count)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
     await dodown(state);
 
     assert.equal(stway.u_traversed, true);
@@ -759,38 +803,58 @@ test('goto_level returns without a refusal when the destination is this level',
 
 test('goto_level stops when the destination leaves the dungeon', async () => {
     // do.c:1518-1519, done(ESCAPED). ledger_no() of dlevel 0 in the first
-    // dungeon is 0, which is the only ledger a descent can produce here.
+    // dungeon is 0, which is the only ledger a descent can produce here. The
+    // source finalizer is terminal; stopprint keeps this focused test from
+    // entering its optional disclosure prompts.
     const state = await descendTo('>');
     quiet(state);
+    state.program_state.stopprint = 1;
     downStairsUnderHero(state, false, { dnum: state.u.uz.dnum, dlevel: 0 });
 
-    await assert.rejects(
-        dodown(state),
-        (error) => /escaping the dungeon/u.test(error.message),
-    );
+    await dodown(state);
+    assert.equal(state.program_state.gameover, true);
 });
 
-test('goto_level stops for the endgame and for either tutorial arm',
+test('goto_level applies the endgame and tutorial transition guards',
     async () => {
-    // do.c:1504-1514. All three sit behind `newdungeon`, so each case sends
-    // the hero to dungeon 1 and changes which of the three tests answers TRUE.
-    const cases = [
-        ['astral_level', { dnum: 1, dlevel: 1 }],
-        ['tutorial_dnum', 1], /* entering the tutorial */
-        ['tutorial_dnum', 0], /* leaving it: the hero's own dungeon */
-    ];
-    for (const [field, value] of cases) {
-        const state = await descendTo('>');
-        quiet(state);
-        state[field] = value;
-        downStairsUnderHero(state, false, { dnum: 1, dlevel: 1 });
+    // do.c:1504-1514. Endgame entry without the Amulet returns before the
+    // level save; tutorial entry and exit call their Lua transition boundary
+    // and continue through the ordinary level transition.
+    const endgame = await descendTo('>');
+    quiet(endgame);
+    endgame.astral_level = { dnum: 1, dlevel: 1 };
+    const endgameBefore = { ...endgame.u.uz };
+    downStairsUnderHero(endgame, false, { dnum: 1, dlevel: 1 });
+    await dodown(endgame);
+    assert.deepEqual(endgame.u.uz, endgameBefore,
+        'endgame entry without the Amulet returns before changing levels');
 
-        await assert.rejects(
-            dodown(state),
-            (error) => /endgame or the tutorial/u.test(error.message),
-            `${field}=${JSON.stringify(value)} stops`,
-        );
-    }
+    const entering = await descendTo('>');
+    quiet(entering);
+    entering.program_state.stopprint = 1;
+    entering.tutorial_dnum = 1;
+    downStairsUnderHero(entering, false, { dnum: 1, dlevel: 1 });
+    destinationAlreadyVisited(entering, { dnum: 1, dlevel: 1 });
+    await assert.rejects(dodown(entering), DESTINATION_REFUSAL,
+        'tutorial entry continues to the reload boundary');
+
+    const leaving = await descendTo('>');
+    quiet(leaving);
+    leaving.program_state.stopprint = 1;
+    leaving.tutorial_dnum = leaving.u.uz.dnum;
+    const oldLevel = { ...leaving.u.uz };
+    downStairsUnderHero(leaving, false, { dnum: 1, dlevel: 1 });
+    destinationAlreadyVisited(leaving, { dnum: 1, dlevel: 1 });
+    await assert.rejects(dodown(leaving), DESTINATION_REFUSAL,
+        'tutorial exit continues to the reload boundary');
+    const oldLedger = ledger_no(oldLevel, leaving);
+    assert.equal(leaving.svl.level_info[oldLedger].flags & LFILE_EXISTS, 0,
+        'FREEING save does not leave a restorable level file flag');
+    assert.equal(leaving._savedLevels?.[oldLedger], undefined,
+        'FREEING save does not create an in-memory level snapshot');
+    const oldMapseen = find_mapseen(oldLevel, leaving);
+    assert.equal(oldMapseen?.flags.notreachable, 1,
+        'tutorial departure retains overview history as unreachable');
 });
 
 // Put the hero deep in a hellish dungeon carrying the Amulet, which is what
@@ -812,9 +876,15 @@ test('the mysterious force stops a climb but leaves every other case alone',
     inGehennom(climbing, { dlevel: 5, num_dunlevs: 29 });
     downStairsUnderHero(climbing, false,
         { dnum: climbing.u.uz.dnum, dlevel: 4 });
-    await assert.rejects(
-        dodown(climbing),
-        (error) => /mysterious force/u.test(error.message),
+    destinationAlreadyVisited(climbing,
+        { dnum: climbing.u.uz.dnum, dlevel: 4 });
+    const climbingResult = await dodown(climbing).then(
+        () => 'returned',
+        (error) => error.message,
+    );
+    assert.ok(
+        climbingResult === 'returned' || DESTINATION_REFUSAL.test(climbingResult),
+        `mysterious-force branch reached its destination boundary: ${climbingResult}`,
     );
 
     const cases = [
@@ -888,18 +958,18 @@ test('goto_level lets a hero with the quest leave the quest start', async () => 
         'A mysterious force prevents you from descending.');
 });
 
-test('goto_level stops for a hero tethered to a buried ball', async () => {
-    // do.c:1593-1595. buried_ball_to_punishment() is unported.
+test('goto_level records a tethered buried-ball gap and continues', async () => {
+    // do.c:1593-1595. buried_ball_to_punishment() is unported, but its
+    // discarded result does not stop the surrounding level transition.
     const state = await descendTo('>');
     quiet(state);
     state.u.utrap = 3;
     state.u.utraptype = TT_BURIEDBALL;
     downStairsUnderHero(state);
+    destinationAlreadyVisited(state);
 
-    await assert.rejects(
-        dodown(state),
-        (error) => /tethered to a buried ball/u.test(error.message),
-    );
+    await assert.rejects(dodown(state), DESTINATION_REFUSAL);
+    assert.ok(state.unported?.has('dig.c buried_ball_to_punishment'));
 });
 
 test('goto_level carries a punished hero through the leaving phase', async () => {
@@ -964,4 +1034,40 @@ test('goto_level falls down burdened stairs before the arrival tail',
     );
     assert.ok(game.unported?.has('trap.c selftouch'),
         'the discarded selftouch() result is recorded as a gap');
+});
+
+test('goto_level stops a terminal stair fall before pickup', async () => {
+    // do.c:1783-1797. This initialized terminal fall reaches the real
+    // post-arrival losehp() call. C done() can return after a life-saving
+    // or wizard response, so goto_level checks gameover only after that
+    // asynchronous call and does not run the later pickup tail on death.
+    const state = await descendTo('>');
+    quiet(state);
+    const heavy = mksobj(PICK_AXE, false, false, { state });
+    heavy.owt = 10000;
+    state.invent = heavy;
+    state.u.uhp = 1;
+    state.u.uhpmax = 1;
+    state.u.uhppeak = 1;
+    state.program_state.stopprint = 1;
+    downStairsUnderHero(state);
+    // The direct goto_level call is still running on the segment's display;
+    // the terminal death path may display several pending lines. Answer its
+    // source TTY More prompts while keeping the game fully initialized.
+    state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
+
+    await goto_level(
+        { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 },
+        true,
+        false,
+        false,
+        state,
+    );
+
+    assert.equal(state.program_state.gameover, true,
+        'terminal fall calls done() before the arrival tail');
+    assert.equal(state.u.uhp, 0,
+        'terminal fall leaves hero HP at the death boundary');
+    assert.equal(state._ttyToplines, 'You die...',
+        'terminal death output remains the final arrival output');
 });

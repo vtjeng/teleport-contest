@@ -62466,7 +62466,7 @@
     {
       "id": "port-mon-minliquid-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster liquid effects and species-specific survival branches",
       "cFile": "mon.c",
       "sessions": [
@@ -62477,8 +62477,8 @@
       "spans": [
         {
           "name": "minliquid..minliquid_core",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
           "functions": [
             "minliquid",
             "minliquid_core"
@@ -62732,6 +62732,410 @@
             "functions": [
               "minliquid",
               "minliquid_core"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 46,
+        "rng": 257
+      },
+      "parkedStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "parkedReason": "Whole minliquid and minliquid_core source span is implemented and validated without regressions; dedicated liquid, swap, fountain, zero-speed distress and other caller recordings remain open. Continue the source-traced search and arrival blockers."
+    },
+    {
+      "id": "port-detect-mfind0-seed4500-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete monster discovery through explicit search and Warning reveal.",
+      "cFile": "detect.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Seed continuation of holdout/seed4500-knight-coverage, 241 remaining-screen upper bound; investigations/holdout/seed4500-knight-coverage.json traces the later step1622 refusal to detect.c mfind0. Worker B owns the first goto_level achievement mismatch and its dependencies; A33 independently completes mfind0 and its search/Warning callers. The only other queued session is the environment pathname question Q1.",
+      "detail": "Port complete detect.c mfind0, including mimic and hidden reveals, warning gating and message flush, invisible marker suppression, Wisdom exercise, coordinate-aware output, and -1/0/1 returns. Two independent explicit-search recordings establish stalker and mimic discovery; hidden-hider, Warning-only and repeated-marker entry recordings remain open.",
+      "spans": [
+        {
+          "name": "mfind0",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mfind0"
+          ]
+        }
+      ],
+      "openedAt": "8d21ec833c923954566a1b10bce712b3d29818de",
+      "openStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mfind0",
+          "line": 1965,
+          "endLine": 2015,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1965,
+        "to": 2015
+      },
+      "activeStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1573,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 241,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 241,
+              "status": "complete",
+              "commit": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1573,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 241
+              },
+              "summary": "The first difference remains the conduct window at step 1573: do.c goto_level omits the Gnomish Mines arrival achievement, plus other destination branches requiring the whole source function. The monster-liquid port now passes the later stranded-eel stop; replay reaches a search refusal at 1622 without an earlier RNG mismatch. detect.c mfind0 still lacks unspotted-monster discovery and reveal branches. Liquid-specific and earlier stoning/passive/eating/polymorph production coverage remains open.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "goto_level"
+                ],
+                "branch": "C goto_level1479 onward records ACH_MINE in the mutually exclusive destination branch when In_mines(&u.uz) and newdungeon are true (1905–1907), after arrival redraw and Gehennom/familiar handling. The JavaScript chain omits the Mines arm, so the persistent achievement list lacks the entry later shown by conduct. Complete the source unit, including the other omitted destination arms and active callers.",
+                "callers": [
+                  "C level-changing commands reach do.c goto_level; its arrival chain calls record_achievement(ACH_MINE) at1907. JavaScript js/do.js goto_level is the canonical arrival owner but currently falls from the Quest arm to ordinary-dungeon handling.",
+                  "C insight.c show_conduct2230 calls show_achievements; the completed js/insight.js helper now displays the achievement list it receives. The fixed wizard conduct command exposes the earlier arrival-state omission."
+                ],
+                "dependencies": [
+                  "Achievement display and canonical list helpers now exist. Rank achievements are already produced in js/exper.js, Gehennom in js/do.js, and Minetown in js/rooms.js check_special_room. The missing Mines entry is a producer gap; preserve insertion order and the newdungeon predicate rather than synthesizing a display row.",
+                  "Whole goto_level coverage also requires its source-owned endgame/tutorial guards and cant_go_back cleanup, done(ESCAPED), mysterious force, buried-ball handling, portal fallback and endgame placement predicates, branch-stair ascent, Flying messages, falling arrival and delayed damage, and Waterlevel bubbles. Existing refusals in this selected function must be replaced by source control flow; only actual discarded calls to unavailable owners may remain named gaps.",
+                  "The existing ball.c drag_down dependency also continues after terminal damage in JavaScript: its three losehp calls can proceed into exercise, litter, or another fall draw. C ball.c986–1031 reaches hack.c losehp4256 and end.c done, whose terminal path exits. Preserve life-saving and wizard survival, but stop drag_down and goto_level when the JavaScript end owner returns with program_state.gameover set; this is a source finding, not a measured additional Knight mismatch.",
+                  "detect.c mfind01967–2013 must implement mimic/hidden reveals, warning filtering, repeat invisible-marker suppression, Wisdom exercise, message coordinates and the visible/unseen discovery messages. dosearch0 consumes -1/0/1 at2065–2071; warnreveal2119 is the second caller. Existing preflightSearchMonster refuses the source-owned unspotted, hidden and mimic branches.",
+                  "mon.c minliquid/minliquid_core and supporting split_mon/cloneu/clone_mon are implemented with source-ordered HP, RNG, death and planning output. Liquid-specific entry recordings, exceptional partial rloc routes and other source callers remain open; trap.c inventory chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps.",
+                  "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/A32-development-scan.json and .cache/A32-queue.json identify the first conduct-screen difference at1573: row18,column52 C t versus JS M, with cursors [42,20,1] versus [42,19,1]. The later eel stop1576 is resolved; the replay emits1622 screens before the explicit search command refuses unspotted-monster discovery. No earlier RNG divergence is reported.",
+                "The C conduct screen at sessions/holdout/seed4500-knight-coverage.session.json step1573 lists seven achievements: four ranks, Gehennom, Gnomish Mines and Minetown. C do.c1905–1907 records the Mines entry on first entry from another dungeon. js/do.js goto_level omits that destination arm. Its existing record_achievement calls cover Gehennom and endgame, but cannot create ACH_MINE.",
+                "C exper.c360 and js/exper.js record the four rank achievements; do.c1872 and js/do.js record Gehennom; hack.c3650 and js/rooms.js check_special_room record Minetown. These source-backed producers narrow the missing row to goto_level rather than achievement formatting.",
+                "C mon.c947–1122 defines liquid effects. The accepted port preserves gremlin splitting, iron-golem rust with unconditional mondied at1001, lava/pool death and relocation, and stranded-eel rn2(mhp)/rn2(8)/monflee ordering. Canonical tele_restrict and rloc callbacks now serve movement, elapsed-turn distress, hack monster-swap and fountain gush; naming receives the planning environment. Do not reopen the former missing callback or naming diagnoses.",
+                "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
+                "C detect.c1967–2013 reveals a mimic or hidden monster before deciding whether it was newly found. An unspotted monster already marked invisible returns -1 before Wisdom exercise and output; a new discovery maps invisibility and sets message coordinates, or prints the visible monster name. dosearch0 interprets -1 as continue and positive as a completed discovery. This whole source function and its warnreveal caller remain the next search scope.",
+                "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open.",
+                "Full comparison of C do.c1479–1998 with the current goto_level confirms omissions beyond the destination achievement chain: broad entry refusals1504–1519, mysterious-force1541–1573, buried-ball1593–1595, discarded-level cleanup1640–1664, portal/endgame placement1722–1745, flight and falling effects1758–1810, Waterlevel bubbles1829–1832 and deferred mine-shaft damage1988–1994. The existing JavaScript return-visit and ordinary stair paths are implemented; preserve their behavior while completing these branches. obj_delivery and kill_genocided_monsters are discarded C calls but their local throw-stubs also block continuation."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "parkedReason": "Candidate d754cb24 is preserved on codex/a33-allocation-correction-20260917. It passes automated checkpoint but is rejected by per-session comparison: the newly reached step1624 allocation-count exception discards Knight output. Worker A is repairing the planning continuation; source evidence remains with that candidate until the correction is integrated. Integrate independent B30 from the published baseline meanwhile."
+    },
+    {
+      "id": "port-do-goto-level-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete level-transition control flow, arrival achievements and terminal cleanup.",
+      "cFile": "do.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The first eligible session is holdout/seed4500-knight-coverage with 241 remaining-screen upper bound. investigations/holdout/seed4500-knight-coverage.json traces the step1573 conduct difference to missing goto_level Mines achievement production and whole-function gaps. B30 is independently ready; A33 is parked for its newly reached planner allocation defect, and the only other session is the environment pathname question Q1.",
+      "detail": "Port whole do.c goto_level1479–1998, preserving destination guards, source save/freeing and unreachable-level owners, placement, flight/fall, arrival chain and post-arrival work. Two independent Minetown teleports provide production evidence; rare arrival and terminal entry recordings remain open. The earlier port-do-goto-level evidence covers supported ordinary and Rogue transitions. This span explicitly reverifies the whole function after implementing its omitted branches; the historical attestation is preserved.",
+      "spans": [
+        {
+          "name": "goto_level",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "goto_level"
+          ]
+        }
+      ],
+      "openedAt": "0a08906ebc3f134ef961b239b31c6e0e042de8a9",
+      "openStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "goto_level",
+          "line": 1479,
+          "endLine": 2002,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1479,
+        "to": 2002
+      },
+      "activeStanding": {
+        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+        "screens": 11203,
+        "rng": 786211
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1573,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 241,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 241,
+              "status": "complete",
+              "commit": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1573,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 241
+              },
+              "summary": "The first difference remains the conduct window at step 1573: do.c goto_level omits the Gnomish Mines arrival achievement, plus other destination branches requiring the whole source function. The monster-liquid port now passes the later stranded-eel stop; replay reaches a search refusal at 1622 without an earlier RNG mismatch. detect.c mfind0 still lacks unspotted-monster discovery and reveal branches. Liquid-specific and earlier stoning/passive/eating/polymorph production coverage remains open.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "goto_level"
+                ],
+                "branch": "C goto_level1479 onward records ACH_MINE in the mutually exclusive destination branch when In_mines(&u.uz) and newdungeon are true (1905–1907), after arrival redraw and Gehennom/familiar handling. The JavaScript chain omits the Mines arm, so the persistent achievement list lacks the entry later shown by conduct. Complete the source unit, including the other omitted destination arms and active callers.",
+                "callers": [
+                  "C level-changing commands reach do.c goto_level; its arrival chain calls record_achievement(ACH_MINE) at1907. JavaScript js/do.js goto_level is the canonical arrival owner but currently falls from the Quest arm to ordinary-dungeon handling.",
+                  "C insight.c show_conduct2230 calls show_achievements; the completed js/insight.js helper now displays the achievement list it receives. The fixed wizard conduct command exposes the earlier arrival-state omission."
+                ],
+                "dependencies": [
+                  "Achievement display and canonical list helpers now exist. Rank achievements are already produced in js/exper.js, Gehennom in js/do.js, and Minetown in js/rooms.js check_special_room. The missing Mines entry is a producer gap; preserve insertion order and the newdungeon predicate rather than synthesizing a display row.",
+                  "Whole goto_level coverage also requires its source-owned endgame/tutorial guards and cant_go_back cleanup, done(ESCAPED), mysterious force, buried-ball handling, portal fallback and endgame placement predicates, branch-stair ascent, Flying messages, falling arrival and delayed damage, and Waterlevel bubbles. Existing refusals in this selected function must be replaced by source control flow; only actual discarded calls to unavailable owners may remain named gaps.",
+                  "The existing ball.c drag_down dependency also continues after terminal damage in JavaScript: its three losehp calls can proceed into exercise, litter, or another fall draw. C ball.c986–1031 reaches hack.c losehp4256 and end.c done, whose terminal path exits. Preserve life-saving and wizard survival, but stop drag_down and goto_level when the JavaScript end owner returns with program_state.gameover set; this is a source finding, not a measured additional Knight mismatch.",
+                  "detect.c mfind01967–2013 must implement mimic/hidden reveals, warning filtering, repeat invisible-marker suppression, Wisdom exercise, message coordinates and the visible/unseen discovery messages. dosearch0 consumes -1/0/1 at2065–2071; warnreveal2119 is the second caller. Existing preflightSearchMonster refuses the source-owned unspotted, hidden and mimic branches.",
+                  "mon.c minliquid/minliquid_core and supporting split_mon/cloneu/clone_mon are implemented with source-ordered HP, RNG, death and planning output. Liquid-specific entry recordings, exceptional partial rloc routes and other source callers remain open; trap.c inventory chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps.",
+                  "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/A32-development-scan.json and .cache/A32-queue.json identify the first conduct-screen difference at1573: row18,column52 C t versus JS M, with cursors [42,20,1] versus [42,19,1]. The later eel stop1576 is resolved; the replay emits1622 screens before the explicit search command refuses unspotted-monster discovery. No earlier RNG divergence is reported.",
+                "The C conduct screen at sessions/holdout/seed4500-knight-coverage.session.json step1573 lists seven achievements: four ranks, Gehennom, Gnomish Mines and Minetown. C do.c1905–1907 records the Mines entry on first entry from another dungeon. js/do.js goto_level omits that destination arm. Its existing record_achievement calls cover Gehennom and endgame, but cannot create ACH_MINE.",
+                "C exper.c360 and js/exper.js record the four rank achievements; do.c1872 and js/do.js record Gehennom; hack.c3650 and js/rooms.js check_special_room record Minetown. These source-backed producers narrow the missing row to goto_level rather than achievement formatting.",
+                "C mon.c947–1122 defines liquid effects. The accepted port preserves gremlin splitting, iron-golem rust with unconditional mondied at1001, lava/pool death and relocation, and stranded-eel rn2(mhp)/rn2(8)/monflee ordering. Canonical tele_restrict and rloc callbacks now serve movement, elapsed-turn distress, hack monster-swap and fountain gush; naming receives the planning environment. Do not reopen the former missing callback or naming diagnoses.",
+                "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
+                "C detect.c1967–2013 reveals a mimic or hidden monster before deciding whether it was newly found. An unspotted monster already marked invisible returns -1 before Wisdom exercise and output; a new discovery maps invisibility and sets message coordinates, or prints the visible monster name. dosearch0 interprets -1 as continue and positive as a completed discovery. This whole source function and its warnreveal caller remain the next search scope.",
+                "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open.",
+                "Full comparison of C do.c1479–1998 with the current goto_level confirms omissions beyond the destination achievement chain: broad entry refusals1504–1519, mysterious-force1541–1573, buried-ball1593–1595, discarded-level cleanup1640–1664, portal/endgame placement1722–1745, flight and falling effects1758–1810, Waterlevel bubbles1829–1832 and deferred mine-shaft damage1988–1994. The existing JavaScript return-visit and ordinary stair paths are implemented; preserve their behavior while completing these branches. obj_delivery and kill_genocided_monsters are discarded C calls but their local throw-stubs also block continuation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "goto_level",
+            "implementation": "js/do.js",
+            "symbol": "goto_level",
+            "sourceReview": "Read nethack-c/upstream/src/do.c:1479-1998 in full and compared every branch, loop, state update, message and RNG boundary with js/do.js. The implementation now handles destination guards including Amulet-gated endgame/Earth redirection, tutorial callbacks, done(ESCAPED), quest permission and mysterious-force reassignment; context and departure save; endgame/tutorial unreachable-level cleanup; level generation/reload and VISITED recovery; portal fallback and endgame-excluded stair predicates; branch-stair placement; flying ascent/descent text; burdened stair fall and random fall setup; migration/timer/collision delivery; Waterlevel/Air bubbles; repaint and deferred teleport feedback; the mutually exclusive Endgame/Astral, Quest, Knox, Mines, Sokoban, Rogue and big-room/quest-portal arrivals; and the post-arrival shop, shaft-damage and pickup tail. dungeon.js assign_rnd_level (1986-1995), nhlua.js tutorial, files.js delete_levelfile (files.c:719-730), dungeon.js remdun_mapseen (dungeon.c:2807-2826), and ball.js drag_down (ball.c:986-1031) are canonical supporting owners. save.js models save.c FREEING as teardown without VISITED or restorable snapshot. Named discarded source-call gaps include mklev.c free_luathemes and pline.c impossible, as well as final_level, fix_shop_damage, impact_drop, dig.c buried_ball_to_punishment, ballfall, selftouch, discard_migrations, obj_delivery and kill_genocided_monsters. No whole goto_level branch is rejected or replaced by a fabricated effect. The correction also preserves C's two-way assign_rnd_level expression for range zero and stops both stair and shaft arrival tails after terminal losehp when program_state.gameover is set.",
+            "callers": [
+              {
+                "path": "js/dungeon.js",
+                "symbol": "next_level",
+                "source": "dungeon.c next_level() calls goto_level() for down-stair, ladder and falling arrivals; JavaScript passes the canonical async goto_level through env.gotoLevel."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "prev_level",
+                "source": "dungeon.c prev_level() calls goto_level() for ascent; JavaScript passes the canonical async goto_level through env.gotoLevel."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "deferred_goto",
+                "source": "do.c deferred_goto() dispatches delayed level teleports to goto_level after pre-message handling."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "runDeferredGotoAtTurnBoundary",
+                "source": "allmain.c moveloop() consumes u.utotype and awaits the do.js deferred_goto callback after command dispatch."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "level_tele",
+                "source": "teleport.c level_tele() schedules the canonical deferred goto for level teleport and portal destinations."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_level_tele",
+                "source": "wizcmds.c wiz_level_tele() reaches the level_tele production dispatcher used by the independent Mines recipes."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_create_portal",
+                "source": "artifact.c invoke_create_portal() directly awaits goto_level for artifact-created level movement."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dodown.test.mjs",
+              "scripts/level-change.test.mjs",
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/goto-level-mines-independent.session.json",
+              "recordings/do.c/goto-level-mines-variation.session.json",
+              "recordings/do.c/goto-level-travelcc-seed0014.session.json",
+              "recordings/do.c/reglyph-darkroom-goto-level.session.json",
+              "recordings/do.c/rogue-level-teleport-g.session.json"
+            ],
+            "checkedAt": "00b58e27f56c57c820b00ef42c675d2cdfd98701"
+          }
+        ],
+        "entryPointReview": "Active goto_level entry families include stairs and ladders, delayed level teleport, artifact portals, random falls, dungeon branches, and terminal dungeon cleanup. The two independent Mines recipes reach Minetown through wizcmds.c wiz_level_tele, teleport.c level_tele and do.c deferred_goto; both resulting heroes are neutral Wizards after character selection. Together the recordings contain 14 screens, 14 cursor positions and 11,704 RNG calls. The prior stair and Rogue teleport recordings supply their named production paths, but do not establish trap-door or terminal falling coverage. Focused initialized-state checks cover tutorial cleanup and fatal stair-fall control flow. Sokoban, Knox, endgame/Astral, Quest, portal fallback, random falls, artifact portals, terminal dungeon cleanup and the unavailable migration calls still lack independent matching recordings. Keep this source goal open after the span closes.",
+        "entryPoints": [
+          {
+            "name": "ordinary stair or ladder level arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": [
+              "recordings/do.c/goto-level-travelcc-seed0014.session.json",
+              "recordings/do.c/reglyph-darkroom-goto-level.session.json"
+            ]
+          },
+          {
+            "name": "random level-teleport arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": [
+              "recordings/do.c/rogue-level-teleport-g.session.json"
+            ]
+          },
+          {
+            "name": "new cross-dungeon Mines level teleport",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": [
+              "recordings/do.c/goto-level-mines-independent.session.json",
+              "recordings/do.c/goto-level-mines-variation.session.json"
+            ]
+          },
+          {
+            "name": "new Sokoban dungeon arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Knox alarm and Croesus-dependent wakeup",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "endgame, Astral, and Quest arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "portal fallback and falling arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "object and genocided-migration delivery",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "artifact-created portal arrival",
+            "functions": [
+              "goto_level"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "endgame or tutorial departure discards unreachable levels",
+            "functions": [
+              "goto_level"
             ],
             "recordings": []
           }

@@ -77,6 +77,7 @@ import {
     surface,
     u_on_newpos,
     UnsupportedEarthSenseError,
+    assign_rnd_level,
     update_lastseentyp,
     update_mapseen_for,
     seen_string,
@@ -155,6 +156,23 @@ test('on_level is null-safe raw dungeon coordinate equality', () => {
     assert.equal(on_level({ dnum: 2, dlevel: 3 }, undefined), false);
     // Lassigned semantics belong to callers; raw zero coordinates are equal.
     assert.equal(on_level({ dnum: 0, dlevel: 0 }, { dnum: 0, dlevel: 0 }), true);
+});
+
+test('assign_rnd_level keeps the C two-way signed draw', () => {
+    // dungeon.c:1986-1995 uses `range > 0 ? rnd(range) : -rnd(-range)`.
+    // The zero arm therefore evaluates rnd(0), whose canonical RNG wrapper
+    // returns zero without consuming a draw; there is no third JS-only arm.
+    const { state } = initialize(0x30d0);
+    const destination = { dnum: 0, dlevel: 7 };
+    const drawsBefore = getRngLog().length;
+    assign_rnd_level(destination, { dnum: 0, dlevel: 7 }, 0, state);
+    assert.deepEqual(destination, { dnum: 0, dlevel: 7 });
+    assert.equal(getRngLog().length, drawsBefore);
+
+    assign_rnd_level(destination, { dnum: 0, dlevel: 7 }, -1, state);
+    assert.equal(destination.dlevel, 6,
+        'a negative range applies the one-based rnd result with a minus');
+    assert.equal(getRngLog().at(-1), 'rnd(1)=1');
 });
 
 test('ledger mapping preserves every dungeon boundary and rejects gaps', () => {

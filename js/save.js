@@ -97,8 +97,10 @@ function captureLocalLights(state) {
 }
 
 // C ref: save.c savelev()/savelev_core(), called from do.c goto_level() with
-// mode `WRITING | FREEING`. `ledger` is C's `lev`, the ledger number of the
-// level being left.
+// mode `WRITING | FREEING` or `FREEING`. `ledger` is C's `lev`, the ledger
+// number of the level being left. The `FREEING` mode is used when entering the
+// endgame or leaving the tutorial: it tears down level-local timers/lights but
+// does not mark the level visited or create a restorable level snapshot.
 //
 // The port extends C's teardown-only savelev with in-memory level
 // serialization: before discarding timers and lights, the level's complete
@@ -106,15 +108,19 @@ function captureLocalLights(state) {
 // restore it when the hero returns. C writes each piece to a binary level
 // file; the port keeps the live objects in memory and captures a snapshot
 // before teardown removes them.
-export function savelev(ledger, state = game) {
+export function savelev(ledger, state = game, options = {}) {
+    const freeing = options === 'FREEING' || options?.mode === 'FREEING';
+
     // savelev_core() purges the dead before it writes them. dobjsfree() has
     // no port counterpart: go.objs_deleted is written only by obj_extract_self
     // on an object already scheduled for deletion, which nothing in the port
     // does.
-    if (state.iflags?.purge_monsters) dmonsfree(state);
+    if (!freeing && state.iflags?.purge_monsters) dmonsfree(state);
 
-    level_info(ledger, state).flags |= VISITED;
-    captureObjlistOrder(state.level);
+    if (!freeing) {
+        level_info(ledger, state).flags |= VISITED;
+        captureObjlistOrder(state.level);
+    }
 
     // ── Capture level state before teardown ──
     //
@@ -126,8 +132,8 @@ export function savelev(ledger, state = game) {
     // Capture timers and lights now, because save_timers(RANGE_LEVEL) and
     // save_light_sources(RANGE_LEVEL) below will unlink the level-local entries
     // from the global chains.
-    const allTimersBefore = captureLocalTimers(state);
-    const allLightsBefore = captureLocalLights(state);
+    const allTimersBefore = freeing ? null : captureLocalTimers(state);
+    const allLightsBefore = freeing ? null : captureLocalLights(state);
 
     // "timers and lights must be saved before monsters and objects", says the
     // comment at the same point in C. Order matters there because the freed
@@ -150,34 +156,36 @@ export function savelev(ledger, state = game) {
         : [];
     const waterlevel = save_waterlevel(null, state, true);
 
-    // Store the snapshot. The key is the ledger number of the level.
-    state._savedLevels ??= {};
-    state._savedLevels[ledger] = {
-        level: state.level,
-        stairs: state.stairs,
-        head_engr: state.head_engr,
-        smeq: state.smeq ? [...state.smeq] : null,
-        omoves: state.moves,         // C: svm.moves saved as svo.omoves
-        // track.c save_track() writes the current level's populated track
-        // entries before release_data() clears the process-global ring.
-        track: state.track
-            ? {
-                utcnt: state.track.utcnt,
-                utpnt: state.track.utpnt,
-                utrack: state.track.utrack.map(({ x, y }) => ({ x, y })),
-            }
-            : null,
-        updest: state.updest ? { ...state.updest } : {},
-        dndest: state.dndest ? { ...state.dndest } : {},
-        timers: levelTimers,
-        lights: levelLights,
-        waterlevel,
-    };
+    if (!freeing) {
+        // Store the snapshot. The key is the ledger number of the level.
+        state._savedLevels ??= {};
+        state._savedLevels[ledger] = {
+            level: state.level,
+            stairs: state.stairs,
+            head_engr: state.head_engr,
+            smeq: state.smeq ? [...state.smeq] : null,
+            omoves: state.moves,         // C: svm.moves saved as svo.omoves
+            // track.c save_track() writes the current level's populated track
+            // entries before release_data() clears the process-global ring.
+            track: state.track
+                ? {
+                    utcnt: state.track.utcnt,
+                    utpnt: state.track.utpnt,
+                    utrack: state.track.utrack.map(({ x, y }) => ({ x, y })),
+                }
+                : null,
+            updest: state.updest ? { ...state.updest } : {},
+            dndest: state.dndest ? { ...state.dndest } : {},
+            timers: levelTimers,
+            lights: levelLights,
+            waterlevel,
+        };
 
-    // Mark LFILE_EXISTS so goto_level knows a save exists for this level.
-    // C's create_levelfile() sets this flag; the port sets it here because
-    // there is no file system and the snapshot is the equivalent of the file.
-    level_info(ledger, state).flags |= LFILE_EXISTS;
+        // Mark LFILE_EXISTS so goto_level knows a save exists for this level.
+        // C's create_levelfile() sets this flag; the port sets it here because
+        // there is no file system and the snapshot is the equivalent of the file.
+        level_info(ledger, state).flags |= LFILE_EXISTS;
+    }
 
     // track.c save_track() calls initrack() when savelev() is freeing the
     // level. A newly generated destination therefore starts with no tracks;
