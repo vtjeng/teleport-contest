@@ -67,6 +67,7 @@ import {
     breaktest,
     dofire,
     dothrow,
+    endmultishot,
     find_launcher,
     impact_disturbs_zombies,
     multishot_class_bonus,
@@ -159,7 +160,7 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
-import { skiprange } from '../js/zap.js';
+import { boomhit, skiprange } from '../js/zap.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 
@@ -781,6 +782,52 @@ test('throwit() treats unresisted hallucination as impaired', async () => {
     // The impaired arm goes directly to the damage test after its initial
     // return roll; it must not spend the successful-return rn2(100).
     assert.deepEqual(draws(), ['rn2(100)', 'rn2(2)']);
+});
+
+test('endmultishot() reports the source ordinal for a verbose volley stop', async () => {
+    // dothrow.c:590-601.  A verbose stop outside monster movement emits the
+    // source's firing/shot wording and then clamps the volley at m_shot.i;
+    // ordinal 2 must use "2nd", while the toss arm uses the same formatter.
+    const firing = arena();
+    firing.m_shot = { i: 2, n: 5, s: true };
+    firing.context.mon_moving = false;
+    await endmultishot(true, firing);
+    assert.equal(firing.m_shot.n, 2);
+    assert.equal(
+        firing._pending_message,
+        'You stop firing after 2nd shot.',
+    );
+
+    const throwing = arena();
+    throwing.m_shot = { i: 13, n: 20, s: false };
+    throwing.context.mon_moving = false;
+    await endmultishot(true, throwing);
+    assert.equal(throwing.m_shot.n, 13);
+    assert.equal(
+        throwing._pending_message,
+        'You stop throwing after 13th toss.',
+    );
+});
+
+test('boomhit() applies the source self-hit and ends its volley', async () => {
+    // zap.c:4148-4236.  A broad room lets the curved path return to the
+    // hero; Fumbling selects the self-hit arm without spending the catch
+    // roll.  The source-discarded calls still run their own effects: thitu()
+    // damages the hero and endmultishot(TRUE) reports the stopped volley.
+    const state = arena({ last: 30, uhp: 100, uhpmax: 100 });
+    for (let y = 0; y < 21; y++) {
+        for (let x = 1; x < 80; x++) state.level.at(x, y).typ = ROOM;
+    }
+    state.u.ux = 40;
+    state.u.uy = 10;
+    state.u.uac = 100;
+    state.u.uprops[FUMBLING].intrinsic = 1;
+    state.m_shot = { i: 1, n: 3, s: true };
+    const boomerang = item(state, BOOMERANG);
+    await boomhit(boomerang, 1, 0, state);
+    assert.equal(state.m_shot.n, 1);
+    assert.equal(state.u.uhp < 100, true);
+    assert.match(state._ttyToplines, /You stop firing after 1st shot\./u);
 });
 
 test('throwit() applies the recoil of a weightless throw', async () => {

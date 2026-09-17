@@ -138,7 +138,9 @@ import {
     helpless,
     Upolyd,
 } from './const.js';
-import { ART_MJOLLNIR, is_art, spec_abon } from './artifacts.js';
+import {
+    ART_MJOLLNIR, artifact_hit, is_art, spec_abon,
+} from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
@@ -1156,18 +1158,26 @@ export async function dofire(state = game) {
 }
 
 // C ref: dothrow.c endmultishot() (590-601). If a multi-shot volley is in
-// progress, stop it after the current shot. With verbose=false (the only
-// call from end.c savelife()), the message is suppressed and only m_shot.n
-// is clamped to m_shot.i.
-export function endmultishot(verbose, state = game) {
+// progress, stop it after the current shot and, for a verbose caller outside
+// monster movement, report which shot or toss was last completed.
+function ordinal(n) {
+    const value = Math.trunc(n);
+    const lastTwo = value % 100;
+    const suffix = lastTwo >= 11 && lastTwo <= 13
+        ? 'th'
+        : ({ 1: 'st', 2: 'nd', 3: 'rd' }[value % 10] ?? 'th');
+    return `${value}${suffix}`;
+}
+
+export async function endmultishot(verbose, state = game) {
     state.m_shot ??= {};
     if ((state.m_shot.i ?? 0) < (state.m_shot.n ?? 0)) {
         if (verbose && !state.context?.mon_moving) {
-            // The verbose branch prints "You stop firing/throwing after the
-            // Nth shot/toss." using ordin(). Only savelife() calls this port,
-            // and it passes verbose=false, so the message is unreachable.
-            throw new UnsupportedThrowError(
-                'endmultishot() verbose message with ordin()',
+            await ttyPline(
+                `You stop ${state.m_shot.s ? 'firing' : 'throwing'} after `
+                    + `${ordinal(state.m_shot.i ?? 0)} `
+                    + `${state.m_shot.s ? 'shot' : 'toss'}.`,
+                state,
             );
         }
         state.m_shot.n = state.m_shot.i;
@@ -1743,7 +1753,9 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     } else if (obj.otyp === BOOMERANG && !u.uinwater) {
         if (Is_airlevel(u.uz) || Levitation(state))
             note_unported('dothrow.c hurtle');
-        mon = await boomhit(obj, u.dx, u.dy, state, throwit_mon_hit);
+        mon = await boomhit(
+            obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
+        );
         state.iflags.returning_missile = null;
         if (mon === state.youmonst) {
             await exercise(A_DEX, true, state, { rn2 });
@@ -1858,15 +1870,20 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                                 + `your ${makeplural(body_part(FOOT, state.youmonst))}.`, state,
                     );
                 } else {
-                    const damage = damageRoll + rnd(3);
+                    let damage = damageRoll + rnd(3);
                     await ttyPline(
                         heroIsBlind(state)
                             ? `${Tobjnam(obj, 'hit', state)} your ${body_part(ARM, state.youmonst)}!`
                             : `${Tobjnam(obj, 'fly', state)} back toward you, `
                                 + `hitting your ${body_part(ARM, state.youmonst)}!`, state,
                     );
-                    if (obj.oartifact)
-                        note_unported('artifact.c artifact_hit');
+                    if (obj.oartifact) {
+                        const damagePtr = { value: damage };
+                        await artifact_hit(
+                            null, state.youmonst, obj, damagePtr, 0, state,
+                        );
+                        damage = damagePtr.value;
+                    }
                     await losehp(
                         heroHalfPhysicalDamage(damage, state),
                         killer_xname(obj, state), KILLED_BY, state,
