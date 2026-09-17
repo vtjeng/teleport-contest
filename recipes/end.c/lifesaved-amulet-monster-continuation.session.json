@@ -1,0 +1,12 @@
+{
+  "_comment": "Independent end.c monster continuation witness: this extends the independently chosen Wizard/minotaur life-saving setup through the second death query, declines the wizard death choice, and sends m. as the next command. The recording captures the remaining minotaur attack and its new death boundary after the first amulet reprieve; the earlier shorter monster witness remains preserved.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 917332,
+      "datetime": "20310922101500",
+      "nethackrc": "OPTIONS=name:LifeMonsterNext,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017amulet of life saving\nWn\u0007minotaur\n jj     n  n m. "
+    }
+  ]
+}

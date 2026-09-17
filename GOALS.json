@@ -56845,13 +56845,13 @@
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
-      "selectionReason": "Integrate the next ready worker delivery for seed0399 after A15 closure. The higher-ranked Knight Hellfill scope belongs to worker A; this complete done source family is independently ready.",
-      "detail": "Select whole end.c done1020-1126 with complete savelife and fuzzer_savelife supporting dependencies, canonical amulet consumption, paranoid query and live lethal callers. Three independent recordings cover direct and monster amulet recovery. Active exceptional entry families remain unrecorded; close the verified span then park this goal rather than claim their completion.",
+      "selectionReason": "The complete life-saving source delivery now includes live monster-turn continuation and independent recovery recordings, correcting its preserved failed checkpoint. The higher-ranked Knight screen mismatch remains under source investigation.",
+      "detail": "Select whole end.c done1020-1126 with complete savelife and fuzzer_savelife supporting dependencies, canonical amulet consumption, paranoid query and live lethal callers. Five independent recordings cover direct and monster amulet recovery, declined wizard death, and subsequent input. Active exceptional entry families remain unrecorded; close the verified span then park this goal rather than claim their completion.",
       "spans": [
         {
           "name": "done",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
           "functions": [
             "done"
           ]
@@ -56871,7 +56871,7 @@
           "line": 1020,
           "endLine": 1129,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -56879,9 +56879,9 @@
         "to": 1129
       },
       "activeStanding": {
-        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
-        "screens": 10662,
-        "rng": 760877
+        "sha": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+        "screens": 10710,
+        "rng": 770398
       },
       "openMismatches": [
         {
@@ -56963,15 +56963,138 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 61,
+        "rng": 401
       },
       "parkedStanding": {
-        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
-        "screens": 10662,
-        "rng": 760877
+        "sha": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
+        "screens": 10771,
+        "rng": 770799
       },
-      "parkedReason": "Combined candidate 9b147c15 failed elapsed-turn movement gates after live monster death recovery; preserved on codex/B16-failed-bc60daaf while worker B corrects continuation. Integrate independent ready Hellfill delivery on accepted main first."
+      "parkedReason": "The complete done span and live recovery continuation pass combined validation. Five independent recordings cover direct and monster amulet recovery, declined wizard death, and subsequent input. Explore-mode recovery, TRICKED, ParanoidDie, polymorphed unmul, and debug-fuzzer production entries remain unrecorded.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "done",
+            "implementation": "js/end.js",
+            "symbol": "done",
+            "sourceReview": "Read nethack-c/upstream/src/end.c:1020-1126 in full and the used-return helpers end.c fuzzer_savelife():945-1016 and cmd.c paranoid_ynq():5587-5657. The port preserves the TRICKED paniclog/clear/wizard return, panic/status preflights, done_seq placement before the debug-fuzzer branch, source-ordered fuzzer_savelife recovery and Boolean return, killer-format initialization, mortality and HP zeroing before LifeSaved, the life-saving arm's But wait/makeknown/Blind-sensitive medallion/CHOKING/vomit/feel-better/crumble/useup/adjattrib/savelife order, the GENOCIDED message and LL_LIFESAVE event, the survive guard around the wizard/explore query, and the final killer reset and return. ParanoidDie uses the source cmd.c paranoid_ynq line-reader result after the death-state prefix, including HANGUPHANDLING done_seq suppression and the caller-specific BUFSZ then QBUFSZ prompt bounds. The amulet is consumed through the canonical useup/setnotworn owner and its LIFESAVED extrinsic is cleared. The debug-fuzzer helper executes its source RNG, temporary mksobj/bless/obfree remedy sequence, timeout loop, killer reset and loop guard; its successful wizard loop also calls canonical cmdq_add_ec(CQ_CANNED, extcmdRow('wizmakemap')) before returning, preserving the source queue mutation. potion.c peffects remain a discarded-result gap, and the queued wizcmds.c callback remains an explicit gap at cmd.c's existing dispatch boundary. The hack.c unmul caller now supplies the source polymorph follow-up after a life-saving message. Orchestrator checked supporting savelife against end.c704–756, including hunger, timeout gap, multi/reason, lava release, cursor, volley and holder-release order; whole done stays the only primary verified source unit. files.c paniclog is the discarded logging call in the TRICKED arm. The queue correction uses the canonical wizmakemap row and existing cmdq_add_ec, retaining the source input boundary even while its callback is unported. Combined caller checks replaced two obsolete refusal expectations: lethal losehp now reaches the ordinary possessions disclosure query, and the existing glove-removal caller executes the spelled-out paranoid confirmation, preserving the takeoff mask on no and setting it only after yes. The corrected allmain.c moveloop_core caller treats heroDeath as an incomplete planning result: live movemon finishes the scan and canonical recovery, then the coordinator replans the remaining scan or post-upkeep suffix without another hero ration debit. It rebases completed upkeep counts and refreshes the pending-death flag for plans made after unmul or timeout. Source inspection found no repeated live scan, recovery prompt or RNG consumption. Ordinary complete plans retain the movement and allocation assertions.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "losehp",
+                "source": "hack.c:losehp() calls done(DIED) after lethal ordinary hero damage; js/hack.js awaits that funnel, so direct hero damage reaches the production life-saving arm."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mdamageu",
+                "source": "mhitu.c:mdamageu() calls done_in_by() after a lethal monster hit; js/mhitu.js awaits the canonical end.c caller chain."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "done_in_by",
+                "source": "end.c:done_in_by() builds the killer and calls done(); js/end.js awaits done() for lethal monster damage."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "done",
+                "source": "end.c:done() itself dispatches savelife() in both the amulet and declined wizard/explore death arms; the JavaScript keeps the same source owner and return path."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c moveloop_core():177 onward continues its active monster scan and turn upkeep after done_in_by returns from savelife; advanceElapsedTurn preserves that live continuation and replans only the remaining suffix."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/end-lifesaved.test.mjs",
+              "scripts/hero-death.test.mjs",
+              "scripts/mount-steed.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/monster-death-planning.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/lifesaved-amulet-wizard-independent.session.json",
+              "recordings/end.c/lifesaved-amulet-tourist-variation.session.json",
+              "recordings/end.c/lifesaved-amulet-monster-independent.session.json",
+              "recordings/end.c/lifesaved-amulet-tourist-continuation.session.json",
+              "recordings/end.c/lifesaved-amulet-monster-continuation.session.json"
+            ],
+            "checkedAt": "e07ecc82e8aa7935ef1fc6170746d0537935ca94"
+          }
+        ],
+        "entryPointReview": "The selected end.c range has active entry families for a worn life-saving amulet after direct hero damage, the same amulet after a lethal monster hit, and a declined wizard or explore death query. The two direct-damage recordings use independently chosen Wizard and Tourist recipes and reach done()'s complete amulet arm through the live wand-of-death path; the Tourist continuation sends a later n m. command after recovery. The independently named Wizard LifeMonster recipe reaches the monster mdamageu -> done_in_by -> done() path, and the extended minotaur continuation independently declines the post-reprieve death queries before entering m. and capturing another monster attack. The live elapsed-turn coordinator now re-preflights after a planned lethal scan, rebasing completed upkeep counts and repeating when a resumed suffix contains another death. Fixed seed0399 provides additional recovery after prior upkeep rounds. Focused source-pinned tests cover the TRICKED wizard return, ParanoidDie spelled-out line query including C prompt-buffer limits, HANGUPHANDLING gate, debug-fuzzer return and periodic remedy branch and CQ_CANNED wizmakemap queue mutation, and the polymorphed unmul follow-up, but no production recordings currently reach those exceptional entries. The savelife() swallowed expels() and one-turn sickness make_sick() calls are discarded-result gaps for their still-unported source owners; potion.c peffects remains a discarded-result gap. Existing accepted A12 mon.c unstuck, invent.c useup, attrib.c adjattrib, do_wear.c Amulet_on, and worn.c setnotworn owners are called rather than duplicated. Orchestrator decoded the new minotaur recording: step 42 shows amulet recovery, steps 46 and 49 decline wizard death, and steps 51-53 enter a later m. command and another monster attack. These steps establish completed monster-turn recovery and the wizard declined-death entry, while explore mode and the listed exceptional entries remain unrecorded.",
+        "entryPoints": [
+          {
+            "name": "amulet of life saving after direct hero damage",
+            "functions": [
+              "done"
+            ],
+            "recordings": [
+              "recordings/end.c/lifesaved-amulet-wizard-independent.session.json",
+              "recordings/end.c/lifesaved-amulet-tourist-variation.session.json",
+              "recordings/end.c/lifesaved-amulet-tourist-continuation.session.json"
+            ]
+          },
+          {
+            "name": "amulet of life saving after monster damage",
+            "functions": [
+              "done"
+            ],
+            "recordings": [
+              "recordings/end.c/lifesaved-amulet-monster-independent.session.json",
+              "recordings/end.c/lifesaved-amulet-monster-continuation.session.json"
+            ]
+          },
+          {
+            "name": "wizard declined death recovery",
+            "functions": [
+              "done"
+            ],
+            "recordings": [
+              "recordings/end.c/lifesaved-amulet-monster-continuation.session.json"
+            ]
+          },
+          {
+            "name": "wizard TRICKED death return",
+            "functions": [
+              "done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "wizard ParanoidDie spelled-out query",
+            "functions": [
+              "done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "polymorphed life-saving unmul follow-up",
+            "functions": [
+              "done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "debug-fuzzer done branch",
+            "functions": [
+              "done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "explore declined death recovery",
+            "functions": [
+              "done"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     },
     {
       "id": "port-hellfill-lua-seed4500-20260916",

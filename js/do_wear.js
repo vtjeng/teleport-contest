@@ -2387,8 +2387,7 @@ function takeoffMaskFor(otmp, state) {
 
 // C ref: do_wear.c better_not_take_that_off() (2990-3010). Prompts the hero
 // before removing gloves while carrying a corpse that petrifies on touch.
-// Returns true when the hero declines or when the prompt itself would stop
-// execution (the spelled-out paranoid_ynq path is unported).
+// Returns true when the hero declines the spelled-out confirmation.
 async function better_not_take_that_off(otmp, state = game) {
     const corpse = carrying_stoning_corpse(state);
 
