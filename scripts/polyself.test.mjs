@@ -8,6 +8,8 @@ import test from 'node:test';
 import {
     PM_COYOTE,
     PM_FOX,
+    PM_GRAY_DRAGON,
+    PM_GREEN_DRAGON,
     PM_GIANT_RAT,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WEREWOLF,
@@ -21,9 +23,20 @@ import {
     PM_WINTER_WOLF,
     PM_WINTER_WOLF_CUB,
     PM_WOLF,
+    M2_HUMAN,
     NON_PM,
 } from '../js/monsters.js';
-import { were_beastie } from '../js/mon.js';
+import { armor_to_dragon } from '../js/polyself.js';
+import { were_beastie } from '../js/were.js';
+import { your_race } from '../js/mondata.js';
+import { strstri } from '../js/hacklib.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import {
+    GRAY_DRAGON_SCALE_MAIL,
+    GREEN_DRAGON_SCALES,
+    STRANGE_OBJECT,
+} from '../js/objects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
 const JS_SOURCE = readFileSync('js/polyself.js', 'utf8');
@@ -50,6 +63,44 @@ test('were_beastie maps every C were.c family member and rejects others', () => 
     for (const pm of wolfForms) assert.equal(were_beastie(pm), PM_WEREWOLF);
     assert.equal(were_beastie(PM_HUMAN_WEREWOLF), NON_PM);
     assert.equal(were_beastie(PM_HUMAN_WEREJACKAL), NON_PM);
+});
+
+test('armor_to_dragon maps source scale armor and non-dragon defaults', () => {
+    assert.equal(armor_to_dragon(GRAY_DRAGON_SCALE_MAIL), PM_GRAY_DRAGON);
+    assert.equal(armor_to_dragon(GREEN_DRAGON_SCALES), PM_GREEN_DRAGON);
+    assert.equal(armor_to_dragon(STRANGE_OBJECT), NON_PM);
+});
+
+test('polyself keeps role admission, race admission, and strstri result semantics',
+    () => {
+    // polyself.c:604-607 admits the role monster separately from the race
+    // test.  These direct source helpers pin the two bit masks and the
+    // negative result consumed by the wizard cleric exception.
+    const state = { urace: { selfmask: M2_HUMAN } };
+    assert.equal(your_race({ mflags2: M2_HUMAN }, state), true);
+    assert.equal(your_race({ mflags2: 0 }, state), false);
+    assert.equal(strstri('aligned cleric', 'aligned'), 0);
+    assert.ok(strstri('cleric', 'aligned') < 0);
+});
+
+test('polyself uses the role monster and original form in production', async () => {
+    const base = JSON.parse(readFileSync(
+        'recipes/polyself.c/polyself-raven-independent.session.json', 'utf8',
+    )).segments[0];
+
+    // A Wizard's role monster is not its human race.  C's gu.urole.mnum
+    // admission therefore reaches newman() for this valid role name.
+    await runSegment({ ...base, moves: '#polyself\nwizard\n' });
+    assert.match(game.nhDisplay.topMessage, /^You feel like a new /u);
+
+    // After an independent raven transformation, wizard mode compares the
+    // requested role with u.umonster (the original form), so it rehumanizes.
+    await runSegment({
+        ...base,
+        moves: '#polyself\nraven\n  #polyself\nwizard\n',
+    });
+    assert.equal(game.u.umonnum, game.u.umonster);
+    assert.match(game.nhDisplay.topMessage, /^You return to human form!/u);
 });
 test('polyself keeps the C early guards, selector, and final gate in order', () => {
     assert.ok(C_START >= 0 && C_END > C_START);

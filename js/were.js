@@ -2,7 +2,7 @@
 // C ref: were.c were_summon(). were_change() and its helpers were ported
 // earlier into js/mon.js; that split predates this file.
 
-import { NO_MM_FLAGS, PROT_FROM_SHAPE_CHANGERS } from './const.js';
+import { NO_MM_FLAGS, NON_PM, PROT_FROM_SHAPE_CHANGERS } from './const.js';
 import { tamedog } from './dog.js';
 import { game } from './gstate.js';
 import { makemon } from './makemon_create.js';
@@ -21,6 +21,7 @@ import {
     PM_WERERAT,
     PM_WEREWOLF,
     PM_WINTER_WOLF,
+    PM_WINTER_WOLF_CUB,
     PM_WOLF,
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
@@ -80,4 +81,29 @@ export async function were_summon(ptr, yours, visible, genbuf, state = game) {
             await tamedog(mtmp, null, false, { state });
     }
     return total;
+}
+
+// C ref: were.c were_beastie() (62-84).  Return the animal form associated
+// with a lycanthrope; the table is intentionally narrower than is_were().
+export function were_beastie(pm) {
+    switch (pm) {
+    case PM_WERERAT:
+    case PM_SEWER_RAT:
+    case PM_GIANT_RAT:
+    case PM_RABID_RAT:
+        return PM_WERERAT;
+    case PM_WEREJACKAL:
+    case PM_JACKAL:
+    case PM_FOX:
+    case PM_COYOTE:
+        return PM_WEREJACKAL;
+    case PM_WEREWOLF:
+    case PM_WOLF:
+    case PM_WARG:
+    case PM_WINTER_WOLF:
+    case PM_WINTER_WOLF_CUB:
+        return PM_WEREWOLF;
+    default:
+        return NON_PM;
+    }
 }

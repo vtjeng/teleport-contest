@@ -93,7 +93,8 @@ test('source arm inventory stays explicit when a constant is renamed', () => {
     // caught here instead of silently turning one C case into undefined JS.
     for (const name of SOURCE_CASES)
         assert.match(JS_FUNCTION, new RegExp(`case ${name}:`, 'u'));
-    assert.ok(JS_FUNCTION.includes('note_unported(\'polyself.c polyself\')'));
+    assert.match(JS_FUNCTION, /await polyself\(POLY_NOFLAGS, state\)/u);
+    assert.doesNotMatch(JS_FUNCTION, /note_unported\(['"]polyself\.c polyself/u);
 });
 
 test('self-zap source guards use blocked invisibility and pre-call trap state', () => {
