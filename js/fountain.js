@@ -69,7 +69,7 @@ import { observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
-import { cansee, couldsee, do_clear_area } from './vision.js';
+import { cansee, couldsee, do_clear_area_async } from './vision.js';
 import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
 import { t_at, delfloortrap } from './trap.js';
@@ -260,69 +260,72 @@ async function dowaternymph(state = game, env = {}) {
     }
 }
 
+// ── gush ──
+// C ref: fountain.c gush() (133-161).  `argument` carries the madepool
+// pointer that dogushforth() passes through do_clear_area().
+async function gush(x, y, argument, state = game, env = {}) {
+    const context = argument ?? { madepool: 0 };
+    const message = context.message ?? env.message ?? ttyPline;
+    const random = context.random ?? env.random ?? { rn2 };
+
+    // C ref: fountain.c gush() (133-140).  Keep the short-circuit order: the
+    // candidate draw must happen only after the parity and hero-square tests.
+    if (((x + y) % 2) || (x === state.u.ux && y === state.u.uy)
+        || random.rn2(1 + distmin(state.u.ux, state.u.uy, x, y))
+        || state.level.at(x, y).typ !== ROOM
+        || sobj_at(BOULDER, x, y, state)
+        || nexttodoor(x, y, state)) {
+        return;
+    }
+    // C ref: fountain.c:144-145. Delete floor trap if possible.
+    const ttmp = t_at(x, y, state);
+    if (ttmp && !delfloortrap(ttmp, state)) return;
+
+    if (!context.madepool++) {
+        await message(
+            'Water gushes forth from the overflowing fountain!', state);
+    }
+
+    // C ref: fountain.c:151-155. Create a pool.
+    set_levltyp(x, y, POOL, { state });
+    state.level.at(x, y).flags = 0;
+    del_engr_at(x, y, state);
+    // C ref: fountain.c:155. water_damage_chain() has a discarded
+    // result here. Keep the source-attributed gap while allowing the rest of
+    // this square's pool and monster effects to continue.
+    const floorObjects = state.level.objects?.[x]?.[y];
+    if (floorObjects) note_unported('trap.c water_damage_chain');
+
+    // C ref: fountain.c:157-160. Drown monster or update display.
+    const mtmp = m_at(x, y, state);
+    if (mtmp) {
+        const { minliquid: minliq } = await import('./mon.js');
+        await minliq(mtmp, { ...env, state, random });
+    } else {
+        newsym(x, y);
+    }
+}
+
 // ── dogushforth ──
-// C ref: fountain.c dogushforth() (119-131) and gush() (133-161).
-// Water gushes forth from the fountain, potentially creating pools.
-async function dogushforth(drinking, state = game, env = {}) {
+// C ref: fountain.c dogushforth() (119-131). Water gushes forth from the
+// fountain, potentially creating pools.
+export async function dogushforth(drinking, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { rn2 };
-    let madepool = 0;
+    const context = { madepool: 0, message, random };
 
-    // C ref: fountain.c:124. do_clear_area with range 7 calls gush()
-    // for each visible square. The callback is synchronous in C; we
-    // collect the work and run it.
-    const poolSquares = [];
-    do_clear_area(state.u.ux, state.u.uy, 7,
-        (x, y) => {
-            // C ref: fountain.c gush() (133-161). Inlined here.
-            if (((x + y) % 2) || (x === state.u.ux && y === state.u.uy)
-                || random.rn2(1 + distmin(state.u.ux, state.u.uy, x, y))
-                || state.level.at(x, y).typ !== ROOM
-                || sobj_at(BOULDER, x, y, state)
-                || nexttodoor(x, y, state)) {
-                return;
-            }
-            // C ref: fountain.c:144-145. Delete floor trap if possible.
-            const ttmp = t_at(x, y, state);
-            if (ttmp && !delfloortrap(ttmp, state)) return;
-
-            poolSquares.push({ x, y });
-        },
-        null,
+    // C ref: fountain.c:124. do_clear_area with range 7 calls gush() for
+    // each visible square. The async adapter preserves the callback boundary:
+    // gush finishes this square before the next square consumes its candidate
+    // RNG or applies its effects.
+    await do_clear_area_async(state.u.ux, state.u.uy, 7,
+        (x, y, callbackArgument) => gush(
+            x, y, callbackArgument, state, env),
+        context,
         state,
     );
 
-    // Apply pool creation after the visibility scan completes.
-    for (const { x, y } of poolSquares) {
-        if (!madepool) {
-            await message(
-                'Water gushes forth from the overflowing fountain!', state);
-        }
-        madepool++;
-
-        // C ref: fountain.c:151-155. Create a pool.
-        set_levltyp(x, y, POOL, { state });
-        state.level.at(x, y).flags = 0;
-        del_engr_at(x, y, state);
-        // C ref: fountain.c:155. water_damage_chain on floor objects.
-        // Not ported; fail-closed only if objects are present.
-        const floorObjects = state.level.objects?.[x]?.[y];
-        if (floorObjects) {
-            throw new UnsupportedFountainError(
-                'water_damage_chain() on floor objects in gush()');
-        }
-
-        // C ref: fountain.c:157-160. Drown monster or update display.
-        const mtmp = m_at(x, y, state);
-        if (mtmp) {
-            const { minliquid: minliq } = await import('./mon.js');
-            await minliq(mtmp, { ...env, state, random });
-        } else {
-            newsym(x, y);
-        }
-    }
-
-    if (!madepool) {
+    if (!context.madepool) {
         if (drinking) {
             await message('Your thirst is quenched.', state);
         } else {
@@ -643,8 +646,8 @@ export async function drinkfountain(state = game, env = {}) {
             throw new UnsupportedFountainError(
                 'scare fountain effect (fate 29)');
         case 30: // Gushing forth
-            throw new UnsupportedFountainError(
-                'gushing-forth fountain effect (fate 30)');
+            await dogushforth(true, state, env);
+            break;
         default: // Tepid water
             // C ref: fountain.c:383-386. hliquid() uses the display RNG only
             // for a hallucinatory liquid name; ordinary water consumes no

@@ -58544,6 +58544,228 @@
         "screens": 10838,
         "rng": 771039
       }
+    },
+    {
+      "id": "port-fountain-gushforth-seed4500-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port fountain gushing callbacks and preserve each square effect before the next random draw.",
+      "cFile": "fountain.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The first eligible completed investigation is holdout/seed4500-knight-coverage at step 1329 with 485 remaining-screen upper bound; investigations/holdout/seed4500-knight-coverage.json traces fountain.c dogushforth and gush as the whole family behind drinkfountain fate 30. B19 is the oldest ready delivery and owns this source range; seed0399 poison remains independently owned by worker A.",
+      "detail": "Compare fountain.c dogushforth (119-131) and gush (133-161), the drinkfountain fate-30 and dipfountain fate-25 callers, and vision.c do_clear_area callback ordering. Reuse canonical delfloortrap and minliquid; keep discarded water_damage_chain as a named gap. Primary natural-fountain recording reaches gushing; dipfountain, object/monster and no-pool entry coverage remains pending.",
+      "spans": [
+        {
+          "name": "dogushforth..gush",
+          "status": "closed",
+          "closedBy": "d3fa36cf111bc2992c27208018a520d5343579e8",
+          "functions": [
+            "dogushforth",
+            "gush"
+          ]
+        }
+      ],
+      "openedAt": "2a6d4498913c8df6f41172f2d1fbc30d62a8b762",
+      "openStanding": {
+        "sha": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+        "screens": 10838,
+        "rng": 771039
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dogushforth",
+          "line": 120,
+          "endLine": 133,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gush",
+          "line": 134,
+          "endLine": 164,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 120,
+        "to": 164
+      },
+      "activeStanding": {
+        "sha": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+        "screens": 10838,
+        "rng": 771039
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1329,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: fountain requires gushing-forth fountain effect (fate 30)",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 485,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 485,
+              "status": "complete",
+              "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1329,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: fountain requires gushing-forth fountain effect (fate 30)",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 485
+              },
+              "summary": "The pager correction resolves the fountain target description. The next blocker is drinkfountain fate 30: JavaScript refuses gushing before C dogushforth traverses nearby visible squares and gush creates pools. Complete the source-owned dogushforth/gush family and wire the drinking caller; execute each square’s random gate and effects in C traversal order, then dryup.",
+              "source": {
+                "file": "fountain.c",
+                "functions": [
+                  "dogushforth",
+                  "gush"
+                ],
+                "branch": "fountain.c drinkfountain (case 30, lines 380-382) calls dogushforth(TRUE), followed by dryup at line 389. dogushforth (119-131) traverses radius 7 through vision.c do_clear_area; gush (133-161) gates parity, hero position, rn2 distance, room terrain, boulders and adjacent doors in expression order, removes deletable floor traps, announces the first pool, replaces terrain and flags, removes engraving, damages floor objects, then handles a monster through minliquid or updates its map symbol. If no pool is made, dogushforth chooses its drinking/dipping fallback message.",
+                "callers": [
+                  "js/fountain.js drinkfountain currently throws in fate 30, where C calls dogushforth(TRUE).",
+                  "js/fountain.js dipfountain already calls the partial dogushforth(FALSE); completing the shared owner must preserve this entry too."
+                ],
+                "dependencies": [
+                  "vision.c do_clear_area traverses y then x after any required vision recalculation. The existing JavaScript collects all pool squares before applying their effects, which can reorder RNG and monster/liquid state changes. Preserve source order across awaited effects.",
+                  "trap.c delfloortrap returns a Boolean used by gush; the canonical js/trap.js implementation already matches its trap-type gate, actor trap-state cleanup and unlinking. Reuse that owner. water_damage_chain has discarded return value and may remain a note_unported call until ported, without a blanket refusal for occupied floor squares.",
+                  "mon.c minliquid, display newsym, engrave del_engr_at and rm set_levltyp supply existing source-owned effects; the fountain caller must preserve their per-square order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint .git/checkpoint-results/4e0cff9e1c51feb7ba0094f924613e5f896b0904/run-zXQmp5/summary.json reports the Knight session beyond its former step-1322 pager mismatch; the refreshed saved queue .cache/B18-queue.json identifies step 1329 as the next first mismatch.",
+                "The original C recording selects rnd(30)=30 in drinkfountain. C fountain.c case 30 calls dogushforth(TRUE), but current js/fountain.js case 30 throws UnsupportedFountainError for the gushing-forth effect.",
+                "Source comparison of fountain.c 119-161 and vision.c 2107-2150 establishes per-square traversal and effect order. Current js/fountain.js dogushforth accumulates poolSquares synchronously before its async effect loop, so merely removing the drinking refusal would retain an ordering defect.",
+                "The earlier force-quitchar explanation remains falsified: getpos already continues forced selection after quitchars. The resolved pager mismatch came from shared sink/fountain symbol refinement and must not be addressed with teleport-specific output.",
+                "The remaining-screen count is the mismatch queue upper bound, not a predicted gain; the actual combined development score remains recorded only from the accepted checkpoint.",
+                "A later independent cursor defect is source-confirmed in the current code: getpos.c 955-961 always sets show_goal_msg and continues for NHKF_GETPOS_SHOWVALID, even without getpos_hilitefunc. JavaScript js/getpos.js gates that entire branch on the callback, so a valid-square key without a callback falls into terrain-feature lookup. A post-fountain continuation observed it at Knight step1347; the current published queue remains blocked earlier at fountain fate30, and no downstream gain is claimed."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dogushforth",
+            "implementation": "js/fountain.js",
+            "symbol": "dogushforth",
+            "sourceReview": "Read fountain.c dogushforth() lines 119-131. It calls do_clear_area(u.ux,u.uy,7,gush,&madepool), then prints the drinking or dipping fallback only when no square made a pool. The JavaScript implementation preserves the callback boundary and awaits each square's source-visible effects.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinkfountain",
+                "source": "fountain.c drinkfountain() fate 30 calls dogushforth(TRUE); JavaScript awaits dogushforth(true) before the common dryup() tail."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipfountain",
+                "source": "fountain.c dipfountain() fate 25 calls dogushforth(FALSE); the existing JavaScript caller awaits dogushforth(false)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-gushing-natural-b19.session.json"
+            ],
+            "checkedAt": "ec5dd0c13f78b40701d7ea0a94380a818c14ca41"
+          },
+          {
+            "name": "gush",
+            "implementation": "js/fountain.js",
+            "symbol": "gush",
+            "sourceReview": "Read fountain.c gush() lines 133-161. Candidate rejection is source ordered: parity, hero square, rn2(1+distmin), ROOM terrain, boulder, and nexttodoor; then delfloortrap gates the effect. A successful square increments madepool before emitting the first gushing message, creates a pool, clears flags and engraving, calls discarded water_damage_chain(), and either awaits minliquid() or redraws the square. The JavaScript callback keeps that order and interleaves each candidate RNG with completion of the prior square's effect.",
+            "callers": [
+              {
+                "path": "js/fountain.js",
+                "symbol": "dogushforth",
+                "source": "fountain.c dogushforth() passes gush as the do_clear_area callback. JavaScript dogushforth delegates each awaited callback to the named gush() helper, carrying madepool through its shared argument."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/fountain.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-gushing-natural-b19.session.json"
+            ],
+            "checkedAt": "ec5dd0c13f78b40701d7ea0a94380a818c14ca41"
+          }
+        ],
+        "entryPointReview": "The production path is potion.c dodrink() -> fountain.c drinkfountain() -> fountain.c dogushforth() -> vision.c do_clear_area() -> fountain.c gush(). Two independently selected fresh recipes reach the natural fountain route: the female neutral recipe reaches fate 30 and records the source-ordered gush callback, while the lawful variation (C normalizes the requested male Valkyrie to female) reaches drinkfountain's ordinary fate branch. Focused tests pin do_clear_area callback order, per-square RNG/effect interleaving, and fate-30 dispatch. Active dipfountain fate 25, no-pool, floor-object water-damage, and monster minliquid entries have no matching production recordings in this span and remain explicitly unrecorded. The C-discarded water_damage_chain call is a named dependency gap; no fabricated return or effect is used. Root inspected both recorded traces: the primary reaches rnd(30)=30, gush candidate draws, the gushing message and dryup; the variation reaches rnd(30)=9 and does not execute dogushforth or gush. Retain the variation as supplementary caller coverage only. The selected source units have production completion evidence solely from the primary recording, while the listed additional active entry families remain open. Root compared the named gush callback and the hero-centered do_clear_area_async traversal against fountain.c 119-161 and vision.c 2107-2148; trap.c delfloortrap already implements the Boolean gate in the canonical trap owner.",
+        "entryPoints": [
+          {
+            "name": "drinkfountain fate 30 gushing from a natural fountain",
+            "functions": [
+              "dogushforth",
+              "gush"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinkfountain-gushing-natural-b19.session.json"
+            ]
+          },
+          {
+            "name": "dipfountain fate 25 direct gushing",
+            "functions": [
+              "dogushforth",
+              "gush"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "gushing with a floor object or monster on a selected square",
+            "functions": [
+              "gush"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "gushing with no successful pool uses the drinking or dipping fallback message",
+            "functions": [
+              "dogushforth",
+              "gush"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 106,
+        "rng": 91
+      },
+      "parkedStanding": {
+        "sha": "d3fa36cf111bc2992c27208018a520d5343579e8",
+        "screens": 10944,
+        "rng": 771130
+      },
+      "parkedReason": "The dogushforth/gush span is source-verified and the natural drinking entry matches. Keep active dipfountain fate 25, no-pool fallback, floor-object water_damage_chain and monster minliquid entry families open until independent recordings reach them; water_damage_chain remains an allowed discarded-result gap. The Knight first mismatch has moved to getpos SHOWVALID at step 1347, so resume this source goal when its coverage dependencies are implemented and queue priority permits."
     }
   ]
 }
