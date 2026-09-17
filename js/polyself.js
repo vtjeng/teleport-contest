@@ -242,7 +242,7 @@ import { dotrap, feeltrap } from './trap_effects.js';
 import { make_blinded, make_glib, set_itimeout } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
-import { setworn } from './worn.js';
+import { setnotworn, setworn } from './worn.js';
 import {
     Is_dragon_armor, WrappingAllowed, is_sword, maybe_adjust_light, mksobj,
     remove_object,
@@ -736,7 +736,19 @@ async function break_armor(state) {
     const cancelDonning = (obj) => {
         if (donning(obj, state)) cancel_don(state);
     };
-    const consume = (obj) => useup(obj, { state });
+    // C useup(uarmu) calls useupall while the shirt is still worn.  Supply
+    // invent.c's setnotworn hook so the consumed object clears its slot and
+    // worn effects before obfree() deallocates it.
+    const consume = (obj) => {
+        const wearEnv = setwornEnv(state);
+        return useup(obj, {
+            state,
+            hooks: {
+                ...wearEnv.hooks,
+                setNotWorn: (item) => setnotworn(item, wearEnv),
+            },
+        });
+    };
     const endBurn = async (obj) => {
         if (!obj.lamplit) return;
         const { end_burn } = await import('./timeout.js');

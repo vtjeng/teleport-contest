@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    PM_BROWN_MOLD,
     PM_COYOTE,
     PM_FOX,
     PM_GRAY_DRAGON,
@@ -16,6 +17,7 @@ import {
     PM_JACKAL,
     PM_RABID_RAT,
     PM_SEWER_RAT,
+    PM_STONE_GIANT,
     PM_WARG,
     PM_WEREJACKAL,
     PM_WERERAT,
@@ -26,17 +28,20 @@ import {
     M2_HUMAN,
     NON_PM,
 } from '../js/monsters.js';
-import { armor_to_dragon } from '../js/polyself.js';
+import { armor_to_dragon, polymon } from '../js/polyself.js';
 import { were_beastie } from '../js/were.js';
 import { your_race } from '../js/mondata.js';
 import { strstri } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
+import { OBJ_INVENT, W_ARMU } from '../js/const.js';
 import {
+    ARMOR_CLASS,
     GRAY_DRAGON_SCALE_MAIL,
     GREEN_DRAGON_SCALES,
     STRANGE_OBJECT,
+    T_SHIRT,
 } from '../js/objects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
@@ -106,10 +111,12 @@ test('polyself uses the role monster and original form in production', async () 
 
 test('the seed4500 polymorph reaches break_armor and removes nohands gear',
     async () => {
-    // The independent Knight holdout reaches polyself.c:1248-1271 after a
+    // The fixed-workload Knight witness reaches polyself.c:1248-1271 after a
     // polymorph into a brown mold.  Replay only through the next stable
     // command boundary: the source branch must clear gloves, shield, helmet,
-    // and boots before polymon() continues its post-transformation work.
+    // and boots before polymon() continues its post-transformation work.  The
+    // returned NethackGame is a capture wrapper; the canonical state remains
+    // in the shared game object used by runSegment().
     const recording = JSON.parse(readFileSync(
         new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
             import.meta.url),
@@ -129,11 +136,56 @@ test('the seed4500 polymorph reaches break_armor and removes nohands gear',
         'break_armor continues through the saved production prefix');
     assert.equal(replay.getScreens().length, end,
         'the source-matching prefix emits one screen per step');
+    assert.equal(game.u.umonnum, PM_BROWN_MOLD,
+        'the witness reaches the intended nohands polymorph');
+    assert.equal(game.youmonst.data.pmidx, PM_BROWN_MOLD,
+        'the canonical monster form is the selected brown mold');
     for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
         'uarmg', 'uarmf', 'uarmu']) {
-        assert.equal(replay[slot] ?? null, null,
+        assert.equal(game[slot] ?? null, null,
             `${slot} is no longer worn`);
     }
+});
+
+test('break_armor consumes a worn shirt through the inventory lifecycle',
+    async () => {
+    // polyself.c:1174-1201.  A breakarm form destroys uarmu with useup()
+    // while the slot is still worn; useupall must therefore invoke the
+    // canonical setnotworn hook before removing the inventory object.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    const shirt = {
+        oclass: ARMOR_CLASS,
+        otyp: T_SHIRT,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: W_ARMU,
+        nobj: game.invent,
+    };
+    game.invent = shirt;
+    game.uarmu = shirt;
+    // Directly invoking polymon() is the initialized-state fixture here; a
+    // fixed response keeps its ordinary pline waits from depending on the
+    // runSegment input queue.
+    game.nhDisplay.readKey = async () => 32;
+    await polymon(PM_STONE_GIANT, game);
+    assert.equal(game.uarmu, null, 'breakarm clears the worn shirt slot');
+    let stillCarried = false;
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        stillCarried ||= obj === shirt;
+    assert.equal(stillCarried, false,
+        'useup removes the destroyed shirt from the inventory chain');
+    assert.equal(shirt.owornmask, 0,
+        'useupall clears worn state before deallocation');
 });
 test('polyself keeps the C early guards, selector, and final gate in order', () => {
     assert.ok(C_START >= 0 && C_END > C_START);

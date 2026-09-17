@@ -149,7 +149,6 @@ import {
     carrying_stoning_corpse,
     getobj,
     prinv,
-    useup,
     update_inventory,
 } from './invent.js';
 import { racial_exception } from './makemon_create.js';
@@ -379,11 +378,9 @@ const c_that_ = 'that';
 // svc.context.takeoff. `mask` is used by the ordinary remove-one path and
 // `what` by remarm_swapwep()'s W_SWAPWEP call to do_takeoff(). `delay` and
 // `disrobing` belong to the unported 'A' occupation spine. `cancelled_don` is
-// written by cancel_don(), which cancel_doff() below
-// cannot reach, and by Armor_off(), which leaves it out because
-// dragon_armor_handling()'s BLUE arm is its only reader and that arm is
-// refused. Nothing outside this file reads the field, and every path through
-// dotakeoff() leaves it at 0 again.
+// written by cancel_don(), which cancel_doff() below cannot reach, and by
+// Armor_off(). Nothing outside this file reads the field, and every path
+// through dotakeoff() leaves it at 0 again.
 function takeoffContext(state) {
     state.context ??= {};
     state.context.takeoff ??= { mask: 0, what: 0, cancelled_don: false };
@@ -1203,9 +1200,12 @@ async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
             fast.extrinsic |= W_ARM;
         } else {
             const fast = state.u.uprops[FAST];
+            // C clears EFast before evaluating Very_fast.  This matters when
+            // blue armor is the only fast source: removal must print the
+            // slowdown message after its W_ARM bit is gone.
+            fast.extrinsic &= ~W_ARM;
             const veryFast = Boolean(
                 (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
-            fast.extrinsic &= ~W_ARM;
             if (!veryFast && !takeoffContext(state).cancelled_don)
                 await ttyPline('You slow down.', state);
         }
@@ -1231,7 +1231,9 @@ async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
     case GOLD_DRAGON_SCALES:
     case GOLD_DRAGON_SCALE_MAIL:
         // C uses the worn armor bit as a hallucination-resistance source.
-        await make_hallucinated(!puton, true, W_ARM, state);
+        await make_hallucinated(
+            !puton, !state.program_state?.restoring, W_ARM, state,
+        );
         break;
     case ORANGE_DRAGON_SCALES:
     case ORANGE_DRAGON_SCALE_MAIL:
@@ -1743,6 +1745,7 @@ async function Cloak_off(state) {
         // visible self-message needs the same state predicate as C's Invis.
         if ((state.u.uprops[INVIS]?.intrinsic
              || state.u.uprops[INVIS]?.extrinsic)
+            && !state.u.uprops[INVIS]?.blocked
             && !heroIsBlind(state)) {
             newsym(state.u.ux, state.u.uy, state);
             await ttyPline(
@@ -1758,6 +1761,7 @@ async function Cloak_off(state) {
             && !state.u.uprops[INVIS]?.intrinsic
             && !state.u.uprops[INVIS]?.extrinsic
             && !heroIsBlind(state)) {
+            discover_object(otyp, true, true, true, state);
             newsym(state.u.ux, state.u.uy, state);
             await ttyPline(
                 `Suddenly you can ${state.u.uprops[SEE_INVIS]?.intrinsic
@@ -2114,6 +2118,10 @@ async function Gloves_off(state) {
         note_unported('do_wear.c wielding_corpse');
     if (state.u.twoweap && state.uswapwep?.otyp === CORPSE)
         note_unported('do_wear.c wielding_corpse');
+    if (state.iflags?.status_conditions?.barehanded) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
     return 0;
 }
 
