@@ -245,6 +245,19 @@ export function arti_light_radius(obj, state = game) {
     return res;
 }
 
+// C ref: light.c arti_light_description() (913-928).  Keep the description
+// beside arti_light_radius() so every light owner uses the same BUC-dependent
+// wording, including a gold dragon's worn scale mail.
+export function arti_light_description(obj, state = game) {
+    switch (arti_light_radius(obj, state)) {
+    case 4: return 'radiantly';
+    case 3: return 'brilliantly';
+    case 2: return 'brightly';
+    case 1: return 'dimly';
+    default: return 'strangely';
+    }
+}
+
 const LSF_SHOW = 0x1;
 
 // light.c:do_light_sources(). NetHack gets clear_path() and circle_data[]
