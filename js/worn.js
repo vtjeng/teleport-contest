@@ -621,7 +621,12 @@ function clearMonsterObjectLists(monsters, state, resetLongWorm) {
 // including lists which are normally empty in the JavaScript runtime, and then
 // clears the long-worm polymorph marker and the floating ball/chain pointers.
 export function clear_bypasses(rawEnv = {}) {
-    const state = rawEnv?.state ?? rawEnv ?? game;
+    // Callers pass either a state or an environment containing `state`. The
+    // source no-argument call uses the canonical global game; the default
+    // parameter is an empty environment, so do not mistake it for a state.
+    const state = rawEnv?.state
+        ?? (rawEnv === game || Object.keys(rawEnv ?? {}).length
+            ? rawEnv : game);
     clear_bypass(state.level?.objlist);
     clear_bypass(state.invent);
     clear_bypass(state.gm?.migrating_objs);
