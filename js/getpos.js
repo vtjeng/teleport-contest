@@ -623,7 +623,7 @@ export async function getpos(ccp, force, goal, state = game) {
                 continue;
             }
             const hiliteKey = state.commandBindings.specialKeys?.['getpos.valid'];
-            // C ref: getpos.c getpos(), NHHKF_GETPOS_SHOWVALID branch. The
+            // C ref: getpos.c getpos(), NHKF_GETPOS_SHOWVALID branch. The
             // key always keeps targeting and restores the goal prompt; the
             // callback only controls the optional valid-square highlights.
             if (key === hiliteKey) {

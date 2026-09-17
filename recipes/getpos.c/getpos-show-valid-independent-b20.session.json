@@ -8,5 +8,5 @@
       "moves": " \u0014  $."
     }
   ],
-  "comment": "Independent getpos.c SHOWVALID witness: seed 613907, a fresh lawful female Valkyrie, enters wizard teleport targeting, dismisses its More and tip prompts, then presses '$' before the traditional pick. The '$' key is the source's NHHKF_GETPOS_SHOWVALID binding; this case exercises its unconditional show_goal_msg/goto-nxtc continuation when no highlight callback is installed."
+  "comment": "Independent getpos.c SHOWVALID witness: seed 613907, a fresh lawful female Valkyrie, enters wizard teleport targeting, dismisses its More and tip prompts, then presses '$' before the traditional pick. The '$' key is the source's NHKF_GETPOS_SHOWVALID binding; this case exercises its unconditional show_goal_msg/goto-nxtc continuation when no highlight callback is installed."
 }
