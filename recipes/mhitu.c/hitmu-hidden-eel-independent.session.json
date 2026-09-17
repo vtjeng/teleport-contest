@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Input-only blocked recipe for the mhitu.c hitmu() hidden-attacker entry. The independent blind Barbarian setup reaches the debug creation prompt, but read.c create_particular_parse() still refuses the hidden/hostile qualifiers needed to place a production hider, so no recording is claimed here. The fixed Knight replay reaches this hitmu boundary; retain this recipe until the setup owner is ported.",
+  "comment": "Planned input-only setup for the mhitu.c hitmu() hidden-attacker entry. The JavaScript read.c create_particular_parse()/create_particular_creation() port currently refuses the hidden/hostile qualifiers. No recording validates this input yet. After that dependency lands, verify aquatic placement and hidden state, then add inputs that actually produce a hit before claiming entry coverage.",
   "segments": [
     {
       "seed": 50301,
