@@ -126,45 +126,6 @@ test('self cancellation compares the current form before rehumanizing', async ()
     assert.equal(state.u.umonster, 4);
 });
 
-test('stone-to-flesh figurines use the admitted runtime creation shape', () => {
-    // zap.c:2030-2042 calls makemon() directly for a figurine with exactly
-    // NO_MINVENT|MM_NOMSG. The marker is a source-caller fact, not a test
-    // fallback, so the async runtime owner can validate that shape.
-    assert.match(JS_SOURCE, /_stoneFleshFigurine: true/u);
-    const makemonSource = readFileSync('js/makemon_create.js', 'utf8');
-    assert.match(makemonSource, /figurineAnimationCall/u);
-    assert.match(makemonSource, /normalized\._stoneFleshFigurine/u);
-});
-
-test('self-zap source guards use blocked invisibility and pre-call trap state', () => {
-    // zap.c:2840-2848 and :2902-2928.  The BInvis field is a blocker, and
-    // C's short-circuit reads u.utrap before open/closeholdingtrap mutates it.
-    assert.match(JS_SOURCE, /!property\.blocked/u);
-    assert.match(JS_SOURCE, /property\.blocked && state\.uarmc/u);
-    assert.match(JS_SOURCE, /const wasTrapped = Boolean\(state\.u\.utrap\)/gu);
-    assert.match(JS_SOURCE, /if \(!wasTrapped \|\| !holding\.result\)/u);
-    assert.match(JS_SOURCE, /if \(wasTrapped \|\| !closing\.result\)/u);
-    assert.match(JS_SOURCE, /if \(isContainer\(item\) \|\| item\.otyp === STATUE\)/u);
-});
-
-test('self cancellation compares the current form before rehumanizing', async () => {
-    // zap.c:3150-3212.  A normal human has equal umonnum/umonster even when
-    // its catalog index is in the ordinary monster range; the C Upolyd macro
-    // therefore leaves it unchanged.  This distinguishes the source macro
-    // from a numeric LOW_PM test.
-    const youmonst = {};
-    const state = {
-        u: { umonnum: 4, umonster: 4, mh: 10, uprops: {} },
-        youmonst,
-    };
-    assert.equal(
-        await cancel_monst(youmonst, { oclass: GEM_CLASS }, true, true, true, state),
-        true,
-    );
-    assert.equal(state.u.umonnum, 4);
-    assert.equal(state.u.umonster, 4);
-});
-
 test('extrinsic invisibility suppresses self-zap discovery and feedback', async () => {
     // youprop.h Invis includes EInvis. zapyourself still adds the timeout,
     // but its !Invis guard prevents the message, redraw and discovery.

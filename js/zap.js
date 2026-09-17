@@ -31,6 +31,7 @@ import {
     ACID_RES,
     A_INT,
     A_STR,
+    A_DEX,
     A_CON,
     AC_VALUE,
     ANTIMAGIC,
@@ -70,6 +71,7 @@ import {
     HEADSTONE,
     HWALL,
     ICE,
+    INTRINSIC,
     ICED_MOAT,
     ICED_POOL,
     IRONBARS,
@@ -91,6 +93,7 @@ import {
     LL_WISH,
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
+    TIMEOUT,
     PHYS_EXPL_TYPE,
     POLY_NOFLAGS,
     PLNMSG_ENVELOPED_IN_GAS,
@@ -183,6 +186,8 @@ import {
     W_ARMOR,
     W_ARMS,
     W_ARMU,
+    W_BALL,
+    W_CHAIN,
     W_RING,
     W_RINGL,
     W_QUIVER,
@@ -274,6 +279,7 @@ import {
     attacktype_fordmg,
     defended,
     dead_species,
+    dmgtype,
     dmgtype_fromattack,
     is_demon,
     hides_under,
@@ -367,6 +373,7 @@ import {
     recreate_pile_at,
     replace_object,
     remove_object,
+    place_object,
     rnd_class,
     set_corpsenm,
     splitobj,
@@ -1322,7 +1329,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_SLOW_MONSTER:
         // C tests HFast & (TIMEOUT | INTRINSIC), so extrinsic speed alone
         // does not make a self-zap learn or invoke u_slow_down().
-        if (state.u?.uprops?.[FAST]?.intrinsic) {
+        if ((state.u?.uprops?.[FAST]?.intrinsic ?? 0) & (TIMEOUT | INTRINSIC)) {
             learn_it = true;
             await u_slow_down(state);
         }
@@ -1398,7 +1405,7 @@ export async function zapyourself(obj, ordinary, state = game) {
             await release_hold(state);
             learn_it = true;
         }
-        if (state.u.uball) {
+        if (state.uball) {
             learn_it = true;
             note_unported('read.c unpunish');
         }
@@ -2581,10 +2588,12 @@ export async function stone_to_flesh_obj(obj, state = game,
                     { ...env, state, random },
                 );
             } else {
-                const species = golemXform
-                    ? state.mons?.[PM_FLESH_GOLEM] : originalSpecies;
+                // C updates ptr before creation, so a failed golem
+                // animation tests the replacement species' corpse flags.
+                if (golemXform)
+                    originalSpecies = state.mons?.[PM_FLESH_GOLEM];
                 monster = await makemon_runtime(
-                    species,
+                    originalSpecies,
                     ox,
                     oy,
                     NO_MINVENT | MM_NOMSG,
