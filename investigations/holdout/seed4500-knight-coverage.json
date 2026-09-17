@@ -1,46 +1,48 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 467,
+  "remainingScreensUpperBound": 376,
   "status": "complete",
-  "commit": "d3fa36cf111bc2992c27208018a520d5343579e8",
+  "commit": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1347,
-    "kind": "screen",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "step": 1438,
+    "kind": "stop",
+    "function": "zapyourself",
+    "functionDeclared": true,
+    "sourceFile": "zap.c",
+    "cFile": "zap.c",
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapyourself() for object type 422",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 467
+    "remainingScreensUpperBound": 376
   },
-  "summary": "Fountain gushing now matches. The next mismatch is the valid-target key in getpos: C resumes targeting and restores the goal prompt even without a highlighting callback, while JavaScript falls through to terrain-feature lookup.",
+  "summary": "The valid-target cursor key now matches. The next refusal is a wand of polymorph directed at the hero: complete zap.c zapyourself and wire its canonical polyself caller. The existing uncontrolled polymorph selection remains a downstream gap.",
   "source": {
-    "file": "getpos.c",
+    "file": "zap.c",
     "functions": [
-      "getpos"
+      "zapyourself"
     ],
-    "branch": "getpos.c getpos(), NHKF_GETPOS_SHOWVALID at lines 955-961: conditionally toggle highlighting, then unconditionally set show_goal_msg and jump to nxtc. JavaScript js/getpos.js currently puts the entire branch behind getpos_hilitefunc.",
+    "branch": "zap.c zapyourself, WAN_POLYMORPH/SPE_POLYMORPH at 2804–2808: unless Unchanging, set learn_it and call polyself(POLY_NOFLAGS). Select the complete function, including its other self-zap cases and final object learning/damage result.",
     "callers": [
-      "teleport.c scrolltele calls getpos for controlled target selection; js/teleport.js scrolltele reaches the same cursor loop through the teleport command.",
-      "pager and other map-targeting callers share getpos and the configured getpos.valid binding; the fix belongs to that common branch."
+      "zap.c dozap sends a zero-direction wand to zapyourself; js/zap.js dozap reaches the same self-directed command and currently refuses object type 422 (WAN_POLYMORPH).",
+      "spell.c spelleffects also uses zapyourself for zero-direction spell effects; preserve its source caller and ordinary/self-zap distinction."
     ],
     "dependencies": [
-      "Keep optional highlighting and its cleanup within the callback guard, while preserving the unconditional targeting continuation and next-loop goal prompt. No random draw or feature search belongs to this key branch."
+      "polyself.c polyself is the canonical polymorph owner. Its current JavaScript random-monster-selection branch throws UnsupportedPolyselfError; wiring zapyourself does not by itself complete this downstream path.",
+      "The complete zapyourself stone-to-flesh inventory loop uses bhito return values. Its zap.c stone_to_flesh_obj dependency uses trap.c animate_statue, which in turn consumes montraits and monster-creation results. These used-return callees require implementations; note_unported cannot substitute for their results.",
+      "Self-zap trap helpers expose result and noticed separately in JavaScript; preserve the C boolean result and learn_it side effect. Save the next inventory object before a mutation-capable bhito call and preserve merged knowledge/message ordering."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Passing checkpoint .git/checkpoint-results/d3fa36cf111bc2992c27208018a520d5343579e8/run-1hb9hj/summary.json reports 10944/11405 fixed-development screens and 325/325 recordings. Knight screens rise from 1329 to 1435; other sessions are unchanged.",
-    "The current saved scan .cache/B19-development-scan.json locates the first screen mismatch at segment 0, step 1347, key $. C starts the line with M for Move cursor; JavaScript starts with C for its failed feature-search message. RNG and cursor logs have no divergence before the later refusal.",
-    "Root compared the branch against getpos.c 955-961 and inspected both independent B20 C recordings: the lawful Valkyrie and neutral Wizard each press $ at the teleport target prompt and receive Move cursor to the desired position before picking the current square. Those recordings support the common continuation contract.",
-    "The same current scan later stops at 1438 emitted screens in zapyourself for object type 422. js/objects.js identifies 422 as WAN_POLYMORPH; zap.c 2804-2808 calls polyself(POLY_NOFLAGS) unless Unchanging. This missing whole-function behavior is a separate source port after the cursor defect.",
-    "The existing js/polyself.js random-monster-selection arm still refuses an uncontrolled polymorph, so wiring the self-zap caller alone does not establish that downstream behavior. Preserve the canonical polyself owner and trace that dependency separately.",
-    "Earlier force-quitchar and teleport-specific-output explanations remain falsified. Fountain gushing and shared sink/fountain pager refinement are resolved; the current defect is the callback guard in the shared cursor loop.",
-    "The 467 remaining-screen count is a queue upper bound from the first mismatch, not the actual unmatched total or a projected gain."
-  ]
+    "Passing checkpoint .git/checkpoint-results/bacd6775cf8727b59eb755a882b81388a8f8eb40/run-awI997/summary.json reports 10947/11405 fixed-development screens and 327/327 recordings. Knight screens rise from 1435 to 1438; all other session metrics are unchanged.",
+    "The current saved scan .cache/B20-development-scan.json has no screen/RNG/cursor divergence before the stop at 1438 emitted screens. The reported refusal is zapyourself for object type 422; js/objects.js defines WAN_POLYMORPH as 422.",
+    "Root compared zap.c 2804–2808 and js/polyself.js random-monster selection directly. The first source boundary is the self-zap dispatcher; the downstream uncontrolled selection is separately unported.",
+    "Root and a read-only helper traced stone_to_flesh_obj at zap.c 1993–2111 and animate_statue at trap.c 725–900. The complete self-zap function cannot skip this return-valued chain while claiming whole-source completion.",
+    "The getpos SHOWVALID defect, fountain gushing, and shared sink/fountain pager refinement are resolved. Both independent SHOWVALID recordings now match all seven screens and cursor positions.",
+    "The 376 remaining-screen count is a queue upper bound, not a predicted gain. The accepted workload has 458 actual unmatched screens."
+  ],
+  "nextProbe": "Complete and validate whole zapyourself with its mandatory result-bearing dependencies, then trace the canonical uncontrolled polyself continuation. Keep unrecorded entry families explicit."
 }
