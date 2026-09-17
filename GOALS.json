@@ -61168,7 +61168,7 @@
     {
       "id": "port-insight-status-enlightenment-seed0383-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete source-ordered status enlightenment for the attributes window",
       "cFile": "insight.c",
       "sessions": [
@@ -61180,8 +61180,8 @@
       "spans": [
         {
           "name": "status_enlightenment",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
           "functions": [
             "status_enlightenment"
           ]
@@ -61408,7 +61408,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 12,
+        "rng": 131
+      },
+      "parkedStanding": {
+        "sha": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
+        "screens": 11139,
+        "rng": 785780
+      },
+      "parkedReason": "The status span is verified through independent hallucination and deafness recordings. Resume for ending disclosure (including ENL_GAMEOVERALIVE), transformed-hero enlightenment admission and youhiding, or exceptional weapon_insight shield/wet-towel entry coverage when selected."
     }
   ]
 }

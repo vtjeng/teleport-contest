@@ -2,7 +2,7 @@
   "session": "holdout/seed0002-healer-reflection-drummer",
   "remainingScreensUpperBound": 6,
   "status": "complete",
-  "commit": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+  "commit": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
   "mismatch": {
     "session": "holdout/seed0002-healer-reflection-drummer",
     "step": 589,
@@ -18,26 +18,27 @@
     "recordedSteps": 595,
     "remainingScreensUpperBound": 6
   },
-  "summary": "Object type aliases now let discoveries finish. The next attributes command stops in the existing partial status_enlightenment on DEAF. C insight.c1073–1074 emits the deafness line through from_what. Complete the whole status_enlightenment unit as a separate future goal; A's current attributes_enlightenment unit does not include it.",
+  "summary": "The former deafness status-window stop is resolved and this session now matches completely. Whole status_enlightenment follows the source conditions and output order; independent recordings reach the actual Status page. Ending disclosure, transformed-hero admission and exceptional weapon-insight entries remain separate unfinished coverage.",
   "source": {
     "file": "insight.c",
     "functions": [
       "status_enlightenment"
     ],
-    "branch": "Whole status_enlightenment940–1266 includes obvious movement, polymorph/riding, ailments including DEAF1073–1074, punishment, traps, held/swallowed hero, wounded legs, transient conditions, hunger, encumbrance, weapon status, suit penalty and nudity. Deaf combines intrinsic, extrinsic and role-play state; the drum established real timed deafness here. This is not a naming defect.",
+    "branch": "C insight.c940–1266 emits movement, internal trouble, external status, hunger, encumbrance, weapon, suit and nudity information in source order. The completed JavaScript owner applies Hallucination intrinsic-timeout/resistance rules, Deaf intrinsic/extrinsic/roleplay rules, and both Lev_at_will masks to either intrinsic or artifact levitation.",
     "callers": [
-      "cmd.c attributes command -> insight.c doattributes:2009 -> enlightenment -> status_enlightenment; JS doattributes/enlightenment reaches the existing status owner in the same order."
+      "cmd.js runAttributesCommand calls insight.js doattributes -> enlightenment -> status_enlightenment for the attributes window.",
+      "Ending disclosure also calls enlightenment, but ENL_GAMEOVERALIVE remains a blocked active mode and is not claimed covered."
     ],
     "dependencies": [
-      "from_what(DEAF) is a consumed naming dependency. Also verify whole status helpers trap_predicament, walking_on_water, weapon_insight and consumed monster/body/equipment naming at their C call sites; no guessed return or seed-specific line is permitted.",
-      "The source unit is separate from attributes_enlightenment. The pilot starts no new substantial unit after its cutoff; implementation remains future work.",
-      "The remaining six-screen bound includes the current attributes result and later inputs; it is not a prediction of gain."
+      "getpos.c dxdy_to_dist_descr557–590 is implemented as the pure source owner for held-monster distance text, with source-pinned direction and clamp tests. Existing canonical naming and from_what owners supply status causes.",
+      "The discarded youhiding call remains a named gap behind the existing transformed-hero enlightenment guard. weapon_insight shield/wet-towel branches and ending disclosure still have unfinished or unrecorded entries."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Combined checkpoint4e0ebd97 completed2026-09-15T01:00:34.132Z with all218regression recordings passing. Fixed workload27/44;9653/11405screens,699110/792838RNG. Post-checkpoint canonical queue confirms first mismatch589 and upper bound6.",
-    "Worker independently replayed the same next stop at immutable33b0b9c. Coordinator read the complete C status_enlightenment body940–1266, the DEAF macro, and existing JavaScript refusal and caller. The independently worked attributes unit is not claimed to implement this separate status unit.",
-    "Naming's first combined checkpoint failed only four older error-boundary fixtures that used an alias refusal. Those tests now use the remaining lit-candle naming refusal; all targeted tests and the second full checkpoint pass. No status implementation is included."
-  ]
+    "The retained mismatch object is the former deafness status stop. The current .cache/B26-development-scan.json removes this session from the mismatch queue after the full source port.",
+    "Independent recordings/insight.c/attributes-enlightenment-deaf-independent.session.json reaches the Status page and prints the expected deafness line. A setup message or the first attributes page would not establish this entry.",
+    "Read-only source comparison found and corrected Lev_at_will grouping: youprop.h242–245 applies both H/E exclusions to either qualifying source. Source-pinned cases cover disallowed intrinsic and extrinsic bits; other status predicate, order, naming and distance checks match C."
+  ],
+  "nextProbe": "No further investigation is selected from this fully matching session. Retain ending, transformed-hero, exceptional weapon status and other unrecorded source entries for separately selected work."
 }

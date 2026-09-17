@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 254,
   "status": "complete",
-  "commit": "82ef7a6348a995565737d850a74b004963a77965",
+  "commit": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1560,
@@ -33,7 +33,8 @@
     "dependencies": [
       "Use the canonical resistance, message, reflection, golem, death, equipment and polymorph owners. Complete return-valued attk_protection and mon_reflects dependencies when needed; discarded unported callees must remain named gaps rather than fabricated effects.",
       "Preserve C draw ordering, integer cold healing, passive damage after rehumanization where specified, and early attack-result returns after paralysis or death. assess_dmg is impure; isolated return-value tests do not establish its lethal production entry.",
-      "Separate unresolved prior findings remain: polyself.c skinback1953–1969 lacks artifact-light radius capture/maybe_adjust_light, and rare armor, Eyes-of-the-Overworld sight-loss and exceptional eating cleanup entries remain unrecorded or unported."
+      "Separate unresolved prior findings remain: polyself.c skinback1953–1969 lacks artifact-light radius capture/maybe_adjust_light, and rare armor, Eyes-of-the-Overworld sight-loss and exceptional eating cleanup entries remain unrecorded or unported.",
+      "C mhitu.c resets mon_currwep for each attack and sets it only for AT_WEAP; passive disenchantment must use that per-attack value. Acid naming uses display RNG. The live monster-turn planner must forward its RNG and message operations through reflection, golem effects and rehumanization. Completing paralyze_monst also requires its existing milky-potion muse.c precheck caller; mon_reflects must use the already ported arti_reflects return value for wielded artifacts."
     ]
   },
   "goalKind": "file-port",
