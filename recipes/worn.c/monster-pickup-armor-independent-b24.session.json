@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8900275,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": "ssssssssssssssss"
+    },
+    {
+      "seed": 8900275,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!verbose\n",
+      "moves": "ssssssssssssssss"
+    }
+  ],
+  "_comment": "Independent B24 m_dowear witness: the source-selected untamed pickup lifts a suit of armor and the following monster turn enters worn.c m_dowear. The seed, clock, character, and sixteen searches were selected independently of the fixed holdout. The second segment keeps the same source route with verbose output disabled, a cheap option variation for the message arm."
+}

@@ -3867,23 +3867,17 @@ test('a flagged monster is scanned and only a real change stops it',
             const before = completeSecondTurnSnapshot(game, target.replay);
 
             for (let attempt = 0; attempt < 2; ++attempt) {
-                if (wearable) {
-                    await assert.rejects(
-                        preflightSimpleMonsterActions(game),
-                        (error) => (
-                            error instanceof UnsupportedSimpleMonsterActionError
-                            && error.reason === 'monster equipment changes'
-                        ),
-                        `wearable, attempt ${attempt + 1}`,
-                    );
-                } else {
-                    await preflightSimpleMonsterActions(game);
-                }
+                // worn.c m_dowear() is source-complete.  A planning pass
+                // dresses only its clone, so even a real wearable change
+                // remains side-effect-free for the live state.
+                await preflightSimpleMonsterActions(game);
                 assert.deepEqual(
                     completeSecondTurnSnapshot(game, target.replay),
                     before,
                     `wearable=${wearable}, attempt ${attempt + 1}`,
                 );
+                if (wearable)
+                    assert.equal(target.monster.minvent.owornmask, 0);
             }
         }
     });

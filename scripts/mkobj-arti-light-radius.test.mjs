@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { arti_light_radius } from '../js/light.js';
+import { arti_light_description, arti_light_radius } from '../js/light.js';
 
 // Constants from the C source used to build test objects.
 const ART_SUNSWORD = 20;        // artifact.h
@@ -92,4 +92,23 @@ test('arti_light_radius: worn gold scales (not uskin) gets base BUC only', () =>
     // does not return 0, but the ++res does not fire either.
     const obj = { lamplit: true, oartifact: 0, blessed: false, cursed: false, otyp: GOLD_DRAGON_SCALES, owornmask: W_ARM };
     assert.equal(arti_light_radius(obj, {}), 2);
+});
+
+
+// -- The adverb is the same source radius mapping (light.c:913-930) ---------
+test('arti_light_description uses C radiance labels', () => {
+    const cases = [
+        [{ lamplit: true, oartifact: 0, blessed: true, cursed: false,
+            otyp: GOLD_DRAGON_SCALE_MAIL, owornmask: W_ARM }, 'radiantly'],
+        [{ lamplit: true, oartifact: ART_SUNSWORD, blessed: true, cursed: false,
+            otyp: SHORT_SWORD, owornmask: 0 }, 'brilliantly'],
+        [{ lamplit: true, oartifact: ART_SUNSWORD, blessed: false, cursed: false,
+            otyp: SHORT_SWORD, owornmask: 0 }, 'brightly'],
+        [{ lamplit: true, oartifact: ART_SUNSWORD, blessed: false, cursed: true,
+            otyp: SHORT_SWORD, owornmask: 0 }, 'dimly'],
+        [{ lamplit: false, oartifact: ART_SUNSWORD, blessed: false, cursed: false,
+            otyp: SHORT_SWORD, owornmask: 0 }, 'strangely'],
+    ];
+    for (const [object, expected] of cases)
+        assert.equal(arti_light_description(object, {}), expected);
 });
