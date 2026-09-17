@@ -34,6 +34,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     EYE,
+    FAINTED,
     FEMALE,
     FINGER,
     FINGERTIP,
@@ -79,7 +80,9 @@ import {
     MAGIC_TRAP,
     MALE,
     MAXULEV,
+    Never_mind,
     NATTK,
+    NEUTRAL,
     NECK,
     NO_KILLER_PREFIX,
     NO_PART,
@@ -90,7 +93,9 @@ import {
     PIT,
     POISON_RES,
     POLY_CONTROLLED,
+    POLY_LOW_CTRL,
     POLY_MONSTER,
+    POLY_REVERT,
     POLY_TRAP,
     POLYMORPH,
     POLYMORPH_CONTROL,
@@ -133,10 +138,12 @@ import {
     WARN_OF_MON,
     WEB,
     helpless,
+    ismnum,
     plur,
+    thats_enough_tries,
 } from './const.js';
 import {
-    adjabil, exercise, newhp, redist_attr, setuhpmax,
+    acurr, adjabil, exercise, newhp, redist_attr, setuhpmax,
 } from './attrib.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
@@ -196,7 +203,9 @@ import {
     can_teleport,
     control_teleport,
     your_race,
-    name_to_mon,
+    name_to_monclass,
+    name_to_monplus,
+    type_is_pname,
 } from './mondata.js';
 import { character_race, genders } from './roles.js';
 import {
@@ -209,7 +218,10 @@ import {
 } from './do_name.js';
 import { set_mon_data } from './mondata.js';
 import { mkclass_poly } from './makemon.js';
-import { cloak_simple_name, cxname, otense, simpleonames, an } from './objnam.js';
+import {
+    cloak_simple_name, cxname, otense, simpleonames, an, the,
+    the_unique_pm,
+} from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
 import { newsym, rank_of, see_monsters } from './display.js';
@@ -221,6 +233,7 @@ import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
     deltrap, is_pool, is_pool_or_lava, maketrap, set_utrap, t_at,
+    unconscious,
 } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import { make_blinded, make_glib, set_itimeout } from './potion.js';
@@ -233,10 +246,30 @@ import {
     ACID_VENOM,
     AMULET_OF_STRANGULATION,
     AMULET_OF_UNCHANGING,
+    BLACK_DRAGON_SCALE_MAIL,
+    BLACK_DRAGON_SCALES,
     BLINDING_VENOM,
+    BLUE_DRAGON_SCALE_MAIL,
+    BLUE_DRAGON_SCALES,
     CORPSE,
+    GOLD_DRAGON_SCALE_MAIL,
+    GOLD_DRAGON_SCALES,
+    GRAY_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALES,
+    GREEN_DRAGON_SCALE_MAIL,
+    GREEN_DRAGON_SCALES,
     MUMMY_WRAPPING,
+    ORANGE_DRAGON_SCALE_MAIL,
+    ORANGE_DRAGON_SCALES,
+    RED_DRAGON_SCALE_MAIL,
+    RED_DRAGON_SCALES,
+    SILVER_DRAGON_SCALE_MAIL,
+    SILVER_DRAGON_SCALES,
     STRANGE_OBJECT,
+    WHITE_DRAGON_SCALE_MAIL,
+    WHITE_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALE_MAIL,
+    YELLOW_DRAGON_SCALES,
 } from './objects.js';
 import * as M from './monsters.js';
 import { rn1, rn2, rnd, rne, rnl, d } from './rng.js';
@@ -245,8 +278,8 @@ import { ubuzz, ubreatheu } from './zap.js';
 import { newpw, rndexp } from './exper.js';
 import { newuhs } from './eat.js';
 import { done, find_delayed_killer } from './end.js';
-import { nomul, rounddiv, spoteffects, unmul } from './hack.js';
-import { dist2, s_suffix } from './hacklib.js';
+import { losehp, nomul, rounddiv, spoteffects, unmul } from './hack.js';
+import { dist2, s_suffix, strstri, strsubst } from './hacklib.js';
 import { discover_object, observe_object } from './o_init.js';
 import { del_light_source, new_light_source } from './light.js';
 import { has_ceiling, surface } from './dungeon.js';
@@ -256,7 +289,9 @@ import { throwit } from './dothrow.js';
 import { in_rooms } from './rooms.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
-import { killed, set_ustuck, setmangry, wakeup } from './mon.js';
+import {
+    counter_were, killed, set_ustuck, setmangry, wakeup, were_beastie,
+} from './mon.js';
 import { were_summon } from './were.js';
 import { note_unported } from './unported.js';
 
@@ -566,11 +601,44 @@ function haseyes(mdat) {
     return !((mdat?.mflags1 ?? 0) & M.M1_NOEYES);
 }
 
-// C ref: polyself.c armor_to_dragon() (2191-2231). Stub: the gnome case never
-// reaches this because uskin is null. The full implementation belongs in a
-// later slice that ports dragon-armor merging.
-function armor_to_dragon(_otyp) {
-    throw new UnsupportedPolyselfError('armor_to_dragon is not ported');
+// C ref: polyself.c armor_to_dragon() (2191-2231).  Dragon scale mail and
+// dragon scales are laid out in matching color order in objects.h; keep the
+// explicit switch from C so an unrelated object type cannot alias a species.
+function armor_to_dragon(otyp) {
+    switch (otyp) {
+    case GRAY_DRAGON_SCALE_MAIL:
+    case GRAY_DRAGON_SCALES:
+        return M.PM_GRAY_DRAGON;
+    case SILVER_DRAGON_SCALE_MAIL:
+    case SILVER_DRAGON_SCALES:
+        return M.PM_SILVER_DRAGON;
+    case GOLD_DRAGON_SCALE_MAIL:
+    case GOLD_DRAGON_SCALES:
+        return M.PM_GOLD_DRAGON;
+    case RED_DRAGON_SCALE_MAIL:
+    case RED_DRAGON_SCALES:
+        return M.PM_RED_DRAGON;
+    case ORANGE_DRAGON_SCALE_MAIL:
+    case ORANGE_DRAGON_SCALES:
+        return M.PM_ORANGE_DRAGON;
+    case WHITE_DRAGON_SCALE_MAIL:
+    case WHITE_DRAGON_SCALES:
+        return M.PM_WHITE_DRAGON;
+    case BLACK_DRAGON_SCALE_MAIL:
+    case BLACK_DRAGON_SCALES:
+        return M.PM_BLACK_DRAGON;
+    case BLUE_DRAGON_SCALE_MAIL:
+    case BLUE_DRAGON_SCALES:
+        return M.PM_BLUE_DRAGON;
+    case GREEN_DRAGON_SCALE_MAIL:
+    case GREEN_DRAGON_SCALES:
+        return M.PM_GREEN_DRAGON;
+    case YELLOW_DRAGON_SCALE_MAIL:
+    case YELLOW_DRAGON_SCALES:
+        return M.PM_YELLOW_DRAGON;
+    default:
+        return NON_PM;
+    }
 }
 
 // ---------- uasmon_maxStr ----------------------------------------------
@@ -1349,40 +1417,65 @@ export async function newman(state = game) {
 }
 
 // ---------- polyself ----------------------------------------------------
-// C ref: polyself.c polyself() (468-731). The #polyself command's main body.
-// This port covers the controlled-input branch (forcecontrol=true from
-// POLY_CONTROLLED). The do_shift/do_vampyr/do_merge gotos and the
-// random-monster selection path are not exercised by the gnome case and
-// throw if reached.
+// C ref: polyself.c polyself() (468-731).  The selectors and early guards in
+// this function are kept in C order because each failed candidate can consume
+// input or random numbers before the next candidate is considered.  The
+// actual body transition remains in the existing polymon/newman owners; their
+// still-unported branches are recorded at those discarded-call boundaries.
 export async function polyself(psflags, state = game) {
     const u = state.u;
-    const forcecontrol = (psflags & POLY_CONTROLLED) !== 0;
-    // Remaining psflags bits and draconian/iswere/isvamp conditions
+    let forcecontrol = (psflags & POLY_CONTROLLED) !== 0;
+    const low_control = (psflags & POLY_LOW_CTRL) !== 0;
+    let monsterpoly = (psflags & POLY_MONSTER) !== 0;
+    const formrevert = (psflags & POLY_REVERT) !== 0;
     const draconian = Boolean(state.uarm && Is_dragon_armor(state.uarm));
-    const iswere = Number.isInteger(u.ulycn) && u.ulycn >= M.LOW_PM;
+    const iswere = ismnum(u.ulycn);
     const isvamp = Boolean(is_vampire(state.youmonst.data)
                            || is_vampshifter(state.youmonst));
-    const controllable_poly = false; // Polymorph_control not ported
+    let controllable_poly = Polymorph_control(state)
+        && !(Boolean(uprop(state, STUNNED).intrinsic)
+             || (Math.trunc(state.multi ?? 0) < 0
+                 && (unconscious(state) || u.uhs === FAINTED)));
 
-    // Unchanging check
-    // uprops[UNCHANGING] — for the wizard-mode gnome, Unchanging is false
-    // so this guard is not taken
-    // if (Unchanging) { "You fail to transform!" return; }
+    if (Unchanging(state)) {
+        await ttyPline('You fail to transform!', state);
+        return;
+    }
 
-    // system shock — skipped when forcecontrol is true
+    // Being stunned or unaware does not negate the force-control aspect of
+    // polymorph control.  The shock draw occurs before old_light is captured.
+    if (!Polymorph_control(state) && !forcecontrol && !draconian && !iswere
+        && !isvamp && rn2(20) > acurr(state, A_CON)) {
+        await ttyPline('You shudder for a moment.', state);
+        await losehp(rnd(30), 'system shock', KILLED_BY_AN, state);
+        await exercise(A_CON, false, state, { rn2 });
+        return;
+    }
 
-    const old_light = emits_light(state.youmonst.data);
+    let old_light = emits_light(state.youmonst.data);
     let mntmp = NON_PM;
+    let made_change = false;
+    let direct_change = false;
+    let buf = '';
+    let gvariant = NEUTRAL;
 
-    // forcecontrol + low_control gate — only matters if draconian/isvamp/iswere
-    // monsterpoly/formrevert — not in POLY_CONTROLLED with no other flags
+    if (formrevert) {
+        mntmp = state.youmonst.cham;
+        monsterpoly = true;
+        controllable_poly = false;
+    }
 
-    if (controllable_poly || forcecontrol) {
-        let buf = '';
+    if (forcecontrol && low_control
+        && (draconian || monsterpoly || isvamp || iswere))
+        forcecontrol = false;
+
+    if (monsterpoly && isvamp)
+        direct_change = true;
+
+    if (!direct_change && (controllable_poly || forcecontrol)) {
         let tryct = 5;
-        let gvariant = 0; // NEUTRAL gender variant
 
-        do {
+        selection: do {
             mntmp = NON_PM;
             buf = await getlin(
                 'Become what kind of monster? [type the name]', state,
@@ -1391,7 +1484,7 @@ export async function polyself(psflags, state = game) {
             if (buf.charCodeAt(0) === 0x1b || buf === '\x1b') {
                 // ESC — user cancelled
                 if (forcecontrol) {
-                    await ttyPline('Never mind.', state);
+                    await ttyPline(Never_mind, state);
                     return;
                 }
                 buf = '*'; // resort to random
@@ -1400,81 +1493,186 @@ export async function polyself(psflags, state = game) {
                 tryct = 0;
                 continue;
             }
-            let monclass = 0;
-            const nameResult = name_to_mon(buf, { state });
-            mntmp = nameResult;
-            if (mntmp < M.LOW_PM) {
-                // name_to_monclass fallback — not ported; monclass stays 0
-                // so this branch is unreachable until name_to_monclass lands.
-                monclass = 0; // placeholder
-                if (monclass && mntmp === NON_PM)
-                    mntmp = (draconian && monclass === M.S_DRAGON)
-                        ? armor_to_dragon(state.uarm.otyp)
-                        : mkclass_poly(monclass, { state });
-            } else if (is_placeholder(state.mons[mntmp])
-                       && !your_race(state.mons[mntmp], state)
-                       && mntmp !== M.PM_HUMAN) {
-                // placeholder substitution
-                if (mntmp === M.PM_ORC)
-                    mntmp = rn2(3)
-                        ? M.PM_HILL_ORC : M.PM_MORDOR_ORC;
-                else if (mntmp === M.PM_ELF)
-                    mntmp = rn2(3)
-                        ? M.PM_GREEN_ELF : M.PM_GREY_ELF;
-                else if (mntmp === M.PM_GIANT)
-                    mntmp = rn2(3)
-                        ? M.PM_STONE_GIANT : M.PM_HILL_GIANT;
-            }
+            candidate: for (;;) {
+                let monclass = 0;
+                const nameResult = name_to_monplus(buf, {
+                    state,
+                    gender: gvariant,
+                });
+                gvariant = nameResult.gender;
+                mntmp = nameResult.mnum;
+                if (mntmp < M.LOW_PM) {
+                    const mndx = { value: mntmp };
+                    monclass = name_to_monclass(buf, mndx, { state });
+                    mntmp = mndx.value;
+                    if (monclass && mntmp === NON_PM)
+                        mntmp = (draconian && monclass === M.S_DRAGON)
+                            ? armor_to_dragon(state.uarm.otyp)
+                            : mkclass_poly(monclass, { state });
+                } else if (is_placeholder(state.mons[mntmp])
+                           && !your_race(state.mons[mntmp], state)
+                           && mntmp !== M.PM_HUMAN) {
+                    // placeholder substitution
+                    if (mntmp === M.PM_ORC)
+                        mntmp = rn2(3)
+                            ? M.PM_HILL_ORC : M.PM_MORDOR_ORC;
+                    else if (mntmp === M.PM_ELF)
+                        mntmp = rn2(3)
+                            ? M.PM_GREEN_ELF : M.PM_GREY_ELF;
+                    else if (mntmp === M.PM_GIANT)
+                        mntmp = rn2(3)
+                            ? M.PM_STONE_GIANT : M.PM_HILL_GIANT;
+                }
 
-            if (mntmp < M.LOW_PM) {
-                if (!monclass)
-                    await ttyPline(
-                        "I've never heard of such monsters.", state,
-                    );
-                else
-                    await ttyPline(
-                        "You can't polymorph into any of those.", state,
-                    );
-            } else if (iswere /* && were_beastie etc */) {
-                throw new UnsupportedPolyselfError('polyself: iswere path not ported');
-            } else if (!polyok(state.mons[mntmp])
-                       && !(mntmp === M.PM_HUMAN
-                            || (your_race(state.mons[mntmp], state)
-                                && (state.mons[mntmp].geno & M.G_UNIQ) === 0)
-                            || mntmp === state.urace?.mnum)) {
-                // Can't polymorph into that
-                const pm_name = pmname(state.mons[mntmp],
-                    state.flags.female ? FEMALE : MALE);
-                await ttyPline(`You can't polymorph into ${an(pm_name)}.`,
-                    state);
-            } else {
-                break;
+                if (mntmp < M.LOW_PM) {
+                    if (!monclass)
+                        await ttyPline(
+                            "I've never heard of such monsters.", state,
+                        );
+                    else
+                        await ttyPline(
+                            "You can't polymorph into any of those.", state,
+                        );
+                } else if (state.wizard && Upolyd(u)
+                           && (mntmp === u.umonnum
+                               || (u.umonnum === M.PM_CLERIC
+                                   && mntmp === M.PM_ALIGNED_CLERIC
+                                   && !strstri(buf, 'aligned')))) {
+                    // Wizard mode's own role name is a direct rehumanization
+                    // and bypasses newman(), including level and sex changes.
+                    await rehumanize(state);
+                    old_light = 0;
+                    made_change = true;
+                    break selection;
+                } else if (iswere && (were_beastie(mntmp) === u.ulycn
+                                      || mntmp === counter_were(u.ulycn)
+                                      || (Upolyd(u) && mntmp === M.PM_HUMAN))) {
+                    mntmp = Upolyd(u) && were_beastie(mntmp) !== u.ulycn
+                        ? M.PM_HUMAN : u.ulycn;
+                    direct_change = true;
+                    break selection;
+                } else if (!polyok(state.mons[mntmp])
+                           && !(mntmp === M.PM_HUMAN
+                                || (your_race(state.mons[mntmp], state)
+                                    && (state.mons[mntmp].geno & M.G_UNIQ) === 0)
+                                || mntmp === state.urace?.mnum)) {
+                    // mkclass_poly() can select an illegal candidate.  C
+                    // retries that class without rereading the user's line.
+                    if (monclass) {
+                        if (rn2(3) || --tryct > 0) {
+                            const mndx = { value: NON_PM };
+                            monclass = name_to_monclass(buf, mndx, { state });
+                            mntmp = (draconian && monclass === M.S_DRAGON)
+                                ? armor_to_dragon(state.uarm.otyp)
+                                : mkclass_poly(monclass, { state });
+                            continue candidate;
+                        }
+                        ++tryct;
+                    }
+                    let pm_name = pmname(state.mons[mntmp],
+                        state.flags.female ? FEMALE : MALE);
+                    if (the_unique_pm(state.mons[mntmp]))
+                        pm_name = the(pm_name);
+                    else if (!type_is_pname(state.mons[mntmp]))
+                        pm_name = an(pm_name);
+                    await ttyPline(`You can't polymorph into ${pm_name}.`, state);
+                } else {
+                    break selection;
+                }
+                break candidate;
             }
         } while (--tryct > 0);
 
         if (!tryct)
-            await ttyPline("That's enough tries!", state);
-        // draconian merge — not exercised for gnome
-        // isvamp do_vampyr — not exercised for gnome
-    } else if (draconian || iswere || isvamp) {
-        throw new UnsupportedPolyselfError('polyself: draconian/iswere/isvamp path not ported');
+            await ttyPline(thats_enough_tries, state);
+        if (draconian && (tryct <= 0
+                          || mntmp === armor_to_dragon(state.uarm.otyp)))
+            direct_change = true;
+        if (isvamp && (tryct <= 0 || mntmp === M.PM_WOLF
+                       || mntmp === M.PM_FOG_CLOUD
+                       || is_bat(state.mons[mntmp])))
+            direct_change = true;
+    } else if (!made_change && !direct_change
+               && (draconian || iswere || isvamp)) {
+        direct_change = true;
     }
 
-    if (mntmp < M.LOW_PM) {
-        // random monster selection
-        throw new UnsupportedPolyselfError('polyself: random monster selection not ported');
+    if (!made_change && direct_change) {
+        if (draconian) {
+            mntmp = armor_to_dragon(state.uarm.otyp);
+            const dragon = state.svm?.mvitals?.[mntmp];
+            if (dragon && !(dragon.mvflags & G_GENOD)) {
+                const armor = state.uarm;
+                const was_lit = Boolean(armor.lamplit);
+                if (armor.otyp >= GRAY_DRAGON_SCALES
+                    && armor.otyp <= YELLOW_DRAGON_SCALES) {
+                    await ttyPline('You merge with your scaly armor.', state);
+                } else {
+                    let armorName = simpleonames(armor, state);
+                    armorName = strsubst(armorName, ' dragon ', ' ');
+                    await ttyPline(`${armorName} reverts to scales as you merge with them.`, state);
+                    armor.otyp += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
+                    observe_object(armor, state);
+                    state.disp ??= {};
+                    state.disp.botl = true;
+                }
+                state.uskin = armor;
+                state.uarm = null;
+                armor.owornmask |= I_SPECIAL;
+                if (was_lit)
+                    note_unported('light.c dragon armor light adjustment');
+                update_inventory({ state });
+            }
+        } else if (iswere) {
+            if (Upolyd(u) && were_beastie(mntmp) !== u.ulycn)
+                mntmp = M.PM_HUMAN;
+            else
+                mntmp = u.ulycn;
+        } else if (isvamp) {
+            if (mntmp < M.LOW_PM
+                || (state.mons[mntmp].geno & M.G_UNIQ)) {
+                mntmp = state.youmonst.data === state.mons[M.PM_VAMPIRE_LEADER]
+                    && !rn2(10) ? M.PM_WOLF
+                        : !rn2(4) ? M.PM_FOG_CLOUD : M.PM_VAMPIRE_BAT;
+                if (ismnum(state.youmonst.cham)
+                    && !is_vampire(state.youmonst.data) && !rn2(2))
+                    mntmp = state.youmonst.cham;
+            }
+            if (controllable_poly) {
+                buf = `Become ${an(pmname(state.mons[mntmp], gvariant))}?`;
+                if (await y_n(buf, state) !== 'y')
+                    return;
+            }
+        }
+        if (mntmp === M.PM_HUMAN)
+            await newman(state);
+        else
+            await polymon(mntmp, state);
+        made_change = true;
     }
 
-    // sex_change_ok++ / polyok / rn2(5) / your_race gate
-    state.gs ??= {};
-    state.gs.sex_change_ok = (state.gs.sex_change_ok || 0) + 1;
-    if (!polyok(state.mons[mntmp]) || (!forcecontrol && !rn2(5))
-        || your_race(state.mons[mntmp], state)) {
-        await newman(state);
-    } else {
-        await polymon(mntmp, state);
+    if (!made_change) {
+        if (mntmp < M.LOW_PM) {
+            let tryct = 200;
+            do {
+                mntmp = rn1(M.SPECIAL_PM - M.LOW_PM, M.LOW_PM);
+                if (polyok(state.mons[mntmp])
+                    && !is_placeholder(state.mons[mntmp]))
+                    break;
+            } while (--tryct > 0);
+        }
+
+        // C deliberately does not apply generation/genocide filters to this
+        // loop; polyok() is the only admissibility test here.
+        state.gs ??= {};
+        state.gs.sex_change_ok = (state.gs.sex_change_ok || 0) + 1;
+        if (!polyok(state.mons[mntmp]) || (!forcecontrol && !rn2(5))
+            || your_race(state.mons[mntmp], state))
+            await newman(state);
+        else
+            await polymon(mntmp, state);
+        state.gs.sex_change_ok--;
     }
-    state.gs.sex_change_ok--;
 
     // made_change: polyself.c:722-730. A form that emits light carries a
     // monster light source on youmonst; swap it when the emitted range
