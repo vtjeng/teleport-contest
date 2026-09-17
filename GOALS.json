@@ -59272,7 +59272,7 @@
           "line": 2705,
           "endLine": 3016,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -59360,7 +59360,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "zapyourself",
+            "implementation": "js/zap.js",
+            "symbol": "zapyourself",
+            "sourceReview": "Read the complete zap.c zapyourself() definition (2705-3013) in source order. The whole switch retains the source effect and discovery order, including the ordinary/nonordinary force-bolt distinction, resistance branches, broken-light fallthrough, and trap noticed propagation. Its supporting source callers now preserve BInvis as the blocked property, canonical yname for the mummy-wrapping message, pre-call u.utrap short-circuit values for opening and locking, Is_container probing (including bags), and the source Upolyd/Unchanging/clay-golem cancellation branch. Stone-to-flesh continues through the value-returning stone_to_flesh_obj and awaited animate_statue owners; figurine creation is admitted with its distinct NO_MINVENT|MM_NOMSG source shape, revival admits MM_ADJACENTOK, and saved shopkeeper traits are admitted through the canonical creation owner. The swallowed expels(TRUE), boxlock, make_stunned, display shieldeff, losexp, fix_petrification, and polyself calls remain named source gaps only where their C result is discarded or the owner is still unported; no new Unsupported error replaces an active zapyourself case. Orchestrator compared every switch arm and the dozap damage caller against C, plus the complete stone_to_flesh_obj, animate_statue, montraits, release_hold, probe_objchain and u_slow_down source ranges. Corrections preserve both invisibility sources, TIMEOUT|INTRINSIC speed masking, state.uball, Hallucination resistance, non-spell statue creation, historic-statue visibility/message/alignment, and the replacement figurine species on creation failure. Source comparison traced saved-shopkeeper creation through replmon/replshk; its runtime entry remains unrecorded. The first submitted sleep recording did not reach self-zap, so it was replaced with a verified independent witness: C step19 shows the sleep ray and rnd(50)=22 from zapyourself; bounded run-2MozYy matches3329 RNG,21 screens,21 cursors and3 animation frames.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c dozap() (2625-2683) calls zapyourself() when a directional wand is aimed at the hero’s own square."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c spelleffects directs zero-direction pseudo-objects through zapyourself before applying its damage result; this existing production caller reaches the newly complete switch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs",
+              "scripts/zapyourself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapyourself-sleep-independent-b21.session.json"
+            ],
+            "checkedAt": "71ad71ddf38408a9a74edd82f7006eac52680cbf"
+          }
+        ],
+        "entryPointReview": "The corrected independent Wizard sleep-wand recipe reaches dozap and zapyourself, completes sleep and wakeup, and strictly matches C at21 screens/3329 RNG. Existing Healer sleep cases supply the role variation. Other effect families remain active; focused tests cover several property, cancellation and statue transitions but are not recordings. The queued polyself owner must remove the named self-polymorph gap. Keep these unrecorded entries open and park the source goal after span validation.",
+        "entryPoints": [
+          {
+            "name": "dozap self-directed WAN_SLEEP",
+            "functions": [
+              "zapyourself"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapyourself-sleep-independent-b21.session.json"
+            ]
+          },
+          {
+            "name": "dozap self-directed WAN_POLYMORPH",
+            "functions": [
+              "zapyourself"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "other active zapyourself effect arms",
+            "functions": [
+              "zapyourself"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "spelleffects self-directed SPE_STONE_TO_FLESH inventory/statue callback",
+            "functions": [
+              "zapyourself"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
