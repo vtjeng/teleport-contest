@@ -57334,6 +57334,123 @@
         "rng": 770398
       },
       "parkedReason": "Whole-program span passed combined validation, with seven matching generator recordings. The active invocation-level vibrating-square entry has no production recording, so retain that completion requirement."
+    },
+    {
+      "id": "div-hack-test-move-liquid-seed0009-20260917",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Admit walking liquid destinations to the source movement and swim-warning gates",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "Integrate ready task A-20260916-18 for holdout/seed0009-swimmer-mforce, remaining-screen upper bound 25, from investigations/holdout/seed0009-swimmer-mforce.json. This task was selected while Knight work and its next investigation were pending, end.c was reserved by B16, and zap.c by B17; seed2200 remains the machine-local Q1 case. A18 is the only ready delivery and retains its normal span handoff despite the newly completed higher-ranked Knight investigation.",
+      "detail": "Segment 0 step 48 stops in js/hack.js requireSimpleHeroDestination before C hack.c test_move can admit a DO_MOVE into a visible pool. C test_move filters known liquid only for non-DO_MOVE travel/trap probes; domove_core then calls swim_move_danger, whose m-prefix arm continues, before moving the hero and applying arrival effects. Correct the walking admission and obsolete nopick/decor refusal without changing independent teleport or downstream arrival owners. The complete investigation and immutable A18 receipt retain source and fresh recording evidence.",
+      "spans": [
+        {
+          "name": "walking-liquid-admission",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "test_move",
+            "domove_core",
+            "swim_move_danger"
+          ]
+        }
+      ],
+      "openedAt": "4951723399847e0f2c1419c2467d52e54c41de47",
+      "openStanding": {
+        "sha": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
+        "screens": 10771,
+        "rng": 770799
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "test_move",
+      "session": "holdout/seed0009-swimmer-mforce",
+      "step": 48,
+      "activeStanding": {
+        "sha": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
+        "screens": 10771,
+        "rng": 770799
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 48,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 25,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 25,
+              "status": "complete",
+              "commit": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "step": 48,
+                "kind": "stop",
+                "function": "test_move",
+                "functionDeclared": true,
+                "sourceFile": "hack.c",
+                "cFile": "hack.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero move: test_move() door or special terrain movement",
+                "unlocatedKinds": [],
+                "recordedSteps": 73,
+                "remainingScreensUpperBound": 25
+              },
+              "summary": "At step 48 the hero is at (6,15) and the west destination (5,15) is a visible POOL. Steps 44-45 already showed C's ordinary movement warning for that pool; step 47 consumes the m prefix, so step 48 reaches hack.c:test_move() with context.nopick set. C test_move() treats this unblocked liquid square as a legal destination and returns TRUE; domove_core() then calls swim_move_danger(), whose m-prefix arm sets TIP_SWIM and returns FALSE, allowing the move to continue into spoteffects()->pooleffects()->drown(), which emits the recorded fall and sink messages. JavaScript's requireSimpleHeroDestination() still rejects POOL because its ordinaryDestination set excludes liquid terrain, so the refusal occurs before test_move() and before any movement RNG or arrival effect. The current source owner is hack.c:test_move(), with the whole 991-1255 function in scope; no Lua owner is involved. The unresolved implementation is liquid admission while preserving test_move()'s run/travel liquid filter and all physical-obstacle, doorway, diagonal, and boulder branches.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "test_move"
+                ],
+                "branch": "hack.c:991-1255, specifically the ordinary DO_MOVE path after the IS_OBSTRUCTED and IS_DOOR arms: a POOL at (5,15) is neither an obstacle nor a door, so the diagonal, TEST_TRAP and boulder checks do not reject it and test_move() returns TRUE at 1253-1254. The caller then follows hack.c:2843-2856: domove_core() calls swim_move_danger() after test_move(); at 1885-1921, context.nopick from the m prefix takes the TIP_SWIM arm at 1907-1910, returns FALSE, and permits the move. This source order must remain ahead of spoteffects() and pooleffects().",
+                "callers": [
+                  "nethack-c/upstream/src/hack.c:2843-2856 domove_core() is the live production DO_MOVE caller for this replay; js/cmd.js:2675-2724 executeMovement() dispatches the movement and js/hack.js:4054-4077 domove_core() calls test_move(), then swim_move_danger().",
+                  "nethack-c/upstream/src/hack.c:1277 findtravelpath() calls test_move(..., TEST_MOVE) for an adjacent travel target; js/hack.js:2828-2835 is the corresponding production caller.",
+                  "nethack-c/upstream/src/hack.c:1379-1395 findtravelpath() calls test_move(..., TEST_TRAP) and test_move(..., TEST_TRAV) while growing a travel path; js/hack.js:2938-2959 preserves those two probes.",
+                  "nethack-c/upstream/src/hack.c:1481-1489 findtravelpath() calls test_move(..., TEST_MOVE) for a guessed destination; js/hack.js:3062-3069 is its live caller.",
+                  "nethack-c/upstream/src/hack.c:2538-2559 avoid_trap_andor_region() calls test_move(..., TEST_MOVE) before region and trap confirmation; js/hack.js:3466-3489 owns the corresponding checks.",
+                  "nethack-c/upstream/src/hack.c:2843 is also reached by the command path after cmd.c:do_reqmenu() sets the m-prefix state at cmd.c:1574-1587; js/cmd.js:2605-2621 and set_move_cmd() at 2153-2163 copy that state to context.nopick."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/dbridge.c:46-83 is_pool(), is_lava(), and is_pool_or_lava() classify the destination; js/trap.js:292-319 supplies the state-aware predicates.",
+                  "nethack-c/upstream/src/hack.c:1885-1921 swim_move_danger() is the required post-test_move liquid warning/force dependency; js/hack.js:3131-3179 supplies its result classifier and output owner.",
+                  "nethack-c/upstream/src/hack.c:2843-2856 domove_core() fixes the evaluation order: test_move() first, swim_move_danger() second, then the tentative move; js/hack.js:4054-4077 is the production implementation.",
+                  "nethack-c/upstream/src/hack.c:3233-3308 pooleffects() and :3312-3350 spoteffects() own the arrival transition after the hero moves; js/hack.js:4830-4918 and :4950-4989 are the corresponding owners.",
+                  "nethack-c/upstream/src/trap.c:5059-5200 drown() produces the recorded fall/sink output and handles the post-entry survival/death transaction; js/trap.js:917-1057 is its current dependency and retains explicit water_damage/display gaps.",
+                  "nethack-c/upstream/src/hack.c:1181-1203 restricts known pools only for non-DO_MOVE travel/trap probing; a DO_MOVE m-prefix into an unknown-danger pool must not inherit that filter. js/hack.js:2668-2687 already keeps this mode distinction in test_move().",
+                  "js/hack.js:1380-1429 requireSimpleHeroDestination() is the current refusal seam: after the m-prefix AVOID exception it admits only ROOM, CORR, AIR, furniture, and selected door masks, then throws for this POOL. The fix scope must let source-valid liquid movement reach test_move() without evaluating arrival effects early."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The current saved queue entry in .cache/A15-queue.json identifies holdout/seed0009-swimmer-mforce at stop step 48, function test_move, sourceFile hack.c, message unsupported hero move: test_move() door or special terrain movement, recordedSteps 73, and remainingScreensUpperBound 25. The prior tracked count 43 is superseded.",
+                "The matching row in .cache/A15-development-scan.json reports screensEmitted 48, key h / command movewest, and C's message You fall into the pool of water!  You sink like a rock.--More--; its stop context is the single assigned segment with seed 9, datetime 20260427215729, OPTIONS=symset:DECgraphics, and the input through the stop.",
+                "The session-specific bounded replay artifact .cache/seed0009-investigation-18a56313/replay-a15.json was produced by replay-a15.mjs against examined commit 1155b6ce37b4fb66db2dba00916ea4a0dd6b8557 in run-0fxEeF. Its boundary is UnsupportedHeroMoveBoundaryError at js/hack.js:1427, with hero position (6,15), moves 21, context.nopick 1, and rngCount 3647.",
+                "The replay snapshots at steps 44 and 45 identify destination (5,15) as typ 16 POOL with dfeature_at() equal to pool of water. Step 45 has no new RNG and corresponds to C's avoid message; step 47 consumes m, and step 48 is the h movement which the current JavaScript admission rejects before test_move().",
+                "The recording's step 48 RNG and screen are source evidence for the downstream branch: eight rnd_nextto_goodpos(trap.c:4956) draws accompany You fall into the pool of water!  You sink like a rock.--More--. This is consistent with C test_move() returning TRUE, swim_move_danger() continuing under context.nopick, and pooleffects()/drown() handling the entered pool.",
+                "Upstream hack.c:test_move():1011-1151 only handles obstructed squares and door/testdiag rules before the generic diagonal checks; :1181-1203 applies the known-liquid refusal only when mode is not DO_MOVE, and :1253-1254 returns TRUE for the remaining legal destination. Therefore the pool is not a test_move() refusal and the JavaScript preflight throw is the missing admission/wiring branch.",
+                "Upstream hack.c:2843-2856 calls test_move() before swim_move_danger(); hack.c:1907-1910 explicitly returns FALSE for the context.nopick m-prefix arm, while hack.c:3349-3350 calls pooleffects(TRUE) after the tentative move. These lines establish the required source order and the production caller for the assigned input.",
+                "Retained counter-evidence from the accepted A15 decoration work: pickup.c:353-425 has source-sensitive unchanged-terrain ordering, including repeated furniture/door suppression and final prev_decor storage. That explanation is superseded for this count and is not the current boundary; it remains here to prevent restoring a decor guard or duplicating dfeature_at() while admitting this liquid path.",
+                "Retained counter-evidence from the accepted A15 ICE admission review: pager.c:613-650 ice_descr() can mutate ice_rating and consume display randomness under Hallucination, so admission plans must remain side-effect-free and descriptions must run only in live callers. This is a separate resolved A15 concern, not an explanation for the current POOL stop; the liquid fix must preserve the same no-early-output rule."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
