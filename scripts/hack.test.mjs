@@ -30,6 +30,7 @@ import {
     MELT_ICE_AWAY,
     LAVAPOOL,
     PARANOID_SWIM,
+    PIT,
     POOL,
     ROOM,
     ROOMOFFSET,
@@ -618,6 +619,20 @@ test('spoteffects calls pickup only for an enabled ordinary arrival',
         dismounting.in_steed_dismounting = true;
         await spoteffects(true, dismounting);
         assert.equal(dismounting.gp.pickup_encumbrance, 7);
+    });
+
+test('spoteffects stops its arrival tail after terminal pooleffects',
+    async () => {
+        // C's done() is non-returning.  A terminal JS finalizer returns only
+        // to let the segment capture its ending screen; spoteffects() must
+        // not continue into trap handling after that return.
+        const terminal = terrainState(ROOM, ROOM);
+        terminal.program_state = { gameover: true };
+        // This valid pit would be processed by dotrap() if the terminal
+        // return incorrectly fell through to spoteffects()'s ordinary tail.
+        terminal.level.traps = [{ tx: 5, ty: 4, ttyp: PIT }];
+
+        await assert.doesNotReject(() => spoteffects(true, terminal));
     });
 
 test('movement smudges old then new engravings in source RNG order', () => {
