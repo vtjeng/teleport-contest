@@ -23,6 +23,7 @@ import {
     IN_SIGHT,
     LEVITATION,
     MM_NOMSG,
+    POOL,
     ROOM,
     SICK,
     SICK_VOMITABLE,
@@ -54,6 +55,28 @@ import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 import { do_clear_area_async } from '../js/vision.js';
+
+async function prepareGushingSquares() {
+    await startedGame();
+    game.u.ux = 40;
+    game.u.uy = 10;
+    game.vision_full_recalc = false;
+    for (const row of game.viz_array) row.fill(0);
+    // Only these two even-parity squares are visible. fountain.c gush()
+    // therefore draws rn2(1 + distmin) with bounds 3 and 5, in that order.
+    for (let y = 9; y <= 11; ++y) {
+        for (let x = 41; x <= 45; ++x) {
+            game.level.at(x, y).typ = ROOM;
+            game.level.at(x, y).flags = 0;
+            game.level.objects[x][y] = null;
+            game.level.monsters[x][y] = null;
+        }
+    }
+    game.viz_array[10][42] = COULD_SEE | IN_SIGHT;
+    game.viz_array[10][44] = COULD_SEE | IN_SIGHT;
+    game.level.traps = [];
+    game.level.monlist = null;
+}
 
 test('do_clear_area async callbacks preserve source callback order', async () => {
     await startedGame();
@@ -87,32 +110,16 @@ test('dogushforth interleaves candidate RNG with each square effect', async () =
         /set_levltyp\(x, y, POOL\);[\s\S]*?water_damage_chain\([\s\S]*?\);[\s\S]*?minliquid\(mtmp\)/u,
     );
 
-    await startedGame();
-    const { ux, uy } = game.u;
-    // Use a clear, fully visible room around the hero so this test exercises
-    // multiple gush callbacks instead of depending on the generated map.
-    for (let y = Math.max(0, uy - 7); y <= Math.min(20, uy + 7); ++y) {
-        for (let x = Math.max(1, ux - 7); x <= Math.min(79, ux + 7); ++x) {
-            game.level.at(x, y).typ = ROOM;
-            game.level.at(x, y).flags = 0;
-            game.viz_array[y][x] = COULD_SEE | IN_SIGHT;
-            game.level.objects[x][y] = null;
-            game.level.monsters[x][y] = null;
-        }
-    }
-    game.level.traps = [];
-    game.level.monlist = null;
+    await prepareGushingSquares();
     const messages = [];
-    let candidateDraws = 0;
+    const events = [];
     let effectStarted = false;
     let effectFinished = false;
-    let drawsAtEffect = 0;
     const random = {
         rn2(bound) {
             if (effectStarted && !effectFinished)
                 assert.fail('next square was considered before prior effect');
-            ++candidateDraws;
-            assert.ok(bound > 0);
+            events.push(`rn2(${bound})`);
             return 0;
         },
     };
@@ -120,29 +127,29 @@ test('dogushforth interleaves candidate RNG with each square effect', async () =
         messages.push(line);
         if (line === 'Water gushes forth from the overflowing fountain!') {
             effectStarted = true;
-            drawsAtEffect = candidateDraws;
+            events.push('message');
             await Promise.resolve();
             effectFinished = true;
         }
     };
     await dogushforth(false, game, { message, random });
-    assert.ok(candidateDraws > drawsAtEffect);
+    assert.deepEqual(events, ['rn2(3)', 'message', 'rn2(5)']);
+    assert.equal(game.level.at(42, 10).typ, POOL);
+    assert.equal(game.level.at(44, 10).typ, POOL);
     assert.deepEqual(messages, [
         'Water gushes forth from the overflowing fountain!',
     ]);
 });
 
 test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {
-    await startedGame();
-    game.level.monlist = null;
-    for (const column of game.level.monsters)
-        for (let y = 0; y < column.length; ++y) column[y] = null;
+    await prepareGushingSquares();
     const location = game.level.at(game.u.ux, game.u.uy);
     location.typ = FOUNTAIN;
     location.horizontal = 0;
     location.flags = 0;
     const messages = [];
     const draws = [];
+    const expectedDraws = [[3, 0], [5, 0], [3, 1]];
     await drinkfountain(game, {
         message: (line) => messages.push(line),
         random: {
@@ -153,11 +160,15 @@ test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {
             },
             rn2(bound) {
                 draws.push(`rn2(${bound})`);
-                return bound === 3 ? 1 : 0;
+                const expected = expectedDraws.shift();
+                assert.ok(expected, 'unexpected additional random draw');
+                assert.equal(bound, expected[0]);
+                return expected[1];
             },
         },
     });
-    assert.deepEqual(draws.at(0), 'rnd(30)');
+    assert.deepEqual(draws, ['rnd(30)', 'rn2(3)', 'rn2(5)', 'rn2(3)']);
+    assert.deepEqual(expectedDraws, []);
     assert.equal(messages.at(0),
         'Water gushes forth from the overflowing fountain!');
     assert.equal(location.typ, FOUNTAIN);

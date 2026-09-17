@@ -281,11 +281,10 @@ async function gush(x, y, argument, state = game, env = {}) {
     const ttmp = t_at(x, y, state);
     if (ttmp && !delfloortrap(ttmp, state)) return;
 
-    if (!context.madepool) {
+    if (!context.madepool++) {
         await message(
             'Water gushes forth from the overflowing fountain!', state);
     }
-    context.madepool++;
 
     // C ref: fountain.c:151-155. Create a pool.
     set_levltyp(x, y, POOL, { state });

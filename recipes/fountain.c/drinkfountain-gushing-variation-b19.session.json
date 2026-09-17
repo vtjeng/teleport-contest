@@ -6,7 +6,7 @@
       "datetime": "20310203040506",
       "nethackrc": "OPTIONS=name:FurnB19,role:Valkyrie,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:dog,!acoustics\n",
       "moves": "lqy",
-      "comment": "Cheap independent gender/alignment variation of the scan-selected natural fountain route; the same east move reaches drinkfountain() under lawful male startup and exercises its ordinary fate branch."
+      "comment": "Cheap independent alignment variation of the scan-selected natural fountain route; the same east move reaches drinkfountain() under lawful startup and exercises its ordinary fate branch. The C role selection normalizes the requested male Valkyrie to female."
     }
   ]
 }

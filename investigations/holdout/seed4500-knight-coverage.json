@@ -1,48 +1,48 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 485,
+  "remainingScreensUpperBound": 376,
   "status": "complete",
-  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+  "commit": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1329,
+    "step": 1438,
     "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "function": "zapyourself",
+    "functionDeclared": true,
+    "sourceFile": "zap.c",
+    "cFile": "zap.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: fountain requires gushing-forth fountain effect (fate 30)",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapyourself() for object type 422",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 485
+    "remainingScreensUpperBound": 376
   },
-  "summary": "The pager correction resolves the fountain target description. The next blocker is drinkfountain fate 30: JavaScript refuses gushing before C dogushforth traverses nearby visible squares and gush creates pools. Complete the source-owned dogushforth/gush family and wire the drinking caller; execute each square’s random gate and effects in C traversal order, then dryup.",
+  "summary": "The valid-target cursor key now matches. The next refusal is a wand of polymorph directed at the hero: complete zap.c zapyourself and wire its canonical polyself caller. The existing uncontrolled polymorph selection remains a downstream gap.",
   "source": {
-    "file": "fountain.c",
+    "file": "zap.c",
     "functions": [
-      "dogushforth",
-      "gush"
+      "zapyourself"
     ],
-    "branch": "fountain.c drinkfountain (case 30, lines 380-382) calls dogushforth(TRUE), followed by dryup at line 389. dogushforth (119-131) traverses radius 7 through vision.c do_clear_area; gush (133-161) gates parity, hero position, rn2 distance, room terrain, boulders and adjacent doors in expression order, removes deletable floor traps, announces the first pool, replaces terrain and flags, removes engraving, damages floor objects, then handles a monster through minliquid or updates its map symbol. If no pool is made, dogushforth chooses its drinking/dipping fallback message.",
+    "branch": "zap.c zapyourself, WAN_POLYMORPH/SPE_POLYMORPH at 2804–2808: unless Unchanging, set learn_it and call polyself(POLY_NOFLAGS). Select the complete function, including its other self-zap cases and final object learning/damage result.",
     "callers": [
-      "js/fountain.js drinkfountain currently throws in fate 30, where C calls dogushforth(TRUE).",
-      "js/fountain.js dipfountain already calls the partial dogushforth(FALSE); completing the shared owner must preserve this entry too."
+      "zap.c dozap sends a zero-direction wand to zapyourself; js/zap.js dozap reaches the same self-directed command and currently refuses object type 422 (WAN_POLYMORPH).",
+      "spell.c spelleffects also uses zapyourself for zero-direction spell effects; preserve its source caller and ordinary/self-zap distinction."
     ],
     "dependencies": [
-      "vision.c do_clear_area traverses y then x after any required vision recalculation. The existing JavaScript collects all pool squares before applying their effects, which can reorder RNG and monster/liquid state changes. Preserve source order across awaited effects.",
-      "trap.c delfloortrap returns a Boolean used by gush; the canonical js/trap.js implementation already matches its trap-type gate, actor trap-state cleanup and unlinking. Reuse that owner. water_damage_chain has discarded return value and may remain a note_unported call until ported, without a blanket refusal for occupied floor squares.",
-      "mon.c minliquid, display newsym, engrave del_engr_at and rm set_levltyp supply existing source-owned effects; the fountain caller must preserve their per-square order."
+      "polyself.c polyself is the canonical polymorph owner. Its current JavaScript random-monster-selection branch throws UnsupportedPolyselfError; wiring zapyourself does not by itself complete this downstream path.",
+      "The complete zapyourself stone-to-flesh inventory loop uses bhito return values. Its zap.c stone_to_flesh_obj dependency uses trap.c animate_statue, which in turn consumes montraits and monster-creation results. These used-return callees require implementations; note_unported cannot substitute for their results.",
+      "Self-zap trap helpers expose result and noticed separately in JavaScript; preserve the C boolean result and learn_it side effect. Save the next inventory object before a mutation-capable bhito call and preserve merged knowledge/message ordering."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The passing checkpoint .git/checkpoint-results/4e0cff9e1c51feb7ba0094f924613e5f896b0904/run-zXQmp5/summary.json reports the Knight session beyond its former step-1322 pager mismatch; the refreshed saved queue .cache/B18-queue.json identifies step 1329 as the next first mismatch.",
-    "The original C recording selects rnd(30)=30 in drinkfountain. C fountain.c case 30 calls dogushforth(TRUE), but current js/fountain.js case 30 throws UnsupportedFountainError for the gushing-forth effect.",
-    "Source comparison of fountain.c 119-161 and vision.c 2107-2150 establishes per-square traversal and effect order. Current js/fountain.js dogushforth accumulates poolSquares synchronously before its async effect loop, so merely removing the drinking refusal would retain an ordering defect.",
-    "The earlier force-quitchar explanation remains falsified: getpos already continues forced selection after quitchars. The resolved pager mismatch came from shared sink/fountain symbol refinement and must not be addressed with teleport-specific output.",
-    "The remaining-screen count is the mismatch queue upper bound, not a predicted gain; the actual combined development score remains recorded only from the accepted checkpoint.",
-    "A later independent cursor defect is source-confirmed in the current code: getpos.c 955-961 always sets show_goal_msg and continues for NHKF_GETPOS_SHOWVALID, even without getpos_hilitefunc. JavaScript js/getpos.js gates that entire branch on the callback, so a valid-square key without a callback falls into terrain-feature lookup. A post-fountain continuation observed it at Knight step1347; the current published queue remains blocked earlier at fountain fate30, and no downstream gain is claimed."
-  ]
+    "Passing checkpoint .git/checkpoint-results/bacd6775cf8727b59eb755a882b81388a8f8eb40/run-awI997/summary.json reports 10947/11405 fixed-development screens and 327/327 recordings. Knight screens rise from 1435 to 1438; all other session metrics are unchanged.",
+    "The current saved scan .cache/B20-development-scan.json has no screen/RNG/cursor divergence before the stop at 1438 emitted screens. The reported refusal is zapyourself for object type 422; js/objects.js defines WAN_POLYMORPH as 422.",
+    "Root compared zap.c 2804–2808 and js/polyself.js random-monster selection directly. The first source boundary is the self-zap dispatcher; the downstream uncontrolled selection is separately unported.",
+    "Root and a read-only helper traced stone_to_flesh_obj at zap.c 1993–2111 and animate_statue at trap.c 725–900. The complete self-zap function cannot skip this return-valued chain while claiming whole-source completion.",
+    "The getpos SHOWVALID defect, fountain gushing, and shared sink/fountain pager refinement are resolved. Both independent SHOWVALID recordings now match all seven screens and cursor positions.",
+    "The 376 remaining-screen count is a queue upper bound, not a predicted gain. The accepted workload has 458 actual unmatched screens."
+  ],
+  "nextProbe": "Complete and validate whole zapyourself with its mandatory result-bearing dependencies, then trace the canonical uncontrolled polyself continuation. Keep unrecorded entry families explicit."
 }
