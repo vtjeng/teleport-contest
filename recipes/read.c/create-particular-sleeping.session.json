@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent read.c create_particular() coverage: wizard.c wiz_genesis() enters create_particular_creation() with a sleeping newt request. The seed, timestamp, Ranger character, and input were chosen for this source path; the qualifier changes the created monster's msleeping state while the ordinary creation lifecycle remains shared.",
+  "segments": [
+    {
+      "seed": 9631048,
+      "datetime": "20340825172133",
+      "nethackrc": "OPTIONS=name:QualifierProbe,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007sleeping newt\n"
+    }
+  ]
+}
