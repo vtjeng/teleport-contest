@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked independent read.c create_particular() entry: hidden trapper reaches the M1_HIDE state assignment and canonical mon.c flash_mon(), whose discarded display.c flash_glyph_at() animation is not ported. Keep this input-only recipe until that display owner lands; scripts/wizard-genesis.test.mjs still checks the production monster mundetected state.",
+  "_comment": "Independent read.c create_particular() entry: hidden trapper reaches the M1_HIDE state assignment and canonical mon.c flash_mon(), including display.c flash_glyph_at() animation.",
   "segments": [
     {
       "seed": 9631050,

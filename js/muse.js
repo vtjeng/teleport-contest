@@ -520,7 +520,7 @@ async function mreadmsg(mtmp, otmp, state) {
             `${x_monnam(mtmp, ARTICLE_A, null, mflags, false, state)} `
             + `${blindbuf}.`, state);
         if (heardRead) await ttyPline(heardRead, state);
-        if (tpindicator) flash_mon(mtmp, state);
+        if (tpindicator) await flash_mon(mtmp, state);
     }
     if (mtmp.mconf) /* (note: won't get if not seen and hero can't hear) */
         await ttyPline(

@@ -1208,7 +1208,7 @@ async function create_particular_creation(d, state = game) {
         }
         if (d.sleeping) mtmp.msleeping = 1;
         if ((d.hidden || d.invisible) && !canSpotMonster(mtmp, state))
-            flash_mon(mtmp, state);
+            await flash_mon(mtmp, state);
         madeany = true;
         if (mtmp.cham !== NON_PM && firstchoice !== NON_PM
             && mtmp.cham !== firstchoice)
