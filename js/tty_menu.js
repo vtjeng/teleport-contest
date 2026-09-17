@@ -1473,6 +1473,9 @@ async function selectAnyTtyMenu(state, spec) {
 // PICK_ONE loop, which refuses every selection and so always answers
 // cancelValue.
 export async function selectTtyMenu(state = game, spec) {
+    // wintty.c tty_display_nhwindow() clears rawprint before the menu arm.
+    if (state.nhDisplay?.nomuxRaw)
+        state.nhDisplay.nomuxRaw.rawprint = 0;
     // wintty.c tty_display_nhwindow()'s NHW_MENU arm (1921-1922) flushes an
     // unacknowledged top line before the menu covers it, guarded by
     // `ttyDisplay->toplin == TOPLINE_NEED_MORE`. A message already
