@@ -61,6 +61,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FIRE_RES,
+    FUMBLING,
     GETOBJ_EXCLUDE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
@@ -76,6 +77,7 @@ import {
     ICED_MOAT,
     ICED_POOL,
     IRONBARS,
+    LEFT_HANDED,
     IS_FOUNTAIN,
     IS_OBSTRUCTED,
     IS_ROOM,
@@ -168,11 +170,11 @@ import {
     STONED,
     STUNNED,
     TELEPORT_CONTROL,
-    THROWN_TETHERED_WEAPON,
     UNCHANGING,
     DRAIN_RES,
     FAST,
     INVIS,
+    THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
     ZAPPED_WAND,
     WAND_BACKFIRE_CHANCE,
@@ -204,6 +206,8 @@ import {
     XKILL_NOMSG,
     XKILL_NOCORPSE,
     ZAP_POS,
+    xdir,
+    ydir,
     engulfing_u,
     isok,
     u_at,
@@ -548,11 +552,13 @@ import {
     maybe_unhide_at,
     m_respond,
     newcham,
+    wake_nearto,
     wakeup,
     xkilled,
     set_ustuck,
     unstuck,
 } from './mon.js';
+import { dmgval } from './weapon.js';
 import { expels, u_slow_down } from './mhitu.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { explode } from './explode.js';
@@ -614,7 +620,7 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { create_gas_cloud } from './region.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    hits_bars, m_useup, m_useupall, rnd_hallublast,
+    hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
@@ -648,6 +654,114 @@ function heroIsDeaf(state) {
     const property = state.u?.uprops?.[DEAF];
     return Boolean(property?.intrinsic || property?.extrinsic
         || state.u?.uroleplay?.deaf);
+}
+
+// C ref: zap.c bhit_done() (4125-4138).  The flight cleanup is a discarded
+// light.c call; retain its source boundary for every thrown or tethered exit
+// without inventing a transient-light state change.
+function noteBhitTransientLightCleanup(weapon, tetheredWeapon) {
+    if (weapon === THROWN_WEAPON || tetheredWeapon)
+        note_unported('light.c transient_light_cleanup');
+}
+
+// symbol_data.js derives these cmap positions from defsym.h; symbols.js
+// intentionally exports only the terrain symbols used by public callers.
+const S_BOOMLEFT = 80;
+const S_BOOMRIGHT = 81;
+
+// C ref: zap.c boomhit() (4148-4236).  This source owner lives in zap.js;
+// dothrow.js supplies throwit_mon_hit() and endmultishot() as the production
+// callbacks because C's boomerang caller owns those dothrow-side transitions.
+// Direct callers get those owners through lazy imports, which avoids adding a
+// second static zap.js -> dothrow.js cycle.
+export async function boomhit(
+    obj, dx, dy, state = game, hitMonster = null, endMultishotOwner = null,
+) {
+    const counterclockwise = state.u?.uhandedness !== LEFT_HANDED;
+    let direction = xytodir(dx, dy);
+    let nhits = Math.max(1, (obj.spe ?? 0) + 1);
+    state.gb ??= {};
+    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
+    let boom = counterclockwise ? S_BOOMLEFT : S_BOOMRIGHT;
+
+    const boomGlyph = map_glyphinfo(cmap_to_glyph(boom, state), state);
+    await tmp_at(DISP_FLASH, boomGlyph, state);
+    for (let count = 0; count < 10; count++) {
+        direction = (direction + 8) % 8;
+        boom = S_BOOMLEFT + S_BOOMRIGHT - boom;
+        const turnGlyph = map_glyphinfo(
+            cmap_to_glyph(boom, state), state,
+        );
+        await tmp_at(DISP_CHANGE, turnGlyph, state);
+        const stepX = xdir[direction];
+        const stepY = ydir[direction];
+        state.gb.bhitpos.x += stepX;
+        state.gb.bhitpos.y += stepY;
+        if (!isok(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            state.gb.bhitpos.x -= stepX;
+            state.gb.bhitpos.y -= stepY;
+            break;
+        }
+
+        const monster = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        if (monster) {
+            await m_respond(monster, { state });
+            if (nhits-- < 0) {
+                await tmp_at(DISP_END, 0, state);
+                return monster;
+            }
+            const callback = hitMonster
+                ?? (await import('./dothrow.js')).throwit_mon_hit;
+            const caught = await callback(monster, obj, state);
+            if (caught || !state.gt?.thrownobj) break;
+        }
+        const location = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
+        if (!ZAP_POS(location.typ)
+            || closed_door(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            state.gb.bhitpos.x -= stepX;
+            state.gb.bhitpos.y -= stepY;
+            break;
+        }
+        if (state.gb.bhitpos.x === state.u.ux
+            && state.gb.bhitpos.y === state.u.uy) {
+            const fumbling = state.u?.uprops?.[FUMBLING];
+            if (Boolean(fumbling?.intrinsic || fumbling?.extrinsic)
+                || rn2(20) >= acurr(state, A_DEX)) {
+                // C discards both return values, but their source-owned
+                // effects still occur in this self-hit arm.
+                const damage = dmgval(obj, state.youmonst, state);
+                await thitu(
+                    10 + (obj.spe ?? 0), maybeHalfPhysical(damage, state),
+                    obj, 'boomerang', state,
+                    { message: ttyPline, losehp, exercise, random: { rnd } },
+                );
+                // C's accepted death enters done() and does not return.
+                if (state.program_state?.gameover) return null;
+                const finish = endMultishotOwner
+                    ?? (await import('./dothrow.js')).endmultishot;
+                await finish(true, state);
+                break;
+            }
+            await tmp_at(DISP_END, 0, state);
+            await ttyPline('You skillfully catch the boomerang.', state);
+            return state.youmonst;
+        }
+        await tmp_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        await nh_delay_output(state);
+        if (IS_SINK(location.typ)) {
+            note_unported('sounds.c Soundeffect');
+            if (!heroIsDeaf(state)) await ttyPline('Klonk!', state);
+            await wake_nearto(
+                state.gb.bhitpos.x, state.gb.bhitpos.y, 20, { state },
+            );
+            break;
+        }
+        if (count % 5 !== 0)
+            direction = counterclockwise ? (direction + 7) % 8
+                : (direction + 1) % 8;
+    }
+    await tmp_at(DISP_END, 0, state);
+    return null;
 }
 
 // C ref: zap.c lightdamage() (3024-3056). Scrolls pass ordinary=TRUE, but
@@ -3023,6 +3137,7 @@ export async function bhit(
             const caught = await shkcatch(obj, x, y, state, rawEnv);
             if (caught) {
                 await tmp_at(DISP_END, 0, state);
+                noteBhitTransientLightCleanup(weapon, tetheredWeapon);
                 return caught;
             }
         }
@@ -3156,8 +3271,7 @@ export async function bhit(
                 if (!tetheredWeapon) await tmp_at(DISP_END, 0, state);
                 if (cansee(x, y, state) && !canSpotMonster(mtmp, state))
                     map_invisible(x, y, state);
-                // goto bhit_done. transient_light_cleanup() is inert for the
-                // same reason as at the tail below.
+                noteBhitTransientLightCleanup(weapon, tetheredWeapon);
                 return mtmp;
             }
         }
@@ -3225,9 +3339,7 @@ export async function bhit(
         || (wasReturning
             && wasReturning !== state.iflags?.returning_missile))
         await tmp_at(DISP_END, 0, state);
-    // pay_for_damage("destroy"): only a zapped wand can break a shop door.
-    // transient_light_cleanup(): only a lit object registers a transient
-    // light, and the arm that would have shown one stops above.
+    noteBhitTransientLightCleanup(weapon, tetheredWeapon);
     //
     // The return value is the monster the missile hit. Reaching the tail means
     // the flight ended on terrain or on its own range instead, so it is null.

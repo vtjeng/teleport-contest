@@ -59439,7 +59439,7 @@
     {
       "id": "port-polyself-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete polymorph selection and wire self-directed polymorph effects",
       "cFile": "polyself.c",
       "sessions": [
@@ -59450,8 +59450,8 @@
       "spans": [
         {
           "name": "polyself",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0737209af932f58e30ff926172a787f595379498",
           "functions": [
             "polyself"
           ]
@@ -59623,6 +59623,362 @@
             "name": "controlled lycanthrope shift, dragon armor merge, and vampire direct target",
             "functions": [
               "polyself"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 1,
+        "rng": -6
+      },
+      "parkedStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "parkedReason": "Whole polyself selection and its canonical self-zap caller pass at 0737209a, including the independent controlled-raven recording. Class-retry, lycanthrope, dragon, vampire and uncontrolled self-zap entry families still need independent matching recordings; resume their coverage when downstream body-transition owners, including break_armor, support those recipes."
+    },
+    {
+      "id": "div-topl-update-topl-seed0399-20260917",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Preserve the stopped-message snapshot when death replaces a pending top line",
+      "cFile": "topl.c",
+      "sessions": [],
+      "selectionReason": "Integrate the oldest independent ready delivery B23 under the loop merge order. The completed seed0399 investigation identifies update_topl at step 521 with 11 remaining-screen upper bound. Knight break_armor is separate upcoming source work, seed2200 is blocked by Q1, and A25 owns the earlier throwing mismatch.",
+      "detail": "At segment 0 step 521, C shows You die while JavaScript waits again on You feel weaker. win/tty/topl.c update_topl snapshots WIN_STOP before more; its existing-line dismissal is gated by !skip even when the death comparison later clears WIN_STOP. Preserve that entry-time condition in js/tty_message.js ttyPlineCore. The independent production-message test verifies the next key remains queued.",
+      "spans": [
+        {
+          "name": "stopped-death-message",
+          "status": "closed",
+          "closedBy": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+          "functions": [
+            "update_topl"
+          ]
+        }
+      ],
+      "openedAt": "fed3823aeb2bbbc6bec4c0af80e4e47397198232",
+      "openStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "closedAt": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+      "delivered": {
+        "screens": 7,
+        "rng": 0
+      },
+      "function": "update_topl",
+      "session": "holdout/seed0399-wizard-hallu-actions",
+      "step": 521,
+      "activeStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 521,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 11,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 11,
+              "status": "complete",
+              "commit": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 521,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 11
+              },
+              "summary": "The first mismatch is now source-located in the ordinary TTY message boundary. The Escape is consumed by the More wait inside the poisontell update_topl() call, after encumber_msg() has produced the burden line. C captures skip before that more(), so it writes the attribute feedback after Escape; done_in_by() then calls pline(\"You die...\") with WIN_STOP set and replaces the pending line immediately. JavaScript mirrors the pre-more snapshot but its death path unconditionally dismisses the pending feel-weaker line, consuming later input and delaying death. The independent equipment-change refusal after the 528th emitted screen remains separate.",
+              "source": {
+                "file": "win/tty/topl.c",
+                "functions": [
+                  "more",
+                  "update_topl"
+                ],
+                "branch": "C update_topl captures skip before its more call. The poisontell call enters without WIN_STOP, waits for the burden line, and retains skip=false when Escape sets WIN_STOP, so it displays the attribute feedback. The following short You die message enters with WIN_STOP and reaches the death comparison; update_topl skips the prior-line dismissal, replaces toplines, clears WIN_STOP and redraws. JavaScript incorrectly dismisses the pending feedback on this death path.",
+                "callers": [
+                  "attrib.c: poisoned() 327-408 emits the poison notice, takes the attribute-loss arm at 393-399, and calls encumber_msg() from adjattrib() 194-198 before poisontell().",
+                  "mhitu.c: hitmu() 1191-1203 runs mhitm_adtyping(), including poisoned(), then applies the already rolled physical damage through mdamageu() at 1258; end.c: done_in_by() 184-196 owns the resulting regular pline(\"You die...\").",
+                  "js/attrib.js: poisoned() 1632-1735 and adjattrib() 1137-1233 preserve the C order; js/tty_message.js:499-505 currently dismisses any current pending line without the C !skip gate, while js/tty_message.js:442 snapshots the stop state before that call.",
+                  "js/mhitu.js:1394-1433 preserves the poison-before-physical-damage order; js/mhitu.js:1479-1495 routes lethal damage to done_in_by().",
+                  "The later emitted-screen-528 equipment-change refusal is independent of this message mismatch and remains a separate worn/monster-movement boundary."
+                ],
+                "dependencies": [
+                  "The smallest source-shaped correction is to let the JS replacement/dismissal arm run only when the stop snapshot is false (`current && !stoppedAtEntry`), matching C update_topl()'s `else if (!skip)` at 272. Do not reread the stop flag after dismissPendingTtyMessage(): C deliberately keeps the local pre-more skip value.",
+                  "The poisoned, adjattrib/encumber_msg, poisontell, hitmu/mdamageu and done_in_by call chain establishes the message order. The saved frames show the burden More prompt rejecting i, then death immediately after Escape; JavaScript delays death until later input.",
+                  "The urgent-message path remains separate: wintty.c:2272-2300 clears WIN_STOP and sets one-shot WIN_NOSTOP before update_topl(); js/tty_message.js:574-603 still has its distinct urgent stop refusal.",
+                  "The later refusal is at mon.c movemon_singlemon calling worn.c m_dowear. JavaScript allmain.moveElapsedTurnMonster injects the equipment-change boundary, and makemon_create.m_dowear admits only a narrow new W_ARMF/no-old-item runtime arm. The saved artifact does not identify the exact armor slot or inventory state."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Focused assigned replay run-UvHEqC (2026-09-17) emits 528 JavaScript screens and 11217 RNG entries, with no unported entry except sounds.c SoundAchievement; its output around the mismatch is: step 519 encumbrance More, step 520 ignored i, step 521 JavaScript `You feel weaker!--More--`, then step 523 `You die...--More--`.",
+                ".cache/A22-development-scan.json records the first screen/cursor divergence at segment 0 step 521, key Escape, C row 0 column 4 `d` versus JS `f`, C cursor [18,0,1] versus JS [24,0,1], with no RNG divergence before the later refusal.",
+                "sessions/holdout/seed0399-wizard-hallu-actions.session.json records C step 518 poison attribute RNG rn2(30)=5 and d(2,2)=3, step 519 encumbrance More, step 520 ignored i, and step 521 `You die...--More--` after rn2(3)=0 and rn2(6)=4 knockback draws. The physical attack then applies its already rolled damage in mhitu.c hitmu() and reaches done_in_by() with HP 0; this is not a poison RNG/state mismatch.",
+                "C attrib.c adjattrib() suppresses its own attribute-change text for msgflg 1, but its move-loop encumber_msg() still runs before poisoned() calls poisontell(); the source order explains why the ordinary feel-weaker message follows the Escape-dismissed encumbrance More.",
+                "C topl.c more() 204-248 sets WIN_STOP on Escape at 232-235; update_topl() 250-281 updates logical gt.toplines while skip is true and suppresses addtopl(). C wintty.c tty_putstr() 2259-2300 separately clears WIN_STOP for ATR_URGENT at 2277-2283. The current JS comments and code at tty_message.js 474-510 and 574-603 expose both required state transitions.",
+                "The same scan emits 528 screens before `elapsed turn reached monster equipment changes`. This later boundary is an independent source-completion limit in the worn/monmove family; the saved recording contains no exact m_dowear_type() armor slot or state sufficient to name a narrower branch.",
+                "Root rejected the initial proposed post-dismissal stop reread: C update_topl retains its entry skip snapshot after more. The actionable defect is the missing !skip condition on dismissal in the following death call, not the snapshot itself."
+              ],
+              "nextProbe": "Apply and validate the narrow `!stoppedAtEntry` gate on the JS death/replacement path, preserving the ordinary local skip snapshot and the separate urgent contract. Then replay this assigned session to verify the death frame and input alignment; keep the later equipment-change boundary as an independent remaining source gap."
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+        "screens": 10984,
+        "rng": 784606
+      }
+    },
+    {
+      "id": "port-dothrow-throwit-seed0101-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete thrown-object flight, return, and landing behavior",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "holdout/seed0101-ranger-quiver-throw-travel-engrave"
+      ],
+      "selectionReason": "Integrate the oldest independent ready delivery for holdout/seed0101-ranger-quiver-throw-travel-engrave, remaining upper bound18, source owner dothrow.c throwit from investigations/holdout/seed0101-ranger-quiver-throw-travel-engrave.json. Knight break_armor is owned by the next worker task, seed2200 remains blocked on Q1, and seed0399 equipment reassessment is independently owned. Earlier throwit declarations did not implement its complete branches.",
+      "detail": "Complete throwit1510–1849, its return-used boomhit and bhit flight dependencies, canonical shopkeeper catch/tether glyph helpers, and existing combat callers. Two independent unlaunched-arrow recordings cover the ordinary throw entry. Active fire, boomerang, vertical and attached-ball entry families remain open, so park after verified span closure.",
+      "spans": [
+        {
+          "name": "throwit",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "throwit"
+          ]
+        }
+      ],
+      "openedAt": "ed8af8226fa911776219839728cca23bed2123db",
+      "openStanding": {
+        "sha": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+        "screens": 10984,
+        "rng": 784606
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "throwit",
+          "line": 1510,
+          "endLine": 1854,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1510,
+        "to": 1854
+      },
+      "activeStanding": {
+        "sha": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+        "screens": 10984,
+        "rng": 784606
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
+          "step": 9,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing ammo without a launcher",
+          "unlocatedKinds": [],
+          "recordedSteps": 27,
+          "remainingScreensUpperBound": 18,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0101-ranger-quiver-throw-travel-engrave.json",
+            "result": {
+              "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
+              "remainingScreensUpperBound": 18,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "holdout/seed0101-ranger-quiver-throw-travel-engrave",
+                "step": 9,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing ammo without a launcher",
+                "unlocatedKinds": [],
+                "recordedSteps": 27,
+                "remainingScreensUpperBound": 18
+              },
+              "summary": "At step 9 the Ranger has just readied her alternate +1 bow in the quiver, then selects the d arrow from the ordinary throw prompt and aims east. C dothrow.c throwit() permits ammunition without a matching launcher: it halves the computed range, prints the hand-throw message, and continues through zap.c bhit() to land the arrow. JS stops at js/dothrow.js:1372-1375 before that adjustment and flight. The actionable owner is dothrow.c throwit(), with the ordinary no-launcher branch and its existing bhit/landing tail in scope; later travel, inventory, spell, discovery, attribute, search, and look inputs are downstream of this stop.",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "throwit"
+                ],
+                "branch": "dothrow.c:1612-1648 runs for a non-swallowed, non-vertical, non-boomerang object with a horizontal direction. When the selected object is ammo, ammo_and_launcher(obj, uwep) is false, and obj is not a gem, C halves the positive range and prints `You aren't wielding %s, so you throw your %s by %s.` before calling bhit(). In the witness, Q moved the bow from uswapwep to uquiver; t then selected the separate arrow stack while uwep remained the primary weapon, so the no-launcher preconditions hold. The eastward first ray cell is a blocking room boundary, so bhit() leaves bhitpos at the hero square and throwit() proceeds through breaktest(), flooreffects(), placement, stacking, and throwit_return().",
+                "callers": [
+                  "nethack-c/upstream/src/dothrow.c:254-270, dothrow() -> throw_obj() -> throwit() for each selected throw; js/dothrow.js:1131-1158 implements the same production chain.",
+                  "nethack-c/upstream/src/dothrow.c:469-582, dofire() -> throw_obj() -> throwit() for a quivered or manually selected projectile; js/dothrow.js:866-943 is its caller chain.",
+                  "nethack-c/upstream/src/cmd.c:1901-1902 maps `t` to dothrow(); js/cmd.js:5784-5804 dispatches the recorded t command and applies the ECMD result/time wrapper.",
+                  "nethack-c/upstream/src/artifact.c:2021-2029 invoke_fling_poison() calls throwit() directly; js/artifacts.js:2417-2429 preserves that caller.",
+                  "nethack-c/upstream/src/polyself.c:1450-1477 dospit() calls throwit() directly; js/polyself.js:1777-1813 preserves that caller."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/zap.c:3827-4138 bhit() owns the THROWN_WEAPON ray, updates gb.bhitpos, stops at the blocking boundary, and returns a monster or null; js/zap.js:1246-1437 already implements this admitted call type.",
+                  "nethack-c/upstream/src/dothrow.c:1460-1506 throwit_return() and throwit_mon_hit() clear return state and handle the post-bhit monster result; js/dothrow.js:1204-1305 contains their existing counterparts.",
+                  "nethack-c/upstream/src/dothrow.c:1780-1807 breaktest()/breakmsg()/breakobj() and flooreffects() own breakage and landing consumption; js/dothrow.js:714-741 and js/do.js:550-586 preserve ordinary non-breaking ground while naming unported special surfaces.",
+                  "nethack-c/upstream/src/do.c:893-919 obj_no_longer_held(), mkobj.c:2305-2365 place_object(), and invent.c:4366-4375 stackobj() own release, floor placement, and pile merging; js/obj.js:2784-2845 and js/invent.js:3950-3974 are the wired implementations.",
+                  "nethack-c/upstream/src/dothrow.c:1635-1647 reads is_ammo(), ammo_and_launcher(), weapon_type(), skill_name(), weapon_descr(), body_part(), and the directional u state; js/obj.js, js/weapon.js, js/objnam.js, js/polyself.js, and js/worn.js supply those shared predicates and names.",
+                  "nethack-c/upstream/src/dothrow.c:250-270 splitobj()/freeinv() supplies the recorded rnd(2) next_ident draw before throwit(); js/dothrow.js:1137-1157 invokes the same split/free path. The recorded rn2(100) obj_resists draw at step 9 belongs to breaktest() after the flight."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned-only bounded replay is captured in .cache/investigate-seed0101-18a563/replay.json. It uses commit 18a56313c56723cde906c27449d0fc2c6c085bf0 and upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4, emits 9 screens of the 27 recorded steps, and stops on key l with the C top line `You aren't wielding a bow, so you throw your arrow by hand.`.",
+                "sessions/holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json segments[0].steps[4:9] records Q, b, y, t, d, and l: the alternate weapon prompt and confirmation, the throw-object prompt listing bcd, the selected d arrow, and the eastward direction. steps[9] records the C hand-throw message and nine RNG calls, including rnd(2) from stack splitting and rn2(100) from breaktest().",
+                "nethack-c/upstream/src/dothrow.c:1508-1849 is the complete throwit() source unit. Its live no-launcher branch is :1635-1647: range is divided by two and the hand-throw message is emitted before bhit(); JS js/dothrow.js:1310-1481 has the corresponding function but raises UnsupportedThrowError at :1372-1375 instead.",
+                "The post-flight source path is ordinary in this witness: zap.c:3827-4138 bhit() sees the east boundary and leaves gb.bhitpos at the hero square, then dothrow.c:1780-1847 evaluates breaktest(), flooreffects(), obj_no_longer_held(), place_object(), stackobj(), and throwit_return(). The existing JS counterparts are present and their special-surface refusal guards are not selected by the recorded square.",
+                "The captured prefix state in .cache/investigate-seed0101-18a563/replay.json has uwep otyp 34, uquiver bow otyp 83, no uswapwep, and selected arrow otyp 18 with quantity 31 before split. This establishes why the arrow is ammo but has no matching launcher, rather than attributing the stop to the earlier quiver transition.",
+                "The whole-source goal is a divergence-fix for dothrow.c throwit(), preserving all existing callers and the shared bhit/landing contracts. Validation should replay this witness through step 9 and then exercise a launcher-free arrow or bolt on open ground, a matched launcher, and a gem exception so the range-halving, message, RNG order, and ordinary landing behavior are checked generally."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "throwit",
+            "implementation": "js/dothrow.js",
+            "symbol": "throwit",
+            "sourceReview": "Read complete dothrow.c throwit1510-1849 and compared the slip/stamina preconditions, swallowed and vertical branches, boomerang dispatch, ordinary/ammo/crossbow range arithmetic, tether and attached-ball limits, bhit result handoff, monster-hit gate, autoreturn RNG, return inventory/slot ordering, messages and killer names, breakage/liquid/floor effects, shopkeeper pickup, shipping/stacking and transit cleanup. Required boomhit, bhit, shkcatch and tether_glyph implementations were compared with their C owners and production APIs. The horizontal catch now directly awaits addinv_before, then encumber_msg, quiver removal, setuwep and set_twoweap without the distinct return_throw_to_inv merge override. Hallucination reads the intrinsic timeout and excludes either resistance source. Boomerang self-hit calls dmgval, half-physical damage, canonical thitu and endmultishot in source order; returning artifact damage uses canonical artifact_hit and its mutable damage result. Fatal gameover stops boomhit, throwit and throw_obj where C does not return from done. endmultishot uses canonical ordin and the exact C message, and savelife awaits its cleanup. Remaining discarded callees are explicitly recorded: toss_up, hitfloor, hurtle, sho_obj_return_to_u, potionhit, breakmsg, Soundeffect, snuff_candle, container_impact_dmg, check_shop_obj, drop_ball, hot_pursuit and transient light show/cleanup; no invented RNG/output/state substitutes or new Unsupported refusal stand in for them.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:85-286 calls throwit once for each selected missile after direction, canletgo, and inventory splitting."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dothrow",
+                "source": "dothrow.c:350-376 validates and dispatches the #throw command through throw_obj()."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:469-582 selects quivered ammunition and dispatches through throw_obj()."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dospit",
+                "source": "C polyself.c dospit1450-1478 creates venom and calls throwit(otmp,0,FALSE,NULL); the JS production caller awaits throwit."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_fling_poison",
+                "source": "C artifact.c invoke_fling_poison2021-2037 creates venom and calls throwit; the JS artifact invocation caller awaits throwit. This entry remains unrecorded."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs",
+              "scripts/throw-command.test.mjs",
+              "scripts/bhit.test.mjs",
+              "scripts/tmp-at.test.mjs",
+              "scripts/hero-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throwit-unlaunched-independent.session.json",
+              "recordings/dothrow.c/throwit-unlaunched-variation.session.json"
+            ],
+            "checkedAt": "6c1c1efeff3d010075cfacc48f21381b899ed9fb"
+          }
+        ],
+        "entryPointReview": "The two independent #throw recipes reach the no-launcher ammunition branch and match C strictly. The current recordings do not reach #fire, the boomerang production branch, vertical returns, attached-ball returns, or every bhit early exit, so those active entry families remain open. The source-owned zap.c boomhit() has its curved flight, self-catch thitu() damage, and endmultishot(TRUE) continuation covered by initialized behavioral tests; production recording coverage remains open. scripts/bhit.test.mjs covers thrown and tethered flight cleanup. The new zap.c transient_light_cleanup call is a discarded light.c boundary and does not replace any flight state. Root inspected both independent C recordings: seeds9010102 and9010103 each reach the no-launcher message at step9, including the throw_obj next_ident and landing RNG. Additional active callers are polyself.c dospit and artifact.c invoke_fling_poison; they remain unrecorded. The initialized fatal-boomerang test checks the real death finalization and command return, not a mocked handler. Supporting source checks establish behavior, not production entry recording coverage.",
+        "entryPoints": [
+          {
+            "name": "#throw unlaunched ammunition",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throwit-unlaunched-independent.session.json",
+              "recordings/dothrow.c/throwit-unlaunched-variation.session.json"
+            ]
+          },
+          {
+            "name": "#fire quivered ammunition",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "returning boomerang",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "vertical thrown and returning objects",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "attached-ball or swallowed throw",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "dospit polymorphed hero venom",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "invoke_fling_poison artifact venom",
+            "functions": [
+              "throwit"
             ],
             "recordings": []
           }

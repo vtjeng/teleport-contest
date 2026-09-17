@@ -15,12 +15,14 @@ import {
     DISCLOSE_NO_WITHOUT_PROMPT,
     DROWNING,
     ESCAPED,
+    FUMBLING,
     GENOCIDED,
     KILLED_BY,
     KILLED_BY_AN,
     LIFESAVED,
     MAGIC_PORTAL,
     NO_KILLER_PREFIX,
+    OBJ_INVENT,
     PANICKED,
     PARANOID_CONFIRM,
     PARANOID_DIE,
@@ -38,11 +40,14 @@ import {
 import { moveloop_core, UnsupportedTurnBoundaryError } from '../js/allmain.js';
 import { can_make_bones } from '../js/bones.js';
 import {
+    cmdq_add_dir,
     extcmdRow,
     failClosedCommandRefusals,
     paranoid_query,
 } from '../js/cmd.js';
 import { deaths, done, done_in_by } from '../js/end.js';
+import { throw_obj, throwit } from '../js/dothrow.js';
+import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { losehp, unmul } from '../js/hack.js';
 import { encodeUtf8Text } from '../js/hacklib.js';
@@ -51,8 +56,10 @@ import { GameDisplay } from '../js/game_display.js';
 import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { set_mon_data } from '../js/mondata.js';
+import { newObject } from '../js/obj.js';
+import { BOOMERANG } from '../js/objects.js';
 import { tty_raw_print, tty_wait_synch } from '../js/tty_rawprint.js';
-import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
+import { TOPLINE_NEED_MORE, ttyPline } from '../js/tty_message.js';
 import {
     NON_PM,
     PM_GIANT_BAT,
@@ -181,6 +188,50 @@ function prepareFinalization() {
     if (game.program_state.done_hup)
         game.hero_seq = game.done_seq ?? 0;
 }
+
+test('fatal returning boomerang stops before endmultishot', async () => {
+    // zap.c boomhit calls thitu before endmultishot. Accepted ordinary death
+    // in thitu -> losehp -> done never returns to the volley or landing code.
+    for (const throughCommand of [false, true]) {
+        await dyingGame();
+        prepareFinalization();
+        game.level = new GameMap();
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) game.level.at(x, y).typ = ROOM;
+        }
+        game.u.ux = 40;
+        game.u.uy = 10;
+        game.u.dx = 1;
+        game.u.dy = game.u.dz = 0;
+        game.u.uhp = game.u.uhpmax = 1;
+        game.u.uac = 100;
+        game.u.uprops[FUMBLING].intrinsic = 1;
+        game.m_shot = { i: 1, n: 3, s: false };
+        const boomerang = newObject({
+            otyp: BOOMERANG,
+            oclass: game.objects[BOOMERANG].oc_class,
+            owt: game.objects[BOOMERANG].oc_weight,
+            quan: 1,
+            spe: 0,
+        });
+        if (throughCommand) {
+            boomerang.where = OBJ_INVENT;
+            boomerang.invlet = 'a';
+            game.invent = boomerang;
+            // Use getdir's canonical queued-direction entry so the pending
+            // welcome line cannot consume the direction as a More answer.
+            cmdq_add_dir(CQ_CANNED, 1, 0, 0, game);
+        }
+        dismissLifeSavingMessages();
+        if (throughCommand) await throw_obj(boomerang, 0, game);
+        else await throwit(boomerang, 0, false, null, game);
+        assert.equal(game.program_state.gameover, true);
+        assert.equal(game.u.umortality, 1);
+        assert.equal(game.m_shot.n, throughCommand ? 1 : 3,
+            'death must not resume the volley stop or command cleanup');
+        assert.equal(game.killer.name, 'boomerang');
+    }
+});
 
 test('killer formats and ParanoidDie match their C definitions', () => {
     // hack.h:602-604 and flag.h:85. These values select grammar and input
@@ -651,6 +702,38 @@ test('losehp() waits for done() before it returns', async () => {
     assert.equal(game.killer.name, 'a bolt of fire');
     assert.equal(game.u.umortality, 1);
     assert.equal(game.program_state.in_really_done, false);
+});
+
+test('a stopped top line is replaced by death without a second More wait', async () => {
+    // topl.c update_topl() captures WIN_STOP before more().  An earlier
+    // Escape has already been consumed by the feedback line; the following
+    // "You die..." replaces that stopped line and must leave the next key
+    // for the caller rather than dismissing the old line again.
+    await runSegment({
+        seed: 2026091701,
+        datetime: '20260917090000',
+        nethackrc: nethackrc(),
+        moves: '',
+    });
+    const prior = 'You feel weaker!';
+    game._pending_message = prior;
+    game._ttyToplines = prior;
+    game._ttyMessageStopped = true;
+    game.nhDisplay.topMessage = prior;
+    game.nhDisplay.toplines = prior;
+    game.nhDisplay.toplin = TOPLINE_NEED_MORE;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const queuedBefore = game.nhDisplay.terminal._inputQueue.length;
+
+    await ttyPline('You die...', game);
+
+    assert.equal(game._pending_message, 'You die...');
+    assert.equal(game._ttyMessageStopped, false);
+    assert.equal(
+        game.nhDisplay.terminal._inputQueue.length,
+        queuedBefore,
+        'WIN_STOP replacement must not read another More response',
+    );
 });
 
 test('an ordinary D:1 death reaches the possessions disclosure prompt',

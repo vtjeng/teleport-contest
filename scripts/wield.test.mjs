@@ -164,13 +164,13 @@ test('doquiver_core unwields a confirmed primary weapon for ECMD_TIME',
         assert.match(pending(state), /bare handed/u);
     });
 
-test('seed0101 quiver witness reaches the next source boundary', async () => {
+test('seed0101 quiver witness completes after quivering and throwing', async () => {
     const row = await scanSession(
         'holdout/seed0101-ranger-quiver-throw-travel-engrave.session.json',
     );
-    // The next fixed-workload boundary belongs to dothrow.c: the subsequent
-    // hand-thrown arrow has no launcher, which is outside this wield.c span.
-    assert.match(row.boundary, /throwing ammo without a launcher/u);
+    // The subsequent hand-thrown arrow now runs through dothrow.c throwit;
+    // preserve the complete replay as coverage for the quiver-to-throw caller.
+    assert.equal(row.boundary, null);
     assert.equal(row.divergence, null);
-    assert.ok(row.screensEmitted > 5, 'the quiver path must pass its old stop');
+    assert.equal(row.screensEmitted, row.recordedSteps);
 });

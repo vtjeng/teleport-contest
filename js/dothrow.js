@@ -46,7 +46,6 @@ import {
     DEAF,
     DB_UNDER,
     DB_MOAT,
-    DISP_CHANGE,
     DISP_END,
     DISP_FLASH,
     DRAWBRIDGE_UP,
@@ -61,7 +60,7 @@ import {
     FUMBLING,
     FOOT,
     HALLUC,
-    LEFT_HANDED,
+    HALLUC_RES,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -72,7 +71,6 @@ import {
     I_SPECIAL,
     IRONBARS,
     IS_SOFT,
-    IS_SINK,
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_TREE,
@@ -121,8 +119,6 @@ import {
     STUNNED,
     THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
-    xdir,
-    ydir,
     WT_SPLASH_THRESHOLD,
     W_QUIVER,
     W_SWAPWEP,
@@ -142,20 +138,20 @@ import {
     helpless,
     Upolyd,
 } from './const.js';
-import { ART_MJOLLNIR, is_art, spec_abon } from './artifacts.js';
+import {
+    ART_MJOLLNIR, artifact_hit, is_art, spec_abon,
+} from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
-    cmdq_add_ec, extcmdRow, getdir, xytodir,
+    cmdq_add_ec, extcmdRow, getdir,
 } from './cmd.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    cmap_to_glyph,
     flush_screen,
     glyph_at,
     glyph_is_invisible,
     glyph_is_monster,
-    map_glyphinfo,
     map_invisible,
     newsym,
     obj_to_glyph,
@@ -178,7 +174,7 @@ import {
     switch_terrain,
     weight_cap,
 } from './hack.js';
-import { distmin, sgn, s_suffix } from './hacklib.js';
+import { distmin, ordin, sgn, s_suffix } from './hacklib.js';
 import {
     addinv,
     addinv_before,
@@ -318,6 +314,7 @@ import {
 import {
     an,
     helm_simple_name,
+    killer_xname,
     mshot_xname,
     otense,
     singular,
@@ -337,9 +334,10 @@ import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
 import { body_part } from './polyself.js';
+import { makeplural } from './fruit.js';
 import { d, rn1, rn2, rnl, rnd } from './rng.js';
 import {
-    autoreturn_weapon, dmgval, hitval, skill_name, weapon_descr,
+    autoreturn_weapon, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
 } from './weapon.js';
 import { ship_object } from './dokick.js';
@@ -359,10 +357,10 @@ import { doquiver_core, welded } from './wield.js';
 import {
     find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
 } from './worn.js';
-import { bhit, miss } from './zap.js';
+import { bhit, boomhit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
-import { m_respond, setmangry, wake_nearto, wakeup } from './mon.js';
+import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -377,12 +375,6 @@ import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
 import { unsplitobj } from './obj.js';
 
-// symbol_data.js derives these cmap positions from defsym.h; they are kept
-// local because symbols.js intentionally exports only the terrain symbols
-// used by its public callers.
-const S_BOOMLEFT = 80;
-const S_BOOMRIGHT = 81;
-
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
 // halves of one property; none of the four has a blocking source. Defined here
@@ -391,6 +383,14 @@ const S_BOOMRIGHT = 81;
 function propertyHeld(state, property) {
     const held = state.u?.uprops?.[property];
     return Boolean(held?.intrinsic || held?.extrinsic);
+}
+
+// C ref: youprop.h Hallucination, HHallucination && !Halluc_resistance. Resistance is a
+// separate property from the hallucination source, so it must be checked at
+// the same admission point rather than folded into propertyHeld().
+function hallucinating(state) {
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !propertyHeld(state, HALLUC_RES);
 }
 
 // C ref: youprop.h Deaf (125), `HDeaf || EDeaf || u.uroleplay.deaf`. The third
@@ -1158,18 +1158,17 @@ export async function dofire(state = game) {
 }
 
 // C ref: dothrow.c endmultishot() (590-601). If a multi-shot volley is in
-// progress, stop it after the current shot. With verbose=false (the only
-// call from end.c savelife()), the message is suppressed and only m_shot.n
-// is clamped to m_shot.i.
-export function endmultishot(verbose, state = game) {
+// progress, stop it after the current shot and, for a verbose caller outside
+// monster movement, report which shot or toss was last completed.
+export async function endmultishot(verbose, state = game) {
     state.m_shot ??= {};
     if ((state.m_shot.i ?? 0) < (state.m_shot.n ?? 0)) {
         if (verbose && !state.context?.mon_moving) {
-            // The verbose branch prints "You stop firing/throwing after the
-            // Nth shot/toss." using ordin(). Only savelife() calls this port,
-            // and it passes verbose=false, so the message is unreachable.
-            throw new UnsupportedThrowError(
-                'endmultishot() verbose message with ordin()',
+            await ttyPline(
+                `You stop ${state.m_shot.s ? 'firing' : 'throwing'} after the `
+                    + `${state.m_shot.i}${ordin(state.m_shot.i)} `
+                    + `${state.m_shot.s ? 'shot' : 'toss'}.`,
+                state,
             );
         }
         state.m_shot.n = state.m_shot.i;
@@ -1369,6 +1368,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
         }
         freeinv(otmp, { state });
         await throwit(otmp, wep_mask, twoweap, oldslot, state);
+        if (state.program_state?.gameover) return ECMD_TIME;
         await encumber_msg(state);
     }
     state.m_shot.n = 0;
@@ -1526,7 +1526,7 @@ async function tmiss(obj, mon, maybeWakeup, state = game, env = {}) {
 // C ref: dothrow.c throwit_mon_hit() (1482-1506). bhit() supplies the target
 // and leaves the object in gt.thrownobj; this wrapper performs the source's
 // bookkeeping before and after thitmonst().
-async function throwit_mon_hit(mon, obj, state = game) {
+export async function throwit_mon_hit(mon, obj, state = game) {
     if (mon?.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
         return true;
     if (obj?.lamplit)
@@ -1631,95 +1631,6 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
     return ret;
 }
 
-// C ref: zap.c boomhit() (4148-4236).  This is a dependency of throwit's
-// returning-boomerang branch: its monster result decides whether the caller
-// catches the object.  The two combat callbacks are source calls whose
-// results are discarded by C; the existing dothrow wrapper owns the object
-// lifecycle when a monster actually intercepts the flight.
-async function boomhit(obj, dx, dy, state) {
-    const counterclockwise = state.u?.uhandedness !== LEFT_HANDED;
-    let direction = xytodir(dx, dy);
-    let nhits = Math.max(1, (obj.spe ?? 0) + 1);
-    state.gb ??= {};
-    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
-    let boom = counterclockwise ? S_BOOMLEFT : S_BOOMRIGHT;
-
-    // The recorder's symbol table supplies the two boomerang glyphs.  The
-    // animation itself is cosmetic but is still paired in C with every path
-    // update and therefore uses the existing transient-display owner.
-    const boomGlyph = map_glyphinfo(cmap_to_glyph(boom, state), state);
-    await tmp_at(DISP_FLASH, boomGlyph, state);
-    for (let count = 0; count < 10; count++) {
-        direction = (direction + 8) % 8;
-        boom = S_BOOMLEFT + S_BOOMRIGHT - boom;
-        const turnGlyph = map_glyphinfo(
-            cmap_to_glyph(boom, state), state,
-        );
-        await tmp_at(DISP_CHANGE, turnGlyph, state);
-        const stepX = xdir[direction];
-        const stepY = ydir[direction];
-        state.gb.bhitpos.x += stepX;
-        state.gb.bhitpos.y += stepY;
-        if (!isok(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
-            state.gb.bhitpos.x -= stepX;
-            state.gb.bhitpos.y -= stepY;
-            break;
-        }
-
-        const monster = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-        if (monster) {
-            await m_respond(monster, { state });
-            if (nhits-- < 0) {
-                await tmp_at(DISP_END, 0, state);
-                return monster;
-            }
-            const caught = await throwit_mon_hit(monster, obj, state);
-            if (caught || !thrownObject(state)) break;
-        }
-        const location = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
-        if (!ZAP_POS(location.typ)
-            || closed_door(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
-            state.gb.bhitpos.x -= stepX;
-            state.gb.bhitpos.y -= stepY;
-            break;
-        }
-        if (state.gb.bhitpos.x === state.u.ux
-            && state.gb.bhitpos.y === state.u.uy) {
-            if (propertyHeld(state, FUMBLING)
-                || rn2(20) >= acurr(state, A_DEX)) {
-                // C passes thitu()'s return nowhere.  Keep its used damage
-                // calculation out of this source callback and record the
-                // actual discarded owner rather than inventing a hit.
-                // C evaluates dmgval() for thitu()'s discarded damage
-                // argument, so preserve its source random draws even though
-                // the combat call itself remains an explicit gap.
-                dmgval(obj, state.youmonst, state);
-                note_unported('mthrowu.c thitu');
-                note_unported('dothrow.c endmultishot');
-                break;
-            }
-            await tmp_at(DISP_END, 0, state);
-            await ttyPline('You skillfully catch the boomerang.', state);
-            return state.youmonst;
-        }
-        await tmp_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
-        await nh_delay_output(state);
-        if (IS_SINK(location.typ)) {
-            note_unported('sounds.c Soundeffect');
-            if (!Deaf(state)) await ttyPline('Klonk!', state);
-            await wake_nearto(
-                state.gb.bhitpos.x, state.gb.bhitpos.y, 20, { state },
-            );
-            break;
-        }
-        if (count % 5 !== 0)
-            direction = counterclockwise ? (direction + 7) % 8
-                : (direction + 1) % 8;
-    }
-    await tmp_at(DISP_END, 0, state);
-    return null;
-}
-
 // C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
 // consumed in the process". Sends one missile on its way and disposes of it
 // where it stops.
@@ -1730,7 +1641,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     let impaired = propertyHeld(state, CONFUSION)
         || propertyHeld(state, STUNNED)
         || heroIsBlind(state)
-        || propertyHeld(state, HALLUC)
+        || hallucinating(state)
         || propertyHeld(state, FUMBLING);
     const tetheredWeapon = Boolean(arw?.tethered && (wep_mask & W_WEP));
 
@@ -1816,7 +1727,10 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     } else if (obj.otyp === BOOMERANG && !u.uinwater) {
         if (Is_airlevel(u.uz) || Levitation(state))
             note_unported('dothrow.c hurtle');
-        mon = await boomhit(obj, u.dx, u.dy, state);
+        mon = await boomhit(
+            obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
+        );
+        if (state.program_state?.gameover) return;
         state.iflags.returning_missile = null;
         if (mon === state.youmonst) {
             await exercise(A_DEX, true, state, { rn2 });
@@ -1913,9 +1827,13 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 await ttyPline(
                     `${Tobjnam(obj, 'return', state)} to your hand!`, state,
                 );
-                obj = await return_throw_to_inv(
-                    obj, wep_mask, twoweap, oldslot, state,
-                );
+                // C dothrow.c:1721-1728 uses addinv_before directly here,
+                // then reports encumbrance before restoring weapon slots.
+                obj = await addinv_before(obj, oldslot, { state });
+                await encumber_msg(state);
+                if (obj.owornmask & W_QUIVER) setuqwep(null, { state });
+                setuwep(obj, { state });
+                set_twoweap(twoweap, state);
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
                     newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
             } else {
@@ -1923,27 +1841,34 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 if (!damageRoll) {
                     await ttyPline(
                         heroIsBlind(state)
-                            ? `Something, landing ${
+                            ? `Something lands ${
                                 Levitation(state) ? 'beneath' : 'at'} your ${
-                                body_part(FOOT, state.youmonst)}.`
+                                makeplural(body_part(FOOT, state.youmonst))}.`
                             : `${Tobjnam(obj, 'return', state)} back to you, `
                                 + `landing ${Levitation(state) ? 'beneath' : 'at'} `
-                                + `your ${body_part(FOOT, state.youmonst)}.`, state,
+                                + `your ${makeplural(body_part(FOOT, state.youmonst))}.`, state,
                     );
                 } else {
-                    const damage = damageRoll + rnd(3);
+                    let damage = damageRoll + rnd(3);
                     await ttyPline(
                         heroIsBlind(state)
                             ? `${Tobjnam(obj, 'hit', state)} your ${body_part(ARM, state.youmonst)}!`
                             : `${Tobjnam(obj, 'fly', state)} back toward you, `
                                 + `hitting your ${body_part(ARM, state.youmonst)}!`, state,
                     );
-                    if (obj.oartifact)
-                        note_unported('artifact.c artifact_hit');
+                    if (obj.oartifact) {
+                        const damagePtr = { value: damage };
+                        await artifact_hit(
+                            null, state.youmonst, obj, damagePtr, 0, state,
+                        );
+                        if (state.program_state?.gameover) return;
+                        damage = damagePtr.value;
+                    }
                     await losehp(
                         heroHalfPhysicalDamage(damage, state),
-                        xnameFresh(obj, state), KILLED_BY, state,
+                        killer_xname(obj, state), KILLED_BY, state,
                     );
+                    if (state.program_state?.gameover) return;
                 }
                 if (u.uswallow) {
                     swallowThrownObject(obj, state);
