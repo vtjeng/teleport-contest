@@ -168,7 +168,7 @@ import { obj_resists, unearth_objs } from './bury.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     capitalizedMonsterName, monsterCommonName, mon_pmname,
-    noit_Monnam, y_monnam, rndcolor, hliquid,
+    noit_Monnam, y_monnam, rndcolor, hliquid, hcolor,
 } from './do_name.js';
 import { abuse_dog } from './dog.js';
 import {
@@ -856,6 +856,19 @@ function activeHeroProperty(state, property) {
     return Boolean((value.intrinsic || value.extrinsic) && !value.blocked);
 }
 
+// youprop.h's Fire_resistance and Wwalking are plain intrinsic/extrinsic
+// properties. Wwalking is additionally disabled on the Plane of Water; it
+// does not use the blocked field (that field belongs to Levitation/Flying).
+function heroLavaProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function heroLavaWalking(state) {
+    return heroLavaProperty(state, WWALKING)
+        && !Is_waterlevel(state.u?.uz);
+}
+
 // objclass.h is_organic(): material values through WOOD burn in lava.  Keep
 // this local to trap.c's owner; the same C predicate has separate owners in
 // dogfood and burial and should not become a second shared state value.
@@ -1069,7 +1082,7 @@ export async function drown(state = game) {
     return true;
 }
 
-// C ref: trap.c lava_effects() (6794-6996), the second boolean dependency of
+// C ref: trap.c lava_effects() (6794-6987), the second boolean dependency of
 // pooleffects().  The C function has one return-valued relocation arm: TRUE
 // means that lifesaving moved the hero and the caller must skip the remaining
 // effects on the old square.  Its item destruction and ignition calls discard
@@ -1080,6 +1093,7 @@ export async function lava_effects(state = game) {
     let burncount = 0;
     let burnmesgcount = 0;
     state.iflags ??= {};
+    state.iflags.in_lava_effects ??= 0;
     if (state.iflags.in_lava_effects) {
         // C's debugpline is output only when debugging; this port has no
         // debug window owner, so the recursive call is a source-discarded gap.
@@ -1094,8 +1108,8 @@ export async function lava_effects(state = game) {
     note_unported('timeout.c burn_away_slime');
     if (likes_lava(state.youmonst?.data)) return false;
 
-    const fireResistant = activeHeroProperty(state, FIRE_RES);
-    const waterWalking = activeHeroProperty(state, WWALKING);
+    let fireResistant = heroLavaProperty(state, FIRE_RES);
+    let waterWalking = heroLavaWalking(state);
     let survives = fireResistant || (waterWalking && damage < u.uhp);
     let protectedId = 0;
     const random = { rn2, rnd, rn1, rne, d };
@@ -1131,9 +1145,9 @@ export async function lava_effects(state = game) {
 
     // Boots are burned before the hero's fate is decided, since water-walking
     // footwear is the source that made this lava entry survivable.
-    if (u.uarmf && (u.uarmf.in_use
-        || (isOrganic(u.uarmf, state) && !u.uarmf.oerodeproof))) {
-        const obj = u.uarmf;
+    if (state.uarmf && (state.uarmf.in_use
+        || (isOrganic(state.uarmf, state) && !state.uarmf.oerodeproof))) {
+        const obj = state.uarmf;
         await ttyPline(`${Yobjnam2(obj, 'burst', state)} into flame!`, state);
         state.iflags.in_lava_effects++;
         const { Boots_off } = await import('./do_wear.js');
@@ -1145,6 +1159,11 @@ export async function lava_effects(state = game) {
         burnmesgcount++;
     }
 
+    // Boots_off() may remove the only source of either property. C evaluates
+    // these macros again after that callback, while the initial usurvive test
+    // intentionally retains the pre-removal values.
+    fireResistant = heroLavaProperty(state, FIRE_RES);
+    waterWalking = heroLavaWalking(state);
     if (!fireResistant) {
         if (waterWalking) {
             await ttyPline(
@@ -1183,19 +1202,21 @@ export async function lava_effects(state = game) {
             } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
                 if (survives && !heroIsBlindForLava(state)) {
                     await ttyPline(
-                        `${The(xnameFresh(obj, state), state)} glows a strange dark red, but remains intact.`,
+                        `${The(xnameFresh(obj, state), state)} glows a strange ${hcolor('dark red', state)}, but remains intact.`,
                         state,
                     );
                 }
             } else if (obj.in_use) {
-                if (obj.owornmask && survives) {
-                    await ttyPline(`${Yobjnam2(obj, 'burst', state)} into flame!`, state);
-                    // remove_worn_item() is a void source call. It is still
-                    // the canonical owner for rings/weapons; armor branches
-                    // remain an explicit source boundary in that owner.
+                if (obj.owornmask) {
+                    if (survives) {
+                        await ttyPline(`${Yobjnam2(obj, 'burst', state)} into flame!`, state);
+                        burnmesgcount++;
+                    }
+                    // C removes every doomed worn item. The message is
+                    // conditional on lifesaving, but remove_worn_item() is
+                    // unconditional before useupall().
                     const { remove_worn_item } = await import('./steal.js');
                     remove_worn_item(obj, true, state);
-                    burnmesgcount++;
                 }
                 useupall(obj, { state });
                 burncount++;
@@ -1226,6 +1247,13 @@ export async function lava_effects(state = game) {
                 state,
             );
             await done(BURNING, state);
+            if (state.program_state?.gameover) {
+                // really_done() is NORETURN in C. The JS owner returns only
+                // because the segment harness represents termination with
+                // gameover; never run safe_teleds() after final death.
+                state.iflags.in_lava_effects--;
+                return false;
+            }
             const { safe_teleds } = await import('./teleport.js');
             if (await safe_teleds(
                 TELEDS_ALLOW_DRAG | TELEDS_TELEPORT,
@@ -1236,9 +1264,9 @@ export async function lava_effects(state = game) {
         state.iflags.in_lava_effects--;
 
         if (burnPass === 2) {
-            if (!fireResistant)
+            if (!heroLavaProperty(state, FIRE_RES))
                 set_itimeout(state.u.uprops[FIRE_RES], 5);
-            if (!waterWalking)
+            if (!heroLavaWalking(state))
                 set_itimeout(state.u.uprops[WWALKING], 5);
             await destroy_items(state.youmonst, AD_FIRE, damage, {
                 state,
