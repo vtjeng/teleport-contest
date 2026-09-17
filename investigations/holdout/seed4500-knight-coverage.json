@@ -1,47 +1,29 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 536,
-  "status": "complete",
-  "commit": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
+  "remainingScreensUpperBound": 492,
+  "status": "partial",
+  "commit": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1278,
-    "kind": "stop",
+    "step": 1322,
+    "kind": "screen",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported level change: hellfill generator 2 not ported",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 536
+    "remainingScreensUpperBound": 492
   },
-  "summary": "The blindness cure now matches. At step1278 the Knight enters Gehennom and selects Hell filler generator2, which JavaScript still refuses. Complete the whole hellfill.lua program, including its remaining generators, prefab helpers and top-level population order.",
-  "source": {
-    "file": "hellfill.lua",
-    "functions": [
-      "hellfill.lua"
-    ],
-    "branch": "C dat/hellfill.lua431 selects hells[2] with rn2(7)=1. That generator initializes solidfill and mazegrid, calls des.mazewalk from coordinate(1,10) east without stocking, derives the protected selection, calls hell_tweaks, and conditionally places a prefab. js/hell_levels.js HELL_GENERATORS[1] throws before maze walking. The next C draw is walkfrom(mkmaze.c1304), but that existing helper is not the missing source owner.",
-    "callers": [
-      "dungeon_data.js registers Gehennom lvlfill hellfill; mklev.js makelevel and load_special dispatch its registered HELL_LEVEL_LOADERS. This path does not use the empty-prototype procedural makemaz fallback.",
-      "hellfill top-level selects one of seven generators, creates up/down stairs or the invocation vibrating square, then calls populatemaze; preserve awaited descriptor completion through B15 shared loader wiring."
-    ],
-    "dependencies": [
-      "Port all hellfill.lua top-level statements and helpers, all seven generators and the complete hell_prefabs table/rnd_hell_prefab loop. Generators1,2,4,6 currently refuse; existing3,5,7 and populatemaze require whole-source verification rather than declaration counting.",
-      "Reuse and verify canonical mklev.js lspo_level_init mazegrid, lspo_mazewalk and walkfrom, selection operations, and asmodeus_levels.js hell_tweaks. Match Lua numeric-for bounds, shuffle, selection traversal and random draw order.",
-      "The saved witness does not take generator2's optional prefab arm, but that is a valid source branch and cannot be omitted from the whole Lua port. Keep inputs independent for new entry-point recipes."
-    ]
-  },
-  "goalKind": "lua-port",
+  "summary": "Hellfill generation now matches. The first remaining difference is a target-selection message after the fountain-symbol key at step 1322; its source owner is under investigation. A later fountain-gushing refusal at step 1329 is a separate missing behavior.",
   "evidence": [
-    "Passing checkpoint493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d/run-P1AZrQ establishes10613/11405screens,760315/792838RNG,10635/11405cursors and293/293recordings. Knight screens advance1204→1278 and RNG90544→90863; all other43 fixed-session metrics are unchanged.",
-    "Saved .cache/A14-development-scan.json has no earlier screen/RNG/cursor divergence and stops at1278 with unsupported level change: hellfill generator2 not ported. The preceding source selector is rn2(7)=1 from hellfill.lua431; the missing next draw belongs to walkfrom.",
-    "The two independent timed-blind extra-healing recordings show A cloud of darkness falls upon you. before the production cure You feel much better. You can see again.; they establish the completed make_blinded transition. The older BUC recordings begin sighted and establish the unchanged-zero call only.",
-    "Historical counter-evidence: a later refusal does not establish the first mismatch. Earlier comparisons emitted1101 screens but first diverged at1063 in the blind pile heading, then1094 in blindness state. Compare screens, cursors and RNG before treating an emitted-screen count as parity.",
-    "Historical tactile recipe counter-evidence: the initial welcome More prompt consumed Ctrl-W in the invalid punishment setup, so the subsequent inventory screen and obj_resists mismatch did not establish a feel_location defect. The corrected sighted punishment recording verifies setup only; it does not reach feel_location. Unrecorded active tactile and beam entry points remain tracked in their parked goals.",
-    "Historical return-contract counter-evidence: feel_location must complete before the wounded-monster continuation is accepted; the earlier source candidate threw inside the incomplete segment and the scorer discarded it. The recovered failure is preserved in checkpoint history and is not a new score gain."
+    "The saved .cache/A17-development-scan.json first differs at segment 0, input step 1322, key {, screen row 0 column 0: C begins f and JavaScript begins h. No RNG or cursor divergence precedes that message difference. Trace target selection and its description before attributing the mismatch to the later stop.",
+    "The same replay emits 1329 screens and then refuses fountain.c gushing-forth behavior (fate 30), with Water gushes forth from the overflowing fountain! This later refusal does not explain the earlier screen mismatch.",
+    "The accepted checkpoint e0b9b5f47e63e215870c9175b7cb2569fa67a9ae/run-62WQSa records 1326 matching Knight screens; matching totals and emitted-screen counts do not locate the first divergence. The current queue upper bound is 492, derived from the first difference at 1322.",
+    "Whole hellfill.lua is source-reviewed, and all seven independent generator recordings match. Preserve the explicit horizontal-before-vertical prefab random order, no random draw for fixed alignment, one set_levltyp_lit lighting draw, and absolute no-operand selection.negate coordinates.",
+    "Historical counter-evidence: the old Knight blind-pile heading and blindness-state differences at steps 1063 and 1094 were resolved before this checkpoint. The old punishment recipe consumed its setup at the welcome More prompt and did not establish a feel_location defect."
   ]
 }
