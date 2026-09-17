@@ -78,13 +78,13 @@ import {
     AT_GAZE,
     AT_NONE,
     AT_WEAP,
-    PM_CAVE_SPIDER,
     PM_COBRA,
     PM_DISPLACER_BEAST,
     PM_EARTH_ELEMENTAL,
     PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,
     PM_GIANT_EEL,
+    PM_HOMUNCULUS,
     PM_ACID_BLOB,
     PM_GENETIC_ENGINEER,
     PM_GIANT_RAT,
@@ -2613,18 +2613,18 @@ test('simple preflight rejects every selected excluded action atomically',
     async () => {
         const cases = [
             {
-                // A cave spider (M1_CONCEAL) with mundetected triggers
-                // hitmu()'s hider guard after the ported map_invisible()
-                // call. m_lev 100 ensures the blow lands regardless of the
-                // hit roll.
-                name: 'hero attack',
-                reason: 'a hit by a monster that was hiding',
+                // The homunculus's AT_BITE/AD_SLEE attack reaches the source
+                // branch that this planner still leaves unsupported. A high
+                // monster level makes the blow land deterministically, so
+                // this fixture checks the sleep-damage refusal rather than a
+                // hidden-attacker gate.
+                name: 'sleeping hero',
+                reason: 'uhitm.c mhitm_ad_slee()',
                 prepare: async () => {
                     const target = await prepareSelectedAction({
                         adjacentHero: true,
-                        pmidx: PM_CAVE_SPIDER,
+                        pmidx: PM_HOMUNCULUS,
                     });
-                    target.monster.mundetected = 1;
                     target.monster.m_lev = 100;
                     return target;
                 },
@@ -3591,14 +3591,14 @@ test('a starting pony targets at range and later refusal stays retryable',
         target.heroY - 2,
         { m_id: 9002, movement: 0 },
     );
-    // A cave spider (M1_CONCEAL) with mundetected triggers hitmu()'s
-    // hider guard. m_lev 100 ensures the blow always lands regardless of
-    // the hit roll, so the refusal is deterministic.
+    // The later attacker uses the homunculus's AT_BITE/AD_SLEE slot. Its
+    // high level makes the hit deterministic and leaves this test independent
+    // of hitmu's newly admitted hidden-attacker feedback.
     const laterAttacker = ordinaryMonster(
-        PM_CAVE_SPIDER,
+        PM_HOMUNCULUS,
         game.u.ux,
         game.u.uy - 1,
-        { m_id: 9003, mundetected: 1, m_lev: 100 },
+        { m_id: 9003, m_lev: 100 },
     );
     pony.nmon = defender;
     defender.nmon = laterAttacker;
@@ -3629,12 +3629,9 @@ test('a starting pony targets at range and later refusal stays retryable',
         await assert.rejects(
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
-                // The later attacker's square is left out of viz_array above,
-                // so its landed blow stops on hitmu()'s hider guard rather
-                // than on its damage type. Which boundary is incidental
-                // here; that the refusal repeats is the point.
-                && error.reason
-                    === 'a hit by a monster that was hiding',
+                // The later attacker's AT_BITE/AD_SLEE slot stops at the
+                // still-unported sleep-damage branch.
+                && error.reason === 'uhitm.c mhitm_ad_slee()',
         );
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
