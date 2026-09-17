@@ -53,6 +53,7 @@ import {
     PL_NSIZ,
     PRONOUN_HALLU,
     PRONOUN_NO_IT,
+    RLOC_NOMSG,
     ROOMOFFSET,
     SHOPBASE,
     TELEPAT,
@@ -62,12 +63,12 @@ import {
 } from './const.js';
 import { acurr, adjalign } from './attrib.js';
 import { yn_function } from './cmd.js';
-import { bot } from './display.js';
+import { bot, map_invisible } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { dist2, online2, sgn, s_suffix, strncmpi } from './hacklib.js';
-import { inv_cnt } from './hack.js';
+import { inv_cnt, nh_delay_output } from './hack.js';
 import {
     add_to_minv,
     addinv,
@@ -85,7 +86,7 @@ import {
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { mongone } from './makemon_create.js';
-import { angry_guards, wake_nearto } from './mon.js';
+import { angry_guards, mnearto, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried, dealloc_obj, hasContents, isCandle, is_pick,
@@ -156,7 +157,7 @@ import { set_voice } from './sounds.js';
 import { saleable, shkname, Shknam } from './shknam.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { findgold, remove_worn_item } from './steal.js';
+import { findgold, mpickobj, remove_worn_item } from './steal.js';
 import { discover_object, observe_object } from './o_init.js';
 import { Monnam, x_monnam, y_monnam } from './do_name.js';
 import { rn2 } from './rng.js';
@@ -434,6 +435,47 @@ export function shop_keeper(roomno, state = game) {
             rile_shk(resident);
     }
     return resident ?? null;
+}
+
+// C ref: shk.c shkcatch() (4362-4401).  A thrown pick can be intercepted
+// before bhit() reaches the square's ordinary terrain handling.  The C
+// return is the keeper that caught the object, so this owner performs the
+// movement, billing, pickup, and visible catch message before returning it.
+export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const shkp = shop_keeper(inside_shop(x, y, state), state);
+    if (!shkp || !inhishop(shkp, state)) return null;
+
+    const eshk = shkp.mextra.eshk;
+    if (helpless(shkp)
+        || (eshk.shoproom === (state.u?.ushops?.[0] ?? 0)
+            && inside_shop(state.u.ux, state.u.uy, state))
+        || dist2(shkp.mx, shkp.my, x, y) >= 3
+        || (shkp.mx === x && shkp.my === y)) {
+        return null;
+    }
+
+    if (mnearto(shkp, x, y, true, RLOC_NOMSG, state) === 2
+        && !heroIsDeaf(state) && !muteshk(shkp)) {
+        set_voice(shkp, 0, 80, 0, state);
+        await verbalize('Out of my way, scum!', state);
+    }
+    if (cansee(x, y, state)) {
+        await message(
+            `${Shknam(shkp, state)} nimbly`
+                + `${x === shkp.mx && y === shkp.my ? '' : ' reaches over and'}`
+                + ` catches ${the(xnameFresh(obj, state), state)}.`,
+            state,
+            rawEnv,
+        );
+        if (!canSpotMonster(shkp, state)) map_invisible(x, y, state);
+        await nh_delay_output(state);
+        // mark_synch() only flushes the C terminal stream and has no state;
+        // the async message/flush above preserves the observable order.
+    }
+    subfrombill(obj, shkp, state, rawEnv);
+    mpickobj(shkp, obj, { ...rawEnv, state });
+    return shkp;
 }
 
 // C ref: shk.c find_objowner() (1084-1114). The caller supplies the object's

@@ -21,10 +21,10 @@
 // flint stones." and calls throwit() once per shot; throwit() flies each one
 // with zap.c bhit() and puts it down where it lands.
 //
-// The unported branches are collected under UnsupportedThrowError. The two
-// largest are breakobj() with breakmsg(), for a missile that shatters, and
-// dothrow.c's thrown-and-return family -- Mjollnir, an aklys and a boomerang
-// -- still needs boomhit() and sho_obj_return_to_u().
+// throwit() below follows the complete dothrow.c:1507-1849 source chain.
+// Calls whose C result is explicitly discarded retain a named note_unported()
+// boundary; command functions outside this source span may still use the
+// UnsupportedThrowError refusal while their own ports are pending.
 // dowield(), autoquiver(), use_pole() and use_whip() stop for the same reason:
 // each is a command in its own right. doquiver_core() is wired below because
 // it is the source's own refill helper, not a separate command dispatch.
@@ -36,7 +36,9 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    ARM,
     AUGMENT_IT,
+    BACKTRACK,
     BOLT_LIM,
     CONFUSION,
     CQ_CANNED,
@@ -44,6 +46,9 @@ import {
     DEAF,
     DB_UNDER,
     DB_MOAT,
+    DISP_CHANGE,
+    DISP_END,
+    DISP_FLASH,
     DRAWBRIDGE_UP,
     ECMD_CANCEL,
     ECMD_OK,
@@ -54,6 +59,9 @@ import {
     ER_DESTROYED,
     FIRE_TRAP,
     FUMBLING,
+    FOOT,
+    HALLUC,
+    LEFT_HANDED,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -64,6 +72,7 @@ import {
     I_SPECIAL,
     IRONBARS,
     IS_SOFT,
+    IS_SINK,
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_TREE,
@@ -110,10 +119,15 @@ import {
     STRAT_WAITMASK,
     STR19,
     STUNNED,
+    THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
+    xdir,
+    ydir,
     WT_SPLASH_THRESHOLD,
     W_QUIVER,
+    W_SWAPWEP,
     W_WEP,
+    TT_INFLOOR,
     HMON_APPLIED,
     HMON_KICKED,
     HMON_THROWN,
@@ -122,25 +136,32 @@ import {
     MM_IGNORELAVA,
     MM_IGNOREWATER,
     OBJ_MINVENT,
+    OBJ_FREE,
     RLOC_MSG,
     engulfing_u,
     helpless,
     Upolyd,
 } from './const.js';
-import { ART_MJOLLNIR, spec_abon } from './artifacts.js';
+import { ART_MJOLLNIR, is_art, spec_abon } from './artifacts.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
-import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
+import {
+    cmdq_add_ec, extcmdRow, getdir, xytodir,
+} from './cmd.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
+    cmap_to_glyph,
     flush_screen,
     glyph_at,
     glyph_is_invisible,
     glyph_is_monster,
+    map_glyphinfo,
     map_invisible,
     newsym,
+    obj_to_glyph,
+    tmp_at,
 } from './display.js';
-import { canletgo, flooreffects } from './do.js';
+import { canletgo, dropy, flooreffects } from './do.js';
 import { setwornEnv } from './do_wear.js';
 import { ceiling, on_level, surface, u_on_newpos } from './dungeon.js';
 import { u_wipe_engr } from './engrave.js';
@@ -160,6 +181,7 @@ import {
 import { distmin, sgn, s_suffix } from './hacklib.js';
 import {
     addinv,
+    addinv_before,
     delobj,
     freeinv,
     fully_identify_obj,
@@ -316,7 +338,10 @@ import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnl, rnd } from './rng.js';
-import { hitval, skill_name, weapon_descr, weapon_hit_bonus } from './weapon.js';
+import {
+    autoreturn_weapon, dmgval, hitval, skill_name, weapon_descr,
+    weapon_hit_bonus,
+} from './weapon.js';
 import { ship_object } from './dokick.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
@@ -331,11 +356,13 @@ import {
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, canseemon, vision_recalc } from './vision.js';
 import { doquiver_core, welded } from './wield.js';
-import { find_mac, is_pole, setuqwep } from './worn.js';
+import {
+    find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
+} from './worn.js';
 import { bhit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
-import { setmangry, wake_nearto, wakeup } from './mon.js';
+import { m_respond, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -348,6 +375,13 @@ import { dotrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
+import { unsplitobj } from './obj.js';
+
+// symbol_data.js derives these cmap positions from defsym.h; they are kept
+// local because symbols.js intentionally exports only the terrain symbols
+// used by its public callers.
+const S_BOOMLEFT = 80;
+const S_BOOMRIGHT = 81;
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
@@ -726,15 +760,15 @@ export function should_mulch_missile(obj, state = game, env = {}) {
 
 // C ref: dothrow.c:30-34 AutoReturn(). A weapon that comes back to the hand
 // when thrown: an aklys or Valkyrie's Mjollnir in the primary slot, or a
-// boomerang from anywhere. dofire() and throwit() refuse everything the flag
-// turns on, but throw_ok() below only classifies with it, so the Mjollnir
-// half is spelled out rather than widened to any artifact: widening would
-// suggest a wielded artifact that C downplays, and the prompt would show it.
+// boomerang from anywhere. throwit() owns the return path; throw_ok() below
+// only classifies with it, so the Mjollnir half is spelled out rather than
+// widened to any artifact: widening would suggest a wielded artifact that C
+// downplays, and the prompt would show it.
 function autoReturns(obj, wmask, state = game) {
     if (!obj) return false;
     return (((wmask & W_WEP) !== 0
         && (obj.otyp === AKLYS
-            || (obj.oartifact === ART_MJOLLNIR
+            || (is_art(obj, ART_MJOLLNIR)
                 && state.urole.mnum === PM_VALKYRIE)))
         || obj.otyp === BOOMERANG);
 }
@@ -1399,6 +1433,75 @@ function clearThrownObject(state) {
     state.gt.thrownobj = null;
 }
 
+// C ref: dothrow.c throwit_return() (2459-2465).  Auto-return is a
+// per-throw flag, while gt.thrownobj is cleared only for the branches that
+// consumed or caught the object.  Keep both values in their source locations
+// so a later caller cannot observe a stale returning missile.
+function throwit_return(clearObject, state) {
+    state.iflags ??= {};
+    state.iflags.returning_missile = null;
+    if (clearObject) clearThrownObject(state);
+}
+
+// C ref: dothrow.c swallowit() (2467-2475).  The monster pickup result is
+// deliberately discarded by C; mpickobj() owns the object transfer and the
+// transit slot.  The iron ball is the one object which stays attached rather
+// than entering the engulfer's inventory.
+function swallowThrownObject(obj, state) {
+    if (obj !== state.uball) {
+        mpickobj(state.u.ustuck, obj, { state });
+        throwit_return(false, state);
+    } else {
+        throwit_return(true, state);
+    }
+}
+
+// C ref: dothrow.c return_throw_to_inv() (1855-1907).  A split object is
+// reinserted temporarily so unsplitobj() can find both halves, then falls back
+// to addinv_before() when the other half is gone.  The result is used by the
+// caller to restore the wielded slot, so preserve the source pointer result.
+async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
+    if (!obj) return null;
+    const split = state.context?.objsplit;
+    const splitObject = split && (obj.o_id === split.parent_oid
+        || obj.o_id === split.child_oid);
+    let mergedObject = null;
+    if (splitObject) {
+        // C: obj is temporarily the inventory head before unsplitobj() scans
+        // for its sibling.  freeinv() leaves a returned missile OBJ_FREE.
+        obj.nobj = state.invent;
+        state.invent = obj;
+        obj.where = OBJ_INVENT;
+        mergedObject = unsplitobj(obj, { state });
+        if (mergedObject) obj = mergedObject;
+        else {
+            state.invent = obj.nobj;
+            obj.nobj = null;
+            obj.where = OBJ_FREE;
+        }
+    }
+    let result = obj;
+    if (!mergedObject) {
+        obj.nomerge = 1;
+        result = addinv_before(obj, oldslot, { state });
+        obj.nomerge = 0;
+        if (!result) result = obj;
+        if ((result.owornmask & W_QUIVER)
+            && ((result.owornmask | wepMask) & (W_WEP | W_SWAPWEP))) {
+            setuqwep(null, { state });
+        }
+        if ((wepMask & W_WEP) && !state.uwep)
+            setuwep(result, { state });
+        else if ((wepMask & W_SWAPWEP) && !state.uswapwep)
+            setuswapwep(result, { state });
+        else if ((wepMask & W_QUIVER) && !state.uquiver)
+            setuqwep(result, { state });
+        if (twoweap && !state.u.twoweap) set_twoweap(true, state);
+    }
+    await encumber_msg(state);
+    return result;
+}
+
 // C ref: dothrow.c tmiss() (1951-1973). A thrown object uses the missile
 // name in the miss message, wakes a target one third of the time, and hides
 // the target's real name when it is not a valid visible monster appearance.
@@ -1427,7 +1530,7 @@ async function throwit_mon_hit(mon, obj, state = game) {
     if (mon?.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
         return true;
     if (obj?.lamplit)
-        note_unported('dothrow.c snuff_candle');
+        note_unported('apply.c snuff_candle');
     state.gn ??= {};
     state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
         || state.gb.bhitpos.y !== mon.my;
@@ -1528,29 +1631,140 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
     return ret;
 }
 
+// C ref: zap.c boomhit() (4148-4236).  This is a dependency of throwit's
+// returning-boomerang branch: its monster result decides whether the caller
+// catches the object.  The two combat callbacks are source calls whose
+// results are discarded by C; the existing dothrow wrapper owns the object
+// lifecycle when a monster actually intercepts the flight.
+async function boomhit(obj, dx, dy, state) {
+    const counterclockwise = state.u?.uhandedness !== LEFT_HANDED;
+    let direction = xytodir(dx, dy);
+    let nhits = Math.max(1, (obj.spe ?? 0) + 1);
+    state.gb ??= {};
+    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
+    let boom = counterclockwise ? S_BOOMLEFT : S_BOOMRIGHT;
+
+    // The recorder's symbol table supplies the two boomerang glyphs.  The
+    // animation itself is cosmetic but is still paired in C with every path
+    // update and therefore uses the existing transient-display owner.
+    const boomGlyph = map_glyphinfo(cmap_to_glyph(boom, state), state);
+    await tmp_at(DISP_FLASH, boomGlyph, state);
+    for (let count = 0; count < 10; count++) {
+        direction = (direction + 8) % 8;
+        boom = S_BOOMLEFT + S_BOOMRIGHT - boom;
+        const turnGlyph = map_glyphinfo(
+            cmap_to_glyph(boom, state), state,
+        );
+        await tmp_at(DISP_CHANGE, turnGlyph, state);
+        const stepX = xdir[direction];
+        const stepY = ydir[direction];
+        state.gb.bhitpos.x += stepX;
+        state.gb.bhitpos.y += stepY;
+        if (!isok(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            state.gb.bhitpos.x -= stepX;
+            state.gb.bhitpos.y -= stepY;
+            break;
+        }
+
+        const monster = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        if (monster) {
+            await m_respond(monster, { state });
+            if (nhits-- < 0) {
+                await tmp_at(DISP_END, 0, state);
+                return monster;
+            }
+            const caught = await throwit_mon_hit(monster, obj, state);
+            if (caught || !thrownObject(state)) break;
+        }
+        const location = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
+        if (!ZAP_POS(location.typ)
+            || closed_door(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            state.gb.bhitpos.x -= stepX;
+            state.gb.bhitpos.y -= stepY;
+            break;
+        }
+        if (state.gb.bhitpos.x === state.u.ux
+            && state.gb.bhitpos.y === state.u.uy) {
+            if (propertyHeld(state, FUMBLING)
+                || rn2(20) >= acurr(state, A_DEX)) {
+                // C passes thitu()'s return nowhere.  Keep its used damage
+                // calculation out of this source callback and record the
+                // actual discarded owner rather than inventing a hit.
+                // C evaluates dmgval() for thitu()'s discarded damage
+                // argument, so preserve its source random draws even though
+                // the combat call itself remains an explicit gap.
+                dmgval(obj, state.youmonst, state);
+                note_unported('mthrowu.c thitu');
+                note_unported('dothrow.c endmultishot');
+                break;
+            }
+            await tmp_at(DISP_END, 0, state);
+            await ttyPline('You skillfully catch the boomerang.', state);
+            return state.youmonst;
+        }
+        await tmp_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        await nh_delay_output(state);
+        if (IS_SINK(location.typ)) {
+            note_unported('sounds.c Soundeffect');
+            if (!Deaf(state)) await ttyPline('Klonk!', state);
+            await wake_nearto(
+                state.gb.bhitpos.x, state.gb.bhitpos.y, 20, { state },
+            );
+            break;
+        }
+        if (count % 5 !== 0)
+            direction = counterclockwise ? (direction + 7) % 8
+                : (direction + 1) % 8;
+    }
+    await tmp_at(DISP_END, 0, state);
+    return null;
+}
+
 // C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
 // consumed in the process". Sends one missile on its way and disposes of it
 // where it stops.
 export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     const u = state.u;
 
-    if ((obj.cursed || obj.greased) && (u.dx || u.dy) && rn2(7) === 0) {
-        /* misfire or slip: both messages, and the scattered direction */
-        throw new UnsupportedThrowError('a cursed or greased missile slipping');
+    const arw = autoreturn_weapon(obj);
+    let impaired = propertyHeld(state, CONFUSION)
+        || propertyHeld(state, STUNNED)
+        || heroIsBlind(state)
+        || propertyHeld(state, HALLUC)
+        || propertyHeld(state, FUMBLING);
+    const tetheredWeapon = Boolean(arw?.tethered && (wep_mask & W_WEP));
+
+    state.gn ??= {};
+    state.gn.notonhead = false;
+    if ((obj.cursed || obj.greased) && (u.dx || u.dy) && !rn2(7)) {
+        let slipok = true;
+        if (ammo_and_launcher(obj, state.uwep, state)) {
+            await ttyPline(`${Tobjnam(obj, 'misfire', state)}!`, state);
+        } else if (obj.greased || isThrowingWeapon(obj, state)) {
+            await ttyPline(
+                `${Tobjnam(obj, 'slip', state)} as you throw it!`, state,
+            );
+        } else {
+            slipok = false;
+        }
+        if (slipok) {
+            u.dx = rn2(3) - 1;
+            u.dy = rn2(3) - 1;
+            if (!u.dx && !u.dy) u.dz = 1;
+            impaired = true;
+        }
     }
 
-    /* C reads u.mh instead of u.uhp for a polymorphed hero and exempts the
-       air level; Upolyd is constantly false in this port, and Is_airlevel()
-       is checked here rather than assumed. */
+    const polyd = Upolyd(u);
+    const currentHp = polyd ? u.mh : u.uhp;
+    const maxHp = polyd ? u.mhmax : u.uhpmax;
     if ((u.dx || u.dy || u.dz < 1)
         && calc_capacity(obj.owt, state) > SLT_ENCUMBER
-        && u.uhp < 10 && u.uhp !== u.uhpmax
-        && obj.owt > u.uhp * 2
-        && !Is_airlevel(u.uz)) {
+        && currentHp < (polyd ? 5 : 10) && currentHp !== maxHp
+        && obj.owt > currentHp * 2 && !Is_airlevel(u.uz)) {
         await ttyPline(
             `You have so little stamina, ${the(xnameFresh(obj, state), state)}`
-            + ' drops from your grasp.',
-            state,
+            + ' drops from your grasp.', state,
         );
         await exercise(A_CON, false, state, { rn2 },
             { encumberMessage: encumber_msg });
@@ -1560,144 +1774,230 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
 
     setThrownObject(state, obj);
+    state.gb ??= {};
     obj.how_lost = LOST_THROWN;
-    if (autoReturns(obj, wep_mask, state)) {
-        throw new UnsupportedThrowError('iflags.returning_missile');
-    }
+    state.iflags ??= {};
+    state.iflags.returning_missile = autoReturns(obj, wep_mask, state)
+        ? obj : null;
 
+    let mon;
     if (u.uswallow) {
-        throw new UnsupportedThrowError('throwing while swallowed');
+        if (obj === state.uball) {
+            state.uball.ox = state.uchain.ox = u.ux;
+            state.uball.oy = state.uchain.oy = u.uy;
+        }
+        mon = u.ustuck;
+        state.gb.bhitpos = { x: mon.mx, y: mon.my };
+        if (tetheredWeapon)
+            await tmp_at(DISP_TETHER, obj_to_glyph(obj, state), state);
     } else if (u.dz) {
-        /* toss_up(), hitfloor() and potionhit() are the three arms */
-        throw new UnsupportedThrowError('throwing straight up or down');
-    } else if (obj.otyp === BOOMERANG) {
-        throw new UnsupportedThrowError('boomhit()');
-    }
-
-    /* crossbow range is independent of strength */
-    const crossbowing = Boolean(ammo_and_launcher(obj, state.uwep, state)
-        && weapon_type(state.uwep, state) === P_CROSSBOW);
-    const urange = Math.trunc((crossbowing ? 18 : acurrstr(state)) / 2);
-    let range = obj.otyp === HEAVY_IRON_BALL
-        ? urange - Math.trunc(obj.owt / 100)
-        : urange - Math.trunc(obj.owt / 40);
-    if (obj === state.uball) {
-        throw new UnsupportedThrowError('throwing the attached iron ball');
-    }
-    if (range < 1)
-        range = 1;
-
-    if (is_ammo(obj, state)) {
-        if (ammo_and_launcher(obj, state.uwep, state)) {
-            if (crossbowing)
-                range = BOLT_LIM;
-            else
-                range++;
-        } else if (obj.oclass !== GEM_CLASS) {
-            // dothrow.c:1640-1647.  Ammunition without its launcher is still
-            // a valid throw: halve the positive range and explain that the
-            // hero is throwing it by hand.  The source uses the selected
-            // object's skill and weapon description, rather than assuming
-            // every unlaunched missile is an arrow.
-            range = Math.trunc(range / 2);
+        if (u.dz < 0 && state.iflags.returning_missile && !impaired) {
             await ttyPline(
-                `You aren't wielding ${an(skill_name(
-                    weapon_type(obj, state), state,
-                ))}, so you throw your ${weapon_descr(obj, state)} by `
-                + `${body_part(HAND, state.youmonst)}.`,
+                `${Tobjnam(obj, 'hit', state)} the ${ceiling(u.ux, u.uy, state)} `
+                    + 'and returns to your hand!',
                 state,
             );
+            obj = await return_throw_to_inv(
+                obj, wep_mask, twoweap, oldslot, state,
+            );
+        } else if (u.dz < 0) {
+            // C discards toss_up()'s boolean. Keep its unported source call
+            // explicit and finish the throw's own transit state.
+            rn2(5); // the argument is evaluated before the discarded call
+            note_unported('dothrow.c toss_up');
+        } else if (u.dz > 0 && u.usteed
+            && obj.oclass === POTION_CLASS && rn2(6)) {
+            note_unported('potion.c potionhit');
+        } else {
+            note_unported('dothrow.c hitfloor');
+        }
+        throwit_return(true, state);
+        return;
+    } else if (obj.otyp === BOOMERANG && !u.uinwater) {
+        if (Is_airlevel(u.uz) || Levitation(state))
+            note_unported('dothrow.c hurtle');
+        mon = await boomhit(obj, u.dx, u.dy, state);
+        state.iflags.returning_missile = null;
+        if (mon === state.youmonst) {
+            await exercise(A_DEX, true, state, { rn2 });
+            obj = await return_throw_to_inv(
+                obj, wep_mask, twoweap, oldslot, state,
+            );
+            throwit_return(true, state);
+            return;
+        }
+    } else {
+        const crossbowing = Boolean(ammo_and_launcher(
+            obj, state.uwep, state,
+        ) && weapon_type(state.uwep, state) === P_CROSSBOW);
+        let urange = Math.trunc((crossbowing ? 18 : acurrstr(state)) / 2);
+        let range = obj.otyp === HEAVY_IRON_BALL
+            ? urange - Math.trunc(obj.owt / 100)
+            : urange - Math.trunc(obj.owt / 40);
+        if (obj === state.uball) {
+            if (u.ustuck) range = 1;
+            else if (range >= 5) range = 5;
+        }
+        if (range < 1) range = 1;
+
+        if (is_ammo(obj, state)) {
+            if (ammo_and_launcher(obj, state.uwep, state)) {
+                if (crossbowing) range = BOLT_LIM;
+                else range++;
+            } else if (obj.oclass !== GEM_CLASS) {
+                range = Math.trunc(range / 2);
+                await ttyPline(
+                    `You aren't wielding ${an(skill_name(
+                        weapon_type(obj, state), state,
+                    ))}, so you throw your ${weapon_descr(obj, state)} by `
+                    + `${body_part(HAND, state.youmonst)}.`, state,
+                );
+            }
+        }
+
+        if (Is_airlevel(u.uz) || Levitation(state)) {
+            urange -= range;
+            if (urange < 1) urange = 1;
+            range -= urange;
+            if (range < 1) range = 1;
+        }
+        if (obj.otyp === BOULDER) range = 20;
+        else if (is_art(obj, ART_MJOLLNIR))
+            range = Math.trunc((range + 1) / 2);
+        else if (tetheredWeapon)
+            range = Math.min(range, Math.floor(Math.sqrt(arw.range)));
+        else if (obj === state.uball && u.utrap
+            && u.utraptype === TT_INFLOOR) range = 1;
+        if (u.uinwater) range = 1;
+
+        const pobj = { obj };
+        mon = await bhit(
+            u.dx, u.dy, range,
+            tetheredWeapon ? THROWN_TETHERED_WEAPON : THROWN_WEAPON,
+            null, null, pobj, state,
+        );
+        obj = pobj.obj;
+        setThrownObject(state, obj);
+        if (Is_airlevel(u.uz) || Levitation(state))
+            note_unported('dothrow.c hurtle');
+        if (!obj) {
+            if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
+            throwit_return(false, state);
+            return;
         }
     }
 
-    if (Is_airlevel(u.uz) || Levitation(state)) {
-        /* action, reaction: hurtle() throws the hero the other way */
-        throw new UnsupportedThrowError('the recoil of a weightless throw');
+    if (mon) {
+        const caught = await throwit_mon_hit(mon, obj, state);
+        if (caught) {
+            throwit_return(true, state);
+            return;
+        }
     }
-
-    if (obj.otyp === BOULDER)
-        range = 20; /* you must be giant */
-
-    if (u.uinwater)
-        range = 1;
-
-    const pobj = { obj };
-    const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,
-        pobj, state);
-    obj = pobj.obj;
-    setThrownObject(state, obj); /* obj may be null now */
-
-    if (!obj) {
-        /* throwit_return(FALSE) leaves gt.thrownobj alone, and the line
-           above has already set it to the null bhit() answered with. */
+    if (!thrownObject(state)) {
+        if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
+        throwit_return(false, state);
+        return;
+    }
+    if (u.uswallow && !state.iflags.returning_missile) {
+        swallowThrownObject(obj, state);
         return;
     }
 
-    if (mon) {
-        /* C continues into the ordinary landing lifecycle after
-           throwit_mon_hit(): a surviving missile is still tested for breakage
-           and placed at bhitpos.  Only hmon()/a consuming hit clears the
-           transit object and returns before this tail. */
-        const caught = await throwit_mon_hit(mon, obj, state);
-        if (caught || !thrownObject(state)) return;
+    if (state.iflags.returning_missile) {
+        if (rn2(100)) {
+            if (tetheredWeapon)
+                await tmp_at(DISP_END, BACKTRACK, state);
+            else note_unported('dothrow.c sho_obj_return_to_u');
+            if (!impaired && rn2(100)) {
+                await ttyPline(
+                    `${Tobjnam(obj, 'return', state)} to your hand!`, state,
+                );
+                obj = await return_throw_to_inv(
+                    obj, wep_mask, twoweap, oldslot, state,
+                );
+                if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
+                    newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
+            } else {
+                const damageRoll = rn2(2);
+                if (!damageRoll) {
+                    await ttyPline(
+                        heroIsBlind(state)
+                            ? `Something, landing ${
+                                Levitation(state) ? 'beneath' : 'at'} your ${
+                                body_part(FOOT, state.youmonst)}.`
+                            : `${Tobjnam(obj, 'return', state)} back to you, `
+                                + `landing ${Levitation(state) ? 'beneath' : 'at'} `
+                                + `your ${body_part(FOOT, state.youmonst)}.`, state,
+                    );
+                } else {
+                    const damage = damageRoll + rnd(3);
+                    await ttyPline(
+                        heroIsBlind(state)
+                            ? `${Tobjnam(obj, 'hit', state)} your ${body_part(ARM, state.youmonst)}!`
+                            : `${Tobjnam(obj, 'fly', state)} back toward you, `
+                                + `hitting your ${body_part(ARM, state.youmonst)}!`, state,
+                    );
+                    if (obj.oartifact)
+                        note_unported('artifact.c artifact_hit');
+                    await losehp(
+                        heroHalfPhysicalDamage(damage, state),
+                        xnameFresh(obj, state), KILLED_BY, state,
+                    );
+                }
+                if (u.uswallow) {
+                    swallowThrownObject(obj, state);
+                    return;
+                }
+                if (!await ship_object(obj, u.ux, u.uy, false, { state }))
+                    await dropy(obj, { state });
+            }
+            throwit_return(true, state);
+            return;
+        }
+        if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
+        await ttyPline(`${Tobjnam(obj, 'fail', state)} to return!`, state);
+        if (u.uswallow) {
+            swallowThrownObject(obj, state);
+            return;
+        }
     }
 
     const bx = state.gb.bhitpos.x;
     const by = state.gb.bhitpos.y;
-    if ((!IS_SOFT(state.level.at(bx, by).typ)
-        && breaktest(obj, { state }))
+    const location = state.level.at(bx, by);
+    if ((!IS_SOFT(location.typ) && breaktest(obj, { state }))
         || obj.oclass === VENOM_CLASS) {
-        // C's breakmsg() is a discarded display helper; retain its source
-        // boundary while breakobj() owns object disposition and its result.
+        await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
+        await tmp_at(bx, by, state);
+        await nh_delay_output(state);
+        await tmp_at(DISP_END, 0, state);
         note_unported('dothrow.c breakmsg');
-        if (await breakobj(obj, bx, by, true, true, { state })) return;
-    }
-    if (!Deaf(state) && !u.uinwater) {
-        /* Some sound effects when item lands in water or lava */
-        if (is_pool(bx, by, state)
-            || (is_lava(bx, by, state) && !is_flammable(obj, state))) {
-            /* Soundeffect(se_splash, 50) expands to nothing. The minimal
-               hints nethack-c/build-recorder.sh selects define no SND_LIB_*
-               backend, so sndprocs.h:193-201 leaves SND_LIB_INTEGRATED unset
-               and the empty definition at :272 is the live one. */
-            /* weight() raises UnsupportedObjectOperationError for a food the
-               hero has bitten: js/obj.js requires an eatenStat hook to read
-               oeaten, and js/eat.js is its only provider, which this file
-               cannot import without closing the cycle
-               dothrow -> eat -> cmd -> dothrow. js/cmd.js
-               failClosedCommandRefusals() lists the class, so a partly eaten
-               food thrown into liquid ends the segment there rather than
-               escaping as an uncaught error. */
-            await ttyPline(
-                weight(obj, { state }) > WT_SPLASH_THRESHOLD
-                    ? 'Splash!' : 'Plop!',
-                state,
-            );
+        if (await breakobj(obj, bx, by, true, true, { state })) {
+            throwit_return(true, state);
+            return;
         }
     }
-    /* flooreffects() owns everything the liquid then does to the object:
-       trap.c lava_damage() for a lava square and trap.c water_damage() for a
-       pool. Their return values decide whether throwit() stops its landing
-       tail, while the floor owner keeps the object's lifetime coherent. */
-    if (await flooreffects(obj, bx, by, 'fall', {
-        state,
-        unsupported: (what) => {
-            throw new UnsupportedThrowError(what);
-        },
-    })) {
-        clearThrownObject(state);
+    if (!Deaf(state) && !u.uinwater
+        && (is_pool(bx, by, state)
+            || (is_lava(bx, by, state) && !is_flammable(obj, state)))) {
+        note_unported('sounds.c Soundeffect');
+        await ttyPline(
+            weight(obj, { state }) > WT_SPLASH_THRESHOLD ? 'Splash!' : 'Plop!',
+            state,
+        );
+    }
+    if (await flooreffects(obj, bx, by, 'fall', { state })) {
+        throwit_return(true, state);
         return;
     }
     obj_no_longer_held(obj);
     if (mon?.isshk && is_pick(obj, state)) {
-        // dothrow.c:1809-1816.  A shopkeeper catches a pick after the
-        // landing effects and owns it through mpickobj(), which also clears
-        // gt.thrownobj.  check_shop_obj() only bills the object; its result
-        // is discarded and that source helper is not ported yet.
         if (cansee(bx, by, state)) {
             await ttyPline(
-                `${Monnam(mon, state)} snatches up ${the(xnameFresh(obj, state), state)}.`,
-                state,
+                `${Monnam(mon, state)} snatches up ${the(
+                    xnameFresh(obj, state), state,
+                )}.`, state,
             );
         }
         if (state.u.ushops?.[0] || obj.unpaid)
@@ -1706,39 +2006,27 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             state,
             canSeeMonster: (target) => canseemon(target, state),
         });
+        throwit_return(true, state);
         return;
     }
-    /* snuff_candle(): bhit() stops for a lit object before it can get here */
+    note_unported('apply.c snuff_candle');
     if (!mon && await ship_object(obj, bx, by, false, { state })) {
-        clearThrownObject(state);
+        throwit_return(true, state);
         return;
     }
     clearThrownObject(state);
     place_object(obj, bx, by, { state });
-    /* container contents might break */
-    if (!IS_SOFT(state.level.at(bx, by).typ)) {
-        if (obj.cobj) {
-            throw new UnsupportedThrowError('container_impact_dmg()');
-        }
+    if (!IS_SOFT(location.typ)) {
+        note_unported('dokick.c container_impact_dmg');
         impact_disturbs_zombies(obj, true, state);
     }
-    /* charge for items thrown out of shop; shk takes possession for items
-       thrown into one. C's `obj != uball` third conjunct is settled above,
-       where the attached iron ball stops. `*u.ushops` is the first entry of
-       the room list naming the shops the hero stands in, as js/do.js
-       dropx() reads it. */
-    if (state.u.ushops?.[0] || obj.unpaid) {
-        throw new UnsupportedThrowError('check_shop_obj()');
-    }
-
-    /* stackobj() merges the landing missile into a compatible floor pile,
-       which extracts the object it merged with; invent.c obj_extract_self()
-       takes that operation from its caller, as js/do.js dropx() does. */
+    if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)
+        note_unported('dothrow.c check_shop_obj');
     stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
-    if (cansee(bx, by, state))
-        newsym(bx, by);
-    if (obj_sheds_light(obj, state))
-        state.vision_full_recalc = 1;
+    if (obj === state.uball) note_unported('ball.c drop_ball');
+    if (cansee(bx, by, state)) newsym(bx, by);
+    if (obj_sheds_light(obj, state)) state.vision_full_recalc = 1;
+    throwit_return(false, state);
 }
 
 // C ref: dothrow.c thitmonst() (2011-2304). This is the shared hit gate for
