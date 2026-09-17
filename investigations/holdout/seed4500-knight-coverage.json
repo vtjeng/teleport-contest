@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 241,
   "status": "complete",
-  "commit": "26515ac339a181f9be07d4bfa68224f786902c37",
+  "commit": "f427df2bbf75c56fb87061ded509e3209f84040a",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1573,
@@ -18,19 +18,19 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 241
   },
-  "summary": "The first mismatch is the #conduct window at step 1573: C appends an Achievements header and seven entries, but JavaScript ends after voluntary challenges because show_achievements is unported. Port the whole insight.c show_achievements function and its conduct/disclosure callers. A separate later stop at 1576 is mon.c minliquid_core stranded-eel behavior; its complete liquid-effects family is also missing. Liquid dependencies also require replacing split-call placeholders, correcting clone naming and copied fields, forwarding planning RNG through liquid messages, and completing relocation for fountain and monster-swap callers. Preserve the independent stoning, passive, eating and polymorph cleanup coverage gaps.",
+  "summary": "The #conduct window still differs at step 1573 because the Gnomish Mines achievement was never recorded on arrival. Achievement display is now implemented and independently recorded. C do.c goto_level records ACH_MINE on an In_mines/newdungeon arrival; the JavaScript destination chain omits this arm, as well as Sokoban and Knox handling, and retains partial endgame behavior. Complete the whole goto_level source function. The later minliquid stranded-eel stop, split/clone and liquid caller gaps, and earlier stoning/passive/eating/polymorph coverage remain open.",
   "source": {
-    "file": "insight.c",
+    "file": "do.c",
     "functions": [
-      "show_achievements"
+      "goto_level"
     ],
-    "branch": "C insight.c show_achievements 2243–2402 returns for ordinary non-wizard play or an empty achievement list, otherwise appends to the active conduct window or creates a separate menu. It preserves recorded achievement order except ascension/Amulet reordering, formats possession-sensitive tense and gender-sensitive rank names, and displays/destroys only a separately created window. The wizard #conduct entry reaches the active-window path.",
+    "branch": "C goto_level1479 onward records ACH_MINE in the mutually exclusive destination branch when In_mines(&u.uz) and newdungeon are true (1905–1907), after arrival redraw and Gehennom/familiar handling. The JavaScript chain omits the Mines arm, so the persistent achievement list lacks the entry later shown by conduct. Complete the source unit, including the other omitted destination arms and active callers.",
     "callers": [
-      "C insight.c doconduct 2081–2085 calls show_conduct; show_conduct calls show_achievements before displaying the menu at 2230. js/cmd.js dispatches doconduct to js/insight.js show_conduct, whose achievement branch currently only records note_unported.",
-      "C end-of-game disclose/dump paths also use show_conduct; preserve final tense and active versus separately owned window behavior when wiring the whole function."
+      "C level-changing commands reach do.c goto_level; its arrival chain calls record_achievement(ACH_MINE) at1907. JavaScript js/do.js goto_level is the canonical arrival owner but currently falls from the Quest arm to ordinary-dungeon handling.",
+      "C insight.c show_conduct2230 calls show_achievements; the completed js/insight.js helper now displays the achievement list it receives. The fixed wizard conduct command exposes the earlier arrival-state omission."
     ],
     "dependencies": [
-      "Reuse insight.c count_achievements, remove_achievement and record_achievement, plus botl.c rank_of/rank_to_xlev and the existing enlightenment text helpers. Check their source definitions and current owners; ascension reordering changes the achievement list rather than merely sorting display text.",
+      "Achievement display and canonical list helpers now exist. Rank achievements are already produced in js/exper.js, Gehennom in js/do.js, and Minetown in js/rooms.js check_special_room. The missing Mines entry is a producer gap; preserve insertion order and the newdungeon predicate rather than synthesizing a display row.",
       "The later mon.c minliquid/minliquid_core 945–1122 scope includes gremlin splitting, iron-golem rust, lava/water death and recovery, steed/Plane-of-Water gates, and stranded-eel distress. Eel HP greater than one gates rn2(mhp) then rn2(8); monflee(mtmp,2,FALSE,FALSE) still runs when HP does not decrease.",
       "Liquid dependencies include return-valued potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon; preserve split current/max HP, RNG and planning output. Inventory chain calls whose discarded owners remain unported must stay named gaps.",
       "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
@@ -41,12 +41,10 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/A31-development-scan.json identifies screen and cursor divergence at 1573, key newline, row 11 column 34: C blank versus JS hyphen; C cursor [42,20,1], JS [42,11,1]. It later stops at 1576 with simple monster action requires an eel out of water. The current queue upper bound is 241, distinct from the 239 actually unmatched Knight screens.",
-    "Decoding sessions/holdout/seed4500-knight-coverage.session.json segment0 step1573 shows Voluntary challenges followed by Achievements: four rank entries (Esquire, Bachelor, Sergeant, Knight), Gehennom, Gnomish Mines and Minetown. The source show_achievements emits these from u.uachieved; JS show_conduct at 2734–2741 only notes the missing helper before displaying its shorter menu.",
-    "C insight.c show_achievements 2243–2402 defines the complete list/window behavior, with show_conduct 2230 as the production caller. The scan reports insight.c show_achievements in its reached unported set. This establishes the missing source owner without inferring a generic menu-layout defect.",
-    "C mon.c minliquid_core 961–1122 and the explicit guards in js/unported_monster_actions.js identify the separate later eel stop. Keep this source scope independent of achievement display.",
-    "At 26515ac339a181f9be07d4bfa68224f786902c37, checkpoint run-PzEsMU passes all 357 recordings and matches 1575 Knight screens, 101391 RNG calls and 1575 cursors. The per-session comparison against accepted 58e22132 gains 15 screens, 135 RNG calls and 15 cursors only in Knight, with no losses elsewhere.",
-    "The previous mhitm_ad_ston-first-stop explanation is superseded. Three cockatrice recordings cover monster-to-hero stoning and resistance; the separate golem command recording establishes fixed HP only, not an attack-triggered conversion. All named stoning and earlier cleanup coverage gaps remain open.",
+    ".cache/B29-development-scan.json and .cache/B29-queue.json identify the current first conduct-screen mismatch at1573. The accepted checkpoint at f427df2bbf75c56fb87061ded509e3209f84040a, run-doqI7u, has no per-session losses or gains versus26515ac3:11157/11405 screens,42/44 sessions,785954 RNG calls and11165 cursors. The first cell is row18,column52: C t versus JS M as the Mines row is replaced by Minetown; cursors are [42,20,1] versus [42,19,1]. The later eel refusal remains1576.",
+    "The C conduct screen at sessions/holdout/seed4500-knight-coverage.session.json step1573 lists seven achievements: four ranks, Gehennom, Gnomish Mines and Minetown. C do.c1905–1907 records the Mines entry on first entry from another dungeon. js/do.js goto_level omits that destination arm. Its existing record_achievement calls cover Gehennom and endgame, but cannot create ACH_MINE.",
+    "C exper.c360 and js/exper.js record the four rank achievements; do.c1872 and js/do.js record Gehennom; hack.c3650 and js/rooms.js check_special_room record Minetown. These source-backed producers narrow the missing row to goto_level rather than achievement formatting.",
+    "Independent Bell and Candelabrum wish/conduct recordings now match73 screens and6037 RNG calls. The359-recording corpus matches14190 screens and1823439 RNG calls. Final disclosure, ascension, relinquished-object and female-rank production entries remain open; initialized tests do not replace them.",
     "C split_mon call sites include mhitu.c2574 and trap.c1653/1720. Current js/mhitu.js passiveum and js/trap_effects.js still record the helper as unported; these are implemented callers, distinct from containing paths that remain unported. C makemon.c clone_mon837–962, monst.h196/210 and mextra.h151–185 establish the clone field-copy requirements. js/shknam.js86–121 already supplies the shopkeeper naming owner that clone_mon incorrectly describes as absent.",
     "Counter-evidence for liquid teleport tracing: js/mon.js liquidTeleportRestricted already implements both the level restriction and its visible message. Do not reopen a missing-message diagnosis. It duplicates teleport.c tele_restrict, while its naming call omits the operation environment forwarded by the canonical JavaScript owner; verify that forwarding when wiring the complete liquid path.",
     "Current js/mon.js minliquid_core calls capitalizedMonsterName and monsterCommonName without their environment and hliquid with only state. do_name.js accepts the operation environment for hallucination naming. js/fountain.js gush passes state/random to minliquid, and js/hack.js monster-swap builds trapEnv without relocateMonster; either liquid recovery or teleport escape can therefore reach a missing operation. C mon.c1001 separately calls mondied unconditionally for iron-golem rust, unlike the context-dependent ordinary pool/lava kill paths. Preserve that distinction in the whole source port."
