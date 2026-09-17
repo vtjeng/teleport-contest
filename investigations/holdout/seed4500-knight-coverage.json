@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 278
   },
-  "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure source predicate in C order and retain the existing doeat, floorfood and item-action callers. The downstream skinback artifact-light restoration remains separately unported.",
+  "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure predicate and the source-required eating continuations it admits. The shared monster damage helper is implemented for both hit-point pools; skinback artifact-light restoration remains separately unported.",
   "source": {
     "file": "eat.c",
     "functions": [
@@ -31,7 +31,7 @@
     ],
     "dependencies": [
       "Use existing source-owned object material predicates, Has_contents, metallivorous, vegan and the canonical monster table. No missing return-valued callee or fabricated RNG/state transition is required.",
-      "Compatible non-food eating can later reach the separate doeat_nonfood owner; removing the pure predicate refusal does not establish that downstream behavior.",
+      "C doeat returns doeat_nonfood for an admitted non-food object. Completing the polymorph predicate therefore also requires the return-valued non-food eating owner and the preceding rust-monster/ring branches; a new refusal cannot replace that source continuation.",
       "Unresolved prior source finding: polyself.c skinback1953–1969 still needs artifact-light radius capture and maybe_adjust_light when merged dragon scales are restored. This is separate from the resolved break_armor mismatch."
     ]
   },
@@ -40,7 +40,8 @@
     "The passing checkpoint c04193106e88a205f3c6341bddcfb193bbe8284f advances the Knight session from 1439 to 1536 matching screens. The saved A27 scan and queue identify is_edible as the next source stop, with no earlier RNG or screen divergence.",
     "Read complete nethack-c/upstream/src/eat.c is_edible91–121 and the accepted js/eat.js helper: its polymorphed-hero refusal precedes the form-specific C acceptance rules. Implement the whole pure predicate, not a session-specific food allowance.",
     "The completed armor fix is independently exercised by the Knight brown-mold and equipped Valkyrie giant-ant recordings under recordings/polyself.c/break-armor-*-a27.session.json. C messages verify forced suit, glove, shield, helmet and boot removal; the older raven recording specifically verifies sliparm cloak removal.",
-    "The source goal for break_armor still retains unrecorded breakarm destruction, horned-helmet, headless-eyewear and fatal-lava entry families. The existing Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps."
+    "The independent recordings/mhitu.c/mdamageu-marilith-*-a29.session.json also execute plain suit destruction during marilith polymorph and subsequent nonlethal monster damage. They match C in full with both seed/gender choices. Artifact cloak exceptions, horned-helmet, headless-eyewear and fatal-lava entry coverage remains open; the Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps.",
+    "At d78e57fbe8e4acfee9c35930b6e3c253ff2a110b, mhitu.c mdamageu1902–1927 preserves ordinary and polymorphed damage, display-before-cap ordering and live recovery callbacks. Independent marilith/newt recordings reach the live polymorphed melee branch because that species has six active attack slots, so passiveum returns without its unported tail. This does not change the earlier is_edible mismatch; spell, gaze, falling-monster, passive-reaction and lethal recovery entries remain unrecorded."
   ],
-  "nextProbe": "Port the complete pure is_edible predicate with source-pinned tests for each form and unique-object precedence; replay the existing production callers, then investigate the next mismatch without treating helper completion as full non-food eating support."
+  "nextProbe": "Complete is_edible in source order with pure tests and the non-food eating continuation its caller returns; then replay the production route and trace the next first mismatch. Preserve the separate passiveum, rare armor and skinback gaps."
 }
