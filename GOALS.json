@@ -58770,7 +58770,7 @@
     {
       "id": "div-getpos-showvalid-seed4500-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Keep the valid-target key in getpos when no highlighting callback is installed.",
       "cFile": "getpos.c",
       "sessions": [],
@@ -58779,8 +58779,8 @@
       "spans": [
         {
           "name": "showvalid-continuation",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
           "functions": [
             "getpos"
           ]
@@ -58792,8 +58792,11 @@
         "screens": 10944,
         "rng": 771130
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
+      "delivered": {
+        "screens": 3,
+        "rng": 0
+      },
       "function": "getpos",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1347,
@@ -58868,7 +58871,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
+        "screens": 10947,
+        "rng": 771130
+      }
     }
   ]
 }
